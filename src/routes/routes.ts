@@ -4,6 +4,7 @@ import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
 import { MyAccountPage } from '../pages/MyAccountPage'
 import { PublicLandingPage } from '../pages/PublicLandingPage'
+import { SearchMapPage } from '../pages/search/SearchMapPage'
 
 export type AppRoute = {
   path: string
@@ -36,5 +37,10 @@ export const routes: AppRoute[] = [
     path: '/home',
     title: 'Home',
     Component: HomePage,
+  },
+  {
+    path: "/search",
+    title: "Search",
+    Component: SearchMapPage,
   },
 ]

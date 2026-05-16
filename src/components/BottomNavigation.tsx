@@ -21,10 +21,10 @@ const navigationItems: BottomNavigationItem[] = [
     to: "/search",
   },
   {
-    key: "new-listing",
+    key: "new-ad",
     label: "ثبت آگهی",
     icon: "/figma/account/nav-add.svg",
-    to: "/new-listing",
+    to: "/new-ad",
   },
   {
     key: "chat",
@@ -47,24 +47,25 @@ export function BottomNavigation({
 }) {
   return (
     <nav
-      className="sticky bottom-0 z-10 h-[84px] shrink-0 bg-white shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
+      className="sticky bottom-0 z-10 shrink-0 bg-white shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
       aria-label="ناوبری اصلی"
     >
-      <div className="grid h-full w-full grid-cols-5 px-4 [direction:rtl]">
+      <div className="grid w-full grid-cols-5 px-1 [direction:rtl] sm:px-2">
         {navigationItems.map((item) => {
           const isActive = item.key === activeKey;
 
           return (
             <RouteLink
-              className={`flex min-w-0 flex-col items-center justify-center gap-2 whitespace-nowrap text-center text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
-                isActive ? "text-[#0048c4]" : "text-[#999999]"
-              }`}
               key={item.key}
               to={item.to}
               aria-current={isActive ? "page" : undefined}
+              className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center font-medium transition-colors focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]
+                gap-1 py-1.5 text-[10px] leading-3
+                min-[390px]:gap-2 min-[390px]:py-2.5 min-[390px]:text-xs min-[390px]:leading-4
+                ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
             >
               <span
-                className="h-7 w-7 shrink-0 bg-current"
+                className="shrink-0 bg-current h-6 w-6"
                 style={{
                   WebkitMask: `url(${item.icon}) center / contain no-repeat`,
                   mask: `url(${item.icon}) center / contain no-repeat`,
@@ -72,7 +73,9 @@ export function BottomNavigation({
                 aria-hidden="true"
               />
 
-              <span>{item.label}</span>
+              <span className="max-w-full overflow-hidden text-ellipsis">
+                {item.label}
+              </span>
             </RouteLink>
           );
         })}

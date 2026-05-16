@@ -23,7 +23,7 @@ export function AdCard({ ad }: { ad: AdCardData }) {
     <article className="flex flex-col overflow-hidden border-b-8 border-[#f0f0f0] bg-white p-4">
       <div className="shrink-0">
         <div className={`ad-card__image relative min-h-[219px] overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover ${ad.imageClassName}`}>
-          <div className="absolute right-2 top-2 z-[2] inline-flex h-7 min-w-[52px] items-center justify-center gap-[7px] rounded-lg bg-[#1a1a1a85] px-2 py-1 font-[DanaFaNum,Tahoma,sans-serif] text-sm font-semibold leading-5 text-white" aria-hidden="true">
+          <div className="absolute right-2 top-2 z-2 inline-flex h-7 min-w-[52px] items-center justify-center gap-[7px] rounded-lg bg-[#1a1a1a85] px-2 py-1 font-[DanaFaNum,Tahoma,sans-serif] text-sm font-semibold leading-5 text-white" aria-hidden="true">
             <span>{ad.statusCount}</span>
             <span className="ad-card__action-icon" />
           </div>

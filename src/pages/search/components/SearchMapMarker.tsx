@@ -1,20 +1,37 @@
 import { DivIcon } from "leaflet";
 import { Marker } from "react-leaflet";
 
-import type { SearchMapListing } from "../searchMapData";
+import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
 
-type SearchMapMarkerProps = {
+type SearchMapListingMarkerProps = {
   listing: SearchMapListing;
   isSelected: boolean;
   onSelect: (listing: SearchMapListing) => void;
 };
 
-export function SearchMapMarker({
-  listing,
-  isSelected,
-  onSelect,
-}: SearchMapMarkerProps) {
-  const markerIcon = createSearchMarkerIcon(listing.priceValue, isSelected);
+type SearchMapDotMarkerProps = {
+  marker: SearchMapDotMarker;
+  listing?: never;
+  isSelected?: never;
+  onSelect?: never;
+};
+
+type SearchMapMarkerProps = SearchMapListingMarkerProps | SearchMapDotMarkerProps;
+
+export function SearchMapMarker(props: SearchMapMarkerProps) {
+  if ("marker" in props) {
+    const markerIcon = createSearchStaticDotIcon();
+
+    return (
+      <Marker
+        position={[props.marker.latitude, props.marker.longitude]}
+        icon={markerIcon}
+      />
+    );
+  }
+
+  const { listing, isSelected, onSelect } = props;
+  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected);
 
   return (
     <Marker
@@ -27,15 +44,27 @@ export function SearchMapMarker({
   );
 }
 
-function createSearchMarkerIcon(priceValue: string, isSelected: boolean) {
+function createSearchListingIcon(priceValue: string, isSelected: boolean) {
   return new DivIcon({
     className: "search-map-marker-wrapper",
     html: `
-      <div class="search-map-marker ${isSelected ? "search-map-marker--selected" : ""}">
-        ${priceValue}
+      <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}">
+        <span class="search-map-dot search-map-listing-marker__dot"></span>
+        <span class="search-map-marker">
+          ${priceValue}
+        </span>
       </div>
     `,
     iconSize: [96, 42],
-    iconAnchor: [48, 42],
+    iconAnchor: [48, 24],
+  });
+}
+
+function createSearchStaticDotIcon() {
+  return new DivIcon({
+    className: "search-map-marker-wrapper",
+    html: '<div class="search-map-dot"></div>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
   });
 }

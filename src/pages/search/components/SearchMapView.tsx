@@ -1,10 +1,16 @@
 import { MapContainer, TileLayer } from "react-leaflet";
 import { SearchMapMarker } from "./SearchMapMarker";
-import type { SearchMapCenter, SearchMapListing, SearchMapTileConfig } from "../searchMapData";
+import type {
+  SearchMapCenter,
+  SearchMapDotMarker,
+  SearchMapListing,
+  SearchMapTileConfig,
+} from "../searchMapData";
 
 type SearchMapViewProps = {
   center: SearchMapCenter;
   listings: SearchMapListing[];
+  dotMarkers?: SearchMapDotMarker[];
   selectedListingId: number | null;
   tileConfig: SearchMapTileConfig;
   onSelectListing: (listing: SearchMapListing) => void;
@@ -13,13 +19,14 @@ type SearchMapViewProps = {
 export function SearchMapView({
   center,
   listings,
+  dotMarkers = [],
   selectedListingId,
   tileConfig,
   onSelectListing,
 }: SearchMapViewProps) {
   return (
     <MapContainer
-      className="h-full w-full bg-[#f5f5f5]"
+      className="min-h-0 flex-1 bg-[#f5f5f5]"
       center={[center.latitude, center.longitude]}
       zoom={center.zoom}
       minZoom={tileConfig.minZoom}
@@ -33,6 +40,10 @@ export function SearchMapView({
         attribution={tileConfig.attribution}
         tms={tileConfig.isTms}
       />
+
+      {dotMarkers.map((marker) => (
+        <SearchMapMarker key={marker.id} marker={marker} />
+      ))}
 
       {listings.map((listing) => (
         <SearchMapMarker

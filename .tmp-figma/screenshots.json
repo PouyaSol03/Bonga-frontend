@@ -1,0 +1,23 @@
+﻿[
+    {
+        "nodeId":  "2432:10389",
+        "nodeName":  "Search Map",
+        "width":  360,
+        "height":  800,
+        "path":  "C:\\Projects\\Bonga-frontend\\.tmp-figma\\2432-10389.png"
+    },
+    {
+        "nodeId":  "2432:10093",
+        "nodeName":  "Search Map",
+        "width":  360,
+        "height":  800,
+        "path":  "C:\\Projects\\Bonga-frontend\\.tmp-figma\\2432-10093.png"
+    },
+    {
+        "nodeId":  "2432:9487",
+        "nodeName":  "Search List",
+        "width":  360,
+        "height":  800,
+        "path":  "C:\\Projects\\Bonga-frontend\\.tmp-figma\\2432-9487.png"
+    }
+]

@@ -5,23 +5,23 @@ import ArrowRight from "../../../assets/icons/ArrowRight";
 import { SearchMapFilterChips } from "./SearchMapFilterChips";
 
 type SearchMapHeaderProps = {
-  queryLabel: string;
+  queryLabel?: string;
   savedCount?: number;
   chips: SearchFilterChip[];
   onChipClick?: (chip: SearchFilterChip) => void;
 };
 
 export function SearchMapHeader({
-  queryLabel,
+  queryLabel = "جستجو در آگهی‌ها",
   savedCount = 0,
   chips,
   onChipClick,
 }: SearchMapHeaderProps) {
   return (
-    <header className="absolute inset-x-0 top-0 z-[500] bg-white px-3 pb-2 pt-[max(12px,env(safe-area-inset-top))] shadow-[0_4px_18px_rgba(26,26,26,0.08)] min-[390px]:px-4 min-[390px]:pb-3 min-[390px]:pt-4">
-      <div className="flex min-w-0 items-center [direction:rtl]">
+    <header className="absolute inset-x-0 top-0 z-500 bg-[#f0f0f0]">
+      <div className="relative flex h-14 min-w-0 items-center pl-4 pr-16" dir="rtl">
         <RouteLink
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-[#4d4d4d] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:h-12 min-[390px]:w-12"
+          className="absolute right-0 top-1 flex h-12 w-12 shrink-0 items-center justify-center text-[#4d4d4d] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
           to="/home"
           aria-label="بازگشت"
         >
@@ -29,12 +29,12 @@ export function SearchMapHeader({
         </RouteLink>
 
         <button
-          className="relative flex h-10 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white px-2.5 text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:h-12 min-[390px]:px-3 min-[390px]:text-base min-[390px]:leading-6"
+          className="relative flex h-12 min-w-0 flex-1 items-center rounded-2xl border border-[#808080] bg-white px-3 text-right text-base font-normal leading-6 text-[#a6a6a6] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
           type="button"
           aria-label="جستجو در آگهی‌ها"
         >
           <span
-            className="h-5 w-4 shrink-0 bg-[#808080] min-[390px]:h-6 min-[390px]:w-5"
+            className="h-5 w-4 shrink-0 bg-[#808080]"
             style={{
               WebkitMask:
                 "url(/figma/account/bookmark.svg) center / contain no-repeat",
@@ -44,11 +44,13 @@ export function SearchMapHeader({
           />
 
           <span
-            className="mx-2 h-5 w-px shrink-0 bg-[#cccccc] min-[390px]:mx-3 min-[390px]:h-6"
+            className="mx-3 h-6 w-px shrink-0 bg-[#cccccc]"
             aria-hidden="true"
           />
 
-          <span className="min-w-0 flex-1 truncate">{queryLabel}</span>
+          <span className="min-w-0 flex-1 truncate text-center">
+            {queryLabel}
+          </span>
 
           {savedCount > 0 ? (
             <span className="sr-only">{savedCount} آگهی ذخیره شده</span>

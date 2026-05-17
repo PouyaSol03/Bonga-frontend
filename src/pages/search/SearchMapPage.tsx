@@ -3,6 +3,7 @@ import { PageFrame } from "../../app/PageFrame";
 import {
   searchFilterChips,
   searchMapCenter,
+  searchMapDotMarkers,
   searchMapListings,
   searchMapTileConfig,
   type SearchMapListing,
@@ -12,38 +13,50 @@ import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapView } from "./components/SearchMapView";
 import { BottomNavigation } from "../../components/BottomNavigation";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
+import { SearchMapListView } from "./components/SearchMapListView";
+
+type SearchMapMode = "map" | "preview" | "list";
 
 export function SearchMapPage() {
-  const [selectedListingId, setSelectedListingId] = useState<number | null>(
-    searchMapListings[0]?.id ?? null,
-  );
-  const [isListPreviewOpen, setIsListPreviewOpen] = useState(false);
+  const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
+  const [mode, setMode] = useState<SearchMapMode>("map");
 
   const handleSelectListing = (listing: SearchMapListing) => {
     setSelectedListingId(listing.id);
+    setMode("preview");
   };
+
+  const isListPreviewOpen = mode === "preview";
+  const isFullListOpen = mode === "list";
 
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]"
       variant="flush"
     >
-      <SearchMapView
-        center={searchMapCenter}
-        listings={searchMapListings}
-        selectedListingId={selectedListingId}
-        tileConfig={searchMapTileConfig}
-        onSelectListing={handleSelectListing}
-      />
+      {isFullListOpen ? (
+        <SearchMapListView
+          listings={searchMapListings}
+          onMapClick={() => setMode("map")}
+        />
+      ) : (
+        <SearchMapView
+          center={searchMapCenter}
+          dotMarkers={searchMapDotMarkers}
+          listings={searchMapListings}
+          selectedListingId={selectedListingId}
+          tileConfig={searchMapTileConfig}
+          onSelectListing={handleSelectListing}
+        />
+      )}
 
       <SearchMapHeader
-        queryLabel="فروش آپارتمان"
         savedCount={2}
         chips={searchFilterChips}
       />
 
       <SearchMapFloatingActions
-        isHidden={isListPreviewOpen}
+        isHidden={mode !== "map"}
         onLocateClick={() => {
           // Later: get client location.
         }}
@@ -51,7 +64,8 @@ export function SearchMapPage() {
           // Later: draw/select area on map.
         }}
         onListClick={() => {
-          setIsListPreviewOpen(true);
+          setSelectedListingId((currentId) => currentId ?? searchMapListings[0]?.id ?? null);
+          setMode("preview");
         }}
       />
 
@@ -59,7 +73,10 @@ export function SearchMapPage() {
         isOpen={isListPreviewOpen}
         listings={searchMapListings}
         selectedListingId={selectedListingId}
-        onSelectListing={handleSelectListing}
+        onSelectListing={(listing) => {
+          setSelectedListingId(listing.id);
+          setMode("preview");
+        }}
       />
       <BottomNavigation activeKey="search" />
     </PageFrame>

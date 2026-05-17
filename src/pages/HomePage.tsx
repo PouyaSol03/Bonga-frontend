@@ -32,24 +32,24 @@ export function HomePage() {
     >
       <header className="shrink-0 bg-white">
         <section
-          className="flex min-h-16 w-full min-w-0 justify-between items-center  gap-2 bg-white px-4 py-2 [direction:ltr]"
+          className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-white px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
           aria-label="سربرگ"
         >
-          <div className="flex justify-center items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <NotificationIcon />
 
             <button
-              className="flex justify-center items-center gap-1 border px-2 py-2.5 rounded-[10px] border-[#0048C4] text-[#0048C4]"
+              className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2 text-sm font-medium leading-5 text-[#0048C4] min-[390px]:py-2.5 min-[390px]:text-base min-[390px]:leading-6"
               type="button"
               onClick={() => setIsCityOpen(true)}
             >
-              <ArrowDown size={24} />
+              <ArrowDown size={20} />
               <span>{selectedCity}</span>
             </button>
           </div>
 
           <div
-            className="flex justify-start items-end gap-3 pr-1"
+            className="flex items-end justify-start gap-2 pr-1 min-[390px]:gap-3"
             aria-label="ایران شناسا"
           >
             <IranShenasaTypo />
@@ -60,7 +60,7 @@ export function HomePage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <section
-          className="flex w-full flex-col gap-7 bg-white px-4 pb-6 pt-2"
+          className="flex w-full flex-col gap-5 bg-white px-4 pb-5 pt-2 min-[390px]:gap-7 min-[390px]:pb-6"
           aria-label="جستجوی ملک"
         >
           <label
@@ -72,7 +72,7 @@ export function HomePage() {
             }}
           >
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#808080]"
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] min-[390px]:text-base min-[390px]:leading-6"
               type="search"
               placeholder="جستجو در آگهی‌ها"
               onFocus={() => setIsSearchOpen(true)}
@@ -83,12 +83,12 @@ export function HomePage() {
           </label>
 
           <div
-            className="home-quick-actions grid grid-cols-4 gap-4 [direction:rtl]"
+            className="home-quick-actions grid grid-cols-4 gap-3 [direction:rtl] min-[390px]:gap-4"
             aria-label="دسته‌بندی‌ها"
           >
             {quickActions.map((item) => (
               <button
-                className="flex min-h-[70px] min-w-0 cursor-pointer flex-col items-center justify-start gap-[7px] bg-white p-0 text-xs font-medium leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-[11px] font-medium leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px] min-[390px]:text-xs"
                 key={item.label}
                 type="button"
                 onClick={() => setSelectedCategory(item)}
@@ -96,7 +96,7 @@ export function HomePage() {
                 <img
                   src={item.icon}
                   alt=""
-                  className="h-10 w-10 shrink-0"
+                  className="h-8 w-8 shrink-0 min-[390px]:h-10 min-[390px]:w-10"
                   aria-hidden="true"
                 />
 
@@ -120,7 +120,7 @@ export function HomePage() {
         >
           <div className="flex items-center justify-start px-4">
             <h2
-              className="m-0 text-right text-base font-bold leading-6 text-[#1a1a1a]"
+              className="m-0 text-right text-sm font-bold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
               id="latest-mashhad-title"
             >
               آخرین آگهی‌های مشهد

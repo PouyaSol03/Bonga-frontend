@@ -54,9 +54,9 @@ export function CitySelectionScreen({
       }`}
       aria-hidden={!isOpen}
     >
-      <header className="flex h-14 shrink-0 items-center bg-[#f0f0f0] px-4">
+      <header className="flex h-12 shrink-0 items-center bg-[#f0f0f0] px-4 min-[390px]:h-14">
         <button
-          className="grid h-12 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+          className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-12"
           type="button"
           aria-label="بازگشت"
           tabIndex={isOpen ? 0 : -1}
@@ -68,20 +68,20 @@ export function CitySelectionScreen({
         {isSearching ? (
           <input
             ref={searchInputRef}
-            className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent px-4 text-right text-base font-semibold leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none"
+            className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent px-4 text-right text-sm font-semibold leading-5 text-[#1a1a1a] caret-[#0048c4] outline-none min-[390px]:text-base min-[390px]:leading-6"
             type="search"
             value={query}
             tabIndex={isOpen ? 0 : -1}
             onChange={(event) => setQuery(event.target.value)}
           />
         ) : (
-          <h2 className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+          <h2 className="m-0 min-w-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
             انتخاب شهر
           </h2>
         )}
 
         <button
-          className="grid h-12 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+          className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-12"
           type="button"
           aria-label="جستجوی شهر"
           tabIndex={isOpen ? 0 : -1}
@@ -109,7 +109,7 @@ export function CitySelectionScreen({
             <CityEmptyState />
           )
         ) : (
-          <div className="flex flex-col gap-3 px-4 pt-4">
+          <div className="flex flex-col gap-1 px-3 pt-2 min-[390px]:gap-1.5 min-[390px]:pt-3">
             {cityOptions.map((city) => (
               <CityOptionRow
                 city={city}
@@ -122,7 +122,7 @@ export function CitySelectionScreen({
         )}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-12px_24px_rgba(26,26,26,0.06)]">
+      <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-12px_24px_rgba(26,26,26,0.06)] min-[390px]:py-3.5">
         <button
           className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           type="button"
@@ -147,14 +147,14 @@ function CityOptionRow({
 }) {
   return (
     <button
-      className={`flex min-h-[58px] w-full cursor-pointer items-center justify-between rounded-3xl px-10 text-right transition-colors [direction:ltr] ${
+      className={`flex min-h-11 w-full cursor-pointer items-center justify-between rounded-2xl px-4 text-right transition-colors [direction:ltr] min-[390px]:min-h-12 min-[390px]:px-5 ${
         isSelected ? 'bg-[#e8eef9]' : 'bg-white'
       }`}
       type="button"
       onClick={onSelect}
     >
       <span className={`home-city-radio ${isSelected ? 'home-city-radio--selected' : ''}`} aria-hidden="true" />
-      <span className="text-xl font-normal leading-7 text-[#1a1a1a] [direction:rtl]">{city.name}</span>
+      <span className="text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">{city.name}</span>
     </button>
   )
 }
@@ -162,12 +162,12 @@ function CityOptionRow({
 function CitySearchResultRow({ city, onSelect }: { city: CityOption; onSelect: () => void }) {
   return (
     <button
-      className="flex h-14 w-full cursor-pointer items-center justify-between border-b border-[#cccccc] bg-white px-4 text-right [direction:ltr]"
+      className="flex h-11 w-full cursor-pointer items-center justify-between border-b border-[#cccccc] bg-white px-4 text-right [direction:ltr] min-[390px]:h-12"
       type="button"
       onClick={onSelect}
     >
-      <span className="shrink-0 text-xs font-normal leading-4 text-[#1a1a1a]">{city.count}</span>
-      <span className="min-w-0 text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">{city.name}</span>
+      <span className="shrink-0 text-xs font-normal leading-4 text-[#1a1a1a] [direction:ltr]">{city.count}</span>
+      <span className="min-w-0 text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">{city.name}</span>
     </button>
   )
 }
@@ -175,8 +175,8 @@ function CitySearchResultRow({ city, onSelect }: { city: CityOption; onSelect: (
 function CityEmptyState() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-8 pb-16 pt-8 text-center">
-      <span className="home-city-empty-illustration mb-8" aria-hidden="true" />
-      <h3 className="m-0 text-xl font-semibold leading-7 text-[#1a1a1a]">هیچ نتیجه‌ای یافت نشد!</h3>
+      <span className="home-city-empty-illustration mb-6 min-[390px]:mb-8" aria-hidden="true" />
+      <h3 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">هیچ نتیجه‌ای یافت نشد!</h3>
       <p className="m-0 mt-4 text-sm font-normal leading-5 text-[#4d4d4d]">مجدد امتحان کنید</p>
     </div>
   )

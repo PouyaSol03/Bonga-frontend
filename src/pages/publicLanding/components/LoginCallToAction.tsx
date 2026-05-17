@@ -5,13 +5,13 @@ import UserSolid from "../../../assets/icons/UserSolid";
 export function LoginCallToAction() {
   return (
     <section
-      className="flex flex-col items-center gap-5 bg-white px-4 pb-[34px] pt-10"
+      className="flex flex-col items-center gap-4 bg-white px-4 pb-7 pt-8 min-[390px]:gap-5 min-[390px]:pb-[34px] min-[390px]:pt-10"
       aria-label="ورود"
     >
       <img
         src={CallCTABackground}
         alt=""
-        className="h-auto w-full max-w-[328px] object-contain"
+        className="h-auto w-full max-w-[300px] object-contain min-[390px]:max-w-[328px]"
         aria-hidden="true"
       />
 

@@ -50,7 +50,7 @@ export function BottomNavigation({
       className="sticky bottom-0 z-10 shrink-0 bg-white shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
       aria-label="ناوبری اصلی"
     >
-      <div className="grid w-full grid-cols-5 px-1 [direction:rtl] sm:px-2">
+      <div className="grid w-full grid-cols-5 px-1 [direction:rtl] min-[390px]:px-2">
         {navigationItems.map((item) => {
           const isActive = item.key === activeKey;
 

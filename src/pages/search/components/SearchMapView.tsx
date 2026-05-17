@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import { SearchMapMarker } from "./SearchMapMarker";
 import type { SearchMapCenter, SearchMapListing, SearchMapTileConfig } from "../searchMapData";
 

@@ -18,10 +18,10 @@ export function SearchMapHeader({
   onChipClick,
 }: SearchMapHeaderProps) {
   return (
-    <header className="absolute inset-x-0 top-0 z-[500] bg-white px-3 pb-2 pt-[max(12px,env(safe-area-inset-top))] shadow-[0_4px_18px_rgba(26,26,26,0.08)] sm:px-4 sm:pb-3 sm:pt-4">
+    <header className="absolute inset-x-0 top-0 z-[500] bg-white px-3 pb-2 pt-[max(12px,env(safe-area-inset-top))] shadow-[0_4px_18px_rgba(26,26,26,0.08)] min-[390px]:px-4 min-[390px]:pb-3 min-[390px]:pt-4">
       <div className="flex min-w-0 items-center [direction:rtl]">
         <RouteLink
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-[#4d4d4d] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] sm:h-12 sm:w-12"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-[#4d4d4d] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:h-12 min-[390px]:w-12"
           to="/home"
           aria-label="بازگشت"
         >
@@ -29,12 +29,12 @@ export function SearchMapHeader({
         </RouteLink>
 
         <button
-          className="relative flex h-10 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white px-2.5 text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] sm:h-12 sm:px-3 sm:text-base sm:leading-6"
+          className="relative flex h-10 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white px-2.5 text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:h-12 min-[390px]:px-3 min-[390px]:text-base min-[390px]:leading-6"
           type="button"
           aria-label="جستجو در آگهی‌ها"
         >
           <span
-            className="h-5 w-4 shrink-0 bg-[#808080] sm:h-6 sm:w-5"
+            className="h-5 w-4 shrink-0 bg-[#808080] min-[390px]:h-6 min-[390px]:w-5"
             style={{
               WebkitMask:
                 "url(/figma/account/bookmark.svg) center / contain no-repeat",
@@ -44,7 +44,7 @@ export function SearchMapHeader({
           />
 
           <span
-            className="mx-2 h-5 w-px shrink-0 bg-[#cccccc] sm:mx-3 sm:h-6"
+            className="mx-2 h-5 w-px shrink-0 bg-[#cccccc] min-[390px]:mx-3 min-[390px]:h-6"
             aria-hidden="true"
           />
 

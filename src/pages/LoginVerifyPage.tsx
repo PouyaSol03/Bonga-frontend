@@ -15,13 +15,13 @@ export function LoginVerifyPage() {
       <header className="sticky top-0 z-10 shrink-0 bg-[#f0f0f0]">
         <div className="w-full flex justify-start items-center">
           <RouteLink
-            className="col-start-1 grid h-12 w-12 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+            className="col-start-1 grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:h-12 min-[390px]:w-12"
             to="/login"
             aria-label="بازگشت"
           >
             <ArrowRight />
           </RouteLink>
-          <h1 className="col-start-2 m-0 justify-self-center whitespace-nowrap text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+          <h1 className="col-start-2 m-0 justify-self-center whitespace-nowrap text-center text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
             ورود به حساب کاربری
           </h1>
         </div>
@@ -29,7 +29,7 @@ export function LoginVerifyPage() {
 
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
         <section
-          className="flex min-h-60 flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-white p-4"
+          className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-white p-3 min-[390px]:min-h-60 min-[390px]:p-4"
           aria-hidden="true"
         >
           <img
@@ -41,17 +41,17 @@ export function LoginVerifyPage() {
         </section>
 
         <section
-          className="flex min-h-0 flex-1 basis-0 flex-col items-center gap-12 overflow-hidden px-6 pb-6"
+          className="flex min-h-0 flex-1 basis-0 flex-col items-center gap-7 overflow-hidden px-4 pb-4 min-[390px]:gap-12 min-[390px]:px-6 min-[390px]:pb-6"
           aria-labelledby="login-verify-title"
         >
           <div className="flex w-full flex-col gap-4">
             <h2
-              className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]"
+              className="m-0 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
               id="login-verify-title"
             >
               ورود کد ارسالی
             </h2>
-            <p className="m-0 flex w-full items-center justify-start gap-2 whitespace-nowrap text-right text-sm font-normal leading-5 text-[#4d4d4d]">
+            <p className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-xs font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
               <span>کد ارسال شده به </span>
               <a
                 dir="ltr"
@@ -78,7 +78,7 @@ export function LoginVerifyPage() {
             {verificationCodeSlots.map((slot, index) => (
               <label className="block min-w-0" key={`${slot}-${index}`}>
                 <input
-                  className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
+                  className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] min-[390px]:h-14"
                   aria-label={`رقم ${index + 1}`}
                   inputMode="numeric"
                   maxLength={1}
@@ -91,7 +91,7 @@ export function LoginVerifyPage() {
 
           {canResendOtp ? (
             <button
-              className="flex cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 py-2 text-sm font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+              className="flex cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:px-6 min-[390px]:text-sm"
               type="button"
             >
               <span>دریافت مجدد کد</span>
@@ -99,7 +99,7 @@ export function LoginVerifyPage() {
             </button>
           ) : (
             <div
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 py-2 text-sm font-medium leading-5 text-[#1a1a1a]"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#1a1a1a] min-[390px]:px-6 min-[390px]:text-sm"
               aria-label="زمان باقی مانده"
             >
               <img

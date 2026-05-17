@@ -53,7 +53,7 @@ export function CategoryBottomSheet({
       />
 
       <section
-        className={`relative z-10 w-full rounded-t-3xl bg-white pb-4 pt-4 shadow-[0_-16px_32px_rgba(26,26,26,0.16)] transition-transform duration-300 ease-out ${
+        className={`relative z-10 w-full rounded-t-3xl bg-white pb-3 pt-4 shadow-[0_-16px_32px_rgba(26,26,26,0.16)] transition-transform duration-300 ease-out min-[390px]:pb-4 ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
         role="dialog"
@@ -62,7 +62,7 @@ export function CategoryBottomSheet({
       >
         <span className="mx-auto block h-1 w-14 rounded-full bg-[#cccccc]" aria-hidden="true" />
 
-        <div className="flex h-12 items-center gap-3 px-4 pt-4">
+        <div className="flex h-11 items-center gap-3 px-4 pt-3 min-[390px]:h-12 min-[390px]:pt-4">
           <button
             className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
             type="button"
@@ -72,15 +72,15 @@ export function CategoryBottomSheet({
             <span className="category-sheet-back-icon" aria-hidden="true" />
           </button>
 
-          <h2 className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+          <h2 className="m-0 min-w-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
             {title}
           </h2>
         </div>
 
-        <div className="px-4 pt-4">
-          <label className="relative flex h-12 items-center rounded-xl border border-[#808080] bg-white">
+        <div className="px-4 pt-3 min-[390px]:pt-4">
+          <label className="relative flex h-11 items-center rounded-xl border border-[#808080] bg-white min-[390px]:h-12">
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#808080]"
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] min-[390px]:text-base min-[390px]:leading-6"
               type="search"
               placeholder="جستجو در دسته‌بندی‌ها"
               tabIndex={isOpen ? 0 : -1}
@@ -89,10 +89,10 @@ export function CategoryBottomSheet({
           </label>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-3 min-[390px]:pt-4">
           {options.map((option) => (
             <button
-              className="flex h-14 w-full cursor-pointer items-center gap-3 border-b border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] [direction:ltr] last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+              className="flex h-12 w-full cursor-pointer items-center gap-3 border-b border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] [direction:ltr] last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] min-[390px]:h-14 min-[390px]:text-base min-[390px]:leading-6"
               data-category-sheet-row={option.label}
               key={option.label}
               type="button"

@@ -63,9 +63,9 @@ export function HomeSearchScreen({ isOpen, onClose }: HomeSearchScreenProps) {
       aria-hidden={!isOpen}
     >
       <header className="shrink-0 bg-white px-4 pt-2">
-        <div className="flex h-14 items-center gap-2 [direction:rtl]">
+        <div className="flex h-12 items-center gap-2 [direction:rtl] min-[390px]:h-14">
           <button
-            className="grid h-12 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+            className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-12"
             type="button"
             aria-label="بازگشت"
             tabIndex={isOpen ? 0 : -1}
@@ -74,10 +74,10 @@ export function HomeSearchScreen({ isOpen, onClose }: HomeSearchScreenProps) {
             <span className="home-search-back-icon" aria-hidden="true" />
           </button>
 
-          <label className="relative flex h-12 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c420]">
+          <label className="relative flex h-11 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c420] min-[390px]:h-12">
             <input
               ref={searchInputRef}
-              className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] min-[390px]:text-base min-[390px]:leading-6"
               type="search"
               placeholder="جستجو"
               value={query}
@@ -100,7 +100,7 @@ export function HomeSearchScreen({ isOpen, onClose }: HomeSearchScreenProps) {
         </div>
 
         <div className="flex h-11 items-center justify-between">
-          <h2 className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+          <h2 className="m-0 text-right text-sm font-medium leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
             {isResultsView ? 'نتایج جستجو' : 'جستجوهای اخیر'}
           </h2>
 
@@ -162,7 +162,7 @@ function SavedSearchesView({
       }`}
       aria-hidden={!isOpen}
     >
-      <header className="flex h-[100px] shrink-0 items-end bg-[#f0f0f0] px-4 pb-4">
+      <header className="flex h-[88px] shrink-0 items-end bg-[#f0f0f0] px-4 pb-3 min-[390px]:h-[100px] min-[390px]:pb-4">
         <button
           className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
           type="button"
@@ -173,7 +173,7 @@ function SavedSearchesView({
           <span className="home-search-back-icon" aria-hidden="true" />
         </button>
 
-        <h2 className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+        <h2 className="m-0 min-w-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
           جستجوی ذخیره شده
         </h2>
       </header>
@@ -198,9 +198,9 @@ function SavedSearchesView({
 
 function RecentSearchRow({ item, onDelete }: { item: RecentSearch; onDelete: () => void }) {
   return (
-    <article className="flex min-h-[99px] items-start gap-3 border-b border-[#cccccc] bg-white px-4 py-4 [direction:ltr] last:border-b-0">
+    <article className="flex min-h-[84px] items-start gap-2.5 border-b border-[#cccccc] bg-white px-4 py-3 [direction:ltr] last:border-b-0 min-[390px]:min-h-[99px] min-[390px]:gap-3 min-[390px]:py-4">
       <button
-        className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+        className="grid h-9 w-9 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-10 min-[390px]:w-10"
         type="button"
         aria-label="حذف جستجوی اخیر"
         onClick={onDelete}
@@ -208,9 +208,9 @@ function RecentSearchRow({ item, onDelete }: { item: RecentSearch; onDelete: () 
         <span className="home-search-remove-icon" aria-hidden="true" />
       </button>
 
-      <div className="flex min-w-0 flex-1 flex-col items-end gap-3 text-right [direction:rtl]">
+      <div className="flex min-w-0 flex-1 flex-col items-end gap-2 text-right [direction:rtl] min-[390px]:gap-3">
         <div className="flex flex-col items-end gap-1">
-          <h3 className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">{item.title}</h3>
+          <h3 className="m-0 text-sm font-medium leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">{item.title}</h3>
         </div>
 
         <div className="flex max-w-full flex-wrap items-center justify-end gap-2">
@@ -230,13 +230,13 @@ function RecentSearchRow({ item, onDelete }: { item: RecentSearch; onDelete: () 
 function SearchSuggestionRow({ item, query }: { item: SearchSuggestion; query: string }) {
   return (
     <button
-      className="flex min-h-[73px] w-full cursor-pointer items-center justify-between gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right [direction:ltr] last:border-b-0"
+      className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-3 border-b border-[#cccccc] bg-white px-4 py-2.5 text-right [direction:ltr] last:border-b-0 min-[390px]:min-h-[73px] min-[390px]:gap-4 min-[390px]:py-3"
       type="button"
     >
       <span className="shrink-0 text-xs font-normal leading-4 text-[#a6a6a6]">{item.count}</span>
 
       <span className="flex min-w-0 flex-col items-end [direction:rtl]">
-        <strong className="text-base font-normal leading-6 text-[#1a1a1a]">{query || item.title}</strong>
+        <strong className="text-sm font-normal leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">{query || item.title}</strong>
         {item.subtitle ? <span className="text-sm font-normal leading-5 text-[#a6a6a6]">{item.subtitle}</span> : null}
       </span>
     </button>
@@ -245,9 +245,9 @@ function SearchSuggestionRow({ item, query }: { item: SearchSuggestion; query: s
 
 function SavedSearchRow({ item, onDelete }: { item: SavedSearch; onDelete: () => void }) {
   return (
-    <article className="flex min-h-[130px] items-start gap-4 border-b-[16px] border-[#f0f0f0] bg-white px-4 py-6 [direction:ltr] last:border-b-0">
+    <article className="flex min-h-[108px] items-start gap-3 border-b-[12px] border-[#f0f0f0] bg-white px-4 py-4 [direction:ltr] last:border-b-0 min-[390px]:min-h-[130px] min-[390px]:gap-4 min-[390px]:border-b-[16px] min-[390px]:py-6">
       <button
-        className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+        className="grid h-9 w-9 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-10 min-[390px]:w-10"
         type="button"
         aria-label="حذف جستجوی ذخیره شده"
         onClick={onDelete}
@@ -255,10 +255,10 @@ function SavedSearchRow({ item, onDelete }: { item: SavedSearch; onDelete: () =>
         <span className="home-search-trash-icon" aria-hidden="true" />
       </button>
 
-      <div className="flex min-w-0 flex-1 flex-col items-end gap-3 text-right [direction:rtl]">
+      <div className="flex min-w-0 flex-1 flex-col items-end gap-2 text-right [direction:rtl] min-[390px]:gap-3">
         <div className="flex items-center gap-3">
           <span className="home-search-building-icon text-[#4d4d4d]" aria-hidden="true" />
-          <h3 className="m-0 text-xl font-normal leading-7 text-[#1a1a1a]">{item.title}</h3>
+          <h3 className="m-0 text-base font-normal leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">{item.title}</h3>
         </div>
 
         <div className="flex max-w-full flex-wrap justify-end gap-2">
@@ -276,8 +276,8 @@ function SavedSearchRow({ item, onDelete }: { item: SavedSearch; onDelete: () =>
 function SearchEmptyState({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-8 pb-20 pt-8 text-center">
-      <span className="home-search-empty-illustration mb-8" aria-hidden="true" />
-      <h3 className="m-0 text-xl font-semibold leading-7 text-[#1a1a1a]">{title}</h3>
+      <span className="home-search-empty-illustration mb-6 min-[390px]:mb-8" aria-hidden="true" />
+      <h3 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">{title}</h3>
       <p className="m-0 mt-4 max-w-[190px] text-sm font-normal leading-5 text-[#4d4d4d]">{subtitle}</p>
     </div>
   )

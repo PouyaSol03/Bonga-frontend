@@ -1,4 +1,8 @@
 import type { ComponentType } from 'react'
+import {
+  ChatComingSoonPage,
+  NewAdComingSoonPage,
+} from '../pages/ComingSoonPage'
 import { HomePage } from '../pages/HomePage'
 import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
@@ -42,5 +46,15 @@ export const routes: AppRoute[] = [
     path: "/search",
     title: "Search",
     Component: SearchMapPage,
+  },
+  {
+    path: "/new-ad",
+    title: "New Ad",
+    Component: NewAdComingSoonPage,
+  },
+  {
+    path: "/chat",
+    title: "Chat",
+    Component: ChatComingSoonPage,
   },
 ]

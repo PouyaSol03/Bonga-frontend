@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import {
   searchFilterChips,
@@ -18,13 +18,6 @@ export function SearchMapPage() {
     searchMapListings[0]?.id ?? null,
   );
   const [isListPreviewOpen, setIsListPreviewOpen] = useState(false);
-
-  const selectedListing = useMemo<SearchMapListing | null>(() => {
-    return (
-      searchMapListings.find((listing) => listing.id === selectedListingId) ??
-      null
-    );
-  }, [selectedListingId]);
 
   const handleSelectListing = (listing: SearchMapListing) => {
     setSelectedListingId(listing.id);

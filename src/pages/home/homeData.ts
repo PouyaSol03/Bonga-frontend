@@ -12,6 +12,10 @@ import RentCategoryIcon from '../../assets/icons/RentCategoryIcon.svg'
 import ProjectCategoryIcon from '../../assets/icons/ProjectCategoryIcon.svg'
 import ConsultantCategoryIcon from '../../assets/icons/ConsultantCategoryIcon.svg'
 
+export function getLatestMashhadAdById(id: number): AdCardData | undefined {
+  return latestMashhadAds.find((ad) => ad.id === id)
+}
+
 export const latestMashhadAds: AdCardData[] = [
   {
     id: 1,

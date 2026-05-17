@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import type { SearchMapListing } from "../searchMapData";
 import {
   SEARCH_MAP_DEMO_PHOTO,
@@ -17,12 +18,38 @@ export function SearchMapListingSlider({
   selectedListingId,
   onSelectListing,
 }: SearchMapListingSliderProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const orderedListings = selectedListingId
     ? [
         ...listings.filter((listing) => listing.id === selectedListingId),
         ...listings.filter((listing) => listing.id !== selectedListingId),
       ]
     : listings;
+
+  useLayoutEffect(() => {
+    if (!isOpen || selectedListingId == null) return;
+
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    const card = scrollEl.querySelector<HTMLElement>(
+      `[data-map-slider-card="${selectedListingId}"]`,
+    );
+    if (!card) return;
+
+    const run = () => {
+      card.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(run);
+    });
+  }, [isOpen, selectedListingId, listings]);
 
   return (
     <section
@@ -34,7 +61,10 @@ export function SearchMapListingSlider({
       aria-label="آگهی‌های روی نقشه"
       dir="rtl"
     >
-      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-5 pt-1 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        ref={scrollRef}
+        className="flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-3 pb-3 pt-1 scrollbar-none [-ms-overflow-style:none] min-[390px]:gap-3 min-[390px]:px-4 min-[390px]:pb-5 [&::-webkit-scrollbar]:hidden"
+      >
         {orderedListings.map((listing) => (
           <MapAdCard
             key={listing.id}
@@ -71,8 +101,11 @@ function MapAdCard({
 
   return (
     <button
-      className={`flex h-56 w-[300px] shrink-0 snap-center snap-always flex-col overflow-hidden rounded-[20px] bg-white p-4 text-right shadow-[0_8px_28px_rgba(26,26,26,0.22)] transition-all duration-200 active:scale-[0.985] ${
-        isSelected ? "ring-1 ring-[#0048c4]/20" : ""
+      data-map-slider-card={listing.id}
+      className={`flex w-[min(300px,calc(100vw-2.75rem))] shrink-0 snap-center snap-always flex-col overflow-hidden rounded-2xl bg-white p-3 text-right shadow-[0_6px_24px_rgba(26,26,26,0.14)] transition-all duration-200 active:scale-[0.985] min-[390px]:p-4 min-[390px]:shadow-[0_8px_28px_rgba(26,26,26,0.22)] ${
+        isSelected
+          ? "ring-2 ring-[#0048c4] ring-offset-0 ring-offset-transparent"
+          : ""
       }`}
       type="button"
       onClick={onClick}
@@ -80,39 +113,44 @@ function MapAdCard({
     >
       <ImageSlider images={images} />
 
-      <div className="mt-7 flex h-5 items-center justify-start">
-        <strong className="text-[22px] font-bold leading-5 text-[#0048c4]">
+      <div className="mt-2 flex min-h-5 flex-wrap items-baseline justify-start gap-1.5 [direction:rtl] min-[390px]:mt-2.5">
+        {listing.priceLabel ? (
+          <span className="text-xs font-medium leading-4 text-[#808080] min-[390px]:text-sm min-[390px]:leading-5">
+            {listing.priceLabel}:
+          </span>
+        ) : null}
+        <strong className="text-sm font-semibold leading-5 text-[#0048c4] min-[390px]:text-base min-[390px]:leading-6">
           {mapCardPriceDisplay(listing.priceValue)}
         </strong>
       </div>
 
-      <div className="mt-7 flex h-5 items-center justify-end gap-6 text-base font-medium leading-5 text-[#1a1a1a]">
+      <div className="mt-2 flex flex-wrap items-center justify-start gap-2.5 text-xs font-medium leading-4 text-[#1a1a1a] [direction:rtl] min-[390px]:mt-2.5 min-[390px]:gap-3 min-[390px]:text-sm min-[390px]:leading-5">
         <PropertyMeta
-          className="ad-card__property--year"
-          label={listing.year}
+          className="ad-card__property--area"
+          label={listing.area}
         />
         <PropertyMeta
           className="ad-card__property--rooms"
           label={listing.rooms}
         />
         <PropertyMeta
-          className="ad-card__property--area"
-          label={listing.area}
+          className="ad-card__property--year"
+          label={listing.year}
         />
       </div>
 
-      <h3 className="mt-2 h-5 truncate text-xl font-medium leading-5 text-[#1a1a1a]">
+      <h3 className="mt-2 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a] min-[390px]:text-sm min-[390px]:leading-5">
         {listing.title}
       </h3>
 
-      <div className="mt-2 flex h-5 items-center justify-end gap-2 text-base font-normal leading-5 text-[#808080]">
-        <span className="rounded-lg border border-[#f04438]/25 px-1.5 py-px text-base font-medium leading-5 text-[#d92d20]">
-          فوری
-        </span>
+      <div className="mt-2 flex min-h-5 flex-row flex-wrap items-center justify-start gap-2 [direction:rtl] min-[390px]:mt-2.5">
+        <div className="ad-card__badges inline-flex items-center gap-1">
+          <span className="whitespace-nowrap rounded-lg border border-[#ff6d00] px-1.5 py-px text-xs font-medium leading-4 text-[#ff6d00] min-[390px]:px-2 min-[390px]:py-[3px] min-[390px]:text-xs min-[390px]:leading-4">
+            فوری
+          </span>
+        </div>
 
-        <span className="h-5 w-px bg-[#cccccc]" aria-hidden="true" />
-
-        <span className="min-w-0 truncate">
+        <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080] min-[390px]:text-sm min-[390px]:leading-5">
           {listing.postedAt} در {listing.locationLabel}
         </span>
       </div>
@@ -122,11 +160,11 @@ function MapAdCard({
 
 function ImageSlider({ images }: { images: string[] }) {
   return (
-    <div className="h-20 w-full overflow-hidden" dir="ltr">
+    <div className="h-16 w-full overflow-hidden min-[390px]:h-20" dir="ltr">
       <div
         className="
-          flex h-20 w-full snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-smooth
-          [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+          flex h-16 w-full snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth scrollbar-none
+          [-ms-overflow-style:none] min-[390px]:h-20 min-[390px]:gap-2.5
         "
         onClick={(event) => {
           event.stopPropagation();
@@ -141,7 +179,7 @@ function ImageSlider({ images }: { images: string[] }) {
         {images.map((src, imageIndex) => (
           <img
             key={`${src}-${imageIndex}`}
-            className="h-20 w-[120px] shrink-0 snap-start rounded-xl object-cover"
+            className="h-16 w-[96px] shrink-0 snap-start rounded-lg object-cover min-[390px]:h-20 min-[390px]:w-[120px] min-[390px]:rounded-xl"
             src={src}
             alt=""
             draggable={false}
@@ -169,88 +207,8 @@ function PropertyMeta({
   label: string;
 }) {
   return (
-    <span className={`ad-card__property ${className} text-[#4d4d4d]`}>
+    <span className={`ad-card__property text-[#4d4d4d] ${className}`}>
       {label}
     </span>
-  );
-}
-
-function GalleryGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-    >
-      <rect
-        x="1.5"
-        y="2.5"
-        width="6.5"
-        height="6.5"
-        rx="1"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-      <rect
-        x="8.5"
-        y="2.5"
-        width="6"
-        height="4.5"
-        rx="1"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-      <rect
-        x="8.5"
-        y="8.5"
-        width="6"
-        height="5"
-        rx="1"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-      <rect
-        x="1.5"
-        y="10.5"
-        width="6.5"
-        height="3"
-        rx="1"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-    </svg>
-  );
-}
-
-function BuildingGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M3 14V6.2L8 3l5 3.2V14"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M2.5 14h11M6 14v-3h4v3"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6.5 8.5h1M8.5 8.5h1M6.5 10.5h1M8.5 10.5h1"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }

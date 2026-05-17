@@ -38,7 +38,10 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
       eventHandlers={{
-        click: () => onSelect(listing),
+        click: (event) => {
+          onSelect(listing);
+          event.originalEvent?.stopPropagation?.();
+        },
       }}
     />
   );

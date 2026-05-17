@@ -1,12 +1,24 @@
+import type { ComponentType } from 'react'
 import { useEffect, useState } from 'react'
 import { MobileAppShell } from '../app/MobileAppShell'
+import { ViewAdPage } from '../pages/ViewAdPage'
 import { routes } from './routes'
 
 function getCurrentPath() {
   return window.location.pathname || '/'
 }
 
-function getRoute(path: string) {
+type ResolvedRoute = {
+  path: string
+  title: string
+  Component: ComponentType
+}
+
+function getRoute(path: string): ResolvedRoute {
+  if (/^\/ads\/\d+\/?$/.test(path)) {
+    return { path, title: 'آگهی', Component: ViewAdPage }
+  }
+
   return routes.find((route) => route.path === path) ?? routes[0]
 }
 

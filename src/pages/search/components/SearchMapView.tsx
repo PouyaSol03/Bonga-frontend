@@ -26,7 +26,7 @@ export function SearchMapView({
 }: SearchMapViewProps) {
   return (
     <MapContainer
-      className="min-h-0 flex-1 bg-[#f5f5f5]"
+      className="relative z-0 isolate min-h-0 flex-1 bg-[#f5f5f5]"
       center={[center.latitude, center.longitude]}
       zoom={center.zoom}
       minZoom={tileConfig.minZoom}

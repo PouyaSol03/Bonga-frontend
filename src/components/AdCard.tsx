@@ -51,7 +51,9 @@ export function AdCard({ ad }: { ad: AdCardData }) {
           <span className="ad-card__property ad-card__property--year">{ad.year}</span>
         </div>
 
-        <h3 className="m-0 text-right text-sm font-medium leading-5 text-[#1a1a1a]">{ad.title}</h3>
+        <h3 className="m-0 line-clamp-2 min-h-10 text-right text-sm font-medium leading-5 text-[#1a1a1a] min-[390px]:min-h-11 min-[390px]:leading-[1.45]">
+          {ad.title}
+        </h3>
 
         <div className="flex min-h-6 flex-row items-center justify-start gap-2 [direction:rtl]">
           <div className="ad-card__badges inline-flex items-center gap-1">

@@ -1,9 +1,40 @@
+import { AdCard } from "../../../components/AdCard";
+import type { AdCardData } from "../../../components/AdCard";
 import type { SearchMapListing } from "../searchMapData";
 
 type SearchMapListViewProps = {
   listings: SearchMapListing[];
   onMapClick: () => void;
 };
+
+const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+
+function toFaCount(n: number): string {
+  const safe = Math.max(0, Math.floor(n));
+  return String(safe).replace(/\d/g, (d) => FA_DIGITS[Number(d)] ?? d);
+}
+
+function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
+  const imageCount = listing.images?.length ?? 0;
+
+  return {
+    id: listing.id,
+    agency: listing.agencyName,
+    status: "",
+    statusCount: toFaCount(imageCount > 0 ? imageCount : 1),
+    priceLabelPrimary: "",
+    pricePrimary: listing.priceValue.replace(/[٫.]/g, "/"),
+    priceLabelSecondary: "",
+    priceSecondary: "",
+    area: listing.area,
+    rooms: listing.rooms,
+    year: listing.year,
+    title: listing.title,
+    timeAndLocation: `${listing.postedAt} در ${listing.locationLabel}`,
+    imageClassName: listing.imageClassName ?? "",
+    badges: ["فوری"],
+  };
+}
 
 export function SearchMapListView({
   listings,
@@ -12,19 +43,22 @@ export function SearchMapListView({
   return (
     <>
       <main
-        className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pt-32 pb-24"
+        className="min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-24 pt-32 min-[390px]:px-4"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >
-        <div className="flex flex-col gap-7">
+        <div className="flex flex-col">
           {listings.map((listing) => (
-            <SearchListAdCard key={listing.id} listing={listing} />
+            <AdCard
+              key={listing.id}
+              ad={searchMapListingToAdCardData(listing)}
+            />
           ))}
         </div>
       </main>
 
       <button
-        className="absolute bottom-[max(80px,calc(env(safe-area-inset-bottom)+80px))] left-1/2 z-[520] flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        className="absolute bottom-[max(80px,calc(env(safe-area-inset-bottom)+80px))] left-1/2 z-520 flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
         type="button"
         onClick={onMapClick}
       >
@@ -32,67 +66,6 @@ export function SearchMapListView({
         <MapLocationIcon />
       </button>
     </>
-  );
-}
-
-function SearchListAdCard({ listing }: { listing: SearchMapListing }) {
-  return (
-    <article className="border-b-8 border-[#f0f0f0] pb-6 text-right last:border-b-0">
-      <div className="relative aspect-328/255 overflow-hidden rounded-2xl">
-        <img
-          className="h-full w-full object-cover"
-          src={listing.imageSrc}
-          alt={listing.title}
-        />
-      </div>
-
-      <div className="mt-5 flex flex-col">
-        <div className="flex items-start justify-start gap-1 text-[#0048c4]">
-          <strong className="text-[24px] font-bold leading-7">
-            {listing.priceValue}
-          </strong>
-          {listing.priceUnit ? (
-            <span className="mt-5 text-base font-bold leading-5">
-              {listing.priceUnit}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="mt-6 flex items-center justify-end gap-7 text-xl font-medium leading-6 text-[#1a1a1a]">
-          <PropertyMeta className="ad-card__property--year" label={listing.year} />
-          <PropertyMeta className="ad-card__property--rooms" label={listing.rooms} />
-          <PropertyMeta className="ad-card__property--area" label={listing.area} />
-        </div>
-
-        <h2 className="mt-5 line-clamp-1 text-[22px] font-medium leading-8 text-[#1a1a1a]">
-          {listing.title}
-        </h2>
-
-        <div className="mt-4 flex items-center justify-end gap-3 text-lg font-normal leading-7 text-[#999999]">
-          <span className="rounded-xl border border-[#f04438] px-3 py-1 text-lg font-medium leading-7 text-[#f04438]">
-            فوری
-          </span>
-          <span className="h-8 w-px bg-[#cccccc]" aria-hidden="true" />
-          <span>
-            {listing.postedAt} در {listing.locationLabel}
-          </span>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function PropertyMeta({
-  className,
-  label,
-}: {
-  className: string;
-  label: string;
-}) {
-  return (
-    <span className={`ad-card__property ${className} text-[#4d4d4d]`}>
-      {label}
-    </span>
   );
 }
 

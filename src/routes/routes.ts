@@ -1,14 +1,12 @@
 import type { ComponentType } from 'react'
-import {
-  ChatComingSoonPage,
-  NewAdComingSoonPage,
-} from '../pages/ComingSoonPage'
+import { NewAdComingSoonPage } from '../pages/ComingSoonPage'
 import { HomePage } from '../pages/HomePage'
 import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
 import { MyAccountPage } from '../pages/MyAccountPage'
 import { PublicLandingPage } from '../pages/PublicLandingPage'
 import { SearchMapPage } from '../pages/search/SearchMapPage'
+import { UserChatHomePage } from '../pages/UserChatHomePage'
 
 export type AppRoute = {
   path: string
@@ -55,6 +53,6 @@ export const routes: AppRoute[] = [
   {
     path: "/chat",
     title: "Chat",
-    Component: ChatComingSoonPage,
+    Component: UserChatHomePage,
   },
 ]

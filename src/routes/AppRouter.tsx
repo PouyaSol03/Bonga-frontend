@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react'
 import { useEffect, useState } from 'react'
 import { MobileAppShell } from '../app/MobileAppShell'
+import { EquipmentFacilitiesPage } from '../pages/EquipmentFacilitiesPage'
+import { PropertyInfoPage } from '../pages/PropertyInfoPage'
 import { ViewAdPage } from '../pages/ViewAdPage'
 import { routes } from './routes'
 
@@ -15,6 +17,14 @@ type ResolvedRoute = {
 }
 
 function getRoute(path: string): ResolvedRoute {
+  if (/^\/ads\/\d+\/equipment-facilities\/?$/.test(path)) {
+    return { path, title: 'تجهیزات و امکانات', Component: EquipmentFacilitiesPage }
+  }
+
+  if (/^\/ads\/\d+\/property-info\/?$/.test(path)) {
+    return { path, title: 'اطلاعات ملک', Component: PropertyInfoPage }
+  }
+
   if (/^\/ads\/\d+\/?$/.test(path)) {
     return { path, title: 'آگهی', Component: ViewAdPage }
   }

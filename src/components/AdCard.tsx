@@ -1,3 +1,5 @@
+import { RouteLink } from '../routes/RouteLink'
+
 export type AdCardData = {
   id: number
   title: string
@@ -20,6 +22,11 @@ export function AdCard({ ad }: { ad: AdCardData }) {
   const hasSecondaryPrice = ad.priceLabelSecondary && ad.priceSecondary
 
   return (
+    <RouteLink
+      aria-label={`مشاهده آگهی ${ad.title}`}
+      className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+      to={`/ads/${ad.id}`}
+    >
     <article className="flex flex-col overflow-hidden border-b-8 border-[#f0f0f0] bg-white p-3 min-[390px]:p-4">
       <div className="shrink-0">
         <div className={`ad-card__image relative min-h-[184px] overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover min-[390px]:min-h-[219px] ${ad.imageClassName}`}>
@@ -67,5 +74,6 @@ export function AdCard({ ad }: { ad: AdCardData }) {
         </div>
       </div>
     </article>
+    </RouteLink>
   )
 }

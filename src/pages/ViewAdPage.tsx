@@ -1,231 +1,617 @@
+import { useState } from "react";
+
 import { PageFrame } from "../app/PageFrame";
-import { BottomNavigation } from "../components/BottomNavigation";
-import ArrowRight from "../assets/icons/ArrowRight";
-import { RouteLink } from "../routes/RouteLink";
 import { getLatestMashhadAdById } from "./home/homeData";
+import {
+  DetailSection,
+  MoreButton,
+  MoreLink,
+  PropertyGrid,
+  ViewAdTopBar,
+} from "./viewAd/viewAdComponents";
+import { viewAdDemo, parseAdIdFromPath } from "./viewAd/viewAdData";
+import { ViewAdIcon } from "./viewAd/ViewAdIcon";
+import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
 
-function parseViewAdId(pathname: string): number | null {
-  const match = /^\/ads\/(\d+)\/?$/.exec(pathname);
-  if (!match) return null;
+type AlbumMediaItem = {
+  src: string;
+  type: "image" | "video";
+};
 
-  const id = Number(match[1]);
-  return Number.isFinite(id) && id > 0 ? id : null;
+const albumMediaItems: AlbumMediaItem[] = [
+  { src: "/figma/view-ad-album.png", type: "image" },
+  { src: "/figma/view-ad-album.png", type: "image" },
+  { src: "/figma/view-ad-album.png", type: "image" },
+  { src: "/figma/view-ad-album.png", type: "video" },
+  { src: "/figma/view-ad-album.png", type: "image" },
+  { src: "/figma/view-ad-album.png", type: "image" },
+  { src: "/figma/view-ad-album.png", type: "image" },
+];
+
+function PriceRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex h-14 items-center justify-between rounded-lg bg-[#0048c414] px-4 [direction:ltr]">
+      <div className="flex items-center gap-1 text-[#002099]">
+        <ViewAdIcon className="h-5 w-5" name="tooman" />
+        <strong className="text-base font-semibold leading-6">{value}</strong>
+        <span className="w-7 text-[11px] font-semibold leading-[11px]">تومان</span>
+      </div>
+      <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function GalleryHero({ onOpenAlbum }: { onOpenAlbum: () => void }) {
+  return (
+    <div className="px-4 pt-4">
+      <button
+        aria-label="باز کردن آلبوم تصاویر"
+        className="block w-full overflow-hidden rounded-2xl bg-[#ebebeb] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        onClick={onOpenAlbum}
+        type="button"
+      >
+        <img
+          alt=""
+          className="aspect-[328/219] w-full object-cover"
+          src="/figma/view-ad-gallery.png"
+        />
+      </button>
+    </div>
+  );
+}
+
+function AgencyCard({ details }: { details: ViewAdDetails }) {
+  return (
+    <button
+      className="mt-4 flex h-20 w-full items-center rounded-2xl border border-[#cccccc] bg-[#f5f5f5] px-4 text-right [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      type="button"
+    >
+      <ViewAdIcon className="ml-4 h-5 w-5 text-[#4d4d4d]" name="arrowLeft" />
+      <div className="ml-4 grid h-12 w-12 place-items-center overflow-hidden rounded-lg bg-white text-[#a37945]">
+        <span className="h-8 w-8 border-y-2 border-dashed border-[#c7924d] bg-[linear-gradient(90deg,transparent_0_45%,#c7924d_45%_55%,transparent_55%)]" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-right text-base font-semibold leading-6 text-[#4d4d4d]">
+          {details.agency}
+        </div>
+        <div className="mt-1 flex items-center justify-end gap-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
+          <span>{details.agencyLocation}</span>
+          <ViewAdIcon className="h-4 w-4 fill-[#0048c4] text-[#0048c4]" name="location" />
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function MapPreview() {
+  return (
+    <div className="relative mt-6 h-[198px] overflow-hidden rounded-2xl bg-[#fafafa]">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full scale-[1.18] object-cover opacity-90"
+        src="/figma/search/map-light.png"
+      />
+      <span className="absolute left-1/2 top-1/2 h-10 w-8 -translate-x-1/2 -translate-y-1/2 rounded-t-full rounded-bl-full border border-white bg-[#11a366] shadow-[0_2px_0_rgba(26,26,26,0.18)] [transform:translate(-50%,-50%)_rotate(45deg)]">
+        <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
+      </span>
+    </div>
+  );
+}
+
+function PhoneIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M6.6 4.8 9 4.2l2.1 4.8-1.5 1.1a11.2 11.2 0 0 0 4.3 4.3L15 12.9l4.8 2.1-.6 2.4c-.3 1.2-1.4 2-2.6 1.8C10.2 18.2 5.8 13.8 4.8 7.4 4.6 6.2 5.4 5.1 6.6 4.8Z" />
+    </svg>
+  );
+}
+
+function MessageIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M5 18.5V20l3.1-1.6A8 8 0 1 0 4 11.5c0 2.6 1.2 4.9 3.1 6.4" />
+      <path d="M8.5 12h7" />
+    </svg>
+  );
+}
+
+function SocialIcon({ type }: { type: "instagram" | "telegram" | "whatsapp" }) {
+  const styles = {
+    instagram: "bg-[linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)] text-white",
+    telegram: "bg-[#34aadf] text-white",
+    whatsapp: "bg-[#20c363] text-white",
+  };
+
+  const label = {
+    instagram: "I",
+    telegram: "T",
+    whatsapp: "W",
+  };
+
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid h-8 w-8 place-items-center rounded-full text-xs font-semibold ${styles[type]}`}
+    >
+      {label[type]}
+    </span>
+  );
+}
+
+function ContactInfoBottomSheet({
+  isOpen,
+  onClose,
+  phoneNumber,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  phoneNumber: string;
+}) {
+  return (
+    <div
+      aria-hidden={!isOpen}
+      className={`absolute inset-0 z-50 flex items-end justify-center overflow-hidden transition-[opacity,visibility] duration-200 ease-out ${
+        isOpen ? "visible opacity-100" : "invisible opacity-0"
+      }`}
+      dir="rtl"
+    >
+      <button
+        aria-label="بستن اطلاعات تماس"
+        className="absolute inset-0 cursor-default bg-black/60"
+        onClick={onClose}
+        tabIndex={isOpen ? 0 : -1}
+        type="button"
+      />
+
+      <section
+        aria-label="اطلاعات تماس"
+        aria-modal="true"
+        className={`relative z-10 h-[306px] w-full max-w-[500px] rounded-t-3xl bg-white shadow-[0_-16px_32px_rgba(26,26,26,0.16)] transition-transform duration-300 ease-out ${
+          isOpen ? "translate-y-0" : "translate-y-full"
+        }`}
+        role="dialog"
+      >
+        <span
+          aria-hidden="true"
+          className="mx-auto mt-4 block h-px w-14 rounded-full bg-[#cccccc]"
+        />
+
+        <header className="mx-4 mt-4 flex h-8 items-start justify-between [direction:ltr]">
+          <h2 className="m-0 min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+            اطلاعات تماس
+          </h2>
+          <button
+            aria-label="بستن"
+            className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+            onClick={onClose}
+            tabIndex={isOpen ? 0 : -1}
+            type="button"
+          >
+            <ViewAdIcon name="back" />
+          </button>
+        </header>
+
+        <div className="mx-4 mt-4">
+          <div className="flex h-14 items-center justify-between [direction:ltr]">
+            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+              {phoneNumber}
+            </span>
+            <a
+              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+              href={`tel:${phoneNumber}`}
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <PhoneIcon className="h-6 w-6" />
+              <span>تماس با</span>
+            </a>
+          </div>
+          <div className="h-px bg-[#cccccc]" />
+          <div className="flex h-14 items-center justify-between [direction:ltr]">
+            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+              {phoneNumber}
+            </span>
+            <a
+              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+              href={`sms:${phoneNumber}`}
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <MessageIcon className="h-6 w-6" />
+              <span>ارسال پیامک</span>
+            </a>
+          </div>
+          <div className="h-px bg-[#cccccc]" />
+          <div className="flex h-16 items-center justify-between [direction:ltr]">
+            <div className="flex gap-4">
+              <button
+                aria-label="واتساپ"
+                className="grid h-14 w-14 place-items-center rounded-full"
+                tabIndex={isOpen ? 0 : -1}
+                type="button"
+              >
+                <SocialIcon type="whatsapp" />
+              </button>
+              <button
+                aria-label="تلگرام"
+                className="grid h-14 w-14 place-items-center rounded-full"
+                tabIndex={isOpen ? 0 : -1}
+                type="button"
+              >
+                <SocialIcon type="telegram" />
+              </button>
+              <button
+                aria-label="اینستاگرام"
+                className="grid h-14 w-14 place-items-center rounded-full"
+                tabIndex={isOpen ? 0 : -1}
+                type="button"
+              >
+                <SocialIcon type="instagram" />
+              </button>
+            </div>
+            <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
+              شبکه‌های اجتماعی
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ViewAdNotePage({
+  noteText,
+  onChangeNote,
+  onClose,
+}: {
+  noteText: string;
+  onChangeNote: (value: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
+      <header className="flex h-14 shrink-0 items-center justify-between bg-[#f0f0f0] px-1 [direction:ltr]">
+        <div className="h-12 w-40 shrink-0" />
+        <h1 className="m-0 min-w-0 flex-1 truncate px-2 text-right text-base font-semibold leading-6">
+          یادداشت
+        </h1>
+        <button
+          aria-label="بازگشت"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          onClick={onClose}
+          type="button"
+        >
+          <ViewAdIcon name="back" />
+        </button>
+      </header>
+
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4 pt-8">
+        <p className="m-0 text-right text-sm font-normal leading-5 text-[#1a1a1a]">
+          یادداشت تنها برای شما قابل دیدن است و پس از حذف آگهی، پاک خواهد شد.
+        </p>
+        <textarea
+          aria-label="یادداشت شما"
+          autoFocus
+          className="mt-6 h-60 w-full resize-none rounded-xl border-2 border-[#0048c4] bg-white px-3 py-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a]/50"
+          onChange={(event) => onChangeNote(event.target.value)}
+          placeholder="یادداشت شما"
+          value={noteText}
+        />
+      </main>
+
+      <div className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_4px_rgba(26,26,26,0.08)]">
+        <div className="grid grid-cols-2 gap-4 [direction:ltr]">
+          <button
+            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            onClick={onClose}
+            type="button"
+          >
+            ذخیره
+          </button>
+          <button
+            className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            onClick={onClose}
+            type="button"
+          >
+            انصراف
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AlbumCloseIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+function getAlbumDotSize(index: number, activeIndex: number, total: number) {
+  if (index === activeIndex) return 24;
+  if (total >= 7 && index === total - 1) return 4;
+  if (total >= 6 && index === total - 2) return 6;
+  return 8;
+}
+
+function AlbumPage({
+  activeIndex = 0,
+  mediaItems,
+  onClose,
+}: {
+  activeIndex?: number;
+  mediaItems: AlbumMediaItem[];
+  onClose: () => void;
+}) {
+  const activeMedia = mediaItems[activeIndex] ?? mediaItems[0];
+  const dotSizes = mediaItems.map((_, index) =>
+    getAlbumDotSize(index, activeIndex, mediaItems.length),
+  );
+  const indicatorContentWidth =
+    dotSizes.reduce((sum, size) => sum + size, 0) +
+    Math.max(mediaItems.length - 1, 0) * 8;
+  const indicatorWidth = indicatorContentWidth + 24;
+
+  return (
+    <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-[#1a1a1a] text-[#fafafa]">
+      <header className="flex h-14 shrink-0 items-center justify-between bg-[#1a1a1a] px-1 [direction:ltr]">
+        <div className="h-12 w-40 shrink-0" />
+        <div className="min-w-0 flex-1" />
+        <button
+          aria-label="بستن آلبوم"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#fafafa] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff66]"
+          onClick={onClose}
+          type="button"
+        >
+          <AlbumCloseIcon />
+        </button>
+      </header>
+
+      <main className="relative min-h-0 flex-1 overflow-hidden bg-[#1a1a1a]">
+        <div className="pt-[202px]">
+          <img
+            alt=""
+            className="aspect-[3/2] w-full object-cover"
+            src={activeMedia.src}
+          />
+        </div>
+
+        <div className="absolute bottom-13 left-0 right-0 flex justify-center">
+          <div
+            aria-label={`رسانه ${activeIndex + 1} از ${mediaItems.length}`}
+            className="flex h-6 items-center justify-center rounded-lg bg-[#ffffff14]"
+            role="img"
+            style={{ width: indicatorWidth }}
+          >
+            <div className="flex h-2 items-center gap-2">
+              {mediaItems.map((item, index) => (
+                <span
+                  aria-hidden="true"
+                  className={`block h-2 rounded-full ${
+                    index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"
+                  }`}
+                  key={`${item.type}-${index}`}
+                  style={{ width: dotSizes[index] }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function ViewAdContent({
+  adId,
+  details,
+  onOpenAlbum,
+}: {
+  adId: number;
+  details: ViewAdDetails;
+  onOpenAlbum: () => void;
+}) {
+  return (
+    <>
+      <section className="bg-white pb-4">
+        <GalleryHero onOpenAlbum={onOpenAlbum} />
+
+        <div className="px-4 pt-4">
+          <div className="flex h-7 items-center justify-between [direction:ltr]">
+            <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d]">
+              <ViewAdIcon className="h-4 w-4" name="calendar" />
+              <span>{details.age}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-medium leading-5 [direction:rtl]">
+              <span className="text-[#4d4d4d]">کد آگهی:</span>
+              <strong className="rounded-lg bg-[#f5f5f5] px-2.5 py-1 text-[#1a1a1a]">
+                {details.adCode}
+              </strong>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2 text-right">
+            <p className="m-0 text-sm font-normal leading-5 text-[#4d4d4d]">
+              {details.locationTitle}
+            </p>
+            <h1 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+              {details.headline}
+            </h1>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <PriceRow label="قیمت کل" value={details.totalPrice} />
+            <PriceRow label="قیمت هر متر" value={details.pricePerMeter} />
+          </div>
+
+          <AgencyCard details={details} />
+        </div>
+      </section>
+
+      <DetailSection icon="building" title="اطلاعات ملک">
+        <PropertyGrid items={details.propertyInfoPreview} />
+        <MoreLink to={`/ads/${adId}/property-info`}>اطلاعات بیشتر</MoreLink>
+      </DetailSection>
+
+      <DetailSection icon="apartment" mutedTitle title="تجهیزات و امکانات">
+        <PropertyGrid items={details.features} withLabels={false} />
+        <MoreLink to={`/ads/${adId}/equipment-facilities`}>موارد بیشتر</MoreLink>
+      </DetailSection>
+
+      <DetailSection icon="info" mutedTitle title="توضیحات">
+        <div className="relative mt-6 h-[350px] overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]">
+          <p className="m-0 whitespace-pre-line">{details.description}</p>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white" />
+        </div>
+        <MoreButton icon="arrowLeft">نمایش بیشتر</MoreButton>
+        <MapPreview />
+      </DetailSection>
+
+      <section className="border-t-8 border-[#f0f0f0] bg-white">
+        {details.rows.map((row) => (
+          <button
+            className="flex h-[88px] w-full items-center justify-between border-b-8 border-[#f0f0f0] px-8 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            key={row.label}
+            type="button"
+          >
+            <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
+                {row.label}
+              </span>
+              <ViewAdIcon className="text-[#808080]" name={row.icon} />
+            </div>
+          </button>
+        ))}
+      </section>
+    </>
+  );
+}
+
+function NotFoundState() {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <ViewAdTopBar backTo="/home" />
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-6 text-right">
+        <h1 className="m-0 text-base font-semibold leading-6">آگهی پیدا نشد</h1>
+        <p className="mt-3 text-sm leading-6 text-[#4d4d4d]">
+          این آگهی در حال حاضر موجود نیست یا لینک آن نادرست است.
+        </p>
+      </main>
+    </PageFrame>
+  );
 }
 
 export function ViewAdPage() {
-  const adId = parseViewAdId(window.location.pathname);
+  const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+  const [isAlbumOpen, setIsAlbumOpen] = useState(false);
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const adId = parseAdIdFromPath(window.location.pathname);
   const ad = adId != null ? getLatestMashhadAdById(adId) : undefined;
-  const hasSecondaryPrice =
-    ad && ad.priceLabelSecondary && ad.priceSecondary;
 
-  if (!ad) {
-    return (
-      <PageFrame
-        className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-        variant="flush"
-      >
-        <header className="shrink-0 border-b border-[#e5e5e5] bg-white">
-          <div className="flex min-h-14 items-center gap-2 px-3 py-2 min-[390px]:min-h-16 min-[390px]:px-4">
-            <RouteLink
-              aria-label="بازگشت"
-              className="grid size-9 shrink-0 place-items-center text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:size-10"
-              to="/home"
-            >
-              <ArrowRight />
-            </RouteLink>
-            <h1 className="m-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-              آگهی پیدا نشد
-            </h1>
-          </div>
-        </header>
-
-        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6">
-          <p className="m-0 text-right text-sm leading-6 text-[#4d4d4d] min-[390px]:text-base min-[390px]:leading-7">
-            این آگهی در حال حاضر موجود نیست یا لینک آن نادرست است.
-          </p>
-          <RouteLink
-            className="mt-6 inline-flex rounded-xl bg-[#0048c4] px-5 py-3 text-sm font-semibold text-white no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:px-6 min-[390px]:text-base"
-            to="/home"
-          >
-            بازگشت به خانه
-          </RouteLink>
-        </main>
-
-        <BottomNavigation activeKey="home" />
-      </PageFrame>
-    );
+  if (!ad || adId == null) {
+    return <NotFoundState />;
   }
+
+  const handleTopBarAction = (icon: IconName) => {
+    if (icon === "note") {
+      setIsNoteOpen(true);
+      return;
+    }
+
+    if (icon === "share") {
+      setIsContactSheetOpen(true);
+    }
+  };
 
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <header className="shrink-0 border-b border-[#e5e5e5] bg-white">
-        <div className="flex min-h-14 items-center gap-2 px-3 py-2 min-[390px]:min-h-16 min-[390px]:px-4">
-          <RouteLink
-            aria-label="بازگشت"
-            className="grid size-9 shrink-0 place-items-center text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:size-10"
-            to="/home"
-          >
-            <ArrowRight />
-          </RouteLink>
-          <h1 className="m-0 line-clamp-1 min-w-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-            {ad.title}
-          </h1>
-        </div>
-      </header>
+      <ViewAdTopBar backTo="/home" onAction={handleTopBarAction} />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <div
-          className={`ad-card__image relative min-h-[220px] w-full overflow-hidden bg-[#dbe5ff] bg-cover min-[390px]:min-h-[260px] ${ad.imageClassName}`}
-        >
-          <div
-            className="absolute right-3 top-3 z-2 inline-flex h-7 min-w-11 items-center justify-center gap-1.5 rounded-lg bg-[#1a1a1a85] px-2 py-1 text-xs font-semibold leading-4 text-white min-[390px]:right-4 min-[390px]:top-4 min-[390px]:h-8 min-[390px]:min-w-[52px] min-[390px]:text-sm min-[390px]:leading-5"
-            aria-hidden="true"
-          >
-            <span>{ad.statusCount}</span>
-            <span className="ad-card__action-icon" />
-          </div>
-          {ad.agency ? (
-            <div className="ad-card__agency-name absolute bottom-3 right-3 z-1 inline-flex max-w-[calc(100%-24px)] items-center gap-2 whitespace-nowrap rounded-lg bg-[#1a1a1a9e] px-2 py-1.5 text-xs font-medium leading-4 text-white min-[390px]:bottom-4 min-[390px]:right-4 min-[390px]:px-2.5 min-[390px]:py-2 min-[390px]:text-[13px] min-[390px]:leading-[18px]">
-              {ad.agency}
-            </div>
-          ) : null}
-        </div>
-
-        <div className="bg-white px-4 pb-4 pt-4 min-[390px]:px-5 min-[390px]:pb-5 min-[390px]:pt-5">
-          <div className="flex flex-wrap items-baseline justify-start gap-2 [direction:rtl]">
-            <div className="ad-card__price-item inline-flex min-w-0 items-center gap-1">
-              {ad.priceLabelPrimary ? (
-                <span className="text-sm font-medium leading-5 text-[#808080] min-[390px]:text-base min-[390px]:leading-6">
-                  {ad.priceLabelPrimary}
-                </span>
-              ) : null}
-              <strong className="whitespace-nowrap text-base font-bold leading-6 text-[#0048c4] min-[390px]:text-lg min-[390px]:leading-7">
-                {ad.pricePrimary}
-              </strong>
-            </div>
-            {hasSecondaryPrice ? (
-              <span
-                className="h-6 w-px shrink-0 bg-[#cccccc]"
-                aria-hidden="true"
-              />
-            ) : null}
-            {hasSecondaryPrice ? (
-              <div className="ad-card__price-item inline-flex min-w-0 items-center gap-1">
-                <span className="text-sm font-medium leading-5 text-[#808080] min-[390px]:text-base min-[390px]:leading-6">
-                  {ad.priceLabelSecondary}
-                </span>
-                <strong className="whitespace-nowrap text-base font-bold leading-6 text-[#0048c4] min-[390px]:text-lg min-[390px]:leading-7">
-                  {ad.priceSecondary}
-                </strong>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-3 flex flex-wrap items-center justify-start gap-3 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:mt-4 min-[390px]:gap-[22px] min-[390px]:text-base min-[390px]:leading-6">
-            <span className="ad-card__property ad-card__property--area text-[#4d4d4d]">
-              {ad.area}
-            </span>
-            <span className="ad-card__property ad-card__property--rooms text-[#4d4d4d]">
-              {ad.rooms}
-            </span>
-            <span className="ad-card__property ad-card__property--year text-[#4d4d4d]">
-              {ad.year}
-            </span>
-          </div>
-
-          <p className="mt-4 text-right text-base font-medium leading-7 text-[#1a1a1a] min-[390px]:mt-5 min-[390px]:text-lg min-[390px]:leading-8">
-            {ad.title}
-          </p>
-
-          <div className="mt-3 flex min-h-6 flex-wrap items-center justify-start gap-2 [direction:rtl] min-[390px]:mt-4">
-            <div className="ad-card__badges inline-flex items-center gap-1">
-              {ad.badges.map((badge) => (
-                <span
-                  className={`whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 min-[390px]:text-sm min-[390px]:leading-5 ${
-                    badge === "فوری"
-                      ? "border-[#ff6d00] text-[#ff6d00]"
-                      : "border-[#11a366] text-[#11a366]"
-                  }`}
-                  key={badge}
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-            <span className="min-w-0 text-right text-xs font-normal leading-4 text-[#808080] min-[390px]:text-sm min-[390px]:leading-5">
-              {ad.timeAndLocation}
-            </span>
-          </div>
-        </div>
-
-        <section
-          className="mt-2 border-t-8 border-[#f0f0f0] bg-white px-4 py-4 text-right min-[390px]:px-5 min-[390px]:py-5"
-          aria-labelledby="view-ad-description"
-        >
-          <h2
-            className="m-0 text-base font-bold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7"
-            id="view-ad-description"
-          >
-            توضیحات
-          </h2>
-          <div className="mt-3 space-y-3 text-sm font-normal leading-6 text-[#4d4d4d] min-[390px]:mt-4 min-[390px]:space-y-4 min-[390px]:text-base min-[390px]:leading-7">
-            <p className="m-0">
-              واحد رو به آفتاب با نور طبیعی عالی، کف سرامیک، کابینت ممبران و
-              سیستم گرمایشی و سرمایشی اسپلیت. دسترسی آسان به بلوار اصلی، مراکز
-              خرید و حمل‌ونقل عمومی.
-            </p>
-            <p className="m-0">
-              سند تک‌برگ، پارکینگ اختصاصی و انباری. مناسب سکونت خانوادگی یا
-              سرمایه‌گذاری. بازدید با هماهنگی قبلی امکان‌پذیر است.
-            </p>
-            <p className="m-0">
-              اطلاعات نمایش‌داده‌شده صرفاً جنبه معرفی دارد؛ برای قطعی شدن شرایط
-              معامله با مشاور تماس بگیرید.
-            </p>
-          </div>
-        </section>
-
-        <section
-          className="mt-2 border-t-8 border-[#f0f0f0] bg-white px-4 py-4 min-[390px]:px-5 min-[390px]:py-5"
-          aria-labelledby="view-ad-features"
-        >
-          <h2
-            className="m-0 text-right text-base font-bold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7"
-            id="view-ad-features"
-          >
-            امکانات
-          </h2>
-          <ul className="m-0 mt-3 list-none space-y-2.5 p-0 text-right text-sm leading-6 text-[#4d4d4d] min-[390px]:mt-4 min-[390px]:space-y-3 min-[390px]:text-base min-[390px]:leading-7">
-            <li>آسانسور</li>
-            <li>بالکن</li>
-            <li>انباری اختصاصی</li>
-            <li>درب ضدسرقت</li>
-            <li>آیفون تصویری</li>
-          </ul>
-        </section>
+        <ViewAdContent
+          adId={adId}
+          details={viewAdDemo}
+          onOpenAlbum={() => setIsAlbumOpen(true)}
+        />
       </main>
 
-      <div className="shrink-0 border-t border-[#e5e5e5] bg-white px-4 py-3 min-[390px]:px-5 min-[390px]:py-4">
-        <div className="flex gap-3 [direction:rtl]">
+      <div className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-8px_24px_rgba(26,26,26,0.12)]">
+        <div className="grid grid-cols-2 gap-8 [direction:ltr]">
           <button
-            className="min-h-11 flex-1 rounded-xl border border-[#0048c4] bg-white py-2.5 text-sm font-semibold leading-5 text-[#0048c4] transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-12 min-[390px]:py-3 min-[390px]:text-base min-[390px]:leading-6"
+            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            onClick={() => setIsContactSheetOpen(true)}
             type="button"
           >
-            پیام
+            اطلاعات تماس
           </button>
           <button
-            className="min-h-11 flex-1 rounded-xl bg-[#0048c4] py-2.5 text-sm font-semibold leading-5 text-white shadow-[0_6px_18px_rgba(0,72,196,0.22)] transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-12 min-[390px]:py-3 min-[390px]:text-base min-[390px]:leading-6"
+            className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             type="button"
           >
-            تماس
+            <ViewAdIcon className="h-5 w-5" name="chat" />
+            <span>چت</span>
           </button>
         </div>
       </div>
 
-      <BottomNavigation activeKey="home" />
+      <ContactInfoBottomSheet
+        isOpen={isContactSheetOpen}
+        onClose={() => setIsContactSheetOpen(false)}
+        phoneNumber="09155214062"
+      />
+
+      {isNoteOpen ? (
+        <ViewAdNotePage
+          noteText={noteText}
+          onChangeNote={setNoteText}
+          onClose={() => setIsNoteOpen(false)}
+        />
+      ) : null}
+
+      {isAlbumOpen ? (
+        <AlbumPage
+          mediaItems={albumMediaItems}
+          onClose={() => setIsAlbumOpen(false)}
+        />
+      ) : null}
     </PageFrame>
   );
 }

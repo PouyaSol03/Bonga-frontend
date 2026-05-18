@@ -1,0 +1,79 @@
+export type IconName =
+  | "add"
+  | "album"
+  | "apartment"
+  | "area"
+  | "attachment"
+  | "arrowLeft"
+  | "back"
+  | "bed"
+  | "bookmark"
+  | "building"
+  | "cabinet"
+  | "calendar"
+  | "ceramic"
+  | "chat"
+  | "checklist"
+  | "cooler"
+  | "document"
+  | "elevator"
+  | "exchange"
+  | "floor"
+  | "info"
+  | "loan"
+  | "location"
+  | "money"
+  | "more"
+  | "navigation"
+  | "note"
+  | "parking"
+  | "payment"
+  | "radiator"
+  | "ruler"
+  | "share"
+  | "terrace"
+  | "tooman"
+  | "underfloorHeating"
+  | "video"
+  | "warehouse"
+  | "waterCooler"
+  | "waterHeater"
+  | "yard";
+
+export type DetailItem = {
+  icon: IconName;
+  label: string;
+  value: string;
+};
+
+export type PropertyInfoRow = DetailItem;
+
+export type ActionRow = {
+  icon: IconName;
+  label: string;
+};
+
+export type EquipmentSection = {
+  icon: IconName;
+  items: DetailItem[];
+  title: string;
+};
+
+export type ViewAdDetails = {
+  adCode: string;
+  agency: string;
+  agencyLocation: string;
+  age: string;
+  description: string;
+  headline: string;
+  locationTitle: string;
+  pricePerMeter: string;
+  status: string;
+  title: string;
+  totalPrice: string;
+  features: DetailItem[];
+  equipmentSections: EquipmentSection[];
+  propertyInfoPreview: DetailItem[];
+  propertyInfoRows: PropertyInfoRow[];
+  rows: ActionRow[];
+};

@@ -768,7 +768,7 @@ function SendFileBottomSheet({
   return (
     <BottomSheet
       ariaLabel="ارسال فایل"
-      contentClassName="mt-16"
+      contentClassName="mt-5"
       heightClassName="h-[298px]"
       isOpen={isOpen}
       onClose={onClose}

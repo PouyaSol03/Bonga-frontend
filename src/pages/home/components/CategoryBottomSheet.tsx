@@ -41,7 +41,7 @@ export function CategoryBottomSheet({
   return (
     <BottomSheet
       ariaLabel={`انتخاب دسته‌بندی ${title}`}
-      contentClassName="mt-8"
+      contentClassName="mt-5"
       heightClassName="max-h-[min(88dvh,560px)]"
       isOpen={isOpen}
       onBack={handleBack}

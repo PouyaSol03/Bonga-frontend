@@ -102,7 +102,7 @@ export function CreateAdBottomSheet({
   return (
     <BottomSheet
       ariaLabel="ثبت آگهی"
-      contentClassName="mt-8 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
+      contentClassName="mt-5 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
       heightClassName="max-h-[min(88dvh,560px)]"
       isOpen={isOpen}
       onClose={onClose}
@@ -118,17 +118,17 @@ export function CreateAdBottomSheet({
           className="flex w-full items-center gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
         >
           <span className="shrink-0 text-[#4d4d4d]">
-            <span className="block size-7">
+            <span className="block size-6">
               <CreateAdIcon type={option.icon} />
             </span>
           </span>
 
           <span className="min-w-0 flex-1">
-            <span className="block text-lg font-normal leading-7 text-[#1a1a1a]">
+            <span className="block text-base font-normal leading-6 text-[#1a1a1a]">
               {option.title}
             </span>
 
-            <span className="mt-1 block text-sm font-normal leading-5 text-[#808080]">
+            <span className="mt-0.5 block text-sm font-normal leading-5 text-[#808080]">
               {option.description}
             </span>
           </span>

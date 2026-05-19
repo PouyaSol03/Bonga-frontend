@@ -4,6 +4,7 @@ import { HomePage } from '../pages/HomePage'
 import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
 import { MyAccountPage } from '../pages/MyAccountPage'
+import { NewAdCategoryPage } from '../pages/newAd/NewAdCategoryPage'
 import { PublicLandingPage } from '../pages/PublicLandingPage'
 import {
   AccountAboutPage,
@@ -115,6 +116,31 @@ export const routes: AppRoute[] = [
   },
   {
     path: "/new-ad",
+    title: "New Ad",
+    Component: NewAdComingSoonPage,
+  },
+  {
+    path: "/new-ad/category",
+    title: "New Ad Category",
+    Component: NewAdCategoryPage,
+  },
+  {
+    path: "/new-ad/personal",
+    title: "New Ad Category",
+    Component: NewAdCategoryPage,
+  },
+  {
+    path: "/new-ad/category/next",
+    title: "New Ad",
+    Component: NewAdComingSoonPage,
+  },
+  {
+    path: "/new-ad/independent-consultant",
+    title: "New Ad",
+    Component: NewAdComingSoonPage,
+  },
+  {
+    path: "/new-ad/jaliliyan-agency",
     title: "New Ad",
     Component: NewAdComingSoonPage,
   },

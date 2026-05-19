@@ -173,7 +173,7 @@ function ContactInfoBottomSheet({
   return (
     <BottomSheet
       ariaLabel="اطلاعات تماس"
-      contentClassName="mx-4 mt-8"
+      contentClassName="mx-4 mt-5"
       heightClassName="h-[306px]"
       isOpen={isOpen}
       onClose={onClose}

@@ -53,6 +53,11 @@ const navigationItems: BottomNavigationItem[] = [
   },
 ];
 
+function navigateTo(path: string) {
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 export function BottomNavigation({
   activeKey = "account",
 }: {
@@ -113,15 +118,15 @@ export function BottomNavigation({
           setIsCreateAdOpen(false);
 
           if (option.id === "personal") {
-            window.location.href = "/new-ad/personal";
+            navigateTo("/new-ad/category");
           }
 
           if (option.id === "independent-consultant") {
-            window.location.href = "/new-ad/independent-consultant";
+            navigateTo("/new-ad/independent-consultant");
           }
 
           if (option.id === "jaliliyan-agency") {
-            window.location.href = "/new-ad/jaliliyan-agency";
+            navigateTo("/new-ad/jaliliyan-agency");
           }
         }}
       />

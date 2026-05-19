@@ -80,21 +80,21 @@ export function BottomSheet({
       <section
         aria-label={ariaLabel}
         aria-modal="true"
-        className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[32px] bg-white pt-4 transition-transform duration-300 ease-out ${
+        className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[28px] bg-white pt-5 transition-transform duration-300 ease-out ${
           isOpen ? "translate-y-0" : "translate-y-full"
         } ${heightClassName} ${className}`}
         role="dialog"
       >
         <span
           aria-hidden="true"
-          className="mx-auto block h-1 w-[60px] rounded-full bg-[#cccccc]"
+          className="mx-auto block h-1 w-[72px] rounded-full bg-[#cccccc]"
         />
 
         {showHeader ? (
-          <header className="mt-8 flex h-8 items-center gap-3 px-4 text-right">
+          <header className="mt-5 flex h-10 items-center gap-2 px-4 text-right">
             <button
               aria-label="بازگشت"
-              className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
               onClick={onBack ?? onClose}
               tabIndex={isOpen ? 0 : -1}
               type="button"
@@ -104,7 +104,7 @@ export function BottomSheet({
               </span>
             </button>
 
-            <h2 className="m-0 min-w-0 flex-1 text-right text-2xl font-semibold leading-8 text-[#1a1a1a]">
+            <h2 className="m-0 min-w-0 flex-1 text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
               {title ?? ariaLabel}
             </h2>
           </header>
@@ -130,13 +130,13 @@ export function BottomSheetActionList({
         return (
           <div key={item.id}>
             <button
-              className="flex h-14 w-full items-center gap-4 bg-white px-4 text-right text-2xl font-normal leading-8 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+              className="flex h-12 w-full items-center gap-3 bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
               disabled={!isInteractive}
               onClick={() => onSelect?.(item)}
               tabIndex={isOpen && isInteractive ? 0 : -1}
               type="button"
             >
-              {Icon ? <Icon className="h-7 w-7 shrink-0 text-[#4d4d4d]" /> : null}
+              {Icon ? <Icon className="h-6 w-6 shrink-0 text-[#4d4d4d]" /> : null}
               <span className="min-w-0 flex-1 truncate">{item.title}</span>
             </button>
 

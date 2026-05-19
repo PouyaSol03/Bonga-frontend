@@ -1,4 +1,8 @@
-import { useLayoutEffect, useRef } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import type { SearchMapListing } from "../searchMapData";
 import {
   SEARCH_MAP_DEMO_PHOTO,
@@ -19,13 +23,7 @@ export function SearchMapListingSlider({
   onSelectListing,
 }: SearchMapListingSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const orderedListings = selectedListingId
-    ? [
-        ...listings.filter((listing) => listing.id === selectedListingId),
-        ...listings.filter((listing) => listing.id !== selectedListingId),
-      ]
-    : listings;
+  const dragScrollHandlers = useDragScroll(scrollRef);
 
   useLayoutEffect(() => {
     if (!isOpen || selectedListingId == null) return;
@@ -63,9 +61,10 @@ export function SearchMapListingSlider({
     >
       <div
         ref={scrollRef}
-        className="flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-3 pb-3 pt-1 scrollbar-none [-ms-overflow-style:none] min-[390px]:gap-3 min-[390px]:px-4 min-[390px]:pb-5 [&::-webkit-scrollbar]:hidden"
+        className="flex cursor-grab select-none snap-x snap-proximity gap-2 overflow-x-auto overscroll-x-contain scroll-smooth px-[max(0.75rem,calc((100%_-_min(300px,calc(100%_-_2.75rem)))_/_2))] pb-3 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:max(0.75rem,calc((100%_-_min(300px,calc(100%_-_2.75rem)))_/_2))] [-ms-overflow-style:none] active:cursor-grabbing min-[390px]:gap-3 min-[390px]:pb-5 [&::-webkit-scrollbar]:hidden"
+        {...dragScrollHandlers}
       >
-        {orderedListings.map((listing) => (
+        {listings.map((listing) => (
           <MapAdCard
             key={listing.id}
             listing={listing}
@@ -102,7 +101,7 @@ function MapAdCard({
   return (
     <button
       data-map-slider-card={listing.id}
-      className={`flex w-[min(300px,calc(100vw-2.75rem))] shrink-0 snap-center snap-always flex-col overflow-hidden rounded-2xl bg-white p-3 text-right shadow-[0_6px_24px_rgba(26,26,26,0.14)] transition-all duration-200 active:scale-[0.985] min-[390px]:p-4 min-[390px]:shadow-[0_8px_28px_rgba(26,26,26,0.22)] ${
+      className={`flex w-[min(300px,calc(100%_-_2.75rem))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-3 text-right shadow-[0_6px_24px_rgba(26,26,26,0.14)] transition-all duration-200 active:scale-[0.985] min-[390px]:p-4 min-[390px]:shadow-[0_8px_28px_rgba(26,26,26,0.22)] ${
         isSelected
           ? "ring-2 ring-[#0048c4] ring-offset-0 ring-offset-transparent"
           : ""
@@ -159,22 +158,26 @@ function MapAdCard({
 }
 
 function ImageSlider({ images }: { images: string[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dragScrollHandlers = useDragScroll(scrollRef);
+
   return (
-    <div className="h-16 w-full overflow-hidden min-[390px]:h-20" dir="ltr">
+    <div className="h-16 w-full overflow-hidden min-[390px]:h-20" dir="rtl">
       <div
+        ref={scrollRef}
         className="
-          flex h-16 w-full snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth scrollbar-none
-          [-ms-overflow-style:none] min-[390px]:h-20 min-[390px]:gap-2.5
+          flex h-16 w-full cursor-grab snap-x snap-proximity gap-2 overflow-x-auto overscroll-x-contain scroll-smooth touch-pan-x scrollbar-none
+          [-ms-overflow-style:none] active:cursor-grabbing min-[390px]:h-20 min-[390px]:gap-2.5 [&::-webkit-scrollbar]:hidden
         "
         onClick={(event) => {
           event.stopPropagation();
         }}
-        onMouseDown={(event) => {
-          event.stopPropagation();
+        onPointerDownCapture={(event) => {
+          if (event.pointerType === "mouse") {
+            event.stopPropagation();
+          }
         }}
-        onTouchStart={(event) => {
-          event.stopPropagation();
-        }}
+        {...dragScrollHandlers}
       >
         {images.map((src, imageIndex) => (
           <img
@@ -197,6 +200,74 @@ function ImageSlider({ images }: { images: string[] }) {
       </div>
     </div>
   );
+}
+
+function useDragScroll(scrollRef: React.RefObject<HTMLDivElement | null>) {
+  const dragStateRef = useRef({
+    didDrag: false,
+    isDragging: false,
+    pointerId: -1,
+    startScrollLeft: 0,
+    startX: 0,
+  });
+
+  const endDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse") return;
+
+    const state = dragStateRef.current;
+    if (!state.isDragging || state.pointerId !== event.pointerId) return;
+
+    state.isDragging = false;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+
+  return {
+    onClickCapture(event: React.MouseEvent<HTMLDivElement>) {
+      if (!dragStateRef.current.didDrag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      dragStateRef.current.didDrag = false;
+    },
+    onPointerCancel: endDrag,
+    onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+
+      const scrollEl = scrollRef.current;
+      if (!scrollEl) return;
+
+      dragStateRef.current = {
+        didDrag: false,
+        isDragging: true,
+        pointerId: event.pointerId,
+        startScrollLeft: scrollEl.scrollLeft,
+        startX: event.clientX,
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    onPointerLeave: endDrag,
+    onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+      if (event.pointerType !== "mouse") return;
+
+      const state = dragStateRef.current;
+      const scrollEl = scrollRef.current;
+      if (!state.isDragging || state.pointerId !== event.pointerId || !scrollEl) {
+        return;
+      }
+
+      const deltaX = event.clientX - state.startX;
+      if (Math.abs(deltaX) > 4) {
+        state.didDrag = true;
+        event.preventDefault();
+      }
+
+      const isRtl = getComputedStyle(scrollEl).direction === "rtl";
+      scrollEl.scrollLeft = isRtl
+        ? state.startScrollLeft + deltaX
+        : state.startScrollLeft - deltaX;
+    },
+    onPointerUp: endDrag,
+  };
 }
 
 function PropertyMeta({

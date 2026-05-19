@@ -117,7 +117,11 @@ export function LoginVerifyPage() {
       <footer className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <RouteLink
           className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-[#0048c4] px-4 py-2.5 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
-          to="/home"
+          onClick={() => {
+            window.sessionStorage.setItem("bonga-account-state", "logged-in-unverified");
+          }}
+          state={{ state: "new" }}
+          to="/login"
         >
           تایید
         </RouteLink>

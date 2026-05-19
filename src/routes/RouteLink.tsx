@@ -2,9 +2,10 @@ import type { AnchorHTMLAttributes, MouseEvent } from 'react'
 
 type RouteLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
   to: string
+  state?: unknown
 }
 
-export function RouteLink({ to, onClick, children, ...props }: RouteLinkProps) {
+export function RouteLink({ to, state, onClick, children, ...props }: RouteLinkProps) {
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     onClick?.(event)
 
@@ -20,7 +21,7 @@ export function RouteLink({ to, onClick, children, ...props }: RouteLinkProps) {
     }
 
     event.preventDefault()
-    window.history.pushState({}, '', to)
+    window.history.pushState(state ?? {}, '', to)
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 

@@ -1,11 +1,22 @@
 import { useState } from "react";
+import type { ComponentType, SVGProps } from "react";
+import NavAccountIcon from "../assets/icons/NavAccountIcon";
+import NavAddIcon from "../assets/icons/NavAddIcon";
+import NavChatIcon from "../assets/icons/NavChatIcon";
+import NavHomeIcon from "../assets/icons/NavHomeIcon";
+import NavSearchIcon from "../assets/icons/NavSearchIcon";
 import { RouteLink } from "../routes/RouteLink";
 import { CreateAdBottomSheet } from "./CreateAdBottomSheet";
+
+type BottomNavigationIconProps = SVGProps<SVGSVGElement> & {
+  active?: boolean;
+  size?: number | string;
+};
 
 type BottomNavigationItem = {
   key: string;
   label: string;
-  icon: string;
+  Icon: ComponentType<BottomNavigationIconProps>;
   to: string;
 };
 
@@ -13,31 +24,31 @@ const navigationItems: BottomNavigationItem[] = [
   {
     key: "home",
     label: "خانه",
-    icon: "/figma/account/nav-home.svg",
+    Icon: NavHomeIcon,
     to: "/home",
   },
   {
     key: "search",
     label: "جستجو",
-    icon: "/figma/account/nav-search.svg",
+    Icon: NavSearchIcon,
     to: "/search",
   },
   {
     key: "new-ad",
     label: "ثبت آگهی",
-    icon: "/figma/account/nav-add.svg",
+    Icon: NavAddIcon,
     to: "/new-ad",
   },
   {
     key: "chat",
     label: "چت",
-    icon: "/figma/account/nav-chat.svg",
+    Icon: NavChatIcon,
     to: "/chat",
   },
   {
     key: "account",
     label: "حساب من",
-    icon: "/figma/account/nav-account.svg",
+    Icon: NavAccountIcon,
     to: "/login",
   },
 ];
@@ -61,6 +72,7 @@ export function BottomNavigation({
           {navigationItems.map((item) => {
             const isActive = item.key === resolvedActiveKey;
             const isNewAd = item.key === "new-ad";
+            const Icon = item.Icon;
 
             return (
               <RouteLink
@@ -78,13 +90,11 @@ export function BottomNavigation({
                   min-[390px]:gap-1 min-[390px]:py-2 min-[390px]:text-xs min-[390px]:leading-4
                   ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
               >
-                <span
-                  className="h-6 w-6 shrink-0 bg-current"
-                  style={{
-                    WebkitMask: `url(${item.icon}) center / contain no-repeat`,
-                    mask: `url(${item.icon}) center / contain no-repeat`,
-                  }}
+                <Icon
+                  active={isActive}
                   aria-hidden="true"
+                  className="h-6 w-6 shrink-0"
+                  size={24}
                 />
 
                 <span className="max-w-full overflow-hidden text-ellipsis">

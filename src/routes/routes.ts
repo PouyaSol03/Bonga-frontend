@@ -5,8 +5,21 @@ import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
 import { MyAccountPage } from '../pages/MyAccountPage'
 import { PublicLandingPage } from '../pages/PublicLandingPage'
+import {
+  AccountAboutPage,
+  AccountBookmarksPage,
+  AccountIdentityPage,
+  AccountMyAdsEmptyPage,
+  AccountMyAdsPage,
+  AccountNotesPage,
+  AccountProfilePage,
+  AccountRecentViewsPage,
+  AccountRequestsPage,
+  AccountWalletHistoryPage,
+  AccountWalletPage,
+} from '../pages/account/AccountSubPages'
 import { SearchMapPage } from '../pages/search/SearchMapPage'
-import { UserChatHomePage } from '../pages/UserChatHomePage'
+import { UserChatDetailPage, UserChatHomePage } from '../pages/UserChatHomePage'
 
 export type AppRoute = {
   path: string
@@ -36,6 +49,61 @@ export const routes: AppRoute[] = [
     Component: LoginVerifyPage,
   },
   {
+    path: '/account/profile',
+    title: 'My Profile',
+    Component: AccountProfilePage,
+  },
+  {
+    path: '/account/identity',
+    title: 'Identity Verification',
+    Component: AccountIdentityPage,
+  },
+  {
+    path: '/account/my-ads',
+    title: 'My Ads',
+    Component: AccountMyAdsPage,
+  },
+  {
+    path: '/account/my-ads/empty',
+    title: 'My Ads Empty',
+    Component: AccountMyAdsEmptyPage,
+  },
+  {
+    path: '/account/wallet',
+    title: 'Wallet',
+    Component: AccountWalletPage,
+  },
+  {
+    path: '/account/wallet/history',
+    title: 'Wallet History',
+    Component: AccountWalletHistoryPage,
+  },
+  {
+    path: '/account/notes',
+    title: 'Notes',
+    Component: AccountNotesPage,
+  },
+  {
+    path: '/account/bookmarks',
+    title: 'Bookmarks',
+    Component: AccountBookmarksPage,
+  },
+  {
+    path: '/account/recent-views',
+    title: 'Recent Views',
+    Component: AccountRecentViewsPage,
+  },
+  {
+    path: '/account/requests',
+    title: 'Requests',
+    Component: AccountRequestsPage,
+  },
+  {
+    path: '/account/about',
+    title: 'About Us',
+    Component: AccountAboutPage,
+  },
+  {
     path: '/home',
     title: 'Home',
     Component: HomePage,
@@ -54,5 +122,30 @@ export const routes: AppRoute[] = [
     path: "/chat",
     title: "Chat",
     Component: UserChatHomePage,
+  },
+  {
+    path: "/chat/1",
+    title: "Chat Detail",
+    Component: UserChatDetailPage,
+  },
+  {
+    path: "/chat/2",
+    title: "Chat Detail",
+    Component: UserChatDetailPage,
+  },
+  {
+    path: "/chat/3",
+    title: "Chat Detail",
+    Component: UserChatDetailPage,
+  },
+  {
+    path: "/chat/4",
+    title: "Chat Detail",
+    Component: UserChatDetailPage,
+  },
+  {
+    path: "/chat/5",
+    title: "Chat Detail",
+    Component: UserChatDetailPage,
   },
 ]

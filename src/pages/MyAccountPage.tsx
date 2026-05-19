@@ -1,9 +1,11 @@
 import { PageFrame } from "../app/PageFrame";
 import { BottomNavigation } from "../components/BottomNavigation";
+import { RouteLink } from "../routes/RouteLink";
 
 type AccountAction = {
   icon: AccountIconName;
   label: string;
+  to?: string;
 };
 
 type AccountIconName =
@@ -15,7 +17,9 @@ type AccountIconName =
   | "identity"
   | "info"
   | "legal"
+  | "lock"
   | "note"
+  | "plus"
   | "request"
   | "setting"
   | "tag"
@@ -27,25 +31,44 @@ const businessActions: AccountAction[] = [
   { icon: "building", label: "مشاور آژانس جلیلیان" },
 ];
 
+const loggedOutBusinessActions: AccountAction[] = [
+  { icon: "plus", label: "ایجاد کسب و کار" },
+];
+
 const primaryActions: AccountAction[] = [
-  { icon: "identity", label: "تایید هویت" },
-  { icon: "user", label: "مشخصات من" },
-  { icon: "tag", label: "آگهی‌های من" },
-  { icon: "request", label: "مدیریت درخواست" },
-  { icon: "bookmark", label: "نشان‌ها" },
-  { icon: "eye", label: "بازدیدهای اخیر" },
-  { icon: "note", label: "یادداشت‌ها" },
-  { icon: "wallet", label: "کیف پول" },
+  { icon: "identity", label: "تایید هویت", to: "/account/identity" },
+  { icon: "user", label: "مشخصات من", to: "/account/profile" },
+  { icon: "tag", label: "آگهی‌های من", to: "/account/my-ads" },
+  { icon: "request", label: "مدیریت درخواست", to: "/account/requests" },
+  { icon: "bookmark", label: "نشان‌ها", to: "/account/bookmarks" },
+  { icon: "eye", label: "بازدیدهای اخیر", to: "/account/recent-views" },
+  { icon: "note", label: "یادداشت‌ها", to: "/account/notes" },
+  { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
+];
+
+const loggedOutPrimaryActions: AccountAction[] = [
+  { icon: "identity", label: "تایید هویت", to: "/account/identity" },
+  { icon: "user", label: "مشخصات من", to: "/account/profile" },
+  { icon: "tag", label: "آگهی‌های من", to: "/account/my-ads/empty" },
+  { icon: "bookmark", label: "نشان‌ها", to: "/account/bookmarks" },
+  { icon: "note", label: "یادداشت‌ها", to: "/account/notes" },
+  { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
 ];
 
 const secondaryActions: AccountAction[] = [
   { icon: "setting", label: "تنظیمات" },
-  { icon: "info", label: "درباره ما" },
+  { icon: "info", label: "درباره ما", to: "/account/about" },
   { icon: "legal", label: "ضوابط و قوانین" },
   { icon: "article", label: "مقالات تخصصی املاک" },
 ];
 
+const loggedOutSecondaryActions: AccountAction[] = [
+  { icon: "setting", label: "تنظیمات" },
+];
+
 export function MyAccountPage() {
+  const isLoggedInUnverified = getAccountState() === "logged-in-unverified";
+
   return (
     <PageFrame
       className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -60,6 +83,7 @@ export function MyAccountPage() {
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
+        {isLoggedInUnverified ? (
         <section className="bg-white" aria-label="وضعیت حساب">
           <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
             <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
@@ -77,20 +101,61 @@ export function MyAccountPage() {
           </div>
           <Divider />
         </section>
+        ) : (
+          <LoggedOutAccountHeader />
+        )}
 
-        <AccountSection actions={businessActions} />
+        <AccountSection actions={isLoggedInUnverified ? businessActions : loggedOutBusinessActions} />
 
         <div className="h-4 bg-[#f0f0f0]" />
 
-        <AccountSection actions={primaryActions} />
+        <AccountSection actions={isLoggedInUnverified ? primaryActions : loggedOutPrimaryActions} />
 
         <div className="h-4 bg-[#f0f0f0]" />
 
-        <AccountSection actions={secondaryActions} />
+        <AccountSection actions={isLoggedInUnverified ? secondaryActions : loggedOutSecondaryActions} />
       </main>
 
       <BottomNavigation activeKey="account" />
     </PageFrame>
+  );
+}
+
+function getAccountState() {
+  const historyState = window.history.state as { accountState?: string; state?: string } | null;
+
+  if (
+    historyState?.state === "new" ||
+    historyState?.accountState === "logged-in-unverified" ||
+    window.sessionStorage.getItem("bonga-account-state") === "logged-in-unverified"
+  ) {
+    return "logged-in-unverified";
+  }
+
+  return "logged-out";
+}
+
+function LoggedOutAccountHeader() {
+  return (
+    <section className="bg-white pt-4" aria-label="ورود به حساب">
+      <div className="px-4 pb-2 pt-2">
+        <RouteLink
+          className="flex h-14 w-full items-center gap-2 rounded-xl border border-[#0048c4] px-4 text-[#0048c4] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          to="/login/phone"
+        >
+          <ChevronLeftIcon className="h-6 w-6 shrink-0" />
+          <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
+            ورود به حساب کاربری
+          </span>
+          <AccountIcon className="h-6 w-6 shrink-0" name="lock" />
+        </RouteLink>
+
+        <p className="m-0 mt-4 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
+          برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
+        </p>
+      </div>
+      <Divider />
+    </section>
   );
 }
 
@@ -115,18 +180,33 @@ function AccountMenuRow({
   action: AccountAction;
   hasDivider?: boolean;
 }) {
+  const content = (
+    <>
+      <ChevronLeftIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+      <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
+        {action.label}
+      </span>
+      <AccountIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" name={action.icon} />
+    </>
+  );
+
   return (
     <>
-      <button
-        className="flex h-16 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
-        type="button"
-      >
-        <ChevronLeftIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-        <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
-          {action.label}
-        </span>
-        <AccountIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" name={action.icon} />
-      </button>
+      {action.to ? (
+        <RouteLink
+          className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          to={action.to}
+        >
+          {content}
+        </RouteLink>
+      ) : (
+        <button
+          className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          type="button"
+        >
+          {content}
+        </button>
+      )}
       {hasDivider ? <Divider /> : null}
     </>
   );
@@ -218,12 +298,19 @@ function AccountIcon({
           <path d="M8 21h8" />
         </>
       ) : null}
+      {name === "lock" ? (
+        <>
+          <rect height="11" rx="2" width="14" x="5" y="10" />
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        </>
+      ) : null}
       {name === "note" ? (
         <>
           <rect height="16" rx="2" width="14" x="5" y="4" />
           <path d="M9 3v3M15 3v3M8.5 10h7M8.5 14h5" />
         </>
       ) : null}
+      {name === "plus" ? <path d="M12 5v14M5 12h14" /> : null}
       {name === "request" ? (
         <>
           <path d="M6 3h10l3 3v15H6V3Z" />

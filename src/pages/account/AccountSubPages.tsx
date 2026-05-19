@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
+import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 
 type TopBarProps = {
@@ -389,23 +390,15 @@ function AccountPageShell({ action, children, title }: React.PropsWithChildren<T
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <header className="h-14 shrink-0 bg-[#f0f0f0]">
-        <div className="flex h-full items-center px-1 [direction:ltr]">
+      <TopBar
+        backTo="/login"
+        startSlot={
           <div className="flex h-12 w-12 shrink-0 items-center justify-center">
             {action}
           </div>
-          <h1 className="m-0 min-w-0 flex-1 truncate px-2 text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
-            {title}
-          </h1>
-          <RouteLink
-            aria-label="بازگشت"
-            className="grid h-12 w-12 shrink-0 place-items-center text-[#1a1a1a]"
-            to="/login"
-          >
-            <ArrowRightIcon className="h-6 w-6" />
-          </RouteLink>
-        </div>
-      </header>
+        }
+        title={title}
+      />
       {children}
     </PageFrame>
   );
@@ -720,15 +713,6 @@ function PaymentInfoRow({
         {label}
       </span>
     </div>
-  );
-}
-
-function ArrowRightIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
-      <path d="M19 12H5" />
-      <path d="m12 5-7 7 7 7" />
-    </svg>
   );
 }
 

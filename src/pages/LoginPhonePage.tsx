@@ -1,7 +1,7 @@
 import { PageFrame } from "../app/PageFrame";
+import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import LoginPhoneBackground from "../assets/images/LoginPhoneBackground.svg";
-import ArrowRight from "../assets/icons/ArrowRight";
 
 export function LoginPhonePage() {
   return (
@@ -9,20 +9,7 @@ export function LoginPhonePage() {
       className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
       variant="flush"
     >
-      <header className="sticky top-0 z-10 shrink-0 bg-[#f0f0f0]">
-        <div className="w-full flex justify-start items-center">
-          <RouteLink
-            className="col-start-1 grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:h-12 min-[390px]:w-12"
-            to="/login"
-            aria-label="بازگشت"
-          >
-            <ArrowRight />
-          </RouteLink>
-          <h1 className="col-start-2 m-0 justify-self-center whitespace-nowrap text-center text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-            ورود به حساب کاربری
-          </h1>
-        </div>
-      </header>
+      <TopBar backTo="/login" title="ورود به حساب کاربری" />
 
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
         <section

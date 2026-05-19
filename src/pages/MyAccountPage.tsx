@@ -1,5 +1,6 @@
 import { PageFrame } from "../app/PageFrame";
 import { BottomNavigation } from "../components/BottomNavigation";
+import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 
 type AccountAction = {
@@ -74,13 +75,7 @@ export function MyAccountPage() {
       className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <header className="sticky top-0 z-10 h-14 shrink-0 bg-[#f0f0f0]">
-        <div className="flex h-full items-center px-4">
-          <h1 className="m-0 flex-1 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
-            حساب من
-          </h1>
-        </div>
-      </header>
+      <TopBar showBack={false} title="حساب من" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
         {isLoggedInUnverified ? (

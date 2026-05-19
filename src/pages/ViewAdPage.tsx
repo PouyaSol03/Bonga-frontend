@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { BottomSheet } from "../components/BottomSheet";
+import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
 import { getLatestMashhadAdById } from "./home/homeData";
 import {
@@ -169,50 +171,14 @@ function ContactInfoBottomSheet({
   phoneNumber: string;
 }) {
   return (
-    <div
-      aria-hidden={!isOpen}
-      className={`absolute inset-0 z-50 flex items-end justify-center overflow-hidden transition-[opacity,visibility] duration-200 ease-out ${
-        isOpen ? "visible opacity-100" : "invisible opacity-0"
-      }`}
-      dir="rtl"
+    <BottomSheet
+      ariaLabel="اطلاعات تماس"
+      contentClassName="mx-4 mt-8"
+      heightClassName="h-[306px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      title="اطلاعات تماس"
     >
-      <button
-        aria-label="بستن اطلاعات تماس"
-        className="absolute inset-0 cursor-default bg-black/60"
-        onClick={onClose}
-        tabIndex={isOpen ? 0 : -1}
-        type="button"
-      />
-
-      <section
-        aria-label="اطلاعات تماس"
-        aria-modal="true"
-        className={`relative z-10 h-[306px] w-full max-w-[500px] rounded-t-3xl bg-white shadow-[0_-16px_32px_rgba(26,26,26,0.16)] transition-transform duration-300 ease-out ${
-          isOpen ? "translate-y-0" : "translate-y-full"
-        }`}
-        role="dialog"
-      >
-        <span
-          aria-hidden="true"
-          className="mx-auto mt-4 block h-px w-14 rounded-full bg-[#cccccc]"
-        />
-
-        <header className="mx-4 mt-4 flex h-8 items-start justify-between [direction:ltr]">
-          <h2 className="m-0 min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
-            اطلاعات تماس
-          </h2>
-          <button
-            aria-label="بستن"
-            className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
-            onClick={onClose}
-            tabIndex={isOpen ? 0 : -1}
-            type="button"
-          >
-            <ViewAdIcon name="back" />
-          </button>
-        </header>
-
-        <div className="mx-4 mt-4">
           <div className="flex h-14 items-center justify-between [direction:ltr]">
             <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
               {phoneNumber}
@@ -272,9 +238,7 @@ function ContactInfoBottomSheet({
               شبکه‌های اجتماعی
             </span>
           </div>
-        </div>
-      </section>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -289,20 +253,7 @@ function ViewAdNotePage({
 }) {
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
-      <header className="flex h-14 shrink-0 items-center justify-between bg-[#f0f0f0] px-1 [direction:ltr]">
-        <div className="h-12 w-40 shrink-0" />
-        <h1 className="m-0 min-w-0 flex-1 truncate px-2 text-right text-base font-semibold leading-6">
-          یادداشت
-        </h1>
-        <button
-          aria-label="بازگشت"
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          onClick={onClose}
-          type="button"
-        >
-          <ViewAdIcon name="back" />
-        </button>
-      </header>
+      <TopBar onBack={onClose} title="یادداشت" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4 pt-8">
         <p className="m-0 text-right text-sm font-normal leading-5 text-[#1a1a1a]">

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { BottomSheet } from '../../../components/BottomSheet'
 import { quickActions } from '../homeData'
 import type { CategoryOption, QuickAction } from '../homeTypes'
 
@@ -38,46 +39,16 @@ export function CategoryBottomSheet({
   }
 
   return (
-    <div
-      className={`absolute inset-0 z-50 flex items-end overflow-hidden transition-[opacity,visibility] duration-200 ease-out ${
-        isOpen ? 'visible opacity-100' : 'invisible opacity-0'
-      }`}
-      aria-hidden={!isOpen}
+    <BottomSheet
+      ariaLabel={`انتخاب دسته‌بندی ${title}`}
+      contentClassName="mt-8"
+      heightClassName="max-h-[min(88dvh,560px)]"
+      isOpen={isOpen}
+      onBack={handleBack}
+      onClose={closeSheet}
+      title={title}
     >
-      <button
-        className="absolute inset-0 cursor-default bg-black/60"
-        type="button"
-        aria-label="بستن دسته‌بندی‌ها"
-        tabIndex={isOpen ? 0 : -1}
-        onClick={closeSheet}
-      />
-
-      <section
-        className={`relative z-10 w-full rounded-t-3xl bg-white pb-3 pt-4 shadow-[0_-16px_32px_rgba(26,26,26,0.16)] transition-transform duration-300 ease-out min-[390px]:pb-4 ${
-          isOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={`انتخاب دسته‌بندی ${title}`}
-      >
-        <span className="mx-auto block h-1 w-14 rounded-full bg-[#cccccc]" aria-hidden="true" />
-
-        <div className="flex h-11 items-center gap-3 px-4 pt-3 min-[390px]:h-12 min-[390px]:pt-4">
-          <button
-            className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
-            type="button"
-            aria-label={isDrilldown ? 'بازگشت' : 'بستن'}
-            onClick={handleBack}
-          >
-            <span className="category-sheet-back-icon" aria-hidden="true" />
-          </button>
-
-          <h2 className="m-0 min-w-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-            {title}
-          </h2>
-        </div>
-
-        <div className="px-4 pt-3 min-[390px]:pt-4">
+        <div className="px-4">
           <label className="relative flex h-11 items-center rounded-xl border border-[#808080] bg-white min-[390px]:h-12">
             <input
               className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] min-[390px]:text-base min-[390px]:leading-6"
@@ -111,7 +82,6 @@ export function CategoryBottomSheet({
             </button>
           ))}
         </div>
-      </section>
-    </div>
+    </BottomSheet>
   )
 }

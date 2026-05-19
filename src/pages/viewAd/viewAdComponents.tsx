@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { ViewAdIcon } from "./ViewAdIcon";
 import type {
@@ -42,30 +43,16 @@ export function ViewAdTopBar({
   title?: string;
 }) {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between bg-[#f0f0f0] px-1 [direction:ltr]">
-      <div className="flex items-center">
-        {actionIcons.map((icon) => (
-          <ViewAdIconButton
-            icon={icon}
-            key={icon}
-            label={getActionLabel(icon)}
-            onClick={onAction ? () => onAction(icon) : undefined}
-          />
-        ))}
-      </div>
-      {title ? (
-        <h1 className="m-0 min-w-0 flex-1 truncate px-2 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
-          {title}
-        </h1>
-      ) : null}
-      <RouteLink
-        aria-label="بازگشت"
-        className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-        to={backTo}
-      >
-        <ViewAdIcon name="back" />
-      </RouteLink>
-    </header>
+    <TopBar
+      actions={actionIcons.map((icon) => ({
+        icon: <ViewAdIcon name={icon} />,
+        id: icon,
+        label: getActionLabel(icon),
+        onClick: onAction ? () => onAction(icon) : undefined,
+      }))}
+      backTo={backTo}
+      title={title}
+    />
   );
 }
 

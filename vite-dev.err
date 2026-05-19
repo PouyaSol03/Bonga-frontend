@@ -22,3 +22,7 @@
 [2m5:54:35 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `stroke-linecap`. Did you mean `strokeLinecap`?
 [2m5:54:35 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `stroke-linejoin`. Did you mean `strokeLinejoin`?
 [2m5:54:35 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `clip-path`. Did you mean `clipPath`?
+[2m5:54:46 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `stroke-width`. Did you mean `strokeWidth`?
+[2m5:54:46 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `stroke-linecap`. Did you mean `strokeLinecap`?
+[2m5:54:46 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `stroke-linejoin`. Did you mean `strokeLinejoin`?
+[2m5:54:46 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mInvalid DOM property `clip-path`. Did you mean `clipPath`?

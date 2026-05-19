@@ -1,6 +1,8 @@
 import { type ReactNode, useState } from "react";
 
 import { BottomNavigation } from "../components/BottomNavigation";
+import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
+import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
 import { RouteLink } from "../routes/RouteLink";
 
@@ -173,24 +175,6 @@ function CheckIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function ArrowRightIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path d="M19 12H5" />
-      <path d="m12 19-7-7 7-7" />
-    </svg>
-  );
-}
-
 function BuildingIcon({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -243,6 +227,61 @@ function SendMessageIcon({ className = "" }: { className?: string }) {
     >
       <path d="M21 3 10 14" />
       <path d="m21 3-7 18-4-7-7-4 18-7Z" />
+    </svg>
+  );
+}
+
+function CameraIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M7.5 6.5 9 4h6l1.5 2.5H19A2.5 2.5 0 0 1 21.5 9v8A2.5 2.5 0 0 1 19 19.5H5A2.5 2.5 0 0 1 2.5 17V9A2.5 2.5 0 0 1 5 6.5h2.5Z" />
+      <path d="M12 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+    </svg>
+  );
+}
+
+function AlbumIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <rect height="16" rx="2.5" width="18" x="3" y="4" />
+      <path d="m6.5 16 3.1-3.2a1.4 1.4 0 0 1 2 0l1.4 1.4 2.1-2.1a1.4 1.4 0 0 1 2 0l2.4 2.4" />
+      <path d="M8.5 8.5h.01" />
+    </svg>
+  );
+}
+
+function MapLocationIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 21s7-5.2 7-11.2A7 7 0 0 0 5 9.8C5 15.8 12 21 12 21Z" />
+      <path d="M12 12.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8Z" />
     </svg>
   );
 }
@@ -307,29 +346,23 @@ function SettingsIcon({ className = "" }: { className?: string }) {
 
 function ChatHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between bg-[#f0f0f0] px-1 [direction:ltr]">
-      <div className="flex h-12 w-[104px] shrink-0 items-center">
-        <button
-          aria-label="گزینه‌های بیشتر"
-          className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          onClick={onOpenMenu}
-          type="button"
-        >
-          <MoreVerticalIcon className="h-6 w-6" />
-        </button>
-        <button
-          aria-label="جستجو در چت‌ها"
-          className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          type="button"
-        >
-          <SearchIcon className="h-6 w-6" />
-        </button>
-      </div>
-
-      <h1 className="m-0 min-w-0 flex-1 truncate px-4 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
-        چت و اعلان‌‌ها
-      </h1>
-    </header>
+    <TopBar
+      actions={[
+        {
+          icon: <MoreVerticalIcon className="h-6 w-6" />,
+          id: "more",
+          label: "گزینه‌های بیشتر",
+          onClick: onOpenMenu,
+        },
+        {
+          icon: <SearchIcon className="h-6 w-6" />,
+          id: "search",
+          label: "جستجو در چت‌ها",
+        },
+      ]}
+      backTo="/home"
+      title="چت و اعلان‌‌ها"
+    />
   );
 }
 
@@ -379,65 +412,25 @@ function ChatMenuBottomSheet({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div
-      aria-hidden={!isOpen}
-      className={`absolute inset-0 z-50 flex items-end justify-center overflow-hidden transition-[opacity,visibility] duration-200 ease-out ${
-        isOpen ? "visible opacity-100" : "invisible opacity-0"
-      }`}
-      dir="rtl"
+    <BottomSheet
+      ariaLabel="منوی چت"
+      contentClassName="mt-4"
+      heightClassName="h-[298px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      scrimClassName="bg-[#1a1a1a]/35"
+      title="چت"
     >
-      <button
-        aria-label="بستن منوی چت"
-        className="absolute inset-0 cursor-default bg-[#1a1a1a]/35"
-        onClick={onClose}
-        tabIndex={isOpen ? 0 : -1}
-        type="button"
+      <BottomSheetActionList
+        isOpen={isOpen}
+        items={chatMenuItems.map((item) => ({
+          id: item.id,
+          title: item.title,
+          Icon: item.icon,
+        }))}
+        onSelect={(item) => onSelect(item.id)}
       />
-
-      <section
-        aria-label="منوی چت"
-        aria-modal="true"
-        className={`relative z-10 h-[250px] w-full max-w-[500px] overflow-hidden rounded-t-2xl bg-white pb-4 pt-4 transition-transform duration-300 ease-out ${
-          isOpen ? "translate-y-0" : "translate-y-full"
-        }`}
-        role="dialog"
-      >
-        <span
-          aria-hidden="true"
-          className="mx-auto block h-1 w-14 rounded-full bg-[#cccccc]"
-        />
-
-        <div className="mt-3 h-[202px]">
-          {chatMenuItems.map((item, index) => {
-            const Icon = item.icon;
-
-            return (
-              <div key={item.id}>
-                <button
-                  className="flex h-14 w-full items-center justify-between bg-white px-4 py-2 text-right [direction:ltr] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-                  onClick={() => onSelect(item.id)}
-                  tabIndex={isOpen ? 0 : -1}
-                  type="button"
-                >
-                  <span className="flex h-10 w-[288px] min-w-0 items-center justify-end [direction:rtl]">
-                    <span className="truncate text-base font-normal leading-6 text-[#1a1a1a]">
-                      {item.title}
-                    </span>
-                  </span>
-                  <Icon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-                </button>
-
-                {index < chatMenuItems.length - 1 ? (
-                  <div className="py-2">
-                    <div className="mx-4 h-px bg-[#cccccc]" />
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -610,29 +603,20 @@ function ChatCard({
 
 function ChatDetailHeader() {
   return (
-    <header className="flex h-[60px] shrink-0 items-center justify-between bg-[#f0f0f0] px-1 [direction:rtl]">
-      <RouteLink
-        aria-label="بازگشت به چت‌ها"
-        className="grid h-[60px] w-16 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-4px] focus-visible:outline-[#0048c440]"
-        to="/chat"
-      >
-        <ArrowRightIcon className="h-8 w-8 rotate-180" />
-      </RouteLink>
-
-      <h1 className="min-w-0 flex-1 truncate px-2 text-right text-[22px] font-bold leading-8 text-[#1a1a1a]">
-        آژانس جلالیان
-      </h1>
-
-      <div className="flex h-[60px] w-16 shrink-0 items-center justify-center [direction:ltr]">
-        <button
-          aria-label="گزینه‌های بیشتر"
-          className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
-          type="button"
-        >
-          <MoreVerticalIcon className="h-8 w-8" />
-        </button>
-      </div>
-    </header>
+    <TopBar
+      actions={[
+        {
+          icon: <MoreVerticalIcon className="h-8 w-8" />,
+          id: "more",
+          label: "گزینه‌های بیشتر",
+        },
+      ]}
+      backLabel="بازگشت به چت‌ها"
+      backTo="/chat"
+      heightClassName="h-[60px]"
+      title="آژانس جلالیان"
+      titleClassName="text-[22px] font-bold leading-8"
+    />
   );
 }
 
@@ -717,12 +701,13 @@ function ChatDateChip() {
   );
 }
 
-function ChatComposer() {
+function ChatComposer({ onOpenAttach }: { onOpenAttach: () => void }) {
   return (
     <footer className="flex h-16 shrink-0 items-center gap-2 bg-[#f5f5f5] px-1 py-2 [direction:ltr]">
       <button
-        aria-label="افزودن لینک"
+        aria-label="ارسال فایل"
         className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        onClick={onOpenAttach}
         type="button"
       >
         <LinkChainIcon className="h-8 w-8" />
@@ -749,10 +734,57 @@ function ChatComposer() {
   );
 }
 
+type SendFileOption = {
+  id: string;
+  title: string;
+  Icon: typeof CameraIcon;
+};
+
+const sendFileOptions: SendFileOption[] = [
+  {
+    id: "camera",
+    title: "عکس با دوربین",
+    Icon: CameraIcon,
+  },
+  {
+    id: "gallery",
+    title: "عکس از گالری",
+    Icon: AlbumIcon,
+  },
+  {
+    id: "map",
+    title: "موقعیت در نقشه",
+    Icon: MapLocationIcon,
+  },
+];
+
+function SendFileBottomSheet({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <BottomSheet
+      ariaLabel="ارسال فایل"
+      contentClassName="mt-16"
+      heightClassName="h-[298px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      title="ارسال"
+    >
+      <BottomSheetActionList isOpen={isOpen} items={sendFileOptions} />
+    </BottomSheet>
+  );
+}
+
 export function UserChatDetailPage() {
+  const [isSendFileSheetOpen, setIsSendFileSheetOpen] = useState(false);
+
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
       <ChatDetailHeader />
@@ -774,7 +806,11 @@ export function UserChatDetailPage() {
         </div>
       </main>
 
-      <ChatComposer />
+      <ChatComposer onOpenAttach={() => setIsSendFileSheetOpen(true)} />
+      <SendFileBottomSheet
+        isOpen={isSendFileSheetOpen}
+        onClose={() => setIsSendFileSheetOpen(false)}
+      />
     </PageFrame>
   );
 }

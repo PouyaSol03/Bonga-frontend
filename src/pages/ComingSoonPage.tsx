@@ -1,5 +1,6 @@
 import { PageFrame } from "../app/PageFrame";
 import { BottomNavigation } from "../components/BottomNavigation";
+import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 
 type ComingSoonPageProps = {
@@ -18,13 +19,7 @@ export function ComingSoonPage({
       className="flex min-h-0 flex-col overflow-hidden bg-[#f5f5f5] text-[#1a1a1a]"
       variant="flush"
     >
-      <header className="shrink-0 bg-[#f0f0f0]">
-        <div className="flex min-h-12 items-center px-4 py-1 min-[390px]:min-h-14">
-          <h1 className="m-0 flex-1 text-right text-sm font-semibold leading-5 min-[390px]:text-base min-[390px]:leading-6">
-            {title}
-          </h1>
-        </div>
-      </header>
+      <TopBar showBack={false} title={title} />
 
       <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto overflow-x-hidden bg-white px-6 py-8">
         <section

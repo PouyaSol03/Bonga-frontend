@@ -1,4 +1,5 @@
 import { landingAssets } from "../publicLandingData";
+import ShenasaVector from "../../../assets/icons/ShenasaVector";
 
 export function LandingHero() {
   return (
@@ -38,7 +39,7 @@ function BrandMark() {
       className="brand-mark relative mb-2 grid h-12 w-12 place-items-center rounded-full shadow-[0_4px_10px_#11a366,inset_0_-2px_2px_rgba(230,246,237,0.3)] min-[390px]:h-14 min-[390px]:w-14"
       aria-hidden="true"
     >
-      <span className="brand-roof" />
+      <ShenasaVector />
     </div>
   );
 }

@@ -19,6 +19,8 @@ import {
   AccountWalletHistoryPage,
   AccountWalletPage,
 } from '../pages/account/AccountSubPages'
+import { IndependentConsultantDashboardPage } from '../pages/account/IndependentConsultantDashboardPage'
+import { IndependentConsultantAdManagementPage } from '../pages/account/IndependentConsultantAdManagementPage'
 import { SearchMapPage } from '../pages/search/SearchMapPage'
 import { UserChatDetailPage, UserChatHomePage } from '../pages/UserChatHomePage'
 
@@ -103,6 +105,16 @@ export const routes: AppRoute[] = [
     path: '/account/about',
     title: 'About Us',
     Component: AccountAboutPage,
+  },
+  {
+    path: '/account/dashboard',
+    title: 'Dashboard',
+    Component: IndependentConsultantDashboardPage,
+  },
+  {
+    path: '/account/ad-management',
+    title: 'Ad Management',
+    Component: IndependentConsultantAdManagementPage,
   },
   {
     path: '/home',

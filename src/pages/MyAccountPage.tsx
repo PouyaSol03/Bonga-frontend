@@ -2,6 +2,7 @@ import { PageFrame } from "../app/PageFrame";
 import { BottomNavigation } from "../components/BottomNavigation";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
+import { currentAccountUserType } from "./account/accountUserType";
 
 type AccountAction = {
   icon: AccountIconName;
@@ -14,6 +15,7 @@ type AccountIconName =
   | "article"
   | "bookmark"
   | "building"
+  | "dashboard"
   | "eye"
   | "identity"
   | "info"
@@ -21,11 +23,13 @@ type AccountIconName =
   | "lock"
   | "note"
   | "plus"
+  | "ranking"
   | "request"
   | "setting"
   | "tag"
   | "user"
-  | "wallet";
+  | "wallet"
+  | "wallet-add";
 
 const businessActions: AccountAction[] = [
   { icon: "user", label: "مشاور مستقل" },
@@ -68,6 +72,79 @@ const loggedOutSecondaryActions: AccountAction[] = [
 ];
 
 export function MyAccountPage() {
+  if (currentAccountUserType === "independent-consultant") {
+    return <IndependentConsultantAccountPage />;
+  }
+
+  return <StandardAccountPage />;
+}
+
+function IndependentConsultantAccountPage() {
+  const businessActions: AccountAction[] = [
+    { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
+    { icon: "agency", label: "املاک جلیلیان" },
+  ];
+  const consultantActions: AccountAction[] = [
+    { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
+    { icon: "ranking", label: "نشان‌ها و رتبه" },
+    { icon: "building", label: "صفحه مشاور" },
+    { icon: "tag", label: "مدیریت آگهی‌ها", to: "/account/ad-management" },
+    { icon: "request", label: "مدیریت درخواست", to: "/account/requests" },
+    { icon: "wallet-add", label: "افزایش اعتبار", to: "/account/wallet" },
+  ];
+
+  return (
+    <PageFrame
+      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        actions={[
+          {
+            icon: <NotificationIcon className="h-6 w-6" />,
+            id: "notifications",
+            label: "اعلان‌ها",
+          },
+        ]}
+        backTo="/home"
+        title="حساب من"
+      />
+
+      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        <section className="shrink-0 bg-white pb-1 pt-2" aria-label="اطلاعات مشاور">
+          <div className="flex h-[104px] items-center gap-4 px-4">
+            <img
+              alt="ناصر اشرفی"
+              className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
+              src="/figma/account/consultant-profile.png"
+            />
+            <div className="min-w-0 flex-1 text-right">
+              <p className="m-0 truncate text-base font-semibold leading-6 text-[#1a1a1a]">
+                ناصر اشرفی
+              </p>
+              <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
+                مشاور مستقل
+              </p>
+            </div>
+          </div>
+
+          <Divider spaced />
+          <AccountSection actions={businessActions} spacedDividers />
+        </section>
+
+        <AccountSection
+          actions={consultantActions}
+          className="min-h-0 flex-1 pt-0.5"
+          spacedDividers
+        />
+      </main>
+
+      <BottomNavigation activeKey="account" />
+    </PageFrame>
+  );
+}
+
+function StandardAccountPage() {
   const isLoggedInUnverified = getAccountState() === "logged-in-unverified";
 
   return (
@@ -154,14 +231,23 @@ function LoggedOutAccountHeader() {
   );
 }
 
-function AccountSection({ actions }: { actions: AccountAction[] }) {
+function AccountSection({
+  actions,
+  className = "",
+  spacedDividers = false,
+}: {
+  actions: AccountAction[];
+  className?: string;
+  spacedDividers?: boolean;
+}) {
   return (
-    <section className="bg-white" aria-label="گزینه‌های حساب">
+    <section className={`bg-white ${className}`} aria-label="گزینه‌های حساب">
       {actions.map((action, index) => (
         <AccountMenuRow
           action={action}
           hasDivider={index < actions.length - 1}
           key={action.label}
+          spacedDivider={spacedDividers}
         />
       ))}
     </section>
@@ -171,9 +257,11 @@ function AccountSection({ actions }: { actions: AccountAction[] }) {
 function AccountMenuRow({
   action,
   hasDivider = false,
+  spacedDivider = false,
 }: {
   action: AccountAction;
   hasDivider?: boolean;
+  spacedDivider?: boolean;
 }) {
   const content = (
     <>
@@ -202,13 +290,17 @@ function AccountMenuRow({
           {content}
         </button>
       )}
-      {hasDivider ? <Divider /> : null}
+      {hasDivider ? <Divider spaced={spacedDivider} /> : null}
     </>
   );
 }
 
-function Divider() {
-  return <div className="mx-4 h-px bg-[#cccccc]" aria-hidden="true" />;
+function Divider({ spaced = false }: { spaced?: boolean }) {
+  return (
+    <div className={spaced ? "py-0.5" : ""} aria-hidden="true">
+      <div className="mx-4 h-px bg-[#cccccc]" />
+    </div>
+  );
 }
 
 function ChevronLeftIcon({ className = "" }: { className?: string }) {
@@ -224,6 +316,24 @@ function ChevronLeftIcon({ className = "" }: { className?: string }) {
       viewBox="0 0 24 24"
     >
       <path d="m15 6-6 6 6 6" />
+    </svg>
+  );
+}
+
+function NotificationIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M17.5 10a5.5 5.5 0 0 0-11 0v3.5l-1.5 2h14l-1.5-2V10Z" />
+      <path d="M9.75 18a2.35 2.35 0 0 0 4.5 0" />
     </svg>
   );
 }
@@ -267,6 +377,14 @@ function AccountIcon({
           <path d="M8 9h2M8 13h2M8 17h2M17 16h.01" />
         </>
       ) : null}
+      {name === "dashboard" ? (
+        <>
+          <rect height="8" rx="1" width="8" x="3" y="3" />
+          <rect height="8" rx="1" width="8" x="13" y="3" />
+          <rect height="8" rx="1" width="8" x="3" y="13" />
+          <rect height="8" rx="1" width="8" x="13" y="13" />
+        </>
+      ) : null}
       {name === "eye" ? (
         <>
           <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
@@ -306,6 +424,12 @@ function AccountIcon({
         </>
       ) : null}
       {name === "plus" ? <path d="M12 5v14M5 12h14" /> : null}
+      {name === "ranking" ? (
+        <>
+          <path d="m12 3 1.55 3.13 3.45.5-2.5 2.43.59 3.44L12 10.88 8.91 12.5l.59-3.44L7 6.63l3.45-.5L12 3Z" />
+          <path d="M4 21v-5h5v5M9.5 21v-7h5v7M15 21v-4h5v4M3 21h18" />
+        </>
+      ) : null}
       {name === "request" ? (
         <>
           <path d="M6 3h10l3 3v15H6V3Z" />
@@ -334,6 +458,12 @@ function AccountIcon({
         <>
           <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" />
           <path d="M17 12h3v4h-3a2 2 0 0 1 0-4Z" />
+        </>
+      ) : null}
+      {name === "wallet-add" ? (
+        <>
+          <path d="M5 8a2.5 2.5 0 0 1 2.5-2.5H19v14H7.5A2.5 2.5 0 0 1 5 17V8Z" />
+          <path d="M17 12.5h3.5v4H17a2 2 0 0 1 0-4ZM3.5 12h7M7 8.5v7" />
         </>
       ) : null}
     </svg>

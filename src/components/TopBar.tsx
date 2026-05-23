@@ -21,6 +21,7 @@ type TopBarProps = {
   backIconDirection?: "left" | "right";
   backLabel?: string;
   backTo?: string;
+  centerSlot?: ReactNode;
   className?: string;
   heightClassName?: string;
   onBack?: () => void;
@@ -144,6 +145,7 @@ export function TopBar({
   backIconDirection = "right",
   backLabel,
   backTo,
+  centerSlot,
   className = "",
   heightClassName = "h-14",
   onBack,
@@ -174,7 +176,9 @@ export function TopBar({
         ) : null}
 
         <div className="min-w-0 flex-1 px-2 [direction:rtl]">
-          {search ? (
+          {centerSlot ? (
+            centerSlot
+          ) : search ? (
             <TopBarSearchButton search={search} />
           ) : title ? (
             <h1

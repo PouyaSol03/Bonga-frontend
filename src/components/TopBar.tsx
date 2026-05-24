@@ -7,6 +7,7 @@ export type TopBarAction = {
   id: string;
   label: string;
   onClick?: () => void;
+  state?: unknown;
   to?: string;
 };
 
@@ -20,6 +21,7 @@ type TopBarProps = {
   actions?: TopBarAction[];
   backIconDirection?: "left" | "right";
   backLabel?: string;
+  backState?: unknown;
   backTo?: string;
   centerSlot?: ReactNode;
   className?: string;
@@ -73,7 +75,7 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
 
   if (action.to) {
     return (
-      <RouteLink aria-label={action.label} className={className} to={action.to}>
+      <RouteLink aria-label={action.label} className={className} state={action.state} to={action.to}>
         {action.icon}
       </RouteLink>
     );
@@ -94,15 +96,16 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
 function TopBarBackButton({
   backIconDirection,
   backLabel = "بازگشت",
+  backState,
   backTo,
   onBack,
-}: Pick<TopBarProps, "backIconDirection" | "backLabel" | "backTo" | "onBack">) {
+}: Pick<TopBarProps, "backIconDirection" | "backLabel" | "backState" | "backTo" | "onBack">) {
   const className =
     "grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
 
   if (backTo) {
     return (
-      <RouteLink aria-label={backLabel} className={className} to={backTo}>
+      <RouteLink aria-label={backLabel} className={className} state={backState} to={backTo}>
         <TopBarBackIcon direction={backIconDirection} />
       </RouteLink>
     );
@@ -144,6 +147,7 @@ export function TopBar({
   actions = [],
   backIconDirection = "right",
   backLabel,
+  backState,
   backTo,
   centerSlot,
   className = "",
@@ -193,6 +197,7 @@ export function TopBar({
           <TopBarBackButton
             backIconDirection={backIconDirection}
             backLabel={backLabel}
+            backState={backState}
             backTo={backTo}
             onBack={onBack}
           />

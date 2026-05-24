@@ -20,7 +20,30 @@ import {
   AccountWalletPage,
 } from '../pages/account/AccountSubPages'
 import { IndependentConsultantDashboardPage } from '../pages/account/IndependentConsultantDashboardPage'
+import { IndependentConsultantRankingPage } from '../pages/account/IndependentConsultantRankingPage'
+import { IndependentConsultantRankingLevelsPage } from '../pages/account/IndependentConsultantRankingLevelsPage'
+import { IndependentConsultantBadgesGuidePage } from '../pages/account/IndependentConsultantBadgesGuidePage'
+import {
+  IndependentConsultantFileBadgePage,
+  IndependentConsultantMagnetBadgePage,
+  IndependentConsultantResponseBadgePage,
+  IndependentConsultantTimeBadgePage,
+} from '../pages/account/IndependentConsultantBadgeDetailsPage'
 import { IndependentConsultantAdManagementPage } from '../pages/account/IndependentConsultantAdManagementPage'
+import { IndependentConsultantAdAllocationPage } from '../pages/account/adManagement/IndependentConsultantAdAllocationPage'
+import { IndependentConsultantAdEditPage } from '../pages/account/adManagement/IndependentConsultantAdEditPage'
+import { IndependentConsultantAdFilterPage } from '../pages/account/adManagement/IndependentConsultantAdFilterPage'
+import { IndependentConsultantAdPaymentPage } from '../pages/account/adManagement/IndependentConsultantAdPaymentPage'
+import { IndependentConsultantAdPublishedPage } from '../pages/account/adManagement/IndependentConsultantAdPublishedPage'
+import { IndependentConsultantAdSearchPage } from '../pages/account/adManagement/IndependentConsultantAdSearchPage'
+import { IndependentConsultantAdStatisticsDetailsPage } from '../pages/account/adManagement/IndependentConsultantAdStatisticsDetailsPage'
+import { IndependentConsultantAdStatisticsPage } from '../pages/account/adManagement/IndependentConsultantAdStatisticsPage'
+import {
+  IndependentConsultantCreditPackagesPage,
+  IndependentConsultantPanelCreditBonusPage,
+  IndependentConsultantPanelCreditPage,
+} from '../pages/account/credit/IndependentConsultantCreditPage'
+import { IndependentConsultantCreditHistoryPage } from '../pages/account/credit/IndependentConsultantCreditHistoryPage'
 import { SearchMapPage } from '../pages/search/SearchMapPage'
 import { UserChatDetailPage, UserChatHomePage } from '../pages/UserChatHomePage'
 
@@ -112,9 +135,104 @@ export const routes: AppRoute[] = [
     Component: IndependentConsultantDashboardPage,
   },
   {
+    path: '/account/ranking',
+    title: 'Consultant Ranking',
+    Component: IndependentConsultantRankingPage,
+  },
+  {
+    path: '/account/ranking/levels',
+    title: 'Consultant Ranking Levels',
+    Component: IndependentConsultantRankingLevelsPage,
+  },
+  {
+    path: '/account/ranking/badges/guide',
+    title: 'Consultant Badges Guide',
+    Component: IndependentConsultantBadgesGuidePage,
+  },
+  {
+    path: '/account/ranking/badges/file',
+    title: 'Consultant File Badge',
+    Component: IndependentConsultantFileBadgePage,
+  },
+  {
+    path: '/account/ranking/badges/magnet',
+    title: 'Consultant Magnet Badge',
+    Component: IndependentConsultantMagnetBadgePage,
+  },
+  {
+    path: '/account/ranking/badges/response',
+    title: 'Consultant Response Badge',
+    Component: IndependentConsultantResponseBadgePage,
+  },
+  {
+    path: '/account/ranking/badges/time',
+    title: 'Consultant Time Badge',
+    Component: IndependentConsultantTimeBadgePage,
+  },
+  {
     path: '/account/ad-management',
     title: 'Ad Management',
     Component: IndependentConsultantAdManagementPage,
+  },
+  {
+    path: '/account/ad-management/filter',
+    title: 'Ad Management Filters',
+    Component: IndependentConsultantAdFilterPage,
+  },
+  {
+    path: '/account/ad-management/search',
+    title: 'Ad Management Search',
+    Component: IndependentConsultantAdSearchPage,
+  },
+  {
+    path: '/account/ad-management/allocation',
+    title: 'Ad Allocation',
+    Component: IndependentConsultantAdAllocationPage,
+  },
+  {
+    path: '/account/ad-management/payment',
+    title: 'Ad Payment',
+    Component: IndependentConsultantAdPaymentPage,
+  },
+  {
+    path: '/account/ad-management/published',
+    title: 'Published Ad',
+    Component: IndependentConsultantAdPublishedPage,
+  },
+  {
+    path: '/account/ad-management/published/edit',
+    title: 'Edit Published Ad',
+    Component: IndependentConsultantAdEditPage,
+  },
+  {
+    path: '/account/ad-management/statistics',
+    title: 'Ad Statistics',
+    Component: IndependentConsultantAdStatisticsPage,
+  },
+  {
+    path: '/account/ad-management/statistics/details',
+    title: 'Ad Statistics Details',
+    Component: IndependentConsultantAdStatisticsDetailsPage,
+  },
+  {
+    path: '/account/credit/panel',
+    title: 'Consultant Panel Credit',
+    Component: IndependentConsultantPanelCreditPage,
+  },
+  {
+    path: '/account/credit/panel/bonus',
+    title: 'Consultant Panel Credit Benefits',
+    Component: IndependentConsultantPanelCreditBonusPage,
+  },
+  {
+    path: '/account/credit/packages',
+    title: 'Consultant Credit Packages',
+    Component: IndependentConsultantCreditPackagesPage,
+  },
+  {
+    path: '/account/credit/history',
+    title: 'Consultant Credit Payment History',
+    Component: IndependentConsultantCreditHistoryPage,
   },
   {
     path: '/home',

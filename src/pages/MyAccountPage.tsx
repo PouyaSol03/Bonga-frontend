@@ -86,11 +86,11 @@ function IndependentConsultantAccountPage() {
   ];
   const consultantActions: AccountAction[] = [
     { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
-    { icon: "ranking", label: "نشان‌ها و رتبه" },
+    { icon: "ranking", label: "نشان‌ها و رتبه", to: "/account/ranking" },
     { icon: "building", label: "صفحه مشاور" },
     { icon: "tag", label: "مدیریت آگهی‌ها", to: "/account/ad-management" },
     { icon: "request", label: "مدیریت درخواست", to: "/account/requests" },
-    { icon: "wallet-add", label: "افزایش اعتبار", to: "/account/wallet" },
+    { icon: "wallet-add", label: "افزایش اعتبار", to: "/account/credit/panel" },
   ];
 
   return (

@@ -24,7 +24,9 @@ type TopBarProps = {
   backState?: unknown;
   backTo?: string;
   centerSlot?: ReactNode;
+  centerClassName?: string;
   className?: string;
+  contentClassName?: string;
   heightClassName?: string;
   onBack?: () => void;
   reserveEndSpace?: boolean;
@@ -150,7 +152,9 @@ export function TopBar({
   backState,
   backTo,
   centerSlot,
+  centerClassName = "px-2",
   className = "",
+  contentClassName = "px-1",
   heightClassName = "h-14",
   onBack,
   reserveEndSpace = false,
@@ -169,7 +173,7 @@ export function TopBar({
       className={`shrink-0 bg-[#f0f0f0] ${heightClassName} ${className}`}
       dir="rtl"
     >
-      <div className="flex h-full min-w-0 items-center px-1 [direction:ltr]">
+      <div className={`flex h-full min-w-0 items-center [direction:ltr] ${contentClassName}`}>
         {hasStartSlot || reserveStartSpace ? (
           <div className="flex h-12 min-w-12 shrink-0 items-center">
             {startSlot ??
@@ -179,7 +183,7 @@ export function TopBar({
           </div>
         ) : null}
 
-        <div className="min-w-0 flex-1 px-2 [direction:rtl]">
+        <div className={`min-w-0 flex-1 [direction:rtl] ${centerClassName}`}>
           {centerSlot ? (
             centerSlot
           ) : search ? (

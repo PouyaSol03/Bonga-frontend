@@ -8,6 +8,7 @@ type SearchMapHeaderProps = {
   savedCount?: number;
   chips: SearchFilterChip[];
   onChipClick?: (chip: SearchFilterChip) => void;
+  onSearchClick?: () => void;
 };
 
 export function SearchMapHeader({
@@ -15,6 +16,7 @@ export function SearchMapHeader({
   savedCount = 0,
   chips,
   onChipClick,
+  onSearchClick,
 }: SearchMapHeaderProps) {
   return (
     <header className="absolute inset-x-0 top-0 z-500 bg-[#f0f0f0]">
@@ -22,6 +24,7 @@ export function SearchMapHeader({
         backTo="/home"
         search={{
           label: queryLabel,
+          onClick: onSearchClick,
           savedCount,
         }}
       />

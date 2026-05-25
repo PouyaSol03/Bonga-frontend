@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { PageFrame } from "../app/PageFrame";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import LoginPhoneBackground from "../assets/images/LoginPhoneBackground.svg";
 
 export function LoginPhonePage() {
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   return (
     <PageFrame
       className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
@@ -45,17 +48,19 @@ export function LoginPhonePage() {
               inputMode="tel"
               placeholder="شماره همراه"
               type="tel"
+              value={phoneNumber}
+              onChange={(event) => setPhoneNumber(event.target.value)}
             />
           </label>
 
           <p className="flex max-w-full flex-wrap items-center justify-start py-1 text-[11px] font-normal leading-5 min-[390px]:text-xs">
             <span>با ثبت‌نام، </span>
-            <a
+            <RouteLink
               className="text-[#0048c4] underline underline-offset-3"
-              href="#terms"
+              to="/"
             >
               قوانین ایران شناسا
-            </a>
+            </RouteLink>
             <span> را می‌پذیرم!</span>
           </p>
         </section>
@@ -64,6 +69,12 @@ export function LoginPhonePage() {
       <footer className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <RouteLink
           className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-[#0048c4] px-4 py-2.5 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          onClick={() => {
+            window.sessionStorage.setItem(
+              "bonga-phone-number",
+              phoneNumber.trim() || "09155214062",
+            );
+          }}
           to="/login/verify"
         >
           تایید

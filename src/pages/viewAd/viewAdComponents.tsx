@@ -120,13 +120,16 @@ export function MoreLink({
 export function MoreButton({
   children,
   icon = "arrowLeft",
+  onClick,
 }: {
   children: ReactNode;
   icon?: IconName;
+  onClick?: () => void;
 }) {
   return (
     <button
       className="mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      onClick={onClick}
       type="button"
     >
       <ViewAdIcon className="h-4 w-4" name={icon} />

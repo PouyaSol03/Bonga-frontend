@@ -1,5 +1,4 @@
-import { PageFrame } from "../app/PageFrame";
-import { BottomNavigation } from "../components/BottomNavigation";
+import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import { currentAccountUserType } from "./account/accountUserType";
@@ -32,12 +31,12 @@ type AccountIconName =
   | "wallet-add";
 
 const businessActions: AccountAction[] = [
-  { icon: "user", label: "مشاور مستقل" },
-  { icon: "building", label: "مشاور آژانس جلیلیان" },
+  { icon: "user", label: "مشاور مستقل", to: "/account/dashboard" },
+  { icon: "building", label: "مشاور آژانس جلیلیان", to: "/account/dashboard" },
 ];
 
 const loggedOutBusinessActions: AccountAction[] = [
-  { icon: "plus", label: "ایجاد کسب و کار" },
+  { icon: "plus", label: "ایجاد کسب و کار", to: "/new-ad" },
 ];
 
 const primaryActions: AccountAction[] = [
@@ -61,14 +60,14 @@ const loggedOutPrimaryActions: AccountAction[] = [
 ];
 
 const secondaryActions: AccountAction[] = [
-  { icon: "setting", label: "تنظیمات" },
+  { icon: "setting", label: "تنظیمات", to: "/account/about" },
   { icon: "info", label: "درباره ما", to: "/account/about" },
-  { icon: "legal", label: "ضوابط و قوانین" },
-  { icon: "article", label: "مقالات تخصصی املاک" },
+  { icon: "legal", label: "ضوابط و قوانین", to: "/account/about" },
+  { icon: "article", label: "مقالات تخصصی املاک", to: "/account/about" },
 ];
 
 const loggedOutSecondaryActions: AccountAction[] = [
-  { icon: "setting", label: "تنظیمات" },
+  { icon: "setting", label: "تنظیمات", to: "/account/about" },
 ];
 
 export function MyAccountPage() {
@@ -82,65 +81,63 @@ export function MyAccountPage() {
 function IndependentConsultantAccountPage() {
   const businessActions: AccountAction[] = [
     { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
-    { icon: "agency", label: "املاک جلیلیان" },
+    { icon: "agency", label: "املاک جلیلیان", to: "/account/dashboard" },
   ];
   const consultantActions: AccountAction[] = [
     { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
     { icon: "ranking", label: "نشان‌ها و رتبه", to: "/account/ranking" },
-    { icon: "building", label: "صفحه مشاور" },
+    { icon: "building", label: "صفحه مشاور", to: "/account/profile" },
     { icon: "tag", label: "مدیریت آگهی‌ها", to: "/account/ad-management" },
     { icon: "request", label: "مدیریت درخواست", to: "/account/requests" },
     { icon: "wallet-add", label: "افزایش اعتبار", to: "/account/credit/panel" },
   ];
 
   return (
-    <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar
+    <TopBarNavigationLayout
+      activeKey="account"
+      contentClassName="flex flex-col gap-4 bg-[#f0f0f0]"
+      frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      topBar={<TopBar
         actions={[
           {
             icon: <NotificationIcon className="h-6 w-6" />,
             id: "notifications",
             label: "اعلان‌ها",
+            to: "/chat",
           },
         ]}
         backTo="/home"
         title="حساب من"
-      />
+      />}
+    >
 
-      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <section className="shrink-0 bg-white pb-1 pt-2" aria-label="اطلاعات مشاور">
-          <div className="flex h-[104px] items-center gap-4 px-4">
-            <img
-              alt="ناصر اشرفی"
-              className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
-              src="/figma/account/consultant-profile.png"
-            />
-            <div className="min-w-0 flex-1 text-right">
-              <p className="m-0 truncate text-base font-semibold leading-6 text-[#1a1a1a]">
-                ناصر اشرفی
-              </p>
-              <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
-                مشاور مستقل
-              </p>
-            </div>
+      <section className="shrink-0 bg-white pb-1 pt-2" aria-label="اطلاعات مشاور">
+        <div className="flex h-[104px] items-center gap-4 px-4">
+          <img
+            alt="ناصر اشرفی"
+            className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
+            src="/figma/account/consultant-profile.png"
+          />
+          <div className="min-w-0 flex-1 text-right">
+            <p className="m-0 truncate text-base font-semibold leading-6 text-[#1a1a1a]">
+              ناصر اشرفی
+            </p>
+            <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
+              مشاور مستقل
+            </p>
           </div>
+        </div>
 
-          <Divider spaced />
-          <AccountSection actions={businessActions} spacedDividers />
-        </section>
+        <Divider spaced />
+        <AccountSection actions={businessActions} spacedDividers />
+      </section>
 
-        <AccountSection
-          actions={consultantActions}
-          className="min-h-0 flex-1 pt-0.5"
-          spacedDividers
-        />
-      </main>
-
-      <BottomNavigation activeKey="account" />
-    </PageFrame>
+      <AccountSection
+        actions={consultantActions}
+        className="min-h-0 flex-1 pt-0.5"
+        spacedDividers
+      />
+    </TopBarNavigationLayout>
   );
 }
 
@@ -148,14 +145,13 @@ function StandardAccountPage() {
   const isLoggedInUnverified = getAccountState() === "logged-in-unverified";
 
   return (
-    <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
+    <TopBarNavigationLayout
+      activeKey="account"
+      contentClassName="bg-[#f0f0f0] pb-4"
+      frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      topBar={<TopBar showBack={false} title="حساب من" />}
     >
-      <TopBar showBack={false} title="حساب من" />
-
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
-        {isLoggedInUnverified ? (
+      {isLoggedInUnverified ? (
         <section className="bg-white" aria-label="وضعیت حساب">
           <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
             <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
@@ -186,10 +182,7 @@ function StandardAccountPage() {
         <div className="h-4 bg-[#f0f0f0]" />
 
         <AccountSection actions={isLoggedInUnverified ? secondaryActions : loggedOutSecondaryActions} />
-      </main>
-
-      <BottomNavigation activeKey="account" />
-    </PageFrame>
+    </TopBarNavigationLayout>
   );
 }
 

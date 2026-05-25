@@ -44,9 +44,9 @@ export function IndependentConsultantAdAllocationPage() {
           </section>
 
           <div className="mt-4 h-px bg-[#cccccc]" aria-hidden="true" />
-          <AllocationAction icon="preview" label="پیش نمایش" />
+          <AllocationAction icon="preview" label="پیش نمایش" to="/ads/1" />
           <div className="h-px bg-[#cccccc]" aria-hidden="true" />
-          <AllocationAction icon="edit" label="ویرایش" />
+          <AllocationAction icon="edit" label="ویرایش" state={{ ad }} to={adManagementPaths.edit} />
         </div>
       </main>
 
@@ -66,20 +66,25 @@ export function IndependentConsultantAdAllocationPage() {
 function AllocationAction({
   icon,
   label,
+  state,
+  to,
 }: {
   icon: "edit" | "preview";
   label: string;
+  state?: unknown;
+  to: string;
 }) {
   return (
-    <button
+    <RouteLink
       className="flex h-[60px] w-full items-center justify-between text-[#1a1a1a] [direction:ltr]"
-      type="button"
+      state={state}
+      to={to}
     >
       <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
       <span className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <AllocationIcon className="h-6 w-6 text-[#4d4d4d]" icon={icon} />
         {label}
       </span>
-    </button>
+    </RouteLink>
   );
 }

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
@@ -80,6 +80,7 @@ export function IndependentConsultantRankingPage() {
             icon: <InfoIcon className="h-6 w-6" />,
             id: "ranking-info",
             label: "راهنمای نشان‌ها و رتبه",
+            to: "/account/ranking/badges/guide",
           },
         ]}
         backTo="/login"
@@ -220,12 +221,18 @@ function BadgeCard({ badge }: { badge: Badge }) {
 }
 
 function RankingIndicatorsPanel() {
+  const [period, setPeriod] = useState<"هفته" | "ماه">("هفته");
+
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="شاخص‌های رتبه‌بندی">
       <div className="flex h-7 items-center justify-between [direction:ltr]">
-        <button className="inline-flex h-7 items-center gap-2 text-xs font-medium leading-4 text-[#1a1a1a]" type="button">
+        <button
+          className="inline-flex h-7 items-center gap-2 text-xs font-medium leading-4 text-[#1a1a1a]"
+          onClick={() => setPeriod((current) => (current === "هفته" ? "ماه" : "هفته"))}
+          type="button"
+        >
           <ChevronDownIcon className="h-4 w-4 text-[#4d4d4d]" />
-          <span className="[direction:rtl]">هفته</span>
+          <span className="[direction:rtl]">{period}</span>
         </button>
         <h2 className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</h2>
       </div>

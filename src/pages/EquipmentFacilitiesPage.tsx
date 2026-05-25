@@ -42,7 +42,7 @@ function NotFoundState() {
       variant="flush"
     >
       <ViewAdTopBar
-        actionIcons={["share", "bookmark", "attachment"]}
+        actionIcons={[]}
         backTo="/home"
         title="تجهیزات و امکانات"
       />
@@ -76,6 +76,10 @@ export function EquipmentFacilitiesPage() {
       <ViewAdTopBar
         actionIcons={["share", "bookmark", "attachment"]}
         backTo={`/ads/${adId}`}
+        onAction={() => {
+          window.history.pushState({}, "", `/ads/${adId}`);
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        }}
         title="تجهیزات و امکانات"
       />
 

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { BottomSheet } from "../../../components/BottomSheet";
+import { DemoNotice } from "../../../components/DemoNotice";
+import { useDemoNotice } from "../../../hooks/useDemoNotice";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronLeftIcon, PublishedActionIcon } from "./AdManagementIcons";
@@ -15,6 +17,8 @@ export function IndependentConsultantAdPublishedPage() {
   const [isSuccessOpen, setIsSuccessOpen] = useState(
     getAdManagementRouteState().showPaymentSuccess ?? false,
   );
+  const [isDeleted, setIsDeleted] = useState(false);
+  const { message, showNotice } = useDemoNotice();
 
   return (
     <PageFrame
@@ -56,15 +60,22 @@ export function IndependentConsultantAdPublishedPage() {
 
         <div className="h-2 shrink-0 bg-[#f0f0f0]" aria-hidden="true" />
         <div className="min-h-[300px] flex-1 bg-white">
-          <PublishedAction icon="preview" label="پیش‌نمایش" />
+          <PublishedAction icon="preview" label="پیش‌نمایش" to="/ads/1" />
           <PublishedActionDivider />
           <PublishedAction ad={ad} icon="edit" label="ویرایش" to={adManagementPaths.edit} />
           <PublishedActionDivider />
-          <PublishedAction icon="delete" label="حذف" />
+          <PublishedAction
+            icon="delete"
+            label={isDeleted ? "آگهی حذف شد" : "حذف"}
+            onClick={() => {
+              setIsDeleted(true);
+              showNotice("آگهی از فهرست نمایشی حذف شد");
+            }}
+          />
           <PublishedActionDivider />
-          <PublishedAction icon="upgrade" label="ارتقاء آگهی" />
+          <PublishedAction ad={ad} icon="upgrade" label="ارتقاء آگهی" to={adManagementPaths.payment} />
           <PublishedActionDivider />
-          <PublishedAction icon="history" label="تاریخچه پرداخت" />
+          <PublishedAction icon="history" label="تاریخچه پرداخت" to="/account/credit/history" />
         </div>
       </main>
 
@@ -89,6 +100,7 @@ export function IndependentConsultantAdPublishedPage() {
           پرداخت موفق و آگهی منتشر شد
         </p>
       </BottomSheet>
+      <DemoNotice message={message} />
     </PageFrame>
   );
 }
@@ -97,11 +109,13 @@ function PublishedAction({
   ad,
   icon,
   label,
+  onClick,
   to,
 }: {
   ad?: ReturnType<typeof getSelectedConsultantAd>;
   icon: "delete" | "edit" | "history" | "preview" | "upgrade";
   label: string;
+  onClick?: () => void;
   to?: string;
 }) {
   const content = (
@@ -129,6 +143,7 @@ function PublishedAction({
   return (
     <button
       className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] [direction:ltr]"
+      onClick={onClick}
       type="button"
     >
       {content}

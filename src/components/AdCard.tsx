@@ -1,11 +1,21 @@
+import type { ReactNode } from 'react'
+
 import { RouteLink } from '../routes/RouteLink'
+import {
+  AdCardAlbumIcon,
+  AdCardAreaIcon,
+  AdCardOwnerIcon,
+  AdCardRoomsIcon,
+  AdCardTomanIcon,
+  AdCardYearIcon,
+} from './AdCardIcons'
 
 export type AdCardData = {
   id: number
   title: string
   agency: string
   status: string
-  statusCount: string
+  imageCount: string
   priceLabelPrimary: string
   pricePrimary: string
   priceLabelSecondary: string
@@ -19,7 +29,7 @@ export type AdCardData = {
 }
 
 export function AdCard({ ad }: { ad: AdCardData }) {
-  const hasSecondaryPrice = ad.priceLabelSecondary && ad.priceSecondary
+  const hasSecondaryPrice = Boolean(ad.priceLabelSecondary && ad.priceSecondary)
 
   return (
     <RouteLink
@@ -27,53 +37,69 @@ export function AdCard({ ad }: { ad: AdCardData }) {
       className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
       to={`/ads/${ad.id}`}
     >
-    <article className="flex flex-col overflow-hidden border-b-8 border-[#f0f0f0] bg-white p-3 min-[390px]:p-4">
-      <div className="shrink-0">
-        <div className={`ad-card__image relative min-h-[184px] overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover min-[390px]:min-h-[219px] ${ad.imageClassName}`}>
-          <div className="absolute right-2 top-2 z-2 inline-flex h-6 min-w-11 items-center justify-center gap-1.5 rounded-lg bg-[#1a1a1a85] px-2 py-1 font-[DanaFaNum,Tahoma,sans-serif] text-xs font-semibold leading-4 text-white min-[390px]:h-7 min-[390px]:min-w-[52px] min-[390px]:gap-[7px] min-[390px]:text-sm min-[390px]:leading-5" aria-hidden="true">
-            <span>{ad.statusCount}</span>
-            <span className="ad-card__action-icon" />
+      <article className="flex flex-col bg-white px-4 py-4 text-right [direction:rtl]">
+        <div className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover ${ad.imageClassName}`}>
+          <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]" aria-label={`${ad.imageCount} تصویر`}>
+            <AdCardAlbumIcon className="h-5 w-5 shrink-0" />
+            <span>{ad.imageCount}</span>
           </div>
-          {ad.agency && <div className="ad-card__agency-name absolute bottom-2 right-2 z-[1] inline-flex max-w-[calc(100%-16px)] items-center gap-2 whitespace-nowrap rounded-lg bg-[#1a1a1a9e] px-2 py-1.5 text-xs font-medium leading-4 text-white min-[390px]:px-2.5 min-[390px]:py-2 min-[390px]:text-[13px] min-[390px]:leading-[18px]">{ad.agency}</div>}
-        </div>
-      </div>
-      <div className="flex flex-col gap-2.5 pt-3 min-[390px]:gap-3 min-[390px]:pt-3.5">
-        <div className="flex items-center justify-start gap-2 [direction:rtl]">
-          <div className="ad-card__price-item inline-flex min-w-0 items-center gap-1">
-            {ad.priceLabelPrimary && <span className="text-sm font-medium leading-5 text-[#808080]">{ad.priceLabelPrimary}</span>}
-            <strong className="whitespace-nowrap text-sm font-bold leading-5 text-[#0048c4] min-[390px]:text-base min-[390px]:leading-6">{ad.pricePrimary}</strong>
-          </div>
-          {hasSecondaryPrice && <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />}
-          {hasSecondaryPrice && (
-            <div className="ad-card__price-item inline-flex min-w-0 items-center gap-1">
-              <span className="text-sm font-medium leading-5 text-[#808080]">{ad.priceLabelSecondary}</span>
-              <strong className="whitespace-nowrap text-sm font-bold leading-5 text-[#0048c4] min-[390px]:text-base min-[390px]:leading-6">{ad.priceSecondary}</strong>
+          {ad.agency && (
+            <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]">
+              <AdCardOwnerIcon className="h-5 w-5 shrink-0" />
+              <span className="truncate">{ad.agency}</span>
             </div>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center justify-start gap-3 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:gap-[22px]">
-          <span className="ad-card__property ad-card__property--area">{ad.area}</span>
-          <span className="ad-card__property ad-card__property--rooms">{ad.rooms}</span>
-          <span className="ad-card__property ad-card__property--year">{ad.year}</span>
-        </div>
+        <div className="flex flex-col pt-3">
+          <div className="flex h-6 items-center justify-start gap-2">
+            <PriceItem label={ad.priceLabelPrimary} price={ad.pricePrimary} />
+            {hasSecondaryPrice && <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />}
+            {hasSecondaryPrice && (
+              <PriceItem label={ad.priceLabelSecondary} price={ad.priceSecondary} />
+            )}
+          </div>
 
-        <h3 className="m-0 line-clamp-2 min-h-10 text-right text-sm font-medium leading-5 text-[#1a1a1a] min-[390px]:min-h-11 min-[390px]:leading-[1.45]">
-          {ad.title}
-        </h3>
+          <div className="mt-3 flex h-5 items-center justify-start gap-[22px] text-sm font-medium leading-5 text-[#1a1a1a]">
+            <PropertyItem icon={<AdCardAreaIcon className="h-5 w-5" />} value={ad.area} />
+            <PropertyItem icon={<AdCardRoomsIcon className="h-5 w-5" />} value={ad.rooms} />
+            <PropertyItem icon={<AdCardYearIcon className="h-5 w-5" />} value={ad.year} />
+          </div>
 
-        <div className="flex min-h-6 flex-row items-center justify-start gap-2 [direction:rtl]">
-          <div className="ad-card__badges inline-flex items-center gap-1">
+          <h3 className="m-0 mt-3 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+            {ad.title}
+          </h3>
+
+          <div className="mt-3 flex h-6 items-center justify-start gap-2">
             {ad.badges.map((badge) => (
-              <span className={`whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${badge === 'فوری' ? 'border-[#ff6d00] text-[#ff6d00]' : 'border-[#11a366] text-[#11a366]'}`} key={badge}>
-                {badge}
+              <span className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${badge === 'فوری' ? 'border-[#ff6d00] text-[#ff6d00]' : 'border-[#11a366] text-[#11a366]'}`} key={badge}>
+                  {badge}
               </span>
             ))}
+            {ad.badges.length > 0 && <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />}
+            <span className="min-w-0 truncate text-sm font-normal leading-5 text-[#808080]">{ad.timeAndLocation}</span>
           </div>
-          <span className="min-w-0 whitespace-nowrap text-right text-xs font-normal leading-4 text-[#808080] min-[390px]:text-sm min-[390px]:leading-5">{ad.timeAndLocation}</span>
         </div>
-      </div>
-    </article>
+      </article>
     </RouteLink>
+  )
+}
+
+function PriceItem({ label, price }: { label: string; price: string }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-0.5">
+      {label && <span className="text-sm font-medium leading-5 text-[#808080]">{label}</span>}
+      <strong className="whitespace-nowrap text-base font-semibold leading-6 text-[#0048c4]">{price}</strong>
+      <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
+    </span>
+  )
+}
+
+function PropertyItem({ icon, value }: { icon: ReactNode; value: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#4d4d4d]">
+      {icon}
+      <span className="text-[#1a1a1a]">{value}</span>
+    </span>
   )
 }

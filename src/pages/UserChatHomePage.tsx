@@ -1,9 +1,11 @@
 import { type ReactNode, useState } from "react";
 
-import { BottomNavigation } from "../components/BottomNavigation";
 import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
+import { DemoNotice } from "../components/DemoNotice";
+import { useDemoNotice } from "../hooks/useDemoNotice";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
+import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { RouteLink } from "../routes/RouteLink";
 
 type ChatItem = {
@@ -344,7 +346,13 @@ function SettingsIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function ChatHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
+function ChatHeader({
+  onOpenMenu,
+  onOpenSearch,
+}: {
+  onOpenMenu: () => void;
+  onOpenSearch: () => void;
+}) {
   return (
     <TopBar
       actions={[
@@ -358,6 +366,7 @@ function ChatHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
           icon: <SearchIcon className="h-6 w-6" />,
           id: "search",
           label: "جستجو در چت‌ها",
+          onClick: onOpenSearch,
         },
       ]}
       backTo="/home"
@@ -366,14 +375,26 @@ function ChatHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
   );
 }
 
-function FilterTabs() {
+function FilterTabs({
+  activeFilter,
+  onSelect,
+}: {
+  activeFilter: string | null;
+  onSelect: (filter: string) => void;
+}) {
   return (
     <section className="h-[52px] shrink-0 overflow-hidden bg-[#f0f0f0] px-4 py-2">
       <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {filters.map((filter) => (
           <button
-            className="flex h-9 shrink-0 items-center justify-center rounded-lg border border-[#cccccc] bg-white px-4 text-sm font-medium leading-5 text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            aria-pressed={activeFilter === filter}
+            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+              activeFilter === filter
+                ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
+                : "border-[#cccccc] bg-white text-[#4d4d4d]"
+            }`}
             key={filter}
+            onClick={() => onSelect(filter)}
             type="button"
           >
             {filter}
@@ -601,7 +622,7 @@ function ChatCard({
   );
 }
 
-function ChatDetailHeader() {
+function ChatDetailHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
     <TopBar
       actions={[
@@ -609,6 +630,7 @@ function ChatDetailHeader() {
           icon: <MoreVerticalIcon className="h-8 w-8" />,
           id: "more",
           label: "گزینه‌های بیشتر",
+          onClick: onOpenMenu,
         },
       ]}
       backLabel="بازگشت به چت‌ها"
@@ -701,7 +723,17 @@ function ChatDateChip() {
   );
 }
 
-function ChatComposer({ onOpenAttach }: { onOpenAttach: () => void }) {
+function ChatComposer({
+  message,
+  onChangeMessage,
+  onOpenAttach,
+  onSend,
+}: {
+  message: string;
+  onChangeMessage: (message: string) => void;
+  onOpenAttach: () => void;
+  onSend: () => void;
+}) {
   return (
     <footer className="flex h-16 shrink-0 items-center gap-2 bg-[#f5f5f5] px-1 py-2 [direction:ltr]">
       <button
@@ -720,12 +752,21 @@ function ChatComposer({ onOpenAttach }: { onOpenAttach: () => void }) {
           dir="rtl"
           placeholder="پیام خود را بنویسید"
           type="text"
+          value={message}
+          onChange={(event) => onChangeMessage(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              onSend();
+            }
+          }}
         />
       </label>
 
       <button
         aria-label="ارسال پیام"
         className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        disabled={message.trim().length === 0}
+        onClick={onSend}
         type="button"
       >
         <SendMessageIcon className="h-8 w-8" />
@@ -761,9 +802,11 @@ const sendFileOptions: SendFileOption[] = [
 function SendFileBottomSheet({
   isOpen,
   onClose,
+  onSelect,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onSelect: (title: string) => void;
 }) {
   return (
     <BottomSheet
@@ -774,20 +817,35 @@ function SendFileBottomSheet({
       onClose={onClose}
       title="ارسال"
     >
-      <BottomSheetActionList isOpen={isOpen} items={sendFileOptions} />
+      <BottomSheetActionList
+        isOpen={isOpen}
+        items={sendFileOptions}
+        onSelect={(item) => onSelect(item.title)}
+      />
     </BottomSheet>
   );
 }
 
 export function UserChatDetailPage() {
   const [isSendFileSheetOpen, setIsSendFileSheetOpen] = useState(false);
+  const [draftMessage, setDraftMessage] = useState("");
+  const [sentMessages, setSentMessages] = useState<string[]>([]);
+  const { message, showNotice } = useDemoNotice();
+
+  const sendMessage = (nextMessage = draftMessage) => {
+    const text = nextMessage.trim();
+    if (!text) return;
+
+    setSentMessages((current) => [...current, text]);
+    setDraftMessage("");
+  };
 
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <ChatDetailHeader />
+      <ChatDetailHeader onOpenMenu={() => showNotice("گزینه‌های گفتگوی نمایشی آماده است")} />
       <ChatPropertyStrip />
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-4 pt-4">
@@ -803,14 +861,29 @@ export function UserChatDetailPage() {
           <ChatDateChip />
           <ChatBubble direction="incoming">خیلی ممنونم</ChatBubble>
           <ChatBubble direction="outgoing">خواهش میکنم</ChatBubble>
+          {sentMessages.map((sentMessage, index) => (
+            <ChatBubble direction="outgoing" key={`${sentMessage}-${index}`}>
+              {sentMessage}
+            </ChatBubble>
+          ))}
         </div>
       </main>
 
-      <ChatComposer onOpenAttach={() => setIsSendFileSheetOpen(true)} />
+      <ChatComposer
+        message={draftMessage}
+        onChangeMessage={setDraftMessage}
+        onOpenAttach={() => setIsSendFileSheetOpen(true)}
+        onSend={() => sendMessage()}
+      />
       <SendFileBottomSheet
         isOpen={isSendFileSheetOpen}
         onClose={() => setIsSendFileSheetOpen(false)}
+        onSelect={(title) => {
+          sendMessage(`[${title}]`);
+          setIsSendFileSheetOpen(false);
+        }}
       />
+      <DemoNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -818,17 +891,32 @@ export function UserChatDetailPage() {
 export function UserChatHomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [chatIndexes, setChatIndexes] = useState(() => chatItems.map((_, index) => index));
   const [selectedChatIndexes, setSelectedChatIndexes] = useState<Set<number>>(
     () => new Set(),
   );
+  const { message, showNotice } = useDemoNotice();
 
   const handleMenuSelect = (id: string) => {
     setIsMenuOpen(false);
 
-    if (id !== "bulk-delete") return;
+    if (id === "hours") {
+      showNotice("ساعت پاسخگویی: شنبه تا چهارشنبه، ۸ صبح تا ۹ شب");
+      return;
+    }
 
-    setIsBulkDeleteMode(true);
-    setSelectedChatIndexes(new Set());
+    if (id === "settings") {
+      showNotice("تنظیمات نمایشی گفتگو باز شد");
+      return;
+    }
+
+    if (id === "bulk-delete") {
+      setIsBulkDeleteMode(true);
+      setSelectedChatIndexes(new Set());
+    }
   };
 
   const toggleSelectedChat = (index: number) => {
@@ -845,34 +933,108 @@ export function UserChatHomePage() {
     });
   };
 
+  const visibleChatIndexes = chatIndexes.filter((index) => {
+    const item = { ...chatItems[index], ...chatCardOverrides[index] };
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery && !`${item.userName} ${item.adTitle} ${item.message}`.includes(normalizedQuery)) {
+      return false;
+    }
+    if (activeFilter === "خوانده نشده" && !item.badgeCount) return false;
+    if (activeFilter === "پشتیبانی" && !item.isBlocked) return false;
+    if (activeFilter === "آگهی‌های من" && item.adLabel !== "آگهی من") return false;
+    if (activeFilter === "آگهی‌های دیگران" && item.adLabel === "آگهی من") return false;
+    return true;
+  });
+
+  const deleteSelectedChats = () => {
+    const count = selectedChatIndexes.size;
+    setChatIndexes((current) => current.filter((index) => !selectedChatIndexes.has(index)));
+    setSelectedChatIndexes(new Set());
+    setIsBulkDeleteMode(false);
+    showNotice(`${count} گفتگو حذف شد`);
+  };
+
   return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#cccccc] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <ChatHeader onOpenMenu={() => setIsMenuOpen(true)} />
-      <FilterTabs />
-
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        {chatItems.map((item, index) => (
-          <ChatCard
-            index={index}
-            isBulkDeleteMode={isBulkDeleteMode}
-            isSelected={selectedChatIndexes.has(index)}
-            item={item}
-            key={`${item.userName}-${item.date}-${index}`}
-            onToggleSelected={() => toggleSelectedChat(index)}
+    <TopBarNavigationLayout
+      activeKey="chat"
+      contentClassName="bg-white"
+      fixedAfterTopBar={
+        <>
+          {isSearchOpen ? (
+            <div className="shrink-0 bg-[#f0f0f0] px-4 pb-2">
+              <input
+                autoFocus
+                className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm text-[#1a1a1a] outline-none focus:border-[#0048c4]"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="جستجو در گفتگوها"
+                type="search"
+                value={query}
+              />
+            </div>
+          ) : null}
+          <FilterTabs
+            activeFilter={activeFilter}
+            onSelect={(filter) =>
+              setActiveFilter((current) => (current === filter ? null : filter))
+            }
           />
-        ))}
-      </main>
-
-      <BottomNavigation activeKey="chat" />
-
-      <ChatMenuBottomSheet
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onSelect={handleMenuSelect}
-      />
-    </PageFrame>
+          {isBulkDeleteMode ? (
+            <div className="flex h-12 shrink-0 items-center justify-between bg-white px-4 [direction:ltr]">
+              <button
+                className="text-sm font-medium text-[#4d4d4d]"
+                onClick={() => {
+                  setIsBulkDeleteMode(false);
+                  setSelectedChatIndexes(new Set());
+                }}
+                type="button"
+              >
+                انصراف
+              </button>
+              <button
+                className="rounded-lg bg-[#ee3623] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+                disabled={selectedChatIndexes.size === 0}
+                onClick={deleteSelectedChats}
+                type="button"
+              >
+                حذف ({selectedChatIndexes.size})
+              </button>
+            </div>
+          ) : null}
+        </>
+      }
+      frameClassName="relative bg-[#cccccc] text-[#1a1a1a] [direction:rtl]"
+      overlay={
+        <ChatMenuBottomSheet
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          onSelect={handleMenuSelect}
+        />
+      }
+      topBar={
+        <ChatHeader
+          onOpenMenu={() => setIsMenuOpen(true)}
+          onOpenSearch={() => {
+            setIsSearchOpen((current) => !current);
+            setQuery("");
+          }}
+        />
+      }
+    >
+      {visibleChatIndexes.map((index) => (
+        <ChatCard
+          index={index}
+          isBulkDeleteMode={isBulkDeleteMode}
+          isSelected={selectedChatIndexes.has(index)}
+          item={chatItems[index]}
+          key={index}
+          onToggleSelected={() => toggleSelectedChat(index)}
+        />
+      ))}
+      {visibleChatIndexes.length === 0 ? (
+        <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
+      ) : null}
+      <DemoNotice message={message} />
+    </TopBarNavigationLayout>
   );
 }

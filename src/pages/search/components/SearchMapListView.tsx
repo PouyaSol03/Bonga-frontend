@@ -21,7 +21,7 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     id: listing.id,
     agency: listing.agencyName,
     status: "",
-    statusCount: toFaCount(imageCount > 0 ? imageCount : 1),
+    imageCount: toFaCount(imageCount > 0 ? imageCount : 1),
     priceLabelPrimary: "",
     pricePrimary: listing.priceValue.replace(/[٫.]/g, "/"),
     priceLabelSecondary: "",

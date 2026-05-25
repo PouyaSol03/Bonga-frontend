@@ -1,6 +1,9 @@
 import { useState } from "react";
 
 import { BottomSheet } from "../components/BottomSheet";
+import { DemoNotice } from "../components/DemoNotice";
+import { useDemoNotice } from "../hooks/useDemoNotice";
+import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
 import { getLatestMashhadAdById } from "./home/homeData";
@@ -64,10 +67,11 @@ function GalleryHero({ onOpenAlbum }: { onOpenAlbum: () => void }) {
   );
 }
 
-function AgencyCard({ details }: { details: ViewAdDetails }) {
+function AgencyCard({ details, onClick }: { details: ViewAdDetails; onClick: () => void }) {
   return (
     <button
       className="mt-4 flex h-20 w-full items-center rounded-2xl border border-[#cccccc] bg-[#f5f5f5] px-4 text-right [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      onClick={onClick}
       type="button"
     >
       <ViewAdIcon className="ml-4 h-5 w-5 text-[#4d4d4d]" name="arrowLeft" />
@@ -209,30 +213,36 @@ function ContactInfoBottomSheet({
           <div className="h-px bg-[#cccccc]" />
           <div className="flex h-16 items-center justify-between [direction:ltr]">
             <div className="flex gap-4">
-              <button
+              <a
                 aria-label="واتساپ"
                 className="grid h-14 w-14 place-items-center rounded-full"
+                href={`https://wa.me/98${phoneNumber.slice(1)}`}
                 tabIndex={isOpen ? 0 : -1}
-                type="button"
+                target="_blank"
+                rel="noreferrer"
               >
                 <SocialIcon type="whatsapp" />
-              </button>
-              <button
+              </a>
+              <a
                 aria-label="تلگرام"
                 className="grid h-14 w-14 place-items-center rounded-full"
+                href={`https://t.me/share/url?url=tel:${phoneNumber}`}
                 tabIndex={isOpen ? 0 : -1}
-                type="button"
+                target="_blank"
+                rel="noreferrer"
               >
                 <SocialIcon type="telegram" />
-              </button>
-              <button
+              </a>
+              <a
                 aria-label="اینستاگرام"
                 className="grid h-14 w-14 place-items-center rounded-full"
+                href="https://www.instagram.com/"
                 tabIndex={isOpen ? 0 : -1}
-                type="button"
+                target="_blank"
+                rel="noreferrer"
               >
                 <SocialIcon type="instagram" />
-              </button>
+              </a>
             </div>
             <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
               شبکه‌های اجتماعی
@@ -316,14 +326,13 @@ function getAlbumDotSize(index: number, activeIndex: number, total: number) {
 }
 
 function AlbumPage({
-  activeIndex = 0,
   mediaItems,
   onClose,
 }: {
-  activeIndex?: number;
   mediaItems: AlbumMediaItem[];
   onClose: () => void;
 }) {
+  const [activeIndex, setActiveIndex] = useState(0);
   const activeMedia = mediaItems[activeIndex] ?? mediaItems[0];
   const dotSizes = mediaItems.map((_, index) =>
     getAlbumDotSize(index, activeIndex, mediaItems.length),
@@ -366,13 +375,15 @@ function AlbumPage({
           >
             <div className="flex h-2 items-center gap-2">
               {mediaItems.map((item, index) => (
-                <span
-                  aria-hidden="true"
+                <button
+                  aria-label={`نمایش رسانه ${index + 1}`}
                   className={`block h-2 rounded-full ${
                     index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"
                   }`}
                   key={`${item.type}-${index}`}
+                  onClick={() => setActiveIndex(index)}
                   style={{ width: dotSizes[index] }}
+                  type="button"
                 />
               ))}
             </div>
@@ -386,12 +397,18 @@ function AlbumPage({
 function ViewAdContent({
   adId,
   details,
+  onOpenContact,
   onOpenAlbum,
+  onRowAction,
 }: {
   adId: number;
   details: ViewAdDetails;
+  onOpenContact: () => void;
   onOpenAlbum: () => void;
+  onRowAction: (label: string) => void;
 }) {
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
   return (
     <>
       <section className="bg-white pb-4">
@@ -425,7 +442,7 @@ function ViewAdContent({
             <PriceRow label="قیمت هر متر" value={details.pricePerMeter} />
           </div>
 
-          <AgencyCard details={details} />
+          <AgencyCard details={details} onClick={onOpenContact} />
         </div>
       </section>
 
@@ -440,11 +457,16 @@ function ViewAdContent({
       </DetailSection>
 
       <DetailSection icon="info" mutedTitle title="توضیحات">
-        <div className="relative mt-6 h-[350px] overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]">
+        <div className={`relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a] ${isDescriptionExpanded ? "" : "h-[350px]"}`}>
           <p className="m-0 whitespace-pre-line">{details.description}</p>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white" />
+          {isDescriptionExpanded ? null : <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white" />}
         </div>
-        <MoreButton icon="arrowLeft">نمایش بیشتر</MoreButton>
+        <MoreButton
+          icon="arrowLeft"
+          onClick={() => setIsDescriptionExpanded((current) => !current)}
+        >
+          {isDescriptionExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
+        </MoreButton>
         <MapPreview />
       </DetailSection>
 
@@ -453,6 +475,7 @@ function ViewAdContent({
           <button
             className="flex h-[88px] w-full items-center justify-between border-b-8 border-[#f0f0f0] px-8 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
+            onClick={() => onRowAction(row.label)}
             type="button"
           >
             <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
@@ -475,7 +498,7 @@ function NotFoundState() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <ViewAdTopBar backTo="/home" />
+      <ViewAdTopBar actionIcons={[]} backTo="/home" />
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-6 text-right">
         <h1 className="m-0 text-base font-semibold leading-6">آگهی پیدا نشد</h1>
         <p className="mt-3 text-sm leading-6 text-[#4d4d4d]">
@@ -491,6 +514,8 @@ export function ViewAdPage() {
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState("");
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { message, showNotice } = useDemoNotice();
   const adId = parseAdIdFromPath(window.location.pathname);
   const ad = adId != null ? getLatestMashhadAdById(adId) : undefined;
 
@@ -506,6 +531,12 @@ export function ViewAdPage() {
 
     if (icon === "share") {
       setIsContactSheetOpen(true);
+      return;
+    }
+
+    if (icon === "bookmark") {
+      setIsBookmarked((current) => !current);
+      showNotice(isBookmarked ? "آگهی از نشان‌ها حذف شد" : "آگهی به نشان‌ها اضافه شد");
     }
   };
 
@@ -520,7 +551,9 @@ export function ViewAdPage() {
         <ViewAdContent
           adId={adId}
           details={viewAdDemo}
+          onOpenContact={() => setIsContactSheetOpen(true)}
           onOpenAlbum={() => setIsAlbumOpen(true)}
+          onRowAction={(label) => showNotice(`${label} برای نسخه نمایشی انتخاب شد`)}
         />
       </main>
 
@@ -533,13 +566,13 @@ export function ViewAdPage() {
           >
             اطلاعات تماس
           </button>
-          <button
+          <RouteLink
             className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-            type="button"
+            to="/chat/1"
           >
             <ViewAdIcon className="h-5 w-5" name="chat" />
             <span>چت</span>
-          </button>
+          </RouteLink>
         </div>
       </div>
 
@@ -563,6 +596,7 @@ export function ViewAdPage() {
           onClose={() => setIsAlbumOpen(false)}
         />
       ) : null}
+      <DemoNotice message={message} />
     </PageFrame>
   );
 }

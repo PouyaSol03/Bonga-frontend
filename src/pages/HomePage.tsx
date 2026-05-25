@@ -15,15 +15,50 @@ import ShenasaVector from "../assets/icons/ShenasaVector";
 import IranShenasaTypo from "../assets/icons/IranShenasaTypo";
 import { BusinessBanner } from "./home/components/BusinessBanner";
 
+const businessBannerSlides = [
+  {
+    eyebrow: "سامانه کسب و کار",
+    title: "آژانس‌های املاک",
+    buttonText: "بیشتر بدانید",
+    to: "/account/about",
+  },
+  {
+    eyebrow: "سامانه کسب و کار",
+    title: "مشاوران مستقل",
+    buttonText: "بیشتر بدانید",
+    to: "/account/dashboard",
+  },
+  {
+    eyebrow: "سامانه کسب و کار",
+    title: "مدیریت آگهی‌ها",
+    buttonText: "بیشتر بدانید",
+    to: "/account/ad-management",
+  },
+];
+
 export function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
   );
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
-  const [selectedCity, setSelectedCity] = useState("مشهد");
+  const [selectedCity, setSelectedCity] = useState(
+    () => window.sessionStorage.getItem("bonga-selected-city") ?? "مشهد",
+  );
 
   const isCategorySheetOpen = selectedCategory !== null;
+
+  const navigateToSearch = () => {
+    setIsSearchOpen(false);
+    setSelectedCategory(null);
+    window.history.pushState({}, "", "/search");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const navigateToChat = () => {
+    window.history.pushState({}, "", "/chat");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
 
   return (
     <PageFrame
@@ -36,7 +71,14 @@ export function HomePage() {
           aria-label="سربرگ"
         >
           <div className="flex items-center justify-center gap-2">
-            <NotificationIcon />
+            <button
+              aria-label="اعلان‌ها"
+              className="grid h-10 w-10 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              onClick={navigateToChat}
+              type="button"
+            >
+              <NotificationIcon />
+            </button>
 
             <button
               className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2 text-sm font-medium leading-5 text-[#0048C4] min-[390px]:py-2.5 min-[390px]:text-base min-[390px]:leading-6"
@@ -106,13 +148,7 @@ export function HomePage() {
           </div>
         </section>
 
-        <BusinessBanner
-          eyebrow="سامانه کسب و کار"
-          title="آژانس‌های املاک"
-          buttonText="بیشتر بدانید"
-          activeIndex={0}
-          totalItems={3}
-        />
+        <BusinessBanner slides={businessBannerSlides} />
 
         <section
           className="flex flex-col gap-4 border-t-[16px] border-[#f0f0f0] bg-white pt-4"
@@ -127,7 +163,7 @@ export function HomePage() {
             </h2>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col bg-[#f0f0f0] gap-3 ">
             {latestMashhadAds.map((ad) => (
               <AdCard ad={ad} key={ad.id} />
             ))}
@@ -141,11 +177,13 @@ export function HomePage() {
         isOpen={isCategorySheetOpen}
         selectedCategory={selectedCategory}
         onClose={() => setSelectedCategory(null)}
+        onSelectCategory={navigateToSearch}
       />
 
       <HomeSearchScreen
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+        onSelectResult={navigateToSearch}
       />
 
       <CitySelectionScreen
@@ -154,6 +192,7 @@ export function HomePage() {
         onClose={() => setIsCityOpen(false)}
         onConfirm={(city) => {
           setSelectedCity(city);
+          window.sessionStorage.setItem("bonga-selected-city", city);
           setIsCityOpen(false);
         }}
       />

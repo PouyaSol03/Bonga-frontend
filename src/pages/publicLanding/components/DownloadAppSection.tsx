@@ -17,10 +17,12 @@ export function DownloadAppSection() {
 
       <div className="grid grid-cols-3 gap-2 min-[390px]:gap-4">
         {downloadOptions.map((option) => (
-          <button
+          <a
             className="flex min-h-16 min-w-0 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-white px-2 py-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[80px] min-[390px]:gap-2 min-[390px]:py-3"
+            href={option.href}
             key={option.label}
-            type="button"
+            target="_blank"
+            rel="noreferrer"
             aria-label={`دانلود از ${option.label}`}
           >
             <img
@@ -35,7 +37,7 @@ export function DownloadAppSection() {
               alt={option.label}
               className="h-4 max-w-[52px] object-contain min-[390px]:h-[18px] min-[390px]:max-w-[58px]"
             />
-          </button>
+          </a>
         ))}
       </div>
     </section>

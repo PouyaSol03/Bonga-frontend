@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { ChevronLeftIcon } from "./AdManagementIcons";
@@ -61,14 +62,28 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
 }
 
 function StatisticsChart({ label, title }: { label: string; title: string }) {
+  const [offset, setOffset] = useState(0);
+  const displayValue = offset === 0 ? "۲۴۵" : offset === 1 ? "۲۱۲" : "۱۸۷";
+
   return (
     <section className="h-[283px] bg-[#fafafa] px-4 py-4" aria-label={title}>
       <div className="flex h-12 items-center justify-between [direction:ltr]">
         <div className="flex items-center">
-          <button aria-label="بازه قبلی" className="grid h-12 w-12 place-items-center text-[#4d4d4d]" type="button">
+          <button
+            aria-label="بازه قبلی"
+            className="grid h-12 w-12 place-items-center text-[#4d4d4d]"
+            onClick={() => setOffset((current) => Math.min(current + 1, 2))}
+            type="button"
+          >
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
-          <button aria-label="بازه بعدی" className="grid h-12 w-12 place-items-center text-[#c7c7c7]" disabled type="button">
+          <button
+            aria-label="بازه بعدی"
+            className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-[#c7c7c7]" : "text-[#4d4d4d]"}`}
+            disabled={offset === 0}
+            onClick={() => setOffset((current) => Math.max(current - 1, 0))}
+            type="button"
+          >
             <ChevronRightIcon className="h-5 w-5" />
           </button>
         </div>
@@ -82,7 +97,7 @@ function StatisticsChart({ label, title }: { label: string; title: string }) {
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
           <span className="text-sm font-normal leading-5 text-[#4d4d4d]">{label}</span>
           <strong className="rounded bg-[#edf0fb] px-2 text-base font-medium leading-6 text-[#002099]">
-            ۲۴۵
+            {displayValue}
           </strong>
         </div>
         <div className="relative mt-2 grid h-[155px] grid-cols-7 [direction:ltr]">

@@ -1,6 +1,5 @@
-import type { ReactNode } from "react";
-import { PageFrame } from "../../app/PageFrame";
-import { BottomNavigation } from "../../components/BottomNavigation";
+import { useState, type ReactNode } from "react";
+import { TopBarNavigationLayout } from "../../app/TopBarNavigationLayout";
 import { TopBar } from "../../components/TopBar";
 
 type CreditMetric = {
@@ -84,58 +83,69 @@ const rankingRows = [
 ];
 
 export function IndependentConsultantDashboardPage() {
+  const [period, setPeriod] = useState<"ماه" | "سال">("ماه");
+
   return (
-    <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar
+    <TopBarNavigationLayout
+      activeKey="home"
+      contentClassName="bg-[#f0f0f0] px-4 py-4"
+      frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      topBar={<TopBar
         actions={[
           {
             icon: <NotificationIcon className="h-6 w-6" />,
             id: "notifications",
             label: "اعلان‌ها",
+            to: "/chat",
           },
         ]}
         backTo="/login"
         title="داشبورد"
-      />
+      />}
+    >
+      <section className="space-y-3" aria-label="اعتبارها">
+        {creditMetrics.map((metric) => (
+          <CreditCard key={metric.value} metric={metric} />
+        ))}
+      </section>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] px-4 py-4">
-        <section className="space-y-3" aria-label="اعتبارها">
-          {creditMetrics.map((metric) => (
-            <CreditCard key={metric.value} metric={metric} />
-          ))}
-        </section>
+      <section className="mt-4 space-y-4" aria-label="آمار مشاور">
+        <PublishedListingsCard
+          period={period}
+          onTogglePeriod={() => setPeriod((current) => (current === "ماه" ? "سال" : "ماه"))}
+        />
+        <ProgressChartCard
+          change="58%"
+          changeLabel="افزایش ثبت"
+          changeTone="positive"
+          title="نمودار پیشرفت ثبت آگهی"
+          tooltip="80 آگهی"
+          period={period}
+          onTogglePeriod={() => setPeriod((current) => (current === "ماه" ? "سال" : "ماه"))}
+        />
 
-        <section className="mt-4 space-y-4" aria-label="آمار مشاور">
-          <PublishedListingsCard />
-          <ProgressChartCard
-            change="58%"
-            changeLabel="افزایش ثبت"
-            changeTone="positive"
-            title="نمودار پیشرفت ثبت آگهی"
-            tooltip="80 آگهی"
+        {distributions.map((distribution) => (
+          <DistributionCard
+            data={distribution}
+            key={distribution.title}
+            period={period}
+            onTogglePeriod={() => setPeriod((current) => (current === "ماه" ? "سال" : "ماه"))}
           />
+        ))}
 
-          {distributions.map((distribution) => (
-            <DistributionCard data={distribution} key={distribution.title} />
-          ))}
+        <ProgressChartCard
+          change="23%"
+          changeLabel="کاهش پیشرفت"
+          changeTone="negative"
+          title="نمودار پیشرفت رتبه"
+          tooltip="12"
+          period={period}
+          onTogglePeriod={() => setPeriod((current) => (current === "ماه" ? "سال" : "ماه"))}
+        />
 
-          <ProgressChartCard
-            change="23%"
-            changeLabel="کاهش پیشرفت"
-            changeTone="negative"
-            title="نمودار پیشرفت رتبه"
-            tooltip="12"
-          />
-
-          <RankingCard />
-        </section>
-      </main>
-
-      <BottomNavigation activeKey="home" />
-    </PageFrame>
+        <RankingCard />
+      </section>
+    </TopBarNavigationLayout>
   );
 }
 
@@ -162,25 +172,40 @@ function CreditCard({ metric }: { metric: CreditMetric }) {
   );
 }
 
-function CardHeader({ title }: { title: string }) {
+function CardHeader({
+  onTogglePeriod,
+  period,
+  title,
+}: {
+  onTogglePeriod: () => void;
+  period: string;
+  title: string;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 [direction:ltr]">
       <button
         className="inline-flex h-7 items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d]"
+        onClick={onTogglePeriod}
         type="button"
       >
         <ChevronDownIcon className="h-4 w-4" />
-        <span dir="rtl">در ماه</span>
+        <span dir="rtl">در {period}</span>
       </button>
       <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">{title}</h2>
     </div>
   );
 }
 
-function PublishedListingsCard() {
+function PublishedListingsCard({
+  onTogglePeriod,
+  period,
+}: {
+  onTogglePeriod: () => void;
+  period: string;
+}) {
   return (
     <article className="rounded-2xl bg-white p-6">
-      <CardHeader title="آگهی منتشر شده" />
+      <CardHeader onTogglePeriod={onTogglePeriod} period={period} title="آگهی منتشر شده" />
       <p className="m-0 mt-2 text-right text-sm font-normal leading-5 text-[#808080]">
         <strong className="ml-1 text-base font-semibold leading-6 text-[#0048c4]">183</strong>
         آگهی ثبت شده
@@ -223,12 +248,16 @@ function ProgressChartCard({
   changeTone,
   title,
   tooltip,
+  onTogglePeriod,
+  period,
 }: {
   change: string;
   changeLabel: string;
   changeTone: "negative" | "positive";
   title: string;
   tooltip: string;
+  onTogglePeriod: () => void;
+  period: string;
 }) {
   const toneClassName = changeTone === "positive" ? "text-[#11a366]" : "text-[#ee3623]";
 
@@ -238,9 +267,10 @@ function ProgressChartCard({
         <button
           className="inline-flex h-7 items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d]"
           type="button"
+          onClick={onTogglePeriod}
         >
           <ChevronDownIcon className="h-4 w-4" />
-          <span dir="rtl">در سال</span>
+          <span dir="rtl">در {period}</span>
         </button>
         <div className="text-right [direction:rtl]">
           <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</h2>
@@ -300,10 +330,18 @@ function LineChart({ tooltip }: { tooltip: string }) {
   );
 }
 
-function DistributionCard({ data }: { data: DistributionCardData }) {
+function DistributionCard({
+  data,
+  onTogglePeriod,
+  period,
+}: {
+  data: DistributionCardData;
+  onTogglePeriod: () => void;
+  period: string;
+}) {
   return (
     <article className="rounded-2xl bg-white p-6">
-      <CardHeader title={data.title} />
+      <CardHeader onTogglePeriod={onTogglePeriod} period={period} title={data.title} />
       <p className="m-0 mt-2 text-right text-sm font-normal leading-5 text-[#808080]">
         <strong className="ml-1 text-base font-semibold leading-6 text-[#0048c4]">{data.count}</strong>
         مورد از {data.total} مورد ثبت شده

@@ -14,7 +14,7 @@ function NotFoundState() {
       variant="flush"
     >
       <ViewAdTopBar
-        actionIcons={["share", "bookmark", "attachment"]}
+        actionIcons={[]}
         backTo="/home"
         title="اطلاعات ملک"
       />
@@ -45,6 +45,10 @@ export function PropertyInfoPage() {
       <ViewAdTopBar
         actionIcons={["share", "bookmark", "attachment"]}
         backTo={`/ads/${adId}`}
+        onAction={() => {
+          window.history.pushState({}, "", `/ads/${adId}`);
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        }}
         title="اطلاعات ملک"
       />
 

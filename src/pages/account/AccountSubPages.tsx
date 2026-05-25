@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
+import { DemoNotice } from "../../components/DemoNotice";
+import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 
@@ -16,6 +18,8 @@ const paymentRows = [
 ];
 
 export function AccountProfilePage() {
+  const { message, showNotice } = useDemoNotice();
+
   return (
     <AccountPageShell title="مشخصات من">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
@@ -26,6 +30,7 @@ export function AccountProfilePage() {
               aria-label="ویرایش تصویر"
               className="absolute bottom-1 right-1 grid h-9 w-9 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
               type="button"
+              onClick={() => showNotice("تصویر پروفایل نمایشی به‌روزرسانی شد")}
             >
               <EditIcon className="h-4 w-4" />
             </button>
@@ -50,28 +55,32 @@ export function AccountProfilePage() {
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
           type="button"
+          onClick={() => showNotice("اطلاعات حساب ذخیره شد")}
         >
           ثبت
         </button>
       </div>
+      <DemoNotice message={message} className="bottom-20" />
     </AccountPageShell>
   );
 }
 
 export function AccountMyAdsPage() {
+  const [activeFilter, setActiveFilter] = useState(adFilters[0]);
+
   return (
     <AccountPageShell
       action={
-        <button className="grid h-12 w-12 place-items-center text-[#1a1a1a]" type="button">
+        <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
           <MapIcon className="h-6 w-6" />
-        </button>
+        </RouteLink>
       }
       title="آگهی‌های من"
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <AdFilterTabs />
+        <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
         <div className="space-y-2 bg-[#f0f0f0] pt-4">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: activeFilter === "همه" ? 4 : 2 }).map((_, index) => (
             <MyAdCard key={index} />
           ))}
         </div>
@@ -81,17 +90,19 @@ export function AccountMyAdsPage() {
 }
 
 export function AccountMyAdsEmptyPage() {
+  const [activeFilter, setActiveFilter] = useState(adFilters[0]);
+
   return (
     <AccountPageShell
       action={
-        <button className="grid h-12 w-12 place-items-center text-[#1a1a1a]" type="button">
+        <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
           <MapIcon className="h-6 w-6" />
-        </button>
+        </RouteLink>
       }
       title="آگهی‌های من"
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        <AdFilterTabs />
+        <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
         <section className="flex min-h-[560px] flex-col items-center justify-center px-10 text-center">
           <div className="relative mb-6 grid h-[74px] w-[74px] place-items-center text-[#dfe3eb]">
             <DocumentSadIcon className="h-[68px] w-[68px]" />
@@ -119,6 +130,9 @@ export function AccountMyAdsEmptyPage() {
 }
 
 export function AccountWalletPage() {
+  const [amount, setAmount] = useState("");
+  const { message, showNotice } = useDemoNotice();
+
   return (
     <AccountPageShell
       action={
@@ -160,16 +174,21 @@ export function AccountWalletPage() {
             <input
               className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
               placeholder="مبلغ اعتبار"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
             />
           </label>
           <div className="mt-6 grid grid-cols-3 gap-4">
-            {["۱۰۰ هزار", "۲۰۰ هزار", "۳۰۰ هزار"].map((amount) => (
+            {["۱۰۰ هزار", "۲۰۰ هزار", "۳۰۰ هزار"].map((amountOption) => (
               <button
-                className="h-8 rounded-lg bg-[#e8e9ee] text-xs font-medium leading-4 text-[#1a1a1a]"
-                key={amount}
+                className={`h-8 rounded-lg text-xs font-medium leading-4 ${
+                  amount === amountOption ? "bg-[#0048c414] text-[#0048c4]" : "bg-[#e8e9ee] text-[#1a1a1a]"
+                }`}
+                key={amountOption}
+                onClick={() => setAmount(amountOption)}
                 type="button"
               >
-                {amount}
+                {amountOption}
               </button>
             ))}
           </div>
@@ -177,10 +196,16 @@ export function AccountWalletPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white" type="button">
+        <button
+          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
+          disabled={amount.trim().length === 0}
+          onClick={() => showNotice(`پرداخت ${amount} تومان برای نسخه نمایشی ثبت شد`)}
+          type="button"
+        >
           پرداخت
         </button>
       </div>
+      <DemoNotice message={message} className="bottom-20" />
     </AccountPageShell>
   );
 }
@@ -203,23 +228,33 @@ export function AccountWalletHistoryPage() {
 }
 
 export function AccountNotesPage() {
+  const [noteCount, setNoteCount] = useState(4);
+  const { message, showNotice } = useDemoNotice();
+
   return (
-    <AccountPageShell action={<TopBarTextAction label="حذف همه" />} title="یادداشت ها">
+    <AccountPageShell
+      action={<TopBarTextAction label="حذف همه" onClick={() => { setNoteCount(0); showNotice("یادداشت‌ها حذف شدند"); }} />}
+      title="یادداشت ها"
+    >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <div className="space-y-2 bg-[#f0f0f0] pt-2">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: noteCount }).map((_, index) => (
             <NoteCard key={index} />
           ))}
+          {noteCount === 0 ? <EmptyMessage text="یادداشتی باقی نمانده است" /> : null}
         </div>
       </main>
+      <DemoNotice message={message} />
     </AccountPageShell>
   );
 }
 
 export function AccountBookmarksPage() {
+  const [count, setCount] = useState(4);
+
   return (
-    <AccountPageShell action={<TopBarTextAction label="حذف همه" />} title="نشان‌ها">
-      <ListingCardsPage count={4} />
+    <AccountPageShell action={<TopBarTextAction label="حذف همه" onClick={() => setCount(0)} />} title="نشان‌ها">
+      <ListingCardsPage count={count} emptyText="آگهی نشان‌شده‌ای باقی نمانده است" />
     </AccountPageShell>
   );
 }
@@ -228,9 +263,9 @@ export function AccountRecentViewsPage() {
   return (
     <AccountPageShell
       action={
-        <button className="grid h-12 w-12 place-items-center text-[#1a1a1a]" type="button">
+        <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
           <MapIcon className="h-6 w-6" />
-        </button>
+        </RouteLink>
       }
       title="بازدیدهای اخیر"
     >
@@ -241,38 +276,25 @@ export function AccountRecentViewsPage() {
 
 export function AccountIdentityPage() {
   const [status, setStatus] = useState<"pending" | "verified">("pending");
+  const { message, showNotice } = useDemoNotice();
 
   return (
     <AccountPageShell title="تایید هویت">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
-        <div className="grid grid-cols-2 gap-2 bg-[#f0f0f0] px-4 py-2">
-          {[
-            { id: "pending", label: "در انتظار تایید" },
-            { id: "verified", label: "تایید شده" },
-          ].map((item) => (
-            <button
-              className={`h-9 rounded-lg border text-sm font-medium leading-5 ${
-                status === item.id
-                  ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-                  : "border-[#cccccc] bg-white text-[#1a1a1a]"
-              }`}
-              key={item.id}
-              onClick={() => setStatus(item.id as "pending" | "verified")}
-              type="button"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        {status === "pending" ? <IdentityPendingState /> : <IdentityVerifiedState />}
+        {status === "pending" ? (
+          <IdentityPendingState onVerify={() => setStatus("verified")} />
+        ) : (
+          <IdentityVerifiedState onChangeOwner={() => showNotice("درخواست تغییر مالکیت ثبت شد")} />
+        )}
       </main>
+      <DemoNotice message={message} className="bottom-20" />
     </AccountPageShell>
   );
 }
 
 export function AccountRequestsPage() {
   const [activeTab, setActiveTab] = useState<"requests" | "results">("requests");
+  const [requestIds, setRequestIds] = useState([1, 2, 3, 4]);
 
   return (
     <AccountPageShell title="درخواست‌ها">
@@ -303,9 +325,10 @@ export function AccountRequestsPage() {
 
         {activeTab === "requests" ? (
           <div className="space-y-2 bg-[#f0f0f0] pt-2">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <RequestCard key={index} />
+            {requestIds.map((id) => (
+              <RequestCard key={id} onCancel={() => setRequestIds((items) => items.filter((item) => item !== id))} />
             ))}
+            {requestIds.length === 0 ? <EmptyMessage text="درخواستی باقی نمانده است" /> : null}
           </div>
         ) : (
           <div className="space-y-2 bg-[#f0f0f0] pt-2">
@@ -404,18 +427,25 @@ function AccountPageShell({ action, children, title }: React.PropsWithChildren<T
   );
 }
 
-function AdFilterTabs() {
+function AdFilterTabs({
+  activeFilter,
+  onSelect,
+}: {
+  activeFilter: string;
+  onSelect: (filter: string) => void;
+}) {
   return (
     <section className="h-[52px] overflow-hidden bg-[#f0f0f0] px-4 py-2">
       <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {adFilters.map((filter, index) => (
+        {adFilters.map((filter) => (
           <button
             className={`h-9 shrink-0 rounded-lg border px-3 text-sm font-medium leading-5 ${
-              index === 0
+              activeFilter === filter
                 ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
                 : "border-[#cccccc] bg-white text-[#1a1a1a]"
             }`}
             key={filter}
+            onClick={() => onSelect(filter)}
             type="button"
           >
             {filter}
@@ -426,22 +456,30 @@ function AdFilterTabs() {
   );
 }
 
-function ListingCardsPage({ count }: { count: number }) {
+function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: string }) {
   return (
     <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
       <div className="space-y-2 bg-[#f0f0f0] pt-2">
         {Array.from({ length: count }).map((_, index) => (
           <MyAdCard key={index} />
         ))}
+        {count === 0 && emptyText ? <EmptyMessage text={emptyText} /> : null}
       </div>
     </main>
   );
 }
 
-function TopBarTextAction({ label }: { label: string }) {
+function TopBarTextAction({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
   return (
     <button
       className="h-10 rounded-lg px-2 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+      onClick={onClick}
       type="button"
     >
       {label}
@@ -546,7 +584,7 @@ function NoteCard() {
   );
 }
 
-function RequestCard() {
+function RequestCard({ onCancel }: { onCancel: () => void }) {
   const details = [
     "قیمت 3 میلیارد تومان",
     "محله صیاد شیرازی",
@@ -560,6 +598,7 @@ function RequestCard() {
       <div className="flex items-center justify-between gap-3 [direction:ltr]">
         <button
           className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[10px] px-3 text-sm font-medium leading-5 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
+          onClick={onCancel}
           type="button"
         >
           <CancelIcon className="h-5 w-5" />
@@ -585,7 +624,7 @@ function RequestCard() {
   );
 }
 
-function IdentityPendingState() {
+function IdentityPendingState({ onVerify }: { onVerify: () => void }) {
   return (
     <>
       <section className="space-y-3 px-4 pt-6 text-right">
@@ -626,7 +665,11 @@ function IdentityPendingState() {
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white" type="button">
+        <button
+          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+          onClick={onVerify}
+          type="button"
+        >
           تایید کد ملی
         </button>
       </div>
@@ -634,7 +677,7 @@ function IdentityPendingState() {
   );
 }
 
-function IdentityVerifiedState() {
+function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void }) {
   return (
     <>
       <section className="flex min-h-[184px] flex-col items-center justify-center px-8 text-center">
@@ -662,12 +705,21 @@ function IdentityVerifiedState() {
 
         <button
           className="mt-6 flex h-14 w-full items-center justify-center rounded-xl border border-[#0048c4] px-4 text-base font-medium leading-6 text-[#0048c4]"
+          onClick={onChangeOwner}
           type="button"
         >
           اعلام تغییر مالکیت سیم‌کارت
         </button>
       </section>
     </>
+  );
+}
+
+function EmptyMessage({ text }: { text: string }) {
+  return (
+    <p className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
+      {text}
+    </p>
   );
 }
 

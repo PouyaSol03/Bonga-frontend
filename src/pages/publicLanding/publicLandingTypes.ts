@@ -5,6 +5,7 @@ export type City = {
 
 export type DownloadOption = {
   label: string
+  href: string
   icon: string
   typo: string
 }

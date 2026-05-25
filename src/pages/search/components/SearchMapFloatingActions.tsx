@@ -3,14 +3,18 @@ import HandDrawIcon from "../../../assets/icons/HandDrawIcon";
 import ListIcon from "../../../assets/icons/ListIcon";
 
 type SearchMapFloatingActionsProps = {
+  isDrawing?: boolean;
   isHidden?: boolean;
+  isLocated?: boolean;
   onLocateClick?: () => void;
   onHandClick?: () => void;
   onListClick?: () => void;
 };
 
 export function SearchMapFloatingActions({
+  isDrawing = false,
   isHidden = false,
+  isLocated = false,
   onLocateClick,
   onHandClick,
   onListClick,
@@ -36,7 +40,9 @@ export function SearchMapFloatingActions({
 
       <div className="pointer-events-auto absolute bottom-0 right-4 flex flex-col items-center gap-4">
         <button
-          className="flex h-10 w-9 items-center justify-center rounded-xl bg-white text-[#4d4d4d] shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className={`flex h-10 w-9 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+            isLocated ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"
+          }`}
           type="button"
           aria-label="موقعیت من"
           tabIndex={isHidden ? -1 : 0}
@@ -48,7 +54,10 @@ export function SearchMapFloatingActions({
         </button>
 
         <button
-          className="flex h-10 w-9 items-center justify-center rounded-xl bg-white text-[#4d4d4d] shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          aria-pressed={isDrawing}
+          className={`flex h-10 w-9 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+            isDrawing ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"
+          }`}
           type="button"
           aria-label="انتخاب محدوده روی نقشه"
           tabIndex={isHidden ? -1 : 0}

@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { PageFrame } from "../app/PageFrame";
 import ArrowRight from "../assets/icons/ArrowRight";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import LoginOTPbackground from "../assets/images/LoginOTPBackground.svg";
 
-const verificationCodeSlots = ["-", "-", "-", "-"];
-const canResendOtp = true;
-
 export function LoginVerifyPage() {
+  const [verificationCodeSlots, setVerificationCodeSlots] = useState(["", "", "", ""]);
+  const phoneNumber = window.sessionStorage.getItem("bonga-phone-number") ?? "09155214062";
+
   return (
     <PageFrame
       className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
@@ -41,13 +42,13 @@ export function LoginVerifyPage() {
             </h2>
             <p className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-xs font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
               <span>کد ارسال شده به </span>
-              <a
+              <RouteLink
                 dir="ltr"
                 className="font-medium text-[#0048c4] underline underline-offset-3"
-                href="#edit-phone"
+                to="/login/phone"
               >
-                0915 521 4062
-              </a>
+                {phoneNumber}
+              </RouteLink>
               <img
                 className="block h-4 w-4 object-contain"
                 src="/figma/otp/edit.svg"
@@ -70,35 +71,30 @@ export function LoginVerifyPage() {
                   aria-label={`رقم ${index + 1}`}
                   inputMode="numeric"
                   maxLength={1}
-                  placeholder={slot}
+                  placeholder="-"
                   type="text"
+                  value={slot}
+                  onChange={(event) => {
+                    const nextValue = event.target.value.replace(/\D/g, "").slice(-1);
+                    setVerificationCodeSlots((current) =>
+                      current.map((value, currentIndex) =>
+                        currentIndex === index ? nextValue : value,
+                      ),
+                    );
+                  }}
                 />
               </label>
             ))}
           </div>
 
-          {canResendOtp ? (
-            <button
-              className="flex cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:px-6 min-[390px]:text-sm"
-              type="button"
-            >
-              <span>دریافت مجدد کد</span>
-              <ArrowRight />
-            </button>
-          ) : (
-            <div
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#1a1a1a] min-[390px]:px-6 min-[390px]:text-sm"
-              aria-label="زمان باقی مانده"
-            >
-              <img
-                className="block h-5 w-5"
-                src="/figma/otp/timer.svg"
-                alt=""
-                aria-hidden="true"
-              />
-              <span>54</span>
-            </div>
-          )}
+          <button
+            className="flex cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] min-[390px]:px-6 min-[390px]:text-sm"
+            onClick={() => setVerificationCodeSlots(["1", "2", "3", "4"])}
+            type="button"
+          >
+            <span>دریافت مجدد کد</span>
+            <ArrowRight />
+          </button>
         </section>
       </main>
 

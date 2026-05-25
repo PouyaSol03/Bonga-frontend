@@ -1,6 +1,8 @@
 import { PageFrame } from "../../../app/PageFrame";
+import { DemoNotice } from "../../../components/DemoNotice";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
+import { useDemoNotice } from "../../../hooks/useDemoNotice";
 import {
   creditPackages,
   panelCreditBonusPlans,
@@ -23,6 +25,7 @@ export function IndependentConsultantCreditPackagesPage() {
 }
 
 function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
+  const { message, showNotice } = useDemoNotice();
   const isPackages = view === "packages";
   const hasGiftBenefits = view === "panel-bonus";
   const plans = isPackages
@@ -46,11 +49,13 @@ function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
               hasGiftBenefits={hasGiftBenefits}
               isPackage={isPackages}
               key={plan.name}
+              onPay={() => showNotice(`پرداخت ${plan.name} در نسخه نمایشی ثبت شد`)}
               plan={plan}
             />
           ))}
         </div>
       </main>
+      <DemoNotice message={message} />
     </PageFrame>
   );
 }
@@ -101,10 +106,12 @@ function CreditPlanCard({
   hasGiftBenefits,
   isPackage,
   plan,
+  onPay,
 }: {
   hasGiftBenefits: boolean;
   isPackage: boolean;
   plan: CreditPlan;
+  onPay: () => void;
 }) {
   return (
     <article
@@ -122,6 +129,7 @@ function CreditPlanCard({
 
       <button
         className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+        onClick={onPay}
         type="button"
       >
         پرداخت

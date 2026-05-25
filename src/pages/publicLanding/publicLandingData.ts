@@ -30,16 +30,19 @@ export const cities: City[] = [
 export const downloadOptions: DownloadOption[] = [
   {
     label: "بازار",
+    href: "https://cafebazaar.ir/",
     icon: BazarIcon,
     typo: BazarTypo,
   },
   {
     label: "مایکت",
+    href: "https://myket.ir/",
     icon: MyketIcon,
     typo: MyketTypo,
   },
   {
     label: "سیب اپ",
+    href: "https://sibapp.com/",
     icon: SibappIcon,
     typo: SibappTypo,
   },

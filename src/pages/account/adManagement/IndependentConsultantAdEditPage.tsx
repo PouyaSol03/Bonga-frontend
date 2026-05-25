@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
@@ -33,13 +33,14 @@ export function IndependentConsultantAdEditPage() {
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 py-[14px] shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
+          <RouteLink
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white"
-            type="button"
+            state={{ ad }}
+            to={adManagementPaths.published}
           >
             <ArrowLeftIcon className="h-5 w-5" />
             ثبت اطلاعات
-          </button>
+          </RouteLink>
           <RouteLink
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4] no-underline"
             state={{ ad }}
@@ -55,6 +56,11 @@ export function IndependentConsultantAdEditPage() {
 }
 
 function MediaFields() {
+  const [images, setImages] = useState<string[]>([...galleryImages]);
+  const [hasVideo, setHasVideo] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasVirtualTour, setHasVirtualTour] = useState(true);
+
   return (
     <section className="bg-white px-4 pb-4 pt-4">
       <SectionHeading icon={<ImageIcon className="h-6 w-6" />} title="عکس آگهی" />
@@ -67,15 +73,21 @@ function MediaFields() {
         <button
           className="flex h-[98px] w-[98px] shrink-0 flex-col items-center justify-center gap-3 rounded-xl border-2 border-[#0048c4] bg-white text-[#0048c4]"
           type="button"
+          onClick={() =>
+            setImages((current) => [
+              ...current,
+              galleryImages[current.length % galleryImages.length],
+            ])
+          }
         >
           <PlusIcon className="h-7 w-7" />
           <span className="text-sm font-medium leading-5">افزودن عکس</span>
         </button>
-        {galleryImages.map((image) => (
+        {images.map((image, index) => (
           <img
             alt=""
             className="h-[98px] w-[98px] shrink-0 rounded-xl object-cover"
-            key={image}
+            key={`${image}-${index}`}
             src={image}
           />
         ))}
@@ -84,39 +96,51 @@ function MediaFields() {
       <DashedDivider className="mt-6" />
 
       <div className="mt-6 flex items-center justify-between [direction:ltr]">
-        <Toggle />
+        <Toggle active={hasVideo} onClick={() => setHasVideo((current) => !current)} />
         <h2 className="m-0 text-base font-medium leading-6 [direction:rtl]">فیلم</h2>
       </div>
 
-      <div className="mt-6 flex h-[86px] items-center justify-between rounded-2xl border border-[#cccccc] px-4 [direction:ltr]">
-        <button aria-label="حذف فیلم" className="grid h-8 w-8 place-items-center text-[#ee3623]" type="button">
+      {hasVideo ? <div className="mt-6 flex h-[86px] items-center justify-between rounded-2xl border border-[#cccccc] px-4 [direction:ltr]">
+        <button
+          aria-label="حذف فیلم"
+          className="grid h-8 w-8 place-items-center text-[#ee3623]"
+          onClick={() => setHasVideo(false)}
+          type="button"
+        >
           <CloseCircleIcon className="h-6 w-6" />
         </button>
         <div className="text-right [direction:ltr]">
           <p className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">my video.mp4</p>
           <p className="m-0 text-sm font-normal leading-5 text-[#808080]">5.3MB</p>
         </div>
-        <button aria-label="پخش فیلم" className="grid h-12 w-12 place-items-center rounded-full bg-[#e7eefc] text-[#0048c4]" type="button">
+        <button
+          aria-label={isPlaying ? "توقف فیلم" : "پخش فیلم"}
+          className="grid h-12 w-12 place-items-center rounded-full bg-[#e7eefc] text-[#0048c4]"
+          onClick={() => setIsPlaying((current) => !current)}
+          type="button"
+        >
           <PlayIcon className="h-6 w-6" />
         </button>
-      </div>
+      </div> : null}
 
       <DashedDivider className="mt-6" />
 
       <div className="mt-6 flex items-center justify-between [direction:ltr]">
-        <Toggle />
+        <Toggle active={hasVirtualTour} onClick={() => setHasVirtualTour((current) => !current)} />
         <h2 className="m-0 text-base font-medium leading-6 [direction:rtl]">تور مجازی</h2>
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4 [direction:ltr]">
+      {hasVirtualTour ? <div className="mt-6 flex items-center justify-between gap-4 [direction:ltr]">
         <InfoCircleIcon className="h-6 w-6 shrink-0 text-[#808080]" />
-        <div className="flex h-14 min-w-0 flex-1 items-center justify-between rounded-xl border border-[#cccccc] px-4 text-[#808080] [direction:ltr]">
+        <label className="flex h-14 min-w-0 flex-1 items-center justify-between rounded-xl border border-[#cccccc] px-4 text-[#808080] [direction:ltr]">
           <LinkIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-          <span className="truncate text-right text-sm font-normal leading-5 [direction:rtl]">
-            لینک تور مجازی را وارد کنید
-          </span>
-        </div>
-      </div>
+          <input
+            className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm outline-none [direction:rtl]"
+            placeholder="لینک تور مجازی را وارد کنید"
+            type="url"
+          />
+        </label>
+      </div> : null}
     </section>
   );
 }
@@ -204,9 +228,16 @@ function FormField({
   );
 }
 
-function Toggle() {
+function Toggle({ active, onClick }: { active: boolean; onClick: () => void }) {
   return (
-    <button aria-pressed="true" className="flex h-6 w-11 items-center justify-end rounded-full bg-[#0048c4] px-1" type="button">
+    <button
+      aria-pressed={active}
+      className={`flex h-6 w-11 items-center rounded-full px-1 ${
+        active ? "justify-end bg-[#0048c4]" : "justify-start bg-[#cccccc]"
+      }`}
+      onClick={onClick}
+      type="button"
+    >
       <span className="h-4 w-4 rounded-full bg-white" />
     </button>
   );

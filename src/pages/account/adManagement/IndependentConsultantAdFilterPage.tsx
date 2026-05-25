@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
@@ -6,6 +7,23 @@ import { adManagementPaths, getAdManagementRouteState } from "./adManagementData
 
 export function IndependentConsultantAdFilterPage() {
   const tab = getAdManagementRouteState().tab ?? "active";
+  const [onlyMine, setOnlyMine] = useState(false);
+  const [selections, setSelections] = useState<Record<string, string>>({});
+  const options: Record<string, string[]> = {
+    شهر: ["مشهد", "تهران", "شیراز"],
+    محله: ["الهیه", "هاشمیه", "سجاد"],
+    "وضعیت آگهی": ["فعال", "منتشر شده", "در انتظار پرداخت"],
+    "نوع معامله": ["فروش", "اجاره", "رهن"],
+  };
+
+  const selectNext = (label: string) => {
+    const values = options[label];
+    const currentIndex = values.indexOf(selections[label] ?? "");
+    setSelections((current) => ({
+      ...current,
+      [label]: values[(currentIndex + 1) % values.length],
+    }));
+  };
 
   return (
     <PageFrame
@@ -21,7 +39,7 @@ export function IndependentConsultantAdFilterPage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pt-4">
         <section className="flex h-14 items-center justify-between [direction:ltr]" aria-label="نمایش آگهی های من">
-          <FilterToggle />
+          <FilterToggle active={onlyMine} onClick={() => setOnlyMine((current) => !current)} />
           <h2 className="m-0 text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
             آگهی‌های من
           </h2>
@@ -29,7 +47,12 @@ export function IndependentConsultantAdFilterPage() {
 
         <div className="mt-4 space-y-6">
           {["شهر", "محله", "وضعیت آگهی", "نوع معامله"].map((label) => (
-            <FilterSelect key={label} label={label} />
+            <FilterSelect
+              key={label}
+              label={label}
+              onClick={() => selectNext(label)}
+              value={selections[label]}
+            />
           ))}
         </div>
       </main>
@@ -38,6 +61,10 @@ export function IndependentConsultantAdFilterPage() {
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
           <button
             className="h-10 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]"
+            onClick={() => {
+              setOnlyMine(false);
+              setSelections({});
+            }}
             type="button"
           >
             حذف فیلتر
@@ -55,27 +82,41 @@ export function IndependentConsultantAdFilterPage() {
   );
 }
 
-function FilterToggle() {
+function FilterToggle({ active, onClick }: { active: boolean; onClick: () => void }) {
   return (
     <button
       aria-label="نمایش آگهی های من"
-      aria-pressed="false"
-      className="flex h-6 w-11 items-center rounded-full bg-[#0048c41f] px-1 [direction:ltr]"
+      aria-pressed={active}
+      className={`flex h-6 w-11 items-center rounded-full px-1 [direction:ltr] ${
+        active ? "justify-end bg-[#0048c4]" : "justify-start bg-[#0048c41f]"
+      }`}
+      onClick={onClick}
       type="button"
     >
-      <span className="block h-4 w-4 rounded-full bg-[#808080]" />
+      <span className={`block h-4 w-4 rounded-full ${active ? "bg-white" : "bg-[#808080]"}`} />
     </button>
   );
 }
 
-function FilterSelect({ label }: { label: string }) {
+function FilterSelect({
+  label,
+  onClick,
+  value,
+}: {
+  label: string;
+  onClick: () => void;
+  value?: string;
+}) {
   return (
     <button
       className="flex h-14 w-full items-center justify-between rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]"
+      onClick={onClick}
       type="button"
     >
       <ChevronDownIcon className="h-5 w-5 text-[#4d4d4d]" />
-      <span className="text-sm font-normal leading-5 text-[#a6a6a6] [direction:rtl]">{label}</span>
+      <span className={`text-sm font-normal leading-5 [direction:rtl] ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
+        {value ?? label}
+      </span>
     </button>
   );
 }

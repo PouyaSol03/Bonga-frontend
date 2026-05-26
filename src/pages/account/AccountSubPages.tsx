@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
+import { getStoredAuthSession } from "../../api/authSession";
 import { AdCard } from "../../components/AdCard";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
@@ -21,6 +22,7 @@ const paymentRows = [
 
 export function AccountProfilePage() {
   const { message, showNotice } = useDemoNotice();
+  const mobile = getStoredAuthSession()?.mobile ?? "-";
 
   return (
     <AccountPageShell title="مشخصات من">
@@ -40,7 +42,7 @@ export function AccountProfilePage() {
         </section>
 
         <section className="mt-4 space-y-6 px-4">
-          <ReadonlyField label="شماره همراه" value="09155214062" />
+          <ReadonlyField label="شماره همراه" value={mobile} />
           <ReadonlyField label="کد ملی" value="0705688456" />
         </section>
 
@@ -582,6 +584,8 @@ function RequestCard({ onCancel }: { onCancel: () => void }) {
 }
 
 function IdentityPendingState({ onVerify }: { onVerify: () => void }) {
+  const mobile = getStoredAuthSession()?.mobile ?? "-";
+
   return (
     <>
       <section className="space-y-3 px-4 pt-6 text-right">
@@ -592,7 +596,7 @@ function IdentityPendingState({ onVerify }: { onVerify: () => void }) {
           برای جلوگیری از ورودشماره‌ی موبایل متخلف و افزایش سلامت تعاملات، تایید هویت در ایران شناسا انجام می‌شود.
         </p>
         <p className="m-0 text-base font-normal leading-7 text-[#1a1a1a]">
-          حساب شما با شماره‌ی <span dir="ltr">09155214062</span> فعال است.
+          حساب شما با شماره‌ی <span dir="ltr">{mobile}</span> فعال است.
         </p>
       </section>
 

@@ -1,6 +1,11 @@
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
+import {
+  formatMobileForDisplay,
+  getStoredAuthSession,
+  type AuthSession,
+} from "../api/authSession";
 import { currentAccountUserType } from "./account/accountUserType";
 
 type AccountAction = {
@@ -71,11 +76,14 @@ const loggedOutSecondaryActions: AccountAction[] = [
 ];
 
 export function MyAccountPage() {
-  if (currentAccountUserType === "independent-consultant") {
+  const authSession = getStoredAuthSession();
+  const accountType = authSession?.accountType ?? currentAccountUserType;
+
+  if (accountType === "independent-consultant") {
     return <IndependentConsultantAccountPage />;
   }
 
-  return <StandardAccountPage />;
+  return <StandardAccountPage authSession={authSession} />;
 }
 
 function IndependentConsultantAccountPage() {
@@ -141,8 +149,8 @@ function IndependentConsultantAccountPage() {
   );
 }
 
-function StandardAccountPage() {
-  const isLoggedInUnverified = getAccountState() === "logged-in-unverified";
+function StandardAccountPage({ authSession }: { authSession: AuthSession | null }) {
+  const isLoggedInUnverified = authSession !== null;
 
   return (
     <TopBarNavigationLayout
@@ -163,7 +171,7 @@ function StandardAccountPage() {
                 احراز هویت نشده
               </p>
               <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
-                0915 521 4062
+                {formatMobileForDisplay(authSession?.mobile ?? "")}
               </p>
             </div>
           </div>
@@ -184,20 +192,6 @@ function StandardAccountPage() {
         <AccountSection actions={isLoggedInUnverified ? secondaryActions : loggedOutSecondaryActions} />
     </TopBarNavigationLayout>
   );
-}
-
-function getAccountState() {
-  const historyState = window.history.state as { accountState?: string; state?: string } | null;
-
-  if (
-    historyState?.state === "new" ||
-    historyState?.accountState === "logged-in-unverified" ||
-    window.sessionStorage.getItem("bonga-account-state") === "logged-in-unverified"
-  ) {
-    return "logged-in-unverified";
-  }
-
-  return "logged-out";
 }
 
 function LoggedOutAccountHeader() {

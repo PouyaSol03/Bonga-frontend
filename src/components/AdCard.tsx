@@ -28,14 +28,21 @@ export type AdCardData = {
   badges: string[]
 }
 
-export function AdCard({ ad }: { ad: AdCardData }) {
+type AdCardProps = {
+  ad: AdCardData
+  state?: unknown
+  to?: string
+}
+
+export function AdCard({ ad, state, to = `/ads/${ad.id}` }: AdCardProps) {
   const hasSecondaryPrice = Boolean(ad.priceLabelSecondary && ad.priceSecondary)
 
   return (
     <RouteLink
       aria-label={`مشاهده آگهی ${ad.title}`}
       className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-      to={`/ads/${ad.id}`}
+      state={state}
+      to={to}
     >
       <article className="flex flex-col bg-white px-4 py-4 text-right [direction:rtl]">
         <div className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover ${ad.imageClassName}`}>

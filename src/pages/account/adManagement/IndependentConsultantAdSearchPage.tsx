@@ -13,7 +13,7 @@ export function IndependentConsultantAdSearchPage() {
     normalizedQuery.length === 0
       ? []
       : ads.filter((ad) =>
-          [ad.title, ad.area, ad.rooms, ad.year, ad.time]
+          [ad.title, ad.area, ad.rooms, ad.year, ad.timeAndLocation]
             .join(" ")
             .includes(normalizedQuery),
         );

@@ -154,12 +154,12 @@ export const initialRecentSearches: RecentSearch[] = Array.from({ length: 4 }, (
 }))
 
 export const searchSuggestions: SearchSuggestion[] = [
-  { id: 1, title: 'هاشمیه', subtitle: 'در فروش آپارتمان', count: '۱۰۰۰+ آگهی' },
-  { id: 2, title: 'هاشمیه', subtitle: 'در اجاره آپارتمان', count: '۱۰۰۰+ آگهی' },
-  { id: 3, title: 'هاشمیه', subtitle: 'در فروش خانه ویلایی', count: '۱۰۰۰+ آگهی' },
-  { id: 4, title: 'هاشمیه', subtitle: 'در اجاره واحد تجاری', count: '۱۰۰۰+ آگهی' },
-  { id: 5, title: 'هاشمیه', subtitle: 'در فروش زمین', count: '۱۰۰۰+ آگهی' },
-  { id: 6, title: 'هاشمیه', subtitle: 'در فروش زمین', count: '۱۰۰۰+ آگهی' },
+  { id: 1, title: 'هاشمیه', subtitle: 'در فروش آپارتمان', count: '۱۰۰۰+' },
+  { id: 2, title: 'هاشمیه', subtitle: 'در اجاره آپارتمان', count: '۱۰۰۰+' },
+  { id: 3, title: 'هاشمیه', subtitle: 'در فروش خانه ویلایی', count: '۱۰۰۰+' },
+  { id: 4, title: 'هاشمیه', subtitle: 'در اجاره واحد تجاری', count: '۱۰۰۰+' },
+  { id: 5, title: 'هاشمیه', subtitle: 'در فروش زمین', count: '۱۰۰۰+' },
+  { id: 6, title: 'هاشمیه', subtitle: 'در فروش زمین', count: '۱۰۰۰+' },
 ]
 
 export const initialSavedSearches: SavedSearch[] = Array.from({ length: 4 }, (_, index) => ({
@@ -183,5 +183,5 @@ export const cityOptions: CityOption[] = [
 
 export const citySearchResults: CityOption[] = Array.from({ length: 4 }, () => ({
   name: 'هاشمیه',
-  count: '۱۰۰۰+ آگهی',
+  count: '۱۰۰۰+',
 }))

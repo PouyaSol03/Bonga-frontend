@@ -33,13 +33,12 @@ export function IndependentConsultantAdAllocationPage() {
                 {ad.title}
               </h2>
               <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
-                {ad.time}
+                {ad.timeAndLocation}
               </p>
             </div>
-            <img
-              alt=""
-              className="h-[68px] w-[102px] shrink-0 rounded-xl object-cover"
-              src="/figma/account/consultant-allocation-thumbnail.png"
+            <div
+              aria-hidden="true"
+              className={`ad-card__image ${ad.imageClassName} h-[68px] w-[102px] shrink-0 rounded-xl bg-cover`}
             />
           </section>
 

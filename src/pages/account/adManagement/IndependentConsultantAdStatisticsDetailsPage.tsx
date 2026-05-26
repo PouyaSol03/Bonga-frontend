@@ -43,9 +43,12 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
           <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
               <h2 className="m-0 truncate text-sm font-medium leading-5">{ad.title}</h2>
-              <p className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.time}</p>
+              <p className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.timeAndLocation}</p>
             </div>
-            <img alt="" className="h-[72px] w-[108px] shrink-0 rounded-lg object-cover" src={ad.image} />
+            <div
+              aria-hidden="true"
+              className={`ad-card__image ${ad.imageClassName} h-[72px] w-[108px] shrink-0 rounded-lg bg-cover`}
+            />
           </div>
         </section>
 

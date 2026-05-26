@@ -43,7 +43,7 @@ export function SearchMapListView({
   return (
     <>
       <main
-        className="min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-24 pt-32 min-[390px]:px-4"
+        className="min-h-0 flex-1 overflow-y-auto bg-white pb-24 pt-28"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >

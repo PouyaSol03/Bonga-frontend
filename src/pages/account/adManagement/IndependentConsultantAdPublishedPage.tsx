@@ -43,12 +43,11 @@ export function IndependentConsultantAdPublishedPage() {
           <div className="mt-4 flex h-[68px] items-center justify-between gap-2 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
               <h2 className="m-0 truncate text-base font-medium leading-6">{ad.title}</h2>
-              <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">{ad.time}</p>
+              <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">{ad.timeAndLocation}</p>
             </div>
-            <img
-              alt=""
-              className="h-[68px] w-[102px] shrink-0 rounded-lg object-cover"
-              src="/figma/account/consultant-published-thumbnail.png"
+            <div
+              aria-hidden="true"
+              className={`ad-card__image ${ad.imageClassName} h-[68px] w-[102px] shrink-0 rounded-lg bg-cover`}
             />
           </div>
 

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
+import { AdCard } from "../../components/AdCard";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
+import { latestMashhadAds } from "../home/homeData";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -81,7 +83,7 @@ export function AccountMyAdsPage() {
         <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
         <div className="space-y-2 bg-[#f0f0f0] pt-4">
           {Array.from({ length: activeFilter === "همه" ? 4 : 2 }).map((_, index) => (
-            <MyAdCard key={index} />
+            <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} key={index} />
           ))}
         </div>
       </main>
@@ -333,7 +335,7 @@ export function AccountRequestsPage() {
         ) : (
           <div className="space-y-2 bg-[#f0f0f0] pt-2">
             {Array.from({ length: 4 }).map((_, index) => (
-              <MyAdCard key={index} />
+              <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} key={index} />
             ))}
           </div>
         )}
@@ -461,7 +463,7 @@ function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: str
     <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
       <div className="space-y-2 bg-[#f0f0f0] pt-2">
         {Array.from({ length: count }).map((_, index) => (
-          <MyAdCard key={index} />
+          <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} key={index} />
         ))}
         {count === 0 && emptyText ? <EmptyMessage text={emptyText} /> : null}
       </div>
@@ -511,56 +513,11 @@ function AboutSection({
   );
 }
 
-function MyAdCard() {
-  return (
-    <article className="bg-white px-4 py-4">
-      <div className="relative overflow-hidden rounded-xl bg-[#ebebeb]">
-        <img
-          alt=""
-          className="aspect-[328/252] w-full object-cover"
-          src="/figma/search/apartment-kitchen.png"
-        />
-        <span className="absolute right-3 top-3 rounded-lg bg-[#1a1a1acc] px-2 py-1 text-xs font-medium leading-4 text-white">
-          ۵
-        </span>
-        <span className="absolute bottom-3 right-3 rounded-lg bg-[#1a1a1acc] px-2 py-1 text-sm font-medium leading-5 text-white">
-          دفتر املاک شریعت زاده
-        </span>
-      </div>
-      <div className="mt-3 text-right">
-        <div className="flex items-center justify-end gap-1 text-[#0048c4]">
-          <span className="text-base font-semibold leading-6">۳٫۸۵۰ میلیارد</span>
-          <span className="text-sm font-semibold leading-5">تومان</span>
-        </div>
-        <div className="mt-2 flex justify-end gap-5 text-sm font-normal leading-5 text-[#1a1a1a]">
-          <span>۱۴۰۰</span>
-          <span>۲ اتاق</span>
-          <span>۱۱۰ متر</span>
-        </div>
-        <h2 className="m-0 mt-2 text-base font-medium leading-6 text-[#1a1a1a]">
-          آپارتمان۱۱۰متری شمال تک واحدی سنداردر رحیمی
-        </h2>
-        <div className="mt-2 flex items-center justify-end gap-2 text-sm font-normal leading-5">
-          <span className="rounded-lg border border-[#ee3623] px-2 py-0.5 text-[#ee3623]">
-            فوری
-          </span>
-          <span className="text-[#808080]">۱ ساعت پیش در الهیه</span>
-        </div>
-      </div>
-    </article>
-  );
-}
-
 function NoteCard() {
   return (
     <article className="bg-white px-4 py-4">
       <div className="flex gap-3 [direction:rtl]">
-        <div className="relative h-[104px] w-[136px] shrink-0 overflow-hidden rounded-xl bg-[#ebebeb]">
-          <img
-            alt=""
-            className="h-full w-full object-cover"
-            src="/figma/search/apartment-kitchen.png"
-          />
+        <div className="ad-card__image ad-card__image--one relative h-[104px] w-[136px] shrink-0 overflow-hidden rounded-xl bg-[#ebebeb] bg-cover">
           <span className="absolute right-2 top-2 rounded-lg bg-[#1a1a1acc] px-2 py-0.5 text-xs font-medium leading-4 text-white">
             4
           </span>

@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 
+import { TopBar } from '../../../components/TopBar'
 import { cityOptions, citySearchResults } from '../homeData'
 import type { CityOption } from '../homeTypes'
 
@@ -47,6 +48,12 @@ export function CitySelectionScreen({
     onClose()
   }
 
+  const confirmCity = () => {
+    setIsSearching(false)
+    setQuery('')
+    onConfirm(draftCity)
+  }
+
   return (
     <section
       className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${
@@ -54,42 +61,33 @@ export function CitySelectionScreen({
       }`}
       aria-hidden={!isOpen}
     >
-      <header className="flex h-12 shrink-0 items-center bg-[#f0f0f0] px-4 min-[390px]:h-14">
-        <button
-          className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-12"
-          type="button"
-          aria-label="بازگشت"
-          tabIndex={isOpen ? 0 : -1}
-          onClick={closeCityScreen}
-        >
-          <span className="home-search-back-icon" aria-hidden="true" />
-        </button>
-
-        {isSearching ? (
-          <input
-            ref={searchInputRef}
-            className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent px-4 text-right text-sm font-semibold leading-5 text-[#1a1a1a] caret-[#0048c4] outline-none min-[390px]:text-base min-[390px]:leading-6"
-            type="search"
-            value={query}
-            tabIndex={isOpen ? 0 : -1}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        ) : (
-          <h2 className="m-0 min-w-0 flex-1 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-            انتخاب شهر
-          </h2>
-        )}
-
-        <button
-          className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] min-[390px]:h-12"
-          type="button"
-          aria-label="جستجوی شهر"
-          tabIndex={isOpen ? 0 : -1}
-          onClick={() => setIsSearching(true)}
-        >
-          {isSearching ? null : <span className="home-city-search-icon" aria-hidden="true" />}
-        </button>
-      </header>
+      <TopBar
+        actions={
+          isSearching
+            ? []
+            : [
+                {
+                  icon: <CitySearchIcon />,
+                  id: 'city-search',
+                  label: 'جستجوی شهر',
+                  onClick: () => setIsSearching(true),
+                },
+              ]
+        }
+        centerSlot={
+          isSearching ? (
+            <CitySearchField
+              inputRef={searchInputRef}
+              isOpen={isOpen}
+              query={query}
+              onQueryChange={setQuery}
+            />
+          ) : undefined
+        }
+        onBack={closeCityScreen}
+        reserveStartSpace={isSearching}
+        title={isSearching ? undefined : 'انتخاب شهر'}
+      />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isSearching ? (
@@ -109,7 +107,7 @@ export function CitySelectionScreen({
             <CityEmptyState />
           )
         ) : (
-          <div className="flex flex-col gap-1 px-3 pt-2 min-[390px]:gap-1.5 min-[390px]:pt-3">
+          <div className="flex flex-col gap-2 px-4 pt-4">
             {cityOptions.map((city) => (
               <CityOptionRow
                 city={city}
@@ -127,12 +125,50 @@ export function CitySelectionScreen({
           className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           type="button"
           tabIndex={isOpen ? 0 : -1}
-          onClick={() => onConfirm(draftCity)}
+          onClick={confirmCity}
         >
           تایید
         </button>
       </footer>
     </section>
+  )
+}
+
+function CitySearchField({
+  inputRef,
+  isOpen,
+  query,
+  onQueryChange,
+}: {
+  inputRef: RefObject<HTMLInputElement | null>
+  isOpen: boolean
+  query: string
+  onQueryChange: (query: string) => void
+}) {
+  return (
+    <input
+      ref={inputRef}
+      aria-label="جستجوی شهر"
+      className="home-search-input h-12 w-full appearance-none border-0 bg-transparent px-2 text-right text-base font-semibold leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none"
+      type="search"
+      value={query}
+      tabIndex={isOpen ? 0 : -1}
+      onChange={(event) => onQueryChange(event.target.value)}
+    />
+  )
+}
+
+function CitySearchIcon() {
+  return (
+    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M10.75 18.5a7.75 7.75 0 1 0 0-15.5 7.75 7.75 0 0 0 0 15.5ZM16.5 16.5 21 21"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
   )
 }
 
@@ -147,14 +183,14 @@ function CityOptionRow({
 }) {
   return (
     <button
-      className={`flex min-h-11 w-full cursor-pointer items-center justify-between rounded-2xl px-4 text-right transition-colors [direction:ltr] min-[390px]:min-h-12 min-[390px]:px-5 ${
-        isSelected ? 'bg-[#e8eef9]' : 'bg-white'
+      className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right transition-colors [direction:ltr] ${
+        isSelected ? 'h-[58px] bg-[#e6ebf6]' : 'bg-white'
       }`}
       type="button"
       onClick={onSelect}
     >
       <span className={`home-city-radio ${isSelected ? 'home-city-radio--selected' : ''}`} aria-hidden="true" />
-      <span className="text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">{city.name}</span>
+      <span className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">{city.name}</span>
     </button>
   )
 }
@@ -166,7 +202,10 @@ function CitySearchResultRow({ city, onSelect }: { city: CityOption; onSelect: (
       type="button"
       onClick={onSelect}
     >
-      <span className="shrink-0 text-xs font-normal leading-4 text-[#1a1a1a] [direction:ltr]">{city.count}</span>
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal leading-4 text-[#1a1a1a] [direction:ltr]">
+        <span>آگهی</span>
+        <span className="[direction:rtl]">{city.count}</span>
+      </span>
       <span className="min-w-0 text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">{city.name}</span>
     </button>
   )

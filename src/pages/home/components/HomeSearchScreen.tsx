@@ -17,7 +17,11 @@ type HomeSearchScreenProps = {
 
 const REMOVE_TRANSITION_MS = 180;
 
-export function HomeSearchScreen({ isOpen, onClose, onSelectResult }: HomeSearchScreenProps) {
+export function HomeSearchScreen({
+  isOpen,
+  onClose,
+  onSelectResult,
+}: HomeSearchScreenProps) {
   const removeTimerRef = useRef<number | null>(null);
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState(initialRecentSearches);
@@ -124,7 +128,7 @@ export function HomeSearchScreen({ isOpen, onClose, onSelectResult }: HomeSearch
           <div className="flex flex-col">
             {recentSearches.map((item, index) => (
               <div
-                className={`transition-[opacity,transform] duration-[180ms] ease-out ${
+                className={`transition-[opacity,transform] duration-180 ease-out ${
                   removingRecentSearchId === item.id
                     ? "-translate-x-3 opacity-0"
                     : "translate-x-0 opacity-100"
@@ -260,7 +264,21 @@ function SearchField({
           tabIndex={isOpen ? 0 : -1}
           onClick={() => onQueryChange("")}
         >
-          <span className="home-search-clear-icon" aria-hidden="true" />
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15.15 15.15L8.85068 8.85M8.85136 15.15L15.1507 8.85M21 12C21 7.02943 16.9705 3 12 3C7.02943 3 3 7.02943 3 12C3 16.9705 7.02943 21 12 21C16.9705 21 21 16.9705 21 12Z"
+              stroke="#808080"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
       ) : null}
     </label>
@@ -327,11 +345,12 @@ function SearchSuggestionRow({
       onClick={onSelect}
       type="button"
     >
-      <span className="shrink-0 text-xs font-normal leading-4 text-[#a6a6a6]">
-        {item.count}
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal leading-4 text-[#a6a6a6] [direction:ltr]">
+        <span>آگهی</span>
+        <span className="[direction:rtl]">{item.count}</span>
       </span>
 
-      <span className="flex min-w-0 flex-col items-end [direction:rtl]">
+      <span className="flex min-w-0 flex-col items-start [direction:rtl]">
         <strong className="text-sm font-normal leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
           {query || item.title}
         </strong>
@@ -413,12 +432,19 @@ function SearchEmptyState({
 
 function SmallCloseIcon() {
   return (
-    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
-        d="M9 9L15 15M15 9L9 15"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        d="M15.15 15.15L8.85068 8.85M8.85136 15.15L15.1507 8.85M21 12C21 7.02943 16.9705 3 12 3C7.02943 3 3 7.02943 3 12C3 16.9705 7.02943 21 12 21C16.9705 21 21 16.9705 21 12Z"
+        stroke="#808080"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       />
     </svg>
   );

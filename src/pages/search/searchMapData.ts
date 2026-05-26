@@ -47,8 +47,8 @@ export type SearchMapTileConfig = {
   isTms: boolean;
 };
 
-/** Bundled demo photo (other `/figma/search/*` assets are not always present in repo). */
-export const SEARCH_MAP_DEMO_PHOTO = "/figma/search/apartment-kitchen.png";
+/** Reuse the canonical home listing demo photo for map preview imagery. */
+export const SEARCH_MAP_DEMO_PHOTO = "/figma/view-ad-album.png";
 
 /** Map carousel shows 4 slots; demo repeats one photo so nothing 404s. */
 export const searchMapCardDemoImages: string[] = Array.from(
@@ -194,7 +194,7 @@ export const searchMapListings: SearchMapListing[] = [
     agencyName: "املاک اعتماد",
     imageSrc: SEARCH_MAP_DEMO_PHOTO,
     images: searchMapCardDemoImages,
-    imageClassName: "ad-card__image--five",
+    imageClassName: "ad-card__image--one",
     showPriceMarker: true,
   },
   {
@@ -214,7 +214,7 @@ export const searchMapListings: SearchMapListing[] = [
     agencyName: "دفتر املاک مرکزی",
     imageSrc: SEARCH_MAP_DEMO_PHOTO,
     images: searchMapCardDemoImages,
-    imageClassName: "ad-card__image--six",
+    imageClassName: "ad-card__image--two",
     showPriceMarker: false,
   },
   {
@@ -234,7 +234,7 @@ export const searchMapListings: SearchMapListing[] = [
     agencyName: "مشاورین املاک نگین",
     imageSrc: SEARCH_MAP_DEMO_PHOTO,
     images: searchMapCardDemoImages,
-    imageClassName: "ad-card__image--seven",
+    imageClassName: "ad-card__image--three",
     showPriceMarker: true,
   },
   {
@@ -254,7 +254,7 @@ export const searchMapListings: SearchMapListing[] = [
     agencyName: "املاک شریعت زاده",
     imageSrc: SEARCH_MAP_DEMO_PHOTO,
     images: searchMapCardDemoImages,
-    imageClassName: "ad-card__image--eight",
+    imageClassName: "ad-card__image--four",
     showPriceMarker: true,
   },
 ];

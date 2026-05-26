@@ -185,24 +185,3 @@ export function PublishedActionIcon({
 
   return <AllocationIcon className={className} icon={icon} />;
 }
-
-export function CardSpriteIcon({ icon }: { icon: "area" | "rooms" | "tooman" | "year" }) {
-  const positions = {
-    area: "-308px -267.302px",
-    rooms: "-222px -267.302px",
-    tooman: "-212px -233.302px",
-    year: "-140px -267.302px",
-  };
-
-  return (
-    <span
-      aria-hidden="true"
-      className="inline-block h-5 w-5 shrink-0 bg-no-repeat"
-      style={{
-        backgroundImage: "url('/figma/account/consultant-ad-card-1.png')",
-        backgroundPosition: positions[icon],
-        backgroundSize: "328px 355.302px",
-      }}
-    />
-  );
-}

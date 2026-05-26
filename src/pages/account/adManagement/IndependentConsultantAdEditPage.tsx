@@ -4,10 +4,10 @@ import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { adManagementPaths, getSelectedConsultantAd } from "./adManagementData";
 
-const galleryImages = [
-  "/figma/account/consultant-stat-thumbnail-1.png",
-  "/figma/account/consultant-stat-thumbnail-2.png",
-  "/figma/account/consultant-stat-thumbnail-3.png",
+const galleryImageClassNames = [
+  "ad-card__image--one",
+  "ad-card__image--two",
+  "ad-card__image--three",
 ] as const;
 
 export function IndependentConsultantAdEditPage() {
@@ -56,7 +56,7 @@ export function IndependentConsultantAdEditPage() {
 }
 
 function MediaFields() {
-  const [images, setImages] = useState<string[]>([...galleryImages]);
+  const [images, setImages] = useState<string[]>([...galleryImageClassNames]);
   const [hasVideo, setHasVideo] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasVirtualTour, setHasVirtualTour] = useState(true);
@@ -76,7 +76,7 @@ function MediaFields() {
           onClick={() =>
             setImages((current) => [
               ...current,
-              galleryImages[current.length % galleryImages.length],
+              galleryImageClassNames[current.length % galleryImageClassNames.length],
             ])
           }
         >
@@ -84,11 +84,10 @@ function MediaFields() {
           <span className="text-sm font-medium leading-5">افزودن عکس</span>
         </button>
         {images.map((image, index) => (
-          <img
-            alt=""
-            className="h-[98px] w-[98px] shrink-0 rounded-xl object-cover"
+          <div
+            aria-hidden="true"
+            className={`ad-card__image ${image} h-[98px] w-[98px] shrink-0 rounded-xl bg-cover`}
             key={`${image}-${index}`}
-            src={image}
           />
         ))}
       </div>

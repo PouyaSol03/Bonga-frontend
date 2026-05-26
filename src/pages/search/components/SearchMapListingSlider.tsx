@@ -51,7 +51,7 @@ export function SearchMapListingSlider({
 
   return (
     <section
-      className={`absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-500 transition-all duration-300 ease-out ${
+      className={`absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-500 bg-transparent transition-all duration-300 ease-out ${
         isOpen
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-8 opacity-0"
@@ -61,7 +61,7 @@ export function SearchMapListingSlider({
     >
       <div
         ref={scrollRef}
-        className="flex cursor-grab select-none snap-x snap-proximity gap-2 overflow-x-auto overscroll-x-contain scroll-smooth px-[max(0.75rem,calc((100%_-_min(300px,calc(100%_-_2.75rem)))_/_2))] pb-3 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:max(0.75rem,calc((100%_-_min(300px,calc(100%_-_2.75rem)))_/_2))] [-ms-overflow-style:none] active:cursor-grabbing min-[390px]:gap-3 min-[390px]:pb-5 [&::-webkit-scrollbar]:hidden"
+        className="flex cursor-grab select-none snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain bg-transparent scroll-smooth px-[30px] pb-3 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:30px] [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         {...dragScrollHandlers}
       >
         {listings.map((listing) => (
@@ -101,29 +101,26 @@ function MapAdCard({
   return (
     <button
       data-map-slider-card={listing.id}
-      className={`flex w-[min(300px,calc(100%_-_2.75rem))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-3 text-right shadow-[0_6px_24px_rgba(26,26,26,0.14)] transition-all duration-200 active:scale-[0.985] min-[390px]:p-4 min-[390px]:shadow-[0_8px_28px_rgba(26,26,26,0.22)] ${
-        isSelected
-          ? "ring-2 ring-[#0048c4] ring-offset-0 ring-offset-transparent"
-          : ""
-      }`}
+      aria-current={isSelected ? "true" : undefined}
+      className="flex w-[calc(100%_-_60px)] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-4 text-right transition-all duration-200 active:scale-[0.985]"
       type="button"
       onClick={onClick}
       dir="rtl"
     >
       <ImageSlider images={images} />
 
-      <div className="mt-2 flex min-h-5 flex-wrap items-baseline justify-start gap-1.5 [direction:rtl] min-[390px]:mt-2.5">
+      <div className="mt-2 flex min-h-5 flex-wrap items-baseline justify-start gap-1.5 [direction:rtl]">
         {listing.priceLabel ? (
-          <span className="text-xs font-medium leading-4 text-[#808080] min-[390px]:text-sm min-[390px]:leading-5">
+          <span className="text-xs font-medium leading-5 text-[#808080]">
             {listing.priceLabel}:
           </span>
         ) : null}
-        <strong className="text-sm font-semibold leading-5 text-[#0048c4] min-[390px]:text-base min-[390px]:leading-6">
+        <strong className="text-sm font-semibold leading-5 text-[#0048c4]">
           {mapCardPriceDisplay(listing.priceValue)}
         </strong>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center justify-start gap-2.5 text-xs font-medium leading-4 text-[#1a1a1a] [direction:rtl] min-[390px]:mt-2.5 min-[390px]:gap-3 min-[390px]:text-sm min-[390px]:leading-5">
+      <div className="mt-2 flex min-h-5 flex-wrap items-center justify-start gap-2.5 text-xs font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
         <PropertyMeta
           className="ad-card__property--area"
           label={listing.area}
@@ -138,18 +135,18 @@ function MapAdCard({
         />
       </div>
 
-      <h3 className="mt-2 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a] min-[390px]:text-sm min-[390px]:leading-5">
+      <h3 className="mt-2 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
         {listing.title}
       </h3>
 
-      <div className="mt-2 flex min-h-5 flex-row flex-wrap items-center justify-start gap-2 [direction:rtl] min-[390px]:mt-2.5">
+      <div className="mt-2 flex min-h-5 flex-row flex-wrap items-center justify-start gap-2 [direction:rtl]">
         <div className="ad-card__badges inline-flex items-center gap-1">
-          <span className="whitespace-nowrap rounded-lg border border-[#ff6d00] px-1.5 py-px text-xs font-medium leading-4 text-[#ff6d00] min-[390px]:px-2 min-[390px]:py-[3px] min-[390px]:text-xs min-[390px]:leading-4">
+          <span className="whitespace-nowrap rounded-lg border border-[#ff6d00] px-1.5 py-px text-xs font-medium leading-4 text-[#ff6d00]">
             فوری
           </span>
         </div>
 
-        <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080] min-[390px]:text-sm min-[390px]:leading-5">
+        <span className="min-w-0 truncate text-xs font-normal leading-5 text-[#808080]">
           {listing.postedAt} در {listing.locationLabel}
         </span>
       </div>
@@ -162,12 +159,12 @@ function ImageSlider({ images }: { images: string[] }) {
   const dragScrollHandlers = useDragScroll(scrollRef);
 
   return (
-    <div className="h-16 w-full overflow-hidden min-[390px]:h-20" dir="rtl">
+    <div className="h-20 w-full overflow-hidden" dir="rtl">
       <div
         ref={scrollRef}
         className="
-          flex h-16 w-full cursor-grab snap-x snap-proximity gap-2 overflow-x-auto overscroll-x-contain scroll-smooth touch-pan-x scrollbar-none
-          [-ms-overflow-style:none] active:cursor-grabbing min-[390px]:h-20 min-[390px]:gap-2.5 [&::-webkit-scrollbar]:hidden
+          flex h-20 w-full cursor-grab snap-x snap-proximity gap-2.5 overflow-x-auto overscroll-x-contain scroll-smooth touch-pan-x scrollbar-none
+          [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden
         "
         onClick={(event) => {
           event.stopPropagation();
@@ -182,7 +179,7 @@ function ImageSlider({ images }: { images: string[] }) {
         {images.map((src, imageIndex) => (
           <img
             key={`${src}-${imageIndex}`}
-            className="h-16 w-[96px] shrink-0 snap-start rounded-lg object-cover min-[390px]:h-20 min-[390px]:w-[120px] min-[390px]:rounded-xl"
+            className="h-20 w-[120px] shrink-0 snap-start rounded-xl object-cover"
             src={src}
             alt=""
             draggable={false}

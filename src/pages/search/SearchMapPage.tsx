@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
-import { BottomSheet } from "../../components/BottomSheet";
 import {
   searchFilterChips,
   searchMapCenter,
@@ -12,7 +11,6 @@ import {
 import type { SearchFilterChip } from "./searchMapData";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
-import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapView } from "./components/SearchMapView";
@@ -27,9 +25,7 @@ export function SearchMapPage() {
   const [mode, setMode] = useState<SearchMapMode>("map");
   const [chips, setChips] = useState(searchFilterChips);
   const [isDrawMode, setIsDrawMode] = useState(false);
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isLocated, setIsLocated] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { message, showNotice } = useDemoNotice();
 
   const visibleListings = useMemo(() => {
@@ -58,7 +54,8 @@ export function SearchMapPage() {
 
   const toggleChip = (chip: SearchFilterChip) => {
     if (chip.id === "filters") {
-      setIsFilterSheetOpen(true);
+      window.history.pushState({}, "", "/search/filter");
+      window.dispatchEvent(new PopStateEvent("popstate"));
       return;
     }
 
@@ -67,17 +64,6 @@ export function SearchMapPage() {
         item.id === chip.id ? { ...item, isActive: !item.isActive } : item,
       ),
     );
-  };
-
-  const clearFilters = () => {
-    setChips((current) =>
-      current.map((chip) => ({
-        ...chip,
-        isActive: chip.id === "sale-apartment",
-      })),
-    );
-    setIsFilterSheetOpen(false);
-    showNotice("فیلترها پاک شد");
   };
 
   const handleSelectListing = (listing: SearchMapListing) => {
@@ -113,7 +99,7 @@ export function SearchMapPage() {
         savedCount={2}
         chips={chips}
         onChipClick={toggleChip}
-        onSearchClick={() => setIsSearchOpen(true)}
+        onSearchClick={() => setMode("list")}
       />
 
       <SearchMapFloatingActions
@@ -144,60 +130,6 @@ export function SearchMapPage() {
         }}
       />
       <BottomNavigation activeKey="search" />
-      <BottomSheet
-        ariaLabel="فیلتر آگهی‌ها"
-        contentClassName="mt-4 px-4"
-        heightClassName="h-[360px]"
-        isOpen={isFilterSheetOpen}
-        onClose={() => setIsFilterSheetOpen(false)}
-        title="فیلتر"
-      >
-        <div className="flex flex-wrap justify-start gap-2 [direction:rtl]">
-          {chips.slice(1).map((chip) => (
-            <button
-              aria-pressed={Boolean(chip.isActive)}
-              className={`h-10 rounded-lg border px-3 text-sm font-medium ${
-                chip.isActive
-                  ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-                  : "border-[#cccccc] bg-white text-[#4d4d4d]"
-              }`}
-              key={chip.id}
-              onClick={() => toggleChip(chip)}
-              type="button"
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
-            className="h-10 rounded-lg border border-[#0048c4] text-sm font-medium text-[#0048c4]"
-            onClick={clearFilters}
-            type="button"
-          >
-            حذف فیلتر
-          </button>
-          <button
-            className="h-10 rounded-lg bg-[#0048c4] text-sm font-medium text-white"
-            onClick={() => {
-              setIsFilterSheetOpen(false);
-              showNotice(`${visibleListings.length} آگهی نمایش داده شد`);
-            }}
-            type="button"
-          >
-            اعمال
-          </button>
-        </div>
-      </BottomSheet>
-      <HomeSearchScreen
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSelectResult={() => {
-          setIsSearchOpen(false);
-          setMode("list");
-          showNotice("نتایج جستجو نمایش داده شد");
-        }}
-      />
       <DemoNotice message={message} />
     </PageFrame>
   );

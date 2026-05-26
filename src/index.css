@@ -91,6 +91,32 @@ input {
   font: inherit;
 }
 
+:where(
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="link"]:not([aria-disabled="true"]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  label[for],
+  label:has(input:not(:disabled)),
+  select:not(:disabled),
+  summary
+) {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+[role="button"][aria-disabled="true"],
+[role="link"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 input[type="search"] {
   -webkit-appearance: none;
   appearance: none;
@@ -653,82 +679,42 @@ input[type="search"]::-webkit-search-results-decoration {
   transform: rotate(45deg);
 }
 
-.home-city-search-icon {
-  position: relative;
-  width: 26px;
-  height: 26px;
-  border: 2px solid currentColor;
-  border-radius: 999px;
-}
-
-.home-city-search-icon::after {
-  content: "";
-  position: absolute;
-  right: -6px;
-  bottom: -5px;
-  width: 12px;
-  height: 2px;
-  border-radius: 2px;
-  background: currentColor;
-  transform: rotate(45deg);
-}
-
 .home-city-radio {
   position: relative;
-  width: 26px;
-  height: 26px;
-  flex: 0 0 26px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
   border: 2px solid #808080;
   border-radius: 999px;
 }
 
 .home-city-radio--selected {
   border-color: #0048c4;
+  background: #0048c4;
 }
 
 .home-city-radio--selected::after {
   content: "";
   position: absolute;
-  inset: 6px;
-  border-radius: 999px;
-  background: #0048c4;
-}
-
-.home-search-back-icon {
-  position: relative;
-  width: 24px;
-  height: 24px;
-}
-
-.home-search-back-icon::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 11px;
-  width: 16px;
-  height: 2px;
-  border-radius: 2px;
-  background: currentColor;
-}
-
-.home-search-back-icon::after {
-  content: "";
-  position: absolute;
-  right: 4px;
-  top: 7px;
-  width: 8px;
-  height: 8px;
-  border-top: 2px solid currentColor;
-  border-right: 2px solid currentColor;
-  transform: rotate(45deg);
+  inset: 4px;
+  border-radius: 100%;
+  background: #fff;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  -o-border-radius: 100%;
 }
 
 .home-search-clear-icon {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 14px;
+  height: 14px;
   border: 2px solid currentColor;
-  border-radius: 999px;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  -o-border-radius: 100%;
 }
 
 .home-search-clear-icon::before,

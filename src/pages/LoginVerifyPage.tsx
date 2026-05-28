@@ -7,7 +7,6 @@ import {
   type KeyboardEvent,
 } from "react";
 import { PageFrame } from "../app/PageFrame";
-import ArrowRight from "../assets/icons/ArrowRight";
 import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
@@ -265,21 +264,31 @@ export function LoginVerifyPage() {
 
             {resendSeconds > 0 ? (
               <div
-                className="flex items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#808080] min-[390px]:px-6 min-[390px]:text-sm"
+                className="flex h-9 items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a]"
                 aria-live="polite"
               >
-                <span>ارسال مجدد کد تا</span>
-                <span dir="ltr">{formatCountdown(resendSeconds)}</span>
+                <img
+                  className="block h-5 w-5 object-contain"
+                  src="/figma/otp/timer.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
+                <span dir="ltr">{formatCountdownSeconds(resendSeconds)}</span>
               </div>
             ) : (
               <button
-                className="flex cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-4 py-2 text-xs font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60 min-[390px]:px-6 min-[390px]:text-sm"
+                className="flex h-9 cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isResending || isSubmitting}
                 onClick={handleResend}
                 type="button"
               >
                 <span>{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</span>
-                <ArrowRight />
+                <img
+                  className="block h-5 w-5 object-contain"
+                  src="/figma/otp/resend-arrow.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
               </button>
             )}
           </section>
@@ -299,10 +308,6 @@ export function LoginVerifyPage() {
   );
 }
 
-function formatCountdown(seconds: number) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  const timer = `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
-
-  return timer.replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+function formatCountdownSeconds(seconds: number) {
+  return String(seconds).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }

@@ -22,6 +22,14 @@ function resolveEndpoint(path: string) {
   return `${apiBaseUrl}${path}`;
 }
 
+export function getApiAssetUrl(path: string) {
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  return `${apiBaseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 async function parsePayload(response: Response) {
   const contentType = response.headers.get("content-type") ?? "";
   const body = await response.text();

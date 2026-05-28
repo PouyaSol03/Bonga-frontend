@@ -1,9 +1,14 @@
 // src/pages/publicLanding/components/CitySelectorSection.tsx
 
-import { cities } from "../publicLandingData";
+import { cities as fallbackCities } from "../publicLandingData";
+import type { City } from "../publicLandingTypes";
 import { RouteLink } from "../../../routes/RouteLink";
 
-export function CitySelectorSection() {
+type CitySelectorSectionProps = {
+  cities?: City[];
+};
+
+export function CitySelectorSection({ cities = fallbackCities }: CitySelectorSectionProps) {
   const openHomeSearch = () => {
     window.history.pushState({}, "", "/home");
     window.dispatchEvent(new PopStateEvent("popstate"));

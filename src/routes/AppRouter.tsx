@@ -38,7 +38,7 @@ export function AppRouter() {
   const ActivePage = route.Component
 
   useEffect(() => {
-    document.title = `بونگا | ${route.title}`
+    document.title = `بنگاه | ${route.title}`
   }, [route.title])
 
   useEffect(() => {

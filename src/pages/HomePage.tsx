@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { PageFrame } from "../app/PageFrame";
 import { AdCard } from "../components/AdCard";
@@ -7,13 +7,28 @@ import { BottomNavigation } from "../components/BottomNavigation";
 import { CategoryBottomSheet } from "./home/components/CategoryBottomSheet";
 import { CitySelectionScreen } from "./home/components/CitySelectionScreen";
 import { HomeSearchScreen } from "./home/components/HomeSearchScreen";
-import { latestMashhadAds, quickActions } from "./home/homeData";
+import { latestMashhadAds } from "./home/homeData";
 import type { QuickAction } from "./home/homeTypes";
 import NotificationIcon from "../assets/icons/NotificationIcon";
 import ArrowDown from "../assets/icons/ArrowDown";
 import ShenasaVector from "../assets/icons/ShenasaVector";
 import IranShenasaTypo from "../assets/icons/IranShenasaTypo";
 import { BusinessBanner } from "./home/components/BusinessBanner";
+
+import { getApiErrorMessage } from "../api/apiClient";
+import { getCategoryList, type CategoryItem } from "../api/CategoryApi";
+
+import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
+import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";
+import ProjectCategoryIcon from "../assets/icons/ProjectCategoryIcon.svg";
+import ConsultantCategoryIcon from "../assets/icons/ConsultantCategoryIcon.svg";
+
+const categoryIconMap: Record<string, string> = {
+  sale: SaleCategoryIcon,
+  rent: RentCategoryIcon,
+  project: ProjectCategoryIcon,
+  consultants: ConsultantCategoryIcon,
+};
 
 const businessBannerSlides = [
   {
@@ -36,17 +51,73 @@ const businessBannerSlides = [
   },
 ];
 
+function mapCategoryToQuickAction(category: CategoryItem): QuickAction {
+  return {
+    label: category.name,
+    icon: categoryIconMap[category.code] ?? SaleCategoryIcon,
+    options: [],
+  };
+}
+
 export function HomePage() {
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [categoryError, setCategoryError] = useState("");
+  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
   );
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
+
   const [selectedCity, setSelectedCity] = useState(
     () => window.sessionStorage.getItem("bonga-selected-city") ?? "مشهد",
   );
 
+  const quickActions = useMemo(
+    () => categories.map(mapCategoryToQuickAction),
+    [categories],
+  );
+
   const isCategorySheetOpen = selectedCategory !== null;
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function fetchCategories() {
+      try {
+        setIsCategoryLoading(true);
+        setCategoryError("");
+
+        const categoryList = await getCategoryList();
+
+        if (!isActive) {
+          return;
+        }
+
+        setCategories(categoryList);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+
+        setCategoryError(
+          getApiErrorMessage(error, "دریافت دسته‌بندی‌ها با خطا مواجه شد."),
+        );
+      } finally {
+        if (isActive) {
+          setIsCategoryLoading(false);
+        }
+      }
+    }
+
+    void fetchCategories();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const navigateToSearch = () => {
     setIsSearchOpen(false);
@@ -128,24 +199,42 @@ export function HomePage() {
             className="home-quick-actions grid grid-cols-4 gap-3 [direction:rtl] min-[390px]:gap-4"
             aria-label="دسته‌بندی‌ها"
           >
-            {quickActions.map((item) => (
-              <button
-                className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-[11px] font-medium leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px] min-[390px]:text-xs"
-                key={item.label}
-                type="button"
-                onClick={() => setSelectedCategory(item)}
-              >
-                <img
-                  src={item.icon}
-                  alt=""
-                  className="h-8 w-8 shrink-0 min-[390px]:h-10 min-[390px]:w-10"
-                  aria-hidden="true"
-                />
+            {isCategoryLoading &&
+              Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="flex min-h-[58px] flex-col items-center justify-start gap-1.5 bg-white p-0 min-[390px]:min-h-[70px] min-[390px]:gap-[7px]"
+                >
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
+                  <div className="h-3 w-10 animate-pulse rounded bg-[#f0f0f0]" />
+                </div>
+              ))}
 
-                <span>{item.label}</span>
-              </button>
-            ))}
+            {!isCategoryLoading &&
+              quickActions.map((item) => (
+                <button
+                  className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-[11px] font-medium leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px] min-[390px]:text-xs"
+                  key={item.label}
+                  type="button"
+                  onClick={() => setSelectedCategory(item)}
+                >
+                  <img
+                    src={item.icon}
+                    alt=""
+                    className="h-8 w-8 shrink-0 min-[390px]:h-10 min-[390px]:w-10"
+                    aria-hidden="true"
+                  />
+
+                  <span>{item.label}</span>
+                </button>
+              ))}
           </div>
+
+          {categoryError && (
+            <div className="rounded-lg bg-red-50 px-3 py-2 text-right text-xs font-medium text-red-600">
+              {categoryError}
+            </div>
+          )}
         </section>
 
         <BusinessBanner slides={businessBannerSlides} />
@@ -163,7 +252,7 @@ export function HomePage() {
             </h2>
           </div>
 
-          <div className="flex flex-col bg-[#f0f0f0] gap-3 ">
+          <div className="flex flex-col gap-3 bg-[#f0f0f0]">
             {latestMashhadAds.map((ad) => (
               <AdCard ad={ad} key={ad.id} />
             ))}

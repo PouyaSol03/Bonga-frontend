@@ -1,14 +1,31 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
-import { TopBar } from '../../../components/TopBar'
-import { cityOptions, citySearchResults } from '../homeData'
-import type { CityOption } from '../homeTypes'
+import { TopBar } from "../../../components/TopBar";
+import { cityOptions as fallbackCityOptions } from "../homeData";
+import type { CityOption } from "../homeTypes";
+import { getCityList, type CityDto } from "../../../api/cityApi";
 
 type CitySelectionScreenProps = {
-  currentCity: string
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: (city: string) => void
+  currentCity: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (city: string) => void;
+};
+
+type UiCityOption = CityOption & {
+  id?: string;
+};
+
+function mapCityDtoToOption(city: CityDto): UiCityOption {
+  return {
+    id: city.id ?? city._id,
+    name: city.name,
+    count: "0",
+  };
+}
+
+function getStoredCityId() {
+  return window.localStorage.getItem("bonga-selected-city-id") ?? "";
 }
 
 export function CitySelectionScreen({
@@ -17,47 +34,99 @@ export function CitySelectionScreen({
   onClose,
   onConfirm,
 }: CitySelectionScreenProps) {
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [draftCity, setDraftCity] = useState(currentCity)
-  const [isSearching, setIsSearching] = useState(false)
-  const [query, setQuery] = useState('')
+  const [cityList, setCityList] = useState<UiCityOption[]>(fallbackCityOptions);
+  const [selectedCityId, setSelectedCityId] = useState(getStoredCityId);
+  const [isSearching, setIsSearching] = useState(false);
+  const [query, setQuery] = useState("");
 
-  const normalizedQuery = query.trim()
-  const hasSearchResults =
-    normalizedQuery === '' ||
-    'هاشمیه'.includes(normalizedQuery) ||
-    normalizedQuery.toLowerCase().includes('hash')
+  const normalizedQuery = query.trim();
 
-  const visibleSearchResults = normalizedQuery.length > 0 && hasSearchResults ? citySearchResults : []
+  const visibleSearchResults = useMemo(() => {
+    if (!normalizedQuery) {
+      return [];
+    }
+
+    return cityList.filter((city) => city.name.includes(normalizedQuery));
+  }, [cityList, normalizedQuery]);
 
   useEffect(() => {
-    if (!isOpen || !isSearching) return
+    if (!isOpen) {
+      return;
+    }
+
+    let isActive = true;
+
+    async function fetchCities() {
+      try {
+        const response = await getCityList();
+
+        if (!isActive) {
+          return;
+        }
+
+        const mappedCities = response.map(mapCityDtoToOption);
+        setCityList(mappedCities.length > 0 ? mappedCities : fallbackCityOptions);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+
+        console.error("city list fetch error:", error);
+        setCityList(fallbackCityOptions);
+      }
+    }
+
+    void fetchCities();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isSearching) {
+      return;
+    }
 
     const focusTimer = window.setTimeout(() => {
-      searchInputRef.current?.focus()
-    }, 0)
+      searchInputRef.current?.focus();
+    }, 0);
 
-    return () => window.clearTimeout(focusTimer)
-  }, [isOpen, isSearching])
+    return () => window.clearTimeout(focusTimer);
+  }, [isOpen, isSearching]);
+
+  const selectCity = (city: UiCityOption) => {
+    setSelectedCityId(city.id ?? "");
+  };
 
   const closeCityScreen = () => {
-    setDraftCity(currentCity)
-    setIsSearching(false)
-    setQuery('')
-    onClose()
-  }
+    setSelectedCityId(getStoredCityId());
+    setIsSearching(false);
+    setQuery("");
+    onClose();
+  };
 
   const confirmCity = () => {
-    setIsSearching(false)
-    setQuery('')
-    onConfirm(draftCity)
-  }
+    const selectedCity = cityList.find((city) => city.id === selectedCityId);
+
+    if (selectedCity) {
+      window.localStorage.setItem("bonga-selected-city-id", selectedCity.id ?? "");
+      window.localStorage.setItem("bonga-selected-city", selectedCity.name);
+      onConfirm(selectedCity.name);
+    } else {
+      onConfirm(currentCity);
+    }
+
+    setIsSearching(false);
+    setQuery("");
+  };
 
   return (
     <section
       className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${
-        isOpen ? 'visible translate-y-0 opacity-100' : 'invisible translate-y-3 opacity-0'
+        isOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"
       }`}
       aria-hidden={!isOpen}
     >
@@ -68,8 +137,8 @@ export function CitySelectionScreen({
             : [
                 {
                   icon: <CitySearchIcon />,
-                  id: 'city-search',
-                  label: 'جستجوی شهر',
+                  id: "city-search",
+                  label: "جستجوی شهر",
                   onClick: () => setIsSearching(true),
                 },
               ]
@@ -86,7 +155,7 @@ export function CitySelectionScreen({
         }
         onBack={closeCityScreen}
         reserveStartSpace={isSearching}
-        title={isSearching ? undefined : 'انتخاب شهر'}
+        title={isSearching ? undefined : "انتخاب شهر"}
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
@@ -95,11 +164,11 @@ export function CitySelectionScreen({
             <div className="h-full bg-white" />
           ) : visibleSearchResults.length > 0 ? (
             <div className="flex flex-col pt-2">
-              {visibleSearchResults.map((city, index) => (
+              {visibleSearchResults.map((city) => (
                 <CitySearchResultRow
                   city={city}
-                  key={`${city.name}-${index}`}
-                  onSelect={() => setDraftCity(city.name)}
+                  key={city.id ?? city.name}
+                  onSelect={() => selectCity(city)}
                 />
               ))}
             </div>
@@ -108,12 +177,12 @@ export function CitySelectionScreen({
           )
         ) : (
           <div className="flex flex-col gap-2 px-4 pt-4">
-            {cityOptions.map((city) => (
+            {cityList.map((city) => (
               <CityOptionRow
                 city={city}
-                isSelected={draftCity === city.name}
-                key={city.name}
-                onSelect={() => setDraftCity(city.name)}
+                isSelected={selectedCityId === city.id}
+                key={city.id ?? city.name}
+                onSelect={() => selectCity(city)}
               />
             ))}
           </div>
@@ -131,7 +200,7 @@ export function CitySelectionScreen({
         </button>
       </footer>
     </section>
-  )
+  );
 }
 
 function CitySearchField({
@@ -140,10 +209,10 @@ function CitySearchField({
   query,
   onQueryChange,
 }: {
-  inputRef: RefObject<HTMLInputElement | null>
-  isOpen: boolean
-  query: string
-  onQueryChange: (query: string) => void
+  inputRef: RefObject<HTMLInputElement | null>;
+  isOpen: boolean;
+  query: string;
+  onQueryChange: (query: string) => void;
 }) {
   return (
     <input
@@ -155,7 +224,7 @@ function CitySearchField({
       tabIndex={isOpen ? 0 : -1}
       onChange={(event) => onQueryChange(event.target.value)}
     />
-  )
+  );
 }
 
 function CitySearchIcon() {
@@ -169,7 +238,7 @@ function CitySearchIcon() {
         strokeWidth="1.8"
       />
     </svg>
-  )
+  );
 }
 
 function CityOptionRow({
@@ -177,25 +246,37 @@ function CityOptionRow({
   isSelected,
   onSelect,
 }: {
-  city: CityOption
-  isSelected: boolean
-  onSelect: () => void
+  city: UiCityOption;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
   return (
     <button
       className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right transition-colors [direction:ltr] ${
-        isSelected ? 'h-[58px] bg-[#e6ebf6]' : 'bg-white'
+        isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
       }`}
       type="button"
       onClick={onSelect}
     >
-      <span className={`home-city-radio ${isSelected ? 'home-city-radio--selected' : ''}`} aria-hidden="true" />
-      <span className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">{city.name}</span>
+      <span
+        className={`home-city-radio ${isSelected ? "home-city-radio--selected" : ""}`}
+        aria-hidden="true"
+      />
+
+      <span className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">
+        {city.name}
+      </span>
     </button>
-  )
+  );
 }
 
-function CitySearchResultRow({ city, onSelect }: { city: CityOption; onSelect: () => void }) {
+function CitySearchResultRow({
+  city,
+  onSelect,
+}: {
+  city: UiCityOption;
+  onSelect: () => void;
+}) {
   return (
     <button
       className="flex h-11 w-full cursor-pointer items-center justify-between border-b border-[#cccccc] bg-white px-4 text-right [direction:ltr] min-[390px]:h-12"
@@ -206,17 +287,26 @@ function CitySearchResultRow({ city, onSelect }: { city: CityOption; onSelect: (
         <span>آگهی</span>
         <span className="[direction:rtl]">{city.count}</span>
       </span>
-      <span className="min-w-0 text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">{city.name}</span>
+
+      <span className="min-w-0 text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">
+        {city.name}
+      </span>
     </button>
-  )
+  );
 }
 
 function CityEmptyState() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-8 pb-16 pt-8 text-center">
       <span className="home-city-empty-illustration mb-6 min-[390px]:mb-8" aria-hidden="true" />
-      <h3 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">هیچ نتیجه‌ای یافت نشد!</h3>
-      <p className="m-0 mt-4 text-sm font-normal leading-5 text-[#4d4d4d]">مجدد امتحان کنید</p>
+
+      <h3 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">
+        هیچ نتیجه‌ای یافت نشد!
+      </h3>
+
+      <p className="m-0 mt-4 text-sm font-normal leading-5 text-[#4d4d4d]">
+        مجدد امتحان کنید
+      </p>
     </div>
-  )
+  );
 }

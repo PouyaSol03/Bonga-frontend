@@ -1,17 +1,120 @@
 // src/pages/publicLanding/components/CitySelectorSection.tsx
 
+import { useEffect, useState } from "react";
 import { cities as fallbackCities } from "../publicLandingData";
 import type { City } from "../publicLandingTypes";
 import { RouteLink } from "../../../routes/RouteLink";
+import { getCityList, type CityDto } from "../../../api/cityApi";
+
+import TehranIcon from "../../../assets/icons/TehranIcon.svg";
+import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";
+import IsfahanIcon from "../../../assets/icons/IsfahanIcon.svg";
+import ShirazIcon from "../../../assets/icons/ShirazIcon.svg";
 
 type CitySelectorSectionProps = {
   cities?: City[];
 };
 
+type UiCity = City & {
+  id?: string;
+  code?: string;
+};
+
+function getCityIcon(city: CityDto) {
+  switch (city.code) {
+    case "mashhad":
+      return MashhadIcon;
+
+    case "tehran":
+      return TehranIcon;
+
+    case "isfahan":
+      return IsfahanIcon;
+
+    case "shiraz":
+      return ShirazIcon;
+
+    default:
+      switch (city.name) {
+        case "مشهد":
+          return MashhadIcon;
+
+        case "تهران":
+          return TehranIcon;
+
+        case "اصفهان":
+          return IsfahanIcon;
+
+        case "شیراز":
+          return ShirazIcon;
+
+        default:
+          return "";
+      }
+  }
+}
+
+function mapCityDtoToUiCity(city: CityDto): UiCity {
+  return {
+    id: city.id ?? city._id ?? city.code,
+    code: city.code,
+    name: city.name,
+    icon: getCityIcon(city),
+  };
+}
+
 export function CitySelectorSection({ cities = fallbackCities }: CitySelectorSectionProps) {
+  const [cityList, setCityList] = useState<UiCity[]>(cities);
+  const [isLoading, setIsLoading] = useState(false);
+
   const openHomeSearch = () => {
     window.history.pushState({}, "", "/home");
     window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function fetchCities() {
+      try {
+        setIsLoading(true);
+
+        const response = await getCityList();
+
+        if (!isActive) {
+          return;
+        }
+
+        const mappedCities = response.map(mapCityDtoToUiCity);
+
+        setCityList(mappedCities.length > 0 ? mappedCities : cities);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+
+        console.error("city list fetch error:", error);
+        setCityList(cities);
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void fetchCities();
+
+    return () => {
+      isActive = false;
+    };
+  }, [cities]);
+
+  const handleCitySelect = (city: UiCity) => {
+    window.localStorage.setItem("bonga-selected-city", city.name);
+
+    if (city.id) {
+      window.localStorage.setItem("bonga-selected-city-id", city.id);
+    }
   };
 
   return (
@@ -38,28 +141,42 @@ export function CitySelectorSection({ cities = fallbackCities }: CitySelectorSec
           onFocus={openHomeSearch}
           readOnly
         />
+
         <span className="home-search-icon" aria-hidden="true" />
       </label>
 
-      <div className="mt-6 grid grid-cols-4 gap-2 min-[390px]:mt-8 min-[390px]:gap-4" aria-label="شهرهای پیشنهادی">
-        {cities.map((city) => (
+      <div
+        className="mt-6 grid grid-cols-4 gap-2 min-[390px]:mt-8 min-[390px]:gap-4"
+        aria-label="شهرهای پیشنهادی"
+      >
+        {cityList.map((city) => (
           <RouteLink
             className="flex min-h-[60px] min-w-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl bg-transparent px-1 py-1.5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[72px] min-[390px]:py-2"
-            key={city.name}
-            onClick={() => window.sessionStorage.setItem("bonga-selected-city", city.name)}
+            key={city.id ?? city.name}
+            onClick={() => handleCitySelect(city)}
             to="/home"
           >
-            <img
-              src={city.icon}
-              alt=""
-              className="h-8 w-8 shrink-0 object-contain min-[390px]:h-10 min-[390px]:w-10"
-              aria-hidden="true"
-            />
+            {city.icon ? (
+              <img
+                src={city.icon}
+                alt=""
+                className="h-8 w-8 shrink-0 object-contain min-[390px]:h-10 min-[390px]:w-10"
+                aria-hidden="true"
+              />
+            ) : (
+              <span className="h-8 w-8 shrink-0 rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
+            )}
 
             <span className="text-xs font-medium leading-4">{city.name}</span>
           </RouteLink>
         ))}
       </div>
+
+      {isLoading && (
+        <p className="mt-4 text-center text-xs font-medium text-[#808080]">
+          در حال دریافت شهرها...
+        </p>
+      )}
     </section>
   );
 }

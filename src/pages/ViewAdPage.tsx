@@ -6,7 +6,9 @@ import { useDemoNotice } from "../hooks/useDemoNotice";
 import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
-import { getLatestMashhadAdById } from "./home/homeData";
+import { getApiAssetUrl, getApiErrorMessage } from "../api/apiClient";
+import type { AdvertisementItem } from "../api/advertiseApi";
+import { useAdvertisementDetailQuery } from "../api/queries";
 import {
   DetailSection,
   MoreButton,
@@ -48,7 +50,13 @@ function PriceRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function GalleryHero({ onOpenAlbum }: { onOpenAlbum: () => void }) {
+function GalleryHero({
+  imageSrc = "/figma/view-ad-gallery.png",
+  onOpenAlbum,
+}: {
+  imageSrc?: string;
+  onOpenAlbum: () => void;
+}) {
   return (
     <div className="px-4 pt-4">
       <button
@@ -60,7 +68,7 @@ function GalleryHero({ onOpenAlbum }: { onOpenAlbum: () => void }) {
         <img
           alt=""
           className="aspect-[328/219] w-full object-cover"
-          src="/figma/view-ad-gallery.png"
+          src={imageSrc}
         />
       </button>
     </div>
@@ -397,12 +405,14 @@ function AlbumPage({
 function ViewAdContent({
   adId,
   details,
+  imageSrc,
   onOpenContact,
   onOpenAlbum,
   onRowAction,
 }: {
-  adId: number;
+  adId: string;
   details: ViewAdDetails;
+  imageSrc?: string;
   onOpenContact: () => void;
   onOpenAlbum: () => void;
   onRowAction: (label: string) => void;
@@ -412,7 +422,7 @@ function ViewAdContent({
   return (
     <>
       <section className="bg-white pb-4">
-        <GalleryHero onOpenAlbum={onOpenAlbum} />
+        <GalleryHero imageSrc={imageSrc} onOpenAlbum={onOpenAlbum} />
 
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
@@ -509,6 +519,145 @@ function NotFoundState() {
   );
 }
 
+function LoadingState() {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <ViewAdTopBar actionIcons={[]} backTo="/home" />
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-10 text-center text-sm font-medium text-[#808080]">
+        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
+        در حال دریافت آگهی...
+      </main>
+    </PageFrame>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <ViewAdTopBar actionIcons={[]} backTo="/home" />
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-10 text-center">
+        <p className="m-0 text-sm font-medium text-red-600">{message}</p>
+        <button
+          className="mt-4 h-10 rounded-lg border border-[#0048c4] px-4 text-sm font-medium text-[#0048c4]"
+          onClick={onRetry}
+          type="button"
+        >
+          تلاش مجدد
+        </button>
+      </main>
+    </PageFrame>
+  );
+}
+
+function toNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value.replace(/[^\d.]/g, ""));
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function toText(value: unknown, fallback = "") {
+  if (typeof value === "string" && value.trim()) {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return new Intl.NumberFormat("fa-IR").format(value);
+  }
+
+  return fallback;
+}
+
+function formatPrice(value: unknown) {
+  const numericValue = toNumber(value);
+
+  if (numericValue === undefined) {
+    return toText(value, "توافقی");
+  }
+
+  if (numericValue >= 1_000_000_000) {
+    return `${new Intl.NumberFormat("fa-IR", {
+      maximumFractionDigits: 1,
+    }).format(numericValue / 1_000_000_000)} میلیارد`;
+  }
+
+  if (numericValue >= 1_000_000) {
+    return `${new Intl.NumberFormat("fa-IR", {
+      maximumFractionDigits: 1,
+    }).format(numericValue / 1_000_000)} میلیون`;
+  }
+
+  return new Intl.NumberFormat("fa-IR").format(numericValue);
+}
+
+function readImages(ad: AdvertisementItem) {
+  const images = Array.isArray(ad.images) ? ad.images : [];
+  const imagePaths = images
+    .map((image) => {
+      if (typeof image === "string") {
+        return image;
+      }
+
+      return image.url ?? image.path ?? "";
+    })
+    .filter(Boolean);
+  const primaryImage = typeof ad.image === "string" ? ad.image : "";
+
+  return [primaryImage, ...imagePaths]
+    .filter(Boolean)
+    .map((image) => getApiAssetUrl(image));
+}
+
+function iconForFeature(label: string): IconName {
+  if (label.includes("متراژ")) return "area";
+  if (label.includes("اتاق") || label.includes("خواب")) return "bed";
+  if (label.includes("سال")) return "building";
+  return "apartment";
+}
+
+function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
+  const features = Array.isArray(ad.features) ? ad.features : [];
+  const propertyInfoPreview =
+    features.length > 0
+      ? features.map((feature) => ({
+          icon: iconForFeature(feature.label ?? ""),
+          label: feature.label ?? "",
+          value: toText(feature.value, "-"),
+        }))
+      : viewAdDemo.propertyInfoPreview;
+  const publishedHoursAgo = toNumber(ad.published_hours_ago);
+  const age =
+    publishedHoursAgo !== undefined
+      ? `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`
+      : viewAdDemo.age;
+
+  return {
+    ...viewAdDemo,
+    adCode: String(ad.id ?? ad._id ?? viewAdDemo.adCode),
+    age,
+    description: toText(ad.short_description, viewAdDemo.description),
+    headline: toText(ad.title ?? ad.label, viewAdDemo.headline),
+    locationTitle: toText(ad.label ?? ad.title, viewAdDemo.locationTitle),
+    pricePerMeter: viewAdDemo.pricePerMeter,
+    propertyInfoPreview,
+    propertyInfoRows: propertyInfoPreview,
+    title: toText(ad.title ?? ad.label, viewAdDemo.title),
+    totalPrice: formatPrice(ad.price),
+  };
+}
+
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
@@ -517,11 +666,41 @@ export function ViewAdPage() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { message, showNotice } = useDemoNotice();
   const adId = parseAdIdFromPath(window.location.pathname);
-  const ad = adId != null ? getLatestMashhadAdById(adId) : undefined;
+  const {
+    data: ad,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = useAdvertisementDetailQuery(adId);
 
-  if (!ad || adId == null) {
+  if (adId == null) {
     return <NotFoundState />;
   }
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        message={getApiErrorMessage(error, "دریافت آگهی با خطا مواجه شد.")}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
+  if (!ad) {
+    return <NotFoundState />;
+  }
+
+  const details = mapAdToDetails(ad);
+  const images = readImages(ad);
+  const mediaItems =
+    images.length > 0
+      ? images.map((src): AlbumMediaItem => ({ src, type: "image" }))
+      : albumMediaItems;
 
   const handleTopBarAction = (icon: IconName) => {
     if (icon === "note") {
@@ -550,7 +729,8 @@ export function ViewAdPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <ViewAdContent
           adId={adId}
-          details={viewAdDemo}
+          details={details}
+          imageSrc={images[0]}
           onOpenContact={() => setIsContactSheetOpen(true)}
           onOpenAlbum={() => setIsAlbumOpen(true)}
           onRowAction={(label) => showNotice(`${label} برای نسخه نمایشی انتخاب شد`)}
@@ -592,7 +772,7 @@ export function ViewAdPage() {
 
       {isAlbumOpen ? (
         <AlbumPage
-          mediaItems={albumMediaItems}
+          mediaItems={mediaItems}
           onClose={() => setIsAlbumOpen(false)}
         />
       ) : null}

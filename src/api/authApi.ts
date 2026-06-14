@@ -51,7 +51,7 @@ function requireSuccess<T extends StatusResponse>(response: T) {
 
 export async function requestOtp({ mobile }: AuthRequestPayload) {
   const response = requireSuccess(
-    await apiRequest<RequestOtpResponse>("/user/auth/request-otp", {
+    await apiRequest<RequestOtpResponse>("/public/auth/request-otp", {
       authenticated: false,
       body: JSON.stringify({ mobile }),
       method: "POST",
@@ -66,7 +66,7 @@ export async function requestOtp({ mobile }: AuthRequestPayload) {
 
 export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
   const response = requireSuccess(
-    await apiRequest<VerifyOtpResponse>("/user/auth/verify-otp", {
+    await apiRequest<VerifyOtpResponse>("/public/auth/verify-otp", {
       authenticated: false,
       body: JSON.stringify({ mobile, code }),
       method: "POST",
@@ -96,7 +96,7 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
 
 export async function resendOtp({ mobile }: AuthRequestPayload) {
   const response = requireSuccess(
-    await apiRequest<RequestOtpResponse>("/user/auth/resend-otp", {
+    await apiRequest<RequestOtpResponse>("/public/auth/resend-otp", {
       authenticated: false,
       body: JSON.stringify({ mobile }),
       method: "POST",
@@ -109,12 +109,12 @@ export async function resendOtp({ mobile }: AuthRequestPayload) {
 }
 
 export function getAuthenticatedUser<T = unknown>() {
-  return apiRequest<T>("/user/auth/me", { method: "GET" });
+  return apiRequest<T>("/me/auth/me", { method: "GET" });
 }
 
 export async function logout() {
   try {
-    return await apiRequest<StatusResponse>("/user/auth/logout", { method: "GET" });
+    return await apiRequest<StatusResponse>("/me/auth/logout", { method: "GET" });
   } finally {
     clearAuthSession();
   }

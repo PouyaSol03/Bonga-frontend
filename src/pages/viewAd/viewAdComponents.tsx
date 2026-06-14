@@ -132,8 +132,8 @@ export function MoreButton({
       onClick={onClick}
       type="button"
     >
-      <ViewAdIcon className="h-4 w-4" name={icon} />
       <span>{children}</span>
+      <ViewAdIcon className="h-4 w-4" name={icon} />
     </button>
   );
 }

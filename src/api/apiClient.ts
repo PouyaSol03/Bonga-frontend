@@ -4,6 +4,11 @@ type ApiRequestOptions = RequestInit & {
   authenticated?: boolean;
 };
 
+export type ApiQueryParams = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
+
 type ErrorPayload = Record<string, unknown> | null;
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
@@ -20,6 +25,26 @@ export class ApiError extends Error {
 
 function resolveEndpoint(path: string) {
   return `${apiBaseUrl}${path}`;
+}
+
+export function createQueryString(params: ApiQueryParams = {}) {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") {
+      return;
+    }
+
+    searchParams.set(key, String(value));
+  });
+
+  const queryString = searchParams.toString();
+
+  return queryString ? `?${queryString}` : "";
+}
+
+export function createEndpoint(path: string, params?: ApiQueryParams) {
+  return `${path}${createQueryString(params)}`;
 }
 
 export function getApiAssetUrl(path: string) {

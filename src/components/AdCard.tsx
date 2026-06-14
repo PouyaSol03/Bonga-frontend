@@ -11,7 +11,7 @@ import {
 } from './AdCardIcons'
 
 export type AdCardData = {
-  id: number
+  id: number | string
   title: string
   agency: string
   status: string
@@ -25,6 +25,7 @@ export type AdCardData = {
   year: string
   timeAndLocation: string
   imageClassName: string
+  imageUrl?: string
   badges: string[]
 }
 
@@ -45,7 +46,10 @@ export function AdCard({ ad, state, to = `/ads/${ad.id}` }: AdCardProps) {
       to={to}
     >
       <article className="flex flex-col bg-white px-4 py-4 text-right [direction:rtl]">
-        <div className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover ${ad.imageClassName}`}>
+        <div
+          className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover ${ad.imageClassName}`}
+          style={ad.imageUrl ? { backgroundImage: `url(${ad.imageUrl})` } : undefined}
+        >
           <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]" aria-label={`${ad.imageCount} تصویر`}>
             <AdCardAlbumIcon className="h-5 w-5 shrink-0" />
             <span>{ad.imageCount}</span>

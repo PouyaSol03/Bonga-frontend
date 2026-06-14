@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
+import { getStoredAuthSession } from "../api/authSession";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
 import NavAddIcon from "../assets/icons/NavAddIcon";
 import NavChatIcon from "../assets/icons/NavChatIcon";
@@ -85,6 +86,12 @@ export function BottomNavigation({
                 to={item.to}
                 aria-current={isActive ? "page" : undefined}
                 onClick={(event) => {
+                  if (item.key === "account" && !getStoredAuthSession()) {
+                    event.preventDefault();
+                    navigateTo("/login/phone");
+                    return;
+                  }
+
                   if (!isNewAd) return;
 
                   event.preventDefault();

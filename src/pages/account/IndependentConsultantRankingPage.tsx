@@ -1,5 +1,8 @@
 import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../app/PageFrame";
+import { getApiErrorMessage } from "../../api/apiClient";
+import type { BadgeItem } from "../../api/accountApi";
+import { useMyBadgesQuery } from "../../api/queries";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 
@@ -67,6 +70,29 @@ const leadingConsultants = [
   { name: "علیرضا مقدم", score: "72" },
   { name: "مرتضی هاشمی", score: "70" },
 ];
+
+function mapBadgeItemToBadge(item: BadgeItem, index: number): Badge {
+  const fallback = badges[index % badges.length];
+  const progress =
+    typeof item.progress === "number"
+      ? item.progress
+      : typeof item.progress === "string"
+        ? Number(item.progress)
+        : fallback.progress;
+
+  return {
+    active: Boolean(item.active ?? fallback.active),
+    image:
+      typeof item.image === "string"
+        ? item.image
+        : typeof item.logo === "string"
+          ? item.logo
+          : fallback.image,
+    name: typeof item.name === "string" ? item.name : fallback.name,
+    progress: Number.isFinite(progress) ? progress : fallback.progress,
+    to: fallback.to,
+  };
+}
 
 export function IndependentConsultantRankingPage() {
   return (
@@ -178,11 +204,35 @@ function MetricSummaryCard({
 }
 
 function BadgesPanel() {
+  const { data: apiBadges = [], error, isError, isLoading, refetch } = useMyBadgesQuery();
+  const visibleBadges =
+    apiBadges.length > 0 ? apiBadges.map(mapBadgeItemToBadge) : badges;
+
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="نشان‌ها">
       <SectionHeader title="نشان‌ها" />
+      {isLoading ? (
+        <div className="mt-6 py-8 text-center text-sm font-medium text-[#808080]">
+          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
+          در حال دریافت نشان‌ها...
+        </div>
+      ) : null}
+      {isError ? (
+        <div className="mt-6 py-6 text-center">
+          <p className="m-0 text-sm font-medium text-red-600">
+            {getApiErrorMessage(error, "دریافت نشان‌ها با خطا مواجه شد.")}
+          </p>
+          <button
+            className="mt-4 h-10 rounded-lg border border-[#0048c4] px-4 text-sm font-medium text-[#0048c4]"
+            onClick={() => void refetch()}
+            type="button"
+          >
+            تلاش مجدد
+          </button>
+        </div>
+      ) : null}
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">
-        {badges.map((badge) => (
+        {!isLoading && !isError && visibleBadges.map((badge) => (
           <BadgeCard badge={badge} key={badge.name} />
         ))}
       </div>

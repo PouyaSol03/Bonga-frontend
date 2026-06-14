@@ -90,10 +90,9 @@ export const viewAdDemo: ViewAdDetails = {
   ],
 };
 
-export function parseAdIdFromPath(pathname: string): number | null {
-  const match = /^\/ads\/(\d+)(?:\/[a-z-]+)?\/?$/.exec(pathname);
+export function parseAdIdFromPath(pathname: string): string | null {
+  const match = /^\/ads\/([^/]+)(?:\/[a-z-]+)?\/?$/.exec(pathname);
   if (!match) return null;
 
-  const id = Number(match[1]);
-  return Number.isFinite(id) && id > 0 ? id : null;
+  return decodeURIComponent(match[1]);
 }

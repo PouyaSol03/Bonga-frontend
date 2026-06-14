@@ -1,6 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { getStoredAuthSession } from "../../api/authSession";
+import { getApiErrorMessage } from "../../api/apiClient";
+import { mapAdvertisementToAdCard } from "../../api/advertiseApi";
+import type { MyAdsType, NoteItem, WalletPayment } from "../../api/accountApi";
+import {
+  useAuthorizeMeMutation,
+  useMyAdsQuery,
+  useMyNotesQuery,
+  useMyProfileQuery,
+  useUpdateMyProfileMutation,
+  useWalletPaymentsQuery,
+} from "../../api/queries";
 import { AdCard } from "../../components/AdCard";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
@@ -13,20 +24,62 @@ type TopBarProps = {
   title: string;
 };
 
-const adFilters = ["همه", "فعال", "در انتظار", "نیمه کاره", "غیر فعال"];
-const paymentRows = [
-  { id: "65415489", status: "پرداخت شده", statusColor: "#11a366" },
-  { id: "-", status: "ناموفق", statusColor: "#ee3623" },
-  { id: "65415489", status: "پرداخت شده", statusColor: "#11a366" },
+const adFilters: Array<{ label: string; type: MyAdsType }> = [
+  { label: "همه", type: "all" },
+  { label: "فعال", type: "active" },
+  { label: "در انتظار", type: "pending" },
+  { label: "نیمه کاره", type: "pending" },
+  { label: "غیر فعال", type: "deactive" },
 ];
 
 export function AccountProfilePage() {
   const { message, showNotice } = useDemoNotice();
+  const { data: profile, error, isError, isLoading, refetch } = useMyProfileQuery();
+  const updateProfile = useUpdateMyProfileMutation();
   const mobile = getStoredAuthSession()?.mobile ?? "-";
+  const [form, setForm] = useState({
+    email: "",
+    family: "",
+    name: "",
+    nationalnumber: "",
+  });
+
+  useEffect(() => {
+    if (!profile) {
+      return;
+    }
+
+    setForm({
+      email: profile.email ?? "",
+      family: profile.family ?? "",
+      name: profile.name ?? "",
+      nationalnumber: profile.nationalnumber ?? "",
+    });
+  }, [profile]);
+
+  const submitProfile = () => {
+    updateProfile.mutate(form, {
+      onError: (submitError) => {
+        showNotice(getApiErrorMessage(submitError, "ذخیره اطلاعات با خطا مواجه شد"));
+      },
+      onSuccess: () => {
+        showNotice("اطلاعات حساب ذخیره شد");
+      },
+    });
+  };
 
   return (
     <AccountPageShell title="مشخصات من">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
+        {isLoading ? <AccountLoadingState text="در حال دریافت مشخصات..." /> : null}
+        {isError ? (
+          <AccountRetryState
+            message={getApiErrorMessage(error, "دریافت مشخصات با خطا مواجه شد.")}
+            onRetry={() => void refetch()}
+          />
+        ) : null}
+        {!isLoading && !isError ? (
+          <>
         <section className="flex flex-col items-center px-4 pt-4">
           <div className="relative grid h-[100px] w-[100px] place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
             <UserIcon className="h-10 w-10" />
@@ -42,26 +95,41 @@ export function AccountProfilePage() {
         </section>
 
         <section className="mt-4 space-y-6 px-4">
-          <ReadonlyField label="شماره همراه" value={mobile} />
-          <ReadonlyField label="کد ملی" value="0705688456" />
+          <ReadonlyField label="شماره همراه" value={profile?.mobile ?? profile?.phone ?? mobile} />
+          <ReadonlyField label="کد ملی" value={form.nationalnumber || "-"} />
         </section>
 
         <div className="mt-4 h-4 bg-[#f0f0f0]" />
 
         <section className="space-y-6 px-4 pt-4">
-          <TextField placeholder="نام خود را وارد کنید" />
-          <TextField placeholder="نام خانوادگی خود را وارد کنید" />
-          <TextField placeholder="پست الکترونیکی" />
+          <TextField
+            placeholder="نام خود را وارد کنید"
+            value={form.name}
+            onChange={(value) => setForm((current) => ({ ...current, name: value }))}
+          />
+          <TextField
+            placeholder="نام خانوادگی خود را وارد کنید"
+            value={form.family}
+            onChange={(value) => setForm((current) => ({ ...current, family: value }))}
+          />
+          <TextField
+            placeholder="پست الکترونیکی"
+            value={form.email}
+            onChange={(value) => setForm((current) => ({ ...current, email: value }))}
+          />
         </section>
+          </>
+        ) : null}
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
+          disabled={isLoading || isError || updateProfile.isPending}
           type="button"
-          onClick={() => showNotice("اطلاعات حساب ذخیره شد")}
+          onClick={submitProfile}
         >
-          ثبت
+          {updateProfile.isPending ? "در حال ثبت..." : "ثبت"}
         </button>
       </div>
       <DemoNotice message={message} className="bottom-20" />
@@ -71,6 +139,9 @@ export function AccountProfilePage() {
 
 export function AccountMyAdsPage() {
   const [activeFilter, setActiveFilter] = useState(adFilters[0]);
+  const { data: ads = [], error, isError, isLoading, refetch } = useMyAdsQuery({
+    type: activeFilter.type,
+  });
 
   return (
     <AccountPageShell
@@ -84,9 +155,19 @@ export function AccountMyAdsPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
         <div className="space-y-2 bg-[#f0f0f0] pt-4">
-          {Array.from({ length: activeFilter === "همه" ? 4 : 2 }).map((_, index) => (
-            <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} key={index} />
+          {isLoading ? <AccountLoadingState text="در حال دریافت آگهی‌ها..." /> : null}
+          {isError ? (
+            <AccountRetryState
+              message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
+              onRetry={() => void refetch()}
+            />
+          ) : null}
+          {!isLoading && !isError && ads.map((ad, index) => (
+            <AdCard ad={mapAdvertisementToAdCard(ad, index)} key={String(ad.id ?? ad._id ?? index)} />
           ))}
+          {!isLoading && !isError && ads.length === 0 ? (
+            <EmptyMessage text="آگهی‌ای برای نمایش وجود ندارد" />
+          ) : null}
         </div>
       </main>
     </AccountPageShell>
@@ -95,6 +176,9 @@ export function AccountMyAdsPage() {
 
 export function AccountMyAdsEmptyPage() {
   const [activeFilter, setActiveFilter] = useState(adFilters[0]);
+  const { data: ads = [], error, isError, isLoading, refetch } = useMyAdsQuery({
+    type: activeFilter.type,
+  });
 
   return (
     <AccountPageShell
@@ -107,7 +191,22 @@ export function AccountMyAdsEmptyPage() {
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
-        <section className="flex min-h-[560px] flex-col items-center justify-center px-10 text-center">
+        {isLoading ? <AccountLoadingState text="در حال دریافت آگهی‌ها..." /> : null}
+        {isError ? (
+          <AccountRetryState
+            message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
+            onRetry={() => void refetch()}
+          />
+        ) : null}
+        {!isLoading && !isError && ads.length > 0 ? (
+          <div className="space-y-2 bg-[#f0f0f0] pt-4">
+            {ads.map((ad, index) => (
+              <AdCard ad={mapAdvertisementToAdCard(ad, index)} key={String(ad.id ?? ad._id ?? index)} />
+            ))}
+          </div>
+        ) : null}
+        {!isLoading && !isError && ads.length === 0 ? (
+          <section className="flex min-h-[560px] flex-col items-center justify-center px-10 text-center">
           <div className="relative mb-6 grid h-[74px] w-[74px] place-items-center text-[#dfe3eb]">
             <DocumentSadIcon className="h-[68px] w-[68px]" />
             <span className="absolute bottom-1 right-2 grid h-7 w-7 place-items-center rounded-full bg-[#ffb100] text-base font-bold leading-none text-white">
@@ -128,6 +227,7 @@ export function AccountMyAdsEmptyPage() {
             ثبت آگهی
           </RouteLink>
         </section>
+        ) : null}
       </main>
     </AccountPageShell>
   );
@@ -136,6 +236,7 @@ export function AccountMyAdsEmptyPage() {
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
   const { message, showNotice } = useDemoNotice();
+  const { data: wallet, error, isError, isLoading, refetch } = useWalletPaymentsQuery();
 
   return (
     <AccountPageShell
@@ -151,6 +252,15 @@ export function AccountWalletPage() {
       title="کیف پول"
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
+        {isLoading ? <AccountLoadingState text="در حال دریافت اعتبار..." /> : null}
+        {isError ? (
+          <AccountRetryState
+            message={getApiErrorMessage(error, "دریافت اطلاعات کیف پول با خطا مواجه شد.")}
+            onRetry={() => void refetch()}
+          />
+        ) : null}
+        {!isLoading && !isError ? (
+          <>
         <section className="flex h-[178px] flex-col items-center justify-center">
           <div className="grid h-16 w-16 place-items-center rounded-full bg-[#0048c4] text-white">
             <WalletIcon className="h-8 w-8" />
@@ -159,7 +269,7 @@ export function AccountWalletPage() {
             اعتبار فعلی:
           </p>
           <div className="mt-2 rounded-lg bg-[#0048c414] px-4 py-1 text-center text-base font-semibold leading-6 text-[#0048c4]">
-            ۲ میلیون تومان
+            {formatMoney(wallet?.balance ?? 0)} تومان
           </div>
         </section>
 
@@ -197,6 +307,8 @@ export function AccountWalletPage() {
             ))}
           </div>
         </section>
+          </>
+        ) : null}
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
@@ -215,37 +327,66 @@ export function AccountWalletPage() {
 }
 
 export function AccountWalletHistoryPage() {
+  const { data: wallet, error, isError, isLoading, refetch } = useWalletPaymentsQuery();
+  const payments = wallet?.payments ?? [];
+
   return (
     <AccountPageShell title="تاریخچه پرداخت کیف پول">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        {paymentRows.map((row) => (
-          <section className="mb-2 bg-white px-4 py-5" key={`${row.id}-${row.status}`}>
-            <PaymentInfoRow label="وضعیت" value={row.status} valueColor={row.statusColor} />
-            <PaymentInfoRow label="هزینه" value="۳۰,۰۰۰ تومان" />
-            <PaymentInfoRow label="زمان پرداخت" value="۰۱ خرداد ۱۴۰۳" />
-            <PaymentInfoRow label="شناسه پرداخت" value={row.id} />
+        {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
+        {isError ? (
+          <AccountRetryState
+            message={getApiErrorMessage(error, "دریافت تاریخچه پرداخت با خطا مواجه شد.")}
+            onRetry={() => void refetch()}
+          />
+        ) : null}
+        {!isLoading && !isError && payments.map((row, index) => (
+          <section className="mb-2 bg-white px-4 py-5" key={String(row.id ?? index)}>
+            <PaymentInfoRow
+              label="وضعیت"
+              value={readPaymentStatus(row)}
+              valueColor={readPaymentStatusColor(row)}
+            />
+            <PaymentInfoRow label="هزینه" value={`${formatMoney(row.amount ?? 0)} تومان`} />
+            <PaymentInfoRow label="زمان پرداخت" value={String(row.created_at ?? "-")} />
+            <PaymentInfoRow
+              label="شناسه پرداخت"
+              value={String(row.tracking_code ?? row.id ?? "-")}
+            />
           </section>
         ))}
+        {!isLoading && !isError && payments.length === 0 ? (
+          <EmptyMessage text="تاریخچه پرداختی وجود ندارد" />
+        ) : null}
       </main>
     </AccountPageShell>
   );
 }
 
 export function AccountNotesPage() {
-  const [noteCount, setNoteCount] = useState(4);
   const { message, showNotice } = useDemoNotice();
+  const { data: notes = [], error, isError, isLoading, refetch } = useMyNotesQuery();
 
   return (
     <AccountPageShell
-      action={<TopBarTextAction label="حذف همه" onClick={() => { setNoteCount(0); showNotice("یادداشت‌ها حذف شدند"); }} />}
+      action={<TopBarTextAction label="حذف همه" onClick={() => showNotice("حذف یادداشت‌ها نیاز به API حذف دارد")} />}
       title="یادداشت ها"
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <div className="space-y-2 bg-[#f0f0f0] pt-2">
-          {Array.from({ length: noteCount }).map((_, index) => (
-            <NoteCard key={index} />
+          {isLoading ? <AccountLoadingState text="در حال دریافت یادداشت‌ها..." /> : null}
+          {isError ? (
+            <AccountRetryState
+              message={getApiErrorMessage(error, "دریافت یادداشت‌ها با خطا مواجه شد.")}
+              onRetry={() => void refetch()}
+            />
+          ) : null}
+          {!isLoading && !isError && notes.map((note, index) => (
+            <NoteCard key={String(note.id ?? index)} note={note} />
           ))}
-          {noteCount === 0 ? <EmptyMessage text="یادداشتی باقی نمانده است" /> : null}
+          {!isLoading && !isError && notes.length === 0 ? (
+            <EmptyMessage text="یادداشتی باقی نمانده است" />
+          ) : null}
         </div>
       </main>
       <DemoNotice message={message} />
@@ -281,12 +422,29 @@ export function AccountRecentViewsPage() {
 export function AccountIdentityPage() {
   const [status, setStatus] = useState<"pending" | "verified">("pending");
   const { message, showNotice } = useDemoNotice();
+  const authorize = useAuthorizeMeMutation();
 
   return (
     <AccountPageShell title="تایید هویت">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
         {status === "pending" ? (
-          <IdentityPendingState onVerify={() => setStatus("verified")} />
+          <IdentityPendingState
+            isPending={authorize.isPending}
+            onVerify={(nationalnumber) => {
+              authorize.mutate(
+                { nationalnumber },
+                {
+                  onError: (error) => {
+                    showNotice(getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"));
+                  },
+                  onSuccess: () => {
+                    setStatus("verified");
+                    showNotice("کد ملی با موفقیت تایید شد");
+                  },
+                },
+              );
+            }}
+          />
         ) : (
           <IdentityVerifiedState onChangeOwner={() => showNotice("درخواست تغییر مالکیت ثبت شد")} />
         )}
@@ -435,8 +593,8 @@ function AdFilterTabs({
   activeFilter,
   onSelect,
 }: {
-  activeFilter: string;
-  onSelect: (filter: string) => void;
+  activeFilter: { label: string; type: MyAdsType };
+  onSelect: (filter: { label: string; type: MyAdsType }) => void;
 }) {
   return (
     <section className="h-[52px] overflow-hidden bg-[#f0f0f0] px-4 py-2">
@@ -444,15 +602,15 @@ function AdFilterTabs({
         {adFilters.map((filter) => (
           <button
             className={`h-9 shrink-0 rounded-lg border px-3 text-sm font-medium leading-5 ${
-              activeFilter === filter
+              activeFilter.label === filter.label
                 ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
                 : "border-[#cccccc] bg-white text-[#1a1a1a]"
             }`}
-            key={filter}
+            key={filter.label}
             onClick={() => onSelect(filter)}
             type="button"
           >
-            {filter}
+            {filter.label}
           </button>
         ))}
       </div>
@@ -515,7 +673,21 @@ function AboutSection({
   );
 }
 
-function NoteCard() {
+function NoteCard({ note }: { note: NoteItem }) {
+  const ad = note.ad ?? note.advertise;
+  const title =
+    typeof ad?.title === "string" && ad.title.trim()
+      ? ad.title
+      : "آگهی";
+  const noteText =
+    typeof note.note === "string"
+      ? note.note
+      : typeof note.text === "string"
+        ? note.text
+        : typeof note.description === "string"
+          ? note.description
+          : "";
+
   return (
     <article className="bg-white px-4 py-4">
       <div className="flex gap-3 [direction:rtl]">
@@ -527,17 +699,17 @@ function NoteCard() {
 
         <div className="min-w-0 flex-1 text-right">
           <h2 className="m-0 line-clamp-2 text-base font-medium leading-6 text-[#1a1a1a]">
-            اپارتمان۱۱۰متری شمال تک واحدی سنداردر رحیمی
+            {title}
           </h2>
           <p className="m-0 mt-2 text-xs font-medium leading-4 text-[#808080]">
-            1 ساعت پیش در الهیه
+            {String(ad?.created_at ?? "")}
           </p>
         </div>
       </div>
 
       <textarea
         className="mt-4 min-h-14 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-4 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
-        defaultValue="با فروشنده صحبت کردم"
+        defaultValue={noteText}
       />
     </article>
   );
@@ -583,8 +755,15 @@ function RequestCard({ onCancel }: { onCancel: () => void }) {
   );
 }
 
-function IdentityPendingState({ onVerify }: { onVerify: () => void }) {
+function IdentityPendingState({
+  isPending,
+  onVerify,
+}: {
+  isPending: boolean;
+  onVerify: (nationalnumber: string) => void;
+}) {
   const mobile = getStoredAuthSession()?.mobile ?? "-";
+  const [nationalnumber, setNationalnumber] = useState("");
 
   return (
     <>
@@ -616,8 +795,9 @@ function IdentityPendingState({ onVerify }: { onVerify: () => void }) {
           </span>
           <input
             className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
-            defaultValue="0702564589"
             inputMode="numeric"
+            value={nationalnumber}
+            onChange={(event) => setNationalnumber(event.target.value)}
           />
           <span className="mt-1 block pr-4 text-right text-xs font-normal leading-4 text-[#808080]">
             100 هزار تومان
@@ -628,10 +808,11 @@ function IdentityPendingState({ onVerify }: { onVerify: () => void }) {
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
-          onClick={onVerify}
+          disabled={nationalnumber.trim().length === 0 || isPending}
+          onClick={() => onVerify(nationalnumber)}
           type="button"
         >
-          تایید کد ملی
+          {isPending ? "در حال تایید..." : "تایید کد ملی"}
         </button>
       </div>
     </>
@@ -684,6 +865,85 @@ function EmptyMessage({ text }: { text: string }) {
   );
 }
 
+function AccountLoadingState({ text }: { text: string }) {
+  return (
+    <div className="bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
+      <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
+      {text}
+    </div>
+  );
+}
+
+function AccountRetryState({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="bg-white px-4 py-8 text-center">
+      <p className="m-0 text-sm font-medium text-red-600">{message}</p>
+      <button
+        className="mt-4 h-10 rounded-lg border border-[#0048c4] px-4 text-sm font-medium text-[#0048c4]"
+        onClick={onRetry}
+        type="button"
+      >
+        تلاش مجدد
+      </button>
+    </div>
+  );
+}
+
+function formatMoney(value: unknown) {
+  const amount =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value.replace(/,/g, ""))
+        : 0;
+
+  if (!Number.isFinite(amount)) {
+    return String(value || "۰");
+  }
+
+  return new Intl.NumberFormat("fa-IR").format(amount);
+}
+
+function readPaymentStatus(payment: WalletPayment) {
+  const status = String(payment.status ?? "-");
+
+  switch (status) {
+    case "paid":
+    case "success":
+      return "پرداخت شده";
+
+    case "failed":
+    case "error":
+      return "ناموفق";
+
+    case "pending":
+      return "در انتظار";
+
+    default:
+      return status;
+  }
+}
+
+function readPaymentStatusColor(payment: WalletPayment) {
+  const status = String(payment.status ?? "");
+
+  if (["paid", "success", "پرداخت شده"].includes(status)) {
+    return "#11a366";
+  }
+
+  if (["failed", "error", "ناموفق"].includes(status)) {
+    return "#ee3623";
+  }
+
+  return "#1a1a1a";
+}
+
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
@@ -699,11 +959,21 @@ function ReadonlyField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function TextField({ placeholder }: { placeholder: string }) {
+function TextField({
+  onChange,
+  placeholder,
+  value,
+}: {
+  onChange: (value: string) => void;
+  placeholder: string;
+  value: string;
+}) {
   return (
     <input
       className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#808080] outline-none placeholder:text-[#808080]"
       placeholder={placeholder}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
     />
   );
 }

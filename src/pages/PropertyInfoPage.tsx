@@ -1,5 +1,4 @@
 import { PageFrame } from "../app/PageFrame";
-import { getLatestMashhadAdById } from "./home/homeData";
 import {
   BottomBackAction,
   PropertyInfoList,
@@ -31,9 +30,8 @@ function NotFoundState() {
 
 export function PropertyInfoPage() {
   const adId = parseAdIdFromPath(window.location.pathname);
-  const ad = adId != null ? getLatestMashhadAdById(adId) : undefined;
 
-  if (!ad || adId == null) {
+  if (adId == null) {
     return <NotFoundState />;
   }
 

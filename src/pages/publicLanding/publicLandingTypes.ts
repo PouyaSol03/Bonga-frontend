@@ -1,4 +1,5 @@
 export type City = {
+  id?: string
   name: string
   icon: string
 }

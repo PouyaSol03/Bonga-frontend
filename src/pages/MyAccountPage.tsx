@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
+import { logout } from "../api/authApi";
 import {
   formatMobileForDisplay,
   getStoredAuthSession,
@@ -11,6 +13,7 @@ import { currentAccountUserType } from "./account/accountUserType";
 type AccountAction = {
   icon: AccountIconName;
   label: string;
+  onClick?: () => void;
   to?: string;
 };
 
@@ -87,6 +90,7 @@ export function MyAccountPage() {
 }
 
 function IndependentConsultantAccountPage() {
+  const { isLoggingOut, handleLogout } = useLogoutAccount();
   const businessActions: AccountAction[] = [
     { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
     { icon: "agency", label: "املاک جلیلیان", to: "/account/dashboard" },
@@ -145,12 +149,22 @@ function IndependentConsultantAccountPage() {
         className="min-h-0 flex-1 pt-0.5"
         spacedDividers
       />
+      <AccountSection
+        actions={[
+          {
+            icon: "lock",
+            label: isLoggingOut ? "در حال خروج..." : "خروج از حساب",
+            onClick: handleLogout,
+          },
+        ]}
+      />
     </TopBarNavigationLayout>
   );
 }
 
 function StandardAccountPage({ authSession }: { authSession: AuthSession | null }) {
   const isLoggedInUnverified = authSession !== null;
+  const { isLoggingOut, handleLogout } = useLogoutAccount();
 
   return (
     <TopBarNavigationLayout
@@ -190,8 +204,46 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
         <div className="h-4 bg-[#f0f0f0]" />
 
         <AccountSection actions={isLoggedInUnverified ? secondaryActions : loggedOutSecondaryActions} />
+
+        {isLoggedInUnverified ? (
+          <>
+            <div className="h-4 bg-[#f0f0f0]" />
+            <AccountSection
+              actions={[
+                {
+                  icon: "lock",
+                  label: isLoggingOut ? "در حال خروج..." : "خروج از حساب",
+                  onClick: handleLogout,
+                },
+              ]}
+            />
+          </>
+        ) : null}
     </TopBarNavigationLayout>
   );
+}
+
+function navigateTo(path: string) {
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function useLogoutAccount() {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = () => {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    logout().finally(() => {
+      setIsLoggingOut(false);
+      navigateTo("/login/phone");
+    });
+  };
+
+  return { handleLogout, isLoggingOut };
 }
 
 function LoggedOutAccountHeader() {
@@ -272,6 +324,7 @@ function AccountMenuRow({
       ) : (
         <button
           className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          onClick={action.onClick}
           type="button"
         >
           {content}

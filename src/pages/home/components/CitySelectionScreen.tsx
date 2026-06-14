@@ -3,13 +3,14 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { TopBar } from "../../../components/TopBar";
 import { cityOptions as fallbackCityOptions } from "../homeData";
 import type { CityOption } from "../homeTypes";
-import { getCityList, type CityDto } from "../../../api/cityApi";
+import type { CityDto } from "../../../api/cityApi";
+import { useCityListQuery } from "../../../api/queries";
 
 type CitySelectionScreenProps = {
   currentCity: string;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (city: string) => void;
+  onConfirm: (city: { id?: string; name: string }) => void;
 };
 
 type UiCityOption = CityOption & {
@@ -36,10 +37,15 @@ export function CitySelectionScreen({
 }: CitySelectionScreenProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [cityList, setCityList] = useState<UiCityOption[]>(fallbackCityOptions);
+  const { data: apiCities = [], isError, isLoading } = useCityListQuery({
+    enabled: isOpen,
+  });
   const [selectedCityId, setSelectedCityId] = useState(getStoredCityId);
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
+  const mappedCities = apiCities.map(mapCityDtoToOption);
+  const cityList: UiCityOption[] =
+    mappedCities.length > 0 && !isError ? mappedCities : fallbackCityOptions;
 
   const normalizedQuery = query.trim();
 
@@ -50,40 +56,6 @@ export function CitySelectionScreen({
 
     return cityList.filter((city) => city.name.includes(normalizedQuery));
   }, [cityList, normalizedQuery]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    let isActive = true;
-
-    async function fetchCities() {
-      try {
-        const response = await getCityList();
-
-        if (!isActive) {
-          return;
-        }
-
-        const mappedCities = response.map(mapCityDtoToOption);
-        setCityList(mappedCities.length > 0 ? mappedCities : fallbackCityOptions);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
-        console.error("city list fetch error:", error);
-        setCityList(fallbackCityOptions);
-      }
-    }
-
-    void fetchCities();
-
-    return () => {
-      isActive = false;
-    };
-  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || !isSearching) {
@@ -114,9 +86,9 @@ export function CitySelectionScreen({
     if (selectedCity) {
       window.localStorage.setItem("bonga-selected-city-id", selectedCity.id ?? "");
       window.localStorage.setItem("bonga-selected-city", selectedCity.name);
-      onConfirm(selectedCity.name);
+      onConfirm({ id: selectedCity.id, name: selectedCity.name });
     } else {
-      onConfirm(currentCity);
+      onConfirm({ name: currentCity });
     }
 
     setIsSearching(false);
@@ -177,7 +149,22 @@ export function CitySelectionScreen({
           )
         ) : (
           <div className="flex flex-col gap-2 px-4 pt-4">
-            {cityList.map((city) => (
+            {isLoading &&
+              Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  className="h-14 w-full animate-pulse rounded-xl bg-[#f0f0f0]"
+                  key={index}
+                />
+              ))}
+
+            {!isLoading &&
+              isError && (
+                <p className="px-2 py-3 text-right text-xs font-medium text-red-600">
+                  دریافت شهرها با خطا مواجه شد.
+                </p>
+              )}
+
+            {!isLoading && cityList.map((city) => (
               <CityOptionRow
                 city={city}
                 isSelected={selectedCityId === city.id}

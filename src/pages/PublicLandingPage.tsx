@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-
 import { PageFrame } from "../app/PageFrame";
-import { getMostVisitedCityList } from "../api/cityApi";
+import { useMostVisitedCityListQuery } from "../api/queries";
 
 import { CitySelectorSection } from "./publicLanding/components/CitySelectorSection";
 import { DownloadAppSection } from "./publicLanding/components/DownloadAppSection";
@@ -12,34 +10,15 @@ import { cities as fallbackCities } from "./publicLanding/publicLandingData";
 import type { City } from "./publicLanding/publicLandingTypes";
 
 export function PublicLandingPage() {
-  const [cities, setCities] = useState<City[]>(fallbackCities);
-
-  useEffect(() => {
-    let ignore = false;
-
-    getMostVisitedCityList()
-      .then((mostVisitedCities) => {
-        if (ignore || mostVisitedCities.length === 0) {
-          return;
-        }
-
-        setCities(
-          mostVisitedCities.map((city, index) => ({
-            icon: city.logo || fallbackCities[index % fallbackCities.length].icon,
-            name: city.name,
-          })),
-        );
-      })
-      .catch(() => {
-        if (!ignore) {
-          setCities(fallbackCities);
-        }
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  const { data: mostVisitedCities = [] } = useMostVisitedCityListQuery();
+  const cities: City[] =
+    mostVisitedCities.length > 0
+      ? mostVisitedCities.map((city, index) => ({
+          id: city.id ?? city._id,
+          icon: city.logo || fallbackCities[index % fallbackCities.length].icon,
+          name: city.name,
+        }))
+      : fallbackCities;
 
   return (
     <PageFrame className="flex min-h-0 flex-col overflow-hidden bg-white" variant="flush">

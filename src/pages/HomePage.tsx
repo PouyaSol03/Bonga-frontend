@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import { PageFrame } from "../app/PageFrame";
 import { AdCard } from "../components/AdCard";
@@ -7,8 +7,7 @@ import { BottomNavigation } from "../components/BottomNavigation";
 import { CategoryBottomSheet } from "./home/components/CategoryBottomSheet";
 import { CitySelectionScreen } from "./home/components/CitySelectionScreen";
 import { HomeSearchScreen } from "./home/components/HomeSearchScreen";
-import { latestMashhadAds } from "./home/homeData";
-import type { QuickAction } from "./home/homeTypes";
+import type { CategoryOption, QuickAction } from "./home/homeTypes";
 import NotificationIcon from "../assets/icons/NotificationIcon";
 import ArrowDown from "../assets/icons/ArrowDown";
 import ShenasaVector from "../assets/icons/ShenasaVector";
@@ -16,7 +15,9 @@ import IranShenasaTypo from "../assets/icons/IranShenasaTypo";
 import { BusinessBanner } from "./home/components/BusinessBanner";
 
 import { getApiErrorMessage } from "../api/apiClient";
-import { getCategoryList, type CategoryItem } from "../api/CategoryApi";
+import { mapAdvertisementToAdCard } from "../api/advertiseApi";
+import { useAdvertisementInfiniteQuery, useCategoryListQuery } from "../api/queries";
+import type { CategoryItem } from "../api/CategoryApi";
 
 import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
 import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";
@@ -51,73 +52,107 @@ const businessBannerSlides = [
   },
 ];
 
+type SelectedCity = {
+  id?: string;
+  name: string;
+};
+
 function mapCategoryToQuickAction(category: CategoryItem): QuickAction {
   return {
+    id: category.id,
     label: category.name,
     icon: categoryIconMap[category.code] ?? SaleCategoryIcon,
-    options: [],
+    options: category.children?.map(mapCategoryToOption) ?? [],
+  };
+}
+
+function mapCategoryToOption(category: CategoryItem): CategoryOption {
+  return {
+    id: category.id,
+    label: category.name,
+    children: category.children?.map(mapCategoryToOption) ?? [],
+  };
+}
+
+function getStoredCity(): SelectedCity {
+  return {
+    id: window.localStorage.getItem("bonga-selected-city-id") ?? undefined,
+    name:
+      window.localStorage.getItem("bonga-selected-city") ??
+      window.sessionStorage.getItem("bonga-selected-city") ??
+      "مشهد",
   };
 }
 
 export function HomePage() {
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [categoryError, setCategoryError] = useState("");
-  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
-
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
   );
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
 
-  const [selectedCity, setSelectedCity] = useState(
-    () => window.sessionStorage.getItem("bonga-selected-city") ?? "مشهد",
-  );
+  const [selectedCity, setSelectedCity] = useState(getStoredCity);
+  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
+  const {
+    data: categories = [],
+    error: categoryError,
+    isLoading: isCategoryLoading,
+  } = useCategoryListQuery();
+  const {
+    data: advertisementPages,
+    error: advertisementError,
+    fetchNextPage,
+    hasNextPage,
+    isError: isAdvertisementError,
+    isFetchingNextPage,
+    isLoading: isAdvertisementLoading,
+  } = useAdvertisementInfiniteQuery({
+    categoryId: selectedCategoryId,
+    cityId: selectedCity.id,
+    perPage: 10,
+  });
 
   const quickActions = useMemo(
     () => categories.map(mapCategoryToQuickAction),
     [categories],
   );
+  const advertisements = useMemo(
+    () =>
+      advertisementPages?.pages.flatMap((page, pageIndex) =>
+        page.data.map((ad, adIndex) =>
+          mapAdvertisementToAdCard(ad, pageIndex * 10 + adIndex),
+        ),
+      ) ?? [],
+    [advertisementPages],
+  );
 
   const isCategorySheetOpen = selectedCategory !== null;
 
-  useEffect(() => {
-    let isActive = true;
+  const loadMoreSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      loadMoreObserverRef.current?.disconnect();
+      loadMoreObserverRef.current = null;
 
-    async function fetchCategories() {
-      try {
-        setIsCategoryLoading(true);
-        setCategoryError("");
-
-        const categoryList = await getCategoryList();
-
-        if (!isActive) {
-          return;
-        }
-
-        setCategories(categoryList);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
-        setCategoryError(
-          getApiErrorMessage(error, "دریافت دسته‌بندی‌ها با خطا مواجه شد."),
-        );
-      } finally {
-        if (isActive) {
-          setIsCategoryLoading(false);
-        }
+      if (!node || !hasNextPage || isFetchingNextPage) {
+        return;
       }
-    }
 
-    void fetchCategories();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage();
+          }
+        },
+        { root: null, rootMargin: "240px 0px", threshold: 0 },
+      );
 
-    return () => {
-      isActive = false;
-    };
-  }, []);
+      observer.observe(node);
+      loadMoreObserverRef.current = observer;
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
 
   const navigateToSearch = () => {
     setIsSearchOpen(false);
@@ -157,7 +192,7 @@ export function HomePage() {
               onClick={() => setIsCityOpen(true)}
             >
               <ArrowDown size={20} />
-              <span>{selectedCity}</span>
+              <span>{selectedCity.name}</span>
             </button>
           </div>
 
@@ -232,7 +267,7 @@ export function HomePage() {
 
           {categoryError && (
             <div className="rounded-lg bg-red-50 px-3 py-2 text-right text-xs font-medium text-red-600">
-              {categoryError}
+              {getApiErrorMessage(categoryError, "دریافت دسته‌بندی‌ها با خطا مواجه شد.")}
             </div>
           )}
         </section>
@@ -248,14 +283,42 @@ export function HomePage() {
               className="m-0 text-right text-sm font-bold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
               id="latest-mashhad-title"
             >
-              آخرین آگهی‌های مشهد
+              آخرین آگهی‌های {selectedCity.name}
             </h2>
           </div>
 
           <div className="flex flex-col gap-3 bg-[#f0f0f0]">
-            {latestMashhadAds.map((ad) => (
+            {isAdvertisementLoading &&
+              Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  className="mx-4 h-[360px] animate-pulse rounded-2xl bg-white"
+                  key={index}
+                />
+              ))}
+
+            {!isAdvertisementLoading && advertisements.map((ad) => (
               <AdCard ad={ad} key={ad.id} />
             ))}
+
+            {!isAdvertisementLoading && advertisements.length === 0 && (
+              <div className="bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
+                آگهی‌ای برای این شهر یافت نشد.
+              </div>
+            )}
+
+            {isAdvertisementError && (
+              <div className="bg-white px-4 py-4 text-right text-xs font-medium text-red-600">
+                {getApiErrorMessage(advertisementError, "دریافت آگهی‌ها با خطا مواجه شد.")}
+              </div>
+            )}
+
+            <div ref={loadMoreSentinelRef} className="h-2" aria-hidden="true" />
+
+            {isFetchingNextPage && (
+              <div className="bg-white px-4 py-4 text-center text-xs font-medium text-[#808080]">
+                در حال دریافت آگهی‌های بیشتر...
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -266,7 +329,10 @@ export function HomePage() {
         isOpen={isCategorySheetOpen}
         selectedCategory={selectedCategory}
         onClose={() => setSelectedCategory(null)}
-        onSelectCategory={navigateToSearch}
+        onSelectCategory={(category) => {
+          setSelectedCategoryId(category?.id ?? selectedCategory?.id ?? "");
+          navigateToSearch();
+        }}
       />
 
       <HomeSearchScreen
@@ -276,12 +342,12 @@ export function HomePage() {
       />
 
       <CitySelectionScreen
-        currentCity={selectedCity}
+        currentCity={selectedCity.name}
         isOpen={isCityOpen}
         onClose={() => setIsCityOpen(false)}
         onConfirm={(city) => {
           setSelectedCity(city);
-          window.sessionStorage.setItem("bonga-selected-city", city);
+          window.sessionStorage.setItem("bonga-selected-city", city.name);
           setIsCityOpen(false);
         }}
       />

@@ -7,8 +7,12 @@ import type { CategoryOption, QuickAction } from '../homeTypes'
 type CategoryBottomSheetProps = {
   isOpen: boolean
   onClose: () => void
-  onSelectCategory: () => void
+  onSelectCategory: (category?: CategoryOption | QuickAction) => void
   selectedCategory: QuickAction | null
+}
+
+function normalizeCategoryOption(option: CategoryOption | string): CategoryOption {
+  return typeof option === 'string' ? { label: option } : option
 }
 
 export function CategoryBottomSheet({
@@ -24,7 +28,7 @@ export function CategoryBottomSheet({
   const title = selectedOption?.label ?? selectedCategory?.label ?? 'فروش'
 
   const options = selectedOption
-    ? selectedOption.children?.map((label): CategoryOption => ({ label })) ?? []
+    ? selectedOption.children?.map(normalizeCategoryOption) ?? []
     : selectedCategory?.options ?? quickActions[0].options
   const visibleOptions = options.filter((option) => option.label.includes(query.trim()))
 
@@ -82,7 +86,7 @@ export function CategoryBottomSheet({
                 }
 
                 closeSheet()
-                onSelectCategory()
+                onSelectCategory(option)
               }}
             >
               <span className="category-sheet-row-icon" aria-hidden="true" />

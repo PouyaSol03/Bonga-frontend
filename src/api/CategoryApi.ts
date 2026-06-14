@@ -19,7 +19,7 @@ type CategoryListResponse = {
 };
 
 export async function getCategoryList() {
-  const response = await apiRequest<CategoryListResponse>("/category/list", {
+  const response = await apiRequest<CategoryListResponse>("/public/category/list", {
     authenticated: false,
   });
 

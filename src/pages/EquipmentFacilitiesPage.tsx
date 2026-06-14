@@ -1,5 +1,4 @@
 import { PageFrame } from "../app/PageFrame";
-import { getLatestMashhadAdById } from "./home/homeData";
 import {
   BottomBackAction,
   EquipmentSections,
@@ -62,9 +61,8 @@ function NotFoundState() {
 
 export function EquipmentFacilitiesPage() {
   const adId = parseAdIdFromPath(window.location.pathname);
-  const ad = adId != null ? getLatestMashhadAdById(adId) : undefined;
 
-  if (!ad || adId == null) {
+  if (adId == null) {
     return <NotFoundState />;
   }
 

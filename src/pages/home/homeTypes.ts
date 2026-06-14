@@ -1,12 +1,14 @@
 export type QuickAction = {
+  id?: string
   label: string
   icon: string
   options: CategoryOption[]
 }
 
 export type CategoryOption = {
+  id?: string
   label: string
-  children?: string[]
+  children?: Array<CategoryOption | string>
 }
 
 export type RecentSearch = {

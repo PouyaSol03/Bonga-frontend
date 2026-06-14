@@ -1,10 +1,8 @@
-// src/pages/publicLanding/components/CitySelectorSection.tsx
-
-import { useEffect, useState } from "react";
 import { cities as fallbackCities } from "../publicLandingData";
 import type { City } from "../publicLandingTypes";
 import { RouteLink } from "../../../routes/RouteLink";
-import { getCityList, type CityDto } from "../../../api/cityApi";
+import type { CityDto } from "../../../api/cityApi";
+import { useCityListQuery } from "../../../api/queries";
 
 import TehranIcon from "../../../assets/icons/TehranIcon.svg";
 import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";
@@ -64,50 +62,18 @@ function mapCityDtoToUiCity(city: CityDto): UiCity {
 }
 
 export function CitySelectorSection({ cities = fallbackCities }: CitySelectorSectionProps) {
-  const [cityList, setCityList] = useState<UiCity[]>(cities);
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    data: apiCities = [],
+    isError,
+    isLoading,
+  } = useCityListQuery();
+  const mappedCities = apiCities.map(mapCityDtoToUiCity);
+  const cityList = mappedCities.length > 0 && !isError ? mappedCities : cities;
 
   const openHomeSearch = () => {
     window.history.pushState({}, "", "/home");
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
-
-  useEffect(() => {
-    let isActive = true;
-
-    async function fetchCities() {
-      try {
-        setIsLoading(true);
-
-        const response = await getCityList();
-
-        if (!isActive) {
-          return;
-        }
-
-        const mappedCities = response.map(mapCityDtoToUiCity);
-
-        setCityList(mappedCities.length > 0 ? mappedCities : cities);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
-        console.error("city list fetch error:", error);
-        setCityList(cities);
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    void fetchCities();
-
-    return () => {
-      isActive = false;
-    };
-  }, [cities]);
 
   const handleCitySelect = (city: UiCity) => {
     window.localStorage.setItem("bonga-selected-city", city.name);

@@ -492,13 +492,13 @@ function ViewAdContent({
             onClick={() => onRowAction(row.label)}
             type="button"
           >
-            <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
             <div className="flex min-w-0 items-center gap-3">
+              <ViewAdIcon className="text-[#808080]" name={row.icon} />
               <span className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
                 {row.label}
               </span>
-              <ViewAdIcon className="text-[#808080]" name={row.icon} />
             </div>
+            <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
           </button>
         ))}
       </section>

@@ -111,8 +111,8 @@ export function MoreLink({
       className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-[#0048c4] no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
       to={to}
     >
-      <ViewAdIcon className="h-4 w-4" name="arrowLeft" />
       <span>{children}</span>
+      <ViewAdIcon className="h-4 w-4" name="arrowLeft" />
     </RouteLink>
   );
 }

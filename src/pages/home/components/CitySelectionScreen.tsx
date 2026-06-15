@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { TopBar } from "../../../components/TopBar";
+import SearchErrors from "./SearchErrors";
 import { useCitySearchQuery } from "../../../hooks/city.hooks";
 import type { CityDto } from "../../../services/city.service";
 
@@ -132,18 +133,28 @@ export function CitySelectionScreen({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isSearching ? (
-          visibleSearchResults.length > 0 ? (
-            <div className="flex flex-col pt-2">
+          isLoading ? (
+            <div className="flex flex-col gap-4 px-4 py-4">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div
+                  className="h-12 w-full animate-pulse rounded-xl bg-[#f0f0f0]"
+                  key={index}
+                />
+              ))}
+            </div>
+          ) : visibleSearchResults.length > 0 ? (
+            <div className="flex flex-col gap-2 px-4 pt-4">
               {visibleSearchResults.map((city) => (
-                <CitySearchResultRow
+                <CityOptionRow
                   city={city}
+                  isSelected={selectedCityId === city.id}
                   key={city.id ?? city.name}
                   onSelect={() => selectCity(city)}
                 />
               ))}
             </div>
           ) : normalizedQuery.length > 0 ? (
-            <CityEmptyState />
+            <SearchErrors variant="not-found" />
           ) : (
             <div className="h-full bg-white" />
           )
@@ -253,46 +264,5 @@ function CityOptionRow({
         {city.name}
       </span>
     </button>
-  );
-}
-
-function CitySearchResultRow({
-  city,
-  onSelect,
-}: {
-  city: UiCityOption;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      className="flex h-11 w-full cursor-pointer items-center justify-between border-b border-[#cccccc] bg-white px-4 text-right [direction:ltr] min-[390px]:h-12"
-      type="button"
-      onClick={onSelect}
-    >
-      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal leading-4 text-[#1a1a1a] [direction:ltr]">
-        <span>آگهی</span>
-        <span className="[direction:rtl]">{city.count}</span>
-      </span>
-
-      <span className="min-w-0 text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl] min-[390px]:text-base min-[390px]:leading-6">
-        {city.name}
-      </span>
-    </button>
-  );
-}
-
-function CityEmptyState() {
-  return (
-    <div className="flex min-h-full flex-col items-center justify-center px-8 pb-16 pt-8 text-center">
-      <span className="home-city-empty-illustration mb-6 min-[390px]:mb-8" aria-hidden="true" />
-
-      <h3 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">
-        هیچ نتیجه‌ای یافت نشد!
-      </h3>
-
-      <p className="m-0 mt-4 text-sm font-normal leading-5 text-[#4d4d4d]">
-        مجدد امتحان کنید
-      </p>
-    </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   useSearchHistoryQuery,
 } from "../../../hooks/search-history.hooks";
 import { TopBar } from "../../../components/TopBar";
+import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
 import {
   initialRecentSearches,
@@ -57,12 +58,7 @@ export function HomeSearchScreen({
   const visibleRecentSearches = isRecentSearchError
     ? recentSearches
     : apiRecentSearches;
-  const visibleSearchResults =
-    apiSearchResults.length > 0
-      ? apiSearchResults
-      : debouncedQuery
-        ? [{ id: "current-query", title: debouncedQuery, subtitle: "", tags: [] }]
-        : [];
+  const visibleSearchResults = apiSearchResults;
 
   useEffect(() => {
     return () => {
@@ -113,11 +109,10 @@ export function HomeSearchScreen({
 
   return (
     <section
-      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${
-        isOpen
-          ? "visible translate-y-0 opacity-100"
-          : "invisible translate-y-3 opacity-0"
-      }`}
+      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${isOpen
+        ? "visible translate-y-0 opacity-100"
+        : "invisible translate-y-3 opacity-0"
+        }`}
       aria-hidden={!isOpen}
     >
       <div className="shrink-0 bg-[#f0f0f0] py-2.5">
@@ -153,29 +148,32 @@ export function HomeSearchScreen({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
         {isResultsView ? (
-          <div className="flex flex-col">
-            {isSearchResultsLoading ? (
-              <SearchRowsSkeleton />
-            ) : visibleSearchResults.map((item) => (
-              <SearchSuggestionRow
-                item={item}
-                key={item.id}
-                onSelect={() => onSelectResult?.(item)}
-                query={trimmedQuery}
-              />
-            ))}
-          </div>
+          isSearchResultsLoading ? (
+            <SearchRowsSkeleton />
+          ) : visibleSearchResults.length > 0 ? (
+            <div className="flex flex-col">
+              {visibleSearchResults.map((item) => (
+                <SearchSuggestionRow
+                  item={item}
+                  key={item.id}
+                  onSelect={() => onSelectResult?.(item)}
+                  query={trimmedQuery}
+                />
+              ))}
+            </div>
+          ) : (
+            <SearchErrors variant="not-found" />
+          )
         ) : isRecentSearchLoading ? (
           <SearchRowsSkeleton />
         ) : visibleRecentSearches.length > 0 ? (
           <div className="flex flex-col">
             {visibleRecentSearches.map((item, index) => (
               <div
-                className={`transition-[opacity,transform] duration-180 ease-out ${
-                  removingRecentSearchId === item.id
-                    ? "-translate-x-3 opacity-0"
-                    : "translate-x-0 opacity-100"
-                }`}
+                className={`transition-[opacity,transform] duration-180 ease-out ${removingRecentSearchId === item.id
+                  ? "-translate-x-3 opacity-0"
+                  : "translate-x-0 opacity-100"
+                  }`}
                 key={item.id}
               >
                 <RecentSearchRow
@@ -192,10 +190,7 @@ export function HomeSearchScreen({
             ))}
           </div>
         ) : (
-          <SearchEmptyState
-            title="هنوز چیزی جستجو نکرده‌اید!"
-            subtitle="پس از اولین جستجو، سوابق در این بخش قرار می‌گیرند."
-          />
+          <SearchErrors variant="no-search" />
         )}
       </main>
     </section>
@@ -239,11 +234,10 @@ function SavedSearchesView({
 
   return (
     <section
-      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${
-        isOpen
-          ? "visible translate-y-0 opacity-100"
-          : "invisible translate-y-3 opacity-0"
-      }`}
+      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${isOpen
+        ? "visible translate-y-0 opacity-100"
+        : "invisible translate-y-3 opacity-0"
+        }`}
       aria-hidden={!isOpen}
     >
       <TopBar onBack={onBack} title="جستجوی ذخیره شده" />
@@ -253,11 +247,10 @@ function SavedSearchesView({
           <div className="flex flex-col gap-2 bg-[#f0f0f0]">
             {savedSearches.map((item) => (
               <div
-                className={`transition-[opacity,transform] duration-[180ms] ease-out ${
-                  removingSavedSearchId === item.id
-                    ? "-translate-x-3 opacity-0"
-                    : "translate-x-0 opacity-100"
-                }`}
+                className={`transition-[opacity,transform] duration-[180ms] ease-out ${removingSavedSearchId === item.id
+                  ? "-translate-x-3 opacity-0"
+                  : "translate-x-0 opacity-100"
+                  }`}
                 key={item.id}
               >
                 <SavedSearchRow
@@ -269,10 +262,7 @@ function SavedSearchesView({
             ))}
           </div>
         ) : (
-          <SearchEmptyState
-            title="هیچ جستجویی ذخیره نشده!"
-            subtitle="می‌توانید جستجوهای موردنظر خود را برای دسترسی سریع‌تر ذخیره کنید."
-          />
+          <SearchErrors variant="no-saved-search" />
         )}
       </main>
     </section>
@@ -387,36 +377,36 @@ function RecentSearchRow({
         className="h-full bg-white px-4 pb-3 transition-transform duration-150 ease-out"
         style={{ transform: `translateX(${Math.min(dragOffset, 72)}px)` }}
       >
-      <div className="relative h-12 w-full">
-        <button
-          className="absolute left-0 top-0 grid h-12 w-12 place-items-center text-[#4d4d4d]"
-          type="button"
-          aria-label="حذف جستجوی اخیر"
-          disabled={isDeleting}
-          onClick={onDelete}
-        >
-          <SmallCloseIcon />
-        </button>
-
-        <h3 className="m-0 flex h-12 w-full items-center justify-start pl-12 text-right text-base font-medium leading-6 text-[#1a1a1a]">
-          {item.title}
-        </h3>
-      </div>
-
-      <div className="flex h-5 w-full items-center justify-start gap-2">
-        <span className="shrink-0 text-sm font-medium leading-5 text-[#808080]">
-          {item.subtitle}
-        </span>
-
-        {item.tags.map((tag) => (
-          <span
-            className="flex h-5 shrink-0 items-center rounded-md bg-[#e9eaee] px-2 text-xs font-medium leading-4 text-[#4d4d4d]"
-            key={tag}
+        <div className="relative h-12 w-full">
+          <button
+            className="absolute left-0 top-0 grid h-12 w-12 place-items-center text-[#4d4d4d]"
+            type="button"
+            aria-label="حذف جستجوی اخیر"
+            disabled={isDeleting}
+            onClick={onDelete}
           >
-            {tag}
+            <SmallCloseIcon />
+          </button>
+
+          <h3 className="m-0 flex h-12 w-full items-center justify-start pl-12 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+            {item.title}
+          </h3>
+        </div>
+
+        <div className="flex h-5 w-full items-center justify-start gap-2">
+          <span className="shrink-0 text-sm font-medium leading-5 text-[#808080]">
+            {item.subtitle}
           </span>
-        ))}
-      </div>
+
+          {item.tags.map((tag) => (
+            <span
+              className="flex h-5 shrink-0 items-center rounded-md bg-[#e9eaee] px-2 text-xs font-medium leading-4 text-[#4d4d4d]"
+              key={tag}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
     </article>
   );
@@ -498,28 +488,6 @@ function SavedSearchRow({
   );
 }
 
-function SearchEmptyState({
-  title,
-  subtitle,
-}: {
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="flex min-h-full flex-col items-center justify-center px-8 pb-20 pt-8 text-center">
-      <span
-        className="home-search-empty-illustration mb-6 min-[390px]:mb-8"
-        aria-hidden="true"
-      />
-      <h3 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a] min-[390px]:text-lg min-[390px]:leading-7">
-        {title}
-      </h3>
-      <p className="m-0 mt-4 max-w-[190px] text-sm font-normal leading-5 text-[#4d4d4d]">
-        {subtitle}
-      </p>
-    </div>
-  );
-}
 
 function SmallCloseIcon() {
   return (

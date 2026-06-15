@@ -188,12 +188,12 @@ function ContactInfoBottomSheet({
 }) {
   return (
     <BottomSheet
-      ariaLabel="اطلاعات تماس"
+      ariaLabel="تماس با مشاور"
       contentClassName="mx-4 mt-5"
       heightClassName="h-[306px]"
       isOpen={isOpen}
       onClose={onClose}
-      title="اطلاعات تماس"
+      title="تماس با مشاور"
     >
           <div className="flex h-14 items-center justify-between [direction:ltr]">
             <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
@@ -751,14 +751,14 @@ export function ViewAdPage() {
             onClick={() => setIsContactSheetOpen(true)}
             type="button"
           >
-            اطلاعات تماس
+            تماس با مشاور
           </button>
           <RouteLink
             className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             to="/chat/1"
           >
+            <span>چت با مشاور</span>
             <ViewAdIcon className="h-5 w-5" name="chat" />
-            <span>چت</span>
           </RouteLink>
         </div>
       </div>

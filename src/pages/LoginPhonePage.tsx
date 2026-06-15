@@ -8,7 +8,7 @@ import {
   getAuthErrorMessage,
   normalizeMobile,
   requestOtp,
-} from "../api/authApi";
+} from "../api/api-client";
 
 export function LoginPhonePage() {
   const [phoneNumber, setPhoneNumber] = useState("");

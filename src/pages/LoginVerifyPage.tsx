@@ -17,11 +17,11 @@ import {
   normalizeMobile,
   resendOtp,
   verifyOtp,
-} from "../api/authApi";
+} from "../api/api-client";
 import {
   getOtpResendSecondsRemaining,
   getPendingOtpMobile,
-} from "../api/authSession";
+} from "../api/api-client";
 
 export function LoginVerifyPage() {
   const [verificationCodeSlots, setVerificationCodeSlots] = useState(["", "", "", ""]);

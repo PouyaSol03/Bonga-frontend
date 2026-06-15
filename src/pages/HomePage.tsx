@@ -14,10 +14,13 @@ import ShenasaVector from "../assets/icons/ShenasaVector";
 import IranShenasaTypo from "../assets/icons/IranShenasaTypo";
 import { BusinessBanner } from "./home/components/BusinessBanner";
 
-import { getApiErrorMessage } from "../api/apiClient";
-import { mapAdvertisementToAdCard } from "../api/advertiseApi";
-import { useAdvertisementInfiniteQuery, useCategoryListQuery } from "../api/queries";
-import type { CategoryItem } from "../api/CategoryApi";
+import { getApiErrorMessage } from "../api/api-client";
+import {
+  mapAdvertisementToAdCard,
+  useAdvertisementInfiniteQuery,
+  useCategoryListQuery,
+  type CategoryItem,
+} from "../api/api-client";
 
 import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
 import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";
@@ -154,10 +157,28 @@ export function HomePage() {
     [fetchNextPage, hasNextPage, isFetchingNextPage],
   );
 
-  const navigateToSearch = () => {
+  const navigateToSearch = (options: { categoryId?: string; qsearch?: string } = {}) => {
+    const params = new URLSearchParams();
+    const cityId =
+      selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
+
+    if (cityId) {
+      params.set("city_id", cityId);
+    }
+
+    if (options.categoryId) {
+      params.set("category_id", options.categoryId);
+    }
+
+    if (options.qsearch) {
+      params.set("qsearch", options.qsearch);
+    }
+
+    const queryString = params.toString();
+
     setIsSearchOpen(false);
     setSelectedCategory(null);
-    window.history.pushState({}, "", "/search");
+    window.history.pushState({}, "", queryString ? `/search?${queryString}` : "/search");
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
@@ -330,15 +351,17 @@ export function HomePage() {
         selectedCategory={selectedCategory}
         onClose={() => setSelectedCategory(null)}
         onSelectCategory={(category) => {
-          setSelectedCategoryId(category?.id ?? selectedCategory?.id ?? "");
-          navigateToSearch();
+          const categoryId = category?.id ?? selectedCategory?.id ?? "";
+
+          setSelectedCategoryId(categoryId);
+          navigateToSearch({ categoryId });
         }}
       />
 
       <HomeSearchScreen
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        onSelectResult={navigateToSearch}
+        onSelectResult={(item) => navigateToSearch({ qsearch: item.title })}
       />
 
       <CitySelectionScreen

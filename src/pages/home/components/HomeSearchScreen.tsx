@@ -1,21 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 
+import {
+  useDeleteSearchHistoryMutation,
+  useSearchHistoryQuery,
+  type SearchHistoryItem,
+} from "../../../api/api-client";
 import { TopBar } from "../../../components/TopBar";
 import {
   initialRecentSearches,
   initialSavedSearches,
-  searchSuggestions,
 } from "../homeData";
 
-import type { RecentSearch, SavedSearch, SearchSuggestion } from "../homeTypes";
+import type { RecentSearch, SavedSearch } from "../homeTypes";
 
 type HomeSearchScreenProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSelectResult?: (item: SearchSuggestion) => void;
+  onSelectResult?: (item: SearchHistoryItem | { title: string }) => void;
 };
 
 const REMOVE_TRANSITION_MS = 180;
+const SWIPE_DELETE_THRESHOLD = 72;
 
 export function HomeSearchScreen({
   isOpen,
@@ -28,11 +33,36 @@ export function HomeSearchScreen({
   const [savedSearches, setSavedSearches] = useState(initialSavedSearches);
   const [isSavedView, setIsSavedView] = useState(false);
   const [removingRecentSearchId, setRemovingRecentSearchId] = useState<
-    number | null
+    string | number | null
   >(null);
 
   const trimmedQuery = query.trim();
   const isResultsView = trimmedQuery.length > 0;
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const {
+    data: apiRecentSearches = [],
+    isError: isRecentSearchError,
+    isLoading: isRecentSearchLoading,
+  } = useSearchHistoryQuery({
+    enabled: isOpen,
+  });
+  const {
+    data: apiSearchResults = [],
+    isLoading: isSearchResultsLoading,
+  } = useSearchHistoryQuery({
+    enabled: isOpen && debouncedQuery.length > 0,
+    qsearch: debouncedQuery,
+  });
+  const deleteHistoryMutation = useDeleteSearchHistoryMutation();
+  const visibleRecentSearches = isRecentSearchError
+    ? recentSearches
+    : apiRecentSearches;
+  const visibleSearchResults =
+    apiSearchResults.length > 0
+      ? apiSearchResults
+      : debouncedQuery
+        ? [{ id: "current-query", title: debouncedQuery, subtitle: "", tags: [] }]
+        : [];
 
   useEffect(() => {
     return () => {
@@ -42,18 +72,27 @@ export function HomeSearchScreen({
     };
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(trimmedQuery);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [trimmedQuery]);
+
   const closeSearch = () => {
     setIsSavedView(false);
     setQuery("");
     onClose();
   };
 
-  const deleteRecentSearch = (id: number) => {
+  const deleteRecentSearch = (id: string | number) => {
     if (removingRecentSearchId !== null) return;
 
     setRemovingRecentSearchId(id);
     removeTimerRef.current = window.setTimeout(() => {
       setRecentSearches((items) => items.filter((item) => item.id !== id));
+      deleteHistoryMutation.mutate(String(id));
       setRemovingRecentSearchId(null);
       removeTimerRef.current = null;
     }, REMOVE_TRANSITION_MS);
@@ -115,7 +154,9 @@ export function HomeSearchScreen({
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
         {isResultsView ? (
           <div className="flex flex-col">
-            {searchSuggestions.map((item) => (
+            {isSearchResultsLoading ? (
+              <SearchRowsSkeleton />
+            ) : visibleSearchResults.map((item) => (
               <SearchSuggestionRow
                 item={item}
                 key={item.id}
@@ -124,9 +165,11 @@ export function HomeSearchScreen({
               />
             ))}
           </div>
-        ) : recentSearches.length > 0 ? (
+        ) : isRecentSearchLoading ? (
+          <SearchRowsSkeleton />
+        ) : visibleRecentSearches.length > 0 ? (
           <div className="flex flex-col">
-            {recentSearches.map((item, index) => (
+            {visibleRecentSearches.map((item, index) => (
               <div
                 className={`transition-[opacity,transform] duration-180 ease-out ${
                   removingRecentSearchId === item.id
@@ -140,7 +183,7 @@ export function HomeSearchScreen({
                   isDeleting={removingRecentSearchId === item.id}
                   onDelete={() => deleteRecentSearch(item.id)}
                 />
-                {index < recentSearches.length - 1 ? (
+                {index < visibleRecentSearches.length - 1 ? (
                   <div className="mx-4 flex h-[17px] items-center">
                     <span className="h-px w-full bg-[#cccccc]" />
                   </div>
@@ -168,11 +211,11 @@ function SavedSearchesView({
   isOpen: boolean;
   savedSearches: SavedSearch[];
   onBack: () => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string | number) => void;
 }) {
   const removeTimerRef = useRef<number | null>(null);
   const [removingSavedSearchId, setRemovingSavedSearchId] = useState<
-    number | null
+    string | number | null
   >(null);
 
   useEffect(() => {
@@ -183,7 +226,7 @@ function SavedSearchesView({
     };
   }, []);
 
-  const deleteSavedSearch = (id: number) => {
+  const deleteSavedSearch = (id: string | number) => {
     if (removingSavedSearchId !== null) return;
 
     setRemovingSavedSearchId(id);
@@ -233,6 +276,16 @@ function SavedSearchesView({
         )}
       </main>
     </section>
+  );
+}
+
+function SearchRowsSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 px-4 py-2">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div className="h-14 animate-pulse rounded-xl bg-[#f0f0f0]" key={index} />
+      ))}
+    </div>
   );
 }
 
@@ -294,8 +347,46 @@ function RecentSearchRow({
   isDeleting: boolean;
   onDelete: () => void;
 }) {
+  const pointerStartXRef = useRef<number | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
+
+  const finishSwipe = () => {
+    if (dragOffset >= SWIPE_DELETE_THRESHOLD) {
+      onDelete();
+    }
+
+    setDragOffset(0);
+    pointerStartXRef.current = null;
+  };
+
   return (
-    <article className="h-[82px] bg-white px-4 pb-3">
+    <article
+      className="relative h-[82px] overflow-hidden bg-white"
+      onPointerDown={(event) => {
+        pointerStartXRef.current = event.clientX;
+      }}
+      onPointerMove={(event) => {
+        if (pointerStartXRef.current === null || isDeleting) return;
+
+        setDragOffset(Math.max(0, event.clientX - pointerStartXRef.current));
+      }}
+      onPointerCancel={finishSwipe}
+      onPointerUp={finishSwipe}
+    >
+      <button
+        className="absolute inset-y-0 left-0 flex w-[72px] flex-col items-center justify-center gap-1 bg-[#fdecec] text-xs font-medium leading-4 text-[#ee3623]"
+        type="button"
+        aria-label="Ø­Ø°Ù Ø¬Ø³ØªØ¬ÙˆÛŒ Ø§Ø®ÛŒØ±"
+        disabled={isDeleting}
+        onClick={onDelete}
+      >
+        <TrashIcon />
+        <span>Ø­Ø°Ù</span>
+      </button>
+      <div
+        className="h-full bg-white px-4 pb-3 transition-transform duration-150 ease-out"
+        style={{ transform: `translateX(${Math.min(dragOffset, 72)}px)` }}
+      >
       <div className="relative h-12 w-full">
         <button
           className="absolute left-0 top-0 grid h-12 w-12 place-items-center text-[#4d4d4d]"
@@ -326,6 +417,7 @@ function RecentSearchRow({
           </span>
         ))}
       </div>
+      </div>
     </article>
   );
 }
@@ -335,7 +427,7 @@ function SearchSuggestionRow({
   onSelect,
   query,
 }: {
-  item: SearchSuggestion;
+  item: SearchHistoryItem;
   onSelect: () => void;
   query: string;
 }) {
@@ -347,7 +439,6 @@ function SearchSuggestionRow({
     >
       <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal leading-4 text-[#a6a6a6] [direction:ltr]">
         <span>آگهی</span>
-        <span className="[direction:rtl]">{item.count}</span>
       </span>
 
       <span className="flex min-w-0 flex-col items-start [direction:rtl]">

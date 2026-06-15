@@ -1,25 +1,23 @@
-import { cities as fallbackCities } from "../publicLandingData";
-import type { City } from "../publicLandingTypes";
+import { useMemo } from "react";
+import { useMostVisitedCityListQuery, type CityDto } from "../../../api/api-client";
 import { RouteLink } from "../../../routes/RouteLink";
-import type { CityDto } from "../../../api/cityApi";
-import { useCityListQuery } from "../../../api/queries";
-
 import TehranIcon from "../../../assets/icons/TehranIcon.svg";
 import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";
 import IsfahanIcon from "../../../assets/icons/IsfahanIcon.svg";
 import ShirazIcon from "../../../assets/icons/ShirazIcon.svg";
 
-type CitySelectorSectionProps = {
-  cities?: City[];
-};
-
-type UiCity = City & {
-  id?: string;
+type UiCity = {
+  id: string;
   code?: string;
+  name: string;
+  icon?: string;
 };
 
 function getCityIcon(city: CityDto) {
-  switch (city.code) {
+  const code = city.code?.toLowerCase();
+  const name = city.name.trim();
+
+  switch (code) {
     case "mashhad":
       return MashhadIcon;
 
@@ -33,7 +31,7 @@ function getCityIcon(city: CityDto) {
       return ShirazIcon;
 
     default:
-      switch (city.name) {
+      switch (name) {
         case "مشهد":
           return MashhadIcon;
 
@@ -47,28 +45,37 @@ function getCityIcon(city: CityDto) {
           return ShirazIcon;
 
         default:
-          return "";
+          return city.logo || "";
       }
   }
 }
 
 function mapCityDtoToUiCity(city: CityDto): UiCity {
   return {
-    id: city.id ?? city._id ?? city.code,
+    id: String(city.id ?? city._id ?? city.code ?? ""),
     code: city.code,
     name: city.name,
     icon: getCityIcon(city),
   };
 }
 
-export function CitySelectorSection({ cities = fallbackCities }: CitySelectorSectionProps) {
+export function CitySelectorSection() {
   const {
     data: apiCities = [],
     isError,
     isLoading,
-  } = useCityListQuery();
-  const mappedCities = apiCities.map(mapCityDtoToUiCity);
-  const cityList = mappedCities.length > 0 && !isError ? mappedCities : cities;
+  } = useMostVisitedCityListQuery();
+
+  const cityList = useMemo<UiCity[]>(() => {
+    if (isError) {
+      return [];
+    }
+
+    return apiCities
+      .map(mapCityDtoToUiCity)
+      .filter((city) => city.id && city.name)
+      .slice(0, 4);
+  }, [apiCities, isError]);
 
   const openHomeSearch = () => {
     window.history.pushState({}, "", "/home");

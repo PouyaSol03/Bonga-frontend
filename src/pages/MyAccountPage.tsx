@@ -2,12 +2,12 @@ import { useState } from "react";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
-import { logout } from "../api/authApi";
+import { logout } from "../api/api-client";
 import {
   formatMobileForDisplay,
   getStoredAuthSession,
   type AuthSession,
-} from "../api/authSession";
+} from "../api/api-client";
 import { currentAccountUserType } from "./account/accountUserType";
 
 type AccountAction = {

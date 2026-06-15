@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
-import { getStoredAuthSession } from "../api/authSession";
+import { getStoredAuthSession } from "../api/api-client";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
 import NavAddIcon from "../assets/icons/NavAddIcon";
 import NavChatIcon from "../assets/icons/NavChatIcon";

@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { TopBar } from "../../../components/TopBar";
-import { cityOptions as fallbackCityOptions } from "../homeData";
-import type { CityOption } from "../homeTypes";
-import type { CityDto } from "../../../api/cityApi";
-import { useCityListQuery } from "../../../api/queries";
+import { useCitySearchQuery, type CityDto } from "../../../api/api-client";
 
 type CitySelectionScreenProps = {
   currentCity: string;
@@ -13,13 +10,15 @@ type CitySelectionScreenProps = {
   onConfirm: (city: { id?: string; name: string }) => void;
 };
 
-type UiCityOption = CityOption & {
-  id?: string;
+type UiCityOption = {
+  id: string;
+  name: string;
+  count: string;
 };
 
 function mapCityDtoToOption(city: CityDto): UiCityOption {
   return {
-    id: city.id ?? city._id,
+    id: String(city.id ?? city._id ?? ""),
     name: city.name,
     count: "0",
   };
@@ -36,26 +35,27 @@ export function CitySelectionScreen({
   onConfirm,
 }: CitySelectionScreenProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const { data: apiCities = [], isError, isLoading } = useCityListQuery({
-    enabled: isOpen,
-  });
   const [selectedCityId, setSelectedCityId] = useState(getStoredCityId);
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
-  const mappedCities = apiCities.map(mapCityDtoToOption);
-  const cityList: UiCityOption[] =
-    mappedCities.length > 0 && !isError ? mappedCities : fallbackCityOptions;
 
-  const normalizedQuery = query.trim();
-
-  const visibleSearchResults = useMemo(() => {
-    if (!normalizedQuery) {
+  const { data: apiCities = [], isError, isLoading } = useCitySearchQuery({
+    enabled: isOpen,
+    q: isSearching ? query.trim() : "",
+  });
+  const cityList = useMemo<UiCityOption[]>(() => {
+    if (isError) {
       return [];
     }
 
-    return cityList.filter((city) => city.name.includes(normalizedQuery));
-  }, [cityList, normalizedQuery]);
+    return apiCities
+      .map(mapCityDtoToOption)
+      .filter((city) => city.id && city.name);
+  }, [apiCities, isError]);
+
+  const normalizedQuery = query.trim();
+
+  const visibleSearchResults = cityList;
 
   useEffect(() => {
     if (!isOpen || !isSearching) {
@@ -97,9 +97,8 @@ export function CitySelectionScreen({
 
   return (
     <section
-      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${
-        isOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"
-      }`}
+      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${isOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"
+        }`}
       aria-hidden={!isOpen}
     >
       <TopBar
@@ -107,13 +106,13 @@ export function CitySelectionScreen({
           isSearching
             ? []
             : [
-                {
-                  icon: <CitySearchIcon />,
-                  id: "city-search",
-                  label: "جستجوی شهر",
-                  onClick: () => setIsSearching(true),
-                },
-              ]
+              {
+                icon: <CitySearchIcon />,
+                id: "city-search",
+                label: "جستجوی شهر",
+                onClick: () => setIsSearching(true),
+              },
+            ]
         }
         centerSlot={
           isSearching ? (
@@ -132,9 +131,7 @@ export function CitySelectionScreen({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isSearching ? (
-          normalizedQuery.length === 0 ? (
-            <div className="h-full bg-white" />
-          ) : visibleSearchResults.length > 0 ? (
+          visibleSearchResults.length > 0 ? (
             <div className="flex flex-col pt-2">
               {visibleSearchResults.map((city) => (
                 <CitySearchResultRow
@@ -144,8 +141,10 @@ export function CitySelectionScreen({
                 />
               ))}
             </div>
-          ) : (
+          ) : normalizedQuery.length > 0 ? (
             <CityEmptyState />
+          ) : (
+            <div className="h-full bg-white" />
           )
         ) : (
           <div className="flex flex-col gap-2 px-4 pt-4">
@@ -239,9 +238,8 @@ function CityOptionRow({
 }) {
   return (
     <button
-      className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right transition-colors [direction:ltr] ${
-        isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
-      }`}
+      className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right transition-colors [direction:ltr] ${isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
+        }`}
       type="button"
       onClick={onSelect}
     >

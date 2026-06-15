@@ -17,8 +17,17 @@ import { SearchMapView } from "./components/SearchMapView";
 import { BottomNavigation } from "../../components/BottomNavigation";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
 import { SearchMapListView } from "./components/SearchMapListView";
+import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
 
 type SearchMapMode = "map" | "preview" | "list";
+
+function getSearchParams() {
+  return new URLSearchParams(window.location.search);
+}
+
+function getStoredCityId() {
+  return window.localStorage.getItem("bonga-selected-city-id") ?? "";
+}
 
 export function SearchMapPage() {
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
@@ -26,6 +35,10 @@ export function SearchMapPage() {
   const [chips, setChips] = useState(searchFilterChips);
   const [isDrawMode, setIsDrawMode] = useState(false);
   const [isLocated, setIsLocated] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [queryLabel, setQueryLabel] = useState(
+    getSearchParams().get("qsearch") || "Ø¬Ø³ØªØ¬Ùˆ Ø¯Ø± Ø¢Ú¯Ù‡ÛŒâ€ŒÙ‡Ø§",
+  );
   const { message, showNotice } = useDemoNotice();
 
   const visibleListings = useMemo(() => {
@@ -71,6 +84,23 @@ export function SearchMapPage() {
     setMode("preview");
   };
 
+  const handleSearchResult = (item: { title: string }) => {
+    const params = getSearchParams();
+    const cityId = params.get("city_id") || getStoredCityId();
+
+    params.set("qsearch", item.title);
+
+    if (cityId) {
+      params.set("city_id", cityId);
+    }
+
+    setQueryLabel(item.title);
+    setIsSearchOpen(false);
+    setSelectedListingId(null);
+    setMode("map");
+    window.history.replaceState({}, "", `/search?${params.toString()}`);
+  };
+
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
 
@@ -99,7 +129,8 @@ export function SearchMapPage() {
         savedCount={2}
         chips={chips}
         onChipClick={toggleChip}
-        onSearchClick={() => setMode("list")}
+        queryLabel={queryLabel}
+        onSearchClick={() => setIsSearchOpen(true)}
       />
 
       <SearchMapFloatingActions
@@ -128,6 +159,11 @@ export function SearchMapPage() {
           setSelectedListingId(listing.id);
           setMode("preview");
         }}
+      />
+      <HomeSearchScreen
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSelectResult={handleSearchResult}
       />
       <BottomNavigation activeKey="search" />
       <DemoNotice message={message} />

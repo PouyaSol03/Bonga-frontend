@@ -6,9 +6,13 @@ import { useDemoNotice } from "../hooks/useDemoNotice";
 import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage } from "../api/apiClient";
-import type { AdvertisementItem } from "../api/advertiseApi";
-import { useAdvertisementDetailQuery } from "../api/queries";
+import { getApiAssetUrl, getApiErrorMessage } from "../api/api-client";
+import { NotFoundErrorState, ServerErrorState } from "../components/ErrorState";
+import {
+  type AdvertisementItem,
+  useAdvertisementDetailQuery,
+  useToggleAdvertiseBadgeMutation,
+} from "../api/api-client";
 import {
   DetailSection,
   MoreButton,
@@ -509,11 +513,8 @@ function NotFoundState() {
       variant="flush"
     >
       <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-6 text-right">
-        <h1 className="m-0 text-base font-semibold leading-6">آگهی پیدا نشد</h1>
-        <p className="mt-3 text-sm leading-6 text-[#4d4d4d]">
-          این آگهی در حال حاضر موجود نیست یا لینک آن نادرست است.
-        </p>
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white">
+        <NotFoundErrorState />
       </main>
     </PageFrame>
   );
@@ -534,22 +535,16 @@ function LoadingState() {
   );
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ViewAdErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
       <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-10 text-center">
-        <p className="m-0 text-sm font-medium text-red-600">{message}</p>
-        <button
-          className="mt-4 h-10 rounded-lg border border-[#0048c4] px-4 text-sm font-medium text-[#0048c4]"
-          onClick={onRetry}
-          type="button"
-        >
-          تلاش مجدد
-        </button>
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white">
+        <ServerErrorState className="h-full" onRetry={onRetry} />
+        <p className="sr-only">{message}</p>
       </main>
     </PageFrame>
   );
@@ -666,6 +661,7 @@ export function ViewAdPage() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { message, showNotice } = useDemoNotice();
   const adId = parseAdIdFromPath(window.location.pathname);
+  const toggleBadge = useToggleAdvertiseBadgeMutation();
   const {
     data: ad,
     error,
@@ -684,7 +680,7 @@ export function ViewAdPage() {
 
   if (isError) {
     return (
-      <ErrorState
+      <ViewAdErrorState
         message={getApiErrorMessage(error, "دریافت آگهی با خطا مواجه شد.")}
         onRetry={() => void refetch()}
       />
@@ -714,8 +710,19 @@ export function ViewAdPage() {
     }
 
     if (icon === "bookmark") {
-      setIsBookmarked((current) => !current);
-      showNotice(isBookmarked ? "آگهی از نشان‌ها حذف شد" : "آگهی به نشان‌ها اضافه شد");
+      if (!adId || toggleBadge.isPending) {
+        return;
+      }
+
+      toggleBadge.mutate(adId, {
+        onError: (badgeError) => {
+          showNotice(getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."));
+        },
+        onSuccess: () => {
+          setIsBookmarked((current) => !current);
+          showNotice(isBookmarked ? "آگهی از نشان‌ها حذف شد" : "آگهی به نشان‌ها اضافه شد");
+        },
+      });
     }
   };
 

@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
-import { getStoredAuthSession } from "../../api/authSession";
-import { getApiErrorMessage } from "../../api/apiClient";
-import { mapAdvertisementToAdCard } from "../../api/advertiseApi";
-import type { MyAdsType, NoteItem, WalletPayment } from "../../api/accountApi";
 import {
+  getApiErrorMessage,
+  getStoredAuthSession,
+  mapAdvertisementToAdCard,
+  useAdvertiseBadgesQuery,
   useAuthorizeMeMutation,
+  useDeleteAdvertiseBadgeMutation,
   useMyAdsQuery,
   useMyNotesQuery,
   useMyProfileQuery,
   useUpdateMyProfileMutation,
   useWalletPaymentsQuery,
-} from "../../api/queries";
+  type AdvertisementItem,
+  type BadgeItem,
+  type MyAdsType,
+  type NoteItem,
+  type WalletPayment,
+} from "../../api/api-client";
 import { AdCard } from "../../components/AdCard";
+import type { AdCardData } from "../../components/AdCard";
+import { BottomSheet } from "../../components/BottomSheet";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
@@ -395,11 +403,108 @@ export function AccountNotesPage() {
 }
 
 export function AccountBookmarksPage() {
-  const [count, setCount] = useState(4);
+  const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState(false);
+  const { message, showNotice } = useDemoNotice();
+  const {
+    data: bookmarks = [],
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = useAdvertiseBadgesQuery();
+  const deleteBadge = useDeleteAdvertiseBadgeMutation();
+
+  const deleteBookmark = (advertiseId: string) => {
+    deleteBadge.mutate(advertiseId, {
+      onError: (deleteError) => {
+        showNotice(getApiErrorMessage(deleteError, "حذف نشان با خطا مواجه شد."));
+      },
+      onSuccess: () => {
+        showNotice("آگهی از نشان‌ها حذف شد");
+      },
+    });
+  };
+
+  const deleteAllBookmarks = () => {
+    deleteBadge.mutate("all", {
+      onError: (deleteError) => {
+        showNotice(getApiErrorMessage(deleteError, "حذف نشان‌ها با خطا مواجه شد."));
+      },
+      onSuccess: () => {
+        setIsConfirmDeleteAllOpen(false);
+        showNotice("همه نشان‌ها حذف شدند");
+      },
+    });
+  };
 
   return (
-    <AccountPageShell action={<TopBarTextAction label="حذف همه" onClick={() => setCount(0)} />} title="نشان‌ها">
-      <ListingCardsPage count={count} emptyText="آگهی نشان‌شده‌ای باقی نمانده است" />
+    <AccountPageShell
+      action={
+        <button
+          aria-label="حذف همه نشان‌ها"
+          className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
+          disabled={bookmarks.length === 0 || deleteBadge.isPending}
+          onClick={() => setIsConfirmDeleteAllOpen(true)}
+          type="button"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </button>
+      }
+      title="نشان‌ها"
+    >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        <div className="space-y-2 bg-[#f0f0f0] pt-2">
+          {isLoading ? <AccountLoadingState text="در حال دریافت نشان‌ها..." /> : null}
+          {isError ? (
+            <AccountRetryState
+              message={getApiErrorMessage(error, "دریافت نشان‌ها با خطا مواجه شد.")}
+              onRetry={() => void refetch()}
+            />
+          ) : null}
+          {!isLoading && !isError && bookmarks.map((bookmark, index) => (
+            <BookmarkAdCard
+              badge={bookmark}
+              disabled={deleteBadge.isPending}
+              key={getBadgeAdvertiseId(bookmark) || index}
+              onDelete={deleteBookmark}
+            />
+          ))}
+          {!isLoading && !isError && bookmarks.length === 0 ? (
+            <EmptyMessage text="آگهی نشان‌شده‌ای باقی نمانده است" />
+          ) : null}
+        </div>
+      </main>
+
+      <BottomSheet
+        ariaLabel="حذف همه نشان‌ها"
+        contentClassName="px-4 pt-7"
+        heightClassName="h-[220px]"
+        isOpen={isConfirmDeleteAllOpen}
+        onClose={() => setIsConfirmDeleteAllOpen(false)}
+        showHeader={false}
+      >
+        <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+          آیا از حذف همه نشان‌ها مطمئن هستید؟
+        </p>
+        <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
+          <button
+            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4] disabled:opacity-50"
+            disabled={deleteBadge.isPending}
+            onClick={deleteAllBookmarks}
+            type="button"
+          >
+            حذف همه
+          </button>
+          <button
+            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4]"
+            onClick={() => setIsConfirmDeleteAllOpen(false)}
+            type="button"
+          >
+            انصراف
+          </button>
+        </div>
+      </BottomSheet>
+      <DemoNotice message={message} />
     </AccountPageShell>
   );
 }
@@ -628,6 +733,114 @@ function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: str
         {count === 0 && emptyText ? <EmptyMessage text={emptyText} /> : null}
       </div>
     </main>
+  );
+}
+
+function getBadgeAdvertiseSource(badge: BadgeItem): AdvertisementItem {
+  return (
+    badge.ad ??
+    badge.advertise ??
+    badge.advertisement ??
+    (badge as AdvertisementItem)
+  );
+}
+
+function getBadgeAdvertiseId(badge: BadgeItem) {
+  const ad = getBadgeAdvertiseSource(badge);
+  const id =
+    badge.advertiseId ??
+    badge.advertise_id ??
+    ad.id ??
+    ad._id ??
+    badge.id ??
+    badge._id;
+
+  return id === undefined || id === null ? "" : String(id);
+}
+
+function BookmarkAdCard({
+  badge,
+  disabled,
+  onDelete,
+}: {
+  badge: BadgeItem;
+  disabled: boolean;
+  onDelete: (advertiseId: string) => void;
+}) {
+  const advertiseId = getBadgeAdvertiseId(badge);
+  const ad = mapAdvertisementToAdCard(getBadgeAdvertiseSource(badge), 0);
+  const card = {
+    ...ad,
+    id: advertiseId || ad.id,
+  } satisfies AdCardData;
+
+  return (
+    <article className="relative bg-white px-2 py-2 text-right [direction:rtl]">
+      <RouteLink
+        aria-label={`مشاهده آگهی ${card.title}`}
+        className="block rounded-xl text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+        to={`/ads/${card.id}`}
+      >
+        <div
+          className={`ad-card__image relative aspect-[328/134] overflow-hidden rounded-xl bg-[#dbe5ff] bg-cover ${card.imageClassName}`}
+          style={card.imageUrl ? { backgroundImage: `url(${card.imageUrl})` } : undefined}
+        >
+          <div className="absolute left-2 top-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-xs font-medium leading-4 text-white">
+            <span>{card.imageCount}</span>
+          </div>
+        </div>
+
+        <div className="px-2 pb-2 pt-3">
+          <div className="flex h-6 items-center justify-start gap-1 text-[#0048c4]">
+            <strong className="text-base font-semibold leading-6">{card.pricePrimary}</strong>
+          </div>
+
+          <div className="mt-2 flex h-5 items-center justify-start gap-4 text-sm font-medium leading-5 text-[#1a1a1a]">
+            <span>{card.area}</span>
+            <span>{card.rooms}</span>
+            <span>{card.year}</span>
+          </div>
+
+          <h2 className="m-0 mt-2 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+            {card.title}
+          </h2>
+
+          <div className="mt-2 flex h-6 items-center justify-start gap-2">
+            {card.badges.map((item) => (
+              <span
+                className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${
+                  item === "فوری" || item === "ÙÙˆØ±ÛŒ"
+                    ? "border-[#ff6d00] text-[#ff6d00]"
+                    : "border-[#11a366] text-[#11a366]"
+                }`}
+                key={item}
+              >
+                {item}
+              </span>
+            ))}
+            <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080]">
+              {card.timeAndLocation}
+            </span>
+          </div>
+        </div>
+      </RouteLink>
+
+      <button
+        aria-label="حذف نشان"
+        className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-lg bg-white/90 text-[#808080] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
+        disabled={disabled || !advertiseId}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (advertiseId) {
+            onDelete(advertiseId);
+          }
+        }}
+        type="button"
+      >
+        <TrashIcon className="h-5 w-5" />
+      </button>
+    </article>
   );
 }
 
@@ -1040,6 +1253,14 @@ function PlusIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+      <path d="M4 6h16M9 6V4h6v2M7 6l.8 13a2 2 0 0 0 2 2h4.4a2 2 0 0 0 2-2L17 6M10 11v5M14 11v5" />
     </svg>
   );
 }

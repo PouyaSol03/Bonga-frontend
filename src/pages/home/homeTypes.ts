@@ -12,21 +12,21 @@ export type CategoryOption = {
 }
 
 export type RecentSearch = {
-  id: number
+  id: string | number
   title: string
   subtitle: string
   tags: string[]
 }
 
 export type SearchSuggestion = {
-  id: number
+  id: string | number
   title: string
   subtitle?: string
   count: string
 }
 
 export type SavedSearch = {
-  id: number
+  id: string | number
   title: string
   tags: string[]
 }

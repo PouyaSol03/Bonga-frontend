@@ -1,8 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../app/PageFrame";
-import { getApiErrorMessage } from "../../api/apiClient";
-import type { BadgeItem } from "../../api/accountApi";
-import { useMyBadgesQuery } from "../../api/queries";
+import { getApiErrorMessage, useMyBadgesQuery, type BadgeItem } from "../../api/api-client";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 

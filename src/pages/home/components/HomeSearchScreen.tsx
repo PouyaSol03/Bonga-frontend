@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import {
   useDeleteSearchHistoryMutation,
   useSearchHistoryQuery,
-  type SearchHistoryItem,
-} from "../../../api/api-client";
+} from "../../../hooks/search-history.hooks";
 import { TopBar } from "../../../components/TopBar";
+import type { SearchHistoryItem } from "../../../services/search-history.service";
 import {
   initialRecentSearches,
   initialSavedSearches,

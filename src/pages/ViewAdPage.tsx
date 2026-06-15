@@ -6,13 +6,13 @@ import { useDemoNotice } from "../hooks/useDemoNotice";
 import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage } from "../api/api-client";
+import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
 import { NotFoundErrorState, ServerErrorState } from "../components/ErrorState";
 import {
-  type AdvertisementItem,
   useAdvertisementDetailQuery,
-  useToggleAdvertiseBadgeMutation,
-} from "../api/api-client";
+} from "../hooks/advertisement.hooks";
+import { useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
+import type { AdvertisementItem } from "../services/advertisement.service";
 import {
   DetailSection,
   MoreButton,

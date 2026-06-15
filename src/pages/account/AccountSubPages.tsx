@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
+import { getApiErrorMessage } from "../../api/api";
+import { getStoredAuthSession } from "../../auth/auth-storage";
 import {
-  getApiErrorMessage,
-  getStoredAuthSession,
-  mapAdvertisementToAdCard,
   useAdvertiseBadgesQuery,
   useAuthorizeMeMutation,
   useDeleteAdvertiseBadgeMutation,
@@ -12,12 +11,17 @@ import {
   useMyProfileQuery,
   useUpdateMyProfileMutation,
   useWalletPaymentsQuery,
+} from "../../hooks/account.hooks";
+import {
+  mapAdvertisementToAdCard,
   type AdvertisementItem,
-  type BadgeItem,
-  type MyAdsType,
-  type NoteItem,
-  type WalletPayment,
-} from "../../api/api-client";
+} from "../../services/advertisement.service";
+import type {
+  BadgeItem,
+  MyAdsType,
+  NoteItem,
+  WalletPayment,
+} from "../../services/account.service";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
@@ -45,36 +49,14 @@ export function AccountProfilePage() {
   const { data: profile, error, isError, isLoading, refetch } = useMyProfileQuery();
   const updateProfile = useUpdateMyProfileMutation();
   const mobile = getStoredAuthSession()?.mobile ?? "-";
-  const [form, setForm] = useState({
-    email: "",
-    family: "",
-    name: "",
-    nationalnumber: "",
-  });
-
-  useEffect(() => {
-    if (!profile) {
-      return;
-    }
-
-    setForm({
-      email: profile.email ?? "",
-      family: profile.family ?? "",
-      name: profile.name ?? "",
-      nationalnumber: profile.nationalnumber ?? "",
-    });
-  }, [profile]);
-
-  const submitProfile = () => {
-    updateProfile.mutate(form, {
-      onError: (submitError) => {
-        showNotice(getApiErrorMessage(submitError, "ذخیره اطلاعات با خطا مواجه شد"));
-      },
-      onSuccess: () => {
-        showNotice("اطلاعات حساب ذخیره شد");
-      },
-    });
-  };
+  const profileFormKey = [
+    profile?.id,
+    profile?.mobile,
+    profile?.email,
+    profile?.family,
+    profile?.name,
+    profile?.nationalnumber,
+  ].join("|");
 
   return (
     <AccountPageShell title="مشخصات من">
@@ -87,7 +69,65 @@ export function AccountProfilePage() {
           />
         ) : null}
         {!isLoading && !isError ? (
-          <>
+          <AccountProfileForm
+            isSubmitting={updateProfile.isPending}
+            key={profileFormKey}
+            mobile={mobile}
+            profile={profile}
+            onSubmit={(form) => {
+              updateProfile.mutate(form, {
+                onError: (submitError) => {
+                  showNotice(getApiErrorMessage(submitError, "ذخیره اطلاعات با خطا مواجه شد"));
+                },
+                onSuccess: () => {
+                  showNotice("اطلاعات حساب ذخیره شد");
+                },
+              });
+            }}
+            onUpdateAvatar={() => showNotice("تصویر پروفایل نمایشی به‌روزرسانی شد")}
+          />
+        ) : null}
+      </main>
+
+      <DemoNotice message={message} className="bottom-20" />
+    </AccountPageShell>
+  );
+}
+
+function AccountProfileForm({
+  isSubmitting,
+  mobile,
+  onSubmit,
+  onUpdateAvatar,
+  profile,
+}: {
+  isSubmitting: boolean;
+  mobile: string;
+  onSubmit: (form: {
+    email: string;
+    family: string;
+    name: string;
+    nationalnumber: string;
+  }) => void;
+  onUpdateAvatar: () => void;
+  profile?: {
+    email?: string;
+    family?: string;
+    mobile?: string;
+    name?: string;
+    nationalnumber?: string;
+    phone?: string;
+  };
+}) {
+  const [form, setForm] = useState({
+    email: profile?.email ?? "",
+    family: profile?.family ?? "",
+    name: profile?.name ?? "",
+    nationalnumber: profile?.nationalnumber ?? "",
+  });
+
+  return (
+    <>
         <section className="flex flex-col items-center px-4 pt-4">
           <div className="relative grid h-[100px] w-[100px] place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
             <UserIcon className="h-10 w-10" />
@@ -95,7 +135,7 @@ export function AccountProfilePage() {
               aria-label="ویرایش تصویر"
               className="absolute bottom-1 right-1 grid h-9 w-9 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
               type="button"
-              onClick={() => showNotice("تصویر پروفایل نمایشی به‌روزرسانی شد")}
+          onClick={onUpdateAvatar}
             >
               <EditIcon className="h-4 w-4" />
             </button>
@@ -126,22 +166,18 @@ export function AccountProfilePage() {
             onChange={(value) => setForm((current) => ({ ...current, email: value }))}
           />
         </section>
-          </>
-        ) : null}
-      </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
-          disabled={isLoading || isError || updateProfile.isPending}
+          disabled={isSubmitting}
           type="button"
-          onClick={submitProfile}
+        onClick={() => onSubmit(form)}
         >
-          {updateProfile.isPending ? "در حال ثبت..." : "ثبت"}
+        {isSubmitting ? "در حال ثبت..." : "ثبت"}
         </button>
       </div>
-      <DemoNotice message={message} className="bottom-20" />
-    </AccountPageShell>
+    </>
   );
 }
 

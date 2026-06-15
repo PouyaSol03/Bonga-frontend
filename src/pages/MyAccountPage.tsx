@@ -1,13 +1,12 @@
-import { useState } from "react";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
-import { logout } from "../api/api-client";
+import { useLogoutMutation } from "../hooks/auth.hooks";
+import { formatMobileForDisplay } from "../services/auth.service";
 import {
-  formatMobileForDisplay,
   getStoredAuthSession,
   type AuthSession,
-} from "../api/api-client";
+} from "../auth/auth-storage";
 import { currentAccountUserType } from "./account/accountUserType";
 
 type AccountAction = {
@@ -229,21 +228,21 @@ function navigateTo(path: string) {
 }
 
 function useLogoutAccount() {
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const logoutMutation = useLogoutMutation();
 
   const handleLogout = () => {
-    if (isLoggingOut) {
+    if (logoutMutation.isPending) {
       return;
     }
 
-    setIsLoggingOut(true);
-    logout().finally(() => {
-      setIsLoggingOut(false);
+    logoutMutation.mutate(undefined, {
+      onSettled: () => {
       navigateTo("/login/phone");
+      },
     });
   };
 
-  return { handleLogout, isLoggingOut };
+  return { handleLogout, isLoggingOut: logoutMutation.isPending };
 }
 
 function LoggedOutAccountHeader() {

@@ -11,17 +11,16 @@ import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import LoginOTPbackground from "../assets/images/LoginOTPBackground.svg";
+import { useResendOtpMutation, useVerifyOtpMutation } from "../hooks/auth.hooks";
 import {
   getAuthErrorMessage,
   normalizeDigits,
   normalizeMobile,
-  resendOtp,
-  verifyOtp,
-} from "../api/api-client";
+} from "../services/auth.service";
 import {
   getOtpResendSecondsRemaining,
   getPendingOtpMobile,
-} from "../api/api-client";
+} from "../auth/auth-storage";
 
 export function LoginVerifyPage() {
   const [verificationCodeSlots, setVerificationCodeSlots] = useState(["", "", "", ""]);
@@ -30,11 +29,13 @@ export function LoginVerifyPage() {
     title: string;
     variant: SnackbarVariant;
   } | null>(null);
-  const [isResending, setIsResending] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(getOtpResendSecondsRemaining);
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const phoneNumber = getPendingOtpMobile();
+  const verifyOtpMutation = useVerifyOtpMutation();
+  const resendOtpMutation = useResendOtpMutation();
+  const isSubmitting = verifyOtpMutation.isPending;
+  const isResending = resendOtpMutation.isPending;
 
   useEffect(() => {
     if (resendSeconds <= 0) {
@@ -121,10 +122,9 @@ export function LoginVerifyPage() {
     }
 
     setNotice(null);
-    setIsSubmitting(true);
 
     try {
-      await verifyOtp({ code, mobile });
+      await verifyOtpMutation.mutateAsync({ code, mobile });
       window.history.pushState({ state: "new" }, "", "/login");
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {
@@ -133,8 +133,6 @@ export function LoginVerifyPage() {
         title: "کد نامعتبر!",
         variant: "error",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -151,10 +149,9 @@ export function LoginVerifyPage() {
     }
 
     setNotice(null);
-    setIsResending(true);
 
     try {
-      await resendOtp({ mobile });
+      await resendOtpMutation.mutateAsync({ mobile });
       setVerificationCodeSlots(["", "", "", ""]);
       setResendSeconds(getOtpResendSecondsRemaining());
       otpInputRefs.current[0]?.focus();
@@ -169,8 +166,6 @@ export function LoginVerifyPage() {
         title: "ارسال کد ناموفق!",
         variant: "error",
       });
-    } finally {
-      setIsResending(false);
     }
   }
 

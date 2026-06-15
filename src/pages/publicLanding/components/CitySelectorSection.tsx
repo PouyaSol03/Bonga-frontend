@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { useMostVisitedCityListQuery, type CityDto } from "../../../api/api-client";
+import { useMostVisitedCityListQuery } from "../../../hooks/city.hooks";
+import type { CityDto } from "../../../services/city.service";
 import { RouteLink } from "../../../routes/RouteLink";
 import TehranIcon from "../../../assets/icons/TehranIcon.svg";
 import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";

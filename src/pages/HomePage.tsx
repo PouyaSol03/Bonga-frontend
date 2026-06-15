@@ -14,13 +14,13 @@ import ShenasaVector from "../assets/icons/ShenasaVector";
 import IranShenasaTypo from "../assets/icons/IranShenasaTypo";
 import { BusinessBanner } from "./home/components/BusinessBanner";
 
-import { getApiErrorMessage } from "../api/api-client";
+import { getApiErrorMessage } from "../api/api";
+import { useAdvertisementInfiniteQuery } from "../hooks/advertisement.hooks";
+import { useCategoryListQuery } from "../hooks/category.hooks";
 import {
   mapAdvertisementToAdCard,
-  useAdvertisementInfiniteQuery,
-  useCategoryListQuery,
-  type CategoryItem,
-} from "../api/api-client";
+} from "../services/advertisement.service";
+import type { CategoryItem } from "../services/category.service";
 
 import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
 import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";

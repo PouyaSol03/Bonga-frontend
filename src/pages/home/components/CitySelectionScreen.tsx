@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { TopBar } from "../../../components/TopBar";
-import { useCitySearchQuery, type CityDto } from "../../../api/api-client";
+import { useCitySearchQuery } from "../../../hooks/city.hooks";
+import type { CityDto } from "../../../services/city.service";
 
 type CitySelectionScreenProps = {
   currentCity: string;

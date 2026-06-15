@@ -4,11 +4,8 @@ import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import LoginPhoneBackground from "../assets/images/LoginPhoneBackground.svg";
-import {
-  getAuthErrorMessage,
-  normalizeMobile,
-  requestOtp,
-} from "../api/api-client";
+import { useRequestOtpMutation } from "../hooks/auth.hooks";
+import { getAuthErrorMessage, normalizeMobile } from "../services/auth.service";
 
 export function LoginPhonePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -17,7 +14,8 @@ export function LoginPhonePage() {
     title: string;
     variant: SnackbarVariant;
   } | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const requestOtpMutation = useRequestOtpMutation();
+  const isSubmitting = requestOtpMutation.isPending;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,10 +32,9 @@ export function LoginPhonePage() {
     }
 
     setNotice(null);
-    setIsSubmitting(true);
 
     try {
-      await requestOtp({ mobile });
+      await requestOtpMutation.mutateAsync({ mobile });
       window.history.pushState({}, "", "/login/verify");
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {
@@ -46,8 +43,6 @@ export function LoginPhonePage() {
         title: "ارسال کد ناموفق!",
         variant: "error",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   }
 

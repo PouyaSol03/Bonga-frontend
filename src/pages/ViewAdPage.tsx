@@ -5,6 +5,7 @@ import { DemoNotice } from "../components/DemoNotice";
 import { useDemoNotice } from "../hooks/useDemoNotice";
 import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
+import { FeaturesIcons } from "../components/FeaturesIcons";
 import { PageFrame } from "../app/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
 import { NotFoundErrorState, ServerErrorState } from "../components/ErrorState";
@@ -23,6 +24,7 @@ import {
 import { viewAdDemo, parseAdIdFromPath } from "./viewAd/viewAdData";
 import { ViewAdIcon } from "./viewAd/ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
+import { AdCardTomanIcon } from "../components/AdCardIcons";
 
 type AlbumMediaItem = {
   src: string;
@@ -41,11 +43,10 @@ const albumMediaItems: AlbumMediaItem[] = [
 
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex h-14 items-center justify-between rounded-lg bg-[#0048c414] px-4 [direction:ltr]">
-      <div className="flex items-center gap-1 text-[#002099]">
-        <ViewAdIcon className="h-5 w-5" name="tooman" />
-        <strong className="text-base font-semibold leading-6">{value}</strong>
-        <span className="w-7 text-[11px] font-semibold leading-[11px]">تومان</span>
+    <div className="flex h-14 items-center justify-between rounded-lg bg-[#F5F5F5] px-4 [direction:ltr]">
+      <div className="flex items-center gap-1">
+        <AdCardTomanIcon className="h-5 w-5" />
+        <strong className="text-base font-semibold text-[#1A1A1A] leading-6">{value}</strong>
       </div>
       <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a]">
         {label}
@@ -76,30 +77,6 @@ function GalleryHero({
         />
       </button>
     </div>
-  );
-}
-
-function AgencyCard({ details, onClick }: { details: ViewAdDetails; onClick: () => void }) {
-  return (
-    <button
-      className="mt-4 flex h-20 w-full items-center rounded-2xl border border-[#cccccc] bg-[#f5f5f5] px-4 text-right [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-      onClick={onClick}
-      type="button"
-    >
-      <ViewAdIcon className="ml-4 h-5 w-5 text-[#4d4d4d]" name="arrowLeft" />
-      <div className="ml-4 grid h-12 w-12 place-items-center overflow-hidden rounded-lg bg-white text-[#a37945]">
-        <span className="h-8 w-8 border-y-2 border-dashed border-[#c7924d] bg-[linear-gradient(90deg,transparent_0_45%,#c7924d_45%_55%,transparent_55%)]" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-right text-base font-semibold leading-6 text-[#4d4d4d]">
-          {details.agency}
-        </div>
-        <div className="mt-1 flex items-center justify-end gap-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
-          <span>{details.agencyLocation}</span>
-          <ViewAdIcon className="h-4 w-4 fill-[#0048c4] text-[#0048c4]" name="location" />
-        </div>
-      </div>
-    </button>
   );
 }
 
@@ -195,71 +172,71 @@ function ContactInfoBottomSheet({
       onClose={onClose}
       title="تماس با مشاور"
     >
-          <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
-              {phoneNumber}
-            </span>
-            <a
-              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
-              href={`tel:${phoneNumber}`}
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <PhoneIcon className="h-6 w-6" />
-              <span>تماس با</span>
-            </a>
-          </div>
-          <div className="h-px bg-[#cccccc]" />
-          <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
-              {phoneNumber}
-            </span>
-            <a
-              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
-              href={`sms:${phoneNumber}`}
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <MessageIcon className="h-6 w-6" />
-              <span>ارسال پیامک</span>
-            </a>
-          </div>
-          <div className="h-px bg-[#cccccc]" />
-          <div className="flex h-16 items-center justify-between [direction:ltr]">
-            <div className="flex gap-4">
-              <a
-                aria-label="واتساپ"
-                className="grid h-14 w-14 place-items-center rounded-full"
-                href={`https://wa.me/98${phoneNumber.slice(1)}`}
-                tabIndex={isOpen ? 0 : -1}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <SocialIcon type="whatsapp" />
-              </a>
-              <a
-                aria-label="تلگرام"
-                className="grid h-14 w-14 place-items-center rounded-full"
-                href={`https://t.me/share/url?url=tel:${phoneNumber}`}
-                tabIndex={isOpen ? 0 : -1}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <SocialIcon type="telegram" />
-              </a>
-              <a
-                aria-label="اینستاگرام"
-                className="grid h-14 w-14 place-items-center rounded-full"
-                href="https://www.instagram.com/"
-                tabIndex={isOpen ? 0 : -1}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <SocialIcon type="instagram" />
-              </a>
-            </div>
-            <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
-              شبکه‌های اجتماعی
-            </span>
-          </div>
+      <div className="flex h-14 items-center justify-between [direction:ltr]">
+        <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+          {phoneNumber}
+        </span>
+        <a
+          className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+          href={`tel:${phoneNumber}`}
+          tabIndex={isOpen ? 0 : -1}
+        >
+          <PhoneIcon className="h-6 w-6" />
+          <span>تماس با</span>
+        </a>
+      </div>
+      <div className="h-px bg-[#cccccc]" />
+      <div className="flex h-14 items-center justify-between [direction:ltr]">
+        <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+          {phoneNumber}
+        </span>
+        <a
+          className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+          href={`sms:${phoneNumber}`}
+          tabIndex={isOpen ? 0 : -1}
+        >
+          <MessageIcon className="h-6 w-6" />
+          <span>ارسال پیامک</span>
+        </a>
+      </div>
+      <div className="h-px bg-[#cccccc]" />
+      <div className="flex h-16 items-center justify-between [direction:ltr]">
+        <div className="flex gap-4">
+          <a
+            aria-label="واتساپ"
+            className="grid h-14 w-14 place-items-center rounded-full"
+            href={`https://wa.me/98${phoneNumber.slice(1)}`}
+            tabIndex={isOpen ? 0 : -1}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <SocialIcon type="whatsapp" />
+          </a>
+          <a
+            aria-label="تلگرام"
+            className="grid h-14 w-14 place-items-center rounded-full"
+            href={`https://t.me/share/url?url=tel:${phoneNumber}`}
+            tabIndex={isOpen ? 0 : -1}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <SocialIcon type="telegram" />
+          </a>
+          <a
+            aria-label="اینستاگرام"
+            className="grid h-14 w-14 place-items-center rounded-full"
+            href="https://www.instagram.com/"
+            tabIndex={isOpen ? 0 : -1}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <SocialIcon type="instagram" />
+          </a>
+        </div>
+        <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
+          شبکه‌های اجتماعی
+        </span>
+      </div>
     </BottomSheet>
   );
 }
@@ -389,9 +366,8 @@ function AlbumPage({
               {mediaItems.map((item, index) => (
                 <button
                   aria-label={`نمایش رسانه ${index + 1}`}
-                  className={`block h-2 rounded-full ${
-                    index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"
-                  }`}
+                  className={`block h-2 rounded-full ${index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"
+                    }`}
                   key={`${item.type}-${index}`}
                   onClick={() => setActiveIndex(index)}
                   style={{ width: dotSizes[index] }}
@@ -410,6 +386,7 @@ function ViewAdContent({
   adId,
   details,
   imageSrc,
+  showMap,
   onOpenContact,
   onOpenAlbum,
   onRowAction,
@@ -417,11 +394,16 @@ function ViewAdContent({
   adId: string;
   details: ViewAdDetails;
   imageSrc?: string;
+  showMap: boolean;
   onOpenContact: () => void;
   onOpenAlbum: () => void;
   onRowAction: (label: string) => void;
 }) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const propertyInfoItems = details.propertyInfoPreview.slice(0, 4);
+  const facilityItems = details.features.slice(0, 6);
+  const hasMorePropertyInfo = details.propertyInfoPreview.length > 4;
+  const hasMoreFacilities = details.features.length > 6;
 
   return (
     <>
@@ -456,18 +438,21 @@ function ViewAdContent({
             <PriceRow label="قیمت هر متر" value={details.pricePerMeter} />
           </div>
 
-          <AgencyCard details={details} onClick={onOpenContact} />
         </div>
       </section>
 
       <DetailSection icon="building" title="اطلاعات ملک">
-        <PropertyGrid items={details.propertyInfoPreview} />
-        <MoreLink to={`/ads/${adId}/property-info`}>اطلاعات بیشتر</MoreLink>
+        <PropertyGrid items={propertyInfoItems} />
+        {hasMorePropertyInfo ? (
+          <MoreLink to={`/ads/${adId}/property-info`}>اطلاعات بیشتر</MoreLink>
+        ) : null}
       </DetailSection>
 
       <DetailSection icon="apartment" mutedTitle title="تجهیزات و امکانات">
-        <PropertyGrid items={details.features} withLabels={false} />
-        <MoreLink to={`/ads/${adId}/equipment-facilities`}>موارد بیشتر</MoreLink>
+        <PropertyGrid items={facilityItems} withLabels={false} />
+        {hasMoreFacilities ? (
+          <MoreLink to={`/ads/${adId}/equipment-facilities`}>موارد بیشتر</MoreLink>
+        ) : null}
       </DetailSection>
 
       <DetailSection icon="info" mutedTitle title="توضیحات">
@@ -481,7 +466,7 @@ function ViewAdContent({
         >
           {isDescriptionExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
         </MoreButton>
-        <MapPreview />
+        {showMap ? <MapPreview /> : null}
       </DetailSection>
 
       <section className="border-t-8 border-[#f0f0f0] bg-white">
@@ -572,6 +557,19 @@ function toText(value: unknown, fallback = "") {
     return new Intl.NumberFormat("fa-IR").format(value);
   }
 
+  if (typeof value === "boolean") {
+    return value ? "دارد" : "ندارد";
+  }
+
+  if (Array.isArray(value)) {
+    const text = value
+      .map((item) => toText(item))
+      .filter(Boolean)
+      .join("، ");
+
+    return text || fallback;
+  }
+
   return fallback;
 }
 
@@ -615,6 +613,133 @@ function readImages(ad: AdvertisementItem) {
     .map((image) => getApiAssetUrl(image));
 }
 
+const propertyInfoLabelMap: Record<string, string> = {
+  land_area: "متراژ زمین",
+  building_area: "متراژ بنا",
+  building_age: "سن بنا",
+  rooms: "تعداد اتاق",
+  furnished: "مبله",
+  document_type: "نوع سند",
+  villa_type: "نوع ویلا",
+  heating_cooling: "سرمایش و گرمایش",
+  exchange_with: "قابل معاوضه با",
+  advertiser_type: "نوع آگهی‌دهنده",
+};
+
+const propertyInfoOrder = [
+  "land_area",
+  "building_area",
+  "rooms",
+  "building_age",
+  "furnished",
+  "document_type",
+  "villa_type",
+  "heating_cooling",
+  "exchange_with",
+  "advertiser_type",
+];
+
+const ignoredFeatureLabels = new Set([
+  "form_code",
+  "neighborhood_id",
+  "price",
+  "published_at",
+  "is_special",
+  "has_image",
+  "has_video",
+  "facilities",
+]);
+
+function getFeatureValue(
+  features: NonNullable<AdvertisementItem["features"]>,
+  label: string,
+) {
+  return features.find((feature) => feature.label === label)?.value;
+}
+
+function buildPropertyInfoItems(features: NonNullable<AdvertisementItem["features"]>) {
+  const orderedItems = propertyInfoOrder
+    .map((label) => {
+      const feature = features.find((item) => item.label === label);
+
+      if (!feature) {
+        return null;
+      }
+
+      return {
+        icon: iconForFeature(propertyInfoLabelMap[label] ?? label),
+        label: propertyInfoLabelMap[label] ?? label,
+        value: toText(feature.value, "-"),
+      };
+    })
+    .filter((item): item is { icon: IconName; label: string; value: string } => item !== null);
+
+  const extraItems = features
+    .filter((feature) => {
+      const label = feature.label ?? "";
+
+      return (
+        label &&
+        !propertyInfoOrder.includes(label) &&
+        !ignoredFeatureLabels.has(label)
+      );
+    })
+    .map((feature) => ({
+      icon: iconForFeature(feature.label ?? ""),
+      label: propertyInfoLabelMap[feature.label ?? ""] ?? feature.label ?? "",
+      value: toText(feature.value, "-"),
+    }));
+
+  return [...orderedItems, ...extraItems];
+}
+
+function buildFacilityItems(features: NonNullable<AdvertisementItem["features"]>) {
+  const facilities = getFeatureValue(features, "facilities");
+
+  if (!Array.isArray(facilities)) {
+    return [];
+  }
+
+  return facilities
+    .map((facility) => toText(facility))
+    .filter(Boolean)
+    .map((facility) => ({
+      icon: "apartment" as IconName,
+      label: facility,
+      value: facility,
+      featureIconLabel: facility,
+    }));
+}
+
+function formatPricePerMeter(totalPrice: unknown, area: unknown) {
+  const numericPrice = toNumber(totalPrice);
+  const numericArea = toNumber(area);
+
+  if (numericPrice === undefined || numericArea === undefined || numericArea <= 0) {
+    return viewAdDemo.pricePerMeter;
+  }
+
+  return formatPrice(numericPrice / numericArea);
+}
+
+function hasValidMapCoordinates(ad: AdvertisementItem) {
+  const position = ad as {
+    lat?: unknown;
+    latitude?: unknown;
+    lng?: unknown;
+    long?: unknown;
+    longitude?: unknown;
+  };
+  const lat = toNumber(position.lat ?? position.latitude);
+  const lng = toNumber(position.lng ?? position.long ?? position.longitude);
+
+  return lat !== undefined && lng !== undefined;
+}
+
+function readOwnerPhone(ad: AdvertisementItem) {
+  return toText((ad as { owner_phone?: unknown }).owner_phone);
+}
+
 function iconForFeature(label: string): IconName {
   if (label.includes("متراژ")) return "area";
   if (label.includes("اتاق") || label.includes("خواب")) return "bed";
@@ -625,32 +750,305 @@ function iconForFeature(label: string): IconName {
 function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const propertyInfoPreview =
-    features.length > 0
-      ? features.map((feature) => ({
-          icon: iconForFeature(feature.label ?? ""),
-          label: feature.label ?? "",
-          value: toText(feature.value, "-"),
-        }))
-      : viewAdDemo.propertyInfoPreview;
+    features.length > 0 ? buildPropertyInfoItems(features) : viewAdDemo.propertyInfoPreview;
+  const facilities =
+    features.length > 0 ? buildFacilityItems(features) : viewAdDemo.features;
   const publishedHoursAgo = toNumber(ad.published_hours_ago);
   const age =
     publishedHoursAgo !== undefined
       ? `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`
-      : viewAdDemo.age;
+      : toText(getFeatureValue(features, "published_at"), viewAdDemo.age);
+  const totalPrice = ad.price ?? getFeatureValue(features, "price");
+  const meterArea =
+    getFeatureValue(features, "land_area") ?? getFeatureValue(features, "building_area");
+  const description =
+    (ad as { description?: unknown }).description ??
+    (ad as { short_description?: unknown }).short_description;
 
   return {
     ...viewAdDemo,
-    adCode: String(ad.id ?? ad._id ?? viewAdDemo.adCode),
+    adCode: String((ad as { track_code?: unknown }).track_code ?? ad.id ?? ad._id ?? viewAdDemo.adCode),
     age,
-    description: toText(ad.short_description, viewAdDemo.description),
+    agency: toText(getFeatureValue(features, "advertiser_type"), viewAdDemo.agency),
+    description: toText(description, viewAdDemo.description),
+    features: facilities,
     headline: toText(ad.title ?? ad.label, viewAdDemo.headline),
     locationTitle: toText(ad.label ?? ad.title, viewAdDemo.locationTitle),
-    pricePerMeter: viewAdDemo.pricePerMeter,
+    pricePerMeter: formatPricePerMeter(totalPrice, meterArea),
     propertyInfoPreview,
     propertyInfoRows: propertyInfoPreview,
     title: toText(ad.title ?? ad.label, viewAdDemo.title),
-    totalPrice: formatPrice(ad.price),
+    totalPrice: formatPrice(totalPrice),
   };
+}
+
+type ViewAdSubPage = "detail" | "property-info" | "equipment-facilities";
+
+type DetailInfoValue = string | string[];
+
+type DetailInfoItem = {
+  icon: IconName;
+  label: string;
+  value: DetailInfoValue;
+  badge?: boolean;
+  featureIconLabel?: string;
+};
+
+type DetailInfoSection = {
+  title: string;
+  items: DetailInfoItem[];
+};
+
+function parseViewAdIdFromPath(pathname: string) {
+  const parsedId = parseAdIdFromPath(pathname);
+
+  if (parsedId) {
+    return parsedId;
+  }
+
+  const match = pathname.match(/\/ads\/([^/]+)/);
+  return match?.[1] ?? null;
+}
+
+function getViewAdSubPage(pathname: string): ViewAdSubPage {
+  if (pathname.endsWith("/property-info")) {
+    return "property-info";
+  }
+
+  if (pathname.endsWith("/equipment-facilities")) {
+    return "equipment-facilities";
+  }
+
+  return "detail";
+}
+
+function goBackToAd(adId: string) {
+  const fallbackPath = `/ads/${adId}`;
+
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
+  window.location.assign(fallbackPath);
+}
+
+function getDetailPageTitle(features: NonNullable<AdvertisementItem["features"]>) {
+  const formCode = toText(getFeatureValue(features, "form_code"));
+
+  if (formCode.includes("garden-villa")) return "اطلاعات ملک";
+  if (formCode.includes("villa")) return "اطلاعات ویلا";
+  if (formCode.includes("land")) return "اطلاعات زمین";
+
+  return "اطلاعات ملک";
+}
+
+function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
+  if (Array.isArray(value)) {
+    return value.map((item) => toText(item)).filter(Boolean);
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "دارد" : "ندارد";
+  }
+
+  if (label === "land_area" || label === "building_area") {
+    const text = toText(value);
+    return text ? `${text} متر` : "-";
+  }
+
+  if (label === "price") {
+    return `${formatPrice(value)} تومان`;
+  }
+
+  return toText(value, "-");
+}
+
+function getDetailIconByLabel(label: string): IconName {
+  if (label.includes("area")) return "area";
+  if (label.includes("rooms")) return "bed";
+  if (label.includes("age")) return "building";
+  if (label.includes("document")) return "building";
+  return "apartment";
+}
+
+function buildDetailInfoItem(
+  features: NonNullable<AdvertisementItem["features"]>,
+  label: string,
+  customLabel?: string,
+): DetailInfoItem | null {
+  const rawValue = getFeatureValue(features, label);
+
+  if (rawValue === undefined || rawValue === null || rawValue === "") {
+    return null;
+  }
+
+  const value = normalizeDetailValue(label, rawValue);
+  const hasValue = Array.isArray(value) ? value.length > 0 : Boolean(value);
+
+  if (!hasValue) {
+    return null;
+  }
+
+  return {
+    badge: typeof rawValue === "boolean",
+    icon: getDetailIconByLabel(label),
+    label: customLabel ?? propertyInfoLabelMap[label] ?? label,
+    value,
+  };
+}
+
+function buildPropertyDetailSections(ad: AdvertisementItem): DetailInfoSection[] {
+  const features = Array.isArray(ad.features) ? ad.features : [];
+
+  const mainItems = [
+    buildDetailInfoItem(features, "land_area", "متراژ زمین"),
+    buildDetailInfoItem(features, "building_area", "متراژ بنا"),
+    buildDetailInfoItem(features, "rooms", "تعداد اتاق"),
+    buildDetailInfoItem(features, "building_age", "سن بنا"),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const buildingItems = [
+    buildDetailInfoItem(features, "villa_type", "نوع ویلا"),
+    buildDetailInfoItem(features, "document_type", "نوع سند"),
+    buildDetailInfoItem(features, "furnished", "مبله"),
+    buildDetailInfoItem(features, "advertiser_type", "نوع آگهی‌دهنده"),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const utilityItems = [
+    buildDetailInfoItem(features, "heating_cooling", "سرمایش و گرمایش"),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const exchangeItems = [
+    buildDetailInfoItem(features, "exchange_with", "معاوضه با"),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  return [
+    { title: "مشخصات اصلی", items: mainItems },
+    { title: "موقعیت و ساختمان", items: buildingItems },
+    { title: "سیستم‌ها و تأسیسات", items: utilityItems },
+    { title: "وام و معاوضه", items: exchangeItems },
+  ].filter((section) => section.items.length > 0);
+}
+
+function buildFacilitiesDetailSections(ad: AdvertisementItem): DetailInfoSection[] {
+  const features = Array.isArray(ad.features) ? ad.features : [];
+  const facilities = getFeatureValue(features, "facilities");
+
+  if (!Array.isArray(facilities)) {
+    return [];
+  }
+
+  const items = facilities
+    .map((facility) => toText(facility))
+    .filter(Boolean)
+    .map((facility) => ({
+      icon: "apartment" as IconName,
+      label: facility,
+      value: "دارد",
+      badge: true,
+      featureIconLabel: facility,
+    }));
+
+  return [{ title: "امکانات و تجهیزات", items }];
+}
+
+function DetailInfoValueView({ item }: { item: DetailInfoItem }) {
+  if (Array.isArray(item.value)) {
+    return (
+      <div className="flex flex-wrap justify-end gap-2">
+        {item.value.map((value) => (
+          <span
+            className="rounded-md bg-[#f0f0f0] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"
+            key={value}
+          >
+            {value}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  if (item.badge) {
+    return (
+      <span className="inline-flex h-7 items-center rounded-md border border-[#0faf73] px-2 text-xs font-medium leading-4 text-[#0faf73]">
+        {item.value}
+      </span>
+    );
+  }
+
+  return <span>{item.value}</span>;
+}
+
+function DetailInfoItemCard({ item }: { item: DetailInfoItem }) {
+  return (
+    <div className="flex min-h-[72px] items-start justify-end gap-2 px-2 py-3 text-right">
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+          <DetailInfoValueView item={item} />
+        </div>
+        <div className="mt-1 text-xs font-normal leading-4 text-[#808080]">
+          {item.label}
+        </div>
+      </div>
+      {item.featureIconLabel ? (
+        <FeaturesIcons
+          feature={item.featureIconLabel}
+          className="mt-0.5 h-5 w-5 shrink-0 object-contain"
+        />
+      ) : (
+        <ViewAdIcon
+          className="mt-0.5 h-5 w-5 shrink-0 text-[#808080]"
+          name={item.icon}
+        />
+      )}
+    </div>
+  );
+}
+
+function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
+  return (
+    <section className="border-b-8 border-[#f0f0f0] bg-white last:border-b-0">
+      <div className="border-b border-[#ebebeb] px-4 py-3 text-right text-xs font-normal leading-4 text-[#808080]">
+        {section.title}
+      </div>
+      <div className="grid grid-cols-2 divide-x divide-x-reverse divide-[#f0f0f0] px-2 py-2 [direction:rtl]">
+        {section.items.map((item) => (
+          <DetailInfoItemCard item={item} key={`${section.title}-${item.label}`} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DetailInfoFullPage({
+  title,
+  sections,
+  adId,
+}: {
+  title: string;
+  sections: DetailInfoSection[];
+  adId: string;
+}) {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar onBack={() => goBackToAd(adId)} title={title} />
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        {sections.length > 0 ? (
+          sections.map((section) => (
+            <DetailInfoSectionBlock key={section.title} section={section} />
+          ))
+        ) : (
+          <div className="bg-white px-4 py-10 text-center text-sm font-medium leading-5 text-[#808080]">
+            اطلاعاتی برای نمایش وجود ندارد.
+          </div>
+        )}
+      </main>
+    </PageFrame>
+  );
 }
 
 export function ViewAdPage() {
@@ -660,7 +1058,7 @@ export function ViewAdPage() {
   const [noteText, setNoteText] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { message, showNotice } = useDemoNotice();
-  const adId = parseAdIdFromPath(window.location.pathname);
+  const adId = parseViewAdIdFromPath(window.location.pathname);
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const {
     data: ad,
@@ -692,6 +1090,30 @@ export function ViewAdPage() {
   }
 
   const details = mapAdToDetails(ad);
+  const subPage = getViewAdSubPage(window.location.pathname);
+
+  if (subPage === "property-info") {
+    const features = Array.isArray(ad.features) ? ad.features : [];
+
+    return (
+      <DetailInfoFullPage
+        adId={adId}
+        sections={buildPropertyDetailSections(ad)}
+        title={getDetailPageTitle(features)}
+      />
+    );
+  }
+
+  if (subPage === "equipment-facilities") {
+    return (
+      <DetailInfoFullPage
+        adId={adId}
+        sections={buildFacilitiesDetailSections(ad)}
+        title="تجهیزات و امکانات"
+      />
+    );
+  }
+
   const images = readImages(ad);
   const mediaItems =
     images.length > 0
@@ -738,6 +1160,7 @@ export function ViewAdPage() {
           adId={adId}
           details={details}
           imageSrc={images[0]}
+          showMap={hasValidMapCoordinates(ad)}
           onOpenContact={() => setIsContactSheetOpen(true)}
           onOpenAlbum={() => setIsAlbumOpen(true)}
           onRowAction={(label) => showNotice(`${label} برای نسخه نمایشی انتخاب شد`)}
@@ -766,7 +1189,7 @@ export function ViewAdPage() {
       <ContactInfoBottomSheet
         isOpen={isContactSheetOpen}
         onClose={() => setIsContactSheetOpen(false)}
-        phoneNumber="09155214062"
+        phoneNumber={readOwnerPhone(ad)}
       />
 
       {isNoteOpen ? (

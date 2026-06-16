@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { ViewAdIcon } from "./ViewAdIcon";
+import { FeaturesIcons } from "../../components/FeaturesIcons";
 import type {
   DetailItem,
   EquipmentSection,

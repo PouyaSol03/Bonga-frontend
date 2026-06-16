@@ -44,6 +44,7 @@ export type DetailItem = {
   icon: IconName;
   label: string;
   value: string;
+  featureIconLabel?: string;
 };
 
 export type PropertyInfoRow = DetailItem;

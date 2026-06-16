@@ -55,6 +55,16 @@ const singleAdMockData: AdvertisementItem = {
     { label: "suitable_for", value: ["وکلا", "شرکت ها", "مطب"] },
     { label: "document_type", value: "ملکی" },
     { label: "heating_cooling", value: ["کولر گازی", "پکیج"] },
+    { label: "unit_direction", value: "شمالی" },
+    { label: "land_position", value: "۳ نبش" },
+    { label: "total_floors", value: 4 },
+    { label: "floor_material", value: "سرامیک" },
+    { label: "facade_material", value: "سنگ" },
+    { label: "cabinet_material", value: "ام دی اف" },
+    { label: "loan_amount", value: 1500000000 },
+    { label: "loan_installment", value: 500000000 },
+    { label: "has_loan", value: false },
+    { label: "exchange_with", value: [] },
     {
       label: "facilities",
       value: [
@@ -555,14 +565,14 @@ function ViewAdContent({
         </div>
       </section>
 
-      <DetailSection icon="building" title="اطلاعات ملک">
+      <DetailSection title="اطلاعات ملک">
         <PropertyGrid items={propertyInfoItems} />
         {hasMorePropertyInfo ? (
           <MoreLink to={`/ads/${adId}/property-info`}>اطلاعات بیشتر</MoreLink>
         ) : null}
       </DetailSection>
 
-      <DetailSection icon="apartment" mutedTitle title="تجهیزات و امکانات">
+      <DetailSection title="تجهیزات و امکانات">
         <AnimatePresence initial={false}>
           <motion.div
             animate={{ height: "auto", opacity: 1 }}
@@ -586,7 +596,7 @@ function ViewAdContent({
         ) : null}
       </DetailSection>
 
-      <DetailSection icon="info" mutedTitle title="توضیحات">
+      <DetailSection title="توضیحات">
         <motion.div
           animate={{ height: isDescriptionExpanded ? "auto" : 350 }}
           className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]"
@@ -623,12 +633,12 @@ function ViewAdContent({
       <section className="border-t-8 border-[#f0f0f0] bg-white">
         {details.rows.map((row) => (
           <button
-            className="flex h-[88px] w-full items-center justify-between border-b-8 border-[#f0f0f0] px-8 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
             onClick={() => onRowAction(row.label)}
             type="button"
           >
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2">
               <ViewAdIcon className="text-[#808080]" name={row.icon} />
               <span className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
                 {row.label}
@@ -901,6 +911,35 @@ type PropertyInfoItem = {
   value: string;
 };
 
+function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
+  if (Array.isArray(value)) {
+    return value.map((item) => toText(item)).filter(Boolean);
+  }
+
+  if (typeof value === "boolean") {
+    if (label === "has_loan") {
+      return value ? "دارای وام" : "بدون وام";
+    }
+
+    if (label === "exchange_with") {
+      return value ? "دارای معاوضه" : "بدون معاوضه";
+    }
+
+    return value ? "دارد" : "ندارد";
+  }
+
+  if (label === "area" || label === "land_area" || label === "building_area") {
+    const text = toText(value);
+    return text ? `${text} متر` : "-";
+  }
+
+  if (label === "price") {
+    return `${formatPrice(value)} تومان`;
+  }
+
+  return toText(value, "-");
+}
+
 function buildPropertyInfoItem(label: string, rawValue: unknown) {
   const displayLabel = propertyInfoLabelMap[label] ?? label;
   const normalizedValue = normalizeDetailValue(label, rawValue);
@@ -1037,22 +1076,40 @@ function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
 
 type ViewAdSubPage = "detail" | "property-info" | "equipment-facilities";
 
+const PROPERTY_DETAIL_ICONS = {
+  loan: "/icons/loan.svg",
+  exchange: "/icons/exchange.svg",
+  selected: "/icons/selected-icon.svg",
+};
+
 type DetailInfoValue = string | string[];
+
+type DetailInfoTone = "neutral" | "success" | "warning";
+
+type DetailInfoLayout = "grid" | "rows";
 
 type DetailInfoItem = {
   icon: IconName;
   label: string;
   value: DetailInfoValue;
   badge?: boolean;
-  tone?: "neutral" | "success" | "warning";
+  tone?: DetailInfoTone;
   featureIconLabel?: string;
   hideFallbackIcon?: boolean;
   iconSrc?: string | null;
+  extraRows?: Array<{
+    label: string;
+    value: string;
+  }>;
 };
 
 type DetailInfoSection = {
   title: string;
   items: DetailInfoItem[];
+  layout?: DetailInfoLayout;
+  columns?: 2 | 3;
+  badges?: DetailInfoItem[];
+  showIcons?: boolean;
 };
 
 function parseViewAdIdFromPath(pathname: string) {
@@ -1099,87 +1156,313 @@ function getDetailPageTitle(features: NonNullable<AdvertisementItem["features"]>
   return "اطلاعات ملک";
 }
 
-function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
+function isFilledValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.some((item) => isFilledValue(item));
+  }
+
+  return value !== undefined && value !== null && value !== "";
+}
+
+function getFirstExistingFeatureValue(
+  features: NonNullable<AdvertisementItem["features"]>,
+  labels: string[],
+) {
+  for (const label of labels) {
+    const value = getFeatureValue(features, label);
+
+    if (isFilledValue(value)) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function toValueArray(value: unknown) {
   if (Array.isArray(value)) {
     return value.map((item) => toText(item)).filter(Boolean);
   }
 
-  if (typeof value === "boolean") {
-    if (label === "has_loan") {
-      return value ? "دارای وام" : "بدون وام";
-    }
+  const text = toText(value);
 
-    if (label === "exchange_with") {
-      return value ? "دارای معاوضه" : "بدون معاوضه";
-    }
-
-    return value ? "دارد" : "ندارد";
+  if (!text) {
+    return [];
   }
 
-  if (label === "area" || label === "land_area" || label === "building_area") {
-    const text = toText(value);
-    return text ? `${text} متر` : "-";
-  }
-
-  if (label === "price") {
-    return `${formatPrice(value)} تومان`;
-  }
-
-  return toText(value, "-");
+  return text
+    .split(/[،,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
-function getDetailBadgeTone(label: string, rawValue: unknown) {
-  if (label === "has_loan") {
-    return rawValue === true ? "success" : "warning";
+function toBooleanLike(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") {
+    return value;
   }
 
-  if (label === "furnished" || label === "renovated") {
-    return "neutral";
+  if (typeof value === "number") {
+    return value === 1 ? true : value === 0 ? false : undefined;
   }
 
-  if (typeof rawValue === "boolean") {
-    return rawValue ? "success" : "warning";
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+
+    if (["true", "1", "yes", "y", "دارد", "بله", "هست"].includes(normalized)) {
+      return true;
+    }
+
+    if (["false", "0", "no", "n", "ندارد", "خیر", "نیست"].includes(normalized)) {
+      return false;
+    }
   }
 
-  return "neutral";
+  return undefined;
+}
+
+function appendSuffixIfNeeded(value: unknown, suffix: string) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes(suffix)) {
+    return text;
+  }
+
+  return `${text} ${suffix}`;
+}
+
+function formatAreaDetailValue(value: unknown) {
+  return appendSuffixIfNeeded(value, "متر");
+}
+
+function formatAgeDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes("سال") || text.includes("نوساز")) {
+    return text;
+  }
+
+  return `${text} سال`;
+}
+
+function formatRoomDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes("اتاق") || text.includes("خواب")) {
+    return text;
+  }
+
+  return `${text} اتاق`;
+}
+
+function formatFloorDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes("طبقه")) {
+    return text;
+  }
+
+  return `طبقه ${text}`;
+}
+
+function formatTotalFloorsDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes("طبقه")) {
+    return text;
+  }
+
+  return `${text} طبقه`;
+}
+
+function formatTomanDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "";
+  }
+
+  if (text.includes("تومان") || text.includes("میلیون") || text.includes("میلیارد")) {
+    return text;
+  }
+
+  return `${formatPrice(value)} تومان`;
 }
 
 function getDetailIconByLabel(label: string): IconName {
-  if (label.includes("area")) return "area";
-  if (label.includes("rooms")) return "bed";
-  if (label.includes("age")) return "building";
-  if (label.includes("document")) return "building";
+  if (label.includes("متراژ") || label.includes("area")) return "area";
+  if (label.includes("اتاق") || label.includes("خواب") || label.includes("rooms")) return "bed";
+  if (label.includes("سن") || label.includes("طبقه") || label.includes("ساختمان")) return "building";
   return "apartment";
 }
 
-function buildDetailInfoItem(
-  features: NonNullable<AdvertisementItem["features"]>,
-  label: string,
-  customLabel?: string,
-): DetailInfoItem | null {
-  const rawValue = getFeatureValue(features, label);
+function createGridItem({
+  features,
+  labels,
+  label,
+  formatter,
+  icon,
+}: {
+  features: NonNullable<AdvertisementItem["features"]>;
+  labels: string[];
+  label: string;
+  formatter?: (value: unknown) => string;
+  icon?: IconName;
+}): DetailInfoItem | null {
+  const rawValue = getFirstExistingFeatureValue(features, labels);
 
-  if (rawValue === undefined || rawValue === null || rawValue === "") {
+  if (!isFilledValue(rawValue)) {
     return null;
   }
 
-  const value = normalizeDetailValue(label, rawValue);
-  const hasValue = Array.isArray(value) ? value.length > 0 : Boolean(value);
+  const value = formatter ? formatter(rawValue) : toText(rawValue, "-");
 
-  if (!hasValue) {
+  if (!value || value === "-") {
+    return null;
+  }
+
+  const iconInfo = getBuildingInfo(label, value);
+
+  return {
+    icon: icon ?? getDetailIconByLabel(label),
+    iconSrc: iconInfo.iconSrc,
+    label,
+    value,
+  };
+}
+
+function createCheckBadge(
+  features: NonNullable<AdvertisementItem["features"]>,
+  labels: string[],
+  label: string,
+): DetailInfoItem | null {
+  const rawValue = getFirstExistingFeatureValue(features, labels);
+  const isActive = toBooleanLike(rawValue);
+
+  if (isActive !== true) {
     return null;
   }
 
   return {
-    badge: typeof rawValue === "boolean",
-    icon: getDetailIconByLabel(label),
-    iconSrc: getBuildingInfo(
-      customLabel ?? propertyInfoLabelMap[label] ?? label,
-      Array.isArray(value) ? value.join("، ") : value,
-    ).iconSrc,
-    label: customLabel ?? propertyInfoLabelMap[label] ?? label,
-    tone: getDetailBadgeTone(label, rawValue),
-    value,
+    badge: true,
+    icon: "apartment",
+    iconSrc: PROPERTY_DETAIL_ICONS.selected,
+    label,
+    tone: "neutral",
+    value: label,
+  };
+}
+
+function createLoanRow(features: NonNullable<AdvertisementItem["features"]>): DetailInfoItem {
+  const loanStatusRaw = getFirstExistingFeatureValue(features, [
+    "has_loan",
+    "loan",
+    "has_mortgage",
+    "mortgage",
+  ]);
+
+  const loanAmountRaw = getFirstExistingFeatureValue(features, [
+    "loan_amount",
+    "mortgage_amount",
+    "loan_price",
+    "loan_value",
+  ]);
+
+  const installmentRaw = getFirstExistingFeatureValue(features, [
+    "loan_installment",
+    "installment_amount",
+    "loan_payment",
+    "monthly_installment",
+  ]);
+
+  const statusFromBoolean = toBooleanLike(loanStatusRaw);
+  const hasLoan = statusFromBoolean ?? isFilledValue(loanAmountRaw);
+
+  const extraRows =
+    hasLoan === true
+      ? [
+        loanAmountRaw
+          ? {
+            label: "مبلغ وام:",
+            value: formatTomanDetailValue(loanAmountRaw),
+          }
+          : null,
+        installmentRaw
+          ? {
+            label: "مبلغ قسط:",
+            value: formatTomanDetailValue(installmentRaw),
+          }
+          : null,
+      ].filter(
+        (item): item is { label: string; value: string } =>
+          item !== null && Boolean(item.value),
+      )
+      : [];
+
+  return {
+    badge: true,
+    icon: "apartment",
+    iconSrc: PROPERTY_DETAIL_ICONS.loan,
+    label: "وام",
+    tone: hasLoan ? "success" : "warning",
+    value: hasLoan ? "دارای وام" : "بدون وام",
+    extraRows,
+  };
+}
+
+function createExchangeRow(features: NonNullable<AdvertisementItem["features"]>): DetailInfoItem {
+  const exchangeStatusRaw = getFirstExistingFeatureValue(features, [
+    "has_exchange",
+    "exchange",
+    "is_exchangeable",
+  ]);
+
+  const exchangeWithRaw = getFirstExistingFeatureValue(features, [
+    "exchange_with",
+    "exchange_items",
+    "exchange_types",
+  ]);
+
+  const exchangeValues = toValueArray(exchangeWithRaw);
+  const statusFromBoolean = toBooleanLike(exchangeStatusRaw);
+  const hasExchange = statusFromBoolean ?? exchangeValues.length > 0;
+
+  if (hasExchange && exchangeValues.length > 0) {
+    return {
+      icon: "arrowLeft",
+      iconSrc: PROPERTY_DETAIL_ICONS.exchange,
+      label: "معاوضه با:",
+      tone: "neutral",
+      value: exchangeValues,
+    };
+  }
+
+  return {
+    badge: true,
+    icon: "arrowLeft",
+    iconSrc: PROPERTY_DETAIL_ICONS.exchange,
+    label: "معاوضه با:",
+    tone: hasExchange ? "success" : "warning",
+    value: hasExchange ? "دارای معاوضه" : "بدون معاوضه",
   };
 }
 
@@ -1187,38 +1470,121 @@ function buildPropertyDetailSections(ad: AdvertisementItem): DetailInfoSection[]
   const features = Array.isArray(ad.features) ? ad.features : [];
 
   const mainItems = [
-    buildDetailInfoItem(features, "area", "متراژ آپارتمان"),
-    buildDetailInfoItem(features, "land_area", "متراژ زمین"),
-    buildDetailInfoItem(features, "building_area", "متراژ بنا"),
-    buildDetailInfoItem(features, "rooms", "تعداد اتاق"),
-    buildDetailInfoItem(features, "building_age", "سن بنا"),
+    createGridItem({
+      features,
+      labels: ["area", "apartment_area", "unit_area", "meterage"],
+      label: "متراژ آپارتمان",
+      formatter: formatAreaDetailValue,
+      icon: "area",
+    }),
+    createGridItem({
+      features,
+      labels: ["rooms", "room_count", "bedrooms"],
+      label: "تعداد اتاق‌ها",
+      formatter: formatRoomDetailValue,
+      icon: "bed",
+    }),
+    createGridItem({
+      features,
+      labels: ["building_age", "age", "construction_age"],
+      label: "سن ساخت",
+      formatter: formatAgeDetailValue,
+      icon: "building",
+    }),
+    createGridItem({
+      features,
+      labels: ["floor", "unit_floor", "apartment_floor"],
+      label: "طبقه آپارتمان",
+      formatter: formatFloorDetailValue,
+      icon: "building",
+    }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const buildingItems = [
-    buildDetailInfoItem(features, "floor", "طبقه آپارتمان"),
-    buildDetailInfoItem(features, "document_type", "نوع سند"),
-    buildDetailInfoItem(features, "has_document", "سند"),
-    buildDetailInfoItem(features, "villa_type", "نوع ویلا"),
+    createGridItem({
+      features,
+      labels: ["unit_direction", "unit_position", "direction", "unit_location"],
+      label: "موقعیت واحد",
+    }),
+    createGridItem({
+      features,
+      labels: ["land_position", "ground_position", "plot_position", "land_location"],
+      label: "موقعیت زمین",
+    }),
+    createGridItem({
+      features,
+      labels: ["document_type", "document", "deed_type"],
+      label: "سند",
+    }) ??
+    createGridItem({
+      features,
+      labels: ["has_document"],
+      label: "سند",
+    }),
+    createGridItem({
+      features,
+      labels: ["total_floors", "floors", "building_floors", "apartment_floors"],
+      label: "طبقات آپارتمان",
+      formatter: formatTotalFloorsDetailValue,
+      icon: "building",
+    }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const buildingBadges = [
+    createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const finishItems = [
-    buildDetailInfoItem(features, "renovated", "بازسازی شده"),
-    buildDetailInfoItem(features, "furnished", "مبله با لوازم"),
-    buildDetailInfoItem(features, "suitable_for", "مناسب برای"),
-    buildDetailInfoItem(features, "heating_cooling", "سرمایش و گرمایش"),
+    createGridItem({
+      features,
+      labels: ["floor_material", "flooring", "floor_covering", "floor_type"],
+      label: "جنس کف",
+    }),
+    createGridItem({
+      features,
+      labels: ["facade_material", "facade", "building_facade"],
+      label: "جنس نما",
+    }),
+    createGridItem({
+      features,
+      labels: ["cabinet_material", "cabinet", "kitchen_cabinet"],
+      label: "جنس کابینت",
+    }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
-  const exchangeItems = [
-    buildDetailInfoItem(features, "has_loan", "وام"),
-    buildDetailInfoItem(features, "exchange_with", "معاوضه با"),
-  ].filter((item): item is DetailInfoItem => item !== null);
+  const loanExchangeItems = [createLoanRow(features), createExchangeRow(features)];
 
   return [
-    { title: "مشخصات اصلی", items: mainItems },
-    { title: "موقعیت و ساختمان", items: buildingItems },
-    { title: "متریال و نازک‌کاری", items: finishItems },
-    { title: "وام و معاوضه", items: exchangeItems },
-  ].filter((section) => section.items.length > 0);
+    {
+      title: "مشخصات اصلی",
+      items: mainItems,
+      layout: "grid",
+      columns: 2,
+      showIcons: true,
+    },
+    {
+      title: "موقعیت و ساختمان",
+      items: buildingItems,
+      layout: "grid",
+      columns: 3,
+      badges: buildingBadges,
+    },
+    {
+      title: "متریال و نازک‌کاری",
+      items: finishItems,
+      layout: "grid",
+      columns: 3,
+    },
+    {
+      title: "وام و معاوضه",
+      items: loanExchangeItems,
+      layout: "rows",
+    },
+  ].filter(
+    (section) =>
+      section.items.length > 0 || Boolean(section.badges && section.badges.length > 0),
+  );
 }
 
 function buildFacilitiesDetailSections(ad: AdvertisementItem): DetailInfoSection[] {
@@ -1238,20 +1604,73 @@ function buildFacilitiesDetailSections(ad: AdvertisementItem): DetailInfoSection
       label: facility,
       value: "دارد",
       badge: true,
+      tone: "neutral" as DetailInfoTone,
       featureIconLabel: facility,
       hideFallbackIcon: true,
     }));
 
-  return [{ title: "امکانات و تجهیزات", items }];
+  return [
+    {
+      title: "امکانات و تجهیزات",
+      items,
+      layout: "grid",
+      columns: 3,
+    },
+  ];
 }
 
-function DetailInfoValueView({ item }: { item: DetailInfoItem }) {
+function DetailInfoIcon({
+  item,
+  className = "h-[18px] w-[18px] shrink-0 text-[#808080]",
+}: {
+  item: DetailInfoItem;
+  className?: string;
+}) {
+  const iconAlt = item.label || (Array.isArray(item.value) ? item.value.join("، ") : item.value);
+
+  if (item.iconSrc) {
+    return (
+      <img
+        alt={iconAlt}
+        className={`${className} object-contain opacity-70`}
+        src={item.iconSrc}
+        title={iconAlt}
+      />
+    );
+  }
+
+  if (item.hideFallbackIcon) {
+    return <span aria-hidden="true" className={className} />;
+  }
+
+  if (item.featureIconLabel) {
+    return (
+      <FeaturesIcons
+        feature={item.featureIconLabel}
+        className={`${className} object-contain opacity-70`}
+      />
+    );
+  }
+
+  return <ViewAdIcon className={className} name={item.icon} />;
+}
+
+function DetailInfoValueView({
+  item,
+  align = "start",
+}: {
+  item: DetailInfoItem;
+  align?: "start" | "center" | "end";
+}) {
+  const alignClassName =
+    align === "center" ? "justify-center" : align === "end" ? "justify-end" : "justify-start";
+
   if (Array.isArray(item.value)) {
     return (
-      <div className="flex flex-wrap justify-end gap-2">
+      <div className={`flex flex-wrap gap-2 ${alignClassName}`}>
         {item.value.map((value) => (
           <span
-            className="rounded-md bg-[#edeff3] px-2 py-1.5 text-xs font-semibold leading-4 text-[#4d4d4d]"
+            className="rounded-md bg-[#edeff3] px-2.5 py-1.5 text-base font-semibold leading-6 text-[#1A1A1A]"
             key={value}
           >
             {value}
@@ -1264,14 +1683,14 @@ function DetailInfoValueView({ item }: { item: DetailInfoItem }) {
   if (item.badge) {
     const badgeClassName =
       item.tone === "success"
-        ? "border-[#0faf73] text-[#0faf73]"
+        ? "bg-[#0FAF7314] text-[#0FAF73]"
         : item.tone === "warning"
-          ? "border-[#ff6b1a] text-[#ff6b1a]"
-          : "border-transparent bg-[#edeff3] text-[#4d4d4d]";
+          ? "bg-[#FF8D0014] text-[#FF8D00]"
+          : "bg-[#edeff3] text-[#4d4d4d]";
 
     return (
       <span
-        className={`inline-flex h-9 items-center rounded-lg border px-3 text-sm font-semibold leading-5 ${badgeClassName}`}
+        className={`inline-flex min-h-8 items-center justify-center rounded-lg px-3 text-sm font-semibold leading-5 ${badgeClassName}`}
       >
         {item.value}
       </span>
@@ -1281,54 +1700,136 @@ function DetailInfoValueView({ item }: { item: DetailInfoItem }) {
   return <span>{item.value}</span>;
 }
 
-function DetailInfoItemCard({ item }: { item: DetailInfoItem }) {
-  const iconAlt = item.label || (Array.isArray(item.value) ? item.value.join("، ") : item.value);
+function DetailInfoItemCard({
+  item,
+  showIcon = false,
+}: {
+  item: DetailInfoItem;
+  showIcon?: boolean;
+}) {
+  const labelPaddingClassName = showIcon ? "pr-[26px]" : "pr-0";
 
   return (
-    <div className="flex min-h-[72px] flex-col items-end justify-start gap-1 text-right">
-      <div className="flex min-h-7 items-center justify-end gap-2">
-        <div className="text-base font-semibold leading-6 text-[#1a1a1a]">
-          <DetailInfoValueView item={item} />
+    <div className="flex min-h-[58px] w-full flex-col items-start justify-start gap-1 text-right [direction:rtl]">
+      <div className="flex min-h-7 w-full items-center justify-start gap-2 text-right text-base font-semibold leading-6 text-[#1A1A1A] [direction:rtl]">
+        {showIcon ? <DetailInfoIcon item={item} /> : null}
+
+        <div className="text-base font-semibold leading-6 text-[#1A1A1A]">
+          <DetailInfoValueView align="start" item={item} />
         </div>
-      {item.iconSrc ? (
-        <img
-          alt={iconAlt}
-            className="h-6 w-6 shrink-0 object-contain opacity-70"
-          src={item.iconSrc}
-          title={iconAlt}
-        />
-      ) : item.hideFallbackIcon ? (
-          <span aria-hidden="true" className="h-6 w-6 shrink-0" />
-      ) : item.featureIconLabel ? (
-        <FeaturesIcons
-          feature={item.featureIconLabel}
-            className="h-6 w-6 shrink-0 object-contain opacity-70"
-        />
-      ) : (
-        <ViewAdIcon
-            className="h-6 w-6 shrink-0 text-[#808080]"
-          name={item.icon}
-        />
-      )}
       </div>
-      <div className="text-xs font-normal leading-4 text-[#808080]">
+
+      <div
+        className={`w-full text-right text-sm font-medium leading-5 text-[#808080] ${labelPaddingClassName}`}
+      >
         {item.label}
       </div>
     </div>
   );
 }
 
-function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
+function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
+  if (badges.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="border-b-8 border-black bg-white px-4 py-4 last:border-b-0">
-      <div className="border-b border-[#d9d9d9] pb-4 text-right text-sm font-medium leading-5 text-[#808080]">
-        {section.title}
-      </div>
-      <div className="grid grid-cols-2 gap-x-8 gap-y-6 py-5 [direction:rtl] min-[420px]:grid-cols-3">
-        {section.items.map((item) => (
-          <DetailInfoItemCard item={item} key={`${section.title}-${item.label}`} />
+    <div className="border-t border-[#e0e0e0] pt-4">
+      <div className="flex flex-wrap justify-start gap-2 [direction:rtl]">
+        {badges.map((badge) => (
+          <span
+            className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-[#edeff3] p-2 text-sm font-semibold leading-5 text-[#4d4d4d]"
+            key={badge.label}
+          >
+            <img
+              alt=""
+              aria-hidden="true"
+              className="h-5 w-5 shrink-0 object-contain"
+              src={badge.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
+            />
+            <span>{badge.value}</span>
+          </span>
         ))}
       </div>
+    </div>
+  );
+}
+
+function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
+  return (
+    <div className="border-b border-[#e0e0e0] last:border-b-0">
+      <div className="flex min-h-[60px] items-center justify-start gap-2 py-2 text-right [direction:rtl]">
+        {item.iconSrc ? (
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-[18px] w-[18px] shrink-0 object-contain"
+            src={item.iconSrc}
+          />
+        ) : null}
+
+        <span className="text-base font-medium leading-6 text-[#808080]">
+          {item.label}
+        </span>
+
+        <div className="mr-0">
+          <DetailInfoValueView align="start" item={item} />
+        </div>
+      </div>
+
+      {item.extraRows && item.extraRows.length > 0 ? (
+        <div className="space-y-3 pb-5 text-left [direction:ltr]">
+          {item.extraRows.map((row) => (
+            <div
+              className="flex items-center justify-start gap-2 text-sm font-medium leading-5 [direction:rtl]"
+              key={row.label}
+            >
+              <span className="text-sm font-medium leading-5 text-[#808080]">
+                {row.label}
+              </span>
+              <strong className="text-sm font-semibold leading-5 text-[#1A1A1A]">
+                {row.value}
+              </strong>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
+  const columns = section.columns ?? 3;
+  const gridClassName = columns === 2 ? "grid-cols-2 gap-x-12" : "grid-cols-3 gap-x-4";
+  const isRowsLayout = section.layout === "rows";
+
+  return (
+    <section className="border-b-8 border-[#f0f0f0] bg-white px-4 py-4 last:border-b-0">
+      <div className="border-b border-[#e0e0e0] pb-4 text-right text-[15px] font-medium leading-5 text-[#808080]">
+        {section.title}
+      </div>
+
+      {isRowsLayout ? (
+        <div className="pt-3">
+          {section.items.map((item) => (
+            <DetailInfoRowCard item={item} key={`${section.title}-${item.label}`} />
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className={`grid ${gridClassName} justify-items-start gap-y-6 py-5 [direction:rtl]`}>
+            {section.items.map((item) => (
+              <DetailInfoItemCard
+                item={item}
+                key={`${section.title}-${item.label}`}
+                showIcon={section.showIcons === true}
+              />
+            ))}
+          </div>
+
+          <DetailInfoCheckBadges badges={section.badges ?? []} />
+        </>
+      )}
     </section>
   );
 }
@@ -1348,6 +1849,7 @@ function DetailInfoFullPage({
       variant="flush"
     >
       <TopBar onBack={() => goBackToAd(adId)} title={title} />
+
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         {sections.length > 0 ? (
           sections.map((section) => (
@@ -1362,7 +1864,6 @@ function DetailInfoFullPage({
     </PageFrame>
   );
 }
-
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);

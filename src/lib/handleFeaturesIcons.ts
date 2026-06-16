@@ -8,7 +8,7 @@ const featureIconMap: Record<string, string> = {
   "تراس": "terrace.svg",
   "نقاشی": "paint.svg",
   "فر توکار": "oven.svg",
-  "گاز رومیزی": "gas-stove.svg",
+  "گاز رومیزی": "gas_stove.svg",
   "انباری": "warehouse.svg",
   "هود": "hood.svg",
   "سرویس فرنگی": "toilet-western.svg",
@@ -57,5 +57,5 @@ export function getFeatureIconSrc(feature: string) {
 
   if (!iconName) return null;
 
-  return `/icons/fetures/${iconName}`;
+  return `/icons/features/${iconName}`;
 }

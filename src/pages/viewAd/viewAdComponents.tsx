@@ -3,13 +3,40 @@ import type { ReactNode } from "react";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { ViewAdIcon } from "./ViewAdIcon";
-import { FeaturesIcons } from "../../components/FeaturesIcons";
 import type {
   DetailItem,
   EquipmentSection,
   IconName,
   PropertyInfoRow,
 } from "./viewAdTypes";
+
+function DetailItemIcon({
+  className = "h-6 w-6 shrink-0",
+  item,
+}: {
+  className?: string;
+  item: Pick<
+    DetailItem,
+    "icon" | "iconSrc" | "hideFallbackIcon" | "label" | "value"
+  >;
+}) {
+  if (item.iconSrc) {
+    return (
+      <img
+        alt={item.label || item.value}
+        className={`${className} object-contain`}
+        src={item.iconSrc}
+        title={item.label || item.value}
+      />
+    );
+  }
+
+  if (item.hideFallbackIcon) {
+    return <span aria-hidden="true" className={`block ${className}`} />;
+  }
+
+  return <ViewAdIcon className={className} name={item.icon} />;
+}
 
 export function ViewAdIconButton({
   icon,
@@ -150,7 +177,10 @@ export function PropertyGrid({
     <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">
       {items.map((item) => (
         <div className="flex min-w-0 items-start gap-3" key={`${item.icon}-${item.value}`}>
-          <ViewAdIcon className="mt-0.5 text-[#808080]" name={item.icon} />
+          <DetailItemIcon
+            className="mt-0.5 h-6 w-6 shrink-0 text-[#808080]"
+            item={item}
+          />
           <div className="min-w-0 text-right">
             <div className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
               {item.value}
@@ -192,7 +222,10 @@ export function EquipmentSections({
                 className="flex min-w-0 items-center gap-3"
                 key={`${section.title}-${item.value}-${index}`}
               >
-                <ViewAdIcon className="text-[#808080]" name={item.icon} />
+                <DetailItemIcon
+                  className="h-6 w-6 shrink-0 text-[#808080]"
+                  item={item}
+                />
                 <span className="min-w-0 truncate text-base font-medium leading-6 text-[#1a1a1a]">
                   {item.value}
                 </span>
@@ -217,7 +250,10 @@ export function PropertyInfoList({ rows }: { rows: PropertyInfoRow[] }) {
             {row.value}
           </span>
           <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-[#4d4d4d] [direction:rtl]">
-            <ViewAdIcon className="text-[#808080]" name={row.icon} />
+            <DetailItemIcon
+              className="h-6 w-6 shrink-0 text-[#808080]"
+              item={row}
+            />
             <span className="truncate text-base font-medium leading-6">
               {row.label}
             </span>

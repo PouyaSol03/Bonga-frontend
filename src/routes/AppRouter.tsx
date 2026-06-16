@@ -2,8 +2,6 @@ import type { ComponentType } from 'react'
 import { useEffect, useState } from 'react'
 import { getStoredAuthSession } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
-import { EquipmentFacilitiesPage } from '../pages/EquipmentFacilitiesPage'
-import { PropertyInfoPage } from '../pages/PropertyInfoPage'
 import { ViewAdPage } from '../pages/ViewAdPage'
 import { routes } from './routes'
 
@@ -42,11 +40,11 @@ type ResolvedRoute = {
 
 function getRoute(path: string): ResolvedRoute {
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {
-    return { path, title: 'تجهیزات و امکانات', Component: EquipmentFacilitiesPage }
+    return { path, title: 'تجهیزات و امکانات', Component: ViewAdPage }
   }
 
   if (/^\/ads\/[^/]+\/property-info\/?$/.test(path)) {
-    return { path, title: 'اطلاعات ملک', Component: PropertyInfoPage }
+    return { path, title: 'اطلاعات ملک', Component: ViewAdPage }
   }
 
   if (/^\/ads\/[^/]+\/?$/.test(path)) {

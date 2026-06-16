@@ -13,7 +13,7 @@ export type AdvertisementItem = Record<string, unknown> & {
   id?: string | number;
   image?: string;
   images?: Array<string | { path?: string; url?: string }>;
-  features?: Array<{ label?: string; value?: string | number }>;
+  features?: Array<{ label?: string; value?: unknown }>;
   label?: string;
   neighborhood?: { name?: string };
   neighborhood_name?: string;

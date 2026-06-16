@@ -30,6 +30,10 @@ export function ViewAdIcon({
       return <svg {...common}><path d="m8.5 12.5 5.8-5.8a3 3 0 1 1 4.2 4.2l-7.6 7.6a5 5 0 0 1-7.1-7.1l7.7-7.7" /></svg>;
     case "arrowLeft":
       return <svg {...common}><path d="m15 6-6 6 6 6" /></svg>;
+    case "arrowDown":
+      return <svg {...common}><path d="m6 9 6 6 6-6" /></svg>
+    case "arrowUp":
+      return <svg {...common}><path d="m6 15 6-6 6 6" /></svg>
     case "back":
       return <svg {...common}><path d="M4 12h16M14 6l6 6-6 6" /></svg>;
     case "bed":

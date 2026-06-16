@@ -5,6 +5,8 @@ export type IconName =
   | "area"
   | "attachment"
   | "arrowLeft"
+  | "arrowDown"
+  | "arrowUp"
   | "back"
   | "bed"
   | "bookmark"

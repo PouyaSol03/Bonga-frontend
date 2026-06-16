@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperInstance } from "swiper";
+
+import "swiper/css";
 
 import { BottomSheet } from "../components/BottomSheet";
 import { DemoNotice } from "../components/DemoNotice";
@@ -12,14 +16,11 @@ import { getBuildingInfo } from "../lib/handleBuildingInfo";
 import { getFeatureIconSrc } from "../lib/handleFeaturesIcons";
 import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
 import { NotFoundErrorState, ServerErrorState } from "../components/ErrorState";
-import {
-  useAdvertisementDetailQuery,
-} from "../hooks/advertisement.hooks";
+import { useAdvertisementDetailQuery } from "../hooks/advertisement.hooks";
 import { useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
 import type { AdvertisementItem } from "../services/advertisement.service";
 import {
   DetailSection,
-  MoreButton,
   MoreLink,
   PropertyGrid,
   ViewAdTopBar,
@@ -122,11 +123,7 @@ const singleAdMockData: AdvertisementItem = {
   updated_at: "2026-06-15T12:28:40.092Z",
 };
 
-const mockAdIds = new Set([
-  "000000000000000000000601",
-  "601",
-  "930001",
-]);
+const mockAdIds = new Set(["000000000000000000000601", "601", "930001"]);
 
 const albumMediaItems: AlbumMediaItem[] = [
   { src: "/figma/view-ad-album.png", type: "image" },
@@ -138,12 +135,69 @@ const albumMediaItems: AlbumMediaItem[] = [
   { src: "/figma/view-ad-album.png", type: "image" },
 ];
 
+
+const persianDigitMap: Record<string, string> = {
+  "0": "۰",
+  "1": "۱",
+  "2": "۲",
+  "3": "۳",
+  "4": "۴",
+  "5": "۵",
+  "6": "۶",
+  "7": "۷",
+  "8": "۸",
+  "9": "۹",
+  "٠": "۰",
+  "١": "۱",
+  "٢": "۲",
+  "٣": "۳",
+  "٤": "۴",
+  "٥": "۵",
+  "٦": "۶",
+  "٧": "۷",
+  "٨": "۸",
+  "٩": "۹",
+};
+
+const englishDigitMap: Record<string, string> = {
+  "۰": "0",
+  "۱": "1",
+  "۲": "2",
+  "۳": "3",
+  "۴": "4",
+  "۵": "5",
+  "۶": "6",
+  "۷": "7",
+  "۸": "8",
+  "۹": "9",
+  "٠": "0",
+  "١": "1",
+  "٢": "2",
+  "٣": "3",
+  "٤": "4",
+  "٥": "5",
+  "٦": "6",
+  "٧": "7",
+  "٨": "8",
+  "٩": "9",
+};
+
+function toPersianDigits(value: unknown) {
+  return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
+}
+
+function toEnglishDigits(value: unknown) {
+  return String(value).replace(/[۰-۹٠-٩]/g, (digit) => englishDigitMap[digit] ?? digit);
+}
+
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex h-14 items-center justify-between rounded-lg bg-[#f5f5f5] px-4 [direction:ltr]">
       <div className="flex items-center gap-1">
         <AdCardTomanIcon className="h-5 w-5" />
-        <strong className="text-base font-semibold text-[#1A1A1A] leading-6">{value}</strong>
+        <strong className="text-base font-semibold text-[#1A1A1A] leading-6">
+          {value}
+        </strong>
       </div>
       <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a]">
         {label}
@@ -153,67 +207,116 @@ function PriceRow({ label, value }: { label: string; value: string }) {
 }
 
 function GalleryHero({
-  imageSrc = "/figma/view-ad-gallery.png",
+  mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
 }: {
-  imageSrc?: string;
+  mediaItems?: AlbumMediaItem[];
   onOpenAlbum: () => void;
 }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef<SwiperInstance | null>(null);
+  const galleryItems =
+    mediaItems.length > 0
+      ? mediaItems
+      : [{ src: "/figma/view-ad-gallery.png", type: "image" }];
+
   return (
     <div className="px-4 pt-4">
-      <button
-        aria-label="باز کردن آلبوم تصاویر"
-        className="relative block w-full overflow-hidden rounded-2xl bg-[#ebebeb] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-        onClick={onOpenAlbum}
-        type="button"
-      >
-        <img
-          alt=""
-          className="aspect-[328/219] w-full object-cover"
-          src={imageSrc}
-        />
-        <div className="absolute left-3 top-3 flex h-8 items-center gap-1 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:ltr]">
+      <div className="relative block w-full overflow-hidden rounded-2xl bg-[#ebebeb] focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-[#0048c440]">
+        <Swiper
+          className="w-full"
+          dir="rtl"
+          onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
+          slidesPerView={1}
+        >
+          {galleryItems.map((item, index) => (
+            <SwiperSlide key={`${item.src}-${item.type}-${index}`}>
+              <button
+                aria-label="باز کردن آلبوم تصاویر"
+                className="block w-full"
+                onClick={onOpenAlbum}
+                type="button"
+              >
+                <img
+                  alt=""
+                  className="aspect-[328/219] w-full object-cover"
+                  src={item.src}
+                />
+              </button>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <div className="pointer-events-none absolute left-3 top-3 z-10 flex h-8 items-center gap-1 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:ltr]">
           <ViewAdIcon className="h-4 w-4" name="album" />
           <ViewAdIcon className="h-4 w-4" name="video" />
           <span className="grid h-5 min-w-7 place-items-center rounded bg-white/15 px-1 text-[10px] font-semibold">
             3D
           </span>
         </div>
-        <div className="absolute bottom-3 left-0 right-0 flex justify-center">
+
+        <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
           <div className="flex h-2 items-center gap-1.5 rounded-full bg-white/30 px-2">
-            <span className="h-1.5 w-5 rounded-full bg-white" />
-            <span className="h-1.5 w-1.5 rounded-full bg-white/50" />
-            <span className="h-1.5 w-1.5 rounded-full bg-white/50" />
-            <span className="h-1.5 w-1.5 rounded-full bg-white/50" />
+            {galleryItems.slice(0, 4).map((item, index) => (
+              <button
+                aria-label={`نمایش تصویر ${index + 1}`}
+                className={
+                  index === activeIndex
+                    ? "h-1.5 w-5 rounded-full bg-white"
+                    : "h-1.5 w-1.5 rounded-full bg-white/50"
+                }
+                key={`${item.src}-dot-${index}`}
+                onClick={() => swiperRef.current?.slideTo(index)}
+                type="button"
+              />
+            ))}
           </div>
         </div>
-      </button>
+      </div>
     </div>
   );
 }
 
-function MapPreview({
-  latitude,
-  longitude,
-}: {
-  latitude: number;
-  longitude: number;
-}) {
-  const mapUrl = `https://neshan.org/maps/iframe/places/@${latitude},${longitude},16z`;
-
+function MapPreview() {
   return (
     <div className="relative mt-6 h-[198px] overflow-hidden rounded-2xl border border-[#ebebeb] bg-[#fafafa]">
       <iframe
+        allowFullScreen
         className="h-full w-full border-0"
+        height="300"
         loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        src={mapUrl}
-        title="موقعیت ملک روی نقشه نشان"
+        src="https://neshan.org/maps/iframe/places/78bff763c73354cd9b7a48dd01792bf9#c36.316-59.552-15z-0p/36.31586309281297/59.54668820469575"
+        title="map-iframe"
+        width="450"
       />
-      <span className="absolute left-1/2 top-1/2 h-10 w-8 -translate-x-1/2 -translate-y-1/2 rounded-t-full rounded-bl-full border border-white bg-[#11a366] shadow-[0_2px_0_rgba(26,26,26,0.18)] [transform:translate(-50%,-50%)_rotate(45deg)]">
-        <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
-      </span>
     </div>
+  );
+}
+
+const DESCRIPTION_COLLAPSED_HEIGHT = 350;
+
+function InlineMoreButton({
+  children,
+  onClick,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="mx-auto mt-3 flex w-fit items-center justify-center gap-1 p-0 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      onClick={onClick}
+      type="button"
+    >
+      <span className="text-xs font-medium leading-4 text-[#0048c4]">
+        {children}
+      </span>
+
+      <ViewAdIcon className="h-3 w-3 shrink-0 text-[#0048c4]" name="arrowDown" />
+    </button>
   );
 }
 
@@ -254,7 +357,8 @@ function MessageIcon({ className = "" }: { className?: string }) {
 
 function SocialIcon({ type }: { type: "instagram" | "telegram" | "whatsapp" }) {
   const styles = {
-    instagram: "bg-[linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)] text-white",
+    instagram:
+      "bg-[linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)] text-white",
     telegram: "bg-[#34aadf] text-white",
     whatsapp: "bg-[#20c363] text-white",
   };
@@ -284,6 +388,9 @@ function ContactInfoBottomSheet({
   onClose: () => void;
   phoneNumber: string;
 }) {
+  const phoneHref = toEnglishDigits(phoneNumber);
+  const phoneDisplay = toPersianDigits(phoneNumber);
+
   return (
     <BottomSheet
       ariaLabel="تماس با مشاور"
@@ -295,11 +402,11 @@ function ContactInfoBottomSheet({
     >
       <div className="flex h-14 items-center justify-between [direction:ltr]">
         <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
-          {phoneNumber}
+          {phoneDisplay}
         </span>
         <a
           className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
-          href={`tel:${phoneNumber}`}
+          href={`tel:${phoneHref}`}
           tabIndex={isOpen ? 0 : -1}
         >
           <PhoneIcon className="h-6 w-6" />
@@ -309,11 +416,11 @@ function ContactInfoBottomSheet({
       <div className="h-px bg-[#cccccc]" />
       <div className="flex h-14 items-center justify-between [direction:ltr]">
         <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
-          {phoneNumber}
+          {phoneDisplay}
         </span>
         <a
           className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
-          href={`sms:${phoneNumber}`}
+          href={`sms:${phoneHref}`}
           tabIndex={isOpen ? 0 : -1}
         >
           <MessageIcon className="h-6 w-6" />
@@ -326,7 +433,7 @@ function ContactInfoBottomSheet({
           <a
             aria-label="واتساپ"
             className="grid h-14 w-14 place-items-center rounded-full"
-            href={`https://wa.me/98${phoneNumber.slice(1)}`}
+            href={`https://wa.me/98${phoneHref.slice(1)}`}
             tabIndex={isOpen ? 0 : -1}
             target="_blank"
             rel="noreferrer"
@@ -336,7 +443,7 @@ function ContactInfoBottomSheet({
           <a
             aria-label="تلگرام"
             className="grid h-14 w-14 place-items-center rounded-full"
-            href={`https://t.me/share/url?url=tel:${phoneNumber}`}
+            href={`https://t.me/share/url?url=tel:${phoneHref}`}
             tabIndex={isOpen ? 0 : -1}
             target="_blank"
             rel="noreferrer"
@@ -382,7 +489,7 @@ function ViewAdNotePage({
         <textarea
           aria-label="یادداشت شما"
           autoFocus
-          className="mt-6 h-60 w-full resize-none rounded-xl border-2 border-[#0048c4] bg-white px-3 py-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a]/50"
+          className="mt-6 h-60 w-full resize-none rounded-xl border border-[#d9d9d9] bg-white px-3 py-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4]"
           onChange={(event) => onChangeNote(event.target.value)}
           placeholder="یادداشت شما"
           value={noteText}
@@ -407,6 +514,253 @@ function ViewAdNotePage({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+
+type FeedbackValue = "positive" | "negative";
+
+type FeedbackState = Record<string, FeedbackValue | null>;
+
+const feedbackOptions = [
+  "سرعت پاسخگویی",
+  "میزان آشنایی به منطقه",
+  "صداقت در معرفی ملک",
+  "پیگیری موثر",
+  "به روز بودن آگهی‌ها",
+];
+
+const violationReasons = [
+  "کلاهبرداری",
+  "غیر قانونی یا غیر اخلاقی",
+  "دسته بندی اشتباه",
+  "قیمت اشتباه",
+  "اطلاعات اشتباه",
+  "تکراری یا اسپم",
+  "سایر",
+];
+
+function FeedbackThumbIcon({
+  className = "",
+  direction,
+}: {
+  className?: string;
+  direction: FeedbackValue;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <g transform={direction === "negative" ? "rotate(180 12 12)" : undefined}>
+        <path d="M7.5 10.5v9" />
+        <path d="M4.5 11.5v6.5c0 .8.7 1.5 1.5 1.5h1.5v-9H6c-.8 0-1.5.7-1.5 1.5Z" />
+        <path d="M7.5 11.5 11.8 4c.4-.7 1.4-.7 1.8 0 .4.7.5 1.5.2 2.2l-1 2.6h4.6c1.4 0 2.4 1.3 2.1 2.7l-1.1 5.4c-.3 1.5-1.7 2.6-3.2 2.6H7.5" />
+      </g>
+    </svg>
+  );
+}
+
+function FeedbackIconButton({
+  active,
+  type,
+  onClick,
+}: {
+  active: boolean;
+  type: FeedbackValue;
+  onClick: () => void;
+}) {
+  const activeClassName =
+    type === "positive"
+      ? "bg-[#0FAF731A] text-[#0FAF73]"
+      : "bg-[#FF4D4F1A] text-[#FF4D4F]";
+
+  return (
+    <button
+      aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
+      className={`grid h-9 w-9 place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+        active ? activeClassName : "bg-transparent text-[#cccccc]"
+      }`}
+      onClick={onClick}
+      type="button"
+    >
+      <FeedbackThumbIcon className="h-5 w-5" direction={type} />
+    </button>
+  );
+}
+
+function PageActionBar({
+  primaryLabel,
+  secondaryLabel = "انصراف",
+  onPrimary,
+  onSecondary,
+}: {
+  primaryLabel: string;
+  secondaryLabel?: string;
+  onPrimary: () => void;
+  onSecondary: () => void;
+}) {
+  return (
+    <div className="shrink-0 rounded-b-2xl bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <div className="grid grid-cols-2 gap-4 [direction:ltr]">
+        <button
+          className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          onClick={onPrimary}
+          type="button"
+        >
+          {primaryLabel}
+        </button>
+        <button
+          className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          onClick={onSecondary}
+          type="button"
+        >
+          {secondaryLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ViewAdFeedbackPage({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  const [feedback, setFeedback] = useState<FeedbackState>(() =>
+    feedbackOptions.reduce<FeedbackState>((result, option) => {
+      result[option] = null;
+      return result;
+    }, {}),
+  );
+
+  const setOptionFeedback = (option: string, value: FeedbackValue) => {
+    setFeedback((current) => ({
+      ...current,
+      [option]: current[option] === value ? null : value,
+    }));
+  };
+
+  return (
+    <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
+      <TopBar onBack={onClose} title="ثبت بازخورد" />
+
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pt-3">
+        <div className="divide-y divide-[#e0e0e0]">
+          {feedbackOptions.map((option) => (
+            <div
+              className="flex min-h-[74px] items-center justify-between gap-4 text-right [direction:rtl]"
+              key={option}
+            >
+              <span className="text-base font-medium leading-6 text-[#1a1a1a]">
+                {option}
+              </span>
+
+              <div className="flex shrink-0 items-center gap-4 [direction:ltr]">
+                <FeedbackIconButton
+                  active={feedback[option] === "negative"}
+                  onClick={() => setOptionFeedback(option, "negative")}
+                  type="negative"
+                />
+                <FeedbackIconButton
+                  active={feedback[option] === "positive"}
+                  onClick={() => setOptionFeedback(option, "positive")}
+                  type="positive"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      <PageActionBar onPrimary={onSubmit} onSecondary={onClose} primaryLabel="ثبت" />
+    </div>
+  );
+}
+
+function ReportRadio({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: () => void;
+}) {
+  return (
+    <label className="flex h-10 cursor-pointer items-center justify-between gap-4 text-right [direction:rtl]">
+      <span className="text-sm font-medium leading-5 text-[#1a1a1a]">{label}</span>
+      <input
+        checked={checked}
+        className="sr-only"
+        onChange={onChange}
+        type="radio"
+        value={label}
+      />
+      <span
+        aria-hidden="true"
+        className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border ${
+          checked ? "border-[#0048c4]" : "border-[#808080]"
+        }`}
+      >
+        {checked ? <span className="h-2 w-2 rounded-full bg-[#0048c4]" /> : null}
+      </span>
+    </label>
+  );
+}
+
+function ViewAdViolationReportPage({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  const [selectedReason, setSelectedReason] = useState(violationReasons[0]);
+  const [description, setDescription] = useState("");
+  const shouldShowDescription = selectedReason === "سایر";
+
+  return (
+    <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
+      <TopBar onBack={onClose} title="گزارش تخلف آگهی" />
+
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-5 pb-4 pt-5">
+        <div className="space-y-2">
+          {violationReasons.map((reason) => (
+            <ReportRadio
+              checked={selectedReason === reason}
+              key={reason}
+              label={reason}
+              onChange={() => setSelectedReason(reason)}
+            />
+          ))}
+        </div>
+
+        {shouldShowDescription ? (
+          <textarea
+            aria-label="توضیح گزارش"
+            className="mt-4 h-[104px] w-full resize-none rounded-lg border border-[#d9d9d9] bg-white px-3 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4]"
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="لطفا دلیل گزارش را توضیح دهید... *"
+            value={description}
+          />
+        ) : null}
+      </main>
+
+      <PageActionBar
+        onPrimary={onSubmit}
+        onSecondary={onClose}
+        primaryLabel="ارسال گزارش"
+      />
     </div>
   );
 }
@@ -443,7 +797,7 @@ function AlbumPage({
   onClose: () => void;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeMedia = mediaItems[activeIndex] ?? mediaItems[0];
+  const swiperRef = useRef<SwiperInstance | null>(null);
   const dotSizes = mediaItems.map((_, index) =>
     getAlbumDotSize(index, activeIndex, mediaItems.length),
   );
@@ -468,15 +822,29 @@ function AlbumPage({
       </header>
 
       <main className="relative min-h-0 flex-1 overflow-hidden bg-[#1a1a1a]">
-        <div className="pt-[202px]">
-          <img
-            alt=""
-            className="aspect-[3/2] w-full object-cover"
-            src={activeMedia.src}
-          />
-        </div>
+        <Swiper
+          className="h-full w-full"
+          dir="rtl"
+          onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
+          slidesPerView={1}
+        >
+          {mediaItems.map((item, index) => (
+            <SwiperSlide key={`${item.src}-${item.type}-${index}`}>
+              <div className="pt-[202px]">
+                <img
+                  alt=""
+                  className="aspect-[3/2] w-full object-cover"
+                  src={item.src}
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-        <div className="absolute bottom-13 left-0 right-0 flex justify-center">
+        <div className="absolute bottom-13 left-0 right-0 z-10 flex justify-center">
           <div
             aria-label={`رسانه ${activeIndex + 1} از ${mediaItems.length}`}
             className="flex h-6 items-center justify-center rounded-lg bg-[#ffffff14]"
@@ -490,7 +858,7 @@ function AlbumPage({
                   className={`block h-2 rounded-full ${index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"
                     }`}
                   key={`${item.type}-${index}`}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => swiperRef.current?.slideTo(index)}
                   style={{ width: dotSizes[index] }}
                   type="button"
                 />
@@ -507,7 +875,7 @@ function ViewAdContent({
   adId,
   ad,
   details,
-  imageSrc,
+  mediaItems,
   mapPosition,
   onOpenAlbum,
   onRowAction,
@@ -515,34 +883,67 @@ function ViewAdContent({
   adId: string;
   ad: AdvertisementItem;
   details: ViewAdDetails;
-  imageSrc?: string;
+  mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: () => void;
   onRowAction: (label: string) => void;
 }) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isDescriptionOverflowing, setIsDescriptionOverflowing] =
+    useState(false);
   const [areFacilitiesExpanded, setAreFacilitiesExpanded] = useState(false);
+  const descriptionRef = useRef<HTMLParagraphElement | null>(null);
   const propertyInfoItems = details.propertyInfoPreview.slice(0, 4);
-  const visibleFacilityCount = areFacilitiesExpanded ? details.features.length : 6;
+  const visibleFacilityCount = areFacilitiesExpanded
+    ? details.features.length
+    : 6;
   const facilityItems = details.features.slice(0, visibleFacilityCount);
   const hasMorePropertyInfo = details.propertyInfoPreview.length > 4;
   const hasMoreFacilities = details.features.length > 6;
   const showAgency = isAgencyAdvertiser(ad);
+  const shouldShowDescriptionMore = isDescriptionOverflowing;
+
+  useEffect(() => {
+    const updateDescriptionOverflow = () => {
+      const element = descriptionRef.current;
+
+      if (!element) {
+        setIsDescriptionOverflowing(false);
+        return;
+      }
+
+      setIsDescriptionOverflowing(
+        element.scrollHeight > DESCRIPTION_COLLAPSED_HEIGHT + 1,
+      );
+    };
+
+    updateDescriptionOverflow();
+    window.addEventListener("resize", updateDescriptionOverflow);
+
+    return () => {
+      window.removeEventListener("resize", updateDescriptionOverflow);
+    };
+  }, [details.description]);
 
   return (
     <>
       <section className="bg-white pb-4">
-        <GalleryHero imageSrc={imageSrc} onOpenAlbum={onOpenAlbum} />
+        <GalleryHero mediaItems={mediaItems} onOpenAlbum={onOpenAlbum} />
 
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
-            <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d]">
-              <ViewAdIcon className="h-4 w-4" name="calendar" />
+            <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
               <span>{details.age}</span>
+              <img
+                alt=""
+                aria-hidden="true"
+                className="h-4 w-4 shrink-0 object-contain"
+                src="/icons/clock.svg"
+              />
             </div>
             <div className="flex items-center gap-2 text-sm font-medium leading-5 [direction:rtl]">
               <span className="text-[#4d4d4d]">کد آگهی:</span>
-              <strong className="rounded-lg bg-[#f5f5f5] px-2.5 py-1 text-[#1a1a1a]">
+              <strong className="text-sm font-semibold leading-5 text-[#1a1a1a]">
                 {details.adCode}
               </strong>
             </div>
@@ -561,7 +962,6 @@ function ViewAdContent({
             <PriceRow label="قیمت کل" value={details.totalPrice} />
             <PriceRow label="قیمت هر متر" value={details.pricePerMeter} />
           </div>
-
         </div>
       </section>
 
@@ -585,47 +985,51 @@ function ViewAdContent({
           </motion.div>
         </AnimatePresence>
         {hasMoreFacilities ? (
-          <MoreButton
-            icon="arrowLeft"
+          <InlineMoreButton
             onClick={() => setAreFacilitiesExpanded((current) => !current)}
           >
             {areFacilitiesExpanded
               ? "نمایش موارد کمتر"
               : `نمایش ${details.features.length - 6} مورد دیگر`}
-          </MoreButton>
+          </InlineMoreButton>
         ) : null}
       </DetailSection>
 
       <DetailSection title="توضیحات">
         <motion.div
-          animate={{ height: isDescriptionExpanded ? "auto" : 350 }}
+          animate={{
+            height:
+              shouldShowDescriptionMore && !isDescriptionExpanded
+                ? DESCRIPTION_COLLAPSED_HEIGHT
+                : "auto",
+          }}
           className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]"
           transition={{ duration: 0.28, ease: "easeOut" }}
         >
-          <p className="m-0 whitespace-pre-line">{details.description}</p>
+          <p ref={descriptionRef} className="m-0 whitespace-pre-line">
+            {details.description}
+          </p>
           <AnimatePresence>
-            {isDescriptionExpanded ? null : (
+            {shouldShowDescriptionMore && !isDescriptionExpanded ? (
               <motion.div
                 animate={{ opacity: 1 }}
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white"
                 exit={{ opacity: 0 }}
                 initial={{ opacity: 0 }}
               />
-            )}
+            ) : null}
           </AnimatePresence>
         </motion.div>
-        <MoreButton
-          icon="arrowLeft"
-          onClick={() => setIsDescriptionExpanded((current) => !current)}
-        >
-          {isDescriptionExpanded ? "نمایش کمتر توضیحات" : "نمایش ادامه توضیحات"}
-        </MoreButton>
-        {mapPosition ? (
-          <MapPreview
-            latitude={mapPosition.latitude}
-            longitude={mapPosition.longitude}
-          />
+        {shouldShowDescriptionMore ? (
+          <InlineMoreButton
+            onClick={() => setIsDescriptionExpanded((current) => !current)}
+          >
+            {isDescriptionExpanded
+              ? "نمایش کمتر توضیحات"
+              : "نمایش ادامه توضیحات"}
+          </InlineMoreButton>
         ) : null}
+        {mapPosition ? <MapPreview /> : null}
       </DetailSection>
 
       {showAgency ? <AgencyCard details={details} /> : null}
@@ -633,12 +1037,12 @@ function ViewAdContent({
       <section className="border-t-8 border-[#f0f0f0] bg-white">
         {details.rows.map((row) => (
           <button
-            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            className="flex h-[88px] w-full items-center justify-between border-b-8 border-[#f0f0f0] px-8 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
             onClick={() => onRowAction(row.label)}
             type="button"
           >
-            <div className="flex min-w-0 items-center gap-2">
+            <div className="flex min-w-0 items-center gap-3">
               <ViewAdIcon className="text-[#808080]" name={row.icon} />
               <span className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
                 {row.label}
@@ -656,7 +1060,9 @@ function AgencyCard({ details }: { details: ViewAdDetails }) {
   return (
     <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-6 text-center">
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-lg border border-[#cccccc] bg-white">
-        <span className="text-2xl font-bold leading-none text-[#b6823a]">ب</span>
+        <span className="text-2xl font-bold leading-none text-[#b6823a]">
+          ب
+        </span>
       </div>
       <h2 className="mt-4 text-base font-semibold leading-6 text-[#4d4d4d]">
         املاک جلیلیان
@@ -669,13 +1075,23 @@ function AgencyCard({ details }: { details: ViewAdDetails }) {
         <div className="flex items-center gap-1">
           <span className="text-[#0faf73]">۸۵</span>
           <span>امتیاز</span>
-          <ViewAdIcon className="h-4 w-4 text-[#808080]" name="bookmark" />
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 object-contain"
+            src="./icons/star.svg"
+          />
         </div>
         <div className="h-4 w-px bg-[#e0e0e0]" />
         <div className="flex items-center gap-1">
           <span className="text-[#0faf73]">۱۲</span>
           <span>رتبه</span>
-          <ViewAdIcon className="h-4 w-4 text-[#808080]" name="building" />
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 object-contain"
+            src="./icons/ranking.svg"
+          />
         </div>
       </div>
     </section>
@@ -711,7 +1127,13 @@ function LoadingState() {
   );
 }
 
-function ViewAdErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ViewAdErrorState({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -732,7 +1154,7 @@ function toNumber(value: unknown) {
   }
 
   if (typeof value === "string" && value.trim()) {
-    const parsed = Number(value.replace(/[^\d.]/g, ""));
+    const parsed = Number(toEnglishDigits(value).replace(/[^\d.]/g, ""));
     return Number.isFinite(parsed) ? parsed : undefined;
   }
 
@@ -741,7 +1163,7 @@ function toNumber(value: unknown) {
 
 function toText(value: unknown, fallback = ""): string {
   if (typeof value === "string" && value.trim()) {
-    return value;
+    return toPersianDigits(value);
   }
 
   if (typeof value === "number") {
@@ -875,7 +1297,9 @@ function getFirstFeatureValue(
   return undefined;
 }
 
-function buildPropertyInfoItems(features: NonNullable<AdvertisementItem["features"]>) {
+function buildPropertyInfoItems(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
   const orderedItems = propertyInfoOrder
     .map((label) => {
       const feature = features.find((item) => item.label === label);
@@ -945,7 +1369,9 @@ function buildPropertyInfoItem(label: string, rawValue: unknown) {
   const normalizedValue = normalizeDetailValue(label, rawValue);
   const { formattedValue, iconSrc } = getBuildingInfo(
     displayLabel,
-    Array.isArray(normalizedValue) ? normalizedValue.join("، ") : normalizedValue,
+    Array.isArray(normalizedValue)
+      ? normalizedValue.join("، ")
+      : normalizedValue,
   );
 
   return {
@@ -956,7 +1382,9 @@ function buildPropertyInfoItem(label: string, rawValue: unknown) {
   };
 }
 
-function buildFacilityItems(features: NonNullable<AdvertisementItem["features"]>) {
+function buildFacilityItems(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
   const facilities = getFeatureValue(features, "facilities");
 
   if (!Array.isArray(facilities)) {
@@ -981,7 +1409,8 @@ function withFeatureIconAssets(items: ViewAdDetails["features"]) {
     ...item,
     featureIconLabel: item.featureIconLabel ?? item.value,
     hideFallbackIcon: true,
-    iconSrc: item.iconSrc ?? getFeatureIconSrc(item.featureIconLabel ?? item.value),
+    iconSrc:
+      item.iconSrc ?? getFeatureIconSrc(item.featureIconLabel ?? item.value),
   }));
 }
 
@@ -989,7 +1418,11 @@ function formatPricePerMeter(totalPrice: unknown, area: unknown) {
   const numericPrice = toNumber(totalPrice);
   const numericArea = toNumber(area);
 
-  if (numericPrice === undefined || numericArea === undefined || numericArea <= 0) {
+  if (
+    numericPrice === undefined ||
+    numericArea === undefined ||
+    numericArea <= 0
+  ) {
     return viewAdDemo.pricePerMeter;
   }
 
@@ -1041,9 +1474,13 @@ function iconForFeature(label: string): IconName {
 function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const propertyInfoPreview =
-    features.length > 0 ? buildPropertyInfoItems(features) : viewAdDemo.propertyInfoPreview;
+    features.length > 0
+      ? buildPropertyInfoItems(features)
+      : viewAdDemo.propertyInfoPreview;
   const facilities =
-    features.length > 0 ? buildFacilityItems(features) : withFeatureIconAssets(viewAdDemo.features);
+    features.length > 0
+      ? buildFacilityItems(features)
+      : withFeatureIconAssets(viewAdDemo.features);
   const publishedHoursAgo = toNumber(ad.published_hours_ago);
   const age =
     publishedHoursAgo !== undefined
@@ -1059,9 +1496,17 @@ function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
 
   return {
     ...viewAdDemo,
-    adCode: String((ad as { track_code?: unknown }).track_code ?? ad.id ?? ad._id ?? viewAdDemo.adCode),
+    adCode: toPersianDigits(
+      (ad as { track_code?: unknown }).track_code ??
+      ad.id ??
+      ad._id ??
+      viewAdDemo.adCode,
+    ),
     age,
-    agency: toText(getFeatureValue(features, "advertiser_type"), viewAdDemo.agency),
+    agency: toText(
+      getFeatureValue(features, "advertiser_type"),
+      viewAdDemo.agency,
+    ),
     description: toText(description, viewAdDemo.description),
     features: facilities,
     headline: toText(ad.title ?? ad.label, viewAdDemo.headline),
@@ -1146,7 +1591,9 @@ function goBackToAd(adId: string) {
   window.location.assign(fallbackPath);
 }
 
-function getDetailPageTitle(features: NonNullable<AdvertisementItem["features"]>) {
+function getDetailPageTitle(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
   const formCode = toText(getFeatureValue(features, "form_code"));
 
   if (formCode.includes("garden-villa")) return "اطلاعات ملک";
@@ -1212,7 +1659,9 @@ function toBooleanLike(value: unknown): boolean | undefined {
       return true;
     }
 
-    if (["false", "0", "no", "n", "ندارد", "خیر", "نیست"].includes(normalized)) {
+    if (
+      ["false", "0", "no", "n", "ندارد", "خیر", "نیست"].includes(normalized)
+    ) {
       return false;
     }
   }
@@ -1301,7 +1750,11 @@ function formatTomanDetailValue(value: unknown) {
     return "";
   }
 
-  if (text.includes("تومان") || text.includes("میلیون") || text.includes("میلیارد")) {
+  if (
+    text.includes("تومان") ||
+    text.includes("میلیون") ||
+    text.includes("میلیارد")
+  ) {
     return text;
   }
 
@@ -1310,8 +1763,18 @@ function formatTomanDetailValue(value: unknown) {
 
 function getDetailIconByLabel(label: string): IconName {
   if (label.includes("متراژ") || label.includes("area")) return "area";
-  if (label.includes("اتاق") || label.includes("خواب") || label.includes("rooms")) return "bed";
-  if (label.includes("سن") || label.includes("طبقه") || label.includes("ساختمان")) return "building";
+  if (
+    label.includes("اتاق") ||
+    label.includes("خواب") ||
+    label.includes("rooms")
+  )
+    return "bed";
+  if (
+    label.includes("سن") ||
+    label.includes("طبقه") ||
+    label.includes("ساختمان")
+  )
+    return "building";
   return "apartment";
 }
 
@@ -1372,7 +1835,9 @@ function createCheckBadge(
   };
 }
 
-function createLoanRow(features: NonNullable<AdvertisementItem["features"]>): DetailInfoItem {
+function createLoanRow(
+  features: NonNullable<AdvertisementItem["features"]>,
+): DetailInfoItem {
   const loanStatusRaw = getFirstExistingFeatureValue(features, [
     "has_loan",
     "loan",
@@ -1429,7 +1894,9 @@ function createLoanRow(features: NonNullable<AdvertisementItem["features"]>): De
   };
 }
 
-function createExchangeRow(features: NonNullable<AdvertisementItem["features"]>): DetailInfoItem {
+function createExchangeRow(
+  features: NonNullable<AdvertisementItem["features"]>,
+): DetailInfoItem {
   const exchangeStatusRaw = getFirstExistingFeatureValue(features, [
     "has_exchange",
     "exchange",
@@ -1466,7 +1933,9 @@ function createExchangeRow(features: NonNullable<AdvertisementItem["features"]>)
   };
 }
 
-function buildPropertyDetailSections(ad: AdvertisementItem): DetailInfoSection[] {
+function buildPropertyDetailSections(
+  ad: AdvertisementItem,
+): DetailInfoSection[] {
   const features = Array.isArray(ad.features) ? ad.features : [];
 
   const mainItems = [
@@ -1508,7 +1977,12 @@ function buildPropertyDetailSections(ad: AdvertisementItem): DetailInfoSection[]
     }),
     createGridItem({
       features,
-      labels: ["land_position", "ground_position", "plot_position", "land_location"],
+      labels: [
+        "land_position",
+        "ground_position",
+        "plot_position",
+        "land_location",
+      ],
       label: "موقعیت زمین",
     }),
     createGridItem({
@@ -1553,7 +2027,10 @@ function buildPropertyDetailSections(ad: AdvertisementItem): DetailInfoSection[]
     }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
-  const loanExchangeItems = [createLoanRow(features), createExchangeRow(features)];
+  const loanExchangeItems = [
+    createLoanRow(features),
+    createExchangeRow(features),
+  ];
 
   return [
     {
@@ -1583,11 +2060,14 @@ function buildPropertyDetailSections(ad: AdvertisementItem): DetailInfoSection[]
     },
   ].filter(
     (section) =>
-      section.items.length > 0 || Boolean(section.badges && section.badges.length > 0),
+      section.items.length > 0 ||
+      Boolean(section.badges && section.badges.length > 0),
   );
 }
 
-function buildFacilitiesDetailSections(ad: AdvertisementItem): DetailInfoSection[] {
+function buildFacilitiesDetailSections(
+  ad: AdvertisementItem,
+): DetailInfoSection[] {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const facilities = getFeatureValue(features, "facilities");
 
@@ -1626,7 +2106,9 @@ function DetailInfoIcon({
   item: DetailInfoItem;
   className?: string;
 }) {
-  const iconAlt = item.label || (Array.isArray(item.value) ? item.value.join("، ") : item.value);
+  const iconAlt =
+    item.label ||
+    (Array.isArray(item.value) ? item.value.join("، ") : item.value);
 
   if (item.iconSrc) {
     return (
@@ -1663,7 +2145,11 @@ function DetailInfoValueView({
   align?: "start" | "center" | "end";
 }) {
   const alignClassName =
-    align === "center" ? "justify-center" : align === "end" ? "justify-end" : "justify-start";
+    align === "center"
+      ? "justify-center"
+      : align === "end"
+        ? "justify-end"
+        : "justify-start";
 
   if (Array.isArray(item.value)) {
     return (
@@ -1800,7 +2286,8 @@ function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
 
 function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
   const columns = section.columns ?? 3;
-  const gridClassName = columns === 2 ? "grid-cols-2 gap-x-12" : "grid-cols-3 gap-x-4";
+  const gridClassName =
+    columns === 2 ? "grid-cols-2 gap-x-12" : "grid-cols-3 gap-x-4";
   const isRowsLayout = section.layout === "rows";
 
   return (
@@ -1812,12 +2299,17 @@ function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
       {isRowsLayout ? (
         <div className="pt-3">
           {section.items.map((item) => (
-            <DetailInfoRowCard item={item} key={`${section.title}-${item.label}`} />
+            <DetailInfoRowCard
+              item={item}
+              key={`${section.title}-${item.label}`}
+            />
           ))}
         </div>
       ) : (
         <>
-          <div className={`grid ${gridClassName} justify-items-start gap-y-6 py-5 [direction:rtl]`}>
+          <div
+            className={`grid ${gridClassName} justify-items-start gap-y-6 py-5 [direction:rtl]`}
+          >
             {section.items.map((item) => (
               <DetailInfoItemCard
                 item={item}
@@ -1867,7 +2359,9 @@ function DetailInfoFullPage({
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
+  const [isViolationReportOpen, setIsViolationReportOpen] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { message, showNotice } = useDemoNotice();
@@ -1910,7 +2404,9 @@ export function ViewAdPage() {
   const subPage = getViewAdSubPage(window.location.pathname);
 
   if (subPage === "property-info") {
-    const features = Array.isArray(resolvedAd.features) ? resolvedAd.features : [];
+    const features = Array.isArray(resolvedAd.features)
+      ? resolvedAd.features
+      : [];
 
     return (
       <DetailInfoFullPage
@@ -1937,6 +2433,25 @@ export function ViewAdPage() {
       ? images.map((src): AlbumMediaItem => ({ src, type: "image" }))
       : albumMediaItems;
 
+  const handleRowAction = (label: string) => {
+    if (label.includes("بازخورد")) {
+      setIsFeedbackOpen(true);
+      return;
+    }
+
+    if (label.includes("یادداشت")) {
+      setIsNoteOpen(true);
+      return;
+    }
+
+    if (label.includes("گزارش") || label.includes("تخلف")) {
+      setIsViolationReportOpen(true);
+      return;
+    }
+
+    showNotice(`${label} برای نسخه نمایشی انتخاب شد`);
+  };
+
   const handleTopBarAction = (icon: IconName) => {
     if (icon === "note") {
       setIsNoteOpen(true);
@@ -1955,11 +2470,17 @@ export function ViewAdPage() {
 
       toggleBadge.mutate(adId, {
         onError: (badgeError) => {
-          showNotice(getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."));
+          showNotice(
+            getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."),
+          );
         },
         onSuccess: () => {
           setIsBookmarked((current) => !current);
-          showNotice(isBookmarked ? "آگهی از نشان‌ها حذف شد" : "آگهی به نشان‌ها اضافه شد");
+          showNotice(
+            isBookmarked
+              ? "آگهی از نشان‌ها حذف شد"
+              : "آگهی به نشان‌ها اضافه شد",
+          );
         },
       });
     }
@@ -1977,10 +2498,10 @@ export function ViewAdPage() {
           adId={adId}
           ad={resolvedAd}
           details={details}
-          imageSrc={images[0]}
+          mediaItems={mediaItems}
           mapPosition={getMapPosition(resolvedAd)}
           onOpenAlbum={() => setIsAlbumOpen(true)}
-          onRowAction={(label) => showNotice(`${label} برای نسخه نمایشی انتخاب شد`)}
+          onRowAction={handleRowAction}
         />
       </main>
 
@@ -2009,11 +2530,31 @@ export function ViewAdPage() {
         phoneNumber={readOwnerPhone(resolvedAd)}
       />
 
+      {isFeedbackOpen ? (
+        <ViewAdFeedbackPage
+          onClose={() => setIsFeedbackOpen(false)}
+          onSubmit={() => {
+            setIsFeedbackOpen(false);
+            showNotice("بازخورد شما ثبت شد");
+          }}
+        />
+      ) : null}
+
       {isNoteOpen ? (
         <ViewAdNotePage
           noteText={noteText}
           onChangeNote={setNoteText}
           onClose={() => setIsNoteOpen(false)}
+        />
+      ) : null}
+
+      {isViolationReportOpen ? (
+        <ViewAdViolationReportPage
+          onClose={() => setIsViolationReportOpen(false)}
+          onSubmit={() => {
+            setIsViolationReportOpen(false);
+            showNotice("گزارش تخلف ارسال شد");
+          }}
         />
       ) : null}
 

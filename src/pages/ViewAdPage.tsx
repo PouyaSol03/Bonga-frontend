@@ -195,7 +195,7 @@ function PriceRow({ label, value }: { label: string; value: string }) {
     <div className="flex h-14 items-center justify-between rounded-lg bg-[#f5f5f5] px-4 [direction:ltr]">
       <div className="flex items-center gap-1">
         <AdCardTomanIcon className="h-5 w-5" />
-        <strong className="text-base font-semibold text-[#1A1A1A] leading-6">
+        <strong className="text-base font-semibold leading-6 text-[#1A1A1A] [direction:rtl] [unicode-bidi:isolate]">
           {value}
         </strong>
       </div>
@@ -250,7 +250,7 @@ function GalleryHero({
           ))}
         </Swiper>
 
-        <div className="pointer-events-none absolute left-3 top-3 z-10 flex h-8 items-center gap-1 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:ltr]">
+        <div className="pointer-events-none absolute right-3 top-3 z-10 flex h-8 items-center gap-1 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:ltr]">
           <ViewAdIcon className="h-4 w-4" name="album" />
           <ViewAdIcon className="h-4 w-4" name="video" />
           <span className="grid h-5 min-w-7 place-items-center rounded bg-white/15 px-1 text-[10px] font-semibold">
@@ -259,14 +259,14 @@ function GalleryHero({
         </div>
 
         <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
-          <div className="flex h-2 items-center gap-1.5 rounded-full bg-white/30 px-2">
+          <div className="flex h-2 items-center gap-1.5">
             {galleryItems.slice(0, 4).map((item, index) => (
               <button
                 aria-label={`نمایش تصویر ${index + 1}`}
                 className={
                   index === activeIndex
                     ? "h-1.5 w-5 rounded-full bg-white"
-                    : "h-1.5 w-1.5 rounded-full bg-white/50"
+                    : "h-1.5 w-1.5 rounded-full bg-white/70"
                 }
                 key={`${item.src}-dot-${index}`}
                 onClick={() => swiperRef.current?.slideTo(index)}
@@ -285,10 +285,11 @@ function MapPreview() {
     <div className="relative mt-6 h-[198px] overflow-hidden rounded-2xl border border-[#ebebeb] bg-[#fafafa]">
       <iframe
         allowFullScreen
-        className="h-full w-full border-0"
+        className="pointer-events-none h-full w-full border-0"
         height="300"
         loading="lazy"
         src="https://neshan.org/maps/iframe/places/78bff763c73354cd9b7a48dd01792bf9#c36.316-59.552-15z-0p/36.31586309281297/59.54668820469575"
+        tabIndex={-1}
         title="map-iframe"
         width="450"
       />
@@ -469,6 +470,42 @@ function ContactInfoBottomSheet({
   );
 }
 
+
+function ActionPageTopBar({
+  title,
+  onBack,
+}: {
+  title: string;
+  onBack: () => void;
+}) {
+  return (
+    <header className="relative flex h-[44px] shrink-0 items-center justify-center bg-[#f2f2f2] px-4 text-[#1a1a1a] [direction:rtl]">
+      <button
+        aria-label="بازگشت"
+        className="absolute right-2 top-0 grid h-[44px] w-11 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        onClick={onBack}
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+          viewBox="0 0 24 24"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </button>
+      <h1 className="m-0 text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+        {title}
+      </h1>
+    </header>
+  );
+}
+
 function ViewAdNotePage({
   noteText,
   onChangeNote,
@@ -480,7 +517,7 @@ function ViewAdNotePage({
 }) {
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
-      <TopBar onBack={onClose} title="یادداشت" />
+      <ActionPageTopBar onBack={onClose} title="یادداشت" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4 pt-8">
         <p className="m-0 text-right text-sm font-normal leading-5 text-[#1a1a1a]">
@@ -652,16 +689,16 @@ function ViewAdFeedbackPage({
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
-      <TopBar onBack={onClose} title="ثبت بازخورد" />
+      <ActionPageTopBar onBack={onClose} title="ثبت بازخورد" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pt-3">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pt-2">
         <div className="divide-y divide-[#e0e0e0]">
           {feedbackOptions.map((option) => (
             <div
-              className="flex min-h-[74px] items-center justify-between gap-4 text-right [direction:rtl]"
+              className="flex min-h-[73px] items-center justify-between gap-4 text-right [direction:rtl]"
               key={option}
             >
-              <span className="text-base font-medium leading-6 text-[#1a1a1a]">
+              <span className="text-base font-normal leading-6 text-[#1a1a1a]">
                 {option}
               </span>
 
@@ -697,8 +734,8 @@ function ReportRadio({
   onChange: () => void;
 }) {
   return (
-    <label className="flex h-10 cursor-pointer items-center justify-between gap-4 text-right [direction:rtl]">
-      <span className="text-sm font-medium leading-5 text-[#1a1a1a]">{label}</span>
+    <label className="flex h-11 cursor-pointer items-center justify-between gap-4 text-right [direction:rtl]">
+      <span className="text-base font-normal leading-6 text-[#1a1a1a]">{label}</span>
       <input
         checked={checked}
         className="sr-only"
@@ -731,9 +768,9 @@ function ViewAdViolationReportPage({
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
-      <TopBar onBack={onClose} title="گزارش تخلف آگهی" />
+      <ActionPageTopBar onBack={onClose} title="گزارش تخلف آگهی" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-5 pb-4 pt-5">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-5 pb-4 pt-5 overscroll-contain">
         <div className="space-y-2">
           {violationReasons.map((reason) => (
             <ReportRadio
@@ -847,7 +884,7 @@ function AlbumPage({
         <div className="absolute bottom-13 left-0 right-0 z-10 flex justify-center">
           <div
             aria-label={`رسانه ${activeIndex + 1} از ${mediaItems.length}`}
-            className="flex h-6 items-center justify-center rounded-lg bg-[#ffffff14]"
+            className="flex h-6 items-center justify-center"
             role="img"
             style={{ width: indicatorWidth }}
           >
@@ -965,14 +1002,14 @@ function ViewAdContent({
         </div>
       </section>
 
-      <DetailSection title="اطلاعات ملک">
+      <DetailSection icon="apartment" title="اطلاعات ملک">
         <PropertyGrid items={propertyInfoItems} />
         {hasMorePropertyInfo ? (
           <MoreLink to={`/ads/${adId}/property-info`}>اطلاعات بیشتر</MoreLink>
         ) : null}
       </DetailSection>
 
-      <DetailSection title="تجهیزات و امکانات">
+      <DetailSection icon="apartment" title="تجهیزات و امکانات">
         <AnimatePresence initial={false}>
           <motion.div
             animate={{ height: "auto", opacity: 1 }}
@@ -995,7 +1032,7 @@ function ViewAdContent({
         ) : null}
       </DetailSection>
 
-      <DetailSection title="توضیحات">
+      <DetailSection icon="apartment" title="توضیحات">
         <motion.div
           animate={{
             height:
@@ -1603,9 +1640,9 @@ function getDetailPageTitle(
   return "اطلاعات ملک";
 }
 
-function isFilledValue(value: unknown) {
+function isFilledValue(value: unknown): boolean {
   if (Array.isArray(value)) {
-    return value.some((item) => isFilledValue(item));
+    return value.some((item): boolean => isFilledValue(item));
   }
 
   return value !== undefined && value !== null && value !== "";
@@ -2032,7 +2069,7 @@ function buildPropertyDetailSections(
     createExchangeRow(features),
   ];
 
-  return [
+  const sections: DetailInfoSection[] = [
     {
       title: "مشخصات اصلی",
       items: mainItems,
@@ -2058,7 +2095,9 @@ function buildPropertyDetailSections(
       items: loanExchangeItems,
       layout: "rows",
     },
-  ].filter(
+  ];
+
+  return sections.filter(
     (section) =>
       section.items.length > 0 ||
       Boolean(section.badges && section.badges.length > 0),
@@ -2493,7 +2532,7 @@ export function ViewAdPage() {
     >
       <ViewAdTopBar backTo="/home" onAction={handleTopBarAction} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0]">
         <ViewAdContent
           adId={adId}
           ad={resolvedAd}

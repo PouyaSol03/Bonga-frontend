@@ -11,18 +11,44 @@ type RegistrantType = "" | "personal" | "agency";
 type SelectKey = "floor" | "rooms" | "age";
 
 type MoreFeatureSelectKey =
+  | "floor"
+  | "rooms"
   | "totalFloors"
   | "unitType"
   | "unitPosition"
   | "documentType"
   | "facadeMaterial"
   | "floorMaterial"
-  | "cabinetMaterial";
+  | "cabinetMaterial"
+  | "landPosition"
+  | "villaType";
+
+type MoreFeatureNumberKey =
+  | "density"
+  | "landWidth"
+  | "streetWidth"
+  | "ceilingHeight"
+  | "singleRoomCount"
+  | "doubleRoomCount"
+  | "suiteCount";
+
+type MoreFeatureToggleKey =
+  | "renovated"
+  | "furnished"
+  | "constructionPermit"
+  | "commercialPermit";
 
 type MoreFeatureFormKey =
   | MoreFeatureSelectKey
-  | "renovated"
-  | "furnished";
+  | MoreFeatureNumberKey
+  | MoreFeatureToggleKey;
+
+type MoreFeatureField = {
+  key: MoreFeatureFormKey;
+  label: string;
+  control: "select" | "number" | "toggle";
+  leftText?: string;
+};
 
 type SheetState =
   | {
@@ -63,6 +89,17 @@ type NewAdFormValues = {
   facadeMaterial: string;
   floorMaterial: string;
   cabinetMaterial: string;
+  landPosition: string;
+  villaType: string;
+  density: string;
+  landWidth: string;
+  streetWidth: string;
+  constructionPermit: boolean;
+  commercialPermit: boolean;
+  ceilingHeight: string;
+  singleRoomCount: string;
+  doubleRoomCount: string;
+  suiteCount: string;
   selectedSpecs: string[];
   heatingCooling: string[];
   facilities: string[];
@@ -125,6 +162,17 @@ const blankValues: NewAdFormValues = {
   facadeMaterial: "",
   floorMaterial: "",
   cabinetMaterial: "",
+  landPosition: "",
+  villaType: "",
+  density: "",
+  landWidth: "",
+  streetWidth: "",
+  constructionPermit: false,
+  commercialPermit: false,
+  ceilingHeight: "",
+  singleRoomCount: "",
+  doubleRoomCount: "",
+  suiteCount: "",
 };
 
 const propertySpecs: ChipItem[] = [
@@ -179,6 +227,8 @@ const facilityItems: ChipItem[] = [
 const exchangeTargets = ["خودرو", "زمین", "واحد مسکونی"];
 
 const moreFeatureKeys: MoreFeatureFormKey[] = [
+  "floor",
+  "rooms",
   "totalFloors",
   "unitType",
   "unitPosition",
@@ -188,9 +238,25 @@ const moreFeatureKeys: MoreFeatureFormKey[] = [
   "facadeMaterial",
   "floorMaterial",
   "cabinetMaterial",
+  "landPosition",
+  "villaType",
+  "density",
+  "landWidth",
+  "streetWidth",
+  "constructionPermit",
+  "commercialPermit",
+  "ceilingHeight",
+  "singleRoomCount",
+  "doubleRoomCount",
+  "suiteCount",
 ];
 
+const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
+
 const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
+  floor: floorOptions,
+  rooms: roomOptions,
   totalFloors: ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"],
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
@@ -198,10 +264,109 @@ const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   facadeMaterial: ["سنگ", "آجر", "سیمان", "کامپوزیت", "شیشه", "رومی", "ترکیبی"],
   floorMaterial: ["سرامیک", "سنگ", "پارکت", "لمینت", "موزاییک", "کفپوش"],
   cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی", "ندارد"],
+  landPosition: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش", "بر خیابان", "داخل کوچه"],
+  villaType: ["فلت", "دوبلکس", "تریپلکس", "مدرن", "کلاسیک", "باغ‌ویلا"],
 };
+
+const apartmentMoreFeatureFields: MoreFeatureField[] = [
+  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
+  { key: "unitType", label: "تیپ واحد", control: "select" },
+  { key: "unitPosition", label: "موقعیت واحد", control: "select" },
+  { key: "documentType", label: "نوع سند", control: "select" },
+  { key: "renovated", label: "بازسازی شده", control: "toggle" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
+  { key: "facadeMaterial", label: "جنس نما", control: "select" },
+  { key: "floorMaterial", label: "جنس کف", control: "select" },
+  { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
+];
+
+const villaHouseMoreFeatureFields: MoreFeatureField[] = [
+  { key: "landPosition", label: "موقعیت زمین", control: "select" },
+  { key: "villaType", label: "تیپ ویلا", control: "select" },
+  { key: "documentType", label: "نوع سند", control: "select" },
+  { key: "renovated", label: "بازسازی شده", control: "toggle" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
+  { key: "facadeMaterial", label: "جنس نما", control: "select" },
+  { key: "floorMaterial", label: "جنس کف", control: "select" },
+  { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
+];
+
+const gardenVillaMoreFeatureFields: MoreFeatureField[] = [
+  { key: "villaType", label: "تیپ ویلا", control: "select" },
+  { key: "documentType", label: "نوع سند", control: "select" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
+  { key: "facadeMaterial", label: "جنس نما", control: "select" },
+  { key: "floorMaterial", label: "جنس کف", control: "select" },
+  { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
+];
+
+const landMoreFeatureFields: MoreFeatureField[] = [
+  { key: "density", label: "تراکم", control: "number", leftText: "درصد" },
+  { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
+  { key: "streetWidth", label: "عرض خیابان", control: "number", leftText: "متر" },
+  { key: "constructionPermit", label: "مجوز ساخت", control: "toggle" },
+];
+
+const officeMoreFeatureFields: MoreFeatureField[] = [
+  { key: "floor", label: "طبقه", control: "select" },
+  { key: "documentType", label: "نوع سند", control: "select" },
+  { key: "commercialPermit", label: "مجوز تجاری", control: "toggle" },
+  { key: "renovated", label: "بازسازی شده", control: "toggle" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
+  { key: "facadeMaterial", label: "جنس نما", control: "select" },
+  { key: "floorMaterial", label: "جنس کف", control: "select" },
+  { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
+];
+
+const commercialUnitMoreFeatureFields: MoreFeatureField[] = [
+  { key: "commercialPermit", label: "مجوز تجاری", control: "toggle" },
+  { key: "rooms", label: "تعداد اتاق", control: "select" },
+  { key: "floor", label: "طبقه", control: "select" },
+  { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
+];
+
+const warehouseMoreFeatureFields: MoreFeatureField[] = [
+  { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
+  { key: "ceilingHeight", label: "ارتفاع سقف", control: "number", leftText: "متر" },
+  { key: "documentType", label: "نوع سند", control: "select" },
+  { key: "commercialPermit", label: "مجوز تجاری", control: "toggle" },
+];
+
+const hotelApartmentMoreFeatureFields: MoreFeatureField[] = [
+  { key: "documentType", label: "نوع سند", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "number" },
+  { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "number" },
+  { key: "suiteCount", label: "تعداد سوییت‌ها", control: "number" },
+  { key: "renovated", label: "بازسازی شده", control: "toggle" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
+];
+
+const moreFeatureFieldsByCategory: Record<string, MoreFeatureField[]> = {
+  apartment: apartmentMoreFeatureFields,
+  "daily-apartment-suite": apartmentMoreFeatureFields,
+  "villa-house": villaHouseMoreFeatureFields,
+  "garden-villa": gardenVillaMoreFeatureFields,
+  "daily-garden-villa": gardenVillaMoreFeatureFields,
+  land: landMoreFeatureFields,
+  office: officeMoreFeatureFields,
+  "daily-workspace": officeMoreFeatureFields,
+  "commercial-unit": commercialUnitMoreFeatureFields,
+  warehouse: warehouseMoreFeatureFields,
+  "hotel-apartment": hotelApartmentMoreFeatureFields,
+  "daily-hotel-apartment": hotelApartmentMoreFeatureFields,
+  "factory-workshop": [],
+};
+
+function getMoreFeatureFields() {
+  const { category } = getParams();
+  return moreFeatureFieldsByCategory[category] ?? [];
+}
 
 function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValues {
   return {
+    floor: values.floor,
+    rooms: values.rooms,
     totalFloors: values.totalFloors,
     unitType: values.unitType,
     unitPosition: values.unitPosition,
@@ -211,24 +376,38 @@ function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValues {
     facadeMaterial: values.facadeMaterial,
     floorMaterial: values.floorMaterial,
     cabinetMaterial: values.cabinetMaterial,
+    landPosition: values.landPosition,
+    villaType: values.villaType,
+    density: values.density,
+    landWidth: values.landWidth,
+    streetWidth: values.streetWidth,
+    constructionPermit: values.constructionPermit,
+    commercialPermit: values.commercialPermit,
+    ceilingHeight: values.ceilingHeight,
+    singleRoomCount: values.singleRoomCount,
+    doubleRoomCount: values.doubleRoomCount,
+    suiteCount: values.suiteCount,
   };
 }
 
-function getMoreFeatureTags(values: NewAdFormValues) {
-  const tags = [
-    values.totalFloors,
-    values.unitType,
-    values.unitPosition,
-    values.documentType,
-    values.facadeMaterial,
-    values.floorMaterial,
-    values.cabinetMaterial,
-  ].filter(Boolean);
+function getMoreFeatureTags(
+  values: NewAdFormValues,
+  fields: MoreFeatureField[] = getMoreFeatureFields(),
+) {
+  return fields.reduce<string[]>((tags, field) => {
+    const value = values[field.key];
 
-  if (values.renovated) tags.push("بازسازی شده");
-  if (values.furnished) tags.push("مبله با لوازم");
+    if (field.control === "toggle") {
+      if (value === true) tags.push(field.label);
+      return tags;
+    }
 
-  return tags;
+    if (typeof value === "string" && value.trim()) {
+      tags.push(`${field.label}: ${value}`);
+    }
+
+    return tags;
+  }, []);
 }
 
 function navigateTo(path: string) {
@@ -302,6 +481,17 @@ function buildPayload(values: NewAdFormValues) {
         facade_material: values.facadeMaterial || null,
         floor_material: values.floorMaterial || null,
         cabinet_material: values.cabinetMaterial || null,
+        land_position: values.landPosition || null,
+        villa_type: values.villaType || null,
+        density: toNumber(values.density),
+        land_width: toNumber(values.landWidth),
+        street_width: toNumber(values.streetWidth),
+        construction_permit: values.constructionPermit,
+        commercial_permit: values.commercialPermit,
+        ceiling_height: toNumber(values.ceilingHeight),
+        single_room_count: toNumber(values.singleRoomCount),
+        double_room_count: toNumber(values.doubleRoomCount),
+        suite_count: toNumber(values.suiteCount),
       },
       meterage: toNumber(values.meterage),
       floor: values.floor,
@@ -683,7 +873,8 @@ function DetailsStep({
   const [showAllFacilities, setShowAllFacilities] = useState(false);
 
   const values = watch();
-  const moreFeatureTags = getMoreFeatureTags(values);
+  const moreFeatureFields = getMoreFeatureFields();
+  const moreFeatureTags = getMoreFeatureTags(values, moreFeatureFields);
   const initialVisibleChipCount = 8;
 
   const visibleHeating = showAllHeating
@@ -714,7 +905,7 @@ function DetailsStep({
                   kind: "select",
                   key: "floor",
                   title: "طبقه",
-                  options: ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷"],
+                  options: floorOptions,
                 })
               }
               placeholder="طبقه *"
@@ -727,7 +918,7 @@ function DetailsStep({
                   kind: "select",
                   key: "rooms",
                   title: "تعداد اتاق",
-                  options: ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"],
+                  options: roomOptions,
                 })
               }
               placeholder="تعداد اتاق *"
@@ -760,14 +951,16 @@ function DetailsStep({
               </div>
             ) : null}
 
-            <button
-              className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4]"
-              onClick={onMoreFeatures}
-              type="button"
-            >
-              <span>ثبت مشخصات بیشتر</span>
-              <span>‹</span>
-            </button>
+            {moreFeatureFields.length ? (
+              <button
+                className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4]"
+                onClick={onMoreFeatures}
+                type="button"
+              >
+                <span>ثبت مشخصات بیشتر</span>
+                <span>‹</span>
+              </button>
+            ) : null}
           </div>
         </Section>
 
@@ -998,6 +1191,7 @@ function MoreFeaturesStep({
   onCancel: () => void;
 }) {
   const { getValues, setValue } = useFormContext<NewAdFormValues>();
+  const fields = getMoreFeatureFields();
 
   const [sheet, setSheet] = useState<{
     key: MoreFeatureSelectKey;
@@ -1008,9 +1202,9 @@ function MoreFeaturesStep({
     pickMoreFeatures(getValues()),
   );
 
-  const setDraftField = <T extends MoreFeatureFormKey>(
-    key: T,
-    value: MoreFeaturesFormValues[T],
+  const setDraftField = (
+    key: MoreFeatureFormKey,
+    value: string | boolean,
   ) => {
     setDraft((current) => ({
       ...current,
@@ -1020,6 +1214,11 @@ function MoreFeaturesStep({
 
   const openSelect = (key: MoreFeatureSelectKey, title: string) => {
     setSheet({ key, title });
+  };
+
+  const getDraftString = (key: MoreFeatureFormKey) => {
+    const value = draft[key];
+    return typeof value === "string" ? value : "";
   };
 
   const commit = () => {
@@ -1036,63 +1235,48 @@ function MoreFeaturesStep({
         className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 py-6"
         dir="rtl"
       >
-        <div className="space-y-5">
-          <SelectBox
-            onClick={() => openSelect("totalFloors", "تعداد طبقات آپارتمان")}
-            placeholder="تعداد طبقات آپارتمان"
-            value={draft.totalFloors}
-          />
+        {fields.length ? (
+          <div className="space-y-5">
+            {fields.map((field) => {
+              if (field.control === "toggle") {
+                return (
+                  <CompactToggle
+                    checked={Boolean(draft[field.key])}
+                    key={field.key}
+                    label={field.label}
+                    onChange={(checked) => setDraftField(field.key, checked)}
+                  />
+                );
+              }
 
-          <SelectBox
-            onClick={() => openSelect("unitType", "تیپ واحد")}
-            placeholder="تیپ واحد"
-            value={draft.unitType}
-          />
+              if (field.control === "number") {
+                return (
+                  <InputBox
+                    key={field.key}
+                    leftText={field.leftText}
+                    numeric
+                    onChange={(value) => setDraftField(field.key, value)}
+                    placeholder={field.label}
+                    value={getDraftString(field.key)}
+                  />
+                );
+              }
 
-          <SelectBox
-            onClick={() => openSelect("unitPosition", "موقعیت واحد")}
-            placeholder="موقعیت واحد"
-            value={draft.unitPosition}
-          />
-
-          <SelectBox
-            onClick={() => openSelect("documentType", "نوع سند")}
-            placeholder="نوع سند"
-            value={draft.documentType}
-          />
-
-          <div className="pt-1">
-            <CompactToggle
-              checked={draft.renovated}
-              label="بازسازی شده"
-              onChange={(checked) => setDraftField("renovated", checked)}
-            />
-
-            <CompactToggle
-              checked={draft.furnished}
-              label="مبله با لوازم"
-              onChange={(checked) => setDraftField("furnished", checked)}
-            />
+              return (
+                <SelectBox
+                  key={field.key}
+                  onClick={() => openSelect(field.key as MoreFeatureSelectKey, field.label)}
+                  placeholder={field.label}
+                  value={getDraftString(field.key)}
+                />
+              );
+            })}
           </div>
-
-          <SelectBox
-            onClick={() => openSelect("facadeMaterial", "جنس نما")}
-            placeholder="جنس نما"
-            value={draft.facadeMaterial}
-          />
-
-          <SelectBox
-            onClick={() => openSelect("floorMaterial", "جنس کف")}
-            placeholder="جنس کف"
-            value={draft.floorMaterial}
-          />
-
-          <SelectBox
-            onClick={() => openSelect("cabinetMaterial", "جنس کابینت")}
-            placeholder="جنس کابینت"
-            value={draft.cabinetMaterial}
-          />
-        </div>
+        ) : (
+          <div className="rounded-[12px] bg-[#f5f5f5] px-4 py-5 text-center text-sm leading-6 text-[#4d4d4d]">
+            برای این دسته‌بندی مشخصات بیشتری تعریف نشده است.
+          </div>
+        )}
       </main>
 
       <MoreFeaturesFooter onCancel={onCancel} onConfirm={commit} />
@@ -1127,7 +1311,7 @@ function MoreFeaturesStep({
             setDraftField(sheet.key, item.title);
             setSheet(null);
           }}
-          selectedId={sheet ? draft[sheet.key] : undefined}
+          selectedId={sheet ? getDraftString(sheet.key) : undefined}
           showDividers={false}
         />
       </BottomSheet>

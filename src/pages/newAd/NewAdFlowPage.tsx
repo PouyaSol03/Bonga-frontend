@@ -23,7 +23,7 @@ type SheetState =
     options: string[];
   };
 
-type ChipItem = { id: string; label: string; icon?: string };
+type ChipItem = { id: string; label: string };
 
 type NewAdFormValues = {
   location: string;
@@ -90,17 +90,17 @@ const propertySpecs: ChipItem[] = [
 ];
 
 const heatingItems: ChipItem[] = [
-  { id: "gas-cooler", label: "کولر گازی", icon: "▤" },
-  { id: "water-cooler", label: "کولر آبی", icon: "▥" },
-  { id: "package", label: "پکیج", icon: "▣" },
-  { id: "radiator", label: "رادیاتور", icon: "▦" },
-  { id: "heater", label: "بخاری", icon: "▧" },
-  { id: "water-heater", label: "آبگرمکن", icon: "▨" },
-  { id: "floor-heating", label: "گرمایش از کف", icon: "▩" },
-  { id: "fan-coil", label: "فن کوئل", icon: "▤" },
-  { id: "chiller", label: "چیلر", icon: "▥" },
-  { id: "split", label: "اسپلیت", icon: "▣" },
-  { id: "fireplace", label: "شوفاژ", icon: "▦" },
+  { id: "gas-cooler", label: "کولر گازی" },
+  { id: "water-cooler", label: "کولر آبی" },
+  { id: "package", label: "پکیج" },
+  { id: "radiator", label: "رادیاتور" },
+  { id: "heater", label: "بخاری" },
+  { id: "water-heater", label: "آبگرمکن" },
+  { id: "floor-heating", label: "گرمایش از کف" },
+  { id: "fan-coil", label: "فن کوئل" },
+  { id: "chiller", label: "چیلر" },
+  { id: "split", label: "اسپلیت" },
+  { id: "fireplace", label: "شوفاژ" },
 ];
 
 const facilityItems: ChipItem[] = [
@@ -403,11 +403,31 @@ function Tag({ label, onRemove }: { label: string; onRemove: () => void }) {
   return <button className="flex h-9 items-center gap-2 rounded-[7px] border border-[#0048c4] bg-[#0048c41f] px-3 text-sm font-medium leading-5 text-[#0048c4]" onClick={onRemove} type="button"><span>{label}</span><span className="text-base leading-none">×</span></button>;
 }
 
-function Chip({ item, selected, mapped, onClick }: { item: ChipItem; selected: boolean; mapped?: boolean; onClick: () => void }) {
+function Chip({
+  item,
+  selected,
+  onClick,
+}: {
+  item: ChipItem;
+  selected: boolean;
+  onClick: () => void;
+}) {
   return (
-    <button aria-pressed={selected} className={`flex h-9 items-center justify-center gap-1.5 rounded-[8px] border px-3 text-sm font-medium leading-5 transition-colors ${selected ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={onClick} type="button">
+    <button
+      aria-pressed={selected}
+      className={`flex h-9 items-center justify-center gap-1.5 rounded-[8px] border px-3 text-sm font-medium leading-5 transition-colors ${selected
+        ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
+        : "border-[#cccccc] bg-white text-[#4d4d4d]"
+        }`}
+      onClick={onClick}
+      type="button"
+    >
       <span>{item.label}</span>
-      {mapped ? <FeaturesIcons feature={item.label} className="h-5 w-5 shrink-0 object-contain" /> : item.icon ? <span className="text-base leading-none text-[#808080]">{item.icon}</span> : null}
+
+      <FeaturesIcons
+        feature={item.label}
+        className="h-5 w-5 shrink-0 object-contain"
+      />
     </button>
   );
 }
@@ -465,7 +485,7 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
   const [showAllFacilities, setShowAllFacilities] = useState(false);
 
   const values = watch();
-  const initialVisibleChipCount = 5;
+  const initialVisibleChipCount = 8;
 
   const visibleHeating = showAllHeating
     ? heatingItems
@@ -548,16 +568,35 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
               <Chip key={item.id} item={item} selected={values.heatingCooling.includes(item.id)} onClick={() => setField("heatingCooling", toggleArray(values.heatingCooling, item.id))} />
             ))}
           </div>
-          {!showAllHeating ? <MoreButton count={heatingItems.length - visibleHeating.length} onClick={() => setShowAllHeating(true)} /> : null}
+          {heatingItems.length > initialVisibleChipCount ? (
+            <MoreButton
+              count={heatingItems.length - initialVisibleChipCount}
+              expanded={showAllHeating}
+              onClick={() => setShowAllHeating((current) => !current)}
+            />
+          ) : null}
         </Section>
 
         <Section icon="features.svg" title="امکانات">
           <div className="flex flex-wrap justify-start gap-2" dir="rtl">
             {visibleFacilities.map((item) => (
-              <Chip key={item.id} item={item} mapped selected={values.facilities.includes(item.id)} onClick={() => setField("facilities", toggleArray(values.facilities, item.id))} />
+              <Chip
+                key={item.id}
+                item={item}
+                selected={values.facilities.includes(item.id)}
+                onClick={() =>
+                  setField("facilities", toggleArray(values.facilities, item.id))
+                }
+              />
             ))}
           </div>
-          {!showAllFacilities ? <MoreButton count={facilityItems.length - visibleFacilities.length} onClick={() => setShowAllFacilities(true)} /> : null}
+          {facilityItems.length > initialVisibleChipCount ? (
+            <MoreButton
+              count={facilityItems.length - initialVisibleChipCount}
+              expanded={showAllFacilities}
+              onClick={() => setShowAllFacilities((current) => !current)}
+            />
+          ) : null}
         </Section>
 
         <Section icon="money.svg" title="اطلاعات قیمت">
@@ -657,8 +696,41 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
   );
 }
 
-function MoreButton({ count, onClick }: { count: number; onClick: () => void }) {
-  return <button className="mx-auto mt-6 flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4]" onClick={onClick} type="button"><span>نمایش {count} مورد دیگر</span><span>⌄</span></button>;
+function MoreButton({
+  count,
+  expanded,
+  onClick,
+}: {
+  count: number;
+  expanded: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="mx-auto mt-5 flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-medium leading-5 text-[#0048c4] transition-colors active:bg-[#0048c40f]"
+      onClick={onClick}
+      type="button"
+    >
+      <span>
+        {expanded ? "نمایش کمتر" : `نمایش ${count} مورد بیشتر`}
+      </span>
+
+      <svg
+        aria-hidden="true"
+        className="h-4 w-4 shrink-0"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d={expanded ? "M7 14l5-5 5 5" : "M7 10l5 5 5-5"}
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+        />
+      </svg>
+    </button>
+  );
 }
 
 function PhotoUploader() {

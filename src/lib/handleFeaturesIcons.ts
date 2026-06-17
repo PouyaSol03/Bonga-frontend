@@ -45,6 +45,13 @@ const featureIconMap: Record<string, string> = {
   "سالن اجتماعات": "meeting-room.svg",
   "سالن ورزشی": "gym.svg",
   "سینما": "camera.svg",
+
+  "کولر گازی": "coolerGazi.svg",
+  "کولر آبی": "coolerAbi.svg",
+  "پکیج": "package.svg",
+  "آبگرمکن": "abGarmKon.svg",
+  "بخاری": "heater.svg",
+  "شوفاژ": "shoofaj.svg"
 };
 
 function normalizeFeatureLabel(value: string) {

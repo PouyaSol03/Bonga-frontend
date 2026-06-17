@@ -62,18 +62,20 @@ export function ViewAdIconButton({
 export function ViewAdTopBar({
   actionIcons = ["share", "note", "bookmark"],
   backTo,
+  bookmarked = false,
   onAction,
   title,
 }: {
   actionIcons?: IconName[];
   backTo: string;
+  bookmarked?: boolean;
   onAction?: (icon: IconName) => void;
   title?: string;
 }) {
   return (
     <TopBar
       actions={actionIcons.map((icon) => ({
-        icon: <ViewAdIcon name={icon} />,
+        icon: <ViewAdIcon filled={icon === "bookmark" && bookmarked} name={icon} />,
         id: icon,
         label: getActionLabel(icon),
         onClick: onAction ? () => onAction(icon) : undefined,

@@ -35,6 +35,8 @@ type AlbumMediaItem = {
   type: "image" | "video";
 };
 
+type GalleryMediaKind = "album" | "video" | "tour3d";
+
 const singleAdMockData: AdvertisementItem = {
   id: "000000000000000000000601",
   title: "فروش کامل واحد اداری در مشهد",
@@ -211,7 +213,7 @@ function GalleryHero({
   onOpenAlbum,
 }: {
   mediaItems?: AlbumMediaItem[];
-  onOpenAlbum: () => void;
+  onOpenAlbum: (initialIndex?: number) => void;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef<SwiperInstance | null>(null);
@@ -219,6 +221,26 @@ function GalleryHero({
     mediaItems.length > 0
       ? mediaItems
       : [{ src: "/figma/view-ad-gallery.png", type: "image" }];
+  const videoIndex = Math.max(
+    galleryItems.findIndex((item) => item.type === "video"),
+    0,
+  );
+
+  const selectGalleryKind = (kind: GalleryMediaKind) => {
+    if (kind === "album") {
+      swiperRef.current?.slideTo(0);
+      setActiveIndex(0);
+      return;
+    }
+
+    if (kind === "video") {
+      swiperRef.current?.slideTo(videoIndex);
+      setActiveIndex(videoIndex);
+      return;
+    }
+
+    onOpenAlbum(activeIndex);
+  };
 
   return (
     <div className="px-4 pt-4">
@@ -237,7 +259,7 @@ function GalleryHero({
               <button
                 aria-label="باز کردن آلبوم تصاویر"
                 className="block w-full"
-                onClick={onOpenAlbum}
+                onClick={() => onOpenAlbum(index)}
                 type="button"
               >
                 <img
@@ -250,12 +272,25 @@ function GalleryHero({
           ))}
         </Swiper>
 
-        <div className="pointer-events-none absolute right-3 top-3 z-10 flex h-8 items-center gap-1 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:ltr]">
-          <ViewAdIcon className="h-4 w-4" name="album" />
-          <ViewAdIcon className="h-4 w-4" name="video" />
-          <span className="grid h-5 min-w-7 place-items-center rounded bg-white/15 px-1 text-[10px] font-semibold">
-            3D
-          </span>
+        <div className="absolute right-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:rtl]">
+          <GalleryMediaButton
+            iconSrc="/icons/iconAlbum.svg"
+            isSelected={galleryItems[activeIndex]?.type === "image"}
+            label="album"
+            onClick={() => selectGalleryKind("album")}
+          />
+          <GalleryMediaButton
+            iconSrc="/icons/iconVideo.svg"
+            isSelected={galleryItems[activeIndex]?.type === "video"}
+            label="video"
+            onClick={() => selectGalleryKind("video")}
+          />
+          <GalleryMediaButton
+            iconSrc="/icons/icon3d.svg"
+            isSelected={false}
+            label="3d"
+            onClick={() => selectGalleryKind("tour3d")}
+          />
         </div>
 
         <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
@@ -277,6 +312,35 @@ function GalleryHero({
         </div>
       </div>
     </div>
+  );
+}
+
+function GalleryMediaButton({
+  iconSrc,
+  isSelected,
+  label,
+  onClick,
+}: {
+  iconSrc: string;
+  isSelected: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      aria-label={label}
+      aria-pressed={isSelected}
+      className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${
+        isSelected ? "bg-white/25" : "bg-transparent active:bg-white/15"
+      }`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      type="button"
+    >
+      <img alt="" aria-hidden="true" className="h-5 w-5 object-contain" src={iconSrc} />
+    </button>
   );
 }
 
@@ -827,13 +891,15 @@ function getAlbumDotSize(index: number, activeIndex: number, total: number) {
 }
 
 function AlbumPage({
+  initialIndex = 0,
   mediaItems,
   onClose,
 }: {
+  initialIndex?: number;
   mediaItems: AlbumMediaItem[];
   onClose: () => void;
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
   const swiperRef = useRef<SwiperInstance | null>(null);
   const dotSizes = mediaItems.map((_, index) =>
     getAlbumDotSize(index, activeIndex, mediaItems.length),
@@ -865,6 +931,7 @@ function AlbumPage({
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
+            swiper.slideTo(initialIndex, 0);
           }}
           slidesPerView={1}
         >
@@ -922,7 +989,7 @@ function ViewAdContent({
   details: ViewAdDetails;
   mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
-  onOpenAlbum: () => void;
+  onOpenAlbum: (initialIndex?: number) => void;
   onRowAction: (label: string) => void;
 }) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -1156,11 +1223,65 @@ function LoadingState() {
       variant="flush"
     >
       <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-10 text-center text-sm font-medium text-[#808080]">
-        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
-        در حال دریافت آگهی...
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        <ViewAdPageSkeleton />
       </main>
     </PageFrame>
+  );
+}
+
+function SkeletonBlock({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+}
+
+function ViewAdPageSkeleton() {
+  return (
+    <>
+      <section className="bg-white px-4 pb-4 pt-4">
+        <SkeletonBlock className="aspect-[328/219] w-full rounded-2xl" />
+        <div className="mt-4 flex items-center justify-between">
+          <SkeletonBlock className="h-5 w-20" />
+          <SkeletonBlock className="h-5 w-28" />
+        </div>
+        <div className="mt-4 space-y-2">
+          <SkeletonBlock className="ml-auto h-5 w-44" />
+          <SkeletonBlock className="ml-auto h-6 w-64 max-w-full" />
+        </div>
+        <div className="mt-4 space-y-2">
+          <SkeletonBlock className="h-14 w-full" />
+          <SkeletonBlock className="h-14 w-full" />
+        </div>
+      </section>
+      <ViewAdSectionSkeleton rows={4} />
+      <ViewAdSectionSkeleton rows={6} />
+      <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
+        <SkeletonBlock className="ml-auto h-5 w-24" />
+        <div className="mt-6 space-y-3">
+          <SkeletonBlock className="ml-auto h-4 w-full" />
+          <SkeletonBlock className="ml-auto h-4 w-11/12" />
+          <SkeletonBlock className="ml-auto h-4 w-9/12" />
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ViewAdSectionSkeleton({ rows }: { rows: number }) {
+  return (
+    <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
+      <SkeletonBlock className="ml-auto h-5 w-28" />
+      <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
+        {Array.from({ length: rows }).map((_, index) => (
+          <div className="flex items-start gap-3" key={index}>
+            <SkeletonBlock className="h-6 w-6 shrink-0 rounded-full" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <SkeletonBlock className="h-5 w-full" />
+              <SkeletonBlock className="h-3 w-3/4" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -2398,6 +2519,7 @@ function DetailInfoFullPage({
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
+  const [albumInitialIndex, setAlbumInitialIndex] = useState(0);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isViolationReportOpen, setIsViolationReportOpen] = useState(false);
@@ -2530,7 +2652,11 @@ export function ViewAdPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <ViewAdTopBar backTo="/home" onAction={handleTopBarAction} />
+      <ViewAdTopBar
+        backTo="/home"
+        bookmarked={isBookmarked}
+        onAction={handleTopBarAction}
+      />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0]">
         <ViewAdContent
@@ -2539,7 +2665,10 @@ export function ViewAdPage() {
           details={details}
           mediaItems={mediaItems}
           mapPosition={getMapPosition(resolvedAd)}
-          onOpenAlbum={() => setIsAlbumOpen(true)}
+          onOpenAlbum={(initialIndex = 0) => {
+            setAlbumInitialIndex(initialIndex);
+            setIsAlbumOpen(true);
+          }}
           onRowAction={handleRowAction}
         />
       </main>
@@ -2599,6 +2728,7 @@ export function ViewAdPage() {
 
       {isAlbumOpen ? (
         <AlbumPage
+          initialIndex={albumInitialIndex}
           mediaItems={mediaItems}
           onClose={() => setIsAlbumOpen(false)}
         />

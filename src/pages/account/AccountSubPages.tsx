@@ -30,6 +30,7 @@ import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
+import { AdCardTomanIcon } from "../../components/AdCardIcons";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -128,53 +129,53 @@ function AccountProfileForm({
 
   return (
     <>
-        <section className="flex flex-col items-center px-4 pt-4">
-          <div className="relative grid h-[100px] w-[100px] place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
-            <UserIcon className="h-10 w-10" />
-            <button
-              aria-label="ویرایش تصویر"
-              className="absolute bottom-1 right-1 grid h-9 w-9 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
-              type="button"
-          onClick={onUpdateAvatar}
-            >
-              <EditIcon className="h-4 w-4" />
-            </button>
-          </div>
-        </section>
+      <section className="flex flex-col items-center px-4 pt-4">
+        <div className="relative grid h-[100px] w-[100px] place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
+          <UserIcon className="h-10 w-10" />
+          <button
+            aria-label="ویرایش تصویر"
+            className="absolute bottom-1 right-1 grid h-9 w-9 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
+            type="button"
+            onClick={onUpdateAvatar}
+          >
+            <EditIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </section>
 
-        <section className="mt-4 space-y-6 px-4">
-          <ReadonlyField label="شماره همراه" value={profile?.mobile ?? profile?.phone ?? mobile} />
-          <ReadonlyField label="کد ملی" value={form.nationalnumber || "-"} />
-        </section>
+      <section className="mt-4 space-y-6 px-4">
+        <ReadonlyField label="شماره همراه" value={profile?.mobile ?? profile?.phone ?? mobile} />
+        <ReadonlyField label="کد ملی" value={form.nationalnumber || "-"} />
+      </section>
 
-        <div className="mt-4 h-4 bg-[#f0f0f0]" />
+      <div className="mt-4 h-4 bg-[#f0f0f0]" />
 
-        <section className="space-y-6 px-4 pt-4">
-          <TextField
-            placeholder="نام خود را وارد کنید"
-            value={form.name}
-            onChange={(value) => setForm((current) => ({ ...current, name: value }))}
-          />
-          <TextField
-            placeholder="نام خانوادگی خود را وارد کنید"
-            value={form.family}
-            onChange={(value) => setForm((current) => ({ ...current, family: value }))}
-          />
-          <TextField
-            placeholder="پست الکترونیکی"
-            value={form.email}
-            onChange={(value) => setForm((current) => ({ ...current, email: value }))}
-          />
-        </section>
+      <section className="space-y-6 px-4 pt-4">
+        <TextField
+          placeholder="نام خود را وارد کنید"
+          value={form.name}
+          onChange={(value) => setForm((current) => ({ ...current, name: value }))}
+        />
+        <TextField
+          placeholder="نام خانوادگی خود را وارد کنید"
+          value={form.family}
+          onChange={(value) => setForm((current) => ({ ...current, family: value }))}
+        />
+        <TextField
+          placeholder="پست الکترونیکی"
+          value={form.email}
+          onChange={(value) => setForm((current) => ({ ...current, email: value }))}
+        />
+      </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={isSubmitting}
           type="button"
-        onClick={() => onSubmit(form)}
+          onClick={() => onSubmit(form)}
         >
-        {isSubmitting ? "در حال ثبت..." : "ثبت"}
+          {isSubmitting ? "در حال ثبت..." : "ثبت"}
         </button>
       </div>
     </>
@@ -199,7 +200,7 @@ export function AccountMyAdsPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
         <div className="space-y-2 bg-[#f0f0f0] pt-4">
-          {isLoading ? <AccountLoadingState text="در حال دریافت آگهی‌ها..." /> : null}
+          {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
               message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
@@ -235,7 +236,7 @@ export function AccountMyAdsEmptyPage() {
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
-        {isLoading ? <AccountLoadingState text="در حال دریافت آگهی‌ها..." /> : null}
+        {isLoading ? <AccountAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
             message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
@@ -251,26 +252,26 @@ export function AccountMyAdsEmptyPage() {
         ) : null}
         {!isLoading && !isError && ads.length === 0 ? (
           <section className="flex min-h-[560px] flex-col items-center justify-center px-10 text-center">
-          <div className="relative mb-6 grid h-[74px] w-[74px] place-items-center text-[#dfe3eb]">
-            <DocumentSadIcon className="h-[68px] w-[68px]" />
-            <span className="absolute bottom-1 right-2 grid h-7 w-7 place-items-center rounded-full bg-[#ffb100] text-base font-bold leading-none text-white">
-              !
-            </span>
-          </div>
-          <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
-            هیچ آگهی‌ای برای نمایش وجود ندارد!
-          </h2>
-          <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
-            می‌توانید آگهی‌های خود را ثبت کرده و در این بخش مشاهده کنید.
-          </p>
-          <RouteLink
-            className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
-            to="/new-ad"
-          >
-            <PlusIcon className="h-5 w-5" />
-            ثبت آگهی
-          </RouteLink>
-        </section>
+            <div className="relative mb-6 grid h-[74px] w-[74px] place-items-center text-[#dfe3eb]">
+              <DocumentSadIcon className="h-[68px] w-[68px]" />
+              <span className="absolute bottom-1 right-2 grid h-7 w-7 place-items-center rounded-full bg-[#ffb100] text-base font-bold leading-none text-white">
+                !
+              </span>
+            </div>
+            <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+              هیچ آگهی‌ای برای نمایش وجود ندارد!
+            </h2>
+            <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+              می‌توانید آگهی‌های خود را ثبت کرده و در این بخش مشاهده کنید.
+            </p>
+            <RouteLink
+              className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+              to="/new-ad"
+            >
+              <PlusIcon className="h-5 w-5" />
+              ثبت آگهی
+            </RouteLink>
+          </section>
         ) : null}
       </main>
     </AccountPageShell>
@@ -282,89 +283,116 @@ export function AccountWalletPage() {
   const { message, showNotice } = useDemoNotice();
   const { data: wallet, error, isError, isLoading, refetch } = useWalletPaymentsQuery();
 
+  const suggestedAmounts = [
+    { label: "۱۰۰ هزار تومان", value: "100000" },
+    { label: "۲۰۰ هزار تومان", value: "200000" },
+    { label: "۳۰۰ هزار تومان", value: "300000" },
+    { label: "۵۰۰ هزار تومان", value: "500000" },
+    { label: "۱ میلیون تومان", value: "1000000" },
+    { label: "۲ میلیون تومان", value: "2000000" },
+  ];
+
   return (
-    <AccountPageShell
-      action={
-        <RouteLink
-          aria-label="تاریخچه پرداخت"
-          className="grid h-12 w-12 place-items-center text-[#1a1a1a]"
-          to="/account/wallet/history"
-        >
-          <WalletHistoryIcon className="h-6 w-6" />
-        </RouteLink>
-      }
-      title="کیف پول"
-    >
+    <AccountPageShell title="کیف پول">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
         {isLoading ? <AccountLoadingState text="در حال دریافت اعتبار..." /> : null}
+
         {isError ? (
           <AccountRetryState
             message={getApiErrorMessage(error, "دریافت اطلاعات کیف پول با خطا مواجه شد.")}
             onRetry={() => void refetch()}
           />
         ) : null}
+
         {!isLoading && !isError ? (
-          <>
-        <section className="flex h-[178px] flex-col items-center justify-center">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-[#0048c4] text-white">
-            <WalletIcon className="h-8 w-8" />
-          </div>
-          <p className="m-0 mt-5 text-sm font-medium leading-5 text-[#4d4d4d]">
-            اعتبار فعلی:
-          </p>
-          <div className="mt-2 rounded-lg bg-[#0048c414] px-4 py-1 text-center text-base font-semibold leading-6 text-[#0048c4]">
-            {formatMoney(wallet?.balance ?? 0)} تومان
-          </div>
-        </section>
+          <section className="px-3 pt-4 text-right">
+            <div className="flex items-center justify-between rounded-xl border border-[#d6e1ff] bg-[#0048c414] p-4 [direction:rtl]">
+              <div>
+                <p className="m-0 text-xs font-medium leading-5 text-[#4D4D4D]">
+                  اعتبار قابل استفاده:
+                </p>
 
-        <div className="h-2 bg-[#f0f0f0]" />
+                <div className="mt-2 flex items-end gap-1 text-[#0048c4]">
+                  <strong className="text-2xl font-bold leading-7">
+                    {formatMoney(wallet?.balance ?? 0)}
+                  </strong>
+                  <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
+                </div>
+              </div>
 
-        <section className="px-4 pt-6 text-right">
-          <div className="flex items-center justify-end gap-2 text-[#1a1a1a]">
-            <h2 className="m-0 text-base font-medium leading-6">افزایش اعتبار</h2>
-            <WalletAddIcon className="h-6 w-6 text-[#4d4d4d]" />
-          </div>
-          <p className="m-0 mt-3 text-sm font-normal leading-5 text-[#1a1a1a]">
-            مبلغ مورد نظر را برای افزایش اعتبار وارد کنید.
-          </p>
-          <label className="mt-6 flex h-14 items-center rounded-xl border border-[#cccccc] px-4 [direction:ltr]">
-            <span className="text-sm font-normal leading-5 text-[#a6a6a6]">تومان</span>
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
-              placeholder="مبلغ اعتبار"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-            />
-          </label>
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            {["۱۰۰ هزار", "۲۰۰ هزار", "۳۰۰ هزار"].map((amountOption) => (
-              <button
-                className={`h-8 rounded-lg text-xs font-medium leading-4 ${
-                  amount === amountOption ? "bg-[#0048c414] text-[#0048c4]" : "bg-[#e8e9ee] text-[#1a1a1a]"
-                }`}
-                key={amountOption}
-                onClick={() => setAmount(amountOption)}
-                type="button"
-              >
-                {amountOption}
-              </button>
-            ))}
-          </div>
-        </section>
-          </>
+              <div className="grid p-4 shrink-0 place-items-center rounded-full bg-[#dbe6ff] text-[#002099]">
+                <img src="/icons/walletPlus.svg" alt="" />
+              </div>
+            </div>
+
+            <div className="mt-5 pt-5 flex items-center gap-2 text-[#1a1a1a]">
+              <PlusIcon className="h-5 w-5" />
+              <h2 className="m-0 text-base font-medium leading-6">
+                افزایش اعتبار
+              </h2>
+            </div>
+
+            <label className="mt-4 flex py-3 items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
+              <span className="text-xs font-normal leading-4 text-[#808080]">
+                تومان
+              </span>
+
+              <input
+                className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] placeholder:text-sm [direction:rtl]"
+                inputMode="numeric"
+                placeholder="مبلغ اعتبار دلخواه"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+              />
+            </label>
+
+            <h3 className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
+              مبالغ پیشنهادی
+            </h3>
+
+            <div className="mt-3 grid grid-cols-3 gap-3 [direction:rtl]">
+              {suggestedAmounts.map((amountOption) => {
+                const isActive = amount === amountOption.value;
+
+                return (
+                  <button
+                    className={`rounded-xl border py-1.5 !text-xs !font-medium leading-4 transition-colors ${isActive
+                      ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
+                      : "border-[#cccccc] bg-white text-[#1a1a1a]"
+                      }`}
+                    key={amountOption.value}
+                    onClick={() => setAmount(amountOption.value)}
+                    type="button"
+                  >
+                    {amountOption.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <RouteLink
+              className="relative mt-8 flex gap-2 p-4 w-full items-center justify-center rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-medium leading-5 text-[#1a1a1a] no-underline"
+              to="/account/wallet/history"
+            >
+              <img src="/icons/walletHistory.svg" alt="" />
+              <span className="text-base flex-1">تاریخچه پرداخت</span>
+              <ChevronLeftIcon className="h-4 w-4 text-[#4d4d4d]" />
+            </RouteLink>
+          </section>
         ) : null}
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={amount.trim().length === 0}
-          onClick={() => showNotice(`پرداخت ${amount} تومان برای نسخه نمایشی ثبت شد`)}
+          onClick={() => showNotice(`درخواست شارژ کیف پول به مبلغ ${formatMoney(amount)} تومان ثبت شد`)}
           type="button"
         >
-          پرداخت
+          شارژ کیف پول
         </button>
       </div>
+
       <DemoNotice message={message} className="bottom-20" />
     </AccountPageShell>
   );
@@ -376,29 +404,23 @@ export function AccountWalletHistoryPage() {
 
   return (
     <AccountPageShell title="تاریخچه پرداخت کیف پول">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
+
         {isError ? (
           <AccountRetryState
             message={getApiErrorMessage(error, "دریافت تاریخچه پرداخت با خطا مواجه شد.")}
             onRetry={() => void refetch()}
           />
         ) : null}
-        {!isLoading && !isError && payments.map((row, index) => (
-          <section className="mb-2 bg-white px-4 py-5" key={String(row.id ?? index)}>
-            <PaymentInfoRow
-              label="وضعیت"
-              value={readPaymentStatus(row)}
-              valueColor={readPaymentStatusColor(row)}
-            />
-            <PaymentInfoRow label="هزینه" value={`${formatMoney(row.amount ?? 0)} تومان`} />
-            <PaymentInfoRow label="زمان پرداخت" value={String(row.created_at ?? "-")} />
-            <PaymentInfoRow
-              label="شناسه پرداخت"
-              value={String(row.tracking_code ?? row.id ?? "-")}
-            />
-          </section>
+
+        {!isLoading && !isError && payments.map((payment, index) => (
+          <PaymentHistoryCard
+            key={String(payment.id ?? index)}
+            payment={payment}
+          />
         ))}
+
         {!isLoading && !isError && payments.length === 0 ? (
           <EmptyMessage text="تاریخچه پرداختی وجود ندارد" />
         ) : null}
@@ -418,7 +440,7 @@ export function AccountNotesPage() {
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <div className="space-y-2 bg-[#f0f0f0] pt-2">
-          {isLoading ? <AccountLoadingState text="در حال دریافت یادداشت‌ها..." /> : null}
+          {isLoading ? <AccountNotesSkeleton /> : null}
           {isError ? (
             <AccountRetryState
               message={getApiErrorMessage(error, "دریافت یادداشت‌ها با خطا مواجه شد.")}
@@ -490,7 +512,7 @@ export function AccountBookmarksPage() {
     >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <div className="space-y-2 bg-[#f0f0f0] pt-2">
-          {isLoading ? <AccountLoadingState text="در حال دریافت نشان‌ها..." /> : null}
+          {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
               message={getApiErrorMessage(error, "دریافت نشان‌ها با خطا مواجه شد.")}
@@ -566,7 +588,7 @@ export function AccountIdentityPage() {
   const authorize = useAuthorizeMeMutation();
 
   return (
-    <AccountPageShell title="تایید هویت">
+    <AccountPageShell title={status === "verified" ? "مالکیت سیم‌کارت" : "تایید هویت"}>
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
         {status === "pending" ? (
           <IdentityPendingState
@@ -590,6 +612,7 @@ export function AccountIdentityPage() {
           <IdentityVerifiedState onChangeOwner={() => showNotice("درخواست تغییر مالکیت ثبت شد")} />
         )}
       </main>
+
       <DemoNotice message={message} className="bottom-20" />
     </AccountPageShell>
   );
@@ -598,6 +621,7 @@ export function AccountIdentityPage() {
 export function AccountRequestsPage() {
   const [activeTab, setActiveTab] = useState<"requests" | "results">("requests");
   const [requestIds, setRequestIds] = useState([1, 2, 3, 4]);
+  const isRequestsLoading = false;
 
   return (
     <AccountPageShell title="درخواست‌ها">
@@ -612,9 +636,8 @@ export function AccountRequestsPage() {
 
               return (
                 <button
-                  className={`text-base font-medium leading-6 transition-colors ${
-                    isActive ? "bg-[#0048c414] text-[#002099]" : "bg-white text-[#4d4d4d]"
-                  }`}
+                  className={`text-base font-medium leading-6 transition-colors ${isActive ? "bg-[#0048c414] text-[#002099]" : "bg-white text-[#4d4d4d]"
+                    }`}
                   key={item.id}
                   onClick={() => setActiveTab(item.id as "requests" | "results")}
                   type="button"
@@ -628,10 +651,11 @@ export function AccountRequestsPage() {
 
         {activeTab === "requests" ? (
           <div className="space-y-2 bg-[#f0f0f0] pt-2">
-            {requestIds.map((id) => (
+            {isRequestsLoading ? <AccountRequestsSkeleton /> : null}
+            {!isRequestsLoading && requestIds.map((id) => (
               <RequestCard key={id} onCancel={() => setRequestIds((items) => items.filter((item) => item !== id))} />
             ))}
-            {requestIds.length === 0 ? <EmptyMessage text="درخواستی باقی نمانده است" /> : null}
+            {!isRequestsLoading && requestIds.length === 0 ? <EmptyMessage text="درخواستی باقی نمانده است" /> : null}
           </div>
         ) : (
           <div className="space-y-2 bg-[#f0f0f0] pt-2">
@@ -742,11 +766,10 @@ function AdFilterTabs({
       <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {adFilters.map((filter) => (
           <button
-            className={`h-9 shrink-0 rounded-lg border px-3 text-sm font-medium leading-5 ${
-              activeFilter.label === filter.label
-                ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-                : "border-[#cccccc] bg-white text-[#1a1a1a]"
-            }`}
+            className={`h-9 shrink-0 rounded-lg border px-3 text-sm font-medium leading-5 ${activeFilter.label === filter.label
+              ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
+              : "border-[#cccccc] bg-white text-[#1a1a1a]"
+              }`}
             key={filter.label}
             onClick={() => onSelect(filter)}
             type="button"
@@ -844,11 +867,10 @@ function BookmarkAdCard({
           <div className="mt-2 flex h-6 items-center justify-start gap-2">
             {card.badges.map((item) => (
               <span
-                className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${
-                  item === "فوری" || item === "ÙÙˆØ±ÛŒ"
-                    ? "border-[#ff6d00] text-[#ff6d00]"
-                    : "border-[#11a366] text-[#11a366]"
-                }`}
+                className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${item === "فوری" || item === "ÙÙˆØ±ÛŒ"
+                  ? "border-[#ff6d00] text-[#ff6d00]"
+                  : "border-[#11a366] text-[#11a366]"
+                  }`}
                 key={item}
               >
                 {item}
@@ -1016,52 +1038,62 @@ function IdentityPendingState({
 
   return (
     <>
-      <section className="space-y-3 px-4 pt-6 text-right">
-        <h2 className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">
-          ملاحظات در تایید هویت
-        </h2>
-        <p className="m-0 text-base font-normal leading-7 text-[#4d4d4d]">
-          برای جلوگیری از ورودشماره‌ی موبایل متخلف و افزایش سلامت تعاملات، تایید هویت در ایران شناسا انجام می‌شود.
-        </p>
-        <p className="m-0 text-base font-normal leading-7 text-[#1a1a1a]">
-          حساب شما با شماره‌ی <span dir="ltr">{mobile}</span> فعال است.
-        </p>
+      <section className="px-2 pt-3">
+        <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
+          <div className="flex items-center justify-start gap-2 text-[#0048C4]">
+            <IdentityCheckIcon className="h-6 w-6" />
+            <h2 className="m-0 font-semibold leading-5">
+              ملاحظات در تایید هویت
+            </h2>
+          </div>
+
+          <p className="m-0 mt-3 font-normal leading-7 text-[#1a1a1a]">
+            برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
+          </p>
+
+          <p className="m-0 mt-2 font-medium leading-6 text-[#1a1a1a]">
+            شماره همراه فعال:{" "}
+            <span dir="ltr" className="font-semibold text-[#11A366]">
+              {mobile}
+            </span>
+          </p>
+        </div>
       </section>
 
-      <div className="mt-6 h-2 bg-[#f0f0f0]" />
-
-      <section className="px-4 pt-6 text-right">
-        <h2 className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">
+      <section className="px-2 pt-4 text-center">
+        <h2 className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
           تایید با کد ملی
         </h2>
-        <p className="m-0 mt-2 text-xs font-normal leading-5 text-[#808080]">
-          کد ملی شما به کاربران نمایش داده نمی‌شود.
-        </p>
 
-        <label className="mt-6 block">
-          <span className="mb-1 block pr-4 text-right text-xs font-normal leading-4 text-[#808080]">
-            کد ملی
+        <div className="mt-1 flex items-center justify-center gap-1 text-[#808080]">
+          <InfoCircleIcon className="h-3.5 w-3.5 shrink-0" />
+          <p className="m-0 text-[11px] font-normal leading-5">
+            کد ملی باید متعلق به مالک همین شماره همراه باشد.
+          </p>
+        </div>
+
+        <label className="relative mt-4 block">
+          <span className="absolute -top-2 right-4 bg-white px-1.5 text-xs font-normal leading-4 text-[#808080]">
+            کد ملی مالک شماره همراه
           </span>
+
           <input
-            className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
+            className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
             inputMode="numeric"
             value={nationalnumber}
             onChange={(event) => setNationalnumber(event.target.value)}
           />
-          <span className="mt-1 block pr-4 text-right text-xs font-normal leading-4 text-[#808080]">
-            100 هزار تومان
-          </span>
         </label>
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={nationalnumber.trim().length === 0 || isPending}
           onClick={() => onVerify(nationalnumber)}
           type="button"
         >
-          {isPending ? "در حال تایید..." : "تایید کد ملی"}
+          {isPending ? "در حال بررسی..." : "بررسی و تایید هویت"}
         </button>
       </div>
     </>
@@ -1071,35 +1103,44 @@ function IdentityPendingState({
 function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void }) {
   return (
     <>
-      <section className="flex min-h-[184px] flex-col items-center justify-center px-8 text-center">
-        <div className="grid h-16 w-16 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]">
-          <IdentityCheckIcon className="h-8 w-8" />
+      <section className="px-2 pt-2">
+        <div className="rounded-xl border border-[#11A366] bg-[#11A36614] px-4 pb-5 pt-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-[#11A366]">
+            <IdentityCheckIcon className="h-4 w-4" />
+            <h2 className="m-0 text-sm font-semibold leading-5">
+              هویت شما تایید شده است
+            </h2>
+          </div>
+
+          <p className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
+            احراز هویت شما در بهمن ۱۴۰۱ با موفقیت انجام شده است.
+          </p>
         </div>
-        <h2 className="m-0 mt-5 text-base font-medium leading-6 text-[#1a1a1a]">
-          تأیید هویت شده
-        </h2>
-        <p className="m-0 mt-3 text-base font-normal leading-7 text-[#4d4d4d]">
-          تأیید هویت شما در بهمن ۱۴۰۱ از طریق کد ملی انجام شد.
-        </p>
       </section>
 
-      <div className="h-2 bg-[#f0f0f0]" />
+      <div className="mt-3 h-0.5 bg-[#f0f0f0]" />
 
-      <section className="px-4 pt-6 text-right">
-        <h2 className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">
-          تغییر مالکیت سیم‌کارت
+      <section className="px-2 pt-4 text-center">
+        <h2 className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
+          مالکیت سیم‌کارت
         </h2>
-        <p className="m-0 mt-3 whitespace-pre-line text-xs font-normal leading-5 text-[#4d4d4d]">
-          در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
-          {"\n"}در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
-        </p>
+
+        <div className="mt-2 flex items-start justify-center gap-1 text-[#808080]">
+          <InfoCircleIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <p className="m-0 max-w-[240px] text-[11px] font-normal leading-5">
+            در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
+            <br />
+            در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
+          </p>
+        </div>
 
         <button
-          className="mt-6 flex h-14 w-full items-center justify-center rounded-xl border border-[#0048c4] px-4 text-base font-medium leading-6 text-[#0048c4]"
+          className="relative mt-6 flex h-12 w-full items-center justify-center rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-semibold leading-5 text-[#0048c4]"
           onClick={onChangeOwner}
           type="button"
         >
-          اعلام تغییر مالکیت سیم‌کارت
+          <ChevronLeftIcon className="absolute left-4 h-4 w-4" />
+          <span>ثبت تغییر مالکیت سیم‌کارت</span>
         </button>
       </section>
     </>
@@ -1116,10 +1157,74 @@ function EmptyMessage({ text }: { text: string }) {
 
 function AccountLoadingState({ text }: { text: string }) {
   return (
-    <div className="bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
-      <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
-      {text}
+    <div className="space-y-3 bg-white px-4 py-5" aria-label={text}>
+      <AccountSkeletonBlock className="ml-auto h-5 w-32" />
+      <AccountSkeletonBlock className="h-14 w-full" />
+      <AccountSkeletonBlock className="h-14 w-full" />
     </div>
+  );
+}
+
+function AccountSkeletonBlock({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+}
+
+function AccountAdCardsSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <article className="bg-white px-4 py-4" key={index}>
+          <div className="flex gap-3 [direction:rtl]">
+            <AccountSkeletonBlock className="h-[104px] w-[136px] shrink-0 rounded-xl" />
+            <div className="min-w-0 flex-1 space-y-3">
+              <AccountSkeletonBlock className="ml-auto h-5 w-3/4" />
+              <AccountSkeletonBlock className="ml-auto h-4 w-1/2" />
+              <AccountSkeletonBlock className="ml-auto h-4 w-full" />
+              <AccountSkeletonBlock className="ml-auto h-4 w-2/3" />
+            </div>
+          </div>
+        </article>
+      ))}
+    </>
+  );
+}
+
+function AccountNotesSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <article className="bg-white px-4 py-4" key={index}>
+          <div className="flex gap-3 [direction:rtl]">
+            <AccountSkeletonBlock className="h-[104px] w-[136px] shrink-0 rounded-xl" />
+            <div className="min-w-0 flex-1 space-y-3">
+              <AccountSkeletonBlock className="ml-auto h-5 w-3/4" />
+              <AccountSkeletonBlock className="ml-auto h-4 w-1/2" />
+            </div>
+          </div>
+          <AccountSkeletonBlock className="mt-4 h-20 w-full rounded-xl" />
+        </article>
+      ))}
+    </>
+  );
+}
+
+function AccountRequestsSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <article className="bg-white px-4 py-4" key={index}>
+          <div className="flex items-center justify-between gap-3 [direction:ltr]">
+            <AccountSkeletonBlock className="h-10 w-28" />
+            <AccountSkeletonBlock className="h-5 w-40" />
+          </div>
+          <div className="mt-4 flex flex-wrap justify-end gap-2">
+            {Array.from({ length: 5 }).map((__, itemIndex) => (
+              <AccountSkeletonBlock className="h-9 w-24" key={itemIndex} />
+            ))}
+          </div>
+        </article>
+      ))}
+    </>
   );
 }
 
@@ -1224,6 +1329,61 @@ function TextField({
       value={value}
       onChange={(event) => onChange(event.target.value)}
     />
+  );
+}
+
+function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
+  return (
+    <article className="border-b border-[#f0f0f0] bg-white px-4 py-4 text-right">
+      <PaymentHistoryRow
+        label="وضعیت"
+        value={readPaymentStatus(payment)}
+        valueColor={readPaymentStatusColor(payment)}
+      />
+
+      <PaymentHistoryRow
+        label="هزینه"
+        value={`${formatMoney(payment.amount ?? 0)} تومان`}
+      />
+
+      <PaymentHistoryRow
+        label="زمان پرداخت"
+        value={String(payment.created_at ?? "-")}
+      />
+
+      <PaymentHistoryRow
+        label="شناسه پرداخت"
+        value={String(payment.tracking_code ?? payment.id ?? "-")}
+        isLast
+      />
+    </article>
+  );
+}
+
+function PaymentHistoryRow({
+  isLast = false,
+  label,
+  value,
+  valueColor = "#1a1a1a",
+}: {
+  isLast?: boolean;
+  label: string;
+  value: string;
+  valueColor?: string;
+}) {
+  return (
+    <div className={`flex items-center justify-between gap-4 ${isLast ? "" : "mb-3"}`}>
+      <span className="shrink-0 text-xs font-normal leading-5 text-[#808080]">
+        {label}
+      </span>
+
+      <span
+        className="min-w-0 text-left text-xs font-medium leading-5"
+        style={{ color: valueColor }}
+      >
+        {value}
+      </span>
+    </div>
   );
 }
 
@@ -1352,6 +1512,42 @@ function WalletIcon({ className = "" }: { className?: string }) {
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
       <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" />
       <path d="M17 12h3v4h-3a2 2 0 0 1 0-4Z" />
+    </svg>
+  );
+}
+
+function InfoCircleIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
+function ChevronLeftIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path d="m15 18-6-6 6-6" />
     </svg>
   );
 }

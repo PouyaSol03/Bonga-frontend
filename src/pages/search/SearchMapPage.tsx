@@ -60,7 +60,11 @@ export function SearchMapPage() {
     });
   }, [chips]);
 
-  const visibleListingIds = new Set(visibleListings.map((listing) => listing.id));
+  const visibleListingIds = new Set(
+    visibleListings
+      .filter((listing) => !listing.showPriceMarker)
+      .map((listing) => listing.id),
+  );
   const visibleDotMarkers = searchMapDotMarkers.filter((marker) =>
     visibleListingIds.has(marker.listingId),
   );

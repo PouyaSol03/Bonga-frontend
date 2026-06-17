@@ -1387,27 +1387,6 @@ function PaymentHistoryRow({
   );
 }
 
-function PaymentInfoRow({
-  label,
-  value,
-  valueColor = "#1a1a1a",
-}: {
-  label: string;
-  value: string;
-  valueColor?: string;
-}) {
-  return (
-    <div className="mb-5 flex items-center justify-between last:mb-0 [direction:ltr]">
-      <span className="text-left text-base font-medium leading-6" style={{ color: valueColor }}>
-        {value}
-      </span>
-      <span className="text-right text-base font-medium leading-6 text-[#808080]">
-        {label}
-      </span>
-    </div>
-  );
-}
-
 function DocumentSadIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 80 80">
@@ -1470,24 +1449,6 @@ function UserIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function WalletAddIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" />
-      <path d="M17 12h3v4h-3a2 2 0 0 1 0-4ZM8 12h5M10.5 9.5v5" />
-    </svg>
-  );
-}
-
-function WalletHistoryIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" />
-      <path d="M17 12h3v4h-3a2 2 0 0 1 0-4ZM8 17a4 4 0 1 1 2.6-7M8 11v3h2" />
-    </svg>
-  );
-}
-
 function IdentityCheckIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -1503,15 +1464,6 @@ function BuildingClusterIcon({ className = "" }: { className?: string }) {
       <path d="M3 21V8l6-3 6 3v13" />
       <path d="M15 12h6v9" />
       <path d="M7 10h2M7 14h2M7 18h2M13 10h.01M13 14h.01M18 15h.01M18 18h.01" />
-    </svg>
-  );
-}
-
-function WalletIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" />
-      <path d="M17 12h3v4h-3a2 2 0 0 1 0-4Z" />
     </svg>
   );
 }

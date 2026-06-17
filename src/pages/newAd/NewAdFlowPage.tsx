@@ -2,13 +2,26 @@ import { useEffect, useState, type ReactNode } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 
 import { PageFrame } from "../../app/PageFrame";
-import { BottomSheet } from "../../components/BottomSheet";
+import { BottomSheet, BottomSheetActionList } from "../../components/BottomSheet";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../auth/auth-storage";
 
 type FlowStep = "details" | "media";
 type RegistrantType = "" | "personal" | "agency";
 type SelectKey = "floor" | "rooms" | "age";
+
+type SheetState =
+  | {
+    kind: "select";
+    key: SelectKey;
+    title: string;
+    options: string[];
+  }
+  | {
+    kind: "exchange";
+    title: string;
+    options: string[];
+  };
 
 type ChipItem = { id: string; label: string; icon?: string };
 
@@ -216,34 +229,79 @@ function useRequireAuth() {
 
 function Header({ title }: { title: string }) {
   return (
-    <header className="shrink-0 bg-[#f0f0f0] pt-2" dir="rtl">
+    <header className="shrink-0 bg-[#f0f0f0] pt-2 [direction:rtl]">
       <div className="flex h-20 items-center gap-2 px-4">
-        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">{title}</h1>
         <button
           aria-label="بازگشت"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
-          onClick={() => (window.history.length > 1 ? window.history.back() : navigateTo("/new-ad/category"))}
+          onClick={() =>
+            window.history.length > 1
+              ? window.history.back()
+              : navigateTo("/new-ad/category")
+          }
           type="button"
         >
-          <svg aria-hidden="true" className="h-7 w-7" fill="none" viewBox="0 0 24 24">
-            <path d="M9 7l-5 5 5 5M4 12h16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+          <svg
+            aria-hidden="true"
+            className="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M15 7l5 5-5 5M20 12H4"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.8"
+            />
           </svg>
         </button>
+
+        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
+          {title}
+        </h1>
       </div>
     </header>
   );
 }
 
-function Section({ title, icon, warning, children }: { title: string; icon: ReactNode; warning?: boolean; children: ReactNode }) {
+function Section({
+  title,
+  icon,
+  warning,
+  children,
+}: {
+  title: string;
+  icon: string;
+  warning?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <section className="border-b-[10px] border-[#f0f0f0] bg-white px-4 py-7 last:border-b-0" dir="rtl">
+    <section
+      className="border-b-[10px] border-[#f0f0f0] bg-white px-4 py-7 text-right last:border-b-0 [direction:rtl]"
+    >
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[6px] border border-[#808080] text-base font-semibold leading-none text-[#808080]">{icon}</span>
-          <h2 className="m-0 text-right text-xl font-semibold leading-7 text-[#1a1a1a]">{title}</h2>
+          <img
+            src={`/icons/add_advertisement/${icon}`}
+            alt=""
+            className="h-6 w-6 shrink-0 object-contain"
+          />
+
+          <h2 className="m-0 min-w-0 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
+            {title}
+          </h2>
         </div>
-        {warning ? <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#a6a6a6] text-base font-semibold leading-none text-[#808080]">!</span> : <span className="h-7 w-7" />}
+
+        {warning ? (
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#a6a6a6] text-base font-semibold leading-none text-[#808080]">
+            !
+          </span>
+        ) : (
+          <span className="h-7 w-7 shrink-0" />
+        )}
       </div>
+
       {children}
     </section>
   );
@@ -266,23 +324,77 @@ function InputBox({ value, placeholder, leftText, numeric, onChange }: { value: 
   );
 }
 
-function SelectBox({ value, placeholder, onClick }: { value: string; placeholder: string; onClick: () => void }) {
+function SelectBox({
+  value,
+  placeholder,
+  onClick,
+}: {
+  value: string;
+  placeholder: string;
+  onClick: () => void;
+}) {
   return (
-    <button className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr]" onClick={onClick} type="button">
-      <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-      <span className={`min-w-0 flex-1 truncate text-right [direction:rtl] ${value ? "text-[#1a1a1a]" : "text-[#808080]"}`}>{value || placeholder}</span>
+    <button
+      className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:rtl]"
+      onClick={onClick}
+      type="button"
+    >
+      <span
+        className={`min-w-0 flex-1 truncate text-right ${value ? "text-[#1a1a1a]" : "text-[#808080]"
+          }`}
+      >
+        {value || placeholder}
+      </span>
+
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5 shrink-0 text-[#4d4d4d]"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7 10l5 5 5-5"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+        />
+      </svg>
     </button>
   );
 }
 
 function LocationBox({ value, label }: { value: string; label: string }) {
   return (
-    <button className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr]" onClick={() => {
+    <button
+      className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:rtl]"
+      onClick={() => {
         const search = window.location.search || `?label=${encodeURIComponent(label)}`;
         navigateTo(`/new-ad/location${search}`);
-      }} type="button">
-      <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-      <span className={`min-w-0 flex-1 truncate text-right [direction:rtl] ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>{value || "تعیین مکان"}</span>
+      }}
+      type="button"
+    >
+      <span
+        className={`min-w-0 flex-1 truncate text-right ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
+          }`}
+      >
+        {value || "تعیین مکان"}
+      </span>
+
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5 shrink-0 text-[#4d4d4d]"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M15 6l-6 6 6 6"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+        />
+      </svg>
     </button>
   );
 }
@@ -311,11 +423,34 @@ function Toggle({ checked, label, onChange }: { checked: boolean; label: string;
   );
 }
 
-function Footer({ primary, onPrimary, onBack }: { primary: string; onPrimary: () => void; onBack: () => void }) {
+function Footer({
+  primary,
+  onPrimary,
+  onBack,
+}: {
+  primary: string;
+  onPrimary: () => void;
+  onBack: () => void;
+}) {
   return (
-    <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)]" dir="rtl">
-      <button className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white" onClick={onPrimary} type="button"><span>{primary}</span><span>←</span></button>
-      <button className="flex h-12 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4]" onClick={onBack} type="button"><span>→</span><span>مرحله قبل</span></button>
+    <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]">
+      <button
+        className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white [direction:rtl]"
+        onClick={onPrimary}
+        type="button"
+      >
+        <span>{primary}</span>
+        <span className="text-xl leading-none">←</span>
+      </button>
+
+      <button
+        className="flex h-12 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] [direction:rtl]"
+        onClick={onBack}
+        type="button"
+      >
+        <span className="text-xl leading-none">→</span>
+        <span>مرحله قبل</span>
+      </button>
     </footer>
   );
 }
@@ -324,14 +459,21 @@ function toggleArray(current: string[], id: string) {
   return current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
 }
 function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
-  const { getValues, setValue, watch } = useFormContext<NewAdFormValues>();
-  const [sheet, setSheet] = useState<{ key: SelectKey; title: string; options: string[] } | null>(null);
+  const { setValue, watch } = useFormContext<NewAdFormValues>();
+  const [sheet, setSheet] = useState<SheetState | null>(null);
   const [showAllHeating, setShowAllHeating] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
 
   const values = watch();
-  const visibleHeating = showAllHeating ? heatingItems : heatingItems.slice(0, 6);
-  const visibleFacilities = showAllFacilities ? facilityItems : facilityItems.slice(0, 6);
+  const initialVisibleChipCount = 5;
+
+  const visibleHeating = showAllHeating
+    ? heatingItems
+    : heatingItems.slice(0, initialVisibleChipCount);
+
+  const visibleFacilities = showAllFacilities
+    ? facilityItems
+    : facilityItems.slice(0, initialVisibleChipCount);
 
   const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
     setValue(key as never, value as never, { shouldDirty: true });
@@ -340,16 +482,51 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
   return (
     <>
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3" dir="rtl">
-        <Section icon="⌖" title="موقعیت ملک">
+        <Section icon="location.svg" title="موقعیت ملک">
           <LocationBox label={label} value={values.location} />
         </Section>
 
-        <Section icon="i" title="مشخصات ملک">
+        <Section icon="info.svg" title="مشخصات ملک">
           <div className="space-y-4">
             <InputBox numeric leftText="متر مربع" onChange={(value) => setField("meterage", value)} placeholder="متراژ *" value={values.meterage} />
-            <SelectBox onClick={() => setSheet({ key: "floor", title: "طبقه", options: ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷"] })} placeholder="طبقه *" value={values.floor} />
-            <SelectBox onClick={() => setSheet({ key: "rooms", title: "تعداد اتاق", options: ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"] })} placeholder="تعداد اتاق *" value={values.rooms} />
-            <SelectBox onClick={() => setSheet({ key: "age", title: "سن ساخت", options: ["نوساز", "۱ سال", "۲ سال", "۵ سال", "۱۰ سال", "۱۵ سال+"] })} placeholder="سن ساخت *" value={values.age} />
+            <SelectBox
+              onClick={() =>
+                setSheet({
+                  kind: "select",
+                  key: "floor",
+                  title: "طبقه",
+                  options: ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷"],
+                })
+              }
+              placeholder="طبقه *"
+              value={values.floor}
+            />
+
+            <SelectBox
+              onClick={() =>
+                setSheet({
+                  kind: "select",
+                  key: "rooms",
+                  title: "تعداد اتاق",
+                  options: ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"],
+                })
+              }
+              placeholder="تعداد اتاق *"
+              value={values.rooms}
+            />
+
+            <SelectBox
+              onClick={() =>
+                setSheet({
+                  kind: "select",
+                  key: "age",
+                  title: "سن ساخت",
+                  options: ["نوساز", "۱ سال", "۲ سال", "۵ سال", "۱۰ سال", "۱۵ سال+"],
+                })
+              }
+              placeholder="سن ساخت *"
+              value={values.age}
+            />
 
             {values.selectedSpecs.length ? (
               <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
@@ -365,7 +542,7 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
           </div>
         </Section>
 
-        <Section icon="♨" title="سرمایش و گرمایش">
+        <Section icon="tempreture.svg" title="سرمایش و گرمایش">
           <div className="flex flex-wrap justify-start gap-2" dir="rtl">
             {visibleHeating.map((item) => (
               <Chip key={item.id} item={item} selected={values.heatingCooling.includes(item.id)} onClick={() => setField("heatingCooling", toggleArray(values.heatingCooling, item.id))} />
@@ -374,7 +551,7 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
           {!showAllHeating ? <MoreButton count={heatingItems.length - visibleHeating.length} onClick={() => setShowAllHeating(true)} /> : null}
         </Section>
 
-        <Section icon="⚙" title="امکانات">
+        <Section icon="features.svg" title="امکانات">
           <div className="flex flex-wrap justify-start gap-2" dir="rtl">
             {visibleFacilities.map((item) => (
               <Chip key={item.id} item={item} mapped selected={values.facilities.includes(item.id)} onClick={() => setField("facilities", toggleArray(values.facilities, item.id))} />
@@ -383,7 +560,7 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
           {!showAllFacilities ? <MoreButton count={facilityItems.length - visibleFacilities.length} onClick={() => setShowAllFacilities(true)} /> : null}
         </Section>
 
-        <Section icon="▣" title="اطلاعات قیمت">
+        <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox numeric leftText="تومان" onChange={(value) => setField("price", value)} placeholder="قیمت *" value={values.price} />
             <Toggle checked={values.loanEnabled} label="وام دارد" onChange={(checked) => setField("loanEnabled", checked)} />
@@ -396,19 +573,23 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
             <Toggle checked={values.exchangeEnabled} label="معاوضه می‌شود" onChange={(checked) => setField("exchangeEnabled", checked)} />
             {values.exchangeEnabled ? (
               <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
-                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:ltr]">
+                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
+                  <span className="[direction:rtl]">معاوضه با</span>
+
                   <button
                     className="flex items-center gap-1 text-[#0048c4]"
-                    onClick={() => {
-                      const current = getValues("exchangeTargets");
-                      const next = exchangeTargets.find((item) => !current.includes(item));
-                      if (next) setField("exchangeTargets", [...current, next]);
-                    }}
+                    onClick={() =>
+                      setSheet({
+                        kind: "exchange",
+                        title: "معاوضه با",
+                        options: exchangeTargets,
+                      })
+                    }
                     type="button"
                   >
-                    <span>‹</span><span>انتخاب</span>
+                    <span>انتخاب</span>
+                    <span>‹</span>
                   </button>
-                  <span className="[direction:rtl]">معاوضه با</span>
                 </div>
                 {values.exchangeTargets.length ? (
                   <div className="flex flex-wrap justify-start gap-2" dir="rtl">
@@ -423,23 +604,54 @@ function DetailsStep({ label, onNext }: { label: string; onNext: () => void }) {
 
       <Footer onBack={() => navigateTo("/new-ad/category")} onPrimary={onNext} primary="مرحله بعد" />
 
-      <BottomSheet ariaLabel={sheet?.title ?? "انتخاب"} heightClassName="h-auto max-h-[75dvh]" isOpen={Boolean(sheet)} onClose={() => setSheet(null)} title={sheet?.title ?? "انتخاب"}>
-        <div className="max-h-[56dvh] overflow-y-auto px-4 pb-4 pt-2" dir="rtl">
-          {(sheet?.options ?? []).map((option) => (
-            <button
-              className="flex h-12 w-full items-center justify-start border-b border-[#e0e0e0] text-right text-base font-medium leading-6 text-[#1a1a1a] last:border-b-0"
-              key={option}
-              onClick={() => {
-                if (!sheet) return;
-                setField(sheet.key, option);
-                setSheet(null);
-              }}
-              type="button"
-            >
-              {option}
-            </button>
-          ))}
-        </div>
+      <BottomSheet
+        ariaLabel={sheet?.title ?? "انتخاب"}
+        className="rounded-t-[14px]"
+        contentClassName="pt-0 pb-6"
+        handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+        heightClassName="h-auto max-h-[calc(100dvh-102px)]"
+        isOpen={Boolean(sheet)}
+        onClose={() => setSheet(null)}
+        panelPaddingClassName="pt-3"
+        showBackButton={false}
+        showHandle
+        showHeader
+        showHeaderDivider
+        title={sheet?.title ?? "انتخاب"}
+        titleAlign="center"
+      >
+        <BottomSheetActionList
+          align="center"
+          isOpen={Boolean(sheet)}
+          items={(sheet?.options ?? []).map((option) => ({
+            id: option,
+            title: option,
+          }))}
+          itemClassName="h-12 text-sm font-normal leading-5"
+          onSelect={(item) => {
+            if (!sheet) return;
+
+            if (sheet.kind === "select") {
+              setField(sheet.key, item.title);
+              setSheet(null);
+              return;
+            }
+
+            if (sheet.kind === "exchange") {
+              setField(
+                "exchangeTargets",
+                toggleArray(values.exchangeTargets, item.title),
+              );
+            }
+          }}
+          selectedId={
+            sheet?.kind === "select"
+              ? values[sheet.key]
+              : undefined
+          }
+          showCheckIcon={sheet?.kind === "exchange"}
+          showDividers={false}
+        />
       </BottomSheet>
     </>
   );

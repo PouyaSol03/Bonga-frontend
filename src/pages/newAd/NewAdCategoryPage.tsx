@@ -127,8 +127,8 @@ function getInitialType(): TransactionType {
 
 function PageHeader({ title }: { title: string }) {
   return (
-    <header className="shrink-0 bg-[#f0f0f0] pt-2">
-      <div className="flex h-20 items-center px-4 [direction:ltr]">
+    <header className="shrink-0 bg-[#f0f0f0] pt-2 [direction:rtl]">
+      <div className="flex h-20 items-center gap-2 px-4">
         <button
           aria-label="بازگشت"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
@@ -160,7 +160,6 @@ function PageHeader({ title }: { title: string }) {
     </header>
   );
 }
-
 function TransactionSegmentedControl({
   activeType,
   onChange,
@@ -182,9 +181,8 @@ function TransactionSegmentedControl({
           return (
             <button
               aria-selected={isActive}
-              className={`min-w-0 text-center text-xl font-medium leading-7 transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
-                index > 0 ? "border-r border-[#cccccc]" : ""
-              } ${isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"}`}
+              className={`min-w-0 text-center text-xl font-medium leading-7 transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
+                } ${isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"}`}
               key={type}
               onClick={() => onChange(type)}
               role="tab"
@@ -224,16 +222,15 @@ function CategoryChip({
 }) {
   return (
     <button
-      className={`flex h-11 items-center justify-center gap-2 rounded-[10px] border px-3 text-lg font-medium leading-7 transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-        isSelected
+      className={`flex h-11 items-center justify-center gap-2 rounded-[10px] border px-3 text-lg font-medium leading-7 transition-colors [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
           ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
           : "border-[#cccccc] bg-white text-[#1a1a1a]"
-      }`}
+        }`}
       onClick={onClick}
       type="button"
     >
-      {isSelected ? <SelectedCheckIcon /> : null}
       <span>{label}</span>
+      {isSelected ? <SelectedCheckIcon /> : null}
     </button>
   );
 }
@@ -255,7 +252,7 @@ function CategoryOptionSection({
         </h2>
       </div>
 
-      <div className="flex flex-wrap justify-end gap-3 pt-7 [direction:rtl]">
+      <div className="flex flex-wrap justify-start gap-3 pt-7 [direction:rtl]">
         {section.options.map((option) => (
           <CategoryChip
             isSelected={option.id === selectedOptionId}
@@ -279,9 +276,8 @@ function NextActionBar({
   return (
     <footer className="shrink-0 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.94)]">
       <button
-        className={`h-12 w-full rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-          disabled ? "bg-[#e0e0e0] text-[#a6a6a6]" : "bg-[#0048c4] text-white active:bg-[#003ba1]"
-        }`}
+        className={`h-12 w-full rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled ? "bg-[#e0e0e0] text-[#a6a6a6]" : "bg-[#0048c4] text-white active:bg-[#003ba1]"
+          }`}
         disabled={disabled}
         onClick={onNext}
         type="button"
@@ -323,7 +319,7 @@ export function NewAdCategoryPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-right text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
       <PageHeader title={activeConfig.pageTitle} />

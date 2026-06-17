@@ -1,4 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { quickEase, softSpring } from "../lib/motion";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -97,77 +99,86 @@ export function BottomSheet({
   const isCenterTitle = titleAlign === "center";
 
   return (
-    <div
-      aria-hidden={!isOpen}
-      className={`absolute inset-0 ${zIndexClassName} flex items-end justify-center overflow-hidden transition-[opacity,visibility] duration-200 ease-out ${isOpen ? "visible opacity-100" : "invisible opacity-0"
-        }`}
-      dir="rtl"
-    >
-      <button
-        aria-label={`بستن ${ariaLabel}`}
-        className={`absolute inset-0 cursor-default ${scrimClassName}`}
-        onClick={onClose}
-        tabIndex={isOpen ? 0 : -1}
-        type="button"
-      />
-
-      <section
-        aria-label={ariaLabel}
-        aria-modal="true"
-        className={`relative z-10 w-full max-w-[500px] overflow-hidden bg-white transition-transform duration-300 ease-out ${isOpen ? "translate-y-0" : "translate-y-full"
-          } ${panelPaddingClassName} ${heightClassName} ${className}`}
-        role="dialog"
-      >
-        {showHandle ? (
-          <span
-            aria-hidden="true"
-            className={`mx-auto block ${handleClassName}`}
+    <AnimatePresence>
+      {isOpen ? (
+        <motion.div
+          animate={{ opacity: 1 }}
+          className={`absolute inset-0 ${zIndexClassName} flex items-end justify-center overflow-hidden`}
+          dir="rtl"
+          exit={{ opacity: 0, transition: { duration: 0.18, ease: quickEase } }}
+          initial={{ opacity: 0 }}
+        >
+          <button
+            aria-label={`Ø¨Ø³ØªÙ† ${ariaLabel}`}
+            className={`absolute inset-0 cursor-default ${scrimClassName}`}
+            onClick={onClose}
+            type="button"
           />
-        ) : null}
 
-        {showHeader ? (
-          <>
-            <header
-              className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
-                }`}
-            >
-              {showBackButton ? (
-                <button
-                  aria-label="بازگشت"
-                  className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-                  onClick={onBack ?? onClose}
-                  tabIndex={isOpen ? 0 : -1}
-                  type="button"
-                >
-                  <span className="block h-6 w-6">
-                    <BottomSheetBackIcon />
-                  </span>
-                </button>
-              ) : null}
-
-              <h2
-                className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
-                  }`}
-              >
-                {title ?? ariaLabel}
-              </h2>
-
-              {showBackButton && isCenterTitle ? (
-                <span className="h-10 w-10 shrink-0" />
-              ) : null}
-            </header>
-
-            {showHeaderDivider ? (
-              <div className="px-4 pt-3">
-                <div className="h-px bg-[#e6e6e6]" />
-              </div>
+          <motion.section
+            animate={{ y: 0, transition: { ...softSpring, type: "spring" } }}
+            aria-label={ariaLabel}
+            aria-modal="true"
+            className={`relative z-10 w-full max-w-[500px] overflow-hidden bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
+            exit={{ y: "100%", transition: { duration: 0.24, ease: quickEase } }}
+            initial={{ y: "100%" }}
+            role="dialog"
+          >
+            {showHandle ? (
+              <motion.span
+                animate={{ opacity: 1, scaleX: 1 }}
+                aria-hidden="true"
+                className={`mx-auto block ${handleClassName}`}
+                initial={{ opacity: 0, scaleX: 0.72 }}
+                transition={{ delay: 0.08, duration: 0.22, ease: quickEase }}
+              />
             ) : null}
-          </>
-        ) : null}
 
-        <div className={contentClassName}>{children}</div>
-      </section>
-    </div>
+            {showHeader ? (
+              <>
+                <header
+                  className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
+                    }`}
+                >
+                  {showBackButton ? (
+                    <motion.button
+                      aria-label="Ø¨Ø§Ø²Ú¯Ø´Øª"
+                      className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                      onClick={onBack ?? onClose}
+                      type="button"
+                      whileTap={{ scale: 0.92 }}
+                    >
+                      <span className="block h-6 w-6">
+                        <BottomSheetBackIcon />
+                      </span>
+                    </motion.button>
+                  ) : null}
+
+                  <h2
+                    className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
+                      }`}
+                  >
+                    {title ?? ariaLabel}
+                  </h2>
+
+                  {showBackButton && isCenterTitle ? (
+                    <span className="h-10 w-10 shrink-0" />
+                  ) : null}
+                </header>
+
+                {showHeaderDivider ? (
+                  <div className="px-4 pt-3">
+                    <div className="h-px bg-[#e6e6e6]" />
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+
+            <div className={contentClassName}>{children}</div>
+          </motion.section>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }
 
@@ -191,8 +202,13 @@ export function BottomSheetActionList({
         const isSelected = item.id === selectedId;
 
         return (
-          <div key={item.id}>
-            <button
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 8 }}
+            key={item.id}
+            transition={{ delay: index * 0.035, duration: 0.2, ease: quickEase }}
+          >
+            <motion.button
               className={`relative flex h-12 w-full items-center gap-3 bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${isCenter
                 ? "justify-center text-center"
                 : "justify-start text-right"
@@ -202,6 +218,7 @@ export function BottomSheetActionList({
               onClick={() => onSelect?.(item)}
               tabIndex={isOpen && isInteractive ? 0 : -1}
               type="button"
+              whileTap={isInteractive ? { scale: 0.98 } : undefined}
             >
               {showCheckIcon && isSelected ? (
                 <span className="absolute right-4 grid h-5 w-5 place-items-center">
@@ -216,14 +233,14 @@ export function BottomSheetActionList({
               <span className={isCenter ? "" : "min-w-0 flex-1 truncate"}>
                 {item.title}
               </span>
-            </button>
+            </motion.button>
 
             {showDividers && index < items.length - 1 ? (
               <div className="px-4 py-2">
                 <div className="h-px bg-[#cccccc]" />
               </div>
             ) : null}
-          </div>
+          </motion.div>
         );
       })}
     </div>

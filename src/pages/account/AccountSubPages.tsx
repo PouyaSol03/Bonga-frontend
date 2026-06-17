@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "motion/react";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
@@ -31,6 +32,12 @@ import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
+import {
+  contentMotion,
+  listContainerMotion,
+  listItemMotion,
+  softSpring,
+} from "../../lib/motion";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -749,7 +756,14 @@ function AccountPageShell({ action, children, title }: React.PropsWithChildren<T
         }
         title={title}
       />
-      {children}
+      <motion.div
+        animate={contentMotion.animate}
+        className="min-h-0 flex flex-1 flex-col"
+        initial={contentMotion.initial}
+        transition={{ ...softSpring, type: "spring" }}
+      >
+        {children}
+      </motion.div>
     </PageFrame>
   );
 }
@@ -765,17 +779,26 @@ function AdFilterTabs({
     <section className="h-[52px] overflow-hidden bg-[#f0f0f0] px-4 py-2">
       <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {adFilters.map((filter) => (
-          <button
-            className={`h-9 shrink-0 rounded-lg border px-3 text-sm font-medium leading-5 ${activeFilter.label === filter.label
+          <motion.button
+            className={`relative h-9 shrink-0 overflow-hidden rounded-lg border px-3 text-sm font-medium leading-5 ${activeFilter.label === filter.label
               ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
               : "border-[#cccccc] bg-white text-[#1a1a1a]"
               }`}
             key={filter.label}
+            layout
             onClick={() => onSelect(filter)}
             type="button"
+            whileTap={{ scale: 0.96 }}
           >
-            {filter.label}
-          </button>
+            {activeFilter.label === filter.label ? (
+              <motion.span
+                className="absolute inset-0 rounded-lg bg-[#0048c414]"
+                layoutId="account-filter-active"
+                transition={{ ...softSpring, type: "spring" }}
+              />
+            ) : null}
+            <span className="relative z-10">{filter.label}</span>
+          </motion.button>
         ))}
       </div>
     </section>
@@ -785,12 +808,19 @@ function AdFilterTabs({
 function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: string }) {
   return (
     <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-      <div className="space-y-2 bg-[#f0f0f0] pt-2">
+      <motion.div
+        animate="animate"
+        className="space-y-2 bg-[#f0f0f0] pt-2"
+        initial="initial"
+        variants={listContainerMotion}
+      >
         {Array.from({ length: count }).map((_, index) => (
-          <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} key={index} />
+          <motion.div key={index} variants={listItemMotion}>
+            <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} />
+          </motion.div>
         ))}
         {count === 0 && emptyText ? <EmptyMessage text={emptyText} /> : null}
-      </div>
+      </motion.div>
     </main>
   );
 }

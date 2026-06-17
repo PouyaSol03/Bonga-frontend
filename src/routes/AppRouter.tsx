@@ -1,7 +1,9 @@
 import type { ComponentType } from 'react'
 import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { getStoredAuthSession } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
+import { pageMotion } from '../lib/motion'
 import { ViewAdPage } from '../pages/ViewAdPage'
 import { routes } from './routes'
 
@@ -78,7 +80,17 @@ export function AppRouter() {
 
   return (
     <MobileAppShell>
-      <ActivePage />
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={route.path}
+          className="h-full min-h-0"
+          initial={pageMotion.initial}
+          animate={pageMotion.animate}
+          exit={pageMotion.exit}
+        >
+          <ActivePage />
+        </motion.div>
+      </AnimatePresence>
     </MobileAppShell>
   )
 }

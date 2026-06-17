@@ -1,11 +1,13 @@
 import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
 import NavAddIcon from "../assets/icons/NavAddIcon";
 import NavChatIcon from "../assets/icons/NavChatIcon";
 import NavHomeIcon from "../assets/icons/NavHomeIcon";
 import NavSearchIcon from "../assets/icons/NavSearchIcon";
+import { softSpring } from "../lib/motion";
 import { RouteLink } from "../routes/RouteLink";
 import { CreateAdBottomSheet } from "./CreateAdBottomSheet";
 
@@ -109,15 +111,34 @@ export function BottomNavigation({
                   min-[390px]:gap-1 min-[390px]:py-2 min-[390px]:text-xs min-[390px]:leading-4
                   ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
               >
-                <Icon
-                  active={isActive}
-                  aria-hidden="true"
-                  className="h-6 w-6 shrink-0"
-                  size={24}
-                />
+                <motion.span
+                  animate={{ scale: isActive ? 1.06 : 1, y: isActive ? -1 : 0 }}
+                  className="grid h-6 w-6 shrink-0 place-items-center"
+                  transition={{ ...softSpring, type: "spring" }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Icon
+                    active={isActive}
+                    aria-hidden="true"
+                    className="h-6 w-6 shrink-0"
+                    size={24}
+                  />
+                </motion.span>
 
-                <span className="max-w-full overflow-hidden text-ellipsis">
+                <span className="relative max-w-full overflow-hidden text-ellipsis pb-1">
                   {item.label}
+                  <AnimatePresence>
+                    {isActive ? (
+                      <motion.span
+                        animate={{ opacity: 1, scaleX: 1 }}
+                        className="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-[#0048c4]"
+                        exit={{ opacity: 0, scaleX: 0.5 }}
+                        initial={{ opacity: 0, scaleX: 0.5 }}
+                        layoutId="bottom-nav-active"
+                        transition={{ ...softSpring, type: "spring" }}
+                      />
+                    ) : null}
+                  </AnimatePresence>
                 </span>
               </RouteLink>
             );

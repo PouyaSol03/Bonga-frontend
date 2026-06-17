@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
-import { getStoredAuthSession } from "../auth/auth-storage";
+import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
 import NavAddIcon from "../assets/icons/NavAddIcon";
 import NavChatIcon from "../assets/icons/NavChatIcon";
@@ -95,6 +95,13 @@ export function BottomNavigation({
                   if (!isNewAd) return;
 
                   event.preventDefault();
+
+                  if (!getStoredAuthSession()) {
+                    storeLoginRedirectPath("/new-ad/category");
+                    navigateTo("/login/phone");
+                    return;
+                  }
+
                   setIsCreateAdOpen(true);
                 }}
                 className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center font-medium transition-colors focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]

@@ -1,5 +1,9 @@
 import type { IconName } from "./viewAdTypes";
 
+function PublicIcon({ className, src }: { className: string; src: string }) {
+  return <img alt="" aria-hidden="true" className={`${className} object-contain`} src={src} />;
+}
+
 export function ViewAdIcon({
   className = "",
   filled = false,
@@ -41,8 +45,12 @@ export function ViewAdIcon({
     case "bed":
       return <svg {...common}><path d="M4 11V6M20 14H4M20 18v-4a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v4M8 11V9h5v2" /></svg>;
     case "bookmark":
+      if (filled) {
+        return <PublicIcon className={common.className} src="/icons/bookmark_solid.svg" />;
+      }
+
       return (
-        <svg {...common} fill={filled ? "currentColor" : "none"}>
+        <svg {...common}>
           <path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
         </svg>
       );
@@ -55,7 +63,7 @@ export function ViewAdIcon({
     case "ceramic":
       return <svg {...common}><path d="M4 7h7v5H4V7ZM13 7h7v5h-7V7ZM4 14h7v3H4v-3ZM13 14h7v3h-7v-3Z" /></svg>;
     case "chat":
-      return <svg {...common}><path d="M5 18.5V20l3.1-1.6A8 8 0 1 0 4 11.5c0 2.6 1.2 4.9 3.1 6.4" /><path d="M8.5 12h.01M12 12h.01M15.5 12h.01" /></svg>;
+      return <PublicIcon className={common.className} src="/icons/chat.svg" />;
     case "checklist":
       return <svg {...common}><rect width="15" height="17" x="5" y="4" rx="2" /><path d="m8 9 1.5 1.5L12 8M14 10h3M8 15l1.5 1.5L12 14M14 16h3" /></svg>;
     case "cooler":
@@ -81,7 +89,7 @@ export function ViewAdIcon({
     case "navigation":
       return <svg {...common}><path d="m12 3 7 18-7-4-7 4 7-18Z" /></svg>;
     case "note":
-      return <svg {...common}><path d="M6 4h8l4 4v12H6V4Z" /><path d="M14 4v5h5M9 14h6M12 11v6" /></svg>;
+      return <PublicIcon className={common.className} src="/icons/note_add.svg" />;
     case "parking":
       return <svg {...common}><path d="M5 21V7l7-4 7 4v14M8 16h8M8 16l1.5-5h5l1.5 5M9 18h.01M15 18h.01" /></svg>;
     case "payment":
@@ -91,7 +99,11 @@ export function ViewAdIcon({
     case "ruler":
       return <svg {...common}><path d="M4 17 17 4l3 3L7 20l-3-3ZM8 13l3 3M11 10l2 2M14 7l3 3" /></svg>;
     case "share":
-      return <svg {...common}><circle cx="18" cy="5" r="2.4" /><circle cx="6" cy="12" r="2.4" /><circle cx="18" cy="19" r="2.4" /><path d="m8.2 10.9 7.6-4.8M8.2 13.1l7.6 4.8" /></svg>;
+      return <PublicIcon className={common.className} src="/icons/share.svg" />;
+    case "ranking":
+      return <PublicIcon className={common.className} src="/icons/ranking.svg" />;
+    case "star":
+      return <PublicIcon className={common.className} src="/icons/star.svg" />;
     case "terrace":
       return <svg {...common}><path d="M5 21v-7h14v7M4 10l8-7 8 7H4ZM9 21v-7M15 21v-7" /></svg>;
     case "tooman":

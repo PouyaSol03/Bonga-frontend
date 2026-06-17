@@ -1183,7 +1183,7 @@ function AgencyCard({ details }: { details: ViewAdDetails }) {
             alt=""
             aria-hidden="true"
             className="h-4 w-4 shrink-0 object-contain"
-            src="./icons/star.svg"
+            src="/icons/star.svg"
           />
         </div>
         <div className="h-4 w-px bg-[#e0e0e0]" />
@@ -1194,7 +1194,7 @@ function AgencyCard({ details }: { details: ViewAdDetails }) {
             alt=""
             aria-hidden="true"
             className="h-4 w-4 shrink-0 object-contain"
-            src="./icons/ranking.svg"
+            src="/icons/ranking.svg"
           />
         </div>
       </div>

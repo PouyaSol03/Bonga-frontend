@@ -18,6 +18,7 @@ import {
   normalizeMobile,
 } from "../services/auth.service";
 import {
+  consumeLoginRedirectPath,
   getOtpResendSecondsRemaining,
   getPendingOtpMobile,
 } from "../auth/auth-storage";
@@ -125,7 +126,8 @@ export function LoginVerifyPage() {
 
     try {
       await verifyOtpMutation.mutateAsync({ code, mobile });
-      window.history.pushState({ state: "new" }, "", "/login");
+      const redirectPath = consumeLoginRedirectPath() || "/login";
+      window.history.pushState({ state: "new" }, "", redirectPath);
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {
       setNotice({

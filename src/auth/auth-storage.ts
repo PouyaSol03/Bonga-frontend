@@ -1,21 +1,35 @@
+export type AuthRoleSlug =
+  | "user"
+  | "real_estate_manager"
+  | "real_estate_consultant"
+  | "independent_consultant";
+
 export type AuthRole = {
   id: string;
   name: string;
-  slug: string;
+  slug: AuthRoleSlug;
 };
+
+export const authRoleSlugs: AuthRoleSlug[] = [
+  "user",
+  "real_estate_manager",
+  "real_estate_consultant",
+  "independent_consultant",
+];
 
 export type AuthSession = {
   accessToken: string;
   accountType: string;
   expiresAt: number | null;
   mobile: string;
-  role: string;
+  role: AuthRoleSlug;
   roles: AuthRole[];
 };
 
 const authSessionKey = "bonga-auth-session";
 const pendingMobileKey = "bonga-pending-mobile";
 const otpResendAtKey = "bonga-otp-resend-at";
+const loginRedirectPathKey = "bonga-login-redirect-path";
 
 export const otpResendCooldownMilliseconds = 60_000;
 
@@ -77,4 +91,15 @@ export function getOtpResendSecondsRemaining() {
 export function clearPendingOtpState() {
   window.sessionStorage.removeItem(pendingMobileKey);
   window.sessionStorage.removeItem(otpResendAtKey);
+}
+
+
+export function storeLoginRedirectPath(path: string) {
+  window.sessionStorage.setItem(loginRedirectPathKey, path);
+}
+
+export function consumeLoginRedirectPath() {
+  const path = window.sessionStorage.getItem(loginRedirectPathKey);
+  window.sessionStorage.removeItem(loginRedirectPathKey);
+  return path || "";
 }

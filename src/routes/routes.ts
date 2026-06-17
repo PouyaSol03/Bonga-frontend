@@ -1,10 +1,10 @@
 import type { ComponentType } from 'react'
-import { NewAdComingSoonPage } from '../pages/ComingSoonPage'
 import { HomePage } from '../pages/HomePage'
 import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
 import { MyAccountPage } from '../pages/MyAccountPage'
 import { NewAdCategoryPage } from '../pages/newAd/NewAdCategoryPage'
+import { NewAdFlowPage, NewAdLocationPage } from '../pages/newAd/NewAdFlowPage'
 import { PublicLandingPage } from '../pages/PublicLandingPage'
 import {
   AccountAboutPage,
@@ -253,7 +253,7 @@ export const routes: AppRoute[] = [
   {
     path: "/new-ad",
     title: "ثبت آگهی",
-    Component: NewAdComingSoonPage,
+    Component: NewAdCategoryPage,
   },
   {
     path: "/new-ad/category",
@@ -268,17 +268,27 @@ export const routes: AppRoute[] = [
   {
     path: "/new-ad/category/next",
     title: "ثبت آگهی",
-    Component: NewAdComingSoonPage,
+    Component: NewAdFlowPage,
+  },
+  {
+    path: "/new-ad/details",
+    title: "ثبت آگهی",
+    Component: NewAdFlowPage,
+  },
+  {
+    path: "/new-ad/location",
+    title: "موقعیت ملک",
+    Component: NewAdLocationPage,
   },
   {
     path: "/new-ad/independent-consultant",
     title: "ثبت آگهی",
-    Component: NewAdComingSoonPage,
+    Component: NewAdCategoryPage,
   },
   {
     path: "/new-ad/jaliliyan-agency",
     title: "ثبت آگهی",
-    Component: NewAdComingSoonPage,
+    Component: NewAdCategoryPage,
   },
   {
     path: "/chat",

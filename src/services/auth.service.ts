@@ -5,7 +5,9 @@ import {
   setStoredAuthSession,
   startOtpResendCooldown,
   storePendingOtpMobile,
+  authRoleSlugs,
   type AuthRole,
+  type AuthRoleSlug,
 } from "../auth/auth-storage";
 
 type AuthRequestPayload = {
@@ -30,13 +32,52 @@ export type VerifyOtpResponse = StatusResponse & {
   access_token: string;
   account_type: string;
   expires_in: number;
-  role: string;
-  roles: AuthRole[];
+  role?: string;
+  roles?: Array<AuthRole | string>;
   token: string;
   tokens: {
     access_token: string;
   };
 };
+
+
+function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
+  if (typeof value === "string" && authRoleSlugs.includes(value as AuthRoleSlug)) {
+    return value as AuthRoleSlug;
+  }
+
+  return "user";
+}
+
+function normalizeAuthRoles(response: VerifyOtpResponse): AuthRole[] {
+  const rawRoles = Array.isArray(response.roles) ? response.roles : [];
+  const normalizedRoles = rawRoles
+    .map((role, index): AuthRole | null => {
+      if (typeof role === "string") {
+        const slug = normalizeAuthRoleSlug(role);
+        return { id: String(index + 1), name: slug, slug };
+      }
+
+      if (role && typeof role === "object") {
+        const slug = normalizeAuthRoleSlug(role.slug);
+        return {
+          id: String(role.id ?? index + 1),
+          name: role.name || slug,
+          slug,
+        };
+      }
+
+      return null;
+    })
+    .filter((role): role is AuthRole => role !== null);
+
+  if (normalizedRoles.length > 0) {
+    return normalizedRoles;
+  }
+
+  const fallbackSlug = normalizeAuthRoleSlug(response.role ?? response.account_type);
+  return [{ id: "1", name: fallbackSlug, slug: fallbackSlug }];
+}
 
 function requireSuccess<T extends StatusResponse>(response: T) {
   if (!response.status) {
@@ -76,15 +117,18 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
     throw new ApiError(200, "توکن ورود از سرور دریافت نشد.");
   }
 
+  const roles = normalizeAuthRoles(response);
+  const role = normalizeAuthRoleSlug(response.role ?? roles[0]?.slug ?? response.account_type);
+
   setStoredAuthSession({
     accessToken,
-    accountType: response.account_type,
+    accountType: response.account_type ?? role,
     expiresAt: response.expires_in
       ? Date.now() + response.expires_in * 1000
       : null,
     mobile,
-    role: response.role,
-    roles: response.roles,
+    role,
+    roles,
   });
   clearPendingOtpState();
 

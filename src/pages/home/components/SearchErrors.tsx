@@ -1,6 +1,6 @@
-import NoSavedSearchIcon from "../../../assets/vectors/NoSavedSearch.svg";
-import NoSearchIcon from "../../../assets/vectors/NoSearch.svg";
-import NotFoundSearchIcon from "../../../assets/Vectors/NotFoundSearch.svg";
+import NoSavedSearchIcon from "/vectors/NoSavedSearch.svg";
+import NoSearchIcon from "/vectors/NoSearch.svg";
+import NotFoundSearchIcon from "/vectors/NotFoundSearch.svg";
 
 type SearchErrorVariant = "no-search" | "not-found" | "no-saved-search";
 

@@ -5,8 +5,7 @@ import type { Swiper as SwiperInstance } from "swiper";
 import "swiper/css";
 
 import { BottomSheet } from "../components/BottomSheet";
-import { DemoNotice } from "../components/DemoNotice";
-import { useDemoNotice } from "../hooks/useDemoNotice";
+import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
 import { FeaturesIcons } from "../components/FeaturesIcons";
@@ -32,6 +31,12 @@ import { AdCardTomanIcon } from "../components/AdCardIcons";
 type AlbumMediaItem = {
   src: string;
   type: "image" | "video";
+};
+
+type ActionToast = {
+  message: string;
+  title: string;
+  variant: SnackbarVariant;
 };
 
 type AdvertisementImageItem = {
@@ -215,9 +220,11 @@ function PriceRow({ label, value }: { label: string; value: string }) {
 }
 
 function GalleryHero({
+  hasTour3d = false,
   mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
 }: {
+  hasTour3d?: boolean;
   mediaItems?: AlbumMediaItem[];
   onOpenAlbum: (initialIndex?: number) => void;
 }) {
@@ -227,10 +234,8 @@ function GalleryHero({
     mediaItems.length > 0
       ? mediaItems
       : [{ src: "/figma/view-ad-gallery.png", type: "image" }];
-  const videoIndex = Math.max(
-    galleryItems.findIndex((item) => item.type === "video"),
-    0,
-  );
+  const videoIndex = galleryItems.findIndex((item) => item.type === "video");
+  const hasVideo = videoIndex >= 0;
 
   const selectGalleryKind = (kind: GalleryMediaKind) => {
     if (kind === "album") {
@@ -240,6 +245,8 @@ function GalleryHero({
     }
 
     if (kind === "video") {
+      if (!hasVideo) return;
+
       swiperRef.current?.slideTo(videoIndex);
       setActiveIndex(videoIndex);
       return;
@@ -285,18 +292,22 @@ function GalleryHero({
             label="album"
             onClick={() => selectGalleryKind("album")}
           />
-          <GalleryMediaButton
-            iconSrc="/icons/iconVideo.svg"
-            isSelected={galleryItems[activeIndex]?.type === "video"}
-            label="video"
-            onClick={() => selectGalleryKind("video")}
-          />
-          <GalleryMediaButton
-            iconSrc="/icons/icon3d.svg"
-            isSelected={false}
-            label="3d"
-            onClick={() => selectGalleryKind("tour3d")}
-          />
+          {hasVideo ? (
+            <GalleryMediaButton
+              iconSrc="/icons/iconVideo.svg"
+              isSelected={galleryItems[activeIndex]?.type === "video"}
+              label="video"
+              onClick={() => selectGalleryKind("video")}
+            />
+          ) : null}
+          {hasTour3d ? (
+            <GalleryMediaButton
+              iconSrc="/icons/icon3d.svg"
+              isSelected={false}
+              label="3d"
+              onClick={() => selectGalleryKind("tour3d")}
+            />
+          ) : null}
         </div>
 
         <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
@@ -429,6 +440,24 @@ function MessageIcon({ className = "" }: { className?: string }) {
     >
       <path d="M5 18.5V20l3.1-1.6A8 8 0 1 0 4 11.5c0 2.6 1.2 4.9 3.1 6.4" />
       <path d="M8.5 12h7" />
+    </svg>
+  );
+}
+
+function ClockIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 8v4l3 2" />
     </svg>
   );
 }
@@ -990,6 +1019,7 @@ function ViewAdContent({
   adId,
   ad,
   details,
+  hasTour3d,
   mediaItems,
   mapPosition,
   onOpenAlbum,
@@ -998,6 +1028,7 @@ function ViewAdContent({
   adId: string;
   ad: AdvertisementItem;
   details: ViewAdDetails;
+  hasTour3d: boolean;
   mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: (initialIndex?: number) => void;
@@ -1043,18 +1074,17 @@ function ViewAdContent({
   return (
     <>
       <section className="bg-white pb-4">
-        <GalleryHero mediaItems={mediaItems} onOpenAlbum={onOpenAlbum} />
+        <GalleryHero
+          hasTour3d={hasTour3d}
+          mediaItems={mediaItems}
+          onOpenAlbum={onOpenAlbum}
+        />
 
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
               <span>{details.age}</span>
-              <img
-                alt=""
-                aria-hidden="true"
-                className="h-4 w-4 shrink-0 object-contain"
-                src="/icons/clock.svg"
-              />
+              <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-sm font-medium leading-5 [direction:rtl]">
               <span className="text-[#4d4d4d]">کد آگهی:</span>
@@ -1404,6 +1434,93 @@ function readImages(ad: AdvertisementItem) {
   return Array.from(new Set(imageSources)).map((image) =>
     getApiAssetUrl(image),
   );
+}
+
+function readAssetField(ad: AdvertisementItem, keys: string[]) {
+  for (const key of keys) {
+    const value = ad[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return getApiAssetUrl(value);
+    }
+
+    if (value && typeof value === "object") {
+      const asset = value as { path?: unknown; src?: unknown; url?: unknown };
+      const src = asset.url ?? asset.path ?? asset.src;
+
+      if (typeof src === "string" && src.trim()) {
+        return getApiAssetUrl(src);
+      }
+    }
+  }
+
+  return "";
+}
+
+function readBooleanFeature(ad: AdvertisementItem, labels: string[]) {
+  const features = Array.isArray(ad.features) ? ad.features : [];
+
+  for (const label of labels) {
+    const value = getFeatureValue(features, label);
+
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value > 0;
+    if (typeof value === "string") {
+      const normalizedValue = value.trim().toLowerCase();
+
+      if (["1", "true", "yes"].includes(normalizedValue)) return true;
+      if (["0", "false", "no"].includes(normalizedValue)) return false;
+    }
+  }
+
+  return false;
+}
+
+function readVideoUrl(ad: AdvertisementItem) {
+  return readAssetField(ad, [
+    "video",
+    "video_url",
+    "videoUrl",
+    "video_path",
+    "videoPath",
+  ]);
+}
+
+function hasTour3d(ad: AdvertisementItem) {
+  return Boolean(
+    readAssetField(ad, [
+      "model_3d",
+      "model3d",
+      "model_3d_url",
+      "model3d_url",
+      "virtual_tour_link",
+      "virtualTourLink",
+      "virtual_tour",
+      "tour_3d",
+      "tour3d",
+    ]) || readBooleanFeature(ad, ["has_virtual_tour", "has_3d_model", "has_model_3d"]),
+  );
+}
+
+function buildGalleryMediaItems(ad: AdvertisementItem) {
+  const images = readImages(ad);
+  const videoUrl = readVideoUrl(ad);
+  const imageItems =
+    images.length > 0
+      ? images.map((src): AlbumMediaItem => ({ src, type: "image" }))
+      : albumMediaItems.filter((item) => item.type === "image");
+
+  if (!videoUrl) {
+    return imageItems;
+  }
+
+  return [
+    ...imageItems,
+    {
+      src: images[0] ?? "/figma/view-ad-gallery.png",
+      type: "video" as const,
+    },
+  ];
 }
 
 const propertyInfoLabelMap: Record<string, string> = {
@@ -2547,7 +2664,7 @@ export function ViewAdPage() {
   const [isViolationReportOpen, setIsViolationReportOpen] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const { message, showNotice } = useDemoNotice();
+  const [toast, setToast] = useState<ActionToast | null>(null);
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const {
@@ -2557,6 +2674,14 @@ export function ViewAdPage() {
     isLoading,
     refetch,
   } = useAdvertisementDetailQuery(adId);
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
 
   if (adId == null) {
     return <NotFoundState />;
@@ -2610,11 +2735,16 @@ export function ViewAdPage() {
     );
   }
 
-  const images = readImages(resolvedAd);
-  const mediaItems =
-    images.length > 0
-      ? images.map((src): AlbumMediaItem => ({ src, type: "image" }))
-      : albumMediaItems;
+  const mediaItems = buildGalleryMediaItems(resolvedAd);
+  const resolvedHasTour3d = hasTour3d(resolvedAd);
+
+  const showToast = (
+    message: string,
+    title = "انجام شد",
+    variant: SnackbarVariant = "success",
+  ) => {
+    setToast({ message, title, variant });
+  };
 
   const handleRowAction = (label: string) => {
     if (label.includes("بازخورد")) {
@@ -2632,7 +2762,7 @@ export function ViewAdPage() {
       return;
     }
 
-    showNotice(`${label} برای نسخه نمایشی انتخاب شد`);
+    showToast(`${label} برای نسخه نمایشی انتخاب شد`, "اطلاع", "info");
   };
 
   const handleTopBarAction = (icon: IconName) => {
@@ -2653,17 +2783,24 @@ export function ViewAdPage() {
 
       toggleBadge.mutate(adId, {
         onError: (badgeError) => {
-          showNotice(
+          showToast(
             getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."),
+            "خطا",
+            "error",
           );
         },
         onSuccess: () => {
-          setIsBookmarked((current) => !current);
-          showNotice(
-            isBookmarked
-              ? "آگهی از نشان‌ها حذف شد"
-              : "آگهی به نشان‌ها اضافه شد",
-          );
+          setIsBookmarked((current) => {
+            const next = !current;
+
+            showToast(
+              next
+                ? "آگهی به نشان‌ها اضافه شد"
+                : "آگهی از نشان‌ها حذف شد",
+            );
+
+            return next;
+          });
         },
       });
     }
@@ -2680,11 +2817,22 @@ export function ViewAdPage() {
         onAction={handleTopBarAction}
       />
 
+      {toast ? (
+        <Snackbar
+          className="top-16"
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
+
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0]">
         <ViewAdContent
           adId={adId}
           ad={resolvedAd}
           details={details}
+          hasTour3d={resolvedHasTour3d}
           mediaItems={mediaItems}
           mapPosition={getMapPosition(resolvedAd)}
           onOpenAlbum={(initialIndex = 0) => {
@@ -2725,7 +2873,7 @@ export function ViewAdPage() {
           onClose={() => setIsFeedbackOpen(false)}
           onSubmit={() => {
             setIsFeedbackOpen(false);
-            showNotice("بازخورد شما ثبت شد");
+            showToast("بازخورد شما ثبت شد");
           }}
         />
       ) : null}
@@ -2743,7 +2891,7 @@ export function ViewAdPage() {
           onClose={() => setIsViolationReportOpen(false)}
           onSubmit={() => {
             setIsViolationReportOpen(false);
-            showNotice("گزارش تخلف ارسال شد");
+            showToast("گزارش تخلف ارسال شد");
           }}
         />
       ) : null}
@@ -2755,7 +2903,6 @@ export function ViewAdPage() {
           onClose={() => setIsAlbumOpen(false)}
         />
       ) : null}
-      <DemoNotice message={message} />
     </PageFrame>
   );
 }

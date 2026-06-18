@@ -46,7 +46,11 @@ export function ViewAdIcon({
       return <svg {...common}><path d="M4 11V6M20 14H4M20 18v-4a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v4M8 11V9h5v2" /></svg>;
     case "bookmark":
       if (filled) {
-        return <PublicIcon className={common.className} src="/icons/bookmark_solid.svg" />;
+        return (
+          <svg {...common} fill="currentColor">
+            <path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
+          </svg>
+        );
       }
 
       return (

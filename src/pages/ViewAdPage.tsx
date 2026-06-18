@@ -35,6 +35,13 @@ type AlbumMediaItem = {
   type: "image" | "video";
 };
 
+type AdvertisementImageItem = {
+  path?: string;
+  url?: string;
+  src?: string;
+  is_main?: boolean;
+};
+
 type GalleryMediaKind = "album" | "video" | "tour3d";
 
 const singleAdMockData: AdvertisementItem = {
@@ -330,9 +337,8 @@ function GalleryMediaButton({
     <button
       aria-label={label}
       aria-pressed={isSelected}
-      className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${
-        isSelected ? "bg-white/25" : "bg-transparent active:bg-white/15"
-      }`}
+      className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${isSelected ? "bg-white/25" : "bg-transparent active:bg-white/15"
+        }`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();
@@ -344,7 +350,15 @@ function GalleryMediaButton({
   );
 }
 
-function MapPreview() {
+function MapPreview({
+  latitude,
+  longitude,
+}: {
+  latitude: number;
+  longitude: number;
+}) {
+  const mapSrc = `https://neshan.org/maps/iframe/places/78bff763c73354cd9b7a48dd01792bf9#c${latitude}-${longitude}-15z-0p/${latitude}/${longitude}`;
+
   return (
     <div className="relative mt-6 h-[198px] overflow-hidden rounded-2xl border border-[#ebebeb] bg-[#fafafa]">
       <iframe
@@ -352,7 +366,7 @@ function MapPreview() {
         className="pointer-events-none h-full w-full border-0"
         height="300"
         loading="lazy"
-        src="https://neshan.org/maps/iframe/places/78bff763c73354cd9b7a48dd01792bf9#c36.316-59.552-15z-0p/36.31586309281297/59.54668820469575"
+        src={mapSrc}
         tabIndex={-1}
         title="map-iframe"
         width="450"
@@ -686,9 +700,8 @@ function FeedbackIconButton({
   return (
     <button
       aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
-      className={`grid h-9 w-9 place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-        active ? activeClassName : "bg-transparent text-[#cccccc]"
-      }`}
+      className={`grid h-9 w-9 place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${active ? activeClassName : "bg-transparent text-[#cccccc]"
+        }`}
       onClick={onClick}
       type="button"
     >
@@ -809,9 +822,8 @@ function ReportRadio({
       />
       <span
         aria-hidden="true"
-        className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border ${
-          checked ? "border-[#0048c4]" : "border-[#808080]"
-        }`}
+        className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border ${checked ? "border-[#0048c4]" : "border-[#808080]"
+          }`}
       >
         {checked ? <span className="h-2 w-2 rounded-full bg-[#0048c4]" /> : null}
       </span>
@@ -1133,7 +1145,12 @@ function ViewAdContent({
               : "نمایش ادامه توضیحات"}
           </InlineMoreButton>
         ) : null}
-        {mapPosition ? <MapPreview /> : null}
+        {mapPosition ? (
+          <MapPreview
+            latitude={mapPosition.latitude}
+            longitude={mapPosition.longitude}
+          />
+        ) : null}
       </DetailSection>
 
       {showAgency ? <AgencyCard details={details} /> : null}
@@ -1367,21 +1384,43 @@ function formatPrice(value: unknown) {
 }
 
 function readImages(ad: AdvertisementItem) {
-  const images = Array.isArray(ad.images) ? ad.images : [];
-  const imagePaths = images
-    .map((image) => {
+  const apiImages = Array.isArray(ad.images) ? ad.images : [];
+
+  const normalizedImages = apiImages
+    .map((image, index) => {
       if (typeof image === "string") {
-        return image;
+        return {
+          src: image,
+          isMain: false,
+          index,
+        };
       }
 
-      return image.url ?? image.path ?? "";
-    })
-    .filter(Boolean);
-  const primaryImage = typeof ad.image === "string" ? ad.image : "";
+      const imageItem = image as AdvertisementImageItem;
 
-  return [primaryImage, ...imagePaths]
-    .filter(Boolean)
-    .map((image) => getApiAssetUrl(image));
+      return {
+        src: imageItem.path ?? imageItem.url ?? imageItem.src ?? "",
+        isMain: imageItem.is_main === true,
+        index,
+      };
+    })
+    .filter((image) => Boolean(image.src))
+    .sort((a, b) => {
+      if (a.isMain && !b.isMain) return -1;
+      if (!a.isMain && b.isMain) return 1;
+      return a.index - b.index;
+    });
+
+  const imageSources =
+    normalizedImages.length > 0
+      ? normalizedImages.map((image) => image.src)
+      : typeof ad.image === "string" && ad.image
+        ? [ad.image]
+        : [];
+
+  return Array.from(new Set(imageSources)).map((image) =>
+    getApiAssetUrl(image),
+  );
 }
 
 const propertyInfoLabelMap: Record<string, string> = {

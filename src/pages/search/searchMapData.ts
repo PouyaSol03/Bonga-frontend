@@ -5,8 +5,10 @@ export type SearchFilterChip = {
   removable?: boolean;
 };
 
+export type SearchMapListingId = number | string;
+
 export type SearchMapListing = {
-  id: number;
+  id: SearchMapListingId;
   dotId: string;
   title: string;
   priceLabel: string;
@@ -28,7 +30,7 @@ export type SearchMapListing = {
 
 export type SearchMapDotMarker = {
   id: string;
-  listingId: number;
+  listingId: SearchMapListingId;
   latitude: number;
   longitude: number;
 };
@@ -37,6 +39,13 @@ export type SearchMapCenter = {
   latitude: number;
   longitude: number;
   zoom: number;
+};
+
+export type SearchMapBounds = {
+  east: number;
+  north: number;
+  south: number;
+  west: number;
 };
 
 export type SearchMapTileConfig = {
@@ -268,7 +277,7 @@ export const searchMapDotMarkers: SearchMapDotMarker[] = searchMapListings.map(
   }),
 );
 
-export const searchMapListingById = new Map<number, SearchMapListing>(
+export const searchMapListingById = new Map<SearchMapListingId, SearchMapListing>(
   searchMapListings.map((listing) => [listing.id, listing]),
 );
 

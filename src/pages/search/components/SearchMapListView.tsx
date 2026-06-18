@@ -32,6 +32,7 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     title: listing.title,
     timeAndLocation: `${listing.postedAt} در ${listing.locationLabel}`,
     imageClassName: listing.imageClassName ?? "",
+    imageUrl: listing.imageSrc,
     badges: ["فوری"],
   };
 }

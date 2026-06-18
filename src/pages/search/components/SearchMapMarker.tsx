@@ -47,14 +47,25 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
   );
 }
 
+function escapeMarkerText(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function createSearchListingIcon(priceValue: string, isSelected: boolean) {
+  const safePriceValue = escapeMarkerText(priceValue);
+
   return new DivIcon({
     className: "search-map-marker-wrapper",
     html: `
       <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}">
         <span class="search-map-dot search-map-listing-marker__dot"></span>
         <span class="search-map-marker">
-          ${priceValue}
+          ${safePriceValue}
         </span>
       </div>
     `,

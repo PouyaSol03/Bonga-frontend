@@ -6,7 +6,12 @@ import {
   createAdvertisement,
   getAdvertisementDetail,
   getAdvertisementList,
+  getAdvertisementMap,
+  getAdvertiseReportReasons,
+  submitAdvertiseFeedback,
+  submitAdvertiseReport,
   type AdvertisementListParams,
+  type AdvertisementMapParams,
   type AdvertisementPage,
 } from "../services/advertisement.service";
 
@@ -55,5 +60,36 @@ export function useCreateAdvertisementMutation() {
         queryKey: queryKeys.account.myAds({ page: 1, type: "all" }),
       });
     },
+  });
+}
+
+export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) {
+  return useQuery({
+    enabled: Boolean(params),
+    placeholderData: (previousData) => previousData,
+    queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
+    queryKey: queryKeys.advertisements.map(params ?? {}),
+    staleTime: 15_000,
+  });
+}
+
+export function useSubmitAdvertiseFeedbackMutation() {
+  return useMutation({
+    mutationFn: submitAdvertiseFeedback,
+  });
+}
+
+export function useAdvertiseReportReasonsQuery(enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: getAdvertiseReportReasons,
+    queryKey: queryKeys.advertisements.reportReasons(),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useSubmitAdvertiseReportMutation() {
+  return useMutation({
+    mutationFn: submitAdvertiseReport,
   });
 }

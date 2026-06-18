@@ -59,6 +59,68 @@ type AdvertisementCreateResponse =
     }
   | AdvertisementItem;
 
+type ApiMutationResponse<T = unknown> = {
+  data?: T;
+  message?: string;
+  status?: boolean;
+};
+
+export type AdvertisementMapBounds = {
+  east: number;
+  north: number;
+  south: number;
+  west: number;
+};
+
+export type AdvertisementMapParams = AdvertisementMapBounds & {
+  categoryId?: string;
+  cityId?: string;
+  limit?: number;
+};
+
+type AdvertisementMapResponse =
+  | {
+      advertises?: AdvertisementItem[];
+      data?: AdvertisementItem[];
+      list?: AdvertisementItem[];
+      status?: boolean;
+    }
+  | AdvertisementItem[];
+
+export type AdvertiseFeedbackPayload = {
+  response_speed: boolean;
+  area_knowledge: boolean;
+  honesty: boolean;
+  effective_followup: boolean;
+  ads_are_updated: boolean;
+};
+
+export type SubmitAdvertiseFeedbackPayload = {
+  advertiseId: string;
+  feedback: AdvertiseFeedbackPayload;
+};
+
+export type AdvertiseReportReason = {
+  created_at?: string;
+  id: string;
+  name: string;
+  updated_at?: string;
+};
+
+type AdvertiseReportReasonsResponse =
+  | {
+      data?: AdvertiseReportReason[];
+      list?: AdvertiseReportReason[];
+      status?: boolean;
+    }
+  | AdvertiseReportReason[];
+
+export type SubmitAdvertiseReportPayload = {
+  advertiseId: string;
+  description: string;
+  reportReasonId: string;
+};
+
 export type AdvertisementListParams = {
   categoryId?: string;
   cityId?: string;
@@ -266,4 +328,73 @@ export async function createAdvertisement(payload: FormData) {
   return "data" in response && response.data
     ? (response.data as AdvertisementItem)
     : (response as AdvertisementItem);
+}
+
+export async function getAdvertisementMap({
+  categoryId,
+  cityId,
+  east,
+  limit = 100,
+  north,
+  south,
+  west,
+}: AdvertisementMapParams) {
+  const response = await publicApi
+    .get("public/advertise/map", {
+      searchParams: {
+        category_id: categoryId,
+        city_id: cityId,
+        east,
+        limit,
+        north,
+        south,
+        west,
+      },
+    })
+    .json<AdvertisementMapResponse>();
+
+  if (Array.isArray(response)) return response;
+
+  if (Array.isArray(response.list)) return response.list;
+  if (Array.isArray(response.advertises)) return response.advertises;
+  if (Array.isArray(response.data)) return response.data;
+
+  return [];
+}
+
+export function submitAdvertiseFeedback({
+  advertiseId,
+  feedback,
+}: SubmitAdvertiseFeedbackPayload) {
+  return api
+    .post(`me/advertise/feedback/${advertiseId}`, { json: feedback })
+    .json<ApiMutationResponse>();
+}
+
+export async function getAdvertiseReportReasons() {
+  const response = await publicApi
+    .get("public/advertise/report-reasons/list")
+    .json<AdvertiseReportReasonsResponse>();
+
+  if (Array.isArray(response)) return response;
+
+  if (Array.isArray(response.list)) return response.list;
+  if (Array.isArray(response.data)) return response.data;
+
+  return [];
+}
+
+export function submitAdvertiseReport({
+  advertiseId,
+  description,
+  reportReasonId,
+}: SubmitAdvertiseReportPayload) {
+  return publicApi
+    .post(`public/advertise/report/add/${advertiseId}`, {
+      json: {
+        description,
+        report_reason_id: reportReasonId,
+      },
+    })
+    .json<ApiMutationResponse>();
 }

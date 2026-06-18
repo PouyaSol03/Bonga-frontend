@@ -12,11 +12,24 @@ import { FeaturesIcons } from "../components/FeaturesIcons";
 import { PageFrame } from "../app/PageFrame";
 import { getBuildingInfo } from "../lib/handleBuildingInfo";
 import { getFeatureIconSrc } from "../lib/handleFeaturesIcons";
-import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
+import {
+  getApiAssetUrl,
+  getApiErrorMessage,
+  isUnauthorizedApiError,
+} from "../api/api";
 import { getRequestErrorState, NotFoundErrorState } from "../components/ErrorState";
-import { useAdvertisementDetailQuery } from "../hooks/advertisement.hooks";
+import {
+  useAdvertisementDetailQuery,
+  useAdvertiseReportReasonsQuery,
+  useSubmitAdvertiseFeedbackMutation,
+  useSubmitAdvertiseReportMutation,
+} from "../hooks/advertisement.hooks";
 import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
-import type { AdvertisementItem } from "../services/advertisement.service";
+import type {
+  AdvertiseFeedbackPayload,
+  AdvertiseReportReason,
+  AdvertisementItem,
+} from "../services/advertisement.service";
 import {
   DetailSection,
   MoreLink,
@@ -27,6 +40,7 @@ import { viewAdDemo, parseAdIdFromPath } from "./viewAd/viewAdData";
 import { ViewAdIcon } from "./viewAd/ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
+import { storeLoginRedirectPath } from "../auth/auth-storage";
 
 type AlbumMediaItem = {
   src: string;
@@ -669,24 +683,19 @@ function ViewAdNotePage({
 
 type FeedbackValue = "positive" | "negative";
 
-type FeedbackState = Record<string, FeedbackValue | null>;
+type FeedbackOption = {
+  key: keyof AdvertiseFeedbackPayload;
+  label: string;
+};
 
-const feedbackOptions = [
-  "سرعت پاسخگویی",
-  "میزان آشنایی به منطقه",
-  "صداقت در معرفی ملک",
-  "پیگیری موثر",
-  "به روز بودن آگهی‌ها",
-];
+type FeedbackState = Record<keyof AdvertiseFeedbackPayload, FeedbackValue | null>;
 
-const violationReasons = [
-  "کلاهبرداری",
-  "غیر قانونی یا غیر اخلاقی",
-  "دسته بندی اشتباه",
-  "قیمت اشتباه",
-  "اطلاعات اشتباه",
-  "تکراری یا اسپم",
-  "سایر",
+const feedbackOptions: FeedbackOption[] = [
+  { key: "response_speed", label: "سرعت پاسخگویی" },
+  { key: "area_knowledge", label: "میزان آشنایی به منطقه" },
+  { key: "honesty", label: "صداقت در معرفی ملک" },
+  { key: "effective_followup", label: "پیگیری موثر" },
+  { key: "ads_are_updated", label: "به روز بودن آگهی‌ها" },
 ];
 
 function FeedbackThumbIcon({
@@ -745,12 +754,18 @@ function FeedbackIconButton({
 
 function PageActionBar({
   primaryLabel,
+  primaryLoadingLabel,
   secondaryLabel = "انصراف",
+  isPrimaryDisabled = false,
+  isPrimaryLoading = false,
   onPrimary,
   onSecondary,
 }: {
   primaryLabel: string;
+  primaryLoadingLabel?: string;
   secondaryLabel?: string;
+  isPrimaryDisabled?: boolean;
+  isPrimaryLoading?: boolean;
   onPrimary: () => void;
   onSecondary: () => void;
 }) {
@@ -758,11 +773,12 @@ function PageActionBar({
     <div className="shrink-0 rounded-b-2xl bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
       <div className="grid grid-cols-2 gap-4 [direction:ltr]">
         <button
-          className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          disabled={isPrimaryDisabled || isPrimaryLoading}
           onClick={onPrimary}
           type="button"
         >
-          {primaryLabel}
+          {isPrimaryLoading ? primaryLoadingLabel ?? "در حال ارسال..." : primaryLabel}
         </button>
         <button
           className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
@@ -777,24 +793,44 @@ function PageActionBar({
 }
 
 function ViewAdFeedbackPage({
+  isSubmitting,
   onClose,
   onSubmit,
 }: {
+  isSubmitting: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (payload: AdvertiseFeedbackPayload) => void;
 }) {
   const [feedback, setFeedback] = useState<FeedbackState>(() =>
     feedbackOptions.reduce<FeedbackState>((result, option) => {
-      result[option] = null;
+      result[option.key] = null;
       return result;
-    }, {}),
+    }, {} as FeedbackState),
   );
 
-  const setOptionFeedback = (option: string, value: FeedbackValue) => {
+  const setOptionFeedback = (key: keyof AdvertiseFeedbackPayload, value: FeedbackValue) => {
     setFeedback((current) => ({
       ...current,
-      [option]: current[option] === value ? null : value,
+      [key]: current[key] === value ? null : value,
     }));
+  };
+
+  const handleSubmit = () => {
+    const payload = feedbackOptions.reduce<AdvertiseFeedbackPayload>(
+      (result, option) => ({
+        ...result,
+        [option.key]: feedback[option.key] === "positive",
+      }),
+      {
+        ads_are_updated: false,
+        area_knowledge: false,
+        effective_followup: false,
+        honesty: false,
+        response_speed: false,
+      },
+    );
+
+    onSubmit(payload);
   };
 
   return (
@@ -806,21 +842,21 @@ function ViewAdFeedbackPage({
           {feedbackOptions.map((option) => (
             <div
               className="flex min-h-[73px] items-center justify-between gap-4 text-right [direction:rtl]"
-              key={option}
+              key={option.key}
             >
               <span className="text-base font-normal leading-6 text-[#1a1a1a]">
-                {option}
+                {option.label}
               </span>
 
               <div className="flex shrink-0 items-center gap-4 [direction:ltr]">
                 <FeedbackIconButton
-                  active={feedback[option] === "negative"}
-                  onClick={() => setOptionFeedback(option, "negative")}
+                  active={feedback[option.key] === "negative"}
+                  onClick={() => setOptionFeedback(option.key, "negative")}
                   type="negative"
                 />
                 <FeedbackIconButton
-                  active={feedback[option] === "positive"}
-                  onClick={() => setOptionFeedback(option, "positive")}
+                  active={feedback[option.key] === "positive"}
+                  onClick={() => setOptionFeedback(option.key, "positive")}
                   type="positive"
                 />
               </div>
@@ -829,7 +865,13 @@ function ViewAdFeedbackPage({
         </div>
       </main>
 
-      <PageActionBar onPrimary={onSubmit} onSecondary={onClose} primaryLabel="ثبت" />
+      <PageActionBar
+        isPrimaryLoading={isSubmitting}
+        onPrimary={handleSubmit}
+        onSecondary={onClose}
+        primaryLabel="ثبت"
+        primaryLoadingLabel="در حال ثبت..."
+      />
     </div>
   );
 }
@@ -845,7 +887,9 @@ function ReportRadio({
 }) {
   return (
     <label className="flex h-11 cursor-pointer items-center justify-between gap-4 text-right [direction:rtl]">
-      <span className="text-base font-normal leading-6 text-[#1a1a1a]">{label}</span>
+      <span className={`text-base font-normal leading-6 ${checked ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}>
+        {label}
+      </span>
       <input
         checked={checked}
         className="sr-only"
@@ -855,57 +899,147 @@ function ReportRadio({
       />
       <span
         aria-hidden="true"
-        className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border ${checked ? "border-[#0048c4]" : "border-[#808080]"
-          }`}
+        className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${
+          checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"
+        }`}
       >
-        {checked ? <span className="h-2 w-2 rounded-full bg-[#0048c4]" /> : null}
+        {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
       </span>
     </label>
   );
 }
 
+type ViolationReportSubmitPayload = {
+  description: string;
+  reportReasonId: string;
+};
+
 function ViewAdViolationReportPage({
+  errorMessage,
+  isLoading,
+  isSubmitting,
   onClose,
+  onRetry,
   onSubmit,
+  reasons,
 }: {
+  errorMessage?: string;
+  isLoading: boolean;
+  isSubmitting: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onRetry: () => void;
+  onSubmit: (payload: ViolationReportSubmitPayload) => void;
+  reasons: AdvertiseReportReason[];
 }) {
-  const [selectedReason, setSelectedReason] = useState(violationReasons[0]);
+  const [selectedReasonId, setSelectedReasonId] = useState("");
   const [description, setDescription] = useState("");
-  const shouldShowDescription = selectedReason === "سایر";
+  const [validationMessage, setValidationMessage] = useState("");
+
+  useEffect(() => {
+    if (selectedReasonId || reasons.length === 0) return;
+
+    setSelectedReasonId(reasons[0].id);
+  }, [reasons, selectedReasonId]);
+
+  const selectedReason =
+    reasons.find((reason) => reason.id === selectedReasonId) ?? null;
+  const shouldShowDescription = selectedReason?.name === "سایر";
+
+  const handleSubmit = () => {
+    if (!selectedReason) {
+      setValidationMessage("لطفا یک دلیل برای گزارش انتخاب کنید.");
+      return;
+    }
+
+    const cleanDescription = description.trim();
+
+    if (shouldShowDescription && cleanDescription.length === 0) {
+      setValidationMessage("لطفا توضیح گزارش را وارد کنید.");
+      return;
+    }
+
+    setValidationMessage("");
+    onSubmit({
+      description: cleanDescription,
+      reportReasonId: selectedReason.id,
+    });
+  };
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
       <ActionPageTopBar onBack={onClose} title="گزارش تخلف آگهی" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-5 pb-4 pt-5 overscroll-contain">
-        <div className="space-y-2">
-          {violationReasons.map((reason) => (
-            <ReportRadio
-              checked={selectedReason === reason}
-              key={reason}
-              label={reason}
-              onChange={() => setSelectedReason(reason)}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="space-y-4 pt-2">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonBlock className="h-8 w-full" key={index} />
+            ))}
+          </div>
+        ) : errorMessage ? (
+          <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-center">
+            <p className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">
+              {errorMessage}
+            </p>
+            <button
+              className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-5 text-sm font-medium leading-5 text-[#0048c4]"
+              onClick={onRetry}
+              type="button"
+            >
+              تلاش دوباره
+            </button>
+          </div>
+        ) : reasons.length === 0 ? (
+          <div className="flex min-h-[240px] items-center justify-center text-center">
+            <p className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">
+              دلیلی برای گزارش تخلف دریافت نشد.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              {reasons.map((reason) => (
+                <ReportRadio
+                  checked={selectedReasonId === reason.id}
+                  key={reason.id}
+                  label={reason.name}
+                  onChange={() => {
+                    setSelectedReasonId(reason.id);
+                    setValidationMessage("");
+                  }}
+                />
+              ))}
+            </div>
 
-        {shouldShowDescription ? (
-          <textarea
-            aria-label="توضیح گزارش"
-            className="mt-4 h-[104px] w-full resize-none rounded-lg border border-[#d9d9d9] bg-white px-3 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4]"
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="لطفا دلیل گزارش را توضیح دهید... *"
-            value={description}
-          />
-        ) : null}
+            {shouldShowDescription ? (
+              <textarea
+                aria-label="توضیح گزارش"
+                className="mt-4 h-[104px] w-full resize-none rounded-lg border border-[#d9d9d9] bg-white px-3 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4]"
+                onChange={(event) => {
+                  setDescription(event.target.value);
+                  setValidationMessage("");
+                }}
+                placeholder="لطفا دلیل گزارش را توضیح دهید... *"
+                value={description}
+              />
+            ) : null}
+
+            {validationMessage ? (
+              <p className="m-0 mt-3 text-right text-xs font-medium leading-5 text-[#ff4d4f]">
+                {validationMessage}
+              </p>
+            ) : null}
+          </>
+        )}
       </main>
 
       <PageActionBar
-        onPrimary={onSubmit}
+        isPrimaryDisabled={Boolean(errorMessage) || isLoading || reasons.length === 0}
+        isPrimaryLoading={isSubmitting}
+        onPrimary={handleSubmit}
         onSecondary={onClose}
         primaryLabel="ارسال گزارش"
+        primaryLoadingLabel="در حال ارسال..."
       />
     </div>
   );
@@ -2663,6 +2797,15 @@ function DetailInfoFullPage({
     </PageFrame>
   );
 }
+
+function redirectToLoginProcess() {
+  const redirectPath = `${window.location.pathname}${window.location.search}`;
+
+  storeLoginRedirectPath(redirectPath);
+  window.history.pushState({}, "", "/login/phone");
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
@@ -2676,6 +2819,9 @@ export function ViewAdPage() {
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
+  const submitFeedback = useSubmitAdvertiseFeedbackMutation();
+  const submitReport = useSubmitAdvertiseReportMutation();
+  const reportReasonsQuery = useAdvertiseReportReasonsQuery(isViolationReportOpen);
   const {
     data: ad,
     error,
@@ -2841,6 +2987,64 @@ export function ViewAdPage() {
     );
   };
 
+  const handleSubmitFeedback = (feedback: AdvertiseFeedbackPayload) => {
+    if (!adId || submitFeedback.isPending) {
+      return;
+    }
+
+    submitFeedback.mutate(
+      { advertiseId: adId, feedback },
+      {
+        onError: (feedbackError) => {
+          if (isUnauthorizedApiError(feedbackError)) {
+            redirectToLoginProcess();
+            return;
+          }
+
+          showToast(
+            getApiErrorMessage(feedbackError, "ثبت بازخورد با خطا مواجه شد."),
+            "خطا",
+            "error",
+          );
+        },
+        onSuccess: () => {
+          setIsFeedbackOpen(false);
+          showToast("بازخورد شما ثبت شد");
+        },
+      },
+    );
+  };
+
+  const handleSubmitReport = ({
+    description,
+    reportReasonId,
+  }: ViolationReportSubmitPayload) => {
+    if (!adId || submitReport.isPending) {
+      return;
+    }
+
+    submitReport.mutate(
+      {
+        advertiseId: adId,
+        description,
+        reportReasonId,
+      },
+      {
+        onError: (reportError) => {
+          showToast(
+            getApiErrorMessage(reportError, "ارسال گزارش تخلف با خطا مواجه شد."),
+            "خطا",
+            "error",
+          );
+        },
+        onSuccess: () => {
+          setIsViolationReportOpen(false);
+          showToast("گزارش تخلف ارسال شد");
+        },
+      },
+    );
+  };
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -2905,11 +3109,9 @@ export function ViewAdPage() {
 
       {isFeedbackOpen ? (
         <ViewAdFeedbackPage
+          isSubmitting={submitFeedback.isPending}
           onClose={() => setIsFeedbackOpen(false)}
-          onSubmit={() => {
-            setIsFeedbackOpen(false);
-            showToast("بازخورد شما ثبت شد");
-          }}
+          onSubmit={handleSubmitFeedback}
         />
       ) : null}
 
@@ -2925,11 +3127,20 @@ export function ViewAdPage() {
 
       {isViolationReportOpen ? (
         <ViewAdViolationReportPage
+          errorMessage={
+            reportReasonsQuery.isError
+              ? getApiErrorMessage(
+                  reportReasonsQuery.error,
+                  "دریافت دلایل گزارش با خطا مواجه شد.",
+                )
+              : undefined
+          }
+          isLoading={reportReasonsQuery.isLoading}
+          isSubmitting={submitReport.isPending}
           onClose={() => setIsViolationReportOpen(false)}
-          onSubmit={() => {
-            setIsViolationReportOpen(false);
-            showToast("گزارش تخلف ارسال شد");
-          }}
+          onRetry={() => void reportReasonsQuery.refetch()}
+          onSubmit={handleSubmitReport}
+          reasons={reportReasonsQuery.data ?? []}
         />
       ) : null}
 

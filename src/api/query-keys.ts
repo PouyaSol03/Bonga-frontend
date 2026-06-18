@@ -22,6 +22,28 @@ export const queryKeys = {
         filters.categoryId ?? "",
         filters.perPage,
       ] as const,
+    map: (filters: {
+      categoryId?: string;
+      cityId?: string;
+      east?: number;
+      limit?: number;
+      north?: number;
+      south?: number;
+      west?: number;
+    }) =>
+      [
+        ...queryKeys.advertisements.all,
+        "map",
+        filters.cityId ?? "",
+        filters.categoryId ?? "",
+        filters.north ?? "",
+        filters.south ?? "",
+        filters.east ?? "",
+        filters.west ?? "",
+        filters.limit ?? "",
+      ] as const,
+    reportReasons: () =>
+      [...queryKeys.advertisements.all, "report-reasons"] as const,
   },
 
   account: {

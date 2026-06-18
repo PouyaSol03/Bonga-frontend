@@ -3,7 +3,7 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import type { SearchMapListing } from "../searchMapData";
+import type { SearchMapListing, SearchMapListingId } from "../searchMapData";
 import {
   SEARCH_MAP_DEMO_PHOTO,
   searchMapCardDemoImages,
@@ -12,7 +12,7 @@ import {
 type SearchMapListingSliderProps = {
   isOpen: boolean;
   listings: SearchMapListing[];
-  selectedListingId: number | null;
+  selectedListingId: SearchMapListingId | null;
   onSelectListing: (listing: SearchMapListing) => void;
 };
 
@@ -31,8 +31,11 @@ export function SearchMapListingSlider({
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
 
-    const card = scrollEl.querySelector<HTMLElement>(
-      `[data-map-slider-card="${selectedListingId}"]`,
+    const card = Array.from(
+      scrollEl.querySelectorAll<HTMLElement>("[data-map-slider-card]"),
+    ).find(
+      (candidate) =>
+        candidate.dataset.mapSliderCard === String(selectedListingId),
     );
     if (!card) return;
 
@@ -100,7 +103,7 @@ function MapAdCard({
 
   return (
     <button
-      data-map-slider-card={listing.id}
+      data-map-slider-card={String(listing.id)}
       aria-current={isSelected ? "true" : undefined}
       className="flex w-[calc(100%_-_60px)] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-4 text-right"
       type="button"

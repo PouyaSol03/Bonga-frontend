@@ -126,6 +126,13 @@ export function getApiErrorMessage(error: unknown, fallback: string) {
   return error instanceof ApiError ? error.message : fallback;
 }
 
+export function isUnauthorizedApiError(error: unknown) {
+  if (error instanceof ApiError) return error.status === 401;
+  if (error instanceof HTTPError) return error.response.status === 401;
+
+  return false;
+}
+
 export function isTransientApiError(error: unknown) {
   if (error instanceof ApiError) return error.status >= 500;
   if (error instanceof HTTPError) return error.response.status >= 500;

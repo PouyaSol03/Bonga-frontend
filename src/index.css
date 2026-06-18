@@ -50,6 +50,13 @@
   font-weight: 900;
 }
 
+@layer base {
+  body {
+    font-family: "DanaFaNum", sans-serif;
+    font-feature-settings: "ss03", "ss01";
+  }
+}
+
 :root {
   --mobile-frame-max-width: 500px;
   font-family: DanaFaNum, Vazirmatn, IRANSans, Tahoma, Arial, sans-serif;
@@ -91,8 +98,7 @@ input {
   font: inherit;
 }
 
-:where(
-  a[href],
+:where(a[href],
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [role="link"]:not([aria-disabled="true"]),
@@ -104,8 +110,7 @@ input {
   label[for],
   label:has(input:not(:disabled)),
   select:not(:disabled),
-  summary
-) {
+  summary) {
   cursor: pointer;
 }
 
@@ -1132,7 +1137,7 @@ input[type="search"]::-webkit-search-results-decoration {
   clip-path: polygon(20% 5%, 68% 5%, 88% 25%, 88% 95%, 20% 95%, 20% 5%, 66% 8%, 66% 28%, 86% 28%, 30% 38%, 72% 38%, 72% 48%, 30% 48%, 30% 60%, 62% 60%, 62% 70%, 30% 70%);
 }
 
-.ad-card__badges:not(:empty) + span::before {
+.ad-card__badges:not(:empty)+span::before {
   content: "";
   display: inline-block;
   width: 1px;
@@ -1233,7 +1238,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 @media (max-width: 359px) {
-  .brand-mark + strong + h1 {
+  .brand-mark+strong+h1 {
     width: 100%;
     padding-inline: 10px;
     font-size: 15px;

@@ -6,6 +6,7 @@ import TehranIcon from "../../../assets/icons/TehranIcon.svg";
 import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";
 import IsfahanIcon from "../../../assets/icons/IsfahanIcon.svg";
 import ShirazIcon from "../../../assets/icons/ShirazIcon.svg";
+import { getRequestErrorState } from "../../../components/ErrorState";
 
 type UiCity = {
   id: string;
@@ -63,9 +64,12 @@ function mapCityDtoToUiCity(city: CityDto): UiCity {
 export function CitySelectorSection() {
   const {
     data: apiCities = [],
+    error,
     isError,
     isLoading,
+    refetch,
   } = useMostVisitedCityListQuery();
+  const CityErrorState = getRequestErrorState(error);
 
   const cityList = useMemo<UiCity[]>(() => {
     if (isError) {
@@ -119,8 +123,17 @@ export function CitySelectorSection() {
         <span className="home-search-icon" aria-hidden="true" />
       </label>
 
+      {isError ? (
+        <div className="fixed inset-0 z-[999] bg-white">
+          <CityErrorState
+            className="h-full"
+            onRetry={() => void refetch()}
+          />
+        </div>
+      ) : null}
+
       <div
-        className="mt-6 grid grid-cols-4 gap-2 min-[390px]:mt-8 min-[390px]:gap-4"
+        className={`${isError ? "hidden " : ""}mt-6 grid grid-cols-4 gap-2 min-[390px]:mt-8 min-[390px]:gap-4`}
         aria-label="شهرهای پیشنهادی"
       >
         {cityList.map((city) => (

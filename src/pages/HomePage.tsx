@@ -19,6 +19,7 @@ import {
   mapAdvertisementToAdCard,
 } from "../services/advertisement.service";
 import type { CategoryItem } from "../services/category.service";
+import { getRequestErrorState } from "../components/ErrorState";
 
 import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
 import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";
@@ -125,7 +126,9 @@ export function HomePage() {
   const {
     data: categories = [],
     error: categoryError,
+    isError: isCategoryError,
     isLoading: isCategoryLoading,
+    refetch: refetchCategories,
   } = useCategoryListQuery();
   const {
     data: advertisementPages,
@@ -135,6 +138,7 @@ export function HomePage() {
     isError: isAdvertisementError,
     isFetchingNextPage,
     isLoading: isAdvertisementLoading,
+    refetch: refetchAdvertisements,
   } = useAdvertisementInfiniteQuery({
     categoryId: selectedCategoryId,
     cityId: selectedCity.id,
@@ -158,6 +162,8 @@ export function HomePage() {
   const loadMoreTriggerIndex = Math.max(advertisements.length - 3, 0);
 
   const isCategorySheetOpen = selectedCategory !== null;
+  const pageError = categoryError ?? advertisementError;
+  const PageErrorState = getRequestErrorState(pageError);
 
   const loadMoreSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -212,6 +218,22 @@ export function HomePage() {
     window.history.pushState({}, "", "/chat");
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
+
+  if (isCategoryError || isAdvertisementError) {
+    return (
+      <div className="fixed inset-0 z-[999] bg-white">
+        <PageErrorState
+          className="h-full"
+          onRetry={async () => {
+            await Promise.all([
+              isCategoryError ? refetchCategories() : Promise.resolve(),
+              isAdvertisementError ? refetchAdvertisements() : Promise.resolve(),
+            ]);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[#f0f0f0]" dir="rtl">
@@ -354,13 +376,25 @@ export function HomePage() {
                 );
               })}
 
-            {!isAdvertisementLoading && advertisements.length === 0 && (
+            {false && (
+              <>
+                <PageErrorState
+                  className="min-h-[420px]"
+                  onRetry={() => undefined}
+                />
+                <p className="sr-only">
+                  {getApiErrorMessage(advertisementError, "دریافت آگهی‌ها با خطا مواجه شد.")}
+                </p>
+              </>
+            )}
+
+            {!isAdvertisementLoading && !isAdvertisementError && advertisements.length === 0 && (
               <div className="bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
                 آگهی‌ای برای این شهر یافت نشد.
               </div>
             )}
 
-            {isAdvertisementError && (
+            {false && (
               <div className="bg-white px-4 py-4 text-right text-xs font-medium text-red-600">
                 {getApiErrorMessage(advertisementError, "دریافت آگهی‌ها با خطا مواجه شد.")}
               </div>

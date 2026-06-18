@@ -29,6 +29,7 @@ import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
 import { DemoNotice } from "../../components/DemoNotice";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
+import { getRequestErrorState } from "../../components/ErrorState";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
@@ -69,6 +70,7 @@ export function AccountProfilePage() {
         {isLoading ? <AccountLoadingState text="در حال دریافت مشخصات..." /> : null}
         {isError ? (
           <AccountRetryState
+            error={error}
             message={getApiErrorMessage(error, "دریافت مشخصات با خطا مواجه شد.")}
             onRetry={() => void refetch()}
           />
@@ -207,6 +209,7 @@ export function AccountMyAdsPage() {
           {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
+              error={error}
               message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
               onRetry={() => void refetch()}
             />
@@ -243,6 +246,7 @@ export function AccountMyAdsEmptyPage() {
         {isLoading ? <AccountAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
+            error={error}
             message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
             onRetry={() => void refetch()}
           />
@@ -303,6 +307,7 @@ export function AccountWalletPage() {
 
         {isError ? (
           <AccountRetryState
+            error={error}
             message={getApiErrorMessage(error, "دریافت اطلاعات کیف پول با خطا مواجه شد.")}
             onRetry={() => void refetch()}
           />
@@ -421,6 +426,7 @@ export function AccountWalletHistoryPage() {
 
         {isError ? (
           <AccountRetryState
+            error={error}
             message={getApiErrorMessage(error, "دریافت تاریخچه پرداخت با خطا مواجه شد.")}
             onRetry={() => void refetch()}
           />
@@ -551,6 +557,7 @@ export function AccountNotesPage() {
           {isLoading ? <AccountNotesSkeleton count={6} /> : null}
           {isError ? (
             <AccountRetryState
+              error={error}
               message={getApiErrorMessage(error, "دریافت یادداشت‌ها با خطا مواجه شد.")}
               onRetry={() => void refetch()}
             />
@@ -724,6 +731,7 @@ export function AccountBookmarksPage() {
           {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
+              error={error}
               message={getApiErrorMessage(error, "دریافت نشان‌ها با خطا مواجه شد.")}
               onRetry={() => void refetch()}
             />
@@ -1503,23 +1511,26 @@ function AccountRequestsSkeleton({ count = 3 }: { count?: number }) {
 }
 
 function AccountRetryState({
+  error,
   message,
   onRetry,
 }: {
+  error?: unknown;
   message: string;
-  onRetry: () => void;
+  onRetry?: () => void;
 }) {
+  const ErrorState = getRequestErrorState(error);
+  const reloadPage = () => {
+    window.location.reload();
+  };
+
   return (
-    <div className="bg-white px-4 py-8 text-center">
-      <p className="m-0 text-sm font-medium text-red-600">{message}</p>
-      <button
-        className="mt-4 h-10 rounded-lg border border-[#0048c4] px-4 text-sm font-medium text-[#0048c4]"
-        onClick={onRetry}
-        type="button"
-      >
-        تلاش مجدد
-      </button>
-    </div>
+    <>
+      <div className="fixed inset-0 z-[999] bg-white">
+        <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
+      </div>
+      <p className="sr-only">{message}</p>
+    </>
   );
 }
 

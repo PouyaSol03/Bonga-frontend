@@ -5,6 +5,7 @@ import {
   useSearchHistoryQuery,
 } from "../../../hooks/search-history.hooks";
 import { TopBar } from "../../../components/TopBar";
+import { getRequestErrorState } from "../../../components/ErrorState";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
 import {
@@ -42,23 +43,40 @@ export function HomeSearchScreen({
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const {
     data: apiRecentSearches = [],
+    error: recentSearchError,
     isError: isRecentSearchError,
     isLoading: isRecentSearchLoading,
+    refetch: refetchRecentSearches,
   } = useSearchHistoryQuery({
     enabled: isOpen,
   });
   const {
     data: apiSearchResults = [],
+    error: searchResultsError,
+    isError: isSearchResultsError,
     isLoading: isSearchResultsLoading,
+    refetch: refetchSearchResults,
   } = useSearchHistoryQuery({
     enabled: isOpen && debouncedQuery.length > 0,
     qsearch: debouncedQuery,
   });
   const deleteHistoryMutation = useDeleteSearchHistoryMutation();
-  const visibleRecentSearches = isRecentSearchError
-    ? recentSearches
-    : apiRecentSearches;
+  const visibleRecentSearches = apiRecentSearches.length > 0
+    ? apiRecentSearches
+    : recentSearches;
   const visibleSearchResults = apiSearchResults;
+  const RecentSearchErrorState = getRequestErrorState(recentSearchError);
+  const SearchResultsErrorState = getRequestErrorState(searchResultsError);
+  const activeErrorState = isResultsView
+    ? isSearchResultsError
+      ? SearchResultsErrorState
+      : null
+    : isRecentSearchError
+      ? RecentSearchErrorState
+      : null;
+  const retryActiveError = isResultsView
+    ? () => void refetchSearchResults()
+    : () => void refetchRecentSearches();
 
   useEffect(() => {
     return () => {
@@ -107,6 +125,22 @@ export function HomeSearchScreen({
     );
   }
 
+  if (activeErrorState) {
+    const ActiveErrorState = activeErrorState;
+
+    return (
+      <section
+        className={`absolute inset-0 z-40 overflow-hidden bg-white ${isOpen ? "visible" : "invisible"}`}
+        aria-hidden={!isOpen}
+      >
+        <ActiveErrorState
+          className="h-full"
+          onRetry={retryActiveError}
+        />
+      </section>
+    );
+  }
+
   return (
     <section
       className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen
@@ -150,6 +184,11 @@ export function HomeSearchScreen({
         {isResultsView ? (
           isSearchResultsLoading ? (
             <SearchRowsSkeleton />
+          ) : isSearchResultsError ? (
+            <SearchResultsErrorState
+              className="min-h-full"
+              onRetry={() => void refetchSearchResults()}
+            />
           ) : visibleSearchResults.length > 0 ? (
             <div className="flex flex-col">
               {visibleSearchResults.map((item) => (
@@ -166,6 +205,11 @@ export function HomeSearchScreen({
           )
         ) : isRecentSearchLoading ? (
           <SearchRowsSkeleton />
+        ) : isRecentSearchError ? (
+          <RecentSearchErrorState
+            className="min-h-full"
+            onRetry={() => void refetchRecentSearches()}
+          />
         ) : visibleRecentSearches.length > 0 ? (
           <div className="flex flex-col">
             {visibleRecentSearches.map((item, index) => (

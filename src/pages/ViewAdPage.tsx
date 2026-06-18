@@ -13,7 +13,7 @@ import { PageFrame } from "../app/PageFrame";
 import { getBuildingInfo } from "../lib/handleBuildingInfo";
 import { getFeatureIconSrc } from "../lib/handleFeaturesIcons";
 import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
-import { NotFoundErrorState, ServerErrorState } from "../components/ErrorState";
+import { getRequestErrorState, NotFoundErrorState } from "../components/ErrorState";
 import { useAdvertisementDetailQuery } from "../hooks/advertisement.hooks";
 import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
 import type { AdvertisementItem } from "../services/advertisement.service";
@@ -1321,23 +1321,26 @@ function ViewAdSectionSkeleton({ rows }: { rows: number }) {
 }
 
 function ViewAdErrorState({
+  error,
   message,
   onRetry,
 }: {
+  error?: unknown;
   message: string;
-  onRetry: () => void;
+  onRetry?: () => void;
 }) {
+  const ErrorState = getRequestErrorState(error);
+  const reloadPage = () => {
+    window.location.reload();
+  };
+
   return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white">
-        <ServerErrorState className="h-full" onRetry={onRetry} />
+    <div className="fixed inset-0 z-[999] bg-white">
+      <div className="h-full min-h-0 bg-white">
+        <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
         <p className="sr-only">{message}</p>
-      </main>
-    </PageFrame>
+      </div>
+    </div>
   );
 }
 
@@ -2702,6 +2705,7 @@ export function ViewAdPage() {
   if (isError && !isMockAdRequest) {
     return (
       <ViewAdErrorState
+        error={error}
         message={getApiErrorMessage(error, "دریافت آگهی با خطا مواجه شد.")}
         onRetry={() => void refetch()}
       />

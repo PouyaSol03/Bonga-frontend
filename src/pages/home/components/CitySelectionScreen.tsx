@@ -4,6 +4,7 @@ import { TopBar } from "../../../components/TopBar";
 import SearchErrors from "./SearchErrors";
 import { useCitySearchQuery } from "../../../hooks/city.hooks";
 import type { CityDto } from "../../../services/city.service";
+import { getRequestErrorState } from "../../../components/ErrorState";
 
 type CitySelectionScreenProps = {
   currentCity: string;
@@ -41,10 +42,11 @@ export function CitySelectionScreen({
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
 
-  const { data: apiCities = [], isError, isLoading } = useCitySearchQuery({
+  const { data: apiCities = [], error, isError, isLoading, refetch } = useCitySearchQuery({
     enabled: isOpen,
     q: isSearching ? query.trim() : "",
   });
+  const CityErrorState = getRequestErrorState(error);
   const cityList = useMemo<UiCityOption[]>(() => {
     if (isError) {
       return [];
@@ -96,6 +98,20 @@ export function CitySelectionScreen({
     setIsSearching(false);
     setQuery("");
   };
+
+  if (isError) {
+    return (
+      <section
+        className={`absolute inset-0 z-40 overflow-hidden bg-white ${isOpen ? "visible" : "invisible"}`}
+        aria-hidden={!isOpen}
+      >
+        <CityErrorState
+          className="h-full"
+          onRetry={() => void refetch()}
+        />
+      </section>
+    );
+  }
 
   return (
     <section

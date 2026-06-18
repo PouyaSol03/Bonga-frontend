@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, type ComponentType, type ReactNode } from "react";
 
+import { ApiError } from "../api/api";
 import NoConnectionIcon from "../assets/icons/NoConnection.svg";
 import ServerErrorIcon from "../assets/icons/ServerError.svg";
 import RefreshIcon from "../assets/icons/RefreshIcon.svg";
@@ -10,7 +11,7 @@ type RetryHandler = () => void | Promise<void>;
 type BaseErrorStateProps = {
     icon: string;
     title: string;
-    description: React.ReactNode;
+    description: ReactNode;
     retryLabel?: string;
     onRetry?: RetryHandler;
     className?: string;
@@ -89,6 +90,40 @@ type ErrorStateProps = {
     onRetry?: RetryHandler;
     className?: string;
 };
+
+export function isNoConnectionError(error: unknown) {
+    if (error instanceof ApiError) return false;
+
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        return true;
+    }
+
+    if (error instanceof DOMException && error.name === "AbortError") {
+        return true;
+    }
+
+    if (error instanceof Error) {
+        const name = error.name.toLowerCase();
+        const message = error.message.toLowerCase();
+
+        return (
+            name.includes("abort") ||
+            name.includes("cancel") ||
+            message.includes("abort") ||
+            message.includes("cancel") ||
+            message.includes("failed to fetch") ||
+            message.includes("network")
+        );
+    }
+
+    return true;
+}
+
+export function getRequestErrorState(
+    error: unknown,
+): ComponentType<ErrorStateProps> {
+    return isNoConnectionError(error) ? NoConnectionState : ServerErrorState;
+}
 
 export function NoConnectionState({ onRetry, className }: ErrorStateProps) {
     return (

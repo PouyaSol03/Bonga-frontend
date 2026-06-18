@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../app/PageFrame";
-import { getApiErrorMessage } from "../../api/api";
 import { useMyBadgesQuery } from "../../hooks/account.hooks";
 import type { BadgeItem } from "../../services/account.service";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
+import { getRequestErrorState } from "../../components/ErrorState";
 
 type Badge = {
   active: boolean;
@@ -207,6 +207,7 @@ function BadgesPanel() {
   const { data: apiBadges = [], error, isError, isLoading, refetch } = useMyBadgesQuery();
   const visibleBadges =
     apiBadges.length > 0 ? apiBadges.map(mapBadgeItemToBadge) : badges;
+  const BadgesErrorState = getRequestErrorState(error);
 
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="نشان‌ها">
@@ -218,17 +219,11 @@ function BadgesPanel() {
         </div>
       ) : null}
       {isError ? (
-        <div className="mt-6 py-6 text-center">
-          <p className="m-0 text-sm font-medium text-red-600">
-            {getApiErrorMessage(error, "دریافت نشان‌ها با خطا مواجه شد.")}
-          </p>
-          <button
-            className="mt-4 h-10 rounded-lg border border-[#0048c4] px-4 text-sm font-medium text-[#0048c4]"
-            onClick={() => void refetch()}
-            type="button"
-          >
-            تلاش مجدد
-          </button>
+        <div className="fixed inset-0 z-[999] bg-white">
+          <BadgesErrorState
+            className="h-full"
+            onRetry={() => void refetch()}
+          />
         </div>
       ) : null}
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">

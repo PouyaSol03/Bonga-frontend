@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "motion/react";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
@@ -32,12 +31,6 @@ import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
-import {
-  contentMotion,
-  listContainerMotion,
-  listItemMotion,
-  softSpring,
-} from "../../lib/motion";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 
 type TopBarProps = {
@@ -372,7 +365,7 @@ export function AccountWalletPage() {
 
                 return (
                   <button
-                    className={`rounded-xl border py-1.5 !text-xs !font-medium leading-4 transition-colors ${isActive
+                    className={`rounded-xl border py-1.5 !text-xs !font-medium leading-4 ${isActive
                       ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
                       : "border-[#cccccc] bg-white text-[#1a1a1a]"
                       }`}
@@ -652,7 +645,7 @@ export function AccountRequestsPage() {
 
               return (
                 <button
-                  className={`text-base font-medium leading-6 transition-colors ${isActive ? "bg-[#0048c414] text-[#002099]" : "bg-white text-[#4d4d4d]"
+                  className={`text-base font-medium leading-6 ${isActive ? "bg-[#0048c414] text-[#002099]" : "bg-white text-[#4d4d4d]"
                     }`}
                   key={item.id}
                   onClick={() => setActiveTab(item.id as "requests" | "results")}
@@ -765,14 +758,9 @@ function AccountPageShell({ action, children, title }: React.PropsWithChildren<T
         }
         title={title}
       />
-      <motion.div
-        animate={contentMotion.animate}
-        className="min-h-0 flex flex-1 flex-col"
-        initial={contentMotion.initial}
-        transition={{ ...softSpring, type: "spring" }}
-      >
+      <div className="min-h-0 flex flex-1 flex-col">
         {children}
-      </motion.div>
+      </div>
     </PageFrame>
   );
 }
@@ -788,26 +776,20 @@ function AdFilterTabs({
     <section className="h-[52px] overflow-hidden bg-[#f0f0f0] px-4 py-2">
       <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {adFilters.map((filter) => (
-          <motion.button
+          <button
             className={`relative h-9 shrink-0 overflow-hidden rounded-lg border px-3 text-sm font-medium leading-5 ${activeFilter.label === filter.label
               ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
               : "border-[#cccccc] bg-white text-[#1a1a1a]"
               }`}
             key={filter.label}
-            layout
             onClick={() => onSelect(filter)}
             type="button"
-            whileTap={{ scale: 0.96 }}
           >
             {activeFilter.label === filter.label ? (
-              <motion.span
-                className="absolute inset-0 rounded-lg bg-[#0048c414]"
-                layoutId="account-filter-active"
-                transition={{ ...softSpring, type: "spring" }}
-              />
+              <span className="absolute inset-0 rounded-lg bg-[#0048c414]" />
             ) : null}
             <span className="relative z-10">{filter.label}</span>
-          </motion.button>
+          </button>
         ))}
       </div>
     </section>
@@ -817,19 +799,14 @@ function AdFilterTabs({
 function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: string }) {
   return (
     <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-      <motion.div
-        animate="animate"
-        className="space-y-2 bg-[#f0f0f0] pt-2"
-        initial="initial"
-        variants={listContainerMotion}
-      >
+      <div className="space-y-2 bg-[#f0f0f0] pt-2">
         {Array.from({ length: count }).map((_, index) => (
-          <motion.div key={index} variants={listItemMotion}>
+          <div key={index}>
             <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} />
-          </motion.div>
+          </div>
         ))}
         {count === 0 && emptyText ? <EmptyMessage text={emptyText} /> : null}
-      </motion.div>
+      </div>
     </main>
   );
 }
@@ -1205,7 +1182,7 @@ function AccountLoadingState({ text }: { text: string }) {
 }
 
 function AccountSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`rounded-lg bg-[#e8e8e8] ${className}`} />;
 }
 
 function AccountAdCardsSkeleton({ count = 3 }: { count?: number }) {

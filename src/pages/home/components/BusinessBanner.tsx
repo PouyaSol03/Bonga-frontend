@@ -1,6 +1,5 @@
 // src/pages/home/components/BusinessBanner.tsx
 import {
-  useEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -21,7 +20,6 @@ type BusinessBannerProps = {
   slides: BusinessBannerSlide[];
 };
 
-const SLIDE_INTERVAL_MS = 4000;
 const SWIPE_THRESHOLD_RATIO = 0.16;
 const SWIPE_VELOCITY_THRESHOLD = 0.45;
 
@@ -38,22 +36,6 @@ export function BusinessBanner({ slides }: BusinessBannerProps) {
     startX: 0,
   });
   const totalItems = slides.length;
-
-  useEffect(() => {
-    if (
-      totalItems <= 1 ||
-      isDragging ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
-
-    const timerId = window.setInterval(() => {
-      setActiveIndex((index) => (index + 1) % totalItems);
-    }, SLIDE_INTERVAL_MS);
-
-    return () => window.clearInterval(timerId);
-  }, [activeIndex, isDragging, totalItems]);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (
@@ -158,9 +140,7 @@ export function BusinessBanner({ slides }: BusinessBannerProps) {
         onPointerUp={finishDrag}
       >
         <div
-          className={`flex [direction:ltr] ease-out motion-reduce:transition-none ${
-            isDragging ? "transition-none" : "transition-transform duration-500"
-          }`}
+          className="flex [direction:ltr]"
           style={{
             transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
           }}
@@ -212,7 +192,7 @@ export function BusinessBanner({ slides }: BusinessBannerProps) {
         {Array.from({ length: totalItems }, (_, index) => (
           <button
             key={index}
-            className={`h-3 cursor-pointer rounded-full transition-all duration-500 ease-out focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] motion-reduce:transition-none min-[390px]:h-4 ${
+            className={`h-3 cursor-pointer rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:h-4 ${
               index === activeIndex
                 ? "w-10 bg-[#0048c4] min-[390px]:w-[50px]"
                 : "w-3 bg-[#dce5f2] min-[390px]:w-4"

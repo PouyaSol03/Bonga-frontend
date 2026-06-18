@@ -201,7 +201,7 @@ export function Chip({
   return (
     <button
       aria-pressed={selected}
-      className={`flex h-9 items-center justify-center gap-1.5 rounded-[8px] border px-3 text-sm font-medium leading-5 transition-colors ${selected
+      className={`flex h-9 items-center justify-center gap-1.5 rounded-[8px] border px-3 text-sm font-medium leading-5 ${selected
         ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
         : "border-[#cccccc] bg-white text-[#4d4d4d]"
         }`}
@@ -212,7 +212,7 @@ export function Chip({
 
       <FeaturesIcons
         feature={item.label}
-        className={`h-5 w-5 shrink-0 object-contain transition-all ${selected
+        className={`h-5 w-5 shrink-0 object-contain ${selected
           ? "[filter:brightness(0)_saturate(100%)_invert(20%)_sepia(95%)_saturate(2950%)_hue-rotate(211deg)_brightness(88%)_contrast(105%)]"
           : "[filter:brightness(0)_saturate(100%)_invert(28%)_sepia(0%)_saturate(0%)_hue-rotate(178deg)_brightness(95%)_contrast(85%)]"
           }`}
@@ -231,14 +231,14 @@ export function SwitchButton({
   return (
     <button
       aria-checked={checked}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ease-out ${checked ? "bg-[#0048c4]" : "bg-[#d1d1d1]"
+      className={`relative h-6 w-11 shrink-0 rounded-full ${checked ? "bg-[#0048c4]" : "bg-[#d1d1d1]"
         }`}
       onClick={() => onChange(!checked)}
       role="switch"
       type="button"
     >
       <span
-        className={`absolute left-1 top-1 h-4 w-4 rounded-full transition-transform duration-200 ease-out ${checked
+        className={`absolute left-1 top-1 h-4 w-4 rounded-full ${checked
           ? "translate-x-5 bg-white"
           : "translate-x-0 bg-[#808080]"
           }`}
@@ -314,7 +314,7 @@ export function MoreButton({
 }) {
   return (
     <button
-      className="mx-auto mt-5 flex h-9 items-center justify-center gap-1.5 rounded-full px-4 !text-sm !font-medium leading-5 text-[#0048C4] transition-colors active:bg-[#0048c40f]"
+      className="mx-auto mt-5 flex h-9 items-center justify-center gap-1.5 rounded-full px-4 !text-sm !font-medium leading-5 text-[#0048C4] active:bg-[#0048c40f]"
       onClick={onClick}
       type="button"
     >

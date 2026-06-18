@@ -270,7 +270,7 @@ export function VideoUploader() {
               {isUploading ? (
                 <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#e6e6e6]">
                   <div
-                    className="h-full rounded-full bg-[#0048c4] transition-all duration-200"
+                    className="h-full rounded-full bg-[#0048c4]"
                     style={{ width: `${progress}%` }}
                   />
                 </div>

@@ -31,7 +31,7 @@ export function FormSegmentedControl<T extends string>({
         return (
           <button
             aria-checked={selected}
-            className={`flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 transition-colors ${
+            className={`flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 ${
               index < options.length - 1 ? "border-l" : ""
             } ${
               selected ? "bg-[#dbe8ff] text-[#0048c4]" : "bg-white text-[#4d4d4d]"
@@ -67,7 +67,7 @@ export function FormChoiceChip({
   return (
     <button
       aria-pressed={selected}
-      className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium leading-5 transition-colors ${
+      className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium leading-5 ${
         selected
           ? "border-[#0048c4] bg-[#e6efff] text-[#0048c4]"
           : "border-[#cccccc] bg-white text-[#4d4d4d]"
@@ -108,7 +108,7 @@ export function FormTextField({
   return (
     <label className={`block min-w-0 ${className}`}>
       <span
-        className={`relative flex h-14 items-center rounded-xl border bg-white px-3 transition-colors focus-within:border-[#0048c4] ${
+        className={`relative flex h-14 items-center rounded-xl border bg-white px-3 focus-within:border-[#0048c4] ${
           hasValue ? "border-[#0048c4]" : "border-[#cccccc]"
         }`}
       >
@@ -200,7 +200,7 @@ export function FormSwitch({ checked, label, onChange }: FormSwitchProps) {
     <label className="flex h-14 w-full items-center justify-between [direction:ltr]">
       <button
         aria-checked={checked}
-        className={`flex h-6 w-11 items-center rounded-full px-1 transition-colors [direction:ltr] ${
+        className={`flex h-6 w-11 items-center rounded-full px-1 [direction:ltr] ${
           checked ? "justify-end bg-[#0048c4]" : "justify-start bg-[#e5e5e5]"
         }`}
         onClick={() => onChange(!checked)}

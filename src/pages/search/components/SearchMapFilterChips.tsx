@@ -20,7 +20,7 @@ export function SearchMapFilterChips({
           <button
             key={chip.id}
             dir="rtl"
-            className={`inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-2 text-sm font-medium leading-5 transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+            className={`inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
               chip.isActive
                 ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
                 : "border-[#cccccc] bg-white text-[#1a1a1a]"

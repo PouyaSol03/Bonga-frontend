@@ -213,7 +213,7 @@ function BadgesPanel() {
       <SectionHeader title="نشان‌ها" />
       {isLoading ? (
         <div className="mt-6 py-8 text-center text-sm font-medium text-[#808080]">
-          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
+          <div className="mx-auto mb-3 h-8 w-8 rounded-full border-2 border-[#0048c433] border-t-[#0048c4]" />
           در حال دریافت نشان‌ها...
         </div>
       ) : null}

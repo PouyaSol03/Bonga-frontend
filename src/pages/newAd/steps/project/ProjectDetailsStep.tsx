@@ -39,7 +39,7 @@ function OptionChip({
 }) {
   return (
     <button
-      className={`flex h-8 items-center justify-center rounded-[7px] border px-3 text-sm font-medium leading-5 transition-colors ${
+      className={`flex h-8 items-center justify-center rounded-[7px] border px-3 text-sm font-medium leading-5 ${
         selected
           ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
           : "border-[#cccccc] bg-white text-[#1a1a1a]"

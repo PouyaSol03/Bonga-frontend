@@ -99,7 +99,7 @@ export function CitySelectionScreen({
 
   return (
     <section
-      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${isOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"
+      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"
         }`}
       aria-hidden={!isOpen}
     >
@@ -137,7 +137,7 @@ export function CitySelectionScreen({
             <div className="flex flex-col gap-4 px-4 py-4">
               {Array.from({ length: 5 }).map((_, index) => (
                 <div
-                  className="h-12 w-full animate-pulse rounded-xl bg-[#f0f0f0]"
+                  className="h-12 w-full rounded-xl bg-[#f0f0f0]"
                   key={index}
                 />
               ))}
@@ -163,7 +163,7 @@ export function CitySelectionScreen({
             {isLoading &&
               Array.from({ length: 6 }).map((_, index) => (
                 <div
-                  className="h-14 w-full animate-pulse rounded-xl bg-[#f0f0f0]"
+                  className="h-14 w-full rounded-xl bg-[#f0f0f0]"
                   key={index}
                 />
               ))}
@@ -250,7 +250,7 @@ function CityOptionRow({
 }) {
   return (
     <button
-      className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right transition-colors [direction:ltr] ${isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
+      className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr] ${isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
         }`}
       type="button"
       onClick={onSelect}

@@ -109,9 +109,9 @@ export function HomeSearchScreen({
 
   return (
     <section
-      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${isOpen
-        ? "visible translate-y-0 opacity-100"
-        : "invisible translate-y-3 opacity-0"
+      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen
+        ? "visible"
+        : "invisible"
         }`}
       aria-hidden={!isOpen}
     >
@@ -170,9 +170,9 @@ export function HomeSearchScreen({
           <div className="flex flex-col">
             {visibleRecentSearches.map((item, index) => (
               <div
-                className={`transition-[opacity,transform] duration-180 ease-out ${removingRecentSearchId === item.id
-                  ? "-translate-x-3 opacity-0"
-                  : "translate-x-0 opacity-100"
+                className={`${removingRecentSearchId === item.id
+                  ? "hidden"
+                  : ""
                   }`}
                 key={item.id}
               >
@@ -234,9 +234,9 @@ function SavedSearchesView({
 
   return (
     <section
-      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] transition-[opacity,transform,visibility] duration-300 ease-out [direction:rtl] ${isOpen
-        ? "visible translate-y-0 opacity-100"
-        : "invisible translate-y-3 opacity-0"
+      className={`absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen
+        ? "visible"
+        : "invisible"
         }`}
       aria-hidden={!isOpen}
     >
@@ -247,9 +247,9 @@ function SavedSearchesView({
           <div className="flex flex-col gap-2 bg-[#f0f0f0]">
             {savedSearches.map((item) => (
               <div
-                className={`transition-[opacity,transform] duration-[180ms] ease-out ${removingSavedSearchId === item.id
-                  ? "-translate-x-3 opacity-0"
-                  : "translate-x-0 opacity-100"
+                className={`${removingSavedSearchId === item.id
+                  ? "hidden"
+                  : ""
                   }`}
                 key={item.id}
               >
@@ -273,7 +273,7 @@ function SearchRowsSkeleton() {
   return (
     <div className="flex flex-col gap-4 px-4 py-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div className="h-14 animate-pulse rounded-xl bg-[#f0f0f0]" key={index} />
+        <div className="h-14 rounded-xl bg-[#f0f0f0]" key={index} />
       ))}
     </div>
   );
@@ -374,7 +374,7 @@ function RecentSearchRow({
         <span>Ø­Ø°Ù</span>
       </button>
       <div
-        className="h-full bg-white px-4 pb-3 transition-transform duration-150 ease-out"
+        className="h-full bg-white px-4 pb-3"
         style={{ transform: `translateX(${Math.min(dragOffset, 72)}px)` }}
       >
         <div className="relative h-12 w-full">

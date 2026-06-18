@@ -8,7 +8,7 @@ export function DemoNotice({
   return (
     <div
       aria-live="polite"
-      className={`pointer-events-none absolute inset-x-4 z-[70] flex justify-center transition-[opacity,transform] duration-200 ${
+      className={`pointer-events-none absolute inset-x-4 z-[70] flex justify-center ${
         message ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
       } ${className}`}
       role="status"

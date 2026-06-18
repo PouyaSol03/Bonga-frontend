@@ -1,8 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import { PageFrame } from "../app/PageFrame";
 import { AdCard } from "../components/AdCard";
-import { BottomNavigation } from "../components/BottomNavigation";
 
 import { CategoryBottomSheet } from "./home/components/CategoryBottomSheet";
 import { CitySelectionScreen } from "./home/components/CitySelectionScreen";
@@ -87,6 +85,32 @@ function getStoredCity(): SelectedCity {
   };
 }
 
+function HomeAdCardSkeleton() {
+  return (
+    <article className="mx-4 overflow-hidden rounded-2xl bg-white">
+      <div className="p-4 pb-3">
+        <div className="aspect-[328/219] w-full rounded-2xl bg-[#f0f0f0]" />
+
+        <div className="mt-3 flex justify-end">
+          <div className="h-6 w-44 rounded-full bg-[#f0f0f0]" />
+        </div>
+
+        <div className="mt-3 flex items-center justify-end gap-7">
+          <div className="h-5 w-20 rounded-full bg-[#f0f0f0]" />
+          <div className="h-5 w-20 rounded-full bg-[#f0f0f0]" />
+          <div className="h-5 w-20 rounded-full bg-[#f0f0f0]" />
+        </div>
+
+        <div className="mt-4 h-5 w-full rounded-full bg-[#f0f0f0]" />
+
+        <div className="mt-4 flex justify-start">
+          <div className="h-6 w-44 rounded-full bg-[#f0f0f0]" />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
@@ -130,6 +154,8 @@ export function HomePage() {
       ) ?? [],
     [advertisementPages],
   );
+
+  const loadMoreTriggerIndex = Math.max(advertisements.length - 3, 0);
 
   const isCategorySheetOpen = selectedCategory !== null;
 
@@ -188,10 +214,7 @@ export function HomePage() {
   };
 
   return (
-    <PageFrame
-      className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
+    <>
       <header className="shrink-0 bg-white">
         <section
           className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-white px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
@@ -261,8 +284,8 @@ export function HomePage() {
                   key={index}
                   className="flex min-h-[58px] flex-col items-center justify-start gap-1.5 bg-white p-0 min-[390px]:min-h-[70px] min-[390px]:gap-[7px]"
                 >
-                  <div className="h-8 w-8 animate-pulse rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
-                  <div className="h-3 w-10 animate-pulse rounded bg-[#f0f0f0]" />
+                  <div className="h-8 w-8 rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
+                  <div className="h-3 w-10 rounded bg-[#f0f0f0]" />
                 </div>
               ))}
 
@@ -311,15 +334,25 @@ export function HomePage() {
           <div className="flex flex-col gap-3 bg-[#f0f0f0]">
             {isAdvertisementLoading &&
               Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  className="mx-4 h-[360px] animate-pulse rounded-2xl bg-white"
-                  key={index}
-                />
+                <HomeAdCardSkeleton key={index} />
               ))}
 
-            {!isAdvertisementLoading && advertisements.map((ad) => (
-              <AdCard ad={ad} key={ad.id} />
-            ))}
+            {!isAdvertisementLoading &&
+              advertisements.map((ad, index) => {
+                const shouldAttachLoadMoreRef =
+                  index === loadMoreTriggerIndex &&
+                  hasNextPage &&
+                  !isFetchingNextPage;
+
+                return (
+                  <div
+                    key={ad.id}
+                    ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+                  >
+                    <AdCard ad={ad} />
+                  </div>
+                );
+              })}
 
             {!isAdvertisementLoading && advertisements.length === 0 && (
               <div className="bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
@@ -333,18 +366,14 @@ export function HomePage() {
               </div>
             )}
 
-            <div ref={loadMoreSentinelRef} className="h-2" aria-hidden="true" />
 
-            {isFetchingNextPage && (
-              <div className="bg-white px-4 py-4 text-center text-xs font-medium text-[#808080]">
-                در حال دریافت آگهی‌های بیشتر...
-              </div>
-            )}
+            {isFetchingNextPage &&
+              Array.from({ length: 2 }).map((_, index) => (
+                <HomeAdCardSkeleton key={`next-page-skeleton-${index}`} />
+              ))}
           </div>
         </section>
       </main>
-
-      <BottomNavigation activeKey="home" />
 
       <CategoryBottomSheet
         isOpen={isCategorySheetOpen}
@@ -374,6 +403,6 @@ export function HomePage() {
           setIsCityOpen(false);
         }}
       />
-    </PageFrame>
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
 
@@ -337,7 +336,7 @@ function GalleryMediaButton({
     <button
       aria-label={label}
       aria-pressed={isSelected}
-      className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${isSelected ? "bg-white/25" : "bg-transparent active:bg-white/15"
+      className={`grid h-7 w-7 place-items-center rounded-md ${isSelected ? "bg-white/25" : "bg-transparent active:bg-white/15"
         }`}
       onClick={(event) => {
         event.stopPropagation();
@@ -700,7 +699,7 @@ function FeedbackIconButton({
   return (
     <button
       aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
-      className={`grid h-9 w-9 place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${active ? activeClassName : "bg-transparent text-[#cccccc]"
+      className={`grid h-9 w-9 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${active ? activeClassName : "bg-transparent text-[#cccccc]"
         }`}
       onClick={onClick}
       type="button"
@@ -1089,17 +1088,9 @@ function ViewAdContent({
       </DetailSection>
 
       <DetailSection icon="apartment" title="تجهیزات و امکانات">
-        <AnimatePresence initial={false}>
-          <motion.div
-            animate={{ height: "auto", opacity: 1 }}
-            className="overflow-hidden"
-            exit={{ height: 0, opacity: 0 }}
-            initial={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
-          >
-            <PropertyGrid items={facilityItems} withLabels={false} />
-          </motion.div>
-        </AnimatePresence>
+        <div className="overflow-hidden">
+          <PropertyGrid items={facilityItems} withLabels={false} />
+        </div>
         {hasMoreFacilities ? (
           <InlineMoreButton
             onClick={() => setAreFacilitiesExpanded((current) => !current)}
@@ -1112,30 +1103,22 @@ function ViewAdContent({
       </DetailSection>
 
       <DetailSection icon="apartment" title="توضیحات">
-        <motion.div
-          animate={{
+        <div
+          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]"
+          style={{
             height:
               shouldShowDescriptionMore && !isDescriptionExpanded
                 ? DESCRIPTION_COLLAPSED_HEIGHT
                 : "auto",
           }}
-          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]"
-          transition={{ duration: 0.28, ease: "easeOut" }}
         >
           <p ref={descriptionRef} className="m-0 whitespace-pre-line">
             {details.description}
           </p>
-          <AnimatePresence>
-            {shouldShowDescriptionMore && !isDescriptionExpanded ? (
-              <motion.div
-                animate={{ opacity: 1 }}
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white"
-                exit={{ opacity: 0 }}
-                initial={{ opacity: 0 }}
-              />
-            ) : null}
-          </AnimatePresence>
-        </motion.div>
+          {shouldShowDescriptionMore && !isDescriptionExpanded ? (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white" />
+          ) : null}
+        </div>
         {shouldShowDescriptionMore ? (
           <InlineMoreButton
             onClick={() => setIsDescriptionExpanded((current) => !current)}
@@ -1248,7 +1231,7 @@ function LoadingState() {
 }
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`rounded-lg bg-[#e8e8e8] ${className}`} />;
 }
 
 function ViewAdPageSkeleton() {

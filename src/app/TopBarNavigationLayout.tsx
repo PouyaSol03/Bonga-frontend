@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
-import { BottomNavigation } from "../components/BottomNavigation";
 import { PageFrame } from "./PageFrame";
 
 type TopBarNavigationLayoutProps = {
-  activeKey: string;
+  activeKey?: string;
   children: ReactNode;
   contentClassName?: string;
   fixedAfterTopBar?: ReactNode;
@@ -13,7 +12,6 @@ type TopBarNavigationLayoutProps = {
 };
 
 export function TopBarNavigationLayout({
-  activeKey,
   children,
   contentClassName = "",
   fixedAfterTopBar,
@@ -35,7 +33,6 @@ export function TopBarNavigationLayout({
         {children}
       </main>
 
-      <BottomNavigation activeKey={activeKey} />
       {overlay}
     </PageFrame>
   );

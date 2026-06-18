@@ -38,7 +38,7 @@ export function SearchMapListingSlider({
 
     const run = () => {
       card.scrollIntoView({
-        behavior: "smooth",
+        behavior: "auto",
         block: "nearest",
         inline: "center",
       });
@@ -51,7 +51,7 @@ export function SearchMapListingSlider({
 
   return (
     <section
-      className={`absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-500 bg-transparent transition-all duration-300 ease-out ${
+      className={`absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-500 bg-transparent ${
         isOpen
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-8 opacity-0"
@@ -61,7 +61,7 @@ export function SearchMapListingSlider({
     >
       <div
         ref={scrollRef}
-        className="flex cursor-grab select-none snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain bg-transparent scroll-smooth px-[30px] pb-3 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:30px] [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        className="flex cursor-grab select-none snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain bg-transparent px-[30px] pb-3 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:30px] [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         {...dragScrollHandlers}
       >
         {listings.map((listing) => (
@@ -102,7 +102,7 @@ function MapAdCard({
     <button
       data-map-slider-card={listing.id}
       aria-current={isSelected ? "true" : undefined}
-      className="flex w-[calc(100%_-_60px)] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-4 text-right transition-all duration-200 active:scale-[0.985]"
+      className="flex w-[calc(100%_-_60px)] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-4 text-right"
       type="button"
       onClick={onClick}
       dir="rtl"
@@ -163,7 +163,7 @@ function ImageSlider({ images }: { images: string[] }) {
       <div
         ref={scrollRef}
         className="
-          flex h-20 w-full cursor-grab snap-x snap-proximity gap-2.5 overflow-x-auto overscroll-x-contain scroll-smooth touch-pan-x scrollbar-none
+          flex h-20 w-full cursor-grab snap-x snap-proximity gap-2.5 overflow-x-auto overscroll-x-contain touch-pan-x scrollbar-none
           [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden
         "
         onClick={(event) => {

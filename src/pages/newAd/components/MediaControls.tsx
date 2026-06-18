@@ -1,7 +1,7 @@
 function RadioIndicator({ checked }: { checked: boolean }) {
   return (
     <span
-      className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border transition-all duration-200 ease-out ${checked
+      className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${checked
         ? "border-[#0048c4] bg-[#0048c4]"
         : "border-[#808080] bg-white"
         }`}
@@ -29,7 +29,7 @@ export function RadioCard({
   return (
     <button
       aria-pressed={checked}
-      className={`w-full rounded-[12px] border px-4 py-4 text-right transition-all duration-200 ease-out [direction:ltr] ${checked ? "border-[#0048c4] bg-[#0048C414]" : "border-[#cccccc]"
+      className={`w-full rounded-[12px] border px-4 py-4 text-right [direction:ltr] ${checked ? "border-[#0048c4] bg-[#0048C414]" : "border-[#cccccc]"
         }`}
       onClick={onClick}
       type="button"
@@ -49,7 +49,7 @@ export function RadioCard({
       </div>
 
       <div
-        className={`grid transition-all duration-200 ease-out ${checked && description
+        className={`grid ${checked && description
           ? "mt-3 grid-rows-[1fr] opacity-100"
           : "grid-rows-[0fr] opacity-0"
           }`}

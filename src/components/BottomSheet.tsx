@@ -1,6 +1,4 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { quickEase, softSpring } from "../lib/motion";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -98,15 +96,12 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const isCenterTitle = titleAlign === "center";
 
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen ? (
-        <motion.div
-          animate={{ opacity: 1 }}
+        <div
           className={`absolute inset-0 ${zIndexClassName} flex items-end justify-center overflow-hidden`}
           dir="rtl"
-          exit={{ opacity: 0, transition: { duration: 0.18, ease: quickEase } }}
-          initial={{ opacity: 0 }}
         >
           <button
             aria-label={`Ø¨Ø³ØªÙ† ${ariaLabel}`}
@@ -115,22 +110,16 @@ export function BottomSheet({
             type="button"
           />
 
-          <motion.section
-            animate={{ y: 0, transition: { ...softSpring, type: "spring" } }}
+          <section
             aria-label={ariaLabel}
             aria-modal="true"
             className={`relative z-10 w-full max-w-[500px] overflow-hidden bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
-            exit={{ y: "100%", transition: { duration: 0.24, ease: quickEase } }}
-            initial={{ y: "100%" }}
             role="dialog"
           >
             {showHandle ? (
-              <motion.span
-                animate={{ opacity: 1, scaleX: 1 }}
+              <span
                 aria-hidden="true"
                 className={`mx-auto block ${handleClassName}`}
-                initial={{ opacity: 0, scaleX: 0.72 }}
-                transition={{ delay: 0.08, duration: 0.22, ease: quickEase }}
               />
             ) : null}
 
@@ -141,17 +130,16 @@ export function BottomSheet({
                     }`}
                 >
                   {showBackButton ? (
-                    <motion.button
+                    <button
                       aria-label="Ø¨Ø§Ø²Ú¯Ø´Øª"
                       className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                       onClick={onBack ?? onClose}
                       type="button"
-                      whileTap={{ scale: 0.92 }}
                     >
                       <span className="block h-6 w-6">
                         <BottomSheetBackIcon />
                       </span>
-                    </motion.button>
+                    </button>
                   ) : null}
 
                   <h2
@@ -175,10 +163,8 @@ export function BottomSheet({
             ) : null}
 
             <div className={contentClassName}>{children}</div>
-          </motion.section>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
+          </section>
+        </div>
   );
 }
 
@@ -202,13 +188,8 @@ export function BottomSheetActionList({
         const isSelected = item.id === selectedId;
 
         return (
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 8 }}
-            key={item.id}
-            transition={{ delay: index * 0.035, duration: 0.2, ease: quickEase }}
-          >
-            <motion.button
+          <div key={item.id}>
+            <button
               className={`relative flex h-12 w-full items-center gap-3 bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${isCenter
                 ? "justify-center text-center"
                 : "justify-start text-right"
@@ -218,7 +199,6 @@ export function BottomSheetActionList({
               onClick={() => onSelect?.(item)}
               tabIndex={isOpen && isInteractive ? 0 : -1}
               type="button"
-              whileTap={isInteractive ? { scale: 0.98 } : undefined}
             >
               {showCheckIcon && isSelected ? (
                 <span className="absolute right-4 grid h-5 w-5 place-items-center">
@@ -233,14 +213,14 @@ export function BottomSheetActionList({
               <span className={isCenter ? "" : "min-w-0 flex-1 truncate"}>
                 {item.title}
               </span>
-            </motion.button>
+            </button>
 
             {showDividers && index < items.length - 1 ? (
               <div className="px-4 py-2">
                 <div className="h-px bg-[#cccccc]" />
               </div>
             ) : null}
-          </motion.div>
+          </div>
         );
       })}
     </div>

@@ -50,7 +50,7 @@ export function ViewAdIconButton({
   return (
     <button
       aria-label={label}
-      className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]"
+      className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]"
       onClick={onClick}
       type="button"
     >

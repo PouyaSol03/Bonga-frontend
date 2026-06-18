@@ -1,9 +1,9 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
 import { getStoredAuthSession } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
-import { pageMotion } from '../lib/motion'
+import { PageFrame } from '../app/PageFrame'
+import { BottomNavigation } from '../components/BottomNavigation'
 import { ViewAdPage } from '../pages/ViewAdPage'
 import { routes } from './routes'
 
@@ -40,6 +40,45 @@ type ResolvedRoute = {
   Component: ComponentType
 }
 
+type AppChromeConfig = {
+  bottomNavigationKey?: string
+  contentClassName?: string
+  frameClassName?: string
+  wrapInShell: boolean
+}
+
+function getBottomNavigationKey(path: string) {
+  if (path === '/home') return 'home'
+  if (path.startsWith('/search')) return 'search'
+  if (path === '/chat') return 'chat'
+  if (path === '/login' || path.startsWith('/account')) return 'account'
+
+  return undefined
+}
+
+function getAppChromeConfig(path: string): AppChromeConfig {
+  const bottomNavigationKey = getBottomNavigationKey(path)
+
+  if (!bottomNavigationKey) {
+    return { wrapInShell: false }
+  }
+
+  if (path === '/search') {
+    return {
+      bottomNavigationKey,
+      frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]',
+      wrapInShell: true,
+    }
+  }
+
+  return {
+    bottomNavigationKey,
+    contentClassName: 'min-h-0 flex-1 overflow-hidden',
+    frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
+    wrapInShell: true,
+  }
+}
+
 function getRoute(path: string): ResolvedRoute {
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {
     return { path, title: 'تجهیزات و امکانات', Component: ViewAdPage }
@@ -60,6 +99,7 @@ export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
   const route = getRoute(path)
   const ActivePage = route.Component
+  const chromeConfig = getAppChromeConfig(route.path)
 
   useEffect(() => {
     document.title = `بنگاه | ${route.title}`
@@ -78,19 +118,24 @@ export function AppRouter() {
     }
   }, [])
 
-  return (
-    <MobileAppShell>
-      <AnimatePresence initial={false} mode="wait">
-        <motion.div
-          key={route.path}
-          className="h-full min-h-0"
-          initial={pageMotion.initial}
-          animate={pageMotion.animate}
-          exit={pageMotion.exit}
-        >
-          <ActivePage />
-        </motion.div>
-      </AnimatePresence>
-    </MobileAppShell>
-  )
+  const page = <ActivePage />
+  let content: ReactNode = page
+
+  if (chromeConfig.wrapInShell) {
+    content = (
+      <PageFrame
+        className={chromeConfig.frameClassName}
+        variant="flush"
+      >
+        <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
+          {page}
+        </div>
+        {chromeConfig.bottomNavigationKey ? (
+          <BottomNavigation activeKey={chromeConfig.bottomNavigationKey} />
+        ) : null}
+      </PageFrame>
+    )
+  }
+
+  return <MobileAppShell>{content}</MobileAppShell>
 }

@@ -181,7 +181,7 @@ function TransactionSegmentedControl({
           return (
             <button
               aria-selected={isActive}
-              className={`min-w-0 text-center text-xl font-medium leading-7 transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
+              className={`min-w-0 text-center text-xl font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
                 } ${isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"}`}
               key={type}
               onClick={() => onChange(type)}
@@ -222,7 +222,7 @@ function CategoryChip({
 }) {
   return (
     <button
-      className={`flex h-11 items-center justify-center gap-2 rounded-[10px] border px-3 text-lg font-medium leading-7 transition-colors [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
+      className={`flex h-11 items-center justify-center gap-2 rounded-[10px] border px-3 text-lg font-medium leading-7 [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
           ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
           : "border-[#cccccc] bg-white text-[#1a1a1a]"
         }`}

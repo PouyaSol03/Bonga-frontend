@@ -21,7 +21,7 @@ export function SearchMapFloatingActions({
 }: SearchMapFloatingActionsProps) {
   return (
     <div
-      className={`pointer-events-none absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-[500] transition-all duration-300 ease-out ${
+      className={`pointer-events-none absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-[500] ${
         isHidden ? "hidden" : "translate-y-0 opacity-100"
       }`}
       aria-hidden={isHidden}

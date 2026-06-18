@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { PageFrame } from "../../app/PageFrame";
 import {
   searchFilterChips,
   searchMapCenter,
@@ -14,7 +13,6 @@ import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapView } from "./components/SearchMapView";
-import { BottomNavigation } from "../../components/BottomNavigation";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
 import { SearchMapListView } from "./components/SearchMapListView";
 import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
@@ -109,10 +107,7 @@ export function SearchMapPage() {
   const isFullListOpen = mode === "list";
 
   return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]"
-      variant="flush"
-    >
+    <>
       {isFullListOpen ? (
         <SearchMapListView
           listings={visibleListings}
@@ -169,8 +164,7 @@ export function SearchMapPage() {
         onClose={() => setIsSearchOpen(false)}
         onSelectResult={handleSearchResult}
       />
-      <BottomNavigation activeKey="search" />
       <DemoNotice message={message} />
-    </PageFrame>
+    </>
   );
 }

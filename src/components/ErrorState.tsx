@@ -66,7 +66,7 @@ function BaseErrorState({
                     className="
             inline-flex h-10 min-w-[124px] items-center justify-center gap-2 rounded-[10px]
             bg-[#0048C4] px-5 text-[14px] font-medium text-white
-            transition hover:bg-[#003FAE] active:scale-[0.98]
+            transition hover:bg-[#003FAE]
             disabled:cursor-not-allowed disabled:opacity-60
           "
                 >

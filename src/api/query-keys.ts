@@ -28,7 +28,9 @@ export const queryKeys = {
     all: ["account"] as const,
     profile: () => [...queryKeys.account.all, "profile"] as const,
     badges: () => [...queryKeys.account.all, "badges"] as const,
-    bookmarks: () => [...queryKeys.account.all, "bookmarks"] as const,
+    bookmarksRoot: () => [...queryKeys.account.all, "bookmarks"] as const,
+    bookmarks: (filters: { perPage: number }) =>
+      [...queryKeys.account.bookmarksRoot(), filters.perPage] as const,
     notes: () => [...queryKeys.account.all, "notes"] as const,
     walletPayments: () => [...queryKeys.account.all, "wallet-payments"] as const,
     myAds: (filters: { page: number; type: string }) =>

@@ -15,7 +15,7 @@ import { getFeatureIconSrc } from "../lib/handleFeaturesIcons";
 import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
 import { NotFoundErrorState, ServerErrorState } from "../components/ErrorState";
 import { useAdvertisementDetailQuery } from "../hooks/advertisement.hooks";
-import { useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
+import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
 import type { AdvertisementItem } from "../services/advertisement.service";
 import {
   DetailSection,
@@ -613,13 +613,17 @@ function ActionPageTopBar({
 }
 
 function ViewAdNotePage({
+  isSaving,
   noteText,
   onChangeNote,
   onClose,
+  onSave,
 }: {
+  isSaving: boolean;
   noteText: string;
   onChangeNote: (value: string) => void;
   onClose: () => void;
+  onSave: () => void;
 }) {
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
@@ -642,11 +646,12 @@ function ViewAdNotePage({
       <div className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_4px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
           <button
-            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-            onClick={onClose}
+            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            disabled={isSaving || noteText.trim().length === 0}
+            onClick={onSave}
             type="button"
           >
-            ذخیره
+            {isSaving ? "در حال ذخیره..." : "ذخیره"}
           </button>
           <button
             className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
@@ -2667,6 +2672,7 @@ export function ViewAdPage() {
   const [toast, setToast] = useState<ActionToast | null>(null);
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const toggleBadge = useToggleAdvertiseBadgeMutation();
+  const saveNote = useSaveAdvertiseNoteMutation();
   const {
     data: ad,
     error,
@@ -2806,6 +2812,31 @@ export function ViewAdPage() {
     }
   };
 
+  const handleSaveNote = () => {
+    const cleanNote = noteText.trim();
+
+    if (!adId || !cleanNote || saveNote.isPending) {
+      return;
+    }
+
+    saveNote.mutate(
+      { advertiseId: adId, note: cleanNote },
+      {
+        onError: (noteError) => {
+          showToast(
+            getApiErrorMessage(noteError, "ثبت یادداشت با خطا مواجه شد."),
+            "خطا",
+            "error",
+          );
+        },
+        onSuccess: () => {
+          setIsNoteOpen(false);
+          showToast("یادداشت شما ثبت شد");
+        },
+      },
+    );
+  };
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -2880,9 +2911,11 @@ export function ViewAdPage() {
 
       {isNoteOpen ? (
         <ViewAdNotePage
+          isSaving={saveNote.isPending}
           noteText={noteText}
           onChangeNote={setNoteText}
           onClose={() => setIsNoteOpen(false)}
+          onSave={handleSaveNote}
         />
       ) : null}
 

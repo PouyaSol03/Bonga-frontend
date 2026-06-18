@@ -39,6 +39,15 @@ export type WalletPaymentsResult = {
 
 export type MyAdsType = "all" | "active" | "deactive" | "pending";
 
+export type AdvertiseBadgesPage = {
+  adsIds: string[];
+  data: BadgeItem[];
+  hasNextPage: boolean;
+  page: number;
+  perPage: number;
+  total: number;
+};
+
 export type BadgeItem = Record<string, unknown> & {
   active?: boolean;
   ad?: AdvertisementItem;
@@ -53,14 +62,49 @@ export type BadgeItem = Record<string, unknown> & {
   slug?: string;
 };
 
+type AdvertiseBadgesResponse =
+  | {
+      AdsIds?: Array<string | number>;
+      advertises?: BadgeItem[];
+      advertisesTemp?: BadgeItem[];
+      data?: BadgeItem[];
+      page?: number;
+      per_page?: number;
+      status?: boolean;
+      total?: number;
+    }
+  | BadgeItem[];
+
 export type NoteItem = Record<string, unknown> & {
+  _id?: number | string;
   ad?: AdvertisementItem;
   advertise?: AdvertisementItem;
+  advertisement?: AdvertisementItem;
+  advertise_id?: number | string;
+  advertiseId?: number | string;
+  created_at?: string;
   description?: string;
   id?: number | string;
   note?: string;
+  noteId?: number | string;
   text?: string;
+  updated_at?: string;
 };
+
+export type SaveAdvertiseNotePayload = {
+  advertiseId: string;
+  note: string;
+};
+
+type MyNotesResponse =
+  | ApiListResponse<NoteItem>
+  | {
+      data?: NoteItem[];
+      notes?: NoteItem[];
+      advertises?: NoteItem[];
+      status?: boolean;
+    }
+  | NoteItem[];
 
 function getNestedValue(source: unknown, keys: string[]) {
   if (!source || typeof source !== "object") return undefined;
@@ -153,6 +197,43 @@ export async function getMyBadges() {
   }));
 }
 
+export async function getAdvertiseBadges({
+  page = 1,
+  perPage = 10,
+}: {
+  page?: number;
+  perPage?: number;
+} = {}): Promise<AdvertiseBadgesPage> {
+  const response = await api
+    .get("me/badges", {
+      searchParams: {
+        page,
+        per_page: perPage,
+      },
+    })
+    .json<AdvertiseBadgesResponse>();
+  const record = Array.isArray(response) ? {} : response;
+  const data = Array.isArray(response)
+    ? response
+    : Array.isArray(record.advertises)
+      ? record.advertises
+      : Array.isArray(record.data)
+        ? record.data
+        : [];
+  const currentPage = record.page ?? page;
+  const resolvedPerPage = record.per_page ?? perPage;
+  const total = record.total ?? data.length;
+
+  return {
+    adsIds: Array.isArray(record.AdsIds) ? record.AdsIds.map(String) : [],
+    data,
+    hasNextPage: currentPage * resolvedPerPage < total,
+    page: currentPage,
+    perPage: resolvedPerPage,
+    total,
+  };
+}
+
 export function toggleAdvertiseBadge(advertiseId: string) {
   return api
     .post(`me/advertise/badges/create/${advertiseId}`)
@@ -166,5 +247,26 @@ export function deleteAdvertiseBadge(advertiseId: string) {
 }
 
 export async function getMyNotes() {
-  return unwrapList(await api.get("me/notes").json<ApiListResponse<NoteItem>>());
+  const response = await api.get("me/notes").json<MyNotesResponse>();
+
+  if (Array.isArray(response)) return response;
+
+  const record = response as Record<string, unknown>;
+
+  if (Array.isArray(record.notes)) return record.notes as NoteItem[];
+  if (Array.isArray(record.advertises)) return record.advertises as NoteItem[];
+
+  return unwrapList(response as ApiListResponse<NoteItem>);
+}
+
+export function saveAdvertiseNote({ advertiseId, note }: SaveAdvertiseNotePayload) {
+  return api
+    .post(`me/advertise/note/add/${advertiseId}`, { json: { note } })
+    .json<ApiDataResponse<NoteItem | unknown>>();
+}
+
+export function deleteAdvertiseNote(noteId: string) {
+  return api
+    .delete(`me/advertise/note/delete/${noteId}`)
+    .json<ApiDataResponse<unknown>>();
 }

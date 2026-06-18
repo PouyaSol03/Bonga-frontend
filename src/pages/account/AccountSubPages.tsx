@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
@@ -6,9 +6,11 @@ import {
   useAdvertiseBadgesQuery,
   useAuthorizeMeMutation,
   useDeleteAdvertiseBadgeMutation,
+  useDeleteAdvertiseNoteMutation,
   useMyAdsQuery,
   useMyNotesQuery,
   useMyProfileQuery,
+  useSaveAdvertiseNoteMutation,
   useUpdateMyProfileMutation,
   useWalletPaymentsQuery,
 } from "../../hooks/account.hooks";
@@ -26,6 +28,7 @@ import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
 import { DemoNotice } from "../../components/DemoNotice";
+import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
@@ -438,18 +441,114 @@ export function AccountWalletHistoryPage() {
   );
 }
 
+type AccountToast = {
+  message: string;
+  title: string;
+  variant: SnackbarVariant;
+};
+
 export function AccountNotesPage() {
-  const { message, showNotice } = useDemoNotice();
+  const [editingNote, setEditingNote] = useState<NoteItem | null>(null);
+  const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState(false);
+  const [noteDraft, setNoteDraft] = useState("");
+  const [toast, setToast] = useState<AccountToast | null>(null);
   const { data: notes = [], error, isError, isLoading, refetch } = useMyNotesQuery();
+  const deleteNote = useDeleteAdvertiseNoteMutation();
+  const saveNote = useSaveAdvertiseNoteMutation();
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (
+    message: string,
+    title = "انجام شد",
+    variant: SnackbarVariant = "success",
+  ) => setToast({ message, title, variant });
+
+  const openEditNote = (note: NoteItem) => {
+    setEditingNote(note);
+    setNoteDraft(readNoteText(note));
+  };
+
+  const deleteSingleNote = (noteId: string) => {
+    if (!noteId || deleteNote.isPending) return;
+
+    deleteNote.mutate(noteId, {
+      onError: (deleteError) => {
+        showToast(getApiErrorMessage(deleteError, "حذف یادداشت با خطا مواجه شد."), "خطا", "error");
+      },
+      onSuccess: () => {
+        showToast("یادداشت حذف شد");
+      },
+    });
+  };
+
+  const deleteAllNotes = () => {
+    deleteNote.mutate("all", {
+      onError: (deleteError) => {
+        showToast(getApiErrorMessage(deleteError, "حذف یادداشت‌ها با خطا مواجه شد."), "خطا", "error");
+      },
+      onSuccess: () => {
+        setIsConfirmDeleteAllOpen(false);
+        showToast("همه یادداشت‌ها حذف شدند");
+      },
+    });
+  };
+
+  const updateEditingNote = () => {
+    const advertiseId = editingNote ? getNoteAdvertiseId(editingNote) : "";
+    const cleanNote = noteDraft.trim();
+
+    if (!advertiseId || !cleanNote || saveNote.isPending) return;
+
+    saveNote.mutate(
+      { advertiseId, note: cleanNote },
+      {
+        onError: (saveError) => {
+          showToast(getApiErrorMessage(saveError, "ذخیره یادداشت با خطا مواجه شد."), "خطا", "error");
+        },
+        onSuccess: () => {
+          setEditingNote(null);
+          setNoteDraft("");
+          showToast("یادداشت شما ثبت شد");
+        },
+      },
+    );
+  };
 
   return (
     <AccountPageShell
-      action={<TopBarTextAction label="حذف همه" onClick={() => showNotice("حذف یادداشت‌ها نیاز به API حذف دارد")} />}
+      action={
+        <button
+          aria-label="حذف همه یادداشت‌ها"
+          className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
+          disabled={notes.length === 0 || deleteNote.isPending}
+          onClick={() => setIsConfirmDeleteAllOpen(true)}
+          type="button"
+        >
+          <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
+        </button>
+      }
       title="یادداشت ها"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <div className="space-y-2 bg-[#f0f0f0] pt-2">
-          {isLoading ? <AccountNotesSkeleton /> : null}
+      {toast ? (
+        <Snackbar
+          className="top-16"
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
+
+      <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
+        <div className={`${!isLoading && !isError && notes.length === 0 ? "bg-white" : "space-y-0 bg-white"}`}>
+          {isLoading ? <AccountNotesSkeleton count={6} /> : null}
           {isError ? (
             <AccountRetryState
               message={getApiErrorMessage(error, "دریافت یادداشت‌ها با خطا مواجه شد.")}
@@ -457,29 +556,130 @@ export function AccountNotesPage() {
             />
           ) : null}
           {!isLoading && !isError && notes.map((note, index) => (
-            <NoteCard key={String(note.id ?? index)} note={note} />
+            <NoteCard
+              disabled={deleteNote.isPending}
+              key={getNoteId(note) || index}
+              note={note}
+              onDelete={deleteSingleNote}
+              onEdit={openEditNote}
+            />
           ))}
           {!isLoading && !isError && notes.length === 0 ? (
-            <EmptyMessage text="یادداشتی باقی نمانده است" />
+            <EmptyAccountState
+              description="با ثبت یادداشت برای آگهی‌ها، آن‌ها در این بخش نمایش داده خواهند شد."
+              iconSrc="/vectors/NoNotes.svg"
+              title="هیچ یادداشتی برای نمایش وجود ندارد!"
+            />
           ) : null}
         </div>
       </main>
-      <DemoNotice message={message} />
+
+      <BottomSheet
+        ariaLabel="حذف همه یادداشت‌ها"
+        contentClassName="px-4 pt-7"
+        heightClassName="h-[220px]"
+        isOpen={isConfirmDeleteAllOpen}
+        onClose={() => setIsConfirmDeleteAllOpen(false)}
+        showHeader={false}
+      >
+        <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+          آیا از حذف همه یادداشت‌ها مطمئن هستید؟
+        </p>
+        <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
+          <button
+            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4] disabled:opacity-50"
+            disabled={deleteNote.isPending}
+            onClick={deleteAllNotes}
+            type="button"
+          >
+            بله
+          </button>
+          <button
+            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4]"
+            onClick={() => setIsConfirmDeleteAllOpen(false)}
+            type="button"
+          >
+            خیر
+          </button>
+        </div>
+      </BottomSheet>
+
+      <BottomSheet
+        ariaLabel="ویرایش یادداشت"
+        contentClassName="px-4 pt-4"
+        heightClassName="h-[360px]"
+        isOpen={Boolean(editingNote)}
+        onClose={() => setEditingNote(null)}
+        title="ویرایش یادداشت"
+      >
+        <textarea
+          aria-label="متن یادداشت"
+          className="h-40 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-4 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
+          onChange={(event) => setNoteDraft(event.target.value)}
+          placeholder="یادداشت شما"
+          value={noteDraft}
+        />
+        <div className="mt-5 grid grid-cols-2 gap-4 [direction:ltr]">
+          <button
+            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white disabled:opacity-50"
+            disabled={!noteDraft.trim() || !editingNote || !getNoteAdvertiseId(editingNote) || saveNote.isPending}
+            onClick={updateEditingNote}
+            type="button"
+          >
+            {saveNote.isPending ? "در حال ذخیره..." : "ذخیره"}
+          </button>
+          <button
+            className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4]"
+            onClick={() => setEditingNote(null)}
+            type="button"
+          >
+            انصراف
+          </button>
+        </div>
+      </BottomSheet>
     </AccountPageShell>
   );
 }
 
 export function AccountBookmarksPage() {
   const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const { message, showNotice } = useDemoNotice();
   const {
-    data: bookmarks = [],
+    data,
     error,
+    fetchNextPage,
+    hasNextPage,
     isError,
+    isFetchingNextPage,
     isLoading,
     refetch,
-  } = useAdvertiseBadgesQuery();
+  } = useAdvertiseBadgesQuery({ perPage: 10 });
   const deleteBadge = useDeleteAdvertiseBadgeMutation();
+  const bookmarks = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data],
+  );
+  const prefetchIndex = Math.max(bookmarks.length - 6, 0);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { rootMargin: "160px 0px" },
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [bookmarks.length, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const deleteBookmark = (advertiseId: string) => {
     deleteBadge.mutate(advertiseId, {
@@ -514,13 +714,13 @@ export function AccountBookmarksPage() {
           onClick={() => setIsConfirmDeleteAllOpen(true)}
           type="button"
         >
-          <TrashIcon className="h-5 w-5" />
+          <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
         </button>
       }
       title="نشان‌ها"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <div className="space-y-2 bg-[#f0f0f0] pt-2">
+      <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
+        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "space-y-2 bg-[#f0f0f0] pt-2"}`}>
           {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
@@ -529,15 +729,24 @@ export function AccountBookmarksPage() {
             />
           ) : null}
           {!isLoading && !isError && bookmarks.map((bookmark, index) => (
-            <BookmarkAdCard
-              badge={bookmark}
-              disabled={deleteBadge.isPending}
-              key={getBadgeAdvertiseId(bookmark) || index}
-              onDelete={deleteBookmark}
-            />
+            <div className="contents" key={getBadgeAdvertiseId(bookmark) || index}>
+              <BookmarkAdCard
+                badge={bookmark}
+                disabled={deleteBadge.isPending}
+                onDelete={deleteBookmark}
+              />
+              {hasNextPage && index === prefetchIndex ? (
+                <div aria-hidden="true" className="h-px" ref={loadMoreRef} />
+              ) : null}
+            </div>
           ))}
+          {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} /> : null}
           {!isLoading && !isError && bookmarks.length === 0 ? (
-            <EmptyMessage text="آگهی نشان‌شده‌ای باقی نمانده است" />
+            <EmptyAccountState
+              description="آگهی‌های موردعلاقه خود را نشان کنید تا در این بخش نمایش داده شوند."
+              iconSrc="/vectors/NoBadges.svg"
+              title="هیچ آگهی نشان‌شده‌ای وجود ندارد!"
+            />
           ) : null}
         </div>
       </main>
@@ -560,14 +769,14 @@ export function AccountBookmarksPage() {
             onClick={deleteAllBookmarks}
             type="button"
           >
-            حذف همه
+            بله
           </button>
           <button
             className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4]"
             onClick={() => setIsConfirmDeleteAllOpen(false)}
             type="button"
           >
-            انصراف
+            خیر
           </button>
         </div>
       </BottomSheet>
@@ -811,6 +1020,28 @@ function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: str
   );
 }
 
+function EmptyAccountState({
+  description,
+  iconSrc,
+  title,
+}: {
+  description: string;
+  iconSrc: string;
+  title: string;
+}) {
+  return (
+    <section className="flex min-h-[560px] flex-col items-center justify-center px-9 text-center">
+      <img alt="" aria-hidden="true" className="mb-5 h-[66px] w-[66px]" src={iconSrc} />
+      <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+        {title}
+      </h2>
+      <p className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-[#4d4d4d]">
+        {description}
+      </p>
+    </section>
+  );
+}
+
 function getBadgeAdvertiseSource(badge: BadgeItem): AdvertisementItem {
   return (
     badge.ad ??
@@ -843,65 +1074,19 @@ function BookmarkAdCard({
   onDelete: (advertiseId: string) => void;
 }) {
   const advertiseId = getBadgeAdvertiseId(badge);
-  const ad = mapAdvertisementToAdCard(getBadgeAdvertiseSource(badge), 0);
+  const mappedAd = mapAdvertisementToAdCard(getBadgeAdvertiseSource(badge), 0);
   const card = {
-    ...ad,
-    id: advertiseId || ad.id,
+    ...mappedAd,
+    id: advertiseId || mappedAd.id,
   } satisfies AdCardData;
 
   return (
-    <article className="relative bg-white px-2 py-2 text-right [direction:rtl]">
-      <RouteLink
-        aria-label={`مشاهده آگهی ${card.title}`}
-        className="block rounded-xl text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-        to={`/ads/${card.id}`}
-      >
-        <div
-          className={`ad-card__image relative aspect-[328/134] overflow-hidden rounded-xl bg-[#dbe5ff] bg-cover ${card.imageClassName}`}
-          style={card.imageUrl ? { backgroundImage: `url(${card.imageUrl})` } : undefined}
-        >
-          <div className="absolute left-2 top-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-xs font-medium leading-4 text-white">
-            <span>{card.imageCount}</span>
-          </div>
-        </div>
-
-        <div className="px-2 pb-2 pt-3">
-          <div className="flex h-6 items-center justify-start gap-1 text-[#0048c4]">
-            <strong className="text-base font-semibold leading-6">{card.pricePrimary}</strong>
-          </div>
-
-          <div className="mt-2 flex h-5 items-center justify-start gap-4 text-sm font-medium leading-5 text-[#1a1a1a]">
-            <span>{card.area}</span>
-            <span>{card.rooms}</span>
-            <span>{card.year}</span>
-          </div>
-
-          <h2 className="m-0 mt-2 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
-            {card.title}
-          </h2>
-
-          <div className="mt-2 flex h-6 items-center justify-start gap-2">
-            {card.badges.map((item) => (
-              <span
-                className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${item === "فوری" || item === "ÙÙˆØ±ÛŒ"
-                  ? "border-[#ff6d00] text-[#ff6d00]"
-                  : "border-[#11a366] text-[#11a366]"
-                  }`}
-                key={item}
-              >
-                {item}
-              </span>
-            ))}
-            <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080]">
-              {card.timeAndLocation}
-            </span>
-          </div>
-        </div>
-      </RouteLink>
+    <div className="relative bg-white">
+      <AdCard ad={card} />
 
       <button
         aria-label="حذف نشان"
-        className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-lg bg-white/90 text-[#808080] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
+        className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-[#1a1a1a] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
         disabled={disabled || !advertiseId}
         onClick={(event) => {
           event.preventDefault();
@@ -912,27 +1097,142 @@ function BookmarkAdCard({
         }}
         type="button"
       >
-        <TrashIcon className="h-5 w-5" />
+        <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
       </button>
-    </article>
+    </div>
   );
 }
 
-function TopBarTextAction({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
+function getNoteAdvertiseSource(note: NoteItem): AdvertisementItem {
   return (
-    <button
-      className="h-10 rounded-lg px-2 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
-      onClick={onClick}
-      type="button"
-    >
-      {label}
-    </button>
+    note.ad ??
+    note.advertise ??
+    note.advertisement ??
+    (note as AdvertisementItem)
+  );
+}
+
+function getNoteId(note: NoteItem) {
+  const id = note.id ?? note._id ?? note.noteId;
+
+  return id === undefined || id === null ? "" : String(id);
+}
+
+function getNoteAdvertiseId(note: NoteItem) {
+  const ad = getNoteAdvertiseSource(note);
+  const id = note.advertiseId ?? note.advertise_id ?? ad.id ?? ad._id;
+
+  return id === undefined || id === null ? "" : String(id);
+}
+
+function readNoteText(note: NoteItem) {
+  if (typeof note.note === "string") return note.note;
+  if (typeof note.text === "string") return note.text;
+  if (typeof note.description === "string") return note.description;
+
+  return "";
+}
+
+function readNoteDate(note: NoteItem, fallback: string) {
+  const createdAt = note.created_at ?? note.updated_at;
+
+  if (typeof createdAt === "string" && createdAt.trim()) return createdAt;
+
+  return fallback || "";
+}
+
+function NoteCard({
+  disabled,
+  note,
+  onDelete,
+  onEdit,
+}: {
+  disabled: boolean;
+  note: NoteItem;
+  onDelete: (noteId: string) => void;
+  onEdit: (note: NoteItem) => void;
+}) {
+  const [dragOffset, setDragOffset] = useState(0);
+  const dragStartX = useRef<number | null>(null);
+  const noteId = getNoteId(note);
+  const advertiseId = getNoteAdvertiseId(note);
+  const mappedAd = mapAdvertisementToAdCard(getNoteAdvertiseSource(note), 0);
+  const noteText = readNoteText(note) || "یادداشت";
+  const dateText = readNoteDate(note, mappedAd.timeAndLocation);
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    if (dragStartX.current === null || disabled || !noteId) return;
+
+    const deltaX = Math.max(0, event.clientX - dragStartX.current);
+    setDragOffset(Math.min(deltaX, 88));
+  };
+
+  const handlePointerEnd = () => {
+    const shouldDelete = dragOffset > 64;
+    setDragOffset(0);
+    dragStartX.current = null;
+
+    if (shouldDelete && noteId) {
+      onDelete(noteId);
+    }
+  };
+
+  return (
+    <article className="relative overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
+      <button
+        aria-label="حذف یادداشت"
+        className="absolute inset-y-0 left-0 flex w-[88px] flex-col items-center justify-center gap-1 bg-[#fff1f1] text-xs font-medium leading-4 text-[#e5231a] disabled:opacity-50"
+        disabled={disabled || !noteId}
+        onClick={() => noteId && onDelete(noteId)}
+        type="button"
+      >
+        <TrashIcon className="h-5 w-5" />
+        حذف
+      </button>
+
+      <div
+        className="relative z-10 flex min-h-[92px] touch-pan-y items-center gap-3 bg-white px-4 py-3 transition-transform duration-150 ease-out"
+        onPointerCancel={handlePointerEnd}
+        onPointerDown={(event) => {
+          dragStartX.current = event.clientX;
+        }}
+        onPointerLeave={handlePointerEnd}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        style={{ transform: `translateX(${dragOffset}px)` }}
+      >
+        <RouteLink
+          aria-label={`مشاهده آگهی ${mappedAd.title}`}
+          className={`relative h-14 w-16 shrink-0 overflow-hidden rounded-lg bg-[#ebebeb] bg-cover ${mappedAd.imageClassName}`}
+          style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}
+          to={advertiseId ? `/ads/${advertiseId}` : "/search"}
+        />
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              aria-label="ویرایش یادداشت"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#4d4d4d] disabled:opacity-50"
+              disabled={!advertiseId || disabled}
+              onClick={() => onEdit(note)}
+              type="button"
+            >
+              <EditIcon className="h-4 w-4" />
+            </button>
+            <h2 className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+              {noteText}
+            </h2>
+          </div>
+
+          <p className="m-0 mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
+            {mappedAd.title}
+          </p>
+          <p className="m-0 mt-0.5 truncate text-right text-xs font-normal leading-4 text-[#808080]">
+            {dateText}
+          </p>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -957,48 +1257,6 @@ function AboutSection({
         {text}
       </p>
     </section>
-  );
-}
-
-function NoteCard({ note }: { note: NoteItem }) {
-  const ad = note.ad ?? note.advertise;
-  const title =
-    typeof ad?.title === "string" && ad.title.trim()
-      ? ad.title
-      : "آگهی";
-  const noteText =
-    typeof note.note === "string"
-      ? note.note
-      : typeof note.text === "string"
-        ? note.text
-        : typeof note.description === "string"
-          ? note.description
-          : "";
-
-  return (
-    <article className="bg-white px-4 py-4">
-      <div className="flex gap-3 [direction:rtl]">
-        <div className="ad-card__image ad-card__image--one relative h-[104px] w-[136px] shrink-0 overflow-hidden rounded-xl bg-[#ebebeb] bg-cover">
-          <span className="absolute right-2 top-2 rounded-lg bg-[#1a1a1acc] px-2 py-0.5 text-xs font-medium leading-4 text-white">
-            4
-          </span>
-        </div>
-
-        <div className="min-w-0 flex-1 text-right">
-          <h2 className="m-0 line-clamp-2 text-base font-medium leading-6 text-[#1a1a1a]">
-            {title}
-          </h2>
-          <p className="m-0 mt-2 text-xs font-medium leading-4 text-[#808080]">
-            {String(ad?.created_at ?? "")}
-          </p>
-        </div>
-      </div>
-
-      <textarea
-        className="mt-4 min-h-14 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-4 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
-        defaultValue={noteText}
-      />
-    </article>
   );
 }
 

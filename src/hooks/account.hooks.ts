@@ -1,17 +1,21 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
   authorizeMe,
   deleteAdvertiseBadge,
+  deleteAdvertiseNote,
+  getAdvertiseBadges,
   getMyAds,
   getMyBadges,
   getMyNotes,
   getMyProfile,
   getWalletPayments,
+  saveAdvertiseNote,
   toggleAdvertiseBadge,
   updateMyProfile,
+  type AdvertiseBadgesPage,
   type MyAdsType,
 } from "../services/account.service";
 
@@ -65,10 +69,23 @@ export function useMyBadgesQuery() {
   });
 }
 
-export function useAdvertiseBadgesQuery() {
-  return useQuery({
-    queryFn: getMyBadges,
-    queryKey: queryKeys.account.bookmarks(),
+export function useAdvertiseBadgesQuery({ perPage = 10 }: { perPage?: number } = {}) {
+  return useInfiniteQuery<
+    AdvertiseBadgesPage,
+    Error,
+    { pages: AdvertiseBadgesPage[]; pageParams: number[] },
+    ReturnType<typeof queryKeys.account.bookmarks>,
+    number
+  >({
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getAdvertiseBadges({
+        page: pageParam,
+        perPage,
+      }),
+    queryKey: queryKeys.account.bookmarks({ perPage }),
   });
 }
 
@@ -77,7 +94,7 @@ export function useToggleAdvertiseBadgeMutation() {
     mutationFn: toggleAdvertiseBadge,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.account.bookmarks(),
+        queryKey: queryKeys.account.bookmarksRoot(),
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.badges(),
@@ -94,7 +111,7 @@ export function useDeleteAdvertiseBadgeMutation() {
     mutationFn: deleteAdvertiseBadge,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.account.bookmarks(),
+        queryKey: queryKeys.account.bookmarksRoot(),
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.badges(),
@@ -107,5 +124,30 @@ export function useMyNotesQuery() {
   return useQuery({
     queryFn: getMyNotes,
     queryKey: queryKeys.account.notes(),
+  });
+}
+
+export function useSaveAdvertiseNoteMutation() {
+  return useMutation({
+    mutationFn: saveAdvertiseNote,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.notes(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+    },
+  });
+}
+
+export function useDeleteAdvertiseNoteMutation() {
+  return useMutation({
+    mutationFn: deleteAdvertiseNote,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.notes(),
+      });
+    },
   });
 }

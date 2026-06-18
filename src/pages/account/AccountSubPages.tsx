@@ -38,6 +38,7 @@ import {
   listItemMotion,
   softSpring,
 } from "../../lib/motion";
+import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -348,10 +349,18 @@ export function AccountWalletPage() {
                 className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] placeholder:text-sm [direction:rtl]"
                 inputMode="numeric"
                 placeholder="مبلغ اعتبار دلخواه"
-                value={amount}
-                onChange={(event) => setAmount(event.target.value)}
+                value={amount && amount !== "0" ? formatPrice(Number(amount.replace(/,/g, ""))) : ""}
+                onChange={(event) => {
+                  const cleanValue = event.target.value.replace(/,/g, "");
+                  setAmount(cleanValue);
+                }}
               />
             </label>
+            {Number(amount) > 0 && (
+              <p className="px-4 pt-1 text-xs text-[#808080]">
+                {formatBigNumber(Number(amount))} تومان
+              </p>
+            )}
 
             <h3 className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
               مبالغ پیشنهادی

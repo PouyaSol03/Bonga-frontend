@@ -118,11 +118,8 @@ export function BottomNavigation({
                   />
                 </span>
 
-                <span className="relative max-w-full overflow-hidden text-ellipsis pb-1">
+                <span className="max-w-full overflow-hidden text-ellipsis">
                   {item.label}
-                  {isActive ? (
-                    <span className="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-[#0048c4]" />
-                  ) : null}
                 </span>
               </RouteLink>
             );

@@ -7,8 +7,9 @@ type TopBarNavigationLayoutProps = {
   contentClassName?: string;
   fixedAfterTopBar?: ReactNode;
   frameClassName?: string;
+  hideTopBar?: boolean;
   overlay?: ReactNode;
-  topBar: ReactNode;
+  topBar?: ReactNode;
 };
 
 export function TopBarNavigationLayout({
@@ -16,6 +17,7 @@ export function TopBarNavigationLayout({
   contentClassName = "",
   fixedAfterTopBar,
   frameClassName = "",
+  hideTopBar = false,
   overlay,
   topBar,
 }: TopBarNavigationLayoutProps) {
@@ -24,7 +26,7 @@ export function TopBarNavigationLayout({
       className={`flex min-h-0 flex-col overflow-hidden ${frameClassName}`}
       variant="flush"
     >
-      {topBar}
+      {hideTopBar ? null : topBar}
       {fixedAfterTopBar}
 
       <main

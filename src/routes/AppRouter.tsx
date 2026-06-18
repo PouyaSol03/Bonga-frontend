@@ -4,6 +4,7 @@ import { getStoredAuthSession } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
+import { TopBar } from '../components/TopBar'
 import { ViewAdPage } from '../pages/ViewAdPage'
 import { routes } from './routes'
 
@@ -44,7 +45,26 @@ type AppChromeConfig = {
   bottomNavigationKey?: string
   contentClassName?: string
   frameClassName?: string
+  header?: ReactNode
   wrapInShell: boolean
+}
+
+function NotificationIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M17.5 10a5.5 5.5 0 0 0-11 0v3.5l-1.5 2h14l-1.5-2V10Z" />
+      <path d="M9.75 18a2.35 2.35 0 0 0 4.5 0" />
+    </svg>
+  )
 }
 
 function getBottomNavigationKey(path: string) {
@@ -56,11 +76,44 @@ function getBottomNavigationKey(path: string) {
   return undefined
 }
 
-function getAppChromeConfig(path: string): AppChromeConfig {
+function getRouteHeader(path: string, title: string) {
+  if (path === '/login') {
+    return <TopBar showBack={false} title={title} />
+  }
+
+  if (path === '/account/dashboard') {
+    return (
+      <TopBar
+        actions={[
+          {
+            icon: <NotificationIcon className="h-6 w-6" />,
+            id: "notifications",
+            label: "Ø§Ø¹Ù„Ø§Ù†â€ŒÙ‡Ø§",
+            to: "/chat",
+          },
+        ]}
+        backTo="/login"
+        title={title}
+      />
+    )
+  }
+
+  return undefined
+}
+
+function getAppChromeConfig(path: string, title: string): AppChromeConfig {
   const bottomNavigationKey = getBottomNavigationKey(path)
+  const header = getRouteHeader(path, title)
 
   if (!bottomNavigationKey) {
-    return { wrapInShell: false }
+    return header
+      ? {
+          contentClassName: 'min-h-0 flex-1 overflow-hidden',
+          frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
+          header,
+          wrapInShell: true,
+        }
+      : { wrapInShell: false }
   }
 
   if (path === '/search') {
@@ -75,6 +128,7 @@ function getAppChromeConfig(path: string): AppChromeConfig {
     bottomNavigationKey,
     contentClassName: 'min-h-0 flex-1 overflow-hidden',
     frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
+    header,
     wrapInShell: true,
   }
 }
@@ -99,7 +153,7 @@ export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
   const route = getRoute(path)
   const ActivePage = route.Component
-  const chromeConfig = getAppChromeConfig(route.path)
+  const chromeConfig = getAppChromeConfig(route.path, route.title)
 
   useEffect(() => {
     document.title = `بنگاه | ${route.title}`
@@ -127,6 +181,7 @@ export function AppRouter() {
         className={chromeConfig.frameClassName}
         variant="flush"
       >
+        {chromeConfig.header}
         <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
           {page}
         </div>

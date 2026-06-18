@@ -1,3 +1,4 @@
+import { getUserRole } from "../lib/getUserRole";
 import { BottomSheet } from "./BottomSheet";
 
 type CreateAdOption = {
@@ -38,43 +39,19 @@ function CreateAdIcon({ type }: { type: CreateAdOption["icon"] }) {
   if (type === "user") {
     return (
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
-          stroke="currentColor"
-          strokeWidth="1.8"
-        />
-        <path
-          d="M4 21a8 8 0 0 1 16 0"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
+        <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     );
   }
 
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M5 21V4l10 3v14"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M15 11h4v10"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
+      <path d="M5 21V4l10 3v14" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M15 11h4v10" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
       <path d="M8 8h3M8 12h3M8 16h3" stroke="currentColor" strokeWidth="1.8" />
       {type === "agency" && (
-        <path
-          d="M3 21h18"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
+        <path d="M3 21h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       )}
     </svg>
   );
@@ -83,13 +60,7 @@ function CreateAdIcon({ type }: { type: CreateAdOption["icon"] }) {
 function ChevronLeftIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M15 6l-6 6 6 6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -99,6 +70,26 @@ export function CreateAdBottomSheet({
   onClose,
   onSelect,
 }: CreateAdBottomSheetProps) {
+
+  const userRole = getUserRole();
+
+  const filteredOptions = createAdOptions.filter((option) => {
+    switch (userRole) {
+      case "user":
+        return option.id === "personal";
+
+      case "independent_consultant":
+        return option.id === "independent-consultant" || option.id === "personal";
+
+      case "real_estate_consultant":
+      case "real_estate_manager":
+        return option.id === "jaliliyan-agency" || option.id === "personal";
+
+      default:
+        return option.id === "personal";
+    }
+  });
+
   return (
     <BottomSheet
       ariaLabel="ثبت آگهی"
@@ -109,7 +100,7 @@ export function CreateAdBottomSheet({
       title="ثبت آگهی"
       zIndexClassName="z-2000"
     >
-      {createAdOptions.map((option) => (
+      {filteredOptions.map((option) => (
         <button
           key={option.id}
           type="button"

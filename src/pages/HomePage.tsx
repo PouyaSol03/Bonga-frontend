@@ -214,7 +214,7 @@ export function HomePage() {
   };
 
   return (
-    <>
+    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[#f0f0f0]" dir="rtl">
       <header className="shrink-0 bg-white">
         <section
           className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-white px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
@@ -250,7 +250,7 @@ export function HomePage() {
         </section>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[96px] [-webkit-overflow-scrolling:touch]">
         <section
           className="flex w-full flex-col gap-5 bg-white px-4 pb-5 pt-2 min-[390px]:gap-7 min-[390px]:pb-6"
           aria-label="جستجوی ملک"
@@ -403,6 +403,6 @@ export function HomePage() {
           setIsCityOpen(false);
         }}
       />
-    </>
+    </div>
   );
 }

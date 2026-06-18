@@ -90,6 +90,7 @@ export function IndependentConsultantDashboardPage() {
       activeKey="home"
       contentClassName="bg-[#f0f0f0] px-4 py-4"
       frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      hideTopBar
       topBar={<TopBar
         actions={[
           {

@@ -109,6 +109,7 @@ function IndependentConsultantAccountPage() {
       activeKey="account"
       contentClassName="flex flex-col gap-4 bg-[#f0f0f0]"
       frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      hideTopBar
       topBar={<TopBar
         actions={[
           {
@@ -171,6 +172,7 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
       activeKey="account"
       contentClassName="bg-[#f0f0f0] pb-4"
       frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      hideTopBar
       topBar={<TopBar showBack={false} title="حساب من" />}
     >
       {isLoggedInUnverified ? (

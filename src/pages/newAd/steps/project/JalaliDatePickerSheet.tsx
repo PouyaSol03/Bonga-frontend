@@ -5,6 +5,8 @@ import persianFa from "react-date-object/locales/persian_fa";
 
 import { BottomSheet } from "../../../../components/BottomSheet";
 
+import "./JalaliDatePickerSheet.css";
+
 type JalaliDatePickerSheetProps = {
   isOpen: boolean;
   value: string;
@@ -44,34 +46,41 @@ export function JalaliDatePickerSheet({
     <BottomSheet
       ariaLabel="تاریخ تحویل"
       className="rounded-t-[14px]"
-      contentClassName="pb-4 pt-0"
-      handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+      contentClassName="p-0"
       heightClassName="h-auto max-h-[calc(100dvh-48px)]"
       isOpen={isOpen}
       onClose={onClose}
-      panelPaddingClassName="pt-3"
-      showBackButton={false}
-      showHandle
+      panelPaddingClassName="p-0"
+      showBackButton
+      showHandle={false}
       showHeader
       showHeaderDivider={false}
       title="تاریخ تحویل"
-      titleAlign="center"
+      titleAlign="right"
     >
-      <div className="px-4 pb-4 pt-2" dir="rtl">
-        <div className="flex justify-center">
+      <div className="jalali-date-sheet" dir="rtl">
+        <div className="jalali-calendar-container">
           <Calendar
             value={draftDate}
-            onChange={(date) => setDraftDate(date as DateObject | null)}
+            onChange={(date) => {
+              if (!date || Array.isArray(date)) {
+                setDraftDate(null);
+                return;
+              }
+
+              setDraftDate(date as DateObject);
+            }}
             calendar={persian}
             locale={persianFa}
             format="YYYY/MM/DD"
             shadow={false}
+            weekDays={["ش", "ی", "د", "س", "چ", "پ", "ج"]}
           />
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="jalali-date-actions">
           <button
-            className="h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4]"
+            className="jalali-date-action jalali-date-cancel"
             type="button"
             onClick={onClose}
           >
@@ -79,8 +88,9 @@ export function JalaliDatePickerSheet({
           </button>
 
           <button
-            className="h-12 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white active:bg-[#003ba1]"
+            className="jalali-date-action jalali-date-confirm"
             type="button"
+            disabled={!draftDate}
             onClick={() => {
               if (!draftDate) return;
               onConfirm(draftDate.format("YYYY/MM/DD"));

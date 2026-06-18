@@ -5,7 +5,17 @@ import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
 import { CheckRow, RadioCard, SocialInput } from "../components/MediaControls";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
 
-export function MediaStep({ label, onBack, onSubmit }: { label: string; onBack: () => void; onSubmit: () => void }) {
+export function MediaStep({
+  label,
+  onBack,
+  onSubmit,
+  submitDisabled = false,
+}: {
+  label: string;
+  onBack: () => void;
+  onSubmit: () => void;
+  submitDisabled?: boolean;
+}) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => setValue(key as never, value as never, { shouldDirty: true });
@@ -91,7 +101,12 @@ export function MediaStep({ label, onBack, onSubmit }: { label: string; onBack: 
           </div>
         </Section>
       </main>
-      <Footer onBack={onBack} onPrimary={onSubmit} primary="ثبت اطلاعات" />
+      <Footer
+        disabled={submitDisabled}
+        onBack={onBack}
+        onPrimary={onSubmit}
+        primary={submitDisabled ? "در حال ثبت..." : "ثبت اطلاعات"}
+      />
     </>
   );
 }

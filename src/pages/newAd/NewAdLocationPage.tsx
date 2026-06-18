@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import { Header } from "./components/NewAdControls";
-import { NewAdPageState } from "./components/NewAdPageState";
 import { locationKey } from "./data";
 import { navigateTo, useRequireAuth } from "./utils";
 
@@ -17,7 +16,6 @@ export function NewAdLocationPage() {
   return (
     <PageFrame className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
       <Header title="موقعیت ملک" />
-      <NewAdPageState>
       <main className="relative min-h-0 flex-1 bg-[#e9eef2]">
         <img alt="نقشه" className="absolute inset-0 h-full w-full object-cover" src="/figma/search/map-light.png" />
         <div className="absolute inset-0 bg-white/10" />
@@ -49,7 +47,6 @@ export function NewAdLocationPage() {
           تایید موقعیت
         </button>
       </footer>
-      </NewAdPageState>
     </PageFrame>
   );
 }

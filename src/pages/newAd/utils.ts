@@ -129,114 +129,131 @@ function labels(items: ChipItem[], ids: string[]) {
   return items.filter((item) => ids.includes(item.id)).map((item) => item.label);
 }
 
+type NewAdFeatureValue = string | number | boolean | string[] | Record<string, unknown>[];
+
+type NewAdFeature = {
+  key: string;
+  value: NewAdFeatureValue;
+};
+
+function hasFeatureValue(value: unknown) {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+
+  return true;
+}
+
+function addFeature(features: NewAdFeature[], key: string, value: unknown) {
+  if (!hasFeatureValue(value)) return;
+
+  features.push({
+    key,
+    value: value as NewAdFeatureValue,
+  });
+}
+
+function buildProjectDetailFeatures(values: NewAdFormValues) {
+  return values.projectDetails
+    .map((item) => ({
+      min_meterage: toNumber(item.minMeterage),
+      max_meterage: toNumber(item.maxMeterage),
+      floors: item.floors,
+      rooms: item.rooms,
+      positions: item.positions,
+    }))
+    .filter((item) =>
+      Object.values(item).some((value) => hasFeatureValue(value)),
+    );
+}
+
 export function buildPayload(values: NewAdFormValues) {
   const params = getParams();
   const isProject = params.transaction === "project";
+  const features: NewAdFeature[] = [];
+  const heatingCooling = labels(heatingItems, values.heatingCooling);
+  const facilities = labels(facilityItems, values.facilities);
+  const extraSpecs = labels(propertySpecs, values.selectedSpecs);
+
+  addFeature(features, "form_code", `${params.transaction}-${params.category}`);
+  addFeature(features, "location", values.location);
+  addFeature(features, "area", toNumber(values.meterage));
+  addFeature(features, "land_area", toNumber(values.landArea));
+  addFeature(features, "building_area", toNumber(values.buildingArea));
+  addFeature(features, "floor", values.floor);
+  addFeature(features, "rooms", values.rooms);
+  addFeature(features, "building_age", values.age);
+  addFeature(features, "density", toNumber(values.density));
+  addFeature(features, "usage", values.usageType);
+  addFeature(features, "land_position", values.landPosition);
+  addFeature(features, "document_type", values.documentType);
+  addFeature(features, "suitable_for", values.suitableFor);
+  addFeature(features, "hotel_stars", values.hotelStars);
+  addFeature(features, "standard_capacity", toNumber(values.standardCapacity));
+  addFeature(features, "extra_people_capacity", toNumber(values.extraPeopleCapacity));
+
+  addFeature(features, "total_floors", values.totalFloors);
+  addFeature(features, "unit_type", values.unitType);
+  addFeature(features, "unit_direction", values.unitPosition);
+  addFeature(features, "renovated", values.renovated);
+  addFeature(features, "furnished", values.furnished);
+  addFeature(features, "facade_material", values.facadeMaterial);
+  addFeature(features, "floor_material", values.floorMaterial);
+  addFeature(features, "cabinet_material", values.cabinetMaterial);
+  addFeature(features, "villa_type", values.villaType);
+  addFeature(features, "land_width", toNumber(values.landWidth));
+  addFeature(features, "street_width", toNumber(values.streetWidth));
+  addFeature(features, "construction_license", values.constructionPermit);
+  addFeature(features, "commercial_license", values.commercialPermit);
+  addFeature(features, "ceiling_height", toNumber(values.ceilingHeight));
+  addFeature(features, "single_room_count", toNumber(values.singleRoomCount));
+  addFeature(features, "double_room_count", toNumber(values.doubleRoomCount));
+  addFeature(features, "suite_count", toNumber(values.suiteCount));
+
+  addFeature(features, "extra_specs", extraSpecs);
+  addFeature(features, "heating_cooling", heatingCooling);
+  addFeature(features, "facilities", facilities);
+
+  addFeature(features, "price", toNumber(values.price));
+  addFeature(features, "has_loan", !isProject && values.loanEnabled);
+  addFeature(features, "loan_amount", !isProject && values.loanEnabled ? toNumber(values.loanAmount) : null);
+  addFeature(features, "loan_installment", !isProject && values.loanEnabled ? toNumber(values.loanInstallment) : null);
+  addFeature(features, "has_exchange", values.exchangeEnabled);
+  addFeature(features, "exchange_with", values.exchangeEnabled ? values.exchangeTargets : []);
+
+  addFeature(features, "has_image", values.photos.length > 0);
+  addFeature(features, "has_video", values.hasVideo);
+  addFeature(features, "has_virtual_tour", values.hasVirtualTour);
+  addFeature(features, "advertiser_type", values.registrantType);
+
+  if (isProject) {
+    addFeature(features, "project_total_floors", toNumber(values.projectTotalFloors));
+    addFeature(features, "project_total_units", toNumber(values.projectTotalUnits));
+    addFeature(features, "project_status", values.projectStatus);
+    addFeature(features, "delivery_date", values.projectDeliveryDate);
+    addFeature(features, "project_details", buildProjectDetailFeatures(values));
+    addFeature(features, "sale_terms_enabled", values.saleTermsEnabled);
+    addFeature(features, "sale_terms_percent", values.saleTermsEnabled ? toNumber(values.saleTermsPercent) : null);
+    addFeature(features, "sale_terms_installment_months", values.saleTermsEnabled ? toNumber(values.saleTermsInstallmentMonths) : null);
+  }
 
   return {
     transaction: params.transaction,
     category: params.category,
     category_label: params.label,
     location: values.location,
-    property: {
-      project: isProject
-        ? {
-          total_floors: toNumber(values.projectTotalFloors),
-          total_units: toNumber(values.projectTotalUnits),
-          status: values.projectStatus || null,
-          delivery_date_jalali: values.projectDeliveryDate || null,
-          details: values.projectDetails.map((item) => ({
-            min_meterage: toNumber(item.minMeterage),
-            max_meterage: toNumber(item.maxMeterage),
-            floors: item.floors,
-            rooms: item.rooms,
-            positions: item.positions,
-          })),
-          sale_terms: values.saleTermsEnabled
-            ? {
-              percent: toNumber(values.saleTermsPercent),
-              installment_months: toNumber(values.saleTermsInstallmentMonths),
-            }
-            : null,
-        }
-        : null,
-      meterage: toNumber(values.meterage),
-      land_area: toNumber(values.landArea),
-      building_area: toNumber(values.buildingArea),
-
-      floor: values.floor || null,
-      rooms: values.rooms || null,
-      age: values.age || null,
-
-      density: toNumber(values.density),
-      usage_type: values.usageType || null,
-      land_position: values.landPosition || null,
-      document_type: values.documentType || null,
-      suitable_for: values.suitableFor || null,
-      hotel_stars: values.hotelStars || null,
-      standard_capacity: toNumber(values.standardCapacity),
-      extra_people_capacity: toNumber(values.extraPeopleCapacity),
-
-      more_features: {
-        total_floors: values.totalFloors || null,
-        unit_type: values.unitType || null,
-        unit_position: values.unitPosition || null,
-        document_type: values.documentType || null,
-        renovated: values.renovated,
-        furnished: values.furnished,
-        facade_material: values.facadeMaterial || null,
-        floor_material: values.floorMaterial || null,
-        cabinet_material: values.cabinetMaterial || null,
-        land_position: values.landPosition || null,
-        villa_type: values.villaType || null,
-        density: toNumber(values.density),
-        land_width: toNumber(values.landWidth),
-        street_width: toNumber(values.streetWidth),
-        construction_permit: values.constructionPermit,
-        commercial_permit: values.commercialPermit,
-        ceiling_height: toNumber(values.ceilingHeight),
-        single_room_count: toNumber(values.singleRoomCount),
-        double_room_count: toNumber(values.doubleRoomCount),
-        suite_count: toNumber(values.suiteCount),
-      },
-
-      extra_specs: labels(propertySpecs, values.selectedSpecs),
+    title: values.title,
+    description: values.description,
+    price: toNumber(values.price),
+    features,
+    contact_type: [
+      values.chatEnabled ? "chat" : null,
+      values.phoneEnabled ? "phone" : null,
+    ].filter(Boolean),
+    social: {
+      telegram: values.telegram || null,
+      whatsapp: values.whatsapp || null,
     },
-    heating_cooling: labels(heatingItems, values.heatingCooling),
-    facilities: labels(facilityItems, values.facilities),
-    price: {
-      amount: toNumber(values.price),
-
-      loan_enabled: isProject ? false : values.loanEnabled,
-      loan_amount: !isProject && values.loanEnabled ? toNumber(values.loanAmount) : null,
-      loan_installment: !isProject && values.loanEnabled ? toNumber(values.loanInstallment) : null,
-
-      exchange_enabled: values.exchangeEnabled,
-      exchange_targets: values.exchangeEnabled ? values.exchangeTargets : [],
-    },
-    media: {
-      photos: values.photos.map((photo) => ({
-        name: photo.name,
-        size: photo.size,
-        type: photo.type,
-      })),
-      has_video: values.hasVideo,
-      video:
-        values.hasVideo && values.video
-          ? {
-            name: values.video.name,
-            size: values.video.size,
-            type: values.video.type,
-          }
-          : null,
-      has_virtual_tour: values.hasVirtualTour,
-    },
-    owner: {
-      registrant_type: values.registrantType || null,
-      contact_methods: { chat: values.chatEnabled, phone: values.phoneEnabled },
-      social: { telegram: values.telegram, whatsapp: values.whatsapp },
-    },
-    content: { title: values.title, description: values.description },
   };
 }
 

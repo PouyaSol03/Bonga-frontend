@@ -1,4 +1,4 @@
-import { getApiAssetUrl, publicApi } from "../api/api";
+import { api, getApiAssetUrl, publicApi } from "../api/api";
 
 export type AdvertisementItem = Record<string, unknown> & {
   _id?: string;
@@ -46,6 +46,13 @@ type AdvertisementListResponse =
   | AdvertisementItem[];
 
 type AdvertisementShowResponse =
+  | {
+      data?: AdvertisementItem;
+      status?: boolean;
+    }
+  | AdvertisementItem;
+
+type AdvertisementCreateResponse =
   | {
       data?: AdvertisementItem;
       status?: boolean;
@@ -243,6 +250,18 @@ export async function getAdvertisementDetail(id: string) {
   const response = await publicApi
     .get(`public/advertise/${id}`)
     .json<AdvertisementShowResponse>();
+
+  return "data" in response && response.data
+    ? (response.data as AdvertisementItem)
+    : (response as AdvertisementItem);
+}
+
+export async function createAdvertisement(payload: FormData) {
+  const response = await api
+    .post("me/advertise/create", {
+      body: payload,
+    })
+    .json<AdvertisementCreateResponse>();
 
   return "data" in response && response.data
     ? (response.data as AdvertisementItem)

@@ -1,7 +1,9 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
+import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
+  createAdvertisement,
   getAdvertisementDetail,
   getAdvertisementList,
   type AdvertisementListParams,
@@ -39,5 +41,19 @@ export function useAdvertisementDetailQuery(id: string | null) {
     enabled: Boolean(id),
     queryFn: () => getAdvertisementDetail(id ?? ""),
     queryKey: queryKeys.advertisements.detail(id ?? ""),
+  });
+}
+
+export function useCreateAdvertisementMutation() {
+  return useMutation({
+    mutationFn: createAdvertisement,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAds({ page: 1, type: "all" }),
+      });
+    },
   });
 }

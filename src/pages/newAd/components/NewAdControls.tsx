@@ -271,15 +271,18 @@ export function Footer({
   primary,
   onPrimary,
   onBack,
+  disabled = false,
 }: {
   primary: string;
   onPrimary: () => void;
   onBack: () => void;
+  disabled?: boolean;
 }) {
   return (
     <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]">
       <button
-        className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white [direction:rtl]"
+        className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6] [direction:rtl]"
+        disabled={disabled}
         onClick={onPrimary}
         type="button"
       >

@@ -24,7 +24,7 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     agency: listing.agencyName,
     status: "",
     imageCount: toFaCount(imageCount > 0 ? imageCount : 1),
-    priceLabelPrimary: listing.priceLabel,
+    priceLabelPrimary: "",
     pricePrimary: listing.priceValue.replace(/[٫.]/g, "/"),
     priceLabelSecondary: "",
     priceSecondary: "",
@@ -47,10 +47,11 @@ export function SearchMapListView({
   onMapClick,
 }: SearchMapListViewProps) {
   return (
-    <section className="absolute inset-0 overflow-hidden bg-[#f0f0f0]" dir="rtl">
+    <>
       <main
-        className="h-full overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0] pb-24 pt-32 touch-pan-y"
+        className="absolute inset-0 z-0 min-h-0 overflow-y-auto overscroll-contain bg-[#f0f0f0] pb-24 pt-32"
         aria-label="لیست آگهی‌ها"
+        dir="rtl"
       >
         <div className="flex flex-col gap-3 bg-[#f0f0f0]">
           {isLoading
@@ -61,7 +62,7 @@ export function SearchMapListView({
                 <AdCard
                   key={listing.id}
                   ad={searchMapListingToAdCardData(listing)}
-                  to={`/public/advertise/${listing.id}`}
+                  to={`/ads/${listing.id}`}
                 />
               ))}
         </div>
@@ -75,7 +76,7 @@ export function SearchMapListView({
         <span>نقشه</span>
         <MapLocationIcon />
       </button>
-    </section>
+    </>
   );
 }
 

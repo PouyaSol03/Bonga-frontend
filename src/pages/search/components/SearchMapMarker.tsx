@@ -26,21 +26,19 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
       <Marker
         position={[props.marker.latitude, props.marker.longitude]}
         icon={markerIcon}
+        zIndexOffset={0}
       />
     );
   }
 
   const { listing, isSelected, onSelect } = props;
-  const markerIcon =
-    listing.showPriceMarker === false
-      ? createSearchStaticDotIcon(isSelected)
-      : createSearchListingIcon(listing.priceValue, isSelected);
+  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected);
 
   return (
     <Marker
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
-      zIndexOffset={isSelected ? 1000 : 0}
+      zIndexOffset={isSelected ? 10_000 : 1_000}
       eventHandlers={{
         click: (event) => {
           onSelect(listing);
@@ -60,17 +58,13 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function formatMarkerPrice(priceValue: string) {
-  return priceValue.replace(/[٫.]/g, "/");
-}
-
 function createSearchListingIcon(priceValue: string, isSelected: boolean) {
-  const safePriceValue = escapeMarkerText(formatMarkerPrice(priceValue));
+  const safePriceValue = escapeMarkerText(priceValue);
 
   return new DivIcon({
     className: "search-map-marker-wrapper",
     html: `
-      <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}" dir="rtl">
+      <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}">
         <span class="search-map-dot search-map-listing-marker__dot"></span>
         <span class="search-map-marker">
           ${safePriceValue}
@@ -82,11 +76,11 @@ function createSearchListingIcon(priceValue: string, isSelected: boolean) {
   });
 }
 
-function createSearchStaticDotIcon(isSelected = false) {
+function createSearchStaticDotIcon() {
   return new DivIcon({
     className: "search-map-marker-wrapper",
-    html: `<div class="search-map-dot${isSelected ? " search-map-dot--selected" : ""}"></div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    html: '<div class="search-map-dot"></div>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
   });
 }

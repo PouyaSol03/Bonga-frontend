@@ -4,7 +4,7 @@ type AdCardSkeletonProps = {
 
 export function AdCardSkeleton({ className = "" }: AdCardSkeletonProps) {
   return (
-    <article className={`mx-4 overflow-hidden rounded-2xl bg-white ${className}`.trim()}>
+    <article className={`mx-4 overflow-hidden rounded-2xl bg-white ${className}`}>
       <div className="p-4 pb-3">
         <div className="aspect-[328/219] w-full rounded-2xl bg-[#f0f0f0]" />
 

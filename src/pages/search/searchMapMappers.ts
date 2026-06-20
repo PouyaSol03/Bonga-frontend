@@ -74,10 +74,6 @@ function getSearchParams() {
   return new URLSearchParams(window.location.search);
 }
 
-function getStoredCityId() {
-  return window.localStorage.getItem("bonga-selected-city-id") ?? "";
-}
-
 function toPersianDigits(value: unknown) {
   return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
 }
@@ -290,12 +286,12 @@ export function buildMapQueryParams(bounds: SearchMapBounds | null): Advertiseme
   if (!bounds) return null;
 
   const params = getSearchParams();
-  const cityId = params.get("city_id") || getStoredCityId();
+  const cityId = params.get("city_id") || "";
   const categoryId = params.get("category_id") || params.get("categoryId") || "";
 
   return {
     categoryId,
-    cityId,
+    ...(cityId ? { cityId } : {}),
     east: roundCoordinate(bounds.east),
     limit: mapRequestLimit,
     north: roundCoordinate(bounds.north),
@@ -306,8 +302,4 @@ export function buildMapQueryParams(bounds: SearchMapBounds | null): Advertiseme
 
 export function getCurrentSearchParams() {
   return getSearchParams();
-}
-
-export function getCurrentStoredCityId() {
-  return getStoredCityId();
 }

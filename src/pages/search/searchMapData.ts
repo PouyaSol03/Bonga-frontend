@@ -69,7 +69,7 @@ export const searchMapCardDemoImages: string[] = Array.from(
 export const searchMapTileConfig: SearchMapTileConfig = {
   urlTemplate: "https://map.exirfirm.com/tile/{z}/{x}/{y}.png",
   attribution: "© Exir Map",
-  minZoom: 11,
+  minZoom: 6,
   maxZoom: 19,
   isTms: false,
 };

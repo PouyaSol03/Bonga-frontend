@@ -81,8 +81,11 @@ export type AdvertisementMapParams = AdvertisementMapBounds & {
 type AdvertisementMapResponse =
   | {
       advertises?: AdvertisementItem[];
-      data?: AdvertisementItem[];
+      data?: unknown;
+      items?: AdvertisementItem[];
       list?: AdvertisementItem[];
+      result?: unknown;
+      results?: AdvertisementItem[];
       status?: boolean;
     }
   | AdvertisementItem[];
@@ -230,6 +233,42 @@ function readImages(item: AdvertisementItem) {
     .filter(Boolean);
 }
 
+function extractAdvertisementItems(payload: unknown): AdvertisementItem[] {
+  if (Array.isArray(payload)) return payload as AdvertisementItem[];
+
+  if (!payload || typeof payload !== "object") return [];
+
+  const response = payload as {
+    advertises?: unknown;
+    data?: unknown;
+    items?: unknown;
+    list?: unknown;
+    result?: unknown;
+    results?: unknown;
+  };
+
+  const directCandidates = [
+    response.advertises,
+    response.list,
+    response.items,
+    response.results,
+    response.data,
+  ];
+
+  for (const candidate of directCandidates) {
+    if (Array.isArray(candidate)) return candidate as AdvertisementItem[];
+  }
+
+  for (const candidate of [response.data, response.result]) {
+    const nestedItems = extractAdvertisementItems(candidate);
+
+    if (nestedItems.length > 0) return nestedItems;
+  }
+
+  return [];
+}
+
+
 export function mapAdvertisementToAdCard(
   item: AdvertisementItem,
   index: number,
@@ -343,7 +382,8 @@ export async function getAdvertisementMap({
     .get("public/advertise/map", {
       searchParams: {
         category_id: categoryId,
-        city_id: cityId,
+        ...(cityId ? { city_id: cityId } : {}),
+        _ts: Date.now(),
         east,
         limit,
         north,
@@ -353,13 +393,7 @@ export async function getAdvertisementMap({
     })
     .json<AdvertisementMapResponse>();
 
-  if (Array.isArray(response)) return response;
-
-  if (Array.isArray(response.list)) return response.list;
-  if (Array.isArray(response.advertises)) return response.advertises;
-  if (Array.isArray(response.data)) return response.data;
-
-  return [];
+  return extractAdvertisementItems(response);
 }
 
 export function submitAdvertiseFeedback({

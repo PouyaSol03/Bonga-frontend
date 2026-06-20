@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { SearchMapMarker } from "./SearchMapMarker";
 import type {
   SearchMapBounds,
   SearchMapCenter,
+  SearchMapDotMarker,
   SearchMapListing,
   SearchMapListingId,
   SearchMapTileConfig,
@@ -12,9 +13,11 @@ import type {
 type SearchMapViewProps = {
   center: SearchMapCenter;
   listings: SearchMapListing[];
+  dotMarkers?: SearchMapDotMarker[];
   selectedListingId: SearchMapListingId | null;
   tileConfig: SearchMapTileConfig;
   onBoundsChange: (bounds: SearchMapBounds) => void;
+  onMapClick: () => void;
   onSelectListing: (listing: SearchMapListing) => void;
 };
 
@@ -32,9 +35,11 @@ function getMapBounds(map: ReturnType<typeof useMap>): SearchMapBounds {
 function SearchMapController({
   center,
   onBoundsChange,
+  onMapClick,
 }: {
   center: SearchMapCenter;
   onBoundsChange: (bounds: SearchMapBounds) => void;
+  onMapClick: () => void;
 }) {
   const map = useMap();
   const emitBounds = useCallback(() => {
@@ -42,6 +47,7 @@ function SearchMapController({
   }, [map, onBoundsChange]);
 
   useMapEvents({
+    click: onMapClick,
     moveend: emitBounds,
     zoomend: emitBounds,
   });
@@ -67,39 +73,16 @@ function SearchMapController({
   return null;
 }
 
-function SelectedListingPanController({
-  listing,
-}: {
-  listing: SearchMapListing | null;
-}) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!listing) return;
-
-    map.panTo([listing.latitude, listing.longitude], {
-      animate: true,
-      duration: 0.35,
-    });
-  }, [listing, map]);
-
-  return null;
-}
-
 export function SearchMapView({
   center,
   listings,
+  dotMarkers = [],
   selectedListingId,
   tileConfig,
   onBoundsChange,
+  onMapClick,
   onSelectListing,
 }: SearchMapViewProps) {
-  const selectedListing = useMemo(
-    () =>
-      listings.find((listing) => String(listing.id) === String(selectedListingId)) ?? null,
-    [listings, selectedListingId],
-  );
-
   return (
     <MapContainer
       className="relative z-0 h-full min-h-[320px] w-full bg-[#f5f5f5]"
@@ -117,8 +100,15 @@ export function SearchMapView({
         tms={tileConfig.isTms}
       />
 
-      <SearchMapController center={center} onBoundsChange={onBoundsChange} />
-      <SelectedListingPanController listing={selectedListing} />
+      <SearchMapController
+        center={center}
+        onBoundsChange={onBoundsChange}
+        onMapClick={onMapClick}
+      />
+
+      {dotMarkers.map((marker) => (
+        <SearchMapMarker key={marker.id} marker={marker} />
+      ))}
 
       {listings.map((listing) => (
         <SearchMapMarker

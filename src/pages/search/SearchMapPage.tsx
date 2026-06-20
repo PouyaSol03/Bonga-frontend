@@ -13,6 +13,7 @@ import { SearchMapView } from "./components/SearchMapView";
 import {
   SEARCH_MAP_DEMO_PHOTO,
   searchFilterChips,
+  searchMapCenter,
   searchMapTileConfig,
   type SearchFilterChip,
   type SearchMapBounds,
@@ -20,13 +21,7 @@ import {
   type SearchMapListing,
   type SearchMapListingId,
 } from "./searchMapData";
-import {
-  getBrowserMapCenter,
-  getInitialMapCenter,
-  getIpBasedMapCenter,
-  hasExplicitSearchCity,
-  storeSearchMapCenter,
-} from "./searchMapLocation";
+import { getIpDefaultMapCenter } from "./searchMapLocation";
 
 type SearchMapMode = "map" | "preview" | "list";
 
@@ -83,10 +78,6 @@ function getSearchParams() {
   return new URLSearchParams(window.location.search);
 }
 
-function getStoredCityId() {
-  return window.localStorage.getItem("bonga-selected-city-id") ?? "";
-}
-
 function toPersianDigits(value: unknown) {
   return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
 }
@@ -139,9 +130,12 @@ function readFeatureRaw(item: AdvertisementItem, labels: string[]) {
   const features = Array.isArray(item.features) ? item.features : [];
   const normalizedLabels = labels.map((label) => label.toLowerCase());
   const feature = features.find((candidate) => {
-    const featureName = String(candidate.key ?? candidate.label ?? "").toLowerCase();
+    const featureItem = candidate as { key?: unknown; label?: unknown };
+    const featureName = String(featureItem.key ?? featureItem.label ?? "").toLowerCase();
 
-    return normalizedLabels.some((label) => featureName === label || featureName.includes(label));
+    return normalizedLabels.some(
+      (label) => featureName === label || featureName.includes(label),
+    );
   });
 
   return feature?.value;
@@ -149,27 +143,6 @@ function readFeatureRaw(item: AdvertisementItem, labels: string[]) {
 
 function readFeature(item: AdvertisementItem, labels: string[], fallback = "") {
   return toText(readFeatureRaw(item, labels), fallback);
-}
-
-function withUnit(value: string, unit: string) {
-  if (!value || value === "-" || value.includes(unit)) return value;
-
-  return `${value} ${unit}`;
-}
-
-function readBadges(item: AdvertisementItem) {
-  if (Array.isArray(item.badges)) {
-    return item.badges.filter((badge): badge is string => typeof badge === "string" && badge.trim().length > 0);
-  }
-
-  const badges: string[] = [];
-  const urgent = item.is_urgent ?? item.urgent ?? readFeatureRaw(item, ["is_urgent", "urgent"]);
-  const featured = item.is_featured ?? item.featured ?? readFeatureRaw(item, ["is_featured", "featured"]);
-
-  if (urgent === true || urgent === "true" || urgent === 1 || urgent === "1") badges.push("فوری");
-  if (featured === true || featured === "true" || featured === 1 || featured === "1") badges.push("ویژه");
-
-  return badges;
 }
 
 function readNestedText(item: AdvertisementItem, keys: string[]) {
@@ -209,31 +182,127 @@ function readImageSources(item: AdvertisementItem) {
     : [SEARCH_MAP_DEMO_PHOTO];
 }
 
-function getAdMapPosition(item: AdvertisementItem) {
-  const position = item as {
-    lat?: unknown;
-    latitude?: unknown;
-    location?: { lat?: unknown; latitude?: unknown; lng?: unknown; longitude?: unknown };
-    lng?: unknown;
-    long?: unknown;
-    longitude?: unknown;
-    point?: { lat?: unknown; latitude?: unknown; lng?: unknown; longitude?: unknown };
-  };
-  const nestedPosition = position.point ?? position.location;
-  const latitude = toNumber(
-    position.lat ?? position.latitude ?? nestedPosition?.lat ?? nestedPosition?.latitude,
-  );
-  const longitude = toNumber(
-    position.lng ??
-      position.long ??
-      position.longitude ??
-      nestedPosition?.lng ??
-      nestedPosition?.longitude,
-  );
+type PositionContainer = Record<string, unknown> & {
+  coordinates?: unknown;
+  lat?: unknown;
+  latitude?: unknown;
+  lng?: unknown;
+  long?: unknown;
+  longitude?: unknown;
+};
+
+type PositionLike = PositionContainer & {
+  address?: PositionContainer;
+  coordinate?: PositionContainer;
+  geo?: PositionContainer;
+  location?: PositionContainer;
+  map?: PositionContainer;
+  point?: PositionContainer;
+};
+
+function isValidCoordinatePair(latitude: number, longitude: number) {
+  return Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180;
+}
+
+function isLikelyIranLatitude(value: number) {
+  return value >= 24 && value <= 41;
+}
+
+function isLikelyIranLongitude(value: number) {
+  return value >= 43 && value <= 65;
+}
+
+function normalizeCoordinatePair(first: unknown, second: unknown) {
+  const firstNumber = toNumber(first);
+  const secondNumber = toNumber(second);
+
+  if (firstNumber === undefined || secondNumber === undefined) return null;
+
+  if (isLikelyIranLongitude(firstNumber) && isLikelyIranLatitude(secondNumber)) {
+    return { latitude: secondNumber, longitude: firstNumber };
+  }
+
+  if (isLikelyIranLatitude(firstNumber) && isLikelyIranLongitude(secondNumber)) {
+    return { latitude: firstNumber, longitude: secondNumber };
+  }
+
+  if (Math.abs(firstNumber) > 90 && Math.abs(secondNumber) <= 90) {
+    return { latitude: secondNumber, longitude: firstNumber };
+  }
+
+  if (isValidCoordinatePair(firstNumber, secondNumber)) {
+    return { latitude: firstNumber, longitude: secondNumber };
+  }
+
+  if (isValidCoordinatePair(secondNumber, firstNumber)) {
+    return { latitude: secondNumber, longitude: firstNumber };
+  }
+
+  return null;
+}
+
+function readPositionFromContainer(container?: PositionContainer | null) {
+  if (!container) return null;
+
+  const coordinateArray = Array.isArray(container.coordinates)
+    ? container.coordinates
+    : null;
+
+  if (coordinateArray && coordinateArray.length >= 2) {
+    const normalizedCoordinates = normalizeCoordinatePair(
+      coordinateArray[0],
+      coordinateArray[1],
+    );
+
+    if (normalizedCoordinates) return normalizedCoordinates;
+  }
+
+  const latitude = toNumber(container.lat ?? container.latitude);
+  const longitude = toNumber(container.lng ?? container.long ?? container.longitude);
 
   if (latitude === undefined || longitude === undefined) return null;
+  if (!isValidCoordinatePair(latitude, longitude)) return null;
 
   return { latitude, longitude };
+}
+
+function getAdMapPosition(item: AdvertisementItem) {
+  const position = item as PositionLike;
+  const directPosition = readPositionFromContainer(position);
+
+  if (directPosition) return directPosition;
+
+  for (const nestedPosition of [
+    position.point,
+    position.location,
+    position.geo,
+    position.coordinate,
+    position.map,
+    position.address,
+  ]) {
+    const parsedPosition = readPositionFromContainer(nestedPosition);
+
+    if (parsedPosition) return parsedPosition;
+  }
+
+  return null;
+}
+
+function readBadges(item: AdvertisementItem) {
+  if (Array.isArray(item.badges)) {
+    return item.badges.filter(
+      (badge): badge is string => typeof badge === "string" && badge.trim().length > 0,
+    );
+  }
+
+  const badges: string[] = [];
+  const urgent = item.is_urgent ?? item.urgent ?? readFeatureRaw(item, ["is_urgent", "urgent"]);
+  const featured = item.is_featured ?? item.featured ?? readFeatureRaw(item, ["is_featured", "featured"]);
+
+  if (urgent === true || urgent === "true" || urgent === 1 || urgent === "1") badges.push("فوری");
+  if (featured === true || featured === "true" || featured === 1 || featured === "1") badges.push("ویژه");
+
+  return badges;
 }
 
 function mapAdvertisementToSearchListing(
@@ -258,16 +327,8 @@ function mapAdvertisementToSearchListing(
 
   return {
     id,
-    agencyName: toText(
-      item.agency ??
-        item.agency_name ??
-        item.advertiser_name ??
-        readFeatureRaw(item, ["advertiser_type", "agency"]),
-    ),
-    area: withUnit(
-      readFeature(item, ["area", "meterage", "building_area", "متراژ"], toText(item.area, "-")),
-      "متر",
-    ),
+    agencyName: toText(item.agency ?? item.agency_name ?? item.advertiser_name ?? readFeatureRaw(item, ["advertiser_type"])),
+    area: readFeature(item, ["area", "meterage", "building_area", "متراژ"], item.area ? `${toText(item.area)} متر` : "-"),
     badges: readBadges(item),
     dotId: `dot-${id}`,
     imageClassName: images[0] === SEARCH_MAP_DEMO_PHOTO ? `ad-card__image--${(index % 4) + 1}` : "",
@@ -282,10 +343,7 @@ function mapAdvertisementToSearchListing(
         : "",
     priceLabel: toText(item.price_label, "قیمت"),
     priceValue: formatPrice(item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"])),
-    rooms: withUnit(
-      readFeature(item, ["rooms", "room", "bedroom", "bedrooms", "اتاق", "خواب"], toText(item.rooms, "-")),
-      "اتاق",
-    ),
+    rooms: readFeature(item, ["rooms", "room", "bedroom", "bedrooms", "اتاق", "خواب"], item.rooms ? `${toText(item.rooms)} اتاق` : "-"),
     showPriceMarker: true,
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: readFeature(item, ["building_age", "age", "year", "سال ساخت"], toText(item.year, "-")),
@@ -300,12 +358,12 @@ function buildMapQueryParams(bounds: SearchMapBounds | null) {
   if (!bounds) return null;
 
   const params = getSearchParams();
-  const cityId = params.get("city_id") || getStoredCityId();
+  const cityId = params.get("city_id") || "";
   const categoryId = params.get("category_id") || params.get("categoryId") || "";
 
   return {
     categoryId,
-    cityId,
+    ...(cityId ? { cityId } : {}),
     east: roundCoordinate(bounds.east),
     limit: mapRequestLimit,
     north: roundCoordinate(bounds.north),
@@ -314,32 +372,42 @@ function buildMapQueryParams(bounds: SearchMapBounds | null) {
   };
 }
 
-function filterListings(listings: SearchMapListing[]) {
+function filterListings(listings: SearchMapListing[], _chips: SearchFilterChip[]) {
   return listings;
 }
 
+function getBrowserPosition() {
+  return new Promise<GeolocationPosition>((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation is not available."));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      maximumAge: 60_000,
+      timeout: 10_000,
+    });
+  });
+}
 
 export function SearchMapPage() {
   const [selectedListingId, setSelectedListingId] = useState<SearchMapListingId | null>(null);
-  const [mode, setMode] = useState<SearchMapMode>("map");
-  const chips = searchFilterChips;
+  const [mode, setMode] = useState<SearchMapMode>("preview");
+  const [chips] = useState(searchFilterChips);
   const [isDrawMode, setIsDrawMode] = useState(false);
   const [isLocated, setIsLocated] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchRevision, setSearchRevision] = useState(0);
-  const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
-  const didRequestPreciseLocationRef = useRef(false);
+  const [mapCenter, setMapCenter] = useState<SearchMapCenter>(searchMapCenter);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
+  const [stableListings, setStableListings] = useState<SearchMapListing[]>([]);
+  const didResolveIpLocationRef = useRef(false);
   const [queryLabel, setQueryLabel] = useState(
     getSearchParams().get("qsearch") || searchDefaultLabel,
   );
   const { message, showNotice } = useDemoNotice();
-  const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds), [mapBounds, searchRevision]);
+  const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds), [mapBounds]);
   const mapQuery = useAdvertisementMapQuery(mapQueryParams);
-  const applyMapCenter = useCallback((center: SearchMapCenter) => {
-    setMapCenter(center);
-    storeSearchMapCenter(center);
-  }, []);
   const apiListings = useMemo(
     () =>
       (mapQuery.data ?? [])
@@ -347,32 +415,54 @@ export function SearchMapPage() {
         .filter((item): item is SearchMapListing => item !== null),
     [mapQuery.data],
   );
-  const isMapLoading = !mapQueryParams || (mapQuery.isLoading && apiListings.length === 0);
+  const isMapLoading = !mapQueryParams || (mapQuery.isFetching && stableListings.length === 0);
   const visibleListings = useMemo(
-    () => filterListings(apiListings),
-    [apiListings],
+    () => filterListings(stableListings, chips),
+    [chips, stableListings],
   );
+
+  useEffect(() => {
+    if (!mapQuery.isSuccess) return;
+
+    setStableListings(apiListings);
+  }, [apiListings, mapQuery.isSuccess]);
+
+  useEffect(() => {
+    if (didResolveIpLocationRef.current) return;
+
+    didResolveIpLocationRef.current = true;
+
+    void getIpDefaultMapCenter().then((ipCenter) => {
+      if (!ipCenter) return;
+
+      setMapCenter((current) => {
+        if (current.latitude !== searchMapCenter.latitude || current.longitude !== searchMapCenter.longitude) {
+          return current;
+        }
+
+        return ipCenter;
+      });
+    });
+  }, []);
+  const visibleListingIds = new Set(
+    visibleListings
+      .filter((listing) => !listing.showPriceMarker)
+      .map((listing) => listing.id),
+  );
+  const visibleDotMarkers = visibleListings
+    .filter((listing) => visibleListingIds.has(listing.id))
+    .map((listing) => ({
+      id: listing.dotId,
+      listingId: listing.id,
+      latitude: listing.latitude,
+      longitude: listing.longitude,
+    }));
+
   useEffect(() => {
     if (!mapQuery.isError) return;
 
     showNotice(getApiErrorMessage(mapQuery.error, "دریافت آگهی‌های نقشه با خطا مواجه شد."));
   }, [mapQuery.error, mapQuery.isError, showNotice]);
-
-  useEffect(() => {
-    if (hasExplicitSearchCity()) return;
-
-    const controller = new AbortController();
-
-    void getIpBasedMapCenter(controller.signal).then((center) => {
-      if (!center || controller.signal.aborted || didRequestPreciseLocationRef.current) return;
-
-      applyMapCenter(center);
-    });
-
-    return () => {
-      controller.abort();
-    };
-  }, [applyMapCenter]);
 
   useEffect(() => {
     if (selectedListingId == null) return;
@@ -403,35 +493,27 @@ export function SearchMapPage() {
     });
   }, []);
 
-  const openFilterPage = (chip?: SearchFilterChip) => {
-    const params = getSearchParams();
-
-    if (chip?.id && chip.id !== "filters") {
-      params.set("filter", chip.id);
-    }
-
-    const queryString = params.toString();
-    window.history.pushState({}, "", queryString ? `/search/filter?${queryString}` : "/search/filter");
+  const toggleChip = (_chip: SearchFilterChip) => {
+    window.history.pushState({}, "", "/search/filter");
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-
-
-  const handleSelectListing = useCallback((listing: SearchMapListing) => {
+  const handleSelectListing = (listing: SearchMapListing) => {
     setSelectedListingId(listing.id);
     setMode("preview");
+  };
+
+  const handleMapClick = useCallback(() => {
+    setMode("map");
   }, []);
 
-  const handleActiveListingChange = useCallback((listing: SearchMapListing) => {
-    setSelectedListingId((currentId) =>
-      String(currentId) === String(listing.id) ? currentId : listing.id,
-    );
-    setMode("preview");
+  const handleSliderActiveListing = useCallback((listing: SearchMapListing) => {
+    setSelectedListingId(listing.id);
   }, []);
 
   const handleSearchResult = (item: { title: string }) => {
     const params = getSearchParams();
-    const cityId = params.get("city_id") || getStoredCityId();
+    const cityId = params.get("city_id") || "";
 
     params.set("qsearch", item.title);
 
@@ -444,16 +526,17 @@ export function SearchMapPage() {
     setSelectedListingId(null);
     setMode("map");
     window.history.replaceState({}, "", `/search?${params.toString()}`);
-    setSearchRevision((revision) => revision + 1);
   };
 
   const locateUser = () => {
-    didRequestPreciseLocationRef.current = true;
-
-    void getBrowserMapCenter()
-      .then((center) => {
+    void getBrowserPosition()
+      .then((position) => {
         setIsLocated(true);
-        applyMapCenter(center);
+        setMapCenter({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          zoom: 16,
+        });
         setSelectedListingId(null);
         setMode("map");
         showNotice("موقعیت شما روی نقشه مشخص شد");
@@ -463,7 +546,6 @@ export function SearchMapPage() {
         showNotice("امکان دریافت موقعیت شما وجود ندارد");
       });
   };
-
 
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
@@ -479,10 +561,12 @@ export function SearchMapPage() {
       ) : (
         <SearchMapView
           center={mapCenter}
+          dotMarkers={visibleDotMarkers}
           listings={visibleListings}
           selectedListingId={selectedListingId}
           tileConfig={searchMapTileConfig}
           onBoundsChange={handleBoundsChange}
+          onMapClick={handleMapClick}
           onSelectListing={handleSelectListing}
         />
       )}
@@ -490,7 +574,7 @@ export function SearchMapPage() {
       <SearchMapHeader
         savedCount={2}
         chips={chips}
-        onChipClick={openFilterPage}
+        onChipClick={toggleChip}
         queryLabel={queryLabel}
         onSearchClick={() => setIsSearchOpen(true)}
       />
@@ -515,7 +599,7 @@ export function SearchMapPage() {
         isOpen={isListPreviewOpen}
         listings={visibleListings}
         selectedListingId={selectedListingId}
-        onActiveListingChange={handleActiveListingChange}
+        onActiveListingChange={handleSliderActiveListing}
       />
       <HomeSearchScreen
         isOpen={isSearchOpen}

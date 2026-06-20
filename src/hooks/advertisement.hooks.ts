@@ -66,10 +66,12 @@ export function useCreateAdvertisementMutation() {
 export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) {
   return useQuery({
     enabled: Boolean(params),
-    placeholderData: (previousData) => previousData,
+    gcTime: 0,
     queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
     queryKey: queryKeys.advertisements.map(params ?? {}),
-    staleTime: 15_000,
+    refetchOnMount: "always",
+    refetchOnReconnect: "always",
+    staleTime: 0,
   });
 }
 

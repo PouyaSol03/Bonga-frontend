@@ -1,12 +1,17 @@
+import { useEffect } from "react";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
+import { getApiErrorMessage, isUnauthorizedApiError } from "../api/api";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import { useLogoutMutation } from "../hooks/auth.hooks";
+import { useMyProfileQuery } from "../hooks/account.hooks";
 import { formatMobileForDisplay } from "../services/auth.service";
 import {
+  clearStoredAuthSession,
   getStoredAuthSession,
   type AuthSession,
 } from "../auth/auth-storage";
+import type { UserProfile } from "../services/account.service";
 import { currentAccountUserType } from "./account/accountUserType";
 
 type AccountAction = {
@@ -166,6 +171,23 @@ function IndependentConsultantAccountPage() {
 function StandardAccountPage({ authSession }: { authSession: AuthSession | null }) {
   const isLoggedInUnverified = authSession !== null;
   const { isLoggingOut, handleLogout } = useLogoutAccount();
+  const {
+    data: profile,
+    error: profileError,
+    isError: isProfileError,
+    isLoading: isProfileLoading,
+    refetch: refetchProfile,
+  } = useMyProfileQuery({ enabled: isLoggedInUnverified });
+  const isUnauthorizedProfile = isProfileError && isUnauthorizedApiError(profileError);
+
+  useEffect(() => {
+    if (!isUnauthorizedProfile) return;
+
+    clearStoredAuthSession();
+    navigateTo("/login/phone");
+  }, [isUnauthorizedProfile]);
+
+  if (isUnauthorizedProfile) return null;
 
   return (
     <TopBarNavigationLayout
@@ -176,23 +198,14 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
       topBar={<TopBar showBack={false} title="حساب من" />}
     >
       {isLoggedInUnverified ? (
-        <section className="bg-white" aria-label="وضعیت حساب">
-          <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
-            <div className="grid p-5 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
-              <AccountIcon name="user" color="#CCCCCC" className="h-8 w-8" />
-            </div>
-
-            <div className="min-w-0 flex-1 text-right">
-              <p className="m-0 text-sm font-semibold leading-5 text-[#0048C4]">
-                احراز هویت نشده
-              </p>
-              <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
-                {formatMobileForDisplay(authSession?.mobile ?? "")}
-              </p>
-            </div>
-          </div>
-          <Divider />
-        </section>
+        <AccountUserHeader
+          authSession={authSession}
+          error={profileError}
+          isError={isProfileError}
+          isLoading={isProfileLoading}
+          profile={profile}
+          onRetry={() => void refetchProfile()}
+        />
       ) : (
         <LoggedOutAccountHeader />
       )}
@@ -222,6 +235,91 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
         </>
       ) : null}
     </TopBarNavigationLayout>
+  );
+}
+
+function isProfileAuthorized(profile?: UserProfile) {
+  return profile?.authorized === true || profile?.authorized === 1 || profile?.authorized === "1";
+}
+
+function getProfileDisplayName(profile?: UserProfile) {
+  if (!profile) return "";
+  if (!isProfileAuthorized(profile)) return "احراز هویت نشده";
+
+  const fullName = [profile.name, profile.family]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" ");
+
+  return fullName || "کاربر شناسا";
+}
+
+function AccountUserHeader({
+  authSession,
+  error,
+  isError,
+  isLoading,
+  onRetry,
+  profile,
+}: {
+  authSession: AuthSession | null;
+  error: unknown;
+  isError: boolean;
+  isLoading: boolean;
+  onRetry: () => void;
+  profile?: UserProfile;
+}) {
+  const authorized = isProfileAuthorized(profile);
+  const displayName = isLoading ? "در حال دریافت..." : getProfileDisplayName(profile);
+  const mobile = profile?.mobile ?? authSession?.mobile ?? "";
+
+  return (
+    <section className="bg-white" aria-label="وضعیت حساب">
+      <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
+        {profile?.avatar ? (
+          <img
+            alt={displayName || "تصویر حساب کاربری"}
+            className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
+            src={profile.avatar}
+          />
+        ) : (
+          <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
+            <AccountIcon name="user" color="#CCCCCC" className="h-8 w-8" />
+          </div>
+        )}
+
+        <div className="min-w-0 flex-1 text-right">
+          {isError ? (
+            <>
+              <p className="m-0 text-sm font-semibold leading-5 text-[#C11004]">
+                {getApiErrorMessage(error, "دریافت اطلاعات حساب با خطا مواجه شد.")}
+              </p>
+              <button
+                className="mt-2 text-sm font-medium leading-5 text-[#0048C4]"
+                onClick={onRetry}
+                type="button"
+              >
+                تلاش دوباره
+              </button>
+            </>
+          ) : (
+            <>
+              <p
+                className={`m-0 truncate text-sm font-semibold leading-5 ${
+                  !isLoading && !authorized ? "text-[#C11004]" : "text-[#1a1a1a]"
+                }`}
+              >
+                {displayName}
+              </p>
+              <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
+                {formatMobileForDisplay(mobile)}
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+      <Divider />
+    </section>
   );
 }
 

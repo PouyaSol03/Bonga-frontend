@@ -19,8 +19,9 @@ import {
   type MyAdsType,
 } from "../services/account.service";
 
-export function useMyProfileQuery() {
+export function useMyProfileQuery({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
+    enabled,
     queryFn: getMyProfile,
     queryKey: queryKeys.account.profile(),
   });

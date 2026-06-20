@@ -4,6 +4,10 @@ import { unwrapList } from "../api/response";
 import type { AdvertisementItem } from "./advertisement.service";
 
 export type UserProfile = {
+  _id?: string;
+  authorized?: boolean | number | string;
+  authorize_date?: string | null;
+  avatar?: string | null;
   email?: string;
   family?: string;
   id?: string | number;
@@ -123,12 +127,23 @@ function getNestedValue(source: unknown, keys: string[]) {
 export async function getMyProfile() {
   const response = await api
     .get("me/show")
-    .json<ApiDataResponse<UserProfile> | UserProfile>();
+    .json<ApiDataResponse<UserProfile> | { status?: boolean; user?: UserProfile } | UserProfile>();
   const record = response as Record<string, unknown>;
+  const user =
+    record.user && typeof record.user === "object"
+      ? (record.user as UserProfile)
+      : record.data && typeof record.data === "object"
+        ? (record.data as UserProfile)
+        : (response as UserProfile);
 
-  return record.data && typeof record.data === "object"
-    ? (record.data as UserProfile)
-    : (response as UserProfile);
+  return {
+    ...user,
+    avatar: typeof user.avatar === "string" && user.avatar
+      ? getApiAssetUrl(user.avatar)
+      : user.avatar,
+    id: user.id ?? user._id,
+    nationalnumber: user.nationalnumber ?? undefined,
+  };
 }
 
 export function updateMyProfile(payload: UpdateProfilePayload) {

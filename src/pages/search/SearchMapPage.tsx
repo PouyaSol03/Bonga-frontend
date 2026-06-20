@@ -3,6 +3,11 @@ import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
+import {
+  getBrowserLocation,
+  getBrowserLocationNotice,
+  type BrowserLocation,
+} from "../../lib/browserLocation";
 import type { AdvertisementItem } from "../../services/advertisement.service";
 import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
@@ -376,21 +381,6 @@ function filterListings(listings: SearchMapListing[], _chips: SearchFilterChip[]
   return listings;
 }
 
-function getBrowserPosition() {
-  return new Promise<GeolocationPosition>((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("Geolocation is not available."));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: true,
-      maximumAge: 60_000,
-      timeout: 10_000,
-    });
-  });
-}
-
 export function SearchMapPage() {
   const [selectedListingId, setSelectedListingId] = useState<SearchMapListingId | null>(null);
   const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
@@ -400,6 +390,8 @@ export function SearchMapPage() {
   const [chips] = useState(searchFilterChips);
   const [isDrawMode, setIsDrawMode] = useState(false);
   const [isLocated, setIsLocated] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(searchMapCenter);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
@@ -539,21 +531,30 @@ export function SearchMapPage() {
   };
 
   const locateUser = () => {
-    void getBrowserPosition()
-      .then((position) => {
+    if (isLocating) return;
+
+    setIsLocating(true);
+    showNotice("در حال دریافت موقعیت شما...");
+
+    void getBrowserLocation({ maximumAge: 30_000, timeout: 15_000 })
+      .then((location) => {
         setIsLocated(true);
+        setUserLocation(location);
         setMapCenter({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+          latitude: location.latitude,
+          longitude: location.longitude,
           zoom: 16,
         });
         setSelectedListingId(null);
         setMode("map");
         showNotice("موقعیت شما روی نقشه مشخص شد");
       })
-      .catch(() => {
+      .catch((error) => {
         setIsLocated(false);
-        showNotice("امکان دریافت موقعیت شما وجود ندارد");
+        showNotice(getBrowserLocationNotice(error));
+      })
+      .finally(() => {
+        setIsLocating(false);
       });
   };
 
@@ -576,6 +577,7 @@ export function SearchMapPage() {
           seenListingIds={seenListingIds}
           selectedListingId={selectedListingId}
           tileConfig={searchMapTileConfig}
+          userLocation={userLocation}
           onBoundsChange={handleBoundsChange}
           onMapClick={handleMapClick}
           onSelectListing={handleSelectListing}
@@ -594,6 +596,7 @@ export function SearchMapPage() {
         isDrawing={isDrawMode}
         isHidden={mode !== "map"}
         isLocated={isLocated}
+        isLocating={isLocating}
         onLocateClick={locateUser}
         onHandClick={() => {
           setIsDrawMode((current) => !current);

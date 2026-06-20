@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from "react";
-import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { DivIcon } from "leaflet";
+import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import type { BrowserLocation } from "../../../lib/browserLocation";
 import { SearchMapMarker } from "./SearchMapMarker";
 import type {
   SearchMapBounds,
@@ -17,6 +19,7 @@ type SearchMapViewProps = {
   seenListingIds: Set<SearchMapListingId>;
   selectedListingId: SearchMapListingId | null;
   tileConfig: SearchMapTileConfig;
+  userLocation?: BrowserLocation | null;
   onBoundsChange: (bounds: SearchMapBounds) => void;
   onMapClick: () => void;
   onSelectListing: (listing: SearchMapListing) => void;
@@ -31,6 +34,15 @@ function getMapBounds(map: ReturnType<typeof useMap>): SearchMapBounds {
     south: bounds.getSouth(),
     west: bounds.getWest(),
   };
+}
+
+function createUserLocationIcon() {
+  return new DivIcon({
+    className: "search-map-marker-wrapper",
+    html: '<div class="search-map-user-marker"><span></span></div>',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
 }
 
 function SearchMapController({
@@ -81,6 +93,7 @@ export function SearchMapView({
   seenListingIds,
   selectedListingId,
   tileConfig,
+  userLocation,
   onBoundsChange,
   onMapClick,
   onSelectListing,
@@ -121,6 +134,29 @@ export function SearchMapView({
           onSelect={onSelectListing}
         />
       ))}
+
+      {userLocation ? (
+        <>
+          {userLocation.accuracy ? (
+            <Circle
+              center={[userLocation.latitude, userLocation.longitude]}
+              pathOptions={{
+                color: "#0048c4",
+                fillColor: "#0048c4",
+                fillOpacity: 0.08,
+                opacity: 0.18,
+                weight: 1,
+              }}
+              radius={Math.min(userLocation.accuracy, 250)}
+            />
+          ) : null}
+          <Marker
+            icon={createUserLocationIcon()}
+            position={[userLocation.latitude, userLocation.longitude]}
+            zIndexOffset={20_000}
+          />
+        </>
+      ) : null}
     </MapContainer>
   );
 }

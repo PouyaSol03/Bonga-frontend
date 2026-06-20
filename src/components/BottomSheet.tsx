@@ -34,13 +34,13 @@ type BottomSheetProps = {
   zIndexClassName?: string;
 };
 
-type BottomSheetActionListProps = {
+type BottomSheetActionListProps<TItem extends BottomSheetAction> = {
   align?: SheetAlign;
   isInteractive?: boolean;
   isOpen: boolean;
-  items: BottomSheetAction[];
+  items: TItem[];
   itemClassName?: string;
-  onSelect?: (item: BottomSheetAction) => void;
+  onSelect?: (item: TItem) => void;
   selectedId?: string;
   showCheckIcon?: boolean;
   showDividers?: boolean;
@@ -168,7 +168,7 @@ export function BottomSheet({
   );
 }
 
-export function BottomSheetActionList({
+export function BottomSheetActionList<TItem extends BottomSheetAction>({
   align = "right",
   isInteractive = true,
   isOpen,
@@ -178,7 +178,7 @@ export function BottomSheetActionList({
   selectedId,
   showCheckIcon = false,
   showDividers = true,
-}: BottomSheetActionListProps) {
+}: BottomSheetActionListProps<TItem>) {
   const isCenter = align === "center";
 
   return (
@@ -217,7 +217,7 @@ export function BottomSheetActionList({
 
             {showDividers && index < items.length - 1 ? (
               <div className="px-4 py-2">
-                <div className="h-px bg-[#cccccc]" />
+                <div className="h-px bg-[#F0F0F0]" />
               </div>
             ) : null}
           </div>

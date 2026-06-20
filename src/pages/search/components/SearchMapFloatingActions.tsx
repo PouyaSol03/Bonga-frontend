@@ -6,6 +6,7 @@ type SearchMapFloatingActionsProps = {
   isDrawing?: boolean;
   isHidden?: boolean;
   isLocated?: boolean;
+  isLocating?: boolean;
   onLocateClick?: () => void;
   onHandClick?: () => void;
   onListClick?: () => void;
@@ -15,6 +16,7 @@ export function SearchMapFloatingActions({
   isDrawing = false,
   isHidden = false,
   isLocated = false,
+  isLocating = false,
   onLocateClick,
   onHandClick,
   onListClick,
@@ -45,6 +47,8 @@ export function SearchMapFloatingActions({
           }`}
           type="button"
           aria-label="موقعیت من"
+          aria-busy={isLocating}
+          disabled={isLocating}
           tabIndex={isHidden ? -1 : 0}
           onClick={onLocateClick}
         >

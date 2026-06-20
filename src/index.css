@@ -1245,6 +1245,27 @@ input[type="search"]::-webkit-search-results-decoration {
   transform: translate(-50%, -50%) scale(0.25);
 }
 
+.search-map-user-marker {
+  position: relative;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  background: #0048c4;
+  box-shadow:
+    0 0 0 4px rgba(0, 72, 196, 0.18),
+    0 4px 12px rgba(0, 72, 196, 0.32);
+}
+
+.search-map-user-marker span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
 @media (max-width: 359px) {
   .brand-mark+strong+h1 {
     width: 100%;

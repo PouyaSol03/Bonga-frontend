@@ -4,12 +4,16 @@ import { unwrapList } from "../api/response";
 import type { AdvertisementItem } from "./advertisement.service";
 
 export type UserProfile = {
-  email?: string;
-  family?: string;
+  _id?: string;
+  authorized?: number;
+  authorize_date?: string | null;
+  avatar?: string | null;
+  email?: string | null;
+  family?: string | null;
   id?: string | number;
   mobile?: string;
-  name?: string;
-  nationalnumber?: string;
+  name?: string | null;
+  nationalnumber?: string | null;
   phone?: string;
 };
 
@@ -123,12 +127,18 @@ function getNestedValue(source: unknown, keys: string[]) {
 export async function getMyProfile() {
   const response = await api
     .get("me/show")
-    .json<ApiDataResponse<UserProfile> | UserProfile>();
+    .json<ApiDataResponse<UserProfile> | { status?: boolean; user?: UserProfile } | UserProfile>();
   const record = response as Record<string, unknown>;
 
-  return record.data && typeof record.data === "object"
-    ? (record.data as UserProfile)
-    : (response as UserProfile);
+  if (record.user && typeof record.user === "object") {
+    return record.user as UserProfile;
+  }
+
+  if (record.data && typeof record.data === "object") {
+    return record.data as UserProfile;
+  }
+
+  return response as UserProfile;
 }
 
 export function updateMyProfile(payload: UpdateProfilePayload) {

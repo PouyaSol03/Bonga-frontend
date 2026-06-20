@@ -224,11 +224,11 @@ function SendMessageIcon({ className = "" }: { className?: string }) {
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth="1.9"
+      strokeWidth="1.7"
       viewBox="0 0 24 24"
     >
-      <path d="M21 3 10 14" />
-      <path d="m21 3-7 18-4-7-7-4 18-7Z" />
+      <path d="M10.6 13.4 13.4 10.6" />
+      <path d="M10.6 13.4 3.70058 11.8502C2.82251 11.6506 2.74934 10.4279 3.59735 10.125L17.7955 5.05425C18.5106 4.79885 19.2011 5.48933 18.9458 6.20445L13.875 20.4026C13.5721 21.2506 12.3494 21.1775 12.1498 20.2994L10.6 13.4Z" />
     </svg>
   );
 }
@@ -328,6 +328,66 @@ function ClockAlarmIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function HeadphoneIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
+      <path d="M4 13.2v-1.4a8 8 0 0 1 16 0v1.4" />
+      <path d="M4 13.4a2.2 2.2 0 0 1 2.2-2.2H8v6H6.2A2.2 2.2 0 0 1 4 15v-1.6Z" />
+      <path d="M20 13.4a2.2 2.2 0 0 0-2.2-2.2H16v6h1.8A2.2 2.2 0 0 0 20 15v-1.6Z" />
+      <path d="M16 18.5h-2.2a2 2 0 0 1-2-2V16" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
+      <path d="M4 7h16" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+      <path d="M6.5 7 7.4 20a2 2 0 0 0 2 1.8h5.2a2 2 0 0 0 2-1.8L17.5 7" />
+      <path d="M9 7V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6V7" />
+    </svg>
+  );
+}
+
+function InfoIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 10.5v6" />
+      <path d="M12 7.5h.01" />
+    </svg>
+  );
+}
+
 function SettingsIcon({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -388,11 +448,10 @@ function FilterTabs({
         {filters.map((filter) => (
           <button
             aria-pressed={activeFilter === filter}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-              activeFilter === filter
+            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter
                 ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
                 : "border-[#cccccc] bg-white text-[#4d4d4d]"
-            }`}
+              }`}
             key={filter}
             onClick={() => onSelect(filter)}
             type="button"
@@ -493,11 +552,10 @@ function SelectionCheckbox({
       type="button"
     >
       <span
-        className={`grid h-[18px] w-[18px] place-items-center rounded border ${
-          isSelected
+        className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
             ? "border-[#0048c4] bg-[#0048c4] text-white"
             : "border-[#808080] bg-white text-transparent"
-        }`}
+          }`}
       >
         <CheckIcon className="h-[14px] w-[14px]" />
       </span>
@@ -523,9 +581,8 @@ function ChatCard({
     ? isSelected
     : Boolean(displayItem.highlighted);
 
-  const cardClassName = `relative h-[140px] shrink-0 overflow-visible border-b border-[#f0f0f0] px-4 py-4 text-right ${
-    isHighlighted ? "bg-[#0048c41f]" : "bg-white"
-  }`;
+  const cardClassName = `relative h-[140px] shrink-0 overflow-visible border-b border-[#f0f0f0] px-4 py-4 text-right ${isHighlighted ? "bg-[#0048c41f]" : "bg-white"
+    }`;
 
   const cardContent = (
     <article
@@ -535,20 +592,19 @@ function ChatCard({
       onKeyDown={
         isBulkDeleteMode
           ? (event) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
+            if (event.key !== "Enter" && event.key !== " ") return;
 
-              event.preventDefault();
-              onToggleSelected();
-            }
+            event.preventDefault();
+            onToggleSelected();
+          }
           : undefined
       }
       role={isBulkDeleteMode ? "button" : undefined}
       tabIndex={isBulkDeleteMode ? 0 : undefined}
     >
       <div
-        className={`flex items-start justify-between [direction:ltr] ${
-          isBulkDeleteMode ? "h-12" : "h-5"
-        }`}
+        className={`flex items-start justify-between [direction:ltr] ${isBulkDeleteMode ? "h-12" : "h-5"
+          }`}
       >
         <div className={isBulkDeleteMode ? "w-[276px] min-w-0" : "w-full min-w-0"}>
           <div className="flex h-5 items-center justify-between [direction:ltr]">
@@ -627,7 +683,7 @@ function ChatDetailHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
     <TopBar
       actions={[
         {
-          icon: <MoreVerticalIcon className="h-8 w-8" />,
+          icon: <MoreVerticalIcon className="h-6 w-6" />,
           id: "more",
           label: "گزینه‌های بیشتر",
           onClick: onOpenMenu,
@@ -635,34 +691,45 @@ function ChatDetailHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
       ]}
       backLabel="بازگشت به چت‌ها"
       backTo="/chat"
-      heightClassName="h-[60px]"
+      className="border-b border-[#e6e6e6]"
+      contentClassName="px-0"
+      heightClassName="h-[52px]"
       title="آژانس جلالیان"
-      titleClassName="text-[22px] font-bold leading-8"
+      titleClassName="text-base font-semibold leading-6"
     />
   );
 }
 
 function ChatPropertyStrip() {
   return (
-    <section className="flex h-10 shrink-0 items-center gap-3 bg-[#f5f5f5] px-4 text-right [direction:rtl]">
-      <BuildingIcon className="h-7 w-7 shrink-0 text-[#4d4d4d]" />
-      <p className="min-w-0 truncate text-base font-normal leading-6 text-[#1a1a1a]">
-        ۱۳۰متر - دونبش جنوبی - معاوضه با آپارتمان شما
-      </p>
+    <section className="flex shrink-0 items-center gap-2 bg-[#F5F5F5] py-2 px-4 text-right [direction:rtl]">
+      <img
+        alt=""
+        className="h-10 w-[54px] shrink-0 rounded-md object-cover"
+        src="/figma/view-ad-album.png"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">
+          فروش مسکونی / آپارتمان
+        </p>
+        <p className="mt-1 truncate text-xs font-medium leading-4 text-[#1a1a1a]">
+          ۱۳۰متر - دونبش جنوبی - معاوضه با آپارتمان شما
+        </p>
+      </div>
     </section>
   );
 }
 
 function AgencyResponseCard() {
   return (
-    <section className="h-[100px] rounded-xl border border-[#0048c4] bg-[#0048c414] px-4 py-3 text-right">
-      <div className="flex h-7 items-center gap-2 [direction:rtl]">
-        <ClockAlarmIcon className="h-7 w-7 shrink-0 text-[#0048c4]" />
-        <h2 className="text-lg font-semibold leading-7 text-[#0048c4]">
+    <section className="h-[84px] rounded-lg border border-[#0048c4] bg-[#eef4ff] px-3 py-2 text-right">
+      <div className="flex h-5 items-center gap-1.5 [direction:rtl]">
+        <HeadphoneIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
+        <h2 className="text-sm font-semibold leading-5 text-[#0048c4]">
           ساعت پاسخگویی آژانس
         </h2>
       </div>
-      <div className="mt-3 space-y-2 text-sm font-normal leading-5">
+      <div className="mt-2 space-y-1 text-xs font-normal leading-4">
         <p className="flex items-center justify-between gap-3">
           <span className="text-[#808080]">روزهای هفته:</span>
           <span className="text-[#1a1a1a]">شنبه تا چهارشنبه</span>
@@ -692,21 +759,21 @@ function ChatBubble({
   return (
     <div className={`flex [direction:ltr] ${isOutgoing ? "justify-end" : "justify-start"}`}>
       <div
-        className={`${wide ? "w-[264px]" : "w-fit min-w-[96px] max-w-[264px]"} rounded-2xl px-4 py-3 text-right ${
-          isOutgoing ? "rounded-tr-none bg-[#e6f6ed]" : "rounded-tl-none bg-[#f5f5f5]"
-        }`}
+        className={`${wide ? "w-[168px]" : "w-fit min-w-[72px] max-w-[198px]"} rounded-lg px-3 py-2 text-right ${isOutgoing
+            ? "bg-[#eef3fb] rounded-tr-none"
+            : "border border-[#e6e6e6] bg-white rounded-tl-none"
+          }`}
         dir="rtl"
       >
-        <p className="whitespace-pre-line text-[15px] font-normal leading-7 text-[#1a1a1a]">
+        <p className="whitespace-pre-line text-[11px] font-normal leading-[18px] text-[#1a1a1a]">
           {children}
         </p>
         <div
-          className={`mt-2 flex items-center gap-2 text-sm font-normal leading-5 text-[#808080] ${
-            isOutgoing ? "justify-start [direction:ltr]" : "justify-start"
-          }`}
+          className={`mt-1 flex items-center gap-1 text-[10px] font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-[#0048c4]" : "justify-start text-[#808080]"
+            }`}
         >
           <span>{time}</span>
-          {isOutgoing ? <DoubleTickIcon className="h-4 w-4 text-[#0048c4]" /> : null}
+          {isOutgoing ? <DoubleTickIcon className="h-3.5 w-3.5 text-[#0048c4]" /> : null}
         </div>
       </div>
     </div>
@@ -715,8 +782,8 @@ function ChatBubble({
 
 function ChatDateChip() {
   return (
-    <div className="flex justify-center py-1">
-      <span className="text-base font-normal leading-6 text-[#4d4d4d]">
+    <div className="flex justify-center py-0.5">
+      <span className="rounded-lg bg-[#f5f5f5] px-3 py-1 text-[10px] font-normal leading-4 text-[#808080]">
         22 بهمن
       </span>
     </div>
@@ -735,42 +802,43 @@ function ChatComposer({
   onSend: () => void;
 }) {
   return (
-    <footer className="flex h-16 shrink-0 items-center gap-2 bg-[#f5f5f5] px-1 py-2 [direction:ltr]">
-      <button
-        aria-label="ارسال فایل"
-        className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-        onClick={onOpenAttach}
-        type="button"
-      >
-        <LinkChainIcon className="h-8 w-8" />
-      </button>
+    <footer className="shrink-0 bg-transparent px-2 pb-4 pt-1">
+      <div className="flex items-center gap-2 rounded-full border border-transparent p-1.5 [direction:ltr] shadow-[0_-1px_0px_0px_#FFFFFF] [background:linear-gradient(#CCCCCC29,#CCCCCC29)_padding-box,linear-gradient(to_bottom,transparent,#CCCCCC29)_border-box]">
+        <button
+          aria-label="ارسال فایل"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#808080] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          onClick={onOpenAttach}
+          type="button"
+        >
+          <LinkChainIcon className="h-6 w-6" />
+        </button>
 
-      <label className="min-w-0 flex-1">
-        <span className="sr-only">پیام خود را بنویسید</span>
-        <input
-          className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4]"
-          dir="rtl"
-          placeholder="پیام خود را بنویسید"
-          type="text"
-          value={message}
-          onChange={(event) => onChangeMessage(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              onSend();
-            }
-          }}
-        />
-      </label>
+        <label className="min-w-0 flex-1">
+          <span className="sr-only">پیام خود را بنویسید</span>
+          <input
+            className="h-11 w-full rounded-xl border-0 px-2 text-right text-[12px] leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:ring-0"
+            dir="rtl"
+            placeholder="پیام خود را بنویسید"
+            type="text"
+            value={message}
+            onChange={(event) => onChangeMessage(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                onSend();
+              }
+            }}
+          />
+        </label>
 
-      <button
-        aria-label="ارسال پیام"
-        className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-        disabled={message.trim().length === 0}
-        onClick={onSend}
-        type="button"
-      >
-        <SendMessageIcon className="h-8 w-8" />
-      </button>
+        <button
+          aria-label="ارسال پیام"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#0048c4] text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
+          onClick={onSend}
+          type="button"
+        >
+          <SendMessageIcon className="h-6 w-6" />
+        </button>
+      </div>
     </footer>
   );
 }
@@ -811,15 +879,70 @@ function SendFileBottomSheet({
   return (
     <BottomSheet
       ariaLabel="ارسال فایل"
-      contentClassName="mt-5"
-      heightClassName="h-[298px]"
+      className="rounded-t-[18px]"
+      contentClassName="mt-2"
+      heightClassName="h-[200px]"
       isOpen={isOpen}
       onClose={onClose}
+      panelPaddingClassName="pt-2"
+      scrimClassName="bg-[#1a1a1a]/65"
       title="ارسال"
+      zIndexClassName="z-[60]"
     >
       <BottomSheetActionList
         isOpen={isOpen}
+        itemClassName="h-11 text-[12px] leading-5"
         items={sendFileOptions}
+        onSelect={(item) => onSelect(item.title)}
+      />
+    </BottomSheet>
+  );
+}
+
+const chatSettingsOptions = [
+  {
+    id: "block",
+    title: "مسدود کردن",
+    Icon: BlockedIcon,
+  },
+  {
+    id: "delete",
+    title: "حذف مکالمه",
+    Icon: TrashIcon,
+  },
+  {
+    id: "report",
+    title: "گزارش تخلف",
+    Icon: InfoIcon,
+  },
+];
+
+function ChatSettingsBottomSheet({
+  isOpen,
+  onClose,
+  onSelect,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (title: string) => void;
+}) {
+  return (
+    <BottomSheet
+      ariaLabel="تنظیمات مکالمه"
+      className="rounded-t-[18px]"
+      contentClassName="mt-2"
+      heightClassName="h-[200px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      panelPaddingClassName="pt-2"
+      scrimClassName="bg-[#1a1a1a]/65"
+      title="تنظیمات مکالمه"
+      zIndexClassName="z-[60]"
+    >
+      <BottomSheetActionList
+        isOpen={isOpen}
+        itemClassName="h-11 text-[12px] leading-5"
+        items={chatSettingsOptions}
         onSelect={(item) => onSelect(item.title)}
       />
     </BottomSheet>
@@ -828,6 +951,7 @@ function SendFileBottomSheet({
 
 export function UserChatDetailPage() {
   const [isSendFileSheetOpen, setIsSendFileSheetOpen] = useState(false);
+  const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
   const [sentMessages, setSentMessages] = useState<string[]>([]);
   const { message, showNotice } = useDemoNotice();
@@ -845,22 +969,22 @@ export function UserChatDetailPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <ChatDetailHeader onOpenMenu={() => showNotice("گزینه‌های گفتگوی نمایشی آماده است")} />
+      <ChatDetailHeader onOpenMenu={() => setIsSettingsSheetOpen(true)} />
       <ChatPropertyStrip />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-4 pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-2.5 pb-3 pt-3">
         <AgencyResponseCard />
 
-        <div className="mt-4 space-y-4">
-          <ChatBubble direction="incoming" wide>
+        <div className="mt-3 space-y-3">
+          <ChatBubble direction="outgoing" wide>
             سلام{"\n"}قیمت این خونه ای که گذاشتین چقدر هست و اگر بخوام رهن و بیشتر کنم امکانش هست؟
           </ChatBubble>
-          <ChatBubble direction="outgoing" wide>
+          <ChatBubble direction="incoming" wide>
             سلام دوست عزیز{"\n"}قیمت و داخل آگهی گذاشتم و قیمت مناسبی هم هست{"\n"}رهن و اجاره قابل تبدیل هست
           </ChatBubble>
           <ChatDateChip />
-          <ChatBubble direction="incoming">خیلی ممنونم</ChatBubble>
-          <ChatBubble direction="outgoing">خواهش میکنم</ChatBubble>
+          <ChatBubble direction="outgoing">خیلی ممنونم</ChatBubble>
+          <ChatBubble direction="incoming">خواهش میکنم</ChatBubble>
           {sentMessages.map((sentMessage, index) => (
             <ChatBubble direction="outgoing" key={`${sentMessage}-${index}`}>
               {sentMessage}
@@ -881,6 +1005,14 @@ export function UserChatDetailPage() {
         onSelect={(title) => {
           sendMessage(`[${title}]`);
           setIsSendFileSheetOpen(false);
+        }}
+      />
+      <ChatSettingsBottomSheet
+        isOpen={isSettingsSheetOpen}
+        onClose={() => setIsSettingsSheetOpen(false)}
+        onSelect={(title) => {
+          showNotice(`${title} انتخاب شد`);
+          setIsSettingsSheetOpen(false);
         }}
       />
       <DemoNotice className="bottom-20" message={message} />

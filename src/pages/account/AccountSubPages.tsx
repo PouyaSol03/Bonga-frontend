@@ -118,11 +118,11 @@ function AccountProfileForm({
   }) => void;
   onUpdateAvatar: () => void;
   profile?: {
-    email?: string;
-    family?: string;
+    email?: string | null;
+    family?: string | null;
     mobile?: string;
-    name?: string;
-    nationalnumber?: string;
+    name?: string | null;
+    nationalnumber?: string | null;
     phone?: string;
   };
 }) {

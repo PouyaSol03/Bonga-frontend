@@ -1,8 +1,10 @@
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
+import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useLogoutMutation } from "../hooks/auth.hooks";
 import { formatMobileForDisplay } from "../services/auth.service";
+import type { UserProfile } from "../services/account.service";
 import {
   getStoredAuthSession,
   type AuthSession,
@@ -164,8 +166,11 @@ function IndependentConsultantAccountPage() {
 }
 
 function StandardAccountPage({ authSession }: { authSession: AuthSession | null }) {
-  const isLoggedInUnverified = authSession !== null;
+  const isLoggedIn = authSession !== null;
+  const { data: profile } = useMyProfileQuery({ enabled: isLoggedIn });
   const { isLoggingOut, handleLogout } = useLogoutAccount();
+  const accountHeader = getAccountHeader(profile);
+  const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
 
   return (
     <TopBarNavigationLayout
@@ -175,7 +180,7 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
       hideTopBar
       topBar={<TopBar showBack={false} title="حساب من" />}
     >
-      {isLoggedInUnverified ? (
+      {isLoggedIn ? (
         <section className="bg-white" aria-label="وضعیت حساب">
           <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
             <div className="grid p-5 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
@@ -183,11 +188,14 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
             </div>
 
             <div className="min-w-0 flex-1 text-right">
-              <p className="m-0 text-sm font-semibold leading-5 text-[#0048C4]">
-                احراز هویت نشده
+              <p
+                className="m-0 truncate text-sm font-semibold leading-5"
+                style={{ color: accountHeader.color }}
+              >
+                {accountHeader.label}
               </p>
               <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
-                {formatMobileForDisplay(authSession?.mobile ?? "")}
+                {formatMobileForDisplay(displayMobile)}
               </p>
             </div>
           </div>
@@ -197,17 +205,17 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
         <LoggedOutAccountHeader />
       )}
 
-      <AccountSection actions={isLoggedInUnverified ? businessActions : loggedOutBusinessActions} />
+      <AccountSection actions={isLoggedIn ? businessActions : loggedOutBusinessActions} />
 
       <div className="h-4 bg-[#f0f0f0]" />
 
-      <AccountSection actions={isLoggedInUnverified ? primaryActions : loggedOutPrimaryActions} />
+      <AccountSection actions={isLoggedIn ? primaryActions : loggedOutPrimaryActions} />
 
       <div className="h-4 bg-[#f0f0f0]" />
 
-      <AccountSection actions={isLoggedInUnverified ? secondaryActions : loggedOutSecondaryActions} />
+      <AccountSection actions={isLoggedIn ? secondaryActions : loggedOutSecondaryActions} />
 
-      {isLoggedInUnverified ? (
+      {isLoggedIn ? (
         <>
           <div className="h-4 bg-[#f0f0f0]" />
           <AccountSection
@@ -223,6 +231,23 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
       ) : null}
     </TopBarNavigationLayout>
   );
+}
+
+function getAccountHeader(profile?: UserProfile) {
+  const fullName = [profile?.name, profile?.family]
+    .map((value) => value?.trim())
+    .filter(Boolean)
+    .join(" ");
+  const isAuthorized = Number(profile?.authorized ?? 0) === 1;
+
+  if (!isAuthorized) {
+    return { color: "#C11004", label: "احراز هویت نشده" };
+  }
+
+  return {
+    color: "#0048C4",
+    label: fullName || "کاربر شناسا",
+  };
 }
 
 function navigateTo(path: string) {

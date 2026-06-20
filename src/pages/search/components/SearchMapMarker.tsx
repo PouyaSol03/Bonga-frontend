@@ -31,12 +31,16 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
   }
 
   const { listing, isSelected, onSelect } = props;
-  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected);
+  const markerIcon =
+    listing.showPriceMarker === false
+      ? createSearchStaticDotIcon(isSelected)
+      : createSearchListingIcon(listing.priceValue, isSelected);
 
   return (
     <Marker
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
+      zIndexOffset={isSelected ? 1000 : 0}
       eventHandlers={{
         click: (event) => {
           onSelect(listing);
@@ -56,29 +60,33 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
+function formatMarkerPrice(priceValue: string) {
+  return priceValue.replace(/[٫.]/g, "/");
+}
+
 function createSearchListingIcon(priceValue: string, isSelected: boolean) {
-  const safePriceValue = escapeMarkerText(priceValue);
+  const safePriceValue = escapeMarkerText(formatMarkerPrice(priceValue));
 
   return new DivIcon({
     className: "search-map-marker-wrapper",
     html: `
-      <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}">
+      <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}" dir="rtl">
         <span class="search-map-dot search-map-listing-marker__dot"></span>
         <span class="search-map-marker">
           ${safePriceValue}
         </span>
       </div>
     `,
-    iconSize: [96, 42],
-    iconAnchor: [48, 24],
+    iconSize: [120, 42],
+    iconAnchor: [60, 24],
   });
 }
 
-function createSearchStaticDotIcon() {
+function createSearchStaticDotIcon(isSelected = false) {
   return new DivIcon({
     className: "search-map-marker-wrapper",
-    html: '<div class="search-map-dot"></div>',
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
+    html: `<div class="search-map-dot${isSelected ? " search-map-dot--selected" : ""}"></div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
   });
 }

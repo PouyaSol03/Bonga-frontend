@@ -22,6 +22,7 @@ export type SearchMapListing = {
   locationLabel: string;
   postedAt: string;
   agencyName: string;
+  badges?: string[];
   imageSrc: string;
   images: string[];
   showPriceMarker?: boolean;

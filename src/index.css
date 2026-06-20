@@ -1157,9 +1157,13 @@ input[type="search"]::-webkit-search-results-decoration {
 .search-map-listing-marker {
   position: relative;
   display: grid;
-  width: 96px;
+  width: 120px;
   height: 42px;
   place-items: center;
+  direction: rtl;
+  font-family: "DanaFaNum", Vazirmatn, IRANSans, Tahoma, Arial, sans-serif;
+  font-feature-settings: "ss03", "ss01", "pnum";
+  font-variant-numeric: proportional-nums;
 }
 
 .search-map-marker {
@@ -1167,18 +1171,25 @@ input[type="search"]::-webkit-search-results-decoration {
   left: 50%;
   top: 0;
   display: grid;
-  min-width: 59px;
+  min-width: 64px;
+  max-width: 112px;
   height: 26px;
-  padding: 0 6px;
+  padding: 0 7px;
   place-items: center;
   border: 0;
   border-radius: 9px;
   background: #0048c4;
   color: #ffffff;
   cursor: pointer;
-  font-size: 16px;
+  font-family: "DanaFaNum", Vazirmatn, IRANSans, Tahoma, Arial, sans-serif;
+  font-size: 14px;
   font-weight: 700;
   line-height: 20px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  direction: rtl;
+  font-feature-settings: "ss03", "ss01", "pnum";
+  font-variant-numeric: proportional-nums;
   white-space: nowrap;
   opacity: 0;
   box-shadow: 0 4px 12px rgba(0, 72, 196, 0.2);

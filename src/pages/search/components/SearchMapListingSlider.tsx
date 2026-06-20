@@ -1,29 +1,94 @@
 import {
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
 } from "react";
-import type { SearchMapListing, SearchMapListingId } from "../searchMapData";
+
 import {
-  SEARCH_MAP_DEMO_PHOTO,
-  searchMapCardDemoImages,
-} from "../searchMapData";
+  AdCardAlbumIcon,
+  AdCardAreaIcon,
+  AdCardRoomsIcon,
+  AdCardYearIcon,
+} from "../../../components/AdCardIcons";
+import { RouteLink } from "../../../routes/RouteLink";
+import type { SearchMapListing, SearchMapListingId } from "../searchMapData";
+import { SEARCH_MAP_DEMO_PHOTO } from "../searchMapData";
 
 type SearchMapListingSliderProps = {
+  isLoading?: boolean;
   isOpen: boolean;
   listings: SearchMapListing[];
   selectedListingId: SearchMapListingId | null;
-  onSelectListing: (listing: SearchMapListing) => void;
+  onActiveListingChange?: (listing: SearchMapListing) => void;
 };
 
 export function SearchMapListingSlider({
+  isLoading = false,
   isOpen,
   listings,
   selectedListingId,
-  onSelectListing,
+  onActiveListingChange,
 }: SearchMapListingSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragScrollHandlers = useDragScroll(scrollRef);
+
+  const syncActiveCardFromScroll = useCallback(() => {
+    if (!isOpen || isLoading) return;
+
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    const cards = Array.from(
+      scrollEl.querySelectorAll<HTMLElement>("[data-map-slider-card]"),
+    );
+
+    if (cards.length === 0) return;
+
+    const scrollRect = scrollEl.getBoundingClientRect();
+    const scrollCenter = scrollRect.left + scrollRect.width / 2;
+    const activeCard = cards.reduce((closest, card) => {
+      const closestRect = closest.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const closestDistance = Math.abs(
+        closestRect.left + closestRect.width / 2 - scrollCenter,
+      );
+      const cardDistance = Math.abs(cardRect.left + cardRect.width / 2 - scrollCenter);
+
+      return cardDistance < closestDistance ? card : closest;
+    });
+    const activeId = activeCard.dataset.mapSliderCard;
+    const activeListing = listings.find((listing) => String(listing.id) === activeId);
+
+    if (activeListing) {
+      onActiveListingChange?.(activeListing);
+    }
+  }, [isLoading, isOpen, listings, onActiveListingChange]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    let frameId = 0;
+    const handleScroll = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(syncActiveCardFromScroll);
+    };
+
+    scrollEl.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      scrollEl.removeEventListener("scroll", handleScroll);
+    };
+  }, [isOpen, listings.length, syncActiveCardFromScroll]);
 
   useLayoutEffect(() => {
     if (!isOpen || selectedListingId == null) return;
@@ -54,7 +119,7 @@ export function SearchMapListingSlider({
 
   return (
     <section
-      className={`absolute inset-x-0 bottom-[max(76px,calc(env(safe-area-inset-bottom)+76px))] z-500 bg-transparent ${
+      className={`absolute inset-x-0 bottom-4 z-500 bg-transparent transition duration-200 ${
         isOpen
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-8 opacity-0"
@@ -64,17 +129,20 @@ export function SearchMapListingSlider({
     >
       <div
         ref={scrollRef}
-        className="flex cursor-grab select-none snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain bg-transparent px-[30px] pb-3 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:30px] [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        className="flex cursor-grab select-none snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain bg-transparent px-4 pb-0 pt-1 touch-pan-x scrollbar-none [scroll-padding-inline:16px] [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         {...dragScrollHandlers}
       >
-        {listings.map((listing) => (
-          <MapAdCard
-            key={listing.id}
-            listing={listing}
-            isSelected={listing.id === selectedListingId}
-            onClick={() => onSelectListing(listing)}
-          />
-        ))}
+        {isLoading
+          ? Array.from({ length: 2 }).map((_, index) => (
+              <MapAdCardSkeleton key={index} />
+            ))
+          : listings.map((listing) => (
+              <MapAdCard
+                key={listing.id}
+                listing={listing}
+                isSelected={String(listing.id) === String(selectedListingId)}
+              />
+            ))}
       </div>
     </section>
   );
@@ -84,109 +152,42 @@ function mapCardPriceDisplay(priceValue: string) {
   return priceValue.replace(/[٫.]/g, "/");
 }
 
+function toFaCount(n: number) {
+  return String(Math.max(1, n)).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit);
+}
+
 function MapAdCard({
   listing,
   isSelected,
-  onClick,
 }: {
   listing: SearchMapListing;
   isSelected: boolean;
-  onClick: () => void;
 }) {
-  const raw =
-    listing.images?.length > 0 ? listing.images : searchMapCardDemoImages;
-
-  const images =
-    raw.length >= 4
-      ? raw.slice(0, 4)
-      : [...raw, ...searchMapCardDemoImages].slice(0, 4);
+  const images = listing.images?.length > 0 ? listing.images : [SEARCH_MAP_DEMO_PHOTO];
+  const previewImages = images.length > 1 ? images.slice(0, 2) : [images[0]];
 
   return (
-    <button
+    <RouteLink
       data-map-slider-card={String(listing.id)}
       aria-current={isSelected ? "true" : undefined}
-      className="flex w-[calc(100%_-_60px)] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-4 text-right"
-      type="button"
-      onClick={onClick}
+      aria-label={`مشاهده آگهی ${listing.title}`}
+      className={`block w-[calc(100%_-_32px)] min-w-[260px] max-w-[360px] shrink-0 snap-center overflow-hidden rounded-2xl bg-white p-3 text-right text-inherit no-underline transition-shadow [direction:rtl] ${
+        isSelected
+          ? "shadow-[0_0_0_2px_rgba(0,72,196,0.18),0_10px_28px_rgba(26,26,26,0.12)]"
+          : "shadow-[0_8px_24px_rgba(26,26,26,0.08)]"
+      }`}
+      to={`/public/advertise/${listing.id}`}
       dir="rtl"
     >
-      <ImageSlider images={images} />
-
-      <div className="mt-2 flex min-h-5 flex-wrap items-baseline justify-start gap-1.5 [direction:rtl]">
-        {listing.priceLabel ? (
-          <span className="text-xs font-medium leading-5 text-[#808080]">
-            {listing.priceLabel}:
-          </span>
-        ) : null}
-        <strong className="text-sm font-semibold leading-5 text-[#0048c4]">
-          {mapCardPriceDisplay(listing.priceValue)}
-        </strong>
-      </div>
-
-      <div className="mt-2 flex min-h-5 flex-wrap items-center justify-start gap-2.5 text-xs font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
-        <PropertyMeta
-          className="ad-card__property--area"
-          label={listing.area}
-        />
-        <PropertyMeta
-          className="ad-card__property--rooms"
-          label={listing.rooms}
-        />
-        <PropertyMeta
-          className="ad-card__property--year"
-          label={listing.year}
-        />
-      </div>
-
-      <h3 className="mt-2 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
-        {listing.title}
-      </h3>
-
-      <div className="mt-2 flex min-h-5 flex-row flex-wrap items-center justify-start gap-2 [direction:rtl]">
-        <div className="ad-card__badges inline-flex items-center gap-1">
-          <span className="whitespace-nowrap rounded-lg border border-[#ff6d00] px-1.5 py-px text-xs font-medium leading-4 text-[#ff6d00]">
-            فوری
-          </span>
-        </div>
-
-        <span className="min-w-0 truncate text-xs font-normal leading-5 text-[#808080]">
-          {listing.postedAt} در {listing.locationLabel}
-        </span>
-      </div>
-    </button>
-  );
-}
-
-function ImageSlider({ images }: { images: string[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const dragScrollHandlers = useDragScroll(scrollRef);
-
-  return (
-    <div className="h-20 w-full overflow-hidden" dir="rtl">
-      <div
-        ref={scrollRef}
-        className="
-          flex h-20 w-full cursor-grab snap-x snap-proximity gap-2.5 overflow-x-auto overscroll-x-contain touch-pan-x scrollbar-none
-          [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden
-        "
-        onClick={(event) => {
-          event.stopPropagation();
-        }}
-        onPointerDownCapture={(event) => {
-          if (event.pointerType === "mouse") {
-            event.stopPropagation();
-          }
-        }}
-        {...dragScrollHandlers}
-      >
-        {images.map((src, imageIndex) => (
+      <div className="relative grid h-[58px] grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2 overflow-hidden rounded-xl">
+        {previewImages.map((src, imageIndex) => (
           <img
             key={`${src}-${imageIndex}`}
-            className="h-20 w-[120px] shrink-0 snap-start rounded-xl object-cover"
+            className="h-[58px] min-w-0 rounded-xl object-cover"
             src={src}
             alt=""
             draggable={false}
-            loading={imageIndex < 2 ? "eager" : "lazy"}
+            loading={imageIndex === 0 ? "eager" : "lazy"}
             onError={(event) => {
               const target = event.currentTarget;
 
@@ -197,12 +198,53 @@ function ImageSlider({ images }: { images: string[] }) {
             }}
           />
         ))}
+
+        <div className="absolute right-2 top-2 z-2 inline-flex h-6 items-center gap-1 rounded-lg bg-[#1a1a1a99] px-1.5 text-xs font-medium leading-4 text-[#fafafa]">
+          <AdCardAlbumIcon className="h-4 w-4 shrink-0" />
+          <span>{toFaCount(images.length)}</span>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-2 flex min-h-5 items-center justify-start gap-1 [direction:rtl]">
+        {listing.priceLabel ? (
+          <span className="text-xs font-medium leading-5 text-[#808080]">
+            {listing.priceLabel}:
+          </span>
+        ) : null}
+        <strong className="truncate text-sm font-semibold leading-5 text-[#0048c4]">
+          {mapCardPriceDisplay(listing.priceValue)}
+        </strong>
+      </div>
+
+      <div className="mt-1 flex min-h-5 items-center justify-start gap-3 overflow-hidden text-xs font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+        <PropertyMeta icon={<AdCardAreaIcon className="h-4 w-4" />} label={listing.area} />
+        <PropertyMeta icon={<AdCardRoomsIcon className="h-4 w-4" />} label={listing.rooms} />
+        <PropertyMeta icon={<AdCardYearIcon className="h-4 w-4" />} label={listing.year} />
+      </div>
+
+      <h3 className="mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
+        {listing.title}
+      </h3>
+    </RouteLink>
   );
 }
 
-function useDragScroll(scrollRef: React.RefObject<HTMLDivElement | null>) {
+function MapAdCardSkeleton() {
+  return (
+    <article className="w-[calc(100%_-_32px)] min-w-[260px] max-w-[360px] shrink-0 snap-center overflow-hidden rounded-2xl bg-white p-3 shadow-[0_8px_24px_rgba(26,26,26,0.08)]">
+      <div className="h-[58px] rounded-xl bg-[#f0f0f0]" />
+      <div className="mt-2 h-5 w-32 rounded-full bg-[#f0f0f0]" />
+      <div className="mt-2 flex items-center gap-3">
+        <div className="h-4 w-14 rounded-full bg-[#f0f0f0]" />
+        <div className="h-4 w-14 rounded-full bg-[#f0f0f0]" />
+        <div className="h-4 w-14 rounded-full bg-[#f0f0f0]" />
+      </div>
+      <div className="mt-2 h-4 w-full rounded-full bg-[#f0f0f0]" />
+    </article>
+  );
+}
+
+function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>) {
   const dragStateRef = useRef({
     didDrag: false,
     isDragging: false,
@@ -222,7 +264,7 @@ function useDragScroll(scrollRef: React.RefObject<HTMLDivElement | null>) {
   };
 
   return {
-    onClickCapture(event: React.MouseEvent<HTMLDivElement>) {
+    onClickCapture(event: ReactMouseEvent<HTMLDivElement>) {
       if (!dragStateRef.current.didDrag) return;
 
       event.preventDefault();
@@ -271,15 +313,16 @@ function useDragScroll(scrollRef: React.RefObject<HTMLDivElement | null>) {
 }
 
 function PropertyMeta({
-  className,
+  icon,
   label,
 }: {
-  className: string;
+  icon: ReactNode;
   label: string;
 }) {
   return (
-    <span className={`ad-card__property text-[#4d4d4d] ${className}`}>
-      {label}
+    <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap text-[#4d4d4d]">
+      {icon}
+      <span className="truncate text-[#1a1a1a]">{label}</span>
     </span>
   );
 }

@@ -1,10 +1,9 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { SearchMapMarker } from "./SearchMapMarker";
 import type {
   SearchMapBounds,
   SearchMapCenter,
-  SearchMapDotMarker,
   SearchMapListing,
   SearchMapListingId,
   SearchMapTileConfig,
@@ -13,7 +12,6 @@ import type {
 type SearchMapViewProps = {
   center: SearchMapCenter;
   listings: SearchMapListing[];
-  dotMarkers?: SearchMapDotMarker[];
   selectedListingId: SearchMapListingId | null;
   tileConfig: SearchMapTileConfig;
   onBoundsChange: (bounds: SearchMapBounds) => void;
@@ -69,15 +67,39 @@ function SearchMapController({
   return null;
 }
 
+function SelectedListingPanController({
+  listing,
+}: {
+  listing: SearchMapListing | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!listing) return;
+
+    map.panTo([listing.latitude, listing.longitude], {
+      animate: true,
+      duration: 0.35,
+    });
+  }, [listing, map]);
+
+  return null;
+}
+
 export function SearchMapView({
   center,
   listings,
-  dotMarkers = [],
   selectedListingId,
   tileConfig,
   onBoundsChange,
   onSelectListing,
 }: SearchMapViewProps) {
+  const selectedListing = useMemo(
+    () =>
+      listings.find((listing) => String(listing.id) === String(selectedListingId)) ?? null,
+    [listings, selectedListingId],
+  );
+
   return (
     <MapContainer
       className="relative z-0 h-full min-h-[320px] w-full bg-[#f5f5f5]"
@@ -96,16 +118,13 @@ export function SearchMapView({
       />
 
       <SearchMapController center={center} onBoundsChange={onBoundsChange} />
-
-      {dotMarkers.map((marker) => (
-        <SearchMapMarker key={marker.id} marker={marker} />
-      ))}
+      <SelectedListingPanController listing={selectedListing} />
 
       {listings.map((listing) => (
         <SearchMapMarker
           key={listing.id}
           listing={listing}
-          isSelected={listing.id === selectedListingId}
+          isSelected={String(listing.id) === String(selectedListingId)}
           onSelect={onSelectListing}
         />
       ))}

@@ -1,8 +1,10 @@
 import { AdCard } from "../../../components/AdCard";
 import type { AdCardData } from "../../../components/AdCard";
+import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import type { SearchMapListing } from "../searchMapData";
 
 type SearchMapListViewProps = {
+  isLoading?: boolean;
   listings: SearchMapListing[];
   onMapClick: () => void;
 };
@@ -22,7 +24,7 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     agency: listing.agencyName,
     status: "",
     imageCount: toFaCount(imageCount > 0 ? imageCount : 1),
-    priceLabelPrimary: "",
+    priceLabelPrimary: listing.priceLabel,
     pricePrimary: listing.priceValue.replace(/[٫.]/g, "/"),
     priceLabelSecondary: "",
     priceSecondary: "",
@@ -30,43 +32,50 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     rooms: listing.rooms,
     year: listing.year,
     title: listing.title,
-    timeAndLocation: `${listing.postedAt} در ${listing.locationLabel}`,
+    timeAndLocation: [listing.postedAt, listing.locationLabel ? `در ${listing.locationLabel}` : ""]
+      .filter(Boolean)
+      .join(" "),
     imageClassName: listing.imageClassName ?? "",
     imageUrl: listing.imageSrc,
-    badges: ["فوری"],
+    badges: listing.badges ?? [],
   };
 }
 
 export function SearchMapListView({
+  isLoading = false,
   listings,
   onMapClick,
 }: SearchMapListViewProps) {
   return (
-    <>
+    <section className="absolute inset-0 overflow-hidden bg-[#f0f0f0]" dir="rtl">
       <main
-        className="min-h-0 flex-1 overflow-y-auto bg-white pb-24 pt-28"
+        className="h-full overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0] pb-24 pt-32 touch-pan-y"
         aria-label="لیست آگهی‌ها"
-        dir="rtl"
       >
-        <div className="flex flex-col">
-          {listings.map((listing) => (
-            <AdCard
-              key={listing.id}
-              ad={searchMapListingToAdCardData(listing)}
-            />
-          ))}
+        <div className="flex flex-col gap-3 bg-[#f0f0f0]">
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <AdCardSkeleton key={index} />
+              ))
+            : listings.map((listing) => (
+                <AdCard
+                  key={listing.id}
+                  ad={searchMapListingToAdCardData(listing)}
+                  to={`/public/advertise/${listing.id}`}
+                />
+              ))}
         </div>
       </main>
 
       <button
-        className="absolute bottom-[max(80px,calc(env(safe-area-inset-bottom)+80px))] left-1/2 z-520 flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        className="absolute bottom-4 left-1/2 z-520 flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
         type="button"
         onClick={onMapClick}
       >
         <span>نقشه</span>
         <MapLocationIcon />
       </button>
-    </>
+    </section>
   );
 }
 

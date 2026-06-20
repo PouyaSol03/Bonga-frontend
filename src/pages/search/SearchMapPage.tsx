@@ -393,6 +393,9 @@ function getBrowserPosition() {
 
 export function SearchMapPage() {
   const [selectedListingId, setSelectedListingId] = useState<SearchMapListingId | null>(null);
+  const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
+    () => new Set(),
+  );
   const [mode, setMode] = useState<SearchMapMode>("preview");
   const [chips] = useState(searchFilterChips);
   const [isDrawMode, setIsDrawMode] = useState(false);
@@ -499,6 +502,13 @@ export function SearchMapPage() {
   };
 
   const handleSelectListing = (listing: SearchMapListing) => {
+    setSeenListingIds((current) => {
+      if (current.has(listing.id)) return current;
+
+      const next = new Set(current);
+      next.add(listing.id);
+      return next;
+    });
     setSelectedListingId(listing.id);
     setMode("preview");
   };
@@ -563,6 +573,7 @@ export function SearchMapPage() {
           center={mapCenter}
           dotMarkers={visibleDotMarkers}
           listings={visibleListings}
+          seenListingIds={seenListingIds}
           selectedListingId={selectedListingId}
           tileConfig={searchMapTileConfig}
           onBoundsChange={handleBoundsChange}

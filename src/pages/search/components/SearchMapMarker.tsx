@@ -5,6 +5,7 @@ import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
 
 type SearchMapListingMarkerProps = {
   listing: SearchMapListing;
+  isSeen: boolean;
   isSelected: boolean;
   onSelect: (listing: SearchMapListing) => void;
 };
@@ -12,6 +13,7 @@ type SearchMapListingMarkerProps = {
 type SearchMapDotMarkerProps = {
   marker: SearchMapDotMarker;
   listing?: never;
+  isSeen?: never;
   isSelected?: never;
   onSelect?: never;
 };
@@ -31,8 +33,8 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
     );
   }
 
-  const { listing, isSelected, onSelect } = props;
-  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected);
+  const { listing, isSeen, isSelected, onSelect } = props;
+  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected, isSeen);
 
   return (
     <Marker
@@ -58,13 +60,20 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function createSearchListingIcon(priceValue: string, isSelected: boolean) {
+function createSearchListingIcon(priceValue: string, isSelected: boolean, isSeen: boolean) {
   const safePriceValue = escapeMarkerText(priceValue);
+  const markerClasses = [
+    "search-map-listing-marker",
+    isSelected ? "search-map-listing-marker--selected" : "",
+    isSeen ? "search-map-listing-marker--seen" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return new DivIcon({
     className: "search-map-marker-wrapper",
     html: `
-      <div class="search-map-listing-marker ${isSelected ? "search-map-listing-marker--selected" : ""}">
+      <div class="${markerClasses}">
         <span class="search-map-dot search-map-listing-marker__dot"></span>
         <span class="search-map-marker">
           ${safePriceValue}

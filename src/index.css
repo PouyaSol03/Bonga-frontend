@@ -1184,7 +1184,6 @@ input[type="search"]::-webkit-search-results-decoration {
   line-height: 20px;
   white-space: nowrap;
   opacity: 0;
-  box-shadow: 0 4px 12px rgba(0, 72, 196, 0.2);
   transform: translateX(-50%) translateY(8px) scale(0.45);
   transform-origin: center bottom;
   transition:
@@ -1218,13 +1217,16 @@ input[type="search"]::-webkit-search-results-decoration {
   background: #0052d6;
 }
 
+.search-map-listing-marker--seen:not(.search-map-listing-marker--selected) .search-map-dot {
+  opacity: 0.4;
+}
+
 .search-map-dot {
   width: 14px;
   height: 14px;
   border: 1.5px solid #ffffff;
   border-radius: 999px;
   background: #0048c4;
-  box-shadow: 0 3px 10px rgba(0, 72, 196, 0.18);
 }
 
 .search-map-listing-marker__dot {

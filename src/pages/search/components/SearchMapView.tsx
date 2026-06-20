@@ -14,6 +14,7 @@ type SearchMapViewProps = {
   center: SearchMapCenter;
   listings: SearchMapListing[];
   dotMarkers?: SearchMapDotMarker[];
+  seenListingIds: Set<SearchMapListingId>;
   selectedListingId: SearchMapListingId | null;
   tileConfig: SearchMapTileConfig;
   onBoundsChange: (bounds: SearchMapBounds) => void;
@@ -77,6 +78,7 @@ export function SearchMapView({
   center,
   listings,
   dotMarkers = [],
+  seenListingIds,
   selectedListingId,
   tileConfig,
   onBoundsChange,
@@ -114,6 +116,7 @@ export function SearchMapView({
         <SearchMapMarker
           key={listing.id}
           listing={listing}
+          isSeen={seenListingIds.has(listing.id)}
           isSelected={String(listing.id) === String(selectedListingId)}
           onSelect={onSelectListing}
         />

@@ -5,10 +5,50 @@ import type {
   MoreFeatureFormKey,
   MoreFeatureSelectKey,
   NewAdFormValues,
+  DailyHotelRoomConfig,
+  DailyHotelRoomTypeId,
 } from "./types";
 
 export const locationKey = "bonga-new-ad-location";
 export const draftKey = "bonga-new-ad-draft";
+
+export const dailyHotelRoomTypes: {
+  id: DailyHotelRoomTypeId;
+  label: string;
+}[] = [
+  { id: "single", label: "اتاق یک تخته" },
+  { id: "double", label: "اتاق دو تخته" },
+  { id: "triple", label: "اتاق سه تخته" },
+  { id: "quad", label: "اتاق چهار تخته" },
+  { id: "quint", label: "اتاق پنج تخته" },
+  { id: "suite", label: "سوییت" },
+];
+
+export const dailyHotelRoomCapacityOptions = Array.from({ length: 20 }, (_, index) => `${index + 1}`);
+
+export const dailyHotelMealPlanOptions = [
+  "بدون وعده غذایی",
+  "صبحانه",
+  "ناهار",
+  "شام",
+  "صبحانه، ناهار",
+  "صبحانه، شام",
+  "ناهار، شام",
+  "صبحانه، ناهار، شام",
+];
+
+function createDefaultDailyHotelRooms(): DailyHotelRoomConfig[] {
+  return dailyHotelRoomTypes.map((room) => ({
+    id: room.id,
+    label: room.label,
+    guestCount: "",
+    extraGuestCount: "",
+    mealPlan: "",
+    normalPrice: "",
+    weekendPrice: "",
+    specialPrice: "",
+  }));
+}
 
 export const blankValues: NewAdFormValues = {
   location: "",
@@ -29,6 +69,9 @@ export const blankValues: NewAdFormValues = {
   hotelStars: "",
   standardCapacity: "",
   extraPeopleCapacity: "",
+  commercialLicense: "",
+  constructionLicense: "",
+  participationType: "",
 
   projectTotalFloors: "",
   projectTotalUnits: "",
@@ -39,12 +82,17 @@ export const blankValues: NewAdFormValues = {
   saleTermsEnabled: false,
   saleTermsPercent: "",
   saleTermsInstallmentMonths: "",
+  builderSharePercent: "",
 
   selectedSpecs: [],
   heatingCooling: [],
   facilities: [],
 
   price: "",
+  mortgagePrice: "",
+  rentPrice: "",
+  minPrice: "",
+  maxPrice: "",
   loanEnabled: false,
   loanAmount: "",
   loanInstallment: "",
@@ -82,6 +130,7 @@ export const blankValues: NewAdFormValues = {
   singleRoomCount: "",
   doubleRoomCount: "",
   suiteCount: "",
+  dailyHotelRooms: createDefaultDailyHotelRooms(),
 };
 
 export const projectStatusOptions = [
@@ -104,11 +153,12 @@ export const projectFloorOptions = [
 ];
 
 export const projectRoomOptions = [
+  "بدون اتاق",
   "۱",
   "۲",
   "۳",
   "۴",
-  "۵",
+  "۵+",
 ];
 
 export const projectPositionOptions = [
@@ -167,6 +217,16 @@ export const facilityItems: ChipItem[] = [
   { id: "oven", label: "فر توکار" },
 ];
 
+export const landFacilityItems: ChipItem[] = [
+  { id: "power", label: "امتیاز برق" },
+  { id: "gas", label: "امتیاز گاز" },
+  { id: "water", label: "امتیاز آب" },
+  { id: "guard", label: "نگهبانی" },
+  { id: "old-building", label: "بنا کلنگی" },
+  { id: "walled", label: "دور دیوار" },
+  { id: "water-well", label: "چاه آب" },
+];
+
 export const exchangeTargets = ["خودرو", "زمین", "واحد مسکونی"];
 
 export const moreFeatureKeys: MoreFeatureFormKey[] = [
@@ -188,6 +248,7 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "streetWidth",
   "constructionPermit",
   "commercialPermit",
+  "commercialLicense",
   "ceilingHeight",
   "singleRoomCount",
   "doubleRoomCount",
@@ -196,6 +257,17 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
+export const capacityOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۲", "۱۵", "۲۰", "۳۰", "۴۰", "۵۰+"];
+export const roomCountOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۵", "۲۰", "۳۰", "۵۰+"];
+export const yesNoOptions = ["دارد", "ندارد"];
+export const commercialLicenseOptions = yesNoOptions;
+export const constructionLicenseOptions = yesNoOptions;
+export const participationTypeOptions = [
+  "مشارکت در ساخت",
+  "تهاتر",
+  "مشارکت نقدی",
+  "سرمایه‌گذاری مشترک",
+];
 
 export const ageOptions = [
   "نوساز",
@@ -289,7 +361,7 @@ const saleOfficeBasicFields: BasicPropertyField[] = [
 
 const saleCommercialUnitBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
+  { key: "documentType", label: "نوع سند", control: "select", options: documentTypeOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
   { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
 ];
@@ -314,11 +386,47 @@ const saleFactoryWorkshopBasicFields: BasicPropertyField[] = [
   { key: "documentType", label: "نوع سند", control: "select", options: documentTypeOptions, required: true },
 ];
 
+const rentCommercialUnitBasicFields: BasicPropertyField[] = [
+  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
+  { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: commercialLicenseOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
+  { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
+];
+
+const rentWarehouseBasicFields: BasicPropertyField[] = [
+  { key: "buildingArea", label: "متراژ زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
+  { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
+  { key: "landWidth", label: "عرض زمین", control: "input", numeric: true, leftText: "متر" },
+  { key: "ceilingHeight", label: "ارتفاع سقف", control: "input", numeric: true, leftText: "متر" },
+  { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: commercialLicenseOptions },
+];
+
+const rentHotelApartmentBasicFields: BasicPropertyField[] = [
+  { key: "hotelStars", label: "ستاره هتل", control: "select", options: hotelStarsOptions, required: true },
+  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
+];
+
+const rentFactoryWorkshopBasicFields: BasicPropertyField[] = [
+  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "buildingArea", label: "متراژ بنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
+];
+
 const dailyRentBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
-  { key: "standardCapacity", label: "ظرفیت استاندارد", control: "input", numeric: true, leftText: "نفر", required: true },
-  { key: "extraPeopleCapacity", label: "تعداد نفرات اضافه", control: "input", numeric: true, leftText: "نفر", required: true },
+  { key: "standardCapacity", label: "ظرفیت استاندارد", control: "select", options: capacityOptions, required: true },
+  { key: "extraPeopleCapacity", label: "تعداد نفرات اضافه", control: "select", options: capacityOptions, required: true },
+];
+
+const dailyHotelRentBasicFields: BasicPropertyField[] = [
+  { key: "hotelStars", label: "ستاره هتل", control: "select", options: hotelStarsOptions, required: true },
 ];
 
 export const defaultBasicPropertyFields: BasicPropertyField[] = [
@@ -340,17 +448,15 @@ export const basicPropertyFieldsByListingType: Record<string, BasicPropertyField
   "rent:villa-house": saleVillaHouseBasicFields,
   "rent:garden-villa": saleVillaHouseBasicFields,
   "rent:office": saleOfficeBasicFields,
-  "rent:commercial-unit": saleCommercialUnitBasicFields,
-  "rent:warehouse": saleWarehouseBasicFields,
-  "rent:hotel-apartment": saleHotelApartmentBasicFields,
-  "rent:factory-workshop": saleFactoryWorkshopBasicFields,
+  "rent:commercial-unit": rentCommercialUnitBasicFields,
+  "rent:warehouse": rentWarehouseBasicFields,
+  "rent:hotel-apartment": rentHotelApartmentBasicFields,
+  "rent:factory-workshop": rentFactoryWorkshopBasicFields,
 
   "rent:daily-apartment-suite": dailyRentBasicFields,
   "rent:daily-garden-villa": dailyRentBasicFields,
   "rent:daily-workspace": dailyRentBasicFields,
-
-  // اجاره روزانه هتل فعلاً جدا می‌ماند تا با عکس بعدی دقیق طراحی شود
-  "rent:daily-hotel-apartment": [],
+  "rent:daily-hotel-apartment": dailyHotelRentBasicFields,
 };
 
 export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
@@ -359,12 +465,16 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   totalFloors: ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"],
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
-  documentType: ["شش دانگ", "قولنامه‌ای", "تک برگ", "منگوله‌دار", "اوقافی", "تعاونی"],
+  documentType: documentTypeOptions,
   facadeMaterial: ["سنگ", "آجر", "سیمان", "کامپوزیت", "شیشه", "رومی", "ترکیبی"],
   floorMaterial: ["سرامیک", "سنگ", "پارکت", "لمینت", "موزاییک", "کفپوش"],
   cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی", "ندارد"],
-  landPosition: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش", "بر خیابان", "داخل کوچه"],
+  landPosition: landPositionOptions,
   villaType: ["فلت", "دوبلکس", "تریپلکس", "مدرن", "کلاسیک", "باغ‌ویلا"],
+  commercialLicense: commercialLicenseOptions,
+  singleRoomCount: roomCountOptions,
+  doubleRoomCount: roomCountOptions,
+  suiteCount: roomCountOptions,
 };
 
 const apartmentMoreFeatureFields: MoreFeatureField[] = [
@@ -379,6 +489,10 @@ const apartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
 ];
 
+const rentApartmentMoreFeatureFields: MoreFeatureField[] = apartmentMoreFeatureFields.filter(
+  (field) => field.key !== "documentType",
+);
+
 const villaHouseMoreFeatureFields: MoreFeatureField[] = [
   { key: "landPosition", label: "موقعیت زمین", control: "select" },
   { key: "villaType", label: "تیپ ویلا", control: "select" },
@@ -390,6 +504,10 @@ const villaHouseMoreFeatureFields: MoreFeatureField[] = [
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
 ];
 
+const rentVillaHouseMoreFeatureFields: MoreFeatureField[] = villaHouseMoreFeatureFields.filter(
+  (field) => field.key !== "documentType",
+);
+
 const gardenVillaMoreFeatureFields: MoreFeatureField[] = [
   { key: "villaType", label: "تیپ ویلا", control: "select" },
   { key: "documentType", label: "نوع سند", control: "select" },
@@ -398,6 +516,10 @@ const gardenVillaMoreFeatureFields: MoreFeatureField[] = [
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
 ];
+
+const rentGardenVillaMoreFeatureFields: MoreFeatureField[] = gardenVillaMoreFeatureFields.filter(
+  (field) => field.key !== "documentType",
+);
 
 const landMoreFeatureFields: MoreFeatureField[] = [
   { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
@@ -408,7 +530,7 @@ const landMoreFeatureFields: MoreFeatureField[] = [
 const officeMoreFeatureFields: MoreFeatureField[] = [
   { key: "floor", label: "طبقه", control: "select" },
   { key: "documentType", label: "نوع سند", control: "select" },
-  { key: "commercialPermit", label: "مجوز تجاری", control: "toggle" },
+  { key: "commercialLicense", label: "مجوز تجاری", control: "select" },
   { key: "renovated", label: "بازسازی شده", control: "toggle" },
   { key: "furnished", label: "مبله با لوازم", control: "toggle" },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
@@ -416,42 +538,72 @@ const officeMoreFeatureFields: MoreFeatureField[] = [
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
 ];
 
+const rentOfficeMoreFeatureFields: MoreFeatureField[] = officeMoreFeatureFields.filter(
+  (field) => field.key !== "documentType",
+);
+
 const commercialUnitMoreFeatureFields: MoreFeatureField[] = [
-  { key: "commercialPermit", label: "مجوز تجاری", control: "toggle" },
+  { key: "rooms", label: "تعداد اتاق", control: "select" },
+  { key: "commercialLicense", label: "مجوز تجاری", control: "select" },
   { key: "floor", label: "طبقه", control: "select" },
   { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
 ];
+
+const rentCommercialUnitMoreFeatureFields: MoreFeatureField[] = [];
 
 const warehouseMoreFeatureFields: MoreFeatureField[] = [
   { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
   { key: "ceilingHeight", label: "ارتفاع سقف", control: "number", leftText: "متر" },
   { key: "documentType", label: "نوع سند", control: "select" },
-  { key: "commercialPermit", label: "مجوز تجاری", control: "toggle" },
+  { key: "commercialLicense", label: "مجوز تجاری", control: "select" },
 ];
 
 const hotelApartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "documentType", label: "نوع سند", control: "select" },
   { key: "totalFloors", label: "تعداد طبقات", control: "select" },
-  { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "number" },
-  { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "number" },
-  { key: "suiteCount", label: "تعداد سوییت‌ها", control: "number" },
+  { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
+  { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "select" },
+  { key: "suiteCount", label: "تعداد سوییت‌ها", control: "select" },
+  { key: "renovated", label: "بازسازی شده", control: "toggle" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
+];
+
+const rentHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
+  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
+  { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "select" },
+  { key: "suiteCount", label: "تعداد سوییت‌ها", control: "select" },
   { key: "renovated", label: "بازسازی شده", control: "toggle" },
   { key: "furnished", label: "مبله با لوازم", control: "toggle" },
 ];
 
 export const moreFeatureFieldsByCategory: Record<string, MoreFeatureField[]> = {
   apartment: apartmentMoreFeatureFields,
-  "daily-apartment-suite": apartmentMoreFeatureFields,
+  "daily-apartment-suite": rentApartmentMoreFeatureFields,
   "villa-house": villaHouseMoreFeatureFields,
   "garden-villa": gardenVillaMoreFeatureFields,
-  "daily-garden-villa": gardenVillaMoreFeatureFields,
+  "daily-garden-villa": rentGardenVillaMoreFeatureFields,
   land: landMoreFeatureFields,
   office: officeMoreFeatureFields,
-  "daily-workspace": officeMoreFeatureFields,
+  "daily-workspace": rentOfficeMoreFeatureFields,
   "commercial-unit": commercialUnitMoreFeatureFields,
   warehouse: warehouseMoreFeatureFields,
   "hotel-apartment": hotelApartmentMoreFeatureFields,
-  "daily-hotel-apartment": hotelApartmentMoreFeatureFields,
+  "daily-hotel-apartment": [],
   "factory-workshop": [],
 };
 
+export const moreFeatureFieldsByListingType: Record<string, MoreFeatureField[]> = {
+  "rent:apartment": rentApartmentMoreFeatureFields,
+  "rent:villa-house": rentVillaHouseMoreFeatureFields,
+  "rent:garden-villa": rentGardenVillaMoreFeatureFields,
+  "rent:office": rentOfficeMoreFeatureFields,
+  "rent:commercial-unit": rentCommercialUnitMoreFeatureFields,
+  "rent:warehouse": [],
+  "rent:hotel-apartment": rentHotelApartmentMoreFeatureFields,
+  "rent:factory-workshop": [],
+  "rent:daily-apartment-suite": rentApartmentMoreFeatureFields,
+  "rent:daily-garden-villa": rentGardenVillaMoreFeatureFields,
+  "rent:daily-workspace": rentOfficeMoreFeatureFields,
+  "rent:daily-hotel-apartment": [],
+};

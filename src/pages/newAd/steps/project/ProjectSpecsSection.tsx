@@ -1,5 +1,11 @@
 import type { NewAdFormValues, SelectKey } from "../../types";
-import { projectStatusOptions } from "../../data";
+import {
+  constructionLicenseOptions,
+  documentTypeOptions,
+  participationTypeOptions,
+  projectStatusOptions,
+} from "../../data";
+import { getParams } from "../../utils";
 import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
 
 type ProjectSpecsSectionProps = {
@@ -20,6 +26,49 @@ export function ProjectSpecsSection({
   onOpenDeliveryDate,
   onOpenProjectDetails,
 }: ProjectSpecsSectionProps) {
+  const { category } = getParams();
+  const isPartnership = category === "project-partnership";
+
+  if (isPartnership) {
+    return (
+      <Section icon="info.svg" title="مشخصات مشارکت">
+        <div className="space-y-4">
+          <SelectBox
+            onClick={() =>
+              onOpenSelect("participationType", "نوع مشارکت", participationTypeOptions)
+            }
+            placeholder="نوع مشارکت *"
+            value={values.participationType}
+          />
+
+          <InputBox
+            numeric
+            leftText="متر مربع"
+            onChange={(value) => setField("landArea", value)}
+            placeholder="متراژ زمین *"
+            value={values.landArea}
+          />
+
+          <SelectBox
+            onClick={() =>
+              onOpenSelect("documentType", "نوع سند", documentTypeOptions)
+            }
+            placeholder="نوع سند *"
+            value={values.documentType}
+          />
+
+          <SelectBox
+            onClick={() =>
+              onOpenSelect("constructionLicense", "مجوز ساخت", constructionLicenseOptions)
+            }
+            placeholder="مجوز ساخت *"
+            value={values.constructionLicense}
+          />
+        </div>
+      </Section>
+    );
+  }
+
   return (
     <Section icon="info.svg" title="مشخصات پروژه">
       <div className="space-y-4">
@@ -58,7 +107,7 @@ export function ProjectSpecsSection({
                 key={item.id}
                 className="flex h-9 items-center rounded-[7px] border border-[#0048c4] bg-[#0048c41f] px-3 text-sm font-medium leading-5 text-[#0048c4]"
               >
-                {`جزئیات ${index + 1}: ${item.minMeterage || "-"} تا ${item.maxMeterage || "-"} متر`}
+                {`جزئیات ${index + 1}: ${item.meterage || item.minMeterage || "-"} متر`}
               </span>
             ))}
           </div>

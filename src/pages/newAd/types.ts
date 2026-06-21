@@ -38,7 +38,13 @@ export type BasicPropertyFieldKey =
   | "suitableFor"
   | "hotelStars"
   | "standardCapacity"
-  | "extraPeopleCapacity";
+  | "extraPeopleCapacity"
+  | "landWidth"
+  | "streetWidth"
+  | "ceilingHeight"
+  | "commercialLicense"
+  | "constructionLicense"
+  | "participationType";
 
 export type BasicPropertySelectKey =
   | "floor"
@@ -48,7 +54,12 @@ export type BasicPropertySelectKey =
   | "landPosition"
   | "documentType"
   | "suitableFor"
-  | "hotelStars";
+  | "hotelStars"
+  | "standardCapacity"
+  | "extraPeopleCapacity"
+  | "commercialLicense"
+  | "constructionLicense"
+  | "participationType";
 
 export type BasicPropertyField = {
   key: BasicPropertyFieldKey;
@@ -73,16 +84,17 @@ export type MoreFeatureSelectKey =
   | "floorMaterial"
   | "cabinetMaterial"
   | "landPosition"
-  | "villaType";
+  | "villaType"
+  | "commercialLicense"
+  | "singleRoomCount"
+  | "doubleRoomCount"
+  | "suiteCount";
 
 export type MoreFeatureNumberKey =
   | "density"
   | "landWidth"
   | "streetWidth"
-  | "ceilingHeight"
-  | "singleRoomCount"
-  | "doubleRoomCount"
-  | "suiteCount";
+  | "ceilingHeight";
 
 export type MoreFeatureToggleKey =
   | "renovated"
@@ -108,12 +120,34 @@ export type ProjectSelectKey = "projectStatus";
 
 export type ProjectDetailItem = {
   id: string;
-  minMeterage: string;
-  maxMeterage: string;
+  meterage: string;
   floors: string[];
   rooms: string[];
   positions: string[];
+  minMeterage?: string;
+  maxMeterage?: string;
 };
+
+export type DailyHotelRoomTypeId =
+  | "single"
+  | "double"
+  | "triple"
+  | "quad"
+  | "quint"
+  | "suite";
+
+export type DailyHotelRoomConfig = {
+  id: DailyHotelRoomTypeId;
+  label: string;
+  guestCount: string;
+  extraGuestCount: string;
+  mealPlan: string;
+  normalPrice: string;
+  weekendPrice: string;
+  specialPrice: string;
+};
+
+export type DailyHotelRoomConfigKey = keyof DailyHotelRoomConfig;
 
 /* -------------------------------- Sheets -------------------------------- */
 
@@ -155,6 +189,9 @@ export type NewAdFormValues = {
   hotelStars: string;
   standardCapacity: string;
   extraPeopleCapacity: string;
+  commercialLicense: string;
+  constructionLicense: string;
+  participationType: string;
 
   projectTotalFloors: string;
   projectTotalUnits: string;
@@ -165,6 +202,7 @@ export type NewAdFormValues = {
   saleTermsEnabled: boolean;
   saleTermsPercent: string;
   saleTermsInstallmentMonths: string;
+  builderSharePercent: string;
 
   totalFloors: string;
   unitType: string;
@@ -183,12 +221,17 @@ export type NewAdFormValues = {
   singleRoomCount: string;
   doubleRoomCount: string;
   suiteCount: string;
+  dailyHotelRooms: DailyHotelRoomConfig[];
 
   selectedSpecs: string[];
   heatingCooling: string[];
   facilities: string[];
 
   price: string;
+  mortgagePrice: string;
+  rentPrice: string;
+  minPrice: string;
+  maxPrice: string;
   loanEnabled: boolean;
   loanAmount: string;
   loanInstallment: string;

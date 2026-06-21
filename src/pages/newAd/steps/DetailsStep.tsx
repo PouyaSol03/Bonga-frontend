@@ -1,23 +1,43 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { getParams } from "../utils";
-import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
-import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
-import { ProjectSpecsSection } from "./project/ProjectSpecsSection";
+
 import { BottomSheet, BottomSheetActionList } from "../../../components/BottomSheet";
-import { exchangeTargets, facilityItems, heatingItems } from "../data";
-import type { NewAdFormValues, SelectKey, SheetState } from "../types";
+import {
+  exchangeTargets,
+  facilityItems,
+  heatingItems,
+  landFacilityItems,
+} from "../data";
 import {
   getBasicPropertyFields,
   getMoreFeatureFields,
   getMoreFeatureTags,
+  getParams,
   navigateTo,
 } from "../utils";
-import { Chip, Footer, InputBox, LocationBox, MoreButton, Section, SelectBox, Tag, Toggle } from "../components/NewAdControls";
+import type { NewAdFormValues, SelectKey, SheetState } from "../types";
+import {
+  Chip,
+  Footer,
+  InputBox,
+  LocationBox,
+  MoreButton,
+  Section,
+  SelectBox,
+  Tag,
+  Toggle,
+} from "../components/NewAdControls";
+import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
+import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
+import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
+import { ProjectSpecsSection } from "./project/ProjectSpecsSection";
 
 function toggleArray(current: string[], id: string) {
-  return current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+  return current.includes(id)
+    ? current.filter((item) => item !== id)
+    : [...current, id];
 }
+
 export function DetailsStep({
   label,
   onNext,
@@ -34,32 +54,229 @@ export function DetailsStep({
   const [showAllHeating, setShowAllHeating] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [isDeliveryDateOpen, setIsDeliveryDateOpen] = useState(false);
-  const { transaction } = getParams();
+
+  const { transaction, category } = getParams();
   const isProject = transaction === "project";
+  const isPartnership = isProject && category === "project-partnership";
+  const isRent = transaction === "rent";
+  const isDailyRent = isRent && category.startsWith("daily-");
+  const isDailyHotelRent = isRent && category === "daily-hotel-apartment";
+  const isSaleGardenVilla = transaction === "sale" && category === "garden-villa";
+  const hideHeatingCooling =
+    isPartnership || category === "land" || category === "factory-workshop";
+  const showFacilitiesSection = !isPartnership;
+
+  const values = watch();
+  const moreFeatureFields = getMoreFeatureFields();
+  const moreFeatureTags = getMoreFeatureTags(values, moreFeatureFields);
+  const basicPropertyFields = getBasicPropertyFields();
+
+  const facilityItemsForCategory = useMemo(
+    () =>
+      category === "land" || category === "factory-workshop"
+        ? landFacilityItems
+        : facilityItems,
+    [category],
+  );
+
+  const initialVisibleChipCount = 8;
+  const visibleHeating = showAllHeating
+    ? heatingItems
+    : heatingItems.slice(0, initialVisibleChipCount);
+  const visibleFacilities = showAllFacilities
+    ? facilityItemsForCategory
+    : facilityItemsForCategory.slice(0, initialVisibleChipCount);
+
+  const setField = <T extends keyof NewAdFormValues>(
+    key: T,
+    value: NewAdFormValues[T],
+  ) => {
+    setValue(key as never, value as never, { shouldDirty: true });
+  };
+
   const openSelectSheet = (key: SelectKey, title: string, options: string[]) => {
     setSheet({
       kind: "select",
       key,
       title,
       options,
-    } as SheetState);
+    });
   };
-  const values = watch();
-  const moreFeatureFields = getMoreFeatureFields();
-  const moreFeatureTags = getMoreFeatureTags(values, moreFeatureFields);
-  const basicPropertyFields = getBasicPropertyFields();
-  const initialVisibleChipCount = 8;
 
-  const visibleHeating = showAllHeating
-    ? heatingItems
-    : heatingItems.slice(0, initialVisibleChipCount);
+  const renderPriceSection = () => {
+    if (isPartnership) {
+      return (
+        <Section icon="money.svg" title="شرایط مشارکت">
+          <InputBox
+            numeric
+            leftText="درصد"
+            onChange={(value) => setField("builderSharePercent", value)}
+            placeholder="سهم سازنده به درصد *"
+            value={values.builderSharePercent}
+          />
+        </Section>
+      );
+    }
 
-  const visibleFacilities = showAllFacilities
-    ? facilityItems
-    : facilityItems.slice(0, initialVisibleChipCount);
+    if (isProject) {
+      return (
+        <Section icon="money.svg" title="اطلاعات قیمت">
+          <div className="space-y-4">
+            <InputBox
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("minPrice", value)}
+              placeholder="حداقل قیمت *"
+              value={values.minPrice}
+            />
+            <InputBox
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("maxPrice", value)}
+              placeholder="حداکثر قیمت *"
+              value={values.maxPrice}
+            />
+            <ProjectSaleTermsFields values={values} setField={setField} />
+          </div>
+        </Section>
+      );
+    }
 
-  const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
-    setValue(key as never, value as never, { shouldDirty: true });
+    if (isDailyRent) {
+      return (
+        <Section icon="money.svg" title="اطلاعات قیمت">
+          <div className="space-y-4">
+            <InputBox
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("minPrice", value)}
+              placeholder="حداقل قیمت *"
+              value={values.minPrice}
+            />
+            <InputBox
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("maxPrice", value)}
+              placeholder="حداکثر قیمت *"
+              value={values.maxPrice}
+            />
+          </div>
+        </Section>
+      );
+    }
+
+    if (isRent) {
+      return (
+        <Section icon="money.svg" title="اطلاعات قیمت">
+          <div className="space-y-4">
+            <InputBox
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("mortgagePrice", value)}
+              placeholder="رهن *"
+              value={values.mortgagePrice}
+            />
+            <InputBox
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("rentPrice", value)}
+              placeholder="اجاره *"
+              value={values.rentPrice}
+            />
+          </div>
+        </Section>
+      );
+    }
+
+    return (
+      <Section icon="money.svg" title="اطلاعات قیمت">
+        <div className="space-y-4">
+          <InputBox
+            numeric
+            leftText="تومان"
+            onChange={(value) => setField("price", value)}
+            placeholder="قیمت *"
+            value={values.price}
+          />
+
+          {!isSaleGardenVilla ? (
+            <>
+              <Toggle
+                checked={values.loanEnabled}
+                label="وام دارد"
+                onChange={(checked) => setField("loanEnabled", checked)}
+              />
+
+              {values.loanEnabled ? (
+                <div className="space-y-3">
+                  <InputBox
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("loanAmount", value)}
+                    placeholder="مبلغ وام"
+                    value={values.loanAmount}
+                  />
+
+                  <InputBox
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("loanInstallment", value)}
+                    placeholder="قسط وام"
+                    value={values.loanInstallment}
+                  />
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          <Toggle
+            checked={values.exchangeEnabled}
+            label="معاوضه می‌شود"
+            onChange={(checked) => setField("exchangeEnabled", checked)}
+          />
+
+          {values.exchangeEnabled ? (
+            <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
+              <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
+                <span className="[direction:rtl]">معاوضه با</span>
+
+                <button
+                  className="flex items-center gap-1 text-[#0048c4]"
+                  onClick={() =>
+                    setSheet({
+                      kind: "exchange",
+                      title: "معاوضه با",
+                      options: exchangeTargets,
+                    })
+                  }
+                  type="button"
+                >
+                  <span>انتخاب</span>
+                  <span>‹</span>
+                </button>
+              </div>
+
+              {values.exchangeTargets.length ? (
+                <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+                  {values.exchangeTargets.map((target) => (
+                    <Tag
+                      key={target}
+                      label={target}
+                      onRemove={() =>
+                        setField(
+                          "exchangeTargets",
+                          values.exchangeTargets.filter((item) => item !== target),
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </Section>
+    );
   };
 
   return (
@@ -68,6 +285,7 @@ export function DetailsStep({
         <Section icon="location.svg" title="موقعیت ملک">
           <LocationBox label={label} value={values.location} />
         </Section>
+
         {isProject ? (
           <ProjectSpecsSection
             values={values}
@@ -89,7 +307,7 @@ export function DetailsStep({
                       key={field.key}
                       numeric={field.numeric}
                       leftText={field.leftText}
-                      onChange={(value) => setField(field.key, value)}
+                      onChange={(nextValue) => setField(field.key, nextValue)}
                       placeholder={placeholder}
                       value={String(value ?? "")}
                     />
@@ -113,7 +331,9 @@ export function DetailsStep({
                 );
               })}
 
-              {moreFeatureTags.length ? (
+              {isDailyHotelRent ? <DailyHotelRoomsSection /> : null}
+
+              {!isDailyHotelRent && moreFeatureTags.length ? (
                 <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
                   {moreFeatureTags.map((tag) => (
                     <span
@@ -126,7 +346,7 @@ export function DetailsStep({
                 </div>
               ) : null}
 
-              {moreFeatureFields.length ? (
+              {!isDailyHotelRent && moreFeatureFields.length ? (
                 <button
                   className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4]"
                   onClick={onMoreFeatures}
@@ -140,113 +360,65 @@ export function DetailsStep({
           </Section>
         )}
 
-        <Section icon="tempreture.svg" title="سرمایش و گرمایش">
-          <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-            {visibleHeating.map((item) => (
-              <Chip key={item.id} item={item} selected={values.heatingCooling.includes(item.id)} onClick={() => setField("heatingCooling", toggleArray(values.heatingCooling, item.id))} />
-            ))}
-          </div>
-          {heatingItems.length > initialVisibleChipCount ? (
-            <MoreButton
-              count={heatingItems.length - initialVisibleChipCount}
-              expanded={showAllHeating}
-              onClick={() => setShowAllHeating((current) => !current)}
-            />
-          ) : null}
-        </Section>
-
-        <Section icon="features.svg" title="امکانات">
-          <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-            {visibleFacilities.map((item) => (
-              <Chip
-                key={item.id}
-                item={item}
-                selected={values.facilities.includes(item.id)}
-                onClick={() =>
-                  setField("facilities", toggleArray(values.facilities, item.id))
-                }
-              />
-            ))}
-          </div>
-          {facilityItems.length > initialVisibleChipCount ? (
-            <MoreButton
-              count={facilityItems.length - initialVisibleChipCount}
-              expanded={showAllFacilities}
-              onClick={() => setShowAllFacilities((current) => !current)}
-            />
-          ) : null}
-        </Section>
-
-        <Section icon="money.svg" title="اطلاعات قیمت">
-          <div className="space-y-4">
-            <InputBox numeric leftText="تومان" onChange={(value) => setField("price", value)} placeholder="قیمت *" value={values.price} />
-            {isProject ? (
-              <ProjectSaleTermsFields
-                values={values}
-                setField={setField}
-              />
-            ) : (
-              <>
-                <Toggle
-                  checked={values.loanEnabled}
-                  label="وام دارد"
-                  onChange={(checked) => setField("loanEnabled", checked)}
+        {!hideHeatingCooling ? (
+          <Section icon="tempreture.svg" title="سرمایش و گرمایش">
+            <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+              {visibleHeating.map((item) => (
+                <Chip
+                  key={item.id}
+                  item={item}
+                  selected={values.heatingCooling.includes(item.id)}
+                  onClick={() =>
+                    setField(
+                      "heatingCooling",
+                      toggleArray(values.heatingCooling, item.id),
+                    )
+                  }
                 />
-
-                {values.loanEnabled ? (
-                  <div className="space-y-3">
-                    <InputBox
-                      numeric
-                      leftText="تومان"
-                      onChange={(value) => setField("loanAmount", value)}
-                      placeholder="مبلغ وام"
-                      value={values.loanAmount}
-                    />
-
-                    <InputBox
-                      numeric
-                      leftText="تومان"
-                      onChange={(value) => setField("loanInstallment", value)}
-                      placeholder="قسط وام"
-                      value={values.loanInstallment}
-                    />
-                  </div>
-                ) : null}
-              </>
-            )}
-            <Toggle checked={values.exchangeEnabled} label="معاوضه می‌شود" onChange={(checked) => setField("exchangeEnabled", checked)} />
-            {values.exchangeEnabled ? (
-              <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
-                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
-                  <span className="[direction:rtl]">معاوضه با</span>
-
-                  <button
-                    className="flex items-center gap-1 text-[#0048c4]"
-                    onClick={() =>
-                      setSheet({
-                        kind: "exchange",
-                        title: "معاوضه با",
-                        options: exchangeTargets,
-                      })
-                    }
-                    type="button"
-                  >
-                    <span>انتخاب</span>
-                    <span>‹</span>
-                  </button>
-                </div>
-                {values.exchangeTargets.length ? (
-                  <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-                    {values.exchangeTargets.map((target) => <Tag key={target} label={target} onRemove={() => setField("exchangeTargets", values.exchangeTargets.filter((item) => item !== target))} />)}
-                  </div>
-                ) : null}
-              </div>
+              ))}
+            </div>
+            {heatingItems.length > initialVisibleChipCount ? (
+              <MoreButton
+                count={heatingItems.length - initialVisibleChipCount}
+                expanded={showAllHeating}
+                onClick={() => setShowAllHeating((current) => !current)}
+              />
             ) : null}
-          </div>
-        </Section>
+          </Section>
+        ) : null}
+
+        {showFacilitiesSection ? (
+          <Section icon="features.svg" title="امکانات">
+            <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+              {visibleFacilities.map((item) => (
+                <Chip
+                  key={item.id}
+                  item={item}
+                  selected={values.facilities.includes(item.id)}
+                  onClick={() =>
+                    setField("facilities", toggleArray(values.facilities, item.id))
+                  }
+                />
+              ))}
+            </div>
+            {facilityItemsForCategory.length > initialVisibleChipCount ? (
+              <MoreButton
+                count={facilityItemsForCategory.length - initialVisibleChipCount}
+                expanded={showAllFacilities}
+                onClick={() => setShowAllFacilities((current) => !current)}
+              />
+            ) : null}
+          </Section>
+        ) : null}
+
+        {renderPriceSection()}
       </main>
 
-      <Footer onBack={() => navigateTo("/new-ad/category")} onPrimary={onNext} primary="مرحله بعد" />
+      <Footer
+        onBack={() => navigateTo("/new-ad/category")}
+        onPrimary={onNext}
+        primary="مرحله بعد"
+      />
 
       <JalaliDatePickerSheet
         isOpen={isDeliveryDateOpen}
@@ -298,11 +470,7 @@ export function DetailsStep({
               );
             }
           }}
-          selectedId={
-            sheet?.kind === "select"
-              ? values[sheet.key]
-              : undefined
-          }
+          selectedId={sheet?.kind === "select" ? values[sheet.key] : undefined}
           showCheckIcon={sheet?.kind === "exchange"}
           showDividers={false}
         />
@@ -310,4 +478,3 @@ export function DetailsStep({
     </>
   );
 }
-

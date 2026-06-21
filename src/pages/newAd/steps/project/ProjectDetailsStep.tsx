@@ -1,21 +1,28 @@
-import { useEffect } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
+import { BottomSheet } from "../../../../components/BottomSheet";
 import {
   projectFloorOptions,
   projectPositionOptions,
   projectRoomOptions,
 } from "../../data";
 import type { NewAdFormValues, ProjectDetailItem } from "../../types";
-import {
-  InputBox,
-} from "../../components/NewAdControls";
+import { InputBox, Tag } from "../../components/NewAdControls";
+
+type MultiProjectKey = "floors" | "rooms" | "positions";
+
+type ProjectMultiSheet = {
+  index: number;
+  key: MultiProjectKey;
+  title: string;
+  options: string[];
+};
 
 function createProjectDetailItem(): ProjectDetailItem {
   return {
     id: crypto.randomUUID(),
-    minMeterage: "",
-    maxMeterage: "",
+    meterage: "",
     floors: [],
     rooms: [],
     positions: [],
@@ -28,40 +35,64 @@ function toggleArray(current: string[], value: string) {
     : [...current, value];
 }
 
-function OptionChip({
-  label,
-  selected,
-  onClick,
+function MultiSelectRow({
+  title,
+  values,
+  onOpen,
+  onRemove,
 }: {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
+  title: string;
+  values: string[];
+  onOpen: () => void;
+  onRemove: (value: string) => void;
 }) {
   return (
-    <button
-      className={`flex h-8 items-center justify-center rounded-[7px] border px-3 text-sm font-medium leading-5 ${
-        selected
-          ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
-          : "border-[#cccccc] bg-white text-[#1a1a1a]"
-      }`}
-      onClick={onClick}
-      type="button"
-    >
-      <span>{label}</span>
-      {selected ? <span className="mr-1">×</span> : null}
-    </button>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium leading-5 text-[#1a1a1a]">
+          {title}
+        </span>
+
+        <button
+          className="text-sm font-medium leading-5 text-[#0048c4]"
+          onClick={onOpen}
+          type="button"
+        >
+          انتخاب
+        </button>
+      </div>
+
+      {values.length ? (
+        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+          {values.map((value) => (
+            <Tag key={value} label={value} onRemove={() => onRemove(value)} />
+          ))}
+        </div>
+      ) : (
+        <button
+          className="flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cccccc] bg-white text-sm font-normal leading-5 text-[#808080]"
+          onClick={onOpen}
+          type="button"
+        >
+          برای انتخاب ضربه بزنید
+        </button>
+      )}
+    </div>
   );
 }
 
 function ProjectDetailCard({
   index,
+  item,
+  onOpenSelect,
   onRemove,
 }: {
   index: number;
+  item?: ProjectDetailItem;
+  onOpenSelect: (sheet: ProjectMultiSheet) => void;
   onRemove: () => void;
 }) {
-  const { setValue, watch } = useFormContext<NewAdFormValues>();
-  const currentItem = watch(`projectDetails.${index}`);
+  const { setValue } = useFormContext<NewAdFormValues>();
 
   const setItemField = <T extends keyof ProjectDetailItem>(
     key: T,
@@ -73,110 +104,61 @@ function ProjectDetailCard({
     });
   };
 
+  const removeMultiValue = (key: MultiProjectKey, value: string) => {
+    setItemField(key, (item?.[key] ?? []).filter((current) => current !== value));
+  };
+
   return (
     <div className="space-y-4 border-b border-[#e0e0e0] pb-5 last:border-b-0">
-      <div className="space-y-3">
-        <div className="text-right text-sm font-medium leading-5 text-[#1a1a1a]">
-          متراژ
-        </div>
+      <InputBox
+        numeric
+        leftText="متر مربع"
+        onChange={(value) => setItemField("meterage", value)}
+        placeholder="متراژ *"
+        value={item?.meterage ?? item?.minMeterage ?? ""}
+      />
 
-        <InputBox
-          numeric
-          leftText="متر مربع"
-          onChange={(value) => setItemField("minMeterage", value)}
-          placeholder="متراژ کمتر"
-          value={currentItem?.minMeterage ?? ""}
-        />
+      <MultiSelectRow
+        title="طبقه"
+        values={item?.floors ?? []}
+        onOpen={() =>
+          onOpenSelect({
+            index,
+            key: "floors",
+            title: "طبقه",
+            options: projectFloorOptions,
+          })
+        }
+        onRemove={(value) => removeMultiValue("floors", value)}
+      />
 
-        <InputBox
-          numeric
-          leftText="متر مربع"
-          onChange={(value) => setItemField("maxMeterage", value)}
-          placeholder="متراژ بیشتر"
-          value={currentItem?.maxMeterage ?? ""}
-        />
-      </div>
+      <MultiSelectRow
+        title="تعداد اتاق"
+        values={item?.rooms ?? []}
+        onOpen={() =>
+          onOpenSelect({
+            index,
+            key: "rooms",
+            title: "تعداد اتاق",
+            options: projectRoomOptions,
+          })
+        }
+        onRemove={(value) => removeMultiValue("rooms", value)}
+      />
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium leading-5 text-[#1a1a1a]">
-            طبقه
-          </span>
-          <span className="text-sm font-medium leading-5 text-[#0048c4]">
-            انتخاب
-          </span>
-        </div>
-
-        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-          {projectFloorOptions.map((floor) => (
-            <OptionChip
-              key={floor}
-              label={floor}
-              selected={(currentItem?.floors ?? []).includes(floor)}
-              onClick={() =>
-                setItemField(
-                  "floors",
-                  toggleArray(currentItem?.floors ?? [], floor),
-                )
-              }
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium leading-5 text-[#1a1a1a]">
-            تعداد اتاق
-          </span>
-          <span className="text-sm font-medium leading-5 text-[#0048c4]">
-            انتخاب
-          </span>
-        </div>
-
-        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-          {projectRoomOptions.map((room) => (
-            <OptionChip
-              key={room}
-              label={room}
-              selected={(currentItem?.rooms ?? []).includes(room)}
-              onClick={() =>
-                setItemField(
-                  "rooms",
-                  toggleArray(currentItem?.rooms ?? [], room),
-                )
-              }
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium leading-5 text-[#1a1a1a]">
-            موقعیت
-          </span>
-          <span className="text-sm font-medium leading-5 text-[#0048c4]">
-            انتخاب
-          </span>
-        </div>
-
-        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-          {projectPositionOptions.map((position) => (
-            <OptionChip
-              key={position}
-              label={position}
-              selected={(currentItem?.positions ?? []).includes(position)}
-              onClick={() =>
-                setItemField(
-                  "positions",
-                  toggleArray(currentItem?.positions ?? [], position),
-                )
-              }
-            />
-          ))}
-        </div>
-      </div>
+      <MultiSelectRow
+        title="موقعیت"
+        values={item?.positions ?? []}
+        onOpen={() =>
+          onOpenSelect({
+            index,
+            key: "positions",
+            title: "موقعیت",
+            options: projectPositionOptions,
+          })
+        }
+        onRemove={(value) => removeMultiValue("positions", value)}
+      />
 
       <button
         className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-[#cccccc] bg-white text-sm font-medium leading-5 text-[#1a1a1a]"
@@ -195,7 +177,9 @@ export function ProjectDetailsStep({
 }: {
   onBack: () => void;
 }) {
-  const { control } = useFormContext<NewAdFormValues>();
+  const { control, getValues, setValue } = useFormContext<NewAdFormValues>();
+  const [sheet, setSheet] = useState<ProjectMultiSheet | null>(null);
+  const watchedProjectDetails = useWatch({ control, name: "projectDetails" });
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -208,6 +192,22 @@ export function ProjectDetailsStep({
     append(createProjectDetailItem());
   }, [append, fields.length]);
 
+  const toggleSheetValue = (value: string) => {
+    if (!sheet) return;
+
+    const path = `projectDetails.${sheet.index}.${sheet.key}` as const;
+    const current = getValues().projectDetails?.[sheet.index]?.[sheet.key] ?? [];
+
+    setValue(path as never, toggleArray(current, value) as never, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const selectedSheetValues = sheet
+    ? watchedProjectDetails?.[sheet.index]?.[sheet.key] ?? []
+    : [];
+
   return (
     <>
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-3 pt-4" dir="rtl">
@@ -216,6 +216,8 @@ export function ProjectDetailsStep({
             <ProjectDetailCard
               key={field.fieldId}
               index={index}
+              item={watchedProjectDetails?.[index]}
+              onOpenSelect={setSheet}
               onRemove={() => {
                 if (fields.length === 1) {
                   remove(index);
@@ -248,6 +250,51 @@ export function ProjectDetailsStep({
           <span>اضافه کردن</span>
         </button>
       </footer>
+
+      <BottomSheet
+        ariaLabel={sheet?.title ?? "انتخاب"}
+        className="rounded-t-[14px]"
+        contentClassName="pt-0 pb-6"
+        handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+        heightClassName="h-auto max-h-[calc(100dvh-102px)]"
+        isOpen={Boolean(sheet)}
+        onClose={() => setSheet(null)}
+        panelPaddingClassName="pt-3"
+        showBackButton={false}
+        showHandle
+        showHeader
+        showHeaderDivider
+        title={sheet?.title ?? "انتخاب"}
+        titleAlign="center"
+      >
+        <div className="py-2">
+          {(sheet?.options ?? []).map((option) => {
+            const checked = selectedSheetValues.includes(option);
+
+            return (
+              <button
+                className="flex h-12 w-full items-center justify-between bg-white px-5 text-sm font-normal leading-5 text-[#1a1a1a]"
+                key={option}
+                onClick={() => toggleSheetValue(option)}
+                type="button"
+              >
+                <span>{option}</span>
+                <span
+                  className={`grid h-4 w-4 place-items-center rounded-[3px] border ${
+                    checked
+                      ? "border-[#0048c4] bg-[#0048c4] text-white"
+                      : "border-[#808080] bg-white text-transparent"
+                  }`}
+                >
+                  <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 12 12">
+                    <path d="M2.4 6.1 4.8 8.5 9.6 3.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+                  </svg>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </BottomSheet>
     </>
   );
 }

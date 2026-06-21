@@ -43,7 +43,12 @@ const labelToKeyMap: Record<string, LabelConfig> = {
   "delivery_date": { key: "date" },
   "project_status": { key: "projectStatus" },
   "construction_license": { key: "license" },
+  "land_position": { key: "position" },
+  "commercial_license": { key: "license" },
+  "standard_capacity": { key: "maximumPeople", suffix: " نفر" },
+  "extra_people_capacity": { key: "extraPeople", suffix: " نفر" },
   "participation_type": { key: "participationType" },
+  "builder_share_percent": { key: "participationType", suffix: " درصد" },
 
   "طبقه آپارتمان": { key: "floor", prefix: "طبقه " },
   "طبقه واحد": { key: "floor", prefix: "طبقه " },

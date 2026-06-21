@@ -1554,7 +1554,7 @@ function readImages(ad: AdvertisementItem) {
       const imageItem = image as AdvertisementImageItem;
 
       return {
-        src: imageItem.path ?? imageItem.url ?? imageItem.src ?? "",
+        src: imageItem.url ?? imageItem.src ?? imageItem.path ?? "",
         isMain: imageItem.is_main === true,
         index,
       };

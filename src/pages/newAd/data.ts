@@ -10,6 +10,9 @@ import type {
 } from "./types";
 
 export const locationKey = "bonga-new-ad-location";
+export const locationLatKey = "bonga-new-ad-location-lat";
+export const locationLngKey = "bonga-new-ad-location-lng";
+export const neighborhoodIdKey = "bonga-new-ad-neighborhood-id";
 export const draftKey = "bonga-new-ad-draft";
 
 export const dailyHotelRoomTypes: {
@@ -103,6 +106,7 @@ export const blankValues: NewAdFormValues = {
   hasVideo: false,
   video: null,
   hasVirtualTour: false,
+  virtualTourLink: "",
 
   registrantType: "",
   chatEnabled: false,

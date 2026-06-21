@@ -16,6 +16,7 @@ import {
   toggleAdvertiseBadge,
   updateMyProfile,
   type AdvertiseBadgesPage,
+  type MyAdsPage,
   type MyAdsType,
 } from "../services/account.service";
 
@@ -56,10 +57,25 @@ export function useWalletPaymentsQuery() {
   });
 }
 
-export function useMyAdsQuery({ page = 1, type }: { page?: number; type: MyAdsType }) {
-  return useQuery({
-    queryFn: () => getMyAds({ page, type }),
-    queryKey: queryKeys.account.myAds({ page, type }),
+export function useMyAdsInfiniteQuery({
+  perPage = 20,
+  type,
+}: {
+  perPage?: number;
+  type: MyAdsType;
+}) {
+  return useInfiniteQuery<
+    MyAdsPage,
+    Error,
+    { pages: MyAdsPage[]; pageParams: number[] },
+    ReturnType<typeof queryKeys.account.myAds>,
+    number
+  >({
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => getMyAds({ page: pageParam, perPage, type }),
+    queryKey: queryKeys.account.myAds({ perPage, type }),
   });
 }
 

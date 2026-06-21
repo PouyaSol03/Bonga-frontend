@@ -53,10 +53,11 @@
 @layer base {
   body {
     font-family: "DanaFaNum", sans-serif;
-    font-feature-settings: "ss03", "ss01";
     font-variant-numeric: proportional-nums;
     -webkit-font-feature-settings: "pnum";
-    font-feature-settings: "pnum";
+    -moz-font-feature-settings: "ss03";
+    -webkit-font-feature-settings: "ss03";
+    font-feature-settings: "ss03";
   }
 }
 

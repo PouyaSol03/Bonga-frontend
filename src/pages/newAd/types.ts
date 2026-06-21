@@ -242,6 +242,7 @@ export type NewAdFormValues = {
   hasVideo: boolean;
   video: UploadedMediaFile | null;
   hasVirtualTour: boolean;
+  virtualTourLink: string;
 
   registrantType: RegistrantType;
   chatEnabled: boolean;

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { FeaturesIcons } from "../../../components/FeaturesIcons";
+import { formatPrice } from "../../../lib/MoneyHandler";
 import { normalizeNumberInput, navigateTo } from "../utils";
 import type { ChipItem } from "../types";
 
@@ -93,20 +94,31 @@ export function Section({
   );
 }
 
-export function InputBox({ value, placeholder, leftText, numeric, onChange }: { value: string; placeholder: string; leftText?: string; numeric?: boolean; onChange: (value: string) => void }) {
+export function InputBox({ value, placeholder, leftText, numeric, formatNumeric, supportingText, onChange }: { value: string; placeholder: string; leftText?: string; numeric?: boolean; formatNumeric?: boolean; supportingText?: string; onChange: (value: string) => void }) {
+  const displayValue = numeric && formatNumeric && value
+    ? formatPrice(Number(normalizeNumberInput(value).replace(/,/g, "")))
+    : value;
+
   return (
-    <label className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] [direction:ltr]">
-      {value ? (
-        <button aria-label="پاک کردن" className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#cccccc] text-[#a6a6a6]" onClick={() => onChange("")} type="button">×</button>
-      ) : leftText ? <span className="shrink-0 text-[#a6a6a6]">{leftText}</span> : null}
-      <input
-        className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
-        inputMode={numeric ? "numeric" : "text"}
-        onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
-        placeholder={placeholder}
-        value={value}
-      />
-    </label>
+    <div>
+      <label className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] [direction:ltr]">
+        {value ? (
+          <button aria-label="پاک کردن" className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#cccccc] text-[#a6a6a6]" onClick={() => onChange("")} type="button">×</button>
+        ) : leftText ? <span className="shrink-0 text-[#a6a6a6]">{leftText}</span> : null}
+        <input
+          className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
+          inputMode={numeric ? "numeric" : "text"}
+          onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
+          placeholder={placeholder}
+          value={displayValue}
+        />
+      </label>
+      {supportingText ? (
+        <p className="mt-1 px-4 text-right text-xs font-normal leading-5 text-[#808080]">
+          {supportingText}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -287,7 +299,11 @@ export function Footer({
         type="button"
       >
         <span>{primary}</span>
-        <span className="text-xl leading-none">←</span>
+        <span className="text-xl leading-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M7.49992 5.83301L3.33325 9.99962L7.49989 14.1664M3.33325 9.99962L16.6666 9.99987" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
       </button>
 
       <button
@@ -295,7 +311,11 @@ export function Footer({
         onClick={onBack}
         type="button"
       >
-        <span className="text-xl leading-none">→</span>
+        <span className="text-xl leading-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12.4999 5.8335L16.6666 10.0002L12.5 14.1668M16.6666 10.0002H3.33325" stroke="#0048C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
         <span>مرحله قبل</span>
       </button>
     </footer>

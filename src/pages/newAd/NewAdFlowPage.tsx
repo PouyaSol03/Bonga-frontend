@@ -6,12 +6,12 @@ import { getApiErrorMessage } from "../../api/api";
 import { Snackbar } from "../../components/Snackbar";
 import { useCreateAdvertisementMutation } from "../../hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
-import { draftKey, locationKey } from "./data";
+import { draftKey } from "./data";
 import { DetailsStep } from "./steps/DetailsStep";
 import { MediaStep } from "./steps/MediaStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { FlowStep, NewAdFormValues } from "./types";
-import { buildNewAdFormData, getDefaultValues, getParams, navigateTo, useRequireAuth } from "./utils";
+import { buildNewAdFormData, clearNewAdDraftStorage, getDefaultValues, getParams, navigateTo, useRequireAuth } from "./utils";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
 export function NewAdFlowPage() {
@@ -27,6 +27,7 @@ export function NewAdFlowPage() {
     const subscription = methods.watch((values) => {
       const safeDraft = {
         ...values,
+        hasVideo: false,
         photos: [],
         video: null,
       };
@@ -36,6 +37,23 @@ export function NewAdFlowPage() {
 
     return () => subscription.unsubscribe();
   }, [methods]);
+
+  useEffect(() => {
+    const clearOnExit = () => {
+      if (window.location.pathname.startsWith("/new-ad")) return;
+
+      clearNewAdDraftStorage();
+    };
+    const clearOnPageHide = () => clearNewAdDraftStorage();
+
+    window.addEventListener("popstate", clearOnExit);
+    window.addEventListener("pagehide", clearOnPageHide);
+
+    return () => {
+      window.removeEventListener("popstate", clearOnExit);
+      window.removeEventListener("pagehide", clearOnPageHide);
+    };
+  }, []);
 
   const submit = methods.handleSubmit((values) => {
     if (createAdvertisement.isPending) return;
@@ -48,8 +66,7 @@ export function NewAdFlowPage() {
         setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
       },
       onSuccess: () => {
-        window.localStorage.removeItem(draftKey);
-        window.localStorage.removeItem(locationKey);
+        clearNewAdDraftStorage();
         navigateTo("/account/ad-management/published");
       },
     });

@@ -57,7 +57,7 @@ export function useCreateAdvertisementMutation() {
         queryKey: queryKeys.advertisements.all,
       });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.account.myAds({ page: 1, type: "all" }),
+        queryKey: queryKeys.account.myAdsRoot(),
       });
     },
   });

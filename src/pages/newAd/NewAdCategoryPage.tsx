@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../auth/auth-storage";
+import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
 
 type TransactionType = "sale" | "rent" | "project";
 
@@ -350,8 +351,11 @@ export function NewAdCategoryPage() {
         onNext={() => {
           if (!selectedOption) return;
 
-          window.localStorage.removeItem("bonga-new-ad-draft");
-          window.localStorage.removeItem("bonga-new-ad-location");
+          window.localStorage.removeItem(draftKey);
+          window.localStorage.removeItem(locationKey);
+          window.localStorage.removeItem(locationLatKey);
+          window.localStorage.removeItem(locationLngKey);
+          window.localStorage.removeItem(neighborhoodIdKey);
 
           const params = new URLSearchParams({
             transaction: activeType,

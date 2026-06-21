@@ -181,6 +181,10 @@ export function VideoUploader() {
       shouldDirty: true,
       shouldValidate: true,
     });
+    setValue("hasVideo", true, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
 
     setIsUploading(true);
     setProgress(18);
@@ -199,6 +203,10 @@ export function VideoUploader() {
     }
 
     setValue("video", null, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setValue("hasVideo", false, {
       shouldDirty: true,
       shouldValidate: true,
     });

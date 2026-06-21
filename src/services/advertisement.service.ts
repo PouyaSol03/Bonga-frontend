@@ -196,13 +196,28 @@ function formatPrice(value: unknown) {
   return new Intl.NumberFormat("fa-IR").format(numericValue);
 }
 
-function readFeature(item: AdvertisementItem, labels: string[], fallback: string) {
+function readFeatureValue(item: AdvertisementItem, labels: string[]) {
   const features = Array.isArray(item.features) ? item.features : [];
   const feature = features.find((candidate) =>
     labels.some((label) => candidate.label?.includes(label)),
   );
 
-  return toText(feature?.value, fallback);
+  return feature?.value;
+}
+
+function formatFeatureUnit(value: unknown, unit: string, fallback = "-") {
+  const text = toText(value);
+
+  return text ? `${text} ${unit}` : fallback;
+}
+
+function formatBuildingAge(value: unknown, fallback = "-") {
+  const text = toText(value);
+
+  if (!text) return fallback;
+  if (text.includes("سال") || text.includes("نوساز")) return text;
+
+  return `${text} سال`;
 }
 
 function readNestedText(item: AdvertisementItem, keys: string[]) {
@@ -284,11 +299,14 @@ export function mapAdvertisementToAdCard(
   ]);
   const image = toText(item.image || images[0]);
   const publishedHoursAgo = toNumber(item.published_hours_ago);
+  const area = readFeatureValue(item, ["area", "متراژ"]) ?? item.area;
+  const rooms = readFeatureValue(item, ["rooms", "اتاق", "خواب"]) ?? item.rooms;
+  const buildingAge = readFeatureValue(item, ["building_age", "سال ساخت"]) ?? item.year;
 
   return {
     id: item.id ?? item._id ?? index + 1,
     agency: toText(item.agency),
-    area: readFeature(item, ["متراژ"], item.area ? `${toText(item.area)} متر` : "-"),
+    area: formatFeatureUnit(area, "متر"),
     badges: Array.isArray(item.badges) ? item.badges : [],
     imageClassName: image ? "" : `ad-card__image--${(index % 4) + 1}`,
     imageCount: String(images.length || (image ? 1 : 0)),
@@ -297,7 +315,7 @@ export function mapAdvertisementToAdCard(
     priceLabelSecondary: "",
     pricePrimary: formatPrice(item.price),
     priceSecondary: "",
-    rooms: readFeature(item, ["اتاق", "خواب"], item.rooms ? `${toText(item.rooms)} اتاق` : "-"),
+    rooms: formatFeatureUnit(rooms, "اتاق"),
     status: "",
     timeAndLocation:
       publishedHoursAgo !== undefined
@@ -306,7 +324,7 @@ export function mapAdvertisementToAdCard(
           ? `در ${location}`
           : "",
     title: toText(item.title ?? item.label, "آگهی ملک"),
-    year: readFeature(item, ["سال ساخت"], toText(item.year, "-")),
+    year: formatBuildingAge(buildingAge),
   };
 }
 

@@ -146,7 +146,7 @@ function UserIcon({ className = "" }: { className?: string }) {
 function BlockedIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M5.7 5.7L18.3 18.3M21 12C21 7.02944 16.9705 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9705 7.02944 21 12 21C16.9705 21 21 16.9705 21 12Z" stroke="#4D4D4D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M5.7 5.7L18.3 18.3M21 12C21 7.02944 16.9705 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9705 7.02944 21 12 21C16.9705 21 21 16.9705 21 12Z" stroke="#c11004" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   );
 }
@@ -378,14 +378,24 @@ const chatMenuItems = [
     title: "ساعات پاسخگویی",
   },
   {
-    id: "bulk-delete",
-    icon: BlockedIcon,
-    title: "حذف گروهی گفتگوها",
+    id: "rename",
+    icon: SettingsIcon,
+    title: "تغییر نام چت",
   },
   {
-    id: "settings",
-    icon: SettingsIcon,
-    title: "تنظیمات",
+    id: "blocked",
+    icon: BlockedIcon,
+    title: "نمایش چت‌های مسدود شده",
+  },
+  {
+    id: "my-ads",
+    icon: InfoIcon,
+    title: "نمایش آگهی‌های من",
+  },
+  {
+    id: "bulk-delete",
+    icon: TrashIcon,
+    title: "حذف گروهی چت‌ها",
   },
 ];
 
@@ -434,7 +444,7 @@ function UnreadBadge({ count }: { count?: string }) {
 function BlockedBadge() {
   return (
     <span className="flex h-5 items-center gap-1 rounded-lg bg-[#dd2b1e1f] px-2 text-xs font-normal leading-4 text-[#c11004]">
-      <BlockedIcon className="h-3 w-3" />
+      <BlockedIcon className="h-3 w-3 text-[#c11004]" />
       <span>مسدود</span>
     </span>
   );
@@ -549,12 +559,12 @@ function ChatCard({
 
       <div className="mt-3 flex h-12 items-center justify-between [direction:ltr]">
         <div className="min-w-0 flex-1 pr-2 text-right">
-          <div className="flex h-5 items-center justify-end gap-2 [direction:rtl]">
-            <span className="rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
-              {displayItem.adLabel}
-            </span>
+          <div className="flex h-5 items-center justify-start gap-2 [direction:rtl]">
             <span className="truncate text-xs font-normal leading-4 text-[#808080]">
               {displayItem.adCategory}
+            </span>
+            <span className="rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
+              {displayItem.adLabel}
             </span>
           </div>
           <div className="mt-2 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
@@ -1287,6 +1297,11 @@ export function UserChatHomePage() {
         <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
       ) : null}
       <DemoNotice message={message} />
+      <ChatMenuBottomSheet
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onSelect={handleMenuSelect}
+      />
     </TopBarNavigationLayout>
   );
 }

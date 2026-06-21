@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../components/BottomSheet";
+import { formatBigNumber } from "../../../../lib/MoneyHandler";
 import {
   dailyHotelMealPlanOptions,
   dailyHotelRoomTypes,
@@ -133,6 +134,14 @@ function formatNumber(value: string) {
   if (!Number.isFinite(parsed) || !normalized) return value;
 
   return new Intl.NumberFormat("fa-IR").format(parsed);
+}
+
+function moneySupportingText(value: string) {
+  const number = Number(value.replace(/,/g, ""));
+
+  return Number.isFinite(number) && number > 0
+    ? `${formatBigNumber(number)} تومان`
+    : "";
 }
 
 function buildRoomSummary(room: DailyHotelRoomConfig) {
@@ -337,26 +346,32 @@ export function DailyHotelRoomsSection() {
               />
 
               <InputBox
+                formatNumeric
                 leftText="تومان"
                 numeric
                 onChange={(value) => setDraftRoom((current) => (current ? { ...current, normalPrice: value } : current))}
                 placeholder="قیمت روزهای عادی *"
+                supportingText={moneySupportingText(draftRoom.normalPrice)}
                 value={draftRoom.normalPrice}
               />
 
               <InputBox
+                formatNumeric
                 leftText="تومان"
                 numeric
                 onChange={(value) => setDraftRoom((current) => (current ? { ...current, weekendPrice: value } : current))}
                 placeholder="قیمت آخر هفته *"
+                supportingText={moneySupportingText(draftRoom.weekendPrice)}
                 value={draftRoom.weekendPrice}
               />
 
               <InputBox
+                formatNumeric
                 leftText="تومان"
                 numeric
                 onChange={(value) => setDraftRoom((current) => (current ? { ...current, specialPrice: value } : current))}
                 placeholder="قیمت روزهای خاص *"
+                supportingText={moneySupportingText(draftRoom.specialPrice)}
                 value={draftRoom.specialPrice}
               />
             </div>

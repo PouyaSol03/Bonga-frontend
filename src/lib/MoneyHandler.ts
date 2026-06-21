@@ -3,25 +3,32 @@ export const formatPrice = (value: number) => {
   return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+const numberFormatter = new Intl.NumberFormat("fa-IR");
+
 export const formatBigNumber = (value: number) => {
   if (!value && value !== 0) return "";
-  
+
   const num = Number(value);
-  
-  if (num >= 1000000000) {
-    const billion = num / 1000000000;
-    return `${Number(billion.toFixed(1))} میلیارد`; 
-  }
-  
-  if (num >= 1000000) {
-    const million = num / 1000000;
-    return `${Number(million.toFixed(1))} میلیون`;
-  }
-  
-  if (num >= 1000) {
-    const thousand = num / 1000;
-    return `${Number(thousand.toFixed(1))} هزار`;
+  const units = [
+    { label: "میلیارد", value: 1_000_000_000 },
+    { label: "میلیون", value: 1_000_000 },
+    { label: "هزار", value: 1_000 },
+  ];
+  const parts: string[] = [];
+  let remaining = Math.trunc(num);
+
+  units.forEach((unit) => {
+    const amount = Math.floor(remaining / unit.value);
+
+    if (amount > 0) {
+      parts.push(`${numberFormatter.format(amount)} ${unit.label}`);
+      remaining -= amount * unit.value;
+    }
+  });
+
+  if (remaining > 0 || parts.length === 0) {
+    parts.push(numberFormatter.format(remaining));
   }
 
-  return num.toString();
+  return parts.join(" و ");
 };

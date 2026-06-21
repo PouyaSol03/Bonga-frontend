@@ -11,6 +11,27 @@ export const queryKeys = {
     search: (q?: string) => [...queryKeys.cities.all, "search", q ?? ""] as const,
   },
 
+  neighborhoods: {
+    all: ["neighborhoods"] as const,
+    infoWithLoc: (filters: { cityId?: string; lat?: number; lng?: number }) =>
+      [
+        ...queryKeys.neighborhoods.all,
+        "info-with-loc",
+        filters.cityId ?? "",
+        filters.lat ?? "",
+        filters.lng ?? "",
+      ] as const,
+    list: (filters: { cityId?: string; page?: number; perPage?: number; q?: string }) =>
+      [
+        ...queryKeys.neighborhoods.all,
+        "list",
+        filters.cityId ?? "",
+        filters.q ?? "",
+        filters.page ?? "",
+        filters.perPage ?? "",
+      ] as const,
+  },
+
   advertisements: {
     all: ["advertisements"] as const,
     detail: (id: string) => [...queryKeys.advertisements.all, "detail", id] as const,
@@ -55,8 +76,9 @@ export const queryKeys = {
       [...queryKeys.account.bookmarksRoot(), filters.perPage] as const,
     notes: () => [...queryKeys.account.all, "notes"] as const,
     walletPayments: () => [...queryKeys.account.all, "wallet-payments"] as const,
-    myAds: (filters: { page: number; type: string }) =>
-      [...queryKeys.account.all, "my-ads", filters.type, filters.page] as const,
+    myAdsRoot: () => [...queryKeys.account.all, "my-ads"] as const,
+    myAds: (filters: { perPage: number; type: string }) =>
+      [...queryKeys.account.myAdsRoot(), filters.type, filters.perPage] as const,
   },
 
   searchHistory: {

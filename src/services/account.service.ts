@@ -43,6 +43,14 @@ export type WalletPaymentsResult = {
 
 export type MyAdsType = "all" | "active" | "deactive" | "pending";
 
+export type MyAdsPage = {
+  data: AdvertisementItem[];
+  hasNextPage: boolean;
+  page: number;
+  perPage: number;
+  total: number;
+};
+
 export type AdvertiseBadgesPage = {
   adsIds: string[];
   data: BadgeItem[];
@@ -109,6 +117,17 @@ type MyNotesResponse =
       status?: boolean;
     }
   | NoteItem[];
+
+type MyAdsResponse =
+  | ApiListResponse<AdvertisementItem>
+  | {
+      advertises?: AdvertisementItem[];
+      data?: AdvertisementItem[];
+      page?: number;
+      per_page?: number;
+      status?: boolean;
+      total?: number;
+    };
 
 function getNestedValue(source: unknown, keys: string[]) {
   if (!source || typeof source !== "object") return undefined;
@@ -179,16 +198,33 @@ export async function getWalletPayments(): Promise<WalletPaymentsResult> {
 
 export async function getMyAds({
   page = 1,
+  perPage = 20,
   type,
 }: {
   page?: number;
+  perPage?: number;
   type: MyAdsType;
 }) {
-  return unwrapList(
-    await api
-      .get("me/myAds", { searchParams: { page, type } })
-      .json<ApiListResponse<AdvertisementItem>>(),
-  );
+  const response = await api
+    .get("me/myAds", { searchParams: { page, per_page: perPage, type } })
+    .json<MyAdsResponse>();
+  const record = Array.isArray(response) ? {} : (response as Record<string, unknown>);
+  const data = Array.isArray(response)
+    ? response
+    : Array.isArray(record.advertises)
+      ? (record.advertises as AdvertisementItem[])
+      : unwrapList(response as ApiListResponse<AdvertisementItem>);
+  const currentPage = typeof record.page === "number" ? record.page : page;
+  const resolvedPerPage = typeof record.per_page === "number" ? record.per_page : perPage;
+  const total = typeof record.total === "number" ? record.total : data.length;
+
+  return {
+    data,
+    hasNextPage: currentPage * resolvedPerPage < total,
+    page: currentPage,
+    perPage: resolvedPerPage,
+    total,
+  } satisfies MyAdsPage;
 }
 
 export async function getMyBadges() {

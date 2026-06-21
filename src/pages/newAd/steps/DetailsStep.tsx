@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../components/BottomSheet";
+import { formatBigNumber } from "../../../lib/MoneyHandler";
 import {
   exchangeTargets,
   facilityItems,
@@ -11,11 +12,10 @@ import {
 import {
   getBasicPropertyFields,
   getMoreFeatureFields,
-  getMoreFeatureTags,
   getParams,
   navigateTo,
 } from "../utils";
-import type { NewAdFormValues, SelectKey, SheetState } from "../types";
+import type { MoreFeatureFormKey, NewAdFormValues, SelectKey, SheetState } from "../types";
 import {
   Chip,
   Footer,
@@ -38,6 +38,22 @@ function toggleArray(current: string[], id: string) {
     : [...current, id];
 }
 
+function moneySupportingText(value: string) {
+  const number = Number(value.replace(/,/g, ""));
+
+  return Number.isFinite(number) && number > 0
+    ? `${formatBigNumber(number)} تومان`
+    : "";
+}
+
+function ExchangeCheckIcon({ checked }: { checked: boolean }) {
+  return (
+    <span className={`grid h-6 w-6 place-items-center rounded-lg border ${checked ? "border-[#0048C4] bg-[#0048C4] text-white" : "border-[#808080] bg-white"}`}>
+      {checked ? <img src="/icons/checkTick.svg" alt="" /> : null}
+    </span>
+  );
+}
+
 export function DetailsStep({
   label,
   onNext,
@@ -53,6 +69,7 @@ export function DetailsStep({
   const [sheet, setSheet] = useState<SheetState | null>(null);
   const [showAllHeating, setShowAllHeating] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
+  const [showRegisteredMoreFeatures, setShowRegisteredMoreFeatures] = useState(false);
   const [isDeliveryDateOpen, setIsDeliveryDateOpen] = useState(false);
 
   const { transaction, category } = getParams();
@@ -68,8 +85,22 @@ export function DetailsStep({
 
   const values = watch();
   const moreFeatureFields = getMoreFeatureFields();
-  const moreFeatureTags = getMoreFeatureTags(values, moreFeatureFields);
   const basicPropertyFields = getBasicPropertyFields();
+  const registeredMoreFeatures = moreFeatureFields
+    .map((field) => {
+      const value = values[field.key];
+
+      if (field.control === "toggle") {
+        return value === true ? { key: field.key, label: field.label } : null;
+      }
+
+      if (typeof value === "string" && value.trim()) {
+        return { key: field.key, label: `${field.label}: ${value}` };
+      }
+
+      return null;
+    })
+    .filter((item): item is { key: MoreFeatureFormKey; label: string } => Boolean(item));
 
   const facilityItemsForCategory = useMemo(
     () =>
@@ -92,6 +123,14 @@ export function DetailsStep({
     value: NewAdFormValues[T],
   ) => {
     setValue(key as never, value as never, { shouldDirty: true });
+  };
+
+  const removeMoreFeature = (key: MoreFeatureFormKey) => {
+    const field = moreFeatureFields.find((item) => item.key === key);
+
+    setValue(key as never, (field?.control === "toggle" ? false : "") as never, {
+      shouldDirty: true,
+    });
   };
 
   const openSelectSheet = (key: SelectKey, title: string, options: string[]) => {
@@ -123,17 +162,21 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox
+              formatNumeric
               numeric
               leftText="تومان"
               onChange={(value) => setField("minPrice", value)}
               placeholder="حداقل قیمت *"
+              supportingText={moneySupportingText(values.minPrice)}
               value={values.minPrice}
             />
             <InputBox
+              formatNumeric
               numeric
               leftText="تومان"
               onChange={(value) => setField("maxPrice", value)}
               placeholder="حداکثر قیمت *"
+              supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
             <ProjectSaleTermsFields values={values} setField={setField} />
@@ -147,17 +190,21 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox
+              formatNumeric
               numeric
               leftText="تومان"
               onChange={(value) => setField("minPrice", value)}
               placeholder="حداقل قیمت *"
+              supportingText={moneySupportingText(values.minPrice)}
               value={values.minPrice}
             />
             <InputBox
+              formatNumeric
               numeric
               leftText="تومان"
               onChange={(value) => setField("maxPrice", value)}
               placeholder="حداکثر قیمت *"
+              supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
           </div>
@@ -170,17 +217,21 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox
+              formatNumeric
               numeric
               leftText="تومان"
               onChange={(value) => setField("mortgagePrice", value)}
               placeholder="رهن *"
+              supportingText={moneySupportingText(values.mortgagePrice)}
               value={values.mortgagePrice}
             />
             <InputBox
+              formatNumeric
               numeric
               leftText="تومان"
               onChange={(value) => setField("rentPrice", value)}
               placeholder="اجاره *"
+              supportingText={moneySupportingText(values.rentPrice)}
               value={values.rentPrice}
             />
           </div>
@@ -192,10 +243,12 @@ export function DetailsStep({
       <Section icon="money.svg" title="اطلاعات قیمت">
         <div className="space-y-4">
           <InputBox
+            formatNumeric
             numeric
             leftText="تومان"
             onChange={(value) => setField("price", value)}
             placeholder="قیمت *"
+            supportingText={moneySupportingText(values.price)}
             value={values.price}
           />
 
@@ -210,18 +263,22 @@ export function DetailsStep({
               {values.loanEnabled ? (
                 <div className="space-y-3">
                   <InputBox
+                    formatNumeric
                     numeric
                     leftText="تومان"
                     onChange={(value) => setField("loanAmount", value)}
                     placeholder="مبلغ وام"
+                    supportingText={moneySupportingText(values.loanAmount)}
                     value={values.loanAmount}
                   />
 
                   <InputBox
+                    formatNumeric
                     numeric
                     leftText="تومان"
                     onChange={(value) => setField("loanInstallment", value)}
                     placeholder="قسط وام"
+                    supportingText={moneySupportingText(values.loanInstallment)}
                     value={values.loanInstallment}
                   />
                 </div>
@@ -333,16 +390,28 @@ export function DetailsStep({
 
               {isDailyHotelRent ? <DailyHotelRoomsSection /> : null}
 
-              {!isDailyHotelRent && moreFeatureTags.length ? (
-                <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
-                  {moreFeatureTags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="flex h-9 items-center rounded-[7px] border border-[#0048c4] bg-[#0048c41f] px-3 text-sm font-medium leading-5 text-[#0048c4]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+              {!isDailyHotelRent && registeredMoreFeatures.length ? (
+                <div className="space-y-3 pt-2" dir="rtl">
+                  <button
+                    className="flex h-10 w-full items-center justify-between rounded-[10px] bg-[#f0f0f0] px-3 text-sm font-medium leading-5 text-[#4d4d4d]"
+                    onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
+                    type="button"
+                  >
+                    <span>{registeredMoreFeatures.length} مشخصات دیگری که ثبت کرده‌اید</span>
+                    <span className="text-lg leading-none">{showRegisteredMoreFeatures ? "⌃" : "⌄"}</span>
+                  </button>
+
+                  {showRegisteredMoreFeatures ? (
+                    <div className="flex flex-wrap justify-start gap-2">
+                      {registeredMoreFeatures.map((item) => (
+                        <Tag
+                          key={item.key}
+                          label={item.label}
+                          onRemove={() => removeMoreFeature(item.key)}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -352,7 +421,7 @@ export function DetailsStep({
                   onClick={onMoreFeatures}
                   type="button"
                 >
-                  <span>ثبت مشخصات بیشتر</span>
+                  <span>ثبت {moreFeatureFields.length} مشخصات دیگر</span>
                   <span>‹</span>
                 </button>
               ) : null}
@@ -446,34 +515,48 @@ export function DetailsStep({
         title={sheet?.title ?? "انتخاب"}
         titleAlign="center"
       >
-        <BottomSheetActionList
-          align="center"
-          isOpen={Boolean(sheet)}
-          items={(sheet?.options ?? []).map((option) => ({
-            id: option,
-            title: option,
-          }))}
-          itemClassName="h-12 text-sm font-normal leading-5"
-          onSelect={(item) => {
-            if (!sheet) return;
+        {sheet?.kind === "exchange" ? (
+          <div className="px-4 pb-2" dir="rtl">
+            {sheet.options.map((option) => {
+              const checked = values.exchangeTargets.includes(option);
 
-            if (sheet.kind === "select") {
+              return (
+                <button
+                  className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]"
+                  key={option}
+                  onClick={() =>
+                    setField(
+                      "exchangeTargets",
+                      toggleArray(values.exchangeTargets, option),
+                    )
+                  }
+                  type="button"
+                >
+                  <ExchangeCheckIcon checked={checked} />
+                  <span>{option}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <BottomSheetActionList
+            align="center"
+            isOpen={Boolean(sheet)}
+            items={(sheet?.options ?? []).map((option) => ({
+              id: option,
+              title: option,
+            }))}
+            itemClassName="h-12 text-sm font-normal leading-5"
+            onSelect={(item) => {
+              if (!sheet || sheet.kind !== "select") return;
+
               setField(sheet.key, item.title);
               setSheet(null);
-              return;
-            }
-
-            if (sheet.kind === "exchange") {
-              setField(
-                "exchangeTargets",
-                toggleArray(values.exchangeTargets, item.title),
-              );
-            }
-          }}
-          selectedId={sheet?.kind === "select" ? values[sheet.key] : undefined}
-          showCheckIcon={sheet?.kind === "exchange"}
-          showDividers={false}
-        />
+            }}
+            selectedId={sheet?.kind === "select" ? values[sheet.key] : undefined}
+            showDividers={false}
+          />
+        )}
       </BottomSheet>
     </>
   );

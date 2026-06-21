@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
@@ -7,7 +7,7 @@ import {
   useAuthorizeMeMutation,
   useDeleteAdvertiseBadgeMutation,
   useDeleteAdvertiseNoteMutation,
-  useMyAdsQuery,
+  useMyAdsInfiniteQuery,
   useMyNotesQuery,
   useMyProfileQuery,
   useSaveAdvertiseNoteMutation,
@@ -26,6 +26,7 @@ import type {
 } from "../../services/account.service";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
+import { AdCardSkeleton } from "../../components/AdCardSkeleton";
 import { BottomSheet } from "../../components/BottomSheet";
 import { DemoNotice } from "../../components/DemoNotice";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
@@ -189,11 +190,6 @@ function AccountProfileForm({
 }
 
 export function AccountMyAdsPage() {
-  const [activeFilter, setActiveFilter] = useState(adFilters[0]);
-  const { data: ads = [], error, isError, isLoading, refetch } = useMyAdsQuery({
-    type: activeFilter.type,
-  });
-
   return (
     <AccountPageShell
       action={
@@ -203,35 +199,12 @@ export function AccountMyAdsPage() {
       }
       title="آگهی‌های من"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
-        <div className="space-y-2 bg-[#f0f0f0] pt-4">
-          {isLoading ? <AccountAdCardsSkeleton /> : null}
-          {isError ? (
-            <AccountRetryState
-              error={error}
-              message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
-              onRetry={() => void refetch()}
-            />
-          ) : null}
-          {!isLoading && !isError && ads.map((ad, index) => (
-            <AdCard ad={mapAdvertisementToAdCard(ad, index)} key={String(ad.id ?? ad._id ?? index)} />
-          ))}
-          {!isLoading && !isError && ads.length === 0 ? (
-            <EmptyMessage text="آگهی‌ای برای نمایش وجود ندارد" />
-          ) : null}
-        </div>
-      </main>
+      <AccountMyAdsContent emptyMode="compact" />
     </AccountPageShell>
   );
 }
 
 export function AccountMyAdsEmptyPage() {
-  const [activeFilter, setActiveFilter] = useState(adFilters[0]);
-  const { data: ads = [], error, isError, isLoading, refetch } = useMyAdsQuery({
-    type: activeFilter.type,
-  });
-
   return (
     <AccountPageShell
       action={
@@ -241,9 +214,68 @@ export function AccountMyAdsEmptyPage() {
       }
       title="آگهی‌های من"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
-        {isLoading ? <AccountAdCardsSkeleton /> : null}
+      <AccountMyAdsContent emptyMode="full" />
+    </AccountPageShell>
+  );
+}
+
+function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
+  const [activeFilter, setActiveFilter] = useState(adFilters[0]);
+  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
+  const {
+    data: adsPages,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useMyAdsInfiniteQuery({
+    type: activeFilter.type,
+  });
+  const ads = useMemo(
+    () =>
+      adsPages?.pages.flatMap((page, pageIndex) =>
+        page.data.map((ad, adIndex) => ({
+          ad,
+          card: mapAdvertisementToAdCard(ad, pageIndex * page.perPage + adIndex),
+        })),
+      ) ?? [],
+    [adsPages],
+  );
+  const loadMoreTriggerIndex = Math.max(ads.length - 3, 0);
+  const loadMoreSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      loadMoreObserverRef.current?.disconnect();
+      loadMoreObserverRef.current = null;
+
+      if (!node || !hasNextPage || isFetchingNextPage) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage();
+          }
+        },
+        { root: null, rootMargin: "240px 0px", threshold: 0 },
+      );
+
+      observer.observe(node);
+      loadMoreObserverRef.current = observer;
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
+  const hasAds = ads.length > 0;
+  const showFullEmptyState = emptyMode === "full" && !hasAds;
+
+  return (
+    <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${showFullEmptyState && !isLoading && !isError ? "bg-white" : "bg-[#f0f0f0]"}`}>
+      <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
+      <div className={`${showFullEmptyState && !isLoading && !isError ? "bg-white" : "space-y-2 bg-[#f0f0f0] pt-4"}`}>
+        {isLoading ? <MyAdsAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
             error={error}
@@ -251,14 +283,26 @@ export function AccountMyAdsEmptyPage() {
             onRetry={() => void refetch()}
           />
         ) : null}
-        {!isLoading && !isError && ads.length > 0 ? (
-          <div className="space-y-2 bg-[#f0f0f0] pt-4">
-            {ads.map((ad, index) => (
-              <AdCard ad={mapAdvertisementToAdCard(ad, index)} key={String(ad.id ?? ad._id ?? index)} />
-            ))}
-          </div>
+        {!isLoading && !isError && ads.map(({ ad, card }, index) => {
+          const shouldAttachLoadMoreRef =
+            index === loadMoreTriggerIndex &&
+            hasNextPage &&
+            !isFetchingNextPage;
+
+          return (
+            <div
+              key={String(ad.id ?? ad._id ?? card.id)}
+              ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+            >
+              <AdCard ad={card} />
+            </div>
+          );
+        })}
+        {isFetchingNextPage ? <MyAdsAdCardsSkeleton count={2} /> : null}
+        {!isLoading && !isError && !hasAds && emptyMode === "compact" ? (
+          <EmptyMessage text="آگهی‌ای برای نمایش وجود ندارد" />
         ) : null}
-        {!isLoading && !isError && ads.length === 0 ? (
+        {!isLoading && !isError && !hasAds && emptyMode === "full" ? (
           <section className="flex min-h-[560px] flex-col items-center justify-center px-10 text-center">
             <div className="relative mb-6 grid h-[74px] w-[74px] place-items-center text-[#dfe3eb]">
               <DocumentSadIcon className="h-[68px] w-[68px]" />
@@ -281,8 +325,8 @@ export function AccountMyAdsEmptyPage() {
             </RouteLink>
           </section>
         ) : null}
-      </main>
-    </AccountPageShell>
+      </div>
+    </main>
   );
 }
 
@@ -1466,6 +1510,16 @@ function AccountAdCardsSkeleton({ count = 3 }: { count?: number }) {
             </div>
           </div>
         </article>
+      ))}
+    </>
+  );
+}
+
+function MyAdsAdCardsSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <AdCardSkeleton key={index} />
       ))}
     </>
   );

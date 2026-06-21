@@ -28,25 +28,33 @@ export function MediaStep({
           <div className="mt-5">
             <Toggle
               checked={values.hasVideo}
-              label="فیلم"
+              label="ویدیو"
               onChange={(checked) => {
                 setField("hasVideo", checked);
-
-                if (!checked && values.video) {
-                  URL.revokeObjectURL(values.video.previewUrl);
-                  setField("video", null);
-                }
+                if (!checked) setField("video", null);
               }}
             />
-
-            {values.hasVideo ? <VideoUploader /> : null}
-
+          </div>
+          {values.hasVideo ? <VideoUploader /> : null}
+          <div className="mt-5">
             <Toggle
               checked={values.hasVirtualTour}
               label="تور مجازی"
-              onChange={(checked) => setField("hasVirtualTour", checked)}
+              onChange={(checked) => {
+                setField("hasVirtualTour", checked);
+                if (!checked) setField("virtualTourLink", "");
+              }}
             />
           </div>
+          {values.hasVirtualTour ? (
+            <div className="mt-3">
+              <InputBox
+                onChange={(value) => setField("virtualTourLink", value)}
+                placeholder="Ù„ÛŒÙ†Ú© ØªÙˆØ± Ù…Ø¬Ø§Ø²ÛŒ Ø±Ø§ ÙˆØ§Ø±Ø¯ Ú©Ù†ÛŒØ¯"
+                value={values.virtualTourLink}
+              />
+            </div>
+          ) : null}
         </Section>
 
         <Section icon="info.svg" title="اطلاعات آگهی" warning>
@@ -58,7 +66,7 @@ export function MediaStep({
                   checked={values.registrantType === "personal"}
                   label="شخصی"
                   description={`با فعال بودن این گزینه، می‌توانید آگهی خود را به صورت شخصی ثبت نمایید.
-بعد از ثبت اطلاعات به صفحه وضعیت آگهی می‌شوید.`}
+بعد از ثبت اطلاعات به صفحه وضعیت آگهی می‌روید.`}
                   onClick={() => setField("registrantType", "personal")}
                 />
 
@@ -67,7 +75,7 @@ export function MediaStep({
                   checked={values.registrantType === "agency"}
                   label="آژانس"
                   description={`با فعال بودن این گزینه، می‌توانید آگهی خود را به آژانس املاکی مورد نظر خود بسپارید.
-بعد از ثبت اطلاعات به صفحه انتخاب آژانس املاک هدایت می‌شوید.`}
+بعد از ثبت اطلاعات به صفحه انتخاب آژانس املاک هدایت می‌روید.`}
                   onClick={() => setField("registrantType", "agency")}
                 />
               </div>
@@ -80,7 +88,7 @@ export function MediaStep({
             </div>
 
             <div>
-              <div className="mb-3 text-right  font-semibold leading-7 text-[#1a1a1a]">شبکه‌های اجتماعی</div>
+              <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">شبکه‌های اجتماعی</div>
               <div className="space-y-3">
                 <SocialInput icon="telegram" onChange={(value) => setField("telegram", value)} placeholder="آیدی تلگرام خود را وارد کنید" value={values.telegram} />
                 <SocialInput icon="whatsapp" onChange={(value) => setField("whatsapp", value)} placeholder="شماره واتساپ خود را بدون صفر وارد کنید" value={values.whatsapp} />
@@ -88,12 +96,12 @@ export function MediaStep({
             </div>
 
             <div className="border-t border-dashed border-[#cccccc] pt-4">
-              <div className="mb-3 text-right  font-semibold leading-7 text-[#1a1a1a]">عنوان آگهی <span className="text-[#ff3b30]">*</span></div>
+              <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">عنوان آگهی <span className="text-[#ff3b30]">*</span></div>
               <InputBox onChange={(value) => setField("title", value)} placeholder={`مثال: ${label} ۱۲۰ متری، ۲ خوابه، طبقه اول`} value={values.title} />
             </div>
 
             <div>
-              <div className="mb-3 text-right  font-semibold leading-7 text-[#1a1a1a]">توضیحات آگهی <span className="text-[#ff3b30]">*</span></div>
+              <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">توضیحات آگهی <span className="text-[#ff3b30]">*</span></div>
               <label className="block min-h-32 w-full rounded-[12px] border border-[#cccccc] bg-white px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4]">
                 <textarea className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6]" onChange={(event) => setField("description", event.target.value)} placeholder="اطلاعات بیشتر را وارد کنید..." value={values.description} />
               </label>

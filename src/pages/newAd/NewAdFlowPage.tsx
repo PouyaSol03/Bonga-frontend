@@ -3,9 +3,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
+import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { Snackbar } from "../../components/Snackbar";
 import { useCreateAdvertisementMutation } from "../../hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
+import { adManagementPaths } from "../account/adManagement/adManagementData";
 import { draftKey } from "./data";
 import { DetailsStep } from "./steps/DetailsStep";
 import { MediaStep } from "./steps/MediaStep";
@@ -65,9 +67,14 @@ export function NewAdFlowPage() {
       onError: (error) => {
         setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
       },
-      onSuccess: () => {
+      onSuccess: (createdAd) => {
         clearNewAdDraftStorage();
-        navigateTo("/account/ad-management/published");
+        navigateTo(adManagementPaths.payment, {
+          ad: mapAdvertisementToAdCard(createdAd, 0),
+          hasFreeAdTariff: true,
+          paymentFlow: "new-ad",
+          tab: "status",
+        });
       },
     });
   });

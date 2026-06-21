@@ -220,12 +220,17 @@ export function NewAdLocationPage() {
 
         <button
           aria-label="موقعیت من"
-          className="absolute bottom-[150px] left-4 z-20 flex h-9 items-center gap-1 rounded-[10px] bg-white px-3 text-xs font-medium leading-4 text-[#1a1a1a] shadow-[0_4px_14px_rgba(26,26,26,0.14)]"
+          className="absolute bottom-[200px] right-4 z-20 flex h-9 items-center gap-1 rounded-[10px] bg-white px-3 text-xs font-medium leading-4 text-[#1a1a1a] shadow-[0_4px_14px_rgba(26,26,26,0.14)]"
           onClick={moveToBrowserLocation}
           type="button"
         >
+          <span className="text-[#4d4d4d]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M12.8 8C12.8 10.651 10.651 12.8 8 12.8M12.8 8C12.8 5.34903 10.651 3.2 8 3.2M12.8 8H14M8 12.8C5.34903 12.8 3.2 10.651 3.2 8M8 12.8V14M3.2 8C3.2 5.34903 5.34903 3.2 8 3.2M3.2 8H2M8 3.2V2" stroke="#4D4D4D" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 8C10 9.10457 9.10457 10 8 10C6.89543 10 6 9.10457 6 8C6 6.89543 6.89543 6 8 6C9.10457 6 10 6.89543 10 8Z" fill="#4D4D4D" />
+            </svg>
+          </span>
           <span>موقعیت من</span>
-          <span className="text-[#4d4d4d]">⌖</span>
         </button>
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-full">
@@ -239,7 +244,6 @@ export function NewAdLocationPage() {
           <div className="mx-auto mb-4 h-1 w-[42px] rounded-full bg-[#d6d6d6]" />
 
           <label className="flex h-12 items-center gap-3 rounded-[10px] border border-[#cccccc] bg-white px-3 text-right focus-within:border-[#0048c4]" dir="rtl">
-            <SearchIcon />
             <input
               className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
               onChange={(event) => setQuery(event.target.value)}
@@ -250,13 +254,14 @@ export function NewAdLocationPage() {
             {query ? (
               <button
                 aria-label="پاک کردن"
-                className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-[#808080] text-xs leading-none text-[#4d4d4d]"
                 onClick={() => setQuery("")}
                 type="button"
               >
-                ×
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M20.25 12C20.25 7.44365 16.5563 3.75 12 3.75C7.44365 3.75 3.75 7.44365 3.75 12C3.75 16.5563 7.44365 20.25 12 20.25C16.5563 20.25 20.25 16.5563 20.25 12ZM14.6201 8.31934C14.9129 8.0266 15.3877 8.02681 15.6807 8.31934C15.9736 8.61221 15.9735 9.08697 15.6807 9.37988L13.0605 12L15.6807 14.6201C15.9732 14.913 15.9734 15.3879 15.6807 15.6807C15.3879 15.9734 14.913 15.9732 14.6201 15.6807L12 13.0605L9.38184 15.6807C9.08904 15.9734 8.61418 15.9732 8.32129 15.6807C8.0284 15.3878 8.02848 14.913 8.32129 14.6201L10.9395 12L8.32031 9.37988C8.02765 9.08696 8.02748 8.61214 8.32031 8.31934C8.61314 8.02667 9.088 8.02674 9.38086 8.31934L12 10.9395L14.6201 8.31934ZM21.75 12C21.75 17.3847 17.3847 21.75 12 21.75C6.61522 21.75 2.25 17.3847 2.25 12C2.25 6.61522 6.61522 2.25 12 2.25C17.3847 2.25 21.75 6.61522 21.75 12Z" fill="#4D4D4D" />
+                </svg>
               </button>
-            ) : null}
+            ) : <SearchIcon />}
           </label>
 
           {canSearchNeighborhoods ? (
@@ -311,8 +316,8 @@ export function NewAdLocationPage() {
 
 function SearchIcon() {
   return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0 text-[#808080]" fill="none" viewBox="0 0 24 24">
-      <path d="M11 19a8 8 0 1 1 5.657-2.343L21 21" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M18.4502 11.0996C18.45 7.0405 15.1588 3.75 11.0996 3.75C7.04063 3.75021 3.75021 7.04063 3.75 11.0996C3.75 15.1588 7.0405 18.45 11.0996 18.4502C15.1589 18.4502 18.4502 15.1589 18.4502 11.0996ZM19.9502 11.0996C19.9502 13.2734 19.1646 15.2632 17.8643 16.8037L21.5303 20.4697C21.8232 20.7626 21.8232 21.2374 21.5303 21.5303C21.2374 21.8232 20.7626 21.8232 20.4697 21.5303L16.8037 17.8643C15.2632 19.1646 13.2734 19.9502 11.0996 19.9502C6.21207 19.95 2.25 15.9872 2.25 11.0996C2.25021 6.2122 6.2122 2.25021 11.0996 2.25C15.9872 2.25 19.95 6.21207 19.9502 11.0996Z" fill="#4D4D4D" />
     </svg>
   );
 }

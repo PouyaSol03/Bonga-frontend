@@ -50,7 +50,7 @@ export function MediaStep({
             <div className="mt-3">
               <InputBox
                 onChange={(value) => setField("virtualTourLink", value)}
-                placeholder="Ù„ÛŒÙ†Ú© ØªÙˆØ± Ù…Ø¬Ø§Ø²ÛŒ Ø±Ø§ ÙˆØ§Ø±Ø¯ Ú©Ù†ÛŒØ¯"
+                placeholder="لینک تور مجازی را وارد کنید"
                 value={values.virtualTourLink}
               />
             </div>

@@ -12,6 +12,9 @@ export type StatisticsAd = Pick<
 
 export type AdManagementRouteState = {
   ad?: ConsultantAd;
+  hasFreeAdTariff?: boolean;
+  paymentFlow?: "new-ad" | "upgrade";
+  paymentStep?: "options" | "checkout";
   showPaymentSuccess?: boolean;
   statisticsAd?: StatisticsAd;
   tab?: AdsTab;

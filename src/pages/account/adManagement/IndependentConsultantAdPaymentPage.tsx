@@ -1,27 +1,117 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { PaymentOptionIcon, TagIcon } from "./AdManagementIcons";
-import { adManagementPaths, getSelectedConsultantAd } from "./adManagementData";
+import {
+  adManagementPaths,
+  getAdManagementRouteState,
+  getSelectedConsultantAd,
+} from "./adManagementData";
 
-type PaymentMethod = "credit" | "online" | "wallet";
-type UpgradeOption = "refresh" | "special";
+type PaymentMethod = "online" | "wallet";
+type PaymentStep = "options" | "checkout";
+type UpgradeOptionId = "refresh" | "special" | "renew" | "refreshSpecial";
+
+type UpgradeOption = {
+  description: string;
+  id: UpgradeOptionId;
+  title: string;
+};
+
+const registrationFee = 40_000;
+const freeTariffCount = 34;
+const upgradePrice = 40_000;
+const upgradeOptions: UpgradeOption[] = [
+  {
+    description:
+      "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
+    id: "refresh",
+    title: "بروزرسانی",
+  },
+  {
+    description:
+      "آگهی شما به مدت ۳ روز با برچسب ویژه، برای جلب توجه بیشتر و دیده شدن بهتر نمایش داده می‌شود.",
+    id: "special",
+    title: "ویژه",
+  },
+  {
+    description:
+      "آگهی شما پیش از انقضا، برای یک ماه دیگر تمدید می‌شود.",
+    id: "renew",
+    title: "تمدید",
+  },
+  {
+    description:
+      "آگهی بروزرسانی و ویژه به صورت همزمان فعال می‌شود.",
+    id: "refreshSpecial",
+    title: "بروزرسانی و ویژه",
+  },
+];
+
+function navigateTo(path: string, state?: unknown) {
+  window.history.pushState(state ?? {}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function formatToman(value: number) {
+  return `${new Intl.NumberFormat("fa-IR").format(value)} تومان`;
+}
+
+function formatShortPayment(value: number) {
+  if (value % 1000 === 0) {
+    return `${new Intl.NumberFormat("fa-IR").format(value / 1000)} هزار تومان`;
+  }
+
+  return formatToman(value);
+}
 
 export function IndependentConsultantAdPaymentPage() {
+  const routeState = getAdManagementRouteState();
   const ad = getSelectedConsultantAd();
-  const [method, setMethod] = useState<PaymentMethod>("credit");
-  const [upgrades, setUpgrades] = useState<UpgradeOption[]>(["refresh"]);
-  const usesCredit = method === "credit";
-  const selectedUpgradeCount = upgrades.length;
-  const totalCredits = 1 + selectedUpgradeCount;
-  const totalToman = 40000 * (1 + selectedUpgradeCount);
+  const isNewAdFlow = routeState.paymentFlow === "new-ad";
+  const hasFreeTariff = routeState.hasFreeAdTariff ?? isNewAdFlow;
+  const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
+  const [method, setMethod] = useState<PaymentMethod>("online");
+  const [selectedUpgrades, setSelectedUpgrades] = useState<UpgradeOptionId[]>([]);
+  const adFee = hasFreeTariff ? 0 : registrationFee;
+  const upgradesTotal = selectedUpgrades.length * upgradePrice;
+  const payableAmount = adFee + upgradesTotal;
+  const publishState = useMemo(
+    () => ({
+      ad,
+      showPaymentSuccess: true,
+      tab: "status" as const,
+    }),
+    [ad],
+  );
 
-  function toggleUpgrade(option: UpgradeOption) {
-    setUpgrades((selected) =>
-      selected.includes(option)
-        ? selected.filter((item) => item !== option)
-        : [...selected, option],
+  function toggleUpgrade(optionId: UpgradeOptionId) {
+    setSelectedUpgrades((selected) =>
+      selected.includes(optionId)
+        ? selected.filter((item) => item !== optionId)
+        : [...selected, optionId],
+    );
+  }
+
+  function handleCompleteOptions() {
+    if (payableAmount > 0) {
+      setStep("checkout");
+      return;
+    }
+
+    navigateTo(adManagementPaths.published, publishState);
+  }
+
+  if (step === "checkout") {
+    return (
+      <PaymentCheckoutView
+        method={method}
+        onBack={() => setStep("options")}
+        onMethodChange={setMethod}
+        publishState={publishState}
+        total={payableAmount}
+      />
     );
   }
 
@@ -32,114 +122,228 @@ export function IndependentConsultantAdPaymentPage() {
     >
       <TopBar
         backState={{ ad }}
-        backTo={adManagementPaths.allocation}
+        backTo={isNewAdFlow ? "/new-ad" : adManagementPaths.allocation}
         className="[&_a]:text-[#1a1a1a]"
-        title="انتشار آگهی"
+        title="هزینه ثبت آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[72px]">
-        <section className="bg-white px-4 pb-4 pt-7" aria-label="تعرفه آگهی">
-          <PaymentFeeCard
-            amount={usesCredit ? "1 اعتبار" : "40,000 تومان"}
-            checked
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
+        <section className="bg-white px-4 pb-4 pt-6" aria-label="هزینه ثبت آگهی">
+          <RegistrationFeeCard
+            amount={hasFreeTariff ? "رایگان" : formatToman(registrationFee)}
             description="برای ارسال هر آگهی باید هزینه ثبت آن را پرداخت نمایید."
-            title="تعرفه آگهی"
+            checked
+            showDescription={!hasFreeTariff}
+            title="هزینه ثبت آگهی"
           />
-          {usesCredit ? (
-            <p className="m-0 mt-4 flex min-h-[36px] items-center gap-2 rounded-lg bg-[#0048c414] px-3 py-2 text-sm font-medium leading-5 text-[#0048c4]">
-              <TagIcon className="h-5 w-5 shrink-0" />
-              <span>اعتبار باقیمانده تعرفه آگهی شما: 34 اعتبار</span>
-            </p>
+
+          {hasFreeTariff ? (
+            <InfoNotice tone="blue">
+              {`${new Intl.NumberFormat("fa-IR").format(freeTariffCount)} تعرفه رایگان برای شما مانده است`}
+            </InfoNotice>
           ) : null}
         </section>
 
-        <section className="mt-2 bg-white px-4 pb-4 pt-7" aria-label="روش پرداخت">
+        <section className="mt-2 bg-white px-4 pb-4 pt-6" aria-label="امکانات ارتقای آگهی">
+          <h2 className="m-0 mb-3 flex items-center justify-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a]">
+            <UpgradeSparkIcon className="h-5 w-5 text-[#4d4d4d]" />
+            امکانات ارتقای آگهی
+          </h2>
+
+          <div className="divide-y divide-[#f0f0f0]">
+            {upgradeOptions.map((option) => (
+              <UpgradeOptionCard
+                checked={selectedUpgrades.includes(option.id)}
+                description={option.description}
+                key={option.id}
+                onClick={() => toggleUpgrade(option.id)}
+                price={formatToman(upgradePrice)}
+                title={option.title}
+                warning={
+                  hasFreeTariff
+                    ? "این قابلیت پس از انتشار آگهی فعال می‌شود."
+                    : "پس از انتشار آگهی امکان فعال‌سازی این امکان وجود دارد."
+                }
+              />
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <button
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          onClick={handleCompleteOptions}
+          type="button"
+        >
+          تکمیل خرید
+        </button>
+      </footer>
+    </PageFrame>
+  );
+}
+
+function PaymentCheckoutView({
+  method,
+  onBack,
+  onMethodChange,
+  publishState,
+  total,
+}: {
+  method: PaymentMethod;
+  onBack: () => void;
+  onMethodChange: (method: PaymentMethod) => void;
+  publishState: unknown;
+  total: number;
+}) {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        className="[&_button]:text-[#1a1a1a]"
+        onBack={onBack}
+        title="پرداخت"
+      />
+
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
+        <section className="bg-white px-4 pb-2 pt-6" aria-label="روش پرداخت">
           <h2 className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</h2>
-          <PaymentMethodOption
-            active={method === "credit"}
-            icon="credit"
-            label="اعتبار آگهی"
-            onClick={() => setMethod("credit")}
-            subLabel="در اجاره آپارتمان"
-          />
           <PaymentMethodOption
             active={method === "wallet"}
             icon="wallet"
             label="کیف پول"
-            onClick={() => setMethod("wallet")}
-            subLabel="مانده: 1,250,000 تومان"
+            onClick={() => onMethodChange("wallet")}
+            subLabel="مانده: ۵۰,۰۰۰ تومان"
             subLabelClassName="text-[#11a366]"
           />
           <PaymentMethodOption
             active={method === "online"}
             icon="online"
             label="پرداخت آنلاین"
-            onClick={() => setMethod("online")}
+            onClick={() => onMethodChange("online")}
             subLabel="بانک ملت"
           />
         </section>
 
-        <section className="mt-2 bg-white px-4 pb-8 pt-7" aria-label="ارتقا آگهی">
-          <h2 className="m-0 mb-5 text-center text-base font-semibold leading-6">ارتقا آگهی</h2>
-          <UpgradeOptionCard
-            amount={usesCredit ? "1 اعتبار" : "40,000 تومان"}
-            checked={upgrades.includes("refresh")}
-            description="آگهی شما تا زمان دریافت آگهی تازه‌تر در همان دسته‌بندی و شهر، به عنوان اولین آگهی نمایش داده می‌شود."
-            onClick={() => toggleUpgrade("refresh")}
-            title="بروزرسانی"
-          />
-          <div className="my-4 h-px bg-[#cccccc]" aria-hidden="true" />
-          <UpgradeOptionCard
-            amount={usesCredit ? "1 اعتبار" : "40,000 تومان"}
-            checked={upgrades.includes("special")}
-            description="آگهی شما به مدت ۳ روز با برچسب فوری نشان داده می‌شود. این امکان علاوه بر ایجاد تمایز ظاهری و جلب توجه بیشتر برای آگهی شما، شرایط نمایش در دسته بندی فوری را فراهم می‌سازد."
-            onClick={() => toggleUpgrade("special")}
-            title="ویژه"
+        <section className="mt-2 bg-white px-4 py-4" aria-label="کد تخفیف">
+          <div className="flex items-center gap-2 [direction:ltr]">
+            <button
+              className="h-12 shrink-0 rounded-xl bg-[#e5e5e5] px-4 text-sm font-medium leading-5 text-[#a6a6a6]"
+              disabled
+              type="button"
+            >
+              اعمال
+            </button>
+            <label className="min-w-0 flex-1">
+              <span className="sr-only">کد تخفیف</span>
+              <input
+                className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
+                placeholder="کد تخفیف را وارد کنید"
+                type="text"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="mt-2 bg-white px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">
+          <h2 className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</h2>
+          <SummaryRow label="قیمت" value={formatToman(total)} />
+          <SummaryRow label="تخفیف" value={formatToman(0)} />
+          <div className="my-4 border-t border-dashed border-[#cccccc]" aria-hidden="true" />
+          <SummaryRow
+            label="جمع پرداختنی"
+            value={formatToman(total)}
+            valueClassName="text-[#0048c4] font-semibold"
           />
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-4 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <RouteLink
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
-          state={{ ad, showPaymentSuccess: true }}
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline shadow-[0_4px_10px_rgba(0,72,196,0.22)]"
+          state={publishState}
           to={adManagementPaths.published}
         >
-          {usesCredit
-            ? `پرداخت ${totalCredits} اعتبار`
-            : `پرداخت ${totalToman / 1000} هزار تومان`}
+          {`پرداخت و انتشار - ${formatShortPayment(total)}`}
         </RouteLink>
       </footer>
     </PageFrame>
   );
 }
 
-function PaymentFeeCard({
+function RegistrationFeeCard({
   amount,
   checked,
   description,
+  showDescription = true,
   title,
 }: {
   amount: string;
   checked: boolean;
   description: string;
+  showDescription?: boolean;
   title: string;
 }) {
   return (
     <div>
       <div className="flex items-center justify-between [direction:ltr]">
-        <strong className="text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
+        <strong className="text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
           {amount}
         </strong>
-        <span className="inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#4d4d4d] [direction:rtl]">
+        <span className="inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
           <SelectionBox checked={checked} disabled />
           {title}
         </span>
       </div>
-      <p className="m-0 mt-6 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
-        {description}
-      </p>
+      {showDescription ? (
+        <p className="m-0 mt-5 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
+          {description}
+        </p>
+      ) : null}
     </div>
+  );
+}
+
+function UpgradeOptionCard({
+  checked,
+  description,
+  onClick,
+  price,
+  title,
+  warning,
+}: {
+  checked: boolean;
+  description: string;
+  onClick: () => void;
+  price: string;
+  title: string;
+  warning: string;
+}) {
+  return (
+    <button
+      aria-pressed={checked}
+      className="block w-full border-0 bg-white py-4 text-inherit"
+      onClick={onClick}
+      type="button"
+    >
+      <span className="flex items-start justify-between gap-4 [direction:ltr]">
+        <span className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#a6a6a6] [direction:rtl]">
+          {price}
+        </span>
+        <span className="min-w-0 flex-1 text-right [direction:rtl]">
+          <span className="flex items-center justify-end gap-2 text-base font-semibold leading-6 text-[#4d4d4d]">
+            <SelectionBox checked={checked} />
+            {title}
+          </span>
+          <span className="mt-3 block text-sm font-normal leading-6 text-[#808080]">
+            {description}
+          </span>
+        </span>
+      </span>
+      <InfoNotice tone="orange">{warning}</InfoNotice>
+    </button>
   );
 }
 
@@ -152,7 +356,7 @@ function PaymentMethodOption({
   subLabelClassName = "text-[#a6a6a6]",
 }: {
   active: boolean;
-  icon: "credit" | "online" | "wallet";
+  icon: "online" | "wallet";
   label: string;
   onClick: () => void;
   subLabel: string;
@@ -161,9 +365,7 @@ function PaymentMethodOption({
   return (
     <button
       aria-pressed={active}
-      className={`flex h-[72px] w-full items-center justify-between rounded-2xl px-5 [direction:ltr] ${
-        active ? "bg-[#0048c414]" : "bg-white"
-      }`}
+      className="flex h-[72px] w-full items-center justify-between border-0 bg-white px-0 text-inherit [direction:ltr]"
       onClick={onClick}
       type="button"
     >
@@ -183,39 +385,34 @@ function PaymentMethodOption({
   );
 }
 
-function UpgradeOptionCard({
-  amount,
-  checked,
-  description,
-  onClick,
-  title,
+function SummaryRow({
+  label,
+  value,
+  valueClassName = "text-[#4d4d4d]",
 }: {
-  amount: string;
-  checked: boolean;
-  description: string;
-  onClick: () => void;
-  title: string;
+  label: string;
+  value: string;
+  valueClassName?: string;
 }) {
   return (
-    <button
-      aria-pressed={checked}
-      className="block w-full border-0 bg-white p-0 text-inherit"
-      onClick={onClick}
-      type="button"
-    >
-      <span className="flex items-center justify-between [direction:ltr]">
-        <strong className="text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
-          {amount}
-        </strong>
-        <span className="inline-flex items-center gap-2 text-base font-semibold leading-6 [direction:rtl]">
-          <SelectionBox checked={checked} />
-          {title}
-        </span>
-      </span>
-      <span className="mt-5 block text-right text-sm font-normal leading-6 text-[#4d4d4d]">
-        {description}
-      </span>
-    </button>
+    <div className="flex min-h-8 items-center justify-between gap-4 text-sm leading-5 [direction:ltr]">
+      <span className={`text-left [direction:rtl] ${valueClassName}`}>{value}</span>
+      <span className="text-right text-[#4d4d4d] [direction:rtl]">{label}</span>
+    </div>
+  );
+}
+
+function InfoNotice({ children, tone }: { children: string; tone: "blue" | "orange" }) {
+  const classes =
+    tone === "blue"
+      ? "bg-[#0048c414] text-[#0048c4]"
+      : "bg-[#fff5db] text-[#ff8a00]";
+
+  return (
+    <p className={`m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium leading-5 ${classes}`}>
+      {tone === "blue" ? <TagIcon className="h-5 w-5 shrink-0" /> : <CircleInfoIcon className="h-5 w-5 shrink-0" />}
+      <span>{children}</span>
+    </p>
   );
 }
 
@@ -229,12 +426,12 @@ function SelectionBox({
   return (
     <span
       aria-hidden="true"
-      className={`grid h-5 w-5 place-items-center rounded-md ${
+      className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${
         checked
           ? disabled
             ? "bg-[#b8b8b8] text-white"
             : "bg-[#0048c4] text-white"
-          : "border border-[#808080] bg-white text-transparent"
+          : "border border-[#b8b8b8] bg-white text-transparent"
       }`}
     >
       <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16">
@@ -254,11 +451,35 @@ function RadioIndicator({ active }: { active: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`grid h-5 w-5 place-items-center rounded-full border-2 ${
-        active ? "border-[#0057d9] bg-[#0057d9]" : "border-[#808080] bg-white"
+      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${
+        active ? "border-[#0057d9]" : "border-[#808080]"
       }`}
     >
-      {active ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
+      {active ? <span className="h-2.5 w-2.5 rounded-full bg-[#0057d9]" /> : null}
     </span>
+  );
+}
+
+function UpgradeSparkIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+      <path
+        d="M12 3.75l1.5 4.25 4.25 1.5-4.25 1.5L12 15.25l-1.5-4.25-4.25-1.5 4.25-1.5L12 3.75ZM18 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+    </svg>
+  );
+}
+
+function CircleInfoIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M10 9.25v4.25" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
+      <circle cx="10" cy="6.5" fill="currentColor" r="1" />
+    </svg>
   );
 }

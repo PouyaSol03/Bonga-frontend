@@ -94,22 +94,61 @@ export function Section({
   );
 }
 
+function ClearFieldButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      aria-label="پاک کردن"
+      className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border border-[#cccccc] text-[#a6a6a6] transition active:bg-[#f0f0f0]"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      type="button"
+    >
+      <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 12 12">
+        <path
+          d="M3.25 3.25l5.5 5.5M8.75 3.25l-5.5 5.5"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.5"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function FloatingFieldLabel({ show, text }: { show: boolean; text: string }) {
+  if (!show) return null;
+
+  return (
+    <span className="pointer-events-none absolute -top-2 right-4 max-w-[calc(100%-4rem)] truncate bg-white px-1 text-right text-xs font-normal leading-5 text-[#808080]">
+      {text}
+    </span>
+  );
+}
+
 export function InputBox({ value, placeholder, leftText, numeric, formatNumeric, supportingText, onChange }: { value: string; placeholder: string; leftText?: string; numeric?: boolean; formatNumeric?: boolean; supportingText?: string; onChange: (value: string) => void }) {
+  const hasValue = Boolean(value);
   const displayValue = numeric && formatNumeric && value
     ? formatPrice(Number(normalizeNumberInput(value).replace(/,/g, "")))
     : value;
+  const floatingLabel = leftText
+    ? placeholder.replace(/\s\*$/, ` (${leftText}) *`)
+    : placeholder;
 
   return (
     <div>
-      <label className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] [direction:ltr]">
-        {value ? (
-          <button aria-label="پاک کردن" className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#cccccc] text-[#a6a6a6]" onClick={() => onChange("")} type="button">×</button>
-        ) : leftText ? <span className="shrink-0 text-[#a6a6a6]">{leftText}</span> : null}
+      <label className="relative flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] transition focus-within:border-[#0048c4] [direction:ltr]">
+        <FloatingFieldLabel show={hasValue} text={floatingLabel} />
+        {hasValue ? (
+          <ClearFieldButton onClick={() => onChange("")} />
+        ) : leftText ? <span className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</span> : null}
         <input
           className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
           inputMode={numeric ? "numeric" : "text"}
           onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
-          placeholder={placeholder}
+          placeholder={hasValue ? "" : placeholder}
           value={displayValue}
         />
       </label>
@@ -126,38 +165,49 @@ export function SelectBox({
   value,
   placeholder,
   onClick,
+  onClear,
 }: {
   value: string;
   placeholder: string;
   onClick: () => void;
+  onClear?: () => void;
 }) {
+  const hasValue = Boolean(value);
+
   return (
     <button
-      className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:rtl]"
+      className="relative flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr]"
       onClick={onClick}
       type="button"
     >
+      <FloatingFieldLabel show={hasValue} text={placeholder} />
+      {hasValue && onClear ? (
+        <ClearFieldButton onClick={onClear} />
+      ) : null}
+
       <span
-        className={`min-w-0 flex-1 truncate text-right ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
+        className={`min-w-0 flex-1 truncate text-right [direction:rtl] ${hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
           }`}
       >
         {value || placeholder}
       </span>
 
-      <svg
-        aria-hidden="true"
-        className="h-5 w-5 shrink-0 text-[#4d4d4d]"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M7 10l5 5 5-5"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-      </svg>
+      {(!hasValue || !onClear) ? (
+        <svg
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 text-[#4d4d4d]"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M7 10l5 5 5-5"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+          />
+        </svg>
+      ) : null}
     </button>
   );
 }
@@ -269,7 +319,7 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex h-16 items-center justify-between border-y border-[#cccccc] [direction:ltr]">
+    <div className="flex pt-3 items-center justify-between border-t border-[#cccccc] [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
       <span className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">

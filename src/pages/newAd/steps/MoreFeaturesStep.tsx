@@ -89,6 +89,7 @@ export function MoreFeaturesStep({
               return (
                 <SelectBox
                   key={field.key}
+                  onClear={() => setDraftField(field.key, "")}
                   onClick={() => openSelect(field.key as MoreFeatureSelectKey, field.label)}
                   placeholder={field.label}
                   value={getDraftString(field.key)}

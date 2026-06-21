@@ -88,8 +88,8 @@ export function getMoreFeatureTags(
   }, []);
 }
 
-export function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
+export function navigateTo(path: string, state?: unknown) {
+  window.history.pushState(state ?? {}, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 

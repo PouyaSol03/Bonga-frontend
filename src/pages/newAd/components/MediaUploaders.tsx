@@ -230,13 +230,13 @@ export function VideoUploader() {
 
       {!video ? (
         <button
-          className="flex h-12 mb-4 w-full items-center justify-between rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4]"
+          className="flex p-4 mb-4 w-full items-center justify-between rounded-[10px] border border-[#0048c4] bg-white px-4 font-medium leading-5 text-[#0048c4]"
           onClick={() => inputRef.current?.click()}
           type="button"
         >
           <div className="flex gap-2">
-          <img src="/icons/video.svg" alt="" />
-          <span>انتخاب فیلم</span>
+            <img src="/icons/video.svg" alt="" />
+            <span>انتخاب فیلم</span>
           </div>
 
           <svg
@@ -255,7 +255,7 @@ export function VideoUploader() {
           </svg>
         </button>
       ) : (
-        <div className="rounded-[10px] border border-[#e0e0e0] bg-white px-3 py-2">
+        <div className="rounded-[10px] border border-[#CCCCCC] bg-white px-4 py-6">
           <div className="flex items-center justify-between gap-3 [direction:ltr]">
             <button
               aria-label="حذف فیلم"
@@ -263,15 +263,28 @@ export function VideoUploader() {
               onClick={removeVideo}
               type="button"
             >
-              ×
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 21.75C17.3847 21.75 21.75 17.3847 21.75 12C21.75 6.61522 17.3847 2.25 12 2.25C6.61522 2.25 2.25 6.61522 2.25 12C2.25 17.3847 6.61522 21.75 12 21.75Z"
+                  stroke="#4D4D4D"
+                  stroke-width="1.2"
+                />
+
+                <path
+                  d="M9.5 9.5L14.5 14.5M14.5 9.5L9.5 14.5"
+                  stroke="#4D4D4D"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                />
+              </svg>
             </button>
 
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <div className="truncate text-xs font-medium leading-5 text-[#1a1a1a]">
+              <div className="truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
                 {isUploading ? "در حال آپلود..." : video.name}
               </div>
 
-              <div className="text-[10px] leading-4 text-[#808080]">
+              <div className="text-xs leading-4 text-[#808080]">
                 {formatFileSize(video.size)}
               </div>
 
@@ -288,17 +301,12 @@ export function VideoUploader() {
             {!isUploading ? (
               <button
                 aria-label="نمایش فیلم"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]"
+                className="grid p-2 shrink-0 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]"
                 onClick={() => window.open(video.previewUrl, "_blank")}
                 type="button"
               >
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M8 5v14l11-7z" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6 6.54075C6 5.33729 7.32537 4.59989 8.35477 5.23063L17.2647 10.6899C18.2451 11.2906 18.2451 12.7095 17.2647 13.3101L8.35477 18.7693C7.32537 19.4001 6 18.6627 6 17.4592V6.54075Z" fill="#0048C4" />
                 </svg>
               </button>
             ) : null}

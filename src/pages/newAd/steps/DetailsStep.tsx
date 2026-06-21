@@ -46,6 +46,10 @@ function moneySupportingText(value: string) {
     : "";
 }
 
+function formatPersianCount(value: number) {
+  return new Intl.NumberFormat("fa-IR").format(value);
+}
+
 function ExchangeCheckIcon({ checked }: { checked: boolean }) {
   return (
     <span className={`grid h-6 w-6 place-items-center rounded-lg border ${checked ? "border-[#0048C4] bg-[#0048C4] text-white" : "border-[#808080] bg-white"}`}>
@@ -101,6 +105,14 @@ export function DetailsStep({
       return null;
     })
     .filter((item): item is { key: MoreFeatureFormKey; label: string } => Boolean(item));
+  const initialVisibleMoreFeatureTagCount = 4;
+  const hiddenMoreFeatureCount = Math.max(
+    registeredMoreFeatures.length - initialVisibleMoreFeatureTagCount,
+    0,
+  );
+  const visibleMoreFeatureTags = showRegisteredMoreFeatures
+    ? registeredMoreFeatures
+    : registeredMoreFeatures.slice(0, initialVisibleMoreFeatureTagCount);
 
   const facilityItemsForCategory = useMemo(
     () =>
@@ -374,6 +386,7 @@ export function DetailsStep({
                 return (
                   <SelectBox
                     key={field.key}
+                    onClear={() => setField(field.key, "")}
                     onClick={() =>
                       setSheet({
                         kind: "select",
@@ -392,37 +405,65 @@ export function DetailsStep({
 
               {!isDailyHotelRent && registeredMoreFeatures.length ? (
                 <div className="space-y-3 pt-2" dir="rtl">
+                  <div className="flex flex-wrap justify-start gap-2">
+                    {visibleMoreFeatureTags.map((item) => (
+                      <Tag
+                        key={item.key}
+                        label={item.label}
+                        onRemove={() => removeMoreFeature(item.key)}
+                      />
+                    ))}
+                  </div>
+
+                  {hiddenMoreFeatureCount > 0 ? (
+                    <button
+                      className="flex h-8 items-start justify-start gap-1.5 text-sm font-normal leading-5 text-[#808080] active:text-[#0048c4]"
+                      onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
+                      type="button"
+                    >
+                      <span>
+                        {showRegisteredMoreFeatures
+                          ? "نمایش کمتر"
+                          : `${formatPersianCount(hiddenMoreFeatureCount)} مشخصات دیگر`}
+                      </span>
+                      <svg
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d={showRegisteredMoreFeatures ? "M7 14l5-5 5 5" : "M7 10l5 5 5-5"}
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    </button>
+                  ) : null}
+
                   <button
-                    className="flex h-10 w-full items-center justify-between rounded-[10px] bg-[#f0f0f0] px-3 text-sm font-medium leading-5 text-[#4d4d4d]"
-                    onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
+                    className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
+                    onClick={onMoreFeatures}
                     type="button"
                   >
-                    <span>{registeredMoreFeatures.length} مشخصات دیگری که ثبت کرده‌اید</span>
-                    <span className="text-lg leading-none">{showRegisteredMoreFeatures ? "⌃" : "⌄"}</span>
+                    <span>ویرایش مشخصات</span>
+                    <span className="text-lg leading-none">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#4D4D4D" />
+                      </svg>
+                    </span>
                   </button>
-
-                  {showRegisteredMoreFeatures ? (
-                    <div className="flex flex-wrap justify-start gap-2">
-                      {registeredMoreFeatures.map((item) => (
-                        <Tag
-                          key={item.key}
-                          label={item.label}
-                          onRemove={() => removeMoreFeature(item.key)}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
                 </div>
-              ) : null}
-
-              {!isDailyHotelRent && moreFeatureFields.length ? (
+              ) : !isDailyHotelRent && moreFeatureFields.length ? (
                 <button
-                  className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4]"
+                  className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
                   onClick={onMoreFeatures}
                   type="button"
                 >
-                  <span>ثبت {moreFeatureFields.length} مشخصات دیگر</span>
-                  <span>‹</span>
+                  <span>ثبت {formatPersianCount(moreFeatureFields.length)} مشخصات دیگر</span>
+                  <span className="text-lg leading-none">‹</span>
                 </button>
               ) : null}
             </div>

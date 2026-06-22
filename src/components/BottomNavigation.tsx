@@ -50,7 +50,7 @@ const navigationItems: BottomNavigationItem[] = [
     key: "account",
     label: "حساب من",
     Icon: NavAccountIcon,
-    to: "/login",
+    to: "/account",
   },
 ];
 
@@ -86,12 +86,6 @@ export function BottomNavigation({
                 to={item.to}
                 aria-current={isActive ? "page" : undefined}
                 onClick={(event) => {
-                  if (item.key === "account" && !getStoredAuthSession()) {
-                    event.preventDefault();
-                    navigateTo("/login/phone");
-                    return;
-                  }
-
                   if (!isNewAd) return;
 
                   event.preventDefault();

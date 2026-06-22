@@ -40,7 +40,7 @@ import { viewAdDemo, parseAdIdFromPath } from "./viewAd/viewAdData";
 import { ViewAdIcon } from "./viewAd/ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
-import { storeLoginRedirectPath } from "../auth/auth-storage";
+import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 
 type AlbumMediaItem = {
   src: string;
@@ -2828,6 +2828,10 @@ function redirectToLoginProcess() {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function isLoggedIn() {
+  return Boolean(getStoredAuthSession());
+}
+
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
@@ -2926,16 +2930,31 @@ export function ViewAdPage() {
 
   const handleRowAction = (label: string) => {
     if (label.includes("بازخورد")) {
+      if (!isLoggedIn()) {
+        redirectToLoginProcess();
+        return;
+      }
+
       setIsFeedbackOpen(true);
       return;
     }
 
     if (label.includes("یادداشت")) {
+      if (!isLoggedIn()) {
+        redirectToLoginProcess();
+        return;
+      }
+
       setIsNoteOpen(true);
       return;
     }
 
     if (label.includes("گزارش") || label.includes("تخلف")) {
+      if (!isLoggedIn()) {
+        redirectToLoginProcess();
+        return;
+      }
+
       setIsViolationReportOpen(true);
       return;
     }
@@ -2943,24 +2962,60 @@ export function ViewAdPage() {
     showToast(`${label} برای نسخه نمایشی انتخاب شد`, "اطلاع", "info");
   };
 
-  const handleTopBarAction = (icon: IconName) => {
+  const handleTopBarAction = async (icon: IconName) => {
     if (icon === "note") {
+      if (!isLoggedIn()) {
+        redirectToLoginProcess();
+        return;
+      }
+
       setIsNoteOpen(true);
       return;
     }
 
     if (icon === "share") {
-      setIsContactSheetOpen(true);
+      const shareUrl = window.location.href;
+      const shareTitle = details.title || document.title;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            text: details.locationTitle || details.description,
+            title: shareTitle,
+            url: shareUrl,
+          });
+          return;
+        }
+
+        await navigator.clipboard.writeText(shareUrl);
+        showToast("لینک آگهی کپی شد");
+      } catch (shareError) {
+        if (shareError instanceof DOMException && shareError.name === "AbortError") {
+          return;
+        }
+
+        showToast("اشتراک‌گذاری با خطا مواجه شد.", "خطا", "error");
+      }
       return;
     }
 
     if (icon === "bookmark") {
+      if (!isLoggedIn()) {
+        redirectToLoginProcess();
+        return;
+      }
+
       if (!adId || toggleBadge.isPending) {
         return;
       }
 
       toggleBadge.mutate(adId, {
         onError: (badgeError) => {
+          if (isUnauthorizedApiError(badgeError)) {
+            redirectToLoginProcess();
+            return;
+          }
+
           showToast(
             getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."),
             "خطا",
@@ -2991,10 +3046,20 @@ export function ViewAdPage() {
       return;
     }
 
+    if (!isLoggedIn()) {
+      redirectToLoginProcess();
+      return;
+    }
+
     saveNote.mutate(
       { advertiseId: adId, note: cleanNote },
       {
         onError: (noteError) => {
+          if (isUnauthorizedApiError(noteError)) {
+            redirectToLoginProcess();
+            return;
+          }
+
           showToast(
             getApiErrorMessage(noteError, "ثبت یادداشت با خطا مواجه شد."),
             "خطا",
@@ -3011,6 +3076,11 @@ export function ViewAdPage() {
 
   const handleSubmitFeedback = (feedback: AdvertiseFeedbackPayload) => {
     if (!adId || submitFeedback.isPending) {
+      return;
+    }
+
+    if (!isLoggedIn()) {
+      redirectToLoginProcess();
       return;
     }
 
@@ -3045,6 +3115,11 @@ export function ViewAdPage() {
       return;
     }
 
+    if (!isLoggedIn()) {
+      redirectToLoginProcess();
+      return;
+    }
+
     submitReport.mutate(
       {
         advertiseId: adId,
@@ -3053,6 +3128,11 @@ export function ViewAdPage() {
       },
       {
         onError: (reportError) => {
+          if (isUnauthorizedApiError(reportError)) {
+            redirectToLoginProcess();
+            return;
+          }
+
           showToast(
             getApiErrorMessage(reportError, "ارسال گزارش تخلف با خطا مواجه شد."),
             "خطا",

@@ -5,16 +5,19 @@ import SearchErrors from "./SearchErrors";
 import { useCitySearchQuery } from "../../../hooks/city.hooks";
 import type { CityDto } from "../../../services/city.service";
 import { getRequestErrorState } from "../../../components/ErrorState";
+import { readStoredSelectedCity, saveSelectedCity } from "../../../lib/selectedCityStorage";
 
 type CitySelectionScreenProps = {
   currentCity: string;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (city: { id?: string; name: string }) => void;
+  onConfirm: (city: { id?: string; latitude?: number; longitude?: number; name: string }) => void;
 };
 
 type UiCityOption = {
   id: string;
+  latitude?: number;
+  longitude?: number;
   name: string;
   count: string;
 };
@@ -22,13 +25,15 @@ type UiCityOption = {
 function mapCityDtoToOption(city: CityDto): UiCityOption {
   return {
     id: String(city.id ?? city._id ?? ""),
+    latitude: city.lat,
+    longitude: city.lng,
     name: city.name,
     count: "0",
   };
 }
 
 function getStoredCityId() {
-  return window.localStorage.getItem("bonga-selected-city-id") ?? "";
+  return readStoredSelectedCity()?.id ?? "";
 }
 
 export function CitySelectionScreen({
@@ -88,9 +93,18 @@ export function CitySelectionScreen({
     const selectedCity = cityList.find((city) => city.id === selectedCityId);
 
     if (selectedCity) {
-      window.localStorage.setItem("bonga-selected-city-id", selectedCity.id ?? "");
-      window.localStorage.setItem("bonga-selected-city", selectedCity.name);
-      onConfirm({ id: selectedCity.id, name: selectedCity.name });
+      saveSelectedCity({
+        id: selectedCity.id,
+        latitude: selectedCity.latitude,
+        longitude: selectedCity.longitude,
+        name: selectedCity.name,
+      });
+      onConfirm({
+        id: selectedCity.id,
+        latitude: selectedCity.latitude,
+        longitude: selectedCity.longitude,
+        name: selectedCity.name,
+      });
     } else {
       onConfirm({ name: currentCity });
     }

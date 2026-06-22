@@ -3,9 +3,11 @@ import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { PageFrame } from "../../app/PageFrame";
 import { getBrowserLocation } from "../../lib/browserLocation";
+import { readStoredSelectedCity, selectedCityStorageKeys } from "../../lib/selectedCityStorage";
 import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
+import { getIpDefaultMapCenter } from "../search/searchMapLocation";
 import { Header } from "./components/NewAdControls";
 import {
   locationKey,
@@ -26,10 +28,40 @@ const defaultMapCenter: NewAdMapCenter = {
   lng: 59.5986,
   zoom: 15,
 };
+const selectedCityMapZoom = 12;
+const selectedNeighborhoodMapZoom = 16;
 const minNeighborhoodSearchLength = 3;
 
 function getStoredCityId() {
   return window.localStorage.getItem("bonga-selected-city-id") ?? "";
+}
+
+function getStoredSelectedCityCenter() {
+  const lat = Number(window.localStorage.getItem(selectedCityStorageKeys.latitude));
+  const lng = Number(window.localStorage.getItem(selectedCityStorageKeys.longitude));
+
+  if (
+    Number.isFinite(lat) &&
+    Math.abs(lat) <= 90 &&
+    Number.isFinite(lng) &&
+    Math.abs(lng) <= 180
+  ) {
+    return { lat, lng };
+  }
+
+  const selectedCity = readStoredSelectedCity();
+
+  if (
+    selectedCity?.latitude !== undefined &&
+    selectedCity.longitude !== undefined
+  ) {
+    return {
+      lat: selectedCity.latitude,
+      lng: selectedCity.longitude,
+    };
+  }
+
+  return null;
 }
 
 function getStoredMapCenter(): NewAdMapCenter {
@@ -40,11 +72,21 @@ function getStoredMapCenter(): NewAdMapCenter {
     return {
       lat: storedLat,
       lng: storedLng,
-      zoom: defaultMapCenter.zoom,
+      zoom: selectedNeighborhoodMapZoom,
     };
   }
 
-  return defaultMapCenter;
+  const selectedCityCenter = getStoredSelectedCityCenter();
+
+  if (selectedCityCenter) {
+    return {
+      lat: selectedCityCenter.lat,
+      lng: selectedCityCenter.lng,
+      zoom: selectedCityMapZoom,
+    };
+  }
+
+  return { ...defaultMapCenter, zoom: selectedCityMapZoom };
 }
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto | null) {
@@ -165,6 +207,32 @@ export function NewAdLocationPage() {
   }, []);
 
   useEffect(() => {
+    const selectedCityCenter = getStoredSelectedCityCenter();
+    const hasStoredLocation = Number.isFinite(Number(window.localStorage.getItem(locationLatKey))) &&
+      Number.isFinite(Number(window.localStorage.getItem(locationLngKey)));
+
+    if (hasStoredLocation || selectedCityCenter) {
+      return;
+    }
+
+    let isActive = true;
+
+    void getIpDefaultMapCenter().then((ipCenter) => {
+      if (!isActive || !ipCenter) return;
+
+      setMapCenter({
+        lat: ipCenter.latitude,
+        lng: ipCenter.longitude,
+        zoom: ipCenter.zoom ?? selectedCityMapZoom,
+      });
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!neighborhoodByLocationQuery.data) return;
 
     setSelectedNeighborhood(neighborhoodByLocationQuery.data);
@@ -178,7 +246,7 @@ export function NewAdLocationPage() {
       setMapCenter({
         lat: Number(neighborhood.lat),
         lng: Number(neighborhood.lng),
-        zoom: Math.max(mapCenter.zoom, 16),
+        zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
       });
     }
   };
@@ -188,7 +256,7 @@ export function NewAdLocationPage() {
       setMapCenter({
         lat: location.latitude,
         lng: location.longitude,
-        zoom: Math.max(mapCenter.zoom, 16),
+        zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
       });
     });
   };
@@ -234,10 +302,7 @@ export function NewAdLocationPage() {
         </button>
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-full">
-          <div className="relative grid h-12 w-12 place-items-center rounded-full bg-[#12a36a] text-white shadow-[0_8px_18px_rgba(18,163,106,0.35)]">
-            <span className="h-5 w-5 rounded-full border-[5px] border-white bg-[#12a36a]" />
-            <span className="absolute -bottom-2 h-4 w-4 rotate-45 rounded-br-[4px] bg-[#12a36a]" />
-          </div>
+          <MapPickerPinIcon />
         </div>
 
         <section className="absolute inset-x-0 bottom-0 z-30 rounded-t-[24px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-12px_28px_rgba(26,26,26,0.14)]">
@@ -311,6 +376,29 @@ export function NewAdLocationPage() {
         </section>
       </main>
     </PageFrame>
+  );
+}
+
+
+function MapPickerPinIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-[42px] w-[31px] drop-shadow-[0_8px_14px_rgba(26,26,26,0.18)]"
+      fill="none"
+      viewBox="0 0 31 42"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <ellipse cx="15" cy="40.5" fill="#1A1A1A" fillOpacity="0.12" rx="6" ry="1.5" />
+      <path
+        d="M20.7379 30.0613C26.7208 27.9158 31 22.199 31 15.4839C31 6.93237 24.0604 0 15.5 0C6.93959 0 0 6.93237 0 15.4839C0 22.1987 4.27872 27.9152 10.2612 30.061C12.3965 30.9288 14.2083 32.6522 14.2083 34.8387V38.7097C14.2083 39.4223 14.7866 40 15.5 40C16.2133 40 16.7916 39.4223 16.7916 38.7097V34.8387C16.7916 32.6525 18.6029 30.9292 20.7379 30.0613Z"
+        fill="#11A366"
+      />
+      <path
+        d="M15.5 21C17.16 21 18.575 20.415 19.745 19.245C20.915 18.075 21.5 16.66 21.5 15C21.5 13.34 20.915 11.925 19.745 10.755C18.575 9.585 17.16 9 15.5 9C13.84 9 12.425 9.585 11.255 10.755C10.085 11.925 9.5 13.34 9.5 15C9.5 16.66 10.085 18.075 11.255 19.245C12.425 20.415 13.84 21 15.5 21Z"
+        fill="white"
+      />
+    </svg>
   );
 }
 

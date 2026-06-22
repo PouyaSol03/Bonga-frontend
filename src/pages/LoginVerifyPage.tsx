@@ -126,7 +126,7 @@ export function LoginVerifyPage() {
 
     try {
       await verifyOtpMutation.mutateAsync({ code, mobile });
-      const redirectPath = consumeLoginRedirectPath() || "/login";
+      const redirectPath = consumeLoginRedirectPath() || "/account";
       window.history.pushState({ state: "new" }, "", redirectPath);
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {

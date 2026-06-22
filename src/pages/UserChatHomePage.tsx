@@ -682,15 +682,15 @@ function ChatBubble({
           }`}
         dir="rtl"
       >
-        <p className="whitespace-pre-line text-[11px] font-normal leading-[18px] text-[#1a1a1a]">
+        <p className="whitespace-pre-line text-sm font-normal leading-[18px] text-[#1a1a1a]">
           {children}
         </p>
         <div
-          className={`mt-1 flex items-center gap-1 text-[10px] font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-[#0048c4]" : "justify-start text-[#808080]"
+          className={`mt-1 flex items-center gap-1 text-sm font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-[#0048c4]" : "justify-start text-[#808080]"
             }`}
         >
           <span>{time}</span>
-          {isOutgoing ? <DoubleTickIcon className="h-3.5 w-3.5 text-[#0048c4]" /> : null}
+          {isOutgoing ? <DoubleTickIcon className="h-5 w-5 text-[#0048c4]" /> : null}
         </div>
       </div>
     </div>
@@ -779,9 +779,23 @@ function ChatComposer({
   onOpenAttach: () => void;
   onSend: () => void;
 }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const sentByPointerRef = useRef(false);
+
+  const keepKeyboardOpen = () => {
+    inputRef.current?.focus({ preventScroll: true });
+  };
+
+  const sendFromComposer = () => {
+    onSend();
+
+    // Keep focus on the input so mobile keyboard does not close
+    keepKeyboardOpen();
+  };
+
   return (
-    <footer className="shrink-0 bg-transparent px-2 pb-4 pt-1">
-      <div className="flex items-center gap-2 rounded-full border border-transparent p-1.5 [direction:ltr] shadow-[0_-1px_0px_0px_#FFFFFF] [background:linear-gradient(#CCCCCC29,#CCCCCC29)_padding-box,linear-gradient(to_bottom,transparent,#CCCCCC29)_border-box]">
+    <footer className="shrink-0 bg-transparent px-2 pb-4 pt-1 bg">
+      <div className="flex items-center gap-2 rounded-full border border-transparent p-1.5 [direction:ltr] shadow-[0_1px_0px_0px_#1A1A1A14] bg-gray-100">
         <button
           aria-label="ارسال فایل"
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#808080] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
@@ -794,6 +808,7 @@ function ChatComposer({
         <label className="min-w-0 flex-1">
           <span className="sr-only">پیام خود را بنویسید</span>
           <input
+            ref={inputRef}
             className="h-11 w-full rounded-xl border-0 px-2 text-right text-[12px] leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:ring-0"
             dir="rtl"
             placeholder="پیام خود را بنویسید"
@@ -802,7 +817,8 @@ function ChatComposer({
             onChange={(event) => onChangeMessage(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
-                onSend();
+                event.preventDefault();
+                sendFromComposer();
               }
             }}
           />
@@ -811,7 +827,21 @@ function ChatComposer({
         <button
           aria-label="ارسال پیام"
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#0048c4] text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
-          onClick={onSend}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            sentByPointerRef.current = true;
+            sendFromComposer();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+
+            if (sentByPointerRef.current) {
+              sentByPointerRef.current = false;
+              return;
+            }
+
+            sendFromComposer();
+          }}
           type="button"
         >
           <SendMessageIcon className="h-6 w-6" />
@@ -940,7 +970,7 @@ export function UserChatDetailPage() {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const imageObjectUrlsRef = useRef<string[]>([]);
-  const [hasMoreMessagesBelow, setHasMoreMessagesBelow] = useState(false);
+  const [, setHasMoreMessagesBelow] = useState(false);
 
   const updateScrollShadow = useCallback(() => {
     const scrollElement = chatScrollRef.current;
@@ -1074,7 +1104,7 @@ export function UserChatDetailPage() {
         <main
           ref={chatScrollRef}
           onScroll={updateScrollShadow}
-          className="h-full overflow-y-auto bg-white px-2.5 pb-14 pt-3"
+          className="h-full overflow-y-auto bg-white px-2.5 pb-[92px] pt-3"
         >
           <AgencyResponseCard />
 
@@ -1097,12 +1127,6 @@ export function UserChatDetailPage() {
             ))}
           </div>
         </main>
-
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 h-14 bg-gradient-to-t from-white via-white/85 to-transparent transition-opacity duration-200 ${hasMoreMessagesBelow ? "opacity-100" : "opacity-0"
-            }`}
-        />
       </div>
 
       <input
@@ -1126,12 +1150,19 @@ export function UserChatDetailPage() {
         type="file"
       />
 
-      <ChatComposer
-        message={draftMessage}
-        onChangeMessage={setDraftMessage}
-        onOpenAttach={() => setIsSendFileSheetOpen(true)}
-        onSend={() => sendMessage()}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[15px] bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.88)_42%,#fff_100%)]"
       />
+
+      <div className="absolute inset-x-0 bottom-0 z-30">
+        <ChatComposer
+          message={draftMessage}
+          onChangeMessage={setDraftMessage}
+          onOpenAttach={() => setIsSendFileSheetOpen(true)}
+          onSend={() => sendMessage()}
+        />
+      </div>
       <SendFileBottomSheet
         isOpen={isSendFileSheetOpen}
         onClose={() => setIsSendFileSheetOpen(false)}

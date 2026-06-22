@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
-import { useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
+import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import {
@@ -8,7 +8,12 @@ import {
   getBrowserLocationNotice,
   type BrowserLocation,
 } from "../../lib/browserLocation";
-import type { AdvertisementItem } from "../../services/advertisement.service";
+import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+import type {
+  AdvertisementItem,
+  AdvertisementListParams,
+  AdvertisementSearchFilters,
+} from "../../services/advertisement.service";
 import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
@@ -17,7 +22,6 @@ import { SearchMapListView } from "./components/SearchMapListView";
 import { SearchMapView } from "./components/SearchMapView";
 import {
   SEARCH_MAP_DEMO_PHOTO,
-  searchFilterChips,
   searchMapCenter,
   searchMapTileConfig,
   type SearchFilterChip,
@@ -29,9 +33,54 @@ import {
 import { getIpDefaultMapCenter } from "./searchMapLocation";
 
 type SearchMapMode = "map" | "preview" | "list";
+type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
 
 const mapRequestLimit = 100;
+const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
+const filterableParamKeys = [
+  "form_code",
+  "from_code",
+  "neighborhood_id",
+  "neighborhoods",
+  "area_min",
+  "area_max",
+  "price_min",
+  "price_max",
+  "rooms",
+  "floor",
+  "building_age",
+  "published_at",
+  "is_special",
+  "has_image",
+  "has_video",
+];
+
+const formCodeLabels: Record<string, string> = {
+  partnership: "مشارکت",
+  "presale-special": "پیش فروش پروژه",
+  "daily-apartment-suite": "اجاره روزانه آپارتمان",
+  "daily-garden-villa": "اجاره روزانه باغ ویلا",
+  "daily-hotel": "اجاره روزانه هتل",
+  "daily-office-booth": "اجاره روزانه دفتر کار",
+  "rent-apartment": "اجاره آپارتمان",
+  "rent-commercial": "اجاره واحد تجاری",
+  "rent-factory-workshop": "اجاره کارخانه و کارگاه",
+  "rent-garden-villa": "اجاره باغ ویلا",
+  "rent-hotel": "اجاره هتل",
+  "rent-office": "اجاره واحد اداری",
+  "rent-villa-house": "اجاره خانه ویلایی",
+  "rent-warehouse": "اجاره انبار و سوله",
+  "sale-apartment": "فروش آپارتمان",
+  "sale-commercial": "فروش واحد تجاری",
+  "sale-factory": "فروش کارخانه و کارگاه",
+  "sale-garden-villa": "فروش باغ ویلا",
+  "sale-hotel": "فروش هتل",
+  "sale-land": "فروش زمین",
+  "sale-office": "فروش واحد اداری",
+  "sale-villa-house": "فروش خانه ویلایی",
+  "sale-warehouse": "فروش انبار و سوله",
+};
 
 const persianDigitMap: Record<string, string> = {
   "0": "۰",
@@ -81,6 +130,206 @@ const englishDigitMap: Record<string, string> = {
 
 function getSearchParams() {
   return new URLSearchParams(window.location.search);
+}
+
+function getSearchParamsFromSnapshot(search: string) {
+  return new URLSearchParams(search);
+}
+
+function getInitialSearchMode(): SearchMapMode {
+  return getSearchParams().get("view") === "list" ? "list" : "map";
+}
+
+function writeSearchParams(params: URLSearchParams, options: { replace?: boolean } = {}) {
+  const queryString = params.toString();
+  const nextUrl = queryString ? `/search?${queryString}` : "/search";
+
+  if (options.replace) {
+    window.history.replaceState({}, "", nextUrl);
+  } else {
+    window.history.pushState({}, "", nextUrl);
+  }
+
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function ensureFilterFormCode(params: URLSearchParams) {
+  if (!params.get("form_code") && !params.get("from_code")) {
+    params.set("form_code", "sale-apartment");
+    params.set("from_code", "sale-apartment");
+  }
+}
+
+function getFilterOpenTarget(chip: SearchFilterChip): string {
+  if (chip.id === "category") return "category";
+  if (chip.id === "neighborhood") return "neighborhood";
+  if (chip.id === "area") return "area";
+  if (chip.id === "price") return "price";
+  if (chip.id === "rooms") return "rooms";
+  if (chip.id === "floor") return "floor";
+  if (chip.id === "building_age") return "age";
+
+  return "filters";
+}
+
+function buildFilterPageUrl(chip: SearchFilterChip) {
+  const params = getSearchParams();
+  const target = getFilterOpenTarget(chip);
+
+  if (target !== "filters" && target !== "category") {
+    ensureFilterFormCode(params);
+  }
+
+  params.set("focus", target);
+
+  return `/search/filter?${params.toString()}`;
+}
+
+function getActiveFilterCount(params: URLSearchParams) {
+  const uniqueFilterKeys = new Set<string>();
+
+  filterableParamKeys.forEach((key) => {
+    if (!params.get(key)) return;
+
+    if (key === "from_code") {
+      uniqueFilterKeys.add("form_code");
+      return;
+    }
+
+    if (key === "neighborhoods") {
+      uniqueFilterKeys.add("neighborhood_id");
+      return;
+    }
+
+    if (key === "area_min" || key === "area_max") {
+      uniqueFilterKeys.add("area");
+      return;
+    }
+
+    if (key === "price_min" || key === "price_max") {
+      uniqueFilterKeys.add("price");
+      return;
+    }
+
+    uniqueFilterKeys.add(key);
+  });
+
+  return uniqueFilterKeys.size;
+}
+
+function formatRangeChipLabel(title: string, minimum?: string | null, maximum?: string | null) {
+  if (minimum && maximum) return `${title}: ${toPersianDigits(minimum)} تا ${toPersianDigits(maximum)}`;
+  if (minimum) return `${title}: از ${toPersianDigits(minimum)}`;
+  if (maximum) return `${title}: تا ${toPersianDigits(maximum)}`;
+
+  return title;
+}
+
+function getDynamicFilterChips(search: string): SearchFilterChip[] {
+  const params = getSearchParamsFromSnapshot(search);
+  const formCode = params.get("form_code") || params.get("from_code") || "";
+  const neighborhoods = (params.get("neighborhood_id") || params.get("neighborhoods") || "")
+    .split(/[_،,]/)
+    .filter(Boolean);
+  const activeFilterCount = getActiveFilterCount(params);
+  const chips: SearchFilterChip[] = [
+    {
+      id: "filters",
+      label: activeFilterCount > 0 ? `${toPersianDigits(activeFilterCount)} فیلتر` : "فیلترها",
+      isActive: activeFilterCount > 0,
+    },
+  ];
+
+  chips.push({
+    id: "category",
+    label: formCode ? formCodeLabels[formCode] ?? formCode : "دسته‌بندی",
+    isActive: Boolean(formCode),
+    removable: Boolean(formCode),
+  });
+
+  if (neighborhoods.length > 0) {
+    chips.push({
+      id: "neighborhood",
+      label: `${toPersianDigits(neighborhoods.length)} محله`,
+      isActive: true,
+      removable: true,
+    });
+  } else {
+    chips.push({ id: "neighborhood", label: "محله" });
+  }
+
+  if (params.get("area_min") || params.get("area_max")) {
+    chips.push({
+      id: "area",
+      label: formatRangeChipLabel("متراژ", params.get("area_min"), params.get("area_max")),
+      isActive: true,
+      removable: true,
+    });
+  } else {
+    chips.push({ id: "area", label: "متراژ" });
+  }
+
+  if (params.get("price_min") || params.get("price_max")) {
+    chips.push({
+      id: "price",
+      label: formatRangeChipLabel("قیمت", params.get("price_min"), params.get("price_max")),
+      isActive: true,
+      removable: true,
+    });
+  } else {
+    chips.push({ id: "price", label: "قیمت" });
+  }
+
+  if (params.get("rooms")) {
+    chips.push({ id: "rooms", label: `اتاق: ${toPersianDigits(params.get("rooms")?.replace(/_/g, "، ") ?? "")}`, isActive: true, removable: true });
+  }
+
+  if (params.get("floor")) {
+    chips.push({ id: "floor", label: `طبقه: ${toPersianDigits(params.get("floor")?.replace(/_/g, "، ") ?? "")}`, isActive: true, removable: true });
+  }
+
+  if (params.get("building_age")) {
+    chips.push({ id: "building_age", label: `سن ساخت: ${toPersianDigits(params.get("building_age") ?? "")}`, isActive: true, removable: true });
+  }
+
+  return chips;
+}
+
+function removeFilterFromSearch(chip: SearchFilterChip) {
+  const params = getSearchParams();
+
+  switch (chip.id as SearchFilterChipId) {
+    case "category":
+      params.delete("form_code");
+      params.delete("from_code");
+      break;
+    case "neighborhood":
+      params.delete("neighborhood_id");
+      params.delete("neighborhoods");
+      break;
+    case "area":
+      params.delete("area_min");
+      params.delete("area_max");
+      break;
+    case "price":
+      params.delete("price_min");
+      params.delete("price_max");
+      break;
+    case "rooms":
+      params.delete("rooms");
+      break;
+    case "floor":
+      params.delete("floor");
+      break;
+    case "building_age":
+      params.delete("building_age");
+      break;
+    default:
+      break;
+  }
+
+  params.delete("focus");
+  writeSearchParams(params);
 }
 
 function toPersianDigits(value: unknown) {
@@ -359,15 +608,35 @@ function roundCoordinate(value: number) {
   return Number(value.toFixed(6));
 }
 
-function buildMapQueryParams(bounds: SearchMapBounds | null) {
+function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters {
+  return {
+    areaMax: params.get("area_max") || undefined,
+    areaMin: params.get("area_min") || undefined,
+    buildingAge: params.get("building_age") || undefined,
+    floor: params.get("floor") || undefined,
+    formCode: params.get("form_code") || params.get("from_code") || undefined,
+    hasImage: params.get("has_image") || undefined,
+    hasVideo: params.get("has_video") || undefined,
+    isSpecial: params.get("is_special") || undefined,
+    neighborhoodId:
+      params.get("neighborhood_id") || params.get("neighborhoods") || undefined,
+    priceMax: params.get("price_max") || undefined,
+    priceMin: params.get("price_min") || undefined,
+    publishedAt: params.get("published_at") || undefined,
+    query: params.get("query") || params.get("q") || params.get("qsearch") || undefined,
+    rooms: params.get("rooms") || undefined,
+  };
+}
+
+function buildMapQueryParams(bounds: SearchMapBounds | null, search: string) {
   if (!bounds) return null;
 
-  const params = getSearchParams();
+  const params = getSearchParamsFromSnapshot(search);
   const cityId = params.get("city_id") || "";
-  const categoryId = params.get("category_id") || params.get("categoryId") || "";
+  const filters = readSearchFilters(params);
 
   return {
-    categoryId,
+    filters,
     ...(cityId ? { cityId } : {}),
     east: roundCoordinate(bounds.east),
     limit: mapRequestLimit,
@@ -377,8 +646,39 @@ function buildMapQueryParams(bounds: SearchMapBounds | null) {
   };
 }
 
+function buildListQueryParams(search: string): AdvertisementListParams {
+  const params = getSearchParamsFromSnapshot(search);
+
+  return {
+    cityId: params.get("city_id") || undefined,
+    filters: readSearchFilters(params),
+    page: 1,
+    perPage: 20,
+  };
+}
+
 function filterListings(listings: SearchMapListing[], _chips: SearchFilterChip[]) {
   return listings;
+}
+
+function getInitialMapCenter(): SearchMapCenter {
+  const selectedCity = readStoredSelectedCity();
+
+  if (
+    selectedCity?.latitude !== undefined &&
+    selectedCity.longitude !== undefined
+  ) {
+    return {
+      latitude: selectedCity.latitude,
+      longitude: selectedCity.longitude,
+      zoom: selectedCityMapZoom,
+    };
+  }
+
+  return {
+    ...searchMapCenter,
+    zoom: selectedCityMapZoom,
+  };
 }
 
 export function SearchMapPage() {
@@ -386,23 +686,29 @@ export function SearchMapPage() {
   const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
     () => new Set(),
   );
-  const [mode, setMode] = useState<SearchMapMode>("preview");
-  const [chips] = useState(searchFilterChips);
+  const [mode, setMode] = useState<SearchMapMode>(getInitialSearchMode);
   const [isDrawMode, setIsDrawMode] = useState(false);
   const [isLocated, setIsLocated] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [mapCenter, setMapCenter] = useState<SearchMapCenter>(searchMapCenter);
+  const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
   const [stableListings, setStableListings] = useState<SearchMapListing[]>([]);
   const didResolveIpLocationRef = useRef(false);
-  const [queryLabel, setQueryLabel] = useState(
-    getSearchParams().get("qsearch") || searchDefaultLabel,
-  );
+  const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
   const { message, showNotice } = useDemoNotice();
-  const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds), [mapBounds]);
+  const currentSearch = searchSnapshot;
+  const chips = useMemo(() => getDynamicFilterChips(currentSearch), [currentSearch]);
+  const queryLabel = useMemo(() => {
+    const params = getSearchParamsFromSnapshot(currentSearch);
+
+    return params.get("qsearch") || params.get("query") || params.get("q") || searchDefaultLabel;
+  }, [currentSearch]);
+  const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds, currentSearch), [currentSearch, mapBounds]);
+  const listQueryParams = useMemo(() => buildListQueryParams(currentSearch), [currentSearch]);
   const mapQuery = useAdvertisementMapQuery(mapQueryParams);
+  const listQuery = useAdvertisementListQuery(listQueryParams);
   const apiListings = useMemo(
     () =>
       (mapQuery.data ?? [])
@@ -410,11 +716,46 @@ export function SearchMapPage() {
         .filter((item): item is SearchMapListing => item !== null),
     [mapQuery.data],
   );
+  const apiListListings = useMemo(
+    () =>
+      (listQuery.data?.data ?? [])
+        .map((item, index) => {
+          const listing = mapAdvertisementToSearchListing(item, index);
+
+          if (listing) return listing;
+
+          return mapAdvertisementToSearchListing(
+            {
+              ...item,
+              lat: mapCenter.latitude,
+              lng: mapCenter.longitude,
+            },
+            index,
+          );
+        })
+        .filter((item): item is SearchMapListing => item !== null),
+    [listQuery.data, mapCenter.latitude, mapCenter.longitude],
+  );
   const isMapLoading = !mapQueryParams || (mapQuery.isFetching && stableListings.length === 0);
+  const isListLoading = listQuery.isFetching && apiListListings.length === 0;
   const visibleListings = useMemo(
     () => filterListings(stableListings, chips),
     [chips, stableListings],
   );
+
+  useEffect(() => {
+    const handleSearchSnapshotChange = () => {
+      const nextSearch = window.location.search;
+
+      setSearchSnapshot(nextSearch);
+      setMode(getInitialSearchMode());
+      setSelectedListingId(null);
+    };
+
+    window.addEventListener("popstate", handleSearchSnapshotChange);
+
+    return () => window.removeEventListener("popstate", handleSearchSnapshotChange);
+  }, []);
 
   useEffect(() => {
     if (!mapQuery.isSuccess) return;
@@ -424,6 +765,13 @@ export function SearchMapPage() {
 
   useEffect(() => {
     if (didResolveIpLocationRef.current) return;
+    const selectedCity = readStoredSelectedCity();
+    if (
+      selectedCity?.latitude !== undefined &&
+      selectedCity.longitude !== undefined
+    ) {
+      return;
+    }
 
     didResolveIpLocationRef.current = true;
 
@@ -460,6 +808,12 @@ export function SearchMapPage() {
   }, [mapQuery.error, mapQuery.isError, showNotice]);
 
   useEffect(() => {
+    if (!listQuery.isError) return;
+
+    showNotice(getApiErrorMessage(listQuery.error, "دریافت لیست آگهی‌ها با خطا مواجه شد."));
+  }, [listQuery.error, listQuery.isError, showNotice]);
+
+  useEffect(() => {
     if (selectedListingId == null) return;
 
     const selectedListingExists = visibleListings.some(
@@ -488,9 +842,13 @@ export function SearchMapPage() {
     });
   }, []);
 
-  const toggleChip = (_chip: SearchFilterChip) => {
-    window.history.pushState({}, "", "/search/filter");
+  const toggleChip = (chip: SearchFilterChip) => {
+    window.history.pushState({}, "", buildFilterPageUrl(chip));
     window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const handleRemoveChip = (chip: SearchFilterChip) => {
+    removeFilterFromSearch(chip);
   };
 
   const handleSelectListing = (listing: SearchMapListing) => {
@@ -523,11 +881,13 @@ export function SearchMapPage() {
       params.set("city_id", cityId);
     }
 
-    setQueryLabel(item.title);
+    params.delete("focus");
+    params.delete("category_id");
+    params.delete("categoryId");
     setIsSearchOpen(false);
     setSelectedListingId(null);
     setMode("map");
-    window.history.replaceState({}, "", `/search?${params.toString()}`);
+    writeSearchParams(params, { replace: true });
   };
 
   const locateUser = () => {
@@ -565,9 +925,14 @@ export function SearchMapPage() {
     <div className="relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]">
       {isFullListOpen ? (
         <SearchMapListView
-          isLoading={isMapLoading}
-          listings={visibleListings}
-          onMapClick={() => setMode("map")}
+          isLoading={isListLoading}
+          listings={apiListListings}
+          onMapClick={() => {
+            const params = getSearchParams();
+            params.delete("view");
+            writeSearchParams(params, { replace: true });
+            setMode("map");
+          }}
         />
       ) : (
         <SearchMapView
@@ -588,6 +953,7 @@ export function SearchMapPage() {
         savedCount={2}
         chips={chips}
         onChipClick={toggleChip}
+        onChipRemove={handleRemoveChip}
         queryLabel={queryLabel}
         onSearchClick={() => setIsSearchOpen(true)}
       />
@@ -603,6 +969,10 @@ export function SearchMapPage() {
           showNotice(isDrawMode ? "انتخاب محدوده پایان یافت" : "محدوده موردنظر را روی نقشه مشخص کنید");
         }}
         onListClick={() => {
+          const params = getSearchParams();
+          params.set("view", "list");
+          params.delete("focus");
+          writeSearchParams(params, { replace: true });
           setSelectedListingId(null);
           setMode("list");
         }}

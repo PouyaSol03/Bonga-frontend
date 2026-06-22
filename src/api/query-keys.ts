@@ -35,18 +35,18 @@ export const queryKeys = {
   advertisements: {
     all: ["advertisements"] as const,
     detail: (id: string) => [...queryKeys.advertisements.all, "detail", id] as const,
-    list: (filters: { categoryId?: string; cityId?: string; perPage: number }) =>
+    list: (filters: { cityId?: string; filters?: unknown; perPage: number }) =>
       [
         ...queryKeys.advertisements.all,
         "list",
         filters.cityId ?? "",
-        filters.categoryId ?? "",
+        JSON.stringify(filters.filters ?? {}),
         filters.perPage,
       ] as const,
     map: (filters: {
-      categoryId?: string;
       cityId?: string;
       east?: number;
+      filters?: unknown;
       limit?: number;
       north?: number;
       south?: number;
@@ -56,7 +56,7 @@ export const queryKeys = {
         ...queryKeys.advertisements.all,
         "map",
         filters.cityId ?? "",
-        filters.categoryId ?? "",
+        JSON.stringify(filters.filters ?? {}),
         filters.north ?? "",
         filters.south ?? "",
         filters.east ?? "",

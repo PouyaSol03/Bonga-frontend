@@ -20,6 +20,7 @@ import {
 } from "../services/advertisement.service";
 import type { CategoryItem } from "../services/category.service";
 import { getRequestErrorState } from "../components/ErrorState";
+import { readStoredSelectedCity } from "../lib/selectedCityStorage";
 
 import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
 import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";
@@ -32,6 +33,62 @@ const categoryIconMap: Record<string, string> = {
   project: ProjectCategoryIcon,
   consultants: ConsultantCategoryIcon,
 };
+
+const categoryFormCodeLabelMap: Record<string, string> = {
+  "فروش:آپارتمان": "sale-apartment",
+  "فروش:خانه ویلایی": "sale-villa-house",
+  "فروش:زمین": "sale-land",
+  "فروش:باغ، ویلا": "sale-garden-villa",
+  "فروش:دفتر کار، اتاق اداری و مطب": "sale-office",
+  "فروش:واحد اداری": "sale-office",
+  "فروش:مغازه و غرفه": "sale-commercial",
+  "فروش:واحد تجاری": "sale-commercial",
+  "فروش:صنعتی، کشاورزی و تجاری": "sale-warehouse",
+  "فروش:انبار، سوله": "sale-warehouse",
+  "فروش:کارخانه، کارگاه": "sale-factory",
+  "فروش:اقامتگاه و هتل": "sale-hotel",
+  "فروش:هتل، هتل آپارتمان": "sale-hotel",
+  "اجاره:آپارتمان": "rent-apartment",
+  "اجاره:خانه ویلایی": "rent-villa-house",
+  "اجاره:باغ، ویلا": "rent-garden-villa",
+  "اجاره:اتاق و سوییت": "daily-apartment-suite",
+  "اجاره:آپارتمان، سوئیت": "daily-apartment-suite",
+  "اجاره:دفتر کار، اتاق اداری و مطب": "rent-office",
+  "اجاره:واحد اداری": "rent-office",
+  "اجاره:مغازه و غرفه": "rent-commercial",
+  "اجاره:واحد تجاری": "rent-commercial",
+  "اجاره:انبار و کارگاه": "rent-warehouse",
+  "اجاره:انبار، سوله": "rent-warehouse",
+  "اجاره:کارخانه، کارگاه": "rent-factory-workshop",
+  "اجاره:اقامتگاه و هتل": "rent-hotel",
+  "اجاره:هتل، هتل آپارتمان": "rent-hotel",
+  "پروژه:مسکونی": "presale-special",
+  "پروژه:اداری و تجاری": "presale-special",
+  "پروژه:ویلایی": "presale-special",
+  "پروژه:زمین": "partnership",
+  "پروژه:پیش فروش، فروش پروژه": "presale-special",
+  "پروژه:مشارکت": "partnership",
+};
+
+const knownAdvertiseFormCodes = new Set(Object.values(categoryFormCodeLabelMap));
+
+function normalizeCategoryCodeAsFormCode(code?: string) {
+  if (!code) return "";
+  if (knownAdvertiseFormCodes.has(code)) return code;
+  if (/^(sale|rent|daily)-/.test(code) || code === "partnership" || code === "presale-special") return code;
+
+  return "";
+}
+
+function getCategorySelectionFormCode(category: CategoryOption | QuickAction | undefined, parent: QuickAction | null) {
+  const directFormCode = normalizeCategoryCodeAsFormCode(category?.formCode ?? category?.code);
+
+  if (directFormCode) return directFormCode;
+
+  if (!category || !parent) return "";
+
+  return categoryFormCodeLabelMap[`${parent.label}:${category.label}`] ?? "";
+}
 
 const businessBannerSlides = [
   {
@@ -61,6 +118,8 @@ type SelectedCity = {
 
 function mapCategoryToQuickAction(category: CategoryItem): QuickAction {
   return {
+    code: category.code,
+    formCode: normalizeCategoryCodeAsFormCode(category.code),
     id: category.id,
     label: category.name,
     icon: categoryIconMap[category.code] ?? SaleCategoryIcon,
@@ -70,6 +129,8 @@ function mapCategoryToQuickAction(category: CategoryItem): QuickAction {
 
 function mapCategoryToOption(category: CategoryItem): CategoryOption {
   return {
+    code: category.code,
+    formCode: normalizeCategoryCodeAsFormCode(category.code),
     id: category.id,
     label: category.name,
     children: category.children?.map(mapCategoryToOption) ?? [],
@@ -77,6 +138,15 @@ function mapCategoryToOption(category: CategoryItem): CategoryOption {
 }
 
 function getStoredCity(): SelectedCity {
+  const storedCity = readStoredSelectedCity();
+
+  if (storedCity) {
+    return {
+      id: storedCity.id,
+      name: storedCity.name,
+    };
+  }
+
   return {
     id: window.localStorage.getItem("bonga-selected-city-id") ?? undefined,
     name:
@@ -116,7 +186,7 @@ export function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
   );
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedFormCode, setSelectedFormCode] = useState("");
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
@@ -140,8 +210,8 @@ export function HomePage() {
     isLoading: isAdvertisementLoading,
     refetch: refetchAdvertisements,
   } = useAdvertisementInfiniteQuery({
-    categoryId: selectedCategoryId,
     cityId: selectedCity.id,
+    filters: selectedFormCode ? { formCode: selectedFormCode } : undefined,
     perPage: 10,
   });
 
@@ -189,7 +259,7 @@ export function HomePage() {
     [fetchNextPage, hasNextPage, isFetchingNextPage],
   );
 
-  const navigateToSearch = (options: { categoryId?: string; qsearch?: string } = {}) => {
+  const navigateToSearch = (options: { formCode?: string; qsearch?: string } = {}) => {
     const params = new URLSearchParams();
     const cityId =
       selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
@@ -198,8 +268,10 @@ export function HomePage() {
       params.set("city_id", cityId);
     }
 
-    if (options.categoryId) {
-      params.set("category_id", options.categoryId);
+    if (options.formCode) {
+      params.set("form_code", options.formCode);
+      params.set("from_code", options.formCode);
+      params.set("view", "list");
     }
 
     if (options.qsearch) {
@@ -414,10 +486,10 @@ export function HomePage() {
         selectedCategory={selectedCategory}
         onClose={() => setSelectedCategory(null)}
         onSelectCategory={(category) => {
-          const categoryId = category?.id ?? selectedCategory?.id ?? "";
+          const formCode = getCategorySelectionFormCode(category, selectedCategory);
 
-          setSelectedCategoryId(categoryId);
-          navigateToSearch({ categoryId });
+          setSelectedFormCode(formCode);
+          navigateToSearch({ formCode });
         }}
       />
 

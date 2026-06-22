@@ -66,6 +66,11 @@ export const routes: AppRoute[] = [
     Component: MyAccountPage,
   },
   {
+    path: '/account',
+    title: 'حساب من',
+    Component: MyAccountPage,
+  },
+  {
     path: '/login/phone',
     title: 'ورود به حساب کاربری',
     Component: LoginPhonePage,

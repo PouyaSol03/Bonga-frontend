@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import { getStoredAuthSession } from '../auth/auth-storage'
+import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
@@ -27,7 +27,8 @@ function getResolvedPath() {
     return '/home'
   }
 
-  if (path.startsWith('/account') && !getStoredAuthSession()) {
+  if (path.startsWith('/account') && path !== '/account' && !getStoredAuthSession()) {
+    storeLoginRedirectPath(path)
     window.history.replaceState({}, '', '/login/phone')
     return '/login/phone'
   }

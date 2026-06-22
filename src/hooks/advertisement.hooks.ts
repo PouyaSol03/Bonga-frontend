@@ -16,10 +16,10 @@ import {
 } from "../services/advertisement.service";
 
 export function useAdvertisementInfiniteQuery({
-  categoryId,
   cityId,
+  filters,
   perPage = 10,
-}: Pick<AdvertisementListParams, "categoryId" | "cityId" | "perPage">) {
+}: Pick<AdvertisementListParams, "cityId" | "filters" | "perPage">) {
   return useInfiniteQuery<
     AdvertisementPage,
     Error,
@@ -32,12 +32,25 @@ export function useAdvertisementInfiniteQuery({
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getAdvertisementList({
-        categoryId,
         cityId,
+        filters,
         page: pageParam,
         perPage,
       }),
-    queryKey: queryKeys.advertisements.list({ categoryId, cityId, perPage }),
+    queryKey: queryKeys.advertisements.list({ cityId, filters, perPage }),
+  });
+}
+
+export function useAdvertisementListQuery(params: AdvertisementListParams | null) {
+  return useQuery({
+    enabled: Boolean(params),
+    queryFn: () => getAdvertisementList(params as AdvertisementListParams),
+    queryKey: queryKeys.advertisements.list({
+      cityId: params?.cityId,
+      filters: params?.filters,
+      perPage: params?.perPage ?? 20,
+    }),
+    staleTime: 0,
   });
 }
 

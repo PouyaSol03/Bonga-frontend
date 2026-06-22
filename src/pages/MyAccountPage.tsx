@@ -7,6 +7,7 @@ import { formatMobileForDisplay } from "../services/auth.service";
 import type { UserProfile } from "../services/account.service";
 import {
   getStoredAuthSession,
+  storeLoginRedirectPath,
   type AuthSession,
 } from "../auth/auth-storage";
 import { currentAccountUserType } from "./account/accountUserType";
@@ -15,6 +16,7 @@ type AccountAction = {
   icon: AccountIconName;
   label: string;
   onClick?: () => void;
+  requiresAuth?: boolean;
   to?: string;
 };
 
@@ -46,7 +48,7 @@ const businessActions: AccountAction[] = [
 ];
 
 const loggedOutBusinessActions: AccountAction[] = [
-  { icon: "plus", label: "ایجاد کسب و کار", to: "/new-ad" },
+  { icon: "plus", label: "ایجاد کسب و کار", requiresAuth: true, to: "/new-ad/category" },
 ];
 
 const primaryActions: AccountAction[] = [
@@ -61,12 +63,12 @@ const primaryActions: AccountAction[] = [
 ];
 
 const loggedOutPrimaryActions: AccountAction[] = [
-  { icon: "identity", label: "تایید هویت", to: "/account/identity" },
-  { icon: "user", label: "مشخصات من", to: "/account/profile" },
-  { icon: "tag", label: "آگهی‌های من", to: "/account/my-ads/empty" },
-  { icon: "bookmark", label: "نشان‌ها", to: "/account/bookmarks" },
-  { icon: "note", label: "یادداشت‌ها", to: "/account/notes" },
-  { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
+  { icon: "identity", label: "تایید هویت", requiresAuth: true, to: "/account/identity" },
+  { icon: "user", label: "مشخصات من", requiresAuth: true, to: "/account/profile" },
+  { icon: "tag", label: "آگهی‌های من", requiresAuth: true, to: "/account/my-ads" },
+  { icon: "bookmark", label: "نشان‌ها", requiresAuth: true, to: "/account/bookmarks" },
+  { icon: "note", label: "یادداشت‌ها", requiresAuth: true, to: "/account/notes" },
+  { icon: "wallet", label: "کیف پول", requiresAuth: true, to: "/account/wallet" },
 ];
 
 const secondaryActions: AccountAction[] = [
@@ -77,14 +79,14 @@ const secondaryActions: AccountAction[] = [
 ];
 
 const loggedOutSecondaryActions: AccountAction[] = [
-  { icon: "setting", label: "تنظیمات", to: "/account/about" },
+  { icon: "setting", label: "تنظیمات", requiresAuth: true, to: "/account/about" },
 ];
 
 export function MyAccountPage() {
   const authSession = getStoredAuthSession();
   const accountType = authSession?.accountType ?? currentAccountUserType;
 
-  if (accountType === "independent-consultant") {
+  if (authSession && accountType === "independent-consultant") {
     return <IndependentConsultantAccountPage />;
   }
 
@@ -344,6 +346,13 @@ function AccountMenuRow({
       {action.to ? (
         <RouteLink
           className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          onClick={(event) => {
+            if (!action.requiresAuth || getStoredAuthSession()) return;
+
+            event.preventDefault();
+            storeLoginRedirectPath(action.to ?? "/account");
+            navigateTo("/login/phone");
+          }}
           to={action.to}
         >
           {content}

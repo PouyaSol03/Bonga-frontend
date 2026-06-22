@@ -7,10 +7,13 @@ import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";
 import IsfahanIcon from "../../../assets/icons/IsfahanIcon.svg";
 import ShirazIcon from "../../../assets/icons/ShirazIcon.svg";
 import { getRequestErrorState } from "../../../components/ErrorState";
+import { saveSelectedCity } from "../../../lib/selectedCityStorage";
 
 type UiCity = {
   id: string;
   code?: string;
+  latitude?: number;
+  longitude?: number;
   name: string;
   icon?: string;
 };
@@ -56,6 +59,8 @@ function mapCityDtoToUiCity(city: CityDto): UiCity {
   return {
     id: String(city.id ?? city._id ?? city.code ?? ""),
     code: city.code,
+    latitude: city.lat,
+    longitude: city.lng,
     name: city.name,
     icon: getCityIcon(city),
   };
@@ -88,11 +93,12 @@ export function CitySelectorSection() {
   };
 
   const handleCitySelect = (city: UiCity) => {
-    window.localStorage.setItem("bonga-selected-city", city.name);
-
-    if (city.id) {
-      window.localStorage.setItem("bonga-selected-city-id", city.id);
-    }
+    saveSelectedCity({
+      id: city.id,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      name: city.name,
+    });
   };
 
   return (

@@ -3,11 +3,13 @@ import type { SearchFilterChip } from "../searchMapData";
 type SearchMapFilterChipsProps = {
   chips: SearchFilterChip[];
   onChipClick?: (chip: SearchFilterChip) => void;
+  onChipRemove?: (chip: SearchFilterChip) => void;
 };
 
 export function SearchMapFilterChips({
   chips,
   onChipClick,
+  onChipRemove,
 }: SearchMapFilterChipsProps) {
   return (
     <section
@@ -35,7 +37,20 @@ export function SearchMapFilterChips({
             {chip.removable ? (
               <span
                 className="relative h-4 w-4 shrink-0"
-                aria-hidden="true"
+                aria-label={`حذف فیلتر ${chip.label}`}
+                role="button"
+                tabIndex={0}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onChipRemove?.(chip);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" && event.key !== " ") return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onChipRemove?.(chip);
+                }}
               >
                 <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
                 <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />

@@ -8,6 +8,7 @@ import { TopBar } from "../../../components/TopBar";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
+import { getStoredAuthSession } from "../../../auth/auth-storage";
 import {
   initialRecentSearches,
   initialSavedSearches,
@@ -40,6 +41,7 @@ export function HomeSearchScreen({
 
   const trimmedQuery = query.trim();
   const isResultsView = trimmedQuery.length > 0;
+  const isAuthenticated = Boolean(getStoredAuthSession());
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const {
     data: apiRecentSearches = [],
@@ -48,7 +50,7 @@ export function HomeSearchScreen({
     isLoading: isRecentSearchLoading,
     refetch: refetchRecentSearches,
   } = useSearchHistoryQuery({
-    enabled: isOpen,
+    enabled: isOpen && isAuthenticated,
   });
   const {
     data: apiSearchResults = [],
@@ -57,13 +59,15 @@ export function HomeSearchScreen({
     isLoading: isSearchResultsLoading,
     refetch: refetchSearchResults,
   } = useSearchHistoryQuery({
-    enabled: isOpen && debouncedQuery.length > 0,
+    enabled: isOpen && isAuthenticated && debouncedQuery.length > 0,
     qsearch: debouncedQuery,
   });
   const deleteHistoryMutation = useDeleteSearchHistoryMutation();
-  const visibleRecentSearches = apiRecentSearches.length > 0
+  const visibleRecentSearches = isAuthenticated && apiRecentSearches.length > 0
     ? apiRecentSearches
-    : recentSearches;
+    : isAuthenticated
+      ? recentSearches
+      : [];
   const visibleSearchResults = apiSearchResults;
   const RecentSearchErrorState = getRequestErrorState(recentSearchError);
   const SearchResultsErrorState = getRequestErrorState(searchResultsError);

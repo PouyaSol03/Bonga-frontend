@@ -8,6 +8,7 @@ type SearchMapHeaderProps = {
   savedCount?: number;
   chips: SearchFilterChip[];
   onChipClick?: (chip: SearchFilterChip) => void;
+  onChipRemove?: (chip: SearchFilterChip) => void;
   onSearchClick?: () => void;
 };
 
@@ -16,6 +17,7 @@ export function SearchMapHeader({
   savedCount = 0,
   chips,
   onChipClick,
+  onChipRemove,
   onSearchClick,
 }: SearchMapHeaderProps) {
   return (
@@ -29,7 +31,7 @@ export function SearchMapHeader({
         }}
       />
 
-      <SearchMapFilterChips chips={chips} onChipClick={onChipClick} />
+      <SearchMapFilterChips chips={chips} onChipClick={onChipClick} onChipRemove={onChipRemove} />
     </header>
   );
 }

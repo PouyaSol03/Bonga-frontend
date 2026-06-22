@@ -1,5 +1,5 @@
 import { getApiAssetUrl } from "../../api/api";
-import type { AdvertisementItem, AdvertisementMapParams } from "../../services/advertisement.service";
+import type { AdvertisementItem, AdvertisementMapParams, AdvertisementSearchFilters } from "../../services/advertisement.service";
 import {
   SEARCH_MAP_DEMO_PHOTO,
   type SearchMapBounds,
@@ -282,15 +282,33 @@ function roundCoordinate(value: number) {
   return Number(value.toFixed(6));
 }
 
+function readMapFiltersFromParams(params: URLSearchParams): AdvertisementSearchFilters {
+  return {
+    areaMax: params.get("area_max") || undefined,
+    areaMin: params.get("area_min") || undefined,
+    buildingAge: params.get("building_age") || undefined,
+    floor: params.get("floor") || undefined,
+    formCode: params.get("form_code") || params.get("from_code") || undefined,
+    hasImage: params.get("has_image") || undefined,
+    hasVideo: params.get("has_video") || undefined,
+    isSpecial: params.get("is_special") || undefined,
+    neighborhoodId: params.get("neighborhood_id") || params.get("neighborhoods") || undefined,
+    priceMax: params.get("price_max") || undefined,
+    priceMin: params.get("price_min") || undefined,
+    publishedAt: params.get("published_at") || undefined,
+    query: params.get("query") || params.get("q") || params.get("qsearch") || undefined,
+    rooms: params.get("rooms") || undefined,
+  };
+}
+
 export function buildMapQueryParams(bounds: SearchMapBounds | null): AdvertisementMapParams | null {
   if (!bounds) return null;
 
   const params = getSearchParams();
   const cityId = params.get("city_id") || "";
-  const categoryId = params.get("category_id") || params.get("categoryId") || "";
 
   return {
-    categoryId,
+    filters: readMapFiltersFromParams(params),
     ...(cityId ? { cityId } : {}),
     east: roundCoordinate(bounds.east),
     limit: mapRequestLimit,

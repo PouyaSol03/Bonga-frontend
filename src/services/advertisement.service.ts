@@ -73,8 +73,8 @@ export type AdvertisementMapBounds = {
 };
 
 export type AdvertisementMapParams = AdvertisementMapBounds & {
-  categoryId?: string;
   cityId?: string;
+  filters?: AdvertisementSearchFilters;
   limit?: number;
 };
 
@@ -125,10 +125,27 @@ export type SubmitAdvertiseReportPayload = {
 };
 
 export type AdvertisementListParams = {
-  categoryId?: string;
   cityId?: string;
+  filters?: AdvertisementSearchFilters;
   page?: number;
   perPage?: number;
+};
+
+export type AdvertisementSearchFilters = {
+  areaMax?: string | number;
+  areaMin?: string | number;
+  buildingAge?: string;
+  floor?: string;
+  formCode?: string;
+  hasImage?: boolean | string;
+  hasVideo?: boolean | string;
+  isSpecial?: boolean | string;
+  neighborhoodId?: string;
+  priceMax?: string | number;
+  priceMin?: string | number;
+  publishedAt?: string;
+  query?: string;
+  rooms?: string;
 };
 
 export type AdvertisementPage = {
@@ -157,6 +174,44 @@ export type AdvertisementCardData = {
 };
 
 const defaultPerPage = 10;
+
+type SearchParamValue = boolean | number | string;
+
+function compactSearchParams(params: Record<string, unknown>): Record<string, SearchParamValue> {
+  return Object.fromEntries(
+    Object.entries(params).filter(([, value]) => {
+      if (value === undefined || value === null) return false;
+      if (typeof value === "string") return value.trim().length > 0;
+      if (typeof value === "boolean" || typeof value === "number") return true;
+
+      return false;
+    }),
+  ) as Record<string, SearchParamValue>;
+}
+
+function buildAdvertiseSearchParams(filters?: AdvertisementSearchFilters) {
+  if (!filters) return {};
+
+  return compactSearchParams({
+    area_max: filters.areaMax,
+    area_min: filters.areaMin,
+    building_age: filters.buildingAge,
+    floor: filters.floor,
+    form_code: filters.formCode,
+    from_code: filters.formCode,
+    has_image: filters.hasImage,
+    has_video: filters.hasVideo,
+    is_special: filters.isSpecial,
+    neighborhood_id: filters.neighborhoodId,
+    neighborhoods: filters.neighborhoodId,
+    price_max: filters.priceMax,
+    price_min: filters.priceMin,
+    published_at: filters.publishedAt,
+    q: filters.query,
+    query: filters.query,
+    rooms: filters.rooms,
+  });
+}
 
 function toNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
@@ -329,19 +384,19 @@ export function mapAdvertisementToAdCard(
 }
 
 export async function getAdvertisementList({
-  categoryId,
   cityId,
+  filters,
   page = 1,
   perPage = defaultPerPage,
 }: AdvertisementListParams) {
   const response = await publicApi
     .get("public/advertise", {
-      searchParams: {
-        category_id: categoryId,
+      searchParams: compactSearchParams({
+        ...buildAdvertiseSearchParams(filters),
         city_id: cityId,
         page,
         per_page: perPage,
-      },
+      }),
     })
     .json<AdvertisementListResponse>();
   const data = Array.isArray(response) ? response : response.data ?? [];
@@ -388,9 +443,9 @@ export async function createAdvertisement(payload: FormData) {
 }
 
 export async function getAdvertisementMap({
-  categoryId,
   cityId,
   east,
+  filters,
   limit = 100,
   north,
   south,
@@ -398,16 +453,15 @@ export async function getAdvertisementMap({
 }: AdvertisementMapParams) {
   const response = await publicApi
     .get("public/advertise/map", {
-      searchParams: {
-        category_id: categoryId,
+      searchParams: compactSearchParams({
+        ...buildAdvertiseSearchParams(filters),
         ...(cityId ? { city_id: cityId } : {}),
-        _ts: Date.now(),
         east,
         limit,
         north,
         south,
         west,
-      },
+      }),
     })
     .json<AdvertisementMapResponse>();
 

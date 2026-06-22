@@ -500,92 +500,187 @@ function SocialIcon({ type }: { type: "instagram" | "telegram" | "whatsapp" }) {
   );
 }
 
+type SingleAdContactInfo = {
+  chat: boolean;
+  instagram: string;
+  phone: string;
+  telegram: string;
+  whatsapp: string;
+};
+
+function readRawContactText(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (typeof value === "number") return String(value);
+
+  return "";
+}
+
+function readNestedContactValue(source: unknown, key: string) {
+  if (!source || typeof source !== "object") return "";
+
+  return readRawContactText((source as Record<string, unknown>)[key]);
+}
+
+function readContactInfo(ad: AdvertisementItem): SingleAdContactInfo {
+  const contacts = (ad as { contacts?: unknown }).contacts;
+  const contactSocial = (ad as { contact_social?: unknown }).contact_social;
+  const social = (ad as { social?: unknown }).social;
+  const contactType = Array.isArray((ad as { contact_type?: unknown }).contact_type)
+    ? ((ad as { contact_type?: unknown[] }).contact_type ?? [])
+      .map((item) => readRawContactText(item).toLowerCase())
+    : [];
+  const contactsChat = toBooleanLike(
+    contacts && typeof contacts === "object"
+      ? (contacts as Record<string, unknown>).chat
+      : undefined,
+  );
+
+  return {
+    chat: contactsChat ?? contactType.includes("chat"),
+    instagram:
+      readNestedContactValue(contacts, "instagram") ||
+      readNestedContactValue(contactSocial, "instagram") ||
+      readNestedContactValue(social, "instagram"),
+    phone:
+      readNestedContactValue(contacts, "phone") ||
+      readRawContactText((ad as { owner_phone?: unknown }).owner_phone),
+    telegram:
+      readNestedContactValue(contacts, "telegram") ||
+      readNestedContactValue(contactSocial, "telegram") ||
+      readNestedContactValue(social, "telegram"),
+    whatsapp:
+      readNestedContactValue(contacts, "whatsapp") ||
+      readNestedContactValue(contactSocial, "whatsapp") ||
+      readNestedContactValue(social, "whatsapp"),
+  };
+}
+
+function normalizeSocialUrl(type: "instagram" | "telegram" | "whatsapp", value: string) {
+  const cleanValue = value.trim();
+
+  if (!cleanValue) return "";
+  if (/^https?:\/\//i.test(cleanValue)) return cleanValue;
+
+  if (type === "instagram") {
+    const username = cleanValue.replace(/^@/, "").replace(/^instagram\.com\//i, "");
+
+    return username ? `https://www.instagram.com/${username}` : "";
+  }
+
+  if (type === "telegram") {
+    const username = cleanValue.replace(/^@/, "").replace(/^t\.me\//i, "");
+
+    return username ? `https://t.me/${username}` : "";
+  }
+
+  const digits = toEnglishDigits(cleanValue).replace(/[^\d]/g, "");
+
+  if (!digits) return "";
+  const internationalNumber = digits.startsWith("0") ? `98${digits.slice(1)}` : digits;
+
+  return `https://wa.me/${internationalNumber}`;
+}
+
 function ContactInfoBottomSheet({
+  contactInfo,
   isOpen,
   onClose,
-  phoneNumber,
 }: {
+  contactInfo: SingleAdContactInfo;
   isOpen: boolean;
   onClose: () => void;
-  phoneNumber: string;
 }) {
-  const phoneHref = toEnglishDigits(phoneNumber);
-  const phoneDisplay = toPersianDigits(phoneNumber);
+  const phoneHref = toEnglishDigits(contactInfo.phone).replace(/[^\d+]/g, "");
+  const phoneDisplay = contactInfo.phone ? toPersianDigits(contactInfo.phone) : "";
+  const socialLinks = [
+    {
+      ariaLabel: "واتساپ",
+      type: "whatsapp" as const,
+      url: normalizeSocialUrl("whatsapp", contactInfo.whatsapp),
+    },
+    {
+      ariaLabel: "تلگرام",
+      type: "telegram" as const,
+      url: normalizeSocialUrl("telegram", contactInfo.telegram),
+    },
+    {
+      ariaLabel: "اینستاگرام",
+      type: "instagram" as const,
+      url: normalizeSocialUrl("instagram", contactInfo.instagram),
+    },
+  ].filter((item) => Boolean(item.url));
+  const hasAnyVisibleContact = Boolean(phoneHref) || socialLinks.length > 0;
 
   return (
     <BottomSheet
-      ariaLabel="تماس با مشاور"
-      contentClassName="mx-4 mt-5"
-      heightClassName="h-[306px]"
+      ariaLabel="اطلاعات تماس"
+      contentClassName="mx-4 mt-5 pb-5"
+      heightClassName="h-auto max-h-[calc(100dvh-88px)]"
       isOpen={isOpen}
       onClose={onClose}
-      title="تماس با مشاور"
+      title="اطلاعات تماس"
     >
-      <div className="flex h-14 items-center justify-between [direction:ltr]">
-        <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
-          {phoneDisplay}
-        </span>
-        <a
-          className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
-          href={`tel:${phoneHref}`}
-          tabIndex={isOpen ? 0 : -1}
-        >
-          <PhoneIcon className="h-6 w-6" />
-          <span>تماس با</span>
-        </a>
-      </div>
-      <div className="h-px bg-[#cccccc]" />
-      <div className="flex h-14 items-center justify-between [direction:ltr]">
-        <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
-          {phoneDisplay}
-        </span>
-        <a
-          className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
-          href={`sms:${phoneHref}`}
-          tabIndex={isOpen ? 0 : -1}
-        >
-          <MessageIcon className="h-6 w-6" />
-          <span>ارسال پیامک</span>
-        </a>
-      </div>
-      <div className="h-px bg-[#cccccc]" />
-      <div className="flex h-16 items-center justify-between [direction:ltr]">
-        <div className="flex gap-4">
-          <a
-            aria-label="واتساپ"
-            className="grid h-14 w-14 place-items-center rounded-full"
-            href={`https://wa.me/98${phoneHref.slice(1)}`}
-            tabIndex={isOpen ? 0 : -1}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <SocialIcon type="whatsapp" />
-          </a>
-          <a
-            aria-label="تلگرام"
-            className="grid h-14 w-14 place-items-center rounded-full"
-            href={`https://t.me/share/url?url=tel:${phoneHref}`}
-            tabIndex={isOpen ? 0 : -1}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <SocialIcon type="telegram" />
-          </a>
-          <a
-            aria-label="اینستاگرام"
-            className="grid h-14 w-14 place-items-center rounded-full"
-            href="https://www.instagram.com/"
-            tabIndex={isOpen ? 0 : -1}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <SocialIcon type="instagram" />
-          </a>
+      {phoneHref ? (
+        <>
+          <div className="flex h-14 items-center justify-between [direction:ltr]">
+            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+              {phoneDisplay}
+            </span>
+            <a
+              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+              href={`tel:${phoneHref}`}
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <PhoneIcon className="h-6 w-6" />
+              <span>تماس با</span>
+            </a>
+          </div>
+          <div className="h-px bg-[#cccccc]" />
+          <div className="flex h-14 items-center justify-between [direction:ltr]">
+            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+              {phoneDisplay}
+            </span>
+            <a
+              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+              href={`sms:${phoneHref}`}
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <MessageIcon className="h-6 w-6" />
+              <span>ارسال پیامک</span>
+            </a>
+          </div>
+          {socialLinks.length ? <div className="h-px bg-[#cccccc]" /> : null}
+        </>
+      ) : null}
+
+      {socialLinks.length ? (
+        <div className="flex h-16 items-center justify-between [direction:ltr]">
+          <div className="flex gap-4">
+            {socialLinks.map((item) => (
+              <a
+                aria-label={item.ariaLabel}
+                className="grid h-14 w-14 place-items-center rounded-full"
+                href={item.url}
+                key={item.type}
+                tabIndex={isOpen ? 0 : -1}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <SocialIcon type={item.type} />
+              </a>
+            ))}
+          </div>
+          <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
+            شبکه‌های اجتماعی
+          </span>
         </div>
-        <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
-          شبکه‌های اجتماعی
-        </span>
-      </div>
+      ) : null}
+
+      {!hasAnyVisibleContact ? (
+        <div className="rounded-xl bg-[#f5f5f5] px-4 py-5 text-center text-sm font-medium leading-6 text-[#4d4d4d]">
+          شماره تماس یا شبکه اجتماعی برای این آگهی ثبت نشده است.
+        </div>
+      ) : null}
     </BottomSheet>
   );
 }
@@ -1178,12 +1273,12 @@ function ViewAdContent({
     useState(false);
   const [areFacilitiesExpanded, setAreFacilitiesExpanded] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
-  const propertyInfoItems = details.propertyInfoPreview.slice(0, 4);
+  const propertyInfoItems = details.propertyInfoPreview;
   const visibleFacilityCount = areFacilitiesExpanded
     ? details.features.length
     : 6;
   const facilityItems = details.features.slice(0, visibleFacilityCount);
-  const hasMorePropertyInfo = details.propertyInfoPreview.length > 4;
+  const hasMorePropertyInfo = details.propertyInfoRows.length > propertyInfoItems.length;
   const hasMoreFacilities = details.features.length > 6;
   const showAgency = isAgencyAdvertiser(ad);
   const shouldShowDescriptionMore = isDescriptionOverflowing;
@@ -1666,11 +1761,11 @@ function buildGalleryMediaItems(ad: AdvertisementItem) {
 }
 
 const propertyInfoLabelMap: Record<string, string> = {
-  area: "متراژ آپارتمان",
+  area: "متراژ",
   land_area: "متراژ زمین",
-  building_area: "متراژ بنا",
-  building_age: "سن بنا",
-  rooms: "تعداد اتاق",
+  building_area: "زیربنا",
+  building_age: "سال ساخت",
+  rooms: "تعداد اتاق ها",
   floor: "طبقه آپارتمان",
   has_document: "سند",
   renovated: "بازسازی شده",
@@ -1679,17 +1774,29 @@ const propertyInfoLabelMap: Record<string, string> = {
   suitable_for: "مناسب برای",
   document_type: "نوع سند",
   land_position: "موقعیت زمین",
+  land_use: "کاربری",
   commercial_license: "مجوز تجاری",
+  commercial_permit: "مجوز تجاری",
   construction_license: "مجوز ساخت",
+  build_permit: "مجوز ساخت",
+  height: "ارتفاع سقف",
   standard_capacity: "ظرفیت استاندارد",
   extra_people_capacity: "تعداد نفرات اضافه",
+  hotel_stars: "رتبه‌بندی هتل",
   min_price: "حداقل قیمت",
   max_price: "حداکثر قیمت",
   mortgage_price: "رهن",
   rent_price: "اجاره",
+  project_total_floors: "تعداد کل طبقات",
+  project_total_units: "تعداد کل واحد ها",
+  project_status: "وضعیت پروژه",
+  delivery_date: "تاریخ تحویل",
   participation_type: "نوع مشارکت",
+  partnership_type: "نوع مشارکت",
+  builder_share: "سهم سازنده",
   builder_share_percent: "سهم سازنده",
   villa_type: "نوع ویلا",
+  house_type: "نوع خانه",
   heating_cooling: "سرمایش و گرمایش",
   exchange_with: "قابل معاوضه با",
   advertiser_type: "نوع آگهی‌دهنده",
@@ -1699,10 +1806,13 @@ const propertyInfoOrder = [
   "area",
   "land_area",
   "building_area",
+  "land_use",
   "rooms",
   "building_age",
   "floor",
   "land_position",
+  "height",
+  "hotel_stars",
   "has_document",
   "renovated",
   "furnished",
@@ -1710,16 +1820,25 @@ const propertyInfoOrder = [
   "suitable_for",
   "document_type",
   "commercial_license",
+  "commercial_permit",
   "construction_license",
+  "build_permit",
   "standard_capacity",
   "extra_people_capacity",
+  "project_total_floors",
+  "project_total_units",
+  "project_status",
+  "delivery_date",
   "min_price",
   "max_price",
   "mortgage_price",
   "rent_price",
   "participation_type",
+  "partnership_type",
+  "builder_share",
   "builder_share_percent",
   "villa_type",
+  "house_type",
   "heating_cooling",
   "exchange_with",
   "advertiser_type",
@@ -1756,6 +1875,177 @@ function getFirstFeatureValue(
   }
 
   return undefined;
+}
+
+type PropertyPreviewField = {
+  icon?: IconName;
+  label: string;
+  labels: string[];
+  formatter?: (value: unknown) => string;
+};
+
+const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = {
+  "sale-apartment": [
+    { labels: ["area", "meterage"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "sale-villa-house": [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "sale-garden-villa": [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "sale-land": [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_use", "usage"], label: "کاربری" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["document_type"], label: "نوع سند" },
+  ],
+  "sale-office": [
+    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["suitable_for"], label: "مناسب برای" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["document_type"], label: "نوع سند" },
+  ],
+  "sale-commercial": [
+    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["suitable_for"], label: "مناسب برای" },
+    { labels: ["document_type"], label: "نوع سند" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "sale-warehouse": [
+    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["suitable_for"], label: "مناسب برای" },
+  ],
+  "sale-hotel": [
+    { labels: ["hotel_stars"], label: "رتبه‌بندی هتل", formatter: formatHotelStarsDetailValue, icon: "star" },
+    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["document_type"], label: "نوع سند" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "sale-factory": [
+    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["document_type"], label: "نوع سند" },
+  ],
+  "rent-apartment": [
+    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "rent-villa-house": [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "rent-garden-villa": [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "rent-office": [
+    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "rent-commercial": [
+    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["suitable_for"], label: "مناسب برای" },
+  ],
+  "rent-warehouse": [
+    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["height", "ceiling_height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue },
+    { labels: ["suitable_for"], label: "مناسب برای" },
+    { labels: ["commercial_permit", "commercial_license"], label: "مجوز تجاری" },
+  ],
+  "rent-hotel": [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "rent-factory-workshop": [
+    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+  ],
+  "presale-special": [
+    { labels: ["project_total_floors"], label: "تعداد کل طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" },
+    { labels: ["project_total_units"], label: "تعداد کل واحد ها" },
+    { labels: ["project_status"], label: "وضعیت پروژه" },
+    { labels: ["delivery_date"], label: "تاریخ تحویل", icon: "calendar" },
+    { labels: ["min_price"], label: "حداقل قیمت", formatter: formatTomanDetailValue, icon: "tooman" },
+    { labels: ["max_price"], label: "حداکثر قیمت", formatter: formatTomanDetailValue, icon: "tooman" },
+  ],
+  partnership: [
+    { labels: ["partnership_type", "participation_type"], label: "نوع مشارکت" },
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["build_permit", "construction_license"], label: "مجوز ساخت" },
+    { labels: ["document_type"], label: "نوع سند" },
+    { labels: ["builder_share", "builder_share_percent"], label: "سهم سازنده", formatter: formatPercentDetailValue },
+  ],
+};
+
+function buildPropertyPreviewItem(
+  features: NonNullable<AdvertisementItem["features"]>,
+  field: PropertyPreviewField,
+): PropertyInfoItem | null {
+  const rawValue = getFirstExistingFeatureValue(features, field.labels);
+
+  if (!isFilledValue(rawValue)) return null;
+
+  const value = field.formatter
+    ? field.formatter(rawValue)
+    : Array.isArray(rawValue)
+      ? rawValue.map((item) => toText(item)).filter(Boolean).join("، ")
+      : normalizeDetailValue(field.labels[0], rawValue).toString();
+
+  if (!value || value === "-") return null;
+
+  const { formattedValue, iconSrc } = getBuildingInfo(field.label, value);
+
+  return {
+    icon: field.icon ?? iconForFeature(field.label),
+    iconSrc,
+    label: field.label,
+    value: formattedValue,
+  };
+}
+
+function buildPropertyInfoPreviewItems(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
+  const formCode = toText(getFeatureValue(features, "form_code"));
+  const config = propertyPreviewFieldsByFormCode[formCode];
+
+  if (!config) {
+    return buildPropertyInfoItems(features).slice(0, 4);
+  }
+
+  const items = config
+    .map((field) => buildPropertyPreviewItem(features, field))
+    .filter((item): item is PropertyInfoItem => item !== null);
+
+  return items.length ? items : buildPropertyInfoItems(features).slice(0, 4);
 }
 
 function buildPropertyInfoItems(
@@ -1908,10 +2198,6 @@ function getMapPosition(ad: AdvertisementItem) {
   return { latitude: lat, longitude: lng };
 }
 
-function readOwnerPhone(ad: AdvertisementItem) {
-  return toText((ad as { owner_phone?: unknown }).owner_phone);
-}
-
 function isAgencyAdvertiser(ad: AdvertisementItem) {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const advertiserType = toText(getFeatureValue(features, "advertiser_type"));
@@ -1934,9 +2220,13 @@ function iconForFeature(label: string): IconName {
 
 function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = Array.isArray(ad.features) ? ad.features : [];
-  const propertyInfoPreview =
+  const propertyInfoRows =
     features.length > 0
       ? buildPropertyInfoItems(features)
+      : viewAdDemo.propertyInfoRows;
+  const propertyInfoPreview =
+    features.length > 0
+      ? buildPropertyInfoPreviewItems(features)
       : viewAdDemo.propertyInfoPreview;
   const facilities =
     features.length > 0
@@ -1974,7 +2264,7 @@ function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     locationTitle: toText(ad.label ?? ad.title, viewAdDemo.locationTitle),
     pricePerMeter: formatPricePerMeter(totalPrice, meterArea),
     propertyInfoPreview,
-    propertyInfoRows: propertyInfoPreview,
+    propertyInfoRows,
     title: toText(ad.title ?? ad.label, viewAdDemo.title),
     totalPrice: formatPrice(totalPrice),
   };
@@ -2146,6 +2436,38 @@ function appendSuffixIfNeeded(value: unknown, suffix: string) {
 
 function formatAreaDetailValue(value: unknown) {
   return appendSuffixIfNeeded(value, "متر");
+}
+
+function formatMeterDetailValue(value: unknown) {
+  return appendSuffixIfNeeded(value, "متر");
+}
+
+function formatHotelStarsDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes("ستاره")) {
+    return text;
+  }
+
+  return `${text} ستاره`;
+}
+
+function formatPercentDetailValue(value: unknown) {
+  const text = toText(value);
+
+  if (!text) {
+    return "-";
+  }
+
+  if (text.includes("درصد") || text.includes("%")) {
+    return text;
+  }
+
+  return `${text} درصد`;
 }
 
 function formatAgeDetailValue(value: unknown) {
@@ -2891,6 +3213,13 @@ export function ViewAdPage() {
   }
 
   const details = mapAdToDetails(resolvedAd);
+  const contactInfo = readContactInfo(resolvedAd);
+  const hasContactSheetData = Boolean(
+    contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
+  );
+  const hasChatContact = contactInfo.chat;
+  const contactActionCount = Number(hasContactSheetData) + Number(hasChatContact);
+  const contactActionsGridClassName = contactActionCount === 1 ? "grid-cols-1" : "grid-cols-2";
   const subPage = getViewAdSubPage(window.location.pathname);
 
   if (subPage === "property-info") {
@@ -3185,28 +3514,38 @@ export function ViewAdPage() {
       </main>
 
       <div className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-8px_24px_rgba(26,26,26,0.12)]">
-        <div className="grid grid-cols-2 gap-8 [direction:ltr]">
-          <button
-            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-            onClick={() => setIsContactSheetOpen(true)}
-            type="button"
-          >
-            تماس با مشاور
-          </button>
-          <RouteLink
-            className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-            to="/chat/1"
-          >
-            <span>چت با مشاور</span>
-            <ViewAdIcon className="h-5 w-5" name="chat" />
-          </RouteLink>
-        </div>
+        {contactActionCount > 0 ? (
+          <div className={`grid ${contactActionsGridClassName} gap-8 [direction:ltr]`}>
+            {hasContactSheetData ? (
+              <button
+                className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                onClick={() => setIsContactSheetOpen(true)}
+                type="button"
+              >
+                {contactInfo.phone ? "تماس با مشاور" : "راه‌های تماس"}
+              </button>
+            ) : null}
+            {hasChatContact ? (
+              <RouteLink
+                className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                to="/chat/1"
+              >
+                <span>چت با مشاور</span>
+                <ViewAdIcon className="h-5 w-5" name="chat" />
+              </RouteLink>
+            ) : null}
+          </div>
+        ) : (
+          <div className="rounded-[10px] bg-[#f5f5f5] px-4 py-3 text-center text-sm font-medium leading-5 text-[#808080]">
+            راه ارتباطی برای این آگهی ثبت نشده است.
+          </div>
+        )}
       </div>
 
       <ContactInfoBottomSheet
+        contactInfo={contactInfo}
         isOpen={isContactSheetOpen}
         onClose={() => setIsContactSheetOpen(false)}
-        phoneNumber={readOwnerPhone(resolvedAd)}
       />
 
       {isFeedbackOpen ? (

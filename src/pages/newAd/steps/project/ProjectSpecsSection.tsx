@@ -51,18 +51,18 @@ export function ProjectSpecsSection({
 
           <SelectBox
             onClick={() =>
-              onOpenSelect("documentType", "نوع سند", documentTypeOptions)
-            }
-            placeholder="نوع سند *"
-            value={values.documentType}
-          />
-
-          <SelectBox
-            onClick={() =>
               onOpenSelect("constructionLicense", "مجوز ساخت", constructionLicenseOptions)
             }
             placeholder="مجوز ساخت *"
             value={values.constructionLicense}
+          />
+
+          <SelectBox
+            onClick={() =>
+              onOpenSelect("documentType", "نوع سند", documentTypeOptions)
+            }
+            placeholder="نوع سند *"
+            value={values.documentType}
           />
         </div>
       </Section>

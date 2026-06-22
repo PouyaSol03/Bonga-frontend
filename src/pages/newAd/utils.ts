@@ -216,7 +216,7 @@ function getPriceValue(values: NewAdFormValues, transaction: string, category: s
   return toNumber(values.price);
 }
 
-function getAdvertiseFormCode(transaction: string, category: string) {
+export function getAdvertiseFormCode(transaction: string, category: string) {
   const formCodes: Record<string, string> = {
     "project:project-partnership": "partnership",
     "project:project-presale": "presale-special",
@@ -261,7 +261,9 @@ export function buildPayload(values: NewAdFormValues) {
   const facilities = isPartnership ? [] : labels(featureItemsForCategory, values.facilities);
   const extraSpecs = labels(propertySpecs, values.selectedSpecs);
 
-  addFeature(features, "form_code", `${params.transaction}-${params.category}`);
+  const formCode = getAdvertiseFormCode(params.transaction, params.category);
+
+  addFeature(features, "form_code", formCode);
   addFeature(features, "location", values.location);
   addFeature(features, "area", toNumber(values.meterage));
   addFeature(features, "land_area", toNumber(values.landArea));
@@ -270,14 +272,14 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "rooms", values.rooms);
   addFeature(features, "building_age", values.age);
   addFeature(features, "density", toNumber(values.density));
-  addFeature(features, "usage", values.usageType);
+  addFeature(features, "land_use", values.usageType);
   addFeature(features, "land_position", values.landPosition);
   addFeature(features, "suitable_for", values.suitableFor);
   addFeature(features, "hotel_stars", values.hotelStars);
   addFeature(features, "standard_capacity", values.standardCapacity);
   addFeature(features, "extra_people_capacity", values.extraPeopleCapacity);
-  addFeature(features, "commercial_license", values.commercialLicense || (values.commercialPermit ? "دارد" : ""));
-  addFeature(features, "construction_license", values.constructionLicense || (values.constructionPermit ? "دارد" : ""));
+  addFeature(features, "commercial_permit", values.commercialLicense || (values.commercialPermit ? "دارد" : ""));
+  addFeature(features, "build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
 
   if (!isRent) {
     addFeature(features, "document_type", values.documentType);
@@ -345,8 +347,8 @@ export function buildPayload(values: NewAdFormValues) {
   }
 
   if (isPartnership) {
-    addFeature(features, "participation_type", values.participationType);
-    addFeature(features, "builder_share_percent", toNumber(values.builderSharePercent));
+    addFeature(features, "partnership_type", values.participationType);
+    addFeature(features, "builder_share", toNumber(values.builderSharePercent));
   }
 
   return {
@@ -409,25 +411,25 @@ export function buildNewAdFormData(values: NewAdFormValues) {
     "daily-garden-villa": ["area", "rooms", "capacity", "daily_price", "heating_cooling", "facilities", ...searchFlagFields],
     "daily-hotel": ["daily_price", "hotel_stars", "heating_cooling", "facilities", ...searchFlagFields],
     "daily-office-booth": ["daily_price", "rooms", "capacity", "heating_cooling", "facilities", ...searchFlagFields],
-    partnership: ["area", "builder_share", "partnership_type", "document_type", "build_permit", ...searchFlagFields],
-    "presale-special": ["area", "meter_price", "project_status", "rooms", "floor", "heating_cooling", "facilities", "exchange_with", "installment_sale", ...searchFlagFields],
+    partnership: ["area", "land_area", "builder_share", "partnership_type", "document_type", "build_permit", ...searchFlagFields],
+    "presale-special": ["area", "meter_price", "min_price", "max_price", "project_total_floors", "project_total_units", "project_status", "delivery_date", "rooms", "floor", "heating_cooling", "facilities", "exchange_with", "installment_sale", ...searchFlagFields],
     "rent-commercial": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "furnished", "suitable_for", "commercial_permit", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-factory-workshop": ["land_area", "building_area", "rent_price", "mortgage_price", "facilities", ...searchFlagFields],
-    "rent-garden-villa": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "villa_type", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-hotel": ["area", "rent_price", "mortgage_price", "suitable_for", "building_age", "hotel_stars", "floor", "renovated", "furnished", "heating_cooling", "facilities", ...searchFlagFields],
+    "rent-garden-villa": ["area", "land_area", "building_area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "villa_type", "heating_cooling", "facilities", ...searchFlagFields],
+    "rent-hotel": ["area", "land_area", "building_area", "land_position", "rent_price", "mortgage_price", "suitable_for", "building_age", "hotel_stars", "floor", "renovated", "furnished", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-office": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "furnished", "suitable_for", "commercial_permit", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-apartment": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "has_loan", "suitable_for", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-villa-house": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "renovated", "house_type", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-warehouse": ["area", "rent_price", "mortgage_price", "suitable_for", "commercial_permit", "facilities", ...searchFlagFields],
+    "rent-villa-house": ["area", "land_area", "building_area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "renovated", "house_type", "heating_cooling", "facilities", ...searchFlagFields],
+    "rent-warehouse": ["area", "land_area", "building_area", "land_position", "height", "rent_price", "mortgage_price", "suitable_for", "commercial_permit", "facilities", ...searchFlagFields],
     "sale-apartment": ["area", "price", "building_age", "rooms", "floor", "renovated", "furnished", "has_loan", "document_type", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
     "sale-commercial": ["area", "price", "building_age", "rooms", "renovated", "furnished", "has_loan", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-factory": ["area", "price", "document_type", "has_loan", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-factory": ["area", "land_area", "building_area", "price", "document_type", "has_loan", "facilities", "exchange_with", ...searchFlagFields],
     "sale-garden-villa": ["land_area", "building_area", "price", "building_age", "rooms", "furnished", "document_type", "villa_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-hotel": ["area", "price", "building_age", "rooms", "hotel_stars", "floor", "renovated", "furnished", "has_loan", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-land": ["land_area", "price", "land_use", "build_permit", "document_type", "density", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-hotel": ["area", "land_position", "price", "building_age", "rooms", "hotel_stars", "floor", "renovated", "furnished", "has_loan", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-land": ["land_area", "price", "land_use", "build_permit", "document_type", "density", "land_position", "facilities", "exchange_with", ...searchFlagFields],
     "sale-office": ["area", "price", "building_age", "rooms", "floor", "has_document", "renovated", "furnished", "has_loan", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
     "sale-villa-house": ["land_area", "building_area", "price", "building_age", "rooms", "renovated", "furnished", "has_loan", "document_type", "land_position", "house_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-warehouse": ["area", "price", "height", "commercial_permit", "suitable_for", "document_type", "has_loan", "facilities", "exchange_with", "building_age", ...searchFlagFields],
+    "sale-warehouse": ["area", "land_area", "building_area", "land_position", "price", "height", "commercial_permit", "suitable_for", "document_type", "has_loan", "facilities", "exchange_with", "building_age", ...searchFlagFields],
   };
   const allowedFields = new Set([
     ...baseCreateFields,
@@ -469,6 +471,11 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendValue("mortgage_price", toNumber(values.mortgagePrice));
   appendValue("daily_price", toNumber(values.minPrice));
   appendValue("meter_price", toNumber(values.minPrice));
+  appendValue("min_price", toNumber(values.minPrice));
+  appendValue("max_price", toNumber(values.maxPrice));
+  appendValue("project_total_floors", toNumber(values.projectTotalFloors));
+  appendValue("project_total_units", toNumber(values.projectTotalUnits));
+  appendValue("delivery_date", values.projectDeliveryDate);
   appendValue("building_age", values.age);
   appendValue("rooms", values.rooms);
   appendValue("floor", values.floor);
@@ -492,7 +499,7 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendValue("installment_sale", values.saleTermsEnabled);
   appendValue("builder_share", toNumber(values.builderSharePercent));
   appendValue("partnership_type", values.participationType);
-  appendValue("build_permit", values.constructionPermit);
+  appendValue("build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
   appendValue("advertiser_type", advertiserType);
   appendValue("owner_type", values.registrantType);
   appendValue("has_image", values.photos.length > 0);

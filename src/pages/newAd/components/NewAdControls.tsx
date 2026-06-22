@@ -46,7 +46,7 @@ export function Header({
           </svg>
         </button>
 
-        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
+        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a]">
           {title}
         </h1>
       </div>
@@ -457,4 +457,3 @@ export function MoreFeaturesFooter({
     </footer>
   );
 }
-

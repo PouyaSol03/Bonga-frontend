@@ -54,8 +54,20 @@ function navigateTo(path: string, state?: unknown) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+export function AdCardTomanIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
+      <path
+        d="M16.844 10.742c.88 2.604 1.213 3.708-1.214 3.708h-1.214m0 0h-2.022c-2.185 0-1.455-3.131 0-3.131 1.454 0 1.86 1.071 2.022 3.131Zm0 0c.189 2.405-.809 2.473-3.398 3.05M5.678 13.461l1.861.989c1.294.688 2.114-2.22.81-2.884-1.1-.56-1.825.101-2.671 1.895Zm0 0c-.708 1.504-2.831 1.57-2.831-.247l-.162-4.12M7.62 2.5l.405 2.885c.323 1.648-.98 2.417-2.508 2.719-2.744.543-3.641-1.895-2.59-4.78M13.608 9.505h1.213m.81 0h1.213M4.708 2.5H5.92"
+        stroke="currentColor"
+        strokeWidth="1.3"
+      />
+    </svg>
+  )
+}
+
 function formatToman(value: number) {
-  return `${new Intl.NumberFormat("fa-IR").format(value)} تومان`;
+  return `${new Intl.NumberFormat("fa-IR").format(value)}`;
 }
 
 function formatShortPayment(value: number) {
@@ -145,8 +157,8 @@ export function IndependentConsultantAdPaymentPage() {
         </section>
 
         <section className="mt-2 bg-white px-4 pb-4 pt-6" aria-label="امکانات ارتقای آگهی">
-          <h2 className="m-0 mb-3 flex items-center justify-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a]">
-            <UpgradeSparkIcon className="h-5 w-5 text-[#4d4d4d]" />
+          <h2 className="m-0 mb-3 flex items-center justify-right gap-1 text-base font-semibold leading-6 text-[#1a1a1a]">
+            <UpgradeSparkIcon />
             امکانات ارتقای آگهی
           </h2>
 
@@ -196,6 +208,9 @@ function PaymentCheckoutView({
   publishState: unknown;
   total: number;
 }) {
+  const walletBalance = 10_000;
+  const walletDeficit = Math.max(total - walletBalance, 0);
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -215,9 +230,13 @@ function PaymentCheckoutView({
             icon="wallet"
             label="کیف پول"
             onClick={() => onMethodChange("wallet")}
-            subLabel="مانده: ۵۰,۰۰۰ تومان"
-            subLabelClassName="text-[#11a366]"
+            subLabel={`مانده: ${formatToman(walletBalance)} تومان`}
+            subLabelClassName={walletDeficit > 0 ? "text-[#e11900]" : "text-[#11a366]"}
           />
+
+          {walletDeficit > 0 ? (
+            <WalletDeficitBox deficit={walletDeficit} />
+          ) : null}
           <PaymentMethodOption
             active={method === "online"}
             icon="online"
@@ -253,9 +272,11 @@ function PaymentCheckoutView({
           <SummaryRow label="تخفیف" value={formatToman(0)} />
           <div className="my-4 border-t border-dashed border-[#cccccc]" aria-hidden="true" />
           <SummaryRow
-            label="جمع پرداختنی"
+            label="جمع پرداختی"
             value={formatToman(total)}
-            valueClassName="text-[#0048c4] font-semibold"
+            valueClassName="text-[#0048c4] font-semibold text-base"
+            labelClassName="text-right font-semibold text-[#4d4d4d] text-base"
+            iconClassName="w-7 h-7"
           />
         </section>
       </main>
@@ -333,7 +354,7 @@ function UpgradeOptionCard({
           {price}
         </span>
         <span className="min-w-0 flex-1 text-right [direction:rtl]">
-          <span className="flex items-center justify-end gap-2 text-base font-semibold leading-6 text-[#4d4d4d]">
+          <span className="flex items-center justify-start gap-2 text-base font-semibold leading-6 text-[#4d4d4d]">
             <SelectionBox checked={checked} />
             {title}
           </span>
@@ -344,6 +365,24 @@ function UpgradeOptionCard({
       </span>
       <InfoNotice tone="orange">{warning}</InfoNotice>
     </button>
+  );
+}
+
+function WalletDeficitBox({ deficit }: { deficit: number }) {
+  return (
+    <div className="p-4 flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-4 py-3 [direction:ltr]">
+      <button
+        className="flex py-1.5 px-4 shrink-0 items-center justify-center gap-1 rounded-lg bg-[#ff6a00] px-4 !text-xs font-semibold leading-5 text-white"
+        type="button"
+      >
+        افزایش موجودی
+        <span className="text-base leading-none flex">+</span>
+      </button>
+
+      <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+        کسری: {formatToman(deficit)} تومان
+      </span>
+    </div>
   );
 }
 
@@ -388,16 +427,25 @@ function PaymentMethodOption({
 function SummaryRow({
   label,
   value,
-  valueClassName = "text-[#4d4d4d]",
+  valueClassName = "text-[#1A1A1A] font-medium",
+  labelClassName = "text-right font-medium text-[#4d4d4d]",
+  iconClassName = "h-5 w-5 text-[#4d4d4d] mr-0.5"
 }: {
   label: string;
   value: string;
   valueClassName?: string;
+  labelClassName?: string;
+  iconClassName?: string;
 }) {
   return (
     <div className="flex min-h-8 items-center justify-between gap-4 text-sm leading-5 [direction:ltr]">
-      <span className={`text-left [direction:rtl] ${valueClassName}`}>{value}</span>
-      <span className="text-right text-[#4d4d4d] [direction:rtl]">{label}</span>
+      <span className={`text-left [direction:rtl] flex items-center ${valueClassName}`}>
+        {value}
+        <AdCardTomanIcon className={`${iconClassName}`} />
+      </span>
+      <span className={`[direction:rtl] ${labelClassName}`}>
+        {label}
+      </span>
     </div>
   );
 }
@@ -426,13 +474,12 @@ function SelectionBox({
   return (
     <span
       aria-hidden="true"
-      className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${
-        checked
-          ? disabled
-            ? "bg-[#b8b8b8] text-white"
-            : "bg-[#0048c4] text-white"
-          : "border border-[#b8b8b8] bg-white text-transparent"
-      }`}
+      className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${checked
+        ? disabled
+          ? "bg-[#b8b8b8] text-white"
+          : "bg-[#0048c4] text-white"
+        : "border border-[#b8b8b8] bg-white text-transparent"
+        }`}
     >
       <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16">
         <path
@@ -451,25 +498,18 @@ function RadioIndicator({ active }: { active: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${
-        active ? "border-[#0057d9]" : "border-[#808080]"
-      }`}
+      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${active ? "border-[#0057d9]" : "border-[#808080]"
+        }`}
     >
       {active ? <span className="h-2.5 w-2.5 rounded-full bg-[#0057d9]" /> : null}
     </span>
   );
 }
 
-function UpgradeSparkIcon({ className = "" }: { className?: string }) {
+function UpgradeSparkIcon() {
   return (
-    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
-      <path
-        d="M12 3.75l1.5 4.25 4.25 1.5-4.25 1.5L12 15.25l-1.5-4.25-4.25-1.5 4.25-1.5L12 3.75ZM18 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M19.1249 12C19.1249 12.4142 18.7705 12.75 18.3333 12.75C17.896 12.75 17.5416 12.4142 17.5416 12V10.0713L13.6636 14.4805C13.5213 14.6422 13.3136 14.7394 13.0915 14.749C12.8693 14.7586 12.653 14.6793 12.4957 14.5303L9.95473 12.123L6.28499 16.4688C6.01185 16.7922 5.51312 16.8447 5.1717 16.5859C4.83028 16.3272 4.77486 15.8547 5.048 15.5312L9.27026 10.5312C9.41093 10.3647 9.62062 10.2628 9.84546 10.251C10.0701 10.2393 10.2894 10.319 10.4485 10.4697L13.0018 12.8887L16.6427 8.75H14.5337C14.0964 8.75 13.742 8.41421 13.742 8C13.742 7.58579 14.0964 7.25 14.5337 7.25H18.3333C18.7705 7.25 19.1249 7.58579 19.1249 8V12Z" fill="#4D4D4D" />
     </svg>
   );
 }

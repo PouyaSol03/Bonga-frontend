@@ -154,7 +154,7 @@ function PageHeader({ title }: { title: string }) {
           </svg>
         </button>
 
-        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
+        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a]">
           {title}
         </h1>
       </div>
@@ -172,7 +172,7 @@ function TransactionSegmentedControl({
     <div className="bg-[#f0f0f0] px-4 pb-4">
       <div
         aria-label="نوع معامله"
-        className="grid h-12 grid-cols-3 overflow-hidden rounded-[17px] border border-[#808080] bg-white [direction:rtl]"
+        className="grid grid-cols-3 overflow-hidden rounded-[17px] border border-[#808080] bg-white [direction:rtl]"
         role="tablist"
       >
         {transactionTabs.map((type, index) => {
@@ -182,7 +182,7 @@ function TransactionSegmentedControl({
           return (
             <button
               aria-selected={isActive}
-              className={`min-w-0 text-center text-xl font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
+              className={`min-w-0 py-2 text-center text-base font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
                 } ${isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"}`}
               key={type}
               onClick={() => onChange(type)}
@@ -223,15 +223,15 @@ function CategoryChip({
 }) {
   return (
     <button
-      className={`flex h-11 items-center justify-center gap-2 rounded-[10px] border px-3 text-lg font-medium leading-7 [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
-          ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
-          : "border-[#cccccc] bg-white text-[#1a1a1a]"
+      className={`flex items-center justify-center gap-1 rounded-[10px] border p-2 max-h-9 !text-sm !font-medium leading-7 [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
+        ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
+        : "border-[#cccccc] bg-white text-[#1a1a1a]"
         }`}
       onClick={onClick}
       type="button"
     >
-      <span>{label}</span>
       {isSelected ? <SelectedCheckIcon /> : null}
+      <span>{label}</span>
     </button>
   );
 }
@@ -246,14 +246,14 @@ function CategoryOptionSection({
   onSelect: (optionId: string) => void;
 }) {
   return (
-    <section className="bg-white px-4 pb-12 pt-7 first:pt-6">
-      <div className="border-b border-[#e0e0e0] pb-4">
-        <h2 className="m-0 text-right text-xl font-medium leading-7 text-[#808080]">
+    <section className="bg-white p-4">
+      <div className="border-b border-[#e0e0e0] pb-2">
+        <h2 className="m-0 text-right font-medium leading-7 text-[#808080]">
           {section.title}
         </h2>
       </div>
 
-      <div className="flex flex-wrap justify-start gap-3 pt-7 [direction:rtl]">
+      <div className="flex flex-wrap justify-start gap-3 pt-4 [direction:rtl]">
         {section.options.map((option) => (
           <CategoryChip
             isSelected={option.id === selectedOptionId}
@@ -275,9 +275,11 @@ function NextActionBar({
   onNext: () => void;
 }) {
   return (
-    <footer className="shrink-0 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.94)]">
+    <footer className="relative z-20 shrink-0 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_28px_rgba(0,0,0,0.10)] before:pointer-events-none before:absolute before:inset-x-0 before:-top-8 before:h-8 before:bg-gradient-to-t before:from-white before:to-transparent">
       <button
-        className={`h-12 w-full rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled ? "bg-[#e0e0e0] text-[#a6a6a6]" : "bg-[#0048c4] text-white active:bg-[#003ba1]"
+        className={`w-full rounded-[10px] py-2 text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled
+            ? "bg-[#e0e0e0] text-[#a6a6a6]"
+            : "bg-[#0048c4] text-white active:bg-[#003ba1]"
           }`}
         disabled={disabled}
         onClick={onNext}

@@ -183,13 +183,8 @@ export const heatingItems: ChipItem[] = [
   { id: "gas-cooler", label: "کولر گازی" },
   { id: "water-cooler", label: "کولر آبی" },
   { id: "package", label: "پکیج" },
-  { id: "radiator", label: "رادیاتور" },
   { id: "heater", label: "بخاری" },
   { id: "water-heater", label: "آبگرمکن" },
-  { id: "floor-heating", label: "گرمایش از کف" },
-  { id: "fan-coil", label: "فن کوئل" },
-  { id: "chiller", label: "چیلر" },
-  { id: "split", label: "اسپلیت" },
   { id: "fireplace", label: "شوفاژ" },
 ];
 

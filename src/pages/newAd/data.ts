@@ -336,14 +336,14 @@ const saleApartmentBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ آپارتمان", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleVillaHouseBasicFields: BasicPropertyField[] = [
   { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleLandBasicFields: BasicPropertyField[] = [
@@ -364,7 +364,7 @@ const saleCommercialUnitBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
   { key: "documentType", label: "نوع سند", control: "select", options: documentTypeOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleWarehouseBasicFields: BasicPropertyField[] = [
@@ -379,7 +379,7 @@ const saleHotelApartmentBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "documentType", label: "نوع سند", control: "select", options: documentTypeOptions, required: true },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleFactoryWorkshopBasicFields: BasicPropertyField[] = [
@@ -392,21 +392,21 @@ const rentApartmentBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentOfficeBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "floor", label: "طبقه آپارتمان", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentCommercialUnitBasicFields: BasicPropertyField[] = [
   { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "floor", label: "طبقه آپارتمان", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
   { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
 ];
 
@@ -423,7 +423,7 @@ const rentHotelApartmentBasicFields: BasicPropertyField[] = [
   { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
-  { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
+  { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentFactoryWorkshopBasicFields: BasicPropertyField[] = [

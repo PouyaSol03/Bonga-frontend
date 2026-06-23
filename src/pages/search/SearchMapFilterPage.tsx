@@ -3,8 +3,6 @@ import { PageFrame } from "../../app/PageFrame";
 import {
   FormChoiceChip,
   FormSegmentedControl,
-  FormSelectField,
-  FormSwitch,
   FormTextField,
 } from "../../components/form/FormControls";
 import { BottomSheet } from "../../components/BottomSheet";
@@ -12,6 +10,7 @@ import { TopBar } from "../../components/TopBar";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { getFeatureIconSrc } from "../../lib/handleFeaturesIcons";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import {
   basicPropertyFieldsByListingType,
@@ -19,6 +18,7 @@ import {
   facilityItems,
   heatingItems,
   landFacilityItems,
+  exchangeTargets,
   moreFeatureFieldsByCategory,
   moreFeatureFieldsByListingType,
   moreFeatureOptions,
@@ -59,7 +59,8 @@ type IconName =
   | "ruler"
   | "settings"
   | "temperature"
-  | "year";
+  | "year"
+  | "exchange";
 
 type RangeBlock = {
   id: string;
@@ -91,12 +92,17 @@ type ToggleBlock = {
   title: string;
 };
 
+type LoanBlock = {
+  kind: "loan";
+};
+
 type FilterBlock =
   | { kind: "neighborhood" }
   | RangeBlock
   | SingleChoiceBlock
   | MultiChoiceBlock
   | ToggleBlock
+  | LoanBlock
   | { kind: "advertiser" }
   | { kind: "publicationTime" }
   | { kind: "adFlags" };
@@ -121,6 +127,8 @@ type FilterState = {
   singles: Record<string, string | undefined>;
   multis: Record<string, string[] | undefined>;
   toggles: Record<string, boolean | undefined>;
+  loanAmount: string;
+  loanInstallment: string;
   featured: boolean;
   hasPhoto: boolean;
   hasVideo: boolean;
@@ -136,6 +144,8 @@ const initialFilters: FilterState = {
   singles: {},
   multis: {},
   toggles: {},
+  loanAmount: "",
+  loanInstallment: "",
   featured: false,
   hasPhoto: false,
   hasVideo: false,
@@ -255,6 +265,62 @@ function normalizeRangeNumber(value: string | undefined) {
   return toEnglishDigits(value).replace(/[^\d.]/g, "");
 }
 
+function toPersianDigits(value: string | number) {
+  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+}
+
+function formatPersianGroupedNumberInput(value: string) {
+  const normalized = normalizeRangeNumber(value);
+
+  if (!normalized) return "";
+
+  const [integerPart, decimalPart] = normalized.split(".");
+  const grouped = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, "،");
+
+  return toPersianDigits(decimalPart !== undefined ? `${grouped}.${decimalPart}` : grouped);
+}
+
+function formatPersianPlainNumber(value: string | number) {
+  const normalized = normalizeRangeNumber(String(value));
+
+  return normalized ? toPersianDigits(normalized) : "";
+}
+
+function formatMoneyInputValue(value: string | number | undefined) {
+  const normalized = normalizeRangeNumber(String(value ?? ""));
+  const numericValue = Number(normalized);
+
+  return normalized && numericValue > 0 ? formatPrice(numericValue) : "";
+}
+
+function getMoneySupportingText(value: string | number | undefined) {
+  const normalized = normalizeRangeNumber(String(value ?? ""));
+  const numericValue = Number(normalized);
+
+  return normalized && numericValue > 0 ? `${formatBigNumber(numericValue)} تومان` : "";
+}
+
+const customRangeOptionLabel = "وارد کردن مقدار دلخواه";
+
+const areaRangeOptions = [
+  "۳۰",
+  "۴۰",
+  "۵۰",
+  "۶۰",
+  "۷۰",
+  "۸۰",
+  "۹۰",
+  "۱۰۰",
+  "۱۲۰",
+  "۱۵۰",
+  "۲۰۰",
+  "۲۵۰",
+  "۳۰۰",
+  "۴۰۰",
+  "۵۰۰",
+  customRangeOptionLabel,
+];
+
 function getRange(filters: FilterState, ids: string[]) {
   for (const id of ids) {
     const range = filters.ranges[id];
@@ -292,8 +358,8 @@ function readInitialFiltersFromUrl(): FilterState {
     maximum: params.get("area_max") ?? "",
   };
   const priceRange = {
-    minimum: params.get("price_min") ?? "",
-    maximum: params.get("price_max") ?? "",
+    minimum: formatPersianGroupedNumberInput(params.get("price_min") ?? ""),
+    maximum: formatPersianGroupedNumberInput(params.get("price_max") ?? ""),
   };
 
   if (areaRange.minimum || areaRange.maximum) {
@@ -314,9 +380,11 @@ function readInitialFiltersFromUrl(): FilterState {
   const floorValues = (params.get("floor") ?? "").split(/[_،,]/).filter(Boolean);
   const roomValues = (params.get("rooms") ?? "").split(/[_،,]/).filter(Boolean);
   const buildingAge = params.get("building_age") ?? "";
+  const exchangeValues = (params.get("exchange_with") ?? "").split(/[_،,]/).filter(Boolean);
 
   if (floorValues.length > 0) nextFilters.multis.floor = floorValues;
   if (roomValues.length > 0) nextFilters.multis.rooms = roomValues;
+  if (exchangeValues.length > 0) nextFilters.multis.exchangeWith = exchangeValues;
   if (buildingAge) nextFilters.singles.age = buildingAge;
 
   const neighborhoods = (params.get("neighborhood_id") || params.get("neighborhoods") || "")
@@ -331,6 +399,9 @@ function readInitialFiltersFromUrl(): FilterState {
   nextFilters.featured = params.get("is_special") === "true" || params.get("is_special") === "1";
   nextFilters.hasPhoto = params.get("has_image") === "true" || params.get("has_image") === "1";
   nextFilters.hasVideo = params.get("has_video") === "true" || params.get("has_video") === "1";
+  nextFilters.toggles.hasLoan = params.get("has_loan") === "true" || params.get("has_loan") === "1";
+  nextFilters.loanAmount = params.get("loan_amount") ?? "";
+  nextFilters.loanInstallment = params.get("loan_installment") ?? "";
 
   return nextFilters;
 }
@@ -363,6 +434,7 @@ function buildSearchUrl(filters: FilterState) {
     normalizeExactFilterValue(filters.singles.floor) ||
     normalizeMultiExactFilterValue(filters.multis.projectFloors);
   const buildingAge = normalizeExactFilterValue(filters.singles.age);
+  const exchangeWith = normalizeMultiExactFilterValue(filters.multis.exchangeWith);
 
   const setOrDelete = (key: string, value: string) => {
     if (value) {
@@ -388,6 +460,10 @@ function buildSearchUrl(filters: FilterState) {
   setOrDelete("rooms", rooms);
   setOrDelete("floor", floor);
   setOrDelete("building_age", buildingAge);
+  setOrDelete("has_loan", filters.toggles.hasLoan ? "true" : "");
+  setOrDelete("loan_amount", "");
+  setOrDelete("loan_installment", "");
+  setOrDelete("exchange_with", exchangeWith);
   setOrDelete("published_at", filters.publicationTime ?? "");
   setOrDelete("is_special", filters.featured ? "true" : "");
   setOrDelete("has_image", filters.hasPhoto ? "true" : "");
@@ -458,8 +534,9 @@ const transactionTabs: { label: string; value: TransactionType }[] = [
   { label: "پروژه", value: "project" },
 ];
 
-const advertiserOptions = ["شخصی", "مشاور املاک", "سازنده"];
-const publicationTimeOptions = ["امروز", "دیروز", "هفته اخیر", "ماه اخیر"];
+const advertiserOptions = ["آژانس املاک", "شخصی", "مشاور"];
+const publicationTimeOptions = ["یک ساعت پیش", "سه ساعت پیش", "یک روز پیش", "یک هفته پیش", "یک ماه پیش"];
+const removedFilterFieldKeys = new Set(["cabinetMaterial", "floorMaterial", "facadeMaterial"]);
 
 const minNeighborhoodSearchLength = 2;
 const neighborhoodSearchDebounceMs = 250;
@@ -516,7 +593,7 @@ function getMoreFields(transaction: TransactionType, category: CategoryKey): Mor
     moreFeatureFieldsByListingType[getListingKey(transaction, category)] ??
     moreFeatureFieldsByCategory[category] ??
     []
-  );
+  ).filter((field) => !removedFilterFieldKeys.has(field.key));
 }
 
 function getFacilityItems(category: CategoryKey) {
@@ -698,8 +775,24 @@ function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): 
     blocks.push(...getBasicFields(transaction, category).map(blockFromBasicField));
   }
 
+  blocks.push(...getPriceBlocks(transaction, category));
+
   if (!isProjectCategory(category) && !isDailyHotelRent) {
     blocks.push(...getMoreFields(transaction, category).map(blockFromMoreFeatureField));
+  }
+
+  if (transaction === "sale") {
+    if (category !== "garden-villa") {
+      blocks.push({ kind: "loan" });
+    }
+
+    blocks.push({
+      icon: "exchange",
+      id: "exchangeWith",
+      kind: "multi",
+      options: exchangeTargets.map((label) => ({ id: label, label })),
+      title: "معاوضه با",
+    });
   }
 
   if (!hideHeatingCooling) {
@@ -722,10 +815,58 @@ function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): 
     });
   }
 
-  blocks.push(...getPriceBlocks(transaction, category));
   blocks.push({ kind: "advertiser" }, { kind: "publicationTime" }, { kind: "adFlags" });
 
-  return dedupeBlocks(blocks);
+  const dedupedBlocks = dedupeBlocks(blocks);
+
+  if (transaction === "sale" && category === "apartment") {
+    return sortSaleApartmentBlocks(dedupedBlocks);
+  }
+
+  return dedupedBlocks;
+}
+
+function getBlockOrderKey(block: FilterBlock) {
+  if (block.kind === "neighborhood") return "neighborhood";
+  if (block.kind === "loan") return "hasLoan";
+  if (block.kind === "advertiser") return "advertiser";
+  if (block.kind === "publicationTime") return "publicationTime";
+  if (block.kind === "adFlags") return "adFlags";
+
+  return block.id;
+}
+
+function sortSaleApartmentBlocks(blocks: FilterBlock[]) {
+  const order = [
+    "neighborhood",
+    "meterage",
+    "price",
+    "age",
+    "rooms",
+    "floor",
+    "renovated",
+    "furnished",
+    "hasLoan",
+    "documentType",
+    "unitType",
+    "unitPosition",
+    "heatingCooling",
+    "facilities",
+    "exchangeWith",
+    "advertiser",
+    "publicationTime",
+    "adFlags",
+  ];
+  const orderMap = new Map(order.map((key, index) => [key, index]));
+
+  return [...blocks]
+    .filter((block) => getBlockOrderKey(block) !== "totalFloors")
+    .sort((first, second) => {
+      const firstOrder = orderMap.get(getBlockOrderKey(first)) ?? Number.MAX_SAFE_INTEGER;
+      const secondOrder = orderMap.get(getBlockOrderKey(second)) ?? Number.MAX_SAFE_INTEGER;
+
+      return firstOrder - secondOrder;
+    });
 }
 
 function dedupeBlocks(blocks: FilterBlock[]) {
@@ -762,6 +903,8 @@ function getIcon(icon: IconName) {
       return <TemperatureIcon />;
     case "year":
       return <YearIcon />;
+    case "exchange":
+      return <ExchangeIcon />;
     default:
       return <SettingsIcon />;
   }
@@ -769,6 +912,9 @@ function getIcon(icon: IconName) {
 
 export function SearchMapFilterPage() {
   const [filters, setFilters] = useState<FilterState>(readInitialFiltersFromUrl);
+  const [categoryPickerInitial, setCategoryPickerInitial] = useState<CategoryKey | undefined>(
+    filters.category,
+  );
 
   const filterBlocks = useMemo(
     () => getFilterBlocks(filters.transaction, filters.category),
@@ -792,6 +938,7 @@ export function SearchMapFilterPage() {
     transaction: TransactionType,
     category: CategoryKey,
   ) => {
+    setCategoryPickerInitial(category);
     setFilters({
       ...initialFilters,
       transaction,
@@ -800,6 +947,7 @@ export function SearchMapFilterPage() {
   };
 
   const openCategoryPicker = () => {
+    setCategoryPickerInitial(filters.category);
     setFilters((current) => ({
       ...current,
       category: undefined,
@@ -867,6 +1015,7 @@ export function SearchMapFilterPage() {
   if (!filters.category) {
     return (
       <CategorySelectionScreen
+        initialCategory={categoryPickerInitial}
         initialTransaction={filters.transaction}
         onConfirm={changeCategory}
       />
@@ -893,16 +1042,16 @@ export function SearchMapFilterPage() {
             onClick={openCategoryPicker}
             type="button"
           >
+            <div className="flex items-center gap-2 text-sm font-medium text-[#1a1a1a]">
+              <BuildingIcon />
+              <span>انتخاب دسته</span>
+            </div>
+
             <FormChoiceChip
               label={categoryLabels[filters.category]}
               selected
               onClick={openCategoryPicker}
             />
-
-            <div className="flex items-center gap-2 text-sm font-medium text-[#1a1a1a]">
-              <span>انتخاب دسته</span>
-              <BuildingIcon />
-            </div>
           </button>
         </div>
       </div>
@@ -974,6 +1123,7 @@ type ChipSectionProps = {
   sectionId?: string;
   showFeatureIcons?: boolean;
   more?: boolean;
+  moreLimit?: number;
   onToggle: (value: string) => void;
   options: readonly ChipItem[];
   selected: string[];
@@ -985,15 +1135,20 @@ function ChipSection({
   sectionId,
   showFeatureIcons = false,
   more = false,
+  moreLimit = 8,
   onToggle,
   options,
   selected,
   title,
 }: ChipSectionProps) {
+  const [expanded, setExpanded] = useState(false);
+  const canExpand = more && options.length > moreLimit;
+  const visibleOptions = canExpand && !expanded ? options.slice(0, moreLimit) : options;
+
   return (
     <FilterSection icon={icon} sectionId={sectionId} title={title}>
       <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-        {options.map((option) => (
+        {visibleOptions.map((option) => (
           <FormChoiceChip
             key={option.id}
             icon={
@@ -1007,7 +1162,13 @@ function ChipSection({
           />
         ))}
       </div>
-      {more ? <MoreButton /> : null}
+      {canExpand ? (
+        <MoreButton
+          count={options.length - moreLimit}
+          expanded={expanded}
+          onClick={() => setExpanded((current) => !current)}
+        />
+      ) : null}
     </FilterSection>
   );
 }
@@ -1046,10 +1207,15 @@ function SingleChoiceSection({
   selected,
   title,
 }: SingleChoiceSectionProps) {
+  const [expanded, setExpanded] = useState(false);
+  const moreLimit = 8;
+  const canExpand = more && options.length > moreLimit;
+  const visibleOptions = canExpand && !expanded ? options.slice(0, moreLimit) : options;
+
   return (
     <FilterSection icon={icon} sectionId={sectionId} title={title}>
       <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-        {options.map((option) => (
+        {visibleOptions.map((option) => (
           <FormChoiceChip
             key={option}
             label={option}
@@ -1060,19 +1226,34 @@ function SingleChoiceSection({
           />
         ))}
       </div>
-      {more ? <MoreButton /> : null}
+      {canExpand ? (
+        <MoreButton
+          count={options.length - moreLimit}
+          expanded={expanded}
+          onClick={() => setExpanded((current) => !current)}
+        />
+      ) : null}
     </FilterSection>
   );
 }
 
-function MoreButton() {
+function MoreButton({
+  count,
+  expanded,
+  onClick,
+}: {
+  count: number;
+  expanded: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
-      className="mt-2 flex h-10 w-full items-center justify-center gap-2 text-sm font-medium leading-5 text-[#0048c4]"
+      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 px-3 text-sm font-medium leading-5 text-[#0048c4]"
+      onClick={onClick}
       type="button"
     >
-      <span>موارد بیشتر</span>
-      <ArrowLeftIcon />
+      <span>{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</span>
+      <ChevronDownIcon isOpen={expanded} />
     </button>
   );
 }
@@ -1091,14 +1272,6 @@ function TrashIcon() {
   );
 }
 
-function ArrowLeftIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path d="m11.5 5.5-4 4 4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
 function BuildingIcon() {
   return <FilterAssetIcon src="/icons/add_advertisement/features.svg" />;
 }
@@ -1108,7 +1281,14 @@ function LocationIcon() {
 }
 
 function RulerIcon() {
-  return <FilterAssetIcon src="/icons/infos/area.svg" />;
+  return (
+    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M8.75 18V20.25H11.25V18H12.75V20.25H15.25V18H16.75V20.25H20C20.1381 20.25 20.25 20.1381 20.25 20V15C20.25 14.8619 20.1381 14.75 20 14.75H9.25V4C9.25 3.86193 9.13807 3.75 9 3.75H4C3.86193 3.75 3.75 3.86193 3.75 4V7.25H6V8.75H3.75V11.25H6V12.75H3.75V15.25H6V16.75H3.75V20C3.75 20.1381 3.86193 20.25 4 20.25H7.25V18H8.75ZM10.75 13.25H20C20.9665 13.25 21.75 14.0335 21.75 15V20C21.75 20.9665 20.9665 21.75 20 21.75H4C3.0335 21.75 2.25 20.9665 2.25 20V4C2.25 3.0335 3.0335 2.25 4 2.25H9C9.9665 2.25 10.75 3.0335 10.75 4V13.25Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
 }
 
 function MoneyIcon() {
@@ -1139,13 +1319,19 @@ function SettingsIcon() {
   return <FilterAssetIcon src="/icons/add_advertisement/features.svg" />;
 }
 
+function ExchangeIcon() {
+  return <FilterAssetIcon src="/icons/exchange.svg" />;
+}
+
 
 type CategorySelectionScreenProps = {
+  initialCategory?: CategoryKey;
   initialTransaction: TransactionType;
   onConfirm: (transaction: TransactionType, category: CategoryKey) => void;
 };
 
 function CategorySelectionScreen({
+  initialCategory,
   initialTransaction,
   onConfirm,
 }: CategorySelectionScreenProps) {
@@ -1153,7 +1339,7 @@ function CategorySelectionScreen({
     useState<TransactionType>(initialTransaction);
 
   const [draftCategory, setDraftCategory] = useState<CategoryKey | undefined>(
-    undefined,
+    initialCategory,
   );
 
   return (
@@ -1280,8 +1466,22 @@ function FilterBlockRenderer({
         );
       }
 
+      if (block.variant === "area") {
+        return (
+          <AreaRangeSection
+            sectionId={getFilterSectionAnchor(block)}
+            title={block.title}
+            unit={block.unit}
+            minimum={value.minimum}
+            maximum={value.maximum}
+            onMinimumChange={(nextValue) => setRangeValue(block.id, "minimum", nextValue)}
+            onMaximumChange={(nextValue) => setRangeValue(block.id, "maximum", nextValue)}
+          />
+        );
+      }
+
       return (
-        <AreaRangeSection
+        <NumberRangeSection
           sectionId={getFilterSectionAnchor(block)}
           title={block.title}
           unit={block.unit}
@@ -1298,7 +1498,7 @@ function FilterBlockRenderer({
         <SingleChoiceSection
           icon={getIcon(block.icon)}
           sectionId={getFilterSectionAnchor(block)}
-          more={block.options.length > 8}
+          more={block.id !== "age" && block.options.length > 8}
           onSelect={(value) => setSingleValue(block.id, value)}
           options={block.options}
           selected={filters.singles[block.id]}
@@ -1312,9 +1512,10 @@ function FilterBlockRenderer({
           icon={getIcon(block.icon)}
           sectionId={getFilterSectionAnchor(block)}
           showFeatureIcons={block.id === "heatingCooling" || block.id === "facilities"}
-          more={block.options.length > 8}
+          more={block.id === "facilities" && block.options.length > 6}
+          moreLimit={block.id === "facilities" ? 6 : 8}
           onToggle={(value) => toggleMultiValue(block.id, value)}
-          options={block.options}
+          options={block.id === "floor" ? block.options.filter((option) => !option.label.includes("بیشتر")) : block.options}
           selected={filters.multis[block.id] ?? []}
           title={block.title}
         />
@@ -1329,17 +1530,25 @@ function FilterBlockRenderer({
         />
       );
 
+    case "loan":
+      return (
+        <LoanFilterSection
+          checked={Boolean(filters.toggles.hasLoan)}
+          onChange={(checked) => setToggleValue("hasLoan", checked)}
+        />
+      );
+
     case "advertiser":
       return (
         <SelectOnlySection
           label="آگهی دهنده"
+          options={advertiserOptions}
+          sectionId={getFilterSectionAnchor(block)}
           value={filters.advertiser}
-          onClick={() =>
+          onChange={(advertiser) =>
             setFilters((current) => ({
               ...current,
-              advertiser: current.advertiser
-                ? undefined
-                : advertiserOptions[0],
+              advertiser,
             }))
           }
         />
@@ -1349,13 +1558,13 @@ function FilterBlockRenderer({
       return (
         <SelectOnlySection
           label="زمان انتشار آگهی"
+          options={publicationTimeOptions}
+          sectionId={getFilterSectionAnchor(block)}
           value={filters.publicationTime}
-          onClick={() =>
+          onChange={(publicationTime) =>
             setFilters((current) => ({
               ...current,
-              publicationTime: current.publicationTime
-                ? undefined
-                : publicationTimeOptions[0],
+              publicationTime,
             }))
           }
         />
@@ -1363,8 +1572,8 @@ function FilterBlockRenderer({
 
     case "adFlags":
       return (
-        <section className="bg-white px-4 pb-4 pt-0">
-          <FormSwitch
+        <section className="bg-white px-4 pb-4 pt-0" dir="rtl">
+          <CheckboxRow
             checked={filters.featured}
             label="آگهی ویژه"
             onChange={(featured) =>
@@ -1372,7 +1581,7 @@ function FilterBlockRenderer({
             }
           />
 
-          <FormSwitch
+          <CheckboxRow
             checked={filters.hasPhoto}
             label="آگهی با عکس"
             onChange={(hasPhoto) =>
@@ -1380,7 +1589,7 @@ function FilterBlockRenderer({
             }
           />
 
-          <FormSwitch
+          <CheckboxRow
             checked={filters.hasVideo}
             label="آگهی با ویدیو"
             onChange={(hasVideo) =>
@@ -1417,10 +1626,10 @@ function NeighborhoodFilterSection({
   const canSearch = debouncedQuery.length >= minNeighborhoodSearchLength;
   const neighborhoodsQuery = useNeighborhoodListQuery({
     cityId,
-    enabled: isPickerOpen && Boolean(cityId) && canSearch,
+    enabled: isPickerOpen && Boolean(cityId),
     page: 1,
     perPage: 30,
-    q: debouncedQuery,
+    q: canSearch ? debouncedQuery : "",
   });
   const neighborhoods = neighborhoodsQuery.data ?? [];
   const selectedIds = useMemo(
@@ -1443,125 +1652,128 @@ function NeighborhoodFilterSection({
   };
 
   return (
-    <FilterSection icon={<LocationIcon />} sectionId={sectionId} title="محله">
-      <div className="space-y-3" dir="rtl">
-        <button
-          className="flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-[#cccccc] bg-white px-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          onClick={() => setIsPickerOpen(true)}
-          type="button"
-        >
-          <span className="min-w-0 flex-1 truncate">
-            {selectedNeighborhoods.length > 0
-              ? `${new Intl.NumberFormat("fa-IR").format(selectedNeighborhoods.length)} محله انتخاب شده`
-              : "انتخاب محله"}
-          </span>
-          <ChevronDownIcon isOpen={isPickerOpen} />
-        </button>
+    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 py-4" data-filter-section={sectionId} dir="rtl">
+      <button
+        className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
+        onClick={() => setIsPickerOpen(true)}
+        type="button"
+      >
+        <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
+          <LocationIcon />
+          <span>محله</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
+          <span>انتخاب کنید</span>
+          <ChevronLeftIcon />
+        </div>
+      </button>
 
-        {isPickerOpen ? (
-          <BottomSheet
-            ariaLabel="انتخاب محله"
-            contentClassName="flex min-h-0 flex-1 flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3"
-            heightClassName="h-[min(92dvh,640px)]"
-            isOpen={isPickerOpen}
-            onClose={() => setIsPickerOpen(false)}
-            panelPaddingClassName="flex flex-col pt-4"
-            showHeaderDivider
-            title="محله"
-          >
-            <label className="flex h-10 items-center gap-2 rounded-[10px] border border-[#cccccc] bg-white px-3 focus-within:border-[#0048c4]">
-              <input
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="جستجوی محله"
-                type="search"
-                value={query}
+      {selectedNeighborhoods.length > 0 ? (
+        <div className="mt-3 flex flex-wrap justify-start gap-2">
+          {selectedNeighborhoods.map((item) => (
+            <FormChoiceChip
+              key={item.id}
+              label={item.name}
+              onClick={() => removeNeighborhood(item.id)}
+              removable
+              selected
+            />
+          ))}
+        </div>
+      ) : null}
+
+      <BottomSheet
+        ariaLabel="انتخاب محله"
+        contentClassName="flex min-h-0 flex-1 flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3"
+        heightClassName="h-[min(92dvh,640px)]"
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        panelPaddingClassName="flex flex-col pt-4"
+        showHeaderDivider
+        title="محله"
+      >
+        <label className="flex h-10 items-center gap-2 rounded-[10px] border border-[#cccccc] bg-white px-3 focus-within:border-[#0048c4]" dir="rtl">
+          <SearchIcon />
+          <input
+            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="جستجوی محله"
+            type="search"
+            value={query}
+          />
+          {query ? (
+            <button
+              aria-label="پاک کردن جستجوی محله"
+              className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+              onClick={() => setQuery("")}
+              type="button"
+            >
+              <ClearCircleIcon />
+            </button>
+          ) : null}
+        </label>
+
+        {selectedNeighborhoods.length > 0 ? (
+          <div className="mt-3 flex flex-wrap justify-start gap-2" dir="rtl">
+            {selectedNeighborhoods.map((item) => (
+              <FormChoiceChip
+                key={item.id}
+                label={item.name}
+                onClick={() => removeNeighborhood(item.id)}
+                removable
+                selected
               />
-              {query ? (
-                <button
-                  aria-label="پاک کردن جستجوی محله"
-                  className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
-                  onClick={() => setQuery("")}
-                  type="button"
-                >
-                  <ClearCircleIcon />
-                </button>
-              ) : (
-                <SearchIcon />
-              )}
-            </label>
-
-            {selectedNeighborhoods.length > 0 ? (
-              <div className="mt-3 flex flex-wrap justify-start gap-2">
-                {selectedNeighborhoods.map((item) => (
-                  <FormChoiceChip
-                    key={item.id}
-                    label={item.name}
-                    onClick={() => removeNeighborhood(item.id)}
-                    removable
-                    selected
-                  />
-                ))}
-              </div>
-            ) : null}
-
-            <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain">
-              {!cityId ? (
-                <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-                  برای انتخاب محله، ابتدا شهر را انتخاب کنید.
-                </p>
-              ) : !debouncedQuery ? (
-                <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-                  نام محله را جستجو کنید.
-                </p>
-              ) : !canSearch ? (
-                <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-                  برای جستجو حداقل ۲ حرف وارد کنید.
-                </p>
-              ) : neighborhoodsQuery.isLoading ? (
-                <div className="space-y-2">
-                  <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-                  <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-                </div>
-              ) : neighborhoods.length > 0 ? (
-                <div className="space-y-1">
-                  {neighborhoods.map((neighborhood) => {
-                    const neighborhoodId = getNeighborhoodOptionId(neighborhood);
-                    const isSelected = selectedIds.has(neighborhoodId);
-
-                    return (
-                      <button
-                        aria-pressed={isSelected}
-                        className={`flex w-full items-start gap-3 rounded-[10px] px-2 py-3 text-right transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
-                          isSelected ? "bg-[#0048c40a]" : "bg-white"
-                        }`}
-                        key={neighborhoodId}
-                        onClick={() => toggleNeighborhood(neighborhood)}
-                        type="button"
-                      >
-                        <SelectionCheckIndicator checked={isSelected} />
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-semibold leading-5 text-[#1a1a1a]">
-                            {neighborhood.name}
-                          </span>
-                          <span className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
-                            {selectedCity?.name ?? "شهر انتخاب‌شده"}
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-                  محله‌ای با این عبارت پیدا نشد.
-                </p>
-              )}
-            </div>
-          </BottomSheet>
+            ))}
+          </div>
         ) : null}
-      </div>
-    </FilterSection>
+
+        <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain" dir="rtl">
+          {!cityId ? (
+            <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+              برای انتخاب محله، ابتدا شهر را انتخاب کنید.
+            </p>
+          ) : neighborhoodsQuery.isLoading ? (
+            <div className="space-y-2">
+              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
+              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
+            </div>
+          ) : neighborhoods.length > 0 ? (
+            <div className="space-y-1">
+              {neighborhoods.map((neighborhood) => {
+                const neighborhoodId = getNeighborhoodOptionId(neighborhood);
+                const isSelected = selectedIds.has(neighborhoodId);
+
+                return (
+                  <button
+                    aria-pressed={isSelected}
+                    className={`flex w-full items-start gap-3 rounded-[10px] px-2 py-3 text-right transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
+                      isSelected ? "bg-[#0048c40a]" : "bg-white"
+                    }`}
+                    key={neighborhoodId}
+                    onClick={() => toggleNeighborhood(neighborhood)}
+                    type="button"
+                  >
+                    <SelectionCheckIndicator checked={isSelected} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold leading-5 text-[#1a1a1a]">
+                        {neighborhood.name}
+                      </span>
+                      <span className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
+                        {selectedCity?.name ?? "شهر انتخاب‌شده"}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+              محله‌ای با این عبارت پیدا نشد.
+            </p>
+          )}
+        </div>
+      </BottomSheet>
+    </section>
   );
 }
 
@@ -1592,6 +1804,14 @@ function ChevronDownIcon({ isOpen }: { isOpen: boolean }) {
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
+    </svg>
+  );
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
+      <path d="m11.5 5.5-4 4 4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -1629,6 +1849,35 @@ type RangeSectionProps = {
 function AreaRangeSection({
   sectionId,
   title,
+  minimum,
+  maximum,
+  onMinimumChange,
+  onMaximumChange,
+}: RangeSectionProps) {
+  const normalizedTitle = title.includes("متراژ") ? "متراژ (متر)" : title;
+
+  return (
+    <FilterSection icon={<RulerIcon />} sectionId={sectionId} title={normalizedTitle}>
+      <div className="flex items-center gap-3" dir="rtl">
+        <RangeSelectField
+          label="حداقل"
+          onChange={onMinimumChange}
+          value={minimum}
+        />
+
+        <RangeSelectField
+          label="حداکثر"
+          onChange={onMaximumChange}
+          value={maximum}
+        />
+      </div>
+    </FilterSection>
+  );
+}
+
+function NumberRangeSection({
+  sectionId,
+  title,
   unit,
   minimum,
   maximum,
@@ -1642,23 +1891,136 @@ function AreaRangeSection({
           badge={unit}
           className="flex-1"
           label="حداقل"
-          onChange={(event) => onMinimumChange(event.target.value)}
+          onChange={(event) => onMinimumChange(formatPersianPlainNumber(event.target.value))}
           onClear={() => onMinimumChange("")}
           placeholder="حداقل"
-          value={minimum}
+          value={formatPersianPlainNumber(minimum)}
         />
 
         <FormTextField
           badge={unit}
           className="flex-1"
           label="حداکثر"
-          onChange={(event) => onMaximumChange(event.target.value)}
+          onChange={(event) => onMaximumChange(formatPersianPlainNumber(event.target.value))}
           onClear={() => onMaximumChange("")}
           placeholder="حداکثر"
-          value={maximum}
+          value={formatPersianPlainNumber(maximum)}
         />
       </div>
     </FilterSection>
+  );
+}
+
+function RangeSelectField({
+  label,
+  onChange,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCustomInputVisible, setIsCustomInputVisible] = useState(false);
+  const [customValue, setCustomValue] = useState("");
+  const displayValue = formatPersianPlainNumber(value);
+
+  const closeSheet = () => {
+    setIsOpen(false);
+    setIsCustomInputVisible(false);
+    setCustomValue("");
+  };
+
+  return (
+    <div className="min-w-0 flex-1">
+      <button
+        className="flex h-12 w-full items-center justify-between rounded-xl border border-[#d9d9d9] bg-white px-3 text-sm font-normal leading-5 [direction:ltr]"
+        onClick={() => setIsOpen(true)}
+        type="button"
+      >
+        <ChevronDownIcon isOpen={isOpen} />
+        <span className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
+          {displayValue || label}
+        </span>
+      </button>
+
+      <BottomSheet
+        ariaLabel={label}
+        contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
+        heightClassName="max-h-[min(74dvh,520px)]"
+        isOpen={isOpen}
+        onClose={closeSheet}
+        showHeaderDivider
+        title={label}
+      >
+        <div className="space-y-1" dir="rtl">
+          {value ? (
+            <button
+              className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
+              onClick={() => {
+                onChange("");
+                closeSheet();
+              }}
+              type="button"
+            >
+              <span>پاک کردن انتخاب</span>
+              <ClearCircleIcon />
+            </button>
+          ) : null}
+
+          {areaRangeOptions.map((option) => {
+            const normalizedOption = normalizeRangeNumber(option);
+            const selected = Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
+
+            return (
+              <button
+                aria-pressed={selected}
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
+                  selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
+                }`}
+                key={option}
+                onClick={() => {
+                  if (option === customRangeOptionLabel) {
+                    setIsCustomInputVisible(true);
+                    return;
+                  }
+
+                  onChange(formatPersianPlainNumber(option));
+                  closeSheet();
+                }}
+                type="button"
+              >
+                <span>{option}</span>
+                {option === customRangeOptionLabel ? <ChevronLeftIcon /> : <SelectionCheckIndicator checked={selected} />}
+              </button>
+            );
+          })}
+
+          {isCustomInputVisible ? (
+            <div className="space-y-3 rounded-[12px] bg-[#f7f7f7] p-3">
+              <FormTextField
+                label="مقدار دلخواه"
+                onChange={(event) => setCustomValue(formatPersianPlainNumber(event.target.value))}
+                onClear={() => setCustomValue("")}
+                placeholder="مقدار دلخواه"
+                value={customValue}
+              />
+              <button
+                className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:bg-[#d9d9d9]"
+                disabled={!normalizeRangeNumber(customValue)}
+                onClick={() => {
+                  onChange(formatPersianPlainNumber(customValue));
+                  closeSheet();
+                }}
+                type="button"
+              >
+                تایید
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </BottomSheet>
+    </div>
   );
 }
 
@@ -1676,19 +2038,21 @@ function MoneyRangeSection({
         <FormTextField
           badge="تومان"
           label="حداقل"
-          onChange={(event) => onMinimumChange(event.target.value)}
+          onChange={(event) => onMinimumChange(normalizeRangeNumber(event.target.value))}
           onClear={() => onMinimumChange("")}
           placeholder="حداقل"
-          value={minimum}
+          supportingText={getMoneySupportingText(minimum)}
+          value={formatMoneyInputValue(minimum)}
         />
 
         <FormTextField
           badge="تومان"
           label="حداکثر"
-          onChange={(event) => onMaximumChange(event.target.value)}
+          onChange={(event) => onMaximumChange(normalizeRangeNumber(event.target.value))}
           onClear={() => onMaximumChange("")}
           placeholder="حداکثر"
-          value={maximum}
+          supportingText={getMoneySupportingText(maximum)}
+          value={formatMoneyInputValue(maximum)}
         />
       </div>
     </FilterSection>
@@ -1705,29 +2069,142 @@ function SwitchOnlySection({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="border-b-8 border-[#f0f0f0] bg-white px-4">
-      <FormSwitch checked={checked} label={label} onChange={onChange} />
-    </div>
+    <section className="border-b border-[#f0f0f0] bg-white px-4" dir="rtl">
+      <CheckboxRow checked={checked} label={label} onChange={onChange} />
+    </section>
+  );
+}
+
+function LoanFilterSection({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <section className="border-b-8 border-[#f0f0f0] bg-white px-4" data-filter-section="hasLoan" dir="rtl">
+      <CheckboxRow checked={checked} label="با وام" onChange={onChange} />
+    </section>
+  );
+}
+
+function CheckboxRow({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <button
+      aria-pressed={checked}
+      className="flex h-14 w-full items-center justify-between gap-3 bg-white text-right"
+      onClick={() => onChange(!checked)}
+      type="button"
+    >
+      <span className="min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+        {label}
+      </span>
+      <span className={`grid h-5 w-5 shrink-0 place-items-center rounded border ${checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"}`}>
+        {checked ? <img alt="" aria-hidden="true" className="h-3.5 w-3.5" src="/icons/checkTick.svg" /> : null}
+      </span>
+    </button>
   );
 }
 
 function SelectOnlySection({
   label,
+  onChange,
+  options,
+  sectionId,
   value,
-  onClick,
 }: {
   label: string;
+  onChange: (value: string | undefined) => void;
+  options: readonly string[];
+  sectionId?: string;
   value?: string;
-  onClick: () => void;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <section className="bg-white px-4">
-      <FormSelectField
-        label={label}
-        onClick={onClick}
-        placeholder="انتخاب"
-        value={value}
-      />
+    <section className="bg-white px-4 py-4" data-filter-section={sectionId} dir="rtl">
+      <button
+        className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
+        onClick={() => setIsOpen(true)}
+        type="button"
+      >
+        <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
+          <SettingsIcon />
+          <span>{label}</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
+          <span>انتخاب</span>
+          <ChevronLeftIcon />
+        </div>
+      </button>
+
+      {value ? (
+        <div className="mt-3 flex flex-wrap justify-start gap-2">
+          <FormChoiceChip
+            label={value}
+            onClick={() => onChange(undefined)}
+            removable
+            selected
+          />
+        </div>
+      ) : null}
+
+      <BottomSheet
+        ariaLabel={label}
+        contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
+        heightClassName="max-h-[min(70dvh,480px)]"
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        showHeaderDivider
+        title={label}
+      >
+        <div className="space-y-1" dir="rtl">
+          {value ? (
+            <button
+              className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
+              onClick={() => {
+                onChange(undefined);
+                setIsOpen(false);
+              }}
+              type="button"
+            >
+              <span>پاک کردن انتخاب</span>
+              <ClearCircleIcon />
+            </button>
+          ) : null}
+
+          {options.map((option) => {
+            const selected = value === option;
+
+            return (
+              <button
+                aria-pressed={selected}
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
+                  selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
+                }`}
+                key={option}
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+                type="button"
+              >
+                <span>{option}</span>
+                <SelectionCheckIndicator checked={selected} />
+              </button>
+            );
+          })}
+        </div>
+      </BottomSheet>
     </section>
   );
 }

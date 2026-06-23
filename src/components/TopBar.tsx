@@ -105,19 +105,26 @@ function TopBarBackButton({
   const className =
     "grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
 
-  if (backTo) {
-    return (
-      <RouteLink aria-label={backLabel} className={className} state={backState} to={backTo}>
-        <TopBarBackIcon direction={backIconDirection} />
-      </RouteLink>
-    );
-  }
-
   return (
     <button
       aria-label={backLabel}
       className={className}
-      onClick={onBack}
+      onClick={() => {
+        if (onBack) {
+          onBack();
+          return;
+        }
+
+        if (window.history.length > 1) {
+          window.history.back();
+          return;
+        }
+
+        if (backTo) {
+          window.history.pushState(backState ?? {}, "", backTo);
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        }
+      }}
       type="button"
     >
       <TopBarBackIcon direction={backIconDirection} />

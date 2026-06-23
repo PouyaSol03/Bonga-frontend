@@ -6,6 +6,7 @@ import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
 import { TopBar } from '../components/TopBar'
 import { ViewAdPage } from '../pages/ViewAdPage'
+import { UserChatDetailPage } from '../pages/UserChatHomePage'
 import { routes } from './routes'
 
 function getCurrentPath() {
@@ -160,6 +161,12 @@ function getRoute(path: string): ResolvedRoute {
 
   if (/^\/ads\/[^/]+\/?$/.test(path)) {
     return { path, title: 'آگهی', Component: ViewAdPage }
+  }
+
+  if (/^\/chat\/[^/]+\/?$/.test(path) && path !== '/chat/response-time') {
+    const chatRoute = routes.find((route) => route.path === '/chat')
+
+    return { path, title: chatRoute?.title ?? 'Chat', Component: UserChatDetailPage }
   }
 
   return routes.find((route) => route.path === path) ?? routes[0]

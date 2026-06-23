@@ -3528,7 +3528,13 @@ export function ViewAdPage() {
             {hasChatContact ? (
               <RouteLink
                 className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-                to="/chat/1"
+                onClick={(event) => {
+                  if (isLoggedIn()) return;
+
+                  event.preventDefault();
+                  redirectToLoginProcess();
+                }}
+                to={`/chat/${adId}`}
               >
                 <span>چت با مشاور</span>
                 <ViewAdIcon className="h-5 w-5" name="chat" />

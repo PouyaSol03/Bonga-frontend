@@ -81,6 +81,22 @@ export const queryKeys = {
       [...queryKeys.account.myAdsRoot(), filters.type, filters.perPage] as const,
   },
 
+  chats: {
+    all: ["chats"] as const,
+    detail: (threadId: string) => [...queryKeys.chats.all, "detail", threadId] as const,
+    entry: (params: { advertiseId?: string; threadId?: string }) =>
+      [
+        ...queryKeys.chats.all,
+        "entry",
+        params.threadId ?? "",
+        params.advertiseId ?? "",
+      ] as const,
+    list: (filters: { page: number; perPage: number }) =>
+      [...queryKeys.chats.all, "list", filters.page, filters.perPage] as const,
+    messages: (threadId: string) =>
+      [...queryKeys.chats.detail(threadId), "messages"] as const,
+  },
+
   searchHistory: {
     all: ["search-history"] as const,
     list: (qsearch?: string) =>

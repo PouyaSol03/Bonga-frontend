@@ -22,6 +22,7 @@
     "react-hook-form": "^7.79.0",
     "react-leaflet": "^5.0.0",
     "react-multi-date-picker": "^4.5.2",
+    "socket.io-client": "^4.8.3",
     "swiper": "^12.2.0",
     "tailwindcss": "^4.3.0"
   },

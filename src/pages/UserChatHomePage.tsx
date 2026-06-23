@@ -1,12 +1,30 @@
-import { type ComponentType, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getApiAssetUrl } from "../api/api";
+import {
+  joinChatThread,
+  leaveChatThread,
+  markChatRead,
+  sendChatTextMessage,
+  sendChatTyping,
+} from "../api/chat-socket";
 import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
 import { DemoNotice } from "../components/DemoNotice";
+import { getRequestErrorState } from "../components/ErrorState";
+import {
+  useBlockChatMutation,
+  useChatEntryQuery,
+  useChatMessagesQuery,
+  useChatsQuery,
+  useDeleteChatMutation,
+} from "../hooks/chat.hooks";
 import { useDemoNotice } from "../hooks/useDemoNotice";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { RouteLink } from "../routes/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../lib/browserLocation";
+import { getStoredAuthSession } from "../auth/auth-storage";
+import type { ChatMessage, ChatThread } from "../services/chat.service";
 
 type ChatItem = {
   adCategory: string;
@@ -14,7 +32,11 @@ type ChatItem = {
   adTitle: string;
   badgeCount?: string;
   date: string;
+  detailPath?: string;
+  detailState?: { threadId: string };
   highlighted?: boolean;
+  id?: string;
+  imageUrl?: string;
   isBlocked?: boolean;
   message: string;
   userName: string;
@@ -27,6 +49,24 @@ type SentChatMessage =
 
 const createChatMessageId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+function getChatRouteThreadId() {
+  const [, routeId = ""] = window.location.pathname.match(/^\/chat\/([^/]+)/) ?? [];
+
+  return decodeURIComponent(routeId);
+}
+
+function getChatRouteStateThreadId() {
+  const state = window.history.state;
+
+  if (!state || typeof state !== "object") return "";
+
+  const threadId = (state as { threadId?: unknown }).threadId;
+
+  return typeof threadId === "string" || typeof threadId === "number"
+    ? String(threadId)
+    : "";
+}
 
 const filters = ["پشتیبانی", "خوانده نشده", "آگهی‌های من", "آگهی‌های دیگران"];
 
@@ -98,6 +138,297 @@ const chatCardOverrides: Partial<ChatItem>[] = [
     isBlocked: true,
   },
 ];
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function readText(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value;
+  if (typeof value === "number") return String(value);
+
+  return "";
+}
+
+function readNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function readPathText(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asRecord(current)?.[key];
+    }
+
+    const text = readText(current);
+
+    if (text) return text;
+  }
+
+  return "";
+}
+
+function readPathRecord(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asRecord(current)?.[key];
+    }
+
+    const record = asRecord(current);
+
+    if (record) return record;
+  }
+
+  return undefined;
+}
+
+function readChatThreadId(source: unknown) {
+  return readPathText(source, [
+    "id",
+    "_id",
+    "threadId",
+    "thread_id",
+    "thread.id",
+    "thread._id",
+  ]);
+}
+
+function readChatMessageBody(message: ChatMessage) {
+  return (
+    readPathText(message, ["body", "text", "message", "content", "description"]) ||
+    ""
+  );
+}
+
+function readChatMessageTime(message: ChatMessage) {
+  const text = readPathText(message, ["created_at", "createdAt", "date"]);
+
+  if (!text) return undefined;
+
+  const date = new Date(text);
+
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function readCurrentUserId() {
+  const token = getStoredAuthSession()?.accessToken;
+
+  if (!token) return "";
+
+  try {
+    const [, payload] = token.split(".");
+    const normalizedPayload = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payload.length / 4) * 4, "=");
+    const decodedPayload = JSON.parse(window.atob(normalizedPayload)) as {
+      sub?: unknown;
+      userId?: unknown;
+      user_id?: unknown;
+    };
+
+    return readText(decodedPayload.sub ?? decodedPayload.userId ?? decodedPayload.user_id);
+  } catch {
+    return "";
+  }
+}
+
+function readChatMessageSenderId(message: ChatMessage) {
+  return readPathText(message, [
+    "sender_id",
+    "senderId",
+    "user_id",
+    "userId",
+    "sender._id",
+    "sender.id",
+    "user._id",
+    "user.id",
+    "from._id",
+    "from.id",
+  ]);
+}
+
+function isOutgoingChatMessage(message: ChatMessage, currentUserId: string) {
+  const senderId = readChatMessageSenderId(message);
+
+  return (
+    message.is_mine === true ||
+    message.isMine === true ||
+    message.from_me === true ||
+    message.fromMe === true ||
+    (Boolean(currentUserId) && senderId === currentUserId)
+  );
+}
+
+function isReadChatMessage(message: ChatMessage) {
+  return (
+    message.is_read === true ||
+    message.isRead === true ||
+    message.read === true ||
+    Boolean(message.read_at ?? message.readAt) ||
+    (Array.isArray(message.read_by) && message.read_by.length > 0) ||
+    message.status === "read"
+  );
+}
+
+function markMessageAsRead(message: ChatMessage) {
+  return {
+    ...message,
+    is_read: true,
+    read: true,
+  };
+}
+
+function getChatMessageId(message: ChatMessage, index: number) {
+  return (
+    readPathText(message, ["id", "_id", "messageId", "message_id"]) ||
+    `${readChatMessageBody(message)}-${index}`
+  );
+}
+
+function getChatMessageDedupeKey(message: ChatMessage) {
+  const stableId = readPathText(message, ["id", "_id", "messageId", "message_id"]);
+
+  if (stableId) return `id:${stableId}`;
+
+  return [
+    "body",
+    readChatMessageBody(message),
+    "time",
+    readPathText(message, ["created_at", "createdAt", "date"]),
+    "sender",
+    readChatMessageSenderId(message),
+  ].join(":");
+}
+
+function dedupeChatMessages(messages: ChatMessage[]) {
+  const seenKeys = new Set<string>();
+
+  return messages.filter((message) => {
+    const key = getChatMessageDedupeKey(message);
+
+    if (seenKeys.has(key)) return false;
+
+    seenKeys.add(key);
+    return true;
+  });
+}
+
+function readImageUrl(source: unknown) {
+  const directImage = readPathText(source, ["image", "image_url", "thumbnail", "cover"]);
+
+  if (directImage) return /^https?:\/\//i.test(directImage) ? directImage : getApiAssetUrl(directImage);
+
+  const images = asRecord(source)?.images;
+
+  if (Array.isArray(images)) {
+    for (const image of images) {
+      const imageUrl =
+        typeof image === "string"
+          ? image
+          : readPathText(image, ["url", "path", "image", "thumbnail"]);
+
+      if (imageUrl) return /^https?:\/\//i.test(imageUrl) ? imageUrl : getApiAssetUrl(imageUrl);
+    }
+  }
+
+  return undefined;
+}
+
+function formatChatDate(value: unknown) {
+  const text = readText(value);
+
+  if (!text) return "";
+
+  const date = new Date(text);
+
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    day: "numeric",
+    month: "long",
+  }).format(date);
+}
+
+function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
+  const ad =
+    readPathRecord(chat, ["ad", "advertise", "advertisement", "property"]) ?? {};
+  const lastMessage = readPathRecord(chat, ["last_message", "lastMessage", "message"]);
+  const user =
+    readPathRecord(chat, [
+      "user",
+      "sender",
+      "receiver",
+      "participant",
+      "customer",
+      "consultant",
+      "last_message.user",
+    ]) ?? {};
+  const id = readText(chat.id) || readText(chat._id) || String(index + 1);
+  const unreadCount = readNumber(
+    chat.unread_count ?? chat.unreadCount ?? chat.messages_count,
+  );
+  const isMine =
+    chat.is_mine === true ||
+    chat.isMine === true ||
+    readPathText(chat, ["ad_label", "adLabel"]).includes("Ù…Ù†");
+
+  return {
+    adCategory:
+      readPathText(chat, ["ad_category", "adCategory", "category.name"]) ||
+      readPathText(ad, ["category.name", "category", "type", "form.name"]) ||
+      chatItems[0].adCategory,
+    adLabel:
+      readPathText(chat, ["ad_label", "adLabel"]) ||
+      (isMine ? chatItems[0].adLabel : "Ø¢Ú¯Ù‡ÛŒ Ø¯ÛŒÚ¯Ø±Ø§Ù†"),
+    adTitle:
+      readPathText(chat, ["ad_title", "adTitle"]) ||
+      readPathText(ad, ["title", "label", "name"]) ||
+      chatItems[0].adTitle,
+    badgeCount: unreadCount && unreadCount > 0 ? new Intl.NumberFormat("fa-IR").format(unreadCount) : undefined,
+    date: formatChatDate(
+      chat.updated_at ??
+      chat.created_at ??
+      readPathText(lastMessage, ["created_at", "createdAt", "date"]),
+    ),
+    detailPath: `/chat/${id}`,
+    detailState: { threadId: id },
+    highlighted: unreadCount !== undefined && unreadCount > 0,
+    id,
+    imageUrl: readImageUrl(ad) ?? readImageUrl(chat),
+    isBlocked:
+      chat.is_blocked === true ||
+      chat.isBlocked === true ||
+      chat.blocked === true,
+    message:
+      readPathText(lastMessage, ["text", "message", "body", "content", "description"]) ||
+      readText(chat.message) ||
+      readText(chat.last_message) ||
+      "",
+    userName:
+      readPathText(chat, ["user_name", "userName", "name", "full_name"]) ||
+      readPathText(user, ["name", "full_name", "username", "mobile", "phone"]) ||
+      chatItems[0].userName,
+  };
+}
 
 function SearchIcon({ className = "" }: { className?: string }) {
   return (
@@ -581,14 +912,19 @@ function ChatCard({
   isSelected,
   item,
   onToggleSelected,
+  useCardOverrides = false,
 }: {
   index: number;
   isBulkDeleteMode: boolean;
   isSelected: boolean;
   item: ChatItem;
   onToggleSelected: () => void;
+  useCardOverrides?: boolean;
 }) {
-  const displayItem = { ...item, ...chatCardOverrides[index] };
+  const displayItem = {
+    ...item,
+    ...(useCardOverrides ? chatCardOverrides[index] : {}),
+  };
   const isHighlighted = isBulkDeleteMode
     ? isSelected
     : Boolean(displayItem.highlighted);
@@ -669,7 +1005,7 @@ function ChatCard({
         <img
           alt=""
           className="h-12 w-[72px] shrink-0 rounded object-cover"
-          src="/figma/view-ad-album.png"
+          src={displayItem.imageUrl ?? "/figma/view-ad-album.png"}
         />
       </div>
     </article>
@@ -683,7 +1019,8 @@ function ChatCard({
     <RouteLink
       aria-label={`${displayItem.userName} - ${displayItem.adTitle}`}
       className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-      to={`/chat/${index + 1}`}
+      state={displayItem.detailState}
+      to={displayItem.detailPath ?? `/chat/${index + 1}`}
     >
       {cardContent}
     </RouteLink>
@@ -758,11 +1095,13 @@ function AgencyResponseCard() {
 function ChatBubble({
   children,
   direction,
+  isRead = false,
   time = "18:21",
   wide = false,
 }: {
   children: ReactNode;
   direction: "incoming" | "outgoing";
+  isRead?: boolean;
   time?: string;
   wide?: boolean;
 }) {
@@ -777,7 +1116,7 @@ function ChatBubble({
           }`}
         dir="rtl"
       >
-        <p className="whitespace-pre-line text-sm font-normal leading-[18px] text-[#1a1a1a]">
+        <p className="whitespace-pre-line break-words text-sm font-normal leading-[18px] text-[#1a1a1a] [overflow-wrap:anywhere]">
           {children}
         </p>
         <div
@@ -785,7 +1124,9 @@ function ChatBubble({
             }`}
         >
           <span>{time}</span>
-          {isOutgoing ? <DoubleTickIcon className="h-5 w-5 text-[#0048c4]" /> : null}
+          {isOutgoing ? (
+            <DoubleTickIcon className={`h-5 w-5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
+          ) : null}
         </div>
       </div>
     </div>
@@ -861,6 +1202,30 @@ function SentChatMessageBubble({ message }: { message: SentChatMessage }) {
   }
 
   return <ChatBubble direction="outgoing">{message.text}</ChatBubble>;
+}
+
+function ChatApiMessageBubble({
+  currentUserId,
+  forceRead,
+  message,
+}: {
+  currentUserId: string;
+  forceRead: boolean;
+  message: ChatMessage;
+}) {
+  const body = readChatMessageBody(message);
+
+  if (!body) return null;
+
+  return (
+    <ChatBubble
+      direction={isOutgoingChatMessage(message, currentUserId) ? "outgoing" : "incoming"}
+      isRead={forceRead || isReadChatMessage(message)}
+      time={readChatMessageTime(message)}
+    >
+      {body}
+    </ChatBubble>
+  );
 }
 
 function ChatComposer({
@@ -1029,7 +1394,7 @@ function ChatSettingsBottomSheet({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (title: string) => void;
+  onSelect: (id: string, title: string) => void;
 }) {
   return (
     <BottomSheet
@@ -1048,7 +1413,7 @@ function ChatSettingsBottomSheet({
         isOpen={isOpen}
         itemClassName="h-11 text-[12px] leading-5"
         items={chatSettingsOptions}
-        onSelect={(item) => onSelect(item.title)}
+        onSelect={(item) => onSelect(item.id, item.title)}
       />
     </BottomSheet>
   );
@@ -1324,9 +1689,14 @@ export function UserChatResponseTimePage() {
 }
 
 export function UserChatDetailPage() {
+  const routeId = getChatRouteThreadId();
+  const routeThreadId = getChatRouteStateThreadId();
   const [isSendFileSheetOpen, setIsSendFileSheetOpen] = useState(false);
   const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
+  const [activeThreadId, setActiveThreadId] = useState(routeThreadId);
+  const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
+  const [readThreadIds, setReadThreadIds] = useState<Set<string>>(() => new Set());
   const [sentMessages, setSentMessages] = useState<SentChatMessage[]>([]);
   const [isSendingLocation, setIsSendingLocation] = useState(false);
   const { message, showNotice } = useDemoNotice();
@@ -1334,7 +1704,87 @@ export function UserChatDetailPage() {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const imageObjectUrlsRef = useRef<string[]>([]);
+  const pendingOutgoingBodiesRef = useRef<Map<string, number>>(new Map());
+  const typingTimeoutRef = useRef<number | null>(null);
   const [, setHasMoreMessagesBelow] = useState(false);
+  const currentUserId = useMemo(readCurrentUserId, []);
+  const blockChatMutation = useBlockChatMutation();
+  const deleteChatMutation = useDeleteChatMutation();
+  const chatEntryQuery = useChatEntryQuery({
+    advertiseId: routeThreadId ? undefined : routeId,
+    threadId: routeThreadId || undefined,
+  });
+  const resolvedThreadId = readChatThreadId(chatEntryQuery.data) || routeThreadId;
+  const messagesQuery = useChatMessagesQuery(activeThreadId || null);
+  const apiMessages = useMemo(
+    () => dedupeChatMessages([...(messagesQuery.data ?? []), ...liveMessages]),
+    [liveMessages, messagesQuery.data],
+  );
+
+  useEffect(() => {
+    if (resolvedThreadId) {
+      setActiveThreadId(resolvedThreadId);
+    }
+  }, [resolvedThreadId]);
+
+  useEffect(() => {
+    if (!activeThreadId) return;
+
+    const socket = joinChatThread({
+      onJoined: setActiveThreadId,
+      threadId: activeThreadId,
+    });
+    const handleNewMessage = (payload: { message?: unknown }) => {
+      if (!payload.message || typeof payload.message !== "object") return;
+
+      const nextMessage = payload.message as ChatMessage;
+      const body = readChatMessageBody(nextMessage);
+      const pendingCount = pendingOutgoingBodiesRef.current.get(body) ?? 0;
+
+      if (pendingCount > 0) {
+        pendingOutgoingBodiesRef.current.set(body, pendingCount - 1);
+        nextMessage.is_mine = true;
+        nextMessage.is_read = false;
+        nextMessage.read = false;
+      }
+
+      setLiveMessages((current) => dedupeChatMessages([...current, nextMessage]));
+      markChatRead(activeThreadId);
+    };
+    const handleTyping = (payload: { typing?: boolean; userId?: number | string }) => {
+      if (payload.typing) {
+        showNotice("در حال نوشتن...");
+      }
+    };
+    const handleRead = (payload: { threadId?: number | string; userId?: number | string }) => {
+      const readThreadId = readText(payload.threadId);
+      const readerId = readText(payload.userId);
+
+      if (readThreadId && readThreadId !== activeThreadId) return;
+      if (readerId && readerId === currentUserId) return;
+
+      setReadThreadIds((current) => new Set(current).add(activeThreadId));
+      setLiveMessages((current) => current.map(markMessageAsRead));
+      void messagesQuery.refetch();
+    };
+    const handleError = (payload: { message?: string }) => {
+      showNotice(payload.message ?? "ارتباط چت با خطا مواجه شد");
+    };
+
+    socket.on("chat:message:new", handleNewMessage);
+    socket.on("chat:typing", handleTyping);
+    socket.on("chat:read", handleRead);
+    socket.on("chat:error", handleError);
+    markChatRead(activeThreadId);
+
+    return () => {
+      socket.off("chat:message:new", handleNewMessage);
+      socket.off("chat:typing", handleTyping);
+      socket.off("chat:read", handleRead);
+      socket.off("chat:error", handleError);
+      leaveChatThread(activeThreadId);
+    };
+  }, [activeThreadId, currentUserId, messagesQuery.refetch, showNotice]);
 
   const updateScrollShadow = useCallback(() => {
     const scrollElement = chatScrollRef.current;
@@ -1352,31 +1802,96 @@ export function UserChatDetailPage() {
       window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", updateScrollShadow);
     };
-  }, [sentMessages.length, updateScrollShadow]);
+  }, [apiMessages.length, sentMessages.length, updateScrollShadow]);
 
   useEffect(() => {
     const scrollElement = chatScrollRef.current;
     if (!scrollElement) return;
 
     scrollElement.scrollTo({ top: scrollElement.scrollHeight, behavior: "smooth" });
-  }, [sentMessages.length]);
+  }, [apiMessages.length, sentMessages.length]);
 
   useEffect(() => {
     return () => {
       imageObjectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
       imageObjectUrlsRef.current = [];
+      if (typingTimeoutRef.current) {
+        window.clearTimeout(typingTimeoutRef.current);
+      }
     };
   }, []);
+
+  const changeDraftMessage = (nextMessage: string) => {
+    setDraftMessage(nextMessage);
+
+    if (!activeThreadId) return;
+
+    sendChatTyping({ threadId: activeThreadId, typing: true });
+
+    if (typingTimeoutRef.current) {
+      window.clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = window.setTimeout(() => {
+      sendChatTyping({ threadId: activeThreadId, typing: false });
+      typingTimeoutRef.current = null;
+    }, 1200);
+  };
 
   const sendMessage = (nextMessage = draftMessage) => {
     const text = nextMessage.trim();
     if (!text) return;
 
-    setSentMessages((current) => [
-      ...current,
-      { id: createChatMessageId(), type: "text", text },
-    ]);
+    if (activeThreadId) {
+      pendingOutgoingBodiesRef.current.set(
+        text,
+        (pendingOutgoingBodiesRef.current.get(text) ?? 0) + 1,
+      );
+      sendChatTextMessage({ body: text, threadId: activeThreadId });
+    }
+
     setDraftMessage("");
+  };
+
+  const navigateToChatHome = () => {
+    window.history.pushState({}, "", "/chat");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const handleSettingsSelect = (id: string, title: string) => {
+    setIsSettingsSheetOpen(false);
+
+    if (!activeThreadId) {
+      showNotice("ابتدا گفتگو را باز کنید");
+      return;
+    }
+
+    if (id === "block") {
+      blockChatMutation.mutate(activeThreadId, {
+        onError: () => {
+          showNotice("مسدود کردن گفتگو با خطا مواجه شد");
+        },
+        onSuccess: () => {
+          showNotice("گفتگو مسدود شد");
+        },
+      });
+      return;
+    }
+
+    if (id === "delete") {
+      deleteChatMutation.mutate(activeThreadId, {
+        onError: () => {
+          showNotice("حذف گفتگو با خطا مواجه شد");
+        },
+        onSuccess: () => {
+          showNotice("گفتگو حذف شد");
+          navigateToChatHome();
+        },
+      });
+      return;
+    }
+
+    showNotice(`${title} انتخاب شد`);
   };
 
   const sendImageFiles = (files: FileList | null) => {
@@ -1473,18 +1988,29 @@ export function UserChatDetailPage() {
           <AgencyResponseCard />
 
           <div className="mt-3 space-y-3">
-            <ChatBubble direction="outgoing" wide>
-              سلام{"\n"}قیمت این خونه ای که گذاشتین چقدر هست و اگر بخوام رهن و بیشتر کنم امکانش هست؟
-            </ChatBubble>
+            {messagesQuery.isLoading ? (
+              <p className="py-6 text-center text-xs text-[#808080]">
+                در حال دریافت پیام‌ها...
+              </p>
+            ) : null}
 
-            <ChatBubble direction="incoming" wide>
-              سلام دوست عزیز{"\n"}قیمت و داخل آگهی گذاشتم و قیمت مناسبی هم هست{"\n"}رهن و اجاره قابل تبدیل هست
-            </ChatBubble>
+            {!messagesQuery.isLoading && apiMessages.length === 0 ? (
+              <>
+                <ChatDateChip />
+                <p className="py-6 text-center text-xs text-[#808080]">
+                  هنوز پیامی در این گفتگو ثبت نشده است.
+                </p>
+              </>
+            ) : null}
 
-            <ChatDateChip />
-
-            <ChatBubble direction="outgoing">خیلی ممنونم</ChatBubble>
-            <ChatBubble direction="incoming">خواهش میکنم</ChatBubble>
+            {apiMessages.map((apiMessage, index) => (
+              <ChatApiMessageBubble
+                currentUserId={currentUserId}
+                forceRead={readThreadIds.has(activeThreadId)}
+                key={getChatMessageId(apiMessage, index)}
+                message={apiMessage}
+              />
+            ))}
 
             {sentMessages.map((sentMessage) => (
               <SentChatMessageBubble message={sentMessage} key={sentMessage.id} />
@@ -1522,7 +2048,7 @@ export function UserChatDetailPage() {
       <div className="absolute inset-x-0 bottom-0 z-30">
         <ChatComposer
           message={draftMessage}
-          onChangeMessage={setDraftMessage}
+          onChangeMessage={changeDraftMessage}
           onOpenAttach={() => setIsSendFileSheetOpen(true)}
           onSend={() => sendMessage()}
         />
@@ -1535,10 +2061,7 @@ export function UserChatDetailPage() {
       <ChatSettingsBottomSheet
         isOpen={isSettingsSheetOpen}
         onClose={() => setIsSettingsSheetOpen(false)}
-        onSelect={(title) => {
-          showNotice(`${title} انتخاب شد`);
-          setIsSettingsSheetOpen(false);
-        }}
+        onSelect={handleSettingsSelect}
       />
       <DemoNotice className="bottom-20" message={message} />
     </PageFrame>
@@ -1551,11 +2074,25 @@ export function UserChatHomePage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [chatIndexes, setChatIndexes] = useState(() => chatItems.map((_, index) => index));
-  const [selectedChatIndexes, setSelectedChatIndexes] = useState<Set<number>>(
+  const [deletedChatIds, setDeletedChatIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(
     () => new Set(),
   );
   const { message, showNotice } = useDemoNotice();
+  const {
+    data: chatsPage,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = useChatsQuery({ page: 1, perPage: 10 });
+  const chats = useMemo(
+    () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
+    [chatsPage?.data],
+  );
+  const RequestErrorState = isError ? getRequestErrorState(error) : null;
 
   const handleMenuSelect = (id: string) => {
     setIsMenuOpen(false);
@@ -1573,28 +2110,29 @@ export function UserChatHomePage() {
 
     if (id === "bulk-delete") {
       setIsBulkDeleteMode(true);
-      setSelectedChatIndexes(new Set());
+      setSelectedChatIds(new Set());
     }
   };
 
-  const toggleSelectedChat = (index: number) => {
-    setSelectedChatIndexes((current) => {
+  const toggleSelectedChat = (id: string) => {
+    setSelectedChatIds((current) => {
       const next = new Set(current);
 
-      if (next.has(index)) {
-        next.delete(index);
+      if (next.has(id)) {
+        next.delete(id);
       } else {
-        next.add(index);
+        next.add(id);
       }
 
       return next;
     });
   };
 
-  const visibleChatIndexes = chatIndexes.filter((index) => {
-    const item = { ...chatItems[index], ...chatCardOverrides[index] };
+  const visibleChats = chats.filter((item) => {
+    const itemId = item.id ?? "";
     const normalizedQuery = query.trim();
 
+    if (itemId && deletedChatIds.has(itemId)) return false;
     if (normalizedQuery && !`${item.userName} ${item.adTitle} ${item.message}`.includes(normalizedQuery)) {
       return false;
     }
@@ -1606,9 +2144,9 @@ export function UserChatHomePage() {
   });
 
   const deleteSelectedChats = () => {
-    const count = selectedChatIndexes.size;
-    setChatIndexes((current) => current.filter((index) => !selectedChatIndexes.has(index)));
-    setSelectedChatIndexes(new Set());
+    const count = selectedChatIds.size;
+    setDeletedChatIds((current) => new Set([...current, ...selectedChatIds]));
+    setSelectedChatIds(new Set());
     setIsBulkDeleteMode(false);
     showNotice(`${count} گفتگو حذف شد`);
   };
@@ -1643,7 +2181,7 @@ export function UserChatHomePage() {
                 className="text-sm font-medium text-[#4d4d4d]"
                 onClick={() => {
                   setIsBulkDeleteMode(false);
-                  setSelectedChatIndexes(new Set());
+                  setSelectedChatIds(new Set());
                 }}
                 type="button"
               >
@@ -1651,11 +2189,11 @@ export function UserChatHomePage() {
               </button>
               <button
                 className="rounded-lg bg-[#ee3623] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-                disabled={selectedChatIndexes.size === 0}
+                disabled={selectedChatIds.size === 0}
                 onClick={deleteSelectedChats}
                 type="button"
               >
-                حذف ({selectedChatIndexes.size})
+                حذف ({selectedChatIds.size})
               </button>
             </div>
           ) : null}
@@ -1679,17 +2217,44 @@ export function UserChatHomePage() {
         />
       }
     >
-      {visibleChatIndexes.map((index) => (
-        <ChatCard
-          index={index}
-          isBulkDeleteMode={isBulkDeleteMode}
-          isSelected={selectedChatIndexes.has(index)}
-          item={chatItems[index]}
-          key={index}
-          onToggleSelected={() => toggleSelectedChat(index)}
-        />
-      ))}
-      {visibleChatIndexes.length === 0 ? (
+      {isLoading && chats.length === 0 ? (
+        <div className="space-y-px bg-white">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              className="h-[140px] animate-pulse border-b border-[#f0f0f0] px-4 py-4"
+              key={index}
+            >
+              <div className="mb-4 h-5 w-3/4 rounded bg-[#f0f0f0]" />
+              <div className="mb-5 h-4 w-full rounded bg-[#f0f0f0]" />
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-[72px] rounded bg-[#f0f0f0]" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-4 w-1/2 rounded bg-[#f0f0f0]" />
+                  <div className="h-5 w-4/5 rounded bg-[#f0f0f0]" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {RequestErrorState && chats.length === 0 ? (
+        <RequestErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
+      ) : null}
+      {visibleChats.map((item, index) => {
+        const chatId = item.id ?? String(index);
+
+        return (
+          <ChatCard
+            index={index}
+            isBulkDeleteMode={isBulkDeleteMode}
+            isSelected={selectedChatIds.has(chatId)}
+            item={item}
+            key={chatId}
+            onToggleSelected={() => toggleSelectedChat(chatId)}
+          />
+        );
+      })}
+      {!isLoading && !isError && visibleChats.length === 0 ? (
         <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
       ) : null}
       <DemoNotice message={message} />

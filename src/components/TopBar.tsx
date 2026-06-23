@@ -115,14 +115,14 @@ function TopBarBackButton({
           return;
         }
 
-        if (window.history.length > 1) {
-          window.history.back();
-          return;
-        }
-
         if (backTo) {
           window.history.pushState(backState ?? {}, "", backTo);
           window.dispatchEvent(new PopStateEvent("popstate"));
+          return;
+        }
+
+        if (window.history.length > 1) {
+          window.history.back();
         }
       }}
       type="button"

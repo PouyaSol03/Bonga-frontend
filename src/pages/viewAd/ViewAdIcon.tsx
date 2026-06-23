@@ -23,6 +23,13 @@ export function ViewAdIcon({
     viewBox: "0 0 24 24",
   };
 
+  const assetSrc =
+    name === "bookmark" && "/icons/bookmark_solid.svg";
+
+  if (assetSrc) {
+    return <PublicIcon className={common.className} src={assetSrc} />;
+  }
+
   switch (name) {
     case "add":
       return <svg {...common}><path d="M12 5v14M5 12h14" /></svg>;

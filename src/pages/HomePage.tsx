@@ -286,8 +286,8 @@ export function HomePage() {
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-  const navigateToChat = () => {
-    window.history.pushState({}, "", "/chat");
+  const navigateToNotifications = () => {
+    window.history.pushState({}, "", "/notifications");
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
@@ -317,11 +317,15 @@ export function HomePage() {
           <div className="flex items-center justify-center gap-2">
             <button
               aria-label="اعلان‌ها"
-              className="grid h-10 w-10 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-              onClick={navigateToChat}
+              className="relative grid h-10 w-10 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              onClick={navigateToNotifications}
               type="button"
             >
               <NotificationIcon />
+              <span
+                aria-hidden="true"
+                className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+              />
             </button>
 
             <button

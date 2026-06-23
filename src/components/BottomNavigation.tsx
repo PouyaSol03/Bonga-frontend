@@ -103,13 +103,19 @@ export function BottomNavigation({
                   min-[390px]:gap-1 min-[390px]:py-2 min-[390px]:text-xs min-[390px]:leading-4
                   ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
               >
-                <span className="grid h-6 w-6 shrink-0 place-items-center">
+                <span className="relative grid h-6 w-6 shrink-0 place-items-center">
                   <Icon
                     active={isActive}
                     aria-hidden="true"
                     className="h-6 w-6 shrink-0"
                     size={24}
                   />
+                  {item.key === "chat" ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+                    />
+                  ) : null}
                 </span>
 
                 <span className="max-w-full overflow-hidden text-ellipsis">

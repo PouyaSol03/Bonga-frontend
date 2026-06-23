@@ -117,10 +117,18 @@ function IndependentConsultantAccountPage() {
       topBar={<TopBar
         actions={[
           {
-            icon: <NotificationIcon className="h-6 w-6" />,
+            icon: (
+              <span className="relative grid h-6 w-6 place-items-center">
+                <NotificationIcon className="h-6 w-6" />
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
+                />
+              </span>
+            ),
             id: "notifications",
             label: "اعلان‌ها",
-            to: "/chat",
+            to: "/notifications",
           },
         ]}
         backTo="/home"

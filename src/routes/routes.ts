@@ -6,6 +6,7 @@ import { MyAccountPage } from '../pages/MyAccountPage'
 import { NewAdCategoryPage } from '../pages/newAd/NewAdCategoryPage'
 import { NewAdFlowPage, NewAdLocationPage } from '../pages/newAd/NewAdFlowPage'
 import { PublicLandingPage } from '../pages/PublicLandingPage'
+import { NotificationsPage } from '../pages/NotificationsPage'
 import {
   AccountAboutPage,
   AccountBookmarksPage,
@@ -46,7 +47,7 @@ import {
 import { IndependentConsultantCreditHistoryPage } from '../pages/account/credit/IndependentConsultantCreditHistoryPage'
 import { SearchMapPage } from '../pages/search/SearchMapPage'
 import { SearchMapFilterPage } from '../pages/search/SearchMapFilterPage'
-import { UserChatDetailPage, UserChatHomePage } from '../pages/UserChatHomePage'
+import { UserChatDetailPage, UserChatHomePage, UserChatResponseTimePage } from '../pages/UserChatHomePage'
 
 export type AppRoute = {
   path: string
@@ -296,9 +297,19 @@ export const routes: AppRoute[] = [
     Component: NewAdCategoryPage,
   },
   {
+    path: "/notifications",
+    title: "اعلان‌ها",
+    Component: NotificationsPage,
+  },
+  {
     path: "/chat",
-    title: "چت و اعلان‌ها",
+    title: "چت",
     Component: UserChatHomePage,
+  },
+  {
+    path: "/chat/response-time",
+    title: "ساعت پاسخگویی",
+    Component: UserChatResponseTimePage,
   },
   {
     path: "/chat/1",

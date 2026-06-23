@@ -168,6 +168,57 @@ function CheckIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function ChevronLeftIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="m15 6-6 6 6 6" />
+    </svg>
+  );
+}
+
+function CloseIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+function ArrowDownIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
 
 function LinkChainIcon({ className = "" }: { className?: string }) {
   return (
@@ -295,24 +346,6 @@ function InfoIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function SettingsIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" />
-      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2.05 2.05 0 0 1-2.9 2.9l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2.05 2.05 0 0 1-4.1 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2.05 2.05 0 0 1-2.9-2.9l.06-.06A1.7 1.7 0 0 0 4.3 15a1.7 1.7 0 0 0-1.56-1.03h-.09a2.05 2.05 0 0 1 0-4.1h.09A1.7 1.7 0 0 0 4.3 8.74a1.7 1.7 0 0 0-.34-1.87L3.9 6.8a2.05 2.05 0 0 1 2.9-2.9l.06.06A1.7 1.7 0 0 0 8.73 4.3h.08a1.7 1.7 0 0 0 1.03-1.56v-.09a2.05 2.05 0 0 1 4.1 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2.05 2.05 0 0 1 2.9 2.9l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.56 1.03h.09a2.05 2.05 0 0 1 0 4.1h-.09A1.7 1.7 0 0 0 19.4 15Z" />
-    </svg>
-  );
-}
-
 function ChatHeader({
   onOpenMenu,
   onOpenSearch,
@@ -337,7 +370,7 @@ function ChatHeader({
         },
       ]}
       backTo="/home"
-      title="چت و اعلان‌‌ها"
+      title="چت"
     />
   );
 }
@@ -371,33 +404,71 @@ function FilterTabs({
   );
 }
 
-const chatMenuItems = [
-  {
-    id: "hours",
-    icon: ClockAlarmIcon,
-    title: "ساعات پاسخگویی",
-  },
-  {
-    id: "rename",
-    icon: SettingsIcon,
-    title: "تغییر نام چت",
-  },
-  {
-    id: "blocked",
-    icon: BlockedIcon,
-    title: "نمایش چت‌های مسدود شده",
-  },
-  {
-    id: "my-ads",
-    icon: InfoIcon,
-    title: "نمایش آگهی‌های من",
-  },
-  {
-    id: "bulk-delete",
-    icon: TrashIcon,
-    title: "حذف گروهی چت‌ها",
-  },
-];
+function ToggleSwitch({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <button
+      aria-pressed={checked}
+      className={`relative h-6 w-11 rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${checked ? "bg-[#0048c4]" : "bg-[#cccccc]"
+        }`}
+      onClick={() => onChange(!checked)}
+      type="button"
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "right-[22px]" : "right-0.5"
+          }`}
+      />
+    </button>
+  );
+}
+
+function ChatMenuRow({
+  children,
+  icon,
+  labelClassName = "text-sm leading-5",
+  onClick,
+  trailing,
+}: {
+  children: ReactNode;
+  icon?: ReactNode;
+  labelClassName?: string;
+  onClick?: () => void;
+  trailing?: ReactNode;
+}) {
+  const content = (
+    <>
+      {icon ? <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{icon}</span> : null}
+      <span className={`min-w-0 flex-1 text-base leading-6 ${labelClassName}`}>{children}</span>
+      {trailing ? <span className="grid shrink-0 place-items-center">{trailing}</span> : null}
+    </>
+  );
+
+  const className =
+    "flex h-[54px] w-full items-center gap-3 bg-white px-4 text-right font-normal text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]";
+
+  if (!onClick) {
+    return <div className={className}>{content}</div>;
+  }
+
+  return (
+    <button className={className} onClick={onClick} type="button">
+      {content}
+    </button>
+  );
+}
+
+function ChatMenuDivider() {
+  return (
+    <div className="px-4">
+      <div className="h-px bg-[#f0f0f0]" />
+    </div>
+  );
+}
 
 function ChatMenuBottomSheet({
   isOpen,
@@ -408,25 +479,49 @@ function ChatMenuBottomSheet({
   onClose: () => void;
   onSelect: (id: string) => void;
 }) {
+  const [showBlocked, setShowBlocked] = useState(false);
+  const [showMyAds, setShowMyAds] = useState(false);
+
   return (
     <BottomSheet
       ariaLabel="منوی چت"
-      contentClassName="mt-4"
-      heightClassName="h-[298px]"
+      className="rounded-t-[18px]"
+      contentClassName="mt-3"
+      heightClassName="h-[415px]"
       isOpen={isOpen}
       onClose={onClose}
+      panelPaddingClassName="pt-3"
       scrimClassName="bg-[#1a1a1a]/35"
-      title="چت"
+      showHeader={false}
     >
-      <BottomSheetActionList
-        isOpen={isOpen}
-        items={chatMenuItems.map((item) => ({
-          id: item.id,
-          title: item.title,
-          Icon: item.icon,
-        }))}
-        onSelect={(item) => onSelect(item.id)}
-      />
+      <ChatMenuRow icon={<ChevronLeftIcon className="h-5 w-5" />} onClick={() => onSelect("settings")}>
+        مدیریت چت
+      </ChatMenuRow>
+      <ChatMenuRow icon={<ClockAlarmIcon className="h-6 w-6" />} onClick={() => onSelect("hours")}>
+        ساعات پاسخگویی
+      </ChatMenuRow>
+      <ChatMenuDivider />
+      <ChatMenuDivider />
+      <ChatMenuRow
+        labelClassName="text-base leading-6"
+        trailing={<ToggleSwitch checked={showBlocked} onChange={setShowBlocked} />}
+      >
+        نمایش چت‌های مسدود شده
+      </ChatMenuRow>
+      <ChatMenuRow
+        labelClassName="text-base leading-6"
+        trailing={<ToggleSwitch checked={showMyAds} onChange={setShowMyAds} />}
+      >
+        نمایش آگهی‌های من
+      </ChatMenuRow>
+      <ChatMenuDivider />
+      <ChatMenuRow
+        icon={<TrashIcon className="h-6 w-6" />}
+        onClick={() => onSelect("bulk-delete")}
+        trailing={<ChevronLeftIcon className="h-5 w-5" />}
+      >
+        حذف گروهی چت‌ها
+      </ChatMenuRow>
     </BottomSheet>
   );
 }
@@ -959,6 +1054,275 @@ function ChatSettingsBottomSheet({
   );
 }
 
+type ResponseTimeSheet = "days" | "start" | "end" | null;
+
+const responseWeekDays = [
+  "شنبه",
+  "یک شنبه",
+  "دوشنبه",
+  "سه شنبه",
+  "چهارشنبه",
+  "پنجشنبه",
+  "جمعه",
+];
+
+const responseHourOptions = [
+  "۶ صبح",
+  "۷ صبح",
+  "۸ صبح",
+  "۹ صبح",
+  "۱۰ صبح",
+  "۱۱ صبح",
+  "۱۲ صبح",
+  "۱ ظهر",
+  "۲ ظهر",
+  "۳ ظهر",
+  "۴ عصر",
+  "۵ عصر",
+  "۶ عصر",
+  "۷ شب",
+  "۸ شب",
+  "۹ شب",
+  "۱۰ شب",
+  "۱۱ شب",
+  "۱۲ شب",
+];
+
+function ResponseTimeSelectBox({
+  label,
+  onClick,
+  value,
+}: {
+  label: string;
+  onClick: () => void;
+  value?: string;
+}) {
+  return (
+    <button
+      className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-right focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      onClick={onClick}
+      type="button"
+    >
+      <ArrowDownIcon className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+      <span className={`min-w-0 flex-1 truncate text-sm leading-5 ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
+        {value ?? label}
+      </span>
+    </button>
+  );
+}
+
+function ResponseTimeDaysSheet({
+  isOpen,
+  onClose,
+  onToggleDay,
+  selectedDays,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onToggleDay: (day: string) => void;
+  selectedDays: string[];
+}) {
+  return (
+    <BottomSheet
+      ariaLabel="انتخاب روزهای هفته"
+      className="rounded-t-[18px]"
+      contentClassName="mt-5"
+      heightClassName="h-[560px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      panelPaddingClassName="pt-3"
+      scrimClassName="bg-[#1a1a1a]/65"
+      title="انتخاب روزهای هفته"
+      zIndexClassName="z-[60]"
+    >
+      <div className="space-y-2 px-4">
+        {responseWeekDays.map((day) => {
+          const isSelected = selectedDays.includes(day);
+
+          return (
+            <button
+              className="flex h-[54px] w-full items-center justify-between text-right text-sm leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              key={day}
+              onClick={() => onToggleDay(day)}
+              type="button"
+            >
+              <span>{day}</span>
+              <span
+                className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
+                  ? "border-[#0048c4] bg-[#0048c4] text-white"
+                  : "border-[#808080] bg-white text-transparent"
+                  }`}
+              >
+                <CheckIcon className="h-[14px] w-[14px]" />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </BottomSheet>
+  );
+}
+
+function ResponseTimeHourSheet({
+  isOpen,
+  onClose,
+  onSelect,
+  title,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (hour: string) => void;
+  title: string;
+}) {
+  return (
+    <BottomSheet
+      ariaLabel={title}
+      className="rounded-t-[18px]"
+      contentClassName="mt-1 h-[calc(100%-76px)] overflow-y-auto"
+      heightClassName="h-[560px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      panelPaddingClassName="pt-3"
+      scrimClassName="bg-[#1a1a1a]/65"
+      showHeaderDivider
+      title={title}
+      titleAlign="center"
+      zIndexClassName="z-[60]"
+    >
+      <div className="px-4 py-2">
+        {responseHourOptions.map((hour) => (
+          <button
+            className="flex h-[70px] w-full items-center justify-center text-center text-base leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            key={hour}
+            onClick={() => {
+              onSelect(hour);
+              onClose();
+            }}
+            type="button"
+          >
+            {hour}
+          </button>
+        ))}
+      </div>
+    </BottomSheet>
+  );
+}
+
+export function UserChatResponseTimePage() {
+  const [selectedDays, setSelectedDays] = useState<string[]>(["شنبه", "یک شنبه", "دوشنبه", "سه شنبه"]);
+  const [startHour, setStartHour] = useState("۸ صبح");
+  const [endHour, setEndHour] = useState("۱۲ شب");
+  const [openSheet, setOpenSheet] = useState<ResponseTimeSheet>(null);
+  const { message, showNotice } = useDemoNotice();
+
+  const toggleDay = (day: string) => {
+    setSelectedDays((current) =>
+      current.includes(day)
+        ? current.filter((item) => item !== day)
+        : [...current, day],
+    );
+  };
+
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        backLabel="بازگشت به چت‌ها"
+        backTo="/chat"
+        className="border-b border-[#e6e6e6]"
+        contentClassName="px-0"
+        heightClassName="h-[60px]"
+        title="ساعت پاسخگویی"
+        titleClassName="text-base font-semibold leading-6"
+      />
+
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-28">
+        <section className="px-4 py-5 text-right text-sm font-normal leading-7 text-[#1a1a1a]">
+          <p>ساعت پاسخگویی خود را در چت مشخص کنید.</p>
+          <p>این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.</p>
+        </section>
+
+        <button
+          className="flex min-h-[70px] w-full items-center gap-3 border-b border-[#cccccc] px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          onClick={() => setOpenSheet("days")}
+          type="button"
+        >
+          <span className="min-w-0 flex-1 text-sm font-semibold leading-5 text-[#1a1a1a]">
+            روزهای هفته
+          </span>
+          <ChevronLeftIcon className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+        </button>
+
+        {selectedDays.length ? (
+          <div className="flex flex-wrap justify-start gap-2 px-4 py-5 [direction:rtl]">
+            {selectedDays.map((day) => (
+              <button
+                className="flex h-10 items-center gap-2 rounded-lg border border-[#0048c4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4]"
+                key={day}
+                onClick={() => toggleDay(day)}
+                type="button"
+              >
+                <CloseIcon className="h-4 w-4" />
+                <span>{day}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        <section className="border-t border-[#cccccc] px-4 pt-6">
+          <h2 className="mb-5 text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+            تعیین ساعت شروع و پایان
+          </h2>
+          <div className="flex gap-4 [direction:rtl]">
+            <ResponseTimeSelectBox
+              label="از ساعت"
+              onClick={() => setOpenSheet("start")}
+              value={startHour}
+            />
+            <ResponseTimeSelectBox
+              label="تا ساعت"
+              onClick={() => setOpenSheet("end")}
+              value={endHour}
+            />
+          </div>
+        </section>
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
+        <button
+          className="h-11 w-full rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
+          onClick={() => showNotice("ساعت پاسخگویی ثبت شد")}
+          type="button"
+        >
+          ثبت
+        </button>
+      </footer>
+
+      <ResponseTimeDaysSheet
+        isOpen={openSheet === "days"}
+        onClose={() => setOpenSheet(null)}
+        onToggleDay={toggleDay}
+        selectedDays={selectedDays}
+      />
+      <ResponseTimeHourSheet
+        isOpen={openSheet === "start"}
+        onClose={() => setOpenSheet(null)}
+        onSelect={setStartHour}
+        title="از ساعت"
+      />
+      <ResponseTimeHourSheet
+        isOpen={openSheet === "end"}
+        onClose={() => setOpenSheet(null)}
+        onSelect={setEndHour}
+        title="تا ساعت"
+      />
+      <DemoNotice className="bottom-20" message={message} />
+    </PageFrame>
+  );
+}
+
 export function UserChatDetailPage() {
   const [isSendFileSheetOpen, setIsSendFileSheetOpen] = useState(false);
   const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
@@ -1197,7 +1561,8 @@ export function UserChatHomePage() {
     setIsMenuOpen(false);
 
     if (id === "hours") {
-      showNotice("ساعت پاسخگویی: شنبه تا چهارشنبه، ۸ صبح تا ۹ شب");
+      window.history.pushState({}, "", "/chat/response-time");
+      window.dispatchEvent(new PopStateEvent("popstate"));
       return;
     }
 

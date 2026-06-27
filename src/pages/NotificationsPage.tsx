@@ -368,48 +368,106 @@ function SwipeableNotificationCard({
   item: NotificationItem;
   onDelete: () => void;
 }) {
-  const [isDeleteVisible, setIsDeleteVisible] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef<number | null>(null);
   const startYRef = useRef<number | null>(null);
+  const isSwipeRef = useRef(false);
+  const pointerIdRef = useRef<number | null>(null);
+
+  const resetSwipe = () => {
+    setDragOffset(0);
+    setIsDragging(false);
+    startXRef.current = null;
+    startYRef.current = null;
+    isSwipeRef.current = false;
+    pointerIdRef.current = null;
+  };
 
   return (
-    <div className="relative p-4 overflow-hidden border-b border-[#eeeeee] bg-white">
-      <button
-        aria-label="حذف اعلان"
-        className="absolute bottom-0 left-0 top-0 z-0 flex w-[60px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f]"
-        onClick={onDelete}
-        type="button"
+    <div className="relative overflow-hidden border-b border-[#eeeeee] bg-white">
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 top-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f]"
       >
         <TrashIcon className="h-6 w-6" />
         <span className="text-xs font-semibold leading-4">حذف</span>
-      </button>
+      </div>
 
       <article
-        className={`relative z-10 flex h-full gap-y-4 flex-col bg-white px-4 py-4 text-right transition-transform duration-200 ease-out ${isDeleteVisible ? "translate-x-[60px]" : "translate-x-0"
+        className={`relative z-10 flex h-full touch-pan-y select-none flex-col gap-y-4 bg-white px-4 py-4 text-right ${isDragging ? "" : "transition-transform duration-200 ease-out"
           }`}
+        style={{ transform: `translateX(${dragOffset}px)` }}
         onPointerDown={(event) => {
+          if (event.pointerType === "mouse" && event.button !== 0) return;
+
           startXRef.current = event.clientX;
           startYRef.current = event.clientY;
+          pointerIdRef.current = event.pointerId;
+          isSwipeRef.current = false;
         }}
-        onPointerUp={(event) => {
+        onPointerMove={(event) => {
           const startX = startXRef.current;
           const startY = startYRef.current;
-
-          startXRef.current = null;
-          startYRef.current = null;
 
           if (startX === null || startY === null) return;
 
           const dx = event.clientX - startX;
           const dy = event.clientY - startY;
+          const absX = Math.abs(dx);
+          const absY = Math.abs(dy);
 
-          if (Math.abs(dx) < 36 || Math.abs(dx) < Math.abs(dy)) return;
+          if (!isSwipeRef.current) {
+            if (absX < 8 && absY < 8) return;
+            if (absY > absX || dx <= 0) {
+              resetSwipe();
+              return;
+            }
 
-          setIsDeleteVisible(dx > 0);
+            isSwipeRef.current = true;
+            setIsDragging(true);
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }
+
+          event.preventDefault();
+          setDragOffset(Math.min(dx, 128));
         }}
-        onPointerCancel={() => {
+        onPointerUp={(event) => {
+          const startX = startXRef.current;
+          const startY = startYRef.current;
+          const wasSwipe = isSwipeRef.current;
+
           startXRef.current = null;
           startYRef.current = null;
+          isSwipeRef.current = false;
+          pointerIdRef.current = null;
+
+          if (startX === null || startY === null) {
+            setIsDragging(false);
+            return;
+          }
+
+          const dx = event.clientX - startX;
+          const dy = event.clientY - startY;
+
+          setIsDragging(false);
+
+          if (wasSwipe && dx >= 96 && Math.abs(dx) > Math.abs(dy)) {
+            setDragOffset(128);
+            window.setTimeout(onDelete, 120);
+            return;
+          }
+
+          setDragOffset(0);
+        }}
+        onPointerCancel={(event) => {
+          if (
+            pointerIdRef.current !== null &&
+            event.currentTarget.hasPointerCapture(pointerIdRef.current)
+          ) {
+            event.currentTarget.releasePointerCapture(pointerIdRef.current);
+          }
+          resetSwipe();
         }}
       >
         <div className="flex items-start justify-between gap-3 [direction:ltr]">

@@ -66,7 +66,7 @@ function mapCityDtoToUiCity(city: CityDto): UiCity {
   };
 }
 
-export function CitySelectorSection() {
+export function CitySelectorSection({ onOpenCitySearch }: { onOpenCitySearch: () => void }) {
   const {
     data: apiCities = [],
     error,
@@ -86,11 +86,6 @@ export function CitySelectorSection() {
       .filter((city) => city.id && city.name)
       .slice(0, 4);
   }, [apiCities, isError]);
-
-  const openHomeSearch = () => {
-    window.history.pushState({}, "", "/home");
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
 
   const handleCitySelect = (city: UiCity) => {
     saveSelectedCity({
@@ -121,8 +116,8 @@ export function CitySelectorSection() {
           className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] min-[390px]:text-base min-[390px]:leading-6"
           type="search"
           placeholder="جستجو در شهر"
-          onClick={openHomeSearch}
-          onFocus={openHomeSearch}
+          onClick={onOpenCitySearch}
+          onFocus={onOpenCitySearch}
           readOnly
         />
 

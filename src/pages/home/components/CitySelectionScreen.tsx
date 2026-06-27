@@ -12,6 +12,7 @@ type CitySelectionScreenProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (city: { id?: string; latitude?: number; longitude?: number; name: string }) => void;
+  openSearchOnOpen?: boolean;
 };
 
 type UiCityOption = {
@@ -41,6 +42,7 @@ export function CitySelectionScreen({
   isOpen,
   onClose,
   onConfirm,
+  openSearchOnOpen = false,
 }: CitySelectionScreenProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [selectedCityId, setSelectedCityId] = useState(getStoredCityId);
@@ -65,6 +67,17 @@ export function CitySelectionScreen({
   const normalizedQuery = query.trim();
 
   const visibleSearchResults = cityList;
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setSelectedCityId(getStoredCityId());
+
+    if (openSearchOnOpen) {
+      setIsSearching(true);
+      setQuery("");
+    }
+  }, [isOpen, openSearchOnOpen]);
 
   useEffect(() => {
     if (!isOpen || !isSearching) {

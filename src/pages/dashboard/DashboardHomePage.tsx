@@ -1,3 +1,5 @@
+import DashboardPaymentPage from "./DashboardPaymenPage";
+
 const creditCards = [
   {
     accent: "bg-[#f1f1fb] text-[#4b5680]",
@@ -215,7 +217,7 @@ export function DashboardTeamPage() {
 }
 
 export function DashboardPaymentsPage() {
-  return <DashboardComingSoonPage title="افزایش اعتبار" />;
+  return <DashboardPaymentPage />;
 }
 
 export function DashboardRankingPage() {

@@ -135,8 +135,8 @@ export function DashboardLayout({
     <div className="h-screen w-full flex flex-col bg-[#f3f3f3]" dir="rtl">
       <DashboardHeader />
 
-      <div className="flex flex-1 gap-6 p-6 overflow-hidden">
-        <aside className="shrink-0">
+      <div className="flex min-h-0 flex-1 gap-6 overflow-hidden p-6">
+        <aside className="min-h-0 shrink-0">
           <MemoSidebar
             activePath={activePath}
             items={visibleItems}
@@ -147,7 +147,9 @@ export function DashboardLayout({
           />
         </aside>
 
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </div>
   );

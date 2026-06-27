@@ -81,6 +81,11 @@ export const queryKeys = {
       [...queryKeys.account.myAdsRoot(), filters.type, filters.perPage] as const,
   },
 
+  packages: {
+    all: ["packages"] as const,
+    list: () => [...queryKeys.packages.all, "list"] as const,
+  },
+
   chats: {
     all: ["chats"] as const,
     detail: (threadId: string) => [...queryKeys.chats.all, "detail", threadId] as const,

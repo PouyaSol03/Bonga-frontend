@@ -1,3 +1,4 @@
+import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
 
 const creditCards = [
@@ -225,7 +226,7 @@ export function DashboardRankingPage() {
 }
 
 export function DashboardAgencyPage() {
-  return <DashboardComingSoonPage title="صفحه آژانس" />;
+  return <DashboardAgencyEditPage />;
 }
 
 export function DashboardMessagesPage() {

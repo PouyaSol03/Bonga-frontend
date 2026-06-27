@@ -32,6 +32,7 @@ import {
   IndependentConsultantTimeBadgePage,
 } from '../pages/account/IndependentConsultantBadgeDetailsPage'
 import { IndependentConsultantAdManagementPage } from '../pages/account/IndependentConsultantAdManagementPage'
+import { DashboardAdsPage } from '../pages/dashboard/DashboardAdsPage'
 import { IndependentConsultantAdAllocationPage } from '../pages/account/adManagement/IndependentConsultantAdAllocationPage'
 import { IndependentConsultantAdEditPage } from '../pages/account/adManagement/IndependentConsultantAdEditPage'
 import { IndependentConsultantAdFilterPage } from '../pages/account/adManagement/IndependentConsultantAdFilterPage'
@@ -47,9 +48,11 @@ import {
 } from '../pages/account/credit/IndependentConsultantCreditPage'
 import { IndependentConsultantCreditHistoryPage } from '../pages/account/credit/IndependentConsultantCreditHistoryPage'
 import {
-  DashboardAdsPage,
+  DashboardAgencyPage,
   DashboardHomePage,
+  DashboardMessagesPage,
   DashboardPaymentsPage,
+  DashboardRankingPage,
   DashboardRequestsPage,
   DashboardTeamPage,
 } from '../pages/dashboard/DashboardHomePage'
@@ -208,6 +211,22 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
+    path: '/dashboard/ranking',
+    title: 'شناساها و رتبه',
+    Component: DashboardRankingPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: '/dashboard/agency',
+    title: 'صفحه آژانس',
+    Component: DashboardAgencyPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
     path: '/dashboard/ads',
     title: 'مدیریت آگهی‌ها',
     Component: DashboardAdsPage,
@@ -237,6 +256,14 @@ export const routes: AppRoute[] = [
     path: '/dashboard/payments',
     title: 'پرداخت‌ها',
     Component: DashboardPaymentsPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: '/dashboard/messages',
+    title: 'پیام‌ها',
+    Component: DashboardMessagesPage,
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,

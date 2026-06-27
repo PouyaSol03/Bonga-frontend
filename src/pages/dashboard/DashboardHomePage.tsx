@@ -205,20 +205,45 @@ export function DashboardHomePage() {
   );
 }
 
-export function DashboardAdsPage() {
-  return <div />;
-}
 
 export function DashboardRequestsPage() {
-  return <div />;
+  return <DashboardComingSoonPage title="مدیریت درخواست‌ها" />;
 }
 
 export function DashboardTeamPage() {
-  return <div />;
+  return <DashboardComingSoonPage title="مدیریت مشاورین" />;
 }
 
 export function DashboardPaymentsPage() {
-  return <div />;
+  return <DashboardComingSoonPage title="افزایش اعتبار" />;
+}
+
+export function DashboardRankingPage() {
+  return <DashboardComingSoonPage title="شناساها و رتبه" />;
+}
+
+export function DashboardAgencyPage() {
+  return <DashboardComingSoonPage title="صفحه آژانس" />;
+}
+
+export function DashboardMessagesPage() {
+  return <DashboardComingSoonPage title="پیام‌ها" />;
+}
+
+function DashboardComingSoonPage({ title }: { title: string }) {
+  return (
+    <section className="grid h-full min-h-[360px] place-items-center rounded-xl bg-white p-6 text-center">
+      <div className="grid max-w-[360px] gap-3">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]">
+          <ClockIcon className="h-7 w-7" />
+        </span>
+        <h1 className="m-0 text-xl font-black text-[#111111]">{title}</h1>
+        <p className="m-0 text-sm font-medium leading-6 text-[#666666]">
+          این بخش به‌زودی آماده می‌شود.
+        </p>
+      </div>
+    </section>
+  );
 }
 
 function DashboardPanelHeader({
@@ -293,6 +318,24 @@ function CreditIcon({ className = "" }: { className?: string }) {
     >
       <path d="M4 7h16v11H4z" />
       <path d="M8 11h5M16 14v-4M14 12h4" />
+    </svg>
+  );
+}
+
+function ClockIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
     </svg>
   );
 }

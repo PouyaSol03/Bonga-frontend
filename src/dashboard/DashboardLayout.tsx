@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode, memo } from "react";
 import { type AuthSession } from "../auth/auth-storage";
 import { getVisibleDashboardItems } from "./dashboardNavigation";
+import { RouteLink } from "../routes/RouteLink";
 import { DashboardHeader } from "./DashboardHeader";
 
 type DashboardLayoutProps = {
@@ -79,13 +80,13 @@ const MemoSidebar = memo(function Sidebar({
           const isActive = activePath === item.path;
 
           return (
-            <div
+            <RouteLink
+              aria-current={isActive ? "page" : undefined}
+              className={`flex h-10 items-center rounded-xl text-sm no-underline cursor-pointer transition ${
+                isActive ? "bg-[#0048c414]" : "hover:bg-[#f5f7fb]"
+              } ${isCollapsed ? "justify-center px-0" : "gap-2 px-3"}`}
               key={item.path}
-              className={`flex h-10 items-center rounded-xl text-sm transition ${
-                isCollapsed
-                  ? "justify-center px-0"
-                  : "gap-2 px-3"
-              }`}
+              to={item.path}
             >
               {isCollapsed ? (
                 <div className="flex flex-col items-center justify-center gap-1">
@@ -110,7 +111,7 @@ const MemoSidebar = memo(function Sidebar({
                   </span>
                 </>
               )}
-            </div>
+            </RouteLink>
           );
         })}
       </div>

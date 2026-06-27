@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
+import { SwitchButton } from "../../../components/SwitchButton";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronDownIcon } from "./AdManagementIcons";
@@ -39,7 +40,11 @@ export function IndependentConsultantAdFilterPage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pt-4">
         <section className="flex h-14 items-center justify-between [direction:ltr]" aria-label="نمایش آگهی های من">
-          <FilterToggle active={onlyMine} onClick={() => setOnlyMine((current) => !current)} />
+          <SwitchButton
+            ariaLabel="نمایش آگهی های من"
+            checked={onlyMine}
+            onChange={setOnlyMine}
+          />
           <h2 className="m-0 text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
             آگهی‌های من
           </h2>
@@ -79,22 +84,6 @@ export function IndependentConsultantAdFilterPage() {
         </div>
       </footer>
     </PageFrame>
-  );
-}
-
-function FilterToggle({ active, onClick }: { active: boolean; onClick: () => void }) {
-  return (
-    <button
-      aria-label="نمایش آگهی های من"
-      aria-pressed={active}
-      className={`flex h-6 w-11 items-center rounded-full px-1 [direction:ltr] ${
-        active ? "justify-end bg-[#0048c4]" : "justify-start bg-[#0048c41f]"
-      }`}
-      onClick={onClick}
-      type="button"
-    >
-      <span className={`block h-4 w-4 rounded-full ${active ? "bg-white" : "bg-[#808080]"}`} />
-    </button>
   );
 }
 

@@ -32,26 +32,20 @@ export const downloadOptions: DownloadOption[] = [
     label: "بازار",
     href: "https://cafebazaar.ir/",
     icon: BazarIcon,
-    typo: BazarTypo,
+    typo: "بازار",
   },
   {
     label: "مایکت",
     href: "https://myket.ir/",
     icon: MyketIcon,
-    typo: MyketTypo,
+    typo: "مایکت",
   },
   {
     label: "سیب اپ",
     href: "https://sibapp.com/",
     icon: SibappIcon,
-    typo: SibappTypo,
+    typo: "سیب اپ",
   },
-];
-
-export const footerLinks = [
-  { label: "درباره ما", href: "#about" },
-  { label: "تماس با ما", href: "#contact" },
-  { label: "سوالات متداول", href: "#faq" },
 ];
 
 export const socialLinks: SocialLink[] = [

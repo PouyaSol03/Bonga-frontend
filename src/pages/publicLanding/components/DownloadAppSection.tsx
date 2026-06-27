@@ -18,7 +18,7 @@ export function DownloadAppSection() {
       <div className="grid grid-cols-3 gap-2 min-[390px]:gap-4">
         {downloadOptions.map((option) => (
           <a
-            className="flex min-h-16 min-w-0 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-white px-2 py-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[80px] min-[390px]:gap-2 min-[390px]:py-3"
+            className="flex min-h-[84px] w-[98px] min-w-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl bg-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[80px] min-[390px]:gap-2 min-[390px]:py-3"
             href={option.href}
             key={option.label}
             target="_blank"
@@ -32,11 +32,7 @@ export function DownloadAppSection() {
               aria-hidden="true"
             />
 
-            <img
-              src={option.typo}
-              alt={option.label}
-              className="h-4 max-w-[52px] object-contain min-[390px]:h-[18px] min-[390px]:max-w-[58px]"
-            />
+            <p className="text-sm font-extrabold leading-6">{option.typo}</p>
           </a>
         ))}
       </div>

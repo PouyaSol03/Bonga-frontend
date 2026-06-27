@@ -1,13 +1,14 @@
-import type { ComponentType, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
 import { TopBar } from '../components/TopBar'
+import { DashboardLayout } from '../dashboard/DashboardLayout'
 import { ViewAdPage } from '../pages/ViewAdPage'
 import { UserChatDetailPage } from '../pages/UserChatHomePage'
-import { routes } from './routes'
+import { canAccessRoute, DASHBOARD_PATH, LOGIN_PATH, routes, type AppRoute } from './routes'
 
 function getCurrentPath() {
   return window.location.pathname || '/'
@@ -30,17 +31,25 @@ function getResolvedPath() {
 
   if (path.startsWith('/account') && path !== '/account' && !getStoredAuthSession()) {
     storeLoginRedirectPath(path)
-    window.history.replaceState({}, '', '/login/phone')
-    return '/login/phone'
+    window.history.replaceState({}, '', LOGIN_PATH)
+    return LOGIN_PATH
+  }
+
+  const route = getRoute(path)
+  const session = getStoredAuthSession()
+
+  if (!canAccessRoute(route, session)) {
+    if (!session) {
+      storeLoginRedirectPath(path)
+      window.history.replaceState({}, '', LOGIN_PATH)
+      return LOGIN_PATH
+    }
+
+    window.history.replaceState({}, '', '/account')
+    return '/account'
   }
 
   return path
-}
-
-type ResolvedRoute = {
-  path: string
-  title: string
-  Component: ComponentType
 }
 
 type AppChromeConfig = {
@@ -150,7 +159,7 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
   }
 }
 
-function getRoute(path: string): ResolvedRoute {
+function getRoute(path: string): AppRoute {
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {
     return { path, title: 'تجهیزات و امکانات', Component: ViewAdPage }
   }
@@ -169,6 +178,12 @@ function getRoute(path: string): ResolvedRoute {
     return { path, title: chatRoute?.title ?? 'Chat', Component: UserChatDetailPage }
   }
 
+  if (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`)) {
+    return routes.find((route) => route.path === path) ??
+      routes.find((route) => route.path === DASHBOARD_PATH) ??
+      routes[0]
+  }
+
   return routes.find((route) => route.path === path) ?? routes[0]
 }
 
@@ -177,6 +192,7 @@ export function AppRouter() {
   const route = getRoute(path)
   const ActivePage = route.Component
   const chromeConfig = getAppChromeConfig(route.path, route.title)
+  const authSession = getStoredAuthSession()
 
   useEffect(() => {
     document.title = `بنگاه | ${route.title}`
@@ -196,6 +212,19 @@ export function AppRouter() {
   }, [])
 
   const page = <ActivePage />
+
+  if (route.layout === 'dashboard' && authSession) {
+    return (
+      <DashboardLayout
+        activePath={path}
+        session={authSession}
+        title={route.title}
+      >
+        {page}
+      </DashboardLayout>
+    )
+  }
+
   let content: ReactNode = page
 
   if (chromeConfig.wrapInShell) {

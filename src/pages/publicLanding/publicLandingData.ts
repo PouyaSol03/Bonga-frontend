@@ -4,13 +4,10 @@ import MashhadIcon from "../../assets/icons/MashhadIcon.svg";
 import IsfahanIcon from "../../assets/icons/IsfahanIcon.svg";
 import ShirazIcon from "../../assets/icons/ShirazIcon.svg";
 import BazarIcon from "../../assets/Vectors/BazarIcon.svg";
-import BazarTypo from "../../assets/Vectors/BazarTypo.svg";
 
 import MyketIcon from "../../assets/Vectors/MyketIcon.svg";
-import MyketTypo from "../../assets/Vectors/MyketTypo.svg";
 
 import SibappIcon from "../../assets/Vectors/SibappIcon.svg";
-import SibappTypo from "../../assets/Vectors/SibappTypo.svg";
 import InstagramIcon from "../../assets/Vectors/InstagramIcon.svg";
 import FaceIcon from "../../assets/Vectors/FaceIcon.svg";
 import TelegramIcon from "../../assets/Vectors/TelegramIcon.svg";

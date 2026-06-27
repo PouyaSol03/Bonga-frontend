@@ -1,4 +1,6 @@
-import type { ComponentType } from 'react'
+import { createElement, useEffect, type ComponentType } from 'react'
+import { USER } from '../constants/roles.constants'
+import { getStoredAuthSession, type AuthSession } from '../auth/auth-storage'
 import { HomePage } from '../pages/HomePage'
 import { LoginPhonePage } from '../pages/LoginPhonePage'
 import { LoginVerifyPage } from '../pages/LoginVerifyPage'
@@ -20,7 +22,6 @@ import {
   AccountWalletHistoryPage,
   AccountWalletPage,
 } from '../pages/account/AccountSubPages'
-import { IndependentConsultantDashboardPage } from '../pages/account/IndependentConsultantDashboardPage'
 import { IndependentConsultantRankingPage } from '../pages/account/IndependentConsultantRankingPage'
 import { IndependentConsultantRankingLevelsPage } from '../pages/account/IndependentConsultantRankingLevelsPage'
 import { IndependentConsultantBadgesGuidePage } from '../pages/account/IndependentConsultantBadgesGuidePage'
@@ -45,14 +46,71 @@ import {
   IndependentConsultantPanelCreditPage,
 } from '../pages/account/credit/IndependentConsultantCreditPage'
 import { IndependentConsultantCreditHistoryPage } from '../pages/account/credit/IndependentConsultantCreditHistoryPage'
+import {
+  DashboardAdsPage,
+  DashboardHomePage,
+  DashboardPaymentsPage,
+  DashboardRequestsPage,
+  DashboardTeamPage,
+} from '../pages/dashboard/DashboardHomePage'
 import { SearchMapPage } from '../pages/search/SearchMapPage'
 import { SearchMapFilterPage } from '../pages/search/SearchMapFilterPage'
 import { UserChatDetailPage, UserChatHomePage, UserChatResponseTimePage } from '../pages/UserChatHomePage'
 
+export const LOGIN_PATH = '/login/phone'
+export const DASHBOARD_PATH = '/dashboard'
+
+function AccountRoleRedirect() {
+  const session = getStoredAuthSession()
+  const role = session?.role ?? null
+
+  useEffect(() => {
+    if (role && role !== USER) {
+      window.history.replaceState({}, '', DASHBOARD_PATH)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    }
+  }, [role])
+
+  if (!role) {
+    return createElement(MyAccountPage)
+  }
+
+  if (role === USER) return createElement(MyAccountPage)
+
+  return null
+}
+
+function DashboardRedirect() {
+  useEffect(() => {
+    window.history.replaceState({}, '', DASHBOARD_PATH)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }, [])
+
+  return null
+}
+
 export type AppRoute = {
+  authority?: string[]
+  layout?: 'dashboard'
   path: string
+  requiresAuth?: boolean
+  requiresNonUser?: boolean
   title: string
   Component: ComponentType
+}
+
+export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
+  if (!route.requiresAuth && !route.authority?.length && !route.requiresNonUser) {
+    return true
+  }
+
+  const role = session?.role ?? null
+
+  if (!role) return false
+  if (route.requiresNonUser && role === USER) return false
+  if (route.authority?.length) return route.authority.includes(role)
+
+  return true
 }
 
 export const routes: AppRoute[] = [
@@ -69,7 +127,7 @@ export const routes: AppRoute[] = [
   {
     path: '/account',
     title: 'حساب من',
-    Component: MyAccountPage,
+    Component: AccountRoleRedirect,
   },
   {
     path: '/login/phone',
@@ -139,7 +197,49 @@ export const routes: AppRoute[] = [
   {
     path: '/account/dashboard',
     title: 'داشبورد',
-    Component: IndependentConsultantDashboardPage,
+    Component: DashboardRedirect,
+  },
+  {
+    path: DASHBOARD_PATH,
+    title: 'داشبورد',
+    Component: DashboardHomePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: '/dashboard/ads',
+    title: 'مدیریت آگهی‌ها',
+    Component: DashboardAdsPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: '/dashboard/requests',
+    title: 'درخواست‌ها',
+    Component: DashboardRequestsPage,
+    authority: ['real_estate_manager', 'independent_consultant'],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: '/dashboard/team',
+    title: 'تیم و مشاوران',
+    Component: DashboardTeamPage,
+    authority: ['real_estate_manager'],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: '/dashboard/payments',
+    title: 'پرداخت‌ها',
+    Component: DashboardPaymentsPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
   },
   {
     path: '/account/ranking',

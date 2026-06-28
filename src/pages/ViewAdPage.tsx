@@ -48,7 +48,9 @@ type AlbumMediaItem = {
 };
 
 type ActionToast = {
+  actionLabel?: string;
   message: string;
+  onAction?: () => void;
   title: string;
   variant: SnackbarVariant;
 };
@@ -3257,32 +3259,37 @@ export function ViewAdPage() {
     setToast({ message, title, variant });
   };
 
+  const requireAuthorization = (actionLabel: string) => {
+    if (isLoggedIn()) return true;
+
+    setToast({
+      actionLabel: "ورود",
+      message: `برای ${actionLabel} ابتدا وارد حساب کاربری شوید.`,
+      onAction: redirectToLoginProcess,
+      title: "ورود لازم است",
+      variant: "info",
+    });
+
+    return false;
+  };
+
   const handleRowAction = (label: string) => {
     if (label.includes("بازخورد")) {
-      if (!isLoggedIn()) {
-        redirectToLoginProcess();
-        return;
-      }
+      if (!requireAuthorization("ثبت بازخورد")) return;
 
       setIsFeedbackOpen(true);
       return;
     }
 
     if (label.includes("یادداشت")) {
-      if (!isLoggedIn()) {
-        redirectToLoginProcess();
-        return;
-      }
+      if (!requireAuthorization("ثبت یادداشت")) return;
 
       setIsNoteOpen(true);
       return;
     }
 
     if (label.includes("گزارش") || label.includes("تخلف")) {
-      if (!isLoggedIn()) {
-        redirectToLoginProcess();
-        return;
-      }
+      if (!requireAuthorization("ارسال گزارش تخلف")) return;
 
       setIsViolationReportOpen(true);
       return;
@@ -3293,10 +3300,7 @@ export function ViewAdPage() {
 
   const handleTopBarAction = async (icon: IconName) => {
     if (icon === "note") {
-      if (!isLoggedIn()) {
-        redirectToLoginProcess();
-        return;
-      }
+      if (!requireAuthorization("ثبت یادداشت")) return;
 
       setIsNoteOpen(true);
       return;
@@ -3329,10 +3333,7 @@ export function ViewAdPage() {
     }
 
     if (icon === "bookmark") {
-      if (!isLoggedIn()) {
-        redirectToLoginProcess();
-        return;
-      }
+      if (!requireAuthorization("نشان کردن آگهی")) return;
 
       if (!adId || toggleBadge.isPending) {
         return;
@@ -3341,7 +3342,7 @@ export function ViewAdPage() {
       toggleBadge.mutate(adId, {
         onError: (badgeError) => {
           if (isUnauthorizedApiError(badgeError)) {
-            redirectToLoginProcess();
+            requireAuthorization("نشان کردن آگهی");
             return;
           }
 
@@ -3375,17 +3376,14 @@ export function ViewAdPage() {
       return;
     }
 
-    if (!isLoggedIn()) {
-      redirectToLoginProcess();
-      return;
-    }
+    if (!requireAuthorization("ثبت یادداشت")) return;
 
     saveNote.mutate(
       { advertiseId: adId, note: cleanNote },
       {
         onError: (noteError) => {
           if (isUnauthorizedApiError(noteError)) {
-            redirectToLoginProcess();
+            requireAuthorization("ثبت یادداشت");
             return;
           }
 
@@ -3408,17 +3406,14 @@ export function ViewAdPage() {
       return;
     }
 
-    if (!isLoggedIn()) {
-      redirectToLoginProcess();
-      return;
-    }
+    if (!requireAuthorization("ثبت بازخورد")) return;
 
     submitFeedback.mutate(
       { advertiseId: adId, feedback },
       {
         onError: (feedbackError) => {
           if (isUnauthorizedApiError(feedbackError)) {
-            redirectToLoginProcess();
+            requireAuthorization("ثبت بازخورد");
             return;
           }
 
@@ -3444,10 +3439,7 @@ export function ViewAdPage() {
       return;
     }
 
-    if (!isLoggedIn()) {
-      redirectToLoginProcess();
-      return;
-    }
+    if (!requireAuthorization("ارسال گزارش تخلف")) return;
 
     submitReport.mutate(
       {
@@ -3458,7 +3450,7 @@ export function ViewAdPage() {
       {
         onError: (reportError) => {
           if (isUnauthorizedApiError(reportError)) {
-            redirectToLoginProcess();
+            requireAuthorization("ارسال گزارش تخلف");
             return;
           }
 
@@ -3489,8 +3481,10 @@ export function ViewAdPage() {
 
       {toast ? (
         <Snackbar
+          actionLabel={toast.actionLabel}
           className="top-16"
           message={toast.message}
+          onAction={toast.onAction}
           onDismiss={() => setToast(null)}
           title={toast.title}
           variant={toast.variant}
@@ -3529,10 +3523,9 @@ export function ViewAdPage() {
               <RouteLink
                 className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                 onClick={(event) => {
-                  if (isLoggedIn()) return;
+                  if (requireAuthorization("شروع گفتگو با مشاور")) return;
 
                   event.preventDefault();
-                  redirectToLoginProcess();
                 }}
                 to={`/chat/${adId}`}
               >

@@ -1,6 +1,8 @@
 export type SnackbarVariant = "error" | "success" | "info";
 
 type SnackbarProps = {
+  actionLabel?: string;
+  onAction?: () => void;
   className?: string;
   message: string;
   onDismiss: () => void;
@@ -30,8 +32,10 @@ const snackbarStyles: Record<
 };
 
 export function Snackbar({
+  actionLabel,
   className = "top-[72px]",
   message,
+  onAction,
   onDismiss,
   title,
   variant = "error",
@@ -59,6 +63,15 @@ export function Snackbar({
         <div className={`min-w-0 flex-1 px-3 py-3 text-right [direction:rtl] ${styles.text}`}>
           <p className="m-0 text-sm font-semibold leading-5">{title}</p>
           <p className="m-0 mt-1 text-sm font-normal leading-5">{message}</p>
+          {actionLabel && onAction ? (
+            <button
+              className={`mt-3 h-9 rounded-[10px] border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-current ${styles.border} ${styles.text}`}
+              onClick={onAction}
+              type="button"
+            >
+              {actionLabel}
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

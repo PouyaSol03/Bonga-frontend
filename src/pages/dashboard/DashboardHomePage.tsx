@@ -1,5 +1,6 @@
 import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
+import DashboardChatPage from "./DashboardChatPage";
 
 const creditCards = [
   {
@@ -230,7 +231,7 @@ export function DashboardAgencyPage() {
 }
 
 export function DashboardMessagesPage() {
-  return <DashboardComingSoonPage title="پیام‌ها" />;
+  return <DashboardChatPage />;
 }
 
 function DashboardComingSoonPage({ title }: { title: string }) {

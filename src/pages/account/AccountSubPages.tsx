@@ -37,6 +37,7 @@ import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
+import { getMyAdStatusInfo } from "./myAdsStatus";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -288,13 +289,24 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
             index === loadMoreTriggerIndex &&
             hasNextPage &&
             !isFetchingNextPage;
+          const statusInfo = getMyAdStatusInfo(ad, index, { useDemoFallback: true });
+          const adId = String(ad.id ?? ad._id ?? card.id);
+          const cardWithStatus: AdCardData = {
+            ...card,
+            status: statusInfo.label,
+          };
 
           return (
             <div
-              key={String(ad.id ?? ad._id ?? card.id)}
+              key={adId}
               ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
             >
-              <AdCard ad={card} />
+              <AdCard
+                ad={cardWithStatus}
+                showStatusBadge
+                state={{ ad, card: cardWithStatus, status: statusInfo.key }}
+                to={`/account/my-ads/${encodeURIComponent(adId)}/state-ad`}
+              />
             </div>
           );
         })}

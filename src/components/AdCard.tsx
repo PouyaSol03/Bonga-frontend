@@ -31,11 +31,12 @@ export type AdCardData = {
 
 type AdCardProps = {
   ad: AdCardData
+  showStatusBadge?: boolean
   state?: unknown
   to?: string
 }
 
-export function AdCard({ ad, state, to = `/ads/${ad.id}` }: AdCardProps) {
+export function AdCard({ ad, showStatusBadge = false, state, to = `/ads/${ad.id}` }: AdCardProps) {
   const hasSecondaryPrice = Boolean(ad.priceLabelSecondary && ad.priceSecondary)
 
   return (
@@ -54,6 +55,11 @@ export function AdCard({ ad, state, to = `/ads/${ad.id}` }: AdCardProps) {
             <AdCardAlbumIcon className="h-5 w-5 shrink-0" />
             <span>{ad.imageCount}</span>
           </div>
+          {showStatusBadge && ad.status ? (
+            <span className={`absolute left-2 top-2 z-2 inline-flex h-7 max-w-[calc(100%-92px)] items-center rounded-lg px-2 text-xs font-medium leading-4 ${getStatusBadgeClassName(ad.status)}`}>
+              <span className="truncate">{ad.status}</span>
+            </span>
+          ) : null}
           {ad.agency && (
             <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]">
               <AdCardOwnerIcon className="h-5 w-5 shrink-0" />
@@ -113,4 +119,41 @@ function PropertyItem({ icon, value }: { icon: ReactNode; value: string }) {
       <span className="text-[#1a1a1a]">{value}</span>
     </span>
   )
+}
+
+function getStatusBadgeClassName(status: string) {
+  const normalizedStatus = status
+    .trim()
+    .replace(/ي/g, 'ی')
+    .replace(/ك/g, 'ک')
+    .replace(/‌/g, ' ')
+
+  if (
+    normalizedStatus.includes('حذف') ||
+    normalizedStatus.includes('انقضا') ||
+    normalizedStatus.includes('منقض') ||
+    normalizedStatus.includes('غیر فعال') ||
+    normalizedStatus.includes('غیرفعال')
+  ) {
+    return 'bg-[#ee3623] text-white'
+  }
+
+  if (
+    normalizedStatus.includes('انتظار') ||
+    normalizedStatus.includes('بررسی') ||
+    normalizedStatus.includes('ویرایش') ||
+    normalizedStatus.includes('اصلاح')
+  ) {
+    return 'bg-[#ff6d00] text-white'
+  }
+
+  if (
+    normalizedStatus.includes('منتشر') ||
+    normalizedStatus.includes('فعال') ||
+    normalizedStatus.includes('تایید شده')
+  ) {
+    return 'bg-[#11a366] text-white'
+  }
+
+  return 'bg-[#4d4d4d] text-white'
 }

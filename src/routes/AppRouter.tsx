@@ -7,6 +7,7 @@ import { BottomNavigation } from '../components/BottomNavigation'
 import { TopBar } from '../components/TopBar'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
 import { ViewAdPage } from '../pages/ViewAdPage'
+import { AccountMyAdStatePage } from '../pages/account/AccountMyAdStatePage'
 import { UserChatDetailPage } from '../pages/UserChatHomePage'
 import { canAccessRoute, DASHBOARD_PATH, LOGIN_PATH, routes, type AppRoute } from './routes'
 
@@ -85,7 +86,8 @@ function getBottomNavigationKey(path: string) {
   if (
     path === '/account/ad-management/allocation' ||
     path === '/account/ad-management/payment' ||
-    path.startsWith('/account/ad-management/published')
+    path.startsWith('/account/ad-management/published') ||
+    /^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)
   ) {
     return undefined
   }
@@ -160,6 +162,10 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
 }
 
 function getRoute(path: string): AppRoute {
+  if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
+    return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage }
+  }
+
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {
     return { path, title: 'تجهیزات و امکانات', Component: ViewAdPage }
   }

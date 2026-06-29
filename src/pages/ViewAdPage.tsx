@@ -252,6 +252,7 @@ function GalleryHero({
       : [{ src: "/figma/view-ad-gallery.png", type: "image" }];
   const videoIndex = galleryItems.findIndex((item) => item.type === "video");
   const hasVideo = videoIndex >= 0;
+  const imageCount = galleryItems.filter((item) => item.type === "image").length;
 
   const selectGalleryKind = (kind: GalleryMediaKind) => {
     if (kind === "album") {
@@ -324,6 +325,16 @@ function GalleryHero({
               onClick={() => selectGalleryKind("tour3d")}
             />
           ) : null}
+        </div>
+
+        <div className="absolute left-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-lg bg-[#1a1a1ab3] px-2 text-xs font-semibold leading-4 text-white [direction:ltr]">
+          <span>{new Intl.NumberFormat("fa-IR").format(imageCount)}</span>
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-5 w-5 object-contain"
+            src="/icons/iconAlbum.svg"
+          />
         </div>
 
         <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
@@ -1256,6 +1267,7 @@ function ViewAdContent({
   ad,
   details,
   hasTour3d,
+  hideRestrictedActions,
   mediaItems,
   mapPosition,
   onOpenAlbum,
@@ -1265,6 +1277,7 @@ function ViewAdContent({
   ad: AdvertisementItem;
   details: ViewAdDetails;
   hasTour3d: boolean;
+  hideRestrictedActions: boolean;
   mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: (initialIndex?: number) => void;
@@ -1284,6 +1297,9 @@ function ViewAdContent({
   const hasMoreFacilities = details.features.length > 6;
   const showAgency = isAgencyAdvertiser(ad);
   const shouldShowDescriptionMore = isDescriptionOverflowing;
+  const visibleRows = hideRestrictedActions
+    ? details.rows.filter((row) => row.icon !== "checklist" && row.icon !== "info")
+    : details.rows;
 
   useEffect(() => {
     const updateDescriptionOverflow = () => {
@@ -1405,7 +1421,7 @@ function ViewAdContent({
       {showAgency ? <AgencyCard details={details} /> : null}
 
       <section className="border-t-8 border-[#f0f0f0] bg-white">
-        {details.rows.map((row) => (
+        {visibleRows.map((row) => (
           <button
             className="flex h-[88px] w-full items-center justify-between border-b-8 border-[#f0f0f0] px-8 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
@@ -1611,6 +1627,42 @@ function toText(value: unknown, fallback = ""): string {
   }
 
   return fallback;
+}
+
+function isOwnAdvertisement(ad: AdvertisementItem) {
+  return (ad as { is_mine?: unknown }).is_mine === true;
+}
+
+function formatPublishedAge(
+  ad: AdvertisementItem,
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
+  const publishedDays =
+    (ad as { published_days?: unknown }).published_days ??
+    (ad as { published_date?: unknown }).published_date;
+  const publishedDaysAgo = toNumber(publishedDays);
+
+  if (
+    publishedDays !== undefined &&
+    publishedDays !== null &&
+    publishedDaysAgo !== undefined
+  ) {
+    return `${new Intl.NumberFormat("fa-IR").format(publishedDaysAgo)} روز پیش`;
+  }
+
+  const publishedDaysText = toText(publishedDays);
+
+  if (publishedDaysText) {
+    return `${publishedDaysText} روز پیش`;
+  }
+
+  const publishedHoursAgo = toNumber(ad.published_hours_ago);
+
+  if (publishedHoursAgo !== undefined) {
+    return `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`;
+  }
+
+  return toText(getFeatureValue(features, "published_at"), viewAdDemo.age);
 }
 
 function formatPrice(value: unknown) {
@@ -2023,7 +2075,7 @@ function buildPropertyPreviewItem(
 
   if (!value || value === "-") return null;
 
-  const { formattedValue, iconSrc } = getBuildingInfo(field.label, value);
+  const { formattedValue, iconSrc } = getBuildingInfo(field.labels[0], value);
 
   return {
     icon: field.icon ?? iconForFeature(field.label),
@@ -2120,8 +2172,9 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
 function buildPropertyInfoItem(label: string, rawValue: unknown) {
   const displayLabel = propertyInfoLabelMap[label] ?? label;
   const normalizedValue = normalizeDetailValue(label, rawValue);
+  const iconLookupLabel = propertyInfoLabelMap[label] ? label : displayLabel;
   const { formattedValue, iconSrc } = getBuildingInfo(
-    displayLabel,
+    iconLookupLabel,
     Array.isArray(normalizedValue)
       ? normalizedValue.join("، ")
       : normalizedValue,
@@ -2234,11 +2287,7 @@ function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     features.length > 0
       ? buildFacilityItems(features)
       : withFeatureIconAssets(viewAdDemo.features);
-  const publishedHoursAgo = toNumber(ad.published_hours_ago);
-  const age =
-    publishedHoursAgo !== undefined
-      ? `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`
-      : toText(getFeatureValue(features, "published_at"), viewAdDemo.age);
+  const age = formatPublishedAge(ad, features);
   const totalPrice = ad.price ?? getFeatureValue(features, "price");
   const meterArea =
     getFirstFeatureValue(features, ["area", "land_area", "building_area"]) ??
@@ -2263,7 +2312,10 @@ function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     description: toText(description, viewAdDemo.description),
     features: facilities,
     headline: toText(ad.title ?? ad.label, viewAdDemo.headline),
-    locationTitle: toText(ad.label ?? ad.title, viewAdDemo.locationTitle),
+    locationTitle: toText(
+      (ad as { form_neighborhood_title?: unknown }).form_neighborhood_title,
+      toText(ad.label ?? ad.title, viewAdDemo.locationTitle),
+    ),
     pricePerMeter: formatPricePerMeter(totalPrice, meterArea),
     propertyInfoPreview,
     propertyInfoRows,
@@ -3215,11 +3267,12 @@ export function ViewAdPage() {
   }
 
   const details = mapAdToDetails(resolvedAd);
+  const isOwnAd = isOwnAdvertisement(resolvedAd);
   const contactInfo = readContactInfo(resolvedAd);
   const hasContactSheetData = Boolean(
     contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
   );
-  const hasChatContact = contactInfo.chat;
+  const hasChatContact = !isOwnAd && contactInfo.chat;
   const contactActionCount = Number(hasContactSheetData) + Number(hasChatContact);
   const contactActionsGridClassName = contactActionCount === 1 ? "grid-cols-1" : "grid-cols-2";
   const subPage = getViewAdSubPage(window.location.pathname);
@@ -3474,6 +3527,7 @@ export function ViewAdPage() {
       variant="flush"
     >
       <ViewAdTopBar
+        actionIcons={isOwnAd ? ["share"] : undefined}
         backTo="/home"
         bookmarked={isBookmarked}
         onAction={handleTopBarAction}
@@ -3497,6 +3551,7 @@ export function ViewAdPage() {
           ad={resolvedAd}
           details={details}
           hasTour3d={resolvedHasTour3d}
+          hideRestrictedActions={isOwnAd}
           mediaItems={mediaItems}
           mapPosition={getMapPosition(resolvedAd)}
           onOpenAlbum={(initialIndex = 0) => {

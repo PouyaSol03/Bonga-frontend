@@ -4,11 +4,14 @@ import {
   useDeleteSearchHistoryMutation,
   useSearchHistoryQuery,
 } from "../../../hooks/search-history.hooks";
+import { useAdvertisementListQuery } from "../../../hooks/advertisement.hooks";
 import { TopBar } from "../../../components/TopBar";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
+import type { AdvertisementItem } from "../../../services/advertisement.service";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
+import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
 import {
   initialRecentSearches,
   initialSavedSearches,
@@ -24,6 +27,51 @@ type HomeSearchScreenProps = {
 
 const REMOVE_TRANSITION_MS = 180;
 const SWIPE_DELETE_THRESHOLD = 72;
+
+function readNestedName(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value;
+
+  if (value && typeof value === "object" && "name" in value) {
+    const name = (value as { name?: unknown }).name;
+
+    return typeof name === "string" ? name : "";
+  }
+
+  return "";
+}
+
+function readAdText(item: AdvertisementItem, keys: string[]) {
+  for (const key of keys) {
+    const value = item[key];
+    const nestedName = readNestedName(value);
+
+    if (nestedName) return nestedName;
+    if (typeof value === "number") return String(value);
+  }
+
+  return "";
+}
+
+function mapAdToSearchResult(
+  item: AdvertisementItem,
+  index: number,
+): SearchHistoryItem {
+  const neighborhood = readAdText(item, [
+    "neighborhood",
+    "neighborhood_name",
+    "district",
+    "district_name",
+  ]);
+  const city = readAdText(item, ["city", "city_name"]);
+  const category = readAdText(item, ["category", "category_name", "form_title"]);
+
+  return {
+    id: String(item.id ?? item._id ?? `ad-search-${index + 1}`),
+    subtitle: [category, neighborhood || city].filter(Boolean).join("، "),
+    tags: [city, neighborhood].filter(Boolean),
+    title: readAdText(item, ["title", "label"]) || "آگهی ملک",
+  };
+}
 
 export function HomeSearchScreen({
   isOpen,
@@ -43,6 +91,7 @@ export function HomeSearchScreen({
   const isResultsView = trimmedQuery.length > 0;
   const isAuthenticated = Boolean(getStoredAuthSession());
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const selectedCity = readStoredSelectedCity();
   const {
     data: apiRecentSearches = [],
     error: recentSearchError,
@@ -62,24 +111,49 @@ export function HomeSearchScreen({
     enabled: isOpen && isAuthenticated && debouncedQuery.length > 0,
     qsearch: debouncedQuery,
   });
+  const {
+    data: apiAdvertisementResults,
+    error: advertisementSearchError,
+    isError: isAdvertisementSearchError,
+    isFetching: isAdvertisementSearchLoading,
+    refetch: refetchAdvertisementSearch,
+  } = useAdvertisementListQuery(
+    isOpen && debouncedQuery.length > 0
+      ? {
+        cityId: selectedCity?.id,
+        filters: { query: debouncedQuery },
+        page: 1,
+        perPage: 12,
+      }
+      : null,
+  );
   const deleteHistoryMutation = useDeleteSearchHistoryMutation();
   const visibleRecentSearches = isAuthenticated && apiRecentSearches.length > 0
     ? apiRecentSearches
     : isAuthenticated
       ? recentSearches
       : [];
-  const visibleSearchResults = apiSearchResults;
+  const advertisementResults = (apiAdvertisementResults?.data ?? []).map(
+    mapAdToSearchResult,
+  );
+  const visibleSearchResults =
+    advertisementResults.length > 0 ? advertisementResults : apiSearchResults;
   const RecentSearchErrorState = getRequestErrorState(recentSearchError);
   const SearchResultsErrorState = getRequestErrorState(searchResultsError);
+  const AdvertisementSearchErrorState = getRequestErrorState(advertisementSearchError);
   const activeErrorState = isResultsView
-    ? isSearchResultsError
+    ? isAdvertisementSearchError
+      ? AdvertisementSearchErrorState
+      : isSearchResultsError
       ? SearchResultsErrorState
       : null
     : isRecentSearchError
       ? RecentSearchErrorState
       : null;
   const retryActiveError = isResultsView
-    ? () => void refetchSearchResults()
+    ? isAdvertisementSearchError
+      ? () => void refetchAdvertisementSearch()
+      : () => void refetchSearchResults()
     : () => void refetchRecentSearches();
 
   useEffect(() => {
@@ -186,8 +260,13 @@ export function HomeSearchScreen({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
         {isResultsView ? (
-          isSearchResultsLoading ? (
+          isAdvertisementSearchLoading || isSearchResultsLoading ? (
             <SearchRowsSkeleton />
+          ) : isAdvertisementSearchError ? (
+            <AdvertisementSearchErrorState
+              className="min-h-full"
+              onRetry={() => void refetchAdvertisementSearch()}
+            />
           ) : isSearchResultsError ? (
             <SearchResultsErrorState
               className="min-h-full"

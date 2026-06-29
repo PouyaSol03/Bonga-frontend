@@ -1054,9 +1054,9 @@ function ChatCard({
             <span className="truncate text-xs font-normal leading-4 text-[#808080]">
               {displayItem.adCategory}
             </span>
-            <span className="rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
+            {/* <span className="rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
               {displayItem.adLabel}
-            </span>
+            </span> */}
           </div>
           <div className="mt-2 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
             {displayItem.adTitle}

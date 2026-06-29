@@ -14,7 +14,7 @@ export function Header({
 }) {
   return (
     <header className="shrink-0 bg-[#f0f0f0] pt-2 [direction:rtl]">
-      <div className="flex h-20 items-center gap-2 px-4">
+      <div className="flex items-center gap-2 px-4">
         <button
           aria-label="بازگشت"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"

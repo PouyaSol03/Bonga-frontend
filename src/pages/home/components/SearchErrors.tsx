@@ -5,6 +5,7 @@ import NotFoundSearchIcon from "/vectors/NotFoundSearch.svg";
 type SearchErrorVariant = "no-search" | "not-found" | "no-saved-search";
 
 type SearchErrorsProps = {
+  className?: string;
   variant?: SearchErrorVariant;
 };
 
@@ -40,12 +41,13 @@ const searchErrorContent: Record<
 };
 
 export default function SearchErrors({
+  className = "min-h-[520px]",
   variant = "no-search",
 }: SearchErrorsProps) {
   const content = searchErrorContent[variant];
 
   return (
-    <div className="flex h-full min-h-[520px] w-full items-center justify-center px-6">
+    <div className={`flex h-full w-full items-center justify-center px-6 ${className}`}>
       <div className="flex max-w-[280px] flex-col items-center text-center">
         <img
           src={content.icon}

@@ -34,10 +34,15 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
   }
 
   const { listing, isSeen, isSelected, onSelect } = props;
-  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected, isSeen);
+  const markerIcon = createSearchListingIcon(
+    isSelected ? listing.priceValue : "",
+    isSelected,
+    isSeen,
+  );
 
   return (
     <Marker
+      key={`${listing.id}-${isSelected ? "selected" : "idle"}-${isSeen ? "seen" : "new"}`}
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
       zIndexOffset={isSelected ? 10_000 : 1_000}
@@ -62,6 +67,13 @@ function escapeMarkerText(value: string) {
 
 function createSearchListingIcon(priceValue: string, isSelected: boolean, isSeen: boolean) {
   const safePriceValue = escapeMarkerText(priceValue);
+  const priceMarkerHtml = isSelected
+    ? `
+        <span class="search-map-marker">
+          ${safePriceValue}
+        </span>
+      `
+    : "";
   const markerClasses = [
     "search-map-listing-marker",
     isSelected ? "search-map-listing-marker--selected" : "",
@@ -75,9 +87,7 @@ function createSearchListingIcon(priceValue: string, isSelected: boolean, isSeen
     html: `
       <div class="${markerClasses}">
         <span class="search-map-dot search-map-listing-marker__dot"></span>
-        <span class="search-map-marker">
-          ${safePriceValue}
-        </span>
+        ${priceMarkerHtml}
       </div>
     `,
     iconSize: [120, 42],

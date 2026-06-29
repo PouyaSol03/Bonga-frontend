@@ -7,7 +7,6 @@ import { readStoredSelectedCity, selectedCityStorageKeys } from "../../lib/selec
 import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
-import { getIpDefaultMapCenter } from "../search/searchMapLocation";
 import { Header } from "./components/NewAdControls";
 import {
   locationKey,
@@ -32,18 +31,28 @@ const selectedCityMapZoom = 12;
 const selectedNeighborhoodMapZoom = 16;
 const minNeighborhoodSearchLength = 3;
 
+function readStoredCoordinate(key: string) {
+  const value = window.localStorage.getItem(key);
+
+  if (!value?.trim()) return null;
+
+  const coordinate = Number(value);
+
+  return Number.isFinite(coordinate) ? coordinate : null;
+}
+
 function getStoredCityId() {
   return window.localStorage.getItem("bonga-selected-city-id") ?? "";
 }
 
 function getStoredSelectedCityCenter() {
-  const lat = Number(window.localStorage.getItem(selectedCityStorageKeys.latitude));
-  const lng = Number(window.localStorage.getItem(selectedCityStorageKeys.longitude));
+  const lat = readStoredCoordinate(selectedCityStorageKeys.latitude);
+  const lng = readStoredCoordinate(selectedCityStorageKeys.longitude);
 
   if (
-    Number.isFinite(lat) &&
+    lat !== null &&
     Math.abs(lat) <= 90 &&
-    Number.isFinite(lng) &&
+    lng !== null &&
     Math.abs(lng) <= 180
   ) {
     return { lat, lng };
@@ -65,10 +74,15 @@ function getStoredSelectedCityCenter() {
 }
 
 function getStoredMapCenter(): NewAdMapCenter {
-  const storedLat = Number(window.localStorage.getItem(locationLatKey));
-  const storedLng = Number(window.localStorage.getItem(locationLngKey));
+  const storedLat = readStoredCoordinate(locationLatKey);
+  const storedLng = readStoredCoordinate(locationLngKey);
 
-  if (Number.isFinite(storedLat) && Number.isFinite(storedLng)) {
+  if (
+    storedLat !== null &&
+    Math.abs(storedLat) <= 90 &&
+    storedLng !== null &&
+    Math.abs(storedLng) <= 180
+  ) {
     return {
       lat: storedLat,
       lng: storedLng,
@@ -96,15 +110,15 @@ function getNeighborhoodId(neighborhood: NeighborhoodDto | null) {
 function createStoredNeighborhood(): NeighborhoodDto | null {
   const id = window.localStorage.getItem(neighborhoodIdKey) ?? "";
   const name = window.localStorage.getItem(locationKey) ?? "";
-  const lat = Number(window.localStorage.getItem(locationLatKey));
-  const lng = Number(window.localStorage.getItem(locationLngKey));
+  const lat = readStoredCoordinate(locationLatKey);
+  const lng = readStoredCoordinate(locationLngKey);
 
   if (!id || !name) return null;
 
   return {
     id,
-    lat: Number.isFinite(lat) ? lat : undefined,
-    lng: Number.isFinite(lng) ? lng : undefined,
+    lat: lat ?? undefined,
+    lng: lng ?? undefined,
     name,
   };
 }
@@ -203,32 +217,6 @@ export function NewAdLocationPage() {
     return () => {
       window.removeEventListener("popstate", clearOnExit);
       window.removeEventListener("pagehide", clearOnPageHide);
-    };
-  }, []);
-
-  useEffect(() => {
-    const selectedCityCenter = getStoredSelectedCityCenter();
-    const hasStoredLocation = Number.isFinite(Number(window.localStorage.getItem(locationLatKey))) &&
-      Number.isFinite(Number(window.localStorage.getItem(locationLngKey)));
-
-    if (hasStoredLocation || selectedCityCenter) {
-      return;
-    }
-
-    let isActive = true;
-
-    void getIpDefaultMapCenter().then((ipCenter) => {
-      if (!isActive || !ipCenter) return;
-
-      setMapCenter({
-        lat: ipCenter.latitude,
-        lng: ipCenter.longitude,
-        zoom: ipCenter.zoom ?? selectedCityMapZoom,
-      });
-    });
-
-    return () => {
-      isActive = false;
     };
   }, []);
 

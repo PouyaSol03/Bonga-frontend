@@ -1,9 +1,11 @@
 import { AdCard } from "../../../components/AdCard";
 import type { AdCardData } from "../../../components/AdCard";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import SearchErrors from "../../home/components/SearchErrors";
 import type { SearchMapListing } from "../searchMapData";
 
 type SearchMapListViewProps = {
+  hasEmptyResults?: boolean;
   isLoading?: boolean;
   listings: SearchMapListing[];
   onMapClick: () => void;
@@ -42,6 +44,7 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
 }
 
 export function SearchMapListView({
+  hasEmptyResults = false,
   isLoading = false,
   listings,
   onMapClick,
@@ -49,7 +52,7 @@ export function SearchMapListView({
   return (
     <>
       <main
-        className="absolute inset-0 z-0 min-h-0 overflow-y-auto overscroll-contain bg-[#f0f0f0] pb-24 pt-32"
+        className="absolute inset-0 z-0 min-h-0 overflow-y-auto overscroll-contain bg-[#f0f0f0] pt-32"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >
@@ -58,6 +61,12 @@ export function SearchMapListView({
             ? Array.from({ length: 3 }).map((_, index) => (
                 <AdCardSkeleton key={index} />
               ))
+            : hasEmptyResults
+              ? (
+                <div className="min-h-[calc(100vh-11rem)] bg-white">
+                  <SearchErrors variant="not-found" />
+                </div>
+              )
             : listings.map((listing) => (
                 <AdCard
                   key={listing.id}

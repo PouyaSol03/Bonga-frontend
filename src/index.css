@@ -1180,8 +1180,8 @@ input[type="search"]::-webkit-search-results-decoration {
   color: #ffffff;
   cursor: pointer;
   font-family: "DanaFaNum", Vazirmatn, IRANSans, Tahoma, Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 500;
   line-height: 20px;
   white-space: nowrap;
   opacity: 0;
@@ -1207,6 +1207,8 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .search-map-listing-marker--selected .search-map-marker {
   opacity: 1;
+  min-height: 30px;
+  border-radius: 9px;
   transform: translateX(-50%) translateY(0) scale(1);
 }
 
@@ -1215,7 +1217,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .search-map-listing-marker--selected .search-map-marker::after {
-  background: #0052d6;
+  display: block;
 }
 
 .search-map-listing-marker--seen:not(.search-map-listing-marker--selected) .search-map-dot {

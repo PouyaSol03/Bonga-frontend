@@ -17,6 +17,10 @@ export type AdvertisementItem = Record<string, unknown> & {
   label?: string;
   neighborhood?: { name?: string };
   neighborhood_name?: string;
+  form_neighborhood_title?: string | null;
+  is_mine?: boolean;
+  published_days?: string | number | null;
+  published_date?: string | number | null;
   published_hours_ago?: number | string;
   short_description?: string;
   price?: string | number;
@@ -421,7 +425,7 @@ export async function getAdvertisementList({
 }
 
 export async function getAdvertisementDetail(id: string) {
-  const response = await publicApi
+  const response = await api
     .get(`public/advertise/${id}`)
     .json<AdvertisementShowResponse>();
 

@@ -3,6 +3,7 @@ import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
+import SearchErrors from "../home/components/SearchErrors";
 import {
   getBrowserLocation,
   getBrowserLocationNotice,
@@ -292,7 +293,17 @@ function getDynamicFilterChips(search: string): SearchFilterChip[] {
     chips.push({ id: "building_age", label: `سن ساخت: ${toPersianDigits(params.get("building_age") ?? "")}`, isActive: true, removable: true });
   }
 
-  return chips;
+  return orderResultHeaderChips(chips);
+}
+
+function orderResultHeaderChips(chips: SearchFilterChip[]) {
+  const [filtersChip, ...filterChips] = chips;
+  const activeChips = filterChips.filter((chip) => chip.isActive);
+  const inactiveChips = filterChips.filter((chip) => !chip.isActive);
+
+  return filtersChip
+    ? [filtersChip, ...activeChips, ...inactiveChips]
+    : [...activeChips, ...inactiveChips];
 }
 
 function removeFilterFromSearch(chip: SearchFilterChip) {
@@ -657,6 +668,15 @@ function buildListQueryParams(search: string): AdvertisementListParams {
   };
 }
 
+function hasSearchCriteria(search: string) {
+  const params = getSearchParamsFromSnapshot(search);
+
+  return (
+    getActiveFilterCount(params) > 0 ||
+    Boolean(params.get("qsearch") || params.get("query") || params.get("q"))
+  );
+}
+
 function filterListings(listings: SearchMapListing[], _chips: SearchFilterChip[]) {
   return listings;
 }
@@ -707,6 +727,7 @@ export function SearchMapPage() {
   }, [currentSearch]);
   const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds, currentSearch), [currentSearch, mapBounds]);
   const listQueryParams = useMemo(() => buildListQueryParams(currentSearch), [currentSearch]);
+  const hasActiveSearchCriteria = useMemo(() => hasSearchCriteria(currentSearch), [currentSearch]);
   const mapQuery = useAdvertisementMapQuery(mapQueryParams);
   const listQuery = useAdvertisementListQuery(listQueryParams);
   const apiListings = useMemo(
@@ -787,20 +808,6 @@ export function SearchMapPage() {
       });
     });
   }, []);
-  const visibleListingIds = new Set(
-    visibleListings
-      .filter((listing) => !listing.showPriceMarker)
-      .map((listing) => listing.id),
-  );
-  const visibleDotMarkers = visibleListings
-    .filter((listing) => visibleListingIds.has(listing.id))
-    .map((listing) => ({
-      id: listing.dotId,
-      listingId: listing.id,
-      latitude: listing.latitude,
-      longitude: listing.longitude,
-    }));
-
   useEffect(() => {
     if (!mapQuery.isError) return;
 
@@ -921,11 +928,22 @@ export function SearchMapPage() {
 
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
+  const showMapEmptyState =
+    hasActiveSearchCriteria &&
+    mapQuery.isSuccess &&
+    !isMapLoading &&
+    visibleListings.length === 0;
+  const showListEmptyState =
+    hasActiveSearchCriteria &&
+    listQuery.isSuccess &&
+    !isListLoading &&
+    apiListListings.length === 0;
 
   return (
     <div className="relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]">
       {isFullListOpen ? (
         <SearchMapListView
+          hasEmptyResults={showListEmptyState}
           isLoading={isListLoading}
           listings={apiListListings}
           onMapClick={() => {
@@ -938,7 +956,6 @@ export function SearchMapPage() {
       ) : (
         <SearchMapView
           center={mapCenter}
-          dotMarkers={visibleDotMarkers}
           listings={visibleListings}
           seenListingIds={seenListingIds}
           selectedListingId={selectedListingId}
@@ -949,6 +966,12 @@ export function SearchMapPage() {
           onSelectListing={handleSelectListing}
         />
       )}
+
+      {!isFullListOpen && showMapEmptyState ? (
+        <div className="pointer-events-auto absolute inset-x-4 top-[136px] z-400 rounded-[16px] bg-white shadow-[0_12px_28px_rgba(26,26,26,0.12)]">
+          <SearchErrors className="min-h-[260px] py-6" variant="not-found" />
+        </div>
+      ) : null}
 
       <SearchMapHeader
         savedCount={2}

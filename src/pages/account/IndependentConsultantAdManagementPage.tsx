@@ -39,7 +39,7 @@ export function IndependentConsultantAdManagementPage() {
             to: adManagementPaths.search,
           },
         ]}
-        backTo="/login"
+        backTo="/account"
         className="[&_a]:text-[#1a1a1a]"
         title="مدیریت آگهی‌ها"
       />

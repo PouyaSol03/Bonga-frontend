@@ -52,7 +52,7 @@ export function LoginPhonePage() {
       variant="flush"
     >
       <form className="contents" noValidate onSubmit={handleSubmit}>
-        <TopBar backTo="/login" title="ورود به حساب کاربری" />
+        <TopBar backTo="/account" title="ورود به حساب کاربری" />
         {notice ? (
           <Snackbar
             message={notice.message}

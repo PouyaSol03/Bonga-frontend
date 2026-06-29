@@ -1,71 +1,78 @@
-import { createElement, useEffect, type ComponentType } from 'react'
+import { createElement, lazy, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
 import { USER } from '../constants/roles.constants'
 import { getStoredAuthSession, type AuthSession } from '../auth/auth-storage'
-import { HomePage } from '../pages/HomePage'
-import { LoginPhonePage } from '../pages/LoginPhonePage'
-import { LoginVerifyPage } from '../pages/LoginVerifyPage'
-import { MyAccountPage } from '../pages/MyAccountPage'
-import { NewAdCategoryPage } from '../pages/newAd/NewAdCategoryPage'
-import { NewAdFlowPage, NewAdLocationPage } from '../pages/newAd/NewAdFlowPage'
-import { PublicLandingPage } from '../pages/PublicLandingPage'
-import { NotificationsPage } from '../pages/NotificationsPage'
-import {
-  AccountAboutPage,
-  AccountBookmarksPage,
-  AccountIdentityPage,
-  AccountMyAdsEmptyPage,
-  AccountMyAdsPage,
-  AccountNotesPage,
-  AccountProfilePage,
-  AccountRecentViewsPage,
-  AccountRequestsPage,
-  AccountWalletHistoryPage,
-  AccountWalletPage,
-} from '../pages/account/AccountSubPages'
-import { IndependentConsultantRankingPage } from '../pages/account/IndependentConsultantRankingPage'
-import { IndependentConsultantRankingLevelsPage } from '../pages/account/IndependentConsultantRankingLevelsPage'
-import { IndependentConsultantBadgesGuidePage } from '../pages/account/IndependentConsultantBadgesGuidePage'
-import {
-  IndependentConsultantFileBadgePage,
-  IndependentConsultantMagnetBadgePage,
-  IndependentConsultantResponseBadgePage,
-  IndependentConsultantTimeBadgePage,
-} from '../pages/account/IndependentConsultantBadgeDetailsPage'
-import { IndependentConsultantAdManagementPage } from '../pages/account/IndependentConsultantAdManagementPage'
-import { DashboardAdsPage } from '../pages/dashboard/DashboardAdsPage'
-import { IndependentConsultantAdAllocationPage } from '../pages/account/adManagement/IndependentConsultantAdAllocationPage'
-import { IndependentConsultantAdEditPage } from '../pages/account/adManagement/IndependentConsultantAdEditPage'
-import { IndependentConsultantAdFilterPage } from '../pages/account/adManagement/IndependentConsultantAdFilterPage'
-import { IndependentConsultantAdPaymentPage } from '../pages/account/adManagement/IndependentConsultantAdPaymentPage'
-import { IndependentConsultantAdPublishedPage } from '../pages/account/adManagement/IndependentConsultantAdPublishedPage'
-import { IndependentConsultantAdSearchPage } from '../pages/account/adManagement/IndependentConsultantAdSearchPage'
-import { IndependentConsultantAdStatisticsDetailsPage } from '../pages/account/adManagement/IndependentConsultantAdStatisticsDetailsPage'
-import { IndependentConsultantAdStatisticsPage } from '../pages/account/adManagement/IndependentConsultantAdStatisticsPage'
-import {
-  IndependentConsultantCreditPackagesPage,
-  IndependentConsultantPanelCreditBonusPage,
-  IndependentConsultantPanelCreditPage,
-} from '../pages/account/credit/IndependentConsultantCreditPage'
-import { IndependentConsultantCreditHistoryPage } from '../pages/account/credit/IndependentConsultantCreditHistoryPage'
-import {
-  DashboardAgencyPage,
-  DashboardHomePage,
-  DashboardMessagesPage,
-  DashboardPaymentsPage,
-  DashboardRankingPage,
-  DashboardRequestsPage,
-  DashboardTeamPage,
-} from '../pages/dashboard/DashboardHomePage'
-import { SearchMapPage } from '../pages/search/SearchMapPage'
-import { SearchMapFilterPage } from '../pages/search/SearchMapFilterPage'
-import { UserChatDetailPage, UserChatHomePage, UserChatResponseTimePage } from '../pages/UserChatHomePage'
-import { ConsultantsDirectoryPage } from '../pages/ConsultantsDirectoryPage'
-import {
-  AgencyBusinessCreationPage,
-  BusinessCreationPage,
-  BusinessInfoPage,
-  IndependentConsultantBusinessCreationPage,
-} from '../pages/account/BusinessCreationPage'
+
+type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>
+
+function lazyNamed<TModule extends Record<string, unknown>>(
+  loader: () => Promise<TModule>,
+  exportName: keyof TModule,
+) {
+  return lazy(() =>
+    loader().then((module) => ({
+      default: module[exportName] as ComponentType<any>,
+    })),
+  )
+}
+
+const HomePage = lazyNamed(() => import('../pages/HomePage'), 'HomePage')
+const LoginPhonePage = lazyNamed(() => import('../pages/LoginPhonePage'), 'LoginPhonePage')
+const LoginVerifyPage = lazyNamed(() => import('../pages/LoginVerifyPage'), 'LoginVerifyPage')
+const MyAccountPage = lazyNamed(() => import('../pages/MyAccountPage'), 'MyAccountPage')
+const NewAdCategoryPage = lazyNamed(() => import('../pages/newAd/NewAdCategoryPage'), 'NewAdCategoryPage')
+const NewAdFlowPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdFlowPage')
+const NewAdLocationPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdLocationPage')
+const PublicLandingPage = lazyNamed(() => import('../pages/PublicLandingPage'), 'PublicLandingPage')
+const NotificationsPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationsPage')
+const AccountAboutPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountAboutPage')
+const AccountBookmarksPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountBookmarksPage')
+const AccountIdentityPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountIdentityPage')
+const AccountMyAdsEmptyPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountMyAdsEmptyPage')
+const AccountMyAdsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountMyAdsPage')
+const AccountNotesPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountNotesPage')
+const AccountProfilePage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountProfilePage')
+const AccountRecentViewsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountRecentViewsPage')
+const AccountRequestsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountRequestsPage')
+const AccountWalletHistoryPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletHistoryPage')
+const AccountWalletPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletPage')
+const IndependentConsultantRankingPage = lazyNamed(() => import('../pages/account/IndependentConsultantRankingPage'), 'IndependentConsultantRankingPage')
+const IndependentConsultantRankingLevelsPage = lazyNamed(() => import('../pages/account/IndependentConsultantRankingLevelsPage'), 'IndependentConsultantRankingLevelsPage')
+const IndependentConsultantBadgesGuidePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgesGuidePage'), 'IndependentConsultantBadgesGuidePage')
+const IndependentConsultantFileBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantFileBadgePage')
+const IndependentConsultantMagnetBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantMagnetBadgePage')
+const IndependentConsultantResponseBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantResponseBadgePage')
+const IndependentConsultantTimeBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantTimeBadgePage')
+const IndependentConsultantAdManagementPage = lazyNamed(() => import('../pages/account/IndependentConsultantAdManagementPage'), 'IndependentConsultantAdManagementPage')
+const DashboardAdsPage = lazyNamed(() => import('../pages/dashboard/DashboardAdsPage'), 'DashboardAdsPage')
+const IndependentConsultantAdAllocationPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdAllocationPage'), 'IndependentConsultantAdAllocationPage')
+const IndependentConsultantAdEditPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdEditPage'), 'IndependentConsultantAdEditPage')
+const IndependentConsultantAdFilterPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdFilterPage'), 'IndependentConsultantAdFilterPage')
+const IndependentConsultantAdPaymentPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdPaymentPage'), 'IndependentConsultantAdPaymentPage')
+const IndependentConsultantAdPublishedPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdPublishedPage'), 'IndependentConsultantAdPublishedPage')
+const IndependentConsultantAdSearchPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdSearchPage'), 'IndependentConsultantAdSearchPage')
+const IndependentConsultantAdStatisticsDetailsPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdStatisticsDetailsPage'), 'IndependentConsultantAdStatisticsDetailsPage')
+const IndependentConsultantAdStatisticsPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdStatisticsPage'), 'IndependentConsultantAdStatisticsPage')
+const IndependentConsultantCreditPackagesPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantCreditPackagesPage')
+const IndependentConsultantPanelCreditBonusPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditBonusPage')
+const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditPage')
+const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
+const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
+const DashboardHomePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardHomePage')
+const DashboardMessagesPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardMessagesPage')
+const DashboardPaymentsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardPaymentsPage')
+const DashboardRankingPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardRankingPage')
+const DashboardRequestsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardRequestsPage')
+const DashboardTeamPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardTeamPage')
+const SearchMapPage = lazyNamed(() => import('../pages/search/SearchMapPage'), 'SearchMapPage')
+const SearchMapFilterPage = lazyNamed(() => import('../pages/search/SearchMapFilterPage'), 'SearchMapFilterPage')
+const UserChatDetailPage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatDetailPage')
+const UserChatHomePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatHomePage')
+const UserChatResponseTimePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatResponseTimePage')
+const ConsultantsDirectoryPage = lazyNamed(() => import('../pages/ConsultantsDirectoryPage'), 'ConsultantsDirectoryPage')
+const AgencyBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'AgencyBusinessCreationPage')
+const BusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'BusinessCreationPage')
+const BusinessInfoPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'BusinessInfoPage')
+const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'IndependentConsultantBusinessCreationPage')
 
 export const LOGIN_PATH = '/login/phone'
 export const DASHBOARD_PATH = '/dashboard'
@@ -121,7 +128,7 @@ export type AppRoute = {
   requiresAuth?: boolean
   requiresNonUser?: boolean
   title: string
-  Component: ComponentType
+  Component: RouteComponent
 }
 
 export function canAccessRoute(route: AppRoute, session: AuthSession | null) {

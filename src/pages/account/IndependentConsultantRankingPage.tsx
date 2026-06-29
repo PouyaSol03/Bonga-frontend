@@ -109,7 +109,7 @@ export function IndependentConsultantRankingPage() {
             to: "/account/ranking/badges/guide",
           },
         ]}
-        backTo="/login"
+        backTo="/account"
         className="[&_button]:text-[#1a1a1a]"
         title="نشان‌ها و رتبه"
       />

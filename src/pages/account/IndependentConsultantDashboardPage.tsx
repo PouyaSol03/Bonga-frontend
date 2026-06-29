@@ -108,7 +108,7 @@ export function IndependentConsultantDashboardPage() {
             to: "/notifications",
           },
         ]}
-        backTo="/login"
+        backTo="/account"
         title="داشبورد"
       />}
     >

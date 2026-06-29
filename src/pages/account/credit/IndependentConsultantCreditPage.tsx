@@ -63,7 +63,7 @@ function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
 function CreditTopBar() {
   return (
     <TopBar
-      backTo="/login"
+      backTo="/account"
       startSlot={
         <RouteLink
           className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-[#0048c4] no-underline"

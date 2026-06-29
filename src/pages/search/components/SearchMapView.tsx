@@ -130,7 +130,10 @@ export function SearchMapView({
           key={listing.id}
           listing={listing}
           isSeen={seenListingIds.has(listing.id)}
-          isSelected={String(listing.id) === String(selectedListingId)}
+          isSelected={
+            selectedListingId != null &&
+            String(listing.id) === String(selectedListingId)
+          }
           onSelect={onSelectListing}
         />
       ))}

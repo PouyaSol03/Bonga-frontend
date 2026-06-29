@@ -302,13 +302,14 @@ function GalleryHero({
           ))}
         </Swiper>
 
-        <div className="absolute right-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-lg bg-[#1a1a1ab3] px-2 text-white [direction:rtl]">
+        <div className="absolute right-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-1 text-sm font-medium leading-5 text-[#fafafa]">
           <GalleryMediaButton
             iconSrc="/icons/iconAlbum.svg"
             isSelected={galleryItems[activeIndex]?.type === "image"}
             label="album"
             onClick={() => selectGalleryKind("album")}
           />
+          <span>{new Intl.NumberFormat("fa-IR").format(imageCount)}</span>
           {hasVideo ? (
             <GalleryMediaButton
               iconSrc="/icons/iconVideo.svg"
@@ -327,15 +328,6 @@ function GalleryHero({
           ) : null}
         </div>
 
-        <div className="absolute left-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-lg bg-[#1a1a1ab3] px-2 text-xs font-semibold leading-4 text-white [direction:ltr]">
-          <span>{new Intl.NumberFormat("fa-IR").format(imageCount)}</span>
-          <img
-            alt=""
-            aria-hidden="true"
-            className="h-5 w-5 object-contain"
-            src="/icons/iconAlbum.svg"
-          />
-        </div>
 
         <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
           <div className="flex h-2 items-center gap-1.5">
@@ -361,7 +353,6 @@ function GalleryHero({
 
 function GalleryMediaButton({
   iconSrc,
-  isSelected,
   label,
   onClick,
 }: {
@@ -373,9 +364,7 @@ function GalleryMediaButton({
   return (
     <button
       aria-label={label}
-      aria-pressed={isSelected}
-      className={`grid h-7 w-7 place-items-center rounded-md ${isSelected ? "bg-white/25" : "bg-transparent active:bg-white/15"
-        }`}
+      className={`grid h-7 w-7 place-items-center rounded-md`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();
@@ -1007,9 +996,8 @@ function ReportRadio({
       />
       <span
         aria-hidden="true"
-        className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${
-          checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"
-        }`}
+        className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"
+          }`}
       >
         {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
       </span>
@@ -1335,7 +1323,7 @@ function ViewAdContent({
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
-              <span>{details.age}</span>
+              <span dir="rtl">{details.age}</span>
               <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-sm font-medium leading-5 [direction:rtl]">
@@ -3591,7 +3579,7 @@ export function ViewAdPage() {
           </div>
         ) : (
           <div className="rounded-[10px] bg-[#f5f5f5] px-4 py-3 text-center text-sm font-medium leading-5 text-[#808080]">
-            راه ارتباطی برای این آگهی ثبت نشده است.
+            {isOwnAd ? "این آگهی برای شماست" : "راه ارتباطی برای این آگهی ثبت نشده است."}
           </div>
         )}
       </div>
@@ -3625,9 +3613,9 @@ export function ViewAdPage() {
           errorMessage={
             reportReasonsQuery.isError
               ? getApiErrorMessage(
-                  reportReasonsQuery.error,
-                  "دریافت دلایل گزارش با خطا مواجه شد.",
-                )
+                reportReasonsQuery.error,
+                "دریافت دلایل گزارش با خطا مواجه شد.",
+              )
               : undefined
           }
           isLoading={reportReasonsQuery.isLoading}

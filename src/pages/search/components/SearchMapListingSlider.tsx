@@ -36,6 +36,8 @@ export function SearchMapListingSlider({
   const scrollSyncedActiveIdRef = useRef<SearchMapListingId | null>(null);
 
   const syncActiveCard = useCallback(() => {
+    if (!isOpen) return;
+
     const scrollEl = scrollRef.current;
     if (!scrollEl || listings.length === 0) return;
 
@@ -53,7 +55,7 @@ export function SearchMapListingSlider({
     lastActiveIdRef.current = activeListing.id;
     scrollSyncedActiveIdRef.current = activeListing.id;
     onActiveListingChange?.(activeListing);
-  }, [listings, onActiveListingChange]);
+  }, [isOpen, listings, onActiveListingChange]);
 
   const scheduleActiveSync = useCallback(() => {
     if (rafRef.current !== null) return;
@@ -130,7 +132,10 @@ export function SearchMapListingSlider({
               <SearchMapPreviewCard
                 key={listing.id}
                 listing={listing}
-                isSelected={String(listing.id) === String(selectedListingId)}
+                isSelected={
+                  selectedListingId != null &&
+                  String(listing.id) === String(selectedListingId)
+                }
               />
             ))}
       </div>

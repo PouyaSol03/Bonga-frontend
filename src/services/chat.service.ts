@@ -57,7 +57,13 @@ type ChatThreadResponse =
 
 type ChatMessagesResponse =
   | {
-      data?: ChatMessage[];
+      data?:
+        | ChatMessage[]
+        | {
+            items?: ChatMessage[];
+            list?: ChatMessage[];
+            messages?: ChatMessage[];
+          };
       items?: ChatMessage[];
       list?: ChatMessage[];
       messages?: ChatMessage[];
@@ -73,10 +79,33 @@ export type ChatsPage = {
   total: number;
 };
 
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function readArrayFromRecord<T>(record: Record<string, unknown> | undefined, keys: string[]) {
+  if (!record) return undefined;
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (Array.isArray(value)) return value as T[];
+  }
+
+  return undefined;
+}
+
 function readChatThreads(response: ChatsResponse) {
   if (Array.isArray(response)) return response;
 
+  const data = asRecord(response.data);
+
   if (Array.isArray(response.data)) return response.data;
+  const nestedData =
+    readArrayFromRecord<ChatThread>(data, ["chats", "data", "items", "list"]);
+  if (nestedData) return nestedData;
   if (Array.isArray(response.chats)) return response.chats;
   if (Array.isArray(response.items)) return response.items;
   if (Array.isArray(response.list)) return response.list;
@@ -87,11 +116,11 @@ function readChatThreads(response: ChatsResponse) {
 function readChatThread(response: ChatThreadResponse) {
   const record = response as Record<string, unknown>;
 
-  if (record.thread && typeof record.thread === "object") {
+  if (asRecord(record.thread)) {
     return record.thread as ChatThread;
   }
 
-  if (record.data && typeof record.data === "object") {
+  if (asRecord(record.data)) {
     return record.data as ChatThread;
   }
 
@@ -101,7 +130,12 @@ function readChatThread(response: ChatThreadResponse) {
 function readChatMessages(response: ChatMessagesResponse) {
   if (Array.isArray(response)) return response;
 
+  const data = asRecord(response.data);
+
   if (Array.isArray(response.data)) return response.data;
+  const nestedData =
+    readArrayFromRecord<ChatMessage>(data, ["messages", "data", "items", "list"]);
+  if (nestedData) return nestedData;
   if (Array.isArray(response.messages)) return response.messages;
   if (Array.isArray(response.items)) return response.items;
   if (Array.isArray(response.list)) return response.list;

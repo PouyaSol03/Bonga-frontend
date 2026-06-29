@@ -84,6 +84,7 @@ function getBottomNavigationKey(path: string) {
   if (path.startsWith('/search')) return 'search'
   if (path === '/chat') return 'chat'
   if (
+    path.startsWith('/account/business/create') ||
     path === '/account/ad-management/allocation' ||
     path === '/account/ad-management/payment' ||
     path.startsWith('/account/ad-management/published') ||

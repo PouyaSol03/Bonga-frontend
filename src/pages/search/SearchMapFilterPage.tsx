@@ -1056,7 +1056,7 @@ export function SearchMapFilterPage() {
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-0">
         {filterBlocks.map((block) => (
           <FilterBlockRenderer
             key={"id" in block ? `${block.kind}-${block.id}` : block.kind}
@@ -1368,9 +1368,9 @@ function CategorySelectionScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-0 pt-4">
         {categoryGroupsByTransaction[draftTransaction].map((group) => (
-          <section key={group.title} className="mb-6">
+          <section key={group.title} className="mb-6 last:mb-0">
             <h2 className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
               {group.title}
             </h2>

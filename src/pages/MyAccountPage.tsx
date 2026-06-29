@@ -1,4 +1,7 @@
+import { useState, type ReactNode } from "react";
+
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
+import { BottomSheet } from "../components/BottomSheet";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
 import { useMyProfileQuery } from "../hooks/account.hooks";
@@ -47,8 +50,12 @@ const businessActions: AccountAction[] = [
   { icon: "building", label: "مشاور آژانس جلیلیان", to: "/account/dashboard" },
 ];
 
+const userBusinessActions: AccountAction[] = [
+  { icon: "plus", label: "ایجاد کسب و کار", to: "/account/business/create" },
+];
+
 const loggedOutBusinessActions: AccountAction[] = [
-  { icon: "plus", label: "ایجاد کسب و کار", requiresAuth: true, to: "/new-ad/category" },
+  { icon: "plus", label: "ایجاد کسب و کار", requiresAuth: true, to: "/account/business/create" },
 ];
 
 const primaryActions: AccountAction[] = [
@@ -85,15 +92,27 @@ const loggedOutSecondaryActions: AccountAction[] = [
 export function MyAccountPage() {
   const authSession = getStoredAuthSession();
   const accountType = authSession?.accountType ?? currentAccountUserType;
+  const [isBusinessSuccessOpen, setIsBusinessSuccessOpen] = useState(() =>
+    new URLSearchParams(window.location.search).get("businessSuccess") === "1",
+  );
+  const businessSuccessSheet = (
+    <AccountBusinessSuccessSheet
+      isOpen={isBusinessSuccessOpen}
+      onClose={() => {
+        setIsBusinessSuccessOpen(false);
+        clearBusinessSuccessQuery();
+      }}
+    />
+  );
 
   if (authSession && accountType === "independent-consultant") {
-    return <IndependentConsultantAccountPage />;
+    return <IndependentConsultantAccountPage businessSuccessSheet={businessSuccessSheet} />;
   }
 
-  return <StandardAccountPage authSession={authSession} />;
+  return <StandardAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
 }
 
-function IndependentConsultantAccountPage() {
+function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
   const { isLoggingOut, handleLogout } = useLogoutAccount();
   const businessActions: AccountAction[] = [
     { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
@@ -112,8 +131,8 @@ function IndependentConsultantAccountPage() {
     <TopBarNavigationLayout
       activeKey="account"
       contentClassName="flex flex-col gap-4 bg-[#f0f0f0]"
-      frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      hideTopBar
+      frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      overlay={businessSuccessSheet}
       topBar={<TopBar
         actions={[
           {
@@ -175,10 +194,18 @@ function IndependentConsultantAccountPage() {
   );
 }
 
-function StandardAccountPage({ authSession }: { authSession: AuthSession | null }) {
+function StandardAccountPage({
+  authSession,
+  businessSuccessSheet,
+}: {
+  authSession: AuthSession | null;
+  businessSuccessSheet?: ReactNode;
+}) {
   const isLoggedIn = authSession !== null;
   const { data: profile } = useMyProfileQuery({ enabled: isLoggedIn });
   const { isLoggingOut, handleLogout } = useLogoutAccount();
+  const accountType = authSession?.accountType ?? currentAccountUserType;
+  const hasCreatedBusiness = isLoggedIn && accountType !== "user";
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
 
@@ -186,8 +213,8 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
     <TopBarNavigationLayout
       activeKey="account"
       contentClassName="bg-[#f0f0f0] pb-4"
-      frameClassName="bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      hideTopBar
+      frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      overlay={businessSuccessSheet}
       topBar={<TopBar showBack={false} title="حساب من" />}
     >
       {isLoggedIn ? (
@@ -215,7 +242,7 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
         <LoggedOutAccountHeader />
       )}
 
-      <AccountSection actions={isLoggedIn ? businessActions : loggedOutBusinessActions} />
+      <AccountSection actions={isLoggedIn && authSession?.role === "user" && !hasCreatedBusiness ? userBusinessActions : isLoggedIn ? businessActions : loggedOutBusinessActions} />
 
       <div className="h-4 bg-[#f0f0f0]" />
 
@@ -240,6 +267,66 @@ function StandardAccountPage({ authSession }: { authSession: AuthSession | null 
         </>
       ) : null}
     </TopBarNavigationLayout>
+  );
+}
+
+function clearBusinessSuccessQuery() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("businessSuccess")) return;
+
+  url.searchParams.delete("businessSuccess");
+  window.history.replaceState(window.history.state ?? {}, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+function AccountBusinessSuccessSheet({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <BottomSheet
+      ariaLabel="ثبت موفق حساب"
+      className="rounded-t-[20px]"
+      contentClassName="px-3 pb-4 pt-7"
+      heightClassName="h-[246px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      panelPaddingClassName="pt-3"
+      showHeader={false}
+      showHeaderDivider={false}
+      zIndexClassName="z-[70]"
+    >
+      <div className="text-center">
+        <img
+          alt="ثبت موفق حساب"
+          className="mx-auto h-[78px] w-[78px]"
+          src="/figma/account/business-success.svg"
+        />
+        <h2 className="m-0 mt-3 text-sm font-semibold leading-5 text-[#11A366]">
+          حساب شما با موفقیت ثبت شد
+        </h2>
+        <div className="mx-auto mt-2 max-w-[318px] space-y-1 text-right text-xs font-normal leading-5 text-[#4d4d4d]">
+          <p className="m-0 flex gap-2">
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#11A366]" />
+            <span>برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</span>
+          </p>
+          <p className="m-0 flex gap-2">
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#11A366]" />
+            <span>سپس یکی از بسته‌های اعتباری را خریداری کنید.</span>
+          </p>
+        </div>
+        <button
+          className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
+          onClick={() => navigateTo("/account/credit/panel")}
+          type="button"
+        >
+          <span>افزایش اعتبار</span>
+          <AccountIcon className="h-5 w-5 shrink-0 text-white" name="wallet-add" />
+        </button>
+      </div>
+    </BottomSheet>
   );
 }
 

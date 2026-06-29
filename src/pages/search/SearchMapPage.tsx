@@ -864,6 +864,7 @@ export function SearchMapPage() {
   };
 
   const handleMapClick = useCallback(() => {
+    setSelectedListingId(null);
     setMode("map");
   }, []);
 

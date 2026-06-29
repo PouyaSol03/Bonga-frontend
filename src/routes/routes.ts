@@ -59,15 +59,37 @@ import {
 import { SearchMapPage } from '../pages/search/SearchMapPage'
 import { SearchMapFilterPage } from '../pages/search/SearchMapFilterPage'
 import { UserChatDetailPage, UserChatHomePage, UserChatResponseTimePage } from '../pages/UserChatHomePage'
+import { ConsultantsDirectoryPage } from '../pages/ConsultantsDirectoryPage'
+import {
+  AgencyBusinessCreationPage,
+  BusinessCreationPage,
+  BusinessInfoPage,
+  IndependentConsultantBusinessCreationPage,
+} from '../pages/account/BusinessCreationPage'
 
 export const LOGIN_PATH = '/login/phone'
 export const DASHBOARD_PATH = '/dashboard'
+
+function LoginRedirect() {
+  useEffect(() => {
+    window.history.replaceState({}, '', LOGIN_PATH)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }, [])
+
+  return null
+}
 
 function AccountRoleRedirect() {
   const session = getStoredAuthSession()
   const role = session?.role ?? null
 
   useEffect(() => {
+    if (!role) {
+      window.history.replaceState({}, '', LOGIN_PATH)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+      return
+    }
+
     if (role && role !== USER) {
       window.history.replaceState({}, '', DASHBOARD_PATH)
       window.dispatchEvent(new PopStateEvent('popstate'))
@@ -75,7 +97,7 @@ function AccountRoleRedirect() {
   }, [role])
 
   if (!role) {
-    return createElement(MyAccountPage)
+    return null
   }
 
   if (role === USER) return createElement(MyAccountPage)
@@ -125,7 +147,7 @@ export const routes: AppRoute[] = [
   {
     path: '/login',
     title: 'حساب من',
-    Component: MyAccountPage,
+    Component: LoginRedirect,
   },
   {
     path: '/account',
@@ -196,6 +218,34 @@ export const routes: AppRoute[] = [
     path: '/account/about',
     title: 'درباره ما',
     Component: AccountAboutPage,
+  },
+  {
+    path: '/account/business/create',
+    title: 'ایجاد کسب و کار',
+    Component: BusinessCreationPage,
+    authority: [USER],
+    requiresAuth: true,
+  },
+  {
+    path: '/account/business/create/agency',
+    title: 'ایجاد کسب و کار',
+    Component: AgencyBusinessCreationPage,
+    authority: [USER],
+    requiresAuth: true,
+  },
+  {
+    path: '/account/business/create/consultant',
+    title: 'ایجاد کسب و کار',
+    Component: IndependentConsultantBusinessCreationPage,
+    authority: [USER],
+    requiresAuth: true,
+  },
+  {
+    path: '/account/business/create/info',
+    title: 'معرفی کسب و کار',
+    Component: BusinessInfoPage,
+    authority: [USER],
+    requiresAuth: true,
   },
   {
     path: '/account/dashboard',
@@ -372,6 +422,11 @@ export const routes: AppRoute[] = [
     path: '/home',
     title: 'خانه',
     Component: HomePage,
+  },
+  {
+    path: "/consultants",
+    title: "مشاورین",
+    Component: ConsultantsDirectoryPage,
   },
   {
     path: "/search",

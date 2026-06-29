@@ -90,6 +90,10 @@ function getCategorySelectionFormCode(category: CategoryOption | QuickAction | u
   return categoryFormCodeLabelMap[`${parent.label}:${category.label}`] ?? "";
 }
 
+function isConsultantsCategory(item: QuickAction) {
+  return item.code === "consultants" || item.label.includes("مشاور");
+}
+
 const businessBannerSlides = [
   {
     eyebrow: "سامانه کسب و کار",
@@ -110,6 +114,16 @@ const businessBannerSlides = [
     to: "/account/ad-management",
   },
 ];
+
+const consultantCategory: QuickAction = {
+  code: "consultants",
+  icon: ConsultantCategoryIcon,
+  label: "مشاورین",
+  options: [
+    { code: "agency", label: "آژانس" },
+    { code: "consultant", label: "مشاور" },
+  ],
+};
 
 type SelectedCity = {
   id?: string;
@@ -291,6 +305,16 @@ export function HomePage() {
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
+
+  const navigateToConsultants = (mode: "agency" | "consultant" = "agency") => {
+    setSelectedCategory(null);
+    const nextPath =
+      mode === "consultant" ? "/consultants?type=consultant" : "/consultants";
+
+    window.history.pushState({}, "", nextPath);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
   if (isCategoryError || isAdvertisementError) {
     return (
       <div className="fixed inset-0 z-[999] bg-white">
@@ -393,7 +417,18 @@ export function HomePage() {
                   className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-[11px] font-medium leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px] min-[390px]:text-xs"
                   key={item.label}
                   type="button"
-                  onClick={() => setSelectedCategory(item)}
+                  onClick={() => {
+                    if (isConsultantsCategory(item)) {
+                      setSelectedCategory({
+                        ...consultantCategory,
+                        icon: item.icon,
+                        label: item.label,
+                      });
+                      return;
+                    }
+
+                    setSelectedCategory(item);
+                  }}
                 >
                   <img
                     src={item.icon}
@@ -490,6 +525,11 @@ export function HomePage() {
         selectedCategory={selectedCategory}
         onClose={() => setSelectedCategory(null)}
         onSelectCategory={(category) => {
+          if (category?.code === "agency" || category?.code === "consultant") {
+            navigateToConsultants(category.code);
+            return;
+          }
+
           const formCode = getCategorySelectionFormCode(category, selectedCategory);
 
           setSelectedFormCode(formCode);

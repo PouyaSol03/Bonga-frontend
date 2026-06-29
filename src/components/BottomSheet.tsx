@@ -113,7 +113,7 @@ export function BottomSheet({
           <section
             aria-label={ariaLabel}
             aria-modal="true"
-            className={`relative z-10 w-full max-w-[500px] overflow-hidden bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
+            className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
             role="dialog"
           >
             {showHandle ? (

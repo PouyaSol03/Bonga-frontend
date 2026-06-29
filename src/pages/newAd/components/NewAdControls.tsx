@@ -215,7 +215,7 @@ export function SelectBox({
 export function LocationBox({ value, label }: { value: string; label: string }) {
   return (
     <button
-      className="flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:rtl]"
+      className="flex h-14 w-full items-center justify-end gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:rtl]"
       onClick={() => {
         const search = window.location.search || `?label=${encodeURIComponent(label)}`;
         navigateTo(`/new-ad/location${search}`);

@@ -152,6 +152,10 @@ function readText(value: unknown) {
   return "";
 }
 
+function readString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : "";
+}
+
 function readNumber(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string" && value.trim()) {
@@ -172,6 +176,22 @@ function readPathText(source: unknown, paths: string[]) {
     }
 
     const text = readText(current);
+
+    if (text) return text;
+  }
+
+  return "";
+}
+
+function readPathString(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asRecord(current)?.[key];
+    }
+
+    const text = readString(current);
 
     if (text) return text;
   }
@@ -208,7 +228,22 @@ function readChatThreadId(source: unknown) {
 
 function readChatMessageBody(message: ChatMessage) {
   return (
-    readPathText(message, ["body", "text", "message", "content", "description"]) ||
+    readPathString(message, [
+      "body",
+      "text",
+      "content",
+      "description",
+      "message",
+      "message.body",
+      "message.text",
+      "message.content",
+      "data.body",
+      "data.text",
+      "data.message",
+      "payload.body",
+      "payload.text",
+      "payload.message",
+    ]) ||
     ""
   );
 }
@@ -419,9 +454,34 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       chat.isBlocked === true ||
       chat.blocked === true,
     message:
-      readPathText(lastMessage, ["text", "message", "body", "content", "description"]) ||
-      readText(chat.message) ||
-      readText(chat.last_message) ||
+      readPathString(lastMessage, [
+        "body",
+        "text",
+        "content",
+        "description",
+        "message",
+        "message.body",
+        "message.text",
+        "message.content",
+        "data.body",
+        "data.text",
+        "data.message",
+      ]) ||
+      readPathString(chat, [
+        "last_message.body",
+        "last_message.text",
+        "last_message.content",
+        "last_message.message",
+        "lastMessage.body",
+        "lastMessage.text",
+        "lastMessage.content",
+        "lastMessage.message",
+        "message.body",
+        "message.text",
+        "message.content",
+      ]) ||
+      readString(chat.message) ||
+      readString(chat.last_message) ||
       "",
     userName:
       readPathText(chat, ["user_name", "userName", "name", "full_name"]) ||

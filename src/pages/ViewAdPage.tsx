@@ -2023,7 +2023,7 @@ function buildPropertyPreviewItem(
 
   if (!value || value === "-") return null;
 
-  const { formattedValue, iconSrc } = getBuildingInfo(field.label, value);
+  const { formattedValue, iconSrc } = getBuildingInfo(field.labels[0], value);
 
   return {
     icon: field.icon ?? iconForFeature(field.label),
@@ -2120,8 +2120,9 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
 function buildPropertyInfoItem(label: string, rawValue: unknown) {
   const displayLabel = propertyInfoLabelMap[label] ?? label;
   const normalizedValue = normalizeDetailValue(label, rawValue);
+  const iconLookupLabel = propertyInfoLabelMap[label] ? label : displayLabel;
   const { formattedValue, iconSrc } = getBuildingInfo(
-    displayLabel,
+    iconLookupLabel,
     Array.isArray(normalizedValue)
       ? normalizedValue.join("، ")
       : normalizedValue,

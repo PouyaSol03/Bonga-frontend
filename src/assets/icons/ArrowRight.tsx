@@ -11,9 +11,9 @@ export default function ArrowRight() {
         <path
           d="M15 7L20 12L15.0001 17M20 12H4"
           stroke="#1A1A1A"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </>

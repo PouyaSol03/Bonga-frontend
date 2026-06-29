@@ -511,7 +511,7 @@ function SearchIcon({ className = "" }: { className?: string }) {
 function MoreVerticalIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M11.9919 12.0004H12.0009M11.9829 6H11.9919M11.9921 18H12.001" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M11.9919 12.0004H12.0009M11.9829 6H11.9919M11.9921 18H12.001" stroke="#1A1A1A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -537,7 +537,7 @@ function UserIcon({ className = "" }: { className?: string }) {
 function BlockedIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M5.7 5.7L18.3 18.3M21 12C21 7.02944 16.9705 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9705 7.02944 21 12 21C16.9705 21 21 16.9705 21 12Z" stroke="#c11004" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M5.7 5.7L18.3 18.3M21 12C21 7.02944 16.9705 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9705 7.02944 21 12 21C16.9705 21 21 16.9705 21 12Z" stroke="#c11004" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -614,7 +614,7 @@ function ArrowDownIcon({ className = "" }: { className?: string }) {
 function LinkChainIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12.0864 5.86813L13.6409 4.31357C15.358 2.59645 18.1034 2.55778 19.7728 4.22721C21.4422 5.8966 21.4036 8.64196 19.6864 10.3591L10.3591 19.6865C8.64198 21.4035 5.89659 21.4422 4.22719 19.7728C2.55777 18.1034 2.59647 15.358 4.31356 13.6409L7.81132 10.1432C8.88451 9.06998 10.6004 9.04581 11.6437 10.0892C12.6871 11.1326 12.663 12.8484 11.5898 13.9216L9.64657 15.8648" stroke="#808080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M12.0864 5.86813L13.6409 4.31357C15.358 2.59645 18.1034 2.55778 19.7728 4.22721C21.4422 5.8966 21.4036 8.64196 19.6864 10.3591L10.3591 19.6865C8.64198 21.4035 5.89659 21.4422 4.22719 19.7728C2.55777 18.1034 2.59647 15.358 4.31356 13.6409L7.81132 10.1432C8.88451 9.06998 10.6004 9.04581 11.6437 10.0892C12.6871 11.1326 12.663 12.8484 11.5898 13.9216L9.64657 15.8648" stroke="#808080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -648,7 +648,7 @@ function CameraIcon({ className = "" }: { className?: string }) {
 function AlbumIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M17.4 6.6H19.2C20.1941 6.6 21 7.40589 21 8.4V19.2C21 20.1941 20.1941 21 19.2 21H8.4C7.40589 21 6.6 20.1941 6.6 19.2V17.4M3 11.2066C3.55712 11.1358 4.12036 11.1009 4.68454 11.1021C7.07129 11.058 9.39958 11.7087 11.254 12.9382C12.9738 14.0785 14.1822 15.6477 14.7 17.4M12.8998 7.5H12.9079M17.4 15.6V4.8C17.4 3.80589 16.5941 3 15.6 3H4.8C3.80589 3 3 3.80589 3 4.8V15.6C3 16.5941 3.80589 17.4 4.8 17.4H15.6C16.5941 17.4 17.4 16.5941 17.4 15.6Z" stroke="#4D4D4D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M17.4 6.6H19.2C20.1941 6.6 21 7.40589 21 8.4V19.2C21 20.1941 20.1941 21 19.2 21H8.4C7.40589 21 6.6 20.1941 6.6 19.2V17.4M3 11.2066C3.55712 11.1358 4.12036 11.1009 4.68454 11.1021C7.07129 11.058 9.39958 11.7087 11.254 12.9382C12.9738 14.0785 14.1822 15.6477 14.7 17.4M12.8998 7.5H12.9079M17.4 15.6V4.8C17.4 3.80589 16.5941 3 15.6 3H4.8C3.80589 3 3 3.80589 3 4.8V15.6C3 16.5941 3.80589 17.4 4.8 17.4H15.6C16.5941 17.4 17.4 16.5941 17.4 15.6Z" stroke="#4D4D4D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -724,7 +724,7 @@ function HeadphoneIcon({ className = "" }: { className?: string }) {
 function TrashIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M18.6667 6.15L17.879 19.3089C17.8221 20.2589 17.0445 21 16.1044 21H7.89552C6.95545 21 6.17787 20.2589 6.121 19.3089L5.33333 6.15M4 6.15H8.44444M8.44444 6.15L9.54689 3.54547C9.68696 3.21456 10.0083 3 10.3639 3H13.6361C13.9916 3 14.3131 3.21456 14.4531 3.54547L15.5556 6.15M8.44444 6.15H15.5556M20 6.15H15.5556M9.77778 16.05V10.65M14.2222 16.05V10.65" stroke="#4D4D4D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M18.6667 6.15L17.879 19.3089C17.8221 20.2589 17.0445 21 16.1044 21H7.89552C6.95545 21 6.17787 20.2589 6.121 19.3089L5.33333 6.15M4 6.15H8.44444M8.44444 6.15L9.54689 3.54547C9.68696 3.21456 10.0083 3 10.3639 3H13.6361C13.9916 3 14.3131 3.21456 14.4531 3.54547L15.5556 6.15M8.44444 6.15H15.5556M20 6.15H15.5556M9.77778 16.05V10.65M14.2222 16.05V10.65" stroke="#4D4D4D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -732,7 +732,7 @@ function TrashIcon({ className = "" }: { className?: string }) {
 function InfoIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 16V11.5M12 8.01172V8.00172M21 15.3971V8.60294C21 8.35168 20.9001 8.11071 20.7225 7.93305L16.067 3.27747C15.8893 3.09981 15.6483 3 15.3971 3H8.60294C8.35168 3 8.11071 3.09981 7.93305 3.27747L3.27747 7.93305C3.09981 8.11071 3 8.35168 3 8.60294V15.3971C3 15.6483 3.09981 15.8893 3.27747 16.067L7.93305 20.7225C8.11071 20.9001 8.35168 21 8.60294 21H15.3971C15.6483 21 15.8893 20.9001 16.067 20.7225L20.7225 16.067C20.9001 15.8893 21 15.6483 21 15.3971Z" stroke="#4D4D4D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M12 16V11.5M12 8.01172V8.00172M21 15.3971V8.60294C21 8.35168 20.9001 8.11071 20.7225 7.93305L16.067 3.27747C15.8893 3.09981 15.6483 3 15.3971 3H8.60294C8.35168 3 8.11071 3.09981 7.93305 3.27747L3.27747 7.93305C3.09981 8.11071 3 8.35168 3 8.60294V15.3971C3 15.6483 3.09981 15.8893 3.27747 16.067L7.93305 20.7225C8.11071 20.9001 8.35168 21 8.60294 21H15.3971C15.6483 21 15.8893 20.9001 16.067 20.7225L20.7225 16.067C20.9001 15.8893 21 15.6483 21 15.3971Z" stroke="#4D4D4D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

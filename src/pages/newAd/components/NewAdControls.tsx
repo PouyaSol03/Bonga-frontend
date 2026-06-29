@@ -351,7 +351,7 @@ export function Footer({
         <span>{primary}</span>
         <span className="text-xl leading-none">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M7.49992 5.83301L3.33325 9.99962L7.49989 14.1664M3.33325 9.99962L16.6666 9.99987" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M7.49992 5.83301L3.33325 9.99962L7.49989 14.1664M3.33325 9.99962L16.6666 9.99987" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
       </button>
@@ -363,7 +363,7 @@ export function Footer({
       >
         <span className="text-xl leading-none">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.4999 5.8335L16.6666 10.0002L12.5 14.1668M16.6666 10.0002H3.33325" stroke="#0048C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12.4999 5.8335L16.6666 10.0002L12.5 14.1668M16.6666 10.0002H3.33325" stroke="#0048C4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
         <span>مرحله قبل</span>

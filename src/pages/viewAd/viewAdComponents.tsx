@@ -103,7 +103,6 @@ function getActionLabel(icon: IconName) {
 
 export function DetailSection({
   children,
-  icon,
   mutedTitle = false,
   title,
 }: {
@@ -114,7 +113,7 @@ export function DetailSection({
 }) {
   return (
     <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
-      <div className="flex h-6 items-center justify-end gap-2 [direction:ltr]">
+      <div className="flex h-6 items-center justify-end [direction:ltr]">
         <h2
           className={`m-0 text-right text-lg font-semibold leading-6 ${
             mutedTitle ? "text-[#808080]" : "text-[#1a1a1a]"
@@ -122,7 +121,6 @@ export function DetailSection({
         >
           {title}
         </h2>
-        <ViewAdIcon className="text-[#4d4d4d]" name={icon} />
       </div>
       {children}
     </section>
@@ -211,11 +209,10 @@ export function EquipmentSections({
           className="mb-2 bg-white px-4 py-4 last:mb-0 last:flex-1"
           key={section.title}
         >
-          <div className="flex h-6 items-center justify-end gap-2 [direction:ltr]">
+          <div className="flex h-6 items-center justify-end [direction:ltr]">
             <h2 className="m-0 text-right text-lg font-semibold leading-6 text-[#1a1a1a]">
               {section.title}
             </h2>
-            <ViewAdIcon className="text-[#4d4d4d]" name={section.icon} />
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">

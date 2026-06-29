@@ -34,7 +34,11 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
   }
 
   const { listing, isSeen, isSelected, onSelect } = props;
-  const markerIcon = createSearchListingIcon(listing.priceValue, isSelected, isSeen);
+  const markerIcon = createSearchListingIcon(
+    isSelected ? listing.priceValue : "",
+    isSelected,
+    isSeen,
+  );
 
   return (
     <Marker

@@ -96,20 +96,13 @@ function AccountRoleRedirect() {
       window.dispatchEvent(new PopStateEvent('popstate'))
       return
     }
-
-    if (role && role !== USER) {
-      window.history.replaceState({}, '', DASHBOARD_PATH)
-      window.dispatchEvent(new PopStateEvent('popstate'))
-    }
   }, [role])
 
   if (!role) {
     return null
   }
 
-  if (role === USER) return createElement(MyAccountPage)
-
-  return null
+  return createElement(MyAccountPage)
 }
 
 function DashboardRedirect() {

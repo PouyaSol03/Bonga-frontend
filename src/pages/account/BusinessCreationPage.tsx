@@ -3,7 +3,12 @@ import { useMemo, useState, type ReactNode } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { BottomSheet } from "../../components/BottomSheet";
 import { TopBar } from "../../components/TopBar";
+import { SelectBox } from "../newAd/components/NewAdControls";
 import { getStoredAuthSession, setStoredAuthSession } from "../../auth/auth-storage";
+import {
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../constants/roles.constants";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
@@ -205,15 +210,6 @@ const businessInfoCards: Record<BusinessType, InfoCard[]> = {
   ],
 };
 
-const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-
-function toPersianNumber(value: number) {
-  return String(value).replace(
-    /\d/g,
-    (digit) => persianDigits[Number(digit)] ?? digit,
-  );
-}
-
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
 }
@@ -244,9 +240,26 @@ function markBusinessCreated(type: BusinessType) {
 
   if (!session) return;
 
+  const nextRole =
+    type === "agency" ? REAL_ESTATE_MANAGER : REAL_ESTATE_CONSULTANT;
+  const nextRoleName =
+    type === "agency" ? "مدیر آژانس املاک" : "مشاور مستقل";
+  const roles = session.roles.some((role) => role.slug === nextRole)
+    ? session.roles
+    : [
+        ...session.roles,
+        {
+          id: nextRole,
+          name: nextRoleName,
+          slug: nextRole,
+        },
+      ];
+
   setStoredAuthSession({
     ...session,
     accountType: type === "agency" ? "agency-consultant" : "independent-consultant",
+    role: nextRole,
+    roles,
   });
 }
 
@@ -260,7 +273,7 @@ export function BusinessCreationPage() {
   return (
     <BusinessCreationShell
       bottomBar={
-        <div className="flex items-center justify-start px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
+        <div className="flex items-center justify-end px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
           <button
             className="inline-flex h-10 min-w-[156px] items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-5 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef]"
             onClick={handleNext}
@@ -366,8 +379,8 @@ function BusinessFormPage({
             onClick={() => navigateTo("/account/business/create")}
             type="button"
           >
-            <span>مرحله قبل</span>
             <ArrowRightIcon />
+            <span>مرحله قبل</span>
           </button>
           <button
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
@@ -432,8 +445,9 @@ function AgencyFields() {
     ? neighborhoodsFromApi
     : fallbackNeighborhoods.filter((item) => item.name.includes(neighborhoodQuery.trim()));
 
-  const selectedPreview = selectedNeighborhoods.slice(0, 2);
-  const remainingSelectedCount = Math.max(0, selectedNeighborhoods.length - selectedPreview.length);
+  const selectedNeighborhoodValue = selectedNeighborhoods
+    .map((neighborhood) => neighborhood.name)
+    .join("، ");
 
   const toggleNeighborhood = (neighborhood: NeighborhoodDto) => {
     const neighborhoodId = getNeighborhoodId(neighborhood);
@@ -463,35 +477,14 @@ function AgencyFields() {
 
       <div>
         <RequiredLabel>محدوده فعالیت</RequiredLabel>
-        <button
-          className="mt-2 flex min-h-14 w-full items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-3 py-2 text-right focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
-          onClick={() => setIsNeighborhoodSheetOpen(true)}
-          type="button"
-        >
-          <ChevronDownIcon />
-          <span className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
-            {selectedNeighborhoods.length === 0 ? (
-              <span className="truncate text-sm font-normal leading-5 text-[#a6a6a6]">
-                محدوده فعالیت خود را انتخاب کن
-              </span>
-            ) : (
-              <>
-                {remainingSelectedCount > 0 ? (
-                  <span className="inline-flex h-9 items-center rounded-lg bg-[#0048c4] px-3 text-sm font-semibold leading-5 text-white">
-                    و {toPersianNumber(remainingSelectedCount)}
-                  </span>
-                ) : null}
-                {selectedPreview.map((neighborhood) => (
-                  <SelectedNeighborhoodChip
-                    key={getNeighborhoodId(neighborhood)}
-                    label={neighborhood.name}
-                    onRemove={() => toggleNeighborhood(neighborhood)}
-                  />
-                ))}
-              </>
-            )}
-          </span>
-        </button>
+        <div className="mt-2">
+          <SelectBox
+            onClear={selectedNeighborhoods.length > 0 ? clearNeighborhoods : undefined}
+            onClick={() => setIsNeighborhoodSheetOpen(true)}
+            placeholder="محدوده فعالیت خود را انتخاب کن"
+            value={selectedNeighborhoodValue}
+          />
+        </div>
       </div>
 
       <BottomSheet
@@ -504,6 +497,7 @@ function AgencyFields() {
         panelPaddingClassName="flex flex-col pt-4"
         showHeaderDivider={false}
         title="محدوده فعالیت"
+        zIndexClassName="z-[80]"
       >
         <label
           className="flex h-12 shrink-0 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3 text-[#4d4d4d] focus-within:border-[#0048c4]"
@@ -790,10 +784,10 @@ function BusinessInfoCard({
           <InfoCardIcon name={card.icon} />
         </span>
         <div className="min-w-0">
-          <h2 className="m-0 text-sm font-semibold leading-5 text-[#0048c4]">
+          <h2 className="m-0 font-semibold leading-5 text-[#0048c4]">
             {card.title}
           </h2>
-          <p className="m-0 mt-0.5 text-[10px] font-normal leading-4 text-[#4d4d4d]">
+          <p className="m-0 mt-0.5 text-xs font-normal leading-4 text-[#4d4d4d]">
             {card.subtitle}
           </p>
         </div>
@@ -802,16 +796,16 @@ function BusinessInfoCard({
       <div className="mt-3 overflow-hidden rounded-xl bg-[#f8f8f8]">
         <img
           alt=""
-          className="h-[164px] w-full object-cover object-center"
+          className="h-[250px] w-full object-cover object-center"
           draggable={false}
           src={imageSrc}
         />
       </div>
 
-      <p className="m-0 mt-3 text-xs font-normal leading-6 text-[#1a1a1a]">
+      <p className="m-0 mt-3 font-normal leading-6 text-[#1a1a1a]">
         {card.description}
       </p>
-      <ul className="m-0 mt-2 space-y-1 pr-4 text-xs font-normal leading-6 text-[#1a1a1a] marker:text-[#11A366]">
+      <ul className="m-0 mt-2 space-y-1 pr-4 font-normal leading-6 text-[#1a1a1a] marker:text-[#11A366]">
         {card.bullets.map((bullet) => (
           <li key={bullet}>{bullet}</li>
         ))}
@@ -826,25 +820,6 @@ function RequiredLabel({ children }: { children: ReactNode }) {
       {children}
       <span className="mr-1 text-[#c11004]">*</span>
     </label>
-  );
-}
-
-function SelectedNeighborhoodChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <span className="inline-flex h-9 min-w-0 max-w-[118px] items-center gap-2 rounded-lg bg-[#f0f3fa] px-3 text-sm font-medium leading-5 text-[#0048c4]">
-      <button
-        aria-label={`حذف ${label}`}
-        className="grid h-4 w-4 shrink-0 place-items-center text-[#4d4d4d]"
-        onClick={(event) => {
-          event.stopPropagation();
-          onRemove();
-        }}
-        type="button"
-      >
-        <CloseIcon />
-      </button>
-      <span className="min-w-0 truncate">{label}</span>
-    </span>
   );
 }
 
@@ -959,14 +934,6 @@ function WalletAddIcon() {
     <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
       <path d="M3 6.5h14v9H3z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.5" />
       <path d="M3 6.5 13.2 3.8c1-.3 1.8.4 1.8 1.4v1.3M13 11h4M15 9v4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 20 20">
-      <path d="m5.5 7.5 4.5 4.5 4.5-4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
     </svg>
   );
 }

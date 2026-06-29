@@ -38,7 +38,11 @@ export function ViewAdIcon({
     case "apartment":
       return <svg {...common}><path d="M7 21V4h10v17M10 8h4M10 12h4M10 16h4" /></svg>;
     case "area":
-      return <svg {...common}><path d="M4 4h7v4H8v3H4V4ZM13 13h7v7h-7v-7Z" /><path d="M17 13V9h-4M13 17H9v-4" /></svg>;
+      return (
+        <svg {...common} viewBox="0 0 20 20">
+          <path d="M5 6.667H2.5M5 10H2.5M5 13.333H2.5M13.333 15v2.5M10 15v2.5M6.667 15v2.5M2.5 3.333v13.334c0 .46.373.833.833.833h13.334c.46 0 .833-.373.833-.833V12.5c0-.46-.373-.833-.833-.833H8.333V3.333c0-.46-.373-.833-.833-.833H3.333c-.46 0-.833.373-.833.833Z" strokeWidth="1.5" />
+        </svg>
+      );
     case "attachment":
       return <svg {...common}><path d="m8.5 12.5 5.8-5.8a3 3 0 1 1 4.2 4.2l-7.6 7.6a5 5 0 0 1-7.1-7.1l7.7-7.7" /></svg>;
     case "arrowLeft":

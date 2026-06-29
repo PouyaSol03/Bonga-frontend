@@ -225,6 +225,16 @@ function getBackToSearchPath() {
   return queryString ? `/search?${queryString}` : "/search";
 }
 
+function goBackOrNavigate(fallbackPath: string) {
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
+  window.history.pushState({}, "", fallbackPath);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 function toEnglishDigits(value: string) {
   return value.replace(/[۰-۹٠-٩]/g, (digit) => {
     const code = digit.charCodeAt(0);
@@ -1032,6 +1042,7 @@ export function SearchMapFilterPage() {
           backTo={getBackToSearchPath()}
           centerClassName="px-0"
           className="bg-[#f0f0f0]"
+          onBack={() => goBackOrNavigate(getBackToSearchPath())}
           title="فیلترها"
         />
 
@@ -1352,6 +1363,7 @@ function CategorySelectionScreen({
           backTo={getBackToSearchPath()}
           centerClassName="px-0"
           className="bg-[#f0f0f0]"
+          onBack={() => goBackOrNavigate(getBackToSearchPath())}
           title="انتخاب دسته‌بندی"
         />
 

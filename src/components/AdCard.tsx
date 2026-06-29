@@ -36,14 +36,29 @@ type AdCardProps = {
   to?: string
 }
 
+function getAdNavigationState(to: string, state: unknown) {
+  if (state !== undefined || !to.startsWith('/ads/')) {
+    return state
+  }
+
+  const from = `${window.location.pathname}${window.location.search}`
+
+  if (from === to) {
+    return state
+  }
+
+  return { from }
+}
+
 export function AdCard({ ad, showStatusBadge = false, state, to = `/ads/${ad.id}` }: AdCardProps) {
   const hasSecondaryPrice = Boolean(ad.priceLabelSecondary && ad.priceSecondary)
+  const linkState = getAdNavigationState(to, state)
 
   return (
     <RouteLink
       aria-label={`مشاهده آگهی ${ad.title}`}
       className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-      state={state}
+      state={linkState}
       to={to}
     >
       <article className="flex flex-col bg-white px-4 py-4 text-right [direction:rtl]">

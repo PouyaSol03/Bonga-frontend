@@ -2,7 +2,7 @@
 
 const buildingInfoIconMap: Record<string, string> = {
   "area": "area.svg",
-  "infrastructure": "infrastructure.svg",
+  "infrastructure": "area.svg",
   "roomsCount": "bed.svg",
   "apartmentAge": "apartment-age.svg",
   "usage": "usage.svg",
@@ -56,11 +56,13 @@ const labelToKeyMap: Record<string, LabelConfig> = {
 
   // بقیه لِیبل‌ها همراه با واحدهاشون
   "سال ساخت": { key: "apartmentAge", suffix: " سال" },
+  "سن ساخت": { key: "apartmentAge", suffix: " سال" },
   "سن بنا": { key: "apartmentAge", suffix: " سال" },
   "تعداد اتاق‌ها": { key: "roomsCount", suffix: " اتاق" },
   "تعداد اتاق": { key: "roomsCount", suffix: " اتاق" },
   "تعداد کل واحدها": { key: "roomsCount", suffix: " واحد" },
   "زیربنا": { key: "infrastructure", suffix: " متر" },
+  "زیر بنا": { key: "infrastructure", suffix: " متر" },
   "متراژ بنا": { key: "infrastructure", suffix: " متر" },
   "متراژ آپارتمان": { key: "area", suffix: " متر" },
   "متراژ زمین": { key: "area", suffix: " متر" },

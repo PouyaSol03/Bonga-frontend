@@ -63,12 +63,14 @@ export function ViewAdTopBar({
   actionIcons = ["share", "note", "bookmark"],
   backTo,
   bookmarked = false,
+  onBack,
   onAction,
   title,
 }: {
   actionIcons?: IconName[];
-  backTo: string;
+  backTo?: string;
   bookmarked?: boolean;
+  onBack?: () => void;
   onAction?: (icon: IconName) => void;
   title?: string;
 }) {
@@ -81,6 +83,7 @@ export function ViewAdTopBar({
         onClick: onAction ? () => onAction(icon) : undefined,
       }))}
       backTo={backTo}
+      onBack={onBack}
       title={title}
     />
   );

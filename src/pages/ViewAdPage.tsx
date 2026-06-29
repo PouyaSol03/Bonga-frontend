@@ -2376,12 +2376,40 @@ function getViewAdSubPage(pathname: string): ViewAdSubPage {
 function goBackToAd(adId: string) {
   const fallbackPath = `/ads/${adId}`;
 
+  goBackOrNavigate(fallbackPath);
+}
+
+function getHistoryBackTarget() {
+  const state = window.history.state as { from?: unknown } | null;
+  const from = typeof state?.from === "string" ? state.from : "";
+
+  if (!from || from.startsWith("/ads/")) {
+    return null;
+  }
+
+  return from;
+}
+
+function goBackOrNavigate(fallbackPath: string) {
   if (window.history.length > 1) {
     window.history.back();
     return;
   }
 
-  window.location.assign(fallbackPath);
+  window.history.pushState({}, "", fallbackPath);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function goBackFromAd(fallbackPath: string) {
+  const historyBackTarget = getHistoryBackTarget();
+
+  if (historyBackTarget) {
+    window.history.replaceState({}, "", historyBackTarget);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    return;
+  }
+
+  goBackOrNavigate(fallbackPath);
 }
 
 function getDetailPageTitle(
@@ -3518,6 +3546,7 @@ export function ViewAdPage() {
         actionIcons={isOwnAd ? ["share"] : undefined}
         backTo="/home"
         bookmarked={isBookmarked}
+        onBack={() => goBackFromAd("/home")}
         onAction={handleTopBarAction}
       />
 

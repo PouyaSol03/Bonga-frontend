@@ -16,6 +16,12 @@ type SearchMapPreviewCardProps = {
 
 const previewImageCount = 3;
 
+function getAdNavigationState() {
+  return {
+    from: `${window.location.pathname}${window.location.search}`,
+  };
+}
+
 export function SearchMapPreviewCard({
   isSelected,
   listing,
@@ -27,6 +33,7 @@ export function SearchMapPreviewCard({
       data-map-slider-card={String(listing.id)}
       aria-current={isSelected ? "true" : undefined}
       className="flex h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)]"
+      state={getAdNavigationState()}
       to={`/ads/${listing.id}`}
       dir="rtl"
     >

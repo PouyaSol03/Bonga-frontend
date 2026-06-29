@@ -23,6 +23,16 @@ import {
   getPendingOtpMobile,
 } from "../auth/auth-storage";
 
+function goBackOrNavigate(fallbackPath: string) {
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
+  window.history.pushState({}, "", fallbackPath);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 export function LoginVerifyPage() {
   const [verificationCodeSlots, setVerificationCodeSlots] = useState(["", "", "", ""]);
   const [notice, setNotice] = useState<{
@@ -177,7 +187,11 @@ export function LoginVerifyPage() {
       variant="flush"
     >
       <form className="contents" noValidate onSubmit={handleSubmit}>
-        <TopBar backTo="/account" title="ورود به حساب کاربری" />
+        <TopBar
+          backTo="/account"
+          onBack={() => goBackOrNavigate("/login/phone")}
+          title="ورود به حساب کاربری"
+        />
         {notice ? (
           <Snackbar
             message={notice.message}

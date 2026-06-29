@@ -7,6 +7,16 @@ import LoginPhoneBackground from "../assets/images/LoginPhoneBackground.svg";
 import { useRequestOtpMutation } from "../hooks/auth.hooks";
 import { getAuthErrorMessage, normalizeMobile } from "../services/auth.service";
 
+function goBackOrNavigate(fallbackPath: string) {
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
+  window.history.pushState({}, "", fallbackPath);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 export function LoginPhonePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [notice, setNotice] = useState<{
@@ -52,7 +62,11 @@ export function LoginPhonePage() {
       variant="flush"
     >
       <form className="contents" noValidate onSubmit={handleSubmit}>
-        <TopBar backTo="/account" title="ورود به حساب کاربری" />
+        <TopBar
+          backTo="/account"
+          onBack={() => goBackOrNavigate("/account")}
+          title="ورود به حساب کاربری"
+        />
         {notice ? (
           <Snackbar
             message={notice.message}

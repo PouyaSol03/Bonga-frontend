@@ -110,6 +110,12 @@ export function BottomNavigation({
                     className="h-6 w-6 shrink-0"
                     size={24}
                   />
+                  {item.key === "chat" ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+                    />
+                  ) : null}
                 </span>
 
                 <span className="max-w-full overflow-hidden text-ellipsis">

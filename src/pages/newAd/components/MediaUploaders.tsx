@@ -267,14 +267,14 @@ export function VideoUploader() {
                 <path
                   d="M12 21.75C17.3847 21.75 21.75 17.3847 21.75 12C21.75 6.61522 17.3847 2.25 12 2.25C6.61522 2.25 2.25 6.61522 2.25 12C2.25 17.3847 6.61522 21.75 12 21.75Z"
                   stroke="#4D4D4D"
-                  strokeWidth="1.2"
+                  stroke-width="1.2"
                 />
 
                 <path
                   d="M9.5 9.5L14.5 14.5M14.5 9.5L9.5 14.5"
                   stroke="#4D4D4D"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
                 />
               </svg>
             </button>

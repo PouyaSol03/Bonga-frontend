@@ -1,15 +1,33 @@
-import type { ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import type { ComponentType, ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
 import { TopBar } from '../components/TopBar'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
-import { ViewAdPage } from '../pages/ViewAdPage'
-import { AccountMyAdStatePage } from '../pages/account/AccountMyAdStatePage'
-import { UserChatDetailPage } from '../pages/UserChatHomePage'
 import { canAccessRoute, DASHBOARD_PATH, LOGIN_PATH, routes, type AppRoute } from './routes'
+
+function lazyNamed<TModule extends Record<string, unknown>>(
+  loader: () => Promise<TModule>,
+  exportName: keyof TModule,
+) {
+  return lazy(() =>
+    loader().then((module) => ({
+      default: module[exportName] as ComponentType<any>,
+    })),
+  )
+}
+
+const AccountMyAdStatePage = lazyNamed(
+  () => import('../pages/account/AccountMyAdStatePage'),
+  'AccountMyAdStatePage',
+)
+const UserChatDetailPage = lazyNamed(
+  () => import('../pages/UserChatHomePage'),
+  'UserChatDetailPage',
+)
+const ViewAdPage = lazyNamed(() => import('../pages/ViewAdPage'), 'ViewAdPage')
 
 function getCurrentPath() {
   return window.location.pathname || '/'
@@ -121,7 +139,7 @@ function getRouteHeader(path: string, title: string) {
             to: "/notifications",
           },
         ]}
-        backTo="/login"
+        backTo="/account"
         title={title}
       />
     )
@@ -218,7 +236,11 @@ export function AppRouter() {
     }
   }, [])
 
-  const page = <ActivePage />
+  const page = (
+    <Suspense fallback={<div className="min-h-0 flex-1 bg-[#f0f0f0]" />}>
+      <ActivePage />
+    </Suspense>
+  )
 
   if (route.layout === 'dashboard' && authSession) {
     return (

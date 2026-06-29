@@ -1023,7 +1023,7 @@ function AccountPageShell({ action, children, title }: React.PropsWithChildren<T
       variant="flush"
     >
       <TopBar
-        backTo="/login"
+        backTo="/account"
         startSlot={
           <div className="flex h-12 w-12 shrink-0 items-center justify-center">
             {action}

@@ -1,5 +1,5 @@
 import { createElement, lazy, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
-import { USER } from '../constants/roles.constants'
+import { REAL_ESTATE_MANAGER, USER } from '../constants/roles.constants'
 import { getStoredAuthSession, type AuthSession } from '../auth/auth-storage'
 
 type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>
@@ -26,6 +26,7 @@ const PublicLandingPage = lazyNamed(() => import('../pages/PublicLandingPage'), 
 const NotificationsPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationsPage')
 const AccountAboutPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountAboutPage')
 const AccountBookmarksPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountBookmarksPage')
+const AccountDeleteUserPage = lazyNamed(() => import('../pages/account/AccountDeleteUserPage'), 'AccountDeleteUserPage')
 const AccountIdentityPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountIdentityPage')
 const AccountMyAdsEmptyPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountMyAdsEmptyPage')
 const AccountMyAdsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountMyAdsPage')
@@ -218,6 +219,13 @@ export const routes: AppRoute[] = [
     path: '/account/about',
     title: 'درباره ما',
     Component: AccountAboutPage,
+  },
+  {
+    path: '/account/delete-user',
+    title: 'حذف حساب کاربری',
+    Component: AccountDeleteUserPage,
+    authority: [REAL_ESTATE_MANAGER],
+    requiresAuth: true,
   },
   {
     path: '/account/business/create',

@@ -8,11 +8,17 @@ import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useLogoutMutation } from "../hooks/auth.hooks";
 import { formatMobileForDisplay } from "../services/auth.service";
 import type { UserProfile } from "../services/account.service";
+import NotificationIcon from "../assets/icons/NotificationIcon";
 import {
   getStoredAuthSession,
   storeLoginRedirectPath,
   type AuthSession,
 } from "../auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../constants/roles.constants";
 import { currentAccountUserType } from "./account/accountUserType";
 
 type AccountAction = {
@@ -35,12 +41,15 @@ type AccountIconName =
   | "legal"
   | "lock"
   | "log_out"
+  | "message"
   | "note"
   | "plus"
   | "ranking"
   | "request"
   | "setting"
   | "tag"
+  | "team"
+  | "trash"
   | "user"
   | "wallet"
   | "wallet-add";
@@ -105,26 +114,31 @@ export function MyAccountPage() {
     />
   );
 
-  if (authSession && accountType === "independent-consultant") {
+  if (authSession && isBusinessAccount(authSession, accountType)) {
     return <IndependentConsultantAccountPage businessSuccessSheet={businessSuccessSheet} />;
   }
 
   return <StandardAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
 }
 
+function isBusinessAccount(authSession: AuthSession, accountType: string) {
+  return (
+    authSession.role === REAL_ESTATE_MANAGER ||
+    authSession.role === REAL_ESTATE_CONSULTANT ||
+    authSession.role === INDEPENDENT_CONSULTANT ||
+    accountType === "agency-consultant" ||
+    accountType === "independent-consultant"
+  );
+}
+
 function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
+  const authSession = getStoredAuthSession();
   const { isLoggingOut, handleLogout } = useLogoutAccount();
+  const isManager = authSession?.role === REAL_ESTATE_MANAGER;
+  const consultantActions = getBusinessAccountActions(authSession?.role);
   const businessActions: AccountAction[] = [
     { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
     { icon: "agency", label: "املاک جلیلیان", to: "/account/dashboard" },
-  ];
-  const consultantActions: AccountAction[] = [
-    { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
-    { icon: "ranking", label: "نشان‌ها و رتبه", to: "/account/ranking" },
-    { icon: "building", label: "صفحه مشاور", to: "/account/profile" },
-    { icon: "tag", label: "مدیریت آگهی‌ها", to: "/account/ad-management" },
-    { icon: "request", label: "مدیریت درخواست", to: "/account/requests" },
-    { icon: "wallet-add", label: "افزایش اعتبار", to: "/account/credit/panel" },
   ];
 
   return (
@@ -134,29 +148,14 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
       frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       overlay={businessSuccessSheet}
       topBar={<TopBar
-        actions={[
-          {
-            icon: (
-              <span className="relative grid h-6 w-6 place-items-center">
-                <NotificationIcon className="h-6 w-6" />
-                <span
-                  aria-hidden="true"
-                  className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
-                />
-              </span>
-            ),
-            id: "notifications",
-            label: "اعلان‌ها",
-            to: "/notifications",
-          },
-        ]}
         backTo="/home"
+        startSlot={<AccountNotificationButton />}
         title="حساب من"
       />}
     >
 
-      <section className="shrink-0 bg-white pb-1 pt-2" aria-label="اطلاعات مشاور">
-        <div className="flex h-[104px] items-center gap-4 px-4">
+      <section className="shrink-0 bg-white pt-4" aria-label="اطلاعات مشاور">
+        <div className="flex items-center gap-4 px-4">
           <img
             alt="ناصر اشرفی"
             className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
@@ -172,7 +171,13 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
           </div>
         </div>
 
-        <Divider spaced />
+        {isManager ? (
+          <DangerAccountRow
+            action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
+          />
+        ) : (
+          <Divider spaced />
+        )}
         <AccountSection actions={businessActions} spacedDividers />
       </section>
 
@@ -192,6 +197,48 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
       />
     </TopBarNavigationLayout>
   );
+}
+
+function getBusinessAccountActions(role?: string | null): AccountAction[] {
+  const managerActions: AccountAction[] = [
+    { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
+    { icon: "ranking", label: "شناساها و رتبه", to: "/dashboard/ranking" },
+    { icon: "building", label: "صفحه آژانس", to: "/dashboard/agency" },
+    { icon: "tag", label: "مدیریت آگهی‌ها", to: "/dashboard/ads" },
+    { icon: "request", label: "مدیریت درخواست‌ها", to: "/dashboard/requests" },
+    { icon: "team", label: "مدیریت مشاورین", to: "/dashboard/team" },
+    { icon: "wallet", label: "افزایش اعتبار", to: "/dashboard/payments" },
+    { icon: "message", label: "پیام‌ها", to: "/dashboard/messages" },
+  ];
+
+  if (role === REAL_ESTATE_MANAGER) {
+    return managerActions;
+  }
+
+  if (role === REAL_ESTATE_CONSULTANT) {
+    return [
+      { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
+      { icon: "ranking", label: "شناساها و رتبه", to: "/dashboard/ranking" },
+      { icon: "building", label: "صفحه آژانس", to: "/dashboard/agency" },
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: "/dashboard/ads" },
+      { icon: "wallet", label: "افزایش اعتبار", to: "/dashboard/payments" },
+      { icon: "message", label: "پیام‌ها", to: "/dashboard/messages" },
+    ];
+  }
+
+  if (role === INDEPENDENT_CONSULTANT) {
+    return [
+      { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
+      { icon: "ranking", label: "شناساها و رتبه", to: "/dashboard/ranking" },
+      { icon: "building", label: "صفحه مشاور", to: "/dashboard/agency" },
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: "/dashboard/ads" },
+      { icon: "request", label: "مدیریت درخواست‌ها", to: "/dashboard/requests" },
+      { icon: "wallet", label: "افزایش اعتبار", to: "/dashboard/payments" },
+      { icon: "message", label: "پیام‌ها", to: "/dashboard/messages" },
+    ];
+  }
+
+  return managerActions;
 }
 
 function StandardAccountPage({
@@ -215,7 +262,7 @@ function StandardAccountPage({
       contentClassName="bg-[#f0f0f0] pb-4"
       frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       overlay={businessSuccessSheet}
-      topBar={<TopBar showBack={false} title="حساب من" />}
+      topBar={<TopBar showBack={false} startSlot={<AccountNotificationButton />} title="حساب من" />}
     >
       {isLoggedIn ? (
         <section className="bg-white" aria-label="وضعیت حساب">
@@ -296,7 +343,7 @@ function AccountBusinessSuccessSheet({
       panelPaddingClassName="pt-3"
       showHeader={false}
       showHeaderDivider={false}
-      zIndexClassName="z-[70]"
+      zIndexClassName="z-[100]"
     >
       <div className="text-center">
         <img
@@ -466,6 +513,42 @@ function AccountMenuRow({
   );
 }
 
+function DangerAccountRow({ action }: { action: AccountAction }) {
+  const content = (
+    <div className="flex justify-center items-center gap-2 w-full">
+      <span className="truncate text-sm font-semibold leading-5 [direction:rtl]">
+        {action.label}
+      </span>
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M11.3628 1.875C11.9134 1.875 12.4061 2.20708 12.6193 2.71077L13.377 4.50033H16.6663C17.0115 4.50033 17.2913 4.78015 17.2913 5.12533C17.2912 5.47035 17.0114 5.75033 16.6663 5.75033H16.1439L15.5229 16.1279C15.4562 17.243 14.5408 18.125 13.4201 18.125H6.57926C5.45854 18.125 4.54315 17.243 4.4764 16.1279L3.85547 5.75033H3.33301C2.98794 5.75033 2.70818 5.47035 2.70801 5.12533C2.70801 4.78015 2.98783 4.50033 3.33301 4.50033H6.6224L7.38005 2.71077C7.59331 2.20717 8.0858 1.875 8.63656 1.875H11.3628ZM5.72477 16.0531C5.75281 16.5214 6.13321 16.875 6.57926 16.875H13.4201C13.8662 16.875 14.2465 16.5214 14.2746 16.0531L14.8914 5.75033H5.10791L5.72477 16.0531ZM7.52246 13.3748V8.87533C7.52246 8.53027 7.80245 8.25052 8.14746 8.25033C8.49264 8.25033 8.77246 8.53015 8.77246 8.87533V13.3748C8.77246 13.72 8.49264 13.9998 8.14746 13.9998C7.80245 13.9996 7.52246 13.7199 7.52246 13.3748ZM11.2269 13.3748V8.87533C11.2269 8.53015 11.5067 8.25033 11.8519 8.25033C12.1969 8.25052 12.4769 8.53027 12.4769 8.87533V13.3748C12.4769 13.7199 12.1969 13.9996 11.8519 13.9998C11.5067 13.9998 11.2269 13.72 11.2269 13.3748ZM8.63656 3.125C8.59475 3.125 8.551 3.15044 8.53076 3.19824L7.97982 4.50033H12.0195L11.4686 3.19824C11.4484 3.15058 11.4046 3.125 11.3628 3.125H8.63656Z" fill="#C11004" />
+        </svg>
+      </div>
+    </div>
+  );
+
+  if (action.to) {
+    return (
+      <RouteLink
+        className="mx-4 my-4 flex py-2.5 cursor-pointer items-center gap-2 rounded-[10px] border border-[#C11004] bg-white px-4 text-[#C11004] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
+        to={action.to}
+      >
+        {content}
+      </RouteLink>
+    );
+  }
+
+  return (
+    <button
+      className="mx-4 mb-3 mt-2 flex h-10 w-[calc(100%-2rem)] cursor-pointer items-center gap-2 rounded-[10px] border border-[#C11004] bg-white px-4 text-[#C11004] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
+      onClick={action.onClick}
+      type="button"
+    >
+      {content}
+    </button>
+  );
+}
+
 function Divider({ spaced = false }: { spaced?: boolean }) {
   return (
     <div className={spaced ? "py-0.5" : ""} aria-hidden="true">
@@ -476,36 +559,63 @@ function Divider({ spaced = false }: { spaced?: boolean }) {
 
 function ChevronLeftIcon({ className = "" }: { className?: string }) {
   return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path d="m15 6-6 6 6 6" />
-    </svg>
+    <span className={`grid place-items-center ${className}`} aria-hidden="true">
+      <img
+        alt=""
+        className="h-[9.5px] w-[5.5px]"
+        src="/figma/account/arrow-left.svg"
+      />
+    </span>
   );
 }
 
-function NotificationIcon({ className = "" }: { className?: string }) {
+const accountIconAssetMap: Partial<Record<AccountIconName, string>> = {
+  bookmark: "/figma/account/bookmark.svg",
+  identity: "/figma/account/identity.svg",
+  lock: "/figma/account/lock.svg",
+  message: "/figma/account/nav-chat.svg",
+  note: "/figma/account/note.svg",
+  plus: "/figma/account/add.svg",
+  ranking: "/icons/ranking.svg",
+  setting: "/figma/account/setting.svg",
+  tag: "/figma/account/tag.svg",
+  user: "/figma/account/user.svg",
+  wallet: "/figma/account/wallet.svg",
+};
+
+function FigmaAccountIcon({
+  className = "",
+  src,
+}: {
+  className?: string;
+  src: string;
+}) {
+  return <img alt="" aria-hidden="true" className={className} src={src} />;
+}
+
+function AccountNotificationButton() {
   return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
+    <RouteLink
+      aria-label="اعلان‌ها"
+      className="relative grid h-10 w-10 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      to="/notifications"
     >
-      <path d="M17.5 10a5.5 5.5 0 0 0-11 0v3.5l-1.5 2h14l-1.5-2V10Z" />
-      <path d="M9.75 18a2.35 2.35 0 0 0 4.5 0" />
-    </svg>
+      <NotificationIcon />
+      <span
+        aria-hidden="true"
+        className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+      />
+    </RouteLink>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <path
+      d="M232.863 215.875C233.413 215.875 233.906 216.207 234.119 216.711L234.877 218.5H238.166C238.512 218.5 238.791 218.78 238.791 219.125C238.791 219.47 238.511 219.75 238.166 219.75H237.644L237.023 230.128C236.956 231.243 236.041 232.125 234.92 232.125H228.079C226.959 232.125 226.043 231.243 225.976 230.128L225.355 219.75H224.833C224.488 219.75 224.208 219.47 224.208 219.125C224.208 218.78 224.488 218.5 224.833 218.5H228.122L228.88 216.711C229.093 216.207 229.586 215.875 230.137 215.875H232.863ZM227.225 230.053C227.253 230.521 227.633 230.875 228.079 230.875H234.92C235.366 230.875 235.747 230.521 235.775 230.053L236.391 219.75H226.608L227.225 230.053ZM229.022 227.375V222.875C229.022 222.53 229.302 222.251 229.647 222.25C229.993 222.25 230.272 222.53 230.272 222.875V227.375C230.272 227.72 229.993 228 229.647 228C229.302 228 229.022 227.72 229.022 227.375ZM232.727 227.375V222.875C232.727 222.53 233.007 222.25 233.352 222.25C233.697 222.251 233.977 222.53 233.977 222.875V227.375C233.977 227.72 233.697 228 233.352 228C233.007 228 232.727 227.72 232.727 227.375ZM230.137 217.125C230.095 217.125 230.051 217.15 230.031 217.198L229.48 218.5H233.52L232.969 217.198C232.948 217.151 232.905 217.125 232.863 217.125H230.137Z"
+      fill="currentColor"
+      transform="translate(-219 -212)"
+    />
   );
 }
 
@@ -518,6 +628,12 @@ function AccountIcon({
   name: AccountIconName;
   color?: string
 }) {
+  const assetSrc = color ? undefined : accountIconAssetMap[name];
+
+  if (assetSrc) {
+    return <FigmaAccountIcon className={className} src={assetSrc} />;
+  }
+
   return (
     <svg
       aria-hidden="true"
@@ -546,18 +662,21 @@ function AccountIcon({
           <path xmlns="http://www.w3.org/2000/svg" d="M12 17L19 21V5C19 4 18 3 17 3H7C6 3 5 4 5 5V21L12 17Z" stroke="#4D4D4D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </>
         : null}
+      {name === "trash" ? <TrashIcon /> : null}
+      {name === "team" ? (
+        <g>
+          <path d="M15.25 19C15.25 16.6528 13.3472 14.75 11 14.75H7C4.6528 14.75 2.75 16.6528 2.75 19V20.25H15.25V19ZM19.5264 5.41797C19.8209 5.17766 20.2557 5.19512 20.5303 5.46973L22.5303 7.46973C22.8232 7.76262 22.8232 8.23738 22.5303 8.53027L18.5303 12.5303C18.3896 12.6709 18.1989 12.75 18 12.75H16C15.5858 12.75 15.25 12.4142 15.25 12V10C15.25 9.80109 15.3291 9.61038 15.4697 9.46973L19.4697 5.46973L19.5264 5.41797ZM12.25 7C12.25 5.20508 10.7949 3.75 9 3.75C7.20507 3.75 5.75 5.20507 5.75 7C5.75 8.79493 7.20507 10.25 9 10.25C10.7949 10.25 12.25 8.79492 12.25 7ZM16.75 10.3105V11.25H17.6895L20.9395 8L20 7.06055L16.75 10.3105ZM16.75 21C16.75 21.4142 16.4142 21.75 16 21.75H2C1.58579 21.75 1.25 21.4142 1.25 21V19C1.25 15.8244 3.82436 13.25 7 13.25H11C14.1756 13.25 16.75 15.8244 16.75 19V21ZM13.75 7C13.75 9.62336 11.6233 11.75 9 11.75C6.37665 11.75 4.25 9.62335 4.25 7C4.25 4.37665 6.37665 2.25 9 2.25C11.6233 2.25 13.75 4.37664 13.75 7Z" fill="#4D4D4D" stroke="none" />
+        </g>
+      ) : null}
       {name === "building" ? (
-        <>
-          <path xmlns="http://www.w3.org/2000/svg" d="M8.4 21V9.3C8.4 8.80295 8.80295 8.4 9.3 8.4H15.6C16.0971 8.4 16.5 8.80295 16.5 9.3V21M11.55 12.0016H13.35M11.55 14.7008H13.35M11.55 17.4016L13.35 17.4M3.9 20.9947V12.8947C3.9 12.3977 4.30295 11.9947 4.8 11.9947H8.4M21 20.9895L3 21M12.9 8.37306V3L20.1 5.75523V21" stroke="#4D4D4D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </>
+        <g>
+          <path d="M13.1328 17.4004C13.1328 17.3488 13.0788 17.2501 12.9414 17.25H11.0586C10.9212 17.2501 10.8672 17.3488 10.8672 17.4004V20.25H13.1328V17.4004ZM13.4121 12.1504C13.8262 12.1506 14.1621 12.4863 14.1621 12.9004C14.1619 13.3143 13.826 13.6502 13.4121 13.6504H10.5879C10.174 13.6502 9.8381 13.3143 9.83789 12.9004C9.83789 12.4863 10.1738 12.1506 10.5879 12.1504H13.4121ZM13.4121 8.54981C13.8261 8.54999 14.162 8.8858 14.1621 9.29981C14.1621 9.71391 13.8262 10.0496 13.4121 10.0498H10.5879C10.1738 10.0496 9.83789 9.71391 9.83789 9.29981C9.838 8.8858 10.1739 8.54999 10.5879 8.54981H13.4121ZM14.6328 20.25H17.3672L17.3574 6.43848L17.3506 6.40039C17.3361 6.35964 17.2975 6.31363 17.2217 6.29492L6.87891 3.75684C6.8065 3.73907 6.7404 3.75712 6.69336 3.792C6.64749 3.82611 6.63284 3.8649 6.63281 3.90039L5.13281 3.89942C5.13354 2.78251 6.21137 2.0493 7.23633 2.30078L17.5791 4.83789C18.3098 5.0173 18.8571 5.66093 18.8574 6.4375L18.8672 20.25H20C20.4142 20.25 20.75 20.5858 20.75 21C20.75 21.4142 20.4142 21.75 20 21.75H4C3.58579 21.75 3.25 21.4142 3.25 21C3.25 20.5858 3.58579 20.25 4 20.25H5.13281V3.89942L5.88281 3.90039H6.63281V20.25H9.36719V17.4004C9.36719 16.4579 10.1567 15.7501 11.0586 15.75H12.9414C13.8434 15.7501 14.6328 16.4579 14.6328 17.4004V20.25Z" fill="#4D4D4D" stroke="none" />
+        </g>
       ) : null}
       {name === "dashboard" ? (
-        <>
-          <rect height="8" rx="1" width="8" x="3" y="3" />
-          <rect height="8" rx="1" width="8" x="13" y="3" />
-          <rect height="8" rx="1" width="8" x="3" y="13" />
-          <rect height="8" rx="1" width="8" x="13" y="13" />
-        </>
+        <g>
+          <path d="M9.75 16.5C9.75 16.3619 9.63809 16.25 9.5 16.25H4C3.86192 16.25 3.75 16.3619 3.75 16.5V20C3.75 20.1381 3.86192 20.25 4 20.25H9.5C9.63809 20.25 9.75 20.1381 9.75 20V16.5ZM20.25 12.5C20.25 12.3619 20.1381 12.25 20 12.25H14.5C14.3619 12.25 14.25 12.3619 14.25 12.5V20C14.25 20.1381 14.3619 20.25 14.5 20.25H20C20.1381 20.25 20.25 20.1381 20.25 20V12.5ZM9.75 4C9.75 3.86192 9.63808 3.75 9.5 3.75H4C3.86193 3.75 3.75 3.86193 3.75 4V11.5C3.75 11.6381 3.86192 11.75 4 11.75H9.5C9.63809 11.75 9.75 11.6381 9.75 11.5V4ZM20.25 4C20.25 3.86192 20.1381 3.75 20 3.75H14.5C14.3619 3.75 14.25 3.86192 14.25 4V7.5C14.25 7.63808 14.3619 7.75 14.5 7.75H20C20.1381 7.75 20.25 7.63808 20.25 7.5V4ZM11.25 20C11.25 20.9665 10.4665 21.75 9.5 21.75H4C3.03352 21.75 2.25 20.9665 2.25 20V16.5C2.25 15.5335 3.03352 14.75 4 14.75H9.5C10.4665 14.75 11.25 15.5335 11.25 16.5V20ZM21.75 20C21.75 20.9665 20.9665 21.75 20 21.75H14.5C13.5335 21.75 12.75 20.9665 12.75 20V12.5C12.75 11.5335 13.5335 10.75 14.5 10.75H20C20.9665 10.75 21.75 11.5335 21.75 12.5V20ZM11.25 11.5C11.25 12.4665 10.4665 13.25 9.5 13.25H4C3.03352 13.25 2.25 12.4665 2.25 11.5V4C2.25 3.03351 3.03351 2.25 4 2.25H9.5C10.4665 2.25 11.25 3.03352 11.25 4V11.5ZM21.75 7.5C21.75 8.46648 20.9665 9.25 20 9.25H14.5C13.5335 9.25 12.75 8.46648 12.75 7.5V4C12.75 3.03352 13.5335 2.25 14.5 2.25H20C20.9665 2.25 21.75 3.03352 21.75 4V7.5Z" fill="#4D4D4D" stroke="none" />
+        </g>
       ) : null}
       {name === "eye" ? (
         <>

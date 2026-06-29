@@ -696,30 +696,7 @@ function ActionPageTopBar({
   onBack: () => void;
 }) {
   return (
-    <header className="relative flex h-[44px] shrink-0 items-center justify-center bg-[#f2f2f2] px-4 text-[#1a1a1a] [direction:rtl]">
-      <button
-        aria-label="بازگشت"
-        className="absolute right-2 top-0 grid h-[44px] w-11 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-        onClick={onBack}
-        type="button"
-      >
-        <svg
-          aria-hidden="true"
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.8"
-          viewBox="0 0 24 24"
-        >
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </button>
-      <h1 className="m-0 text-center text-base font-semibold leading-6 text-[#1a1a1a]">
-        {title}
-      </h1>
-    </header>
+    <TopBar onBack={onBack} title={title} />
   );
 }
 

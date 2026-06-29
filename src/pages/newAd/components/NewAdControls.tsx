@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { FeaturesIcons } from "../../../components/FeaturesIcons";
+import { TopBar } from "../../../components/TopBar";
 import { formatPrice } from "../../../lib/MoneyHandler";
 import { normalizeNumberInput, navigateTo } from "../utils";
 import type { ChipItem } from "../types";
@@ -12,45 +13,19 @@ export function Header({
   title: string;
   onBack?: () => void;
 }) {
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+      return;
+    }
+
+    window.history.length > 1
+      ? window.history.back()
+      : navigateTo("/new-ad/category");
+  };
+
   return (
-    <header className="shrink-0 bg-[#f0f0f0] pt-2 [direction:rtl]">
-      <div className="flex items-center gap-2 px-4">
-        <button
-          aria-label="بازگشت"
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
-          onClick={() => {
-            if (onBack) {
-              onBack();
-              return;
-            }
-
-            window.history.length > 1
-              ? window.history.back()
-              : navigateTo("/new-ad/category");
-          }}
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            className="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M15 7l5 5-5 5M20 12H4"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.8"
-            />
-          </svg>
-        </button>
-
-        <h1 className="m-0 min-w-0 flex-1 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a]">
-          {title}
-        </h1>
-      </div>
-    </header>
+    <TopBar onBack={handleBack} title={title} />
   );
 }
 

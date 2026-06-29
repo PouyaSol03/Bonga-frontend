@@ -4,7 +4,7 @@ import { PageFrame } from "../../app/PageFrame";
 import { BottomSheet } from "../../components/BottomSheet";
 import { TopBar } from "../../components/TopBar";
 import { SelectBox } from "../newAd/components/NewAdControls";
-import { getStoredAuthSession, setStoredAuthSession } from "../../auth/auth-storage";
+import { getStoredAuthSession, setStoredAuthSession, type AuthRole, type AuthRoleSlug } from "../../auth/auth-storage";
 import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
@@ -240,11 +240,12 @@ function markBusinessCreated(type: BusinessType) {
 
   if (!session) return;
 
-  const nextRole =
-    type === "agency" ? REAL_ESTATE_MANAGER : REAL_ESTATE_CONSULTANT;
+  const nextRole = (
+    type === "agency" ? REAL_ESTATE_MANAGER : REAL_ESTATE_CONSULTANT
+  ) as AuthRoleSlug;
   const nextRoleName =
     type === "agency" ? "مدیر آژانس املاک" : "مشاور مستقل";
-  const roles = session.roles.some((role) => role.slug === nextRole)
+  const roles: AuthRole[] = session.roles.some((role) => role.slug === nextRole)
     ? session.roles
     : [
         ...session.roles,

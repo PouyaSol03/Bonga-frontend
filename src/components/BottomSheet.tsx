@@ -92,7 +92,7 @@ export function BottomSheet({
   showHeaderDivider = false,
   title,
   titleAlign = "right",
-  zIndexClassName = "z-50",
+  zIndexClassName = "z-[100]",
 }: BottomSheetProps) {
   const isCenterTitle = titleAlign === "center";
 

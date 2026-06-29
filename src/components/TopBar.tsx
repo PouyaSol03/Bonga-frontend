@@ -161,7 +161,7 @@ export function TopBar({
   centerSlot,
   centerClassName = "px-2",
   className = "",
-  contentClassName = "px-1",
+  contentClassName = "px-2",
   heightClassName = "h-14",
   onBack,
   reserveEndSpace = false,

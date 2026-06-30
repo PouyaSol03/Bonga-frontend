@@ -132,21 +132,20 @@ function formatNumber(value: number | string) {
 
 export function DashboardHomeOverview() {
   return (
-    <div className="grid gap-5 pb-2">
-      <section className="grid gap-4 rounded-none bg-[#eeeeee] p-4">
+    <div className="grid gap-4 bg-[#f0f0f0] p-4">
+      <section className="grid gap-4">
         {dashboardMetrics.map((metric) => (
           <DashboardMetricCard key={metric.id} metric={metric} />
         ))}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <PublishedAgencyAdsCard />
-
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <ConsultantActivityCard />
+        <PublishedAgencyAdsCard />
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
-        <div className="grid gap-5">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
+        <div className="grid gap-4">
           <ProgressLineChartCard
             title="نمودار پیشرفت ثبت آگهی"
             tooltip="۸۰ آگهی"
@@ -164,8 +163,8 @@ export function DashboardHomeOverview() {
           <AgencyRankingScoreCard />
         </div>
 
-        <div className="grid gap-5">
-          <article className="rounded-xl bg-white p-5">
+        <div className="grid gap-4">
+          <article className="rounded-2xl bg-white p-4">
             <div className="mb-4 flex items-center justify-between gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
                 <LinearViewOn className="h-6 w-6" />
@@ -199,7 +198,7 @@ export function DashboardHomeOverview() {
             </div>
           </article>
 
-          <article className="rounded-xl bg-white p-5">
+          <article className="rounded-2xl bg-white p-4">
             <div className="mb-4 flex items-center justify-between gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#fff7e6] text-[#ff9f00]">
                 <LinearStar className="h-6 w-6" />
@@ -246,7 +245,7 @@ export function DashboardHomeOverview() {
 
 function AgencyRankingScoreCard() {
   return (
-    <article className="rounded-[24px] bg-white px-5 pb-6 pt-6">
+    <article className="rounded-2xl bg-white p-4">
       <h2 className="m-0 text-right text-xl font-black leading-8 text-[#1a1a1a]">
         رتبه و امتیاز آژانس
       </h2>
@@ -327,33 +326,42 @@ function ProgressLineChartCard({
     trendTone === "positive" ? "text-[#11a366]" : "text-[#ee3623]";
 
   return (
-    <article className="overflow-hidden rounded-[24px] bg-white px-7 pb-8 pt-8">
+    <article className="overflow-hidden rounded-2xl bg-white p-6">
       <div className="flex items-start justify-between gap-4">
-        <button
-          className="inline-flex items-center gap-3 rounded-lg bg-transparent px-0 py-1 text-sm font-semibold text-[#1a1a1a]"
-          type="button"
-        >
-          <span
-            aria-hidden="true"
-            className="h-2 w-2 rotate-45 border-b border-r border-[#303030]"
-          />
-          در سال
-        </button>
-
         <div className="text-right">
           <h2 className="m-0 text-base font-black leading-8 text-[#1a1a1a]">
             {title}
           </h2>
           <p
-            className={`m-0 mt-2 inline-flex items-center justify-end gap-1 text-sm font-medium leading-6 ${trendClassName}`}
+            className={`m-0 inline-flex items-center justify-end gap-1 text-sm font-medium leading-6 ${trendClassName}`}
           >
             <LinearChartUp
-              className={`h-4 w-4 ${trendTone === "negative" ? "rotate-180" : ""}`}
+              className={`h-6 w-6 ${trendTone === "negative" ? "rotate-180" : ""}`}
             />
             <strong className="font-black">{trendValue}</strong>
             <span className="text-[#808080]">{trendLabel}</span>
           </p>
         </div>
+        <button
+          className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
+          type="button"
+        >
+          در سال
+          <svg
+            className="h-4 w-4 text-[#4d4d4d]"
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 9l-7 7-7-7"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+            />
+          </svg>
+        </button>
       </div>
 
       <ScrollableProgressLineChart tooltip={tooltip} />
@@ -450,31 +458,44 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
 
 function PublishedAgencyAdsCard() {
   return (
-    <article className="rounded-[24px] bg-white px-7 pb-8 pt-9">
-      <div className="mb-12 flex items-start justify-between gap-4">
-        <div className="text-right">
-          <h2 className="m-0 font-semibold leading-8 text-[#1a1a1a]">
+    <article className="rounded-2xl bg-white p-4">
+      <div className="mb-7 grid gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             آگهی منتشر شده در آژانس
           </h2>
-          <p className="m-0 mt-2 text-lg font-medium leading-7 text-[#666666]">
-            <span className="ml-3 font-black text-[#0048c4]">۱۸۳</span>
-            آگهی ثبت شده
-          </p>
+          <button
+            className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
+            type="button"
+          >
+            <span className="text-xs font-medium text-[#1a1a1a]">در ماه</span>
+            <svg
+              className="h-4 w-4 text-[#4d4d4d]"
+              fill="none"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19 9l-7 7-7-7"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </button>
         </div>
-
-        <button
-          className="inline-flex items-center gap-3 rounded-lg bg-transparent px-0 py-1 text-sm font-semibold text-[#1a1a1a]"
-          type="button"
-        >
-          <span
-            aria-hidden="true"
-            className="h-2 w-2 rotate-45 border-b border-r border-[#303030]"
-          />
-          در ماه
-        </button>
+        <div className="flex items-center justify-start gap-2">
+          <span className="rounded bg-[#0048c414] px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+            ۱۸۳
+          </span>
+          <span className="text-sm font-normal text-[#4d4d4d]">
+            آگهی ثبت شده
+          </span>
+        </div>
       </div>
 
-      <div className="mx-auto h-[220px] max-w-[220px]" dir="ltr">
+      <div className="mx-auto h-[143px] max-w-[143px]" dir="ltr">
         <ResponsiveContainer height="100%" width="100%">
           <PieChart>
             <Pie
@@ -499,7 +520,7 @@ function PublishedAgencyAdsCard() {
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-16 grid grid-cols-3 gap-4 text-center">
+      <div className="mt-8 flex justify-center px-1">
         {adTypeData.map((item) => (
           <PublishedAdsLegendItem
             color={item.color}
@@ -527,52 +548,63 @@ function ConsultantActivityCard() {
   }
 
   return (
-    <article className="overflow-hidden rounded-[24px] bg-white px-7 pb-6 pt-8">
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <button
-          className="inline-flex items-center gap-3 rounded-lg bg-transparent px-0 py-1 text-sm font-semibold text-[#1a1a1a]"
-          type="button"
-        >
-          <span
-            aria-hidden="true"
-            className="h-2 w-2 rotate-45 border-b border-r border-[#303030]"
-          />
-          در ماه
-        </button>
-
-        <div className="text-right">
-          <h2 className="m-0 text-2xl font-black leading-8 text-[#1a1a1a]">
+    <article className="overflow-hidden rounded-2xl bg-white p-4">
+      <div className="mb-7 grid gap-2">
+        <div className="flex items-center justify-between">
+          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             فعالیت مشاورین
           </h2>
-          <p className="m-0 mt-4 text-lg font-medium leading-7 text-[#666666]">
-            <span className="ml-3 font-black text-[#0048c4]">۳۲۵</span>
+          <button
+            className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
+            type="button"
+          >
+            <span className="text-xs font-medium text-[#1a1a1a]">در ماه</span>
+            <svg
+              className="h-4 w-4 text-[#4d4d4d]"
+              fill="none"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19 9l-7 7-7-7"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className="flex items-center justify-start gap-2">
+          <span className="rounded bg-[#0048c414] px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+            ۳۲۵
+          </span>
+          <span className="text-sm font-normal text-[#4d4d4d]">
             آگهی ثبت شده
-          </p>
+          </span>
         </div>
       </div>
 
       <div className="mb-4 flex items-center justify-between px-1">
         <button
           aria-label="قبلی"
-          className="grid h-8 w-8 place-items-center rounded-full text-[#303030]"
+          className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition hover:bg-[#f5f7fb]"
           onClick={() => scrollConsultantChart("previous")}
           type="button"
         >
-          <span
-            aria-hidden="true"
-            className="h-2.5 w-2.5 rotate-45 border-b border-l border-[#303030]"
-          />
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+          </svg>
         </button>
         <button
           aria-label="بعدی"
-          className="grid h-8 w-8 place-items-center rounded-full text-[#303030]"
+          className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition hover:bg-[#f5f7fb]"
           onClick={() => scrollConsultantChart("next")}
           type="button"
         >
-          <span
-            aria-hidden="true"
-            className="h-2.5 w-2.5 rotate-45 border-r border-t border-[#303030]"
-          />
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 5l7 7-7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+          </svg>
         </button>
       </div>
 
@@ -611,7 +643,7 @@ function ConsultantActivityCard() {
                 tickFormatter={(value) => formatNumber(value)}
                 tickLine={false}
                 ticks={[0, 20, 40, 60, 80, 100]}
-                width={36}
+                width={50}
               />
               <Tooltip
                 contentStyle={{
@@ -671,7 +703,7 @@ function DashboardMetricCard({ metric }: { metric: DashboardMetric }) {
   const tone = toneClasses[metric.tone];
 
   return (
-    <article className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-none">
+    <article className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-none">
       <span
         className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1 ${tone.bg} ${tone.icon} ${tone.ring}`}
       >
@@ -720,16 +752,18 @@ function PublishedAdsLegendItem({
   value: string;
 }) {
   return (
-    <div className="grid justify-items-center gap-4">
-      <span className="inline-flex items-center justify-center gap-2 text-base font-medium leading-6 text-[#4d4d4d]">
-        {label}
+    <div className="w-[28%] flex flex-col items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <span
           aria-hidden="true"
-          className="h-4 w-4 rounded-full"
+          className="h-2.5 w-2.5 rounded-full"
           style={{ backgroundColor: color }}
         />
-      </span>
-      <strong className="text-[26px] font-black leading-8 text-[#1a1a1a]">
+        <span className="text-xs font-normal text-[#4d4d4d] text-nowrap">
+          {label}
+        </span>
+      </div>
+      <strong className="text-base font-semibold text-[#1a1a1a]">
         {value}
       </strong>
     </div>

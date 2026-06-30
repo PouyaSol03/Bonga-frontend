@@ -106,15 +106,6 @@ function AccountRoleRedirect() {
   return createElement(MyAccountPage)
 }
 
-function DashboardRedirect() {
-  useEffect(() => {
-    window.history.replaceState({}, '', DASHBOARD_PATH)
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  }, [])
-
-  return null
-}
-
 export type AppRoute = {
   authority?: string[]
   layout?: 'dashboard'
@@ -258,7 +249,9 @@ export const routes: AppRoute[] = [
   {
     path: '/account/dashboard',
     title: 'داشبورد',
-    Component: DashboardRedirect,
+    Component: DashboardHomePage,
+    requiresAuth: true,
+    requiresNonUser: true,
   },
   {
     path: DASHBOARD_PATH,

@@ -4,9 +4,13 @@ import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-stora
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
+import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar } from '../components/TopBar'
+import { USER } from '../constants/roles.constants'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
 import { canAccessRoute, DASHBOARD_PATH, LOGIN_PATH, routes, type AppRoute } from './routes'
+
+const desktopDashboardMediaQuery = '(min-width: 501px)'
 
 function lazyNamed<TModule extends Record<string, unknown>>(
   loader: () => Promise<TModule>,
@@ -40,8 +44,17 @@ function hasStoredCity() {
   )
 }
 
+function isDesktopDashboardViewport() {
+  return window.matchMedia(desktopDashboardMediaQuery).matches
+}
+
+function shouldUseDesktopDashboard(session: ReturnType<typeof getStoredAuthSession>) {
+  return Boolean(session && session.role !== USER && isDesktopDashboardViewport())
+}
+
 function getResolvedPath() {
   const path = getCurrentPath()
+  const session = getStoredAuthSession()
 
   if (path === '/' && hasStoredCity()) {
     window.history.replaceState({}, '', '/home')
@@ -55,7 +68,11 @@ function getResolvedPath() {
   }
 
   const route = getRoute(path)
-  const session = getStoredAuthSession()
+
+  if ((path === '/account' || path === '/account/dashboard') && shouldUseDesktopDashboard(session)) {
+    window.history.replaceState({}, '', DASHBOARD_PATH)
+    return DASHBOARD_PATH
+  }
 
   if (!canAccessRoute(route, session)) {
     if (!session) {
@@ -77,24 +94,6 @@ type AppChromeConfig = {
   frameClassName?: string
   header?: ReactNode
   wrapInShell: boolean
-}
-
-function NotificationIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="M17.5 10a5.5 5.5 0 0 0-11 0v3.5l-1.5 2h14l-1.5-2V10Z" />
-      <path d="M9.75 18a2.35 2.35 0 0 0 4.5 0" />
-    </svg>
-  )
 }
 
 function getBottomNavigationKey(path: string) {
@@ -128,7 +127,7 @@ function getRouteHeader(path: string, title: string) {
           {
             icon: (
               <span className="relative grid h-6 w-6 place-items-center">
-                <NotificationIcon className="h-6 w-6" />
+                <LinearNotification className="h-6 w-6" />
                 <span
                   aria-hidden="true"
                   className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
@@ -168,6 +167,16 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
     return {
       bottomNavigationKey,
       frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]',
+      wrapInShell: true,
+    }
+  }
+
+  if (path === '/account/dashboard') {
+    return {
+      bottomNavigationKey,
+      contentClassName: 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden',
+      frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
+      header,
       wrapInShell: true,
     }
   }
@@ -230,10 +239,18 @@ export function AppRouter() {
       window.scrollTo({ top: 0 })
     }
 
+    function handleViewportChange() {
+      setPath(getResolvedPath())
+    }
+
+    const desktopDashboardMedia = window.matchMedia(desktopDashboardMediaQuery)
+
     window.addEventListener('popstate', handleNavigation)
+    desktopDashboardMedia.addEventListener('change', handleViewportChange)
 
     return () => {
       window.removeEventListener('popstate', handleNavigation)
+      desktopDashboardMedia.removeEventListener('change', handleViewportChange)
     }
   }, [])
 

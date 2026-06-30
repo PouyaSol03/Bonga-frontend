@@ -1,0 +1,20 @@
+import React from 'react';
+
+interface LinearBookmarkSolidProps extends React.SVGProps<SVGSVGElement> {}
+
+const LinearBookmarkSolid: React.FC<LinearBookmarkSolidProps> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    {...props}
+  >
+    
+
+    <path xmlns="http://www.w3.org/2000/svg" d="M18.25 5C18.25 4.74392 18.1145 4.42501 17.8447 4.15527C17.575 3.88553 17.2561 3.75 17 3.75H7C6.74392 3.75 6.42501 3.88553 6.15527 4.15527C5.88553 4.42501 5.75 4.74392 5.75 5V19.707L11.6279 16.3486L11.7168 16.3057C11.9285 16.2193 12.1704 16.2334 12.3721 16.3486L18.25 19.707V5ZM19.75 21C19.75 21.2674 19.6072 21.5142 19.376 21.6484C19.1448 21.7825 18.86 21.7839 18.6279 21.6514L12 17.8633L5.37207 21.6514C5.14004 21.7839 4.85518 21.7825 4.62402 21.6484C4.39279 21.5142 4.25 21.2674 4.25 21V5C4.25 4.25608 4.61447 3.57499 5.09473 3.09473C5.57499 2.61447 6.25608 2.25 7 2.25H17C17.7439 2.25 18.425 2.61447 18.9053 3.09473C19.3855 3.57499 19.75 4.25608 19.75 5V21Z" fill="currentColor"/>
+    
+
+  </svg>
+);
+
+export default LinearBookmarkSolid;

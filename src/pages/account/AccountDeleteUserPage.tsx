@@ -49,7 +49,7 @@ export function AccountDeleteUserPage() {
             برای حذف این کسب و کار همه موارد زیر را به دقت مطالعه کنید:
           </p>
 
-          <div className="rounded-2xl border border-[#808080] bg-[#80808014] px-4 py-4">
+          <div className="rounded-2xl border border-[#808080] bg-[#80808014] p-4">
             <p className="m-0 text-sm text-[#1A1A1A]">
               با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های مرتبط با این کسب‌وکار به‌صورت دائمی حذف خواهند شد و امکان بازیابی آن‌ها وجود نخواهد داشت.
             </p>
@@ -61,7 +61,7 @@ export function AccountDeleteUserPage() {
             type="button"
           >
             <ConfirmCheckIcon checked={isConfirmed} />
-            <span>موارد بالا را مطالعه کردم و حذف حساب را تایید می‌کنم.</span>
+            <span>تمامی موارد فوق را تایید میکنم</span>
           </button>
         </section>
       </main>
@@ -74,7 +74,7 @@ export function AccountDeleteUserPage() {
             onClick={() => navigateTo("/login/phone")}
             type="button"
           >
-            حذف حساب
+            تایید حذف
           </button>
           <button
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#CCCCCC] bg-white px-4 text-sm font-semibold leading-5 text-[#1a1a1a]"

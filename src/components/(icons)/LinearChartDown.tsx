@@ -1,0 +1,20 @@
+import React from 'react';
+
+interface LinearChartDownProps extends React.SVGProps<SVGSVGElement> {}
+
+const LinearChartDown: React.FC<LinearChartDownProps> = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    {...props}
+  >
+    
+
+    <path xmlns="http://www.w3.org/2000/svg" d="M18.75 12C18.75 11.5858 18.4142 11.25 18 11.25C17.5858 11.25 17.25 11.5858 17.25 12V13.9287L13.5762 9.51953C13.4413 9.35782 13.2445 9.26057 13.0342 9.25098C12.8237 9.24143 12.6187 9.32072 12.4697 9.46973L10.0625 11.877L6.58592 7.53125C6.32717 7.2078 5.85468 7.15531 5.53124 7.41406C5.20779 7.67282 5.15529 8.1453 5.41405 8.46875L9.41405 13.4688C9.54732 13.6353 9.74596 13.7372 9.95897 13.749C10.1718 13.7607 10.3795 13.681 10.5303 13.5303L12.9492 11.1113L16.3984 15.25H14.0996C13.6856 15.2502 13.3496 15.5859 13.3496 16C13.3496 16.4141 13.6856 16.7498 14.0996 16.75H18C18.4142 16.75 18.75 16.4142 18.75 16V12Z" fill="currentColor"/>
+    
+
+  </svg>
+);
+
+export default LinearChartDown;

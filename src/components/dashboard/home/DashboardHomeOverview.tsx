@@ -1,10 +1,12 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -19,12 +21,9 @@ import LinearClock from "../../(icons)/LinearClock";
 import LinearRanking from "../../(icons)/LinearRanking";
 import LinearStar from "../../(icons)/LinearStar";
 import LinearStartup from "../../(icons)/LinearStartup";
-import LinearViewOn from "../../(icons)/LinearViewOn";
 import {
   adTypeData,
   consultantActivityData,
-  consultantRanks,
-  dashboardActivities,
   dashboardMetrics,
   type DashboardMetric,
   type DashboardMetricTone,
@@ -72,12 +71,6 @@ const trendClasses = {
   negative: "text-[#c11004]",
   neutral: "text-[#808080]",
   positive: "text-[#11a366]",
-};
-
-const activityToneClasses = {
-  amber: "bg-[#fff7e6] text-[#a76600]",
-  blue: "bg-[#eef4ff] text-[#0048c4]",
-  green: "bg-[#eaf8f3] text-[#11a366]",
 };
 
 const chartNameMap: Record<string, string> = {
@@ -132,7 +125,7 @@ function formatNumber(value: number | string) {
 
 export function DashboardHomeOverview() {
   return (
-    <div className="grid gap-4 bg-[#f0f0f0] p-4">
+    <div className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4">
       <section className="grid gap-4">
         {dashboardMetrics.map((metric) => (
           <DashboardMetricCard key={metric.id} metric={metric} />
@@ -162,82 +155,6 @@ export function DashboardHomeOverview() {
           />
           <AgencyRankingScoreCard />
         </div>
-
-        <div className="grid gap-4">
-          <article className="rounded-2xl bg-white p-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
-                <LinearViewOn className="h-6 w-6" />
-              </span>
-              <div className="text-right">
-                <h2 className="m-0 text-base font-bold text-[#1a1a1a]">
-                  خلاصه فعالیت
-                </h2>
-                <p className="m-0 mt-1 text-xs font-semibold text-[#808080]">
-                  وضعیت امروز آژانس
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              {dashboardActivities.map((activity) => (
-                <div
-                  className="flex items-center justify-between rounded-xl border border-[#f0f0f0] px-4 py-3"
-                  key={activity.label}
-                >
-                  <span
-                    className={`rounded-lg px-3 py-1 text-sm font-black ${activityToneClasses[activity.tone]}`}
-                  >
-                    {activity.amount}
-                  </span>
-                  <span className="text-sm font-semibold text-[#303030]">
-                    {activity.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="rounded-2xl bg-white p-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#fff7e6] text-[#ff9f00]">
-                <LinearStar className="h-6 w-6" />
-              </span>
-              <div className="text-right">
-                <h2 className="m-0 text-base font-bold text-[#1a1a1a]">
-                  مشاورین برتر
-                </h2>
-                <p className="m-0 mt-1 text-xs font-semibold text-[#808080]">
-                  بر اساس امتیاز عملکرد
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              {consultantRanks.map((consultant, index) => (
-                <div
-                  className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-xl border border-[#f0f0f0] px-3 py-3"
-                  key={consultant.name}
-                >
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#f5f7fb] text-sm font-black text-[#0048c4]">
-                    {formatNumber(index + 1)}
-                  </span>
-                  <div className="min-w-0 text-right">
-                    <p className="m-0 truncate text-sm font-bold text-[#1a1a1a]">
-                      {consultant.name}
-                    </p>
-                    <p className="m-0 mt-1 truncate text-xs font-medium text-[#808080]">
-                      {consultant.status}، {formatNumber(consultant.ads)} آگهی
-                    </p>
-                  </div>
-                  <strong className="text-sm font-black text-[#11a366]">
-                    {formatNumber(consultant.score)}
-                  </strong>
-                </div>
-              ))}
-            </div>
-          </article>
-        </div>
       </section>
     </div>
   );
@@ -246,39 +163,41 @@ export function DashboardHomeOverview() {
 function AgencyRankingScoreCard() {
   return (
     <article className="rounded-2xl bg-white p-4">
-      <h2 className="m-0 text-right text-xl font-black leading-8 text-[#1a1a1a]">
+      <h2 className="m-0 text-right font-semibold text-[#1a1a1a]">
         رتبه و امتیاز آژانس
       </h2>
 
-      <div className="mt-5 grid grid-cols-2 gap-4" dir="rtl">
+      <div className="mt-5 grid grid-cols-2 gap-4 items-center" dir="rtl">
         <AgencyRankMetric
-          icon={<LinearRanking className="h-6 w-6" />}
+          icon={<LinearRanking className="h-5 w-5" />}
           label="رتبه"
           value="۶۷"
         />
         <AgencyRankMetric
-          icon={<LinearStar className="h-6 w-6" />}
+          icon={<LinearStar className="h-5 w-5" />}
           label="امتیاز"
           value="۸۵"
         />
       </div>
 
-      <div className="mt-6 grid gap-2">
-        <div className="grid grid-cols-[56px_minmax(0,1fr)] items-center px-3 text-xs font-medium leading-5 text-[#666666]">
-          <span className="text-left">امتیاز</span>
-          <span className="text-right">۱۰ آژانس برتر</span>
+      <div className="mt-5 grid gap-2">
+        <div className="flex justify-between items-center text-[#4D4D4D] px-2">
+          <span className="text-sm font-medium">۱۰ آژانس برتر</span>
+          <span className="text-xs">امتیاز</span>
         </div>
+
+        <div className="w-[95%] bg-[#CCCCCC] h-px mx-auto" />
 
         {agencyRankingRows.map((agency) => (
           <div
-            className="grid min-h-[36px] grid-cols-[56px_minmax(0,1fr)] items-center rounded-xl bg-[#f7f7f7] px-3 text-sm font-semibold leading-6"
+            className="flex p-2 items-center justify-between rounded-xl bg-transparent odd:bg-[#CCCCCC1F] px-3 text-sm font-semibold leading-6"
             key={`${agency.rank}-${agency.name}`}
           >
-            <span className="text-left font-black text-[#11a366]">
-              {formatNumber(agency.score)}
-            </span>
-            <span className="truncate text-right text-[#1a1a1a]">
+            <span className="w-fit text-right text-[#1a1a1a]">
               {formatNumber(agency.rank)}. {agency.name}
+            </span>
+            <span className="w-fit text-sm text-[#11a366]">
+              {formatNumber(agency.score)}
             </span>
           </div>
         ))}
@@ -297,14 +216,14 @@ function AgencyRankMetric({
   value: string;
 }) {
   return (
-    <div className="flex h-[54px] items-center justify-between gap-2 rounded-2xl bg-[#f7f7f7] px-4">
-      <strong className="text-lg font-black leading-7 text-[#11a366]">
+    <div className="flex p-4 items-center justify-between gap-2 rounded-2xl bg-[#f7f7f7] px-4">
+      <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-[#1a1a1a]">
+        <span className="text-[#4d4d4d]">{icon}</span>
+        <span className="text-sm font-medium">{label}</span>
+      </span>
+      <strong className="font-semibold leading-7 text-[#11a366]">
         {value}
       </strong>
-      <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-[#1a1a1a]">
-        <span className="truncate">{label}</span>
-        <span className="text-[#4d4d4d]">{icon}</span>
-      </span>
     </div>
   );
 }
@@ -329,17 +248,17 @@ function ProgressLineChartCard({
     <article className="overflow-hidden rounded-2xl bg-white p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="text-right">
-          <h2 className="m-0 text-base font-black leading-8 text-[#1a1a1a]">
+          <h2 className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
             {title}
           </h2>
           <p
             className={`m-0 inline-flex items-center justify-end gap-1 text-sm font-medium leading-6 ${trendClassName}`}
           >
             <LinearChartUp
-              className={`h-6 w-6 ${trendTone === "negative" ? "rotate-180" : ""}`}
+              className={`h-6 w-6 ${trendTone === "negative" ? "scale-y-[-1]" : ""}`}
             />
-            <strong className="font-black">{trendValue}</strong>
-            <span className="text-[#808080]">{trendLabel}</span>
+            <strong className="font-semibold">{trendValue}</strong>
+            <span className="text-[#808080] text-sm font-normal">{trendLabel}</span>
           </p>
         </div>
         <button
@@ -369,90 +288,173 @@ function ProgressLineChartCard({
   );
 }
 
+const progressChartHeight = 252;
+const progressChartXAxisY = 170;
+const defaultSelectedProgressMonth = "تیر";
+
+const progressData = [
+  { month: "فروردین", value: 35 },
+  { month: "اردیبهشت", value: 54 },
+  { month: "خرداد", value: 43 },
+  { month: "تیر", value: 76 },
+  { month: "مرداد", value: 58 },
+  { month: "شهریور", value: 60 },
+  { month: "مهر", value: 45 },
+  { month: "آبان", value: 80 },
+  { month: "آذر", value: 78 },
+  { month: "دی", value: 81 },
+  { month: "بهمن", value: 68 },
+  { month: "اسفند", value: 82 },
+];
+
 function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(
+    defaultSelectedProgressMonth,
+  );
+
   return (
     <div
-      className="mx-auto mt-7 max-w-full overflow-x-auto overscroll-x-contain scroll-smooth"
+      className="mx-auto mt-7 max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [&_.recharts-surface]:outline-none [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
       dir="ltr"
       style={{ width: progressChartViewportWidth }}
     >
       <div style={{ width: progressChartWidth }}>
-        <svg
-          aria-hidden="true"
-          className="block h-[210px] overflow-visible"
-          style={{ width: progressChartWidth }}
-          viewBox={`0 0 ${progressChartWidth} 210`}
+        <LineChart
+          width={progressChartWidth}
+          height={progressChartHeight}
+          data={progressData}
+          margin={{ top: 58, right: 10, bottom: 10, left: -20 }}
+          tabIndex={-1}
         >
-          {[20, 60, 100, 140, 180].map((y, index) => (
-            <g key={y}>
-              <path
-                d={`M${progressChartAxisWidth} ${y}H${progressChartWidth - 4}`}
-                stroke="#e8e8e8"
-                strokeDasharray="4 5"
-              />
-              <text fill="#808080" fontSize="10" x="0" y={y + 4}>
-                {formatNumber(100 - index * 20)}
-              </text>
-            </g>
-          ))}
-          <path
-            d="M28 150 C42 130 48 108 62 112 C76 116 78 135 91 134 C104 132 109 65 124 68 C141 70 145 101 158 105 C170 108 181 96 191 101 C206 110 208 128 221 130 C235 132 238 67 251 60 C261 56 266 68 276 65 C291 60 300 52 310 58 C322 65 330 86 344 84 C358 82 365 60 378 56 C390 53 398 62 405 58"
-            fill="none"
+          <CartesianGrid
+            vertical={false}
+            stroke="#e8e8e8"
+            strokeDasharray="4 5"
+          />
+
+          <XAxis
+            dataKey="month"
+            axisLine={false}
+            tickLine={false}
+            interval={0}
+            height={74}
+            tick={<ProgressMonthTick />}
+          />
+
+          <YAxis
+            domain={[20, 100]}
+            ticks={[20, 40, 60, 80, 100]}
+            axisLine={false}
+            tickLine={false}
+            tick={{
+              fill: "#808080",
+              fontSize: 10,
+            }}
+          />
+
+          <Line
+            type="natural"
+            dataKey="value"
             stroke="#0048c4"
+            strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth="2.5"
+            dot={(props) => (
+              <ProgressChartDot
+                {...props}
+                selectedMonth={selectedMonth}
+                tooltip={tooltip}
+                onSelect={setSelectedMonth}
+              />
+            )}
+            activeDot={false}
+            isAnimationActive={false}
           />
-          <path d="M124 68V190" stroke="#0048c4" strokeDasharray="5 4" />
-          {[
-            ["28", 150],
-            ["62", 112],
-            ["91", 134],
-            ["124", 68],
-            ["158", 105],
-            ["191", 101],
-            ["221", 130],
-            ["251", 60],
-            ["276", 65],
-            ["310", 58],
-            ["344", 84],
-            ["378", 56],
-          ].map(([x, y]) => (
-            <circle
-              cx={Number(x)}
-              cy={Number(y)}
-              fill="#ffffff"
-              key={String(x)}
-              r="5"
-              stroke="#0048c4"
-              strokeWidth="2"
-            />
-          ))}
-          <circle cx="124" cy="68" fill="#0048c4" r="6" />
-          <path
-            d="M98 48a8 8 0 0 1 8-8h36a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8h-11l-7 7-7-7h-11a8 8 0 0 1-8-8V48Z"
-            fill="#4d4d4d"
-          />
-          <text fill="#ffffff" fontSize="11" textAnchor="middle" x="124" y="59">
-            {tooltip}
-          </text>
-        </svg>
-
-        <div
-          className="mt-1 grid gap-0 text-center text-[10px] font-medium leading-4 text-[#4d4d4d]"
-          style={{
-            gridTemplateColumns: `${progressChartAxisWidth}px repeat(${progressChartMonths.length}, ${progressChartMonthWidth}px)`,
-          }}
-        >
-          <span aria-hidden="true" />
-          {progressChartMonths.map((month) => (
-            <span className="[writing-mode:vertical-rl]" key={month}>
-              {month}
-            </span>
-          ))}
-        </div>
+        </LineChart>
       </div>
     </div>
+  );
+}
+function ProgressChartDot(props: any) {
+  const { cx, cy, payload, selectedMonth, tooltip, onSelect } = props;
+
+  const isSelected = selectedMonth === payload.month;
+  const tooltipText = isSelected ? tooltip : `${formatNumber(payload.value)} آگهی`;
+
+  return (
+    <g>
+      {isSelected && (
+        <>
+          <line
+            x1={cx}
+            y1={cy + 7}
+            x2={cx}
+            y2={progressChartXAxisY}
+            stroke="#0048c4"
+            strokeDasharray="5 4"
+          />
+
+          <path
+            d={`M${cx - 26} ${cy - 46}
+              a8 8 0 0 1 8-8
+              h36
+              a8 8 0 0 1 8 8
+              v14
+              a8 8 0 0 1-8 8
+              h-11
+              l-7 7
+              l-7-7
+              h-11
+              a8 8 0 0 1-8-8
+              v-14Z`}
+            fill="#4d4d4d"
+          />
+
+          <text
+            x={cx}
+            y={cy - 35}
+            fill="#ffffff"
+            fontSize="11"
+            textAnchor="middle"
+          >
+            {tooltipText}
+          </text>
+        </>
+      )}
+
+      <circle
+        cx={cx}
+        cy={cy}
+        r={isSelected ? 6 : 5}
+        fill={isSelected ? "#0048c4" : "#ffffff"}
+        stroke="#0048c4"
+        strokeWidth="2"
+        tabIndex={-1}
+        focusable="false"
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => onSelect(payload.month)}
+        style={{ cursor: "pointer", outline: "none" }}
+      />
+    </g>
+  );
+}
+
+function ProgressMonthTick(props: any) {
+  const { x, y, payload } = props;
+
+  return (
+    <g transform={`translate(${x}, ${y + 28})`}>
+      <text
+        fill="#4d4d4d"
+        fontSize="12"
+        fontWeight="500"
+        textAnchor="start"
+        dominantBaseline="middle"
+        transform="rotate(90)"
+      >
+        {payload.value}
+      </text>
+    </g>
   );
 }
 

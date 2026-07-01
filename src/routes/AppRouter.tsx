@@ -8,7 +8,14 @@ import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar } from '../components/TopBar'
 import { USER } from '../constants/roles.constants'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
-import { canAccessRoute, DASHBOARD_PATH, LOGIN_PATH, routes, type AppRoute } from './routes'
+import {
+  canAccessRoute,
+  DASHBOARD_PATH,
+  LEGACY_DASHBOARD_PATH,
+  LOGIN_PATH,
+  routes,
+  type AppRoute,
+} from './routes'
 
 const desktopDashboardMediaQuery = '(min-width: 501px)'
 
@@ -52,9 +59,26 @@ function shouldUseDesktopDashboard(session: ReturnType<typeof getStoredAuthSessi
   return Boolean(session && session.role !== USER && isDesktopDashboardViewport())
 }
 
+function getCanonicalDashboardPath(path: string) {
+  if (path === LEGACY_DASHBOARD_PATH) {
+    return DASHBOARD_PATH
+  }
+
+  if (path.startsWith(`${LEGACY_DASHBOARD_PATH}/`)) {
+    return `${DASHBOARD_PATH}${path.slice(LEGACY_DASHBOARD_PATH.length)}`
+  }
+
+  return path
+}
+
 function getResolvedPath() {
-  const path = getCurrentPath()
+  const currentPath = getCurrentPath()
+  const path = getCanonicalDashboardPath(currentPath)
   const session = getStoredAuthSession()
+
+  if (path !== currentPath) {
+    window.history.replaceState(window.history.state ?? {}, '', path)
+  }
 
   if (path === '/' && hasStoredCity()) {
     window.history.replaceState({}, '', '/home')
@@ -69,7 +93,7 @@ function getResolvedPath() {
 
   const route = getRoute(path)
 
-  if ((path === '/account' || path === '/account/dashboard') && shouldUseDesktopDashboard(session)) {
+  if (path === '/account' && shouldUseDesktopDashboard(session)) {
     window.history.replaceState({}, '', DASHBOARD_PATH)
     return DASHBOARD_PATH
   }
@@ -260,7 +284,7 @@ export function AppRouter() {
     </Suspense>
   )
 
-  if (route.layout === 'dashboard' && authSession) {
+  if (route.layout === 'dashboard' && authSession && isDesktopDashboardViewport()) {
     return (
       <DashboardLayout
         activePath={path}

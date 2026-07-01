@@ -76,7 +76,8 @@ const BusinessInfoPage = lazyNamed(() => import('../pages/account/BusinessCreati
 const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'IndependentConsultantBusinessCreationPage')
 
 export const LOGIN_PATH = '/login/phone'
-export const DASHBOARD_PATH = '/dashboard'
+export const DASHBOARD_PATH = '/account/dashboard'
+export const LEGACY_DASHBOARD_PATH = '/dashboard'
 
 function LoginRedirect() {
   useEffect(() => {
@@ -250,19 +251,12 @@ export const routes: AppRoute[] = [
     path: '/account/dashboard',
     title: 'داشبورد',
     Component: DashboardHomePage,
-    requiresAuth: true,
-    requiresNonUser: true,
-  },
-  {
-    path: DASHBOARD_PATH,
-    title: 'داشبورد',
-    Component: DashboardHomePage,
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/ranking',
+    path: `${DASHBOARD_PATH}/ranking`,
     title: 'شناساها و رتبه',
     Component: DashboardRankingPage,
     layout: 'dashboard',
@@ -270,7 +264,7 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/agency',
+    path: `${DASHBOARD_PATH}/agency`,
     title: 'صفحه آژانس',
     Component: DashboardAgencyPage,
     layout: 'dashboard',
@@ -278,7 +272,7 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/ads',
+    path: `${DASHBOARD_PATH}/ads`,
     title: 'مدیریت آگهی‌ها',
     Component: DashboardAdsPage,
     layout: 'dashboard',
@@ -286,7 +280,7 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/requests',
+    path: `${DASHBOARD_PATH}/requests`,
     title: 'درخواست‌ها',
     Component: DashboardRequestsPage,
     authority: ['real_estate_manager', 'independent_consultant'],
@@ -295,7 +289,7 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/team',
+    path: `${DASHBOARD_PATH}/team`,
     title: 'تیم و مشاوران',
     Component: DashboardTeamPage,
     authority: ['real_estate_manager'],
@@ -304,7 +298,7 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/payments',
+    path: `${DASHBOARD_PATH}/payments`,
     title: 'پرداخت‌ها',
     Component: DashboardPaymentsPage,
     layout: 'dashboard',
@@ -312,7 +306,7 @@ export const routes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
-    path: '/dashboard/messages',
+    path: `${DASHBOARD_PATH}/messages`,
     title: 'پیام‌ها',
     Component: DashboardMessagesPage,
     layout: 'dashboard',
@@ -353,6 +347,11 @@ export const routes: AppRoute[] = [
     path: '/account/ranking/badges/time',
     title: 'جزئیات نشان',
     Component: IndependentConsultantTimeBadgePage,
+  },
+  {
+    path: '/account/manage-ads',
+    title: 'مدیریت آگهی‌ها',
+    Component: IndependentConsultantAdManagementPage,
   },
   {
     path: '/account/ad-management',

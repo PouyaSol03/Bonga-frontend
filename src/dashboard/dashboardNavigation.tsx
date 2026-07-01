@@ -5,6 +5,7 @@ import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
 } from "../constants/roles.constants";
+import { DASHBOARD_PATH } from "../routes/routes";
 
 export type DashboardNavItem = {
   allowedRoles: string[];
@@ -18,19 +19,19 @@ export const dashboardNavigationItems: DashboardNavItem[] = [
     allowedRoles: DASHBOARD_ROLES,
     icon: HomeIcon,
     label: "مدیریت سیستم",
-    path: "/dashboard",
+    path: DASHBOARD_PATH,
   },
   {
     allowedRoles: DASHBOARD_ROLES,
     icon: RankingIcon,
     label: "شناساها و رتبه",
-    path: "/dashboard/ranking",
+    path: `${DASHBOARD_PATH}/ranking`,
   },
   {
     allowedRoles: DASHBOARD_ROLES,
     icon: CityIcon,
     label: "صفحه آژانس",
-    path: "/dashboard/agency",
+    path: `${DASHBOARD_PATH}/agency`,
   },
   {
     allowedRoles: [
@@ -40,31 +41,31 @@ export const dashboardNavigationItems: DashboardNavItem[] = [
     ],
     icon: SellIcon,
     label: "مدیریت آگهی‌ها",
-    path: "/dashboard/ads",
+    path: `${DASHBOARD_PATH}/ads`,
   },
   {
     allowedRoles: [REAL_ESTATE_MANAGER, INDEPENDENT_CONSULTANT],
     icon: RequestIcon,
     label: "مدیریت درخواست‌ها",
-    path: "/dashboard/requests",
+    path: `${DASHBOARD_PATH}/requests`,
   },
   {
     allowedRoles: [REAL_ESTATE_MANAGER],
     icon: EditUserIcon,
     label: "مدیریت مشاورین",
-    path: "/dashboard/team",
+    path: `${DASHBOARD_PATH}/team`,
   },
   {
     allowedRoles: DASHBOARD_ROLES,
     icon: WalletAddIcon,
     label: "افزایش اعتبار",
-    path: "/dashboard/payments",
+    path: `${DASHBOARD_PATH}/payments`,
   },
   {
     allowedRoles: DASHBOARD_ROLES,
     icon: CommentIcon,
     label: "پیام‌ها",
-    path: "/dashboard/messages",
+    path: `${DASHBOARD_PATH}/messages`,
   },
 ];
 

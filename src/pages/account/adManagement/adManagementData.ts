@@ -26,7 +26,7 @@ export const adManagementPaths = {
   filter: "/account/ad-management/filter",
   payment: "/account/ad-management/payment",
   published: "/account/ad-management/published",
-  root: "/account/ad-management",
+  root: "/account/manage-ads",
   search: "/account/ad-management/search",
   statistics: "/account/ad-management/statistics",
   statisticsDetails: "/account/ad-management/statistics/details",

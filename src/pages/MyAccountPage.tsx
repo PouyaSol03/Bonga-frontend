@@ -4,6 +4,7 @@ import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { BottomSheet } from "../components/BottomSheet";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
+import { DASHBOARD_PATH } from "../routes/routes";
 import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useLogoutMutation } from "../hooks/auth.hooks";
 import { formatMobileForDisplay } from "../services/auth.service";
@@ -22,29 +23,31 @@ import {
 import { currentAccountUserType } from "./account/accountUserType";
 import LinearRealestate from "../components/(icons)/LinearRealestate";
 import LinearSupport from "../components/(icons)/LinearSupport";
-import LinearFavourite from "../components/(icons)/LinearFavourite";
 import LinearBuilding from "../components/(icons)/LinearBuilding";
 import Dashboard from "../components/(icons)/Dashboard";
-import LinearPreview from "../components/(icons)/LinearPreview";
 import LinearUserConfirmation from "../components/(icons)/LinearUserConfirmation";
-import LinearAbout from "../components/(icons)/LinearAbout";
 import LinearLegal from "../components/(icons)/LinearLegal";
 import LinearLogin from "../components/(icons)/LinearLogin";
 import LinearDocument from "../components/(icons)/LinearDocument";
 import LinearAdd from "../components/(icons)/LinearAdd";
 import LinearRanking from "../components/(icons)/LinearRanking";
-import LinearSettingBuilding from "../components/(icons)/LinearSettingBuilding";
 import LinearDelete from "../components/(icons)/LinearDelete";
 import LinearUserSolid from "../components/(icons)/LinearUserSolid";
-import LinearWallet from "../components/(icons)/LinearWallet";
 import LinearWalletAdd from "../components/(icons)/LinearWalletAdd";
 import LinearNotification from "../components/(icons)/LinearNotification";
-import LinearCheckmark from "../components/(icons)/LinearCheckmark";
 import LinearComment from "../components/(icons)/LinearComment";
 import LinearArrowLeft1 from "../components/(icons)/LinearArrowLeft1";
 import LinearTag from "../components/(icons)/LinearTag";
 import LinearRequest from "../components/(icons)/LinearRequest";
 import LinearEditUser from "../components/(icons)/LinearEditUser";
+import LinearViewOn from "../components/(icons)/LinearViewOn";
+import LinearBookmarkSolid from "../components/(icons)/LinearBookmarkSolid";
+import LinearWallet2 from "../components/(icons)/LinearWallet2";
+import LinearSetting2 from "../components/(icons)/LinearSetting2";
+import LinearInformation from "../components/(icons)/LinearInformation";
+import LinearLogout from "../components/(icons)/LinearLogout";
+
+const MANAGE_ADS_PATH = "/account/manage-ads";
 
 type AccountAction = {
   icon: AccountIconName;
@@ -84,32 +87,32 @@ type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 const accountIconMap: Record<AccountIconName, IconComponent> = {
   agency: LinearRealestate,
   headphone: LinearSupport,
-  bookmark: LinearFavourite,
+  bookmark: LinearBookmarkSolid,
   building: LinearBuilding,
   dashboard: Dashboard,
-  eye: LinearPreview,
+  eye: LinearViewOn,
   identity: LinearUserConfirmation,
-  info: LinearAbout,
+  info: LinearInformation,
   legal: LinearLegal,
   lock: LinearLogin,
-  log_out: LinearLogin,
+  log_out: LinearLogout,
   message: LinearComment,
   note: LinearDocument,
   plus: LinearAdd,
   ranking: LinearRanking,
   request: LinearRequest,
-  setting: LinearSettingBuilding,
+  setting: LinearSetting2,
   tag: LinearTag,
   team: LinearEditUser,
   trash: LinearDelete,
   user: LinearUserSolid,
-  wallet: LinearWallet,
+  wallet: LinearWallet2,
   "wallet-add": LinearWalletAdd,
 };
 
 const businessActions: AccountAction[] = [
-  { icon: "user", label: "مشاور مستقل", to: "/account/dashboard" },
-  { icon: "building", label: "مشاور آژانس جلیلیان", to: "/account/dashboard" },
+  { icon: "user", label: "مشاور مستقل", to: DASHBOARD_PATH },
+  { icon: "building", label: "مشاور آژانس جلیلیان", to: DASHBOARD_PATH },
 ];
 
 const userBusinessActions: AccountAction[] = [
@@ -191,7 +194,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
   const consultantActions = getBusinessAccountActions(authSession?.role);
   const businessActions: AccountAction[] = [
     { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
-    { icon: "agency", label: "املاک جلیلیان", to: "/account/dashboard" },
+    { icon: "agency", label: "املاک جلیلیان", to: DASHBOARD_PATH },
   ];
 
   return (
@@ -236,7 +239,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
 
       <AccountSection
         actions={consultantActions}
-        className="min-h-0 flex-1 pt-0.5"
+        className=" pt-0.5"
         spacedDividers
       />
       <AccountSection
@@ -254,14 +257,14 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
 
 function getBusinessAccountActions(role?: string | null): AccountAction[] {
   const managerActions: AccountAction[] = [
-    { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
-    { icon: "ranking", label: "نشان ها و رتبه", to: "/dashboard/ranking" },
-    { icon: "building", label: "صفحه آژانس", to: "/dashboard/agency" },
-    { icon: "tag", label: "مدیریت آگهی‌ها", to: "/dashboard/ads" },
-    { icon: "request", label: "مدیریت درخواست‌ها", to: "/dashboard/requests" },
-    { icon: "team", label: "مدیریت مشاورین", to: "/dashboard/team" },
-    { icon: "wallet-add", label: "افزایش اعتبار", to: "/dashboard/payments" },
-    { icon: "message", label: "پیام‌ها", to: "/dashboard/messages" },
+    { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
+    { icon: "ranking", label: "نشان ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+    { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
+    { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
+    { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
+    { icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` },
+    { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+    { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
   ];
 
   if (role === REAL_ESTATE_MANAGER) {
@@ -270,24 +273,24 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
 
   if (role === REAL_ESTATE_CONSULTANT) {
     return [
-      { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
-      { icon: "ranking", label: "شناساها و رتبه", to: "/dashboard/ranking" },
-      { icon: "building", label: "صفحه آژانس", to: "/dashboard/agency" },
-      { icon: "tag", label: "مدیریت آگهی‌ها", to: "/dashboard/ads" },
-      { icon: "wallet", label: "افزایش اعتبار", to: "/dashboard/payments" },
-      { icon: "message", label: "پیام‌ها", to: "/dashboard/messages" },
+      { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
+      { icon: "ranking", label: "شناساها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
+      { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+      { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
     ];
   }
 
   if (role === INDEPENDENT_CONSULTANT) {
     return [
-      { icon: "dashboard", label: "داشبورد", to: "/account/dashboard" },
-      { icon: "ranking", label: "شناساها و رتبه", to: "/dashboard/ranking" },
-      { icon: "building", label: "صفحه مشاور", to: "/dashboard/agency" },
-      { icon: "tag", label: "مدیریت آگهی‌ها", to: "/dashboard/ads" },
-      { icon: "request", label: "مدیریت درخواست‌ها", to: "/dashboard/requests" },
-      { icon: "wallet", label: "افزایش اعتبار", to: "/dashboard/payments" },
-      { icon: "message", label: "پیام‌ها", to: "/dashboard/messages" },
+      { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
+      { icon: "ranking", label: "شناساها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agency` },
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
+      { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
+      { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+      { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
     ];
   }
 

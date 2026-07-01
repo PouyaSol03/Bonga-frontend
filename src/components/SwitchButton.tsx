@@ -10,7 +10,7 @@ export function SwitchButton({ ariaLabel, checked, onChange }: SwitchButtonProps
       aria-checked={checked}
       aria-label={ariaLabel}
       className={`flex h-6 w-11 shrink-0 items-center rounded-full px-1 [direction:ltr] ${
-        checked ? "justify-end bg-[#0048c4]" : "justify-start bg-[#0048c41f]"
+        checked ? "justify-end bg-[#0048c4]" : "justify-start bg-[#1A1A1A14]"
       }`}
       onClick={() => onChange(!checked)}
       role="switch"

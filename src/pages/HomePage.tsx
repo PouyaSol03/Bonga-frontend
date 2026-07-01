@@ -111,7 +111,7 @@ const businessBannerSlides = [
     eyebrow: "سامانه کسب و کار",
     title: "مدیریت آگهی‌ها",
     buttonText: "بیشتر بدانید",
-    to: "/account/ad-management",
+    to: "/account/manage-ads",
   },
 ];
 

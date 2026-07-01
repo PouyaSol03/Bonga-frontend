@@ -104,7 +104,7 @@ export function AdCard({ ad, showStatusBadge = false, state, to = `/ads/${ad.id}
 
           <div className="mt-3 flex h-6 items-center justify-start gap-2">
             {ad.badges.map((badge) => (
-              <span className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs leading-4 ${badge === 'فوری' ? 'border-[#ff6d00] text-[#ff6d00]' : 'border-[#11a366] text-[#11a366]'}`} key={badge}>
+              <span className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-[#FF6D00] bg-[#FFF8E1] text-[#FF6D00]' : 'border-[#11A366] bg-[#E6F6ED] text-[#11a366]'}`} key={badge}>
                   {badge}
               </span>
             ))}
@@ -150,7 +150,7 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus.includes('غیر فعال') ||
     normalizedStatus.includes('غیرفعال')
   ) {
-    return 'bg-[#ee3623] text-white'
+    return 'bg-[#FFEBED] text-[#EE3623]'
   }
 
   if (
@@ -159,7 +159,7 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus.includes('ویرایش') ||
     normalizedStatus.includes('اصلاح')
   ) {
-    return 'bg-[#ff6d00] text-white'
+    return 'bg-[#FFF8E1] text-[#FF6D00]'
   }
 
   if (
@@ -167,7 +167,7 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus.includes('فعال') ||
     normalizedStatus.includes('تایید شده')
   ) {
-    return 'bg-[#11a366] text-white'
+    return 'bg-[#E6F6ED] text-[#11A366]'
   }
 
   return 'bg-[#4d4d4d] text-white'

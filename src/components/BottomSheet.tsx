@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
+import { createPortal } from "react-dom";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -92,79 +93,80 @@ export function BottomSheet({
   showHeaderDivider = false,
   title,
   titleAlign = "right",
-  zIndexClassName = "z-[100]",
+  zIndexClassName = "z-[1000]",
 }: BottomSheetProps) {
   const isCenterTitle = titleAlign === "center";
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
-  return (
-        <div
-          className={`fixed inset-0 ${zIndexClassName} flex items-end justify-center overflow-hidden`}
-          dir="rtl"
-        >
-          <button
-            aria-label={`Ø¨Ø³ØªÙ† ${ariaLabel}`}
-            className={`absolute inset-0 cursor-default ${scrimClassName}`}
-            onClick={onClose}
-            type="button"
+  return createPortal(
+    <div
+      className={`fixed inset-0 ${zIndexClassName} isolate flex items-end justify-center overflow-hidden`}
+      dir="rtl"
+    >
+      <button
+        aria-label={ariaLabel}
+        className={`absolute inset-0 z-0 cursor-default ${scrimClassName}`}
+        onClick={onClose}
+        type="button"
+      />
+
+      <section
+        aria-label={ariaLabel}
+        aria-modal="true"
+        className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
+        role="dialog"
+      >
+        {showHandle ? (
+          <span
+            aria-hidden="true"
+            className={`mx-auto block ${handleClassName}`}
           />
+        ) : null}
 
-          <section
-            aria-label={ariaLabel}
-            aria-modal="true"
-            className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
-            role="dialog"
-          >
-            {showHandle ? (
-              <span
-                aria-hidden="true"
-                className={`mx-auto block ${handleClassName}`}
-              />
-            ) : null}
-
-            {showHeader ? (
-              <>
-                <header
-                  className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
-                    }`}
+        {showHeader ? (
+          <>
+            <header
+              className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
+                }`}
+            >
+              {showBackButton ? (
+                <button
+                  aria-label="بازگشت"
+                  className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                  onClick={onBack ?? onClose}
+                  type="button"
                 >
-                  {showBackButton ? (
-                    <button
-                      aria-label="Ø¨Ø§Ø²Ú¯Ø´Øª"
-                      className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-                      onClick={onBack ?? onClose}
-                      type="button"
-                    >
-                      <span className="block h-6 w-6">
-                        <BottomSheetBackIcon />
-                      </span>
-                    </button>
-                  ) : null}
+                  <span className="block h-6 w-6">
+                    <BottomSheetBackIcon />
+                  </span>
+                </button>
+              ) : null}
 
-                  <h2
-                    className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
-                      }`}
-                  >
-                    {title ?? ariaLabel}
-                  </h2>
+              <h2
+                className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
+                  }`}
+              >
+                {title ?? ariaLabel}
+              </h2>
 
-                  {showBackButton && isCenterTitle ? (
-                    <span className="h-10 w-10 shrink-0" />
-                  ) : null}
-                </header>
+              {showBackButton && isCenterTitle ? (
+                <span className="h-10 w-10 shrink-0" />
+              ) : null}
+            </header>
 
-                {showHeaderDivider ? (
-                  <div className="px-4 pt-3">
-                    <div className="h-px bg-[#e6e6e6]" />
-                  </div>
-                ) : null}
-              </>
+            {showHeaderDivider ? (
+              <div className="px-4 pt-3">
+                <div className="h-px bg-[#e6e6e6]" />
+              </div>
             ) : null}
+          </>
+        ) : null}
 
-            <div className={contentClassName}>{children}</div>
-          </section>
-        </div>
+        <div className={contentClassName}>{children}</div>
+      </section>
+    </div>,
+    document.body,
   );
 }
 

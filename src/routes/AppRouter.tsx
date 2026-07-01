@@ -129,6 +129,7 @@ function getBottomNavigationKey(path: string) {
     path === '/account/delete-user' ||
     path === '/account/ad-management/allocation' ||
     path === '/account/ad-management/payment' ||
+    path === '/account/ad-management/filter' ||
     path.startsWith('/account/ad-management/published') ||
     /^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)
   ) {

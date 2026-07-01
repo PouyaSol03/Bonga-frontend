@@ -80,6 +80,13 @@ const chartNameMap: Record<string, string> = {
   specials: "ویژه",
 };
 
+type ConsultantBarKey = "ads" | "renewals" | "specials";
+
+type SelectedConsultantBar = {
+  dataKey: ConsultantBarKey;
+  name: string;
+} | null;
+
 const consultantChartItemWidth = 82;
 const consultantChartAxisWidth = 38;
 const consultantVisibleItems = 4;
@@ -289,7 +296,7 @@ function ProgressLineChartCard({
 }
 
 const progressChartHeight = 252;
-const progressChartMonthGuideY = 222;
+const progressChartMonthGuideY = 187;
 
 const progressData = [
   { month: "فروردین", value: 35 },
@@ -311,7 +318,7 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
 
   return (
     <div
-      className="mx-auto mt-7 max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [&_.recharts-surface]:outline-none [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
+      className="mx-auto mt-7 max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-sector:focus]:outline-none [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
       dir="ltr"
       style={{ width: progressChartViewportWidth }}
     >
@@ -324,8 +331,9 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
           tabIndex={-1}
         >
           <CartesianGrid
+            horizontal
             vertical={false}
-            stroke="#e8e8e8"
+            stroke="#d9d9d9"
             strokeDasharray="4 5"
           />
 
@@ -513,7 +521,7 @@ function PublishedAgencyAdsCard() {
 
       <div className="mx-auto h-[143px] max-w-[143px]" dir="ltr">
         <ResponsiveContainer height="100%" width="100%">
-          <PieChart>
+          <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
             <Pie
               data={adTypeData}
               dataKey="value"
@@ -565,8 +573,106 @@ function ConsultantBarTooltip({ active, payload }: any) {
   );
 }
 
+function topRoundedBarPath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const safeRadius = Math.min(radius, width / 2, height);
+  const right = x + width;
+  const bottom = y + height;
+
+  return [
+    `M${x} ${bottom}`,
+    `V${y + safeRadius}`,
+    `Q${x} ${y} ${x + safeRadius} ${y}`,
+    `H${right - safeRadius}`,
+    `Q${right} ${y} ${right} ${y + safeRadius}`,
+    `V${bottom}`,
+    "Z",
+  ].join(" ");
+}
+
+function ConsultantBarShape(props: any) {
+  const {
+    fill,
+    height,
+    payload,
+    selectedBar,
+    seriesKey,
+    value,
+    width,
+    x,
+    y,
+    onSelect,
+  } = props;
+
+  const isSelected =
+    selectedBar?.name === payload.name && selectedBar?.dataKey === seriesKey;
+  const centerX = x + width / 2;
+  const tooltipY = Math.max(2, y - 38);
+  const label = chartNameMap[seriesKey] ?? seriesKey;
+  const tooltipText = `${formatNumber(String(value))} ${label}`;
+
+  function selectBar(event: React.MouseEvent<SVGElement>) {
+    event.preventDefault();
+    onSelect({ dataKey: seriesKey, name: payload.name });
+  }
+
+  return (
+    <g
+      onClick={selectBar}
+      onMouseDown={(event) => event.preventDefault()}
+      style={{ cursor: "pointer", outline: "none" }}
+      tabIndex={-1}
+      focusable="false"
+    >
+      {isSelected ? (
+        <g pointerEvents="none">
+          <path
+            d={`M${centerX - 34} ${tooltipY}
+              a8 8 0 0 1 8-8
+              h52
+              a8 8 0 0 1 8 8
+              v14
+              a8 8 0 0 1-8 8
+              h-19
+              l-7 7
+              l-7-7
+              h-19
+              a8 8 0 0 1-8-8
+              v-14Z`}
+            fill="#595959"
+          />
+          <text
+            x={centerX}
+            y={tooltipY + 13}
+            fill="#ffffff"
+            fontSize="11"
+            fontWeight="700"
+            textAnchor="middle"
+          >
+            {tooltipText}
+          </text>
+        </g>
+      ) : null}
+
+      <path
+        d={topRoundedBarPath(x, y, width, height, 6)}
+        fill={fill}
+        tabIndex={-1}
+        focusable="false"
+        style={{ outline: "none" }}
+      />
+    </g>
+  );
+}
+
 function ConsultantActivityCard() {
   const chartScrollRef = useRef<HTMLDivElement>(null);
+  const [selectedBar, setSelectedBar] = useState<SelectedConsultantBar>(null);
 
   function scrollConsultantChart(direction: "next" | "previous") {
     chartScrollRef.current?.scrollBy({
@@ -640,7 +746,7 @@ function ConsultantActivityCard() {
       </div>
 
       <div
-        className="mx-auto h-[220px] max-w-full overflow-x-auto overscroll-x-contain scroll-smooth"
+        className="mx-auto h-[240px] max-w-full overflow-x-auto overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-rectangle:focus]:outline-none [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
         dir="ltr"
         ref={chartScrollRef}
         style={{ width: consultantChartViewportWidth }}
@@ -651,10 +757,12 @@ function ConsultantActivityCard() {
               barCategoryGap={20}
               barGap={5}
               data={consultantActivityData}
-              margin={{ bottom: 0, left: -18, right: 4, top: 6 }}
+              margin={{ bottom: 0, left: -18, right: 4, top: 34 }}
+              tabIndex={-1}
             >
               <CartesianGrid
-                stroke="#e6e6e6"
+                horizontal
+                stroke="#d9d9d9"
                 strokeDasharray="5 6"
                 vertical={false}
               />
@@ -693,18 +801,42 @@ function ConsultantActivityCard() {
                 dataKey="ads"
                 fill="#0048c4"
                 radius={[6, 6, 0, 0]}
+                shape={(props: any) => (
+                  <ConsultantBarShape
+                    {...props}
+                    selectedBar={selectedBar}
+                    seriesKey="ads"
+                    onSelect={setSelectedBar}
+                  />
+                )}
               />
               <Bar
                 barSize={10}
                 dataKey="renewals"
                 fill="#11a366"
                 radius={[6, 6, 0, 0]}
+                shape={(props: any) => (
+                  <ConsultantBarShape
+                    {...props}
+                    selectedBar={selectedBar}
+                    seriesKey="renewals"
+                    onSelect={setSelectedBar}
+                  />
+                )}
               />
               <Bar
                 barSize={10}
                 dataKey="specials"
                 fill="#ffb100"
                 radius={[6, 6, 0, 0]}
+                shape={(props: any) => (
+                  <ConsultantBarShape
+                    {...props}
+                    selectedBar={selectedBar}
+                    seriesKey="specials"
+                    onSelect={setSelectedBar}
+                  />
+                )}
               />
             </BarChart>
           </ResponsiveContainer>

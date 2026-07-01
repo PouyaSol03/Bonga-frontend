@@ -100,7 +100,7 @@ export function BottomSheet({
 
   return (
         <div
-          className={`absolute inset-0 ${zIndexClassName} flex items-end justify-center overflow-hidden`}
+          className={`fixed inset-0 ${zIndexClassName} flex items-end justify-center overflow-hidden`}
           dir="rtl"
         >
           <button

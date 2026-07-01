@@ -274,7 +274,7 @@ export function BusinessCreationPage() {
   return (
     <BusinessCreationShell
       bottomBar={
-        <div className="flex items-center justify-end px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
+        <div className="flex items-center justify-end px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
           <button
             className="inline-flex h-10 min-w-[156px] items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-5 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef]"
             onClick={handleNext}
@@ -374,7 +374,7 @@ function BusinessFormPage({
   return (
     <BusinessCreationShell
       bottomBar={
-        <div className="grid grid-cols-2 gap-4 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
+        <div className="grid grid-cols-2 gap-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
           <button
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-semibold leading-5 text-[#0048c4]"
             onClick={() => navigateTo("/account/business/create")}
@@ -403,7 +403,7 @@ function BusinessFormPage({
           showInfoButton
         />
 
-        <div className="mt-4 space-y-6 px-4 pb-28">
+        <div className="mt-4 space-y-6 px-4 pb-32">
           {isNoticeVisible ? (
             <ActivationNotice
               businessType={businessType}
@@ -636,10 +636,10 @@ function BusinessCreationShell({
       variant="flush"
     >
       <TopBar backTo="/account" title="ایجاد کسب و کار" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4 [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-4 pt-4 [-webkit-overflow-scrolling:touch]">
         {children}
       </main>
-      <div className="shrink-0 bg-white shadow-[0_-8px_26px_rgba(26,26,26,0.08)]">
+      <div className="relative z-20 shrink-0 bg-white shadow-[0_-8px_26px_rgba(26,26,26,0.08)]">
         {bottomBar}
       </div>
     </PageFrame>

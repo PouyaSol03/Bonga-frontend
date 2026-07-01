@@ -100,14 +100,14 @@ export function IndependentConsultantAdFilterPage() {
   );
   const [transaction, setTransaction] = useState(initialFilters.transaction);
   const [propertyTypes, setPropertyTypes] = useState<AdManagementPropertyType[]>(
-    isAssignedTab ? [] : getInitialPropertyTypes(initialFilters),
+    getInitialPropertyTypes(initialFilters),
   );
   const [status, setStatus] = useState(initialFilters.status);
   const [publisher, setPublisher] = useState(initialFilters.publisher);
   const [isPropertyTypePickerOpen, setIsPropertyTypePickerOpen] = useState(false);
   const filters = buildFilters({
     neighborhoods: selectedNeighborhoods,
-    propertyTypes: isAssignedTab ? [] : propertyTypes,
+    propertyTypes,
     publisher: isAssignedTab ? undefined : publisher,
     status: isAssignedTab ? undefined : status,
     transaction,
@@ -148,7 +148,7 @@ export function IndependentConsultantAdFilterPage() {
     );
   };
 
-  if (!isAssignedTab && isPropertyTypePickerOpen && transaction) {
+  if (isPropertyTypePickerOpen && transaction) {
     return (
       <PropertyTypeSelectionScreen
         initialPropertyTypes={propertyTypes}
@@ -218,9 +218,7 @@ export function IndependentConsultantAdFilterPage() {
             })}
           </div>
 
-          {!isAssignedTab ? (
-            <>
-              <div className="mt-4 h-px bg-[#cccccc]" />
+          <div className="mt-4 h-px bg-[#cccccc]" />
 
               <button
                 aria-disabled={!transaction}
@@ -271,8 +269,6 @@ export function IndependentConsultantAdFilterPage() {
                   ))}
                 </div>
               ) : null}
-            </>
-          ) : null}
         </section>
 
         {!isAssignedTab ? (

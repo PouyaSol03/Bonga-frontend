@@ -18,6 +18,8 @@ import {
   type AdsTab,
   type ConsultantAd,
 } from "./adManagement/adManagementData";
+import LinearTimeQuarter from "../../components/(icons)/LinearTimeQuarter";
+import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
 
 const adStatusLabels = ["در انتظار انتشار", "منتشر شده", "در انتظار انتشار", "منتشر شده"];
 
@@ -41,13 +43,20 @@ function getScopedFilters(filters: AdManagementFilters, tab: AdsTab): AdManageme
 
   return {
     neighborhoods: filters.neighborhoods,
+    propertyType: filters.propertyType,
+    propertyTypes: filters.propertyTypes,
     transaction: filters.transaction,
   };
 }
 
 function hasActiveFilters(filters: AdManagementFilters, tab: AdsTab) {
   if (isAssignedTab(tab)) {
-    return Boolean(filters.neighborhoods.length || filters.transaction);
+    return Boolean(
+      filters.neighborhoods.length ||
+        filters.propertyType ||
+        filters.propertyTypes?.length ||
+        filters.transaction,
+    );
   }
 
   return Boolean(
@@ -149,9 +158,11 @@ export function IndependentConsultantAdManagementPage() {
             : true;
 
           const matchesPublisher = assignedTab ? true : filters.publisher ? ad.publisher === filters.publisher : true;
-          const matchesType = assignedTab
-            ? true
-            : matchesPropertyType(ad.title, filters.propertyTypes, filters.propertyType);
+          const matchesType = matchesPropertyType(
+            ad.title,
+            scopedFilters.propertyTypes,
+            scopedFilters.propertyType,
+          );
 
           return (
             matchesStatus &&
@@ -256,14 +267,12 @@ export function IndependentConsultantAdManagementPage() {
             <ActiveFilterChip key={neighborhood.id} label={neighborhood.name} />
           ))}
           {scopedFilters.transaction ? <ActiveFilterChip label={getTransactionLabel(scopedFilters.transaction)} /> : null}
-          {!assignedTab
-            ? getFilterPropertyTypes(filters).map((propertyType) => (
-                <ActiveFilterChip
-                  key={propertyType}
-                  label={adManagementPropertyTypeLabels[propertyType]}
-                />
-              ))
-            : null}
+          {getFilterPropertyTypes(scopedFilters).map((propertyType) => (
+            <ActiveFilterChip
+              key={propertyType}
+              label={adManagementPropertyTypeLabels[propertyType]}
+            />
+          ))}
           {!assignedTab && filters.status ? <ActiveFilterChip label={filters.status} /> : null}
           {!assignedTab && filters.publisher ? <ActiveFilterChip label={filters.publisher} /> : null}
         </section>
@@ -309,10 +318,11 @@ function AssignedConsultantAdCard({
   const countdownClassName = getAllocationCountdownClassName(countdown.hours);
 
   return (
-    <article className="mx-4 overflow-hidden rounded-2xl bg-white shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl]">
+    <article className="overflow-hidden bg-white shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl]">
       <div
-        className={`flex min-h-10 items-center justify-center px-3 text-center text-sm font-medium leading-5 ${countdownClassName}`}
+        className={`flex gap-2 items-center rounded-4xl mt-4 mx-4 py-2 px-3 text-center text-sm font-medium ${countdownClassName}`}
       >
+        <LinearTimeQuarter className="w-4 h-4"/>
         {formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص
       </div>
 
@@ -320,11 +330,12 @@ function AssignedConsultantAdCard({
 
       <div className="px-4 pb-4 pt-1">
         <RouteLink
-          className="flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline active:bg-[#003aa0]"
+          className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4] no-underline border border-[#0048c4] active:bg-[#003aa0]"
           state={{ ad, tab: "status" }}
           to={adManagementPaths.allocationReview}
         >
           بررسی و تخصیص
+          <LinearArrowLeft2 className="w-5 h-5"/>
         </RouteLink>
       </div>
     </article>

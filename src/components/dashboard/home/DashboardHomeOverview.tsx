@@ -289,8 +289,7 @@ function ProgressLineChartCard({
 }
 
 const progressChartHeight = 252;
-const progressChartXAxisY = 170;
-const defaultSelectedProgressMonth = "تیر";
+const progressChartMonthGuideY = 222;
 
 const progressData = [
   { month: "فروردین", value: 35 },
@@ -308,9 +307,7 @@ const progressData = [
 ];
 
 function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(
-    defaultSelectedProgressMonth,
-  );
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   return (
     <div
@@ -353,7 +350,7 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
           />
 
           <Line
-            type="natural"
+            type="monotone"
             dataKey="value"
             stroke="#0048c4"
             strokeWidth={2.5}
@@ -368,7 +365,9 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
               />
             )}
             activeDot={false}
-            isAnimationActive={false}
+            animationDuration={450}
+            animationEasing="ease-in-out"
+            isAnimationActive
           />
         </LineChart>
       </div>
@@ -379,17 +378,28 @@ function ProgressChartDot(props: any) {
   const { cx, cy, payload, selectedMonth, tooltip, onSelect } = props;
 
   const isSelected = selectedMonth === payload.month;
-  const tooltipText = isSelected ? tooltip : `${formatNumber(payload.value)} آگهی`;
 
   return (
     <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={14}
+        fill="transparent"
+        tabIndex={-1}
+        focusable="false"
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => onSelect(payload.month)}
+        style={{ cursor: "pointer", outline: "none" }}
+      />
+
       {isSelected && (
         <>
           <line
             x1={cx}
             y1={cy + 7}
             x2={cx}
-            y2={progressChartXAxisY}
+            y2={progressChartMonthGuideY}
             stroke="#0048c4"
             strokeDasharray="5 4"
           />
@@ -417,7 +427,7 @@ function ProgressChartDot(props: any) {
             fontSize="11"
             textAnchor="middle"
           >
-            {tooltipText}
+            {tooltip}
           </text>
         </>
       )}
@@ -433,7 +443,11 @@ function ProgressChartDot(props: any) {
         focusable="false"
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => onSelect(payload.month)}
-        style={{ cursor: "pointer", outline: "none" }}
+        style={{
+          cursor: "pointer",
+          outline: "none",
+          transition: "fill 180ms ease, r 180ms ease, stroke-width 180ms ease",
+        }}
       />
     </g>
   );
@@ -488,7 +502,7 @@ function PublishedAgencyAdsCard() {
           </button>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <span className="rounded bg-[#0048c414] px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+          <span className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
             ۱۸۳
           </span>
           <span className="text-sm font-normal text-[#4d4d4d]">
@@ -536,6 +550,21 @@ function PublishedAgencyAdsCard() {
   );
 }
 
+function ConsultantBarTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  const item = payload[0];
+  const label = chartNameMap[String(item.dataKey)] ?? item.name;
+
+  return (
+    <div className="rounded-lg bg-[#595959] px-2.5 py-2 text-center text-xs font-bold leading-4 text-white shadow-none [direction:rtl]">
+      {formatNumber(String(item.value))} {label}
+    </div>
+  );
+}
+
 function ConsultantActivityCard() {
   const chartScrollRef = useRef<HTMLDivElement>(null);
 
@@ -578,7 +607,7 @@ function ConsultantActivityCard() {
           </button>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <span className="rounded bg-[#0048c414] px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+          <span className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
             ۳۲۵
           </span>
           <span className="text-sm font-normal text-[#4d4d4d]">
@@ -648,25 +677,16 @@ function ConsultantActivityCard() {
                 width={50}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#595959",
-                  border: "0",
-                  borderRadius: "8px",
-                  boxShadow: "none",
-                  color: "#ffffff",
-                  direction: "rtl",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  padding: "8px 10px",
-                }}
+                allowEscapeViewBox={{ x: true, y: true }}
+                content={<ConsultantBarTooltip />}
                 cursor={false}
-                formatter={(value, name) => [
-                  `${formatNumber(String(value))} ${chartNameMap[String(name)] ?? name}`,
-                  "",
-                ]}
-                itemStyle={{ color: "#ffffff", padding: 0 }}
-                labelStyle={{ display: "none" }}
-                separator=""
+                offset={8}
+                shared={false}
+                wrapperStyle={{
+                  outline: "none",
+                  pointerEvents: "none",
+                  transform: "translate(-50%, -115%)",
+                }}
               />
               <Bar
                 barSize={10}

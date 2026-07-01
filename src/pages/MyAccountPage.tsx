@@ -389,39 +389,39 @@ function AccountBusinessSuccessSheet({
     <BottomSheet
       ariaLabel="ثبت موفق حساب"
       className="rounded-t-[20px]"
-      contentClassName="px-3 pb-4 pt-7"
-      heightClassName="h-[246px]"
+      contentClassName="px-3 pb-8"
+      heightClassName="h-[346px]"
       isOpen={isOpen}
       onClose={onClose}
       panelPaddingClassName="pt-3"
       showHeader={false}
       showHeaderDivider={false}
-      zIndexClassName="z-[100]"
+      zIndexClassName="z-[999]"
     >
-      <div className="text-center">
-        <div className="mx-auto grid h-[78px] w-[78px] place-items-center rounded-full bg-[#e7f6ef] text-[#11A366]">
-          <LinearCheckmark aria-hidden="true" className="h-12 w-12" />
+      <div className="text-center px-4">
+        <div className="mx-auto grid h-[132px] w-[132px] place-items-center rounded-full">
+          <img src="/vectors/States.svg" alt="" />
         </div>
-        <h2 className="m-0 mt-3 text-sm font-semibold leading-5 text-[#11A366]">
+        <h2 className="m-0 mt-2 text-sm font-semibold leading-5 text-[#11A366]">
           حساب شما با موفقیت ثبت شد
         </h2>
-        <div className="mx-auto mt-2 max-w-[318px] space-y-1 text-right text-xs font-normal leading-5 text-[#4d4d4d]">
+        <div className="flex flex-col gap-2.5 mt-2 space-y-1 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
           <p className="m-0 flex gap-2">
-            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#11A366]" />
+            <span className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
             <span>برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</span>
           </p>
           <p className="m-0 flex gap-2">
-            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#11A366]" />
+            <span className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
             <span>سپس یکی از بسته‌های اعتباری را خریداری کنید.</span>
           </p>
         </div>
         <button
-          className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
+          className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
           onClick={() => navigateTo("/account/credit/panel")}
           type="button"
         >
+          <LinearWalletAdd color="white" className="w-5 h-5 text-white"/>
           <span>افزایش اعتبار</span>
-          <AccountIcon className="h-5 w-5 shrink-0 text-white" name="wallet-add" />
         </button>
       </div>
     </BottomSheet>

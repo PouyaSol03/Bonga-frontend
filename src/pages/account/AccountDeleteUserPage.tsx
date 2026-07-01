@@ -1,11 +1,40 @@
 import { useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
+import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../auth/auth-storage";
 import { TopBar } from "../../components/TopBar";
+import { USER } from "../../constants/roles.constants";
 
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function downgradeBusinessToUser() {
+  const session = getStoredAuthSession();
+
+  if (!session) {
+    navigateTo("/login/phone");
+    return;
+  }
+
+  const userRole: AuthRole = {
+    id: USER,
+    name: "کاربر",
+    slug: USER,
+  };
+  const roles = session.roles.some((role) => role.slug === USER)
+    ? session.roles
+    : [userRole, ...session.roles];
+
+  setStoredAuthSession({
+    ...session,
+    accountType: USER,
+    role: USER,
+    roles,
+  });
+
+  navigateTo("/account");
 }
 
 function ConfirmCheckIcon({ checked }: { checked: boolean }) {
@@ -71,7 +100,7 @@ export function AccountDeleteUserPage() {
           <button
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#C11004] bg-white px-4 text-sm font-semibold leading-5 text-[#C11004] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!isConfirmed}
-            onClick={() => navigateTo("/login/phone")}
+            onClick={downgradeBusinessToUser}
             type="button"
           >
             تایید حذف

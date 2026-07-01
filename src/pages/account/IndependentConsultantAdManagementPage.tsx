@@ -16,15 +16,40 @@ import {
   type AdManagementFilters,
   type AdManagementPropertyType,
   type AdsTab,
+  type ConsultantAd,
 } from "./adManagement/adManagementData";
 
 const adStatusLabels = ["در انتظار انتشار", "منتشر شده", "در انتظار انتشار", "منتشر شده"];
+
+const allocationCountdowns = [
+  { hours: 16, minutes: 20 },
+  { hours: 8, minutes: 45 },
+  { hours: 2, minutes: 30 },
+  { hours: 1, minutes: 15 },
+];
 
 const emptyFilters: AdManagementFilters = {
   neighborhoods: [],
 };
 
-function hasActiveFilters(filters: AdManagementFilters) {
+function isAssignedTab(tab: AdsTab) {
+  return tab === "status";
+}
+
+function getScopedFilters(filters: AdManagementFilters, tab: AdsTab): AdManagementFilters {
+  if (!isAssignedTab(tab)) return filters;
+
+  return {
+    neighborhoods: filters.neighborhoods,
+    transaction: filters.transaction,
+  };
+}
+
+function hasActiveFilters(filters: AdManagementFilters, tab: AdsTab) {
+  if (isAssignedTab(tab)) {
+    return Boolean(filters.neighborhoods.length || filters.transaction);
+  }
+
   return Boolean(
     filters.neighborhoods.length ||
       filters.propertyType ||
@@ -103,7 +128,9 @@ export function IndependentConsultantAdManagementPage() {
   const [activeTab, setActiveTab] = useState<AdsTab>(routeState.tab ?? "active");
   const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
   const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyFilters);
-  const hasFilters = hasActiveFilters(filters);
+  const assignedTab = isAssignedTab(activeTab);
+  const scopedFilters = getScopedFilters(filters, activeTab);
+  const hasFilters = hasActiveFilters(scopedFilters, activeTab);
   const ads = useMemo(
     () =>
       getAdsForTab(activeTab)
@@ -114,24 +141,27 @@ export function IndependentConsultantAdManagementPage() {
           status: adStatusLabels[index % adStatusLabels.length],
         }))
         .filter((ad) => {
-          const matchesStatus = filters.status ? ad.status === filters.status : true;
-          const matchesNeighborhood = filters.neighborhoods.length
-            ? filters.neighborhoods.some((neighborhood) =>
+          const matchesStatus = assignedTab ? true : filters.status ? ad.status === filters.status : true;
+          const matchesNeighborhood = scopedFilters.neighborhoods.length
+            ? scopedFilters.neighborhoods.some((neighborhood) =>
                 ad.timeAndLocation.includes(neighborhood.name),
               )
             : true;
 
-          const matchesPublisher = filters.publisher ? ad.publisher === filters.publisher : true;
+          const matchesPublisher = assignedTab ? true : filters.publisher ? ad.publisher === filters.publisher : true;
+          const matchesType = assignedTab
+            ? true
+            : matchesPropertyType(ad.title, filters.propertyTypes, filters.propertyType);
 
           return (
             matchesStatus &&
             matchesNeighborhood &&
             matchesPublisher &&
-            matchesTransaction(ad.title, filters) &&
-            matchesPropertyType(ad.title, filters.propertyTypes, filters.propertyType)
+            matchesTransaction(ad.title, scopedFilters) &&
+            matchesType
           );
         }),
-    [activeTab, filters],
+    [activeTab, assignedTab, filters, scopedFilters],
   );
   const filterLabel = hasFilters ? "فیلترها" : "فیلتر";
 
@@ -180,24 +210,28 @@ export function IndependentConsultantAdManagementPage() {
             onClick={() => setActiveTab("status")}
             type="button"
           >
-            تخصصی
+            تخصیصی‌ها
           </button>
         </div>
       </section>
 
       <section
         aria-label="فیلترهای مدیریت آگهی"
-        className="flex h-14 shrink-0 items-center justify-between bg-white px-4 [direction:ltr]"
+        className={`flex h-14 shrink-0 items-center bg-white px-4 [direction:ltr] ${
+          assignedTab ? "justify-end" : "justify-between"
+        }`}
       >
-        <div className="flex items-center gap-2 [direction:rtl]">
-          <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />
-          <span className="text-sm font-medium leading-5 text-[#4d4d4d]">آگهی من</span>
-          <SwitchButton
-            ariaLabel="نمایش آگهی‌های من"
-            checked={showMineOnly}
-            onChange={setShowMineOnly}
-          />
-        </div>
+        {!assignedTab ? (
+          <div className="flex items-center gap-2 [direction:rtl]">
+            <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />
+            <span className="text-sm font-medium leading-5 text-[#4d4d4d]">آگهی من</span>
+            <SwitchButton
+              ariaLabel="نمایش آگهی‌های من"
+              checked={showMineOnly}
+              onChange={setShowMineOnly}
+            />
+          </div>
+        ) : null}
 
         <RouteLink
           className={`relative inline-flex items-center gap-1 rounded-lg border p-2 text-sm font-normal no-underline ${
@@ -205,7 +239,7 @@ export function IndependentConsultantAdManagementPage() {
               ? "border-[#0048c4] bg-[#e6efff] text-[#0048c4]"
               : "border-[#cccccc] bg-white text-[#4d4d4d]"
           }`}
-          state={{ filters, onlyMine: showMineOnly, tab: activeTab }}
+          state={{ filters: scopedFilters, onlyMine: assignedTab ? false : showMineOnly, tab: activeTab }}
           to={adManagementPaths.filter}
         >
           <span>{filterLabel}</span>
@@ -218,32 +252,42 @@ export function IndependentConsultantAdManagementPage() {
 
       {hasFilters ? (
         <section className="flex shrink-0 gap-2 overflow-x-auto bg-white px-4 pb-3 [direction:rtl]">
-          {filters.neighborhoods.map((neighborhood) => (
+          {scopedFilters.neighborhoods.map((neighborhood) => (
             <ActiveFilterChip key={neighborhood.id} label={neighborhood.name} />
           ))}
-          {filters.transaction ? <ActiveFilterChip label={getTransactionLabel(filters.transaction)} /> : null}
-          {getFilterPropertyTypes(filters).map((propertyType) => (
-            <ActiveFilterChip
-              key={propertyType}
-              label={adManagementPropertyTypeLabels[propertyType]}
-            />
-          ))}
-          {filters.status ? <ActiveFilterChip label={filters.status} /> : null}
-          {filters.publisher ? <ActiveFilterChip label={filters.publisher} /> : null}
+          {scopedFilters.transaction ? <ActiveFilterChip label={getTransactionLabel(scopedFilters.transaction)} /> : null}
+          {!assignedTab
+            ? getFilterPropertyTypes(filters).map((propertyType) => (
+                <ActiveFilterChip
+                  key={propertyType}
+                  label={adManagementPropertyTypeLabels[propertyType]}
+                />
+              ))
+            : null}
+          {!assignedTab && filters.status ? <ActiveFilterChip label={filters.status} /> : null}
+          {!assignedTab && filters.publisher ? <ActiveFilterChip label={filters.publisher} /> : null}
         </section>
       ) : null}
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pt-4">
-        <div className="space-y-2">
+        <div className={assignedTab ? "space-y-3 pb-4" : "space-y-2"}>
           {ads.length > 0 ? (
-            ads.map((ad, index) => (
-              <ConsultantAdCard
-                ad={ad}
-                key={`${ad.title}-${index}`}
-                showStatusBadge
-                state={{ ad }}
-              />
-            ))
+            ads.map((ad, index) =>
+              assignedTab ? (
+                <AssignedConsultantAdCard
+                  ad={ad}
+                  countdown={allocationCountdowns[index % allocationCountdowns.length]}
+                  key={`${ad.title}-${index}`}
+                />
+              ) : (
+                <ConsultantAdCard
+                  ad={ad}
+                  key={`${ad.title}-${index}`}
+                  showStatusBadge
+                  state={{ ad }}
+                />
+              ),
+            )
           ) : (
             <div className="mx-4 rounded-2xl bg-white px-4 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
               آگهی‌ای با این فیلترها پیدا نشد.
@@ -253,6 +297,53 @@ export function IndependentConsultantAdManagementPage() {
       </main>
     </PageFrame>
   );
+}
+
+function AssignedConsultantAdCard({
+  ad,
+  countdown,
+}: {
+  ad: ConsultantAd;
+  countdown: { hours: number; minutes: number };
+}) {
+  const countdownClassName = getAllocationCountdownClassName(countdown.hours);
+
+  return (
+    <article className="mx-4 overflow-hidden rounded-2xl bg-white shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl]">
+      <div
+        className={`flex min-h-10 items-center justify-center px-3 text-center text-sm font-medium leading-5 ${countdownClassName}`}
+      >
+        {formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص
+      </div>
+
+      <ConsultantAdCard ad={ad} showStatusBadge state={{ ad, tab: "status" }} />
+
+      <div className="px-4 pb-4 pt-1">
+        <RouteLink
+          className="flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline active:bg-[#003aa0]"
+          state={{ ad, tab: "status" }}
+          to={adManagementPaths.allocationReview}
+        >
+          بررسی و تخصیص
+        </RouteLink>
+      </div>
+    </article>
+  );
+}
+
+function formatAllocationCountdown({ hours, minutes }: { hours: number; minutes: number }) {
+  return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
+}
+
+function getAllocationCountdownClassName(hours: number) {
+  if (hours < 3) return "bg-[#ffebed] text-[#ee3623]";
+  if (hours < 12) return "bg-[#fff8e1] text-[#ff6d00]";
+
+  return "bg-[#e6efff] text-[#0048c4]";
+}
+
+function toPersianDigits(value: number) {
+  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
 function ActiveFilterChip({ label }: { label: string }) {

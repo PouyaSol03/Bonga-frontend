@@ -165,6 +165,7 @@ export type AdManagementRouteState = {
 
 export const adManagementPaths = {
   allocation: "/account/ad-management/allocation",
+  allocationReview: "/account/ad-management/allocation-review",
   edit: "/account/ad-management/published/edit",
   filter: "/account/ad-management/filter",
   payment: "/account/ad-management/payment",

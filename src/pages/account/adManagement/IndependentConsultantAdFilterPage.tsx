@@ -91,6 +91,7 @@ function useDebouncedValue<T>(value: T, delay: number) {
 export function IndependentConsultantAdFilterPage() {
   const routeState = getAdManagementRouteState();
   const tab = routeState.tab ?? "active";
+  const isAssignedTab = tab === "status";
   const initialFilters = routeState.filters ?? emptyFilters;
   const previousOnlyMine = routeState.onlyMine ?? false;
   const [onlyMine, setOnlyMine] = useState(previousOnlyMine);
@@ -99,16 +100,16 @@ export function IndependentConsultantAdFilterPage() {
   );
   const [transaction, setTransaction] = useState(initialFilters.transaction);
   const [propertyTypes, setPropertyTypes] = useState<AdManagementPropertyType[]>(
-    getInitialPropertyTypes(initialFilters),
+    isAssignedTab ? [] : getInitialPropertyTypes(initialFilters),
   );
   const [status, setStatus] = useState(initialFilters.status);
   const [publisher, setPublisher] = useState(initialFilters.publisher);
   const [isPropertyTypePickerOpen, setIsPropertyTypePickerOpen] = useState(false);
   const filters = buildFilters({
     neighborhoods: selectedNeighborhoods,
-    propertyTypes,
-    publisher,
-    status,
+    propertyTypes: isAssignedTab ? [] : propertyTypes,
+    publisher: isAssignedTab ? undefined : publisher,
+    status: isAssignedTab ? undefined : status,
     transaction,
   });
 
@@ -147,7 +148,7 @@ export function IndependentConsultantAdFilterPage() {
     );
   };
 
-  if (isPropertyTypePickerOpen && transaction) {
+  if (!isAssignedTab && isPropertyTypePickerOpen && transaction) {
     return (
       <PropertyTypeSelectionScreen
         initialPropertyTypes={propertyTypes}
@@ -164,23 +165,25 @@ export function IndependentConsultantAdFilterPage() {
       variant="flush"
     >
       <TopBar
-        backState={{ filters: initialFilters, onlyMine: previousOnlyMine, tab }}
+        backState={{ filters: initialFilters, onlyMine: isAssignedTab ? false : previousOnlyMine, tab }}
         backTo={adManagementPaths.root}
         className="bg-[#f0f0f0]"
         title="فیلتر"
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-6 [-webkit-overflow-scrolling:touch]">
-        <section className="flex items-center justify-between bg-white p-4" aria-label="نمایش آگهی من">
-          <h2 className="m-0 text-base font-medium text-[#1a1a1a]">
-            آگهی من
-          </h2>
-          <SwitchButton
-            ariaLabel="نمایش آگهی من"
-            checked={onlyMine}
-            onChange={setOnlyMine}
-          />
-        </section>
+        {!isAssignedTab ? (
+          <section className="flex items-center justify-between bg-white p-4" aria-label="نمایش آگهی من">
+            <h2 className="m-0 text-base font-medium text-[#1a1a1a]">
+              آگهی من
+            </h2>
+            <SwitchButton
+              ariaLabel="نمایش آگهی من"
+              checked={onlyMine}
+              onChange={setOnlyMine}
+            />
+          </section>
+        ) : null}
 
         <NeighborhoodPickerRow
           onChange={setSelectedNeighborhoods}
@@ -215,79 +218,85 @@ export function IndependentConsultantAdFilterPage() {
             })}
           </div>
 
-          <div className="mt-4 h-px bg-[#cccccc]" />
+          {!isAssignedTab ? (
+            <>
+              <div className="mt-4 h-px bg-[#cccccc]" />
 
-          <button
-            aria-disabled={!transaction}
-            className={`mt-4 flex h-10 w-full items-center justify-between [direction:ltr] ${
-              transaction
-                ? "active:bg-[#0048c40a]"
-                : "cursor-not-allowed"
-            }`}
-            disabled={!transaction}
-            onClick={() => {
-              if (!transaction) return;
-              setIsPropertyTypePickerOpen(true);
-            }}
-            type="button"
-          >
-            <span
-              className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${
-                transaction ? "text-[#0048c4]" : "text-[#cccccc]"
-              }`}
-            >
-              <ChevronLeftIcon className="h-5 w-5 shrink-0" />
-              <span className="truncate [direction:rtl]">
-                {propertyTypes.length
-                  ? `${propertyTypes.length} انتخاب`
-                  : "انتخاب"}
-              </span>
-            </span>
-            <span
-              className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${
-                transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
-              }`}
-            >
-              <span>نوع ملک</span>
-              <LinearRealestate className="h-6 w-6" />
-            </span>
-          </button>
+              <button
+                aria-disabled={!transaction}
+                className={`mt-4 flex h-10 w-full items-center justify-between [direction:ltr] ${
+                  transaction
+                    ? "active:bg-[#0048c40a]"
+                    : "cursor-not-allowed"
+                }`}
+                disabled={!transaction}
+                onClick={() => {
+                  if (!transaction) return;
+                  setIsPropertyTypePickerOpen(true);
+                }}
+                type="button"
+              >
+                <span
+                  className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${
+                    transaction ? "text-[#0048c4]" : "text-[#cccccc]"
+                  }`}
+                >
+                  <ChevronLeftIcon className="h-5 w-5 shrink-0" />
+                  <span className="truncate [direction:rtl]">
+                    {propertyTypes.length
+                      ? `${propertyTypes.length} انتخاب`
+                      : "انتخاب"}
+                  </span>
+                </span>
+                <span
+                  className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${
+                    transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
+                  }`}
+                >
+                  <span>نوع ملک</span>
+                  <LinearRealestate className="h-6 w-6" />
+                </span>
+              </button>
 
-          {propertyTypes.length > 0 ? (
-            <div className="mt-3 flex flex-wrap gap-2" dir="rtl">
-              {propertyTypes.map((selectedPropertyType) => (
-                <FormChoiceChip
-                  key={selectedPropertyType}
-                  label={adManagementPropertyTypeLabels[selectedPropertyType]}
-                  onClick={() => removePropertyType(selectedPropertyType)}
-                  removable
-                  selected
-                />
-              ))}
-            </div>
+              {propertyTypes.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2" dir="rtl">
+                  {propertyTypes.map((selectedPropertyType) => (
+                    <FormChoiceChip
+                      key={selectedPropertyType}
+                      label={adManagementPropertyTypeLabels[selectedPropertyType]}
+                      onClick={() => removePropertyType(selectedPropertyType)}
+                      removable
+                      selected
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </>
           ) : null}
         </section>
 
-        <section className="mt-2 space-y-6 bg-white px-4 py-6" aria-label="فیلترهای تکمیلی">
-          <SingleSelectField
-            indicator="radio"
-            label="وضعیت آگهی"
-            onChange={setStatus}
-            options={statusOptions}
-            value={status}
-          />
-          <PublisherSelectField
-            onChange={setPublisher}
-            value={publisher}
-          />
-        </section>
+        {!isAssignedTab ? (
+          <section className="mt-2 space-y-6 bg-white px-4 py-6" aria-label="فیلترهای تکمیلی">
+            <SingleSelectField
+              indicator="radio"
+              label="وضعیت آگهی"
+              onChange={setStatus}
+              options={statusOptions}
+              value={status}
+            />
+            <PublisherSelectField
+              onChange={setPublisher}
+              value={publisher}
+            />
+          </section>
+        ) : null}
       </main>
 
       <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
           <RouteLink
             className="inline-flex h-10 items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
-            state={{ filters, onlyMine, tab }}
+            state={{ filters, onlyMine: isAssignedTab ? false : onlyMine, tab }}
             to={adManagementPaths.root}
           >
             اعمال

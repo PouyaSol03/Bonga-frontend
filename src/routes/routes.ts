@@ -46,6 +46,7 @@ const IndependentConsultantTimeBadgePage = lazyNamed(() => import('../pages/acco
 const IndependentConsultantAdManagementPage = lazyNamed(() => import('../pages/account/IndependentConsultantAdManagementPage'), 'IndependentConsultantAdManagementPage')
 const DashboardAdsPage = lazyNamed(() => import('../pages/dashboard/DashboardAdsPage'), 'DashboardAdsPage')
 const IndependentConsultantAdAllocationPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdAllocationPage'), 'IndependentConsultantAdAllocationPage')
+const IndependentConsultantAdAllocationReviewPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdAllocationReviewPage'), 'IndependentConsultantAdAllocationReviewPage')
 const IndependentConsultantAdEditPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdEditPage'), 'IndependentConsultantAdEditPage')
 const IndependentConsultantAdFilterPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdFilterPage'), 'IndependentConsultantAdFilterPage')
 const IndependentConsultantAdPaymentPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdPaymentPage'), 'IndependentConsultantAdPaymentPage')
@@ -372,6 +373,11 @@ export const routes: AppRoute[] = [
     path: '/account/ad-management/allocation',
     title: 'انتشار آگهی',
     Component: IndependentConsultantAdAllocationPage,
+  },
+  {
+    path: '/account/ad-management/allocation-review',
+    title: 'بررسی و تخصیص',
+    Component: IndependentConsultantAdAllocationReviewPage,
   },
   {
     path: '/account/ad-management/payment',

@@ -102,6 +102,30 @@ export const queryKeys = {
       [...queryKeys.chats.detail(threadId), "messages"] as const,
   },
 
+  notifications: {
+    all: ["notifications"] as const,
+    list: (filters: {
+      category?: string;
+      includeDisabled?: boolean;
+      perPage: number;
+      read?: boolean;
+      type?: string;
+    }) =>
+      [
+        ...queryKeys.notifications.all,
+        "list",
+        filters.category ?? "",
+        filters.type ?? "",
+        filters.read ?? "",
+        filters.includeDisabled ?? false,
+        filters.perPage,
+      ] as const,
+    preferences: () =>
+      [...queryKeys.notifications.all, "preferences"] as const,
+    unreadCount: (category?: string) =>
+      [...queryKeys.notifications.all, "unread-count", category ?? ""] as const,
+  },
+
   searchHistory: {
     all: ["search-history"] as const,
     list: (qsearch?: string) =>

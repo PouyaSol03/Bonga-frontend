@@ -1,4 +1,4 @@
-import { useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { BottomSheet } from "../components/BottomSheet";
@@ -7,20 +7,25 @@ import { RouteLink } from "../routes/RouteLink";
 import { DASHBOARD_PATH } from "../routes/routes";
 import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useLogoutMutation } from "../hooks/auth.hooks";
+import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
 import { formatMobileForDisplay } from "../services/auth.service";
 import type { UserProfile } from "../services/account.service";
 
 import {
+  authSessionChangedEventName,
+  getActiveAuthRole,
   getStoredAuthSession,
+  setStoredActiveRole,
   storeLoginRedirectPath,
+  type AuthRoleSlug,
   type AuthSession,
 } from "../auth/auth-storage";
 import {
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
+  USER,
 } from "../constants/roles.constants";
-import { currentAccountUserType } from "./account/accountUserType";
 import LinearRealestate from "../components/(icons)/LinearRealestate";
 import LinearSupport from "../components/(icons)/LinearSupport";
 import LinearBuilding from "../components/(icons)/LinearBuilding";
@@ -50,6 +55,7 @@ import LinearLogout from "../components/(icons)/LinearLogout";
 const MANAGE_ADS_PATH = "/account/manage-ads";
 
 type AccountAction = {
+  activeRole?: AuthRoleSlug;
   icon: AccountIconName;
   label: string;
   onClick?: () => void;
@@ -110,11 +116,6 @@ const accountIconMap: Record<AccountIconName, IconComponent> = {
   "wallet-add": LinearWalletAdd,
 };
 
-const businessActions: AccountAction[] = [
-  { icon: "user", label: "مشاور مستقل", to: DASHBOARD_PATH },
-  { icon: "building", label: "مشاور آژانس جلیلیان", to: DASHBOARD_PATH },
-];
-
 const userBusinessActions: AccountAction[] = [
   { icon: "plus", label: "ایجاد کسب و کار", to: "/account/business/create" },
 ];
@@ -155,11 +156,25 @@ const loggedOutSecondaryActions: AccountAction[] = [
 ];
 
 export function MyAccountPage() {
-  const authSession = getStoredAuthSession();
-  const accountType = authSession?.accountType ?? currentAccountUserType;
+  const [authSession, setAuthSession] = useState(() => getStoredAuthSession());
+  const activeRole = getActiveAuthRole(authSession);
   const [isBusinessSuccessOpen, setIsBusinessSuccessOpen] = useState(() =>
     new URLSearchParams(window.location.search).get("businessSuccess") === "1",
   );
+
+  useEffect(() => {
+    function syncAuthSession() {
+      setAuthSession(getStoredAuthSession());
+    }
+
+    window.addEventListener(authSessionChangedEventName, syncAuthSession);
+    window.addEventListener("storage", syncAuthSession);
+
+    return () => {
+      window.removeEventListener(authSessionChangedEventName, syncAuthSession);
+      window.removeEventListener("storage", syncAuthSession);
+    };
+  }, []);
   const businessSuccessSheet = (
     <AccountBusinessSuccessSheet
       isOpen={isBusinessSuccessOpen}
@@ -170,32 +185,28 @@ export function MyAccountPage() {
     />
   );
 
-  if (authSession && isBusinessAccount(authSession, accountType)) {
+  if (authSession && isBusinessAccount(activeRole)) {
     return <IndependentConsultantAccountPage businessSuccessSheet={businessSuccessSheet} />;
   }
 
   return <StandardAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
 }
 
-function isBusinessAccount(authSession: AuthSession, accountType: string) {
+function isBusinessAccount(role: string | null) {
   return (
-    authSession.role === REAL_ESTATE_MANAGER ||
-    authSession.role === REAL_ESTATE_CONSULTANT ||
-    authSession.role === INDEPENDENT_CONSULTANT ||
-    accountType === "agency-consultant" ||
-    accountType === "independent-consultant"
+    role === REAL_ESTATE_MANAGER ||
+    role === REAL_ESTATE_CONSULTANT ||
+    role === INDEPENDENT_CONSULTANT
   );
 }
 
 function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
   const authSession = getStoredAuthSession();
   const { isLoggingOut, handleLogout } = useLogoutAccount();
-  const isManager = authSession?.role === REAL_ESTATE_MANAGER;
-  const consultantActions = getBusinessAccountActions(authSession?.role);
-  const businessActions: AccountAction[] = [
-    { icon: "user", label: "ناصر اشرفی", to: "/account/profile" },
-    { icon: "agency", label: "املاک جلیلیان", to: DASHBOARD_PATH },
-  ];
+  const activeRole = getActiveAuthRole(authSession);
+  const consultantActions = getBusinessAccountActions(activeRole);
+  const accountSwitchActions = getAccountSwitchActions(authSession, activeRole);
+  const businessHeader = getBusinessAccountHeader(activeRole);
 
   return (
     <TopBarNavigationLayout
@@ -210,31 +221,34 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
       />}
     >
 
-      <section className="shrink-0 bg-white pt-4" aria-label="اطلاعات مشاور">
-        <div className="flex items-center gap-4 px-4">
+      <section className="shrink-0 bg-white pt-4" aria-label={businessHeader.ariaLabel}>
+        <button
+          className="flex w-full items-center gap-4 px-4 text-right"
+          onClick={() => {
+            setStoredActiveRole(USER);
+            navigateTo("/account");
+          }}
+          type="button"
+        >
           <img
-            alt="ناصر اشرفی"
+            alt={businessHeader.name}
             className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
-            src="/figma/account/consultant-profile.png"
+            src={businessHeader.imageSrc}
           />
           <div className="min-w-0 flex-1 text-right">
             <p className="m-0 truncate text-base font-semibold leading-6 text-[#1a1a1a]">
-              ناصر اشرفی
+              {businessHeader.name}
             </p>
             <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
-              مشاور مستقل
+              {businessHeader.subtitle}
             </p>
           </div>
-        </div>
+        </button>
 
-        {isManager ? (
-          <DangerAccountRow
-            action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
-          />
-        ) : (
-          <Divider spaced />
-        )}
-        <AccountSection actions={businessActions} spacedDividers />
+        <DangerAccountRow
+          action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
+        />
+        <AccountSection actions={accountSwitchActions} spacedDividers />
       </section>
 
       <AccountSection
@@ -253,6 +267,33 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
       />
     </TopBarNavigationLayout>
   );
+}
+
+function getBusinessAccountHeader(role?: string | null) {
+  if (role === REAL_ESTATE_MANAGER) {
+    return {
+      ariaLabel: "اطلاعات آژانس",
+      imageSrc: "/figma/account/consultant-profile.png",
+      name: "املاک جلیلیان",
+      subtitle: "آژانس املاک",
+    };
+  }
+
+  if (role === REAL_ESTATE_CONSULTANT) {
+    return {
+      ariaLabel: "اطلاعات مشاور آژانس",
+      imageSrc: "/figma/account/consultant-profile.png",
+      name: "مشاور آژانس جلیلیان",
+      subtitle: "مشاور آژانس",
+    };
+  }
+
+  return {
+    ariaLabel: "اطلاعات مشاور",
+    imageSrc: "/figma/account/consultant-profile.png",
+    name: "ناصر اشرفی",
+    subtitle: "مشاور مستقل",
+  };
 }
 
 function getBusinessAccountActions(role?: string | null): AccountAction[] {
@@ -297,6 +338,63 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
   return managerActions;
 }
 
+function getAccountSwitchActions(
+  authSession: AuthSession | null,
+  activeRole?: string | null,
+): AccountAction[] {
+  if (!authSession) return [];
+
+  const actions: AccountAction[] = [];
+
+  if (authSession.roles.some((role) => role.slug === USER)) {
+    actions.push({
+      activeRole: USER,
+      icon: "user",
+      label: "ناصر اشرفی",
+      to: "/account",
+    });
+  }
+
+  if (authSession.roles.some((role) => role.slug === REAL_ESTATE_MANAGER)) {
+    actions.push({
+      activeRole: REAL_ESTATE_MANAGER,
+      icon: "agency",
+      label: "املاک جلیلیان",
+      to: "/account",
+    });
+  }
+
+  if (authSession.roles.some((role) => role.slug === REAL_ESTATE_CONSULTANT)) {
+    actions.push({
+      activeRole: REAL_ESTATE_CONSULTANT,
+      icon: "building",
+      label: "مشاور آژانس جلیلیان",
+      to: "/account",
+    });
+  }
+
+  if (authSession.roles.some((role) => role.slug === INDEPENDENT_CONSULTANT)) {
+    actions.push({
+      activeRole: INDEPENDENT_CONSULTANT,
+      icon: "user",
+      label: "مشاور مستقل",
+      to: "/account",
+    });
+  }
+
+  return actions.filter((action) => action.activeRole !== activeRole);
+}
+
+function getCreatedBusinessActions(authSession: AuthSession | null) {
+  if (!authSession) return userBusinessActions;
+
+  const actions = getAccountSwitchActions(authSession, USER);
+
+  if (actions.length > 0) return actions;
+
+  return userBusinessActions;
+}
+
 function StandardAccountPage({
   authSession,
   businessSuccessSheet,
@@ -307,8 +405,6 @@ function StandardAccountPage({
   const isLoggedIn = authSession !== null;
   const { data: profile } = useMyProfileQuery({ enabled: isLoggedIn });
   const { isLoggingOut, handleLogout } = useLogoutAccount();
-  const accountType = authSession?.accountType ?? currentAccountUserType;
-  const hasCreatedBusiness = isLoggedIn && accountType !== "user";
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
 
@@ -318,7 +414,7 @@ function StandardAccountPage({
       contentClassName="bg-[#f0f0f0] pb-4"
       frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       overlay={businessSuccessSheet}
-      topBar={<TopBar showBack={false} startSlot={<AccountNotificationButton />} title="حساب من" />}
+      topBar={<TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب من" />}
     >
       {isLoggedIn ? (
         <section className="bg-white" aria-label="وضعیت حساب">
@@ -345,7 +441,7 @@ function StandardAccountPage({
         <LoggedOutAccountHeader />
       )}
 
-      <AccountSection actions={isLoggedIn && authSession?.role === "user" && !hasCreatedBusiness ? userBusinessActions : isLoggedIn ? businessActions : loggedOutBusinessActions} />
+      <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession) : loggedOutBusinessActions} />
 
       <div className="h-4 bg-[#f0f0f0]" />
 
@@ -543,11 +639,18 @@ function AccountMenuRow({
         <RouteLink
           className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
           onClick={(event) => {
-            if (!action.requiresAuth || getStoredAuthSession()) return;
+            if (action.requiresAuth && !getStoredAuthSession()) {
+              event.preventDefault();
+              storeLoginRedirectPath(action.to ?? "/account");
+              navigateTo("/login/phone");
+              return;
+            }
 
-            event.preventDefault();
-            storeLoginRedirectPath(action.to ?? "/account");
-            navigateTo("/login/phone");
+            if (action.activeRole) {
+              setStoredActiveRole(action.activeRole);
+            }
+
+            action.onClick?.();
           }}
           to={action.to}
         >
@@ -612,6 +715,10 @@ function ChevronLeftIcon({ className = "" }: { className?: string }) {
 }
 
 function AccountNotificationButton() {
+  const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery({
+    enabled: Boolean(getStoredAuthSession()),
+  });
+
   return (
     <RouteLink
       aria-label="اعلان‌ها"
@@ -619,10 +726,12 @@ function AccountNotificationButton() {
       to="/notifications"
     >
       <LinearNotification className="h-6 w-6" />
-      <span
-        aria-hidden="true"
-        className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
-      />
+      {unreadNotificationsCount > 0 ? (
+        <span
+          aria-hidden="true"
+          className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+        />
+      ) : null}
     </RouteLink>
   );
 }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { TopBar } from "../../../components/TopBar";
-import { ChevronLeftIcon, SearchIcon } from "./AdManagementIcons";
+import { SearchIcon } from "./AdManagementIcons";
 import { adManagementPublisherOptions, type AdManagementPublisherOption } from "./adManagementData";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
 

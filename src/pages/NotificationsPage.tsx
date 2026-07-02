@@ -1,128 +1,58 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import {
+  subscribeToNotifications,
+  disconnectNotificationSocket,
+  type NotificationReadPayload,
+} from "../api/notification-socket";
+import { queryClient } from "../api/query-client";
+import { queryKeys } from "../api/query-keys";
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
 import { DemoNotice } from "../components/DemoNotice";
+import { getRequestErrorState } from "../components/ErrorState";
+import { SwitchButton } from "../components/SwitchButton";
 import { TopBar } from "../components/TopBar";
+import {
+  useDeleteNotificationMutation,
+  useMarkAllNotificationsReadMutation,
+  useMarkNotificationReadMutation,
+  useNotificationPreferencesQuery,
+  useNotificationsInfiniteQuery,
+  useNotificationUnreadCountQuery,
+  useUpdateNotificationPreferenceMutation,
+} from "../hooks/notification.hooks";
 import { useDemoNotice } from "../hooks/useDemoNotice";
-
-type NotificationType = "ads" | "deals" | "requests" | "chats" | "system" | "financial";
-
-type NotificationItem = {
-  id: string;
-  type: NotificationType;
-  title: string;
-  description: string;
-  actionLabel: string;
-  time: string;
-  colorClassName: string;
-};
+import type {
+  NotificationCategory,
+  NotificationItem,
+  NotificationPreference,
+} from "../services/notification.service";
 
 type FilterOption = {
-  id: NotificationType;
+  id: NotificationCategory;
   label: string;
 };
 
+const notificationsPerPage = 20;
+
 const notificationFilterOptions: FilterOption[] = [
-  { id: "ads", label: "آگهی‌ها" },
-  { id: "deals", label: "معاملات" },
+  { id: "advertise", label: "آگهی‌ها" },
+  { id: "trades", label: "معاملات" },
   { id: "requests", label: "درخواست‌ها" },
   { id: "chats", label: "چت‌ها" },
-  { id: "system", label: "سیستم" },
-  { id: "financial", label: "مالی" },
+  { id: "systems", label: "سیستم" },
 ];
 
-const initialNotifications: NotificationItem[] = [
-  {
-    id: "published",
-    type: "ads",
-    title: "آگهی شما منتشر شد",
-    description: "آگهی آپارتمان ۱۵۰ متری سعادت‌آباد، با موفقیت منتشر شد.",
-    actionLabel: "مشاهده آگهی",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#00a66a]",
-  },
-  {
-    id: "rejected",
-    type: "ads",
-    title: "آگهی شما تایید نشد",
-    description: "آگهی ثبت‌شده به دلیل مغایرت با قوانین منتشر نشد.",
-    actionLabel: "مشاهده دلیل رد",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#ff3b30]",
-  },
-  {
-    id: "incomplete",
-    type: "ads",
-    title: "اطلاعات آگهی ناقص است",
-    description: "برای انتشار آگهی، اطلاعات خواسته‌شده را تکمیل کنید.",
-    actionLabel: "ویرایش آگهی",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#14905a]",
-  },
-  {
-    id: "updated",
-    type: "ads",
-    title: "اطلاعات آگهی بروزرسانی شد",
-    description: "تغییرات اعمال‌شده با موفقیت ذخیره شد.",
-    actionLabel: "ویرایش آگهی",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#0048c4]",
-  },
-  {
-    id: "special",
-    type: "financial",
-    title: "آگهی شما ویژه شد",
-    description: "آگهی اکنون با اولویت بیشتری نمایش داده می‌شود.",
-    actionLabel: "ویرایش آگهی",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#f1c232]",
-  },
-  {
-    id: "renewed",
-    type: "financial",
-    title: "آگهی تمدید شد",
-    description: "مدت نمایش آگهی شما افزایش یافت.",
-    actionLabel: "مشاهده آگهی",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#67d69a]",
-  },
-  {
-    id: "chat",
-    type: "chats",
-    title: "پیام جدید دریافت کردید",
-    description: "یک کاربر درباره آگهی آپارتمان شما پیام داده است.",
-    actionLabel: "مشاهده چت",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#0048c4]",
-  },
-  {
-    id: "deal",
-    type: "deals",
-    title: "وضعیت معامله بروزرسانی شد",
-    description: "وضعیت معامله شما در سامانه تغییر کرد.",
-    actionLabel: "مشاهده معامله",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#8b5cf6]",
-  },
-  {
-    id: "request",
-    type: "requests",
-    title: "درخواست جدید ثبت شد",
-    description: "یک درخواست جدید برای بررسی در حساب شما ثبت شده است.",
-    actionLabel: "مشاهده درخواست",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#f97316]",
-  },
-  {
-    id: "system",
-    type: "system",
-    title: "پیام سیستمی جدید",
-    description: "نسخه جدید قوانین استفاده از سامانه منتشر شده است.",
-    actionLabel: "مشاهده پیام",
-    time: "دیروز ۱۲:۳۰",
-    colorClassName: "bg-[#64748b]",
-  },
-];
+const categoryColorClassNames: Record<NotificationCategory, string> = {
+  advertise: "bg-[#00a66a]",
+  chats: "bg-[#0048c4]",
+  requests: "bg-[#f97316]",
+  systems: "bg-[#64748b]",
+  trades: "bg-[#8b5cf6]",
+};
+
+const defaultPreferenceCategories = notificationFilterOptions.map((option) => option.id);
 
 function MoreVerticalIcon({ className = "" }: { className?: string }) {
   return (
@@ -215,15 +145,129 @@ function navigateTo(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
-function NotificationHeader({ onRefresh }: { onRefresh: () => void }) {
+function readPayloadId(value: unknown) {
+  if (typeof value === "string" || typeof value === "number") return String(value);
+
+  return "";
+}
+
+function formatFaNumber(value: number) {
+  return new Intl.NumberFormat("fa-IR").format(value);
+}
+
+function formatNotificationTime(value?: string) {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const now = new Date();
+  const dateKey = new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+  }).format(date);
+  const todayKey = new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+  }).format(now);
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayKey = new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+  }).format(yesterday);
+  const time = new Intl.DateTimeFormat("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Tehran",
+  }).format(date);
+
+  if (dateKey === todayKey) return `امروز ${time}`;
+  if (dateKey === yesterdayKey) return `دیروز ${time}`;
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+  }).format(date);
+}
+
+function getNotificationPath(notification: NotificationItem) {
+  const payload = notification.payload ?? {};
+  const target = typeof payload.target === "string" ? payload.target : "";
+
+  switch (target) {
+    case "advertise": {
+      const advertiseId = readPayloadId(payload.advertise_id);
+      return advertiseId ? `/ads/${advertiseId}` : "";
+    }
+
+    case "chat": {
+      const threadId = readPayloadId(payload.chat_thread_id);
+      return threadId ? `/chat/${threadId}` : "/chat";
+    }
+
+    case "payment":
+      return "/account/wallet/history";
+
+    case "agency":
+      return "/account/dashboard/agency";
+
+    case "support":
+      return "/account/about";
+
+    case "profile":
+      return "/account/profile";
+
+    case "request":
+      return "/account/requests";
+
+    default:
+      return "";
+  }
+}
+
+function getNotificationActionLabel(notification: NotificationItem) {
+  const target = notification.payload?.target;
+
+  if (target === "advertise") return "مشاهده آگهی";
+  if (target === "chat") return "مشاهده چت";
+  if (target === "payment") return "مشاهده پرداخت";
+  if (target === "agency") return "مشاهده آژانس";
+  if (target === "profile") return "مشاهده پروفایل";
+  if (target === "request") return "مشاهده درخواست";
+  if (target === "support") return "مشاهده پشتیبانی";
+
+  return notification.is_read ? "مشاهده" : "خواندن اعلان";
+}
+
+function NotificationHeader({
+  onOpenSettings,
+  onRefresh,
+  unreadCount,
+}: {
+  onOpenSettings: () => void;
+  onRefresh: () => void;
+  unreadCount: number;
+}) {
   return (
     <TopBar
       actions={[
         {
           icon: <MoreVerticalIcon className="h-6 w-6" />,
           id: "more",
-          label: "گزینه‌های بیشتر",
-          onClick: () => undefined,
+          label: "تنظیمات اعلان‌ها",
+          onClick: onOpenSettings,
         },
         {
           icon: <RefreshIcon className="h-6 w-6" />,
@@ -235,7 +279,7 @@ function NotificationHeader({ onRefresh }: { onRefresh: () => void }) {
       backLabel="بازگشت به خانه"
       backTo="/home"
       heightClassName="h-14"
-      title="اعلان‌ها"
+      title={unreadCount > 0 ? `اعلان‌ها (${formatFaNumber(unreadCount)})` : "اعلان‌ها"}
     />
   );
 }
@@ -243,7 +287,7 @@ function NotificationHeader({ onRefresh }: { onRefresh: () => void }) {
 function NotificationFilterButton({ count, onClick }: { count: number; onClick: () => void }) {
   return (
     <button
-      className="relative flex p-2 shrink-0 items-center gap-1 rounded-xl border border-[#2E2D3E29] bg-white px-2.5 text-sm font-medium leading-5 text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
+      className="relative flex shrink-0 items-center gap-1 rounded-xl border border-[#2E2D3E29] bg-white px-2.5 py-2 text-sm font-medium leading-5 text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
       onClick={onClick}
       type="button"
     >
@@ -264,14 +308,11 @@ function NotificationFilterBar({
   selectedFilters,
 }: {
   onOpenFilters: () => void;
-  onRemoveFilter: (id: NotificationType) => void;
+  onRemoveFilter: (id: NotificationCategory) => void;
   selectedFilters: FilterOption[];
 }) {
   return (
-    <section
-      className={`shrink-0 overflow-hidden bg-[#f0f0f0] px-4 py-2`}
-      aria-label="فیلتر اعلان‌ها"
-    >
+    <section className="shrink-0 overflow-hidden bg-[#f0f0f0] px-4 py-2" aria-label="فیلتر اعلان‌ها">
       <div className="flex min-h-10 items-center gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <NotificationFilterButton count={selectedFilters.length} onClick={onOpenFilters} />
         {selectedFilters.map((filter) => (
@@ -299,15 +340,15 @@ function NotificationFilterSheet({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onToggle: (id: NotificationType) => void;
-  selectedFilterIds: Set<NotificationType>;
+  onToggle: (id: NotificationCategory) => void;
+  selectedFilterIds: Set<NotificationCategory>;
 }) {
   return (
     <BottomSheet
       ariaLabel="فیلتر اعلان‌ها"
       className="rounded-t-[22px]"
       contentClassName="mt-4"
-      heightClassName="h-[440px]"
+      heightClassName="h-[400px]"
       isOpen={isOpen}
       onClose={onClose}
       panelPaddingClassName="pt-3"
@@ -322,17 +363,18 @@ function NotificationFilterSheet({
           return (
             <button
               aria-pressed={isSelected}
-              className="flex h-[72px] w-full items-center justify-between text-right text-base font-medium leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+              className="flex h-[64px] w-full items-center justify-between text-right text-base font-medium leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
               key={option.id}
               onClick={() => onToggle(option.id)}
               type="button"
             >
               <span>{option.label}</span>
               <span
-                className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
-                  ? "border-[#0048c4] bg-[#0048c4] text-white"
-                  : "border-[#808080] bg-white text-transparent"
-                  }`}
+                className={`grid h-[18px] w-[18px] place-items-center rounded border ${
+                  isSelected
+                    ? "border-[#0048c4] bg-[#0048c4] text-white"
+                    : "border-[#808080] bg-white text-transparent"
+                }`}
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
               </span>
@@ -344,15 +386,95 @@ function NotificationFilterSheet({
   );
 }
 
-function NotificationActionButton({ label, type }: { label: string; type: NotificationType }) {
+function NotificationSettingsSheet({
+  isMarkingAllRead,
+  isOpen,
+  isPreferencesLoading,
+  onClose,
+  onMarkAllRead,
+  onTogglePreference,
+  preferences,
+}: {
+  isMarkingAllRead: boolean;
+  isOpen: boolean;
+  isPreferencesLoading: boolean;
+  onClose: () => void;
+  onMarkAllRead: () => void;
+  onTogglePreference: (category: NotificationCategory, enabled: boolean) => void;
+  preferences: NotificationPreference[];
+}) {
+  const preferenceMap = new Map(
+    preferences.map((preference) => [preference.category, preference.enabled]),
+  );
+
+  return (
+    <BottomSheet
+      ariaLabel="تنظیمات اعلان‌ها"
+      className="rounded-t-[22px]"
+      contentClassName="mt-4"
+      heightClassName="h-[460px]"
+      isOpen={isOpen}
+      onClose={onClose}
+      panelPaddingClassName="pt-3"
+      scrimClassName="bg-[#1a1a1a]/60"
+      title="تنظیمات اعلان‌ها"
+      showHeaderDivider={false}
+    >
+      <div className="space-y-2 px-4 pb-5">
+        <button
+          className="mb-2 flex h-12 w-full items-center justify-center rounded-xl bg-[#0048c4] text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isMarkingAllRead}
+          onClick={onMarkAllRead}
+          type="button"
+        >
+          {isMarkingAllRead ? "در حال ثبت..." : "خواندن همه اعلان‌ها"}
+        </button>
+
+        {isPreferencesLoading ? (
+          <p className="py-8 text-center text-sm text-[#808080]">در حال دریافت تنظیمات...</p>
+        ) : (
+          defaultPreferenceCategories.map((category) => {
+            const option = notificationFilterOptions.find((item) => item.id === category);
+            const enabled = preferenceMap.get(category) ?? true;
+
+            return (
+              <div
+                className="flex min-h-[58px] items-center justify-between border-b border-[#eeeeee]"
+                key={category}
+              >
+                <div className="text-right">
+                  <p className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
+                    {option?.label ?? category}
+                  </p>
+                  <p className="m-0 mt-1 text-xs leading-4 text-[#808080]">
+                    {enabled ? "اعلان‌های این دسته نمایش داده می‌شود" : "این دسته پنهان است"}
+                  </p>
+                </div>
+                <SwitchButton
+                  ariaLabel={`تغییر وضعیت ${option?.label ?? category}`}
+                  checked={enabled}
+                  onChange={(nextEnabled) => onTogglePreference(category, nextEnabled)}
+                />
+              </div>
+            );
+          })
+        )}
+      </div>
+    </BottomSheet>
+  );
+}
+
+function NotificationActionButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
   return (
     <button
-      className="flex px-4 py-1.5 items-center gap-1 rounded-lg border border-[#d9d9d9] bg-white !text-xs !font-medium leading-4 text-[#333333] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
-      onClick={() => {
-        if (type === "chats") {
-          navigateTo("/chat");
-        }
-      }}
+      className="flex items-center gap-1 rounded-lg border border-[#d9d9d9] bg-white px-4 py-1.5 !text-xs !font-medium leading-4 text-[#333333] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
+      onClick={onClick}
       type="button"
     >
       <span>{label}</span>
@@ -364,9 +486,11 @@ function NotificationActionButton({ label, type }: { label: string; type: Notifi
 function SwipeableNotificationCard({
   item,
   onDelete,
+  onOpen,
 }: {
   item: NotificationItem;
   onDelete: () => void;
+  onOpen: () => void;
 }) {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -374,6 +498,8 @@ function SwipeableNotificationCard({
   const startYRef = useRef<number | null>(null);
   const isSwipeRef = useRef(false);
   const pointerIdRef = useRef<number | null>(null);
+  const category = item.category ?? "systems";
+  const isUnread = item.is_read === false;
 
   const resetSwipe = () => {
     setDragOffset(0);
@@ -395,8 +521,9 @@ function SwipeableNotificationCard({
       </div>
 
       <article
-        className={`relative z-10 flex h-full touch-pan-y select-none flex-col gap-y-4 bg-white px-4 py-4 text-right ${isDragging ? "" : "transition-transform duration-200 ease-out"
-          }`}
+        className={`relative z-10 flex h-full touch-pan-y select-none flex-col gap-y-4 px-4 py-4 text-right ${
+          isUnread ? "bg-[#f7faff]" : "bg-white"
+        } ${isDragging ? "" : "transition-transform duration-200 ease-out"}`}
         style={{ transform: `translateX(${dragOffset}px)` }}
         onPointerDown={(event) => {
           if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -472,38 +599,92 @@ function SwipeableNotificationCard({
       >
         <div className="flex items-start justify-between gap-3 [direction:ltr]">
           <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-[#999999]">
-            {item.time}
+            {formatNotificationTime(item.created_at)}
           </time>
 
           <div className="min-w-0 flex-1 text-right [direction:rtl]">
             <div className="flex items-center justify-start gap-2">
-              <span className={`h-3 w-3 shrink-0 rotate-45 rounded-[2px] ${item.colorClassName}`} />
-              <h2 className="m-0 truncate text-sm font-semibold leading-6 text-[#4D4D4D]">
-                {item.title}
+              <span
+                className={`h-3 w-3 shrink-0 rotate-45 rounded-[2px] ${
+                  categoryColorClassNames[category]
+                }`}
+              />
+              <h2
+                className={`m-0 truncate text-sm leading-6 ${
+                  isUnread ? "font-bold text-[#1a1a1a]" : "font-semibold text-[#4D4D4D]"
+                }`}
+              >
+                {item.title || "اعلان جدید"}
               </h2>
+              {isUnread ? (
+                <span className="h-2 w-2 shrink-0 rounded-full bg-[#ef1f1f]" aria-label="خوانده نشده" />
+              ) : null}
             </div>
 
-            <p className="mt-2 line-clamp-1 text-xs font-normal leading-5 text-[#4D4D4D]">
-              {item.description}
+            <p className="mt-2 line-clamp-2 text-xs font-normal leading-5 text-[#4D4D4D]">
+              {item.description || "برای مشاهده جزئیات اعلان را باز کنید."}
             </p>
           </div>
         </div>
 
         <div className="mt-auto flex justify-start [direction:rtl]">
-          <NotificationActionButton label={item.actionLabel} type={item.type} />
+          <NotificationActionButton
+            label={getNotificationActionLabel(item)}
+            onClick={onOpen}
+          />
         </div>
       </article>
     </div>
   );
 }
 
+function mergeNotifications(
+  realtimeNotifications: NotificationItem[],
+  serverNotifications: NotificationItem[],
+) {
+  const usedIds = new Set<string>();
+  const merged: NotificationItem[] = [];
+
+  [...realtimeNotifications, ...serverNotifications].forEach((notification) => {
+    const notificationId = String(notification.id);
+
+    if (usedIds.has(notificationId)) return;
+    usedIds.add(notificationId);
+    merged.push(notification);
+  });
+
+  return merged;
+}
+
 export function NotificationsPage() {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const [selectedFilterIds, setSelectedFilterIds] = useState<Set<NotificationType>>(
+  const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
+  const [realtimeNotifications, setRealtimeNotifications] = useState<NotificationItem[]>([]);
+  const [selectedFilterIds, setSelectedFilterIds] = useState<Set<NotificationCategory>>(
     () => new Set(),
   );
+  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const { message, showNotice } = useDemoNotice();
+
+  const notificationsQuery = useNotificationsInfiniteQuery({
+    perPage: notificationsPerPage,
+  });
+  const unreadCountQuery = useNotificationUnreadCountQuery();
+  const preferencesQuery = useNotificationPreferencesQuery();
+  const markReadMutation = useMarkNotificationReadMutation();
+  const markAllReadMutation = useMarkAllNotificationsReadMutation();
+  const deleteMutation = useDeleteNotificationMutation();
+  const updatePreferenceMutation = useUpdateNotificationPreferenceMutation();
+
+  const serverNotifications = useMemo(
+    () => notificationsQuery.data?.pages.flatMap((page) => page.data) ?? [],
+    [notificationsQuery.data],
+  );
+
+  const notifications = useMemo(
+    () => mergeNotifications(realtimeNotifications, serverNotifications),
+    [realtimeNotifications, serverNotifications],
+  );
 
   const selectedFilters = useMemo(
     () => notificationFilterOptions.filter((option) => selectedFilterIds.has(option.id)),
@@ -513,10 +694,144 @@ export function NotificationsPage() {
   const visibleNotifications = useMemo(() => {
     if (selectedFilterIds.size === 0) return notifications;
 
-    return notifications.filter((notification) => selectedFilterIds.has(notification.type));
+    return notifications.filter((notification) =>
+      selectedFilterIds.has(notification.category ?? "systems"),
+    );
   }, [notifications, selectedFilterIds]);
 
-  const toggleFilter = (id: NotificationType) => {
+  const unreadCount = unreadCountQuery.data ?? 0;
+  const ErrorState = getRequestErrorState(notificationsQuery.error);
+  const fetchNextNotificationsPage = notificationsQuery.fetchNextPage;
+  const hasNextNotificationsPage = notificationsQuery.hasNextPage;
+  const isFetchingNextNotificationsPage = notificationsQuery.isFetchingNextPage;
+  const refetchNotifications = notificationsQuery.refetch;
+  const refetchUnreadCount = unreadCountQuery.refetch;
+
+  const loadMoreSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      loadMoreObserverRef.current?.disconnect();
+      loadMoreObserverRef.current = null;
+
+      if (!node || !hasNextNotificationsPage || isFetchingNextNotificationsPage) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0]?.isIntersecting &&
+            hasNextNotificationsPage &&
+            !isFetchingNextNotificationsPage
+          ) {
+            void fetchNextNotificationsPage();
+          }
+        },
+        { root: null, rootMargin: "220px 0px", threshold: 0 },
+      );
+
+      observer.observe(node);
+      loadMoreObserverRef.current = observer;
+    },
+    [
+      fetchNextNotificationsPage,
+      hasNextNotificationsPage,
+      isFetchingNextNotificationsPage,
+    ],
+  );
+
+  useEffect(() => {
+    const socket = subscribeToNotifications({
+      onSnapshot: (snapshot) => {
+        if (typeof snapshot.unread_count === "number") {
+          queryClient.setQueryData(
+            queryKeys.notifications.unreadCount(),
+            snapshot.unread_count,
+          );
+        }
+      },
+      perPage: notificationsPerPage,
+    });
+
+    const handleNewNotification = ({
+      notification,
+      unread_count: nextUnreadCount,
+    }: {
+      notification?: NotificationItem;
+      unread_count?: number;
+    }) => {
+      if (notification) {
+        setRealtimeNotifications((current) => [
+          notification,
+          ...current.filter((item) => String(item.id) !== String(notification.id)),
+        ]);
+        showNotice(notification.title || "اعلان جدید دریافت شد");
+      }
+
+      if (typeof nextUnreadCount === "number") {
+        queryClient.setQueryData(
+          queryKeys.notifications.unreadCount(),
+          nextUnreadCount,
+        );
+      }
+    };
+
+    const handleUnreadCount = ({ count }: { count?: number }) => {
+      if (typeof count === "number") {
+        queryClient.setQueryData(queryKeys.notifications.unreadCount(), count);
+      }
+    };
+
+    const handleRead = (payload: NotificationReadPayload) => {
+      if ("all" in payload && payload.all) {
+        setRealtimeNotifications((current) =>
+          current.map((notification) =>
+            !payload.category || notification.category === payload.category
+              ? { ...notification, is_read: true }
+              : notification,
+          ),
+        );
+      } else if (payload.notification_id) {
+        setRealtimeNotifications((current) =>
+          current.map((notification) =>
+            String(notification.id) === payload.notification_id
+              ? { ...notification, is_read: true }
+              : notification,
+          ),
+        );
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.all,
+      });
+    };
+
+    const handleConnect = () => {
+      void refetchNotifications();
+      void refetchUnreadCount();
+    };
+
+    const handleSocketError = ({ message: socketMessage }: { message?: string }) => {
+      showNotice(socketMessage || "اتصال اعلان‌ها با خطا مواجه شد");
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("notification:new", handleNewNotification);
+    socket.on("notification:unread-count", handleUnreadCount);
+    socket.on("notification:read", handleRead);
+    socket.on("notification:error", handleSocketError);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("notification:new", handleNewNotification);
+      socket.off("notification:unread-count", handleUnreadCount);
+      socket.off("notification:read", handleRead);
+      socket.off("notification:error", handleSocketError);
+      loadMoreObserverRef.current?.disconnect();
+      disconnectNotificationSocket();
+    };
+  }, [refetchNotifications, refetchUnreadCount, showNotice]);
+
+  const toggleFilter = (id: NotificationCategory) => {
     setSelectedFilterIds((current) => {
       const next = new Set(current);
 
@@ -530,7 +845,7 @@ export function NotificationsPage() {
     });
   };
 
-  const removeFilter = (id: NotificationType) => {
+  const removeFilter = (id: NotificationCategory) => {
     setSelectedFilterIds((current) => {
       const next = new Set(current);
       next.delete(id);
@@ -538,9 +853,54 @@ export function NotificationsPage() {
     });
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications((current) => current.filter((notification) => notification.id !== id));
+  const refreshNotifications = async () => {
+    setRealtimeNotifications([]);
+    await Promise.all([notificationsQuery.refetch(), unreadCountQuery.refetch()]);
+    showNotice("اعلان‌ها بروزرسانی شد");
+  };
+
+  const openNotification = async (notification: NotificationItem) => {
+    if (!notification.is_read) {
+      setRealtimeNotifications((current) =>
+        current.map((item) =>
+          String(item.id) === String(notification.id) ? { ...item, is_read: true } : item,
+        ),
+      );
+      await markReadMutation.mutateAsync(String(notification.id));
+    }
+
+    const path = getNotificationPath(notification);
+
+    if (path) {
+      navigateTo(path);
+    } else {
+      showNotice("اعلان خوانده شد");
+    }
+  };
+
+  const removeNotification = async (notification: NotificationItem) => {
+    setRealtimeNotifications((current) =>
+      current.filter((item) => String(item.id) !== String(notification.id)),
+    );
+    await deleteMutation.mutateAsync(String(notification.id));
     showNotice("اعلان حذف شد");
+  };
+
+  const markAllRead = async () => {
+    await markAllReadMutation.mutateAsync(undefined);
+    setRealtimeNotifications((current) =>
+      current.map((notification) => ({ ...notification, is_read: true })),
+    );
+    setIsSettingsSheetOpen(false);
+    showNotice("همه اعلان‌ها خوانده شد");
+  };
+
+  const togglePreference = async (
+    category: NotificationCategory,
+    enabled: boolean,
+  ) => {
+    await updatePreferenceMutation.mutateAsync({ category, enabled });
+    showNotice(enabled ? "دسته اعلان فعال شد" : "دسته اعلان غیرفعال شد");
   };
 
   return (
@@ -548,7 +908,11 @@ export function NotificationsPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <NotificationHeader onRefresh={() => showNotice("اعلان‌ها بروزرسانی شد")} />
+      <NotificationHeader
+        onOpenSettings={() => setIsSettingsSheetOpen(true)}
+        onRefresh={() => void refreshNotifications()}
+        unreadCount={unreadCount}
+      />
       <NotificationFilterBar
         onOpenFilters={() => setIsFilterSheetOpen(true)}
         onRemoveFilter={removeFilter}
@@ -556,16 +920,51 @@ export function NotificationsPage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
-        {visibleNotifications.map((notification) => (
-          <SwipeableNotificationCard
-            item={notification}
-            key={notification.id}
-            onDelete={() => deleteNotification(notification.id)}
-          />
-        ))}
+        {notificationsQuery.isLoading ? (
+          <p className="py-16 text-center text-sm text-[#808080]">
+            در حال دریافت اعلان‌ها...
+          </p>
+        ) : null}
 
-        {visibleNotifications.length === 0 ? (
+        {notificationsQuery.isError ? (
+          <ErrorState
+            className="min-h-[420px]"
+            onRetry={() => void refreshNotifications()}
+          />
+        ) : null}
+
+        {!notificationsQuery.isLoading &&
+          !notificationsQuery.isError &&
+          visibleNotifications.map((notification, index) => {
+            const shouldAttachLoadMoreRef =
+              index === Math.max(visibleNotifications.length - 3, 0) &&
+              notificationsQuery.hasNextPage &&
+              !notificationsQuery.isFetchingNextPage;
+
+            return (
+              <div
+                key={String(notification.id)}
+                ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+              >
+                <SwipeableNotificationCard
+                  item={notification}
+                  onDelete={() => void removeNotification(notification)}
+                  onOpen={() => void openNotification(notification)}
+                />
+              </div>
+            );
+          })}
+
+        {!notificationsQuery.isLoading &&
+        !notificationsQuery.isError &&
+        visibleNotifications.length === 0 ? (
           <p className="py-16 text-center text-sm text-[#808080]">اعلانی یافت نشد</p>
+        ) : null}
+
+        {notificationsQuery.isFetchingNextPage ? (
+          <p className="py-4 text-center text-xs text-[#808080]">
+            در حال دریافت اعلان‌های بیشتر...
+          </p>
         ) : null}
       </main>
 
@@ -574,6 +973,15 @@ export function NotificationsPage() {
         onClose={() => setIsFilterSheetOpen(false)}
         onToggle={toggleFilter}
         selectedFilterIds={selectedFilterIds}
+      />
+      <NotificationSettingsSheet
+        isMarkingAllRead={markAllReadMutation.isPending}
+        isOpen={isSettingsSheetOpen}
+        isPreferencesLoading={preferencesQuery.isLoading}
+        onClose={() => setIsSettingsSheetOpen(false)}
+        onMarkAllRead={() => void markAllRead()}
+        onTogglePreference={(category, enabled) => void togglePreference(category, enabled)}
+        preferences={preferencesQuery.data ?? []}
       />
       <DemoNotice message={message} />
     </PageFrame>

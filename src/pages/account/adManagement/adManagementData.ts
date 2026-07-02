@@ -176,6 +176,10 @@ export const adManagementPaths = {
   statisticsDetails: "/account/ad-management/statistics/details",
 } as const;
 
+export function getAllocationReviewPath(adId: ConsultantAd["id"]) {
+  return `${adManagementPaths.allocationReview}/${adId}`;
+}
+
 export const consultantAds: ConsultantAd[] = latestMashhadAds;
 
 export const consultantStatusAds: ConsultantAd[] = latestMashhadAds
@@ -201,8 +205,31 @@ export function getAdManagementRouteState(): AdManagementRouteState {
   return (window.history.state as AdManagementRouteState | null) ?? {};
 }
 
-export function getSelectedConsultantAd() {
-  return getAdManagementRouteState().ad ?? consultantStatusAds[0];
+function getAdIdFromPath() {
+  const match = window.location.pathname.match(/\/account\/ad-management\/allocation-review\/([^/]+)\/?$/);
+
+  return match?.[1];
+}
+
+export function getConsultantAdById(adId?: ConsultantAd["id"] | string) {
+  if (adId === undefined || adId === null || adId === "") return undefined;
+
+  const normalizedAdId = String(adId);
+
+  return consultantAds.find((ad) => String(ad.id) === normalizedAdId);
+}
+
+export function getSelectedConsultantAd(adId?: ConsultantAd["id"] | string) {
+  const routeState = getAdManagementRouteState();
+  const selectedAdId = adId ?? getAdIdFromPath();
+  const routeAdMatchesPath =
+    routeState.ad && selectedAdId !== undefined
+      ? String(routeState.ad.id) === String(selectedAdId)
+      : Boolean(routeState.ad);
+
+  if (routeState.ad && routeAdMatchesPath) return routeState.ad;
+
+  return getConsultantAdById(selectedAdId) ?? routeState.ad ?? consultantStatusAds[0];
 }
 
 export function getSelectedStatisticsAd() {

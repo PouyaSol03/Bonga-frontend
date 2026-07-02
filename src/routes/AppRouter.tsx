@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
+import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
@@ -8,6 +8,7 @@ import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar } from '../components/TopBar'
 import { USER } from '../constants/roles.constants'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
+import { useNotificationUnreadCountQuery } from '../hooks/notification.hooks'
 import {
   canAccessRoute,
   DASHBOARD_PATH,
@@ -56,7 +57,25 @@ function isDesktopDashboardViewport() {
 }
 
 function shouldUseDesktopDashboard(session: ReturnType<typeof getStoredAuthSession>) {
-  return Boolean(session && session.role !== USER && isDesktopDashboardViewport())
+  return Boolean(session && getActiveAuthRole(session) !== USER && isDesktopDashboardViewport())
+}
+
+function NotificationTopBarIcon() {
+  const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery({
+    enabled: Boolean(getStoredAuthSession()),
+  })
+
+  return (
+    <span className="relative grid h-6 w-6 place-items-center">
+      <LinearNotification className="h-6 w-6" />
+      {unreadNotificationsCount > 0 ? (
+        <span
+          aria-hidden="true"
+          className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
+        />
+      ) : null}
+    </span>
+  )
 }
 
 function getCanonicalDashboardPath(path: string) {
@@ -128,6 +147,7 @@ function getBottomNavigationKey(path: string) {
     path.startsWith('/account/business/create') ||
     path === '/account/delete-user' ||
     path === '/account/ad-management/allocation' ||
+    path.startsWith('/account/ad-management/allocation-review') ||
     path === '/account/ad-management/payment' ||
     path === '/account/ad-management/filter' ||
     path.startsWith('/account/ad-management/published') ||
@@ -150,15 +170,7 @@ function getRouteHeader(path: string, title: string) {
       <TopBar
         actions={[
           {
-            icon: (
-              <span className="relative grid h-6 w-6 place-items-center">
-                <LinearNotification className="h-6 w-6" />
-                <span
-                  aria-hidden="true"
-                  className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
-                />
-              </span>
-            ),
+            icon: <NotificationTopBarIcon />,
             id: "notifications",
             label: "اعلان‌ها",
             to: "/notifications",
@@ -218,6 +230,18 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
 function getRoute(path: string): AppRoute {
   if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
     return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage }
+  }
+
+  if (/^\/account\/ad-management\/allocation-review\/[^/]+\/?$/.test(path)) {
+    const allocationReviewRoute = routes.find(
+      (route) => route.path === '/account/ad-management/allocation-review',
+    )
+
+    return {
+      path,
+      title: allocationReviewRoute?.title ?? 'بررسی و تخصیص',
+      Component: allocationReviewRoute?.Component ?? routes[0].Component,
+    }
   }
 
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {

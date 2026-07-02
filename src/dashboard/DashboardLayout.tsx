@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode, memo } from "react";
-import { type AuthSession } from "../auth/auth-storage";
+import { getActiveAuthRole, type AuthSession } from "../auth/auth-storage";
 import { getVisibleDashboardItems } from "./dashboardNavigation";
 import { RouteLink } from "../routes/RouteLink";
 import { DashboardHeader } from "./DashboardHeader";
@@ -125,10 +125,11 @@ export function DashboardLayout({
   session,
 }: DashboardLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const activeRole = getActiveAuthRole(session);
 
   const visibleItems = useMemo(
-    () => getVisibleDashboardItems(session.role),
-    [session.role],
+    () => getVisibleDashboardItems(activeRole),
+    [activeRole],
   );
 
   return (

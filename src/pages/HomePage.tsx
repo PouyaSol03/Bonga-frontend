@@ -15,11 +15,13 @@ import { BusinessBanner } from "./home/components/BusinessBanner";
 import { getApiErrorMessage } from "../api/api";
 import { useAdvertisementInfiniteQuery } from "../hooks/advertisement.hooks";
 import { useCategoryListQuery } from "../hooks/category.hooks";
+import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
 import {
   mapAdvertisementToAdCard,
 } from "../services/advertisement.service";
 import type { CategoryItem } from "../services/category.service";
 import { getRequestErrorState } from "../components/ErrorState";
+import { getStoredAuthSession } from "../auth/auth-storage";
 import { readStoredSelectedCity } from "../lib/selectedCityStorage";
 
 import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
@@ -197,6 +199,7 @@ function HomeAdCardSkeleton() {
 }
 
 export function HomePage() {
+  const hasAuthSession = Boolean(getStoredAuthSession());
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
   );
@@ -227,6 +230,9 @@ export function HomePage() {
     cityId: selectedCity.id,
     filters: selectedFormCode ? { formCode: selectedFormCode } : undefined,
     perPage: 10,
+  });
+  const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery({
+    enabled: hasAuthSession,
   });
 
   const quickActions = useMemo(
@@ -346,10 +352,12 @@ export function HomePage() {
               type="button"
             >
               <NotificationIcon />
-              <span
-                aria-hidden="true"
-                className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
-              />
+              {unreadNotificationsCount > 0 ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+                />
+              ) : null}
             </button>
 
             <button

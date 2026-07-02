@@ -23,15 +23,12 @@ function downgradeBusinessToUser() {
     name: "کاربر",
     slug: USER,
   };
-  const roles = session.roles.some((role) => role.slug === USER)
-    ? session.roles
-    : [userRole, ...session.roles];
-
   setStoredAuthSession({
     ...session,
+    activeRole: USER,
     accountType: USER,
     role: USER,
-    roles,
+    roles: [userRole],
   });
 
   navigateTo("/account");

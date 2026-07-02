@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { getStoredAuthSession } from "../../../auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../../constants/roles.constants";
 import { PublisherSelectField } from "../../account/adManagement/PublisherSelectField";
 import { adManagementPublisherOptions } from "../../account/adManagement/adManagementData";
@@ -23,7 +23,7 @@ export function MediaStep({
 }) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
-  const isRealEstateManager = getStoredAuthSession()?.role === REAL_ESTATE_MANAGER;
+  const isRealEstateManager = getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
   const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) =>
     setValue(key as never, value as never, { shouldDirty: true });
 

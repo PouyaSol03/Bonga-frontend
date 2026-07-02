@@ -2,6 +2,7 @@ import { useState } from "react";
 import UserSolid from "../assets/icons/UserSolid";
 import { getApiAssetUrl } from "../api/api";
 import { useMyProfileQuery } from "../hooks/account.hooks";
+import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
 import { RouteLink } from "../routes/RouteLink";
 
 const dashboardStats = [
@@ -12,6 +13,7 @@ const dashboardStats = [
 
 export function DashboardHeader() {
   const { data: profile } = useMyProfileQuery();
+  const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery();
   const fullName = [profile?.name, profile?.family]
     .map((value) => value?.trim())
     .filter(Boolean)
@@ -34,10 +36,16 @@ export function DashboardHeader() {
 
         <RouteLink
           aria-label="اعلان‌ها"
-          className="grid h-10 w-10 place-items-center rounded-lg transition hover:bg-[#f5f7fb]"
+          className="relative grid h-10 w-10 place-items-center rounded-lg transition hover:bg-[#f5f7fb]"
           to="/notifications"
         >
           <Notification />
+          {unreadNotificationsCount > 0 ? (
+            <span
+              aria-hidden="true"
+              className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+            />
+          ) : null}
         </RouteLink>
 
         <ProfileBox avatarUrl={avatarUrl} name={fullName || "کاربر شناسا"} />

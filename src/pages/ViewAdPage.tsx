@@ -40,7 +40,7 @@ import { viewAdDemo, parseAdIdFromPath } from "./viewAd/viewAdData";
 import { ViewAdIcon } from "./viewAd/ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
-import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
+import { getStoredAuthSession } from "../auth/auth-storage";
 
 type AlbumMediaItem = {
   src: string;
@@ -48,9 +48,7 @@ type AlbumMediaItem = {
 };
 
 type ActionToast = {
-  actionLabel?: string;
   message: string;
-  onAction?: () => void;
   title: string;
   variant: SnackbarVariant;
 };
@@ -3189,11 +3187,14 @@ function DetailInfoFullPage({
   );
 }
 
-function redirectToLoginProcess() {
+function navigateToLoginRequiredPage(actionLabel: string) {
   const redirectPath = `${window.location.pathname}${window.location.search}`;
+  const params = new URLSearchParams({
+    action: actionLabel,
+    returnTo: redirectPath,
+  });
 
-  storeLoginRedirectPath(redirectPath);
-  window.history.pushState({}, "", "/login/phone");
+  window.history.pushState({}, "", `/login-required?${params.toString()}`);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -3308,13 +3309,7 @@ export function ViewAdPage() {
   const requireAuthorization = (actionLabel: string) => {
     if (isLoggedIn()) return true;
 
-    setToast({
-      actionLabel: "ورود",
-      message: `برای ${actionLabel} ابتدا وارد حساب کاربری شوید.`,
-      onAction: redirectToLoginProcess,
-      title: "ورود لازم است",
-      variant: "info",
-    });
+    navigateToLoginRequiredPage(actionLabel);
 
     return false;
   };
@@ -3529,10 +3524,8 @@ export function ViewAdPage() {
 
       {toast ? (
         <Snackbar
-          actionLabel={toast.actionLabel}
           className="top-16"
           message={toast.message}
-          onAction={toast.onAction}
           onDismiss={() => setToast(null)}
           title={toast.title}
           variant={toast.variant}

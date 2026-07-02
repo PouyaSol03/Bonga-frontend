@@ -20,6 +20,7 @@ export const authRoleSlugs: AuthRoleSlug[] = [
 export type AuthSession = {
   accessToken: string;
   accountType: string;
+  activeRole?: AuthRoleSlug;
   expiresAt: number | null;
   mobile: string;
   role: AuthRoleSlug;
@@ -27,14 +28,17 @@ export type AuthSession = {
 };
 
 const authSessionKey = "bonga-auth-session";
+const authSessionChangedEvent = "bonga-auth-session-changed";
 const pendingMobileKey = "bonga-pending-mobile";
 const otpResendAtKey = "bonga-otp-resend-at";
 const loginRedirectPathKey = "bonga-login-redirect-path";
 
 export const otpResendCooldownMilliseconds = 60_000;
+export const authSessionChangedEventName = authSessionChangedEvent;
 
 export function setStoredAuthSession(session: AuthSession) {
   window.localStorage.setItem(authSessionKey, JSON.stringify(session));
+  window.dispatchEvent(new CustomEvent(authSessionChangedEvent));
 }
 
 export function getStoredAuthSession() {
@@ -57,8 +61,42 @@ export function getStoredAuthSession() {
   }
 }
 
+export function getActiveAuthRole(session: AuthSession | null) {
+  if (!session) return null;
+
+  const activeRole = session.activeRole;
+
+  if (
+    activeRole &&
+    authRoleSlugs.includes(activeRole) &&
+    session.roles.some((role) => role.slug === activeRole)
+  ) {
+    return activeRole;
+  }
+
+  return session.role;
+}
+
+export function setStoredActiveRole(activeRole: AuthRoleSlug) {
+  const session = getStoredAuthSession();
+
+  if (!session) return;
+
+  const roles =
+    activeRole === "user" && !session.roles.some((role) => role.slug === "user")
+      ? [{ id: "user", name: "کاربر", slug: "user" as const }, ...session.roles]
+      : session.roles;
+
+  setStoredAuthSession({
+    ...session,
+    activeRole,
+    roles,
+  });
+}
+
 export function clearStoredAuthSession() {
   window.localStorage.removeItem(authSessionKey);
+  window.dispatchEvent(new CustomEvent(authSessionChangedEvent));
 }
 
 export function getStoredAccessToken() {

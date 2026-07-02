@@ -1,6 +1,11 @@
 import { createElement, lazy, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
-import { REAL_ESTATE_MANAGER, USER } from '../constants/roles.constants'
-import { getStoredAuthSession, type AuthSession } from '../auth/auth-storage'
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+  USER,
+} from '../constants/roles.constants'
+import { getActiveAuthRole, getStoredAuthSession, type AuthSession } from '../auth/auth-storage'
 
 type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>
 
@@ -17,6 +22,7 @@ function lazyNamed<TModule extends Record<string, unknown>>(
 
 const HomePage = lazyNamed(() => import('../pages/HomePage'), 'HomePage')
 const LoginPhonePage = lazyNamed(() => import('../pages/LoginPhonePage'), 'LoginPhonePage')
+const LoginRequiredPage = lazyNamed(() => import('../pages/LoginRequiredPage'), 'LoginRequiredPage')
 const LoginVerifyPage = lazyNamed(() => import('../pages/LoginVerifyPage'), 'LoginVerifyPage')
 const MyAccountPage = lazyNamed(() => import('../pages/MyAccountPage'), 'MyAccountPage')
 const NewAdCategoryPage = lazyNamed(() => import('../pages/newAd/NewAdCategoryPage'), 'NewAdCategoryPage')
@@ -91,7 +97,7 @@ function LoginRedirect() {
 
 function AccountRoleRedirect() {
   const session = getStoredAuthSession()
-  const role = session?.role ?? null
+  const role = getActiveAuthRole(session)
 
   useEffect(() => {
     if (!role) {
@@ -123,7 +129,7 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return true
   }
 
-  const role = session?.role ?? null
+  const role = getActiveAuthRole(session)
 
   if (!role) return false
   if (route.requiresNonUser && role === USER) return false
@@ -152,6 +158,11 @@ export const routes: AppRoute[] = [
     path: '/login/phone',
     title: 'ورود به حساب کاربری',
     Component: LoginPhonePage,
+  },
+  {
+    path: '/login-required',
+    title: 'ورود به حساب کاربری',
+    Component: LoginRequiredPage,
   },
   {
     path: '/login/verify',
@@ -217,7 +228,11 @@ export const routes: AppRoute[] = [
     path: '/account/delete-user',
     title: 'حذف حساب کاربری',
     Component: AccountDeleteUserPage,
-    authority: [REAL_ESTATE_MANAGER],
+    authority: [
+      REAL_ESTATE_MANAGER,
+      INDEPENDENT_CONSULTANT,
+      REAL_ESTATE_CONSULTANT,
+    ],
     requiresAuth: true,
   },
   {
@@ -488,6 +503,7 @@ export const routes: AppRoute[] = [
     path: "/notifications",
     title: "اعلان‌ها",
     Component: NotificationsPage,
+    requiresAuth: true,
   },
   {
     path: "/chat",

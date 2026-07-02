@@ -3,7 +3,7 @@ export function getUserRole() {
     const session = localStorage.getItem("bonga-auth-session");
     if (!session) return null;
     const parsedSession = JSON.parse(session);
-    const role = parsedSession?.role ?? null;
+    const role = parsedSession?.activeRole ?? parsedSession?.role ?? null;
     return role;
   } catch {
     return null;

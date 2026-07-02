@@ -13,6 +13,7 @@ import {
   adManagementPublisherOptions,
   getAdManagementRouteState,
   getAdsForTab,
+  getAllocationReviewPath,
   type AdManagementFilters,
   type AdManagementPropertyType,
   type AdsTab,
@@ -332,7 +333,7 @@ function AssignedConsultantAdCard({
         <RouteLink
           className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4] no-underline border border-[#0048c4] active:bg-[#003aa0]"
           state={{ ad, tab: "status" }}
-          to={adManagementPaths.allocationReview}
+          to={getAllocationReviewPath(ad.id)}
         >
           بررسی و تخصیص
           <LinearArrowLeft2 className="w-5 h-5"/>

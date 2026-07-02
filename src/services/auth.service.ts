@@ -123,6 +123,7 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
   setStoredAuthSession({
     accessToken,
     accountType: response.account_type ?? role,
+    activeRole: role,
     expiresAt: response.expires_in
       ? Date.now() + response.expires_in * 1000
       : null,

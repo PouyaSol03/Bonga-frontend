@@ -6,8 +6,9 @@ import { TopBar } from "../../components/TopBar";
 import { SelectBox } from "../newAd/components/NewAdControls";
 import { getStoredAuthSession, setStoredAuthSession, type AuthRole, type AuthRoleSlug } from "../../auth/auth-storage";
 import {
-  REAL_ESTATE_CONSULTANT,
+  INDEPENDENT_CONSULTANT,
   REAL_ESTATE_MANAGER,
+  USER,
 } from "../../constants/roles.constants";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
@@ -241,23 +242,25 @@ function markBusinessCreated(type: BusinessType) {
   if (!session) return;
 
   const nextRole = (
-    type === "agency" ? REAL_ESTATE_MANAGER : REAL_ESTATE_CONSULTANT
+    type === "agency" ? REAL_ESTATE_MANAGER : INDEPENDENT_CONSULTANT
   ) as AuthRoleSlug;
   const nextRoleName =
     type === "agency" ? "مدیر آژانس املاک" : "مشاور مستقل";
-  const roles: AuthRole[] = session.roles.some((role) => role.slug === nextRole)
-    ? session.roles
-    : [
-        ...session.roles,
-        {
-          id: nextRole,
-          name: nextRoleName,
-          slug: nextRole,
-        },
-      ];
+  const userRole: AuthRole = {
+    id: USER,
+    name: "کاربر",
+    slug: USER,
+  };
+  const nextBusinessRole: AuthRole = {
+    id: nextRole,
+    name: nextRoleName,
+    slug: nextRole,
+  };
+  const roles: AuthRole[] = [userRole, nextBusinessRole];
 
   setStoredAuthSession({
     ...session,
+    activeRole: nextRole,
     accountType: type === "agency" ? "agency-consultant" : "independent-consultant",
     role: nextRole,
     roles,

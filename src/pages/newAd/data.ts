@@ -109,6 +109,7 @@ export const blankValues: NewAdFormValues = {
   virtualTourLink: "",
 
   registrantType: "",
+  publisherName: "",
   chatEnabled: false,
   phoneEnabled: false,
   telegram: "",

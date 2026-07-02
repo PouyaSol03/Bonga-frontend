@@ -245,6 +245,7 @@ export type NewAdFormValues = {
   virtualTourLink: string;
 
   registrantType: RegistrantType;
+  publisherName: string;
   chatEnabled: boolean;
   phoneEnabled: boolean;
   telegram: string;

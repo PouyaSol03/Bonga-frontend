@@ -68,9 +68,11 @@ export function NewAdFlowPage() {
         setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
       },
       onSuccess: (createdAd) => {
+        const ad = mapAdvertisementToAdCard(createdAd, 0);
+
         clearNewAdDraftStorage();
         navigateTo(adManagementPaths.payment, {
-          ad: mapAdvertisementToAdCard(createdAd, 0),
+          ad,
           hasFreeAdTariff: true,
           paymentFlow: "new-ad",
           tab: "status",
@@ -131,4 +133,3 @@ export function NewAdFlowPage() {
     </PageFrame>
   );
 }
-

@@ -334,6 +334,7 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "has_video", values.hasVideo);
   addFeature(features, "has_virtual_tour", values.hasVirtualTour);
   addFeature(features, "advertiser_type", values.registrantType);
+  addFeature(features, "publisher", values.registrantType === "agency" ? values.publisherName : "");
 
   if (isProject && !isPartnership) {
     addFeature(features, "project_total_floors", toNumber(values.projectTotalFloors));

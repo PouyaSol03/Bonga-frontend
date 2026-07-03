@@ -117,6 +117,12 @@ function navigateTo(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function getLoginRequiredPath(returnTo: string) {
+  const params = new URLSearchParams({ returnTo });
+
+  return `/login-required?${params.toString()}`;
+}
+
 function getInitialType(): TransactionType {
   const type = new URLSearchParams(window.location.search).get("transaction");
 
@@ -276,7 +282,7 @@ export function NewAdCategoryPage() {
     if (getStoredAuthSession()) return;
 
     storeLoginRedirectPath("/new-ad/category");
-    navigateTo("/login/phone");
+    navigateTo(getLoginRequiredPath("/new-ad/category"));
   }, []);
 
   const [activeType, setActiveType] = useState<TransactionType>(getInitialType);

@@ -93,6 +93,12 @@ export function navigateTo(path: string, state?: unknown) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function getLoginRequiredPath(returnTo: string) {
+  const params = new URLSearchParams({ returnTo });
+
+  return `/login-required?${params.toString()}`;
+}
+
 export function clearNewAdDraftStorage() {
   window.localStorage.removeItem(draftKey);
   window.localStorage.removeItem(locationKey);
@@ -526,7 +532,8 @@ export function buildNewAdFormData(values: NewAdFormValues) {
 export function useRequireAuth() {
   useEffect(() => {
     if (getStoredAuthSession()) return;
-    storeLoginRedirectPath(`${window.location.pathname}${window.location.search}`);
-    navigateTo("/login/phone");
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    storeLoginRedirectPath(returnTo);
+    navigateTo(getLoginRequiredPath(returnTo));
   }, []);
 }

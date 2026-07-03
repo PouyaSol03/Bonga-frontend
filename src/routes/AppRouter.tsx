@@ -13,7 +13,6 @@ import {
   canAccessRoute,
   DASHBOARD_PATH,
   LEGACY_DASHBOARD_PATH,
-  LOGIN_PATH,
   routes,
   type AppRoute,
 } from './routes'
@@ -90,9 +89,16 @@ function getCanonicalDashboardPath(path: string) {
   return path
 }
 
+function getLoginRequiredPath(returnTo: string) {
+  const params = new URLSearchParams({ returnTo })
+
+  return `/login-required?${params.toString()}`
+}
+
 function getResolvedPath() {
   const currentPath = getCurrentPath()
   const path = getCanonicalDashboardPath(currentPath)
+  const returnTo = `${path}${window.location.search}`
   const session = getStoredAuthSession()
 
   if (path !== currentPath) {
@@ -105,9 +111,10 @@ function getResolvedPath() {
   }
 
   if (path.startsWith('/account') && path !== '/account' && !getStoredAuthSession()) {
-    storeLoginRedirectPath(path)
-    window.history.replaceState({}, '', LOGIN_PATH)
-    return LOGIN_PATH
+    storeLoginRedirectPath(returnTo)
+    const loginRequiredPath = getLoginRequiredPath(returnTo)
+    window.history.replaceState({}, '', loginRequiredPath)
+    return '/login-required'
   }
 
   const route = getRoute(path)
@@ -119,9 +126,10 @@ function getResolvedPath() {
 
   if (!canAccessRoute(route, session)) {
     if (!session) {
-      storeLoginRedirectPath(path)
-      window.history.replaceState({}, '', LOGIN_PATH)
-      return LOGIN_PATH
+      storeLoginRedirectPath(returnTo)
+      const loginRequiredPath = getLoginRequiredPath(returnTo)
+      window.history.replaceState({}, '', loginRequiredPath)
+      return '/login-required'
     }
 
     window.history.replaceState({}, '', '/account')
@@ -259,7 +267,12 @@ function getRoute(path: string): AppRoute {
   if (/^\/chat\/[^/]+\/?$/.test(path) && path !== '/chat/response-time') {
     const chatRoute = routes.find((route) => route.path === '/chat')
 
-    return { path, title: chatRoute?.title ?? 'Chat', Component: UserChatDetailPage }
+    return {
+      path,
+      title: chatRoute?.title ?? 'Chat',
+      Component: UserChatDetailPage,
+      requiresAuth: true,
+    }
   }
 
   if (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`)) {

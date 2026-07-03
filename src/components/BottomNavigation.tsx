@@ -59,6 +59,12 @@ function navigateTo(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function getLoginRequiredPath(returnTo: string) {
+  const params = new URLSearchParams({ returnTo });
+
+  return `/login-required?${params.toString()}`;
+}
+
 export function BottomNavigation({
   activeKey = "account",
 }: {
@@ -92,7 +98,7 @@ export function BottomNavigation({
 
                   if (!getStoredAuthSession()) {
                     storeLoginRedirectPath("/new-ad/category");
-                    navigateTo("/login/phone");
+                    navigateTo(getLoginRequiredPath("/new-ad/category"));
                     return;
                   }
 

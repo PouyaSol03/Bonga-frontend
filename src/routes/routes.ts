@@ -5,7 +5,7 @@ import {
   REAL_ESTATE_MANAGER,
   USER,
 } from '../constants/roles.constants'
-import { getActiveAuthRole, getStoredAuthSession, type AuthSession } from '../auth/auth-storage'
+import { getActiveAuthRole, type AuthSession } from '../auth/auth-storage'
 
 type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>
 
@@ -96,21 +96,6 @@ function LoginRedirect() {
 }
 
 function AccountRoleRedirect() {
-  const session = getStoredAuthSession()
-  const role = getActiveAuthRole(session)
-
-  useEffect(() => {
-    if (!role) {
-      window.history.replaceState({}, '', LOGIN_PATH)
-      window.dispatchEvent(new PopStateEvent('popstate'))
-      return
-    }
-  }, [role])
-
-  if (!role) {
-    return null
-  }
-
   return createElement(MyAccountPage)
 }
 
@@ -463,41 +448,49 @@ export const routes: AppRoute[] = [
     path: "/new-ad",
     title: "ثبت آگهی",
     Component: NewAdCategoryPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/category",
     title: "دسته‌بندی آگهی",
     Component: NewAdCategoryPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/personal",
     title: "دسته‌بندی آگهی",
     Component: NewAdCategoryPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/category/next",
     title: "ثبت آگهی",
     Component: NewAdFlowPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/details",
     title: "ثبت آگهی",
     Component: NewAdFlowPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/location",
     title: "موقعیت ملک",
     Component: NewAdLocationPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/independent-consultant",
     title: "ثبت آگهی",
     Component: NewAdCategoryPage,
+    requiresAuth: true,
   },
   {
     path: "/new-ad/jaliliyan-agency",
     title: "ثبت آگهی",
     Component: NewAdCategoryPage,
+    requiresAuth: true,
   },
   {
     path: "/notifications",
@@ -509,35 +502,42 @@ export const routes: AppRoute[] = [
     path: "/chat",
     title: "چت",
     Component: UserChatHomePage,
+    requiresAuth: true,
   },
   {
     path: "/chat/response-time",
     title: "ساعت پاسخگویی",
     Component: UserChatResponseTimePage,
+    requiresAuth: true,
   },
   {
     path: "/chat/1",
     title: "چت",
     Component: UserChatDetailPage,
+    requiresAuth: true,
   },
   {
     path: "/chat/2",
     title: "چت",
     Component: UserChatDetailPage,
+    requiresAuth: true,
   },
   {
     path: "/chat/3",
     title: "چت",
     Component: UserChatDetailPage,
+    requiresAuth: true,
   },
   {
     path: "/chat/4",
     title: "چت",
     Component: UserChatDetailPage,
+    requiresAuth: true,
   },
   {
     path: "/chat/5",
     title: "چت",
     Component: UserChatDetailPage,
+    requiresAuth: true,
   },
 ]

@@ -51,6 +51,7 @@ import LinearWallet2 from "../components/(icons)/LinearWallet2";
 import LinearSetting2 from "../components/(icons)/LinearSetting2";
 import LinearInformation from "../components/(icons)/LinearInformation";
 import LinearLogout from "../components/(icons)/LinearLogout";
+import LinearLock from "../components/(icons)/LinearLock";
 
 const MANAGE_ADS_PATH = "/account/manage-ads";
 
@@ -142,6 +143,7 @@ const loggedOutPrimaryActions: AccountAction[] = [
   { icon: "bookmark", label: "نشان‌ها", requiresAuth: true, to: "/account/bookmarks" },
   { icon: "note", label: "یادداشت‌ها", requiresAuth: true, to: "/account/notes" },
   { icon: "wallet", label: "کیف پول", requiresAuth: true, to: "/account/wallet" },
+  { icon: "setting", label: "تنظیمات", to: "/account/about" },
 ];
 
 const secondaryActions: AccountAction[] = [
@@ -151,9 +153,7 @@ const secondaryActions: AccountAction[] = [
   { icon: "headphone", label: "پشتیبانی", to: "/account/about" },
 ];
 
-const loggedOutSecondaryActions: AccountAction[] = [
-  { icon: "setting", label: "تنظیمات", requiresAuth: true, to: "/account/about" },
-];
+
 
 export function MyAccountPage() {
   const [authSession, setAuthSession] = useState(() => getStoredAuthSession());
@@ -407,6 +407,16 @@ function StandardAccountPage({
   const { isLoggingOut, handleLogout } = useLogoutAccount();
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
+  const accountTopBar = isLoggedIn ? (
+    <TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب من" />
+  ) : (
+    <TopBar
+      centerClassName="px-0"
+      contentClassName="px-4"
+      showBack={false}
+      title="حساب من"
+    />
+  );
 
   return (
     <TopBarNavigationLayout
@@ -414,7 +424,7 @@ function StandardAccountPage({
       contentClassName="bg-[#f0f0f0] pb-4"
       frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       overlay={businessSuccessSheet}
-      topBar={<TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب من" />}
+      topBar={accountTopBar}
     >
       {isLoggedIn ? (
         <section className="bg-white" aria-label="وضعیت حساب">
@@ -449,7 +459,7 @@ function StandardAccountPage({
 
       <div className="h-4 bg-[#f0f0f0]" />
 
-      <AccountSection actions={isLoggedIn ? secondaryActions : loggedOutSecondaryActions} />
+      <AccountSection actions={isLoggedIn && secondaryActions} />
 
       {isLoggedIn ? (
         <>
@@ -549,6 +559,16 @@ function navigateTo(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function getLoginRequiredPath(returnTo: string, actionLabel?: string) {
+  const params = new URLSearchParams({ returnTo });
+
+  if (actionLabel) {
+    params.set("action", actionLabel);
+  }
+
+  return `/login-required?${params.toString()}`;
+}
+
 function useLogoutAccount() {
   const logoutMutation = useLogoutMutation();
 
@@ -579,7 +599,7 @@ function LoggedOutAccountHeader() {
           <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
             ورود به حساب کاربری
           </span>
-          <AccountIcon className="h-6 w-6 shrink-0" name="lock" />
+          <LinearLock className="w-5 h-5"/>
         </RouteLink>
 
         <p className="m-0 mt-4 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
@@ -596,10 +616,14 @@ function AccountSection({
   className = "",
   spacedDividers = false,
 }: {
-  actions: AccountAction[];
+  actions?: AccountAction[] | false | null;
   className?: string;
   spacedDividers?: boolean;
 }) {
+  if (!actions || actions.length === 0) {
+    return null;
+  }
+
   return (
     <section className={`bg-white ${className}`} aria-label="گزینه‌های حساب">
       {actions.map((action, index) => (
@@ -642,7 +666,7 @@ function AccountMenuRow({
             if (action.requiresAuth && !getStoredAuthSession()) {
               event.preventDefault();
               storeLoginRedirectPath(action.to ?? "/account");
-              navigateTo("/login/phone");
+              navigateTo(getLoginRequiredPath(action.to ?? "/account", action.label));
               return;
             }
 

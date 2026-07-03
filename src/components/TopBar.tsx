@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { RouteLink } from "../routes/RouteLink";
+import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
 
 export type TopBarAction = {
   icon: ReactNode;
@@ -52,20 +53,6 @@ function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" 
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
-
-function TopBarBookmarkIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M7 4.75h10a1 1 0 0 1 1 1v14l-6-3.5-6 3.5v-14a1 1 0 0 1 1-1Z"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
       />
     </svg>
   );
@@ -141,10 +128,10 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
       type="button"
     >
       <span className="shrink-0 text-[#808080]">
-        <TopBarBookmarkIcon />
+        <LinearBookmarkSolid className="h-5 w-5"/>
       </span>
-      <span className="mx-3 h-6 w-px shrink-0 bg-[#cccccc]" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-center">{search.label}</span>
+      <span className="mx-3 h-5 w-px shrink-0 bg-[#cccccc]" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate text-right">{search.label}</span>
       {search.savedCount ? (
         <span className="sr-only">{search.savedCount} آگهی ذخیره شده</span>
       ) : null}

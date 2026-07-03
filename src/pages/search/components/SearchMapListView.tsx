@@ -1,3 +1,4 @@
+import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
 import { AdCard } from "../../../components/AdCard";
 import type { AdCardData } from "../../../components/AdCard";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
@@ -82,39 +83,10 @@ export function SearchMapListView({
         type="button"
         onClick={onMapClick}
       >
+        <LinearMapsLocation className="h-6 w-6"/>
         <span>نقشه</span>
-        <MapLocationIcon />
       </button>
     </>
   );
 }
 
-function MapLocationIcon() {
-  return (
-    <svg
-      className="h-6 w-6 shrink-0"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M4 5.5 9 3l6 2.5L20 3v15.5L15 21l-6-2.5L4 21V5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9 3v15.5M15 5.5V21"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <path
-        d="M17.5 8.5c0 2.4-3.5 6-3.5 6s-3.5-3.6-3.5-6a3.5 3.5 0 1 1 7 0Z"
-        fill="#0048c4"
-        stroke="white"
-        strokeWidth="1.4"
-      />
-      <circle cx="14" cy="8.5" r="1.1" fill="white" />
-    </svg>
-  );
-}

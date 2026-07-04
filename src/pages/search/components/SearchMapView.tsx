@@ -16,6 +16,7 @@ type SearchMapViewProps = {
   center: SearchMapCenter;
   listings: SearchMapListing[];
   dotMarkers?: SearchMapDotMarker[];
+  priceMarkerListingIds: Set<SearchMapListingId>;
   seenListingIds: Set<SearchMapListingId>;
   selectedListingId: SearchMapListingId | null;
   tileConfig: SearchMapTileConfig;
@@ -90,6 +91,7 @@ export function SearchMapView({
   center,
   listings,
   dotMarkers = [],
+  priceMarkerListingIds,
   seenListingIds,
   selectedListingId,
   tileConfig,
@@ -125,18 +127,22 @@ export function SearchMapView({
         <SearchMapMarker key={marker.id} marker={marker} />
       ))}
 
-      {listings.map((listing) => (
-        <SearchMapMarker
-          key={listing.id}
-          listing={listing}
-          isSeen={seenListingIds.has(listing.id)}
-          isSelected={
-            selectedListingId != null &&
-            String(listing.id) === String(selectedListingId)
-          }
-          onSelect={onSelectListing}
-        />
-      ))}
+      {listings.map((listing) => {
+        const isSelected =
+          selectedListingId != null &&
+          String(listing.id) === String(selectedListingId);
+
+        return (
+          <SearchMapMarker
+            key={listing.id}
+            listing={listing}
+            isPriceVisible={isSelected || priceMarkerListingIds.has(listing.id)}
+            isSeen={seenListingIds.has(listing.id)}
+            isSelected={isSelected}
+            onSelect={onSelectListing}
+          />
+        );
+      })}
 
       {userLocation ? (
         <>

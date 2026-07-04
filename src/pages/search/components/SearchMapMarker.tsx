@@ -5,6 +5,7 @@ import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
 
 type SearchMapListingMarkerProps = {
   listing: SearchMapListing;
+  isPriceVisible: boolean;
   isSeen: boolean;
   isSelected: boolean;
   onSelect: (listing: SearchMapListing) => void;
@@ -35,17 +36,18 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
 
   const { listing, isSeen, isSelected, onSelect } = props;
   const markerIcon = createSearchListingIcon(
-    isSelected ? listing.priceValue : "",
+    props.isPriceVisible ? listing.priceValue : "",
+    props.isPriceVisible,
     isSelected,
     isSeen,
   );
 
   return (
     <Marker
-      key={`${listing.id}-${isSelected ? "selected" : "idle"}-${isSeen ? "seen" : "new"}`}
+      key={`${listing.id}-${isSelected ? "selected" : "idle"}-${props.isPriceVisible ? "price" : "dot"}-${isSeen ? "seen" : "new"}`}
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
-      zIndexOffset={isSelected ? 10_000 : 1_000}
+      zIndexOffset={isSelected ? 10_000 : props.isPriceVisible ? 5_000 : 1_000}
       eventHandlers={{
         click: (event) => {
           onSelect(listing);
@@ -65,9 +67,14 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function createSearchListingIcon(priceValue: string, isSelected: boolean, isSeen: boolean) {
+function createSearchListingIcon(
+  priceValue: string,
+  isPriceVisible: boolean,
+  isSelected: boolean,
+  isSeen: boolean,
+) {
   const safePriceValue = escapeMarkerText(priceValue);
-  const priceMarkerHtml = isSelected
+  const priceMarkerHtml = isPriceVisible
     ? `
         <span class="search-map-marker">
           ${safePriceValue}
@@ -77,6 +84,7 @@ function createSearchListingIcon(priceValue: string, isSelected: boolean, isSeen
   const markerClasses = [
     "search-map-listing-marker",
     isSelected ? "search-map-listing-marker--selected" : "",
+    isPriceVisible ? "search-map-listing-marker--price-visible" : "",
     isSeen ? "search-map-listing-marker--seen" : "",
   ]
     .filter(Boolean)

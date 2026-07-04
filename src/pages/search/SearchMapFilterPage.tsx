@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import {
   FormChoiceChip,
@@ -551,6 +551,18 @@ const removedFilterFieldKeys = new Set(["cabinetMaterial", "floorMaterial", "fac
 const minNeighborhoodSearchLength = 2;
 const neighborhoodSearchDebounceMs = 250;
 
+function useOpenOnFilterFocus(sectionId?: string, focusTarget?: string | null) {
+  const didOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (!sectionId || focusTarget !== sectionId || didOpenRef.current) return;
+
+    didOpenRef.current = true;
+  }, [focusTarget, sectionId]);
+
+  return !didOpenRef.current && Boolean(sectionId && focusTarget === sectionId);
+}
+
 function useDebouncedValue(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -925,6 +937,10 @@ export function SearchMapFilterPage() {
   const [categoryPickerInitial, setCategoryPickerInitial] = useState<CategoryKey | undefined>(
     filters.category,
   );
+  const focusTarget = useMemo(
+    () => new URLSearchParams(window.location.search).get("focus"),
+    [],
+  );
 
   const filterBlocks = useMemo(
     () => getFilterBlocks(filters.transaction, filters.category),
@@ -1078,6 +1094,7 @@ export function SearchMapFilterPage() {
             setSingleValue={setSingleValue}
             setToggleValue={setToggleValue}
             toggleMultiValue={toggleMultiValue}
+            focusTarget={focusTarget}
           />
         ))}
       </main>
@@ -1434,6 +1451,7 @@ function getFilterSectionAnchor(block: FilterBlock) {
 type FilterBlockRendererProps = {
   block: FilterBlock;
   filters: FilterState;
+  focusTarget?: string | null;
   setFilters: Dispatch<SetStateAction<FilterState>>;
   setRangeValue: (id: string, key: keyof RangeValue, value: string) => void;
   setSingleValue: (id: string, value: string) => void;
@@ -1444,6 +1462,7 @@ type FilterBlockRendererProps = {
 function FilterBlockRenderer({
   block,
   filters,
+  focusTarget,
   setFilters,
   setRangeValue,
   setSingleValue,
@@ -1455,6 +1474,7 @@ function FilterBlockRenderer({
       return (
         <NeighborhoodFilterSection
           sectionId={getFilterSectionAnchor(block)}
+          focusTarget={focusTarget}
           selectedNeighborhoods={filters.neighborhoods}
           onChange={(neighborhoods) =>
             setFilters((current) => ({ ...current, neighborhoods }))
@@ -1617,17 +1637,20 @@ function FilterBlockRenderer({
 }
 
 type NeighborhoodFilterSectionProps = {
+  focusTarget?: string | null;
   onChange: (neighborhoods: SelectedNeighborhood[]) => void;
   sectionId?: string;
   selectedNeighborhoods: SelectedNeighborhood[];
 };
 
 function NeighborhoodFilterSection({
+  focusTarget,
   onChange,
   sectionId,
   selectedNeighborhoods,
 }: NeighborhoodFilterSectionProps) {
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const shouldAutoOpen = useOpenOnFilterFocus(sectionId, focusTarget);
+  const [isPickerOpen, setIsPickerOpen] = useState(shouldAutoOpen);
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(
     query.trim(),
@@ -1694,39 +1717,47 @@ function NeighborhoodFilterSection({
         </div>
       ) : null}
 
-      <BottomSheet
-        ariaLabel="انتخاب محله"
-        contentClassName="flex min-h-0 flex-1 flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3"
-        heightClassName="h-[min(92dvh,640px)]"
-        isOpen={isPickerOpen}
-        onClose={() => setIsPickerOpen(false)}
-        panelPaddingClassName="flex flex-col pt-4"
-        showHeaderDivider
-        title="محله"
-      >
-        <label className="flex h-10 items-center gap-2 rounded-[10px] border border-[#cccccc] bg-white px-3 focus-within:border-[#0048c4]" dir="rtl">
-          <SearchIcon />
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="جستجوی محله"
-            type="search"
-            value={query}
-          />
-          {query ? (
-            <button
-              aria-label="پاک کردن جستجوی محله"
-              className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
-              onClick={() => setQuery("")}
-              type="button"
-            >
-              <ClearCircleIcon />
-            </button>
-          ) : null}
-        </label>
+      {isPickerOpen ? (
+        <div className="fixed inset-0 z-[1100] flex justify-center bg-[#f0f0f0]">
+          <PageFrame
+            className="relative flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+            variant="flush"
+          >
+            <div className="shrink-0 bg-[#f0f0f0]">
+              <TopBar
+                centerClassName="px-0"
+                className="bg-[#f0f0f0]"
+                onBack={() => setIsPickerOpen(false)}
+                title="محله"
+              />
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col bg-[#f0f0f0]">
+        <div className="shrink-0 bg-[#f0f0f0] px-4 py-3">
+          <label className="flex h-12 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3 focus-within:border-[#0048c4]" dir="rtl">
+            <SearchIcon />
+            <input
+              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080]"
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="جستجوی محله"
+              type="search"
+              value={query}
+            />
+            {query ? (
+              <button
+                aria-label="پاک کردن جستجوی محله"
+                className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]"
+                onClick={() => setQuery("")}
+                type="button"
+              >
+                <ClearCircleIcon />
+              </button>
+            ) : null}
+          </label>
+        </div>
 
         {selectedNeighborhoods.length > 0 ? (
-          <div className="mt-3 flex flex-wrap justify-start gap-2" dir="rtl">
+          <div className="flex shrink-0 justify-start gap-2 overflow-y-auto bg-[#f0f0f0] px-4 pb-3" dir="rtl">
             {selectedNeighborhoods.map((item) => (
               <FormChoiceChip
                 key={item.id}
@@ -1739,7 +1770,7 @@ function NeighborhoodFilterSection({
           </div>
         ) : null}
 
-        <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain" dir="rtl">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-4 py-3" dir="rtl">
           {!cityId ? (
             <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
               برای انتخاب محله، ابتدا شهر را انتخاب کنید.
@@ -1758,14 +1789,11 @@ function NeighborhoodFilterSection({
                 return (
                   <button
                     aria-pressed={isSelected}
-                    className={`flex w-full items-start gap-3 rounded-[10px] px-2 py-3 text-right transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
-                      isSelected ? "bg-[#0048c40a]" : "bg-white"
-                    }`}
+                    className={`flex w-full items-center justify-center gap-3 rounded-[10px] px-2 py-3 text-right transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]`}
                     key={neighborhoodId}
                     onClick={() => toggleNeighborhood(neighborhood)}
                     type="button"
                   >
-                    <SelectionCheckIndicator checked={isSelected} />
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold leading-5 text-[#1a1a1a]">
                         {neighborhood.name}
@@ -1774,6 +1802,7 @@ function NeighborhoodFilterSection({
                         {selectedCity?.name ?? "شهر انتخاب‌شده"}
                       </span>
                     </span>
+                    <SelectionCheckIndicator checked={isSelected} />
                   </button>
                 );
               })}
@@ -1784,7 +1813,19 @@ function NeighborhoodFilterSection({
             </p>
           )}
         </div>
-      </BottomSheet>
+        <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+          <button
+            className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white"
+            onClick={() => setIsPickerOpen(false)}
+            type="button"
+          >
+            تایید
+          </button>
+        </div>
+            </div>
+          </PageFrame>
+        </div>
+      ) : null}
     </section>
   );
 }

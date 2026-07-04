@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { createPortal } from "react-dom";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -96,76 +97,95 @@ export function BottomSheet({
   zIndexClassName = "z-[1000]",
 }: BottomSheetProps) {
   const isCenterTitle = titleAlign === "center";
+  const shouldReduceMotion = useReducedMotion();
+  const scrimTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { duration: 0.18, ease: "easeOut" as const };
+  const panelTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { type: "spring" as const, stiffness: 360, damping: 34, mass: 0.9 };
 
-  if (!isOpen || typeof document === "undefined") return null;
+  if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div
-      className={`fixed inset-0 ${zIndexClassName} isolate flex items-end justify-center overflow-hidden`}
-      dir="rtl"
-    >
-      <button
-        aria-label={ariaLabel}
-        className={`absolute inset-0 z-0 cursor-default ${scrimClassName}`}
-        onClick={onClose}
-        type="button"
-      />
-
-      <section
-        aria-label={ariaLabel}
-        aria-modal="true"
-        className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
-        role="dialog"
-      >
-        {showHandle ? (
-          <span
-            aria-hidden="true"
-            className={`mx-auto block ${handleClassName}`}
+    <AnimatePresence>
+      {isOpen ? (
+        <motion.div
+          animate={{ opacity: 1 }}
+          className={`fixed inset-0 ${zIndexClassName} isolate flex items-end justify-center overflow-hidden`}
+          dir="rtl"
+          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+          transition={scrimTransition}
+        >
+          <button
+            aria-label={ariaLabel}
+            className={`absolute inset-0 z-0 cursor-default ${scrimClassName}`}
+            onClick={onClose}
+            type="button"
           />
-        ) : null}
 
-        {showHeader ? (
-          <>
-            <header
-              className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
-                }`}
-            >
-              {showBackButton ? (
-                <button
-                  aria-label="بازگشت"
-                  className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-                  onClick={onBack ?? onClose}
-                  type="button"
-                >
-                  <span className="block h-6 w-6">
-                    <BottomSheetBackIcon />
-                  </span>
-                </button>
-              ) : null}
-
-              <h2
-                className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
-                  }`}
-              >
-                {title ?? ariaLabel}
-              </h2>
-
-              {showBackButton && isCenterTitle ? (
-                <span className="h-10 w-10 shrink-0" />
-              ) : null}
-            </header>
-
-            {showHeaderDivider ? (
-              <div className="px-4 pt-3">
-                <div className="h-px bg-[#e6e6e6]" />
-              </div>
+          <motion.section
+            animate={{ y: 0 }}
+            aria-label={ariaLabel}
+            aria-modal="true"
+            className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
+            exit={{ y: "100%" }}
+            initial={{ y: "100%" }}
+            role="dialog"
+            transition={panelTransition}
+          >
+            {showHandle ? (
+              <span
+                aria-hidden="true"
+                className={`mx-auto block ${handleClassName}`}
+              />
             ) : null}
-          </>
-        ) : null}
 
-        <div className={contentClassName}>{children}</div>
-      </section>
-    </div>,
+            {showHeader ? (
+              <>
+                <header
+                  className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
+                    }`}
+                >
+                  {showBackButton ? (
+                    <button
+                      aria-label="بازگشت"
+                      className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                      onClick={onBack ?? onClose}
+                      type="button"
+                    >
+                      <span className="block h-6 w-6">
+                        <BottomSheetBackIcon />
+                      </span>
+                    </button>
+                  ) : null}
+
+                  <h2
+                    className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
+                      }`}
+                  >
+                    {title ?? ariaLabel}
+                  </h2>
+
+                  {showBackButton && isCenterTitle ? (
+                    <span className="h-10 w-10 shrink-0" />
+                  ) : null}
+                </header>
+
+                {showHeaderDivider ? (
+                  <div className="px-4 pt-3">
+                    <div className="h-px bg-[#e6e6e6]" />
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+
+            <div className={contentClassName}>{children}</div>
+          </motion.section>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
     document.body,
   );
 }

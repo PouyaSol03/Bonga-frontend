@@ -15,6 +15,7 @@
     "autoprefixer": "^10.5.0",
     "ky": "^2.0.2",
     "leaflet": "^1.9.4",
+    "motion": "^12.42.2",
     "postcss": "^8.5.14",
     "react": "^19.2.6",
     "react-date-object": "^2.1.9",

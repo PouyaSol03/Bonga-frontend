@@ -37,6 +37,7 @@ type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
 
 const mapRequestLimit = 100;
+const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
 const filterableParamKeys = [
@@ -767,6 +768,24 @@ export function SearchMapPage() {
     () => filterListings(stableListings, chips),
     [chips, stableListings],
   );
+  const bluePriceMarkerListingIds = useMemo(() => {
+    const markerIds = new Set<SearchMapListingId>();
+
+    for (const listing of visibleListings) {
+      if (markerIds.size >= maxBluePriceMarkers) break;
+      if (listing.showPriceMarker === false) continue;
+      if (
+        selectedListingId != null &&
+        String(listing.id) === String(selectedListingId)
+      ) {
+        continue;
+      }
+
+      markerIds.add(listing.id);
+    }
+
+    return markerIds;
+  }, [selectedListingId, visibleListings]);
 
   useEffect(() => {
     const handleSearchSnapshotChange = () => {
@@ -961,6 +980,7 @@ export function SearchMapPage() {
         <SearchMapView
           center={mapCenter}
           listings={visibleListings}
+          priceMarkerListingIds={bluePriceMarkerListingIds}
           seenListingIds={seenListingIds}
           selectedListingId={selectedListingId}
           tileConfig={searchMapTileConfig}

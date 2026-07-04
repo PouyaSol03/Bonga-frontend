@@ -275,28 +275,30 @@ export function AddConsultantPage() {
                     <button
                       aria-pressed={isSelected}
                       className={`flex h-[76px] w-full items-center gap-3 rounded-xl border px-3 text-right transition ${isSelected
-                          ? "border-[#0048c4] bg-[#eaf1ff]"
-                          : "border-[#e6e6e6] bg-white"
+                        ? "border-[#0048c4] bg-[#eaf1ff]"
+                        : "border-[#e6e6e6] bg-white"
                         }`}
                       key={consultant.id}
                       onClick={() => setSelectedConsultantId(consultant.id)}
                       type="button"
                     >
-                      <SelectionCheckIndicator checked={isSelected} />
-                      <div className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
-                          {consultant.name}
-                        </span>
-                        <span className="mt-1 block text-xs font-medium leading-4 text-[#808080]">
-                          {consultant.phone}
-                        </span>
+                      <div className="flex flex-1 gap-x-2">
+                        <img
+                          alt=""
+                          className="h-11 w-11 shrink-0 rounded-full object-cover"
+                          draggable={false}
+                          src={consultant.avatarSrc}
+                        />
+                        <div className="flex flex-col justify-center">
+                          <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
+                            {consultant.name}
+                          </span>
+                          <span className="block text-xs font-medium text-[#808080]">
+                            {consultant.phone}
+                          </span>
+                        </div>
                       </div>
-                      <img
-                        alt=""
-                        className="h-11 w-11 shrink-0 rounded-full object-cover"
-                        draggable={false}
-                        src={consultant.avatarSrc}
-                      />
+                      <SelectionCheckIndicator className="!h-4.5 !w-4.5 rounded-sm" checked={isSelected} />
                     </button>
                   );
                 })}

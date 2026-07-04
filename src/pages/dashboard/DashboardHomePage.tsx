@@ -1,5 +1,9 @@
 import LinearClock from "../../components/(icons)/LinearClock";
 import { DashboardHomeOverview } from "../../components/dashboard/home/DashboardHomeOverview";
+import {
+  AddConsultantPage,
+  ConsultantManagementPage,
+} from "../../components/dashboard/team/ConsultantManagementPage";
 import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import DashboardChatPage from "./DashboardChatPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
@@ -13,7 +17,11 @@ export function DashboardRequestsPage() {
 }
 
 export function DashboardTeamPage() {
-  return <DashboardComingSoonPage title="مدیریت مشاورین" />;
+  return <ConsultantManagementPage />;
+}
+
+export function DashboardAddConsultantPage() {
+  return <AddConsultantPage />;
 }
 
 export function DashboardPaymentsPage() {

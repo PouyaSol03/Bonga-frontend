@@ -65,6 +65,7 @@ const IndependentConsultantPanelCreditBonusPage = lazyNamed(() => import('../pag
 const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditPage')
 const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
 const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
+const DashboardAddConsultantPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAddConsultantPage')
 const DashboardHomePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardHomePage')
 const DashboardMessagesPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardMessagesPage')
 const DashboardPaymentsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardPaymentsPage')
@@ -291,8 +292,17 @@ export const routes: AppRoute[] = [
   },
   {
     path: `${DASHBOARD_PATH}/team`,
-    title: 'تیم و مشاوران',
+    title: 'مدیریت مشاورین',
     Component: DashboardTeamPage,
+    authority: ['real_estate_manager'],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/team/add-consultant`,
+    title: 'انتخاب مشاور',
+    Component: DashboardAddConsultantPage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
     requiresAuth: true,

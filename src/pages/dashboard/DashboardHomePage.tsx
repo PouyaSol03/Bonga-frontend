@@ -4,6 +4,9 @@ import {
   AddConsultantPage,
   ConsultantManagementPage,
 } from "../../components/dashboard/team/ConsultantManagementPage";
+import { ConsultantEditPage } from "../../components/dashboard/team/ConsultantEditPage";
+import { ConsultantInfoPage } from "../../components/dashboard/team/ConsultantInfoPage";
+import { ConsultantRemovePage } from "../../components/dashboard/team/ConsultantRemovePage";
 import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import DashboardChatPage from "./DashboardChatPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
@@ -22,6 +25,18 @@ export function DashboardTeamPage() {
 
 export function DashboardAddConsultantPage() {
   return <AddConsultantPage />;
+}
+
+export function DashboardConsultantInfoPage() {
+  return <ConsultantInfoPage />;
+}
+
+export function DashboardConsultantEditPage() {
+  return <ConsultantEditPage />;
+}
+
+export function DashboardConsultantRemovePage() {
+  return <ConsultantRemovePage />;
 }
 
 export function DashboardPaymentsPage() {

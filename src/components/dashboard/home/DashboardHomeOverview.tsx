@@ -235,7 +235,7 @@ function AgencyRankMetric({
   );
 }
 
-function ProgressLineChartCard({
+export function ProgressLineChartCard({
   title,
   tooltip,
   trendLabel,

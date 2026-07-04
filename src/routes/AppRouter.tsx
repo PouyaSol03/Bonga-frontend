@@ -276,6 +276,33 @@ function getRoute(path: string): AppRoute {
     }
   }
 
+  if (/^\/account\/dashboard\/team\/info\/[^/]+\/?$/.test(path)) {
+    const infoRoute = routes.find((route) => route.path === `${DASHBOARD_PATH}/team/info`)
+
+    return {
+      ...(infoRoute ?? routes[0]),
+      path,
+    }
+  }
+
+  if (/^\/account\/dashboard\/team\/edit\/[^/]+\/?$/.test(path)) {
+    const editRoute = routes.find((route) => route.path === `${DASHBOARD_PATH}/team/edit`)
+
+    return {
+      ...(editRoute ?? routes[0]),
+      path,
+    }
+  }
+
+  if (/^\/account\/dashboard\/team\/remove\/[^/]+\/?$/.test(path)) {
+    const removeRoute = routes.find((route) => route.path === `${DASHBOARD_PATH}/team/remove`)
+
+    return {
+      ...(removeRoute ?? routes[0]),
+      path,
+    }
+  }
+
   if (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`)) {
     return routes.find((route) => route.path === path) ??
       routes.find((route) => route.path === DASHBOARD_PATH) ??

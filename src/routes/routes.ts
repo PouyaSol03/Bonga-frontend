@@ -66,6 +66,9 @@ const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/ac
 const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
 const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
 const DashboardAddConsultantPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAddConsultantPage')
+const DashboardConsultantEditPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantEditPage')
+const DashboardConsultantInfoPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantInfoPage')
+const DashboardConsultantRemovePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantRemovePage')
 const DashboardHomePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardHomePage')
 const DashboardMessagesPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardMessagesPage')
 const DashboardPaymentsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardPaymentsPage')
@@ -303,6 +306,33 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/team/add-consultant`,
     title: 'انتخاب مشاور',
     Component: DashboardAddConsultantPage,
+    authority: ['real_estate_manager'],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/team/info`,
+    title: 'اطلاعات مشاور',
+    Component: DashboardConsultantInfoPage,
+    authority: ['real_estate_manager'],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/team/edit`,
+    title: 'ویرایش اطلاعات',
+    Component: DashboardConsultantEditPage,
+    authority: ['real_estate_manager'],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/team/remove`,
+    title: 'حذف مشاور',
+    Component: DashboardConsultantRemovePage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
     requiresAuth: true,

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "r
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { searchMapTileConfig } from "../search/searchMapData";
+import { RouteLink } from "../../routes/RouteLink";
 
 type AgencyMapCenter = {
     lat: number;
@@ -122,13 +123,13 @@ export default function DashboardAgencyEditPage() {
                 >
                     ذخیره اطلاعات
                 </button>
-                <button
-                    className="inline-flex h-14 items-center gap-3 rounded-xl border border-[#0048c4] bg-white px-7 text-base font-semibold leading-6 text-[#0048c4] transition hover:bg-[#0048c40a]"
-                    type="button"
+                <RouteLink
+                    className="inline-flex h-14 items-center gap-3 rounded-xl border border-[#0048c4] bg-white px-7 text-base font-semibold leading-[56px] text-[#0048c4] no-underline transition hover:bg-[#0048c40a]"
+                    to="/account/dashboard/agency/preview"
                 >
                     <PreviewIcon />
                     پیش نمایش
-                </button>
+                </RouteLink>
             </div>
         </form>
     );

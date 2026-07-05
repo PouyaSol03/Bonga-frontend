@@ -158,6 +158,7 @@ function getBottomNavigationKey(path: string) {
     path.startsWith('/account/ad-management/allocation-review') ||
     path === '/account/ad-management/payment' ||
     path === '/account/ad-management/filter' ||
+    path.startsWith('/account/dashboard/agency') ||
     path.startsWith('/account/dashboard/team') ||
     path.startsWith('/account/ad-management/published') ||
     /^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)

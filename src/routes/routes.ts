@@ -65,6 +65,7 @@ const IndependentConsultantPanelCreditBonusPage = lazyNamed(() => import('../pag
 const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditPage')
 const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
 const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
+const DashboardAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const DashboardAddConsultantPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAddConsultantPage')
 const DashboardConsultantEditPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantEditPage')
 const DashboardConsultantInfoPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantInfoPage')
@@ -273,6 +274,13 @@ export const routes: AppRoute[] = [
     title: 'صفحه آژانس',
     Component: DashboardAgencyPage,
     layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/agency/preview`,
+    title: 'صفحه آژانس',
+    Component: DashboardAgencyPreviewPage,
     requiresAuth: true,
     requiresNonUser: true,
   },

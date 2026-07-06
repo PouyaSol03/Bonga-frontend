@@ -180,16 +180,18 @@ function AccountProfileForm({
   return (
     <>
       <section className="flex flex-col items-center px-4 pt-4">
-        <div className="relative grid h-[100px] w-[100px] place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]">
-          {avatarSrc ? (
-            <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
-          ) : (
-            <UserIcon className="h-10 w-10" />
-          )}
+        <div className="relative grid h-[100px] w-[100px] place-items-center overflow-visible text-[#808080]">
+          <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0]">
+            {avatarSrc ? (
+              <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
+            ) : (
+              <UserIcon className="h-10 w-10" />
+            )}
+          </span>
 
           <label
             aria-label="ویرایش تصویر"
-            className="absolute bottom-1 right-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
+            className="absolute -bottom-1 -left-1 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
             htmlFor="profile-avatar-upload"
           >
             <EditIcon className="h-4 w-4" />

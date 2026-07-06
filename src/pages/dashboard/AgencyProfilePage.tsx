@@ -492,16 +492,19 @@ function AgencyLogoUpload({
       <p className="m-0 mb-3 text-sm font-semibold leading-5">لوگوی آژانس</p>
       <button
         aria-label="بارگذاری لوگوی آژانس"
-        className="relative mx-auto mr-3 grid h-22 w-22 place-items-center overflow-hidden rounded-full bg-[#f0f0f0] text-[#4d4d4d]"
+        className="relative mx-auto mr-3 grid h-22 w-22 place-items-center overflow-visible rounded-full text-[#4d4d4d]"
         onClick={() => inputRef.current?.click()}
         type="button"
       >
-        {imageUrl ? (
-          <img alt="لوگوی آژانس" className="h-full w-full object-cover" src={imageUrl} />
-        ) : (
-          <LinearBuilding3 className="h-8 w-8" />
-        )}
-        <span className="absolute -bottom-0.5 -left-0.5 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
+        <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#f0f0f0]">
+          {imageUrl ? (
+            <img alt="لوگوی آژانس" className="h-full w-full object-cover" src={imageUrl} />
+          ) : (
+            <LinearBuilding3 className="h-8 w-8" />
+          )}
+        </span>
+
+        <span className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
           <LinearEdit2 className="h-4 w-4" />
         </span>
       </button>
@@ -1086,7 +1089,7 @@ function AgencyFooterActions({
           to="/account/dashboard/agency/preview"
         >
           پیش نمایش
-          <LinearPreview className="w-5 h-5"/>
+          <LinearPreview className="w-5 h-5" />
         </RouteLink>
       </div>
     </footer>

@@ -635,9 +635,9 @@ function AccountLogoutConfirmSheet({
     <BottomSheet
       ariaLabel="خروج از حساب"
       className="rounded-t-[16px]"
-      contentClassName="px-[37px] pt-[18px] pb-6"
+      contentClassName="px-4 pt-[18px] pb-6"
       handleClassName="h-1 w-10 rounded-full bg-[#cccccc]"
-      heightClassName="h-[116px]"
+      heightClassName=""
       isOpen={isOpen}
       onClose={handleClose}
       panelPaddingClassName="pt-2.5"
@@ -645,13 +645,13 @@ function AccountLogoutConfirmSheet({
       showHeaderDivider={false}
       zIndexClassName="z-[1001]"
     >
-      <p className="m-0 text-center text-xs font-normal leading-5 text-[#1a1a1a]">
+      <p className="m-0 text-center font-medium leading-5 text-[#1a1a1a]">
         مایل به خروج از حساب خود هستید؟
       </p>
 
       <div className="mt-3 grid grid-cols-2 gap-3 [direction:ltr]">
         <button
-          className="inline-flex h-[30px] items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
+          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
           disabled={isPending}
           onClick={onConfirm}
           type="button"
@@ -659,7 +659,7 @@ function AccountLogoutConfirmSheet({
           {isPending ? "..." : "بله"}
         </button>
         <button
-          className="inline-flex h-[30px] items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
+          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
           disabled={isPending}
           onClick={handleClose}
           type="button"

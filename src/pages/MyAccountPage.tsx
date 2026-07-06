@@ -1,4 +1,10 @@
-import { useEffect, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import {
+  useEffect,
+  useState,
+  type ComponentType,
+  type ReactNode,
+  type SVGProps,
+} from "react";
 
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { BottomSheet } from "../components/BottomSheet";
@@ -123,7 +129,12 @@ const userBusinessActions: AccountAction[] = [
 ];
 
 const loggedOutBusinessActions: AccountAction[] = [
-  { icon: "plus", label: "ایجاد کسب و کار", requiresAuth: true, to: "/account/business/create" },
+  {
+    icon: "plus",
+    label: "ایجاد کسب و کار",
+    requiresAuth: true,
+    to: "/account/business/create",
+  },
 ];
 
 const primaryActions: AccountAction[] = [
@@ -138,12 +149,42 @@ const primaryActions: AccountAction[] = [
 ];
 
 const loggedOutPrimaryActions: AccountAction[] = [
-  { icon: "identity", label: "تایید هویت", requiresAuth: true, to: "/account/identity" },
-  { icon: "user", label: "مشخصات من", requiresAuth: true, to: "/account/profile" },
-  { icon: "tag", label: "آگهی‌های من", requiresAuth: true, to: "/account/my-ads" },
-  { icon: "bookmark", label: "نشان‌ها", requiresAuth: true, to: "/account/bookmarks" },
-  { icon: "note", label: "یادداشت‌ها", requiresAuth: true, to: "/account/notes" },
-  { icon: "wallet", label: "کیف پول", requiresAuth: true, to: "/account/wallet" },
+  {
+    icon: "identity",
+    label: "تایید هویت",
+    requiresAuth: true,
+    to: "/account/identity",
+  },
+  {
+    icon: "user",
+    label: "مشخصات من",
+    requiresAuth: true,
+    to: "/account/profile",
+  },
+  {
+    icon: "tag",
+    label: "آگهی‌های من",
+    requiresAuth: true,
+    to: "/account/my-ads",
+  },
+  {
+    icon: "bookmark",
+    label: "نشان‌ها",
+    requiresAuth: true,
+    to: "/account/bookmarks",
+  },
+  {
+    icon: "note",
+    label: "یادداشت‌ها",
+    requiresAuth: true,
+    to: "/account/notes",
+  },
+  {
+    icon: "wallet",
+    label: "کیف پول",
+    requiresAuth: true,
+    to: "/account/wallet",
+  },
   { icon: "setting", label: "تنظیمات", to: "/account/about" },
 ];
 
@@ -154,13 +195,13 @@ const secondaryActions: AccountAction[] = [
   { icon: "headphone", label: "پشتیبانی", to: "/account/about" },
 ];
 
-
-
 export function MyAccountPage() {
   const [authSession, setAuthSession] = useState(() => getStoredAuthSession());
   const activeRole = getActiveAuthRole(authSession);
-  const [isBusinessSuccessOpen, setIsBusinessSuccessOpen] = useState(() =>
-    new URLSearchParams(window.location.search).get("businessSuccess") === "1",
+  const [isBusinessSuccessOpen, setIsBusinessSuccessOpen] = useState(
+    () =>
+      new URLSearchParams(window.location.search).get("businessSuccess") ===
+      "1",
   );
 
   useEffect(() => {
@@ -187,10 +228,19 @@ export function MyAccountPage() {
   );
 
   if (authSession && isBusinessAccount(activeRole)) {
-    return <IndependentConsultantAccountPage businessSuccessSheet={businessSuccessSheet} />;
+    return (
+      <IndependentConsultantAccountPage
+        businessSuccessSheet={businessSuccessSheet}
+      />
+    );
   }
 
-  return <StandardAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
+  return (
+    <StandardAccountPage
+      authSession={authSession}
+      businessSuccessSheet={businessSuccessSheet}
+    />
+  );
 }
 
 function isBusinessAccount(role: string | null) {
@@ -201,29 +251,56 @@ function isBusinessAccount(role: string | null) {
   );
 }
 
-function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
+function IndependentConsultantAccountPage({
+  businessSuccessSheet,
+}: {
+  businessSuccessSheet?: ReactNode;
+}) {
   const authSession = getStoredAuthSession();
-  const { data: profile } = useMyProfileQuery({ enabled: Boolean(authSession) });
-  const { isLoggingOut, handleLogout } = useLogoutAccount();
+  const { data: profile } = useMyProfileQuery({
+    enabled: Boolean(authSession),
+  });
+  const {
+    closeLogoutConfirm,
+    confirmLogout,
+    isLoggingOut,
+    isLogoutConfirmOpen,
+    openLogoutConfirm,
+  } = useLogoutAccount();
   const activeRole = getActiveAuthRole(authSession);
   const consultantActions = getBusinessAccountActions(activeRole);
   const accountSwitchActions = getAccountSwitchActions(authSession, activeRole);
   const businessHeader = getBusinessAccountHeader(activeRole, profile);
+  const accountOverlay = (
+    <>
+      {businessSuccessSheet}
+      <AccountLogoutConfirmSheet
+        isOpen={isLogoutConfirmOpen}
+        isPending={isLoggingOut}
+        onCancel={closeLogoutConfirm}
+        onConfirm={confirmLogout}
+      />
+    </>
+  );
 
   return (
     <TopBarNavigationLayout
       activeKey="account"
       contentClassName="flex flex-col gap-4 bg-[#f0f0f0]"
       frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      overlay={businessSuccessSheet}
-      topBar={<TopBar
-        backTo="/home"
-        startSlot={<AccountNotificationButton />}
-        title="حساب من"
-      />}
+      overlay={accountOverlay}
+      topBar={
+        <TopBar
+          backTo="/home"
+          startSlot={<AccountNotificationButton />}
+          title="حساب من"
+        />
+      }
     >
-
-      <section className="shrink-0 bg-white pt-4" aria-label={businessHeader.ariaLabel}>
+      <section
+        className="shrink-0 bg-white pt-4"
+        aria-label={businessHeader.ariaLabel}
+      >
         <button
           className="flex w-full items-center gap-4 px-4 text-right"
           onClick={() => {
@@ -252,7 +329,11 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
         </button>
 
         <DangerAccountRow
-          action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
+          action={{
+            icon: "trash",
+            label: "حذف کسب و کار",
+            to: "/account/delete-user",
+          }}
         />
         <AccountSection actions={accountSwitchActions} spacedDividers />
       </section>
@@ -267,7 +348,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
           {
             icon: "log_out",
             label: isLoggingOut ? "در حال خروج..." : "خروج از حساب کاربری",
-            onClick: handleLogout,
+            onClick: openLogoutConfirm,
           },
         ]}
       />
@@ -311,12 +392,24 @@ function getBusinessAccountHeader(role?: string | null, profile?: UserProfile) {
 function getBusinessAccountActions(role?: string | null): AccountAction[] {
   const managerActions: AccountAction[] = [
     { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-    { icon: "ranking", label: "نشان ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+    {
+      icon: "ranking",
+      label: "نشان ها و رتبه",
+      to: `${DASHBOARD_PATH}/ranking`,
+    },
     { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
     { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
-    { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
+    {
+      icon: "request",
+      label: "مدیریت درخواست‌ها",
+      to: `${DASHBOARD_PATH}/requests`,
+    },
     { icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` },
-    { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+    {
+      icon: "wallet-add",
+      label: "افزایش اعتبار",
+      to: `${DASHBOARD_PATH}/payments`,
+    },
     { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
   ];
 
@@ -327,10 +420,18 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
   if (role === REAL_ESTATE_CONSULTANT) {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-      { icon: "ranking", label: "شناساها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      {
+        icon: "ranking",
+        label: "شناساها و رتبه",
+        to: `${DASHBOARD_PATH}/ranking`,
+      },
       { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
-      { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+      {
+        icon: "wallet",
+        label: "افزایش اعتبار",
+        to: `${DASHBOARD_PATH}/payments`,
+      },
       { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
     ];
   }
@@ -338,11 +439,23 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
   if (role === INDEPENDENT_CONSULTANT) {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-      { icon: "ranking", label: "شناساها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      {
+        icon: "ranking",
+        label: "شناساها و رتبه",
+        to: `${DASHBOARD_PATH}/ranking`,
+      },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agency` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
-      { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
-      { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+      {
+        icon: "request",
+        label: "مدیریت درخواست‌ها",
+        to: `${DASHBOARD_PATH}/requests`,
+      },
+      {
+        icon: "wallet",
+        label: "افزایش اعتبار",
+        to: `${DASHBOARD_PATH}/payments`,
+      },
       { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
     ];
   }
@@ -416,11 +529,32 @@ function StandardAccountPage({
 }) {
   const isLoggedIn = authSession !== null;
   const { data: profile } = useMyProfileQuery({ enabled: isLoggedIn });
-  const { isLoggingOut, handleLogout } = useLogoutAccount();
+  const {
+    closeLogoutConfirm,
+    confirmLogout,
+    isLoggingOut,
+    isLogoutConfirmOpen,
+    openLogoutConfirm,
+  } = useLogoutAccount();
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
+  const accountOverlay = (
+    <>
+      {businessSuccessSheet}
+      <AccountLogoutConfirmSheet
+        isOpen={isLogoutConfirmOpen}
+        isPending={isLoggingOut}
+        onCancel={closeLogoutConfirm}
+        onConfirm={confirmLogout}
+      />
+    </>
+  );
   const accountTopBar = isLoggedIn ? (
-    <TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب من" />
+    <TopBar
+      backTo="/home"
+      startSlot={<AccountNotificationButton />}
+      title="حساب من"
+    />
   ) : (
     <TopBar
       centerClassName="px-0"
@@ -435,7 +569,7 @@ function StandardAccountPage({
       activeKey="account"
       contentClassName="bg-[#f0f0f0] pb-4"
       frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      overlay={businessSuccessSheet}
+      overlay={accountOverlay}
       topBar={accountTopBar}
     >
       {isLoggedIn ? (
@@ -466,11 +600,19 @@ function StandardAccountPage({
         <LoggedOutAccountHeader />
       )}
 
-      <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession) : loggedOutBusinessActions} />
+      <AccountSection
+        actions={
+          isLoggedIn
+            ? getCreatedBusinessActions(authSession)
+            : loggedOutBusinessActions
+        }
+      />
 
       <div className="h-4 bg-[#f0f0f0]" />
 
-      <AccountSection actions={isLoggedIn ? primaryActions : loggedOutPrimaryActions} />
+      <AccountSection
+        actions={isLoggedIn ? primaryActions : loggedOutPrimaryActions}
+      />
 
       <div className="h-4 bg-[#f0f0f0]" />
 
@@ -484,7 +626,7 @@ function StandardAccountPage({
               {
                 icon: "log_out",
                 label: isLoggingOut ? "در حال خروج..." : "خروج از حساب",
-                onClick: handleLogout,
+                onClick: openLogoutConfirm,
               },
             ]}
           />
@@ -499,7 +641,11 @@ function clearBusinessSuccessQuery() {
   if (!url.searchParams.has("businessSuccess")) return;
 
   url.searchParams.delete("businessSuccess");
-  window.history.replaceState(window.history.state ?? {}, "", `${url.pathname}${url.search}${url.hash}`);
+  window.history.replaceState(
+    window.history.state ?? {},
+    "",
+    `${url.pathname}${url.search}${url.hash}`,
+  );
 }
 
 function AccountBusinessSuccessSheet({
@@ -532,7 +678,10 @@ function AccountBusinessSuccessSheet({
         <div className="flex flex-col gap-2.5 mt-2 space-y-1 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
           <p className="m-0 flex gap-2">
             <span className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
-            <span>برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</span>
+            <span>
+              برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را
+              فعال کنید.
+            </span>
           </p>
           <p className="m-0 flex gap-2">
             <span className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
@@ -552,12 +701,69 @@ function AccountBusinessSuccessSheet({
   );
 }
 
+function AccountLogoutConfirmSheet({
+  isOpen,
+  isPending,
+  onCancel,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  isPending: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const handleClose = () => {
+    if (!isPending) {
+      onCancel();
+    }
+  };
+
+  return (
+    <BottomSheet
+      ariaLabel="خروج از حساب"
+      className="rounded-t-[16px]"
+      contentClassName="px-4 pt-[18px] pb-6"
+      handleClassName="h-1 w-10 rounded-full bg-[#cccccc]"
+      heightClassName=""
+      isOpen={isOpen}
+      onClose={handleClose}
+      panelPaddingClassName="pt-2.5"
+      showHeader={false}
+      showHeaderDivider={false}
+      zIndexClassName="z-[1001]"
+    >
+      <p className="m-0 text-center font-medium text-[#1a1a1a]">
+        مایل به خروج از حساب خود هستید؟
+      </p>
+
+      <div className="mt-9 grid grid-cols-2 gap-3 [direction:ltr]">
+        <button
+          className="inline-flex py-2.5 items-center justify-center rounded-xl border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
+          disabled={isPending}
+          onClick={onConfirm}
+          type="button"
+        >
+          {isPending ? "..." : "بله"}
+        </button>
+        <button
+          className="inline-flex py-2.5 items-center justify-center rounded-xl border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
+          disabled={isPending}
+          onClick={handleClose}
+          type="button"
+        >
+          خیر
+        </button>
+      </div>
+    </BottomSheet>
+  );
+}
+
 function getAccountHeader(profile?: UserProfile) {
   const fullName = getProfileDisplayName(profile);
-  const isAuthorized = Number(profile?.authorized ?? 0) === 1;
+  const hasNationalNumber = Boolean(profile?.nationalnumber?.trim());
   const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
 
-  if (!isAuthorized) {
+  if (!hasNationalNumber) {
     return { avatarUrl, color: "#C11004", label: "احراز هویت نشده" };
   }
 
@@ -628,20 +834,40 @@ function getLoginRequiredPath(returnTo: string, actionLabel?: string) {
 
 function useLogoutAccount() {
   const logoutMutation = useLogoutMutation();
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
-  const handleLogout = () => {
+  const openLogoutConfirm = () => {
+    if (!logoutMutation.isPending) {
+      setIsLogoutConfirmOpen(true);
+    }
+  };
+
+  const closeLogoutConfirm = () => {
+    if (!logoutMutation.isPending) {
+      setIsLogoutConfirmOpen(false);
+    }
+  };
+
+  const confirmLogout = () => {
     if (logoutMutation.isPending) {
       return;
     }
 
     logoutMutation.mutate(undefined, {
       onSettled: () => {
+        setIsLogoutConfirmOpen(false);
         navigateTo("/login/phone");
       },
     });
   };
 
-  return { handleLogout, isLoggingOut: logoutMutation.isPending };
+  return {
+    closeLogoutConfirm,
+    confirmLogout,
+    isLoggingOut: logoutMutation.isPending,
+    isLogoutConfirmOpen,
+    openLogoutConfirm,
+  };
 }
 
 function LoggedOutAccountHeader() {
@@ -710,7 +936,10 @@ function AccountMenuRow({
       <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
         {action.label}
       </span>
-      <AccountIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" name={action.icon} />
+      <AccountIcon
+        className="h-6 w-6 shrink-0 text-[#4d4d4d]"
+        name={action.icon}
+      />
     </>
   );
 
@@ -723,7 +952,9 @@ function AccountMenuRow({
             if (action.requiresAuth && !getStoredAuthSession()) {
               event.preventDefault();
               storeLoginRedirectPath(action.to ?? "/account");
-              navigateTo(getLoginRequiredPath(action.to ?? "/account", action.label));
+              navigateTo(
+                getLoginRequiredPath(action.to ?? "/account", action.label),
+              );
               return;
             }
 
@@ -757,7 +988,10 @@ function DangerAccountRow({ action }: { action: AccountAction }) {
       <span className="truncate text-sm font-semibold leading-5 [direction:rtl]">
         {action.label}
       </span>
-      <AccountIcon className="h-5 w-5 shrink-0 text-[#C11004]" name={action.icon} />
+      <AccountIcon
+        className="h-5 w-5 shrink-0 text-[#C11004]"
+        name={action.icon}
+      />
     </div>
   );
 
@@ -796,9 +1030,10 @@ function ChevronLeftIcon({ className = "" }: { className?: string }) {
 }
 
 function AccountNotificationButton() {
-  const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery({
-    enabled: Boolean(getStoredAuthSession()),
-  });
+  const { data: unreadNotificationsCount = 0 } =
+    useNotificationUnreadCountQuery({
+      enabled: Boolean(getStoredAuthSession()),
+    });
 
   return (
     <RouteLink

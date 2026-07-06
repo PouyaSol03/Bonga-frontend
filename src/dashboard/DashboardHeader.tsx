@@ -19,9 +19,8 @@ export function DashboardHeader() {
     .filter(Boolean)
     .join(" ");
   const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
-  const profileName = Number(profile?.authorized ?? 0) === 1
-    ? fullName || "کاربر شناسا"
-    : "احراز هویت نشده";
+  const hasNationalNumber = Boolean(profile?.nationalnumber?.trim());
+  const profileName = hasNationalNumber ? fullName || "کاربر شناسا" : "احراز هویت نشده";
 
   return (
     <header className="flex h-[80px] w-full items-center justify-between bg-white px-6">

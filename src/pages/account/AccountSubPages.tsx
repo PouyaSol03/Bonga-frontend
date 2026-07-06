@@ -938,10 +938,10 @@ export function AccountIdentityPage() {
   const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
 
   useEffect(() => {
-    if (Number(profile?.authorized ?? 0) === 1) {
+    if (profile?.nationalnumber?.trim()) {
       setStatus("verified");
     }
-  }, [profile?.authorized]);
+  }, [profile?.nationalnumber]);
 
   return (
     <AccountPageShell title={status === "verified" ? "مالکیت سیم‌کارت" : "تایید هویت"}>

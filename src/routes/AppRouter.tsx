@@ -460,7 +460,7 @@ export function AppRouter() {
     }
   }, [])
 
-  const isIdentityVerified = Number(profile?.authorized ?? 0) === 1
+  const isIdentityVerified = Boolean(profile?.nationalnumber?.trim())
   const page = requiresIdentity && isProfileLoading ? (
     <IdentityGateLoadingPage title={route.title} />
   ) : requiresIdentity && !isIdentityVerified ? (

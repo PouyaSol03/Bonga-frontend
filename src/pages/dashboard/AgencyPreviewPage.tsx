@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
+import { QRCodeSVG } from "qrcode.react";
 
 import LinearAdd from "../../components/(icons)/LinearAdd";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
@@ -22,11 +23,15 @@ import LinearTag from "../../components/(icons)/LinearTag";
 import LinearTelegram from "../../components/(icons)/LinearTelegram";
 import LinearWhatsapp from "../../components/(icons)/LinearWhatsapp";
 import { TopBar } from "../../components/TopBar";
+import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
 const agencyQrCodePath = `${agencyPreviewPath}/qr-code`;
+const agencyShareTitle = "املاک جلیلیان";
+const agencyShareText = "صفحه آژانس املاک جلیلیان";
+const agencyQrLabel = "Agency58945";
 const agencyLogoSrc = "/figma/agency-preview/agency-logo.png";
 const listingImageSrc = "/figma/agency-preview/listing-kitchen.png";
 
@@ -193,9 +198,81 @@ function navigateTo(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function getAbsoluteAgencyPreviewUrl() {
+  if (typeof window === "undefined") return agencyPreviewPath;
+
+  return new URL(agencyPreviewPath, window.location.origin).toString();
+}
+
+function getCurrentPageUrl() {
+  if (typeof window === "undefined") return agencyPreviewPath;
+
+  return window.location.href;
+}
+
+async function shareOrCopyAgencyUrl(url: string) {
+  if (typeof navigator !== "undefined" && navigator.share) {
+    await navigator.share({
+      text: agencyShareText,
+      title: agencyShareTitle,
+      url,
+    });
+
+    return "shared" as const;
+  }
+
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(url);
+
+    return "copied" as const;
+  }
+
+  throw new Error("Sharing is not supported in this browser.");
+}
+
+type AgencyToast = {
+  message: string;
+  title: string;
+  variant: SnackbarVariant;
+};
+
+
 export function AgencyPreviewPage() {
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+  const [toast, setToast] = useState<AgencyToast | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (
+    message: string,
+    title = "انجام شد",
+    variant: SnackbarVariant = "success",
+  ) => {
+    setToast({ message, title, variant });
+  };
+
+  async function handleShareClick() {
+    try {
+      const result = await shareOrCopyAgencyUrl(getCurrentPageUrl());
+
+      if (result === "copied") {
+        showToast("لینک صفحه آژانس کپی شد.");
+      }
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") {
+        return;
+      }
+
+      showToast("اشتراک‌گذاری با خطا مواجه شد.", "خطا", "error");
+    }
+  }
 
   function changeTab(tab: AgencyPreviewTab) {
     setActiveTab(tab);
@@ -213,7 +290,7 @@ export function AgencyPreviewPage() {
             id: "share",
             label: "اشتراک‌گذاری",
             icon: <LinearShare className="h-6 w-6" />,
-            to: agencyQrCodePath,
+            onClick: () => void handleShareClick(),
           },
           {
             id: "qr-code",
@@ -237,11 +314,55 @@ export function AgencyPreviewPage() {
         isOpen={isContactSheetOpen}
         onClose={() => setIsContactSheetOpen(false)}
       />
+      {toast ? (
+        <Snackbar
+          className="top-16"
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
     </div>
   );
 }
 
 export function AgencyQrCodePage() {
+  const [toast, setToast] = useState<AgencyToast | null>(null);
+  const agencyUrl = getAbsoluteAgencyPreviewUrl();
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (
+    message: string,
+    title = "انجام شد",
+    variant: SnackbarVariant = "success",
+  ) => {
+    setToast({ message, title, variant });
+  };
+
+  async function handleShareClick() {
+    try {
+      const result = await shareOrCopyAgencyUrl(agencyUrl);
+
+      if (result === "copied") {
+        showToast("لینک صفحه آژانس کپی شد.");
+      }
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") {
+        return;
+      }
+
+      showToast("اشتراک‌گذاری با خطا مواجه شد.", "خطا", "error");
+    }
+  }
+
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
       <TopBar
@@ -251,27 +372,40 @@ export function AgencyQrCodePage() {
         title="کیوآرکد آژانس"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-8 pb-28 pt-8">
-        <div className="w-full max-w-[260px] rounded-2xl bg-white p-3">
-          <AgencyQrPattern />
-          <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">Agency58945</p>
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-7 pb-28 pt-10">
+        <div className="w-full max-w-[252px] bg-white text-center">
+          <QRCodeSVG
+            bgColor="#ffffff"
+            className="mx-auto block h-auto w-full"
+            fgColor="#12358d"
+            level="M"
+            marginSize={1}
+            title="کد QR صفحه آژانس"
+            value={agencyUrl}
+          />
+          <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">{agencyQrLabel}</p>
         </div>
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3">
         <button
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]"
-          onClick={() => {
-            if (navigator.share) {
-              void navigator.share({ title: "املاک جلیلیان", text: "صفحه آژانس املاک جلیلیان", url: window.location.href });
-            }
-          }}
+          onClick={() => void handleShareClick()}
           type="button"
         >
           <LinearShare className="h-5 w-5" />
           اشتراک گذاری
         </button>
       </footer>
+      {toast ? (
+        <Snackbar
+          className="top-16"
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
     </div>
   );
 }
@@ -680,44 +814,5 @@ function AgencyPreviewFooter({ onContactClick }: { onContactClick: () => void })
         </button>
       </div>
     </footer>
-  );
-}
-
-function AgencyQrPattern() {
-  const squares = new Set<string>([
-    "8,1", "9,1", "11,1", "12,1", "15,1", "3,2", "4,2", "8,2", "12,2", "14,2", "16,2", "2,3", "5,3", "7,3", "9,3", "10,3", "13,3", "1,4", "3,4", "4,4", "6,4", "8,4", "11,4", "15,4", "16,4", "7,5", "10,5", "12,5", "14,5", "2,6", "3,6", "5,6", "8,6", "9,6", "13,6", "16,6", "7,7", "8,7", "11,7", "12,7", "15,7", "1,8", "2,8", "4,8", "5,8", "9,8", "14,8", "16,8", "3,9", "6,9", "8,9", "10,9", "11,9", "13,9", "1,10", "4,10", "6,10", "9,10", "12,10", "15,10", "2,11", "3,11", "5,11", "7,11", "8,11", "11,11", "16,11", "6,12", "9,12", "10,12", "12,12", "14,12", "15,12", "8,13", "11,13", "13,13", "16,13", "2,14", "4,14", "7,14", "10,14", "15,14", "5,15", "8,15", "9,15", "12,15", "14,15", "16,15", "1,16", "3,16", "6,16", "10,16", "12,16", "15,16",
-  ]);
-  const cells = Array.from({ length: 17 * 17 }, (_, index) => {
-    const x = index % 17;
-    const y = Math.floor(index / 17);
-    const isFinder =
-      (x <= 5 && y <= 5) ||
-      (x >= 11 && y <= 5) ||
-      (x <= 5 && y >= 11);
-
-    if (isFinder) return null;
-    if (!squares.has(`${x},${y}`)) return null;
-
-    return <rect height="1" key={`${x}-${y}`} rx="0.08" width="1" x={x} y={y} />;
-  });
-
-  return (
-    <svg aria-label="کد QR آژانس" className="mx-auto block w-full text-[#12358d]" role="img" viewBox="0 0 17 17">
-      <rect fill="white" height="17" width="17" />
-      <FinderSquare x={0} y={0} />
-      <FinderSquare x={11} y={0} />
-      <FinderSquare x={0} y={11} />
-      <g fill="currentColor">{cells}</g>
-    </svg>
-  );
-}
-
-function FinderSquare({ x, y }: { x: number; y: number }) {
-  return (
-    <g>
-      <rect fill="currentColor" height="6" width="6" x={x} y={y} />
-      <rect fill="white" height="4" width="4" x={x + 1} y={y + 1} />
-      <rect fill="currentColor" height="2" width="2" x={x + 2} y={y + 2} />
-    </g>
   );
 }

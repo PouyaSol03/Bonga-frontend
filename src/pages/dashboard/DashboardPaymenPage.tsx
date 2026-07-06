@@ -1,6 +1,15 @@
+import { useEffect, useMemo, useState } from "react";
+
+import { PageFrame } from "../../app/PageFrame";
 import { getRequestErrorState } from "../../components/ErrorState";
+import { DemoNotice } from "../../components/DemoNotice";
+import { TopBar } from "../../components/TopBar";
 import PricingCard from "../../components/dashboard/addWallet/PricingCard";
+import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
+import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
 import { usePackagesQuery } from "../../hooks/package.hooks";
+import { useDemoNotice } from "../../hooks/useDemoNotice";
+import { RouteLink } from "../../routes/RouteLink";
 import type { PackageItem } from "../../services/package.service";
 
 type PricingCardPlan = {
@@ -14,6 +23,22 @@ type PricingCardPlan = {
   priceAfterDiscount: number;
   title: string;
 };
+
+type MobilePaymentTab = "packages" | "panel";
+
+type MobileCreditPlan = {
+  benefits?: string[];
+  currentPrice: number | string;
+  discount: number;
+  giftBenefits?: string[];
+  id: string;
+  originalPrice: number | string;
+  selected?: boolean;
+  title: string;
+};
+
+const mobileDashboardPaymentQuery = "(max-width: 500px)";
+const defaultManagerGiftBenefits = ["۵۰ آگهی", "۲۰ ویژه", "۲۵ بروزرسانی"];
 
 function getCreditItems(plan: PackageItem) {
   return [
@@ -44,6 +69,28 @@ function mapBundlePlan(plan: PackageItem): PricingCardPlan {
   };
 }
 
+function useIsMobileDashboardPayment() {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+
+    return window.matchMedia(mobileDashboardPaymentQuery).matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const media = window.matchMedia(mobileDashboardPaymentQuery);
+    const handleChange = () => setIsMobile(media.matches);
+
+    handleChange();
+    media.addEventListener("change", handleChange);
+
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
+  return isMobile;
+}
+
 function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -62,16 +109,334 @@ function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
   );
 }
 
-function EmptyPackagesState() {
+function EmptyPackagesState({ className = "" }: { className?: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[#D9DDE7] bg-[#F8FAFF] px-4 py-10 text-center text-sm font-medium text-[#666666]">
+    <div className={`rounded-xl border border-dashed border-[#D9DDE7] bg-[#F8FAFF] px-4 py-10 text-center text-sm font-medium text-[#666666] ${className}`}>
       بسته‌ای برای نمایش وجود ندارد.
     </div>
   );
 }
 
-export default function DashboardPaymentPage() {
-  const { data: packages = [], error, isError, isLoading, refetch } = usePackagesQuery();
+function toFaNumber(value: number | string) {
+  if (typeof value === "number") {
+    return value.toLocaleString("fa-IR");
+  }
+
+  return String(value);
+}
+
+function getGiftBenefits(plan: PackageItem, forceDefaultGift: boolean) {
+  const benefits = getCreditItems(plan).map((item) => `${item.value.toLocaleString("fa-IR")} ${item.label}`);
+
+  if (benefits.length > 0) return benefits;
+
+  return forceDefaultGift ? defaultManagerGiftBenefits : [];
+}
+
+function mapMobilePanelPlan(plan: PackageItem, index: number, hasManagerGift: boolean): MobileCreditPlan {
+  const giftBenefits = hasManagerGift ? getGiftBenefits(plan, true) : [];
+
+  return {
+    currentPrice: plan.final_price,
+    discount: plan.discount_percent,
+    giftBenefits,
+    id: plan.id,
+    originalPrice: plan.real_price,
+    selected: index === 0,
+    title: plan.title,
+  };
+}
+
+function mapMobilePackagePlan(plan: PackageItem, index: number): MobileCreditPlan {
+  return {
+    benefits: getCreditItems(plan).map((item) => `${item.value.toLocaleString("fa-IR")} اعتبار ${item.label}`),
+    currentPrice: plan.final_price,
+    discount: plan.discount_percent,
+    id: plan.id,
+    originalPrice: plan.real_price,
+    selected: index === 0,
+    title: plan.title,
+  };
+}
+
+function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab; onChange: (tab: MobilePaymentTab) => void }) {
+  return (
+    <nav className="shrink-0 bg-white px-4 py-4" aria-label="نوع افزایش اعتبار">
+      <div className="flex h-11 overflow-hidden rounded-xl border border-[#0048c4] [direction:ltr]">
+        <button
+          className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
+            activeTab === "panel" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
+          }`}
+          onClick={() => onChange("panel")}
+          type="button"
+        >
+          اعتبار پنل
+        </button>
+        <button
+          className={`flex flex-1 items-center justify-center border-l border-[#0048c4] text-base font-medium leading-6 [direction:rtl] ${
+            activeTab === "packages" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
+          }`}
+          onClick={() => onChange("packages")}
+          type="button"
+        >
+          بسته‌ها
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+function MobileDiscountBadge({ discount }: { discount: number }) {
+  if (!discount) return null;
+
+  return (
+    <span className="rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
+      {toFaNumber(discount)}٪ تخفیف
+    </span>
+  );
+}
+
+function MobilePrice({ plan }: { plan: MobileCreditPlan }) {
+  return (
+    <>
+      <div className="flex h-6 items-center justify-end">
+        <h2 className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
+          {plan.title}
+        </h2>
+      </div>
+      <div className="mt-4 flex h-[68px] items-end justify-between [direction:ltr]">
+        <MobileDiscountBadge discount={plan.discount} />
+        <div className="text-right [direction:rtl]">
+          <p className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">
+            {toFaNumber(plan.originalPrice)}
+          </p>
+          <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
+            <strong className="text-[22px] font-semibold leading-7 text-[#1a1a1a]">
+              {toFaNumber(plan.currentPrice)}
+            </strong>
+            <span className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function MobileCheckSealIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
+      <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
+      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function MobileGiftIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 20 20">
+      <path d="M3 8h14v3H3V8ZM4.5 11h11v6h-11v-6ZM10 8v9" />
+      <path d="M10 8H7.2a2.1 2.1 0 1 1 0-4.2C9.1 3.8 10 8 10 8Zm0 0h2.8a2.1 2.1 0 1 0 0-4.2C10.9 3.8 10 8 10 8Z" />
+    </svg>
+  );
+}
+
+function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
+  return (
+    <div className="h-[261px]">
+      <div className="h-[108px]">
+        <MobilePrice plan={plan} />
+      </div>
+      <div className="my-4 h-px border-t border-dashed border-[#cccccc]" />
+      <ul className="space-y-4">
+        {(plan.benefits ?? []).map((benefit) => (
+          <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
+            <MobileCheckSealIcon className="h-5 w-5 shrink-0 text-[#11a366]" />
+            <span>{benefit}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function MobileGiftBenefits({ benefits }: { benefits: string[] }) {
+  return (
+    <div className="h-16 rounded-lg border border-[#11a366] bg-[#11a36614] px-4 py-2 text-[#006038]">
+      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-[#11a366]">
+        <MobileGiftIcon className="h-5 w-5" />
+        <span>بسته هدیه</span>
+      </div>
+      <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
+        {benefits.map((benefit, index) => (
+          <span
+            className={index < benefits.length - 1 ? "border-l border-[#00603829] pl-4" : ""}
+            key={benefit}
+          >
+            {benefit}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobilePanelContent({ plan, showGift }: { plan: MobileCreditPlan; showGift: boolean }) {
+  const hasGiftBenefits = showGift && Boolean(plan.giftBenefits?.length);
+
+  return (
+    <div className={hasGiftBenefits ? "h-[204px]" : "h-[124px]"}>
+      <div className="h-[124px]">
+        <MobilePrice plan={plan} />
+      </div>
+      {hasGiftBenefits ? <MobileGiftBenefits benefits={plan.giftBenefits ?? []} /> : null}
+    </div>
+  );
+}
+
+function MobilePlanCard({
+  isPackage,
+  onPay,
+  plan,
+  showGift,
+}: {
+  isPackage: boolean;
+  onPay: () => void;
+  plan: MobileCreditPlan;
+  showGift: boolean;
+}) {
+  return (
+    <article
+      className={`rounded-2xl border bg-gradient-to-b from-white to-[#edf1fa] p-4 ${
+        plan.selected ? "border-[#0048c4]" : "border-[#cccccc]"
+      }`}
+    >
+      {isPackage ? (
+        <MobilePackageContent plan={plan} />
+      ) : (
+        <MobilePanelContent plan={plan} showGift={showGift} />
+      )}
+
+      <button
+        className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+        onClick={onPay}
+        type="button"
+      >
+        پرداخت
+      </button>
+    </article>
+  );
+}
+
+function MobilePlansSkeleton({ showGift = false }: { showGift?: boolean }) {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          className={`${showGift ? "h-[284px]" : "h-[204px]"} animate-pulse rounded-2xl border border-[#cccccc] bg-[#f7f9fe] p-4`}
+          key={index}
+        >
+          <div className="mr-auto h-5 w-16 rounded bg-[#e6eaf3]" />
+          <div className="mt-7 mr-auto h-6 w-28 rounded bg-[#e6eaf3]" />
+          <div className="mt-9 h-10 rounded-lg bg-[#e6eaf3]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DashboardPaymentMobilePage({
+  error,
+  isError,
+  isLoading,
+  packages,
+  refetch,
+}: {
+  error: unknown;
+  isError: boolean;
+  isLoading: boolean;
+  packages: PackageItem[];
+  refetch: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<MobilePaymentTab>("panel");
+  const { message, showNotice } = useDemoNotice();
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isManager = activeRole === REAL_ESTATE_MANAGER;
+  const panelPlans = useMemo(
+    () => packages
+      .filter((plan) => plan.kind === "panel_subscription")
+      .map((plan, index) => mapMobilePanelPlan(plan, index, isManager)),
+    [isManager, packages],
+  );
+  const packagePlans = useMemo(
+    () => packages
+      .filter((plan) => plan.kind === "credit_bundle")
+      .map(mapMobilePackagePlan),
+    [packages],
+  );
+  const ErrorState = getRequestErrorState(error);
+  const shownPlans = activeTab === "packages" ? packagePlans : panelPlans;
+  const showGift = activeTab === "panel" && isManager;
+
+  return (
+    <PageFrame
+      className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        backTo="/account/dashboard"
+        startSlot={
+          <RouteLink
+            className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-[#0048c4] no-underline"
+            to="/account/credit/history"
+          >
+            تاریخچه پرداخت
+          </RouteLink>
+        }
+        title="افزایش اعتبار"
+      />
+      <MobileCreditTabs activeTab={activeTab} onChange={setActiveTab} />
+
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4">
+        {isError ? <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
+
+        {!isError && isLoading ? <MobilePlansSkeleton showGift={showGift} /> : null}
+
+        {!isError && !isLoading && shownPlans.length > 0 ? (
+          <div className="space-y-4">
+            {shownPlans.map((plan) => (
+              <MobilePlanCard
+                isPackage={activeTab === "packages"}
+                key={plan.id}
+                onPay={() => showNotice(`پرداخت ${plan.title} در نسخه نمایشی ثبت شد`)}
+                plan={plan}
+                showGift={showGift}
+              />
+            ))}
+          </div>
+        ) : null}
+
+        {!isError && !isLoading && shownPlans.length === 0 ? (
+          <EmptyPackagesState className="mt-2" />
+        ) : null}
+      </main>
+      <DemoNotice message={message} />
+    </PageFrame>
+  );
+}
+
+function DashboardPaymentDesktopPage({
+  error,
+  isError,
+  isLoading,
+  packages,
+  refetch,
+}: {
+  error: unknown;
+  isError: boolean;
+  isLoading: boolean;
+  packages: PackageItem[];
+  refetch: () => void;
+}) {
   const panelCreditPlans = packages
     .filter((plan) => plan.kind === "panel_subscription")
     .map(mapPanelPlan);
@@ -93,12 +458,12 @@ export default function DashboardPaymentPage() {
           </h1>
         </div>
 
-        <button
-          type="button"
-          className="rounded-lg border border-[#0048C4] px-3 py-2 text-xs font-medium text-[#0048C4]"
+        <RouteLink
+          className="rounded-lg border border-[#0048C4] px-3 py-2 text-xs font-medium text-[#0048C4] no-underline"
+          to="/account/credit/history"
         >
           تاریخچه پرداخت
-        </button>
+        </RouteLink>
       </div>
 
       {isError ? (
@@ -161,4 +526,16 @@ export default function DashboardPaymentPage() {
       ) : null}
     </div>
   );
+}
+
+export default function DashboardPaymentPage() {
+  const { data: packages = [], error, isError, isLoading, refetch } = usePackagesQuery();
+  const isMobile = useIsMobileDashboardPayment();
+  const sharedProps = { error, isError, isLoading, packages, refetch };
+
+  if (isMobile) {
+    return <DashboardPaymentMobilePage {...sharedProps} />;
+  }
+
+  return <DashboardPaymentDesktopPage {...sharedProps} />;
 }

@@ -1,8 +1,10 @@
 import { PageFrame } from "../../../app/PageFrame";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
 import { DemoNotice } from "../../../components/DemoNotice";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { useDemoNotice } from "../../../hooks/useDemoNotice";
+import { REAL_ESTATE_MANAGER } from "../../../constants/roles.constants";
 import {
   creditPackages,
   panelCreditBonusPlans,
@@ -13,7 +15,13 @@ import {
 type CreditView = "packages" | "panel" | "panel-bonus";
 
 export function IndependentConsultantPanelCreditPage() {
-  return <IndependentConsultantCreditPage view="panel" />;
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+
+  return (
+    <IndependentConsultantCreditPage
+      view={activeRole === REAL_ESTATE_MANAGER ? "panel-bonus" : "panel"}
+    />
+  );
 }
 
 export function IndependentConsultantPanelCreditBonusPage() {

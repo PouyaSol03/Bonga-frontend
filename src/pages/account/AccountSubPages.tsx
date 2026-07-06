@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
-import { getApiErrorMessage } from "../../api/api";
+import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
 import {
   useAdvertiseBadgesQuery,
@@ -53,7 +53,7 @@ const adFilters: Array<{ label: string; type: MyAdsType }> = [
 ];
 
 export function AccountProfilePage() {
-  const { message, showNotice } = useDemoNotice();
+  const [toast, setToast] = useState<AccountToast | null>(null);
   const { data: profile, error, isError, isLoading, refetch } = useMyProfileQuery();
   const updateProfile = useUpdateMyProfileMutation();
   const mobile = getStoredAuthSession()?.mobile ?? "-";
@@ -65,6 +65,20 @@ export function AccountProfilePage() {
     profile?.name,
     profile?.nationalnumber,
   ].join("|");
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (
+    message: string,
+    title = "موفقیت",
+    variant: SnackbarVariant = "success",
+  ) => setToast({ message, title, variant });
 
   return (
     <AccountPageShell title="مشخصات من">
@@ -86,19 +100,32 @@ export function AccountProfilePage() {
             onSubmit={(form) => {
               updateProfile.mutate(form, {
                 onError: (submitError) => {
-                  showNotice(getApiErrorMessage(submitError, "ذخیره اطلاعات با خطا مواجه شد"));
+                  showToast(
+                    getApiErrorMessage(submitError, "ذخیره اطلاعات با خطا مواجه شد"),
+                    "خطا",
+                    "error",
+                  );
                 },
                 onSuccess: () => {
-                  showNotice("اطلاعات حساب ذخیره شد");
+                  window.history.pushState({}, "", "/account/profile");
+                  window.dispatchEvent(new PopStateEvent("popstate"));
+                  showToast("اطلاعات حساب ذخیره شد");
                 },
               });
             }}
-            onUpdateAvatar={() => showNotice("تصویر پروفایل نمایشی به‌روزرسانی شد")}
           />
         ) : null}
       </main>
 
-      <DemoNotice message={message} className="bottom-20" />
+      {toast ? (
+        <Snackbar
+          className="bottom-20"
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
     </AccountPageShell>
   );
 }
@@ -107,19 +134,18 @@ function AccountProfileForm({
   isSubmitting,
   mobile,
   onSubmit,
-  onUpdateAvatar,
   profile,
 }: {
   isSubmitting: boolean;
   mobile: string;
   onSubmit: (form: {
-    email: string;
-    family: string;
-    name: string;
-    nationalnumber: string;
+    avatar: File | null;
+    email: string | null;
+    family: string | null;
+    name: string | null;
   }) => void;
-  onUpdateAvatar: () => void;
   profile?: {
+    avatar?: string | null;
     email?: string | null;
     family?: string | null;
     mobile?: string;
@@ -128,6 +154,8 @@ function AccountProfileForm({
     phone?: string;
   };
 }) {
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
   const [form, setForm] = useState({
     email: profile?.email ?? "",
     family: profile?.family ?? "",
@@ -135,19 +163,45 @@ function AccountProfileForm({
     nationalnumber: profile?.nationalnumber ?? "",
   });
 
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreview("");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(avatarFile);
+    setAvatarPreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [avatarFile]);
+
+  const avatarSrc = avatarPreview || (profile?.avatar ? getApiAssetUrl(profile.avatar) : "");
+
   return (
     <>
       <section className="flex flex-col items-center px-4 pt-4">
-        <div className="relative grid h-[100px] w-[100px] place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
-          <UserIcon className="h-10 w-10" />
-          <button
+        <div className="relative grid h-[100px] w-[100px] place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]">
+          {avatarSrc ? (
+            <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
+          ) : (
+            <UserIcon className="h-10 w-10" />
+          )}
+
+          <label
             aria-label="ویرایش تصویر"
-            className="absolute bottom-1 right-1 grid h-9 w-9 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
-            type="button"
-            onClick={onUpdateAvatar}
+            className="absolute bottom-1 right-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
+            htmlFor="profile-avatar-upload"
           >
             <EditIcon className="h-4 w-4" />
-          </button>
+          </label>
+
+          <input
+            accept="image/*"
+            className="hidden"
+            id="profile-avatar-upload"
+            type="file"
+            onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
+          />
         </div>
       </section>
 
@@ -181,7 +235,19 @@ function AccountProfileForm({
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={isSubmitting}
           type="button"
-          onClick={() => onSubmit(form)}
+          onClick={() => {
+            const emptyToNull = (value: string) => {
+              const trimmedValue = value.trim();
+              return trimmedValue.length > 0 ? trimmedValue : null;
+            };
+
+            onSubmit({
+              avatar: avatarFile,
+              email: emptyToNull(form.email),
+              family: emptyToNull(form.family),
+              name: emptyToNull(form.name),
+            });
+          }}
         >
           {isSubmitting ? "در حال ثبت..." : "ثبت"}
         </button>
@@ -304,7 +370,7 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
               <AdCard
                 ad={cardWithStatus}
                 showStatusBadge
-                state={{ ad, card: cardWithStatus, returnTo: "/account/my-ads", status: statusInfo.key }}
+                state={{ ad, card: cardWithStatus, status: statusInfo.key }}
                 to={`/account/my-ads/${encodeURIComponent(adId)}/state-ad`}
               />
             </div>
@@ -476,8 +542,8 @@ export function AccountWalletHistoryPage() {
   const payments = wallet?.payments ?? [];
 
   return (
-    <AccountPageShell title="تاریخچه پرداخت">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+    <AccountPageShell title="تاریخچه پرداخت کیف پول">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
 
         {isError ? (
@@ -868,6 +934,14 @@ export function AccountIdentityPage() {
   const [status, setStatus] = useState<"pending" | "verified">("pending");
   const { message, showNotice } = useDemoNotice();
   const authorize = useAuthorizeMeMutation();
+  const { data: profile } = useMyProfileQuery();
+  const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
+
+  useEffect(() => {
+    if (Number(profile?.authorized ?? 0) === 1) {
+      setStatus("verified");
+    }
+  }, [profile?.authorized]);
 
   return (
     <AccountPageShell title={status === "verified" ? "مالکیت سیم‌کارت" : "تایید هویت"}>
@@ -875,6 +949,7 @@ export function AccountIdentityPage() {
         {status === "pending" ? (
           <IdentityPendingState
             isPending={authorize.isPending}
+            showRequiredNotice={isAuthRequired}
             onVerify={(nationalnumber) => {
               authorize.mutate(
                 { nationalnumber },
@@ -1366,9 +1441,11 @@ function RequestCard({ onCancel }: { onCancel: () => void }) {
 
 function IdentityPendingState({
   isPending,
+  showRequiredNotice = false,
   onVerify,
 }: {
   isPending: boolean;
+  showRequiredNotice?: boolean;
   onVerify: (nationalnumber: string) => void;
 }) {
   const mobile = getStoredAuthSession()?.mobile ?? "-";
@@ -1376,6 +1453,19 @@ function IdentityPendingState({
 
   return (
     <>
+      {showRequiredNotice ? (
+        <section className="px-2 pt-3">
+          <div className="rounded-xl border border-[#ff6d00] bg-[#fff7f0] px-4 py-3 text-right text-[#ff6d00]">
+            <p className="m-0 text-sm font-semibold leading-6">
+              احراز هویت مورد نیاز است!
+            </p>
+            <p className="m-0 mt-1 text-xs font-normal leading-5">
+              برای ادامه استفاده از حساب، ابتدا کد ملی مالک شماره همراه را تایید کنید.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
       <section className="px-2 pt-3">
         <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
           <div className="flex items-center justify-start gap-2 text-[#0048C4]">
@@ -1649,22 +1739,6 @@ function readPaymentStatusColor(payment: WalletPayment) {
   return "#1a1a1a";
 }
 
-function readWalletPaymentService(payment: WalletPayment) {
-  return String(
-    payment.service ??
-    payment.service_name ??
-    payment.package_name ??
-    payment.plan_name ??
-    payment.title ??
-    payment.type ??
-    "شارژ کیف پول",
-  );
-}
-
-function readWalletPaymentMethod(payment: WalletPayment) {
-  return String(payment.method ?? payment.payment_method ?? "پرداخت آنلاین");
-}
-
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
@@ -1701,16 +1775,11 @@ function TextField({
 
 function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
   return (
-    <article className="mb-2 flex h-[224px] flex-col justify-between bg-white px-4 py-4 text-right last:mb-0">
+    <article className="border-b border-[#f0f0f0] bg-white px-4 py-4 text-right">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
         valueColor={readPaymentStatusColor(payment)}
-      />
-
-      <PaymentHistoryRow
-        label="نوع سرویس"
-        value={readWalletPaymentService(payment)}
       />
 
       <PaymentHistoryRow
@@ -1724,38 +1793,36 @@ function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
       />
 
       <PaymentHistoryRow
-        label="نحوه پرداخت"
-        value={readWalletPaymentMethod(payment)}
-      />
-
-      <PaymentHistoryRow
         label="شناسه پرداخت"
         value={String(payment.tracking_code ?? payment.id ?? "-")}
+        isLast
       />
     </article>
   );
 }
 
 function PaymentHistoryRow({
+  isLast = false,
   label,
   value,
   valueColor = "#1a1a1a",
 }: {
+  isLast?: boolean;
   label: string;
   value: string;
   valueColor?: string;
 }) {
   return (
-    <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
+    <div className={`flex items-center justify-between gap-4 ${isLast ? "" : "mb-3"}`}>
+      <span className="shrink-0 text-xs font-normal leading-5 text-[#808080]">
+        {label}
+      </span>
+
       <span
-        className="min-w-0 truncate text-left"
+        className="min-w-0 text-left text-xs font-medium leading-5"
         style={{ color: valueColor }}
       >
         {value}
-      </span>
-
-      <span className="shrink-0 text-right text-[#808080] [direction:rtl]">
-        {label}
       </span>
     </div>
   );

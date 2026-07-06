@@ -8,6 +8,7 @@ import { DASHBOARD_PATH } from "../routes/routes";
 import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useLogoutMutation } from "../hooks/auth.hooks";
 import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
+import { getApiAssetUrl } from "../api/api";
 import { formatMobileForDisplay } from "../services/auth.service";
 import type { UserProfile } from "../services/account.service";
 
@@ -202,11 +203,12 @@ function isBusinessAccount(role: string | null) {
 
 function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
   const authSession = getStoredAuthSession();
+  const { data: profile } = useMyProfileQuery({ enabled: Boolean(authSession) });
   const { isLoggingOut, handleLogout } = useLogoutAccount();
   const activeRole = getActiveAuthRole(authSession);
   const consultantActions = getBusinessAccountActions(activeRole);
   const accountSwitchActions = getAccountSwitchActions(authSession, activeRole);
-  const businessHeader = getBusinessAccountHeader(activeRole);
+  const businessHeader = getBusinessAccountHeader(activeRole, profile);
 
   return (
     <TopBarNavigationLayout
@@ -230,13 +232,17 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
           }}
           type="button"
         >
-          <img
-            alt={businessHeader.name}
-            className="h-[72px] w-[72px] shrink-0 rounded-full object-cover"
-            src={businessHeader.imageSrc}
+          <AccountProfileAvatar
+            avatarUrl={businessHeader.imageSrc}
+            className="h-[72px] w-[72px]"
+            iconClassName="h-8 w-8"
+            label={businessHeader.name}
           />
           <div className="min-w-0 flex-1 text-right">
-            <p className="m-0 truncate text-base font-semibold leading-6 text-[#1a1a1a]">
+            <p
+              className="m-0 truncate text-base font-semibold leading-6"
+              style={{ color: businessHeader.color }}
+            >
               {businessHeader.name}
             </p>
             <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
@@ -269,12 +275,16 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
   );
 }
 
-function getBusinessAccountHeader(role?: string | null) {
+function getBusinessAccountHeader(role?: string | null, profile?: UserProfile) {
+  const accountHeader = getAccountHeader(profile);
+  const fallbackAvatar = "/figma/account/consultant-profile.png";
+
   if (role === REAL_ESTATE_MANAGER) {
     return {
       ariaLabel: "اطلاعات آژانس",
-      imageSrc: "/figma/account/consultant-profile.png",
-      name: "املاک جلیلیان",
+      color: accountHeader.color,
+      imageSrc: accountHeader.avatarUrl || fallbackAvatar,
+      name: accountHeader.label,
       subtitle: "آژانس املاک",
     };
   }
@@ -282,16 +292,18 @@ function getBusinessAccountHeader(role?: string | null) {
   if (role === REAL_ESTATE_CONSULTANT) {
     return {
       ariaLabel: "اطلاعات مشاور آژانس",
-      imageSrc: "/figma/account/consultant-profile.png",
-      name: "مشاور آژانس جلیلیان",
+      color: accountHeader.color,
+      imageSrc: accountHeader.avatarUrl || fallbackAvatar,
+      name: accountHeader.label,
       subtitle: "مشاور آژانس",
     };
   }
 
   return {
     ariaLabel: "اطلاعات مشاور",
-    imageSrc: "/figma/account/consultant-profile.png",
-    name: "ناصر اشرفی",
+    color: accountHeader.color,
+    imageSrc: accountHeader.avatarUrl || fallbackAvatar,
+    name: accountHeader.label,
     subtitle: "مشاور مستقل",
   };
 }
@@ -429,9 +441,12 @@ function StandardAccountPage({
       {isLoggedIn ? (
         <section className="bg-white" aria-label="وضعیت حساب">
           <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
-            <div className="grid p-5 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
-              <AccountIcon name="user" className="h-8 w-8 text-[#cccccc]" />
-            </div>
+            <AccountProfileAvatar
+              avatarUrl={accountHeader.avatarUrl}
+              className="h-[72px] w-[72px]"
+              iconClassName="h-8 w-8 text-[#cccccc]"
+              label={accountHeader.label}
+            />
 
             <div className="min-w-0 flex-1 text-right">
               <p
@@ -529,7 +544,7 @@ function AccountBusinessSuccessSheet({
           onClick={() => navigateTo("/account/credit/panel")}
           type="button"
         >
-          <LinearWalletAdd color="white" className="w-5 h-5 text-white"/>
+          <LinearWalletAdd color="white" className="w-5 h-5 text-white" />
           <span>افزایش اعتبار</span>
         </button>
       </div>
@@ -538,20 +553,62 @@ function AccountBusinessSuccessSheet({
 }
 
 function getAccountHeader(profile?: UserProfile) {
-  const fullName = [profile?.name, profile?.family]
-    .map((value) => value?.trim())
-    .filter(Boolean)
-    .join(" ");
+  const fullName = getProfileDisplayName(profile);
   const isAuthorized = Number(profile?.authorized ?? 0) === 1;
+  const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
 
   if (!isAuthorized) {
-    return { color: "#C11004", label: "احراز هویت نشده" };
+    return { avatarUrl, color: "#C11004", label: "احراز هویت نشده" };
   }
 
   return {
+    avatarUrl,
     color: "#0048C4",
     label: fullName || "کاربر شناسا",
   };
+}
+
+function getProfileDisplayName(profile?: UserProfile) {
+  return [profile?.name, profile?.family]
+    .map((value) => value?.trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
+function AccountProfileAvatar({
+  avatarUrl,
+  className,
+  iconClassName,
+  label,
+}: {
+  avatarUrl?: string;
+  className: string;
+  iconClassName: string;
+  label: string;
+}) {
+  const [hasImageError, setHasImageError] = useState(false);
+  const showAvatar = Boolean(avatarUrl) && !hasImageError;
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [avatarUrl]);
+
+  return (
+    <div className={`relative shrink-0 overflow-visible ${className}`}>
+      <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]">
+        {showAvatar ? (
+          <img
+            alt={label}
+            className="h-full w-full object-cover"
+            src={avatarUrl}
+            onError={() => setHasImageError(true)}
+          />
+        ) : (
+          <AccountIcon name="user" className={iconClassName} />
+        )}
+      </div>
+    </div>
+  );
 }
 
 function navigateTo(path: string) {
@@ -599,7 +656,7 @@ function LoggedOutAccountHeader() {
           <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
             ورود به حساب کاربری
           </span>
-          <LinearLock className="w-5 h-5"/>
+          <LinearLock className="w-5 h-5" />
         </RouteLink>
 
         <p className="m-0 mt-4 text-right text-sm font-normal leading-5 text-[#4d4d4d]">

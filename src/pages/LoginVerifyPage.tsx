@@ -17,6 +17,7 @@ import {
   normalizeDigits,
   normalizeMobile,
 } from "../services/auth.service";
+import { getMyProfile } from "../services/account.service";
 import {
   consumeLoginRedirectPath,
   getOtpResendSecondsRemaining,
@@ -137,6 +138,18 @@ export function LoginVerifyPage() {
     try {
       await verifyOtpMutation.mutateAsync({ code, mobile });
       const redirectPath = consumeLoginRedirectPath() || "/account";
+
+      try {
+        await getMyProfile();
+      } catch (profileError) {
+        setNotice({
+          message: getAuthErrorMessage(profileError, "دریافت وضعیت احراز هویت با خطا مواجه شد."),
+          title: "بررسی حساب ناموفق بود!",
+          variant: "error",
+        });
+        return;
+      }
+
       window.history.pushState({ state: "new" }, "", redirectPath);
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {

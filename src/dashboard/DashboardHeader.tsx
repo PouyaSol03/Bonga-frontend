@@ -19,6 +19,9 @@ export function DashboardHeader() {
     .filter(Boolean)
     .join(" ");
   const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
+  const profileName = Number(profile?.authorized ?? 0) === 1
+    ? fullName || "کاربر شناسا"
+    : "احراز هویت نشده";
 
   return (
     <header className="flex h-[80px] w-full items-center justify-between bg-white px-6">
@@ -48,7 +51,7 @@ export function DashboardHeader() {
           ) : null}
         </RouteLink>
 
-        <ProfileBox avatarUrl={avatarUrl} name={fullName || "کاربر شناسا"} />
+        <ProfileBox avatarUrl={avatarUrl} name={profileName} />
 
         <RouteLink
           className="flex items-center gap-4 rounded-xl bg-[#0048c4] px-4 py-2.5 text-sm font-semibold text-white no-underline transition hover:bg-[#003ba1]"

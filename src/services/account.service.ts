@@ -18,10 +18,10 @@ export type UserProfile = {
 };
 
 export type UpdateProfilePayload = {
-  email: string;
-  family: string;
-  name: string;
-  nationalnumber: string;
+  avatar?: File | null;
+  email: string | null;
+  family: string | null;
+  name: string | null;
 };
 
 export type AuthorizePayload = {
@@ -161,8 +161,26 @@ export async function getMyProfile() {
 }
 
 export function updateMyProfile(payload: UpdateProfilePayload) {
+  const { avatar, ...profileFields } = payload;
+
+  if (avatar) {
+    const formData = new FormData();
+
+    Object.entries(profileFields).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
+    });
+
+    formData.append("avatar", avatar);
+
+    return api
+      .post("me/update/profile", { body: formData })
+      .json<ApiDataResponse<UserProfile>>();
+  }
+
   return api
-    .post("me/update/profile", { json: payload })
+    .post("me/update/profile", { json: profileFields })
     .json<ApiDataResponse<UserProfile>>();
 }
 

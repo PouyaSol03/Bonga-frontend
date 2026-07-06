@@ -215,10 +215,23 @@ function getListingFromFormCode(formCode: string): { transaction: TransactionTyp
   return null;
 }
 
+function getSafeReturnToPath() {
+  const returnTo = new URLSearchParams(window.location.search).get("returnTo") ?? "";
+
+  if (!returnTo || !returnTo.startsWith("/") || returnTo.startsWith("//")) return "";
+
+  return returnTo;
+}
+
 function getBackToSearchPath() {
+  const returnTo = getSafeReturnToPath();
+
+  if (returnTo) return returnTo;
+
   const params = new URLSearchParams(window.location.search);
 
   params.delete("focus");
+  params.delete("returnTo");
 
   const queryString = params.toString();
 
@@ -417,7 +430,9 @@ function readInitialFiltersFromUrl(): FilterState {
 }
 
 function buildSearchUrl(filters: FilterState) {
-  const params = new URLSearchParams(window.location.search);
+  const returnTo = getSafeReturnToPath();
+  const baseUrl = new URL(returnTo || "/search", window.location.origin);
+  const params = returnTo ? baseUrl.searchParams : new URLSearchParams(window.location.search);
   const formCode = filters.category
     ? getAdvertiseFormCode(filters.transaction, filters.category)
     : "";
@@ -457,6 +472,7 @@ function buildSearchUrl(filters: FilterState) {
   params.delete("category_id");
   params.delete("categoryId");
   params.delete("focus");
+  params.delete("returnTo");
   params.set("view", "list");
 
   setOrDelete("form_code", formCode);
@@ -479,7 +495,10 @@ function buildSearchUrl(filters: FilterState) {
   setOrDelete("has_image", filters.hasPhoto ? "true" : "");
   setOrDelete("has_video", filters.hasVideo ? "true" : "");
 
-  return `/search?${params.toString()}`;
+  const queryString = params.toString();
+  const pathname = returnTo ? baseUrl.pathname : "/search";
+
+  return queryString ? `${pathname}?${queryString}` : pathname;
 }
 
 const categoryLabels: Record<CategoryKey, string> = {

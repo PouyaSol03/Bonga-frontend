@@ -66,6 +66,7 @@ const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/ac
 const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
 const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
 const DashboardAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
+const DashboardAgencyQrCodePage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyQrCodePage')
 const DashboardAddConsultantPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAddConsultantPage')
 const DashboardConsultantEditPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantEditPage')
 const DashboardConsultantInfoPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantInfoPage')
@@ -281,6 +282,20 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/agency/preview`,
     title: 'صفحه آژانس',
     Component: DashboardAgencyPreviewPage,
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/agency/preview/qr-code`,
+    title: 'کیوآرکد آژانس',
+    Component: DashboardAgencyQrCodePage,
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/agency/preview/filter`,
+    title: 'فیلتر آگهی‌ها',
+    Component: SearchMapFilterPage,
     requiresAuth: true,
     requiresNonUser: true,
   },

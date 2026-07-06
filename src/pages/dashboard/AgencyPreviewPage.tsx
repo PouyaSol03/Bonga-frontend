@@ -9,22 +9,32 @@ import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 import LinearCalendar from "../../components/(icons)/LinearCalendar";
 import LinearChat from "../../components/(icons)/LinearChat";
 import LinearFilterHorizontal from "../../components/(icons)/LinearFilterHorizontal";
+import LinearInstagram from "../../components/(icons)/LinearInstagram";
 import LinearLocation from "../../components/(icons)/LinearLocation";
+import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
+import LinearPhone2 from "../../components/(icons)/LinearPhone2";
 import LinearQrCode from "../../components/(icons)/LinearQrCode";
 import LinearRanking from "../../components/(icons)/LinearRanking";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import LinearShare from "../../components/(icons)/LinearShare";
 import LinearStar from "../../components/(icons)/LinearStar";
 import LinearTag from "../../components/(icons)/LinearTag";
+import LinearTelegram from "../../components/(icons)/LinearTelegram";
+import LinearWhatsapp from "../../components/(icons)/LinearWhatsapp";
 import { TopBar } from "../../components/TopBar";
+import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
 
 const agencyEditPath = "/account/dashboard/agency";
+const agencyPreviewPath = "/account/dashboard/agency/preview";
+const agencyQrCodePath = `${agencyPreviewPath}/qr-code`;
 const agencyLogoSrc = "/figma/agency-preview/agency-logo.png";
 const listingImageSrc = "/figma/agency-preview/listing-kitchen.png";
 
 const agencyContactInfo = {
-  phone: "۰۹۱۵۱۲۳۴۵۶۷",
-  whatsapp: "09151234567",
+  phone: "۰۹۱۵۶۱۴۵۶۹۶",
+  secondPhone: "۰۹۳۶۷۰۰۸۷۴۷",
+  landline: "۰۹۱۵۶۱۴۵۶۹۶",
+  whatsapp: "09156145696",
   telegram: "agency_jalilian",
   instagram: "agency_jalilian",
 };
@@ -88,17 +98,70 @@ const agencyAds: AdCardData[] = [
 
 type AgencyPreviewTab = "info" | "ads" | "consultants";
 
+type BadgeInfo = {
+  alt: string;
+  countLabel: string;
+  description: string;
+  id: string;
+  pillLabel: string;
+  src: string;
+  title: string;
+};
+
 const agencyStats = [
   { icon: <LinearStar className="h-5 w-5" />, label: "امتیاز", value: "۸۵" },
   { icon: <LinearRanking className="h-5 w-5" />, label: "رتبه", value: "۱۲" },
   { icon: <LinearTag className="h-5 w-5" />, label: "آگهی فعال", value: "۲۷۳" },
 ];
 
-const badgeCards = [
-  { src: "/figma/agency-preview/badge-cup.png", alt: "نشان جام" },
-  { src: "/figma/agency-preview/badge-first.png", alt: "نشان رتبه یک" },
-  { src: "/figma/agency-preview/badge-bookmark.png", alt: "نشان نشانک" },
-  { src: "/figma/agency-preview/badge-chat.png", alt: "نشان گفتگو" },
+const badgeCards: BadgeInfo[] = [
+  {
+    alt: "نشان تیم طلایی",
+    countLabel: "میانگین امتیاز مشاوران ۷۶",
+    description:
+      "این نشان برای مشاورین و همکارانی اعطا می‌شود که میانگین امتیاز بالایی از کاربران گرفته‌اند و کیفیت پاسخگویی، پیگیری و رضایت مشتریان در آژانس را بالا نگه داشته‌اند.",
+    id: "golden-team",
+    pillLabel: "تیم طلایی",
+    src: "/figma/agency-preview/badge-cup.png",
+    title: "نشان تیم طلایی",
+  },
+  {
+    alt: "نشان تیم پرسرعت",
+    countLabel: "پاسخگویی کمتر از ۱ ساعت ۳۷۱",
+    description:
+      "این نشان به آژانس‌هایی داده می‌شود که میانگین زمان پاسخگویی آن‌ها کمتر از ۱ ساعت باشد. املاک بنگاه بر اساس سرعت و دقت پاسخگویی مشاوران خود این نشان را دریافت می‌کند.",
+    id: "fast-team",
+    pillLabel: "تیم پرسرعت",
+    src: "/figma/agency-preview/badge-chat.png",
+    title: "نشان تیم پرسرعت",
+  },
+  {
+    alt: "نشان رکورد دار",
+    countLabel: "معامله موفق ۱۷۶",
+    description:
+      "این نشان بر اساس تعداد قراردادها و معاملات ثبت شده برای آژانس صادر می‌شود. هر چه تعداد معاملات موفق، پیگیری‌های حرفه‌ای و ثبت بازخوردهای مثبت بیشتر باشد، این نشان ارزش بیشتری دارد.",
+    id: "record-holder",
+    pillLabel: "رکورد دار",
+    src: "/figma/agency-preview/badge-first.png",
+    title: "نشان رکورد دار",
+  },
+  {
+    alt: "نشان محبوب ترین",
+    countLabel: "رضایت کاربران بالای ۴ امتیاز ۸۹۲",
+    description:
+      "این نشان براساس امتیازها و بازخوردهای کاربران از آگهی‌های منتشر شده توسط آژانس محاسبه می‌شود. هرچه میانگین رضایت کاربران بیشتر باشد، اعتبار این نشان برای آژانس بالاتر می‌رود.",
+    id: "popular",
+    pillLabel: "محبوبترین",
+    src: "/figma/agency-preview/badge-bookmark.png",
+    title: "نشان محبوب ترین",
+  },
+];
+
+const agencyConsultants = [
+  { id: 1, name: "ناصر اشرفی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#f7c59f] to-[#e6a078]" },
+  { id: 2, name: "محمد اسماعیلی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#b6dcc0] to-[#68a987]" },
+  { id: 3, name: "علیرضا خراسانی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#d7c1ab] to-[#a87556]" },
+  { id: 4, name: "حامد عرفان مقدم", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#f0d0a7] to-[#b98457]" },
 ];
 
 const agencyTabs: { id: AgencyPreviewTab; label: string }[] = [
@@ -107,9 +170,30 @@ const agencyTabs: { id: AgencyPreviewTab; label: string }[] = [
   { id: "info", label: "اطلاعات" },
 ];
 
+function getInitialAgencyTab(): AgencyPreviewTab {
+  if (typeof window === "undefined") return "info";
+
+  const tab = new URLSearchParams(window.location.search).get("tab");
+
+  return tab === "ads" || tab === "consultants" || tab === "info" ? tab : "info";
+}
+
+function navigateTo(path: string) {
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 export function AgencyPreviewPage() {
-  const [activeTab, setActiveTab] = useState<AgencyPreviewTab>("info");
+  const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+
+  function changeTab(tab: AgencyPreviewTab) {
+    setActiveTab(tab);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("tab", tab);
+    window.history.replaceState(window.history.state ?? {}, "", `${agencyPreviewPath}?${params.toString()}`);
+  }
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
@@ -119,11 +203,13 @@ export function AgencyPreviewPage() {
             id: "share",
             label: "اشتراک‌گذاری",
             icon: <LinearShare className="h-6 w-6" />,
+            to: agencyQrCodePath,
           },
           {
             id: "qr-code",
             label: "کد QR",
             icon: <LinearQrCode className="h-6 w-6" />,
+            to: agencyQrCodePath,
           },
         ]}
         backTo={agencyEditPath}
@@ -132,7 +218,7 @@ export function AgencyPreviewPage() {
       />
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[84px]">
         <AgencyHero />
-        <AgencySegmentedTabs activeTab={activeTab} onChange={setActiveTab} />
+        <AgencySegmentedTabs activeTab={activeTab} onChange={changeTab} />
         {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? <AgencyConsultantsTab /> : <AgencyInfoTab />}
       </main>
       <AgencyPreviewFooter onContactClick={() => setIsContactSheetOpen(true)} />
@@ -145,12 +231,47 @@ export function AgencyPreviewPage() {
   );
 }
 
+export function AgencyQrCodePage() {
+  return (
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
+      <TopBar
+        backTo={agencyPreviewPath}
+        className="bg-[#f0f0f0]"
+        contentClassName="px-1"
+        title="کیوآرکد آژانس"
+      />
+
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-8 pb-28 pt-8">
+        <div className="w-full max-w-[260px] rounded-2xl bg-white p-3">
+          <AgencyQrPattern />
+          <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">Agency58945</p>
+        </div>
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3">
+        <button
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]"
+          onClick={() => {
+            if (navigator.share) {
+              void navigator.share({ title: "املاک جلیلیان", text: "صفحه آژانس املاک جلیلیان", url: window.location.href });
+            }
+          }}
+          type="button"
+        >
+          <LinearShare className="h-5 w-5" />
+          اشتراک گذاری
+        </button>
+      </footer>
+    </div>
+  );
+}
+
 function AgencyHero() {
   return (
     <section className="bg-white px-4 pb-4 pt-3 text-center">
       <img alt="لوگوی املاک جلیلیان" className="mx-auto h-19 w-19 object-contain" src={agencyLogoSrc} />
       <h2 className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">املاک جلیلیان</h2>
-      <div className="mx-auto mt-1 inline-flex h-7 items-center gap-1 rounded-full bg-[#e7e8ed] font-medium px-2.5 text-xs text-[#4B5070]">
+      <div className="mx-auto mt-1 inline-flex h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 text-xs font-medium text-[#4B5070]">
         <LinearLocation className="h-4 w-4 text-[#4B5070]" />
         صیاد شیرازی
       </div>
@@ -178,7 +299,7 @@ function AgencySegmentedTabs({
   onChange: (tab: AgencyPreviewTab) => void;
 }) {
   return (
-    <div className="bg-white shadow-lg px-4 pb-4">
+    <div className="bg-white px-4 pb-4 shadow-lg">
       <div className="grid h-10 grid-cols-3 overflow-hidden rounded-xl border border-[#808080] bg-white text-sm font-semibold leading-5 text-[#4d4d4d]">
         {agencyTabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -202,6 +323,7 @@ function AgencySegmentedTabs({
 
 function AgencyInfoTab() {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeInfo | null>(null);
 
   return (
     <div className="space-y-2 bg-[#f0f0f0]">
@@ -209,7 +331,7 @@ function AgencyInfoTab() {
         <h3 className="m-0 text-right font-semibold leading-6">نشان‌ها</h3>
         <div className="mt-4 flex gap-3 overflow-x-auto px-4 pb-1 [direction:rtl]">
           {badgeCards.map((badge) => (
-            <BadgeCard alt={badge.alt} key={badge.alt} src={badge.src} />
+            <BadgeCard badge={badge} key={badge.id} onClick={() => setSelectedBadge(badge)} />
           ))}
         </div>
       </section>
@@ -228,7 +350,7 @@ function AgencyInfoTab() {
 
       <section className="bg-white px-4 pb-7 pt-7 text-center">
         <h3 className="m-0 text-right text-base font-semibold leading-6">درباره املاک جلیلیان</h3>
-        <img src="/vectors/Bonga.svg" alt="" />
+        <img alt="" src="/vectors/Bonga.svg" />
         <p className="m-0 mt-5 text-right font-normal leading-8 text-[#4d4d4d]">
           کارگزاری املاک جلیلیان از سال ۱۳۷۰ تحت نام املاک آشتیانه در مشهد مقدس با مدیریت مرحوم محمد جلیلیان فعالیت خود در زمینه فروش و اجاره املاک و مستغلات را آغاز نمود. سال های بعد با گسترش فعالیت ها و به منظور ارتقاء خدمات کیفی و کمی در سال ۱۳۸۸ به املاک عاقبتی تغییر نام داد، در حال حاضر نیز برند املاک جلیلیان تحت مدیریت جواد جلیلیان به عنوان نام و علامت ثبت شده در رشته املاک در مشهد و سراسر ایران فعالیت می‌نماید.
         </p>
@@ -249,29 +371,66 @@ function AgencyInfoTab() {
           onClick={() => setIsAboutExpanded((prev) => !prev)}
           type="button"
         >
-          <LinearArrowDown1
-            className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""
-              }`}
-          />
+          <LinearArrowDown1 className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""}`} />
           {isAboutExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
         </button>
       </section>
+
+      <AgencyBadgeBottomSheet badge={selectedBadge} onClose={() => setSelectedBadge(null)} />
     </div>
   );
 }
 
-function BadgeCard({ alt, src }: { alt: string; src: string }) {
+function BadgeCard({ badge, onClick }: { badge: BadgeInfo; onClick: () => void }) {
   return (
-    <article className="grid h-[62px] w-[70px] shrink-0 place-items-center rounded-lg border border-[#EBEBEB] bg-white shadow-[0_1px_0_rgba(26,26,26,0.03)]">
-      <div className="relative grid h-full w-full justify-items-center overflow-hidden rounded-lg">
-        <img alt={alt} className="mt-1 h-8 w-8 object-contain" src={src} />
-        <div className="w-full bottom-1.5 right-2 flex justify-center gap-0.5 text-[10px] text-[#d9d9d9] [direction:ltr]">
-          <LinearStar innerColor="#FFB100" className="w-2.5 h-2.5 text-[#FFB100]" />
-          <LinearStar innerColor="#FFB100" className="w-2.5 h-2.5 text-[#FFB100]" />
-          <LinearStar innerColor="#FFB100" className="w-2.5 h-2.5 text-[#FFB100]" />
+    <button
+      aria-label={badge.title}
+      className="grid h-[62px] w-[70px] shrink-0 place-items-center rounded-lg border border-[#EBEBEB] bg-white shadow-[0_1px_0_rgba(26,26,26,0.03)] focus-visible:outline-3 focus-visible:outline-[#0048c440]"
+      onClick={onClick}
+      type="button"
+    >
+      <span className="relative grid h-full w-full justify-items-center overflow-hidden rounded-lg">
+        <img alt={badge.alt} className="mt-1 h-8 w-8 object-contain" src={badge.src} />
+        <span className="absolute bottom-1.5 right-2 left-2 flex justify-center gap-0.5 text-[10px] text-[#d9d9d9] [direction:ltr]">
+          <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
+          <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
+          <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function AgencyBadgeBottomSheet({ badge, onClose }: { badge: BadgeInfo | null; onClose: () => void }) {
+  return (
+    <BottomSheet
+      ariaLabel={badge?.title ?? "جزئیات نشان"}
+      contentClassName="px-4 pb-5 pt-1"
+      heightClassName="h-auto max-h-[calc(100dvh-70px)]"
+      isOpen={Boolean(badge)}
+      onClose={onClose}
+      title={badge?.title ?? "جزئیات نشان"}
+    >
+      {badge ? (
+        <div className="text-center">
+          <div className="mx-auto mt-1 grid place-items-center rounded-2xl text-5xl">
+            <img alt={badge.alt} className="h-18 w-18 object-contain" src={badge.src} />
+          </div>
+          <span className="px-2 py-0.5 mt-2 items-center rounded-lg bg-[#0048c41c] text-sm font-semibold text-[#0048c4]">
+            {badge.pillLabel}
+          </span>
+          <div className="mt-1 flex justify-center gap-0.5 text-[#FFB100] [direction:ltr]" aria-label="سه ستاره">
+            <LinearStar innerColor="#FFB100" className="h-3 w-3" />
+            <LinearStar innerColor="#FFB100" className="h-3 w-3" />
+            <LinearStar innerColor="#FFB100" className="h-3 w-3" />
+          </div>
+          <p className="m-0 mt-6 text-center text-sm font-medium text-[#1a1a1a]">{badge.countLabel}</p>
+          <div className="mt-6 rounded-xl border border-[#11A366] bg-[#EAF8F1] px-4 py-3 text-right text-sm font-normal leading-7 text-[#0c7d4f]">
+            {badge.description}
+          </div>
         </div>
-      </div>
-    </article>
+      ) : null}
+    </BottomSheet>
   );
 }
 
@@ -286,12 +445,15 @@ function AgencyActionRow({ icon, title }: { icon: ReactNode; title: string }) {
 }
 
 function AgencyAdsTab() {
+  const filterReturnTo = encodeURIComponent(`${agencyPreviewPath}?tab=ads`);
+
   return (
     <div className="space-y-2 bg-[#f0f0f0] px-0 pb-3 pt-5">
       <div className="flex items-center gap-2 px-4 [direction:ltr]">
         <button
           aria-label="فیلتر آگهی‌ها"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[#0062ff] bg-[#eaf2ff] text-[#0062ff]"
+          onClick={() => navigateTo(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
           type="button"
         >
           <LinearFilterHorizontal className="h-6 w-6" />
@@ -315,27 +477,68 @@ function AgencyAdsTab() {
   );
 }
 
-
 function AgencyConsultantsTab() {
   return (
-    <section className="bg-white px-4 py-8 text-center">
-      <h3 className="m-0 text-right text-base font-semibold leading-6">مشاوران املاک جلیلیان</h3>
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        {[
-          { name: "ناصر اشرفی", role: "مشاور مستقل", img: "/figma/consultants/consultant-naser.png" },
-          { name: "محمد جلیلیان", role: "مشاور فروش", img: "/figma/consultants/consultant-mohammad.png" },
-        ].map((consultant) => (
-          <article className="rounded-2xl border border-[#eeeeee] bg-white p-3 text-center shadow-[0_2px_8px_rgba(26,26,26,0.04)]" key={consultant.name}>
-            <img alt={consultant.name} className="mx-auto h-16 w-16 rounded-full object-cover" src={consultant.img} />
-            <h4 className="m-0 mt-3 text-sm font-bold leading-5">{consultant.name}</h4>
-            <p className="m-0 mt-1 text-xs font-normal leading-5 text-[#808080]">{consultant.role}</p>
-          </article>
-        ))}
-      </div>
+    <section className="flex flex-col gap-y-2">
+      {agencyConsultants.map((consultant, index) => (
+        <article
+          className={`flex items-center justify-center gap-4 bg-white px-4 py-4 text-center ${index < agencyConsultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
+          key={consultant.id}
+        >
+          <div className="flex flex-col items-center">
+            <ConsultantAvatar className={consultant.avatarClassName} name={consultant.name} src={consultant.src} />
+            <h3 className="m-0 mt-2 font-medium leading-5 text-[#4D4D4D]">{consultant.name}</h3>
+            <p className="m-0 mt-0.5 text-xs px-2 py-0.5 rounded-lg bg-[#80808014] text-[#808080]">{consultant.role}</p>
+            <div className="mt-2 flex items-center justify-center gap-5 text-xs font-medium leading-4 text-[#4d4d4d]">
+              <span className="inline-flex items-center gap-1">
+                <LinearStar className="h-4 w-4" />
+                <p className="text-xs font-medium text-[#1A1A1A]">امتیاز</p>
+                <span className="mr-3 font-semibold text-sm text-[#11A366]">{consultant.score}</span>
+              </span>
+              <div className="h-4.75 w-px bg-[#CCCCCC]"></div>
+              <span className="inline-flex items-center gap-1">
+                <LinearRanking className="h-4 w-4" />
+                <p className="text-xs font-medium text-[#1A1A1A]">رتبه</p>
+                <span className="mr-3 font-semibold text-sm text-[#11A366]">{consultant.rank}</span>
+              </span>
+            </div>
+          </div>
+        </article>
+      ))}
     </section>
   );
 }
 
+function ConsultantAvatar({
+  className = "",
+  name,
+  src,
+}: {
+  className?: string;
+  name: string;
+  src?: string;
+}) {
+  const [hasImageError, setHasImageError] = useState(false);
+  const shouldShowImage = Boolean(src) && !hasImageError;
+
+  return (
+    <div
+      className={`grid h-18 w-18 place-items-center overflow-hidden rounded-full bg-gradient-to-br ${className || "from-[#f3f4f6] to-[#e5e7eb]"
+        }`}
+    >
+      {shouldShowImage ? (
+        <img
+          alt={name}
+          className="h-full w-full rounded-full object-cover"
+          onError={() => setHasImageError(true)}
+          src={src}
+        />
+      ) : (
+        <LinearUserSolid className="h-9 w-9 text-[#808080]" />
+      )}
+    </div>
+  );
+}
 function AgencyContactBottomSheet({
   contactInfo,
   isOpen,
@@ -346,59 +549,79 @@ function AgencyContactBottomSheet({
   onClose: () => void;
 }) {
   const phoneHref = toEnglishDigits(contactInfo.phone).replace(/[^\d+]/g, "");
+  const secondPhoneHref = toEnglishDigits(contactInfo.secondPhone).replace(/[^\d+]/g, "");
+  const landlineHref = toEnglishDigits(contactInfo.landline).replace(/[^\d+]/g, "");
   const socialLinks = [
-    { label: "واتساپ", href: normalizeSocialUrl("whatsapp", contactInfo.whatsapp) },
-    { label: "تلگرام", href: normalizeSocialUrl("telegram", contactInfo.telegram) },
-    { label: "اینستاگرام", href: normalizeSocialUrl("instagram", contactInfo.instagram) },
+    { label: "واتساپ", href: normalizeSocialUrl("whatsapp", contactInfo.whatsapp), icon: <LinearWhatsapp className="h-5 w-5" />, className: "text-[#11A366]" },
+    { label: "تلگرام", href: normalizeSocialUrl("telegram", contactInfo.telegram), icon: <LinearTelegram className="h-5 w-5" />, className: "text-[#1D9BF0]" },
+    { label: "اینستاگرام", href: normalizeSocialUrl("instagram", contactInfo.instagram), icon: <LinearInstagram className="h-5 w-5" />, className: "text-[#E1306C]" },
   ].filter((item) => item.href);
 
   return (
     <BottomSheet
       ariaLabel="اطلاعات تماس"
-      contentClassName="mx-4 mt-5 pb-5"
+      contentClassName="mx-4 mt-1 pb-5"
       heightClassName="h-auto max-h-[calc(100dvh-88px)]"
       isOpen={isOpen}
       onClose={onClose}
       title="اطلاعات تماس"
     >
-      <div className="flex h-14 items-center justify-between [direction:ltr]">
-        <span className="text-left text-base font-medium text-[#1a1a1a]">{contactInfo.phone}</span>
-        <a className="text-base font-medium text-[#4d4d4d] no-underline" href={`tel:${phoneHref}`}>
-          تماس با آژانس
-        </a>
-      </div>
+      <ContactRow href={`tel:${phoneHref}`} label="شماره اصلی" value={contactInfo.phone} />
+      <ContactRow href={`tel:${secondPhoneHref}`} label="شماره دوم" value={contactInfo.secondPhone} />
+      <ContactRow href={`tel:${landlineHref}`} label="ثابت" value={contactInfo.landline} />
 
-      <div className="h-px bg-[#cccccc]" />
-
-      <div className="flex h-14 items-center justify-between [direction:ltr]">
-        <span className="text-left text-base font-medium text-[#1a1a1a]">{contactInfo.phone}</span>
-        <a className="text-base font-medium text-[#4d4d4d] no-underline" href={`sms:${phoneHref}`}>
-          ارسال پیامک
-        </a>
+      <div className="mt-3 overflow-hidden rounded-2xl border border-[#eeeeee] bg-[#f6f2eb]">
+        <AgencyMiniMap />
       </div>
 
       {socialLinks.length ? (
-        <>
-          <div className="h-px bg-[#cccccc]" />
-          <div className="flex min-h-16 items-center justify-between gap-3 py-3 [direction:ltr]">
-            <div className="flex flex-wrap gap-2">
-              {socialLinks.map((item) => (
-                <a
-                  className="rounded-full bg-[#f0f4ff] px-4 py-2 text-sm font-semibold text-[#0048c4] no-underline"
-                  href={item.href}
-                  key={item.label}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
-            <span className="text-sm font-medium text-[#4d4d4d]">شبکه‌های اجتماعی</span>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <span className="text-sm font-medium text-[#4d4d4d]">شبکه‌های اجتماعی</span>
+          <div className="flex items-center gap-4 [direction:ltr]">
+            {socialLinks.map((item) => (
+              <a
+                aria-label={item.label}
+                className={`grid h-8 w-8 place-items-center rounded-full bg-[#f7f7f7] no-underline ${item.className}`}
+                href={item.href}
+                key={item.label}
+                rel="noreferrer"
+                target="_blank"
+              >
+                {item.icon}
+              </a>
+            ))}
           </div>
-        </>
+        </div>
       ) : null}
     </BottomSheet>
+  );
+}
+
+function ContactRow({ href, label, value }: { href: string; label: string; value: string }) {
+  return (
+    <a className="flex h-12 items-center justify-between gap-3 border-b border-[#eeeeee] text-[#1a1a1a] no-underline [direction:ltr]" href={href}>
+      <span className="text-left text-sm font-medium">{value}</span>
+      <span className="inline-flex items-center gap-2 text-right text-sm font-normal text-[#808080] [direction:rtl]">
+        {label}
+        <LinearPhone2 className="h-5 w-5 text-[#4d4d4d]" />
+      </span>
+    </a>
+  );
+}
+
+function AgencyMiniMap() {
+  return (
+    <div className="relative h-[178px] w-full overflow-hidden bg-[#f4efe8]">
+      <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(90deg,rgba(204,194,180,.65)_1px,transparent_1px),linear-gradient(0deg,rgba(204,194,180,.65)_1px,transparent_1px)] [background-size:54px_54px]" />
+      <div className="absolute -left-8 top-9 h-10 w-[120%] rotate-[-18deg] bg-white/70" />
+      <div className="absolute -right-8 bottom-10 h-9 w-[120%] rotate-[17deg] bg-white/70" />
+      <div className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#11A366] text-white shadow-[0_4px_12px_rgba(17,163,102,.35)]">
+        <LinearMapsLocation className="h-7 w-7" />
+      </div>
+      <span className="absolute right-5 top-4 text-xs text-[#808080]">عسکریه</span>
+      <span className="absolute bottom-5 left-6 text-xs text-[#808080]">سجاد</span>
+      <span className="absolute bottom-16 right-6 text-xs text-[#808080]">احمدآباد</span>
+    </div>
   );
 }
 
@@ -447,5 +670,44 @@ function AgencyPreviewFooter({ onContactClick }: { onContactClick: () => void })
         </button>
       </div>
     </footer>
+  );
+}
+
+function AgencyQrPattern() {
+  const squares = new Set<string>([
+    "8,1", "9,1", "11,1", "12,1", "15,1", "3,2", "4,2", "8,2", "12,2", "14,2", "16,2", "2,3", "5,3", "7,3", "9,3", "10,3", "13,3", "1,4", "3,4", "4,4", "6,4", "8,4", "11,4", "15,4", "16,4", "7,5", "10,5", "12,5", "14,5", "2,6", "3,6", "5,6", "8,6", "9,6", "13,6", "16,6", "7,7", "8,7", "11,7", "12,7", "15,7", "1,8", "2,8", "4,8", "5,8", "9,8", "14,8", "16,8", "3,9", "6,9", "8,9", "10,9", "11,9", "13,9", "1,10", "4,10", "6,10", "9,10", "12,10", "15,10", "2,11", "3,11", "5,11", "7,11", "8,11", "11,11", "16,11", "6,12", "9,12", "10,12", "12,12", "14,12", "15,12", "8,13", "11,13", "13,13", "16,13", "2,14", "4,14", "7,14", "10,14", "15,14", "5,15", "8,15", "9,15", "12,15", "14,15", "16,15", "1,16", "3,16", "6,16", "10,16", "12,16", "15,16",
+  ]);
+  const cells = Array.from({ length: 17 * 17 }, (_, index) => {
+    const x = index % 17;
+    const y = Math.floor(index / 17);
+    const isFinder =
+      (x <= 5 && y <= 5) ||
+      (x >= 11 && y <= 5) ||
+      (x <= 5 && y >= 11);
+
+    if (isFinder) return null;
+    if (!squares.has(`${x},${y}`)) return null;
+
+    return <rect height="1" key={`${x}-${y}`} rx="0.08" width="1" x={x} y={y} />;
+  });
+
+  return (
+    <svg aria-label="کد QR آژانس" className="mx-auto block w-full text-[#12358d]" role="img" viewBox="0 0 17 17">
+      <rect fill="white" height="17" width="17" />
+      <FinderSquare x={0} y={0} />
+      <FinderSquare x={11} y={0} />
+      <FinderSquare x={0} y={11} />
+      <g fill="currentColor">{cells}</g>
+    </svg>
+  );
+}
+
+function FinderSquare({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <rect fill="currentColor" height="6" width="6" x={x} y={y} />
+      <rect fill="white" height="4" width="4" x={x + 1} y={y + 1} />
+      <rect fill="currentColor" height="2" width="2" x={x + 2} y={y + 2} />
+    </g>
   );
 }

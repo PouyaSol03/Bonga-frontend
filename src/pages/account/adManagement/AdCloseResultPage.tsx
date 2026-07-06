@@ -55,7 +55,7 @@ export function AdCloseResultPage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-28 pt-4">
-        <p className="m-0 text-right text-sm font-medium leading-7 text-[#1a1a1a]">
+        <p className="m-0 text-right font-medium leading-7 text-[#1a1a1a]">
           این آگهی از لیست آگهی‌های تخصیصی آژانس خارج خواهد شد.
         </p>
 
@@ -64,15 +64,18 @@ export function AdCloseResultPage() {
             <AlertIcon className="h-5 w-5 shrink-0" />
             <h2 className="m-0 text-sm font-semibold leading-5">هشدار</h2>
           </div>
-          <ul className="m-0 mt-2 list-disc space-y-1 pr-5 text-xs font-normal leading-6 text-[#4d4d4d] marker:text-[#808080]">
-            <li>لطفا در صورتی آگهی تخصیصی را ببندید که لازم است از لیست آگهی‌های در حال پیگیری خارج شود.</li>
-            <li>بعد از ثبت نتیجه، مسئولیت پیگیری و انتشار این آگهی از حساب شما حذف می‌شود.</li>
-            <li>در صورت انجام معامله، نتیجه ثبت شده در سوابق آژانس ذخیره خواهد شد.</li>
+          <ul className="m-0 mt-2 list-disc space-y-1 pr-5 text-sm font-normal text-[#4d4d4d] marker:text-[#808080]">
+            <li>
+              فقط در صورت انتخاب گزینه «معامله انجام شد»، از کاربر درباره نتیجه نهایی معامله استعلام گرفته می‌شود. نتیجه ثبت‌شده توسط کاربر در بخش «وضعیت آگهی» قابل مشاهده خواهد بود.
+            </li>
+            <li className="mt-4">
+              در غیر این صورت درخواست حذف شده و به عنوان معامله ناموفق یا آگهی بدون پاسخ ثبت می‌شود.
+            </li>
           </ul>
         </section>
 
         <section className="mt-5" aria-label="دلیل بستن آگهی">
-          <h2 className="m-0 text-right text-sm font-medium leading-5 text-[#1a1a1a]">دلیل بستن آگهی</h2>
+          <h2 className="m-0 text-right font-medium text-[#1a1a1a]">دلیل بستن آگهی</h2>
           <div className="mt-4 grid gap-4" role="radiogroup" aria-label="دلیل بستن آگهی">
             {closeResultReasons.map((reason) => {
               const selected = selectedReason === reason.value;
@@ -87,7 +90,7 @@ export function AdCloseResultPage() {
                   type="button"
                 >
                   <RadioIndicator checked={selected} />
-                  <span className="min-w-0 flex-1 pr-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] [direction:rtl]">
+                  <span className="min-w-0 flex-1 pr-3 text-right text-[#1a1a1a] [direction:rtl]">
                     {reason.label}
                   </span>
                 </button>
@@ -99,11 +102,10 @@ export function AdCloseResultPage() {
 
       <footer className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-3 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
         <button
-          className={`inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${
-            selectedReason
-              ? "bg-[#0048c4] text-white active:bg-[#003aa0]"
-              : "bg-[#e5e5e5] text-[#b8b8b8]"
-          }`}
+          className={`inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${selectedReason
+            ? "bg-[#0048c4] text-white active:bg-[#003aa0]"
+            : "bg-[#e5e5e5] text-[#b8b8b8]"
+            }`}
           disabled={!selectedReason}
           onClick={handleSubmit}
           type="button"

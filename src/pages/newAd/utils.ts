@@ -125,14 +125,143 @@ function getDraft(): Partial<NewAdFormValues> {
   }
 }
 
-export function getDefaultValues(): NewAdFormValues {
+type EditAdCard = Partial<{
+  agency: string;
+  area: string;
+  id: number | string;
+  priceLabelPrimary: string;
+  priceLabelSecondary: string;
+  pricePrimary: string;
+  priceSecondary: string;
+  rooms: string;
+  timeAndLocation: string;
+  title: string;
+  year: string;
+}>;
+
+export type EditAdRouteState = {
+  ad?: Record<string, unknown>;
+  card?: EditAdCard;
+  editReturnTo?: string;
+  isEditMode?: boolean;
+  returnTo?: string;
+  tab?: string;
+};
+
+function readRouteState(): EditAdRouteState {
+  const state = window.history.state;
+
+  if (!state || typeof state !== "object") return {};
+
+  return state as EditAdRouteState;
+}
+
+export function getEditAdRouteState(): EditAdRouteState {
+  const params = new URLSearchParams(window.location.search);
+  const routeState = readRouteState();
+  const isEditRoute =
+    params.get("edit") === "true" ||
+    routeState.isEditMode === true ||
+    window.location.pathname.includes("/published/edit");
+
   return {
-    ...blankValues,
-    ...getDraft(),
+    ...routeState,
+    isEditMode: isEditRoute,
+  };
+}
+
+function readText(...values: unknown[]) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number") return String(value);
+  }
+
+  return "";
+}
+
+function pickFirstNumber(value: string) {
+  const match = value.match(/[۰-۹٠-٩0-9]+/);
+
+  return match?.[0] ?? "";
+}
+
+function toLatinDigits(value: string) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+}
+
+function priceTextToNumberString(value: string) {
+  const normalized = toLatinDigits(value).replace(/\//g, ".");
+  const decimalMatch = normalized.match(/\d+(?:\.\d+)?/);
+
+  if (!decimalMatch) return "";
+
+  const amount = Number(decimalMatch[0]);
+
+  if (!Number.isFinite(amount)) return "";
+
+  if (value.includes("میلیارد")) return String(Math.round(amount * 1_000_000_000));
+  if (value.includes("میلیون")) return String(Math.round(amount * 1_000_000));
+
+  return normalized.replace(/[^\d]/g, "");
+}
+
+function locationFromTimeAndLocation(value: string) {
+  const parts = value.split(" در ");
+
+  return parts.length > 1 ? parts.slice(1).join(" در ").trim() : value.trim();
+}
+
+function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdFormValues> {
+  const card = routeState.card ?? {};
+  const ad = routeState.ad ?? {};
+  const title = readText(card.title, ad.title, ad.name);
+  const location = readText(
+    ad.location,
+    ad.address,
+    card.timeAndLocation ? locationFromTimeAndLocation(card.timeAndLocation) : "",
+  );
+  const publisherName = readText(card.agency, ad.agency, ad.publisherName, ad.publisher_name);
+  const price = priceTextToNumberString(readText(card.pricePrimary, ad.price, ad.total_price));
+  const mortgagePrice = priceTextToNumberString(readText(card.pricePrimary, ad.mortgagePrice, ad.mortgage_price));
+  const rentPrice = priceTextToNumberString(readText(card.priceSecondary, ad.rentPrice, ad.rent_price));
+
+  return {
+    age: readText(card.year, ad.age, ad.building_age),
+    chatEnabled: true,
+    description: readText(ad.description, ad.body) || [title, card.timeAndLocation].filter(Boolean).join("\n"),
+    location,
+    meterage: pickFirstNumber(readText(card.area, ad.area, ad.meterage)),
+    mortgagePrice,
+    phoneEnabled: true,
+    price,
+    publisherName,
+    registrantType: publisherName ? "agency" : "personal",
+    rentPrice,
+    rooms: pickFirstNumber(readText(card.rooms, ad.rooms)),
+    title,
+  };
+}
+
+export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteState()): NewAdFormValues {
+  const editDefaults = editState.isEditMode ? buildEditDefaultValues(editState) : null;
+  const baseValues = editDefaults
+    ? {
+        ...blankValues,
+        ...editDefaults,
+      }
+    : {
+        ...blankValues,
+        ...getDraft(),
+        location: window.localStorage.getItem(locationKey) ?? "",
+      };
+
+  return {
+    ...baseValues,
     hasVideo: false,
     photos: [],
     video: null,
-    location: window.localStorage.getItem(locationKey) ?? "",
   };
 }
 

@@ -14,6 +14,7 @@ import {
   getAdManagementRouteState,
   getAdsForTab,
   getAllocationReviewPath,
+  getAdStatePath,
   type AdManagementFilters,
   type AdManagementPropertyType,
   type AdsTab,
@@ -294,7 +295,8 @@ export function IndependentConsultantAdManagementPage() {
                   ad={ad}
                   key={`${ad.title}-${index}`}
                   showStatusBadge
-                  state={{ ad }}
+                  state={{ card: ad, ad, returnTo: adManagementPaths.root, tab: "active" }}
+                  to={getAdStatePath(ad.id)}
                 />
               ),
             )
@@ -327,12 +329,17 @@ function AssignedConsultantAdCard({
         {formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص
       </div>
 
-      <ConsultantAdCard ad={ad} showStatusBadge state={{ ad, tab: "status" }} />
+      <ConsultantAdCard
+        ad={ad}
+        showStatusBadge
+        state={{ ad, returnTo: adManagementPaths.root, tab: "status" }}
+        to={getAllocationReviewPath(ad.id)}
+      />
 
       <div className="px-4 pb-4 pt-1">
         <RouteLink
           className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4] no-underline border border-[#0048c4] active:bg-[#003aa0]"
-          state={{ ad, tab: "status" }}
+          state={{ ad, returnTo: adManagementPaths.root, tab: "status" }}
           to={getAllocationReviewPath(ad.id)}
         >
           بررسی و تخصیص

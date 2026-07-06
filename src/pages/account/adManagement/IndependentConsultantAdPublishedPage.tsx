@@ -1,24 +1,27 @@
 import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { BottomSheet } from "../../../components/BottomSheet";
-import { DemoNotice } from "../../../components/DemoNotice";
-import { useDemoNotice } from "../../../hooks/useDemoNotice";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronLeftIcon, PublishedActionIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
+  getAdEditPath,
   getAdManagementRouteState,
+  getAdIncreaseVisitsPath,
+  getAdPaymentHistoryPath,
+  getAdPreviewPath,
+  getAdVisitStatisticsPath,
   getSelectedConsultantAd,
 } from "./adManagementData";
 
 export function IndependentConsultantAdPublishedPage() {
   const ad = getSelectedConsultantAd();
+  const routeState = getAdManagementRouteState();
+  const backTo = normalizeLocalPath(routeState.returnTo) ?? adManagementPaths.root;
   const [isSuccessOpen, setIsSuccessOpen] = useState(
-    getAdManagementRouteState().showPaymentSuccess ?? false,
+    routeState.showPaymentSuccess ?? false,
   );
-  const [isDeleted, setIsDeleted] = useState(false);
-  const { message, showNotice } = useDemoNotice();
 
   return (
     <PageFrame
@@ -27,7 +30,7 @@ export function IndependentConsultantAdPublishedPage() {
     >
       <TopBar
         backState={{ tab: "status" }}
-        backTo={adManagementPaths.root}
+        backTo={backTo}
         className="[&_a]:text-[#1a1a1a]"
         title={isSuccessOpen ? "وضعیت آگهی" : "مدیریت آگهی"}
       />
@@ -59,22 +62,23 @@ export function IndependentConsultantAdPublishedPage() {
 
         <div className="h-2 shrink-0 bg-[#f0f0f0]" aria-hidden="true" />
         <div className="min-h-[300px] flex-1 bg-white">
-          <PublishedAction icon="preview" label="پیش‌نمایش" to="/ads/1" />
+          <PublishedAction icon="preview" label="پیش‌نمایش" returnTo={backTo} to={getAdPreviewPath(ad.id)} />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="edit" label="ویرایش" to={adManagementPaths.edit} />
+          <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id)} />
           <PublishedActionDivider />
           <PublishedAction
+            ad={ad}
             icon="delete"
-            label={isDeleted ? "آگهی حذف شد" : "حذف"}
-            onClick={() => {
-              setIsDeleted(true);
-              showNotice("آگهی از فهرست نمایشی حذف شد");
-            }}
+            returnTo={backTo}
+            label="حذف"
+            to={`${adManagementPaths.delete}?adId=${encodeURIComponent(String(ad.id))}`}
           />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="upgrade" label="ارتقاء آگهی" to={adManagementPaths.payment} />
+          <PublishedAction ad={ad} icon="upgrade" label="ارتقاء آگهی" returnTo={backTo} to={getAdIncreaseVisitsPath(ad.id)} />
           <PublishedActionDivider />
-          <PublishedAction icon="history" label="تاریخچه پرداخت" to="/account/credit/history" />
+          <PublishedAction ad={ad} icon="stats" label="آمار بازدید" returnTo={backTo} to={getAdVisitStatisticsPath(ad.id)} />
+          <PublishedActionDivider />
+          <PublishedAction ad={ad} icon="history" label="تاریخچه پرداخت" returnTo={backTo} to={getAdPaymentHistoryPath(ad.id)} />
         </div>
       </main>
 
@@ -99,9 +103,16 @@ export function IndependentConsultantAdPublishedPage() {
           پرداخت موفق و آگهی منتشر شد
         </p>
       </BottomSheet>
-      <DemoNotice message={message} />
     </PageFrame>
   );
+}
+
+
+function normalizeLocalPath(path?: string) {
+  if (!path || !path.startsWith("/")) return undefined;
+  if (path.startsWith("//")) return undefined;
+
+  return path;
 }
 
 function PublishedAction({
@@ -109,12 +120,14 @@ function PublishedAction({
   icon,
   label,
   onClick,
+  returnTo = adManagementPaths.root,
   to,
 }: {
   ad?: ReturnType<typeof getSelectedConsultantAd>;
-  icon: "delete" | "edit" | "history" | "preview" | "upgrade";
+  icon: "delete" | "edit" | "history" | "preview" | "stats" | "upgrade";
   label: string;
   onClick?: () => void;
+  returnTo?: string;
   to?: string;
 }) {
   const content = (
@@ -131,7 +144,19 @@ function PublishedAction({
     return (
       <RouteLink
         className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] no-underline [direction:ltr]"
-        state={{ ad }}
+        state={{
+          ad,
+          card: ad,
+          deleteCompleteTo: icon === "delete" ? returnTo : undefined,
+          deleteReturnTo: icon === "delete" ? window.location.pathname : undefined,
+          editReturnTo: window.location.pathname,
+          isEditMode: icon === "edit" ? true : undefined,
+          paymentFlow: icon === "upgrade" ? "upgrade" : undefined,
+          paymentHistoryReturnTo: icon === "history" ? window.location.pathname : undefined,
+          visitStatisticsReturnTo: icon === "stats" ? window.location.pathname : undefined,
+          returnTo,
+          tab: "status",
+        }}
         to={to}
       >
         {content}

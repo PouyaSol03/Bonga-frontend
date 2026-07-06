@@ -9,6 +9,7 @@ import {
   AdCardYearIcon,
 } from "../../components/AdCardIcons";
 import { RouteLink } from "../../routes/RouteLink";
+import { getAdStatePath } from "../account/adManagement/adManagementData";
 
 export type DashboardAd = {
   id: number;
@@ -26,11 +27,31 @@ export type DashboardAd = {
 };
 
 export function DashboardAdCard({ ad }: { ad: DashboardAd }) {
+  const card = {
+    id: ad.id,
+    agency: ad.owner,
+    area: ad.area,
+    badges: ad.badges,
+    imageClassName: "",
+    imageCount: ad.imageCount,
+    imageUrl: ad.imageUrl,
+    priceLabelPrimary: "",
+    priceLabelSecondary: "",
+    pricePrimary: ad.price,
+    priceSecondary: "",
+    rooms: ad.rooms,
+    status: ad.badges.length ? "منتشر شده" : "در انتظار انتشار",
+    timeAndLocation: ad.timeAndLocation,
+    title: ad.title,
+    year: ad.year,
+  };
+
   return (
     <RouteLink
-      aria-label={`مشاهده آگهی ${ad.title}`}
+      aria-label={`مدیریت آگهی ${ad.title}`}
       className="block min-w-0 text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-      to={`/ads/${ad.id}`}
+      state={{ card, ad: card, returnTo: "/account/dashboard/ads", tab: "active" }}
+      to={getAdStatePath(ad.id)}
     >
       <article className="flex min-w-0 flex-col gap-4 text-right">
         <div className="relative h-[224px] w-auto overflow-hidden rounded-2xl bg-[#dbe5ff]">

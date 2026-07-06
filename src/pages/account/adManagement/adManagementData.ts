@@ -156,8 +156,14 @@ export type AdManagementRouteState = {
   hasFreeAdTariff?: boolean;
   paymentFlow?: "new-ad" | "upgrade";
   paymentStep?: "options" | "checkout";
+  paymentHistoryReturnTo?: string;
+  returnTo?: string;
+  visitStatisticsReturnTo?: string;
   showPaymentSuccess?: boolean;
   statisticsAd?: StatisticsAd;
+  card?: ConsultantAd;
+  editReturnTo?: string;
+  isEditMode?: boolean;
   filters?: AdManagementFilters;
   onlyMine?: boolean;
   tab?: AdsTab;
@@ -166,15 +172,56 @@ export type AdManagementRouteState = {
 export const adManagementPaths = {
   allocation: "/account/ad-management/allocation",
   allocationReview: "/account/ad-management/allocation-review",
+  delete: "/account/ad-management/delete",
   edit: "/account/ad-management/published/edit",
   filter: "/account/ad-management/filter",
   payment: "/account/ad-management/payment",
+  paymentHistory: "/account/ad-management/payment-history",
   published: "/account/ad-management/published",
   root: "/account/manage-ads",
   search: "/account/ad-management/search",
   statistics: "/account/ad-management/statistics",
   statisticsDetails: "/account/ad-management/statistics/details",
 } as const;
+
+export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
+  return `/ads/${encodeURIComponent(String(adId))}`;
+}
+
+export function getAdEditPath(adId?: ConsultantAd["id"] | string) {
+  const params = new URLSearchParams({
+    category: "apartment",
+    edit: "true",
+    label: "آپارتمان",
+    transaction: "sale",
+  });
+
+  if (adId !== undefined && adId !== null && adId !== "") {
+    params.set("adId", String(adId));
+  }
+
+  return `${adManagementPaths.edit}?${params.toString()}`;
+}
+
+export function getAdStatePath(adId: ConsultantAd["id"] | string) {
+  return `/account/my-ads/${encodeURIComponent(String(adId))}/state-ad`;
+}
+
+export function getAdPaymentHistoryPath(adId: ConsultantAd["id"] | string) {
+  return `/account/my-ads/${encodeURIComponent(String(adId))}/payment-history`;
+}
+
+export function getAdIncreaseVisitsPath(adId: ConsultantAd["id"] | string) {
+  return `/account/my-ads/${encodeURIComponent(String(adId))}/increase-visits`;
+}
+
+export function getAdVisitStatisticsPath(adId: ConsultantAd["id"] | string) {
+  return `/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`;
+}
+
+export function getAdCloseResultPath(adId: ConsultantAd["id"] | string) {
+  return `/account/my-ads/${encodeURIComponent(String(adId))}/close-result`;
+}
 
 export function getAllocationReviewPath(adId: ConsultantAd["id"]) {
   return `${adManagementPaths.allocationReview}/${adId}`;

@@ -304,7 +304,7 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
               <AdCard
                 ad={cardWithStatus}
                 showStatusBadge
-                state={{ ad, card: cardWithStatus, status: statusInfo.key }}
+                state={{ ad, card: cardWithStatus, returnTo: "/account/my-ads", status: statusInfo.key }}
                 to={`/account/my-ads/${encodeURIComponent(adId)}/state-ad`}
               />
             </div>
@@ -476,8 +476,8 @@ export function AccountWalletHistoryPage() {
   const payments = wallet?.payments ?? [];
 
   return (
-    <AccountPageShell title="تاریخچه پرداخت کیف پول">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+    <AccountPageShell title="تاریخچه پرداخت">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
 
         {isError ? (
@@ -1649,6 +1649,22 @@ function readPaymentStatusColor(payment: WalletPayment) {
   return "#1a1a1a";
 }
 
+function readWalletPaymentService(payment: WalletPayment) {
+  return String(
+    payment.service ??
+    payment.service_name ??
+    payment.package_name ??
+    payment.plan_name ??
+    payment.title ??
+    payment.type ??
+    "شارژ کیف پول",
+  );
+}
+
+function readWalletPaymentMethod(payment: WalletPayment) {
+  return String(payment.method ?? payment.payment_method ?? "پرداخت آنلاین");
+}
+
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
@@ -1685,11 +1701,16 @@ function TextField({
 
 function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
   return (
-    <article className="border-b border-[#f0f0f0] bg-white px-4 py-4 text-right">
+    <article className="mb-2 flex h-[224px] flex-col justify-between bg-white px-4 py-4 text-right last:mb-0">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
         valueColor={readPaymentStatusColor(payment)}
+      />
+
+      <PaymentHistoryRow
+        label="نوع سرویس"
+        value={readWalletPaymentService(payment)}
       />
 
       <PaymentHistoryRow
@@ -1703,36 +1724,38 @@ function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
       />
 
       <PaymentHistoryRow
+        label="نحوه پرداخت"
+        value={readWalletPaymentMethod(payment)}
+      />
+
+      <PaymentHistoryRow
         label="شناسه پرداخت"
         value={String(payment.tracking_code ?? payment.id ?? "-")}
-        isLast
       />
     </article>
   );
 }
 
 function PaymentHistoryRow({
-  isLast = false,
   label,
   value,
   valueColor = "#1a1a1a",
 }: {
-  isLast?: boolean;
   label: string;
   value: string;
   valueColor?: string;
 }) {
   return (
-    <div className={`flex items-center justify-between gap-4 ${isLast ? "" : "mb-3"}`}>
-      <span className="shrink-0 text-xs font-normal leading-5 text-[#808080]">
-        {label}
-      </span>
-
+    <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
       <span
-        className="min-w-0 text-left text-xs font-medium leading-5"
+        className="min-w-0 truncate text-left"
         style={{ color: valueColor }}
       >
         {value}
+      </span>
+
+      <span className="shrink-0 text-right text-[#808080] [direction:rtl]">
+        {label}
       </span>
     </div>
   );

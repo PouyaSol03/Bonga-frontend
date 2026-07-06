@@ -11,11 +11,13 @@ import { CheckRow, RadioCard, SocialInput } from "../components/MediaControls";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
 
 export function MediaStep({
+  forceFullEditFields = false,
   label,
   onBack,
   onSubmit,
   submitDisabled = false,
 }: {
+  forceFullEditFields?: boolean;
   label: string;
   onBack: () => void;
   onSubmit: () => void;
@@ -23,7 +25,7 @@ export function MediaStep({
 }) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
-  const isRealEstateManager = getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const isRealEstateManager = !forceFullEditFields && getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
   const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) =>
     setValue(key as never, value as never, { shouldDirty: true });
 
@@ -41,6 +43,7 @@ export function MediaStep({
     if (values.telegram) setField("telegram", "");
     if (values.whatsapp) setField("whatsapp", "");
   }, [
+    forceFullEditFields,
     isRealEstateManager,
     values.chatEnabled,
     values.phoneEnabled,

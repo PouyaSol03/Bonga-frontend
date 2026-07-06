@@ -10,9 +10,32 @@ import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronLeftIcon } from "./AdManagementIcons";
-import { adManagementPaths, getSelectedConsultantAd, type ConsultantAd } from "./adManagementData";
+import {
+  adManagementPaths,
+  adManagementPublisherOptions,
+  getAdEditPath,
+  getAdPreviewPath,
+  getSelectedConsultantAd,
+  type ConsultantAd,
+} from "./adManagementData";
 
 type PublisherType = "agency" | "consultant";
+
+type SelectableConsultant = {
+  avatarSrc: string;
+  id: string;
+  name: string;
+};
+
+const selectableConsultants: SelectableConsultant[] = adManagementPublisherOptions
+  .filter((publisher) => publisher.id !== "jalilian-real-estate")
+  .map((publisher) => ({
+    avatarSrc: publisher.image,
+    id: publisher.id,
+    name: publisher.name,
+  }));
+
+const defaultSelectedConsultant = selectableConsultants[1] ?? selectableConsultants[0] ?? null;
 
 const publisherOptions: {
   description: string;
@@ -37,8 +60,9 @@ const publisherOptions: {
 export function IndependentConsultantAdAllocationReviewPage() {
   const ad = getSelectedConsultantAd();
   const [publisher, setPublisher] = useState<PublisherType>("agency");
-  const [hasAssignedConsultant, setHasAssignedConsultant] = useState(false);
-  const canContinue = publisher === "agency" || hasAssignedConsultant;
+  const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(null);
+  const [isConsultantPickerOpen, setIsConsultantPickerOpen] = useState(false);
+  const canContinue = publisher === "agency" || Boolean(assignedConsultant);
 
   function handleContinue() {
     if (!canContinue) return;
@@ -76,14 +100,20 @@ export function IndependentConsultantAdAllocationReviewPage() {
           <ReviewAction
             icon={<LinearPreview className="h-6 w-6" />}
             label="پیش نمایش"
-            to={`/ads/${ad.id}`}
+            to={getAdPreviewPath(ad.id)}
           />
           <ActionDivider />
           <ReviewAction
             icon={<LinearEdit2 className="h-6 w-6" />}
             label="ویرایش"
-            state={{ ad, tab: "status" }}
-            to={adManagementPaths.edit}
+            state={{
+              ad,
+              card: ad,
+              editReturnTo: getAllocationReviewPathForCurrentAd(ad.id),
+              isEditMode: true,
+              tab: "status",
+            }}
+            to={getAdEditPath(ad.id)}
           />
           <ActionDivider />
           <RejectAction />
@@ -99,12 +129,12 @@ export function IndependentConsultantAdAllocationReviewPage() {
           <div className="space-y-3" role="radiogroup" aria-label="انتخاب منتشرکننده آگهی">
             {publisherOptions.map((option) => (
               <PublisherOptionCard
-                hasAssignedConsultant={hasAssignedConsultant}
+                assignedConsultant={assignedConsultant}
                 key={option.value}
-                onAssignConsultant={() => setHasAssignedConsultant(true)}
+                onAssignConsultant={() => setIsConsultantPickerOpen(true)}
                 onSelect={() => {
                   setPublisher(option.value);
-                  if (option.value === "agency") setHasAssignedConsultant(false);
+                  if (option.value === "agency") setAssignedConsultant(null);
                 }}
                 option={option}
                 selected={publisher === option.value}
@@ -113,6 +143,18 @@ export function IndependentConsultantAdAllocationReviewPage() {
           </div>
         </section>
       </main>
+
+      {isConsultantPickerOpen ? (
+        <ConsultantPickerPage
+          onClose={() => setIsConsultantPickerOpen(false)}
+          onConfirm={(consultant) => {
+            setAssignedConsultant(consultant);
+            setPublisher("consultant");
+            setIsConsultantPickerOpen(false);
+          }}
+          selectedConsultant={assignedConsultant ?? defaultSelectedConsultant}
+        />
+      ) : null}
 
       <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <button
@@ -128,6 +170,10 @@ export function IndependentConsultantAdAllocationReviewPage() {
       </footer>
     </PageFrame>
   );
+}
+
+function getAllocationReviewPathForCurrentAd(adId: ConsultantAd["id"] | string) {
+  return `${adManagementPaths.allocationReview}/${encodeURIComponent(String(adId))}`;
 }
 
 function CompactAdSummary({ ad }: { ad: ConsultantAd }) {
@@ -199,13 +245,13 @@ function RejectAction() {
 }
 
 function PublisherOptionCard({
-  hasAssignedConsultant,
+  assignedConsultant,
   onAssignConsultant,
   onSelect,
   option,
   selected,
 }: {
-  hasAssignedConsultant: boolean;
+  assignedConsultant: SelectableConsultant | null;
   onAssignConsultant: () => void;
   onSelect: () => void;
   option: (typeof publisherOptions)[number];
@@ -241,16 +287,132 @@ function PublisherOptionCard({
       </button>
 
       {selected && isConsultant ? (
-        <button
-          className="mt-3 inline-flex h-11 w-full items-center justify-center gap-1 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]"
-          onClick={onAssignConsultant}
-          type="button"
-        >
-          {hasAssignedConsultant ? "مشاور تعیین شد" : "تعیین مشاور"}
-          <ChevronLeftIcon className="h-5 w-5" />
-        </button>
+        <div className="mt-3 rounded-lg border border-[#0048c4] bg-white p-2">
+          {assignedConsultant ? (
+            <div className="mb-2 flex items-center gap-2 px-1 py-1 text-right [direction:rtl]">
+              <img
+                alt=""
+                className="h-10 w-10 shrink-0 rounded-full object-cover"
+                draggable={false}
+                src={assignedConsultant.avatarSrc}
+              />
+              <span className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+                {assignedConsultant.name}
+              </span>
+            </div>
+          ) : null}
+          <button
+            className="inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]"
+            onClick={onAssignConsultant}
+            type="button"
+          >
+            {assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}
+            <ChevronLeftIcon className="h-5 w-5" />
+          </button>
+        </div>
       ) : null}
     </div>
+  );
+}
+
+function ConsultantPickerPage({
+  onClose,
+  onConfirm,
+  selectedConsultant,
+}: {
+  onClose: () => void;
+  onConfirm: (consultant: SelectableConsultant) => void;
+  selectedConsultant: SelectableConsultant | null;
+}) {
+  const [searchValue, setSearchValue] = useState("");
+  const [draftConsultantId, setDraftConsultantId] = useState<string | null>(
+    selectedConsultant?.id ?? defaultSelectedConsultant?.id ?? null,
+  );
+  const normalizedSearch = searchValue.trim();
+  const visibleConsultants = normalizedSearch
+    ? selectableConsultants.filter((consultant) => consultant.name.includes(normalizedSearch))
+    : selectableConsultants;
+  const draftConsultant =
+    visibleConsultants.find((consultant) => consultant.id === draftConsultantId) ??
+    selectableConsultants.find((consultant) => consultant.id === draftConsultantId) ??
+    null;
+
+  return (
+    <section
+      aria-label="انتخاب مشاور"
+      aria-modal="true"
+      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      role="dialog"
+    >
+      <TopBar
+        centerClassName="px-0"
+        className="bg-[#f0f0f0]"
+        onBack={onClose}
+        reserveStartSpace
+        title="انتخاب مشاور"
+        titleClassName="text-center text-sm font-semibold leading-5"
+      />
+
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-3">
+        <label className="flex h-10 items-center gap-2 rounded-lg border border-[#d9d9d9] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
+          <input
+            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+            onChange={(event) => setSearchValue(event.target.value)}
+            placeholder="جستجوی مشاور"
+            type="search"
+            value={searchValue}
+          />
+          <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 24 24">
+            <path d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
+          </svg>
+        </label>
+
+        <div className="mt-5 grid gap-1">
+          {visibleConsultants.map((consultant) => {
+            const selected = draftConsultantId === consultant.id;
+
+            return (
+              <button
+                aria-checked={selected}
+                className="flex h-12 w-full items-center justify-between gap-3 rounded-lg bg-white px-1 text-right [direction:ltr] active:bg-[#f7f7f7]"
+                key={consultant.id}
+                onClick={() => setDraftConsultantId(consultant.id)}
+                role="radio"
+                type="button"
+              >
+                <RadioIndicator checked={selected} />
+                <span className="flex min-w-0 flex-1 items-center justify-end gap-3 [direction:rtl]">
+                  <span className="truncate text-xs font-medium leading-5 text-[#1a1a1a]">
+                    {consultant.name}
+                  </span>
+                  <img
+                    alt=""
+                    className="h-9 w-9 shrink-0 rounded-full object-cover"
+                    draggable={false}
+                    src={consultant.avatarSrc}
+                  />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <button
+          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 ${
+            draftConsultant ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
+          }`}
+          disabled={!draftConsultant}
+          onClick={() => {
+            if (draftConsultant) onConfirm(draftConsultant);
+          }}
+          type="button"
+        >
+          انتخاب
+        </button>
+      </footer>
+    </section>
   );
 }
 

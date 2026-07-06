@@ -155,7 +155,7 @@ export function PublishedActionIcon({
   icon,
 }: {
   className?: string;
-  icon: "delete" | "edit" | "history" | "preview" | "upgrade";
+  icon: "delete" | "edit" | "history" | "preview" | "stats" | "upgrade";
 }) {
   if (icon === "delete") {
     return (
@@ -178,6 +178,16 @@ export function PublishedActionIcon({
       <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
         <path d="M7 3h10v18l-5-2.5L7 21V3Z" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M13.8 9.2c-.4-.5-1-.7-1.8-.7-.9 0-1.6.5-1.6 1.2 0 1.8 3.5.8 3.5 2.8 0 .7-.7 1.2-1.7 1.2-.8 0-1.5-.3-2-.8M12.1 7.4v7.4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+
+  if (icon === "stats") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+        <rect height="17" rx="2" width="16" x="4" y="3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M8 16v-4M12 16V8M16 16v-6M7 18h10" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }

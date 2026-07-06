@@ -53,10 +53,10 @@ const IndependentConsultantAdManagementPage = lazyNamed(() => import('../pages/a
 const DashboardAdsPage = lazyNamed(() => import('../pages/dashboard/DashboardAdsPage'), 'DashboardAdsPage')
 const IndependentConsultantAdAllocationPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdAllocationPage'), 'IndependentConsultantAdAllocationPage')
 const IndependentConsultantAdAllocationReviewPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdAllocationReviewPage'), 'IndependentConsultantAdAllocationReviewPage')
-const IndependentConsultantAdEditPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdEditPage'), 'IndependentConsultantAdEditPage')
 const IndependentConsultantAdFilterPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdFilterPage'), 'IndependentConsultantAdFilterPage')
 const IndependentConsultantAdPaymentPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdPaymentPage'), 'IndependentConsultantAdPaymentPage')
 const IndependentConsultantAdPublishedPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdPublishedPage'), 'IndependentConsultantAdPublishedPage')
+const AdDeleteReasonPage = lazyNamed(() => import('../pages/account/adManagement/AdDeleteReasonPage'), 'AdDeleteReasonPage')
 const IndependentConsultantAdSearchPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdSearchPage'), 'IndependentConsultantAdSearchPage')
 const IndependentConsultantAdStatisticsDetailsPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdStatisticsDetailsPage'), 'IndependentConsultantAdStatisticsDetailsPage')
 const IndependentConsultantAdStatisticsPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdStatisticsPage'), 'IndependentConsultantAdStatisticsPage')
@@ -186,7 +186,7 @@ export const routes: AppRoute[] = [
   },
   {
     path: '/account/wallet/history',
-    title: 'تاریخچه پرداخت کیف پول',
+    title: 'تاریخچه پرداخت',
     Component: AccountWalletHistoryPage,
   },
   {
@@ -439,8 +439,15 @@ export const routes: AppRoute[] = [
   },
   {
     path: '/account/ad-management/published/edit',
-    title: 'ثبت آگهی',
-    Component: IndependentConsultantAdEditPage,
+    title: 'ویرایش آگهی',
+    Component: NewAdFlowPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/ad-management/delete',
+    title: 'حذف آگهی',
+    Component: AdDeleteReasonPage,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/statistics',

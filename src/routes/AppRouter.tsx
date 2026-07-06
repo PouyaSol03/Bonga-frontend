@@ -34,6 +34,22 @@ const AccountMyAdStatePage = lazyNamed(
   () => import('../pages/account/AccountMyAdStatePage'),
   'AccountMyAdStatePage',
 )
+const AdPaymentHistoryPage = lazyNamed(
+  () => import('../pages/account/adManagement/AdPaymentHistoryPage'),
+  'AdPaymentHistoryPage',
+)
+const AdIncreaseVisitsPage = lazyNamed(
+  () => import('../pages/account/adManagement/AdIncreaseVisitsPage'),
+  'AdIncreaseVisitsPage',
+)
+const AdVisitStatisticsPage = lazyNamed(
+  () => import('../pages/account/adManagement/AdVisitStatisticsPage'),
+  'AdVisitStatisticsPage',
+)
+const AdCloseResultPage = lazyNamed(
+  () => import('../pages/account/adManagement/AdCloseResultPage'),
+  'AdCloseResultPage',
+)
 const UserChatDetailPage = lazyNamed(
   () => import('../pages/UserChatHomePage'),
   'UserChatDetailPage',
@@ -157,7 +173,14 @@ function getBottomNavigationKey(path: string) {
     path === '/account/ad-management/allocation' ||
     path.startsWith('/account/ad-management/allocation-review') ||
     path === '/account/ad-management/payment' ||
+    path === '/account/ad-management/delete' ||
+    /^\/account\/my-ads\/[^/]+\/payment-history\/?$/.test(path) ||
+    /^\/account\/my-ads\/[^/]+\/increase-visits\/?$/.test(path) ||
+    /^\/account\/my-ads\/[^/]+\/visit-statistics\/?$/.test(path) ||
+    /^\/account\/my-ads\/[^/]+\/close-result\/?$/.test(path) ||
     path === '/account/ad-management/filter' ||
+    path === '/account/credit/history' ||
+    path === '/account/wallet/history' ||
     path.startsWith('/account/dashboard/agency') ||
     path.startsWith('/account/dashboard/team') ||
     path.startsWith('/account/ad-management/published') ||
@@ -239,7 +262,23 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
 
 function getRoute(path: string): AppRoute {
   if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
-    return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage }
+    return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage, requiresAuth: true }
+  }
+
+  if (/^\/account\/my-ads\/[^/]+\/payment-history\/?$/.test(path)) {
+    return { path, title: 'تاریخچه پرداخت', Component: AdPaymentHistoryPage, requiresAuth: true }
+  }
+
+  if (/^\/account\/my-ads\/[^/]+\/increase-visits\/?$/.test(path)) {
+    return { path, title: 'افزایش بازدید', Component: AdIncreaseVisitsPage, requiresAuth: true }
+  }
+
+  if (/^\/account\/my-ads\/[^/]+\/visit-statistics\/?$/.test(path)) {
+    return { path, title: 'آمار بازدید', Component: AdVisitStatisticsPage, requiresAuth: true }
+  }
+
+  if (/^\/account\/my-ads\/[^/]+\/close-result\/?$/.test(path)) {
+    return { path, title: 'ثبت نتیجه آگهی', Component: AdCloseResultPage, requiresAuth: true }
   }
 
   if (/^\/account\/ad-management\/allocation-review\/[^/]+\/?$/.test(path)) {

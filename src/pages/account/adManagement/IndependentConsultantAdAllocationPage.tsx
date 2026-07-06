@@ -2,7 +2,7 @@ import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { AllocationIcon, ChevronLeftIcon } from "./AdManagementIcons";
-import { adManagementPaths, getSelectedConsultantAd } from "./adManagementData";
+import { adManagementPaths, getAdEditPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
 
 export function IndependentConsultantAdAllocationPage() {
   const ad = getSelectedConsultantAd();
@@ -43,9 +43,9 @@ export function IndependentConsultantAdAllocationPage() {
           </section>
 
           <div className="mt-4 h-px bg-[#cccccc]" aria-hidden="true" />
-          <AllocationAction icon="preview" label="پیش نمایش" to="/ads/1" />
+          <AllocationAction icon="preview" label="پیش نمایش" to={getAdPreviewPath(ad.id)} />
           <div className="h-px bg-[#cccccc]" aria-hidden="true" />
-          <AllocationAction icon="edit" label="ویرایش" state={{ ad }} to={adManagementPaths.edit} />
+          <AllocationAction icon="edit" label="ویرایش" state={{ ad, card: ad, editReturnTo: adManagementPaths.allocation, isEditMode: true }} to={getAdEditPath(ad.id)} />
         </div>
       </main>
 

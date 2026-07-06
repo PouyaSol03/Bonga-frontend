@@ -1,17 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
-import { PageFrame } from "../../app/PageFrame";
+import type { UseFormReturn } from "react-hook-form";
+
 import { getApiErrorMessage } from "../../api/api";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
-import { Snackbar } from "../../components/Snackbar";
-import { useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../hooks/advertisement.hooks";
-import { Header } from "./components/NewAdControls";
-import { adManagementPaths } from "../account/adManagement/adManagementData";
+import { useAdvertisementDetailQuery } from "../../hooks/advertisement.hooks";
+import type { AdvertisementItem } from "../../services/advertisement.service";
 import {
   blankValues,
   dailyHotelRoomTypes,
-  draftKey,
   facilityItems,
   heatingItems,
   landFacilityItems,
@@ -21,12 +16,8 @@ import {
   neighborhoodIdKey,
   propertySpecs,
 } from "./data";
-import { DetailsStep } from "./steps/DetailsStep";
-import { MediaStep } from "./steps/MediaStep";
-import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
-import type { ChipItem, FlowStep, NewAdFormValues } from "./types";
-import { buildNewAdFormData, clearNewAdDraftStorage, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
-export { NewAdLocationPage } from "./NewAdLocationPage";
+import type { ChipItem, NewAdFormValues } from "./types";
+import { getDefaultValues, type EditAdRouteState } from "./utils";
 
 type AdvertisementFeature = {
   key?: string;
@@ -38,6 +29,13 @@ type EditRouteParams = {
   category: string;
   label: string;
   transaction: string;
+};
+
+type UseEditAdPrefillArgs = {
+  editAdState: EditAdRouteState;
+  isEditMode: boolean;
+  methods: UseFormReturn<NewAdFormValues>;
+  onError: (message: string) => void;
 };
 
 const editRouteParamsByFormCode: Record<string, EditRouteParams> = {
@@ -66,7 +64,7 @@ const editRouteParamsByFormCode: Record<string, EditRouteParams> = {
   "sale-warehouse": { category: "warehouse", label: "انبار، سوله", transaction: "sale" },
 };
 
-function getEditAdId(routeState: ReturnType<typeof getEditAdRouteState>) {
+export function getEditAdId(routeState: EditAdRouteState) {
   const params = new URLSearchParams(window.location.search);
   const queryAdId = params.get("adId");
   const stateAdId = routeState.ad?.id ?? routeState.ad?._id ?? routeState.card?.id;
@@ -298,7 +296,7 @@ function mapProjectDetails(value: unknown): NewAdFormValues["projectDetails"] {
   if (!Array.isArray(value)) return [];
 
   return value
-    .map((item, index) => {
+    .map((item, index): NewAdFormValues["projectDetails"][number] | null => {
       if (!item || typeof item !== "object") return null;
 
       const record = item as Record<string, unknown>;
@@ -411,7 +409,7 @@ function syncEditLocationStorage(ad: AdvertisementItem, features: AdvertisementF
   if (neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
 }
 
-function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValues): NewAdFormValues {
+export function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValues): NewAdFormValues {
   const features = getAdvertisementFeatures(ad);
   const next: NewAdFormValues = {
     ...blankValues,
@@ -548,20 +546,11 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   return next;
 }
 
-export function NewAdFlowPage() {
-  const [, setEditRouteVersion] = useState(0);
-  const { label } = getParams();
-  const editAdState = getEditAdRouteState();
-  const isEditMode = editAdState.isEditMode === true;
+export function useEditAdPrefill({ editAdState, isEditMode, methods, onError }: UseEditAdPrefillArgs) {
+  const [, setRouteVersion] = useState(0);
   const editAdId = getEditAdId(editAdState);
   const editDataAppliedRef = useRef<string | null>(null);
-  const [step, setStep] = useState<FlowStep>("details");
-  const [submitError, setSubmitError] = useState("");
-  const methods = useForm<NewAdFormValues>({ defaultValues: getDefaultValues(editAdState), mode: "onChange" });
-  const createAdvertisement = useCreateAdvertisementMutation();
   const editAdQuery = useAdvertisementDetailQuery(isEditMode ? editAdId : null);
-
-  useRequireAuth();
 
   useEffect(() => {
     if (!isEditMode) return undefined;
@@ -579,149 +568,20 @@ export function NewAdFlowPage() {
     editDataAppliedRef.current = editAdId;
 
     if (routeChanged) {
-      setEditRouteVersion((version) => version + 1);
+      setRouteVersion((version) => version + 1);
     }
 
     return undefined;
-  }, [editAdId, editAdQuery.data, isEditMode, methods]);
+  }, [editAdId, editAdQuery.data, editAdState, isEditMode, methods]);
 
   useEffect(() => {
     if (!isEditMode || !editAdQuery.isError) return;
 
-    setSubmitError(getApiErrorMessage(editAdQuery.error, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."));
-  }, [editAdQuery.error, editAdQuery.isError, isEditMode]);
+    onError(getApiErrorMessage(editAdQuery.error, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."));
+  }, [editAdQuery.error, editAdQuery.isError, isEditMode, onError]);
 
-  useEffect(() => {
-    if (isEditMode) return undefined;
-
-    const subscription = methods.watch((values) => {
-      const safeDraft = {
-        ...values,
-        hasVideo: false,
-        photos: [],
-        video: null,
-      };
-
-      window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
-    });
-
-    return () => subscription.unsubscribe();
-  }, [isEditMode, methods]);
-
-  useEffect(() => {
-    const clearOnExit = () => {
-      if (window.location.pathname.startsWith("/new-ad")) return;
-
-      clearNewAdDraftStorage();
-    };
-    const clearOnPageHide = () => clearNewAdDraftStorage();
-
-    window.addEventListener("popstate", clearOnExit);
-    window.addEventListener("pagehide", clearOnPageHide);
-
-    return () => {
-      window.removeEventListener("popstate", clearOnExit);
-      window.removeEventListener("pagehide", clearOnPageHide);
-    };
-  }, []);
-
-  const submit = methods.handleSubmit((values) => {
-    if (createAdvertisement.isPending) return;
-
-    if (isEditMode) {
-      const updatedCard = {
-        ...(editAdState.card ?? editAdState.ad ?? {}),
-        title: values.title || editAdState.card?.title || "آگهی ملک",
-        agency: values.publisherName || editAdState.card?.agency || "",
-        area: values.meterage ? `${values.meterage} متر` : editAdState.card?.area,
-        rooms: values.rooms ? `${values.rooms} اتاق` : editAdState.card?.rooms,
-        year: values.age || editAdState.card?.year,
-      };
-
-      clearNewAdDraftStorage();
-      navigateTo(editAdState.editReturnTo ?? adManagementPaths.published, {
-        ad: updatedCard,
-        card: updatedCard,
-        isEditMode: true,
-        returnTo: editAdState.returnTo,
-        tab: editAdState.tab,
-      });
-      return;
-    }
-
-    const formData = buildNewAdFormData(values);
-
-    setSubmitError("");
-    createAdvertisement.mutate(formData, {
-      onError: (error) => {
-        setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
-      },
-      onSuccess: (createdAd) => {
-        const ad = mapAdvertisementToAdCard(createdAd, 0);
-
-        clearNewAdDraftStorage();
-        navigateTo(adManagementPaths.payment, {
-          ad,
-          hasFreeAdTariff: true,
-          paymentFlow: "new-ad",
-          tab: "status",
-        });
-      },
-    });
-  });
-
-  const goToDetails = () => setStep("details");
-  const headerTitle =
-    step === "moreFeatures"
-      ? "ویژگی‌های بیشتر"
-      : step === "projectDetails"
-        ? "جزئیات پروژه"
-        : isEditMode
-          ? "ویرایش آگهی"
-          : "ثبت آگهی";
-
-  return (
-    <PageFrame className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
-      <FormProvider {...methods}>
-        <Header
-          title={headerTitle}
-          onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : undefined}
-        />
-
-        {submitError ? (
-          <Snackbar
-            message={submitError}
-            onDismiss={() => setSubmitError("")}
-            title="خطا"
-          />
-        ) : null}
-
-        {step === "details" ? (
-          <DetailsStep
-            label={label}
-            onMoreFeatures={() => setStep("moreFeatures")}
-            onProjectDetails={() => setStep("projectDetails")}
-            onNext={() => setStep("media")}
-          />
-        ) : step === "moreFeatures" ? (
-          <MoreFeaturesStep
-            onCancel={goToDetails}
-            onConfirm={goToDetails}
-          />
-        ) : step === "projectDetails" ? (
-          <ProjectDetailsStep
-            onBack={goToDetails}
-          />
-        ) : (
-          <MediaStep
-            forceFullEditFields={isEditMode}
-            label={label}
-            onBack={goToDetails}
-            onSubmit={submit}
-            submitDisabled={createAdvertisement.isPending || (isEditMode && editAdQuery.isLoading)}
-          />
-        )}
-      </FormProvider>
-    </PageFrame>
-  );
+  return {
+    editAdId,
+    editAdQuery,
+  };
 }

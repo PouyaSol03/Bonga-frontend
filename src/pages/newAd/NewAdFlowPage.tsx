@@ -24,7 +24,7 @@ import {
 import { DetailsStep } from "./steps/DetailsStep";
 import { MediaStep } from "./steps/MediaStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
-import type { ChipItem, FlowStep, NewAdFormValues } from "./types";
+import type { ChipItem, FlowStep, NewAdFormValues, ProjectDetailItem } from "./types";
 import { buildNewAdFormData, clearNewAdDraftStorage, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
@@ -99,11 +99,11 @@ function toPersianDigits(value: string) {
   });
 }
 
-function normalizeLookupText(value: unknown) {
+function normalizeLookupText(value: unknown): string {
   return toLatinDigits(String(value ?? "")).trim().toLowerCase();
 }
 
-function readText(value: unknown) {
+function readText(value: unknown): string {
   if (typeof value === "string" && value.trim()) return value.trim();
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
   if (typeof value === "boolean") return value ? "دارد" : "ندارد";
@@ -112,7 +112,7 @@ function readText(value: unknown) {
     const record = value as Record<string, unknown>;
 
     for (const key of ["name", "title", "label", "value"]) {
-      const nestedText = readText(record[key]);
+      const nestedText: string = readText(record[key]);
       if (nestedText) return nestedText;
     }
   }
@@ -120,7 +120,7 @@ function readText(value: unknown) {
   return "";
 }
 
-function readNestedText(source: Record<string, unknown>, keys: string[]) {
+function readNestedText(source: Record<string, unknown>, keys: string[]): string {
   for (const key of keys) {
     const value = source[key];
     const text = readText(value);
@@ -131,7 +131,7 @@ function readNestedText(source: Record<string, unknown>, keys: string[]) {
   return "";
 }
 
-function readFeatureValue(features: AdvertisementFeature[], labels: string[]) {
+function readFeatureValue(features: AdvertisementFeature[], labels: string[]): unknown {
   const normalizedLabels = labels.map(normalizeLookupText);
   const feature = features.find((item) => {
     const key = item.label ?? item.key ?? "";
@@ -142,7 +142,7 @@ function readFeatureValue(features: AdvertisementFeature[], labels: string[]) {
   return feature?.value;
 }
 
-function readFirstValue(ad: AdvertisementItem, features: AdvertisementFeature[], labels: string[], keys: string[] = labels) {
+function readFirstValue(ad: AdvertisementItem, features: AdvertisementFeature[], labels: string[], keys: string[] = labels): unknown {
   const featureValue = readFeatureValue(features, labels);
 
   if (featureValue !== undefined && featureValue !== null && featureValue !== "") return featureValue;
@@ -156,11 +156,11 @@ function readFirstValue(ad: AdvertisementItem, features: AdvertisementFeature[],
   return undefined;
 }
 
-function readTextValue(ad: AdvertisementItem, features: AdvertisementFeature[], labels: string[], keys: string[] = labels) {
+function readTextValue(ad: AdvertisementItem, features: AdvertisementFeature[], labels: string[], keys: string[] = labels): string {
   return readText(readFirstValue(ad, features, labels, keys));
 }
 
-function readArrayValue(value: unknown) {
+function readArrayValue(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.map((item) => readText(item)).filter(Boolean);
   }
@@ -172,7 +172,7 @@ function readArrayValue(value: unknown) {
     : [];
 }
 
-function toBooleanValue(value: unknown) {
+function toBooleanValue(value: unknown): boolean | null {
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return value > 0;
 
@@ -186,7 +186,7 @@ function toBooleanValue(value: unknown) {
   return null;
 }
 
-function numericInputText(value: unknown) {
+function numericInputText(value: unknown): string {
   const text = readText(value);
 
   if (!text) return "";
@@ -207,7 +207,7 @@ function numericInputText(value: unknown) {
   return String(Math.round(amount));
 }
 
-function selectText(value: unknown) {
+function selectText(value: unknown): string {
   const text = readText(value);
 
   if (!text) return "";
@@ -217,7 +217,7 @@ function selectText(value: unknown) {
   return /^\d+$/.test(normalized) ? toPersianDigits(normalized) : text;
 }
 
-function ageText(value: unknown) {
+function ageText(value: unknown): string {
   const text = selectText(value);
   const normalized = toLatinDigits(text);
 
@@ -228,13 +228,13 @@ function ageText(value: unknown) {
   return text;
 }
 
-function firstText(value: unknown) {
+function firstText(value: unknown): string {
   const values = readArrayValue(value);
 
   return values[0] ?? "";
 }
 
-function idsFromLabels(items: ChipItem[], value: unknown) {
+function idsFromLabels(items: ChipItem[], value: unknown): string[] {
   const selectedLabels = readArrayValue(value).map(normalizeLookupText);
 
   if (!selectedLabels.length) return [];
@@ -249,13 +249,13 @@ function idsFromLabels(items: ChipItem[], value: unknown) {
     .map((item) => item.id);
 }
 
-function readContactTypes(ad: AdvertisementItem) {
+function readContactTypes(ad: AdvertisementItem): string[] {
   const contactTypes = Array.isArray(ad.contact_type) ? ad.contact_type : [];
 
   return contactTypes.map((item) => normalizeLookupText(item));
 }
 
-function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsapp") {
+function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsapp"): string {
   for (const sourceKey of ["contacts", "contact_social", "social"]) {
     const source = ad[sourceKey];
 
@@ -269,7 +269,7 @@ function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsapp") {
   return readText(ad[key]);
 }
 
-function readPublisherName(ad: AdvertisementItem, features: AdvertisementFeature[]) {
+function readPublisherName(ad: AdvertisementItem, features: AdvertisementFeature[]): string {
   return readTextValue(ad, features, ["publisher", "publisher_name", "agency"], [
     "publisher",
     "publisherName",
@@ -298,7 +298,7 @@ function mapProjectDetails(value: unknown): NewAdFormValues["projectDetails"] {
   if (!Array.isArray(value)) return [];
 
   return value
-    .map((item, index) => {
+    .map((item, index): ProjectDetailItem | null => {
       if (!item || typeof item !== "object") return null;
 
       const record = item as Record<string, unknown>;
@@ -314,7 +314,7 @@ function mapProjectDetails(value: unknown): NewAdFormValues["projectDetails"] {
         rooms: readArrayValue(record.rooms),
       };
     })
-    .filter((item): item is NewAdFormValues["projectDetails"][number] => Boolean(item));
+    .filter((item): item is ProjectDetailItem => item !== null);
 }
 
 function mapDailyHotelRooms(value: unknown): NewAdFormValues["dailyHotelRooms"] {

@@ -157,7 +157,17 @@ const badgeCards: BadgeInfo[] = [
   },
 ];
 
-const agencyConsultants = [
+type AgencyConsultant = {
+  avatarClassName: string;
+  id: number;
+  name: string;
+  rank: string;
+  role: string;
+  score: string;
+  src?: string;
+};
+
+const agencyConsultants: AgencyConsultant[] = [
   { id: 1, name: "ناصر اشرفی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#f7c59f] to-[#e6a078]" },
   { id: 2, name: "محمد اسماعیلی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#b6dcc0] to-[#68a987]" },
   { id: 3, name: "علیرضا خراسانی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#d7c1ab] to-[#a87556]" },

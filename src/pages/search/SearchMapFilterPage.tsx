@@ -151,6 +151,13 @@ const initialFilters: FilterState = {
   hasVideo: false,
 };
 
+type AdvertisementFilterPageProps = {
+  applyBasePath?: string;
+  applyButtonLabel?: string;
+  backBasePath?: string;
+  title?: string;
+};
+
 const defaultFilterTransaction: TransactionType = "sale";
 const defaultFilterCategory: CategoryKey = "apartment";
 const categoryKeySet = new Set<CategoryKey>([
@@ -223,7 +230,7 @@ function getSafeReturnToPath() {
   return returnTo;
 }
 
-function getBackToSearchPath() {
+function getBackToSearchPath(backBasePath = "/search") {
   const returnTo = getSafeReturnToPath();
 
   if (returnTo) return returnTo;
@@ -235,7 +242,7 @@ function getBackToSearchPath() {
 
   const queryString = params.toString();
 
-  return queryString ? `/search?${queryString}` : "/search";
+  return queryString ? `${backBasePath}?${queryString}` : backBasePath;
 }
 
 function goBackOrNavigate(fallbackPath: string) {
@@ -429,9 +436,9 @@ function readInitialFiltersFromUrl(): FilterState {
   return nextFilters;
 }
 
-function buildSearchUrl(filters: FilterState) {
+function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
   const returnTo = getSafeReturnToPath();
-  const baseUrl = new URL(returnTo || "/search", window.location.origin);
+  const baseUrl = new URL(returnTo || applyBasePath, window.location.origin);
   const params = returnTo ? baseUrl.searchParams : new URLSearchParams(window.location.search);
   const formCode = filters.category
     ? getAdvertiseFormCode(filters.transaction, filters.category)
@@ -496,7 +503,7 @@ function buildSearchUrl(filters: FilterState) {
   setOrDelete("has_video", filters.hasVideo ? "true" : "");
 
   const queryString = params.toString();
-  const pathname = returnTo ? baseUrl.pathname : "/search";
+  const pathname = returnTo ? baseUrl.pathname : applyBasePath;
 
   return queryString ? `${pathname}?${queryString}` : pathname;
 }
@@ -952,6 +959,15 @@ function getIcon(icon: IconName) {
 }
 
 export function SearchMapFilterPage() {
+  return <AdvertisementFilterPage />;
+}
+
+export function AdvertisementFilterPage({
+  applyBasePath = "/search",
+  applyButtonLabel = "نمایش ۱۲٬۴۰۰ آگهی",
+  backBasePath = "/search",
+  title = "فیلترها",
+}: AdvertisementFilterPageProps) {
   const [filters, setFilters] = useState<FilterState>(readInitialFiltersFromUrl);
   const [categoryPickerInitial, setCategoryPickerInitial] = useState<CategoryKey | undefined>(
     filters.category,
@@ -1060,6 +1076,7 @@ export function SearchMapFilterPage() {
   if (!filters.category) {
     return (
       <CategorySelectionScreen
+        backBasePath={backBasePath}
         initialCategory={categoryPickerInitial}
         initialTransaction={filters.transaction}
         onConfirm={changeCategory}
@@ -1074,11 +1091,11 @@ export function SearchMapFilterPage() {
     >
       <div className="shrink-0 bg-[#f0f0f0]">
         <TopBar
-          backTo={getBackToSearchPath()}
+          backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
           className="bg-[#f0f0f0]"
-          onBack={() => goBackOrNavigate(getBackToSearchPath())}
-          title="فیلترها"
+          onBack={() => goBackOrNavigate(getBackToSearchPath(backBasePath))}
+          title={title}
         />
 
         <div className="border-b-8 border-[#f0f0f0] bg-white px-4 py-3">
@@ -1131,12 +1148,12 @@ export function SearchMapFilterPage() {
           <button
             className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
             onClick={() => {
-              window.history.pushState({}, "", buildSearchUrl(filters));
+              window.history.pushState({}, "", buildSearchUrl(filters, applyBasePath));
               window.dispatchEvent(new PopStateEvent("popstate"));
             }}
             type="button"
           >
-            نمایش ۱۲٬۴۰۰ آگهی
+            {applyButtonLabel}
           </button>
         </div>
       </footer>
@@ -1372,12 +1389,14 @@ function ExchangeIcon() {
 
 
 type CategorySelectionScreenProps = {
+  backBasePath?: string;
   initialCategory?: CategoryKey;
   initialTransaction: TransactionType;
   onConfirm: (transaction: TransactionType, category: CategoryKey) => void;
 };
 
 function CategorySelectionScreen({
+  backBasePath = "/search",
   initialCategory,
   initialTransaction,
   onConfirm,
@@ -1396,10 +1415,10 @@ function CategorySelectionScreen({
     >
       <div className="shrink-0 bg-[#f0f0f0]">
         <TopBar
-          backTo={getBackToSearchPath()}
+          backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
           className="bg-[#f0f0f0]"
-          onBack={() => goBackOrNavigate(getBackToSearchPath())}
+          onBack={() => goBackOrNavigate(getBackToSearchPath(backBasePath))}
           title="انتخاب دسته‌بندی"
         />
 

@@ -28,6 +28,52 @@ export type AuthorizePayload = {
   nationalnumber: string;
 };
 
+export type CreateMyAgencyPayload = {
+  name: string;
+  neighborhood_ids: string[];
+};
+
+export type MyAgencyProfile = {
+  _id?: string;
+  id?: string;
+  name?: string | null;
+  neighborhood_id?: string | null;
+  neighborhood_ids?: string[] | null;
+  user_chat_ids?: string[];
+  logo?: string | null;
+  img?: string | null;
+  status?: number | null;
+  agency_type?: number | null;
+  phone1?: string | null;
+  phone2?: string | null;
+  phone3?: string | null;
+  working_hours?: string | null;
+  address?: string | null;
+  lat?: number | string | null;
+  lng?: number | string | null;
+  location?: unknown;
+  about_us?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type UpdateMyAgencyProfilePayload = {
+  name: string;
+  neighborhood_id?: string | null;
+  neighborhood_ids: string[];
+  phone1?: string | null;
+  phone2?: string | null;
+  phone3?: string | null;
+  working_hours?: string | null;
+  address?: string | null;
+  about_us?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  agency_type?: number | null;
+  logo?: File | null;
+  img?: File | null;
+};
+
 export type WalletPayment = Record<string, unknown> & {
   amount?: number | string;
   created_at?: string;
@@ -186,6 +232,84 @@ export function updateMyProfile(payload: UpdateProfilePayload) {
 
 export function authorizeMe(payload: AuthorizePayload) {
   return api.post("me/authorize", { json: payload }).json<ApiDataResponse<unknown>>();
+}
+
+export function createMyAgency(payload: CreateMyAgencyPayload) {
+  return api
+    .post("me/agency/create", {
+      json: {
+        name: payload.name,
+        neighborhood_ids: payload.neighborhood_ids,
+      },
+    })
+    .json<ApiDataResponse<unknown>>();
+}
+
+function appendAgencyFormValue(formData: FormData, key: string, value: string | number | null | undefined) {
+  if (value === null || value === undefined || value === "") return;
+
+  formData.append(key, String(value));
+}
+
+function unwrapMyAgencyProfile(
+  response:
+    | ApiDataResponse<MyAgencyProfile>
+    | { agency?: MyAgencyProfile; status?: boolean }
+    | MyAgencyProfile,
+) {
+  const record = response as Record<string, unknown>;
+
+  if (record.agency && typeof record.agency === "object") {
+    return record.agency as MyAgencyProfile;
+  }
+
+  if (record.data && typeof record.data === "object") {
+    return record.data as MyAgencyProfile;
+  }
+
+  return response as MyAgencyProfile;
+}
+
+export async function getMyAgencyProfile() {
+  const response = await api.get("me/agency/show").json<
+    | ApiDataResponse<MyAgencyProfile>
+    | { agency?: MyAgencyProfile; status?: boolean }
+    | MyAgencyProfile
+  >();
+
+  return unwrapMyAgencyProfile(response);
+}
+
+export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayload) {
+  const formData = new FormData();
+
+  appendAgencyFormValue(formData, "name", payload.name);
+  appendAgencyFormValue(formData, "neighborhood_id", payload.neighborhood_id);
+
+  payload.neighborhood_ids.forEach((neighborhoodId) => {
+    if (neighborhoodId) formData.append("neighborhood_ids", neighborhoodId);
+  });
+
+  appendAgencyFormValue(formData, "phone1", payload.phone1);
+  appendAgencyFormValue(formData, "phone2", payload.phone2);
+  appendAgencyFormValue(formData, "phone3", payload.phone3);
+  appendAgencyFormValue(formData, "working_hours", payload.working_hours);
+  appendAgencyFormValue(formData, "address", payload.address);
+  appendAgencyFormValue(formData, "about_us", payload.about_us);
+  appendAgencyFormValue(formData, "lat", payload.lat);
+  appendAgencyFormValue(formData, "lng", payload.lng);
+  appendAgencyFormValue(formData, "agency_type", payload.agency_type);
+
+  if (payload.logo) formData.append("logo", payload.logo);
+  if (payload.img) formData.append("img", payload.img);
+
+  const response = await api.post("me/agency/update/profile", { body: formData }).json<
+    | ApiDataResponse<MyAgencyProfile>
+    | { agency?: MyAgencyProfile; status?: boolean }
+    | MyAgencyProfile
+  >();
+
+  return unwrapMyAgencyProfile(response);
 }
 
 export async function getWalletPayments(): Promise<WalletPaymentsResult> {

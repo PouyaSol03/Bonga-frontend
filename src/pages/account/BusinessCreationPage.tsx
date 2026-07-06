@@ -1,7 +1,9 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
+import { getApiErrorMessage } from "../../api/api";
 import { BottomSheet } from "../../components/BottomSheet";
+import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
 import { SelectBox } from "../newAd/components/NewAdControls";
 import { getStoredAuthSession, setStoredAuthSession, type AuthRole, type AuthRoleSlug } from "../../auth/auth-storage";
@@ -10,12 +12,19 @@ import {
   REAL_ESTATE_MANAGER,
   USER,
 } from "../../constants/roles.constants";
+import { useCreateMyAgencyMutation } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 
 export type BusinessType = "agency" | "independent-consultant";
+
+type BusinessToast = {
+  message: string;
+  title: string;
+  variant: SnackbarVariant;
+};
 
 type InfoCard = {
   bullets: string[];
@@ -317,10 +326,77 @@ export function BusinessCreationPage() {
 }
 
 export function AgencyBusinessCreationPage() {
+  const [agencyName, setAgencyName] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<NeighborhoodDto[]>([]);
+  const [toast, setToast] = useState<BusinessToast | null>(null);
+  const createAgencyMutation = useCreateMyAgencyMutation();
+  const neighborhoodIds = useMemo(
+    () => selectedNeighborhoods.map(getNeighborhoodId).filter(Boolean),
+    [selectedNeighborhoods],
+  );
+  const trimmedAgencyName = agencyName.trim();
+  const agencyNameError =
+    hasSubmitted && !trimmedAgencyName ? "نام آژانس املاک الزامی است." : null;
+  const neighborhoodsError =
+    hasSubmitted && neighborhoodIds.length === 0 ? "انتخاب محدوده فعالیت الزامی است." : null;
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (message: string, title = "خطا", variant: SnackbarVariant = "error") => {
+    setToast({ message, title, variant });
+  };
+
+  const handleSubmitAgency = async () => {
+    setHasSubmitted(true);
+    createAgencyMutation.reset();
+
+    const validationError = !trimmedAgencyName
+      ? "نام آژانس املاک الزامی است."
+      : neighborhoodIds.length === 0
+        ? "انتخاب محدوده فعالیت الزامی است."
+        : null;
+
+    if (validationError) {
+      showToast(validationError);
+      return false;
+    }
+
+    try {
+      await createAgencyMutation.mutateAsync({
+        name: trimmedAgencyName,
+        neighborhood_ids: neighborhoodIds,
+      });
+
+      return true;
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "ایجاد کسب و کار با خطا مواجه شد."));
+      return false;
+    }
+  };
+
   return (
     <BusinessFormPage
       businessType="agency"
-      fields={<AgencyFields />}
+      fields={
+        <AgencyFields
+          agencyName={agencyName}
+          agencyNameError={agencyNameError}
+          neighborhoodsError={neighborhoodsError}
+          selectedNeighborhoods={selectedNeighborhoods}
+          setAgencyName={setAgencyName}
+          setSelectedNeighborhoods={setSelectedNeighborhoods}
+        />
+      }
+      isSubmitting={createAgencyMutation.isPending}
+      onDismissToast={() => setToast(null)}
+      onSubmit={handleSubmitAgency}
+      toast={toast}
     />
   );
 }
@@ -363,13 +439,27 @@ export function IndependentConsultantBusinessCreationPage() {
 function BusinessFormPage({
   businessType,
   fields,
+  isSubmitting = false,
+  onDismissToast,
+  onSubmit,
+  toast,
 }: {
   businessType: BusinessType;
   fields: ReactNode;
+  isSubmitting?: boolean;
+  onDismissToast?: () => void;
+  onSubmit?: () => boolean | Promise<boolean>;
+  toast?: BusinessToast | null;
 }) {
   const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+
+    const canContinue = onSubmit ? await onSubmit() : true;
+
+    if (!canContinue) return;
+
     markBusinessCreated(businessType);
     navigateTo("/account?businessSuccess=1", { businessSuccess: true, businessType });
   };
@@ -387,11 +477,12 @@ function BusinessFormPage({
             <span>مرحله قبل</span>
           </button>
           <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef]"
+            disabled={isSubmitting}
             onClick={handleSubmit}
             type="button"
           >
-            <span>ثبت نام</span>
+            <span>{isSubmitting ? "در حال ثبت..." : "ایجاد کسب و کار"}</span>
             <CheckIcon />
           </button>
         </div>
@@ -421,15 +512,37 @@ function BusinessFormPage({
           </p>
         </div>
       </form>
+
+      {toast && onDismissToast ? (
+        <Snackbar
+          className="top-[72px]"
+          message={toast.message}
+          onDismiss={onDismissToast}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
     </BusinessCreationShell>
   );
 }
 
-function AgencyFields() {
-  const [agencyName, setAgencyName] = useState("");
+function AgencyFields({
+  agencyName,
+  agencyNameError,
+  neighborhoodsError,
+  selectedNeighborhoods,
+  setAgencyName,
+  setSelectedNeighborhoods,
+}: {
+  agencyName: string;
+  agencyNameError?: string | null;
+  neighborhoodsError?: string | null;
+  selectedNeighborhoods: NeighborhoodDto[];
+  setAgencyName: (value: string) => void;
+  setSelectedNeighborhoods: Dispatch<SetStateAction<NeighborhoodDto[]>>;
+}) {
   const [isNeighborhoodSheetOpen, setIsNeighborhoodSheetOpen] = useState(false);
   const [neighborhoodQuery, setNeighborhoodQuery] = useState("");
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<NeighborhoodDto[]>([]);
 
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
@@ -472,11 +585,17 @@ function AgencyFields() {
       <div>
         <RequiredLabel>نام آژانس املاک</RequiredLabel>
         <input
-          className="mt-2 h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
+          aria-invalid={Boolean(agencyNameError)}
+          className={`mt-2 h-14 w-full rounded-xl border bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] ${agencyNameError ? "border-[#c11004]" : "border-[#cccccc]"}`}
           onChange={(event) => setAgencyName(event.target.value)}
           placeholder="مثال: املاک نوروزیان"
           value={agencyName}
         />
+        {agencyNameError ? (
+          <p className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+            {agencyNameError}
+          </p>
+        ) : null}
       </div>
 
       <div>
@@ -489,6 +608,11 @@ function AgencyFields() {
             value={selectedNeighborhoodValue}
           />
         </div>
+        {neighborhoodsError ? (
+          <p className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+            {neighborhoodsError}
+          </p>
+        ) : null}
       </div>
 
       <BottomSheet

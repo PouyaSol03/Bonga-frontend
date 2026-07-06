@@ -4,16 +4,19 @@ import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
   authorizeMe,
+  createMyAgency,
   deleteAdvertiseBadge,
   deleteAdvertiseNote,
   getAdvertiseBadges,
   getMyAds,
+  getMyAgencyProfile,
   getMyBadges,
   getMyNotes,
   getMyProfile,
   getWalletPayments,
   saveAdvertiseNote,
   toggleAdvertiseBadge,
+  updateMyAgencyProfile,
   updateMyProfile,
   type AdvertiseBadgesPage,
   type MyAdsPage,
@@ -39,12 +42,45 @@ export function useUpdateMyProfileMutation() {
   });
 }
 
+export function useMyAgencyProfileQuery({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({
+    enabled,
+    queryFn: getMyAgencyProfile,
+    queryKey: queryKeys.account.agencyProfile(),
+  });
+}
+
+export function useUpdateMyAgencyProfileMutation() {
+  return useMutation({
+    mutationFn: updateMyAgencyProfile,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.agencyProfile(),
+      });
+    },
+  });
+}
+
 export function useAuthorizeMeMutation() {
   return useMutation({
     mutationFn: authorizeMe,
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.profile(),
+      });
+    },
+  });
+}
+
+export function useCreateMyAgencyMutation() {
+  return useMutation({
+    mutationFn: createMyAgency,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.profile(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.agencyProfile(),
       });
     },
   });

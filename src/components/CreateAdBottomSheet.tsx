@@ -1,4 +1,5 @@
 import { getUserRole } from "../lib/getUserRole";
+import { useMyAgencyProfileQuery } from "../hooks/account.hooks";
 import { BottomSheet } from "./BottomSheet";
 
 type CreateAdOption = {
@@ -29,8 +30,8 @@ const createAdOptions: CreateAdOption[] = [
   },
   {
     id: "jaliliyan-agency",
-    title: "مشاور آژانس جلیلیان",
-    description: "انتشار آگهی در صفحه مشاور آژانس جلیلیان",
+    title: "مشاور آژانس",
+    description: "انتشار آگهی در صفحه مشاور آژانس",
     icon: "agency",
   },
 ];
@@ -72,6 +73,12 @@ export function CreateAdBottomSheet({
 }: CreateAdBottomSheetProps) {
 
   const userRole = getUserRole();
+  const shouldFetchAgency =
+    userRole === "real_estate_consultant" || userRole === "real_estate_manager";
+  const { data: agencyProfile } = useMyAgencyProfileQuery({
+    enabled: isOpen && shouldFetchAgency,
+  });
+  const agencyName = agencyProfile?.name?.trim() ?? "";
 
   const filteredOptions = createAdOptions.filter((option) => {
     switch (userRole) {
@@ -90,6 +97,18 @@ export function CreateAdBottomSheet({
     }
   });
 
+  const getOptionCopy = (option: CreateAdOption) => {
+    if (option.id !== "jaliliyan-agency") return option;
+
+    return {
+      ...option,
+      description: agencyName
+        ? `انتشار آگهی در صفحه مشاور آژانس ${agencyName}`
+        : option.description,
+      title: agencyName ? `مشاور آژانس ${agencyName}` : option.title,
+    };
+  };
+
   return (
     <BottomSheet
       ariaLabel="ثبت آگهی"
@@ -100,12 +119,15 @@ export function CreateAdBottomSheet({
       title="ثبت آگهی"
       zIndexClassName="z-2000"
     >
-      {filteredOptions.map((option) => (
+      {filteredOptions.map((option) => {
+        const optionCopy = getOptionCopy(option);
+
+        return (
         <button
           key={option.id}
           type="button"
           tabIndex={isOpen ? 0 : -1}
-          onClick={() => onSelect?.(option)}
+          onClick={() => onSelect?.(optionCopy)}
           className="flex w-full items-center gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
         >
           <span className="shrink-0 text-[#4d4d4d]">
@@ -116,11 +138,11 @@ export function CreateAdBottomSheet({
 
           <span className="min-w-0 flex-1">
             <span className="block text-base font-normal leading-6 text-[#1a1a1a]">
-              {option.title}
+              {optionCopy.title}
             </span>
 
             <span className="mt-0.5 block text-sm font-normal leading-5 text-[#808080]">
-              {option.description}
+              {optionCopy.description}
             </span>
           </span>
 
@@ -130,7 +152,8 @@ export function CreateAdBottomSheet({
             </span>
           </span>
         </button>
-      ))}
+        );
+      })}
     </BottomSheet>
   );
 }

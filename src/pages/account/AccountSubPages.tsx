@@ -38,6 +38,7 @@ import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 import { getMyAdStatusInfo } from "./myAdsStatus";
+import { RequestManagementView } from "../requests/RequestManagementView";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -978,54 +979,7 @@ export function AccountIdentityPage() {
 }
 
 export function AccountRequestsPage() {
-  const [activeTab, setActiveTab] = useState<"requests" | "results">("requests");
-  const [requestIds, setRequestIds] = useState([1, 2, 3, 4]);
-  const isRequestsLoading = false;
-
-  return (
-    <AccountPageShell title="درخواست‌ها">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <section className="bg-[#f0f0f0] px-4 py-2">
-          <div className="grid h-10 grid-cols-2 overflow-hidden rounded-2xl border border-[#808080] bg-white [direction:ltr]">
-            {[
-              { id: "results", label: "نتایج" },
-              { id: "requests", label: "درخواست‌ها" },
-            ].map((item) => {
-              const isActive = activeTab === item.id;
-
-              return (
-                <button
-                  className={`text-base font-medium leading-6 ${isActive ? "bg-[#0048c414] text-[#002099]" : "bg-white text-[#4d4d4d]"
-                    }`}
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id as "requests" | "results")}
-                  type="button"
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {activeTab === "requests" ? (
-          <div className="space-y-2 bg-[#f0f0f0] pt-2">
-            {isRequestsLoading ? <AccountRequestsSkeleton /> : null}
-            {!isRequestsLoading && requestIds.map((id) => (
-              <RequestCard key={id} onCancel={() => setRequestIds((items) => items.filter((item) => item !== id))} />
-            ))}
-            {!isRequestsLoading && requestIds.length === 0 ? <EmptyMessage text="درخواستی باقی نمانده است" /> : null}
-          </div>
-        ) : (
-          <div className="space-y-2 bg-[#f0f0f0] pt-2">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} key={index} />
-            ))}
-          </div>
-        )}
-      </main>
-    </AccountPageShell>
-  );
+  return <RequestManagementView backTo="/account" />;
 }
 
 export function AccountAboutPage() {
@@ -1401,46 +1355,6 @@ function AboutSection({
   );
 }
 
-function RequestCard({ onCancel }: { onCancel: () => void }) {
-  const details = [
-    "قیمت 3 میلیارد تومان",
-    "محله صیاد شیرازی",
-    "سال ساخت نوساز",
-    "متراژ از 100متر تا 200 متر",
-    "دو خوابه",
-  ];
-
-  return (
-    <article className="bg-white px-4 py-4 text-right">
-      <div className="flex items-center justify-between gap-3 [direction:ltr]">
-        <button
-          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[10px] px-3 text-sm font-medium leading-5 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
-          onClick={onCancel}
-          type="button"
-        >
-          <CancelIcon className="h-5 w-5" />
-          <span>لغو درخواست</span>
-        </button>
-
-        <h2 className="m-0 min-w-0 flex-1 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
-          فروش آپارتمان
-        </h2>
-      </div>
-
-      <div className="mt-4 flex flex-wrap justify-end gap-2">
-        {details.map((detail) => (
-          <span
-            className="rounded-lg bg-[#f5f5f5] px-3 py-2 text-sm font-semibold leading-5 text-[#1a1a1a]"
-            key={detail}
-          >
-            {detail}
-          </span>
-        ))}
-      </div>
-    </article>
-  );
-}
-
 function IdentityPendingState({
   isPending,
   showRequiredNotice = false,
@@ -1648,26 +1562,6 @@ function AccountNotesSkeleton({ count = 3 }: { count?: number }) {
   );
 }
 
-function AccountRequestsSkeleton({ count = 3 }: { count?: number }) {
-  return (
-    <>
-      {Array.from({ length: count }).map((_, index) => (
-        <article className="bg-white px-4 py-4" key={index}>
-          <div className="flex items-center justify-between gap-3 [direction:ltr]">
-            <AccountSkeletonBlock className="h-10 w-28" />
-            <AccountSkeletonBlock className="h-5 w-40" />
-          </div>
-          <div className="mt-4 flex flex-wrap justify-end gap-2">
-            {Array.from({ length: 5 }).map((__, itemIndex) => (
-              <AccountSkeletonBlock className="h-9 w-24" key={itemIndex} />
-            ))}
-          </div>
-        </article>
-      ))}
-    </>
-  );
-}
-
 function AccountRetryState({
   error,
   message,
@@ -1854,15 +1748,6 @@ function MapIcon({ className = "" }: { className?: string }) {
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
       <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
       <path d="M9 3v15M15 6v15" />
-    </svg>
-  );
-}
-
-function CancelIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="8" />
-      <path d="m9 9 6 6M15 9l-6 6" />
     </svg>
   );
 }

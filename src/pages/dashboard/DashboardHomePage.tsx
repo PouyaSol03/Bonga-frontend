@@ -1,4 +1,3 @@
-import LinearClock from "../../components/(icons)/LinearClock";
 import { DashboardHomeOverview } from "../../components/dashboard/home/DashboardHomeOverview";
 import {
   AddConsultantPage,
@@ -11,13 +10,23 @@ import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import { AgencyProfilePage } from "./AgencyProfilePage";
 import DashboardChatPage from "./DashboardChatPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
+import { RequestManagementView } from "../requests/RequestManagementView";
 
 export function DashboardHomePage() {
   return <DashboardHomeOverview />;
 }
 
 export function DashboardRequestsPage() {
-  return <DashboardComingSoonPage title="مدیریت درخواست‌ها" />;
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+
+  return (
+    <RequestManagementView
+      backTo="/account/dashboard"
+      showReceivedTab={activeRole === REAL_ESTATE_MANAGER}
+    />
+  );
 }
 
 export function DashboardTeamPage() {
@@ -55,20 +64,4 @@ export function DashboardAgencyPage() {
 
 export function DashboardMessagesPage() {
   return <DashboardChatPage />;
-}
-
-function DashboardComingSoonPage({ title }: { title: string }) {
-  return (
-    <section className="grid h-full min-h-[360px] place-items-center rounded-xl bg-white p-6 text-center">
-      <div className="grid max-w-[360px] gap-3">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]">
-          <LinearClock className="h-7 w-7" />
-        </span>
-        <h1 className="m-0 text-xl font-black text-[#111111]">{title}</h1>
-        <p className="m-0 text-sm font-medium leading-6 text-[#666666]">
-          این بخش به‌زودی آماده می‌شود.
-        </p>
-      </div>
-    </section>
-  );
 }

@@ -5,7 +5,7 @@ import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
 import LinearNotification from '../components/(icons)/LinearNotification'
-import { TopBar } from '../components/TopBar'
+import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
 import { USER } from '../constants/roles.constants'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
 import { useMyProfileQuery } from '../hooks/account.hooks'
@@ -231,7 +231,7 @@ type AppChromeConfig = {
   bottomNavigationKey?: string
   contentClassName?: string
   frameClassName?: string
-  header?: ReactNode
+  topBar?: TopBarProps
   wrapInShell: boolean
 }
 
@@ -268,26 +268,62 @@ function getBottomNavigationKey(path: string) {
   return undefined
 }
 
-function getRouteHeader(path: string, title: string) {
+function getAccountFallbackBackTo(path: string) {
+  if (path === '/account') return '/home'
+  if (path === '/account/wallet/history') return '/account/wallet'
+  if (path.startsWith('/account/ranking/badges')) return '/account/ranking'
+  if (path === '/account/ranking/levels') return '/account/ranking'
+  if (path === '/account/credit/history') return '/account/credit/panel'
+  if (path.startsWith('/account/credit/')) return '/account'
+  if (path === '/account/ad-management/statistics/details') return '/account/ad-management/statistics'
+  if (path.startsWith('/account/ad-management/')) return '/account/ad-management'
+
+  const myAdActionMatch = path.match(/^\/account\/my-ads\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/)
+
+  if (myAdActionMatch?.[1] && myAdActionMatch[2] !== 'state-ad') {
+    return `/account/my-ads/${myAdActionMatch[1]}/state-ad`
+  }
+
+  if (myAdActionMatch?.[2] === 'state-ad') return '/account/my-ads'
+
+  if (path.startsWith('/account/dashboard/')) {
+    const dashboardSection = path.split('/')[3]
+
+    if (dashboardSection) return `/account/dashboard/${dashboardSection}`
+
+    return '/account/dashboard'
+  }
+
+  if (path === '/account/dashboard') return '/account'
+
+  return '/account'
+}
+
+function getRouteTopBar(path: string, title: string): TopBarProps | undefined {
   if (path === '/login') {
-    return <TopBar showBack={false} title={title} />
+    return { showBack: false, title }
   }
 
   if (path === '/account/dashboard') {
-    return (
-      <TopBar
-        actions={[
-          {
-            icon: <NotificationTopBarIcon />,
-            id: "notifications",
-            label: "اعلان‌ها",
-            to: "/notifications",
-          },
-        ]}
-        backTo="/account"
-        title={title}
-      />
-    )
+    return {
+      actions: [
+        {
+          icon: <NotificationTopBarIcon />,
+          id: 'notifications',
+          label: 'اعلان‌ها',
+          to: '/notifications',
+        },
+      ],
+      backTo: '/account',
+      title,
+    }
+  }
+
+  if (path === '/account' || path.startsWith('/account/')) {
+    return {
+      backTo: getAccountFallbackBackTo(path),
+      title,
+    }
   }
 
   return undefined
@@ -295,14 +331,14 @@ function getRouteHeader(path: string, title: string) {
 
 function getAppChromeConfig(path: string, title: string): AppChromeConfig {
   const bottomNavigationKey = getBottomNavigationKey(path)
-  const header = getRouteHeader(path, title)
+  const topBar = getRouteTopBar(path, title)
 
   if (!bottomNavigationKey) {
-    return header
+    return topBar
       ? {
           contentClassName: 'min-h-0 flex-1 overflow-hidden',
           frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
-          header,
+          topBar,
           wrapInShell: true,
         }
       : { wrapInShell: false }
@@ -321,7 +357,7 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
       bottomNavigationKey,
       contentClassName: 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden',
       frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
-      header,
+      topBar,
       wrapInShell: true,
     }
   }
@@ -330,7 +366,7 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
     bottomNavigationKey,
     contentClassName: 'min-h-0 flex-1 overflow-hidden',
     frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]',
-    header,
+    topBar,
     wrapInShell: true,
   }
 }
@@ -494,10 +530,17 @@ export function AppRouter() {
         className={chromeConfig.frameClassName}
         variant="flush"
       >
-        {chromeConfig.header}
-        <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
-          {page}
-        </div>
+        {chromeConfig.topBar ? (
+          <TopBarLayoutProvider key={path} defaultTopBar={chromeConfig.topBar}>
+            <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
+              {page}
+            </div>
+          </TopBarLayoutProvider>
+        ) : (
+          <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
+            {page}
+          </div>
+        )}
         {chromeConfig.bottomNavigationKey ? (
           <BottomNavigation activeKey={chromeConfig.bottomNavigationKey} />
         ) : null}

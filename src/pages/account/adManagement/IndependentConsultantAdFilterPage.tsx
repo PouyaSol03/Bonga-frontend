@@ -654,6 +654,7 @@ function PublisherSelectField({
           role="dialog"
         >
           <TopBar
+            placement="inline"
             centerClassName="px-0"
             centerSlot={
               <h2 className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">

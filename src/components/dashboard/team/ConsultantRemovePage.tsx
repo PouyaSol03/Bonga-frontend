@@ -156,6 +156,7 @@ function ReplacementPicker({
       role="dialog"
     >
       <TopBar
+        placement="inline"
         centerClassName="px-0"
         onBack={onClose}
         reserveStartSpace

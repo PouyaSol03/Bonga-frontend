@@ -345,6 +345,7 @@ function ConsultantPickerPage({
       role="dialog"
     >
       <TopBar
+        placement="inline"
         centerClassName="px-0"
         className="bg-[#f0f0f0]"
         onBack={onClose}

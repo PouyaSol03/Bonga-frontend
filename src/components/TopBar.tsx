@@ -1,5 +1,13 @@
-import type { ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
+import { getStoredBackTarget, pushRoute } from "../routes/navigation";
 import { RouteLink } from "../routes/RouteLink";
 import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
 
@@ -18,7 +26,7 @@ type TopBarSearch = {
   savedCount?: number;
 };
 
-type TopBarProps = {
+export type TopBarProps = {
   actions?: TopBarAction[];
   backIconDirection?: "left" | "right";
   backLabel?: string;
@@ -30,6 +38,7 @@ type TopBarProps = {
   contentClassName?: string;
   heightClassName?: string;
   onBack?: () => void;
+  placement?: "layout" | "inline";
   reserveEndSpace?: boolean;
   reserveStartSpace?: boolean;
   search?: TopBarSearch;
@@ -38,6 +47,14 @@ type TopBarProps = {
   title?: string;
   titleClassName?: string;
 };
+
+type LayoutTopBarProps = Omit<TopBarProps, "placement">;
+
+type TopBarLayoutContextValue = {
+  setTopBar: (props: LayoutTopBarProps | null) => void;
+};
+
+const TopBarLayoutContext = createContext<TopBarLayoutContextValue | null>(null);
 
 function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" }) {
   const path =
@@ -102,9 +119,15 @@ function TopBarBackButton({
           return;
         }
 
+        const storedBackTarget = getStoredBackTarget();
+
+        if (storedBackTarget) {
+          pushRoute(storedBackTarget.backTo, storedBackTarget.backState ?? backState, { rememberCurrent: false });
+          return;
+        }
+
         if (backTo) {
-          window.history.pushState(backState ?? {}, "", backTo);
-          window.dispatchEvent(new PopStateEvent("popstate"));
+          pushRoute(backTo, backState, { rememberCurrent: false });
           return;
         }
 
@@ -139,7 +162,7 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
   );
 }
 
-export function TopBar({
+function TopBarView({
   actions = [],
   backIconDirection = "right",
   backLabel,
@@ -158,9 +181,9 @@ export function TopBar({
   startSlot,
   title,
   titleClassName = "text-base font-semibold leading-6",
-}: TopBarProps) {
+}: LayoutTopBarProps) {
   const hasStartSlot = startSlot !== undefined || actions.length > 0;
-  const hasBack = showBack && (backTo || onBack);
+  const hasBack = showBack && (backTo || onBack || getStoredBackTarget());
 
   return (
     <header
@@ -204,5 +227,67 @@ export function TopBar({
         ) : null}
       </div>
     </header>
+  );
+}
+
+export function TopBar({ placement = "layout", ...props }: TopBarProps) {
+  const layoutContext = useContext(TopBarLayoutContext);
+  const shouldUseLayout = Boolean(layoutContext && placement === "layout");
+
+  useLayoutEffect(() => {
+    if (!shouldUseLayout || !layoutContext) return;
+
+    layoutContext.setTopBar(props);
+
+    return () => layoutContext.setTopBar(null);
+  }, [
+    layoutContext,
+    shouldUseLayout,
+    props.actions,
+    props.backIconDirection,
+    props.backLabel,
+    props.backState,
+    props.backTo,
+    props.centerClassName,
+    props.centerSlot,
+    props.className,
+    props.contentClassName,
+    props.heightClassName,
+    props.onBack,
+    props.reserveEndSpace,
+    props.reserveStartSpace,
+    props.search,
+    props.showBack,
+    props.startSlot,
+    props.title,
+    props.titleClassName,
+  ]);
+
+  if (shouldUseLayout) {
+    return null;
+  }
+
+  return <TopBarView {...props} />;
+}
+
+export function TopBarLayoutProvider({
+  children,
+  defaultTopBar,
+}: {
+  children: ReactNode;
+  defaultTopBar: LayoutTopBarProps;
+}) {
+  const [registeredTopBar, setRegisteredTopBar] = useState<LayoutTopBarProps | null>(null);
+  const contextValue = useMemo<TopBarLayoutContextValue>(
+    () => ({ setTopBar: setRegisteredTopBar }),
+    [],
+  );
+  const topBar = registeredTopBar ?? defaultTopBar;
+
+  return (
+    <TopBarLayoutContext.Provider value={contextValue}>
+      <TopBarView {...topBar} />
+      {children}
+    </TopBarLayoutContext.Provider>
   );
 }

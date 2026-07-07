@@ -1,9 +1,11 @@
-﻿import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import Linear3d from "../../components/(icons)/Linear3d";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
+import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
 import LinearDelete from "../../components/(icons)/LinearDelete";
+import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearImage from "../../components/(icons)/LinearImage";
 import LinearRefresh from "../../components/(icons)/LinearRefresh";
 import LinearVideo from "../../components/(icons)/LinearVideo";
@@ -11,6 +13,7 @@ import { BottomSheet } from "../../components/BottomSheet";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { TopBar } from "../../components/TopBar";
 import { AdCard, type AdCardData } from "../../components/AdCard";
+import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 
 type RequestManagementTab = "received" | "requests" | "results";
 type RequestFilterId = "all" | "apartment-naser" | "request-1" | "request-2" | "request-3" | "request-4";
@@ -37,6 +40,12 @@ type CriteriaRequest = {
   details: string[];
 };
 
+type RequestToast = {
+  message: string;
+  title: string;
+  variant: SnackbarVariant;
+};
+
 const requestFilterOptions: RequestFilterOption[] = [
   { id: "all", label: "همه" },
   { id: "apartment-naser", label: "فروش آپارتمان ناصر" },
@@ -52,26 +61,21 @@ const defaultFilters: Record<RequestManagementTab, RequestFilterId> = {
   results: "all",
 };
 
-const criteriaRequests: CriteriaRequest[] = [
+const initialCriteriaRequests: CriteriaRequest[] = [
   {
     id: 1,
-    title: "فروش آپارتمان",
-    details: ["قیمت ۳ میلیارد تومان", "محله صیاد شیرازی", "سال ساخت نوساز", "متراژ از ۱۰۰متر تا ۲۰۰ متر", "دو خوابه"],
+    title: "خرید آپارتمان اشرفی",
+    details: ["فروش آپارتمان", "محله صیاد شیرازی", "سال ساخت نوساز", "قیمت ۳ میلیارد تومان", "دو خوابه", "متراژ از ۱۰۰متر تا ۲۰۰ متر"],
   },
   {
     id: 2,
-    title: "اجاره آپارتمان",
-    details: ["رهن کامل", "محله الهیه", "متراژ از ۸۰متر تا ۱۴۰ متر", "۲ اتاق", "آسانسور"],
+    title: "درخواست ۲",
+    details: ["فروش آپارتمان", "محله صیاد شیرازی", "سال ساخت نوساز", "قیمت ۳ میلیارد تومان", "دو خوابه", "متراژ از ۱۰۰متر تا ۲۰۰ متر"],
   },
   {
     id: 3,
-    title: "خرید خانه ویلایی",
-    details: ["تا ۸ میلیارد تومان", "محله هاشمیه", "حداقل ۲۵۰ متر", "۳ اتاق", "حیاط‌دار"],
-  },
-  {
-    id: 4,
-    title: "فروش زمین",
-    details: ["بالای ۳۰۰ متر", "سنددار", "دسترسی اصلی", "کاربری مسکونی", "قابل معاوضه"],
+    title: "درخواست ۳",
+    details: ["فروش آپارتمان", "محله صیاد شیرازی", "سال ساخت نوساز", "قیمت ۳ میلیارد تومان", "دو خوابه", "متراژ از ۱۰۰متر تا ۲۰۰ متر"],
   },
 ];
 
@@ -188,8 +192,8 @@ function getFilteredAds(tab: RequestManagementTab, filterId: RequestFilterId) {
   return [source[index % source.length]];
 }
 
-function getFilteredCriteriaRequests(filterId: RequestFilterId, requestIds: number[]) {
-  const source = criteriaRequests.filter((request) => requestIds.includes(request.id));
+function getFilteredCriteriaRequests(filterId: RequestFilterId, requestIds: number[], requests: CriteriaRequest[]) {
+  const source = requests.filter((request) => requestIds.includes(request.id));
 
   if (filterId === "all") return source;
   if (filterId === "apartment-naser") return source.slice(0, 1);
@@ -208,18 +212,62 @@ export function RequestManagementView({ backTo, showReceivedTab = false }: Reque
   const [activeTab, setActiveTab] = useState<RequestManagementTab>(showReceivedTab ? "received" : "requests");
   const [filters, setFilters] = useState<Record<RequestManagementTab, RequestFilterId>>(defaultFilters);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [requestIds, setRequestIds] = useState([1, 2, 3, 4]);
+  const [criteriaItems, setCriteriaItems] = useState<CriteriaRequest[]>(initialCriteriaRequests);
+  const [requestIds, setRequestIds] = useState([1, 2, 3]);
+  const [editingRequestId, setEditingRequestId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [toast, setToast] = useState<RequestToast | null>(null);
   const tabs = useMemo(() => getTabs(showReceivedTab), [showReceivedTab]);
   const activeFilterId = filters[activeTab];
   const activeFilterLabel = getFilterLabel(activeFilterId);
+  const editingRequest = criteriaItems.find((request) => request.id === editingRequestId) ?? null;
   const filteredRequests = useMemo(
-    () => getFilteredCriteriaRequests(activeFilterId, requestIds),
-    [activeFilterId, requestIds],
+    () => getFilteredCriteriaRequests(activeFilterId, requestIds, criteriaItems),
+    [activeFilterId, criteriaItems, requestIds],
   );
   const filteredAds = useMemo(
     () => getFilteredAds(activeTab, activeFilterId),
     [activeFilterId, activeTab],
   );
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (message: string, title = "موفق", variant: SnackbarVariant = "success") => {
+    setToast({ message, title, variant });
+  };
+
+  const openEditSheet = (request: CriteriaRequest) => {
+    setEditingRequestId(request.id);
+    setEditTitle(request.title);
+  };
+
+  const closeEditSheet = () => {
+    setEditingRequestId(null);
+    setEditTitle("");
+  };
+
+  const confirmEdit = () => {
+    const nextTitle = editTitle.trim();
+
+    if (!editingRequest || !nextTitle) {
+      showToast("عنوان درخواست را وارد کنید.", "خطا", "error");
+      return;
+    }
+
+    setCriteriaItems((items) =>
+      items.map((item) =>
+        item.id === editingRequest.id ? { ...item, title: nextTitle } : item,
+      ),
+    );
+    closeEditSheet();
+    showToast("درخواست با موفقیت ویرایش شد.");
+  };
 
   return (
     <PageFrame
@@ -244,17 +292,20 @@ export function RequestManagementView({ backTo, showReceivedTab = false }: Reque
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-6">
         <RequestTabs activeTab={activeTab} onChange={setActiveTab} tabs={tabs} />
 
-        <section className="px-4 pt-3">
-          <RequestFilterButton label={activeFilterLabel} onClick={() => setIsFilterSheetOpen(true)} />
-        </section>
+        {activeTab !== "requests" ? (
+          <section className="px-4 pt-3">
+            <RequestFilterButton label={activeFilterLabel} onClick={() => setIsFilterSheetOpen(true)} />
+          </section>
+        ) : null}
 
         {activeTab === "requests" ? (
-          <div className="space-y-2 bg-[#f0f0f0] pt-4">
+          <div className="space-y-1.5 bg-[#f0f0f0] pt-3">
             {filteredRequests.map((request) => (
               <CriteriaRequestCard
                 key={request.id}
                 request={request}
                 onCancel={() => setRequestIds((items) => items.filter((item) => item !== request.id))}
+                onEdit={() => openEditSheet(request)}
               />
             ))}
             {filteredRequests.length === 0 ? <EmptyRequestState text="درخواستی باقی نمانده است" /> : null}
@@ -268,6 +319,14 @@ export function RequestManagementView({ backTo, showReceivedTab = false }: Reque
         )}
       </main>
 
+      <RequestEditBottomSheet
+        isOpen={Boolean(editingRequest)}
+        onClose={closeEditSheet}
+        onConfirm={confirmEdit}
+        onValueChange={setEditTitle}
+        value={editTitle}
+      />
+
       <RequestFilterBottomSheet
         activeFilterId={activeFilterId}
         isOpen={isFilterSheetOpen}
@@ -277,6 +336,16 @@ export function RequestManagementView({ backTo, showReceivedTab = false }: Reque
           setIsFilterSheetOpen(false);
         }}
       />
+
+      {toast ? (
+        <Snackbar
+          className="top-[72px]"
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          title={toast.title}
+          variant={toast.variant}
+        />
+      ) : null}
     </PageFrame>
   );
 }
@@ -332,6 +401,71 @@ function RequestFilterButton({ label, onClick }: { label: string; onClick: () =>
   );
 }
 
+function RequestEditBottomSheet({
+  isOpen,
+  onClose,
+  onConfirm,
+  onValueChange,
+  value,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  onValueChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <BottomSheet
+      ariaLabel="ویرایش درخواست"
+      contentClassName="px-4 pt-4"
+      heightClassName="h-auto pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]"
+      isOpen={isOpen}
+      onClose={onClose}
+      panelPaddingClassName="pt-3"
+      showBackButton={false}
+      showHeaderDivider={false}
+      title="ویرایش درخواست"
+      titleAlign="center"
+    >
+      <form
+        className="space-y-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onConfirm();
+        }}
+      >
+        <label className="block text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+          عنوان درخواست
+          <input
+            autoFocus
+            className="mt-2 h-12 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-3 focus:ring-[#0048c424]"
+            onChange={(event) => onValueChange(event.target.value)}
+            placeholder="عنوان درخواست را وارد کنید"
+            type="text"
+            value={value}
+          />
+        </label>
+
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          <button
+            className="h-12 rounded-xl border border-[#cccccc] bg-white text-base font-semibold leading-6 text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
+            onClick={onClose}
+            type="button"
+          >
+            انصراف
+          </button>
+          <button
+            className="h-12 rounded-xl bg-[#0048c4] text-base font-semibold leading-6 text-white transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003ca3]"
+            type="submit"
+          >
+            تایید
+          </button>
+        </div>
+      </form>
+    </BottomSheet>
+  );
+}
+
 function RequestFilterBottomSheet({
   activeFilterId,
   isOpen,
@@ -382,32 +516,42 @@ function RequestFilterBottomSheet({
 
 function CriteriaRequestCard({
   onCancel,
+  onEdit,
   request,
 }: {
   onCancel: () => void;
+  onEdit: () => void;
   request: CriteriaRequest;
 }) {
   return (
     <article className="bg-white px-4 py-4 text-right">
       <div className="flex items-center justify-between gap-3 [direction:ltr]">
         <button
-          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[10px] px-3 text-sm font-medium leading-5 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440] active:bg-[#fff0f0]"
+          className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-[10px] px-1 text-sm font-medium leading-5 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440] active:bg-[#fff0f0]"
           onClick={onCancel}
           type="button"
         >
-          <LinearDelete className="h-5 w-5" />
-          <span>لغو درخواست</span>
+          <span>لغو</span>
+          <LinearCancelSmall className="h-5 w-5 text-[#4d4d4d]" />
         </button>
 
-        <h2 className="m-0 min-w-0 flex-1 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
-          {request.title}
-        </h2>
+        <button
+          aria-label={`ویرایش ${request.title}`}
+          className="flex min-w-0 flex-1 items-center justify-end gap-2 rounded-[10px] text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#0048c440] [direction:ltr]"
+          onClick={onEdit}
+          type="button"
+        >
+          <LinearEdit2 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+          <span className="min-w-0 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+            {request.title}
+          </span>
+        </button>
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-end gap-2">
+      <div className="mt-4 flex flex-wrap justify-start gap-2 [direction:rtl]">
         {request.details.map((detail) => (
           <span
-            className="rounded-lg bg-[#f5f5f5] px-3 py-2 text-sm font-semibold leading-5 text-[#1a1a1a]"
+            className="rounded-lg border border-[#cccccc] bg-white px-2.5 py-1.5 text-sm font-normal leading-5 text-[#1a1a1a]"
             key={detail}
           >
             {detail}
@@ -440,9 +584,11 @@ function RequestResultCard({ ad, isNew = false }: { ad: AdCardData; isNew?: bool
       )}
       to={`/ads/${ad.id}`}
       topBadge={isNew ? (
-        <span className="mb-1 inline-flex h-5 items-center rounded-md bg-[#ee3623] px-1.5 text-[10px] font-medium leading-4 text-white">
+        <p className="mb-1 absolute z-10 left-5 top-0.5 flex items-center justify-end rounded-md text-xs font-medium leading-4 text-white">
+          <span className="bg-[#ee3623] px-1 rounded-xl">
           جدید
-        </span>
+          </span>
+        </p>
       ) : null}
       variant="requestResult"
     />

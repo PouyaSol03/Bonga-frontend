@@ -1,4 +1,5 @@
 import type { AnchorHTMLAttributes, MouseEvent } from 'react'
+import { pushRoute } from './navigation'
 
 type RouteLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
   to: string
@@ -21,8 +22,7 @@ export function RouteLink({ to, state, onClick, children, ...props }: RouteLinkP
     }
 
     event.preventDefault()
-    window.history.pushState(state ?? {}, '', to)
-    window.dispatchEvent(new PopStateEvent('popstate'))
+    pushRoute(to, state)
   }
 
   return (

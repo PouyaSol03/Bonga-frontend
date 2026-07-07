@@ -16,7 +16,6 @@ import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
-import LinearCancelCircle from "../../components/(icons)/LinearCancelCircle";
 import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
 
 export type BusinessType = "agency" | "independent-consultant";

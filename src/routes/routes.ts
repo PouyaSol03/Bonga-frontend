@@ -74,7 +74,13 @@ const DashboardConsultantRemovePage = lazyNamed(() => import('../pages/dashboard
 const DashboardHomePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardHomePage')
 const DashboardMessagesPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardMessagesPage')
 const DashboardPaymentsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardPaymentsPage')
-const DashboardRankingPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardRankingPage')
+const DashboardRankingPage = lazyNamed(() => import('../pages/dashboard/DashboardRankingPage'), 'DashboardRankingPage')
+const DashboardBadgesGuidePage = lazyNamed(() => import('../pages/dashboard/DashboardBadgesGuidePage'), 'DashboardBadgesGuidePage')
+const DashboardRankingLevelsGuidePage = lazyNamed(() => import('../pages/dashboard/DashboardRankingLevelsGuidePage'), 'DashboardRankingLevelsGuidePage')
+const DashboardRecordHolderBadgePage = lazyNamed(() => import('../pages/dashboard/DashboardBadgeDetailsPage'), 'DashboardRecordHolderBadgePage')
+const DashboardGoldenTeamBadgePage = lazyNamed(() => import('../pages/dashboard/DashboardBadgeDetailsPage'), 'DashboardGoldenTeamBadgePage')
+const DashboardPopularBadgePage = lazyNamed(() => import('../pages/dashboard/DashboardBadgeDetailsPage'), 'DashboardPopularBadgePage')
+const DashboardFastTeamBadgePage = lazyNamed(() => import('../pages/dashboard/DashboardBadgeDetailsPage'), 'DashboardFastTeamBadgePage')
 const DashboardRequestsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardRequestsPage')
 const DashboardTeamPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardTeamPage')
 const SearchMapPage = lazyNamed(() => import('../pages/search/SearchMapPage'), 'SearchMapPage')
@@ -264,8 +270,56 @@ export const routes: AppRoute[] = [
   },
   {
     path: `${DASHBOARD_PATH}/ranking`,
-    title: 'شناساها و رتبه',
+    title: 'نشان‌ها و رتبه',
     Component: DashboardRankingPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/ranking/levels/guide`,
+    title: 'سطح پیشرفت آژانس',
+    Component: DashboardRankingLevelsGuidePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/ranking/badges/guide`,
+    title: 'راهنمای نشان‌ها',
+    Component: DashboardBadgesGuidePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/ranking/badges/record-holder`,
+    title: 'جزئیات نشان',
+    Component: DashboardRecordHolderBadgePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/ranking/badges/golden-team`,
+    title: 'جزئیات نشان',
+    Component: DashboardGoldenTeamBadgePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/ranking/badges/popular`,
+    title: 'جزئیات نشان',
+    Component: DashboardPopularBadgePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/ranking/badges/fast-team`,
+    title: 'جزئیات نشان',
+    Component: DashboardFastTeamBadgePage,
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,

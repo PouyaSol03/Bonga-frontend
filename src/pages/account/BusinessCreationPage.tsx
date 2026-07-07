@@ -5,7 +5,6 @@ import { getApiErrorMessage } from "../../api/api";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
-import { SelectBox } from "../newAd/components/NewAdControls";
 import { getStoredAuthSession, setStoredAuthSession, type AuthRole, type AuthRoleSlug } from "../../auth/auth-storage";
 import {
   INDEPENDENT_CONSULTANT,
@@ -17,6 +16,8 @@ import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
+import LinearCancelCircle from "../../components/(icons)/LinearCancelCircle";
+import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
 
 export type BusinessType = "agency" | "independent-consultant";
 
@@ -482,8 +483,8 @@ function BusinessFormPage({
             onClick={handleSubmit}
             type="button"
           >
-            <span>{isSubmitting ? "در حال ثبت..." : "ایجاد کسب و کار"}</span>
             <CheckIcon />
+            <span>{isSubmitting ? "در حال ثبت..." : "ثبت نام"}</span>
           </button>
         </div>
       }
@@ -562,10 +563,6 @@ function AgencyFields({
     ? neighborhoodsFromApi
     : fallbackNeighborhoods.filter((item) => item.name.includes(neighborhoodQuery.trim()));
 
-  const selectedNeighborhoodValue = selectedNeighborhoods
-    .map((neighborhood) => neighborhood.name)
-    .join("، ");
-
   const toggleNeighborhood = (neighborhood: NeighborhoodDto) => {
     const neighborhoodId = getNeighborhoodId(neighborhood);
 
@@ -578,7 +575,14 @@ function AgencyFields({
     });
   };
 
+  const removeNeighborhood = (neighborhoodId: string) => {
+    setSelectedNeighborhoods((current) =>
+      current.filter((item) => getNeighborhoodId(item) !== neighborhoodId),
+    );
+  };
+
   const clearNeighborhoods = () => setSelectedNeighborhoods([]);
+
 
   return (
     <>
@@ -601,11 +605,12 @@ function AgencyFields({
       <div>
         <RequiredLabel>محدوده فعالیت</RequiredLabel>
         <div className="mt-2">
-          <SelectBox
-            onClear={selectedNeighborhoods.length > 0 ? clearNeighborhoods : undefined}
+          <ActivityAreaSelect
+            error={neighborhoodsError}
             onClick={() => setIsNeighborhoodSheetOpen(true)}
+            onRemove={removeNeighborhood}
             placeholder="محدوده فعالیت خود را انتخاب کن"
-            value={selectedNeighborhoodValue}
+            selectedNeighborhoods={selectedNeighborhoods}
           />
         </div>
         {neighborhoodsError ? (
@@ -646,7 +651,7 @@ function AgencyFields({
               onClick={() => setNeighborhoodQuery("")}
               type="button"
             >
-              <CloseIcon />
+              <LinearCancelSmall className="h-5 w-5" />
             </button>
           ) : null}
         </label>
@@ -697,6 +702,79 @@ function AgencyFields({
         </div>
       </BottomSheet>
     </>
+  );
+}
+
+function ActivityAreaSelect({
+  error,
+  onClick,
+  onRemove,
+  placeholder,
+  selectedNeighborhoods,
+}: {
+  error?: string | null;
+  onClick: () => void;
+  onRemove: (neighborhoodId: string) => void;
+  placeholder: string;
+  selectedNeighborhoods: NeighborhoodDto[];
+}) {
+  const hasValue = selectedNeighborhoods.length > 0;
+  const visibleNeighborhoods = selectedNeighborhoods.slice(0, 2);
+
+  return (
+    <div
+      aria-invalid={Boolean(error)}
+      className={`flex min-h-14 w-full cursor-pointer items-center gap-2 rounded-[16px] border bg-white py-3 pl-3 pr-4 text-base font-normal leading-6 transition focus-within:border-[#0048c4] focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-[#0048c440] ${error ? "border-[#c11004]" : "border-[#808080]"
+        }`}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        onClick();
+      }}
+      role="button"
+      tabIndex={0}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden [direction:rtl]">
+        {hasValue ? (
+          visibleNeighborhoods.map((neighborhood) => {
+            const neighborhoodId = getNeighborhoodId(neighborhood);
+
+            return (
+              <button
+                aria-label={`حذف ${neighborhood.name}`}
+                className="inline-flex h-9 max-w-[132px] shrink-0 items-center gap-2 rounded-[8px] bg-[#f2f4fa] px-3 text-sm font-semibold leading-5 text-[#0048c4] active:bg-[#e8edf8]"
+                key={neighborhoodId}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onRemove(neighborhoodId);
+                }}
+                type="button"
+              >
+                <span className="min-w-0 truncate">{neighborhood.name}</span>
+                <LinearCancelSmall className="w-5 h-5 text-[#4D4D4D]" />
+              </button>
+            );
+          })
+        ) : (
+          <span className="min-w-0 flex-1 truncate text-right text-[#a6a6a6]">
+            {placeholder}
+          </span>
+        )}
+      </div>
+
+      {hasValue ? (
+        <span className="grid w-8 h-8 shrink-0 place-items-center rounded-[8px] bg-[#0048c4] text-base font-semibold leading-6 text-white">
+          {selectedNeighborhoods.length}
+        </span>
+      ) : null}
+
+      <span className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]">
+        <ChevronDownIcon />
+      </span>
+    </div>
   );
 }
 
@@ -872,7 +950,7 @@ function ActivationNotice({
               onClick={onClose}
               type="button"
             >
-              <CloseIcon />
+              <LinearCancelSmall className="w-5 h-5" />
             </button>
           </div>
 
@@ -1066,10 +1144,12 @@ function WalletAddIcon() {
   );
 }
 
-function CloseIcon() {
+
+
+function ChevronDownIcon() {
   return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 16 16">
-      <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
+    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+      <path d="M7 10l5 5 5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
     </svg>
   );
 }

@@ -44,9 +44,6 @@ export function DashboardPaymentsPage() {
   return <DashboardPaymentPage />;
 }
 
-export function DashboardRankingPage() {
-  return <DashboardComingSoonPage title="شناساها و رتبه" />;
-}
 
 export function DashboardAgencyPage() {
   if (typeof window !== "undefined" && window.matchMedia("(min-width: 501px)").matches) {

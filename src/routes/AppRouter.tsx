@@ -254,6 +254,7 @@ function getBottomNavigationKey(path: string) {
     path === '/account/credit/history' ||
     path === '/account/wallet/history' ||
     path.startsWith('/account/dashboard/payments') ||
+    path.startsWith('/account/dashboard/ranking') ||
     path.startsWith('/account/dashboard/agency') ||
     path.startsWith('/account/dashboard/team') ||
     path.startsWith('/account/ad-management/published') ||

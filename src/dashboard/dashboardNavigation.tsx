@@ -24,7 +24,7 @@ export const dashboardNavigationItems: DashboardNavItem[] = [
   {
     allowedRoles: DASHBOARD_ROLES,
     icon: RankingIcon,
-    label: "شناساها و رتبه",
+    label: "نشان‌ها و رتبه",
     path: `${DASHBOARD_PATH}/ranking`,
   },
   {

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
@@ -364,7 +364,7 @@ export function AgencyQrCodePage() {
   }
 
   return (
-    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
       <TopBar
         backTo={agencyPreviewPath}
         className="bg-[#f0f0f0]"
@@ -372,29 +372,18 @@ export function AgencyQrCodePage() {
         title="کیوآرکد آژانس"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-7 pb-28 pt-10">
-        <div className="w-full max-w-[252px] bg-white text-center">
-          <QRCodeSVG
-            bgColor="#ffffff"
-            className="mx-auto block h-auto w-full"
-            fgColor="#12358d"
-            level="M"
-            marginSize={1}
-            title="کد QR صفحه آژانس"
-            value={agencyUrl}
-          />
-          <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">{agencyQrLabel}</p>
-        </div>
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-28 pt-8">
+        <AgencyQrCard agencyUrl={agencyUrl} />
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3">
+      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <button
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4] transition active:bg-[#0048c414]"
           onClick={() => void handleShareClick()}
           type="button"
         >
           <LinearShare className="h-5 w-5" />
-          اشتراک گذاری
+          اشتراک‌گذاری
         </button>
       </footer>
       {toast ? (
@@ -407,6 +396,41 @@ export function AgencyQrCodePage() {
         />
       ) : null}
     </div>
+  );
+}
+
+function AgencyQrCard({ agencyUrl }: { agencyUrl: string }) {
+  const gradientId = `agency-qr-${useId().replace(/:/g, "")}`;
+
+  return (
+    <section className="w-full max-w-[328px] rounded-3xl bg-white px-6 pb-6 pt-7 text-center shadow-[0_8px_24px_rgba(26,26,26,0.06)]">
+      <img alt="لوگوی املاک جلیلیان" className="mx-auto h-16 w-16 object-contain" src={agencyLogoSrc} />
+      <h1 className="m-0 mt-2 text-lg font-bold leading-7 text-[#4d4d4d]">املاک جلیلیان</h1>
+      <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">اسکن کنید و صفحه آژانس را ببینید</p>
+
+      <div className="mx-auto mt-6 w-full max-w-[252px] bg-white text-center">
+        <QRCodeSVG
+          bgColor="#ffffff"
+          className="mx-auto block h-auto w-full"
+          fgColor={`url(#${gradientId})`}
+          level="H"
+          marginSize={1}
+          title="کد QR صفحه آژانس"
+          value={agencyUrl}
+        >
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#002099" />
+              <stop offset="100%" stopColor="#4B5070" />
+            </linearGradient>
+          </defs>
+        </QRCodeSVG>
+      </div>
+
+      <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">
+        {agencyQrLabel}
+      </p>
+    </section>
   );
 }
 

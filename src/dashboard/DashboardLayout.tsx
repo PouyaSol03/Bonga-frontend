@@ -77,7 +77,7 @@ const MemoSidebar = memo(function Sidebar({
       <div className="flex flex-col gap-2">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = activePath === item.path;
+          const isActive = activePath === item.path || activePath.startsWith(`${item.path}/`);
 
           return (
             <RouteLink

@@ -341,7 +341,7 @@ function getBusinessAccountHeader(
 function getBusinessAccountActions(role?: string | null): AccountAction[] {
   const managerActions: AccountAction[] = [
     { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-    { icon: "ranking", label: "نشان ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+    { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
     { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
     { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
     { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
@@ -357,7 +357,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
   if (role === REAL_ESTATE_CONSULTANT) {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-      { icon: "ranking", label: "شناساها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
       { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
@@ -368,7 +368,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
   if (role === INDEPENDENT_CONSULTANT) {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-      { icon: "ranking", label: "شناساها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agency` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },

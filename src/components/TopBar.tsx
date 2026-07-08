@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useLayoutEffect,
   useMemo,
@@ -52,6 +53,11 @@ type LayoutTopBarProps = Omit<TopBarProps, "placement">;
 
 type TopBarLayoutContextValue = {
   setTopBar: (props: LayoutTopBarProps | null) => void;
+};
+
+type RegisteredTopBar = {
+  resetKey: string;
+  props: LayoutTopBarProps;
 };
 
 const TopBarLayoutContext = createContext<TopBarLayoutContextValue | null>(null);
@@ -273,16 +279,25 @@ export function TopBar({ placement = "layout", ...props }: TopBarProps) {
 export function TopBarLayoutProvider({
   children,
   defaultTopBar,
+  resetKey,
 }: {
   children: ReactNode;
   defaultTopBar: LayoutTopBarProps;
+  resetKey: string;
 }) {
-  const [registeredTopBar, setRegisteredTopBar] = useState<LayoutTopBarProps | null>(null);
-  const contextValue = useMemo<TopBarLayoutContextValue>(
-    () => ({ setTopBar: setRegisteredTopBar }),
-    [],
+  const [registeredTopBar, setRegisteredTopBar] = useState<RegisteredTopBar | null>(null);
+  const setTopBar = useCallback(
+    (props: LayoutTopBarProps | null) => {
+      setRegisteredTopBar(props ? { props, resetKey } : null);
+    },
+    [resetKey],
   );
-  const topBar = registeredTopBar ?? defaultTopBar;
+  const contextValue = useMemo<TopBarLayoutContextValue>(
+    () => ({ setTopBar }),
+    [setTopBar],
+  );
+  const topBar =
+    registeredTopBar?.resetKey === resetKey ? registeredTopBar.props : defaultTopBar;
 
   return (
     <TopBarLayoutContext.Provider value={contextValue}>

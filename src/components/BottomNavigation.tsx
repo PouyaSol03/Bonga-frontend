@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
@@ -66,7 +66,7 @@ function getLoginRequiredPath(returnTo: string) {
   return `/login-required?${params.toString()}`;
 }
 
-export function BottomNavigation({
+function BottomNavigationComponent({
   activeKey = "account",
 }: {
   activeKey?: string;
@@ -163,3 +163,5 @@ export function BottomNavigation({
     </>
   );
 }
+
+export const BottomNavigation = memo(BottomNavigationComponent);

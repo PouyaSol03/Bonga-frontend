@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { DivIcon } from "leaflet";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { BrowserLocation } from "../../../lib/browserLocation";
@@ -87,7 +87,7 @@ function SearchMapController({
   return null;
 }
 
-export function SearchMapView({
+function SearchMapViewComponent({
   center,
   listings,
   dotMarkers = [],
@@ -212,3 +212,5 @@ export function SearchMapView({
     </MapContainer>
   );
 }
+
+export const SearchMapView = memo(SearchMapViewComponent);

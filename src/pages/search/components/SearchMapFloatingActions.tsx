@@ -1,3 +1,4 @@
+import { memo } from "react";
 import GpsIcon from "../../../assets/icons/GpsIcon";
 import HandDrawIcon from "../../../assets/icons/HandDrawIcon";
 import ListIcon from "../../../assets/icons/ListIcon";
@@ -12,7 +13,7 @@ type SearchMapFloatingActionsProps = {
   onListClick?: () => void;
 };
 
-export function SearchMapFloatingActions({
+function SearchMapFloatingActionsComponent({
   isDrawing = false,
   isHidden = false,
   isLocated = false,
@@ -75,3 +76,12 @@ export function SearchMapFloatingActions({
     </div>
   );
 }
+
+export const SearchMapFloatingActions = memo(
+  SearchMapFloatingActionsComponent,
+  (previous, next) =>
+    previous.isDrawing === next.isDrawing &&
+    previous.isHidden === next.isHidden &&
+    previous.isLocated === next.isLocated &&
+    previous.isLocating === next.isLocating,
+);

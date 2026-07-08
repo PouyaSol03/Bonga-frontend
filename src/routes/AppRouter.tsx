@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
@@ -305,6 +305,10 @@ function getRouteTopBar(path: string, title: string): TopBarProps | undefined {
     return { showBack: false, title }
   }
 
+  if (path === '/chat' || path === '/search') {
+    return { backTo: '/home', title }
+  }
+
   if (path === '/account/dashboard') {
     return {
       actions: [
@@ -362,7 +366,9 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
   if (path === '/search') {
     return {
       bottomNavigationKey,
+      contentClassName: 'min-h-0 flex-1 overflow-hidden',
       frameClassName: 'relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]',
+      topBar,
       wrapInShell: true,
     }
   }
@@ -480,9 +486,12 @@ function getRoute(path: string): AppRoute {
 
 export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
-  const route = getRoute(path)
+  const route = useMemo(() => getRoute(path), [path])
   const ActivePage = route.Component
-  const chromeConfig = getAppChromeConfig(route.path, route.title)
+  const chromeConfig = useMemo(
+    () => getAppChromeConfig(route.path, route.title),
+    [route.path, route.title],
+  )
   const authSession = getStoredAuthSession()
   const requiresIdentity = Boolean(authSession && shouldRequireIdentityForPath(route.path))
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
@@ -546,7 +555,7 @@ export function AppRouter() {
         variant="flush"
       >
         {chromeConfig.topBar ? (
-          <TopBarLayoutProvider key={path} defaultTopBar={chromeConfig.topBar}>
+          <TopBarLayoutProvider defaultTopBar={chromeConfig.topBar} resetKey={path}>
             <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
               {page}
             </div>

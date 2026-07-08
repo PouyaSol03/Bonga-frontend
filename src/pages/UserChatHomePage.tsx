@@ -1,4 +1,4 @@
-import { type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiAssetUrl } from "../api/api";
 import {
   joinChatThread,
@@ -737,7 +737,7 @@ function InfoIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function ChatHeader({
+const ChatHeader = memo(function ChatHeader({
   onOpenMenu,
   onOpenSearch,
 }: {
@@ -764,9 +764,9 @@ function ChatHeader({
       title="چت"
     />
   );
-}
+});
 
-function FilterTabs({
+const FilterTabs = memo(function FilterTabs({
   activeFilter,
   onSelect,
 }: {
@@ -793,7 +793,7 @@ function FilterTabs({
       </div>
     </section>
   );
-}
+});
 
 function ToggleSwitch({
   checked,
@@ -966,7 +966,8 @@ function SelectionCheckbox({
   );
 }
 
-function ChatCard({
+const ChatCard = memo(function ChatCard({
+  chatId,
   index,
   isBulkDeleteMode,
   isSelected,
@@ -974,11 +975,12 @@ function ChatCard({
   onToggleSelected,
   useCardOverrides = false,
 }: {
+  chatId: string;
   index: number;
   isBulkDeleteMode: boolean;
   isSelected: boolean;
   item: ChatItem;
-  onToggleSelected: () => void;
+  onToggleSelected: (id: string) => void;
   useCardOverrides?: boolean;
 }) {
   const displayItem = {
@@ -996,14 +998,14 @@ function ChatCard({
     <article
       aria-pressed={isBulkDeleteMode ? isSelected : undefined}
       className={cardClassName}
-      onClick={isBulkDeleteMode ? onToggleSelected : undefined}
+      onClick={isBulkDeleteMode ? () => onToggleSelected(chatId) : undefined}
       onKeyDown={
         isBulkDeleteMode
           ? (event) => {
             if (event.key !== "Enter" && event.key !== " ") return;
 
             event.preventDefault();
-            onToggleSelected();
+            onToggleSelected(chatId);
           }
           : undefined
       }
@@ -1038,7 +1040,7 @@ function ChatCard({
         </div>
 
         {isBulkDeleteMode ? (
-          <SelectionCheckbox isSelected={isSelected} onToggle={onToggleSelected} />
+          <SelectionCheckbox isSelected={isSelected} onToggle={() => onToggleSelected(chatId)} />
         ) : null}
       </div>
 
@@ -1085,7 +1087,7 @@ function ChatCard({
       {cardContent}
     </RouteLink>
   );
-}
+});
 
 function ChatDetailHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
@@ -2154,7 +2156,7 @@ export function UserChatHomePage() {
   );
   const RequestErrorState = isError ? getRequestErrorState(error) : null;
 
-  const handleMenuSelect = (id: string) => {
+  const handleMenuSelect = useCallback((id: string) => {
     setIsMenuOpen(false);
 
     if (id === "hours") {
@@ -2172,9 +2174,9 @@ export function UserChatHomePage() {
       setIsBulkDeleteMode(true);
       setSelectedChatIds(new Set());
     }
-  };
+  }, [showNotice]);
 
-  const toggleSelectedChat = (id: string) => {
+  const toggleSelectedChat = useCallback((id: string) => {
     setSelectedChatIds((current) => {
       const next = new Set(current);
 
@@ -2186,9 +2188,9 @@ export function UserChatHomePage() {
 
       return next;
     });
-  };
+  }, []);
 
-  const visibleChats = chats.filter((item) => {
+  const visibleChats = useMemo(() => chats.filter((item) => {
     const itemId = item.id ?? "";
     const normalizedQuery = query.trim();
 
@@ -2201,15 +2203,33 @@ export function UserChatHomePage() {
     if (activeFilter === "آگهی‌های من" && item.adLabel !== "آگهی من") return false;
     if (activeFilter === "آگهی‌های دیگران" && item.adLabel === "آگهی من") return false;
     return true;
-  });
+  }), [activeFilter, chats, deletedChatIds, query]);
 
-  const deleteSelectedChats = () => {
+  const deleteSelectedChats = useCallback(() => {
     const count = selectedChatIds.size;
     setDeletedChatIds((current) => new Set([...current, ...selectedChatIds]));
     setSelectedChatIds(new Set());
     setIsBulkDeleteMode(false);
     showNotice(`${count} گفتگو حذف شد`);
-  };
+  }, [selectedChatIds, showNotice]);
+
+  const closeBulkDeleteMode = useCallback(() => {
+    setIsBulkDeleteMode(false);
+    setSelectedChatIds(new Set());
+  }, []);
+
+  const toggleSearch = useCallback(() => {
+    setIsSearchOpen((current) => !current);
+    setQuery("");
+  }, []);
+
+  const openMenu = useCallback(() => {
+    setIsMenuOpen(true);
+  }, []);
+
+  const selectFilter = useCallback((filter: string) => {
+    setActiveFilter((current) => (current === filter ? null : filter));
+  }, []);
 
   return (
     <TopBarNavigationLayout
@@ -2231,18 +2251,13 @@ export function UserChatHomePage() {
           ) : null}
           <FilterTabs
             activeFilter={activeFilter}
-            onSelect={(filter) =>
-              setActiveFilter((current) => (current === filter ? null : filter))
-            }
+            onSelect={selectFilter}
           />
           {isBulkDeleteMode ? (
             <div className="flex h-12 shrink-0 items-center justify-between bg-white px-4 [direction:ltr]">
               <button
                 className="text-sm font-medium text-[#4d4d4d]"
-                onClick={() => {
-                  setIsBulkDeleteMode(false);
-                  setSelectedChatIds(new Set());
-                }}
+                onClick={closeBulkDeleteMode}
                 type="button"
               >
                 انصراف
@@ -2269,11 +2284,8 @@ export function UserChatHomePage() {
       }
       topBar={
         <ChatHeader
-          onOpenMenu={() => setIsMenuOpen(true)}
-          onOpenSearch={() => {
-            setIsSearchOpen((current) => !current);
-            setQuery("");
-          }}
+          onOpenMenu={openMenu}
+          onOpenSearch={toggleSearch}
         />
       }
     >
@@ -2305,12 +2317,13 @@ export function UserChatHomePage() {
 
         return (
           <ChatCard
+            chatId={chatId}
             index={index}
             isBulkDeleteMode={isBulkDeleteMode}
             isSelected={selectedChatIds.has(chatId)}
             item={item}
             key={chatId}
-            onToggleSelected={() => toggleSelectedChat(chatId)}
+            onToggleSelected={toggleSelectedChat}
           />
         );
       })}

@@ -869,16 +869,16 @@ export function SearchMapPage() {
     });
   }, []);
 
-  const toggleChip = (chip: SearchFilterChip) => {
+  const toggleChip = useCallback((chip: SearchFilterChip) => {
     window.history.pushState({}, "", buildFilterPageUrl(chip));
     window.dispatchEvent(new PopStateEvent("popstate"));
-  };
+  }, []);
 
-  const handleRemoveChip = (chip: SearchFilterChip) => {
+  const handleRemoveChip = useCallback((chip: SearchFilterChip) => {
     removeFilterFromSearch(chip);
-  };
+  }, []);
 
-  const handleSelectListing = (listing: SearchMapListing) => {
+  const handleSelectListing = useCallback((listing: SearchMapListing) => {
     setSeenListingIds((current) => {
       if (current.has(listing.id)) return current;
 
@@ -888,7 +888,7 @@ export function SearchMapPage() {
     });
     setSelectedListingId(listing.id);
     setMode("preview");
-  };
+  }, []);
 
   const handleMapClick = useCallback(() => {
     setSelectedListingId(null);
@@ -899,7 +899,7 @@ export function SearchMapPage() {
     setSelectedListingId(listing.id);
   }, []);
 
-  const handleSearchResult = (item: { title: string }) => {
+  const handleSearchResult = useCallback((item: { title: string }) => {
     const params = getSearchParams();
     const cityId = params.get("city_id") || "";
 
@@ -916,9 +916,9 @@ export function SearchMapPage() {
     setSelectedListingId(null);
     setMode("map");
     writeSearchParams(params, { replace: true });
-  };
+  }, []);
 
-  const locateUser = () => {
+  const locateUser = useCallback(() => {
     if (isLocating) return;
 
     setIsLocating(true);
@@ -944,7 +944,22 @@ export function SearchMapPage() {
       .finally(() => {
         setIsLocating(false);
       });
-  };
+  }, [isLocating, showNotice]);
+
+  const openSearch = useCallback(() => {
+    setIsSearchOpen(true);
+  }, []);
+
+  const closeSearch = useCallback(() => {
+    setIsSearchOpen(false);
+  }, []);
+
+  const returnToMapView = useCallback(() => {
+    const params = getSearchParams();
+    params.delete("view");
+    writeSearchParams(params, { replace: true });
+    setMode("map");
+  }, []);
 
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
@@ -966,12 +981,7 @@ export function SearchMapPage() {
           hasEmptyResults={showListEmptyState}
           isLoading={isListLoading}
           listings={apiListListings}
-          onMapClick={() => {
-            const params = getSearchParams();
-            params.delete("view");
-            writeSearchParams(params, { replace: true });
-            setMode("map");
-          }}
+          onMapClick={returnToMapView}
         />
       ) : (
         <SearchMapView
@@ -1000,7 +1010,7 @@ export function SearchMapPage() {
         onChipClick={toggleChip}
         onChipRemove={handleRemoveChip}
         queryLabel={queryLabel}
-        onSearchClick={() => setIsSearchOpen(true)}
+        onSearchClick={openSearch}
       />
 
 
@@ -1033,7 +1043,7 @@ export function SearchMapPage() {
       />
       <HomeSearchScreen
         isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
+        onClose={closeSearch}
         onSelectResult={handleSearchResult}
       />
       <DemoNotice message={message} />

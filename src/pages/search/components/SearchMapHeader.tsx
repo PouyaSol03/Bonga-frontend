@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { SearchFilterChip } from "../searchMapData";
 
 import { TopBar } from "../../../components/TopBar";
@@ -12,7 +13,7 @@ type SearchMapHeaderProps = {
   onSearchClick?: () => void;
 };
 
-export function SearchMapHeader({
+function SearchMapHeaderComponent({
   queryLabel = "جستجو در آگهی‌ها",
   savedCount = 0,
   chips,
@@ -35,3 +36,5 @@ export function SearchMapHeader({
     </header>
   );
 }
+
+export const SearchMapHeader = memo(SearchMapHeaderComponent);

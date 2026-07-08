@@ -2,6 +2,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -22,7 +23,7 @@ type SearchMapListingSliderProps = {
 
 const previewCardWidth = "min(360px, calc(100vw - 28px))";
 
-export function SearchMapListingSlider({
+function SearchMapListingSliderComponent({
   isLoading = false,
   isOpen,
   listings,
@@ -142,6 +143,8 @@ export function SearchMapListingSlider({
     </section>
   );
 }
+
+export const SearchMapListingSlider = memo(SearchMapListingSliderComponent);
 
 function getSliderCardById(
   scrollEl: HTMLDivElement,

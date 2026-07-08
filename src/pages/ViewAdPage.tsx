@@ -1258,7 +1258,7 @@ function ViewAdContent({
   const facilityItems = details.features.slice(0, visibleFacilityCount);
   const hasMorePropertyInfo = details.propertyInfoRows.length > propertyInfoItems.length;
   const hasMoreFacilities = details.features.length > 6;
-  const showAgency = isAgencyAdvertiser(ad);
+  const advertiserPreview = getAdvertiserPreview(ad, details);
   const shouldShowDescriptionMore = isDescriptionOverflowing;
   const visibleRows = hideRestrictedActions
     ? details.rows.filter((row) => row.icon !== "checklist" && row.icon !== "info")
@@ -1381,7 +1381,7 @@ function ViewAdContent({
         ) : null}
       </DetailSection>
 
-      {showAgency ? <AgencyCard details={details} /> : null}
+      {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
       <section className="border-t-8 border-[#f0f0f0] bg-white">
         {visibleRows.map((row) => (
@@ -1405,44 +1405,72 @@ function ViewAdContent({
   );
 }
 
-function AgencyCard({ details }: { details: ViewAdDetails }) {
+type AdvertiserPreview = {
+  href: string;
+  kind: "agency" | "agent";
+  location: string;
+  name: string;
+  subtitle: string;
+};
+
+function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
+  const initial = preview.kind === "agency" ? "ب" : preview.name.trim().charAt(0) || "م";
+
   return (
     <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-6 text-center">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-lg border border-[#cccccc] bg-white">
-        <span className="text-2xl font-bold leading-none text-[#b6823a]">
-          ب
-        </span>
-      </div>
-      <h2 className="mt-4 text-base font-semibold leading-6 text-[#4d4d4d]">
-        املاک جلیلیان
-      </h2>
-      <div className="mt-2 flex items-center justify-center gap-1 text-xs font-medium leading-4 text-[#0048c4]">
-        <ViewAdIcon className="h-4 w-4" name="location" />
-        <span>{details.agencyLocation}</span>
-      </div>
-      <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
-        <div className="flex items-center gap-1">
-          <span className="text-[#0faf73]">۸۵</span>
-          <span>امتیاز</span>
-          <img
-            alt=""
-            aria-hidden="true"
-            className="h-4 w-4 shrink-0 object-contain"
-            src="/icons/star.svg"
-          />
+      <RouteLink
+        className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-[#f7f7f7] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        to={preview.href}
+      >
+        <div
+          className={`mx-auto grid h-16 w-16 place-items-center rounded-lg border border-[#cccccc] ${
+            preview.kind === "agency" ? "bg-white" : "bg-gradient-to-br from-[#f6d8bc] to-[#c78a5c]"
+          }`}
+        >
+          <span
+            className={`text-2xl font-bold leading-none ${
+              preview.kind === "agency" ? "text-[#b6823a]" : "text-white"
+            }`}
+          >
+            {initial}
+          </span>
         </div>
-        <div className="h-4 w-px bg-[#e0e0e0]" />
-        <div className="flex items-center gap-1">
-          <span className="text-[#0faf73]">۱۲</span>
-          <span>رتبه</span>
-          <img
-            alt=""
-            aria-hidden="true"
-            className="h-4 w-4 shrink-0 object-contain"
-            src="/icons/ranking.svg"
-          />
+        <h2 className="mt-4 text-base font-semibold leading-6 text-[#4d4d4d]">
+          {preview.name}
+        </h2>
+        <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
+          {preview.subtitle}
+        </p>
+        {preview.location ? (
+          <div className="mt-2 flex items-center justify-center gap-1 text-xs font-medium leading-4 text-[#0048c4]">
+            <ViewAdIcon className="h-4 w-4" name="location" />
+            <span>{preview.location}</span>
+          </div>
+        ) : null}
+        <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
+          <div className="flex items-center gap-1">
+            <span className="text-[#0faf73]">۸۵</span>
+            <span>امتیاز</span>
+            <img
+              alt=""
+              aria-hidden="true"
+              className="h-4 w-4 shrink-0 object-contain"
+              src="/icons/star.svg"
+            />
+          </div>
+          <div className="h-4 w-px bg-[#e0e0e0]" />
+          <div className="flex items-center gap-1">
+            <span className="text-[#0faf73]">۱۲</span>
+            <span>رتبه</span>
+            <img
+              alt=""
+              aria-hidden="true"
+              className="h-4 w-4 shrink-0 object-contain"
+              src="/icons/ranking.svg"
+            />
+          </div>
         </div>
-      </div>
+      </RouteLink>
     </section>
   );
 }
@@ -2216,17 +2244,76 @@ function getMapPosition(ad: AdvertisementItem) {
   return { latitude: lat, longitude: lng };
 }
 
-function isAgencyAdvertiser(ad: AdvertisementItem) {
+function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetails): AdvertiserPreview | null {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const advertiserType = toText(getFeatureValue(features, "advertiser_type"));
-  const ownerType = toText((ad as { owner_type?: unknown }).owner_type);
-
-  return (
-    advertiserType.includes("آژانس") ||
-    advertiserType.includes("املاک") ||
-    advertiserType.includes("مشاور") ||
-    ownerType.includes("agency")
+  const ownerType = String((ad as { owner_type?: unknown }).owner_type ?? "").toLowerCase();
+  const agencyName = toText(
+    ad.agency ??
+      (ad as { agency_name?: unknown }).agency_name ??
+      (ad as { real_estate_name?: unknown }).real_estate_name,
   );
+  const agentName = toText(
+    (ad as { agent_name?: unknown }).agent_name ??
+      (ad as { consultant_name?: unknown }).consultant_name ??
+      (ad as { adviser_name?: unknown }).adviser_name ??
+      (ad as { advertiser_name?: unknown }).advertiser_name ??
+      (ad as { owner_name?: unknown }).owner_name,
+  );
+  const isAgent =
+    advertiserType.includes("مشاور") ||
+    ownerType.includes("consultant") ||
+    ownerType.includes("agent");
+  const isAgency =
+    advertiserType.includes("آژانس") ||
+    ownerType.includes("agency") ||
+    Boolean(agencyName) ||
+    (advertiserType.includes("املاک") && !advertiserType.includes("مشاور"));
+
+  if (!isAgent && !isAgency) return null;
+
+  const kind = isAgent && !isAgency ? "agent" : "agency";
+  const name = (kind === "agent" ? agentName : agencyName) || details.agency || (kind === "agent" ? "مشاور املاک" : "آژانس املاک");
+  const id = getAdvertiserPreviewId(ad, kind);
+  const params = new URLSearchParams({
+    location: details.agencyLocation || details.locationTitle || "",
+    name,
+  });
+
+  if (kind === "agent" && agencyName) {
+    params.set("agency", agencyName);
+  }
+
+  return {
+    href: `/${kind === "agent" ? "agents" : "agencies"}/${encodeURIComponent(id)}?${params.toString()}`,
+    kind,
+    location: details.agencyLocation || details.locationTitle || "",
+    name,
+    subtitle: kind === "agent" ? agencyName || "مشاور املاک" : "آژانس املاک",
+  };
+}
+
+function getAdvertiserPreviewId(ad: AdvertisementItem, kind: "agency" | "agent") {
+  const candidates =
+    kind === "agent"
+      ? [
+          (ad as { agent_id?: unknown }).agent_id,
+          (ad as { consultant_id?: unknown }).consultant_id,
+          (ad as { adviser_id?: unknown }).adviser_id,
+          (ad as { publisher_id?: unknown }).publisher_id,
+          (ad as { owner_id?: unknown }).owner_id,
+        ]
+      : [
+          (ad as { agency_id?: unknown }).agency_id,
+          (ad as { real_estate_id?: unknown }).real_estate_id,
+          (ad as { office_id?: unknown }).office_id,
+          (ad as { publisher_id?: unknown }).publisher_id,
+          (ad as { owner_id?: unknown }).owner_id,
+        ];
+
+  const found = candidates.find((value) => value !== undefined && value !== null && String(value).trim());
+
+  return String(found ?? ad.id ?? ad._id ?? kind);
 }
 
 function iconForFeature(label: string): IconName {

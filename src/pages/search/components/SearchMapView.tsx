@@ -14,6 +14,7 @@ import type {
 
 type SearchMapViewProps = {
   center: SearchMapCenter;
+  centerSignal?: number;
   listings: SearchMapListing[];
   dotMarkers?: SearchMapDotMarker[];
   priceMarkerListingIds: Set<SearchMapListingId>;
@@ -48,10 +49,12 @@ function createUserLocationIcon() {
 
 function SearchMapController({
   center,
+  centerSignal = 0,
   onBoundsChange,
   onMapClick,
 }: {
   center: SearchMapCenter;
+  centerSignal?: number;
   onBoundsChange: (bounds: SearchMapBounds) => void;
   onMapClick: () => void;
 }) {
@@ -82,13 +85,14 @@ function SearchMapController({
     map.setView([center.latitude, center.longitude], center.zoom, {
       animate: true,
     });
-  }, [center.latitude, center.longitude, center.zoom, map]);
+  }, [center.latitude, center.longitude, center.zoom, centerSignal, map]);
 
   return null;
 }
 
 function SearchMapViewComponent({
   center,
+  centerSignal = 0,
   listings,
   dotMarkers = [],
   priceMarkerListingIds,
@@ -100,39 +104,36 @@ function SearchMapViewComponent({
   onMapClick,
   onSelectListing,
 }: SearchMapViewProps) {
-  const renderedMarkerIdsRef = useRef<Set<string>>(new Set());
-  const newlyRenderedMarkerIds = useMemo(() => {
-    const knownIds = renderedMarkerIdsRef.current;
-    const freshIds = new Set<string>();
+  const visibleMarkerIdsRef = useRef<Set<string>>(new Set());
+  const currentMarkerIds = useMemo(() => {
+    const markerIds = new Set<string>();
 
     dotMarkers.forEach((marker) => {
-      const markerId = `dot:${String(marker.id)}`;
-
-      if (!knownIds.has(markerId)) {
-        freshIds.add(markerId);
-      }
+      markerIds.add(`dot:${String(marker.id)}`);
     });
 
     listings.forEach((listing) => {
-      const markerId = `listing:${String(listing.id)}`;
+      markerIds.add(`listing:${String(listing.id)}`);
+    });
 
-      if (!knownIds.has(markerId)) {
+    return markerIds;
+  }, [dotMarkers, listings]);
+  const newlyRenderedMarkerIds = useMemo(() => {
+    const previouslyVisibleIds = visibleMarkerIdsRef.current;
+    const freshIds = new Set<string>();
+
+    currentMarkerIds.forEach((markerId) => {
+      if (!previouslyVisibleIds.has(markerId)) {
         freshIds.add(markerId);
       }
     });
 
     return freshIds;
-  }, [dotMarkers, listings]);
+  }, [currentMarkerIds]);
 
   useEffect(() => {
-    dotMarkers.forEach((marker) => {
-      renderedMarkerIdsRef.current.add(`dot:${String(marker.id)}`);
-    });
-
-    listings.forEach((listing) => {
-      renderedMarkerIdsRef.current.add(`listing:${String(listing.id)}`);
-    });
-  }, [dotMarkers, listings]);
+    visibleMarkerIdsRef.current = currentMarkerIds;
+  }, [currentMarkerIds]);
 
   return (
     <MapContainer
@@ -153,6 +154,7 @@ function SearchMapViewComponent({
 
       <SearchMapController
         center={center}
+        centerSignal={centerSignal}
         onBoundsChange={onBoundsChange}
         onMapClick={onMapClick}
       />

@@ -101,6 +101,7 @@ export const queryKeys = {
       [...queryKeys.chats.all, "list", filters.page, filters.perPage] as const,
     messages: (threadId: string) =>
       [...queryKeys.chats.detail(threadId), "messages"] as const,
+    unreadCount: () => [...queryKeys.chats.all, "unread-count"] as const,
   },
 
   notifications: {

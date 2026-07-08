@@ -158,8 +158,6 @@ type AdvertisementFilterPageProps = {
   title?: string;
 };
 
-const defaultFilterTransaction: TransactionType = "sale";
-const defaultFilterCategory: CategoryKey = "apartment";
 const categoryKeySet = new Set<CategoryKey>([
   "apartment",
   "villa-house",
@@ -367,11 +365,8 @@ function readInitialFiltersFromUrl(): FilterState {
   const listing = getListingFromFormCode(formCode);
   const focusTarget = params.get("focus");
   const shouldOpenCategoryPicker = focusTarget === "category";
-  const shouldOpenDefaultSection = Boolean(focusTarget) && !shouldOpenCategoryPicker;
-  const transaction = listing?.transaction ?? (shouldOpenDefaultSection ? defaultFilterTransaction : initialFilters.transaction);
-  const category = shouldOpenCategoryPicker
-    ? undefined
-    : listing?.category ?? (shouldOpenDefaultSection ? defaultFilterCategory : undefined);
+  const transaction = listing?.transaction ?? initialFilters.transaction;
+  const category = shouldOpenCategoryPicker ? undefined : listing?.category;
   const nextFilters: FilterState = {
     ...initialFilters,
     transaction,
@@ -976,6 +971,7 @@ export function AdvertisementFilterPage({
     () => new URLSearchParams(window.location.search).get("focus"),
     [],
   );
+  const contentRef = useRef<HTMLElement | null>(null);
 
   const filterBlocks = useMemo(
     () => getFilterBlocks(filters.transaction, filters.category),
@@ -983,16 +979,24 @@ export function AdvertisementFilterPage({
   );
 
   useEffect(() => {
-    if (!filters.category) return;
+    if (!filters.category || !contentRef.current) return;
 
     const target = new URLSearchParams(window.location.search).get("focus");
     if (!target) return;
 
-    window.setTimeout(() => {
-      const targetSection = document.querySelector(`[data-filter-section="${target}"]`);
+    const timer = window.setTimeout(() => {
+      const container = contentRef.current;
+      const targetSection = container?.querySelector<HTMLElement>(`[data-filter-section="${target}"]`);
 
-      targetSection?.scrollIntoView({ block: "start", behavior: "smooth" });
+      if (!container || !targetSection) return;
+
+      container.scrollTo({
+        behavior: "smooth",
+        top: Math.max(targetSection.offsetTop - 8, 0),
+      });
     }, 80);
+
+    return () => window.clearTimeout(timer);
   }, [filterBlocks, filters.category]);
 
   const changeCategory = (
@@ -1119,7 +1123,7 @@ export function AdvertisementFilterPage({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-0">
+      <main ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-0">
         {filterBlocks.map((block) => (
           <FilterBlockRenderer
             key={"id" in block ? `${block.kind}-${block.id}` : block.kind}

@@ -198,10 +198,36 @@ function navigateTo(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function isPublicAgencyPreviewPath() {
+  return (
+    typeof window !== "undefined" &&
+    (window.location.pathname.startsWith("/agencies/") ||
+      window.location.pathname.startsWith("/agents/"))
+  );
+}
+
+function getCurrentAgencyPreviewPath() {
+  if (typeof window === "undefined") return agencyPreviewPath;
+
+  return isPublicAgencyPreviewPath() ? window.location.pathname : agencyPreviewPath;
+}
+
+function getAgencyDisplayName() {
+  if (typeof window === "undefined") return agencyShareTitle;
+
+  return new URLSearchParams(window.location.search).get("name")?.trim() || agencyShareTitle;
+}
+
+function getAgencyLocationLabel() {
+  if (typeof window === "undefined") return "صیاد شیرازی";
+
+  return new URLSearchParams(window.location.search).get("location")?.trim() || "صیاد شیرازی";
+}
+
 function getAbsoluteAgencyPreviewUrl() {
   if (typeof window === "undefined") return agencyPreviewPath;
 
-  return new URL(agencyPreviewPath, window.location.origin).toString();
+  return new URL(getCurrentAgencyPreviewPath(), window.location.origin).toString();
 }
 
 function getCurrentPageUrl() {
@@ -241,6 +267,10 @@ export function AgencyPreviewPage() {
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [toast, setToast] = useState<AgencyToast | null>(null);
+  const isPublicPreview = isPublicAgencyPreviewPath();
+  const previewPath = getCurrentAgencyPreviewPath();
+  const agencyName = getAgencyDisplayName();
+  const agencyLocation = getAgencyLocationLabel();
 
   useEffect(() => {
     if (!toast) return;
@@ -279,32 +309,43 @@ export function AgencyPreviewPage() {
 
     const params = new URLSearchParams(window.location.search);
     params.set("tab", tab);
-    window.history.replaceState(window.history.state ?? {}, "", `${agencyPreviewPath}?${params.toString()}`);
+    window.history.replaceState(window.history.state ?? {}, "", `${previewPath}?${params.toString()}`);
   }
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
       <TopBar
-        actions={[
-          {
-            id: "share",
-            label: "اشتراک‌گذاری",
-            icon: <LinearShare className="h-6 w-6" />,
-            onClick: () => void handleShareClick(),
-          },
-          {
-            id: "qr-code",
-            label: "کد QR",
-            icon: <LinearQrCode className="h-6 w-6" />,
-            to: agencyQrCodePath,
-          },
-        ]}
-        backTo={agencyEditPath}
+        actions={
+          isPublicPreview
+            ? [
+                {
+                  id: "share",
+                  label: "اشتراک‌گذاری",
+                  icon: <LinearShare className="h-6 w-6" />,
+                  onClick: () => void handleShareClick(),
+                },
+              ]
+            : [
+                {
+                  id: "share",
+                  label: "اشتراک‌گذاری",
+                  icon: <LinearShare className="h-6 w-6" />,
+                  onClick: () => void handleShareClick(),
+                },
+                {
+                  id: "qr-code",
+                  label: "کد QR",
+                  icon: <LinearQrCode className="h-6 w-6" />,
+                  to: agencyQrCodePath,
+                },
+              ]
+        }
+        backTo={isPublicPreview ? "/home" : agencyEditPath}
         contentClassName="px-1"
         title="صفحه آژانس"
       />
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[84px]">
-        <AgencyHero />
+        <AgencyHero agencyLocation={agencyLocation} agencyName={agencyName} />
         <AgencySegmentedTabs activeTab={activeTab} onChange={changeTab} />
         {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? <AgencyConsultantsTab /> : <AgencyInfoTab />}
       </main>
@@ -434,14 +475,14 @@ function AgencyQrCard({ agencyUrl }: { agencyUrl: string }) {
   );
 }
 
-function AgencyHero() {
+function AgencyHero({ agencyLocation, agencyName }: { agencyLocation: string; agencyName: string }) {
   return (
     <section className="bg-white px-4 pb-4 pt-3 text-center">
-      <img alt="لوگوی املاک جلیلیان" className="mx-auto h-19 w-19 object-contain" src={agencyLogoSrc} />
-      <h2 className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">املاک جلیلیان</h2>
+      <img alt={agencyName} className="mx-auto h-19 w-19 object-contain" src={agencyLogoSrc} />
+      <h2 className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">{agencyName}</h2>
       <div className="mx-auto mt-1 inline-flex h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 text-xs font-medium text-[#4B5070]">
         <LinearLocation className="h-4 w-4 text-[#4B5070]" />
-        صیاد شیرازی
+        {agencyLocation}
       </div>
 
       <div className="mt-5 grid grid-cols-3 divide-x divide-x-reverse divide-[#dddddd] text-[#4d4d4d]">

@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
@@ -7,6 +7,7 @@ import NavChatIcon from "../assets/icons/NavChatIcon";
 import NavHomeIcon from "../assets/icons/NavHomeIcon";
 import NavSearchIcon from "../assets/icons/NavSearchIcon";
 import { USER } from "../constants/roles.constants";
+import { useChatUnreadCountQuery } from "../hooks/chat.hooks";
 import { RouteLink } from "../routes/RouteLink";
 import { CreateAdBottomSheet } from "./CreateAdBottomSheet";
 
@@ -72,8 +73,34 @@ function BottomNavigationComponent({
   activeKey?: string;
 }) {
   const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
+  const hasAuthSession = Boolean(getStoredAuthSession());
+  const { data: unreadChatsCount = 0, refetch: refetchUnreadChatsCount } =
+    useChatUnreadCountQuery({
+      enabled: hasAuthSession,
+    });
 
   const resolvedActiveKey = isCreateAdOpen ? "new-ad" : activeKey;
+  const hasUnreadChats = unreadChatsCount > 0;
+
+  useEffect(() => {
+    if (!hasAuthSession) return;
+
+    void refetchUnreadChatsCount();
+  }, [activeKey, hasAuthSession, refetchUnreadChatsCount]);
+
+  useEffect(() => {
+    if (!hasAuthSession) return;
+
+    function handleRouteChange() {
+      void refetchUnreadChatsCount();
+    }
+
+    window.addEventListener("popstate", handleRouteChange);
+
+    return () => {
+      window.removeEventListener("popstate", handleRouteChange);
+    };
+  }, [hasAuthSession, refetchUnreadChatsCount]);
 
   return (
     <>
@@ -124,7 +151,7 @@ function BottomNavigationComponent({
                     className="h-6 w-6 shrink-0"
                     size={24}
                   />
-                  {item.key === "chat" ? (
+                  {item.key === "chat" && hasUnreadChats ? (
                     <span
                       aria-hidden="true"
                       className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"

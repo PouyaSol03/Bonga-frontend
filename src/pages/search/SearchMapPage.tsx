@@ -40,9 +40,11 @@ const mapRequestLimit = 100;
 const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
+const searchMapMinQueryLength = 3;
 const filterableParamKeys = [
   "form_code",
   "from_code",
+  "category_id",
   "neighborhood_id",
   "neighborhoods",
   "area_min",
@@ -130,6 +132,16 @@ const englishDigitMap: Record<string, string> = {
   "٩": "9",
 };
 
+function getSearchQuery(params: URLSearchParams) {
+  return (params.get("query") || params.get("qsearch") || params.get("q") || "").trim();
+}
+
+function getApiSearchQuery(params: URLSearchParams) {
+  const query = getSearchQuery(params);
+
+  return query.length >= searchMapMinQueryLength ? query : undefined;
+}
+
 function getSearchParams() {
   return new URLSearchParams(window.location.search);
 }
@@ -155,12 +167,6 @@ function writeSearchParams(params: URLSearchParams, options: { replace?: boolean
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
-function ensureFilterFormCode(params: URLSearchParams) {
-  if (!params.get("form_code") && !params.get("from_code")) {
-    params.set("form_code", "sale-apartment");
-    params.set("from_code", "sale-apartment");
-  }
-}
 
 function getFilterOpenTarget(chip: SearchFilterChip): string {
   if (chip.id === "category") return "category";
@@ -178,10 +184,6 @@ function buildFilterPageUrl(chip: SearchFilterChip) {
   const params = getSearchParams();
   const target = getFilterOpenTarget(chip);
 
-  if (target !== "filters" && target !== "category") {
-    ensureFilterFormCode(params);
-  }
-
   params.set("focus", target);
 
   return `/search/filter?${params.toString()}`;
@@ -195,6 +197,11 @@ function getActiveFilterCount(params: URLSearchParams) {
 
     if (key === "from_code") {
       uniqueFilterKeys.add("form_code");
+      return;
+    }
+
+    if (key === "category_id") {
+      uniqueFilterKeys.add("category_id");
       return;
     }
 
@@ -626,6 +633,7 @@ function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters 
     areaMax: params.get("area_max") || undefined,
     areaMin: params.get("area_min") || undefined,
     buildingAge: params.get("building_age") || undefined,
+    categoryId: params.get("category_id") || undefined,
     floor: params.get("floor") || undefined,
     formCode: params.get("form_code") || params.get("from_code") || undefined,
     hasImage: params.get("has_image") || undefined,
@@ -636,7 +644,7 @@ function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters 
     priceMax: params.get("price_max") || undefined,
     priceMin: params.get("price_min") || undefined,
     publishedAt: params.get("published_at") || undefined,
-    query: params.get("query") || params.get("q") || params.get("qsearch") || undefined,
+    query: getApiSearchQuery(params),
     rooms: params.get("rooms") || undefined,
   };
 }
@@ -645,7 +653,8 @@ function buildMapQueryParams(bounds: SearchMapBounds | null, search: string) {
   if (!bounds) return null;
 
   const params = getSearchParamsFromSnapshot(search);
-  const cityId = params.get("city_id") || "";
+  const selectedCity = readStoredSelectedCity();
+  const cityId = params.get("city_id") || selectedCity?.id || "";
   const filters = readSearchFilters(params);
 
   return {
@@ -662,8 +671,10 @@ function buildMapQueryParams(bounds: SearchMapBounds | null, search: string) {
 function buildListQueryParams(search: string): AdvertisementListParams {
   const params = getSearchParamsFromSnapshot(search);
 
+  const selectedCity = readStoredSelectedCity();
+
   return {
-    cityId: params.get("city_id") || undefined,
+    cityId: params.get("city_id") || selectedCity?.id || undefined,
     filters: readSearchFilters(params),
     page: 1,
     perPage: 20,
@@ -675,7 +686,7 @@ function hasSearchCriteria(search: string) {
 
   return (
     getActiveFilterCount(params) > 0 ||
-    Boolean(params.get("qsearch") || params.get("query") || params.get("q"))
+    Boolean(getApiSearchQuery(params))
   );
 }
 
@@ -714,7 +725,9 @@ export function SearchMapPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchInitialView, setSearchInitialView] = useState<"search" | "saved">("search");
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
+  const [mapCenterSignal, setMapCenterSignal] = useState(0);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
   const [stableListings, setStableListings] = useState<SearchMapListing[]>([]);
   const didResolveIpLocationRef = useRef(false);
@@ -722,10 +735,18 @@ export function SearchMapPage() {
   const { message, showNotice } = useDemoNotice();
   const currentSearch = searchSnapshot;
   const chips = useMemo(() => getDynamicFilterChips(currentSearch), [currentSearch]);
-  const queryLabel = useMemo(() => {
+  const currentSearchQuery = useMemo(() => {
     const params = getSearchParamsFromSnapshot(currentSearch);
 
-    return params.get("qsearch") || params.get("query") || params.get("q") || searchDefaultLabel;
+    return getSearchQuery(params);
+  }, [currentSearch]);
+  const queryLabel = useMemo(() => {
+    return currentSearchQuery || searchDefaultLabel;
+  }, [currentSearchQuery]);
+  const activeSearchQuery = useMemo(() => {
+    const params = getSearchParamsFromSnapshot(currentSearch);
+
+    return getApiSearchQuery(params);
   }, [currentSearch]);
   const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds, currentSearch), [currentSearch, mapBounds]);
   const listQueryParams = useMemo(() => buildListQueryParams(currentSearch), [currentSearch]);
@@ -759,11 +780,14 @@ export function SearchMapPage() {
         .filter((item): item is SearchMapListing => item !== null),
     [listQuery.data, mapCenter.latitude, mapCenter.longitude],
   );
-  const isMapLoading = !mapQueryParams || (mapQuery.isFetching && stableListings.length === 0);
+  const listingSource = activeSearchQuery ? apiListListings : stableListings;
+  const isMapLoading = activeSearchQuery
+    ? listQuery.isFetching && apiListListings.length === 0
+    : !mapQueryParams || (mapQuery.isFetching && stableListings.length === 0);
   const isListLoading = listQuery.isFetching && apiListListings.length === 0;
   const visibleListings = useMemo(
-    () => filterListings(stableListings, chips),
-    [chips, stableListings],
+    () => filterListings(listingSource, chips),
+    [chips, listingSource],
   );
   const bluePriceMarkerListingIds = useMemo(() => {
     const markerIds = new Set<SearchMapListingId>();
@@ -903,18 +927,40 @@ export function SearchMapPage() {
     const params = getSearchParams();
     const cityId = params.get("city_id") || "";
 
-    params.set("qsearch", item.title);
+    params.set("query", item.title);
+    params.delete("qsearch");
+    params.delete("q");
 
     if (cityId) {
       params.set("city_id", cityId);
     }
 
     params.delete("focus");
-    params.delete("category_id");
     params.delete("categoryId");
     setIsSearchOpen(false);
     setSelectedListingId(null);
     setMode("map");
+    writeSearchParams(params, { replace: true });
+  }, []);
+
+  const handleLiveSearchQueryChange = useCallback((query: string) => {
+    const trimmedQuery = query.trim();
+    const params = getSearchParams();
+    const currentQuery = getSearchQuery(params);
+
+    if (!trimmedQuery && !currentQuery && !params.get("qsearch") && !params.get("q")) return;
+    if (trimmedQuery && currentQuery === trimmedQuery && !params.get("qsearch") && !params.get("q")) return;
+
+    if (trimmedQuery) {
+      params.set("query", trimmedQuery);
+    } else {
+      params.delete("query");
+    }
+
+    params.delete("qsearch");
+    params.delete("q");
+    params.delete("focus");
+    setSelectedListingId(null);
     writeSearchParams(params, { replace: true });
   }, []);
 
@@ -933,6 +979,7 @@ export function SearchMapPage() {
           longitude: location.longitude,
           zoom: 16,
         });
+        setMapCenterSignal((current) => current + 1);
         setSelectedListingId(null);
         setMode("map");
         showNotice("موقعیت شما روی نقشه مشخص شد");
@@ -947,6 +994,12 @@ export function SearchMapPage() {
   }, [isLocating, showNotice]);
 
   const openSearch = useCallback(() => {
+    setSearchInitialView("search");
+    setIsSearchOpen(true);
+  }, []);
+
+  const openSavedSearches = useCallback(() => {
+    setSearchInitialView("saved");
     setIsSearchOpen(true);
   }, []);
 
@@ -986,6 +1039,7 @@ export function SearchMapPage() {
       ) : (
         <SearchMapView
           center={mapCenter}
+          centerSignal={mapCenterSignal}
           listings={visibleListings}
           priceMarkerListingIds={bluePriceMarkerListingIds}
           seenListingIds={seenListingIds}
@@ -1011,6 +1065,7 @@ export function SearchMapPage() {
         onChipRemove={handleRemoveChip}
         queryLabel={queryLabel}
         onSearchClick={openSearch}
+        onSavedClick={openSavedSearches}
       />
 
 
@@ -1042,8 +1097,12 @@ export function SearchMapPage() {
         onActiveListingChange={handleSliderActiveListing}
       />
       <HomeSearchScreen
+        initialQuery={currentSearchQuery}
+        initialView={searchInitialView}
         isOpen={isSearchOpen}
+        minSearchQueryLength={searchMapMinQueryLength}
         onClose={closeSearch}
+        onQuerySearchChange={handleLiveSearchQueryChange}
         onSelectResult={handleSearchResult}
       />
       <DemoNotice message={message} />

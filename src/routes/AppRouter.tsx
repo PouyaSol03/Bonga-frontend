@@ -58,6 +58,8 @@ const UserChatDetailPage = lazyNamed(
   'UserChatDetailPage',
 )
 const ViewAdPage = lazyNamed(() => import('../pages/ViewAdPage'), 'ViewAdPage')
+const PublicAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
+const AgentPreviewPage = PublicAgencyPreviewPage
 
 function getCurrentPath() {
   return window.location.pathname || '/'
@@ -423,6 +425,14 @@ function getRoute(path: string): AppRoute {
       title: allocationReviewRoute?.title ?? 'بررسی و تخصیص',
       Component: allocationReviewRoute?.Component ?? routes[0].Component,
     }
+  }
+
+  if (/^\/agencies\/[^/]+\/?$/.test(path)) {
+    return { path, title: 'صفحه آژانس', Component: PublicAgencyPreviewPage }
+  }
+
+  if (/^\/agents\/[^/]+\/?$/.test(path)) {
+    return { path, title: 'صفحه مشاور', Component: AgentPreviewPage }
   }
 
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {

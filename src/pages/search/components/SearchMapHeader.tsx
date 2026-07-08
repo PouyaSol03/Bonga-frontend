@@ -11,6 +11,7 @@ type SearchMapHeaderProps = {
   onChipClick?: (chip: SearchFilterChip) => void;
   onChipRemove?: (chip: SearchFilterChip) => void;
   onSearchClick?: () => void;
+  onSavedClick?: () => void;
 };
 
 function SearchMapHeaderComponent({
@@ -20,15 +21,20 @@ function SearchMapHeaderComponent({
   onChipClick,
   onChipRemove,
   onSearchClick,
+  onSavedClick,
 }: SearchMapHeaderProps) {
   return (
     <header className="absolute inset-x-0 top-0 z-500 bg-[#f0f0f0]">
       <TopBar
         backTo="/home"
+        contentClassName="px-2 pt-2 !items-start"
+        heightClassName="h-16"
         search={{
           label: queryLabel,
           onClick: onSearchClick,
+          onSavedClick,
           savedCount,
+          savedLabel: "جستجوی ذخیره شده",
         }}
       />
 

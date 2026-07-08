@@ -139,6 +139,7 @@ export type AdvertisementSearchFilters = {
   areaMax?: string | number;
   areaMin?: string | number;
   buildingAge?: string;
+  categoryId?: string;
   floor?: string;
   formCode?: string;
   hasImage?: boolean | string;
@@ -200,6 +201,7 @@ function buildAdvertiseSearchParams(filters?: AdvertisementSearchFilters) {
     area_max: filters.areaMax,
     area_min: filters.areaMin,
     building_age: filters.buildingAge,
+    category_id: filters.categoryId,
     floor: filters.floor,
     form_code: filters.formCode,
     from_code: filters.formCode,
@@ -211,7 +213,6 @@ function buildAdvertiseSearchParams(filters?: AdvertisementSearchFilters) {
     price_max: filters.priceMax,
     price_min: filters.priceMin,
     published_at: filters.publishedAt,
-    q: filters.query,
     query: filters.query,
     rooms: filters.rooms,
   });

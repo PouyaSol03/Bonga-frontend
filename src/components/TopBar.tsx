@@ -10,6 +10,7 @@ import {
 
 import { getStoredBackTarget, pushRoute } from "../routes/navigation";
 import { RouteLink } from "../routes/RouteLink";
+import LinearSearch from "./(icons)/LinearSearch";
 import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
 
 export type TopBarAction = {
@@ -24,7 +25,9 @@ export type TopBarAction = {
 type TopBarSearch = {
   label: string;
   onClick?: () => void;
+  onSavedClick?: () => void;
   savedCount?: number;
+  savedLabel?: string;
 };
 
 export type TopBarProps = {
@@ -149,22 +152,46 @@ function TopBarBackButton({
 }
 
 function TopBarSearchButton({ search }: { search: TopBarSearch }) {
+  const hasSavedAction = Boolean(search.onSavedClick);
+
   return (
-    <button
-      aria-label={search.label}
-      className="relative flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white px-3 text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
-      onClick={search.onClick}
-      type="button"
+    <div
+      className="relative flex h-12 w-full min-w-0 items-center overflow-hidden rounded-xl border border-[#808080] bg-white text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440]"
+      dir="rtl"
     >
-      <span className="shrink-0 text-[#808080]">
-        <LinearBookmarkSolid className="h-5 w-5"/>
-      </span>
-      <span className="mx-3 h-5 w-px shrink-0 bg-[#cccccc]" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-right">{search.label}</span>
-      {search.savedCount ? (
-        <span className="sr-only">{search.savedCount} آگهی ذخیره شده</span>
+      {hasSavedAction ? (
+        <button
+          aria-label={search.savedLabel ?? "جستجوی ذخیره شده"}
+          className="relative grid h-12 w-12 shrink-0 place-items-center text-[#1a1a1a] active:bg-[#1a1a1a0a]"
+          onClick={(event) => {
+            event.stopPropagation();
+            search.onSavedClick?.();
+          }}
+          type="button"
+        >
+          <LinearBookmarkSolid className="h-6 w-6" />
+          {search.savedCount && search.savedCount > 0 ? (
+            <span className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-[#0048c4] px-1 text-[10px] font-bold leading-4 text-white">
+              {search.savedCount > 99
+                ? "۹۹+"
+                : new Intl.NumberFormat("fa-IR").format(search.savedCount)}
+            </span>
+          ) : null}
+        </button>
       ) : null}
-    </button>
+
+      <button
+        aria-label={search.label}
+        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2 bg-transparent py-0 pl-3 pr-0 text-right text-sm font-normal leading-5 text-[#a6a6a6]"
+        onClick={search.onClick}
+        type="button"
+      >
+        <span className="min-w-0 flex-1 truncate text-right">{search.label}</span>
+        <span className="shrink-0 text-[#808080]">
+          <LinearSearch className="h-5 w-5" />
+        </span>
+      </button>
+    </div>
   );
 }
 

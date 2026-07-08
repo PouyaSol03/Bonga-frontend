@@ -8,6 +8,7 @@ import {
   deleteChat,
   getChatDetail,
   getChatMessages,
+  getChatUnreadCount,
   getChats,
 } from "../services/chat.service";
 
@@ -46,6 +47,19 @@ export function useChatMessagesQuery(threadId: string | null) {
     enabled: Boolean(threadId),
     queryFn: () => getChatMessages(threadId ?? ""),
     queryKey: queryKeys.chats.messages(threadId ?? ""),
+  });
+}
+
+export function useChatUnreadCountQuery({
+  enabled = true,
+}: {
+  enabled?: boolean;
+} = {}) {
+  return useQuery({
+    enabled,
+    queryFn: getChatUnreadCount,
+    queryKey: queryKeys.chats.unreadCount(),
+    refetchOnMount: "always",
   });
 }
 

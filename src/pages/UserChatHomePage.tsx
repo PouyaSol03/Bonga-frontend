@@ -249,7 +249,7 @@ function readChatMessageBody(message: ChatMessage) {
 }
 
 function readChatMessageTime(message: ChatMessage) {
-  const text = readPathText(message, ["created_at", "createdAt", "date"]);
+  const text = readPathText(message, ["sent_at", "sentAt", "created_at", "createdAt", "date"]);
 
   if (!text) return undefined;
 
@@ -397,9 +397,10 @@ function formatChatDate(value: unknown) {
 
   if (Number.isNaN(date.getTime())) return text;
 
-  return new Intl.DateTimeFormat("fa-IR", {
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     day: "numeric",
     month: "long",
+    timeZone: "Asia/Tehran",
   }).format(date);
 }
 
@@ -440,9 +441,8 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       chatItems[0].adTitle,
     badgeCount: unreadCount && unreadCount > 0 ? new Intl.NumberFormat("fa-IR").format(unreadCount) : undefined,
     date: formatChatDate(
-      chat.updated_at ??
-      chat.created_at ??
-      readPathText(lastMessage, ["created_at", "createdAt", "date"]),
+      readPathText(lastMessage, ["sent_at", "sentAt", "created_at", "createdAt", "date"]) ||
+      readPathText(chat, ["last_message_at", "lastMessageAt", "updated_at", "updatedAt", "created_at", "createdAt"]),
     ),
     detailPath: `/chat/${id}`,
     detailState: { threadId: id },
@@ -484,9 +484,9 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       readString(chat.last_message) ||
       "",
     userName:
-      readPathText(chat, ["user_name", "userName", "name", "full_name"]) ||
-      readPathText(user, ["name", "full_name", "username", "mobile", "phone"]) ||
-      chatItems[0].userName,
+      readPathText(user, ["full_name", "fullName", "name", "username", "mobile", "phone"]) ||
+      readPathText(chat, ["participant.full_name", "participant.fullName", "user_name", "userName", "full_name", "fullName", "name"]) ||
+      "کاربر",
   };
 }
 
@@ -512,24 +512,6 @@ function MoreVerticalIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
       <path d="M11.9919 12.0004H12.0009M11.9829 6H11.9919M11.9921 18H12.001" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-  );
-}
-
-function UserIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
-      <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
     </svg>
   );
 }
@@ -1024,8 +1006,7 @@ const ChatCard = memo(function ChatCard({
             </div>
 
             <div className="flex min-w-0 items-center gap-4 [direction:rtl]">
-              <span className="flex min-w-0 items-center gap-1 text-sm font-medium leading-5 text-[#1a1a1a]">
-                <UserIcon className="h-5 w-5 text-[#4d4d4d]" />
+              <span className="flex min-w-0 items-center text-sm font-medium leading-5 text-[#1a1a1a]">
                 <span className="truncate">{displayItem.userName}</span>
               </span>
               {displayItem.isBlocked ? <BlockedBadge /> : null}

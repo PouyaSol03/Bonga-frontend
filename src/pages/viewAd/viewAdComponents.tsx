@@ -79,7 +79,7 @@ export function ViewAdTopBar({
       actions={actionIcons.map((icon) => ({
         icon: (
           <ViewAdIcon
-            className={icon === "bookmark" && bookmarked ? "text-[#0048c4]" : ""}
+            className={icon === "bookmark" && bookmarked ? "text-[#1a1a1a]" : ""}
             filled={icon === "bookmark" && bookmarked}
             name={icon}
           />

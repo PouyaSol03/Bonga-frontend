@@ -71,6 +71,13 @@ type ChatMessagesResponse =
     }
   | ChatMessage[];
 
+type ChatUnreadCountResponse = {
+  count?: number | string;
+  data?: { count?: number | string; unread_count?: number | string } | number | string;
+  status?: boolean;
+  unread_count?: number | string;
+};
+
 export type ChatsPage = {
   data: ChatThread[];
   hasNextPage: boolean;
@@ -143,6 +150,32 @@ function readChatMessages(response: ChatMessagesResponse) {
   return [];
 }
 
+function readNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function readChatUnreadCount(response: ChatUnreadCountResponse) {
+  const directCount = readNumber(response.count ?? response.unread_count);
+
+  if (directCount !== undefined) return directCount;
+
+  const dataCount = readNumber(response.data);
+
+  if (dataCount !== undefined) return dataCount;
+
+  const data = asRecord(response.data);
+
+  return readNumber(data?.count ?? data?.unread_count) ?? 0;
+}
+
 export async function getChats({
   page = 1,
   perPage = 10,
@@ -193,6 +226,14 @@ export async function getChatMessages(threadId: string) {
     .json<ChatMessagesResponse>();
 
   return readChatMessages(response);
+}
+
+export async function getChatUnreadCount() {
+  const response = await api
+    .get("chat/unread-count")
+    .json<ChatUnreadCountResponse>();
+
+  return readChatUnreadCount(response);
 }
 
 export function blockChat(threadId: string) {

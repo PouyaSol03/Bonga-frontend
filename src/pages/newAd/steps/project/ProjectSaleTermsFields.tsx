@@ -1,7 +1,8 @@
-import type { NewAdFormValues } from "../../types";
+import type { NewAdFieldErrors, NewAdFormValues } from "../../types";
 import { InputBox, Toggle } from "../../components/NewAdControls";
 
 type ProjectSaleTermsFieldsProps = {
+  errors?: NewAdFieldErrors;
   values: NewAdFormValues;
   setField: <T extends keyof NewAdFormValues>(
     key: T,
@@ -10,6 +11,7 @@ type ProjectSaleTermsFieldsProps = {
 };
 
 export function ProjectSaleTermsFields({
+  errors = {},
   values,
   setField,
 }: ProjectSaleTermsFieldsProps) {
@@ -24,6 +26,7 @@ export function ProjectSaleTermsFields({
       {values.saleTermsEnabled ? (
         <div className="space-y-3">
           <InputBox
+            error={errors.saleTermsPercent}
             numeric
             leftText="درصد"
             onChange={(value) => setField("saleTermsPercent", value)}
@@ -32,6 +35,7 @@ export function ProjectSaleTermsFields({
           />
 
           <InputBox
+            error={errors.saleTermsInstallmentMonths}
             numeric
             leftText="ماه"
             onChange={(value) => setField("saleTermsInstallmentMonths", value)}

@@ -15,7 +15,7 @@ import {
   getParams,
   navigateTo,
 } from "../utils";
-import type { MoreFeatureFormKey, NewAdFormValues, SelectKey, SheetState } from "../types";
+import type { MoreFeatureFormKey, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, SelectKey, SheetState } from "../types";
 import {
   Chip,
   Footer,
@@ -59,12 +59,16 @@ function ExchangeCheckIcon({ checked }: { checked: boolean }) {
 }
 
 export function DetailsStep({
+  errors = {},
   label,
+  onClearError,
   onNext,
   onMoreFeatures,
   onProjectDetails,
 }: {
+  errors?: NewAdFieldErrors;
   label: string;
+  onClearError?: (key: NewAdFieldErrorKey) => void;
   onNext: () => void;
   onMoreFeatures: () => void;
   onProjectDetails: () => void;
@@ -135,6 +139,7 @@ export function DetailsStep({
     value: NewAdFormValues[T],
   ) => {
     setValue(key as never, value as never, { shouldDirty: true });
+    onClearError?.(key);
   };
 
   const removeMoreFeature = (key: MoreFeatureFormKey) => {
@@ -159,6 +164,7 @@ export function DetailsStep({
       return (
         <Section icon="money.svg" title="شرایط مشارکت">
           <InputBox
+            error={errors.builderSharePercent}
             numeric
             leftText="درصد"
             onChange={(value) => setField("builderSharePercent", value)}
@@ -174,6 +180,7 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox
+              error={errors.minPrice}
               formatNumeric
               numeric
               leftText="تومان"
@@ -183,6 +190,7 @@ export function DetailsStep({
               value={values.minPrice}
             />
             <InputBox
+              error={errors.maxPrice}
               formatNumeric
               numeric
               leftText="تومان"
@@ -191,7 +199,7 @@ export function DetailsStep({
               supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
-            <ProjectSaleTermsFields values={values} setField={setField} />
+            <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
           </div>
         </Section>
       );
@@ -202,6 +210,7 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox
+              error={errors.minPrice}
               formatNumeric
               numeric
               leftText="تومان"
@@ -211,6 +220,7 @@ export function DetailsStep({
               value={values.minPrice}
             />
             <InputBox
+              error={errors.maxPrice}
               formatNumeric
               numeric
               leftText="تومان"
@@ -229,6 +239,7 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-4">
             <InputBox
+              error={errors.mortgagePrice}
               formatNumeric
               numeric
               leftText="تومان"
@@ -238,6 +249,7 @@ export function DetailsStep({
               value={values.mortgagePrice}
             />
             <InputBox
+              error={errors.rentPrice}
               formatNumeric
               numeric
               leftText="تومان"
@@ -255,6 +267,7 @@ export function DetailsStep({
       <Section icon="money.svg" title="اطلاعات قیمت">
         <div className="space-y-4">
           <InputBox
+            error={errors.price}
             formatNumeric
             numeric
             leftText="تومان"
@@ -275,6 +288,7 @@ export function DetailsStep({
               {values.loanEnabled ? (
                 <div className="space-y-3">
                   <InputBox
+                    error={errors.loanAmount}
                     formatNumeric
                     numeric
                     leftText="تومان"
@@ -285,6 +299,7 @@ export function DetailsStep({
                   />
 
                   <InputBox
+                    error={errors.loanInstallment}
                     formatNumeric
                     numeric
                     leftText="تومان"
@@ -341,6 +356,11 @@ export function DetailsStep({
                   ))}
                 </div>
               ) : null}
+              {errors.exchangeTargets ? (
+                <p className="m-0 mt-3 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+                  {errors.exchangeTargets}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -374,6 +394,7 @@ export function DetailsStep({
                   return (
                     <InputBox
                       key={field.key}
+                      error={errors[field.key]}
                       numeric={field.numeric}
                       leftText={field.leftText}
                       onChange={(nextValue) => setField(field.key, nextValue)}
@@ -386,6 +407,7 @@ export function DetailsStep({
                 return (
                   <SelectBox
                     key={field.key}
+                    error={errors[field.key]}
                     onClear={() => setField(field.key, "")}
                     onClick={() =>
                       setSheet({

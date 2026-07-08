@@ -538,7 +538,9 @@ export function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdF
   } else {
     const chatContact = toBooleanValue(contacts.chat);
     next.chatEnabled = chatContact ?? next.chatEnabled;
-    next.phoneEnabled = Boolean(readText(contacts.phone) || readText(ad.owner_phone) || next.phoneEnabled);
+    const phoneNumber = readText(contacts.phone) || readText(ad.owner_phone);
+    next.phoneEnabled = Boolean(phoneNumber || next.phoneEnabled);
+    if (phoneNumber) next.phoneNumber = phoneNumber;
   }
 
   syncEditLocationStorage(ad, features, next);

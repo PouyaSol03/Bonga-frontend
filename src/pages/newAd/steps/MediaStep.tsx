@@ -5,29 +5,49 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-stor
 import { REAL_ESTATE_MANAGER } from "../../../constants/roles.constants";
 import { PublisherSelectField } from "../../account/adManagement/PublisherSelectField";
 import { adManagementPublisherOptions } from "../../account/adManagement/adManagementData";
-import type { NewAdFormValues } from "../types";
+import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
 import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
 import { CheckRow, RadioCard, SocialInput } from "../components/MediaControls";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
 
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+
+  return (
+    <p className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+      {message}
+    </p>
+  );
+}
+
 export function MediaStep({
+  errors = {},
   forceFullEditFields = false,
   label,
   onBack,
+  onClearError,
   onSubmit,
   submitDisabled = false,
 }: {
+  errors?: NewAdFieldErrors;
   forceFullEditFields?: boolean;
   label: string;
   onBack: () => void;
+  onClearError?: (key: NewAdFieldErrorKey) => void;
   onSubmit: () => void;
   submitDisabled?: boolean;
 }) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const isRealEstateManager = !forceFullEditFields && getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
-  const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) =>
+  const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
     setValue(key as never, value as never, { shouldDirty: true });
+    onClearError?.(key);
+
+    if (key === "chatEnabled" || key === "phoneEnabled") {
+      onClearError?.("contactMethods");
+    }
+  };
 
   useEffect(() => {
     if (!isRealEstateManager) return;
@@ -40,6 +60,7 @@ export function MediaStep({
     }
     if (values.chatEnabled) setField("chatEnabled", false);
     if (values.phoneEnabled) setField("phoneEnabled", false);
+    if (values.phoneNumber) setField("phoneNumber", "");
     if (values.telegram) setField("telegram", "");
     if (values.whatsapp) setField("whatsapp", "");
   }, [
@@ -47,6 +68,7 @@ export function MediaStep({
     isRealEstateManager,
     values.chatEnabled,
     values.phoneEnabled,
+    values.phoneNumber,
     values.publisherName,
     values.registrantType,
     values.telegram,
@@ -57,24 +79,28 @@ export function MediaStep({
     <>
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3" dir="rtl">
         <Section icon="image.svg" title="عکس آگهی" warning>
-          <PhotoUploader />
+          <PhotoUploader onChange={() => onClearError?.("photos")} />
+          <FieldError message={errors.photos} />
           <div className="mt-5">
             <Toggle
               checked={values.hasVideo}
               label="ویدیو"
               onChange={(checked) => {
                 setField("hasVideo", checked);
+                onClearError?.("video");
                 if (!checked) setField("video", null);
               }}
             />
           </div>
-          {values.hasVideo ? <VideoUploader /> : null}
+          {values.hasVideo ? <VideoUploader onChange={() => onClearError?.("video")} /> : null}
+          <FieldError message={values.hasVideo ? errors.video : undefined} />
           <div className="mt-5">
             <Toggle
               checked={values.hasVirtualTour}
               label="تور مجازی"
               onChange={(checked) => {
                 setField("hasVirtualTour", checked);
+                onClearError?.("virtualTourLink");
                 if (!checked) setField("virtualTourLink", "");
               }}
             />
@@ -82,6 +108,7 @@ export function MediaStep({
           {values.hasVirtualTour ? (
             <div className="mt-3">
               <InputBox
+                error={errors.virtualTourLink}
                 onChange={(value) => setField("virtualTourLink", value)}
                 placeholder="لینک تور مجازی را وارد کنید"
                 value={values.virtualTourLink}
@@ -94,6 +121,7 @@ export function MediaStep({
           <div className="space-y-4">
             {!isRealEstateManager ? (
               <RegistrantTypeFields
+                error={errors.registrantType}
                 onSetField={setField}
                 publisherName={values.publisherName}
                 registrantType={values.registrantType}
@@ -102,9 +130,12 @@ export function MediaStep({
 
             {!isRealEstateManager ? (
               <ContactFields
+                contactError={errors.contactMethods}
                 chatEnabled={values.chatEnabled}
                 onSetField={setField}
                 phoneEnabled={values.phoneEnabled}
+                phoneError={errors.phoneNumber}
+                phoneNumber={values.phoneNumber}
               />
             ) : null}
 
@@ -134,6 +165,7 @@ export function MediaStep({
                 عنوان آگهی <span className="text-[#ff3b30]">*</span>
               </div>
               <InputBox
+                error={errors.title}
                 onChange={(value) => setField("title", value)}
                 placeholder={`مثال: ${label} ۱۲۰ متری، ۲ خوابه، طبقه اول`}
                 value={values.title}
@@ -144,14 +176,16 @@ export function MediaStep({
               <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">
                 توضیحات آگهی <span className="text-[#ff3b30]">*</span>
               </div>
-              <label className="block min-h-32 w-full rounded-[12px] border border-[#cccccc] bg-white px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4]">
+              <label className={`block min-h-32 w-full rounded-[12px] border bg-white px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] ${errors.description ? "border-[#ff3b30]" : "border-[#cccccc]"}`}>
                 <textarea
+                  aria-invalid={Boolean(errors.description)}
                   className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6]"
                   onChange={(event) => setField("description", event.target.value)}
                   placeholder="اطلاعات بیشتر را وارد کنید..."
                   value={values.description}
                 />
               </label>
+              <FieldError message={errors.description} />
             </div>
           </div>
         </Section>
@@ -169,10 +203,12 @@ export function MediaStep({
 type SetNewAdField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => void;
 
 function RegistrantTypeFields({
+  error,
   onSetField,
   publisherName,
   registrantType,
 }: {
+  error?: string;
   onSetField: SetNewAdField;
   publisherName: string;
   registrantType: NewAdFormValues["registrantType"];
@@ -208,18 +244,25 @@ function RegistrantTypeFields({
           }}
         />
       </div>
+      <FieldError message={error} />
     </div>
   );
 }
 
 function ContactFields({
   chatEnabled,
+  contactError,
   onSetField,
   phoneEnabled,
+  phoneError,
+  phoneNumber,
 }: {
   chatEnabled: boolean;
+  contactError?: string;
   onSetField: SetNewAdField;
   phoneEnabled: boolean;
+  phoneError?: string;
+  phoneNumber: string;
 }) {
   return (
     <div className="border-t border-dashed border-[#cccccc] pt-4">
@@ -230,7 +273,26 @@ function ContactFields({
         <img src="/icons/add_advertisement/warning.svg" alt="" />
       </div>
       <CheckRow checked={chatEnabled} label="چت با کاربران" onChange={(checked) => onSetField("chatEnabled", checked)} />
-      <CheckRow checked={phoneEnabled} label="شماره تماس" onChange={(checked) => onSetField("phoneEnabled", checked)} />
+      <CheckRow
+        checked={phoneEnabled}
+        label="شماره تماس"
+        onChange={(checked) => {
+          onSetField("phoneEnabled", checked);
+          if (!checked) onSetField("phoneNumber", "");
+        }}
+      />
+      <FieldError message={contactError} />
+      {phoneEnabled ? (
+        <div className="mt-3">
+          <InputBox
+            error={phoneError}
+            numeric
+            onChange={(value) => onSetField("phoneNumber", value)}
+            placeholder="شماره تماس را وارد کنید *"
+            value={phoneNumber}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

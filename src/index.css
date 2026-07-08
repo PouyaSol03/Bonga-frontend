@@ -1150,6 +1150,44 @@ input[type="search"]::-webkit-search-results-decoration {
   background: #cccccc;
 }
 
+
+
+@keyframes search-map-static-dot-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.15);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes search-map-marker-zoom-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes search-map-price-marker-zoom-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.55);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
 .search-map-marker-wrapper {
   background: transparent;
   border: 0;
@@ -1212,6 +1250,10 @@ input[type="search"]::-webkit-search-results-decoration {
   transform: translateX(-50%) translateY(0) scale(1);
 }
 
+.search-map-listing-marker--animate.search-map-listing-marker--price-visible .search-map-marker {
+  animation: search-map-price-marker-zoom-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
 .search-map-listing-marker--selected .search-map-marker {
   background: #11A366;
 }
@@ -1236,6 +1278,13 @@ input[type="search"]::-webkit-search-results-decoration {
   background: #0048c4;
 }
 
+.search-map-dot--static {
+}
+
+.search-map-dot--animate {
+  animation: search-map-static-dot-zoom-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 .search-map-listing-marker__dot {
   position: absolute;
   left: 50%;
@@ -1245,6 +1294,10 @@ input[type="search"]::-webkit-search-results-decoration {
   transition:
     opacity 180ms ease,
     transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.search-map-listing-marker--animate .search-map-listing-marker__dot {
+  animation: search-map-marker-zoom-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .search-map-listing-marker--price-visible .search-map-listing-marker__dot {

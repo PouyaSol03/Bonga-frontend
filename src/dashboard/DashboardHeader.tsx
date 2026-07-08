@@ -3,6 +3,7 @@ import UserSolid from "../assets/icons/UserSolid";
 import { getApiAssetUrl } from "../api/api";
 import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
+import { isUserIdentityVerified } from "../services/account.service";
 import { RouteLink } from "../routes/RouteLink";
 
 const dashboardStats = [
@@ -19,8 +20,7 @@ export function DashboardHeader() {
     .filter(Boolean)
     .join(" ");
   const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
-  const hasNationalNumber = Boolean(profile?.nationalnumber?.trim());
-  const profileName = hasNationalNumber ? fullName || "کاربر شناسا" : "احراز هویت نشده";
+  const profileName = isUserIdentityVerified(profile) ? fullName || "کاربر شناسا" : "احراز هویت نشده";
 
   return (
     <header className="flex h-[80px] w-full items-center justify-between bg-white px-6">

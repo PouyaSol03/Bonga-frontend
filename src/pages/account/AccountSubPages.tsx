@@ -18,11 +18,12 @@ import {
   mapAdvertisementToAdCard,
   type AdvertisementItem,
 } from "../../services/advertisement.service";
-import type {
-  BadgeItem,
-  MyAdsType,
-  NoteItem,
-  WalletPayment,
+import {
+  isUserIdentityVerified,
+  type BadgeItem,
+  type MyAdsType,
+  type NoteItem,
+  type WalletPayment,
 } from "../../services/account.service";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
@@ -34,6 +35,7 @@ import { getRequestErrorState } from "../../components/ErrorState";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
+import { replaceRoute } from "../../routes/navigation";
 import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
@@ -84,7 +86,7 @@ export function AccountProfilePage() {
   return (
     <AccountPageShell title="مشخصات من">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
-        {isLoading ? <AccountLoadingState text="در حال دریافت مشخصات..." /> : null}
+        {isLoading ? <AccountProfileSkeleton /> : null}
         {isError ? (
           <AccountRetryState
             error={error}
@@ -264,7 +266,6 @@ export function AccountMyAdsPage() {
     <AccountPageShell
       action={
         <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
-          <MapIcon className="h-6 w-6" />
         </RouteLink>
       }
       title="آگهی‌های من"
@@ -279,13 +280,56 @@ export function AccountMyAdsEmptyPage() {
     <AccountPageShell
       action={
         <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
-          <MapIcon className="h-6 w-6" />
         </RouteLink>
       }
       title="آگهی‌های من"
     >
       <AccountMyAdsContent emptyMode="full" />
     </AccountPageShell>
+  );
+}
+
+
+function AccountMyAdsEmptyState({
+  filterLabel,
+  mode,
+}: {
+  filterLabel: string;
+  mode: "compact" | "full";
+}) {
+  const isAllFilter = filterLabel === "همه";
+  const title = isAllFilter
+    ? "هیچ آگهی‌ای برای نمایش وجود ندارد!"
+    : `هیچ آگهی‌ای در وضعیت ${filterLabel} وجود ندارد!`;
+  const description = isAllFilter
+    ? "می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید."
+    : "وقتی آگهی‌ای در این وضعیت داشته باشید، همین‌جا نمایش داده می‌شود.";
+  const heightClass = mode === "full" ? "h-[calc(100dvh-204px)]" : "min-h-[360px]";
+
+  return (
+    <section className={`flex ${heightClass} flex-col items-center justify-center px-10 text-center`}>
+      <img
+        alt=""
+        aria-hidden="true"
+        className="mb-4 h-[66px] w-[66px] object-contain"
+        src="/vectors/NoAdd.svg"
+      />
+      <h2 className="m-0 font-semibold text-[#1a1a1a]">
+        {title}
+      </h2>
+      <p className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]">
+        {description}
+      </p>
+      {isAllFilter ? (
+        <RouteLink
+          className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+          to="/new-ad/category"
+        >
+          <PlusIcon className="h-5 w-5" />
+          ثبت آگهی
+        </RouteLink>
+      ) : null}
+    </section>
   );
 }
 
@@ -339,12 +383,12 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
     [fetchNextPage, hasNextPage, isFetchingNextPage],
   );
   const hasAds = ads.length > 0;
-  const showFullEmptyState = emptyMode === "full" && !hasAds;
+  const showEmptyState = !isLoading && !isError && !hasAds;
 
   return (
-    <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${showFullEmptyState && !isLoading && !isError ? "bg-white" : "bg-[#f0f0f0]"}`}>
+    <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-white" : "bg-[#f0f0f0]"}`}>
       <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
-      <div className={`${showFullEmptyState && !isLoading && !isError ? "bg-white" : "space-y-2 bg-[#f0f0f0] pt-4"}`}>
+      <div className={`${showEmptyState ? "bg-white" : "space-y-2 bg-[#f0f0f0] pt-4"}`}>
         {isLoading ? <MyAdsAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
@@ -380,31 +424,8 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
           );
         })}
         {isFetchingNextPage ? <MyAdsAdCardsSkeleton count={2} /> : null}
-        {!isLoading && !isError && !hasAds && emptyMode === "compact" ? (
-          <EmptyMessage text="آگهی‌ای برای نمایش وجود ندارد" />
-        ) : null}
-        {!isLoading && !isError && !hasAds && emptyMode === "full" ? (
-          <section className="flex min-h-[560px] flex-col items-center justify-center px-10 text-center">
-            <div className="relative mb-6 grid h-[74px] w-[74px] place-items-center text-[#dfe3eb]">
-              <DocumentSadIcon className="h-[68px] w-[68px]" />
-              <span className="absolute bottom-1 right-2 grid h-7 w-7 place-items-center rounded-full bg-[#ffb100] text-base font-bold leading-none text-white">
-                !
-              </span>
-            </div>
-            <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
-              هیچ آگهی‌ای برای نمایش وجود ندارد!
-            </h2>
-            <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
-              می‌توانید آگهی‌های خود را ثبت کرده و در این بخش مشاهده کنید.
-            </p>
-            <RouteLink
-              className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
-              to="/new-ad"
-            >
-              <PlusIcon className="h-5 w-5" />
-              ثبت آگهی
-            </RouteLink>
-          </section>
+        {showEmptyState ? (
+          <AccountMyAdsEmptyState filterLabel={activeFilter.label} mode={emptyMode} />
         ) : null}
       </div>
     </main>
@@ -923,7 +944,6 @@ export function AccountRecentViewsPage() {
     <AccountPageShell
       action={
         <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
-          <MapIcon className="h-6 w-6" />
         </RouteLink>
       }
       title="بازدیدهای اخیر"
@@ -941,10 +961,10 @@ export function AccountIdentityPage() {
   const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
 
   useEffect(() => {
-    if (profile?.nationalnumber?.trim()) {
+    if (isUserIdentityVerified(profile)) {
       setStatus("verified");
     }
-  }, [profile?.nationalnumber]);
+  }, [profile]);
 
   return (
     <AccountPageShell title={status === "verified" ? "مالکیت سیم‌کارت" : "تایید هویت"}>
@@ -963,6 +983,7 @@ export function AccountIdentityPage() {
                   onSuccess: () => {
                     setStatus("verified");
                     showNotice("کد ملی با موفقیت تایید شد");
+                    replaceRoute("/account", undefined, { rememberCurrent: false });
                   },
                 },
               );
@@ -1499,6 +1520,43 @@ function EmptyMessage({ text }: { text: string }) {
   );
 }
 
+function AccountProfileSkeleton() {
+  return (
+    <div aria-label="در حال دریافت مشخصات" className="bg-white pb-24">
+      <section className="flex flex-col items-center px-4 pt-4">
+        <AccountSkeletonBlock className="h-[100px] w-[100px] rounded-full" />
+        <AccountSkeletonBlock className="mt-3 h-4 w-28" />
+      </section>
+
+      <section className="mt-6 space-y-6 px-4">
+        <ProfileFieldSkeleton />
+        <ProfileFieldSkeleton />
+      </section>
+
+      <div className="mt-4 h-4 bg-[#f0f0f0]" />
+
+      <section className="space-y-6 px-4 pt-4">
+        <ProfileFieldSkeleton />
+        <ProfileFieldSkeleton />
+        <ProfileFieldSkeleton />
+      </section>
+
+      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+        <AccountSkeletonBlock className="h-10 w-full rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+function ProfileFieldSkeleton() {
+  return (
+    <div className="space-y-2">
+      <AccountSkeletonBlock className="ml-auto h-4 w-20" />
+      <AccountSkeletonBlock className="h-12 w-full" />
+    </div>
+  );
+}
+
 function AccountLoadingState({ text }: { text: string }) {
   return (
     <div className="space-y-3 bg-white px-4 py-5" aria-label={text}>
@@ -1510,7 +1568,7 @@ function AccountLoadingState({ text }: { text: string }) {
 }
 
 function AccountSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
 }
 
 function AccountAdCardsSkeleton({ count = 3 }: { count?: number }) {
@@ -1724,30 +1782,11 @@ function PaymentHistoryRow({
   );
 }
 
-function DocumentSadIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 80 80">
-      <path d="M24 12h28l12 12v40a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4Z" fill="currentColor" opacity=".25" stroke="none" />
-      <path d="M52 12v14h14" />
-      <path d="M30 38h.01M50 38h.01M32 54c5-4 11-4 16 0M31 29l6 6M37 29l-6 6M47 29l6 6M53 29l-6 6" />
-    </svg>
-  );
-}
-
 function EditIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
-    </svg>
-  );
-}
-
-function MapIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
-      <path d="M9 3v15M15 6v15" />
     </svg>
   );
 }

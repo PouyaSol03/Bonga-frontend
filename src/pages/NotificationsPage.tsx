@@ -464,6 +464,26 @@ function NotificationSettingsSheet({
   );
 }
 
+
+function NotificationsEmptyState() {
+  return (
+    <section className="flex h-[calc(100dvh-134px)] flex-col items-center justify-center px-10 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="mb-4 h-[66px] w-[66px] object-contain"
+        src="/vectors/NoNotification.svg"
+      />
+      <h2 className="m-0 font-semibold text-[#1a1a1a]">
+        هنوز اعلانی دریافت نکرده‌اید
+      </h2>
+      <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+        تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود.
+      </p>
+    </section>
+  );
+}
+
 function NotificationActionButton({
   label,
   onClick,
@@ -958,7 +978,7 @@ export function NotificationsPage() {
         {!notificationsQuery.isLoading &&
         !notificationsQuery.isError &&
         visibleNotifications.length === 0 ? (
-          <p className="py-16 text-center text-sm text-[#808080]">اعلانی یافت نشد</p>
+          <NotificationsEmptyState />
         ) : null}
 
         {notificationsQuery.isFetchingNextPage ? (

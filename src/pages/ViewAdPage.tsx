@@ -3233,6 +3233,13 @@ export function ViewAdPage() {
 
     return () => window.clearTimeout(timer);
   }, [toast]);
+  useEffect(() => {
+    if (!isViolationReportOpen || !reportReasonsQuery.isError) return;
+    if (!isUnauthorizedApiError(reportReasonsQuery.error)) return;
+
+    setIsViolationReportOpen(false);
+    navigateToLoginRequiredPage("ارسال گزارش تخلف");
+  }, [isViolationReportOpen, reportReasonsQuery.error, reportReasonsQuery.isError]);
 
   if (adId == null) {
     return <NotFoundState />;
@@ -3611,10 +3618,12 @@ export function ViewAdPage() {
         <ViewAdViolationReportPage
           errorMessage={
             reportReasonsQuery.isError
-              ? getApiErrorMessage(
-                reportReasonsQuery.error,
-                "دریافت دلایل گزارش با خطا مواجه شد.",
-              )
+              ? isUnauthorizedApiError(reportReasonsQuery.error)
+                ? "برای ارسال گزارش تخلف، ابتدا وارد حساب کاربری شوید."
+                : getApiErrorMessage(
+                  reportReasonsQuery.error,
+                  "دریافت دلایل گزارش با خطا مواجه شد.",
+                )
               : undefined
           }
           isLoading={reportReasonsQuery.isLoading}

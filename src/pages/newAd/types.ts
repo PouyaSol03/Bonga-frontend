@@ -170,6 +170,10 @@ export type SheetState =
 
 /* ------------------------------- Form Values ------------------------------ */
 
+export type NewAdFieldErrorKey = keyof NewAdFormValues | "contactMethods";
+
+export type NewAdFieldErrors = Partial<Record<NewAdFieldErrorKey, string>>;
+
 export type NewAdFormValues = {
   location: string;
 
@@ -248,6 +252,7 @@ export type NewAdFormValues = {
   publisherName: string;
   chatEnabled: boolean;
   phoneEnabled: boolean;
+  phoneNumber: string;
   telegram: string;
   whatsapp: string;
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { DivIcon } from "leaflet";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { BrowserLocation } from "../../../lib/browserLocation";
@@ -100,6 +100,40 @@ export function SearchMapView({
   onMapClick,
   onSelectListing,
 }: SearchMapViewProps) {
+  const renderedMarkerIdsRef = useRef<Set<string>>(new Set());
+  const newlyRenderedMarkerIds = useMemo(() => {
+    const knownIds = renderedMarkerIdsRef.current;
+    const freshIds = new Set<string>();
+
+    dotMarkers.forEach((marker) => {
+      const markerId = `dot:${String(marker.id)}`;
+
+      if (!knownIds.has(markerId)) {
+        freshIds.add(markerId);
+      }
+    });
+
+    listings.forEach((listing) => {
+      const markerId = `listing:${String(listing.id)}`;
+
+      if (!knownIds.has(markerId)) {
+        freshIds.add(markerId);
+      }
+    });
+
+    return freshIds;
+  }, [dotMarkers, listings]);
+
+  useEffect(() => {
+    dotMarkers.forEach((marker) => {
+      renderedMarkerIdsRef.current.add(`dot:${String(marker.id)}`);
+    });
+
+    listings.forEach((listing) => {
+      renderedMarkerIdsRef.current.add(`listing:${String(listing.id)}`);
+    });
+  }, [dotMarkers, listings]);
+
   return (
     <MapContainer
       className="relative z-0 h-full min-h-[320px] w-full bg-[#f5f5f5]"
@@ -123,9 +157,17 @@ export function SearchMapView({
         onMapClick={onMapClick}
       />
 
-      {dotMarkers.map((marker) => (
-        <SearchMapMarker key={marker.id} marker={marker} />
-      ))}
+      {dotMarkers.map((marker) => {
+        const markerId = `dot:${String(marker.id)}`;
+
+        return (
+          <SearchMapMarker
+            key={marker.id}
+            marker={marker}
+            shouldAnimate={newlyRenderedMarkerIds.has(markerId)}
+          />
+        );
+      })}
 
       {listings.map((listing) => {
         const isSelected =
@@ -139,6 +181,7 @@ export function SearchMapView({
             isPriceVisible={isSelected || priceMarkerListingIds.has(listing.id)}
             isSeen={seenListingIds.has(listing.id)}
             isSelected={isSelected}
+            shouldAnimate={newlyRenderedMarkerIds.has(`listing:${String(listing.id)}`)}
             onSelect={onSelectListing}
           />
         );

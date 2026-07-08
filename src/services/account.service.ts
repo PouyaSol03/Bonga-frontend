@@ -17,6 +17,17 @@ export type UserProfile = {
   phone?: string;
 };
 
+export function isUserIdentityVerified(profile?: UserProfile | null) {
+  const authorizedValue = profile?.authorized;
+  const isAuthorized =
+    authorizedValue === 1 ||
+    String(authorizedValue ?? "").trim() === "1" ||
+    String(authorizedValue ?? "").toLowerCase().trim() === "true";
+  const hasNationalNumber = Boolean(profile?.nationalnumber?.trim());
+
+  return isAuthorized || hasNationalNumber;
+}
+
 export type UpdateProfilePayload = {
   avatar?: File | null;
   email: string | null;

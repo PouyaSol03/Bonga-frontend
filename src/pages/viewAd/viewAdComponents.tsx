@@ -77,7 +77,13 @@ export function ViewAdTopBar({
   return (
     <TopBar
       actions={actionIcons.map((icon) => ({
-        icon: <ViewAdIcon filled={icon === "bookmark" && bookmarked} name={icon} />,
+        icon: (
+          <ViewAdIcon
+            className={icon === "bookmark" && bookmarked ? "text-[#0048c4]" : ""}
+            filled={icon === "bookmark" && bookmarked}
+            name={icon}
+          />
+        ),
         id: icon,
         label: getActionLabel(icon),
         onClick: onAction ? () => onAction(icon) : undefined,

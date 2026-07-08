@@ -112,6 +112,7 @@ export const blankValues: NewAdFormValues = {
   publisherName: "",
   chatEnabled: false,
   phoneEnabled: false,
+  phoneNumber: "",
   telegram: "",
   whatsapp: "",
 
@@ -390,7 +391,7 @@ const saleFactoryWorkshopBasicFields: BasicPropertyField[] = [
 ];
 
 const rentApartmentBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  { key: "meterage", label: "متراژ آپارتمان", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },

@@ -190,6 +190,12 @@ export function HomeSearchScreen({
     }, REMOVE_TRANSITION_MS);
   };
 
+  const handleDirectSearch = () => {
+    if (!trimmedQuery) return;
+
+    onSelectResult?.({ title: trimmedQuery });
+  };
+
   if (isSavedView) {
     return (
       <SavedSearchesView
@@ -203,7 +209,7 @@ export function HomeSearchScreen({
     );
   }
 
-  if (activeErrorState) {
+  if (!isResultsView && activeErrorState) {
     const ActiveErrorState = activeErrorState;
 
     return (
@@ -235,6 +241,7 @@ export function HomeSearchScreen({
               isOpen={isOpen}
               query={query}
               onQueryChange={setQuery}
+              onSubmit={handleDirectSearch}
             />
           }
           // className="!bg-white"
@@ -260,31 +267,37 @@ export function HomeSearchScreen({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
         {isResultsView ? (
-          isAdvertisementSearchLoading || isSearchResultsLoading ? (
+          isAdvertisementSearchLoading ? (
             <SearchRowsSkeleton />
           ) : isAdvertisementSearchError ? (
             <AdvertisementSearchErrorState
               className="min-h-full"
               onRetry={() => void refetchAdvertisementSearch()}
             />
-          ) : isSearchResultsError ? (
-            <SearchResultsErrorState
-              className="min-h-full"
-              onRetry={() => void refetchSearchResults()}
-            />
-          ) : visibleSearchResults.length > 0 ? (
-            <div className="flex flex-col">
-              {visibleSearchResults.map((item) => (
-                <SearchSuggestionRow
-                  item={item}
-                  key={item.id}
-                  onSelect={() => onSelectResult?.(item)}
-                  query={trimmedQuery}
-                />
-              ))}
-            </div>
           ) : (
-            <SearchErrors variant="not-found" />
+            <div className="flex flex-col">
+              <DirectSearchRow query={trimmedQuery} onSelect={handleDirectSearch} />
+              {isSearchResultsLoading ? (
+                <p className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+                  در حال دریافت پیشنهادهای مرتبط...
+                </p>
+              ) : null}
+              {!isSearchResultsError && visibleSearchResults.length > 0 ? (
+                visibleSearchResults.map((item) => (
+                  <SearchSuggestionRow
+                    item={item}
+                    key={item.id}
+                    onSelect={() => onSelectResult?.(item)}
+                    query={trimmedQuery}
+                  />
+                ))
+              ) : null}
+              {!isSearchResultsError && visibleSearchResults.length === 0 ? (
+                <p className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+                  برای جستجوی همین عبارت، ردیف بالا را انتخاب کنید.
+                </p>
+              ) : null}
+            </div>
           )
         ) : isRecentSearchLoading ? (
           <SearchRowsSkeleton />
@@ -410,10 +423,12 @@ function SearchField({
   isOpen,
   query,
   onQueryChange,
+  onSubmit,
 }: {
   isOpen: boolean;
   query: string;
   onQueryChange: (query: string) => void;
+  onSubmit: () => void;
 }) {
   return (
     <label className="relative flex h-12 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white">
@@ -424,6 +439,12 @@ function SearchField({
         value={query}
         tabIndex={isOpen ? 0 : -1}
         onChange={(event) => onQueryChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter") return;
+
+          event.preventDefault();
+          onSubmit();
+        }}
       />
 
       {query.length > 0 ? (
@@ -536,6 +557,35 @@ function RecentSearchRow({
         </div>
       </div>
     </article>
+  );
+}
+
+function DirectSearchRow({
+  onSelect,
+  query,
+}: {
+  onSelect: () => void;
+  query: string;
+}) {
+  return (
+    <button
+      className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-3 border-b border-[#cccccc] bg-white px-4 py-2.5 text-right [direction:ltr] min-[390px]:min-h-[73px] min-[390px]:gap-4 min-[390px]:py-3"
+      onClick={onSelect}
+      type="button"
+    >
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0048c414] px-2.5 py-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
+        جستجو
+      </span>
+
+      <span className="flex min-w-0 flex-col items-start [direction:rtl]">
+        <strong className="text-sm font-normal leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
+          جستجوی «{query}»
+        </strong>
+        <span className="text-sm font-normal leading-5 text-[#a6a6a6]">
+          نمایش آگهی‌های مرتبط با این عبارت
+        </span>
+      </span>
+    </button>
   );
 }
 

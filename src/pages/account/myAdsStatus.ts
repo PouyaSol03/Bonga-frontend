@@ -124,11 +124,16 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.pending;
   }
 
-  if (["3", "active", "approved", "publish", "published", "success"].includes(status)) {
+  if (["3", "active", "approved", "publish", "published", "success", "paid"].includes(status)) {
     return myAdStatusConfig.published;
   }
 
-  if (status.includes("منتشر") || status.includes("فعال") || status.includes("تایید شده")) {
+  if (
+    status.includes("منتشر") ||
+    status.includes("فعال") ||
+    status.includes("تایید شده") ||
+    status.includes("پرداخت شده")
+  ) {
     return myAdStatusConfig.published;
   }
 

@@ -103,7 +103,25 @@ function FloatingFieldLabel({ show, text }: { show: boolean; text: string }) {
   );
 }
 
-export function InputBox({ value, placeholder, leftText, numeric, formatNumeric, supportingText, onChange }: { value: string; placeholder: string; leftText?: string; numeric?: boolean; formatNumeric?: boolean; supportingText?: string; onChange: (value: string) => void }) {
+export function InputBox({
+  error,
+  formatNumeric,
+  leftText,
+  numeric,
+  onChange,
+  placeholder,
+  supportingText,
+  value,
+}: {
+  error?: string;
+  formatNumeric?: boolean;
+  leftText?: string;
+  numeric?: boolean;
+  onChange: (value: string) => void;
+  placeholder: string;
+  supportingText?: string;
+  value: string;
+}) {
   const hasValue = Boolean(value);
   const displayValue = numeric && formatNumeric && value
     ? formatPrice(Number(normalizeNumberInput(value).replace(/,/g, "")))
@@ -111,15 +129,17 @@ export function InputBox({ value, placeholder, leftText, numeric, formatNumeric,
   const floatingLabel = leftText
     ? placeholder.replace(/\s\*$/, ` (${leftText}) *`)
     : placeholder;
+  const helperText = error || supportingText;
 
   return (
     <div>
-      <label className="relative flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] transition focus-within:border-[#0048c4] [direction:ltr]">
+      <label className={`relative flex h-14 w-full items-center gap-3 rounded-[12px] border bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] transition focus-within:border-[#0048c4] [direction:ltr] ${error ? "border-[#ff3b30]" : "border-[#cccccc]"}`}>
         <FloatingFieldLabel show={hasValue} text={floatingLabel} />
         {hasValue ? (
           <ClearFieldButton onClick={() => onChange("")} />
         ) : leftText ? <span className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</span> : null}
         <input
+          aria-invalid={Boolean(error)}
           className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
           inputMode={numeric ? "numeric" : "text"}
           onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
@@ -127,9 +147,9 @@ export function InputBox({ value, placeholder, leftText, numeric, formatNumeric,
           value={displayValue}
         />
       </label>
-      {supportingText ? (
-        <p className="mt-1 px-4 text-right text-xs font-normal leading-5 text-[#808080]">
-          {supportingText}
+      {helperText ? (
+        <p className={`mt-1 px-4 text-right text-xs font-normal leading-5 ${error ? "text-[#ff3b30]" : "text-[#808080]"}`}>
+          {helperText}
         </p>
       ) : null}
     </div>
@@ -137,53 +157,63 @@ export function InputBox({ value, placeholder, leftText, numeric, formatNumeric,
 }
 
 export function SelectBox({
-  value,
-  placeholder,
+  error,
   onClick,
   onClear,
+  placeholder,
+  value,
 }: {
-  value: string;
-  placeholder: string;
+  error?: string;
   onClick: () => void;
   onClear?: () => void;
+  placeholder: string;
+  value: string;
 }) {
   const hasValue = Boolean(value);
 
   return (
-    <button
-      className="relative flex h-14 w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr]"
-      onClick={onClick}
-      type="button"
-    >
-      <FloatingFieldLabel show={hasValue} text={placeholder} />
-      {hasValue && onClear ? (
-        <ClearFieldButton onClick={onClear} />
-      ) : null}
-
-      <span
-        className={`min-w-0 flex-1 truncate text-right [direction:rtl] ${hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
-          }`}
+    <div>
+      <button
+        aria-invalid={Boolean(error)}
+        className={`relative flex h-14 w-full items-center gap-3 rounded-[12px] border bg-white px-4 text-base font-normal leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr] ${error ? "border-[#ff3b30]" : "border-[#cccccc]"}`}
+        onClick={onClick}
+        type="button"
       >
-        {value || placeholder}
-      </span>
+        <FloatingFieldLabel show={hasValue} text={placeholder} />
+        {hasValue && onClear ? (
+          <ClearFieldButton onClick={onClear} />
+        ) : null}
 
-      {(!hasValue || !onClear) ? (
-        <svg
-          aria-hidden="true"
-          className="h-5 w-5 shrink-0 text-[#4d4d4d]"
-          fill="none"
-          viewBox="0 0 24 24"
+        <span
+          className={`min-w-0 flex-1 truncate text-right [direction:rtl] ${hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
+            }`}
         >
-          <path
-            d="M7 10l5 5 5-5"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-          />
-        </svg>
+          {value || placeholder}
+        </span>
+
+        {(!hasValue || !onClear) ? (
+          <svg
+            aria-hidden="true"
+            className="h-5 w-5 shrink-0 text-[#4d4d4d]"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M7 10l5 5 5-5"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+          </svg>
+        ) : null}
+      </button>
+      {error ? (
+        <p className="mt-1 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+          {error}
+        </p>
       ) : null}
-    </button>
+    </div>
   );
 }
 

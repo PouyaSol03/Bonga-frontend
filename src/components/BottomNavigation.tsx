@@ -1,11 +1,12 @@
 import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
-import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
 import NavAddIcon from "../assets/icons/NavAddIcon";
 import NavChatIcon from "../assets/icons/NavChatIcon";
 import NavHomeIcon from "../assets/icons/NavHomeIcon";
 import NavSearchIcon from "../assets/icons/NavSearchIcon";
+import { USER } from "../constants/roles.constants";
 import { RouteLink } from "../routes/RouteLink";
 import { CreateAdBottomSheet } from "./CreateAdBottomSheet";
 
@@ -96,9 +97,16 @@ export function BottomNavigation({
 
                   event.preventDefault();
 
-                  if (!getStoredAuthSession()) {
+                  const session = getStoredAuthSession();
+
+                  if (!session) {
                     storeLoginRedirectPath("/new-ad/category");
                     navigateTo(getLoginRequiredPath("/new-ad/category"));
+                    return;
+                  }
+
+                  if (getActiveAuthRole(session) === USER) {
+                    navigateTo("/new-ad/category");
                     return;
                   }
 

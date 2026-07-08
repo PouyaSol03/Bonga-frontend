@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 
+import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
+import { USER } from "../../../constants/roles.constants";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
@@ -15,6 +17,7 @@ import {
 import {
   adManagementPaths,
   getAdManagementRouteState,
+  getAdStatePath,
   getSelectedConsultantAd,
 } from "./adManagementData";
 
@@ -41,7 +44,10 @@ export function IndependentConsultantAdPaymentPage() {
   const routeState = getAdManagementRouteState();
   const ad = getSelectedConsultantAd();
   const isNewAdFlow = routeState.paymentFlow === "new-ad";
-  const backTo = routeState.paymentHistoryReturnTo ?? (isNewAdFlow ? "/new-ad" : adManagementPaths.allocation);
+  const isUserRole = getActiveAuthRole(getStoredAuthSession()) === USER;
+  const userStateAdPath = `${getAdStatePath(ad.id)}?status=published`;
+  const completeTo = isUserRole ? userStateAdPath : adManagementPaths.published;
+  const backTo = routeState.paymentHistoryReturnTo ?? (isNewAdFlow ? "/new-ad" : isUserRole ? userStateAdPath : adManagementPaths.allocation);
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["renew"]);
@@ -58,10 +64,13 @@ export function IndependentConsultantAdPaymentPage() {
   const publishState = useMemo(
     () => ({
       ad,
+      card: ad,
+      returnTo: isUserRole ? "/account/my-ads" : routeState.returnTo,
       showPaymentSuccess: true,
-      tab: "status" as const,
+      status: "published",
+      tab: isUserRole ? undefined : ("status" as const),
     }),
-    [ad],
+    [ad, isUserRole, routeState.returnTo],
   );
 
   function toggleTariff(optionId: AdTariffOptionId) {
@@ -78,7 +87,7 @@ export function IndependentConsultantAdPaymentPage() {
       return;
     }
 
-    navigateTo(adManagementPaths.published, publishState);
+    navigateTo(completeTo, publishState);
   }
 
   if (step === "checkout") {
@@ -87,6 +96,7 @@ export function IndependentConsultantAdPaymentPage() {
         method={method}
         onBack={() => setStep("options")}
         onMethodChange={setMethod}
+        completeTo={completeTo}
         publishState={publishState}
         total={payableAmount}
       />

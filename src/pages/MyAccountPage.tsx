@@ -10,7 +10,7 @@ import { useLogoutMutation } from "../hooks/auth.hooks";
 import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
 import { getApiAssetUrl } from "../api/api";
 import { formatMobileForDisplay } from "../services/auth.service";
-import type { MyAgencyProfile, UserProfile } from "../services/account.service";
+import { isUserIdentityVerified, type MyAgencyProfile, type UserProfile } from "../services/account.service";
 
 import {
   authSessionChangedEventName,
@@ -206,10 +206,10 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
   const activeRole = getActiveAuthRole(authSession);
   const isManagerRole = activeRole === REAL_ESTATE_MANAGER;
   const isAgencyRole = isManagerRole || activeRole === REAL_ESTATE_CONSULTANT;
-  const { data: profile } = useMyProfileQuery({
+  const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
     enabled: Boolean(authSession) && !isManagerRole,
   });
-  const { data: agencyProfile } = useMyAgencyProfileQuery({
+  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({
     enabled: Boolean(authSession) && isAgencyRole,
   });
   const {
@@ -222,6 +222,10 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
   const consultantActions = getBusinessAccountActions(activeRole);
   const accountSwitchActions = getAccountSwitchActions(authSession, activeRole, profile, agencyProfile);
   const businessHeader = getBusinessAccountHeader(activeRole, profile, agencyProfile);
+  const isBusinessAccountLoading = Boolean(authSession) && (
+    (!isManagerRole && isProfileLoading) ||
+    (isAgencyRole && isAgencyProfileLoading)
+  );
   const accountOverlay = (
     <>
       {businessSuccessSheet}
@@ -247,54 +251,60 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
       />}
     >
 
-      <section className="shrink-0 bg-white pt-4" aria-label={businessHeader.ariaLabel}>
-        <button
-          className="flex w-full items-center gap-4 px-4 text-right"
-          onClick={() => {
-            setStoredActiveRole(USER);
-            navigateTo("/account");
-          }}
-          type="button"
-        >
-          <AccountProfileAvatar
-            avatarUrl={businessHeader.imageSrc}
-            className="h-[72px] w-[72px]"
-            iconClassName="h-8 w-8"
-            label={businessHeader.name}
-          />
-          <div className="min-w-0 flex-1 text-right">
-            <p
-              className="m-0 truncate text-base font-semibold leading-6"
-              style={{ color: businessHeader.color }}
+      {isBusinessAccountLoading ? (
+        <BusinessAccountSkeleton />
+      ) : (
+        <>
+          <section className="shrink-0 bg-white pt-4" aria-label={businessHeader.ariaLabel}>
+            <button
+              className="flex w-full items-center gap-4 px-4 text-right"
+              onClick={() => {
+                setStoredActiveRole(USER);
+                navigateTo("/account");
+              }}
+              type="button"
             >
-              {businessHeader.name}
-            </p>
-            <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
-              {businessHeader.subtitle}
-            </p>
-          </div>
-        </button>
+              <AccountProfileAvatar
+                avatarUrl={businessHeader.imageSrc}
+                className="h-[72px] w-[72px]"
+                iconClassName="h-8 w-8"
+                label={businessHeader.name}
+              />
+              <div className="min-w-0 flex-1 text-right">
+                <p
+                  className="m-0 truncate text-base font-semibold leading-6"
+                  style={{ color: businessHeader.color }}
+                >
+                  {businessHeader.name}
+                </p>
+                <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
+                  {businessHeader.subtitle}
+                </p>
+              </div>
+            </button>
 
-        <DangerAccountRow
-          action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
-        />
-        <AccountSection actions={accountSwitchActions} spacedDividers />
-      </section>
+            <DangerAccountRow
+              action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
+            />
+            <AccountSection actions={accountSwitchActions} spacedDividers />
+          </section>
 
-      <AccountSection
-        actions={consultantActions}
-        className=" pt-0.5"
-        spacedDividers
-      />
-      <AccountSection
-        actions={[
-          {
-            icon: "log_out",
-            label: isLoggingOut ? "در حال خروج..." : "خروج از حساب کاربری",
-            onClick: openLogoutConfirm,
-          },
-        ]}
-      />
+          <AccountSection
+            actions={consultantActions}
+            className=" pt-0.5"
+            spacedDividers
+          />
+          <AccountSection
+            actions={[
+              {
+                icon: "log_out",
+                label: isLoggingOut ? "در حال خروج..." : "خروج از حساب کاربری",
+                onClick: openLogoutConfirm,
+              },
+            ]}
+          />
+        </>
+      )}
     </TopBarNavigationLayout>
   );
 }
@@ -458,8 +468,8 @@ function StandardAccountPage({
       (role) => role.slug === REAL_ESTATE_MANAGER || role.slug === REAL_ESTATE_CONSULTANT,
     ),
   );
-  const { data: profile } = useMyProfileQuery({ enabled: isLoggedIn });
-  const { data: agencyProfile } = useMyAgencyProfileQuery({ enabled: isLoggedIn && hasAgencyRole });
+  const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({ enabled: isLoggedIn });
+  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({ enabled: isLoggedIn && hasAgencyRole });
   const {
     closeLogoutConfirm,
     confirmLogout,
@@ -469,6 +479,10 @@ function StandardAccountPage({
   } = useLogoutAccount();
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
+  const isAccountLoading = isLoggedIn && (isProfileLoading || (hasAgencyRole && isAgencyProfileLoading));
+  const primaryAccountActions = isUserIdentityVerified(profile)
+    ? primaryActions.filter((action) => action.icon !== "identity")
+    : primaryActions;
   const accountOverlay = (
     <>
       {businessSuccessSheet}
@@ -499,60 +513,126 @@ function StandardAccountPage({
       overlay={accountOverlay}
       topBar={accountTopBar}
     >
-      {isLoggedIn ? (
-        <section className="bg-white" aria-label="وضعیت حساب">
-          <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
-            <AccountProfileAvatar
-              avatarUrl={accountHeader.avatarUrl}
-              className="h-[72px] w-[72px]"
-              iconClassName="h-8 w-8 text-[#cccccc]"
-              label={accountHeader.label}
-            />
-
-            <div className="min-w-0 flex-1 text-right">
-              <p
-                className="m-0 truncate text-sm font-semibold leading-5"
-                style={{ color: accountHeader.color }}
-              >
-                {accountHeader.label}
-              </p>
-              <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
-                {formatMobileForDisplay(displayMobile)}
-              </p>
-            </div>
-          </div>
-          <Divider />
-        </section>
+      {isAccountLoading ? (
+        <StandardAccountSkeleton />
       ) : (
-        <LoggedOutAccountHeader />
-      )}
-
-      <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession, profile, agencyProfile) : loggedOutBusinessActions} />
-
-      <div className="h-4 bg-[#f0f0f0]" />
-
-      <AccountSection actions={isLoggedIn ? primaryActions : loggedOutPrimaryActions} />
-
-      <div className="h-4 bg-[#f0f0f0]" />
-
-      <AccountSection actions={isLoggedIn && secondaryActions} />
-
-      {isLoggedIn ? (
         <>
+          {isLoggedIn ? (
+            <section className="bg-white" aria-label="وضعیت حساب">
+              <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
+                <AccountProfileAvatar
+                  avatarUrl={accountHeader.avatarUrl}
+                  className="h-[72px] w-[72px]"
+                  iconClassName="h-8 w-8 text-[#cccccc]"
+                  label={accountHeader.label}
+                />
+
+                <div className="min-w-0 flex-1 text-right">
+                  <p
+                    className="m-0 truncate text-sm font-semibold leading-5"
+                    style={{ color: accountHeader.color }}
+                  >
+                    {accountHeader.label}
+                  </p>
+                  <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
+                    {formatMobileForDisplay(displayMobile)}
+                  </p>
+                </div>
+              </div>
+              <Divider />
+            </section>
+          ) : (
+            <LoggedOutAccountHeader />
+          )}
+
+          <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession, profile, agencyProfile) : loggedOutBusinessActions} />
+
           <div className="h-4 bg-[#f0f0f0]" />
-          <AccountSection
-            actions={[
-              {
-                icon: "log_out",
-                label: isLoggingOut ? "در حال خروج..." : "خروج از حساب",
-                onClick: openLogoutConfirm,
-              },
-            ]}
-          />
+
+          <AccountSection actions={isLoggedIn ? primaryAccountActions : loggedOutPrimaryActions} />
+
+          <div className="h-4 bg-[#f0f0f0]" />
+
+          <AccountSection actions={isLoggedIn && secondaryActions} />
+
+          {isLoggedIn ? (
+            <>
+              <div className="h-4 bg-[#f0f0f0]" />
+              <AccountSection
+                actions={[
+                  {
+                    icon: "log_out",
+                    label: isLoggingOut ? "در حال خروج..." : "خروج از حساب",
+                    onClick: openLogoutConfirm,
+                  },
+                ]}
+              />
+            </>
+          ) : null}
         </>
-      ) : null}
+      )}
     </TopBarNavigationLayout>
   );
+}
+
+function StandardAccountSkeleton() {
+  return (
+    <>
+      <AccountHeaderSkeleton />
+      <AccountMenuSkeleton count={1} />
+      <div className="h-4 bg-[#f0f0f0]" />
+      <AccountMenuSkeleton count={6} />
+      <div className="h-4 bg-[#f0f0f0]" />
+      <AccountMenuSkeleton count={3} />
+    </>
+  );
+}
+
+function BusinessAccountSkeleton() {
+  return (
+    <>
+      <AccountHeaderSkeleton />
+      <AccountMenuSkeleton count={3} />
+      <div className="h-4 bg-[#f0f0f0]" />
+      <AccountMenuSkeleton count={6} />
+    </>
+  );
+}
+
+function AccountHeaderSkeleton() {
+  return (
+    <section className="bg-white" aria-label="در حال دریافت اطلاعات حساب">
+      <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
+        <AccountSkeletonBlock className="h-[72px] w-[72px] shrink-0 rounded-full" />
+        <div className="min-w-0 flex-1 space-y-3 text-right">
+          <AccountSkeletonBlock className="ml-auto h-5 w-32" />
+          <AccountSkeletonBlock className="ml-auto h-4 w-24" />
+        </div>
+      </div>
+      <Divider />
+    </section>
+  );
+}
+
+function AccountMenuSkeleton({ count }: { count: number }) {
+  return (
+    <section className="bg-white" aria-label="در حال دریافت گزینه‌های حساب">
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index}>
+          <div className="flex h-14 items-center gap-2 px-4 [direction:ltr]">
+            <AccountSkeletonBlock className="h-6 w-6 shrink-0 rounded-full" />
+            <AccountSkeletonBlock className="ml-auto h-5 w-36" />
+            <AccountSkeletonBlock className="h-6 w-6 shrink-0 rounded-full" />
+          </div>
+          {index < count - 1 ? <Divider /> : null}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function AccountSkeletonBlock({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
 }
 
 function clearBusinessSuccessQuery() {
@@ -684,10 +764,10 @@ function getAgencyAvatarUrl(agencyProfile?: MyAgencyProfile) {
 
 function getAccountHeader(profile?: UserProfile) {
   const fullName = getProfileDisplayName(profile);
-  const hasNationalNumber = Boolean(profile?.nationalnumber?.trim());
+  const isIdentityVerified = isUserIdentityVerified(profile);
   const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
 
-  if (!hasNationalNumber) {
+  if (!isIdentityVerified) {
     return { avatarUrl, color: "#C11004", label: "احراز هویت نشده" };
   }
 

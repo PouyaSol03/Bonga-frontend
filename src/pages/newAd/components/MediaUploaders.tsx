@@ -45,7 +45,7 @@ export function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function PhotoUploader() {
+export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const createdPreviewUrls = useRef<string[]>([]);
@@ -77,6 +77,7 @@ export function PhotoUploader() {
       shouldDirty: true,
       shouldValidate: true,
     });
+    onChange?.();
   };
 
   const removePhoto = (photoId: string) => {
@@ -94,6 +95,7 @@ export function PhotoUploader() {
         shouldValidate: true,
       },
     );
+    onChange?.();
   };
 
   return (
@@ -150,7 +152,7 @@ export function PhotoUploader() {
   );
 }
 
-export function VideoUploader() {
+export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -185,6 +187,7 @@ export function VideoUploader() {
       shouldDirty: true,
       shouldValidate: true,
     });
+    onChange?.();
 
     setIsUploading(true);
     setProgress(18);
@@ -213,6 +216,7 @@ export function VideoUploader() {
 
     setProgress(0);
     setIsUploading(false);
+    onChange?.();
   };
 
   return (

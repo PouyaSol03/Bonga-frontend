@@ -499,7 +499,7 @@ export function submitAdvertiseReport({
   description,
   reportReasonId,
 }: SubmitAdvertiseReportPayload) {
-  return publicApi
+  return api
     .post(`public/advertise/report/add/${advertiseId}`, {
       json: {
         description,

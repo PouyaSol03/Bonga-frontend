@@ -8,6 +8,7 @@ import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
 import { USER } from '../constants/roles.constants'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
+import { isUserIdentityVerified } from "../services/account.service";
 import { useMyProfileQuery } from '../hooks/account.hooks'
 import { useNotificationUnreadCountQuery } from '../hooks/notification.hooks'
 import {
@@ -319,6 +320,20 @@ function getRouteTopBar(path: string, title: string): TopBarProps | undefined {
     }
   }
 
+  if (path.startsWith('/new-ad')) {
+    return {
+      backTo: '/home',
+      title,
+    }
+  }
+
+  if (path === '/notifications') {
+    return {
+      backTo: '/account',
+      title,
+    }
+  }
+
   if (path === '/account' || path.startsWith('/account/')) {
     return {
       backTo: getAccountFallbackBackTo(path),
@@ -499,7 +514,7 @@ export function AppRouter() {
     }
   }, [])
 
-  const isIdentityVerified = Boolean(profile?.nationalnumber?.trim())
+  const isIdentityVerified = isUserIdentityVerified(profile)
   const page = requiresIdentity && isProfileLoading ? (
     <IdentityGateLoadingPage title={route.title} />
   ) : requiresIdentity && !isIdentityVerified ? (

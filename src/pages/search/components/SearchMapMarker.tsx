@@ -8,11 +8,13 @@ type SearchMapListingMarkerProps = {
   isPriceVisible: boolean;
   isSeen: boolean;
   isSelected: boolean;
+  shouldAnimate: boolean;
   onSelect: (listing: SearchMapListing) => void;
 };
 
 type SearchMapDotMarkerProps = {
   marker: SearchMapDotMarker;
+  shouldAnimate: boolean;
   listing?: never;
   isSeen?: never;
   isSelected?: never;
@@ -23,7 +25,7 @@ type SearchMapMarkerProps = SearchMapListingMarkerProps | SearchMapDotMarkerProp
 
 export function SearchMapMarker(props: SearchMapMarkerProps) {
   if ("marker" in props) {
-    const markerIcon = createSearchStaticDotIcon();
+    const markerIcon = createSearchStaticDotIcon(props.shouldAnimate);
 
     return (
       <Marker
@@ -34,17 +36,17 @@ export function SearchMapMarker(props: SearchMapMarkerProps) {
     );
   }
 
-  const { listing, isSeen, isSelected, onSelect } = props;
+  const { listing, isSeen, isSelected, onSelect, shouldAnimate } = props;
   const markerIcon = createSearchListingIcon(
     props.isPriceVisible ? listing.priceValue : "",
     props.isPriceVisible,
     isSelected,
     isSeen,
+    shouldAnimate,
   );
 
   return (
     <Marker
-      key={`${listing.id}-${isSelected ? "selected" : "idle"}-${props.isPriceVisible ? "price" : "dot"}-${isSeen ? "seen" : "new"}`}
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
       zIndexOffset={isSelected ? 10_000 : props.isPriceVisible ? 5_000 : 1_000}
@@ -72,6 +74,7 @@ function createSearchListingIcon(
   isPriceVisible: boolean,
   isSelected: boolean,
   isSeen: boolean,
+  shouldAnimate: boolean,
 ) {
   const safePriceValue = escapeMarkerText(priceValue);
   const priceMarkerHtml = isPriceVisible
@@ -86,6 +89,7 @@ function createSearchListingIcon(
     isSelected ? "search-map-listing-marker--selected" : "",
     isPriceVisible ? "search-map-listing-marker--price-visible" : "",
     isSeen ? "search-map-listing-marker--seen" : "",
+    shouldAnimate ? "search-map-listing-marker--animate" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -103,10 +107,14 @@ function createSearchListingIcon(
   });
 }
 
-function createSearchStaticDotIcon() {
+function createSearchStaticDotIcon(shouldAnimate: boolean) {
+  const dotClassName = ["search-map-dot", "search-map-dot--static", shouldAnimate ? "search-map-dot--animate" : ""]
+    .filter(Boolean)
+    .join(" ");
+
   return new DivIcon({
     className: "search-map-marker-wrapper",
-    html: '<div class="search-map-dot"></div>',
+    html: `<div class="${dotClassName}"></div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });

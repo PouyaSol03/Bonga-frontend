@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
+import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
@@ -24,8 +26,8 @@ import {
 import { DetailsStep } from "./steps/DetailsStep";
 import { MediaStep } from "./steps/MediaStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
-import type { ChipItem, FlowStep, NewAdFormValues, ProjectDetailItem } from "./types";
-import { buildNewAdFormData, clearNewAdDraftStorage, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
+import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem } from "./types";
+import { buildNewAdFormData, clearNewAdDraftStorage, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
 type AdvertisementFeature = {
@@ -411,6 +413,138 @@ function syncEditLocationStorage(ad: AdvertisementItem, features: AdvertisementF
   if (neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
 }
 
+
+type NewAdValidationResult = {
+  errors: NewAdFieldErrors;
+  step: FlowStep;
+};
+
+function hasRequiredText(value: unknown) {
+  return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
+}
+
+function hasErrors(errors: NewAdFieldErrors) {
+  return Object.values(errors).some(Boolean);
+}
+
+function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
+  const { transaction, category } = getParams();
+  const isProject = transaction === "project";
+  const isPartnership = isProject && category === "project-partnership";
+  const isRent = transaction === "rent";
+  const isDailyRent = isRent && category.startsWith("daily-");
+  const errors: NewAdFieldErrors = {};
+
+  if (!isProject) {
+    getBasicPropertyFields().forEach((field) => {
+      if (!field.required) return;
+      if (hasRequiredText(values[field.key])) return;
+
+      errors[field.key] = `لطفا ${field.label} را وارد کنید.`;
+    });
+  }
+
+  if (isPartnership) {
+    if (!hasRequiredText(values.builderSharePercent)) {
+      errors.builderSharePercent = "لطفا سهم سازنده را وارد کنید.";
+    }
+  } else if (isProject || isDailyRent) {
+    if (!hasRequiredText(values.minPrice)) errors.minPrice = "لطفا حداقل قیمت را وارد کنید.";
+    if (!hasRequiredText(values.maxPrice)) errors.maxPrice = "لطفا حداکثر قیمت را وارد کنید.";
+  } else if (isRent) {
+    if (!hasRequiredText(values.mortgagePrice)) errors.mortgagePrice = "لطفا مبلغ رهن را وارد کنید.";
+    if (!hasRequiredText(values.rentPrice)) errors.rentPrice = "لطفا مبلغ اجاره را وارد کنید.";
+  } else if (!hasRequiredText(values.price)) {
+    errors.price = "لطفا قیمت آگهی را وارد کنید.";
+  }
+
+  if (values.loanEnabled && !hasRequiredText(values.loanAmount)) {
+    errors.loanAmount = "لطفا مبلغ وام را وارد کنید.";
+  }
+
+  if (values.loanEnabled && !hasRequiredText(values.loanInstallment)) {
+    errors.loanInstallment = "لطفا قسط وام را وارد کنید.";
+  }
+
+  if (values.exchangeEnabled && values.exchangeTargets.length === 0) {
+    errors.exchangeTargets = "لطفا مورد معاوضه را انتخاب کنید.";
+  }
+
+  if (values.saleTermsEnabled && !hasRequiredText(values.saleTermsPercent)) {
+    errors.saleTermsPercent = "لطفا درصد شرایط فروش را وارد کنید.";
+  }
+
+  if (values.saleTermsEnabled && !hasRequiredText(values.saleTermsInstallmentMonths)) {
+    errors.saleTermsInstallmentMonths = "لطفا تعداد قسط شرایط فروش را وارد کنید.";
+  }
+
+  return errors;
+}
+
+function getMediaValidationErrors(
+  values: NewAdFormValues,
+  options: { forceFullEditFields?: boolean } = {},
+): NewAdFieldErrors {
+  const errors: NewAdFieldErrors = {};
+  const shouldRequireContactFields =
+    options.forceFullEditFields ||
+    getActiveAuthRole(getStoredAuthSession()) !== REAL_ESTATE_MANAGER;
+
+  if (values.photos.length === 0) {
+    errors.photos = "لطفا حداقل یک عکس برای آگهی انتخاب کنید.";
+  }
+
+  if (values.hasVideo && !values.video) {
+    errors.video = "لطفا ویدیوی آگهی را انتخاب کنید.";
+  }
+
+  if (values.hasVirtualTour && !hasRequiredText(values.virtualTourLink)) {
+    errors.virtualTourLink = "لطفا لینک تور مجازی را وارد کنید.";
+  }
+
+  if (shouldRequireContactFields && !values.registrantType) {
+    errors.registrantType = "لطفا نوع ثبت کننده آگهی را انتخاب کنید.";
+  }
+
+  if (shouldRequireContactFields && !values.chatEnabled && !values.phoneEnabled) {
+    errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
+  }
+
+  if (shouldRequireContactFields && values.phoneEnabled && !hasRequiredText(values.phoneNumber)) {
+    errors.phoneNumber = "لطفا شماره تماس را وارد کنید.";
+  }
+
+  if (!hasRequiredText(values.title)) {
+    errors.title = "لطفا عنوان آگهی را وارد کنید.";
+  }
+
+  if (!hasRequiredText(values.description)) {
+    errors.description = "لطفا توضیحات آگهی را وارد کنید.";
+  }
+
+  return errors;
+}
+
+function validateNewAdDetails(values: NewAdFormValues): NewAdValidationResult | null {
+  const errors = getDetailsValidationErrors(values);
+
+  return hasErrors(errors) ? { errors, step: "details" } : null;
+}
+
+function validateNewAd(
+  values: NewAdFormValues,
+  options: { forceFullEditFields?: boolean } = {},
+): NewAdValidationResult | null {
+  const detailsErrors = getDetailsValidationErrors(values);
+  const mediaErrors = getMediaValidationErrors(values, options);
+
+  if (hasErrors(detailsErrors)) {
+    return { errors: { ...detailsErrors, ...mediaErrors }, step: "details" };
+  }
+
+  return hasErrors(mediaErrors) ? { errors: mediaErrors, step: "media" } : null;
+}
+
 function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValues): NewAdFormValues {
   const features = getAdvertisementFeatures(ad);
   const next: NewAdFormValues = {
@@ -540,7 +674,9 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   } else {
     const chatContact = toBooleanValue(contacts.chat);
     next.chatEnabled = chatContact ?? next.chatEnabled;
-    next.phoneEnabled = Boolean(readText(contacts.phone) || readText(ad.owner_phone) || next.phoneEnabled);
+    const phoneNumber = readText(contacts.phone) || readText(ad.owner_phone);
+    next.phoneEnabled = Boolean(phoneNumber || next.phoneEnabled);
+    if (phoneNumber) next.phoneNumber = phoneNumber;
   }
 
   syncEditLocationStorage(ad, features, next);
@@ -556,6 +692,7 @@ export function NewAdFlowPage() {
   const editAdId = getEditAdId(editAdState);
   const editDataAppliedRef = useRef<string | null>(null);
   const [step, setStep] = useState<FlowStep>("details");
+  const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
   const [submitError, setSubmitError] = useState("");
   const methods = useForm<NewAdFormValues>({ defaultValues: getDefaultValues(editAdState), mode: "onChange" });
   const createAdvertisement = useCreateAdvertisementMutation();
@@ -608,6 +745,17 @@ export function NewAdFlowPage() {
     return () => subscription.unsubscribe();
   }, [isEditMode, methods]);
 
+
+  const clearFieldError = (key: NewAdFieldErrorKey) => {
+    setFieldErrors((current) => {
+      if (!current[key]) return current;
+
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  };
+
   useEffect(() => {
     const clearOnExit = () => {
       if (window.location.pathname.startsWith("/new-ad")) return;
@@ -627,6 +775,15 @@ export function NewAdFlowPage() {
 
   const submit = methods.handleSubmit((values) => {
     if (createAdvertisement.isPending) return;
+
+    const validation = validateNewAd(values, { forceFullEditFields: isEditMode });
+
+    if (validation) {
+      setFieldErrors(validation.errors);
+      setSubmitError("");
+      setStep(validation.step);
+      return;
+    }
 
     if (isEditMode) {
       const updatedCard = {
@@ -651,6 +808,7 @@ export function NewAdFlowPage() {
 
     const formData = buildNewAdFormData(values);
 
+    setFieldErrors({});
     setSubmitError("");
     createAdvertisement.mutate(formData, {
       onError: (error) => {
@@ -671,6 +829,19 @@ export function NewAdFlowPage() {
   });
 
   const goToDetails = () => setStep("details");
+  const goToMedia = () => {
+    const validation = validateNewAdDetails(methods.getValues());
+
+    if (validation) {
+      setFieldErrors(validation.errors);
+      setSubmitError("");
+      return;
+    }
+
+    setFieldErrors({});
+    setSubmitError("");
+    setStep("media");
+  };
   const headerTitle =
     step === "moreFeatures"
       ? "ویژگی‌های بیشتر"
@@ -698,10 +869,12 @@ export function NewAdFlowPage() {
 
         {step === "details" ? (
           <DetailsStep
+            errors={fieldErrors}
             label={label}
+            onClearError={clearFieldError}
             onMoreFeatures={() => setStep("moreFeatures")}
             onProjectDetails={() => setStep("projectDetails")}
-            onNext={() => setStep("media")}
+            onNext={goToMedia}
           />
         ) : step === "moreFeatures" ? (
           <MoreFeaturesStep
@@ -714,9 +887,11 @@ export function NewAdFlowPage() {
           />
         ) : (
           <MediaStep
+            errors={fieldErrors}
             forceFullEditFields={isEditMode}
             label={label}
             onBack={goToDetails}
+            onClearError={clearFieldError}
             onSubmit={submit}
             submitDisabled={createAdvertisement.isPending || (isEditMode && editAdQuery.isLoading)}
           />

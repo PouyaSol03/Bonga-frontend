@@ -367,15 +367,17 @@ function RadioCircle({ checked }: { checked: boolean }) {
 }
 
 function getStateAdBackPath(routeState: MyAdRouteState) {
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+
+  if (activeRole === USER) return "/account/my-ads";
+
   const returnTo = normalizeLocalPath(routeState.returnTo);
 
   if (returnTo) return returnTo;
 
   if (routeState.tab) return getBusinessAdManagementFallbackPath();
 
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-
-  if (activeRole && activeRole !== USER) return getBusinessAdManagementFallbackPath();
+  if (activeRole) return getBusinessAdManagementFallbackPath();
 
   return "/account/my-ads";
 }

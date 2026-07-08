@@ -223,6 +223,7 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     card.timeAndLocation ? locationFromTimeAndLocation(card.timeAndLocation) : "",
   );
   const publisherName = readText(card.agency, ad.agency, ad.publisherName, ad.publisher_name);
+  const phoneNumber = readText(ad.owner_phone, ad.phone, ad.phoneNumber, ad.phone_number);
   const price = priceTextToNumberString(readText(card.pricePrimary, ad.price, ad.total_price));
   const mortgagePrice = priceTextToNumberString(readText(card.pricePrimary, ad.mortgagePrice, ad.mortgage_price));
   const rentPrice = priceTextToNumberString(readText(card.priceSecondary, ad.rentPrice, ad.rent_price));
@@ -235,6 +236,7 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     meterage: pickFirstNumber(readText(card.area, ad.area, ad.meterage)),
     mortgagePrice,
     phoneEnabled: true,
+    phoneNumber,
     price,
     publisherName,
     registrantType: publisherName ? "agency" : "personal",
@@ -500,6 +502,7 @@ export function buildPayload(values: NewAdFormValues) {
       values.chatEnabled ? "chat" : null,
       values.phoneEnabled ? "phone" : null,
     ].filter(Boolean),
+    owner_phone: values.phoneNumber || null,
     social: {
       telegram: values.telegram || null,
       whatsapp: values.whatsapp || null,
@@ -638,6 +641,7 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendValue("build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
   appendValue("advertiser_type", advertiserType);
   appendValue("owner_type", values.registrantType);
+  appendValue("owner_phone", values.phoneNumber);
   appendValue("has_image", values.photos.length > 0);
   appendValue("has_video", Boolean(values.video));
 

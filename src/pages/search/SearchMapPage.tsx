@@ -348,9 +348,6 @@ function toPersianDigits(value: unknown) {
   return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
 }
 
-function formatMapListingCount(count: number) {
-  return `${toPersianDigits(count)} آگهی روی نقشه`;
-}
 
 function toNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
@@ -1006,17 +1003,6 @@ export function SearchMapPage() {
         onSearchClick={() => setIsSearchOpen(true)}
       />
 
-      {!isFullListOpen ? (
-        <div className="pointer-events-none absolute inset-x-0 top-[124px] z-400 flex justify-center px-4">
-          <div
-            aria-live="polite"
-            className="rounded-full bg-white px-4 py-2 text-sm font-semibold leading-5 text-[#1a1a1a] shadow-[0_8px_22px_rgba(26,26,26,0.16)]"
-            dir="rtl"
-          >
-            {formatMapListingCount(visibleListings.length)}
-          </div>
-        </div>
-      ) : null}
 
       <SearchMapFloatingActions
         isDrawing={isDrawMode}

@@ -1270,7 +1270,6 @@ function CategoriesView({ notify, refreshNonce }: ViewProps) {
     <>
       <Panel>
         <PanelHeader
-          action={<PrimaryButton icon="plus" label="دسته‌بندی جدید" onClick={() => openCategoryEditor()} />}
           subtitle="ساختار درختی دسته‌بندی‌ها را بدون تغییر سایر بخش‌های برنامه مدیریت کنید."
           title="درخت دسته‌بندی‌ها"
         />
@@ -1315,7 +1314,7 @@ function CategoryTree({ categories, depth = 0, onEdit }: { categories: CrmRecord
                   </small>
                 </div>
               </div>
-              <SmallActionButton label="ویرایش" onClick={() => onEdit(category)} />
+              {/* <SmallActionButton label="ویرایش" onClick={() => onEdit(category)} /> */}
             </div>
             {children.length ? <div className="mt-2"><CategoryTree categories={children} depth={depth + 1} onEdit={onEdit} /></div> : null}
           </div>

@@ -1,0 +1,667 @@
+import { useEffect, useMemo, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
+import LinearApartment from "../../components/(icons)/LinearApartment";
+import LinearArrowRight1 from "../../components/(icons)/LinearArrowRight1";
+import LinearBuilding from "../../components/(icons)/LinearBuilding";
+import LinearCalendar from "../../components/(icons)/LinearCalendar";
+import LinearCall from "../../components/(icons)/LinearCall";
+import LinearCategory from "../../components/(icons)/LinearCategory";
+import LinearClock from "../../components/(icons)/LinearClock";
+import LinearDocument from "../../components/(icons)/LinearDocument";
+import LinearGps from "../../components/(icons)/LinearGps";
+import LinearHome2 from "../../components/(icons)/LinearHome2";
+import LinearHouseDimensions from "../../components/(icons)/LinearHouseDimensions";
+import LinearImage from "../../components/(icons)/LinearImage";
+import LinearInformation from "../../components/(icons)/LinearInformation";
+import LinearLocation from "../../components/(icons)/LinearLocation";
+import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
+import LinearMoney from "../../components/(icons)/LinearMoney";
+import LinearOwner from "../../components/(icons)/LinearOwner";
+import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
+import { RouteLink } from "../../routes/RouteLink";
+import {
+  getCrmAdvertise,
+  getCrmRecordId,
+  listCrmCategories,
+  listCrmCities,
+  listCrmNeighborhoods,
+  type CrmRecord,
+} from "../../services/crm.service";
+
+type CrmAdvertiseDetailViewProps = {
+  advertiseId: string;
+  notify: (message: string, tone?: "error" | "success") => void;
+  refreshNonce: number;
+};
+
+type FeatureRecord = CrmRecord & {
+  label?: unknown;
+  value?: unknown;
+};
+
+const formCodeLabels: Record<string, string> = {
+  partnership: "مشارکت در ساخت",
+  "presale-special": "پیش‌فروش پروژه",
+  "daily-apartment-suite": "اجاره روزانه آپارتمان و سوئیت",
+  "daily-garden-villa": "اجاره روزانه باغ و ویلا",
+  "daily-hotel": "اجاره روزانه هتل و هتل‌آپارتمان",
+  "daily-office-booth": "اجاره روزانه دفتر کار و غرفه",
+  "rent-apartment": "اجاره آپارتمان",
+  "rent-commercial": "اجاره واحد تجاری",
+  "rent-factory-workshop": "اجاره کارخانه و کارگاه",
+  "rent-garden-villa": "اجاره باغ و ویلا",
+  "rent-hotel": "اجاره هتل و هتل‌آپارتمان",
+  "rent-office": "اجاره واحد اداری",
+  "rent-villa-house": "اجاره خانه ویلایی",
+  "rent-warehouse": "اجاره انبار و سوله",
+  "sale-apartment": "فروش آپارتمان",
+  "sale-commercial": "فروش واحد تجاری",
+  "sale-factory": "فروش کارخانه و کارگاه",
+  "sale-garden-villa": "فروش باغ و ویلا",
+  "sale-hotel": "فروش هتل و هتل‌آپارتمان",
+  "sale-land": "فروش زمین",
+  "sale-office": "فروش واحد اداری",
+  "sale-villa-house": "فروش خانه ویلایی",
+  "sale-warehouse": "فروش انبار و سوله",
+};
+
+const featureLabelMap: Record<string, string> = {
+  advertiser_type: "نوع آگهی‌دهنده",
+  area: "متراژ",
+  balcony: "بالکن",
+  build_permit: "مجوز ساخت",
+  builder_share: "سهم سازنده",
+  builder_share_percent: "سهم سازنده",
+  building_age: "سال ساخت",
+  building_area: "زیربنا",
+  commercial_license: "مجوز تجاری",
+  commercial_permit: "مجوز تجاری",
+  construction_license: "مجوز ساخت",
+  delivery_date: "تاریخ تحویل",
+  document_type: "نوع سند",
+  elevator: "آسانسور",
+  exchange_with: "معاوضه",
+  extra_people_capacity: "ظرفیت نفر اضافه",
+  facilities: "امکانات",
+  floor: "طبقه",
+  furnished: "مبله",
+  has_document: "سند",
+  has_loan: "وام",
+  heating_cooling: "سرمایش و گرمایش",
+  height: "ارتفاع سقف",
+  hotel_stars: "رتبه هتل",
+  land_area: "متراژ زمین",
+  land_position: "موقعیت زمین",
+  land_use: "کاربری",
+  max_price: "حداکثر قیمت",
+  min_price: "حداقل قیمت",
+  mortgage_price: "رهن",
+  parking: "پارکینگ",
+  participation_type: "نوع مشارکت",
+  partnership_type: "نوع مشارکت",
+  project_status: "وضعیت پروژه",
+  project_total_floors: "تعداد کل طبقات",
+  project_total_units: "تعداد کل واحدها",
+  renovated: "بازسازی‌شده",
+  rent_price: "اجاره",
+  rooms: "تعداد اتاق",
+  standard_capacity: "ظرفیت استاندارد",
+  storage: "انباری",
+  suitable_for: "مناسب برای",
+  unit_position: "موقعیت واحد",
+  unit_type: "نوع واحد",
+  villa_type: "نوع ویلا",
+};
+
+const technicalFeatureKeys = new Set([
+  "form_code",
+  "neighborhood_id",
+  "city_id",
+  "category_id",
+  "location",
+  "price",
+  "published_at",
+  "is_special",
+  "has_image",
+  "has_video",
+]);
+
+const priceFeatureKeys = new Set([
+  "price",
+  "min_price",
+  "max_price",
+  "mortgage_price",
+  "rent_price",
+]);
+
+const areaFeatureKeys = new Set(["area", "land_area", "building_area"]);
+
+function readText(record: CrmRecord | undefined, keys: string[], fallback = "") {
+  if (!record) return fallback;
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  }
+
+  return fallback;
+}
+
+function readNestedName(record: CrmRecord | undefined, keys: string[]) {
+  if (!record) return "";
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      const name = readText(value as CrmRecord, ["name", "title", "label"]);
+      if (name) return name;
+    }
+  }
+
+  return "";
+}
+
+function readNestedId(record: CrmRecord | undefined, keys: string[]) {
+  if (!record) return "";
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      const id = readText(value as CrmRecord, ["id", "_id"]);
+      if (id) return id;
+    }
+  }
+
+  return "";
+}
+
+function looksLikeRecordId(value: string) {
+  return /^[a-f\d]{20,}$/i.test(value) || /^\d{8,}$/.test(value);
+}
+
+function readHumanText(record: CrmRecord | undefined, keys: string[]) {
+  const value = readText(record, keys);
+  return value && !looksLikeRecordId(value) ? value : "";
+}
+
+function normalizeFeatures(advertise: CrmRecord | undefined): FeatureRecord[] {
+  if (!advertise) return [];
+
+  const result: FeatureRecord[] = [];
+
+  for (const key of ["features", "dynamic_fields", "dynamicFields"]) {
+    const value = advertise[key];
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item && typeof item === "object" && !Array.isArray(item)) {
+          result.push(item as FeatureRecord);
+        }
+      }
+    } else if (value && typeof value === "object") {
+      for (const [label, itemValue] of Object.entries(value as CrmRecord)) {
+        result.push({ label, value: itemValue });
+      }
+    }
+  }
+
+  return result;
+}
+
+function getFeatureKey(feature: FeatureRecord) {
+  return readText(feature, ["code", "key", "name", "label"]);
+}
+
+function getFeatureValue(features: FeatureRecord[], keys: string[]) {
+  for (const key of keys) {
+    const feature = features.find((item) => getFeatureKey(item) === key);
+
+    if (feature && feature.value !== undefined && feature.value !== null && feature.value !== "") {
+      return feature.value;
+    }
+  }
+
+  return undefined;
+}
+
+function getFormName(formCode: string) {
+  return formCodeLabels[formCode] ?? "فرم آگهی ثبت‌شده";
+}
+
+function toNumericValue(value: unknown) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string" || !value.trim()) return null;
+
+  const normalized = value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/[٬،,\s]/g, "")
+    .replace(/[^0-9.-]/g, "");
+  const number = Number(normalized);
+
+  return Number.isFinite(number) ? number : null;
+}
+
+function formatNumber(value: unknown) {
+  const number = toNumericValue(value);
+  return number === null ? "-" : new Intl.NumberFormat("fa-IR").format(number);
+}
+
+function formatMoney(value: unknown) {
+  const formatted = formatNumber(value);
+  return formatted === "-" ? formatted : `${formatted} تومان`;
+}
+
+function formatArea(value: unknown) {
+  const formatted = formatNumber(value);
+  return formatted === "-" ? formatted : `${formatted} متر مربع`;
+}
+
+function formatDate(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "-";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function formatDisplayValue(key: string, value: unknown): string {
+  if (value === undefined || value === null || value === "") return "-";
+  if (key === "form_code") return getFormName(String(value));
+  if (priceFeatureKeys.has(key)) return formatMoney(value);
+  if (areaFeatureKeys.has(key)) return formatArea(value);
+
+  if (typeof value === "boolean") return value ? "دارد" : "ندارد";
+
+  if (Array.isArray(value)) {
+    const values = value
+      .map((item) => formatDisplayValue("", item))
+      .filter((item) => item && item !== "-");
+
+    return values.length ? values.join("، ") : "-";
+  }
+
+  if (value && typeof value === "object") {
+    const objectValue = value as CrmRecord;
+    return readText(objectValue, ["name", "title", "label"], "-");
+  }
+
+  if (typeof value === "number") return formatNumber(value);
+
+  const text = String(value).trim();
+  if (text === "true" || text === "1") return "دارد";
+  if (text === "false" || text === "0") return "ندارد";
+
+  return text || "-";
+}
+
+function getFeatureDisplayLabel(feature: FeatureRecord) {
+  const key = getFeatureKey(feature);
+  const explicitLabel = readText(feature, ["display_name", "displayName", "title"]);
+
+  return explicitLabel || featureLabelMap[key] || key || "ویژگی";
+}
+
+function getFeatureIcon(key: string): ReactNode {
+  const className = "h-5 w-5";
+
+  if (key.includes("area") || key.includes("meter")) return <LinearHouseDimensions className={className} />;
+  if (key.includes("price") || key.includes("mortgage") || key.includes("rent")) return <LinearMoney className={className} />;
+  if (key.includes("floor") || key.includes("building") || key.includes("project")) return <LinearBuilding className={className} />;
+  if (key.includes("document") || key.includes("permit") || key.includes("license")) return <LinearDocument className={className} />;
+  if (key.includes("location") || key.includes("position")) return <LinearLocation className={className} />;
+  if (key.includes("date") || key.includes("year") || key.includes("age")) return <LinearCalendar className={className} />;
+  if (key.includes("owner") || key.includes("advertiser")) return <LinearOwner className={className} />;
+
+  return <LinearApartment className={className} />;
+}
+
+function getImageUrls(advertise: CrmRecord | undefined) {
+  if (!advertise) return [];
+
+  const values: unknown[] = [];
+  const images = advertise.images;
+
+  if (Array.isArray(images)) values.push(...images);
+  values.push(advertise.image, advertise.cover, advertise.thumbnail);
+
+  return values
+    .map((value) => {
+      if (typeof value === "string") return value;
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return readText(value as CrmRecord, ["url", "path", "src", "image"]);
+      }
+
+      return "";
+    })
+    .filter(Boolean)
+    .map((value) => getApiAssetUrl(value));
+}
+
+function findRecordNameById(records: CrmRecord[], id: string): string {
+  for (const record of records) {
+    if (getCrmRecordId(record) === id) {
+      return readText(record, ["name", "title", "label"]);
+    }
+
+    const children = Array.isArray(record.children) ? (record.children as CrmRecord[]) : [];
+    const nestedName = findRecordNameById(children, id);
+    if (nestedName) return nestedName;
+  }
+
+  return "";
+}
+
+function advertiseStatusLabel(status: unknown) {
+  return (
+    {
+      "-3": "منقضی‌شده",
+      "-2": "حذف‌شده",
+      "-1": "ردشده",
+      "0": "ثبت‌شده",
+      "1": "در انتظار بررسی",
+      "3": "منتشرشده",
+    }[String(status ?? "")] ?? "نامشخص"
+  );
+}
+
+function statusTone(status: unknown) {
+  const value = String(status ?? "");
+  if (value === "3") return "bg-[#eaf8f1] text-[#087d4b]";
+  if (value === "-1" || value === "-2" || value === "-3") return "bg-[#fff0f1] text-[#c63242]";
+  return "bg-[#fff7df] text-[#9b6800]";
+}
+
+function InformationRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-3 border-b border-[#eeeeee] py-3.5 last:border-b-0">
+      <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f0f0f0] text-[#0048c4]">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-[#808080]">{label}</span>
+        <strong className="mt-1 block break-words text-sm font-bold leading-6 text-[#333333]">{value}</strong>
+      </div>
+    </div>
+  );
+}
+
+function DetailSection({ children, icon, title }: { children: ReactNode; icon: ReactNode; title: string }) {
+  return (
+    <section className="rounded-2xl border border-[#dedede] bg-white p-5 shadow-[0_5px_18px_rgba(0,72,196,0.04)]">
+      <div className="flex items-center gap-2.5">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">{icon}</span>
+        <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{title}</h2>
+      </div>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="space-y-5 animate-pulse">
+      <div className="h-64 rounded-2xl bg-white" />
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => <div className="h-24 rounded-2xl bg-white" key={index} />)}
+      </div>
+      <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="h-96 rounded-2xl bg-white" />
+        <div className="h-96 rounded-2xl bg-white" />
+      </div>
+    </div>
+  );
+}
+
+export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: CrmAdvertiseDetailViewProps) {
+  const advertiseQuery = useQuery({
+    queryFn: () => getCrmAdvertise(advertiseId),
+    queryKey: ["crm", "advertise", "panel-show", advertiseId, refreshNonce],
+  });
+
+  const advertise = advertiseQuery.data;
+  const features = useMemo(() => normalizeFeatures(advertise), [advertise]);
+  const formCode = readText(advertise, ["form_code"]) || String(getFeatureValue(features, ["form_code"]) ?? "");
+  const neighborhoodId = readText(advertise, ["neighborhood_id"]) || readNestedId(advertise, ["neighborhood", "district"]) || String(getFeatureValue(features, ["neighborhood_id"]) ?? "");
+  const cityId = readText(advertise, ["city_id"]) || readNestedId(advertise, ["city"]) || String(getFeatureValue(features, ["city_id"]) ?? "");
+  const categoryId = readText(advertise, ["category_id"]) || readNestedId(advertise, ["category"]);
+
+  const featureLocation = getFeatureValue(features, ["location"]);
+  const directNeighborhoodName =
+    readHumanText(advertise, ["form_neighborhood_title", "neighborhood_name", "district_name"]) ||
+    readNestedName(advertise, ["neighborhood", "district"]) ||
+    (typeof featureLocation === "string" ? featureLocation.trim() : "");
+  const directCityName = readHumanText(advertise, ["city_name"]) || readNestedName(advertise, ["city"]);
+  const directCategoryName = readHumanText(advertise, ["category_name"]) || readNestedName(advertise, ["category"]);
+
+  const neighborhoodQuery = useQuery({
+    enabled: Boolean(advertise && neighborhoodId && cityId && !directNeighborhoodName),
+    queryFn: () => listCrmNeighborhoods({ cityId }),
+    queryKey: ["crm", "advertise", advertiseId, "neighborhoods", cityId],
+  });
+  const cityQuery = useQuery({
+    enabled: Boolean(advertise && cityId && !directCityName),
+    queryFn: () => listCrmCities(),
+    queryKey: ["crm", "advertise", advertiseId, "cities"],
+  });
+  const categoryQuery = useQuery({
+    enabled: Boolean(advertise && categoryId && !directCategoryName),
+    queryFn: listCrmCategories,
+    queryKey: ["crm", "advertise", advertiseId, "categories"],
+  });
+
+  useEffect(() => {
+    const error = advertiseQuery.error || neighborhoodQuery.error || cityQuery.error || categoryQuery.error;
+    if (error) notify(getApiErrorMessage(error, "دریافت جزئیات آگهی ناموفق بود."), "error");
+  }, [advertiseQuery.error, categoryQuery.error, cityQuery.error, neighborhoodQuery.error, notify]);
+
+  if (advertiseQuery.isLoading) return <DetailSkeleton />;
+
+  if (!advertise) {
+    return (
+      <section className="grid min-h-[420px] place-items-center rounded-2xl border border-[#dedede] bg-white p-8 text-center">
+        <div>
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+            <LinearInformation className="h-7 w-7" />
+          </span>
+          <h2 className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]">اطلاعات آگهی دریافت نشد</h2>
+          <p className="m-0 mt-2 text-sm text-[#808080]">پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.</p>
+          <RouteLink className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" to="/crm/advertises">
+            <LinearArrowRight1 className="h-5 w-5" />
+            بازگشت به آگهی‌ها
+          </RouteLink>
+        </div>
+      </section>
+    );
+  }
+
+  const resolvedNeighborhoodName = findRecordNameById(neighborhoodQuery.data ?? [], neighborhoodId);
+  const resolvedCityName = findRecordNameById(cityQuery.data ?? [], cityId);
+  const resolvedCategoryName = findRecordNameById(categoryQuery.data ?? [], categoryId);
+  const neighborhoodName =
+    directNeighborhoodName ||
+    resolvedNeighborhoodName ||
+    (neighborhoodQuery.isLoading ? "در حال دریافت نام محله..." : "نام محله در پاسخ موجود نیست");
+  const cityName =
+    directCityName ||
+    resolvedCityName ||
+    (cityQuery.isLoading ? "در حال دریافت نام شهر..." : "نام شهر در پاسخ موجود نیست");
+  const categoryName =
+    directCategoryName ||
+    resolvedCategoryName ||
+    (categoryQuery.isLoading ? "در حال دریافت دسته‌بندی..." : "دسته‌بندی آگهی");
+  const images = getImageUrls(advertise);
+  const coverImage = images[0];
+  const title = readText(advertise, ["title", "label"], "آگهی بدون عنوان");
+  const price = advertise.price ?? getFeatureValue(features, ["price"]);
+  const area = advertise.area ?? getFeatureValue(features, ["area", "land_area", "building_area"]);
+  const numericPrice = toNumericValue(price);
+  const numericArea = toNumericValue(area);
+  const pricePerMeter = numericPrice !== null && numericArea !== null && numericArea > 0
+    ? formatMoney(Math.round(numericPrice / numericArea))
+    : "محاسبه نشده";
+  const ownerPhone = readText(advertise, ["owner_phone", "phone", "mobile"], "-");
+  const ownerName =
+    readText(advertise, ["owner_name", "publisher_name", "advertiser_name"]) ||
+    readNestedName(advertise, ["owner", "user", "publisher"]) ||
+    "ثبت نشده";
+  const trackCode = readText(advertise, ["track_code"], "-");
+  const createdAt = formatDate(advertise.created_at ?? advertise.published_at);
+  const lat = readText(advertise, ["lat", "latitude"]);
+  const lng = readText(advertise, ["lng", "long", "longitude"]);
+  const locationCoordinates = lat && lng ? `${lat}، ${lng}` : "مختصات ثبت نشده";
+  const savedAddress = readHumanText(advertise, ["address", "full_address", "formatted_address", "postal_address"]);
+  const locationTitle = [cityName, neighborhoodName]
+    .filter((value) => value && !value.includes("موجود نیست") && !value.includes("در حال دریافت"))
+    .join("، ");
+  const address = savedAddress || locationTitle || "آدرس ثبت نشده است";
+  const description = readText(advertise, ["description", "short_description"], "توضیحی برای این آگهی ثبت نشده است.");
+  const adminNote = readText(advertise, ["admin_note"]);
+  const visibleFeatures = features.filter((feature) => {
+    const key = getFeatureKey(feature);
+    return key && !technicalFeatureKeys.has(key) && feature.value !== undefined && feature.value !== null && feature.value !== "";
+  });
+
+  return (
+    <div className="mx-auto max-w-[1440px] pb-8" dir="rtl">
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <RouteLink className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium text-[#0048c4] no-underline transition hover:bg-[#f4f7ff]" to="/crm/advertises">
+          <LinearArrowRight1 className="h-5 w-5" />
+          بازگشت به مدیریت آگهی‌ها
+        </RouteLink>
+        <span className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
+          {advertiseStatusLabel(advertise.status)}
+        </span>
+      </div>
+
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
+        <main className="min-w-0 overflow-hidden rounded-2xl bg-[#f0f0f0] shadow-[0_8px_30px_rgba(26,26,26,0.06)]">
+          <section className="bg-white p-5">
+            <div className="grid h-[460px] grid-cols-[minmax(0,1fr)_150px] gap-2 overflow-hidden rounded-2xl bg-[#eef2f7]">
+              <button className="relative min-w-0 overflow-hidden bg-[#e7ebf0]" type="button">
+            {coverImage ? (
+                  <img alt={title} className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" src={coverImage} />
+            ) : (
+                  <div className="grid h-full place-items-center text-[#8ea7cf]">
+                <div className="text-center">
+                  <LinearImage className="mx-auto h-12 w-12" />
+                  <span className="mt-2 block text-sm font-medium">تصویری ثبت نشده است</span>
+                </div>
+              </div>
+            )}
+                <span className="absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-black/65 px-3 text-sm font-medium text-white backdrop-blur-sm">
+                <LinearImage className="h-4 w-4" />
+                  {new Intl.NumberFormat("fa-IR").format(images.length)} تصویر
+              </span>
+              </button>
+              <div className="grid grid-rows-3 gap-2">
+                {(images.length > 1 ? images.slice(1, 4) : ["", "", ""]).map((image, index) => (
+                  <div className="relative overflow-hidden bg-[#dfe5ec]" key={`${image}-${index}`}>
+                    {image ? <img alt="" className="h-full w-full object-cover" src={image} /> : <LinearImage className="absolute inset-0 m-auto h-7 w-7 text-[#9aabc2]" />}
+                    {index === 2 && images.length > 4 ? <span className="absolute inset-0 grid place-items-center bg-black/50 text-lg font-bold text-white">+{new Intl.NumberFormat("fa-IR").format(images.length - 4)}</span> : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-5">
+              <div className="flex items-center justify-between gap-4 text-sm text-[#4d4d4d]">
+                <span className="inline-flex items-center gap-1.5"><LinearClock className="h-4 w-4" />{createdAt}</span>
+                <span>کد آگهی: <strong className="text-[#1a1a1a]">{trackCode}</strong></span>
+              </div>
+              <p className="m-0 mt-5 flex items-center gap-1.5 text-sm text-[#4d4d4d]"><LinearLocation className="h-5 w-5 text-[#0048c4]" />{locationTitle || "موقعیت ثبت نشده"}</p>
+              <h1 className="m-0 mt-2 text-2xl font-bold leading-10 text-[#1a1a1a]">{title}</h1>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <PriceBox label="قیمت کل" value={formatMoney(price)} />
+                <PriceBox label="قیمت هر متر" value={pricePerMeter} />
+              </div>
+            </div>
+          </section>
+
+          <PublicStyleSection title="اطلاعات ملک">
+            {visibleFeatures.length ? (
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-3">
+                {visibleFeatures.map((feature, index) => {
+                  const key = getFeatureKey(feature);
+                  return (
+                    <article className="flex min-w-0 items-start gap-3" key={`${key}-${index}`}>
+                      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center text-[#808080]">
+                        {getFeatureIcon(key)}
+                      </span>
+                      <div className="min-w-0">
+                        <strong className="block break-words text-base font-medium leading-6 text-[#1a1a1a]">{formatDisplayValue(key, feature.value)}</strong>
+                        <span className="mt-0.5 block text-xs font-medium text-[#a6a6a6]">{getFeatureDisplayLabel(feature)}</span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-sm text-[#808080]">ویژگی دیگری برای این آگهی ثبت نشده است.</p>
+            )}
+          </PublicStyleSection>
+
+          <PublicStyleSection title="توضیحات">
+            <p className="m-0 whitespace-pre-wrap text-base leading-8 text-[#1a1a1a]">{description}</p>
+            <div className="mt-6 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4">
+              <div className="flex items-start gap-3"><LinearMapsLocation className="mt-0.5 h-6 w-6 shrink-0 text-[#0048c4]" /><div><span className="text-xs text-[#808080]">آدرس</span><strong className="mt-1 block text-sm leading-6 text-[#1a1a1a]">{address}</strong></div></div>
+            </div>
+          </PublicStyleSection>
+
+          {adminNote ? (
+            <PublicStyleSection title="یادداشت مدیر"><p className="m-0 whitespace-pre-wrap text-sm leading-8 text-[#4d4d4d]">{adminNote}</p></PublicStyleSection>
+          ) : null}
+        </main>
+
+        <aside className="sticky top-0 space-y-4">
+          <DetailSection icon={<LinearInformation className="h-5 w-5" />} title="اطلاعات اصلی">
+            <InformationRow icon={<LinearHome2 className="h-5 w-5" />} label="دسته‌بندی" value={categoryName} />
+            <InformationRow icon={<LinearCategory className="h-5 w-5" />} label="فرم آگهی" value={getFormName(formCode)} />
+            <InformationRow icon={<LinearMapsLocation className="h-5 w-5" />} label="محله" value={neighborhoodName} />
+            <InformationRow icon={<LinearLocation className="h-5 w-5" />} label="شهر" value={cityName} />
+            <InformationRow icon={<LinearMoney className="h-5 w-5" />} label="قیمت" value={formatMoney(price)} />
+            <InformationRow icon={<LinearHouseDimensions className="h-5 w-5" />} label="متراژ" value={formatArea(area)} />
+          </DetailSection>
+
+          <DetailSection icon={<LinearOwner className="h-5 w-5" />} title="اطلاعات آگهی‌دهنده">
+            <InformationRow icon={<LinearUserAccount className="h-5 w-5" />} label="نام" value={ownerName} />
+            <InformationRow icon={<LinearCall className="h-5 w-5" />} label="شماره تماس" value={ownerPhone} />
+            <InformationRow icon={<LinearDocument className="h-5 w-5" />} label="کد پیگیری" value={trackCode} />
+            <InformationRow icon={<LinearCalendar className="h-5 w-5" />} label="زمان ثبت" value={createdAt} />
+          </DetailSection>
+
+          <DetailSection icon={<LinearGps className="h-5 w-5" />} title="موقعیت جغرافیایی">
+            <InformationRow icon={<LinearMapsLocation className="h-5 w-5" />} label="آدرس دقیق" value={address} />
+            <InformationRow icon={<LinearGps className="h-5 w-5" />} label="مختصات" value={locationCoordinates} />
+          </DetailSection>
+
+          <div className="rounded-2xl border border-[#dedede] bg-white p-4 text-sm text-[#666666]">
+            <div className="flex items-center gap-2 text-[#0048c4]">
+              <LinearApartment className="h-5 w-5" />
+              <strong className="text-sm">شناسه آگهی</strong>
+            </div>
+            <span className="mt-2 block break-all font-mono text-sm text-[#333333]" dir="ltr">{getCrmRecordId(advertise)}</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function PriceBox({ label, value }: { label: string; value: string }) {
+  return <div className="flex min-h-14 items-center justify-between rounded-lg bg-[#f5f5f5] px-4"><span className="text-sm font-medium text-[#4d4d4d]">{label}</span><strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong></div>;
+}
+
+function PublicStyleSection({ children, title }: { children: ReactNode; title: string }) {
+  return <section className="mt-2 bg-white px-6 py-6"><h2 className="m-0 text-lg font-semibold text-[#1a1a1a]">{title}</h2><div className="mt-6">{children}</div></section>;
+}

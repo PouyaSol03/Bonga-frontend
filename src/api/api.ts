@@ -59,6 +59,7 @@ const apiOptions: Options = {
   credentials: "include",
   headers: {
     Accept: "application/json",
+    "X-Requested-With": "XMLHttpRequest",
   },
   hooks: {
     init: [
@@ -72,6 +73,35 @@ const apiOptions: Options = {
           options.searchParams = normalizeSearchParams(
             options.searchParams as ApiQueryParams,
           );
+        }
+      },
+    ],
+    afterResponse: [
+      ({ request, options, response }) => {
+        if (options.context?.allowNonJsonResponse === true) {
+          return;
+        }
+
+        if (request.method === "HEAD" || response.status === 204 || response.status === 205) {
+          return;
+        }
+
+        const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+        const isJsonResponse =
+          contentType.includes("application/json") ||
+          contentType.includes("application/problem+json") ||
+          /\bapplication\/[a-z0-9.+-]+\+json\b/.test(contentType);
+
+        if (!isJsonResponse) {
+          if (response.status === 401) {
+            clearStoredAuthSession();
+          }
+
+          const message = contentType.includes("text/html")
+            ? "پاسخ HTML غیرمنتظره از سرور دریافت شد. مسیر API یا نشست کاربر را بررسی کنید."
+            : "پاسخ API باید با فرمت JSON ارسال شود.";
+
+          throw new ApiError(response.status || 500, message, response);
         }
       },
     ],

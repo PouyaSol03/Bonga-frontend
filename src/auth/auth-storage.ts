@@ -2,7 +2,8 @@ export type AuthRoleSlug =
   | "user"
   | "real_estate_manager"
   | "real_estate_consultant"
-  | "independent_consultant";
+  | "independent_consultant"
+  | "super-admin";
 
 export type AuthRole = {
   id: string;
@@ -15,6 +16,7 @@ export const authRoleSlugs: AuthRoleSlug[] = [
   "real_estate_manager",
   "real_estate_consultant",
   "independent_consultant",
+  "super-admin",
 ];
 
 export type AuthSession = {
@@ -66,11 +68,7 @@ export function getActiveAuthRole(session: AuthSession | null) {
 
   const activeRole = session.activeRole;
 
-  if (
-    activeRole &&
-    authRoleSlugs.includes(activeRole) &&
-    session.roles.some((role) => role.slug === activeRole)
-  ) {
+  if (activeRole && authRoleSlugs.includes(activeRole)) {
     return activeRole;
   }
 

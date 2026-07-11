@@ -4,6 +4,7 @@ import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
   authorizeMe,
+  chargeWallet,
   createMyAgency,
   deleteAdvertiseBadge,
   deleteAdvertiseNote,
@@ -13,11 +14,13 @@ import {
   getMyBadges,
   getMyNotes,
   getMyProfile,
+  getWallet,
   getWalletPayments,
   saveAdvertiseNote,
   toggleAdvertiseBadge,
   updateMyAgencyProfile,
   updateMyProfile,
+  verifyPaymentCallback,
   type AdvertiseBadgesPage,
   type MyAdsPage,
   type MyAdsType,
@@ -86,10 +89,34 @@ export function useCreateMyAgencyMutation() {
   });
 }
 
-export function useWalletPaymentsQuery() {
+export function useWalletQuery() {
   return useQuery({
-    queryFn: getWalletPayments,
-    queryKey: queryKeys.account.walletPayments(),
+    queryFn: getWallet,
+    queryKey: queryKeys.account.wallet(),
+  });
+}
+
+export function useWalletPaymentsQuery(page = 1) {
+  return useQuery({
+    queryFn: () => getWalletPayments(page),
+    queryKey: queryKeys.account.walletPayments(page),
+  });
+}
+
+export function useChargeWalletMutation() {
+  return useMutation({
+    mutationFn: chargeWallet,
+  });
+}
+
+export function useVerifyPaymentCallbackMutation() {
+  return useMutation({
+    mutationFn: verifyPaymentCallback,
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.all,
+      });
+    },
   });
 }
 

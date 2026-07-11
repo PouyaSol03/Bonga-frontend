@@ -3,7 +3,6 @@ import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
-import SearchErrors from "../home/components/SearchErrors";
 import {
   getBrowserLocation,
   getBrowserLocationNotice,
@@ -19,6 +18,8 @@ import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
+import { SearchNoResultsRequestCard } from "./components/SearchNoResultsRequestCard";
+import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
 import { SearchMapListView } from "./components/SearchMapListView";
 import { SearchMapView } from "./components/SearchMapView";
 import {
@@ -40,7 +41,7 @@ const mapRequestLimit = 100;
 const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
-const searchMapMinQueryLength = 3;
+const searchMapMinQueryLength = 4;
 const filterableParamKeys = [
   "form_code",
   "from_code",
@@ -725,6 +726,7 @@ export function SearchMapPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isEmptyStateDismissed, setIsEmptyStateDismissed] = useState(false);
   const [searchInitialView, setSearchInitialView] = useState<"search" | "saved">("search");
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
@@ -815,6 +817,7 @@ export function SearchMapPage() {
       setSearchSnapshot(nextSearch);
       setMode(getInitialSearchMode());
       setSelectedListingId(null);
+      setIsEmptyStateDismissed(false);
     };
 
     window.addEventListener("popstate", handleSearchSnapshotChange);
@@ -964,6 +967,32 @@ export function SearchMapPage() {
     writeSearchParams(params, { replace: true });
   }, []);
 
+  const handleEmptyRequestSubmit = useCallback((title: string) => {
+    const params = getSearchParams();
+    const requestFilters: Record<string, string> = {};
+    params.forEach((value, key) => {
+      requestFilters[key] = value;
+    });
+    const request = {
+      createdAt: new Date().toISOString(),
+      filters: requestFilters,
+      id: `search-request-${Date.now()}`,
+      title: title || currentSearchQuery || "درخواست ملک مشابه",
+    };
+
+    try {
+      const storageKey = "bonga-property-search-requests";
+      const stored = window.localStorage.getItem(storageKey);
+      const current = stored ? JSON.parse(stored) : [];
+      const requests = Array.isArray(current) ? current : [];
+      window.localStorage.setItem(storageKey, JSON.stringify([request, ...requests]));
+    } catch {
+      // The request UI still succeeds even when browser storage is unavailable.
+    }
+
+    showNotice("درخواست شما با موفقیت ثبت شد.");
+  }, [currentSearchQuery, showNotice]);
+
   const locateUser = useCallback(() => {
     if (isLocating) return;
 
@@ -1018,7 +1047,7 @@ export function SearchMapPage() {
   const isFullListOpen = mode === "list";
   const showMapEmptyState =
     hasActiveSearchCriteria &&
-    mapQuery.isSuccess &&
+    (activeSearchQuery ? listQuery.isSuccess : mapQuery.isSuccess) &&
     !isMapLoading &&
     visibleListings.length === 0;
   const showListEmptyState =
@@ -1035,6 +1064,7 @@ export function SearchMapPage() {
           isLoading={isListLoading}
           listings={apiListListings}
           onMapClick={returnToMapView}
+          onRequestSubmit={handleEmptyRequestSubmit}
         />
       ) : (
         <SearchMapView
@@ -1052,9 +1082,17 @@ export function SearchMapPage() {
         />
       )}
 
-      {!isFullListOpen && showMapEmptyState ? (
-        <div className="pointer-events-auto absolute inset-x-4 top-[172px] z-400 rounded-[16px] bg-white shadow-[0_12px_28px_rgba(26,26,26,0.12)]">
-          <SearchErrors className="min-h-[260px] py-6" variant="not-found" />
+      {!isFullListOpen && showMapEmptyState && !isEmptyStateDismissed ? (
+        <div className="pointer-events-auto absolute inset-x-0 bottom-0 top-[116px] z-400 overflow-y-auto bg-white pb-20 pt-4">
+          <SearchNoResultsRequestCard onSubmit={handleEmptyRequestSubmit} />
+          <button
+            className="absolute bottom-4 left-1/2 flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-sm font-bold leading-5 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            onClick={() => setIsEmptyStateDismissed(true)}
+            type="button"
+          >
+            <LinearMapsLocation className="h-5 w-5" />
+            <span>نقشه</span>
+          </button>
         </div>
       ) : null}
 
@@ -1071,7 +1109,7 @@ export function SearchMapPage() {
 
       <SearchMapFloatingActions
         isDrawing={isDrawMode}
-        isHidden={mode !== "map"}
+        isHidden={mode !== "map" || (showMapEmptyState && !isEmptyStateDismissed)}
         isLocated={isLocated}
         isLocating={isLocating}
         onLocateClick={locateUser}

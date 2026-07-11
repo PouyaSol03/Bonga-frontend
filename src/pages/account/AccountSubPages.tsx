@@ -5,6 +5,7 @@ import { getStoredAuthSession } from "../../auth/auth-storage";
 import {
   useAdvertiseBadgesQuery,
   useAuthorizeMeMutation,
+  useChargeWalletMutation,
   useDeleteAdvertiseBadgeMutation,
   useDeleteAdvertiseNoteMutation,
   useMyAdsInfiniteQuery,
@@ -12,6 +13,7 @@ import {
   useMyProfileQuery,
   useSaveAdvertiseNoteMutation,
   useUpdateMyProfileMutation,
+  useWalletQuery,
   useWalletPaymentsQuery,
 } from "../../hooks/account.hooks";
 import {
@@ -432,10 +434,21 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
   );
 }
 
+function normalizeWalletAmount(value: string) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/[^0-9]/g, "")
+    .replace(/^0+(?=\d)/, "");
+}
+
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
-  const { message, showNotice } = useDemoNotice();
-  const { data: wallet, error, isError, isLoading, refetch } = useWalletPaymentsQuery();
+  const [chargeError, setChargeError] = useState<string | null>(null);
+  const chargeWalletMutation = useChargeWalletMutation();
+  const { data: wallet, error, isError, isLoading, refetch } = useWalletQuery();
+  const numericAmount = Number(amount);
+  const canCharge = Number.isSafeInteger(numericAmount) && numericAmount > 0;
 
   const suggestedAmounts = [
     { label: "۱۰۰ هزار تومان", value: "100000" },
@@ -469,7 +482,7 @@ export function AccountWalletPage() {
 
                 <div className="mt-2 flex items-end gap-1 text-[#0048c4]">
                   <strong className="text-2xl font-bold leading-7">
-                    {formatMoney(wallet?.balance ?? 0)}
+                    {formatMoney(wallet?.credit ?? 0)}
                   </strong>
                   <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
                 </div>
@@ -498,8 +511,7 @@ export function AccountWalletPage() {
                 placeholder="مبلغ اعتبار دلخواه"
                 value={amount && amount !== "0" ? formatPrice(Number(amount.replace(/,/g, ""))) : ""}
                 onChange={(event) => {
-                  const cleanValue = event.target.value.replace(/,/g, "");
-                  setAmount(cleanValue);
+                  setAmount(normalizeWalletAmount(event.target.value));
                 }}
               />
             </label>
@@ -548,15 +560,43 @@ export function AccountWalletPage() {
       <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
-          disabled={amount.trim().length === 0}
-          onClick={() => showNotice(`درخواست شارژ کیف پول به مبلغ ${formatMoney(amount)} تومان ثبت شد`)}
+          disabled={!canCharge || chargeWalletMutation.isPending}
+          onClick={() => {
+            if (!canCharge) return;
+
+            setChargeError(null);
+            chargeWalletMutation.mutate(
+              { price: numericAmount },
+              {
+                onError: (chargeRequestError) => {
+                  setChargeError(
+                    getApiErrorMessage(
+                      chargeRequestError,
+                      "اتصال به درگاه پرداخت با خطا مواجه شد.",
+                    ),
+                  );
+                },
+                onSuccess: ({ paymentUrl }) => {
+                  window.location.assign(paymentUrl);
+                },
+              },
+            );
+          }}
           type="button"
         >
-          شارژ کیف پول
+          {chargeWalletMutation.isPending ? "در حال اتصال به درگاه..." : "شارژ کیف پول"}
         </button>
       </div>
 
-      <DemoNotice message={message} className="bottom-20" />
+      {chargeError ? (
+        <Snackbar
+          className="bottom-20"
+          message={chargeError}
+          onDismiss={() => setChargeError(null)}
+          title="خطا در پرداخت"
+          variant="error"
+        />
+      ) : null}
     </AccountPageShell>
   );
 }
@@ -567,7 +607,7 @@ export function AccountWalletHistoryPage() {
 
   return (
     <AccountPageShell title="تاریخچه پرداخت کیف پول">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden bg-[#F0F0F0]">
         {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
 
         {isError ? (
@@ -1660,19 +1700,18 @@ function formatMoney(value: unknown) {
 }
 
 function readPaymentStatus(payment: WalletPayment) {
-  const status = String(payment.status ?? "-");
+  const status = String(payment.status ?? "0").toLowerCase();
 
   switch (status) {
+    case "1":
     case "paid":
     case "success":
       return "پرداخت شده";
 
+    case "0":
     case "failed":
     case "error":
-      return "ناموفق";
-
-    case "pending":
-      return "در انتظار";
+      return "نا‌موفق";
 
     default:
       return status;
@@ -1682,15 +1721,28 @@ function readPaymentStatus(payment: WalletPayment) {
 function readPaymentStatusColor(payment: WalletPayment) {
   const status = String(payment.status ?? "");
 
-  if (["paid", "success", "پرداخت شده"].includes(status)) {
+  if (["1", "paid", "success"].includes(status)) {
     return "#11a366";
   }
 
-  if (["failed", "error", "ناموفق"].includes(status)) {
-    return "#ee3623";
+  if (["0", "failed", "error"].includes(status)) {
+    return "#EE3623";
   }
 
   return "#1a1a1a";
+}
+
+function formatPaymentDate(value?: string) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
 }
 
 function ReadonlyField({ label, value }: { label: string; value: string }) {
@@ -1729,7 +1781,7 @@ function TextField({
 
 function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
   return (
-    <article className="border-b border-[#f0f0f0] bg-white px-4 py-4 text-right">
+    <article className="border-b border-[#f0f0f0] bg-white p-4 flex flex-col gap-y-2 text-right">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
@@ -1737,18 +1789,19 @@ function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
       />
 
       <PaymentHistoryRow
+        icon={<AdCardTomanIcon className="h-6 w-6 text-[#4D4D4D]" />}
         label="هزینه"
-        value={`${formatMoney(payment.amount ?? 0)} تومان`}
+        value={formatMoney(payment.price ?? 0)}
       />
 
       <PaymentHistoryRow
         label="زمان پرداخت"
-        value={String(payment.created_at ?? "-")}
+        value={formatPaymentDate(payment.created_at)}
       />
 
       <PaymentHistoryRow
         label="شناسه پرداخت"
-        value={String(payment.tracking_code ?? payment.id ?? "-")}
+        value={String(payment.ref_id ?? "-")}
         isLast
       />
     </article>
@@ -1756,27 +1809,29 @@ function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
 }
 
 function PaymentHistoryRow({
+  icon,
   isLast = false,
   label,
   value,
   valueColor = "#1a1a1a",
 }: {
+  icon?: React.ReactNode;
   isLast?: boolean;
   label: string;
   value: string;
   valueColor?: string;
 }) {
   return (
-    <div className={`flex items-center justify-between gap-4 ${isLast ? "" : "mb-3"}`}>
-      <span className="shrink-0 text-xs font-normal leading-5 text-[#808080]">
+    <div className={`flex items-center justify-between py-2 gap-4`}>
+      <span className="shrink-0 font-medium leading-5 text-[#808080]">
         {label}
       </span>
 
       <span
-        className="min-w-0 text-left text-xs font-medium leading-5"
+        className="flex min-w-0 items-center gap-1 text-left font-medium"
         style={{ color: valueColor }}
       >
-        {value}
+        {value}{icon}
       </span>
     </div>
   );

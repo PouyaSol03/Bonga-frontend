@@ -4,7 +4,6 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-stor
 import { USER } from "../../../constants/roles.constants";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import {
   AdCardTomanIcon,
@@ -27,8 +26,13 @@ type PaymentStep = "options" | "checkout";
 const upgradePrice = 40_000;
 const unavailableRenewWarning = "۹ روز و ۱۲ ساعت تا فعال شدن امکان تمدید آگهی مانده است.";
 
-function navigateTo(path: string, state?: unknown) {
-  window.history.pushState(state ?? {}, "", path);
+function navigateTo(path: string, state?: unknown, replace = false) {
+  if (replace) {
+    window.history.replaceState(state ?? {}, "", path);
+  } else {
+    window.history.pushState(state ?? {}, "", path);
+  }
+
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -45,8 +49,8 @@ export function IndependentConsultantAdPaymentPage() {
   const ad = getSelectedConsultantAd();
   const isNewAdFlow = routeState.paymentFlow === "new-ad";
   const isUserRole = getActiveAuthRole(getStoredAuthSession()) === USER;
-  const userStateAdPath = `${getAdStatePath(ad.id)}?status=published`;
-  const completeTo = isUserRole ? userStateAdPath : adManagementPaths.published;
+  const userStateAdPath = getAdStatePath(ad.id);
+  const completeTo = isNewAdFlow || isUserRole ? userStateAdPath : adManagementPaths.published;
   const backTo = routeState.paymentHistoryReturnTo ?? (isNewAdFlow ? "/new-ad" : isUserRole ? userStateAdPath : adManagementPaths.allocation);
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
@@ -65,12 +69,12 @@ export function IndependentConsultantAdPaymentPage() {
     () => ({
       ad,
       card: ad,
-      returnTo: isUserRole ? "/account/my-ads" : routeState.returnTo,
+      returnTo: isNewAdFlow ? "/account" : isUserRole ? "/account/my-ads" : routeState.returnTo,
       showPaymentSuccess: true,
       status: "published",
-      tab: isUserRole ? undefined : ("status" as const),
+      tab: isNewAdFlow || isUserRole ? undefined : ("status" as const),
     }),
-    [ad, isUserRole, routeState.returnTo],
+    [ad, isNewAdFlow, isUserRole, routeState.returnTo],
   );
 
   function toggleTariff(optionId: AdTariffOptionId) {
@@ -87,7 +91,7 @@ export function IndependentConsultantAdPaymentPage() {
       return;
     }
 
-    navigateTo(completeTo, publishState);
+    navigateTo(completeTo, publishState, true);
   }
 
   if (step === "checkout") {
@@ -230,13 +234,13 @@ export function PaymentCheckoutView({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <RouteLink
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline shadow-[0_4px_10px_rgba(0,72,196,0.22)]"
-          state={finalState}
-          to={completeTo}
+        <button
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)]"
+          onClick={() => navigateTo(completeTo, finalState, true)}
+          type="button"
         >
           {`${completeLabelPrefix} - ${formatShortPayment(total)}`}
-        </RouteLink>
+        </button>
       </footer>
     </PageFrame>
   );

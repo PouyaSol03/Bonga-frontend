@@ -1,0 +1,2436 @@
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { LatLngTuple } from "leaflet";
+import {
+  CircleMarker,
+  MapContainer,
+  Polygon,
+  TileLayer,
+  useMapEvents,
+} from "react-leaflet";
+
+import { getApiErrorMessage } from "../../api/api";
+import { AdCard, type AdCardData } from "../../components/AdCard";
+import LinearPreview from "../../components/(icons)/LinearPreview";
+import LinearCheckmark from "../../components/(icons)/LinearCheckmark";
+import LinearCancel from "../../components/(icons)/LinearCancel";
+import LinearDelete from "../../components/(icons)/LinearDelete";
+import LinearEdit2 from "../../components/(icons)/LinearEdit2";
+import LinearLocation from "../../components/(icons)/LinearLocation";
+import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
+import { useMyProfileQuery } from "../../hooks/account.hooks";
+import { RouteLink } from "../../routes/RouteLink";
+import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
+import {
+  deleteCrmAgency,
+  deleteCrmCity,
+  deleteCrmNeighborhood,
+  getCrmAdvertise,
+  getCrmRecordId,
+  listCrmAdvertiseForms,
+  listCrmAdvertises,
+  listCrmAgencies,
+  listCrmCategories,
+  listCrmCities,
+  listCrmNeighborhoods,
+  listCrmUsers,
+  saveCrmAdvertise,
+  saveCrmAgency,
+  saveCrmCategory,
+  saveCrmCity,
+  saveCrmNeighborhood,
+  saveCrmUser,
+  toggleCrmUserStatus,
+  updateCrmAdvertiseStatus,
+  type CrmRecord,
+} from "../../services/crm.service";
+
+const CRM_BLUE = "#0048c4";
+const DEFAULT_COUNTRY_ID = "000000000000000000000001";
+const DEFAULT_CENTER: LatLngTuple = [36.2972, 59.6067];
+
+type CrmSection =
+  | "overview"
+  | "advertises"
+  | "users"
+  | "agencies"
+  | "categories"
+  | "locations"
+  | "forms";
+
+type ToastState = {
+  id: number;
+  message: string;
+  tone: "error" | "success";
+};
+
+type ModalField = {
+  label: string;
+  name: string;
+  options?: Array<{ label: string; value: string }>;
+  type?: "email" | "geofence" | "map-point" | "number" | "select" | "textarea" | "text";
+  value?: unknown;
+};
+
+type EditorState = {
+  fields: ModalField[];
+  onSubmit: (values: Record<string, string>) => Promise<void>;
+  title: string;
+};
+
+type ConfirmState = {
+  body: string;
+  confirmLabel?: string;
+  onConfirm: () => Promise<void>;
+  title: string;
+};
+
+const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: string }> = {
+  overview: {
+    path: "/crm",
+    subtitle: "نمای کلی عملیات و دسترسی سریع به بخش‌های مدیریتی",
+    title: "داشبورد مدیریت",
+  },
+  advertises: {
+    path: "/crm/advertises",
+    subtitle: "بررسی، ویرایش، تأیید و مدیریت وضعیت آگهی‌ها",
+    title: "مدیریت آگهی‌ها",
+  },
+  users: {
+    path: "/crm/users",
+    subtitle: "ساخت، ویرایش، فعال‌سازی و مدیریت نقش کاربران",
+    title: "مدیریت کاربران",
+  },
+  agencies: {
+    path: "/crm/agencies",
+    subtitle: "مدیریت پروفایل و اطلاعات آژانس‌های املاک",
+    title: "مدیریت آژانس‌ها",
+  },
+  categories: {
+    path: "/crm/categories",
+    subtitle: "ساختار درختی دسته‌بندی‌ها و اطلاعات نمایشی آن‌ها",
+    title: "دسته‌بندی‌ها",
+  },
+  locations: {
+    path: "/crm/locations",
+    subtitle: "شهرها، محله‌ها و محدوده‌های جغرافیایی سامانه",
+    title: "مدیریت موقعیت‌ها",
+  },
+  forms: {
+    path: "/crm/forms",
+    subtitle: "مشاهده ساختار فرم‌های ثبت آگهی و فیلدهای پویا",
+    title: "فرم‌های آگهی",
+  },
+};
+
+const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
+  { icon: "home", section: "overview" },
+  { icon: "ads", section: "advertises" },
+  { icon: "users", section: "users" },
+  { icon: "building", section: "agencies" },
+  { icon: "category", section: "categories" },
+  { icon: "location", section: "locations" },
+  { icon: "form", section: "forms" },
+];
+
+const advertiseStatusOptions = [
+  { label: "ثبت شده", value: "0" },
+  { label: "در انتظار مدیر", value: "1" },
+  { label: "تأیید شده", value: "3" },
+  { label: "رد شده", value: "-1" },
+  { label: "حذف شده", value: "-2" },
+  { label: "منقضی شده", value: "-3" },
+];
+
+const userRoleOptions = [
+  { label: "کاربر", value: "user" },
+  { label: "مدیر آژانس", value: "real_estate_manager" },
+  { label: "مشاور آژانس", value: "real_estate_consultant" },
+  { label: "مشاور مستقل", value: "independent_consultant" },
+  { label: "مدیر کل", value: "super-admin" },
+];
+
+const ownerTypeOptions = [
+  { label: "شخصی", value: "personal" },
+  { label: "آژانس", value: "agency" },
+];
+
+function getCurrentSection(): CrmSection {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/crm";
+
+  if (path === "/crm/advertises" || path.startsWith("/crm/advertises/")) return "advertises";
+  if (path === "/crm/users") return "users";
+  if (path === "/crm/agencies") return "agencies";
+  if (path === "/crm/categories") return "categories";
+  if (path === "/crm/locations") return "locations";
+  if (path === "/crm/forms") return "forms";
+
+  return "overview";
+}
+
+function getCurrentAdvertiseDetailId() {
+  const match = window.location.pathname.match(/^\/crm\/advertises\/([^/]+)\/?$/);
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
+}
+
+function stringifyValue(value: unknown, fallback = "") {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+
+  return JSON.stringify(value, null, 2);
+}
+
+function readText(record: CrmRecord, keys: string[], fallback = "-") {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim()) return value;
+    if (typeof value === "number") return String(value);
+  }
+
+  return fallback;
+}
+
+
+function readArray(record: CrmRecord, key: string) {
+  return Array.isArray(record[key]) ? (record[key] as unknown[]) : [];
+}
+
+function readNestedText(record: CrmRecord, keys: string[], childKeys = ["name", "title", "label"]) {
+  for (const key of keys) {
+    const value = record[key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      const text = readText(value as CrmRecord, childKeys, "");
+      if (text) return text;
+    }
+  }
+  return "";
+}
+
+function advertiseLocationLabel(advertise: CrmRecord, fallback = "موقعیت ثبت نشده") {
+  const city = readText(advertise, ["city_name"], "") || readNestedText(advertise, ["city"]);
+  const neighborhood = readText(advertise, ["neighborhood_name", "district_name"], "") ||
+    readNestedText(advertise, ["neighborhood", "district"]);
+  const address = readText(advertise, ["address", "full_address", "formatted_address"], "");
+
+  return address || [city, neighborhood].filter(Boolean).join("، ") || fallback;
+}
+
+function formatMoney(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) && number !== 0
+    ? new Intl.NumberFormat("fa-IR").format(number)
+    : "-";
+}
+
+function advertiseStatusLabel(status: unknown) {
+  const key = String(status ?? "");
+  return (
+    {
+      "-3": "منقضی شده",
+      "-2": "حذف شده",
+      "-1": "رد شده",
+      "0": "ثبت شده",
+      "1": "در انتظار بررسی",
+      "3": "منتشر شده",
+    }[key] ?? key ?? "-"
+  );
+}
+
+function userRoleSlug(user: CrmRecord) {
+  const roles = Array.isArray(user.roles) ? user.roles : [];
+
+  for (const role of roles) {
+    if (typeof role === "string") return role;
+    if (role && typeof role === "object" && typeof (role as CrmRecord).slug === "string") {
+      return String((role as CrmRecord).slug);
+    }
+  }
+
+  return readText(user, ["role_slug", "role"], "user");
+}
+
+function userRoleLabel(user: CrmRecord) {
+  const roles = Array.isArray(user.roles) ? user.roles : [];
+  const labels = roles
+    .map((role) => {
+      if (typeof role === "string") {
+        return userRoleOptions.find((option) => option.value === role)?.label ?? role;
+      }
+
+      if (role && typeof role === "object") {
+        const roleRecord = role as CrmRecord;
+        const slug = readText(roleRecord, ["slug"], "");
+        return readText(
+          roleRecord,
+          ["name", "title"],
+          userRoleOptions.find((option) => option.value === slug)?.label ?? slug,
+        );
+      }
+
+      return "";
+    })
+    .filter(Boolean);
+
+  if (labels.length > 0) return labels.join("، ");
+
+  const slug = userRoleSlug(user);
+  return userRoleOptions.find((option) => option.value === slug)?.label ?? slug;
+}
+
+function parseJsonValue(value: string, fieldLabel: string, fallback: unknown) {
+  if (!value.trim()) return fallback;
+
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    throw new Error(`${fieldLabel} باید JSON معتبر باشد.`);
+  }
+}
+
+function cleanEmptyValues(values: CrmRecord) {
+  return Object.fromEntries(
+    Object.entries(values).filter(([, value]) => value !== "" && value !== undefined),
+  );
+}
+
+function getCategoryChildren(category: CrmRecord) {
+  return Array.isArray(category.children) ? (category.children as CrmRecord[]) : [];
+}
+
+function getCategoryLabel(category: CrmRecord) {
+  return readText(category, ["name", "title", "label"]);
+}
+
+function fullName(user: CrmRecord) {
+  return [readText(user, ["name"], ""), readText(user, ["family"], "")]
+    .filter(Boolean)
+    .join(" ") || "-";
+}
+
+function mapCrmAdvertiseToCard(advertise: CrmRecord, index: number): AdCardData {
+  const mapped = mapAdvertisementToAdCard(advertise as AdvertisementItem, index);
+  const rawPrice = formatMoney(advertise.price);
+
+  return {
+    ...mapped,
+    agency: readText(advertise, ["agency_name", "publisher_name"], mapped.agency),
+    imageCount: mapped.imageCount || String(readArray(advertise, "images").length || 1),
+    pricePrimary: mapped.pricePrimary && mapped.pricePrimary !== "-" ? mapped.pricePrimary : rawPrice,
+    status: advertiseStatusLabel(advertise.status),
+    timeAndLocation: advertiseLocationLabel(advertise, mapped.timeAndLocation),
+  };
+}
+
+export function CrmPage() {
+  const section = getCurrentSection();
+  const advertiseDetailId = getCurrentAdvertiseDetailId();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    window.matchMedia("(min-width: 768px)").matches,
+  );
+  const { data: profile } = useMyProfileQuery();
+  const meta = advertiseDetailId
+    ? {
+        subtitle: "نمایش اطلاعات کامل و قابل‌خواندن آگهی از پنل مدیریت",
+        title: "جزئیات آگهی",
+      }
+    : sectionMeta[section];
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const sync = () => setIsDesktop(media.matches);
+
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timeout = window.setTimeout(() => setToast(null), 3600);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
+  const notify = useCallback((message: string, tone: ToastState["tone"] = "success") => {
+    setToast({ id: Date.now(), message, tone });
+  }, []);
+
+  if (!isDesktop) {
+    return <DesktopRequiredPage />;
+  }
+
+  const profileName = [profile?.name, profile?.family]
+    .map((value) => value?.trim())
+    .filter(Boolean)
+    .join(" ") || "مدیر سامانه";
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]" dir="rtl">
+      <aside
+        className={`flex h-full shrink-0 flex-col border-l border-[#d9d9d9] bg-white px-3 py-5 transition-[width] duration-300 ${
+          isSidebarCollapsed ? "w-[84px]" : "w-[272px]"
+        }`}
+      >
+        <div className={`flex h-12 items-center ${isSidebarCollapsed ? "justify-center" : "justify-between px-2"}`}>
+          {isSidebarCollapsed ? (
+            <BrandMark />
+          ) : (
+            <div className="flex items-center gap-3">
+              <BrandMark />
+              <div>
+                <strong className="block text-base font-bold text-[#0048c4]">بنگاه</strong>
+                <span className="text-sm font-medium text-[#808080]">مرکز مدیریت کل</span>
+              </div>
+            </div>
+          )}
+          {!isSidebarCollapsed ? (
+            <button
+              aria-label="جمع کردن منو"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-[#d9d9d9] bg-white text-[#5e6878] transition hover:bg-[#f0f0f0]"
+              onClick={() => setIsSidebarCollapsed(true)}
+              type="button"
+            >
+              <ChevronIcon />
+            </button>
+          ) : null}
+        </div>
+
+        {isSidebarCollapsed ? (
+          <button
+            aria-label="باز کردن منو"
+            className="mx-auto mt-3 grid h-9 w-9 place-items-center rounded-xl border border-[#d9d9d9] bg-white text-[#5e6878] transition hover:bg-[#f0f0f0]"
+            onClick={() => setIsSidebarCollapsed(false)}
+            type="button"
+          >
+            <span className="rotate-180"><ChevronIcon /></span>
+          </button>
+        ) : null}
+
+        <nav className="mt-7 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label="منوی مدیریت">
+          {navigationItems.map((item) => {
+            const itemMeta = sectionMeta[item.section];
+            const isActive = section === item.section;
+
+            return (
+              <RouteLink
+                aria-current={isActive ? "page" : undefined}
+                className={`flex h-11 items-center rounded-xl no-underline transition ${
+                  isActive
+                    ? "bg-[#eef4ff] text-[#0048c4]"
+                    : "text-[#4d5665] hover:bg-[#f0f0f0]"
+                } ${isSidebarCollapsed ? "justify-center px-0" : "gap-3 px-3"}`}
+                key={item.section}
+                title={isSidebarCollapsed ? itemMeta.title : undefined}
+                to={itemMeta.path}
+              >
+                <CrmIcon name={item.icon} />
+                {!isSidebarCollapsed ? (
+                  <span className={`text-sm ${isActive ? "font-bold" : "font-medium"}`}>
+                    {itemMeta.title}
+                  </span>
+                ) : null}
+              </RouteLink>
+            );
+          })}
+        </nav>
+
+        <RouteLink
+          className={`mt-4 flex h-11 items-center rounded-xl border border-[#d9d9d9] text-[#4d5665] no-underline transition hover:bg-[#f0f0f0] ${
+            isSidebarCollapsed ? "justify-center" : "gap-3 px-3"
+          }`}
+          title={isSidebarCollapsed ? "بازگشت به حساب من" : undefined}
+          to="/home"
+        >
+          <CrmIcon name="account" />
+          {!isSidebarCollapsed ? <span className="text-sm font-medium">بازگشت به سایت</span> : null}
+        </RouteLink>
+      </aside>
+
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex h-[82px] shrink-0 items-center justify-between border-b border-[#d9d9d9] bg-white px-7">
+          <div>
+            <h1 className="m-0 text-xl font-bold text-[#1e2633]">{meta.title}</h1>
+            <p className="m-0 mt-1 text-sm font-medium text-[#808080]">{meta.subtitle}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-semibold text-[#445064] transition hover:border-[#b9c7dd] hover:bg-[#f8faff]"
+              onClick={() => setRefreshNonce((value) => value + 1)}
+              type="button"
+            >
+              <CrmIcon name="refresh" />
+              تازه‌سازی
+            </button>
+            <div className="flex h-10 items-center gap-2 rounded-xl bg-[#f0f0f0] px-3">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#dfe9fb] text-[#0048c4]">
+                <CrmIcon name="account" />
+              </span>
+              <div className="max-w-[170px]">
+                <p className="m-0 truncate text-sm font-bold text-[#2b3442]">{profileName}</p>
+                <p className="m-0 text-sm font-medium text-[#808080]">مدیر کل سامانه</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="min-h-0 flex-1 overflow-y-auto px-7 py-6">
+          {advertiseDetailId ? (
+            <CrmAdvertiseDetailView
+              advertiseId={advertiseDetailId}
+              notify={notify}
+              refreshNonce={refreshNonce}
+            />
+          ) : (
+            <>
+              {section === "overview" ? <OverviewView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "advertises" ? <AdvertisesView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "users" ? <UsersView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "agencies" ? <AgenciesView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "categories" ? <CategoriesView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "locations" ? <LocationsView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "forms" ? <AdvertiseFormsView notify={notify} refreshNonce={refreshNonce} /> : null}
+            </>
+          )}
+        </main>
+      </div>
+
+      {toast ? <Toast key={toast.id} toast={toast} /> : null}
+    </div>
+  );
+}
+
+function DesktopRequiredPage() {
+  return (
+    <div className="grid h-screen w-full place-items-center bg-[#eef3fb] px-5" dir="rtl">
+      <section className="w-full max-w-md rounded-3xl border border-[#dfe6f2] bg-white p-8 text-center shadow-[0_24px_70px_rgba(24,50,90,0.12)]">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+          <CrmIcon name="desktop" size={32} />
+        </div>
+        <h1 className="m-0 mt-5 text-lg font-bold text-[#1e2633]">نسخه مدیریت برای دسکتاپ طراحی شده است</h1>
+        <p className="m-0 mt-2 text-sm leading-7 text-[#6f7888]">
+          برای استفاده کامل از جدول‌ها، فرم‌ها و نقشه مدیریت، این صفحه را روی لپ‌تاپ یا نمایشگر بزرگ‌تر باز کنید.
+        </p>
+        <RouteLink
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white no-underline"
+          to="/account"
+        >
+          بازگشت به حساب من
+        </RouteLink>
+      </section>
+    </div>
+  );
+}
+
+type ViewProps = {
+  notify: (message: string, tone?: ToastState["tone"]) => void;
+  refreshNonce: number;
+};
+
+function OverviewView({ notify, refreshNonce }: ViewProps) {
+  const adsQuery = useQuery({
+    queryFn: () => listCrmAdvertises(),
+    queryKey: ["crm", "overview", "advertises", refreshNonce],
+  });
+  const usersQuery = useQuery({
+    queryFn: () => listCrmUsers(),
+    queryKey: ["crm", "overview", "users", refreshNonce],
+  });
+  const agenciesQuery = useQuery({
+    queryFn: () => listCrmAgencies(),
+    queryKey: ["crm", "overview", "agencies", refreshNonce],
+  });
+  const formsQuery = useQuery({
+    queryFn: listCrmAdvertiseForms,
+    queryKey: ["crm", "overview", "forms", refreshNonce],
+  });
+
+  useQueryErrorToast([adsQuery.error, usersQuery.error, agenciesQuery.error, formsQuery.error], notify);
+
+  const isLoading =
+    adsQuery.isLoading || usersQuery.isLoading || agenciesQuery.isLoading || formsQuery.isLoading;
+
+  const metrics = [
+    {
+      icon: "ads" as const,
+      label: "آگهی‌ها",
+      path: "/crm/advertises",
+      value: adsQuery.data?.length ?? 0,
+    },
+    {
+      icon: "users" as const,
+      label: "کاربران",
+      path: "/crm/users",
+      value: usersQuery.data?.length ?? 0,
+    },
+    {
+      icon: "building" as const,
+      label: "آژانس‌ها",
+      path: "/crm/agencies",
+      value: agenciesQuery.data?.length ?? 0,
+    },
+    {
+      icon: "form" as const,
+      label: "فرم‌های آگهی",
+      path: "/crm/forms",
+      value: formsQuery.data?.length ?? 0,
+    },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <section className="grid grid-cols-4 gap-4" aria-label="آمار کلی">
+        {metrics.map((metric) => (
+          <RouteLink
+            className="group rounded-2xl border border-[#d9d9d9] bg-white p-5 no-underline shadow-[0_8px_28px_rgba(31,48,78,0.04)] transition hover:-translate-y-0.5 hover:border-[#cbd8ed] hover:shadow-[0_12px_34px_rgba(31,48,78,0.08)]"
+            key={metric.label}
+            to={metric.path}
+          >
+            <div className="flex items-center justify-between">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white">
+                <CrmIcon name={metric.icon} size={22} />
+              </span>
+              <CrmIcon name="arrow" size={18} />
+            </div>
+            <strong className="mt-5 block text-3xl font-black text-[#1e2633]">
+              {isLoading ? "…" : new Intl.NumberFormat("fa-IR").format(metric.value)}
+            </strong>
+            <span className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</span>
+          </RouteLink>
+        ))}
+      </section>
+
+      <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] gap-5">
+        <Panel>
+          <PanelHeader
+            action={<TextLink label="مشاهده همه" to="/crm/advertises" />}
+            subtitle="آخرین آگهی‌های دریافت‌شده در پنل"
+            title="آگهی‌های اخیر"
+          />
+          <div className="mt-4 divide-y divide-[#edf0f5]">
+            {adsQuery.isLoading ? (
+              <ListSkeleton count={6} />
+            ) : adsQuery.data?.length ? (
+              adsQuery.data.slice(0, 6).map((ad) => (
+                <RouteLink
+                  className="flex min-h-14 items-center justify-between gap-4 py-3 text-[#273142] no-underline transition hover:text-[#0048c4]"
+                  key={getCrmRecordId(ad)}
+                  to={`/crm/advertises/${encodeURIComponent(getCrmRecordId(ad))}`}
+                >
+                  <div className="min-w-0">
+                    <p className="m-0 truncate text-sm font-bold">{readText(ad, ["title"])}</p>
+                    <p className="m-0 mt-1 text-sm text-[#9098a6]">
+                      کد پیگیری: {readText(ad, ["track_code"])}
+                    </p>
+                  </div>
+                  <StatusBadge status={ad.status} />
+                </RouteLink>
+              ))
+            ) : (
+              <EmptyState compact description="هنوز آگهی‌ای دریافت نشده است." />
+            )}
+          </div>
+        </Panel>
+
+        <Panel>
+          <PanelHeader subtitle="دسترسی سریع به عملیات پرتکرار" title="ابزارهای مدیریت" />
+          <div className="mt-4 grid gap-3">
+            {[
+              { description: "بررسی و تعیین وضعیت آگهی‌ها", icon: "ads" as const, label: "صف بررسی آگهی", to: "/crm/advertises" },
+              { description: "ساخت و مدیریت حساب‌ها", icon: "users" as const, label: "مدیریت کاربران", to: "/crm/users" },
+              { description: "ویرایش شهر، محله و محدوده", icon: "location" as const, label: "موقعیت‌ها", to: "/crm/locations" },
+            ].map((item) => (
+              <RouteLink
+                className="flex items-center gap-3 rounded-2xl border border-[#d9d9d9] p-3.5 text-[#273142] no-underline transition hover:border-[#bed0ef] hover:bg-[#f8faff]"
+                key={item.label}
+                to={item.to}
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
+                  <CrmIcon name={item.icon} size={20} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <strong className="block text-sm">{item.label}</strong>
+                  <small className="mt-1 block text-sm text-[#8b94a3]">{item.description}</small>
+                </span>
+                <CrmIcon name="arrow" size={17} />
+              </RouteLink>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+function AdvertisesView({ notify, refreshNonce }: ViewProps) {
+  const queryClient = useQueryClient();
+  const [trackCode, setTrackCode] = useState("");
+  const [status, setStatus] = useState("");
+  const [filters, setFilters] = useState({ status: "", trackCode: "" });
+  const [editor, setEditor] = useState<EditorState | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+  const [isPreparingEditor, setIsPreparingEditor] = useState(false);
+
+  const query = useQuery({
+    queryFn: () =>
+      listCrmAdvertises({
+        status: filters.status === "" ? undefined : Number(filters.status),
+        trackCode: filters.trackCode,
+      }),
+    queryKey: ["crm", "advertises", filters, refreshNonce],
+  });
+
+  useQueryErrorToast([query.error], notify);
+
+  const saveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmAdvertise(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
+      notify("آگهی با موفقیت ذخیره شد.");
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, nextStatus }: { id: string; nextStatus: number }) =>
+      updateCrmAdvertiseStatus(id, nextStatus),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
+      notify("وضعیت آگهی به‌روزرسانی شد.");
+    },
+  });
+
+  const openEditor = (record: CrmRecord, id: string | null) => {
+    setEditor({
+      fields: advertiseEditorFields(record),
+      onSubmit: async (values) => {
+        const payload = cleanAdvertisePayload(values);
+        await saveMutation.mutateAsync({ id, payload });
+      },
+      title: id ? "ویرایش آگهی" : "ثبت آگهی جدید",
+    });
+  };
+
+  const handleEdit = async (id: string) => {
+    setIsPreparingEditor(true);
+
+    try {
+      openEditor(await getCrmAdvertise(id), id);
+    } catch (error) {
+      notify(getApiErrorMessage(error, "دریافت اطلاعات آگهی ناموفق بود."), "error");
+    } finally {
+      setIsPreparingEditor(false);
+    }
+  };
+
+  const updateStatus = async (id: string, nextStatus: number) => {
+    try {
+      await statusMutation.mutateAsync({ id, nextStatus });
+    } catch (error) {
+      notify(getApiErrorMessage(error, "به‌روزرسانی وضعیت آگهی ناموفق بود."), "error");
+    }
+  };
+
+  return (
+    <>
+      <Panel>
+        <PanelHeader
+          action={
+            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => openEditor({}, null)} />
+          }
+          subtitle="فیلترها را اعمال کنید و وضعیت هر آگهی را مدیریت کنید."
+          title="فهرست آگهی‌ها"
+        />
+
+        <form
+          className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-[#f0f0f0] p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setFilters({ status, trackCode });
+          }}
+        >
+          <FilterField label="کد پیگیری">
+            <input
+              className={inputClassName}
+              onChange={(event) => setTrackCode(event.target.value)}
+              placeholder="مثلاً ۱۲۳۴۵"
+              value={trackCode}
+            />
+          </FilterField>
+          <FilterField label="وضعیت">
+            <select className={inputClassName} onChange={(event) => setStatus(event.target.value)} value={status}>
+              <option value="">همه وضعیت‌ها</option>
+              {advertiseStatusOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </FilterField>
+          <button className={secondaryButtonClassName} type="submit">
+            <CrmIcon name="search" size={18} />
+            جستجو
+          </button>
+          {(filters.status || filters.trackCode) ? (
+            <button
+              className={ghostButtonClassName}
+              onClick={() => {
+                setStatus("");
+                setTrackCode("");
+                setFilters({ status: "", trackCode: "" });
+              }}
+              type="button"
+            >
+              پاک کردن فیلتر
+            </button>
+          ) : null}
+        </form>
+
+        <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+          {query.isLoading ? (
+            Array.from({ length: 6 }).map((_, index) => (
+              <div className="h-[430px] animate-pulse rounded-2xl border border-[#d9d9d9] bg-white p-4" key={index}>
+                <div className="h-[224px] rounded-2xl bg-[#e7ebf2]" />
+                <div className="mt-4 h-5 w-2/5 rounded-full bg-[#e7ebf2]" />
+                <div className="mt-3 h-4 w-4/5 rounded-full bg-[#eef0f4]" />
+                <div className="mt-3 h-4 w-3/5 rounded-full bg-[#eef0f4]" />
+              </div>
+            ))
+          ) : query.data?.length ? (
+            query.data.map((ad, index) => {
+              const id = getCrmRecordId(ad);
+              const card = mapCrmAdvertiseToCard(ad, index);
+              const features = readArray(ad, "features").slice(0, 3);
+
+              return (
+                <article
+                  className="overflow-hidden rounded-2xl border border-[#d9d9d9] bg-white shadow-[0_6px_20px_rgba(0,72,196,0.05)]"
+                  key={id}
+                >
+                  <div className="p-4">
+                    <AdCard
+                      ad={card}
+                      showStatusBadge
+                      state={{ ad, card, status: ad.status }}
+                      to={`/crm/advertises/${encodeURIComponent(id)}`}
+                      variant="dashboard"
+                    />
+                  </div>
+
+                  {features.length ? (
+                    <div className="flex flex-wrap gap-2 border-t border-[#eeeeee] px-4 py-3">
+                      {features.map((feature, featureIndex) => {
+                        const featureRecord = feature as CrmRecord;
+                        const value = featureRecord.value;
+
+                        return (
+                          <span
+                            className="rounded-lg bg-[#f0f0f0] px-2.5 py-1 text-sm text-[#4d4d4d]"
+                            key={`${id}-${featureIndex}`}
+                          >
+                            {readText(featureRecord, ["label"])}: {Array.isArray(value) ? value.join("، ") : stringifyValue(value, "-")}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+
+                  <div className="border-t border-[#e8edf5] bg-[#f8faff] p-4">
+                    <div className="mb-3 flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-sm shadow-sm">
+                      <LinearLocation className="mt-0.5 h-5 w-5 shrink-0 text-[#0048c4]" />
+                      <div className="min-w-0 flex-1">
+                        <span className="block text-xs font-medium text-[#8a94a3]">موقعیت ملک</span>
+                        <strong className="mt-0.5 block truncate text-sm text-[#273142]">{advertiseLocationLabel(ad)}</strong>
+                      </div>
+                      <span className="shrink-0 rounded-lg bg-[#eef2f7] px-2 py-1 text-xs text-[#667085]">کد {readText(ad, ["track_code"])}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 xl:grid-cols-5">
+                      <SmallActionLink icon={<LinearPreview className="h-4 w-4" />} label="جزئیات" to={`/crm/advertises/${encodeURIComponent(id)}`} />
+                      <SmallActionButton disabled={isPreparingEditor} icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => handleEdit(id)} />
+                      <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
+                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => updateStatus(id, -1)} tone="warning" />
+                      <SmallActionButton
+                        icon={<LinearDelete className="h-4 w-4" />}
+                        label="حذف"
+                        onClick={() => setConfirm({
+                          body: "این آگهی از فهرست فعال خارج و در وضعیت حذف‌شده قرار می‌گیرد.",
+                          confirmLabel: "حذف آگهی",
+                          onConfirm: async () => { await statusMutation.mutateAsync({ id, nextStatus: -2 }); },
+                          title: "حذف آگهی",
+                        })}
+                        tone="danger"
+                      />
+                    </div>
+                  </div>
+                </article>
+              );
+            })
+          ) : (
+            <div className="col-span-full rounded-2xl border border-[#d9d9d9] bg-white">
+              <EmptyState description="آگهی‌ای مطابق فیلترهای انتخابی پیدا نشد." />
+            </div>
+          )}
+        </div>
+      </Panel>
+
+      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+      <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+    </>
+  );
+}
+
+function advertiseEditorFields(ad: CrmRecord): ModalField[] {
+  return [
+    { label: "عنوان", name: "title", value: ad.title },
+    { label: "شناسه کاربر", name: "user_id", value: ad.user_id },
+    { label: "شناسه دسته‌بندی", name: "category_id", value: ad.category_id },
+    { label: "شناسه محله", name: "neighborhood_id", value: ad.neighborhood_id },
+    { label: "قیمت", name: "price", type: "number", value: ad.price ?? 0 },
+    { label: "وضعیت", name: "status", options: advertiseStatusOptions, type: "select", value: ad.status ?? 0 },
+    { label: "عرض جغرافیایی", name: "lat", type: "number", value: ad.lat ?? DEFAULT_CENTER[0] },
+    { label: "طول جغرافیایی", name: "lng", type: "number", value: ad.lng ?? DEFAULT_CENTER[1] },
+    { label: "شماره مالک", name: "owner_phone", value: ad.owner_phone },
+    { label: "نوع مالک", name: "owner_type", options: ownerTypeOptions, type: "select", value: ad.owner_type ?? "personal" },
+    { label: "لینک تور مجازی", name: "virtual_tour_link", value: ad.virtual_tour_link },
+    { label: "یادداشت مدیر", name: "admin_note", value: ad.admin_note },
+    { label: "نوع تماس (JSON)", name: "contact_type", type: "textarea", value: stringifyValue(ad.contact_type, '["phone"]') },
+    { label: "تصاویر (JSON)", name: "images", type: "textarea", value: stringifyValue(ad.images, "[]") },
+    { label: "ویدیوها (JSON)", name: "videos", type: "textarea", value: stringifyValue(ad.videos, "[]") },
+    { label: "فیلدهای پویا (JSON)", name: "dynamic_fields", type: "textarea", value: stringifyValue(ad.dynamic_fields ?? ad.dynamicFields, "[]") },
+    { label: "توضیحات", name: "description", type: "textarea", value: ad.description },
+  ];
+}
+
+function cleanAdvertisePayload(values: Record<string, string>) {
+  const payload: CrmRecord = { ...values };
+
+  for (const key of ["lat", "lng", "price", "status"]) {
+    if (values[key] !== "") payload[key] = Number(values[key]);
+  }
+
+  payload.contact_type = parseJsonValue(values.contact_type ?? "", "نوع تماس", []);
+  payload.images = parseJsonValue(values.images ?? "", "تصاویر", []);
+  payload.videos = parseJsonValue(values.videos ?? "", "ویدیوها", []);
+  payload.dynamic_fields = parseJsonValue(values.dynamic_fields ?? "", "فیلدهای پویا", []);
+
+  return cleanEmptyValues(payload);
+}
+
+function UsersView({ notify, refreshNonce }: ViewProps) {
+  const queryClient = useQueryClient();
+  const [mobile, setMobile] = useState("");
+  const [name, setName] = useState("");
+  const [filters, setFilters] = useState({ mobile: "", name: "" });
+  const [editor, setEditor] = useState<EditorState | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+
+  const query = useQuery({
+    queryFn: () => listCrmUsers(filters),
+    queryKey: ["crm", "users", filters, refreshNonce],
+  });
+
+  useQueryErrorToast([query.error], notify);
+
+  const saveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmUser(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "users"] });
+      notify("اطلاعات کاربر ذخیره شد.");
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: toggleCrmUserStatus,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
+      notify("وضعیت کاربر تغییر کرد.");
+    },
+  });
+
+  const openUserEditor = (user: CrmRecord = {}) => {
+    const id = getCrmRecordId(user) || null;
+
+    setEditor({
+      fields: [
+        { label: "نام", name: "name", value: user.name },
+        { label: "نام خانوادگی", name: "family", value: user.family },
+        { label: "شماره موبایل", name: "mobile", value: user.mobile },
+        { label: "ایمیل", name: "email", type: "email", value: user.email },
+        { label: "نقش", name: "role_slug", options: userRoleOptions, type: "select", value: userRoleSlug(user) },
+      ],
+      onSubmit: async (values) => {
+        await saveMutation.mutateAsync({ id, payload: cleanEmptyValues(values) });
+      },
+      title: id ? "ویرایش کاربر" : "ساخت کاربر جدید",
+    });
+  };
+
+  const handleToggleStatus = (id: string) => statusMutation.mutateAsync(id);
+
+  return (
+    <>
+      <Panel>
+        <PanelHeader
+          action={<PrimaryButton icon="plus" label="کاربر جدید" onClick={() => openUserEditor()} />}
+          subtitle="جستجو بر اساس نام یا شماره موبایل و مدیریت سطح دسترسی کاربران"
+          title="فهرست کاربران"
+        />
+
+        <form
+          className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-[#f0f0f0] p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setFilters({ mobile, name });
+          }}
+        >
+          <FilterField label="شماره موبایل">
+            <input className={inputClassName} onChange={(event) => setMobile(event.target.value)} placeholder="0912..." value={mobile} />
+          </FilterField>
+          <FilterField label="نام کاربر">
+            <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="نام یا نام خانوادگی" value={name} />
+          </FilterField>
+          <button className={secondaryButtonClassName} type="submit"><CrmIcon name="search" size={18} /> جستجو</button>
+          {(filters.mobile || filters.name) ? (
+            <button
+              className={ghostButtonClassName}
+              onClick={() => {
+                setMobile("");
+                setName("");
+                setFilters({ mobile: "", name: "" });
+              }}
+              type="button"
+            >
+              پاک کردن فیلتر
+            </button>
+          ) : null}
+        </form>
+
+        <div className="mt-5 overflow-x-auto">
+          <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
+            <thead>
+              <tr className="text-sm font-bold text-[#4d4d4d]">
+                <TableHead>نام</TableHead>
+                <TableHead>موبایل</TableHead>
+                <TableHead>نقش</TableHead>
+                <TableHead>وضعیت</TableHead>
+                <TableHead>اعتبار</TableHead>
+                <TableHead>عملیات</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {query.isLoading ? (
+                <TableLoadingRows columns={6} rows={6} />
+              ) : query.data?.length ? (
+                query.data.map((user) => {
+                  const id = getCrmRecordId(user);
+                  const isActive = Number(user.status) === 1;
+
+                  return (
+                    <tr key={id}>
+                      <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(user)}</span></TableCell>
+                      <TableCell><span dir="ltr">{readText(user, ["mobile"])}</span></TableCell>
+                      <TableCell>{userRoleLabel(user)}</TableCell>
+                      <TableCell><UserStatusBadge status={user.status} /></TableCell>
+                      <TableCell>{formatMoney(user.credit)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1.5">
+                          <SmallActionButton label="ویرایش" onClick={() => openUserEditor(user)} />
+                          <SmallActionButton
+                            label={isActive ? "غیرفعال‌سازی" : "فعال‌سازی"}
+                            onClick={() => setConfirm({
+                              body: isActive
+                                ? "دسترسی این کاربر تا زمان فعال‌سازی دوباره محدود می‌شود."
+                                : "حساب این کاربر دوباره فعال می‌شود.",
+                              confirmLabel: isActive ? "غیرفعال کن" : "فعال کن",
+                              onConfirm: async () => { await handleToggleStatus(id); },
+                              title: isActive ? "غیرفعال‌سازی کاربر" : "فعال‌سازی کاربر",
+                            })}
+                            tone={isActive ? "danger" : "success"}
+                          />
+                        </div>
+                      </TableCell>
+                    </tr>
+                  );
+                })
+              ) : (
+                <TableEmptyRow columns={6} message="کاربری مطابق جستجوی شما پیدا نشد." />
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+
+      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+      <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+    </>
+  );
+}
+
+function AgenciesView({ notify, refreshNonce }: ViewProps) {
+  const queryClient = useQueryClient();
+  const [name, setName] = useState("");
+  const [filterName, setFilterName] = useState("");
+  const [editor, setEditor] = useState<EditorState | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+
+  const query = useQuery({
+    queryFn: () => listCrmAgencies({ name: filterName }),
+    queryKey: ["crm", "agencies", filterName, refreshNonce],
+  });
+
+  useQueryErrorToast([query.error], notify);
+
+  const saveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmAgency(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "agencies"] });
+      notify("اطلاعات آژانس ذخیره شد.");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCrmAgency,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "agencies"] });
+      notify("آژانس حذف شد.");
+    },
+  });
+
+  const openAgencyEditor = (agency: CrmRecord = {}) => {
+    const id = getCrmRecordId(agency) || null;
+
+    setEditor({
+      fields: [
+        { label: "نام آژانس", name: "name", value: agency.name },
+        { label: "شناسه محله", name: "neighborhood_id", value: agency.neighborhood_id },
+        { label: "عرض جغرافیایی", name: "lat", type: "number", value: agency.lat ?? DEFAULT_CENTER[0] },
+        { label: "طول جغرافیایی", name: "lng", type: "number", value: agency.lng ?? DEFAULT_CENTER[1] },
+        { label: "شماره تماس", name: "phone1", value: agency.phone1 },
+        { label: "آدرس", name: "address", value: agency.address },
+        { label: "درباره آژانس", name: "about_us", type: "textarea", value: agency.about_us },
+      ],
+      onSubmit: async (values) => {
+        const payload: CrmRecord = {
+          ...values,
+          lat: values.lat ? Number(values.lat) : undefined,
+          lng: values.lng ? Number(values.lng) : undefined,
+        };
+        await saveMutation.mutateAsync({ id, payload: cleanEmptyValues(payload) });
+      },
+      title: id ? "ویرایش آژانس" : "ثبت آژانس جدید",
+    });
+  };
+
+  const handleDelete = (id: string) => deleteMutation.mutateAsync(id);
+
+  return (
+    <>
+      <Panel>
+        <PanelHeader
+          action={<PrimaryButton icon="plus" label="آژانس جدید" onClick={() => openAgencyEditor()} />}
+          subtitle="اطلاعات تماس، موقعیت و معرفی آژانس‌ها را مدیریت کنید."
+          title="فهرست آژانس‌ها"
+        />
+
+        <form
+          className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-[#f0f0f0] p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setFilterName(name);
+          }}
+        >
+          <FilterField label="نام آژانس">
+            <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="جستجوی نام" value={name} />
+          </FilterField>
+          <button className={secondaryButtonClassName} type="submit"><CrmIcon name="search" size={18} /> جستجو</button>
+          {filterName ? (
+            <button
+              className={ghostButtonClassName}
+              onClick={() => {
+                setName("");
+                setFilterName("");
+              }}
+              type="button"
+            >
+              پاک کردن فیلتر
+            </button>
+          ) : null}
+        </form>
+
+        <div className="mt-5 overflow-x-auto">
+          <table className="w-full min-w-[850px] border-separate border-spacing-0 text-right">
+            <thead>
+              <tr className="text-sm font-bold text-[#4d4d4d]">
+                <TableHead>نام آژانس</TableHead>
+                <TableHead>شماره تماس</TableHead>
+                <TableHead>وضعیت</TableHead>
+                <TableHead>موقعیت</TableHead>
+                <TableHead>عملیات</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {query.isLoading ? (
+                <TableLoadingRows columns={5} rows={6} />
+              ) : query.data?.length ? (
+                query.data.map((agency) => {
+                  const id = getCrmRecordId(agency);
+
+                  return (
+                    <tr key={id}>
+                      <TableCell>
+                        <span className="font-bold text-[#1a1a1a]">{readText(agency, ["name"])}</span>
+                        <small className="mt-1 block text-sm text-[#9aa2af]">{id}</small>
+                      </TableCell>
+                      <TableCell><span dir="ltr">{readText(agency, ["phone1", "phone2", "phone3"])}</span></TableCell>
+                      <TableCell><StatusBadge status={agency.status} /></TableCell>
+                      <TableCell><span dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</span></TableCell>
+                      <TableCell>
+                        <div className="flex gap-1.5">
+                          <SmallActionButton label="ویرایش" onClick={() => openAgencyEditor(agency)} />
+                          <SmallActionButton
+                            label="حذف"
+                            onClick={() => setConfirm({
+                              body: "اطلاعات این آژانس از پنل مدیریت حذف خواهد شد.",
+                              confirmLabel: "حذف آژانس",
+                              onConfirm: async () => { await handleDelete(id); },
+                              title: "حذف آژانس",
+                            })}
+                            tone="danger"
+                          />
+                        </div>
+                      </TableCell>
+                    </tr>
+                  );
+                })
+              ) : (
+                <TableEmptyRow columns={5} message="آژانسی مطابق جستجوی شما پیدا نشد." />
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+
+      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+      <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+    </>
+  );
+}
+
+function CategoriesView({ notify, refreshNonce }: ViewProps) {
+  const queryClient = useQueryClient();
+  const [editor, setEditor] = useState<EditorState | null>(null);
+
+  const query = useQuery({
+    queryFn: listCrmCategories,
+    queryKey: ["crm", "categories", refreshNonce],
+  });
+
+  useQueryErrorToast([query.error], notify);
+
+  const saveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmCategory(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "categories"] });
+      notify("دسته‌بندی ذخیره شد.");
+    },
+  });
+
+  const openCategoryEditor = (category: CrmRecord = {}) => {
+    const id = getCrmRecordId(category) || null;
+    const parent = category.parent_id;
+    const parentId = parent && typeof parent === "object"
+      ? getCrmRecordId(parent as CrmRecord)
+      : stringifyValue(parent);
+
+    setEditor({
+      fields: [
+        { label: "نام دسته‌بندی", name: "name", value: category.name },
+        { label: "شناسه والد", name: "parent_id", value: parentId },
+        { label: "کد", name: "code", value: category.code },
+        { label: "نامک", name: "slug", value: category.slug },
+      ],
+      onSubmit: async (values) => {
+        await saveMutation.mutateAsync({ id, payload: cleanEmptyValues(values) });
+      },
+      title: id ? "ویرایش دسته‌بندی" : "دسته‌بندی جدید",
+    });
+  };
+
+  return (
+    <>
+      <Panel>
+        <PanelHeader
+          action={<PrimaryButton icon="plus" label="دسته‌بندی جدید" onClick={() => openCategoryEditor()} />}
+          subtitle="ساختار درختی دسته‌بندی‌ها را بدون تغییر سایر بخش‌های برنامه مدیریت کنید."
+          title="درخت دسته‌بندی‌ها"
+        />
+
+        <div className="mt-5 rounded-2xl border border-[#d9d9d9] bg-[#fafbfc] p-4">
+          {query.isLoading ? (
+            <ListSkeleton count={7} />
+          ) : query.data?.length ? (
+            <CategoryTree categories={query.data} onEdit={openCategoryEditor} />
+          ) : (
+            <EmptyState description="هنوز دسته‌بندی‌ای ثبت نشده است." />
+          )}
+        </div>
+      </Panel>
+
+      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+    </>
+  );
+}
+
+function CategoryTree({ categories, depth = 0, onEdit }: { categories: CrmRecord[]; depth?: number; onEdit: (category: CrmRecord) => void }) {
+  return (
+    <div className="space-y-2">
+      {categories.map((category) => {
+        const id = getCrmRecordId(category);
+        const children = getCategoryChildren(category);
+
+        return (
+          <div key={id || `${getCategoryLabel(category)}-${depth}`}>
+            <div
+              className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-[#e4e8ef] bg-white px-4 shadow-[0_4px_16px_rgba(31,48,78,0.03)]"
+              style={{ marginRight: depth * 24 }}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
+                  <CrmIcon name="category" size={18} />
+                </span>
+                <div className="min-w-0">
+                  <strong className="block truncate text-sm text-[#1a1a1a]">{getCategoryLabel(category)}</strong>
+                  <small className="mt-1 block truncate text-sm text-[#969eab]">
+                    {readText(category, ["code", "slug"], id)}
+                  </small>
+                </div>
+              </div>
+              <SmallActionButton label="ویرایش" onClick={() => onEdit(category)} />
+            </div>
+            {children.length ? <div className="mt-2"><CategoryTree categories={children} depth={depth + 1} onEdit={onEdit} /></div> : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function LocationsView({ notify, refreshNonce }: ViewProps) {
+  const queryClient = useQueryClient();
+  const [citySearch, setCitySearch] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [editor, setEditor] = useState<EditorState | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+
+  const citiesQuery = useQuery({
+    queryFn: () => listCrmCities({ query: cityFilter }),
+    queryKey: ["crm", "cities", cityFilter, refreshNonce],
+  });
+
+  useEffect(() => {
+    if (cityId || !citiesQuery.data?.length) return;
+    setCityId(getCrmRecordId(citiesQuery.data[0]));
+  }, [citiesQuery.data, cityId]);
+
+  const neighborhoodsQuery = useQuery({
+    enabled: Boolean(cityId),
+    queryFn: () => listCrmNeighborhoods({ cityId }),
+    queryKey: ["crm", "neighborhoods", cityId, refreshNonce],
+  });
+
+  useQueryErrorToast([citiesQuery.error, neighborhoodsQuery.error], notify);
+
+  const citySaveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmCity(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "cities"] });
+      notify("اطلاعات شهر ذخیره شد.");
+    },
+  });
+
+  const cityDeleteMutation = useMutation({
+    mutationFn: deleteCrmCity,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "cities"] });
+      notify("شهر حذف شد.");
+    },
+  });
+
+  const neighborhoodSaveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmNeighborhood(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "neighborhoods"] });
+      notify("اطلاعات محله ذخیره شد.");
+    },
+  });
+
+  const neighborhoodDeleteMutation = useMutation({
+    mutationFn: deleteCrmNeighborhood,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "neighborhoods"] });
+      notify("محله حذف شد.");
+    },
+  });
+
+  const openCityEditor = (city: CrmRecord = {}) => {
+    const id = getCrmRecordId(city) || null;
+
+    setEditor({
+      fields: [
+        { label: "نام شهر", name: "name", value: city.name },
+        { label: "شناسه کشور", name: "country_id", value: city.country_id ?? DEFAULT_COUNTRY_ID },
+        {
+          label: "موقعیت شهر روی نقشه",
+          name: "location",
+          type: "map-point",
+          value: stringifyValue({
+            lat: Number(city.lat) || 36.2605,
+            lng: Number(city.lng) || 59.6168,
+          }),
+        },
+      ],
+      onSubmit: async (values) => {
+        const { location, ...cityValues } = values;
+        const point = parseMapPointValue(location);
+
+        await citySaveMutation.mutateAsync({
+          id,
+          payload: cleanEmptyValues({
+            ...cityValues,
+            lat: point.lat,
+            lng: point.lng,
+          }),
+        });
+      },
+      title: id ? "ویرایش شهر" : "ثبت شهر جدید",
+    });
+  };
+
+  const openNeighborhoodEditor = (neighborhood: CrmRecord = {}) => {
+    const id = getCrmRecordId(neighborhood) || null;
+
+    setEditor({
+      fields: [
+        { label: "نام محله", name: "name", value: neighborhood.name },
+        { label: "شناسه شهر", name: "city_id", value: neighborhood.city_id ?? cityId },
+        { label: "عرض جغرافیایی", name: "lat", type: "number", value: neighborhood.lat ?? DEFAULT_CENTER[0] },
+        { label: "طول جغرافیایی", name: "lng", type: "number", value: neighborhood.lng ?? DEFAULT_CENTER[1] },
+        { label: "محدوده جغرافیایی", name: "polygon", type: "geofence", value: stringifyValue(neighborhood.polygon) },
+      ],
+      onSubmit: async (values) => {
+        const polygon = values.polygon
+          ? parseJsonValue(values.polygon, "محدوده جغرافیایی", undefined)
+          : undefined;
+        await neighborhoodSaveMutation.mutateAsync({
+          id,
+          payload: cleanEmptyValues({
+            ...values,
+            lat: values.lat ? Number(values.lat) : undefined,
+            lng: values.lng ? Number(values.lng) : undefined,
+            polygon,
+          }),
+        });
+      },
+      title: id ? "ویرایش محله" : "ثبت محله جدید",
+    });
+  };
+
+  const handleDeleteCity = async (id: string) => {
+    await cityDeleteMutation.mutateAsync(id);
+    if (cityId === id) setCityId("");
+  };
+
+  const handleDeleteNeighborhood = (id: string) =>
+    neighborhoodDeleteMutation.mutateAsync(id);
+
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-5">
+        <Panel>
+          <PanelHeader
+            action={<PrimaryButton icon="plus" label="شهر جدید" onClick={() => openCityEditor()} />}
+            subtitle="فهرست شهرهای قابل استفاده در جستجو و ثبت آگهی"
+            title="شهرها"
+          />
+          <form
+            className="mt-4 flex items-end gap-2 rounded-2xl bg-[#f0f0f0] p-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setCityFilter(citySearch);
+            }}
+          >
+            <FilterField className="flex-1" label="جستجوی شهر">
+              <input className={inputClassName} onChange={(event) => setCitySearch(event.target.value)} placeholder="نام شهر" value={citySearch} />
+            </FilterField>
+            <button className={iconButtonClassName} aria-label="جستجو" type="submit"><CrmIcon name="search" size={19} /></button>
+          </form>
+
+          <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-2xl border border-[#d9d9d9]">
+            <table className="w-full min-w-[620px] border-separate border-spacing-0 text-right">
+              <thead>
+                <tr className="text-sm font-bold text-[#4d4d4d]">
+                  <TableHead>نام</TableHead>
+                  <TableHead>کد</TableHead>
+                  <TableHead>موقعیت</TableHead>
+                  <TableHead>عملیات</TableHead>
+                </tr>
+              </thead>
+              <tbody>
+                {citiesQuery.isLoading ? (
+                  <TableLoadingRows columns={4} rows={6} />
+                ) : citiesQuery.data?.length ? (
+                  citiesQuery.data.map((city) => {
+                    const id = getCrmRecordId(city);
+                    const selected = cityId === id;
+
+                    return (
+                      <tr className={selected ? "bg-[#f6f9ff]" : ""} key={id}>
+                        <TableCell>
+                          <button className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`} onClick={() => setCityId(id)} type="button">
+                            {readText(city, ["name"])}
+                          </button>
+                          <small className="mt-1 block max-w-[140px] truncate text-sm text-[#9aa2af]">{id}</small>
+                        </TableCell>
+                        <TableCell>{readText(city, ["code"])}</TableCell>
+                        <TableCell><span className="text-sm" dir="ltr">{readText(city, ["lat"])}, {readText(city, ["lng"])}</span></TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <SmallActionButton label="ویرایش" onClick={() => openCityEditor(city)} />
+                            <SmallActionButton
+                              label="حذف"
+                              onClick={() => setConfirm({
+                                body: "با حذف شهر ممکن است محله‌های وابسته قابل استفاده نباشند.",
+                                confirmLabel: "حذف شهر",
+                                onConfirm: () => handleDeleteCity(id),
+                                title: "حذف شهر",
+                              })}
+                              tone="danger"
+                            />
+                          </div>
+                        </TableCell>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <TableEmptyRow columns={4} message="شهری پیدا نشد." />
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+
+        <Panel>
+          <PanelHeader
+            action={<PrimaryButton disabled={!cityId} icon="plus" label="محله جدید" onClick={() => openNeighborhoodEditor()} />}
+            subtitle={cityId ? "محله‌های شهر انتخاب‌شده و محدوده جغرافیایی آن‌ها" : "ابتدا یک شهر را انتخاب کنید."}
+            title="محله‌ها"
+          />
+
+          <div className="mt-4 flex items-center gap-2 rounded-2xl bg-[#f0f0f0] p-3">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></span>
+            <div className="min-w-0 flex-1">
+              <p className="m-0 text-sm font-bold text-[#4f5a6c]">شناسه شهر انتخاب‌شده</p>
+              <p className="m-0 mt-1 truncate text-sm text-[#9098a6]" dir="ltr">{cityId || "-"}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-2xl border border-[#d9d9d9]">
+            <table className="w-full min-w-[620px] border-separate border-spacing-0 text-right">
+              <thead>
+                <tr className="text-sm font-bold text-[#4d4d4d]">
+                  <TableHead>نام</TableHead>
+                  <TableHead>شناسه شهر</TableHead>
+                  <TableHead>موقعیت</TableHead>
+                  <TableHead>عملیات</TableHead>
+                </tr>
+              </thead>
+              <tbody>
+                {!cityId ? (
+                  <TableEmptyRow columns={4} message="برای مشاهده محله‌ها یک شهر انتخاب کنید." />
+                ) : neighborhoodsQuery.isLoading ? (
+                  <TableLoadingRows columns={4} rows={6} />
+                ) : neighborhoodsQuery.data?.length ? (
+                  neighborhoodsQuery.data.map((neighborhood) => {
+                    const id = getCrmRecordId(neighborhood);
+
+                    return (
+                      <tr key={id}>
+                        <TableCell>
+                          <span className="font-bold text-[#1a1a1a]">{readText(neighborhood, ["name"])}</span>
+                          <small className="mt-1 block max-w-[140px] truncate text-sm text-[#9aa2af]">{id}</small>
+                        </TableCell>
+                        <TableCell><span className="block max-w-[130px] truncate text-sm" dir="ltr">{readText(neighborhood, ["city_id"], cityId)}</span></TableCell>
+                        <TableCell><span className="text-sm" dir="ltr">{readText(neighborhood, ["lat"])}, {readText(neighborhood, ["lng"])}</span></TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <SmallActionButton label="ویرایش" onClick={() => openNeighborhoodEditor(neighborhood)} />
+                            <SmallActionButton
+                              label="حذف"
+                              onClick={() => setConfirm({
+                                body: "این محله و محدوده جغرافیایی ثبت‌شده آن حذف می‌شود.",
+                                confirmLabel: "حذف محله",
+                                onConfirm: async () => { await handleDeleteNeighborhood(id); },
+                                title: "حذف محله",
+                              })}
+                              tone="danger"
+                            />
+                          </div>
+                        </TableCell>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <TableEmptyRow columns={4} message="برای این شهر محله‌ای ثبت نشده است." />
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      </div>
+
+      <EditorModal
+        editor={editor}
+        isPending={citySaveMutation.isPending || neighborhoodSaveMutation.isPending}
+        onClose={() => setEditor(null)}
+        notify={notify}
+        wide
+      />
+      <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+    </>
+  );
+}
+
+function AdvertiseFormsView({ notify, refreshNonce }: ViewProps) {
+  const [selectedForm, setSelectedForm] = useState("");
+  const query = useQuery({
+    queryFn: listCrmAdvertiseForms,
+    queryKey: ["crm", "forms", refreshNonce],
+  });
+
+  useQueryErrorToast([query.error], notify);
+
+  const forms = useMemo(() => {
+    if (!selectedForm) return query.data ?? [];
+    return (query.data ?? []).filter((form) => readText(form, ["code"], "") === selectedForm);
+  }, [query.data, selectedForm]);
+
+  return (
+    <Panel>
+      <PanelHeader
+        action={
+          <select
+            className="h-10 min-w-[240px] rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#384457] outline-none transition focus:border-[#0048c4]"
+            onChange={(event) => setSelectedForm(event.target.value)}
+            value={selectedForm}
+          >
+            <option value="">همه فرم‌ها</option>
+            {(query.data ?? []).map((form) => {
+              const code = readText(form, ["code"], getCrmRecordId(form));
+              return <option key={code} value={code}>{readText(form, ["title"], code)}</option>;
+            })}
+          </select>
+        }
+        subtitle="این بخش فقط ساختار فرم‌های عمومی ثبت آگهی را نمایش می‌دهد."
+        title="تعریف فرم‌های آگهی"
+      />
+
+      <div className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] gap-4">
+        {query.isLoading ? (
+          Array.from({ length: 4 }).map((_, index) => <FormCardSkeleton key={index} />)
+        ) : forms.length ? (
+          forms.map((form) => <AdvertiseFormCard form={form} key={readText(form, ["code"], getCrmRecordId(form))} />)
+        ) : (
+          <div className="col-span-full"><EmptyState description="فرم آگهی‌ای برای نمایش پیدا نشد." /></div>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
+function AdvertiseFormCard({ form }: { form: CrmRecord }) {
+  const fields = readArray(form, "fields") as CrmRecord[];
+
+  return (
+    <article className="overflow-hidden rounded-2xl border border-[#d9d9d9] bg-white shadow-[0_8px_28px_rgba(31,48,78,0.04)]">
+      <header className="flex items-start justify-between gap-3 border-b border-[#edf0f5] bg-[#fafbfc] p-4">
+        <div className="min-w-0">
+          <h3 className="m-0 truncate text-sm font-bold text-[#1a1a1a]">{readText(form, ["title", "code"])}</h3>
+          <p className="m-0 mt-1 text-sm text-[#9098a6]">
+            {readText(form, ["code"])} · {readText(form, ["group"])}
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full bg-[#eef4ff] px-2.5 py-1 text-sm font-bold text-[#0048c4]">
+          {new Intl.NumberFormat("fa-IR").format(fields.length)} فیلد
+        </span>
+      </header>
+      <div className="max-h-[420px] divide-y divide-[#edf0f5] overflow-y-auto px-4">
+        {fields.map((field, index) => {
+          const options = readArray(field, "options") as CrmRecord[];
+
+          return (
+            <div className="py-3" key={`${readText(field, ["key"], String(index))}-${index}`}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <code className="block truncate text-sm font-bold text-[#0048c4]">{readText(field, ["key"])}</code>
+                  <span className="mt-1 block truncate text-sm text-[#596477]">{readText(field, ["label"])}</span>
+                </div>
+                <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                  <FieldMeta>{readText(field, ["type"])}</FieldMeta>
+                  {field.unit ? <FieldMeta>{stringifyValue(field.unit)}</FieldMeta> : null}
+                  {field.searchable ? <FieldMeta>قابل جستجو</FieldMeta> : null}
+                  {field.required ? <FieldMeta>الزامی</FieldMeta> : null}
+                </div>
+              </div>
+              {options.length ? (
+                <p className="m-0 mt-2 line-clamp-2 text-sm leading-5 text-[#929aa8]">
+                  گزینه‌ها: {options.slice(0, 10).map((option) => readText(option, ["label", "value"])).join("، ")}
+                  {options.length > 10 ? " ..." : ""}
+                </p>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </article>
+  );
+}
+
+function EditorModal({
+  editor,
+  isPending,
+  notify,
+  onClose,
+  wide = false,
+}: {
+  editor: EditorState | null;
+  isPending: boolean;
+  notify: ViewProps["notify"];
+  onClose: () => void;
+  wide?: boolean;
+}) {
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!editor) {
+      setValues({});
+      return;
+    }
+
+    setValues(
+      Object.fromEntries(
+        editor.fields.map((field) => [field.name, stringifyValue(field.value)]),
+      ),
+    );
+  }, [editor]);
+
+  if (!editor) return null;
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      await editor.onSubmit(values);
+      onClose();
+    } catch (error) {
+      notify(getApiErrorMessage(error, error instanceof Error ? error.message : "ذخیره اطلاعات ناموفق بود."), "error");
+    }
+  };
+
+  return (
+    <ModalShell onClose={isPending ? undefined : onClose}>
+      <form
+        className={`max-h-[calc(100vh-64px)] overflow-hidden rounded-3xl bg-white shadow-[0_28px_90px_rgba(14,34,68,0.24)] ${
+          wide ? "w-[min(960px,calc(100vw-64px))]" : "w-[min(760px,calc(100vw-64px))]"
+        }`}
+        onSubmit={submit}
+      >
+        <div className="flex h-16 items-center justify-between border-b border-[#d9d9d9] px-6">
+          <div>
+            <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{editor.title}</h2>
+            <p className="m-0 mt-1 text-sm text-[#919aa8]">فیلدهای لازم را تکمیل و سپس ذخیره کنید.</p>
+          </div>
+          <button
+            aria-label="بستن"
+            className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477] transition hover:bg-[#e9edf3]"
+            disabled={isPending}
+            onClick={onClose}
+            type="button"
+          >
+            <CrmIcon name="close" size={18} />
+          </button>
+        </div>
+
+        <div className="max-h-[calc(100vh-208px)] overflow-y-auto px-6 py-5">
+          <div className="grid grid-cols-2 gap-4">
+            {editor.fields.map((field) => {
+              const value = values[field.name] ?? "";
+
+              if (field.type === "map-point") {
+                return (
+                  <div className="col-span-2" key={field.name}>
+                    <label className="mb-2 block text-sm font-bold text-[#4d4d4d]">{field.label}</label>
+                    <CityPointEditor
+                      onChange={(point) => {
+                        setValues((current) => ({
+                          ...current,
+                          [field.name]: JSON.stringify(point),
+                        }));
+                      }}
+                      value={value}
+                    />
+                  </div>
+                );
+              }
+
+              if (field.type === "geofence") {
+                return (
+                  <div className="col-span-2" key={field.name}>
+                    <label className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</label>
+                    <NeighborhoodPolygonEditor
+                      lat={Number(values.lat) || DEFAULT_CENTER[0]}
+                      lng={Number(values.lng) || DEFAULT_CENTER[1]}
+                      onChange={({ lat, lng, polygon }) => {
+                        setValues((current) => ({
+                          ...current,
+                          lat: String(lat),
+                          lng: String(lng),
+                          [field.name]: polygon,
+                        }));
+                      }}
+                      value={value}
+                    />
+                  </div>
+                );
+              }
+
+              const isWide = field.type === "textarea";
+
+              return (
+                <label className={isWide ? "col-span-2" : ""} key={field.name}>
+                  <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</span>
+                  {field.type === "select" ? (
+                    <select
+                      className={modalInputClassName}
+                      name={field.name}
+                      onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
+                      value={value}
+                    >
+                      {(field.options ?? []).map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  ) : field.type === "textarea" ? (
+                    <textarea
+                      className={`${modalInputClassName} min-h-24 resize-y py-3`}
+                      dir={field.label.includes("JSON") ? "ltr" : "rtl"}
+                      name={field.name}
+                      onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
+                      rows={4}
+                      value={value}
+                    />
+                  ) : (
+                    <input
+                      className={modalInputClassName}
+                      dir={field.type === "number" || field.type === "email" ? "ltr" : "rtl"}
+                      name={field.name}
+                      onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
+                      step={field.type === "number" ? "any" : undefined}
+                      type={field.type ?? "text"}
+                      value={value}
+                    />
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex h-20 items-center justify-end gap-3 border-t border-[#d9d9d9] px-6">
+          <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
+          <button className={primaryButtonClassName} disabled={isPending} type="submit">
+            {isPending ? <LoadingSpinner /> : <CrmIcon name="save" size={18} />}
+            {isPending ? "در حال ذخیره..." : "ذخیره تغییرات"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
+  );
+}
+
+function ConfirmModal({
+  confirm,
+  notify,
+  onClose,
+}: {
+  confirm: ConfirmState | null;
+  notify: ViewProps["notify"];
+  onClose: () => void;
+}) {
+  const [isPending, setIsPending] = useState(false);
+
+  useEffect(() => {
+    if (!confirm) setIsPending(false);
+  }, [confirm]);
+
+  if (!confirm) return null;
+
+  const handleConfirm = async () => {
+    setIsPending(true);
+
+    try {
+      await confirm.onConfirm();
+      onClose();
+    } catch (error) {
+      notify(getApiErrorMessage(error, "انجام عملیات ناموفق بود."), "error");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return (
+    <ModalShell onClose={isPending ? undefined : onClose}>
+      <section className="w-[min(440px,calc(100vw-40px))] rounded-3xl bg-white p-6 shadow-[0_28px_90px_rgba(14,34,68,0.24)]" dir="rtl">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#d62f3e]">
+          <CrmIcon name="warning" size={24} />
+        </div>
+        <h2 className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">{confirm.title}</h2>
+        <p className="m-0 mt-2 text-sm leading-7 text-[#707a8a]">{confirm.body}</p>
+        <div className="mt-6 flex justify-end gap-3">
+          <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
+          <button className={dangerButtonClassName} disabled={isPending} onClick={handleConfirm} type="button">
+            {isPending ? <LoadingSpinner /> : null}
+            {isPending ? "در حال انجام..." : confirm.confirmLabel ?? "تأیید"}
+          </button>
+        </div>
+      </section>
+    </ModalShell>
+  );
+}
+
+function CityPointEditor({
+  onChange,
+  value,
+}: {
+  onChange: (value: { lat: number; lng: number }) => void;
+  value: string;
+}) {
+  const initialPoint = useMemo(() => parseMapPointValue(value), [value]);
+  const [point, setPoint] = useState<LatLngTuple>([initialPoint.lat, initialPoint.lng]);
+
+  useEffect(() => {
+    setPoint([initialPoint.lat, initialPoint.lng]);
+  }, [initialPoint.lat, initialPoint.lng]);
+
+  const selectPoint = (nextPoint: LatLngTuple) => {
+    const normalized = {
+      lat: Number(nextPoint[0].toFixed(7)),
+      lng: Number(nextPoint[1].toFixed(7)),
+    };
+
+    setPoint([normalized.lat, normalized.lng]);
+    onChange(normalized);
+  };
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#cccccc] bg-white">
+      <div className="border-b border-[#e5e5e5] bg-[#f0f0f0] px-4 py-3">
+        <p className="m-0 text-sm leading-6 text-[#4d4d4d]">
+          روی محل مرکز شهر کلیک کنید؛ مختصات به‌صورت خودکار ثبت می‌شود.
+        </p>
+      </div>
+      <div className="h-[340px] w-full overflow-hidden">
+        <MapContainer center={point} className="h-full w-full" scrollWheelZoom zoom={11}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <MapPointClickCollector onSelect={selectPoint} />
+          <CircleMarker
+            center={point}
+            pathOptions={{ color: CRM_BLUE, fillColor: CRM_BLUE, fillOpacity: 0.28, weight: 3 }}
+            radius={9}
+          />
+        </MapContainer>
+      </div>
+      <div className="flex items-center justify-between gap-4 border-t border-[#e5e5e5] px-4 py-3 text-sm">
+        <span className="font-medium text-[#4d4d4d]">مختصات انتخاب‌شده</span>
+        <strong className="font-mono text-[#0048c4]" dir="ltr">
+          {point[0].toFixed(6)}, {point[1].toFixed(6)}
+        </strong>
+      </div>
+    </div>
+  );
+}
+
+function MapPointClickCollector({ onSelect }: { onSelect: (point: LatLngTuple) => void }) {
+  useMapEvents({
+    click(event) {
+      onSelect([event.latlng.lat, event.latlng.lng]);
+    },
+  });
+
+  return null;
+}
+
+function parseMapPointValue(value: string) {
+  try {
+    const point = JSON.parse(value) as { lat?: unknown; lng?: unknown };
+    const lat = Number(point.lat);
+    const lng = Number(point.lng);
+
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return { lat, lng };
+    }
+  } catch {
+    // Fall back to the application's default map center.
+  }
+
+  return { lat: DEFAULT_CENTER[0], lng: DEFAULT_CENTER[1] };
+}
+
+function NeighborhoodPolygonEditor({
+  lat,
+  lng,
+  onChange,
+  value,
+}: {
+  lat: number;
+  lng: number;
+  onChange: (value: { lat: number; lng: number; polygon: string }) => void;
+  value: string;
+}) {
+  const initialPoints = useMemo(() => polygonStringToPoints(value), [value]);
+  const [points, setPoints] = useState<LatLngTuple[]>(initialPoints);
+
+  useEffect(() => {
+    setPoints(initialPoints);
+  }, [initialPoints]);
+
+  const updatePoints = (nextPoints: LatLngTuple[]) => {
+    setPoints(nextPoints);
+
+    const coordinateTotals = nextPoints.reduce(
+          (sum, point) => [sum[0] + point[0], sum[1] + point[1]] as LatLngTuple,
+          [0, 0] as LatLngTuple,
+        );
+    const center: LatLngTuple = nextPoints.length
+      ? [coordinateTotals[0] / nextPoints.length, coordinateTotals[1] / nextPoints.length]
+      : [lat, lng];
+
+    onChange({
+      lat: Number(center[0].toFixed(7)),
+      lng: Number(center[1].toFixed(7)),
+      polygon: pointsToPolygonString(nextPoints),
+    });
+  };
+
+  const center: LatLngTuple = points[0] ?? [lat, lng];
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#dce3ef] bg-[#f8faff]">
+      <div className="flex items-center justify-between gap-3 border-b border-[#dce3ef] px-4 py-3">
+        <p className="m-0 text-sm leading-5 text-[#4d4d4d]">
+          برای ساخت محدوده، روی نقشه کلیک کنید. با حداقل سه نقطه یک چندضلعی ساخته می‌شود.
+        </p>
+        <div className="flex shrink-0 gap-2">
+          <button className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints(points.slice(0, -1))} type="button">حذف آخرین نقطه</button>
+          <button className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints([])} type="button">پاک کردن</button>
+        </div>
+      </div>
+      <div className="h-[320px] w-full overflow-hidden">
+        <MapContainer center={center} className="h-full w-full" scrollWheelZoom zoom={13}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <PolygonClickCollector onAdd={(point) => updatePoints([...points, point])} />
+          {points.length >= 3 ? <Polygon pathOptions={{ color: CRM_BLUE, fillOpacity: 0.18, weight: 2 }} positions={points} /> : null}
+          {points.map((point, index) => (
+            <CircleMarker center={point} key={`${point[0]}-${point[1]}-${index}`} pathOptions={{ color: CRM_BLUE, fillColor: "white", fillOpacity: 1, weight: 2 }} radius={5} />
+          ))}
+        </MapContainer>
+      </div>
+      <textarea className="block min-h-20 w-full resize-y border-0 border-t border-[#dce3ef] bg-white p-3 font-mono text-sm leading-5 text-[#596477] outline-none" dir="ltr" readOnly value={pointsToPolygonString(points)} />
+    </div>
+  );
+}
+
+function PolygonClickCollector({ onAdd }: { onAdd: (point: LatLngTuple) => void }) {
+  useMapEvents({
+    click(event) {
+      onAdd([event.latlng.lat, event.latlng.lng]);
+    },
+  });
+
+  return null;
+}
+
+function polygonStringToPoints(value: string): LatLngTuple[] {
+  if (!value.trim()) return [];
+
+  try {
+    const polygon = JSON.parse(value) as { coordinates?: unknown };
+    const coordinates = Array.isArray(polygon.coordinates) ? polygon.coordinates : [];
+    const firstRing = Array.isArray(coordinates[0]) ? coordinates[0] : [];
+    const points = firstRing
+      .map((coordinate) => {
+        if (!Array.isArray(coordinate) || coordinate.length < 2) return null;
+        const longitude = Number(coordinate[0]);
+        const latitude = Number(coordinate[1]);
+        return Number.isFinite(latitude) && Number.isFinite(longitude)
+          ? ([latitude, longitude] as LatLngTuple)
+          : null;
+      })
+      .filter((point): point is LatLngTuple => point !== null);
+
+    if (points.length > 1) {
+      const first = points[0];
+      const last = points[points.length - 1];
+      if (first[0] === last[0] && first[1] === last[1]) points.pop();
+    }
+
+    return points;
+  } catch {
+    return [];
+  }
+}
+
+function pointsToPolygonString(points: LatLngTuple[]) {
+  if (points.length < 3) return "";
+
+  const coordinates = points.map(([latitude, longitude]) => [longitude, latitude]);
+  coordinates.push([...coordinates[0]]);
+
+  return JSON.stringify({ type: "Polygon", coordinates: [coordinates] }, null, 2);
+}
+
+function ModalShell({ children, onClose }: { children: ReactNode; onClose?: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[80] grid place-items-center bg-[#17233a]/45 p-8 backdrop-blur-[3px]"
+      onMouseDown={() => onClose?.()}
+    >
+      <div onMouseDown={(event) => event.stopPropagation()}>{children}</div>
+    </div>
+  );
+}
+
+function Panel({ children }: { children: ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-[#d9d9d9] bg-white p-5 shadow-[0_8px_28px_rgba(31,48,78,0.04)]">
+      {children}
+    </section>
+  );
+}
+
+function PanelHeader({
+  action,
+  subtitle,
+  title,
+}: {
+  action?: ReactNode;
+  subtitle?: string;
+  title: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{title}</h2>
+        {subtitle ? <p className="m-0 mt-1.5 text-sm font-medium text-[#808080]">{subtitle}</p> : null}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function FilterField({ children, className = "", label }: { children: ReactNode; className?: string; label: string }) {
+  return (
+    <label className={`min-w-[190px] ${className}`}>
+      <span className="mb-1.5 block text-sm font-bold text-[#687386]">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function TableHead({ children }: { children: ReactNode }) {
+  return <th className="border-b border-[#e9edf3] bg-[#fafbfc] px-3 py-3.5 text-right first:rounded-r-xl last:rounded-l-xl">{children}</th>;
+}
+
+function TableCell({ children }: { children: ReactNode }) {
+  return <td className="border-b border-[#edf0f5] px-3 py-4 align-middle text-sm text-[#606b7c]">{children}</td>;
+}
+
+function TableLoadingRows({ columns, rows }: { columns: number; rows: number }) {
+  return Array.from({ length: rows }).map((_, rowIndex) => (
+    <tr key={rowIndex}>
+      {Array.from({ length: columns }).map((__, columnIndex) => (
+        <td className="border-b border-[#edf0f5] px-3 py-4" key={columnIndex}>
+          <span className="block h-4 animate-pulse rounded-full bg-[#edf0f4]" style={{ width: `${58 + ((rowIndex + columnIndex) % 4) * 9}%` }} />
+        </td>
+      ))}
+    </tr>
+  ));
+}
+
+function TableEmptyRow({ columns, message }: { columns: number; message: string }) {
+  return (
+    <tr>
+      <td className="py-14 text-center text-sm text-[#8f98a6]" colSpan={columns}>{message}</td>
+    </tr>
+  );
+}
+
+function StatusBadge({ status }: { status: unknown }) {
+  const key = String(status ?? "");
+  const tone = key === "3" || key === "1"
+    ? key === "3" ? "bg-[#ebfaf3] text-[#0b8b55]" : "bg-[#fff7df] text-[#a06a00]"
+    : key === "0"
+      ? "bg-[#eef4ff] text-[#0048c4]"
+      : "bg-[#fff0f0] text-[#cc3342]";
+
+  return <span className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${tone}`}>{advertiseStatusLabel(status)}</span>;
+}
+
+function UserStatusBadge({ status }: { status: unknown }) {
+  const isActive = Number(status) === 1;
+  return (
+    <span className={`inline-flex min-w-[78px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${isActive ? "bg-[#ebfaf3] text-[#0b8b55]" : "bg-[#fff0f0] text-[#cc3342]"}`}>
+      {isActive ? "فعال" : "غیرفعال"}
+    </span>
+  );
+}
+
+function PrimaryButton({
+  disabled = false,
+  icon,
+  label,
+  onClick,
+}: {
+  disabled?: boolean;
+  icon: IconName;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button className={primaryButtonClassName} disabled={disabled} onClick={onClick} type="button">
+      <CrmIcon name={icon} size={18} />
+      {label}
+    </button>
+  );
+}
+
+function SmallActionLink({
+  icon,
+  label,
+  to,
+}: {
+  icon?: ReactNode;
+  label: string;
+  to: string;
+}) {
+  return (
+    <RouteLink
+      className="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#d8e1ef] bg-white px-3 text-sm font-bold text-[#3e5d88] no-underline transition hover:border-[#b8c9e2] hover:bg-[#f8faff]"
+      to={to}
+    >
+      {icon}
+      {label}
+    </RouteLink>
+  );
+}
+
+function SmallActionButton({
+  disabled = false,
+  icon,
+  label,
+  onClick,
+  tone = "default",
+}: {
+  disabled?: boolean;
+  icon?: ReactNode;
+  label: string;
+  onClick: () => void;
+  tone?: "danger" | "default" | "success" | "warning";
+}) {
+  const classes = {
+    danger: "border-[#f1c7cc] bg-[#fff7f8] text-[#c63242] hover:bg-[#fff0f1]",
+    default: "border-[#d8e1ef] bg-white text-[#3e5d88] hover:border-[#b8c9e2] hover:bg-[#f8faff]",
+    success: "border-[#bfe6d2] bg-[#f5fcf8] text-[#087d4b] hover:bg-[#ebfaf3]",
+    warning: "border-[#f0ddb1] bg-[#fffaf0] text-[#9b6800] hover:bg-[#fff5da]",
+  }[tone];
+
+  return (
+    <button
+      className={`inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${classes}`}
+      disabled={disabled}
+      onClick={onClick}
+      type="button"
+    >
+      {icon}{label}
+    </button>
+  );
+}
+
+function TextLink({ label, to }: { label: string; to: string }) {
+  return (
+    <RouteLink className="inline-flex items-center gap-1 text-sm font-bold text-[#0048c4] no-underline" to={to}>
+      {label}
+      <CrmIcon name="arrow" size={15} />
+    </RouteLink>
+  );
+}
+
+function FieldMeta({ children }: { children: ReactNode }) {
+  return <span className="rounded-full bg-[#f0f2f6] px-2 py-1 text-sm font-medium text-[#6d7788]">{children}</span>;
+}
+
+function EmptyState({ compact = false, description }: { compact?: boolean; description: string }) {
+  return (
+    <div className={`flex flex-col items-center justify-center text-center ${compact ? "py-8" : "py-14"}`}>
+      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="empty" size={24} /></span>
+      <p className="m-0 mt-3 text-sm font-medium text-[#8992a1]">{description}</p>
+    </div>
+  );
+}
+
+function ListSkeleton({ count }: { count: number }) {
+  return (
+    <div className="divide-y divide-[#edf0f5]">
+      {Array.from({ length: count }).map((_, index) => (
+        <div className="flex items-center justify-between gap-4 py-4" key={index}>
+          <div className="flex-1 space-y-2">
+            <span className="block h-4 w-2/5 animate-pulse rounded-full bg-[#edf0f4]" />
+            <span className="block h-3 w-1/4 animate-pulse rounded-full bg-[#f1f3f6]" />
+          </div>
+          <span className="block h-7 w-20 animate-pulse rounded-full bg-[#edf0f4]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FormCardSkeleton() {
+  return (
+    <div className="h-[320px] animate-pulse rounded-2xl border border-[#d9d9d9] bg-white p-4">
+      <div className="h-5 w-2/5 rounded-full bg-[#edf0f4]" />
+      <div className="mt-3 h-3 w-1/4 rounded-full bg-[#f1f3f6]" />
+      <div className="mt-7 space-y-4">
+        {Array.from({ length: 6 }).map((_, index) => <div className="h-10 rounded-xl bg-[#f1f3f6]" key={index} />)}
+      </div>
+    </div>
+  );
+}
+
+function Toast({ toast }: { toast: ToastState }) {
+  return (
+    <div className={`fixed bottom-6 left-1/2 z-[100] flex min-w-[320px] -translate-x-1/2 items-center gap-3 rounded-2xl border bg-white px-4 py-3 shadow-[0_18px_60px_rgba(18,38,72,0.2)] ${toast.tone === "error" ? "border-[#f2c8cd]" : "border-[#c6e8d7]"}`} dir="rtl">
+      <span className={`grid h-8 w-8 place-items-center rounded-xl ${toast.tone === "error" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#ebfaf3] text-[#0b8b55]"}`}>
+        <CrmIcon name={toast.tone === "error" ? "warning" : "check"} size={18} />
+      </span>
+      <span className="text-sm font-semibold text-[#3a4558]">{toast.message}</span>
+    </div>
+  );
+}
+
+function LoadingSpinner() {
+  return <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />;
+}
+
+function BrandMark() {
+  return (
+    <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#0048c4] text-lg font-black text-white shadow-[0_8px_20px_rgba(0,72,196,0.22)]">ب</span>
+  );
+}
+
+function useQueryErrorToast(errors: Array<unknown>, notify: ViewProps["notify"]) {
+  const error = errors.find(Boolean);
+
+  useEffect(() => {
+    if (!error) return;
+    notify(getApiErrorMessage(error, "دریافت اطلاعات از سرور ناموفق بود."), "error");
+  }, [error, notify]);
+}
+
+const inputClassName = "h-10 w-full rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#4d4d4d] outline-none transition placeholder:text-[#a3aab6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
+const modalInputClassName = "h-11 w-full rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#4d4d4d] outline-none transition placeholder:text-[#a3aab6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
+const primaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white transition hover:bg-[#003ca5] disabled:cursor-not-allowed disabled:opacity-55";
+const secondaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-bold text-[#0048c4] transition hover:bg-[#eef4ff]";
+const ghostButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-bold text-[#4d4d4d] transition hover:bg-[#f0f0f0] disabled:cursor-not-allowed disabled:opacity-50";
+const dangerButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#d93645] px-4 text-sm font-bold text-white transition hover:bg-[#bd2938] disabled:cursor-not-allowed disabled:opacity-55";
+const iconButtonClassName = "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0048c4] text-white transition hover:bg-[#003ca5]";
+const miniGhostButtonClassName = "h-9 rounded-lg border border-[#d7dfeb] bg-white px-2.5 text-sm font-bold text-[#5d6879] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45";
+
+type IconName =
+  | "account"
+  | "ads"
+  | "arrow"
+  | "building"
+  | "category"
+  | "check"
+  | "close"
+  | "desktop"
+  | "empty"
+  | "form"
+  | "home"
+  | "location"
+  | "plus"
+  | "refresh"
+  | "save"
+  | "search"
+  | "users"
+  | "warning";
+
+function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
+  const common = {
+    fill: "none",
+    height: size,
+    stroke: "currentColor",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    strokeWidth: 1.8,
+    viewBox: "0 0 24 24",
+    width: size,
+  };
+
+  if (name === "home") return <svg {...common}><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.8V21h13V9.8"/><path d="M9.5 21v-6h5v6"/></svg>;
+  if (name === "ads") return <svg {...common}><path d="M4 6.5h16v11H4z"/><path d="M8 17.5V20m8-2.5V20M8 10h5m-5 3h8"/><path d="M7 3.5h10"/></svg>;
+  if (name === "users") return <svg {...common}><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.4-3.4 2.3-5 5.5-5s5.1 1.6 5.5 5"/><circle cx="17" cy="9" r="2.2"/><path d="M15.5 14.5c2.9-.6 4.6.8 5 3.5"/></svg>;
+  if (name === "building") return <svg {...common}><path d="M4 21V7l8-4v18M12 9h8v12M7.5 9.5h1m-1 4h1m-1 4h1m7-5h1m-1 4h1"/><path d="M2 21h20"/></svg>;
+  if (name === "category") return <svg {...common}><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>;
+  if (name === "location") return <svg {...common}><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
+  if (name === "form") return <svg {...common}><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h4M9 12h6m-6 4h6"/></svg>;
+  if (name === "account") return <svg {...common}><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.5-4.3 2.8-6.5 7-6.5s6.5 2.2 7 6.5"/></svg>;
+  if (name === "refresh") return <svg {...common}><path d="M20 7v5h-5"/><path d="M18.7 16a8 8 0 1 1 .8-7"/></svg>;
+  if (name === "plus") return <svg {...common}><path d="M12 5v14M5 12h14"/></svg>;
+  if (name === "search") return <svg {...common}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>;
+  if (name === "arrow") return <svg {...common}><path d="m9 6 6 6-6 6"/></svg>;
+  if (name === "close") return <svg {...common}><path d="m6 6 12 12M18 6 6 18"/></svg>;
+  if (name === "save") return <svg {...common}><path d="M5 4h12l2 2v14H5z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></svg>;
+  if (name === "warning") return <svg {...common}><path d="M10.2 4.2 2.8 18a2 2 0 0 0 1.8 3h14.8a2 2 0 0 0 1.8-3L13.8 4.2a2 2 0 0 0-3.6 0Z"/><path d="M12 9v4m0 4h.01"/></svg>;
+  if (name === "check") return <svg {...common}><path d="m5 12 4 4L19 6"/></svg>;
+  if (name === "desktop") return <svg {...common}><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 21h8m-4-4.5V21"/></svg>;
+  if (name === "empty") return <svg {...common}><path d="M4 6h16v14H4z"/><path d="M8 3h8v3M8 11h8m-8 4h5"/></svg>;
+
+  return null;
+}
+
+function ChevronIcon() {
+  return (
+    <svg fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}

@@ -1,4 +1,4 @@
-import { api, getApiAssetUrl } from "../api/api";
+import { ApiError, api, getApiAssetUrl } from "../api/api";
 import type { ApiDataResponse, ApiListResponse } from "../api/response";
 import { unwrapList } from "../api/response";
 import type { AdvertisementItem } from "./advertisement.service";
@@ -86,16 +86,42 @@ export type UpdateMyAgencyProfilePayload = {
 };
 
 export type WalletPayment = Record<string, unknown> & {
-  amount?: number | string;
   created_at?: string;
-  id?: number | string;
-  status?: string;
-  tracking_code?: string;
+  id?: string;
+  price?: number | string;
+  ref_id?: number | string | null;
+  status?: number | string;
+};
+
+export type WalletResult = {
+  credit: number | string;
 };
 
 export type WalletPaymentsResult = {
-  balance?: number | string;
+  page: number;
+  perPage: number;
   payments: WalletPayment[];
+  total: number;
+};
+
+export type ChargeWalletPayload = {
+  price: number;
+};
+
+export type ChargeWalletResult = {
+  authority?: string;
+  paymentId?: string;
+  paymentUrl: string;
+};
+
+export type PaymentCallbackPayload = {
+  Authority: string;
+  Status: string;
+};
+
+export type PaymentCallbackResult = {
+  redirectUrl: string;
+  success: boolean;
 };
 
 export type MyAdsType = "all" | "active" | "deactive" | "pending";
@@ -185,20 +211,6 @@ type MyAdsResponse =
       status?: boolean;
       total?: number;
     };
-
-function getNestedValue(source: unknown, keys: string[]) {
-  if (!source || typeof source !== "object") return undefined;
-
-  const record = source as Record<string, unknown>;
-
-  for (const key of keys) {
-    const value = record[key];
-
-    if (value !== undefined && value !== null) return value;
-  }
-
-  return undefined;
-}
 
 export async function getMyProfile() {
   const response = await api
@@ -323,12 +335,22 @@ export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayloa
   return unwrapMyAgencyProfile(response);
 }
 
-export async function getWalletPayments(): Promise<WalletPaymentsResult> {
-  const response = await api.get("me/wallet/payments").json<
-    | ApiDataResponse<
-        WalletPayment[] | { balance?: number | string; payments?: WalletPayment[] }
-      >
-    | { balance?: number | string; payments?: WalletPayment[] }
+export async function getWallet(): Promise<WalletResult> {
+  const response = await api.get("me/wallet").json<ApiDataResponse<WalletResult> | WalletResult>();
+  const record = response as Record<string, unknown>;
+  const data = record.data && typeof record.data === "object"
+    ? record.data as Record<string, unknown>
+    : record;
+
+  return { credit: (data.credit as number | string | undefined) ?? 0 };
+}
+
+export async function getWalletPayments(page = 1): Promise<WalletPaymentsResult> {
+  const response = await api.get("me/wallet/payments", {
+    searchParams: { page },
+  }).json<
+    | ApiDataResponse<WalletPayment[]>
+    | { page?: number; payments?: WalletPayment[]; per_page?: number; total?: number }
     | WalletPayment[]
   >();
   const source = Array.isArray(response) ? { payments: response } : response;
@@ -338,15 +360,101 @@ export async function getWalletPayments(): Promise<WalletPaymentsResult> {
       ? (sourceRecord.data as Record<string, unknown>)
       : sourceRecord;
 
-  if (Array.isArray(data)) return { payments: data };
+  if (Array.isArray(data)) {
+    return { page, payments: data, perPage: data.length, total: data.length };
+  }
 
   return {
-    balance: getNestedValue(data, ["balance", "wallet", "credit"]) as
-      | number
-      | string
-      | undefined,
+    page: typeof data.page === "number" ? data.page : page,
+    perPage: typeof data.per_page === "number" ? data.per_page : 20,
     payments: Array.isArray(data.payments) ? (data.payments as WalletPayment[]) : [],
+    total: typeof data.total === "number" ? data.total : 0,
   };
+}
+
+function readPaymentUrl(response: Record<string, unknown>) {
+  const value = response.payment_url ?? response.url;
+
+  if (typeof value !== "string" || !value.trim()) return null;
+
+  try {
+    const url = new URL(value);
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+export async function chargeWallet(
+  payload: ChargeWalletPayload,
+): Promise<ChargeWalletResult> {
+  if (!Number.isSafeInteger(payload.price) || payload.price <= 0) {
+    throw new ApiError(400, "مبلغ واردشده معتبر نیست.");
+  }
+
+  const response = await api.post("me/charge/wallet", { json: payload }).json<
+    Record<string, unknown> & {
+      authority?: string;
+      payment_id?: string;
+      payment_url?: string;
+      status?: boolean;
+      url?: string;
+    }
+  >();
+
+  if (response.status === false) {
+    throw new ApiError(400, "ایجاد درخواست پرداخت با خطا مواجه شد.");
+  }
+
+  const paymentUrl = readPaymentUrl(response);
+
+  if (!paymentUrl) {
+    throw new ApiError(500, "آدرس درگاه پرداخت از سرور دریافت نشد.");
+  }
+
+  return {
+    authority: typeof response.authority === "string" ? response.authority : undefined,
+    paymentId:
+      typeof response.payment_id === "string" ? response.payment_id : undefined,
+    paymentUrl,
+  };
+}
+
+const paymentCallbackRequests = new Map<
+  string,
+  Promise<PaymentCallbackResult>
+>();
+
+export function verifyPaymentCallback(
+  payload: PaymentCallbackPayload,
+): Promise<PaymentCallbackResult> {
+  const requestKey = `${payload.Authority}:${payload.Status.toUpperCase()}`;
+  const existingRequest = paymentCallbackRequests.get(requestKey);
+
+  if (existingRequest) return existingRequest;
+
+  const request = api
+    .post("me/payment/callback", {
+      context: { allowNonJsonResponse: true },
+      headers: { Accept: "*/*" },
+      json: payload,
+      redirect: "follow",
+    })
+    .then((response) => ({
+      redirectUrl: response.url,
+      success: payload.Status.trim().toUpperCase() === "OK",
+    }));
+
+  paymentCallbackRequests.set(requestKey, request);
+  void request.then(
+    () => paymentCallbackRequests.delete(requestKey),
+    () => paymentCallbackRequests.delete(requestKey),
+  );
+
+  return request;
 }
 
 export async function getMyAds({

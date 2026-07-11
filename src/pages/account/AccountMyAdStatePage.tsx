@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
+import { useAdvertisementDetailQuery } from "../../hooks/advertisement.hooks";
+import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
@@ -42,14 +44,17 @@ export function AccountMyAdStatePage() {
   const routeState = readRouteState();
   const adId = readAdIdFromPath() ?? String(routeState.card?.id ?? fallbackCard.id);
   const fallbackIndex = Math.max(Number(adId.replace(/\D/g, "")) - 1, 0) || 0;
+  const detailQuery = useAdvertisementDetailQuery(adId);
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
+  const sourceAd = detailQuery.data ?? routeState.ad;
+  const card = detailQuery.data
+    ? mapAdvertisementToAdCard(detailQuery.data, fallbackIndex)
+    : routeState.card ?? fallbackCard;
   const statusInfo = getMyAdStatusInfo(
-    statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
+    detailQuery.data ?? statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
     fallbackIndex,
-    { useDemoFallback: true },
+    { useDemoFallback: !detailQuery.data },
   );
-  const card = routeState.card ?? fallbackCard;
-  const sourceAd = routeState.ad;
   const cameFromAdManagement = Boolean(routeState.tab || routeState.returnTo);
   const backTo = getStateAdBackPath(routeState);
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
@@ -368,12 +373,10 @@ function RadioCircle({ checked }: { checked: boolean }) {
 
 function getStateAdBackPath(routeState: MyAdRouteState) {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
-
-  if (activeRole === USER) return "/account/my-ads";
-
   const returnTo = normalizeLocalPath(routeState.returnTo);
 
   if (returnTo) return returnTo;
+  if (activeRole === USER) return "/account/my-ads";
 
   if (routeState.tab) return getBusinessAdManagementFallbackPath();
 

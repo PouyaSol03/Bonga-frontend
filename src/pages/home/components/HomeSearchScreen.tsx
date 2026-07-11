@@ -29,7 +29,7 @@ type HomeSearchScreenProps = {
   onSelectResult?: (item: SearchHistoryItem | { title: string }) => void;
 };
 
-const DEFAULT_MIN_SEARCH_QUERY_LENGTH = 1;
+const DEFAULT_MIN_SEARCH_QUERY_LENGTH = 4;
 const REMOVE_TRANSITION_MS = 180;
 const SWIPE_DELETE_THRESHOLD = 72;
 
@@ -257,7 +257,7 @@ export function HomeSearchScreen({
   };
 
   const handleDirectSearch = () => {
-    if (!trimmedQuery) return;
+    if (trimmedQuery.length < minSearchQueryLength) return;
 
     onSelectResult?.({ title: trimmedQuery });
   };
@@ -326,7 +326,6 @@ export function HomeSearchScreen({
         {isResultsView ? (
           !hasEnoughSearchQueryLength ? (
             <div className="flex flex-col">
-              <DirectSearchRow query={trimmedQuery} onSelect={handleDirectSearch} />
               <p className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
                 برای دریافت نتایج، حداقل {toPersianDigits(String(minSearchQueryLength))} کاراکتر وارد کنید.
               </p>

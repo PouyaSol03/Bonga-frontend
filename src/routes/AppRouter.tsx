@@ -1,18 +1,19 @@
 import type { ComponentType, ReactNode } from 'react'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
+import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-storage'
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
-import { USER } from '../constants/roles.constants'
+import { SUPER_ADMIN, USER } from '../constants/roles.constants'
 import { DashboardLayout } from '../dashboard/DashboardLayout'
 import { isUserIdentityVerified } from "../services/account.service";
 import { useMyProfileQuery } from '../hooks/account.hooks'
 import { useNotificationUnreadCountQuery } from '../hooks/notification.hooks'
 import {
   canAccessRoute,
+  CRM_PATH,
   DASHBOARD_PATH,
   LEGACY_DASHBOARD_PATH,
   routes,
@@ -21,6 +22,7 @@ import {
 import LinearUserAccount from '../components/(icons)/LinearUserAccount'
 
 const desktopDashboardMediaQuery = '(min-width: 501px)'
+const desktopCrmMediaQuery = '(min-width: 768px)'
 
 function lazyNamed<TModule extends Record<string, unknown>>(
   loader: () => Promise<TModule>,
@@ -76,8 +78,20 @@ function isDesktopDashboardViewport() {
   return window.matchMedia(desktopDashboardMediaQuery).matches
 }
 
-function shouldUseDesktopDashboard(session: ReturnType<typeof getStoredAuthSession>) {
-  return Boolean(session && getActiveAuthRole(session) !== USER && isDesktopDashboardViewport())
+function isDesktopCrmViewport() {
+  return window.matchMedia(desktopCrmMediaQuery).matches
+}
+
+function getDesktopAccountDestination(session: ReturnType<typeof getStoredAuthSession>) {
+  if (!session) return null
+
+  const activeRole = session.activeRole ?? null
+
+  if (!activeRole || activeRole === USER) return null
+  if (activeRole === SUPER_ADMIN) return isDesktopCrmViewport() ? CRM_PATH : null
+  if (!isDesktopDashboardViewport()) return null
+
+  return DASHBOARD_PATH
 }
 
 function NotificationTopBarIcon() {
@@ -210,9 +224,22 @@ function getResolvedPath() {
 
   const route = getRoute(path)
 
-  if (path === '/account' && shouldUseDesktopDashboard(session)) {
-    window.history.replaceState({}, '', DASHBOARD_PATH)
-    return DASHBOARD_PATH
+  const desktopAccountDestination = path === '/account'
+    ? getDesktopAccountDestination(session)
+    : null
+
+  if (desktopAccountDestination) {
+    window.history.replaceState({}, '', desktopAccountDestination)
+    return desktopAccountDestination
+  }
+
+  if (
+    session?.activeRole === SUPER_ADMIN &&
+    (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`))
+  ) {
+    const superAdminDestination = isDesktopCrmViewport() ? CRM_PATH : '/account'
+    window.history.replaceState({}, '', superAdminDestination)
+    return superAdminDestination
   }
 
   if (!canAccessRoute(route, session)) {
@@ -395,6 +422,16 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
 }
 
 function getRoute(path: string): AppRoute {
+  if (/^\/crm\/advertises\/[^/]+\/?$/.test(path)) {
+    const crmRoute = routes.find((route) => route.path === CRM_PATH)
+
+    return {
+      ...(crmRoute ?? routes[0]),
+      path,
+      title: 'جزئیات آگهی',
+    }
+  }
+
   if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
     return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage, requiresAuth: true }
   }
@@ -485,6 +522,12 @@ function getRoute(path: string): AppRoute {
     }
   }
 
+  if (path === CRM_PATH || path.startsWith(`${CRM_PATH}/`)) {
+    return routes.find((route) => route.path === path) ??
+      routes.find((route) => route.path === CRM_PATH) ??
+      routes[0]
+  }
+
   if (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`)) {
     return routes.find((route) => route.path === path) ??
       routes.find((route) => route.path === DASHBOARD_PATH) ??
@@ -523,13 +566,16 @@ export function AppRouter() {
     }
 
     const desktopDashboardMedia = window.matchMedia(desktopDashboardMediaQuery)
+    const desktopCrmMedia = window.matchMedia(desktopCrmMediaQuery)
 
     window.addEventListener('popstate', handleNavigation)
     desktopDashboardMedia.addEventListener('change', handleViewportChange)
+    desktopCrmMedia.addEventListener('change', handleViewportChange)
 
     return () => {
       window.removeEventListener('popstate', handleNavigation)
       desktopDashboardMedia.removeEventListener('change', handleViewportChange)
+      desktopCrmMedia.removeEventListener('change', handleViewportChange)
     }
   }, [])
 
@@ -543,6 +589,10 @@ export function AppRouter() {
       <ActivePage />
     </Suspense>
   )
+
+  if (route.layout === 'crm') {
+    return page
+  }
 
   if (route.layout === 'dashboard' && authSession && isDesktopDashboardViewport()) {
     return (

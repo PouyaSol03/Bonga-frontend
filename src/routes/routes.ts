@@ -3,6 +3,7 @@ import {
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
+  SUPER_ADMIN,
   USER,
 } from '../constants/roles.constants'
 import { getActiveAuthRole, type AuthSession } from '../auth/auth-storage'
@@ -24,11 +25,13 @@ const HomePage = lazyNamed(() => import('../pages/HomePage'), 'HomePage')
 const LoginPhonePage = lazyNamed(() => import('../pages/LoginPhonePage'), 'LoginPhonePage')
 const LoginRequiredPage = lazyNamed(() => import('../pages/LoginRequiredPage'), 'LoginRequiredPage')
 const LoginVerifyPage = lazyNamed(() => import('../pages/LoginVerifyPage'), 'LoginVerifyPage')
+const PaymentVerifyPage = lazyNamed(() => import('../pages/PaymentVerifyPage'), 'PaymentVerifyPage')
 const MyAccountPage = lazyNamed(() => import('../pages/MyAccountPage'), 'MyAccountPage')
 const NewAdCategoryPage = lazyNamed(() => import('../pages/newAd/NewAdCategoryPage'), 'NewAdCategoryPage')
 const NewAdFlowPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdFlowPage')
 const NewAdLocationPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdLocationPage')
 const PublicLandingPage = lazyNamed(() => import('../pages/PublicLandingPage'), 'PublicLandingPage')
+const CrmPage = lazyNamed(() => import('../pages/crm/CrmPage'), 'CrmPage')
 const NotificationsPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationsPage')
 const AccountAboutPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountAboutPage')
 const AccountBookmarksPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountBookmarksPage')
@@ -96,6 +99,7 @@ const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../pag
 
 export const LOGIN_PATH = '/login/phone'
 export const DASHBOARD_PATH = '/account/dashboard'
+export const CRM_PATH = '/crm'
 export const LEGACY_DASHBOARD_PATH = '/dashboard'
 
 function LoginRedirect() {
@@ -113,7 +117,7 @@ function AccountRoleRedirect() {
 
 export type AppRoute = {
   authority?: string[]
-  layout?: 'dashboard'
+  layout?: 'crm' | 'dashboard'
   path: string
   requiresAuth?: boolean
   requiresNonUser?: boolean
@@ -126,7 +130,9 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return true
   }
 
-  const role = getActiveAuthRole(session)
+  const role = route.layout === 'crm'
+    ? session?.activeRole ?? null
+    : getActiveAuthRole(session)
 
   if (!role) return false
   if (route.requiresNonUser && role === USER) return false
@@ -165,6 +171,11 @@ export const routes: AppRoute[] = [
     path: '/login/verify',
     title: 'ورود به حساب کاربری',
     Component: LoginVerifyPage,
+  },
+  {
+    path: '/verify',
+    title: 'نتیجه پرداخت',
+    Component: PaymentVerifyPage,
   },
   {
     path: '/account/profile',
@@ -258,6 +269,62 @@ export const routes: AppRoute[] = [
     title: 'معرفی کسب و کار',
     Component: BusinessInfoPage,
     authority: [USER],
+    requiresAuth: true,
+  },
+  {
+    path: CRM_PATH,
+    title: 'مرکز مدیریت کل',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/advertises`,
+    title: 'مدیریت آگهی‌ها',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/users`,
+    title: 'مدیریت کاربران',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/agencies`,
+    title: 'مدیریت آژانس‌ها',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/categories`,
+    title: 'دسته‌بندی‌ها',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/locations`,
+    title: 'مدیریت موقعیت‌ها',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/forms`,
+    title: 'فرم‌های آگهی',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
     requiresAuth: true,
   },
   {

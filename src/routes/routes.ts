@@ -130,9 +130,19 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return true
   }
 
-  const role = route.layout === 'crm'
-    ? session?.activeRole ?? null
-    : getActiveAuthRole(session)
+  if (route.layout === 'crm') {
+    if (!session) return false
+    if (route.authority?.length) {
+      return session.roles.some(
+        (role) =>
+          role.name === 'Super Admin' || route.authority?.includes(role.slug),
+      )
+    }
+
+    return true
+  }
+
+  const role = getActiveAuthRole(session)
 
   if (!role) return false
   if (route.requiresNonUser && role === USER) return false

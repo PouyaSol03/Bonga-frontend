@@ -187,10 +187,6 @@ export function MyAccountPage() {
     />
   );
 
-  if (authSession && activeRole === SUPER_ADMIN) {
-    return <SuperAdminAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
-  }
-
   if (authSession && isBusinessAccount(activeRole)) {
     return <IndependentConsultantAccountPage businessSuccessSheet={businessSuccessSheet} />;
   }
@@ -311,6 +307,9 @@ function SuperAdminAccountPage({
     </TopBarNavigationLayout>
   );
 }
+
+// Kept for possible future admin-specific entry points; `/account` always uses the standard account view.
+void SuperAdminAccountPage;
 
 function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
   const authSession = getStoredAuthSession();

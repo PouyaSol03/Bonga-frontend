@@ -42,6 +42,10 @@ export type VerifyOtpResponse = StatusResponse & {
 
 
 function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
+  if (value === "Super Admin") {
+    return "super-admin";
+  }
+
   if (typeof value === "string" && authRoleSlugs.includes(value as AuthRoleSlug)) {
     return value as AuthRoleSlug;
   }
@@ -59,7 +63,7 @@ function normalizeAuthRoles(response: VerifyOtpResponse): AuthRole[] {
       }
 
       if (role && typeof role === "object") {
-        const slug = normalizeAuthRoleSlug(role.slug);
+        const slug = normalizeAuthRoleSlug(role.slug ?? role.name);
         return {
           id: String(role.id ?? index + 1),
           name: role.name || slug,

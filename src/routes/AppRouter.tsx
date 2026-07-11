@@ -78,17 +78,13 @@ function isDesktopDashboardViewport() {
   return window.matchMedia(desktopDashboardMediaQuery).matches
 }
 
-function isDesktopCrmViewport() {
-  return window.matchMedia(desktopCrmMediaQuery).matches
-}
-
 function getDesktopAccountDestination(session: ReturnType<typeof getStoredAuthSession>) {
   if (!session) return null
 
   const activeRole = session.activeRole ?? null
 
   if (!activeRole || activeRole === USER) return null
-  if (activeRole === SUPER_ADMIN) return isDesktopCrmViewport() ? CRM_PATH : null
+  if (activeRole === SUPER_ADMIN) return null
   if (!isDesktopDashboardViewport()) return null
 
   return DASHBOARD_PATH
@@ -237,9 +233,8 @@ function getResolvedPath() {
     session?.activeRole === SUPER_ADMIN &&
     (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`))
   ) {
-    const superAdminDestination = isDesktopCrmViewport() ? CRM_PATH : '/account'
-    window.history.replaceState({}, '', superAdminDestination)
-    return superAdminDestination
+    window.history.replaceState({}, '', '/account')
+    return '/account'
   }
 
   if (!canAccessRoute(route, session)) {

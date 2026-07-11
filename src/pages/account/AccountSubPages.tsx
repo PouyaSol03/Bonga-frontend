@@ -1810,7 +1810,6 @@ function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
 
 function PaymentHistoryRow({
   icon,
-  isLast = false,
   label,
   value,
   valueColor = "#1a1a1a",

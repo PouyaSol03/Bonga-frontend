@@ -55,7 +55,7 @@ export function SearchMapListView({
   return (
     <>
       <main
-        className="absolute inset-0 z-0 min-h-0 overflow-y-auto overscroll-contain bg-white pb-20 pt-[124px]"
+        className="absolute inset-0 z-0 min-h-0 overflow-y-auto overscroll-contain bg-white pb-20 pt-[60px]"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >

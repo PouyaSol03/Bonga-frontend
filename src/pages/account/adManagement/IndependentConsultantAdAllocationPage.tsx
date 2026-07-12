@@ -2,7 +2,7 @@ import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { AllocationIcon, ChevronLeftIcon } from "./AdManagementIcons";
-import { adManagementPaths, getAdEditPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
+import { adManagementPaths, getAdEditPath, getAdPaymentPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
 
 export function IndependentConsultantAdAllocationPage() {
   const ad = getSelectedConsultantAd();
@@ -53,7 +53,7 @@ export function IndependentConsultantAdAllocationPage() {
         <RouteLink
           className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
           state={{ ad }}
-          to={adManagementPaths.payment}
+          to={getAdPaymentPath(ad.id)}
         >
           تکمیل پرداخت
         </RouteLink>

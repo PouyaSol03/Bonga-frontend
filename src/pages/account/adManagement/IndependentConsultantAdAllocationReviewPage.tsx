@@ -14,6 +14,7 @@ import {
   adManagementPaths,
   adManagementPublisherOptions,
   getAdEditPath,
+  getAdPaymentPath,
   getAdPreviewPath,
   getSelectedConsultantAd,
   type ConsultantAd,
@@ -67,7 +68,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
   function handleContinue() {
     if (!canContinue) return;
 
-    window.history.pushState({ ad, tab: "status" }, "", adManagementPaths.payment);
+    window.history.pushState({ ad, tab: "status" }, "", getAdPaymentPath(ad.id));
     window.dispatchEvent(new PopStateEvent("popstate"));
   }
 

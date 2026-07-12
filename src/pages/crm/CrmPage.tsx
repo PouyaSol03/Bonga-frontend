@@ -16,11 +16,13 @@ import LinearCheckmark from "../../components/(icons)/LinearCheckmark";
 import LinearCancel from "../../components/(icons)/LinearCancel";
 import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearLocation from "../../components/(icons)/LinearLocation";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
 import { useMyProfileQuery } from "../../hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
 import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
+import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
 import {
   deleteCrmAgency,
   deleteCrmCity,
@@ -56,7 +58,9 @@ type CrmSection =
   | "agencies"
   | "categories"
   | "locations"
-  | "forms";
+  | "forms"
+  | "packages"
+  | "costs";
 
 type ToastState = {
   id: number;
@@ -68,7 +72,7 @@ type ModalField = {
   label: string;
   name: string;
   options?: Array<{ label: string; value: string }>;
-  type?: "email" | "geofence" | "map-point" | "number" | "select" | "textarea" | "text";
+  type?: "checklist" | "email" | "geofence" | "map-point" | "neighborhood-multi" | "number" | "select" | "textarea" | "text";
   value?: unknown;
 };
 
@@ -121,6 +125,8 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
     subtitle: "مشاهده ساختار فرم‌های ثبت آگهی و فیلدهای پویا",
     title: "فرم‌های آگهی",
   },
+  packages: { path: "/crm/packages", subtitle: "ساخت و ویرایش بسته‌ها و اعتبار پنل", title: "بسته‌ها و اعتبار" },
+  costs: { path: "/crm/costs", subtitle: "تنظیم هزینه عملیات اعتباری سامانه", title: "مدیریت هزینه‌ها" },
 };
 
 const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
@@ -131,6 +137,8 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "category", section: "categories" },
   { icon: "location", section: "locations" },
   { icon: "form", section: "forms" },
+  { icon: "wallet", section: "packages" },
+  { icon: "settings", section: "costs" },
 ];
 
 const advertiseStatusOptions = [
@@ -164,6 +172,8 @@ function getCurrentSection(): CrmSection {
   if (path === "/crm/categories") return "categories";
   if (path === "/crm/locations") return "locations";
   if (path === "/crm/forms") return "forms";
+  if (path === "/crm/packages") return "packages";
+  if (path === "/crm/costs") return "costs";
 
   return "overview";
 }
@@ -238,45 +248,27 @@ function advertiseStatusLabel(status: unknown) {
   );
 }
 
-function userRoleSlug(user: CrmRecord) {
+function userRoleSlugs(user: CrmRecord) {
   const roles = Array.isArray(user.roles) ? user.roles : [];
-
-  for (const role of roles) {
-    if (typeof role === "string") return role;
-    if (role && typeof role === "object" && typeof (role as CrmRecord).slug === "string") {
-      return String((role as CrmRecord).slug);
-    }
-  }
-
-  return readText(user, ["role_slug", "role"], "user");
-}
-
-function userRoleLabel(user: CrmRecord) {
-  const roles = Array.isArray(user.roles) ? user.roles : [];
-  const labels = roles
+  const slugs = roles
     .map((role) => {
-      if (typeof role === "string") {
-        return userRoleOptions.find((option) => option.value === role)?.label ?? role;
-      }
-
-      if (role && typeof role === "object") {
-        const roleRecord = role as CrmRecord;
-        const slug = readText(roleRecord, ["slug"], "");
-        return readText(
-          roleRecord,
-          ["name", "title"],
-          userRoleOptions.find((option) => option.value === slug)?.label ?? slug,
-        );
+      if (typeof role === "string") return role;
+      if (role && typeof role === "object" && typeof (role as CrmRecord).slug === "string") {
+        return String((role as CrmRecord).slug);
       }
 
       return "";
     })
     .filter(Boolean);
 
-  if (labels.length > 0) return labels.join("، ");
+  if (slugs.length > 0) return Array.from(new Set(slugs));
 
-  const slug = userRoleSlug(user);
-  return userRoleOptions.find((option) => option.value === slug)?.label ?? slug;
+  const fallback = readText(user, ["role_slug", "role"], "user");
+  return fallback ? [fallback] : ["user"];
+}
+
+function userHasRole(user: CrmRecord, roleSlug: string) {
+  return userRoleSlugs(user).includes(roleSlug);
 }
 
 function parseJsonValue(value: string, fieldLabel: string, fallback: unknown) {
@@ -333,13 +325,6 @@ export function CrmPage() {
     window.matchMedia("(min-width: 768px)").matches,
   );
   const { data: profile } = useMyProfileQuery();
-  const meta = advertiseDetailId
-    ? {
-        subtitle: "نمایش اطلاعات کامل و قابل‌خواندن آگهی از پنل مدیریت",
-        title: "جزئیات آگهی",
-      }
-    : sectionMeta[section];
-
   useEffect(() => {
     const media = window.matchMedia("(min-width: 768px)");
     const sync = () => setIsDesktop(media.matches);
@@ -369,116 +354,115 @@ export function CrmPage() {
     .join(" ") || "مدیر سامانه";
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]" dir="rtl">
-      <aside
-        className={`flex h-full shrink-0 flex-col border-l border-[#d9d9d9] bg-white px-3 py-5 transition-[width] duration-300 ${
-          isSidebarCollapsed ? "w-[84px]" : "w-[272px]"
-        }`}
-      >
-        <div className={`flex h-12 items-center ${isSidebarCollapsed ? "justify-center" : "justify-between px-2"}`}>
-          {isSidebarCollapsed ? (
-            <BrandMark />
-          ) : (
-            <div className="flex items-center gap-3">
-              <BrandMark />
-              <div>
-                <strong className="block text-base font-bold text-[#0048c4]">بنگاه</strong>
-                <span className="text-sm font-medium text-[#808080]">مرکز مدیریت کل</span>
-              </div>
-            </div>
-          )}
-          {!isSidebarCollapsed ? (
-            <button
-              aria-label="جمع کردن منو"
-              className="grid h-9 w-9 place-items-center rounded-xl border border-[#d9d9d9] bg-white text-[#5e6878] transition hover:bg-[#f0f0f0]"
-              onClick={() => setIsSidebarCollapsed(true)}
-              type="button"
-            >
-              <ChevronIcon />
-            </button>
-          ) : null}
-        </div>
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-[#f3f3f3] text-[#1a1a1a]" dir="rtl">
+      <header className="flex h-[80px] shrink-0 items-center justify-between bg-white px-6">
+        <img className="h-[32px] w-[146px] object-contain" src="/images/logo/logo-dashboard.png" alt="بنگاه" />
 
-        {isSidebarCollapsed ? (
+        <div className="flex items-center gap-3">
           <button
-            aria-label="باز کردن منو"
-            className="mx-auto mt-3 grid h-9 w-9 place-items-center rounded-xl border border-[#d9d9d9] bg-white text-[#5e6878] transition hover:bg-[#f0f0f0]"
-            onClick={() => setIsSidebarCollapsed(false)}
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#e4e4e4] bg-white px-4 text-sm font-semibold text-[#4d4d4d] transition hover:border-[#0048c4] hover:text-[#0048c4]"
+            onClick={() => setRefreshNonce((value) => value + 1)}
             type="button"
           >
-            <span className="rotate-180"><ChevronIcon /></span>
+            <CrmIcon name="refresh" />
+            تازه‌سازی
           </button>
-        ) : null}
 
-        <nav className="mt-7 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label="منوی مدیریت">
-          {navigationItems.map((item) => {
-            const itemMeta = sectionMeta[item.section];
-            const isActive = section === item.section;
-
-            return (
-              <RouteLink
-                aria-current={isActive ? "page" : undefined}
-                className={`flex h-11 items-center rounded-xl no-underline transition ${
-                  isActive
-                    ? "bg-[#eef4ff] text-[#0048c4]"
-                    : "text-[#4d5665] hover:bg-[#f0f0f0]"
-                } ${isSidebarCollapsed ? "justify-center px-0" : "gap-3 px-3"}`}
-                key={item.section}
-                title={isSidebarCollapsed ? itemMeta.title : undefined}
-                to={itemMeta.path}
-              >
-                <CrmIcon name={item.icon} />
-                {!isSidebarCollapsed ? (
-                  <span className={`text-sm ${isActive ? "font-bold" : "font-medium"}`}>
-                    {itemMeta.title}
-                  </span>
-                ) : null}
-              </RouteLink>
-            );
-          })}
-        </nav>
-
-        <RouteLink
-          className={`mt-4 flex h-11 items-center rounded-xl border border-[#d9d9d9] text-[#4d5665] no-underline transition hover:bg-[#f0f0f0] ${
-            isSidebarCollapsed ? "justify-center" : "gap-3 px-3"
-          }`}
-          title={isSidebarCollapsed ? "بازگشت به حساب من" : undefined}
-          to="/home"
-        >
-          <CrmIcon name="account" />
-          {!isSidebarCollapsed ? <span className="text-sm font-medium">بازگشت به سایت</span> : null}
-        </RouteLink>
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-[82px] shrink-0 items-center justify-between border-b border-[#d9d9d9] bg-white px-7">
-          <div>
-            <h1 className="m-0 text-xl font-bold text-[#1e2633]">{meta.title}</h1>
-            <p className="m-0 mt-1 text-sm font-medium text-[#808080]">{meta.subtitle}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-semibold text-[#445064] transition hover:border-[#b9c7dd] hover:bg-[#f8faff]"
-              onClick={() => setRefreshNonce((value) => value + 1)}
-              type="button"
-            >
-              <CrmIcon name="refresh" />
-              تازه‌سازی
-            </button>
-            <div className="flex h-10 items-center gap-2 rounded-xl bg-[#f0f0f0] px-3">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#dfe9fb] text-[#0048c4]">
-                <CrmIcon name="account" />
-              </span>
-              <div className="max-w-[170px]">
-                <p className="m-0 truncate text-sm font-bold text-[#2b3442]">{profileName}</p>
-                <p className="m-0 text-sm font-medium text-[#808080]">مدیر کل سامانه</p>
-              </div>
+          <div className="hidden h-10 max-w-[230px] items-center gap-2 rounded-xl bg-[#f5f5f5] px-3 xl:flex">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#e4e8f4] text-[#0048c4]">
+              <CrmIcon name="account" />
+            </span>
+            <div className="min-w-0">
+              <p className="m-0 truncate text-sm font-semibold text-[#1a1a1a]">{profileName}</p>
+              <p className="m-0 truncate text-xs font-medium text-[#808080]">مدیر کل سامانه</p>
             </div>
           </div>
-        </header>
 
-        <main className="min-h-0 flex-1 overflow-y-auto px-7 py-6">
+          <RouteLink
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white no-underline transition hover:bg-[#003ba1]"
+            to="/home"
+          >
+            <CrmIcon name="account" />
+            بازگشت به سایت
+          </RouteLink>
+        </div>
+      </header>
+
+      <div className="flex min-h-0 flex-1 gap-6 overflow-hidden p-6">
+        <aside
+          className={`flex h-full shrink-0 flex-col gap-6 rounded-xl bg-white p-4 transition-[width] duration-300 ${
+            isSidebarCollapsed ? "w-[80px]" : "w-[264px]"
+          }`}
+        >
+          <div className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "justify-between"}`}>
+            {!isSidebarCollapsed ? (
+              <div>
+                <p className="m-0 text-sm font-semibold text-[#1a1a1a]">مرکز مدیریت</p>
+                <p className="m-0 mt-1 text-xs font-medium text-[#808080]">مدیریت کل سامانه</p>
+              </div>
+            ) : null}
+
+            <button
+              aria-label={isSidebarCollapsed ? "باز کردن منو" : "جمع کردن منو"}
+              className="grid h-10 w-10 place-items-center rounded-lg bg-[#e9eaee] text-[#4d4d4d] transition hover:bg-[#dfe1e6]"
+              onClick={() => setIsSidebarCollapsed((value) => !value)}
+              type="button"
+            >
+              <span className={isSidebarCollapsed ? "rotate-180" : ""}><ChevronIcon /></span>
+            </button>
+          </div>
+
+          {!isSidebarCollapsed ? (
+            <div className="flex min-h-16 items-center gap-3 rounded-xl border border-[#f0f0f0] px-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0048c414] text-[#0048c4]">
+                <CrmIcon name="home" size={20} />
+              </span>
+              <div className="min-w-0">
+                <strong className="block truncate text-sm font-semibold text-[#303030]">پنل سوپر ادمین</strong>
+                <span className="mt-1 block truncate text-xs text-[#808080]">دسترسی کامل مدیریتی</span>
+              </div>
+            </div>
+          ) : null}
+
+          <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto" aria-label="منوی مدیریت">
+            {navigationItems.map((item) => {
+              const itemMeta = sectionMeta[item.section];
+              const isActive = section === item.section;
+
+              return (
+                <RouteLink
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative flex h-10 items-center rounded-xl text-sm no-underline transition ${
+                    isActive ? "bg-[#0048c414] text-[#0048c4]" : "text-[#303030] hover:bg-[#f5f7fb]"
+                  } ${isSidebarCollapsed ? "justify-center px-0" : "gap-2 px-3"}`}
+                  key={item.section}
+                  title={isSidebarCollapsed ? itemMeta.title : undefined}
+                  to={itemMeta.path}
+                >
+                  <span className="shrink-0"><CrmIcon name={item.icon} /></span>
+                  {!isSidebarCollapsed ? (
+                    <span className={isActive ? "font-bold" : "font-medium"}>{itemMeta.title}</span>
+                  ) : isActive ? (
+                    <span className="absolute mt-8 h-1 w-1 rounded-full bg-[#0048c4]" />
+                  ) : null}
+                </RouteLink>
+              );
+            })}
+          </nav>
+
+          <RouteLink
+            className={`flex h-10 items-center rounded-xl border border-[#f0f0f0] text-sm text-[#4d4d4d] no-underline transition hover:bg-[#f5f7fb] ${
+              isSidebarCollapsed ? "justify-center" : "gap-2 px-3"
+            }`}
+            title={isSidebarCollapsed ? "حساب کاربری" : undefined}
+            to="/account"
+          >
+            <CrmIcon name="account" />
+            {!isSidebarCollapsed ? <span className="font-medium">حساب کاربری</span> : null}
+          </RouteLink>
+        </aside>
+
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
           {advertiseDetailId ? (
             <CrmAdvertiseDetailView
               advertiseId={advertiseDetailId}
@@ -494,6 +478,8 @@ export function CrmPage() {
               {section === "categories" ? <CategoriesView notify={notify} refreshNonce={refreshNonce} /> : null}
               {section === "locations" ? <LocationsView notify={notify} refreshNonce={refreshNonce} /> : null}
               {section === "forms" ? <AdvertiseFormsView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "packages" ? <CrmPackagesView notify={notify} refreshNonce={refreshNonce} /> : null}
+              {section === "costs" ? <CrmCostsView notify={notify} refreshNonce={refreshNonce} /> : null}
             </>
           )}
         </main>
@@ -502,6 +488,7 @@ export function CrmPage() {
       {toast ? <Toast key={toast.id} toast={toast} /> : null}
     </div>
   );
+
 }
 
 function DesktopRequiredPage() {
@@ -582,11 +569,11 @@ function OverviewView({ notify, refreshNonce }: ViewProps) {
   ];
 
   return (
-    <div className="space-y-5">
-      <section className="grid grid-cols-4 gap-4" aria-label="آمار کلی">
+    <div className="space-y-4">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="آمار کلی">
         {metrics.map((metric) => (
           <RouteLink
-            className="group rounded-2xl border border-[#d9d9d9] bg-white p-5 no-underline shadow-[0_8px_28px_rgba(31,48,78,0.04)] transition hover:-translate-y-0.5 hover:border-[#cbd8ed] hover:shadow-[0_12px_34px_rgba(31,48,78,0.08)]"
+            className="group rounded-2xl bg-white p-5 no-underline transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,72,196,0.08)]"
             key={metric.label}
             to={metric.path}
           >
@@ -604,7 +591,7 @@ function OverviewView({ notify, refreshNonce }: ViewProps) {
         ))}
       </section>
 
-      <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] gap-5">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
         <Panel>
           <PanelHeader
             action={<TextLink label="مشاهده همه" to="/crm/advertises" />}
@@ -645,7 +632,7 @@ function OverviewView({ notify, refreshNonce }: ViewProps) {
               { description: "ویرایش شهر، محله و محدوده", icon: "location" as const, label: "موقعیت‌ها", to: "/crm/locations" },
             ].map((item) => (
               <RouteLink
-                className="flex items-center gap-3 rounded-2xl border border-[#d9d9d9] p-3.5 text-[#273142] no-underline transition hover:border-[#bed0ef] hover:bg-[#f8faff]"
+                className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] p-3.5 text-[#273142] no-underline transition hover:border-[#cbd8ed] hover:bg-[#fbfcff]"
                 key={item.label}
                 to={item.to}
               >
@@ -674,6 +661,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [isPreparingEditor, setIsPreparingEditor] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const query = useQuery({
     queryFn: () =>
@@ -739,17 +727,64 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
 
   return (
     <>
-      <Panel>
-        <PanelHeader
-          action={
-            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => openEditor({}, null)} />
-          }
-          subtitle="فیلترها را اعمال کنید و وضعیت هر آگهی را مدیریت کنید."
-          title="فهرست آگهی‌ها"
-        />
+      <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-white px-6 pb-6 pt-3 text-[#1a1a1a] [direction:rtl]">
+        <div className="shrink-0">
+          <nav aria-label="وضعیت آگهی‌ها" className="flex justify-end overflow-x-auto">
+            <div className="inline-flex min-w-max items-center gap-12">
+              {[{ label: "همه آگهی‌ها", value: "" }, ...advertiseStatusOptions].map((option) => {
+                const isActive = status === option.value;
 
-        <form
-          className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-[#f0f0f0] p-4"
+                return (
+                  <button
+                    aria-current={isActive ? "page" : undefined}
+                    className={`relative h-10 whitespace-nowrap bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
+                    key={option.value || "all"}
+                    onClick={() => {
+                      setStatus(option.value);
+                      setFilters((current) => ({ ...current, status: option.value }));
+                    }}
+                    type="button"
+                  >
+                    {option.label}
+                    {isActive ? <span className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" /> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+
+          <div className="mt-9 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                className={`inline-flex h-10 items-center gap-2 rounded-xl border bg-white px-4 text-sm font-semibold transition ${showFilters ? "border-[#0048c4] text-[#0048c4]" : "border-[#cccccc] text-[#1a1a1a] hover:border-[#0048c4] hover:text-[#0048c4]"}`}
+                onClick={() => setShowFilters((value) => !value)}
+                type="button"
+              >
+                <CrmIcon name="filter" size={19} />
+                فیلترها
+              </button>
+
+              <label className="relative block h-10 w-[min(360px,42vw)] min-w-[240px]">
+                <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#4d4d4d]"><CrmIcon name="search" size={19} /></span>
+                <input
+                  className="h-full w-full rounded-xl border border-[#cccccc] bg-white pl-12 pr-4 text-right text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4]"
+                  onChange={(event) => setTrackCode(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") setFilters((current) => ({ ...current, trackCode }));
+                  }}
+                  placeholder="جستجو با کد پیگیری"
+                  type="search"
+                  value={trackCode}
+                />
+              </label>
+            </div>
+
+            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => openEditor({}, null)} />
+          </div>
+        </div>
+
+        {showFilters ? <form
+          className="mt-5 flex shrink-0 flex-wrap items-end gap-3 rounded-xl bg-[#f5f5f5] p-4"
           onSubmit={(event) => {
             event.preventDefault();
             setFilters({ status, trackCode });
@@ -788,12 +823,13 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
               پاک کردن فیلتر
             </button>
           ) : null}
-        </form>
+        </form> : null}
 
-        <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+        <div className="mt-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pl-1">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 2xl:grid-cols-3">
           {query.isLoading ? (
             Array.from({ length: 6 }).map((_, index) => (
-              <div className="h-[430px] animate-pulse rounded-2xl border border-[#d9d9d9] bg-white p-4" key={index}>
+              <div className="h-[430px] animate-pulse rounded-xl border border-[#f0f0f0] bg-white p-4" key={index}>
                 <div className="h-[224px] rounded-2xl bg-[#e7ebf2]" />
                 <div className="mt-4 h-5 w-2/5 rounded-full bg-[#e7ebf2]" />
                 <div className="mt-3 h-4 w-4/5 rounded-full bg-[#eef0f4]" />
@@ -804,14 +840,12 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
             query.data.map((ad, index) => {
               const id = getCrmRecordId(ad);
               const card = mapCrmAdvertiseToCard(ad, index);
-              const features = readArray(ad, "features").slice(0, 3);
-
               return (
                 <article
-                  className="overflow-hidden rounded-2xl border border-[#d9d9d9] bg-white shadow-[0_6px_20px_rgba(0,72,196,0.05)]"
+                  className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white p-3 transition hover:border-[#d9e2f2]"
                   key={id}
                 >
-                  <div className="p-4">
+                  <div>
                     <AdCard
                       ad={card}
                       showStatusBadge
@@ -821,32 +855,10 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                     />
                   </div>
 
-                  {features.length ? (
-                    <div className="flex flex-wrap gap-2 border-t border-[#eeeeee] px-4 py-3">
-                      {features.map((feature, featureIndex) => {
-                        const featureRecord = feature as CrmRecord;
-                        const value = featureRecord.value;
-
-                        return (
-                          <span
-                            className="rounded-lg bg-[#f0f0f0] px-2.5 py-1 text-sm text-[#4d4d4d]"
-                            key={`${id}-${featureIndex}`}
-                          >
-                            {readText(featureRecord, ["label"])}: {Array.isArray(value) ? value.join("، ") : stringifyValue(value, "-")}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-
-                  <div className="border-t border-[#e8edf5] bg-[#f8faff] p-4">
-                    <div className="mb-3 flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-sm shadow-sm">
-                      <LinearLocation className="mt-0.5 h-5 w-5 shrink-0 text-[#0048c4]" />
-                      <div className="min-w-0 flex-1">
-                        <span className="block text-xs font-medium text-[#8a94a3]">موقعیت ملک</span>
-                        <strong className="mt-0.5 block truncate text-sm text-[#273142]">{advertiseLocationLabel(ad)}</strong>
-                      </div>
-                      <span className="shrink-0 rounded-lg bg-[#eef2f7] px-2 py-1 text-xs text-[#667085]">کد {readText(ad, ["track_code"])}</span>
+                  <div className="mt-3 border-t border-[#f0f0f0] pt-3">
+                    <div className="mb-3 flex items-center justify-between gap-3 px-1 text-xs text-[#808080]">
+                      <span>کد پیگیری: <strong className="font-semibold text-[#4d4d4d]">{readText(ad, ["track_code"])}</strong></span>
+                      <StatusBadge status={ad.status} />
                     </div>
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-5">
                       <SmallActionLink icon={<LinearPreview className="h-4 w-4" />} label="جزئیات" to={`/crm/advertises/${encodeURIComponent(id)}`} />
@@ -870,12 +882,13 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
               );
             })
           ) : (
-            <div className="col-span-full rounded-2xl border border-[#d9d9d9] bg-white">
+            <div className="col-span-full rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa]">
               <EmptyState description="آگهی‌ای مطابق فیلترهای انتخابی پیدا نشد." />
             </div>
           )}
+          </div>
         </div>
-      </Panel>
+      </section>
 
       <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
       <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
@@ -962,16 +975,124 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
         { label: "نام خانوادگی", name: "family", value: user.family },
         { label: "شماره موبایل", name: "mobile", value: user.mobile },
         { label: "ایمیل", name: "email", type: "email", value: user.email },
-        { label: "نقش", name: "role_slug", options: userRoleOptions, type: "select", value: userRoleSlug(user) },
+        {
+          label: "نقش‌های کاربر",
+          name: "role_slugs",
+          options: userRoleOptions,
+          type: "checklist",
+          value: userRoleSlugs(user),
+        },
       ],
       onSubmit: async (values) => {
-        await saveMutation.mutateAsync({ id, payload: cleanEmptyValues(values) });
+        const selectedRoleSlugs = (values.role_slugs ?? "")
+          .split(",")
+          .map((role) => role.trim())
+          .filter(Boolean);
+        const roleSlugs = selectedRoleSlugs.length > 0 ? selectedRoleSlugs : ["user"];
+        const primaryRole = roleSlugs.find((role) => role !== "user") ?? "user";
+        const userValues = { ...values };
+        delete userValues.role_slugs;
+
+        await saveMutation.mutateAsync({
+          id,
+          payload: cleanEmptyValues({
+            ...userValues,
+            role_slug: primaryRole,
+            role_slugs: roleSlugs,
+            roles: roleSlugs,
+          }),
+        });
       },
       title: id ? "ویرایش کاربر" : "ساخت کاربر جدید",
     });
   };
 
   const handleToggleStatus = (id: string) => statusMutation.mutateAsync(id);
+  const userGroups = useMemo(() => {
+    const users = query.data ?? [];
+    const recognizedRoles = new Set(userRoleOptions.map((option) => option.value));
+    const groups = userRoleOptions
+      .map((option) => ({
+        label: option.label,
+        slug: option.value,
+        users: users.filter((user) => userHasRole(user, option.value)),
+      }))
+      .filter((group) => group.users.length > 0);
+    const unassignedUsers = users.filter((user) =>
+      userRoleSlugs(user).every((role) => !recognizedRoles.has(role)),
+    );
+
+    if (unassignedUsers.length > 0) {
+      groups.push({ label: "نقش‌های تعریف‌نشده", slug: "unassigned", users: unassignedUsers });
+    }
+
+    return groups;
+  }, [query.data]);
+
+  const renderUsersTable = (users: CrmRecord[], emptyMessage: string) => (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
+        <thead>
+          <tr className="text-sm font-bold text-[#4d4d4d]">
+            <TableHead>نام</TableHead>
+            <TableHead>موبایل</TableHead>
+            <TableHead>نقش‌ها</TableHead>
+            <TableHead>وضعیت</TableHead>
+            <TableHead>اعتبار</TableHead>
+            <TableHead>عملیات</TableHead>
+          </tr>
+        </thead>
+        <tbody>
+          {users.length ? (
+            users.map((user) => {
+              const id = getCrmRecordId(user);
+              const isActive = Number(user.status) === 1;
+
+              return (
+                <tr key={id}>
+                  <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(user)}</span></TableCell>
+                  <TableCell><span dir="ltr">{readText(user, ["mobile"])}</span></TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1.5">
+                      {userRoleSlugs(user).map((role) => (
+                        <span
+                          className="rounded-lg border border-[#cbd8ed] bg-[#f6f9ff] px-2 py-1 text-xs font-bold text-[#0048c4]"
+                          key={role}
+                        >
+                          {userRoleOptions.find((option) => option.value === role)?.label ?? role}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell><UserStatusBadge status={user.status} /></TableCell>
+                  <TableCell>{formatMoney(user.credit)}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1.5">
+                      <SmallActionButton label="ویرایش" onClick={() => openUserEditor(user)} />
+                      <SmallActionButton
+                        label={isActive ? "غیرفعال‌سازی" : "فعال‌سازی"}
+                        onClick={() => setConfirm({
+                          body: isActive
+                            ? "دسترسی این کاربر تا زمان فعال‌سازی دوباره محدود می‌شود."
+                            : "حساب این کاربر دوباره فعال می‌شود.",
+                          confirmLabel: isActive ? "غیرفعال کن" : "فعال کن",
+                          onConfirm: async () => { await handleToggleStatus(id); },
+                          title: isActive ? "غیرفعال‌سازی کاربر" : "فعال‌سازی کاربر",
+                        })}
+                        tone={isActive ? "danger" : "success"}
+                      />
+                    </div>
+                  </TableCell>
+                </tr>
+              );
+            })
+          ) : (
+            <TableEmptyRow columns={6} message={emptyMessage} />
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <>
@@ -983,7 +1104,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
         />
 
         <form
-          className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-[#f0f0f0] p-4"
+          className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4"
           onSubmit={(event) => {
             event.preventDefault();
             setFilters({ mobile, name });
@@ -1011,58 +1132,38 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
           ) : null}
         </form>
 
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
-            <thead>
-              <tr className="text-sm font-bold text-[#4d4d4d]">
-                <TableHead>نام</TableHead>
-                <TableHead>موبایل</TableHead>
-                <TableHead>نقش</TableHead>
-                <TableHead>وضعیت</TableHead>
-                <TableHead>اعتبار</TableHead>
-                <TableHead>عملیات</TableHead>
-              </tr>
-            </thead>
-            <tbody>
-              {query.isLoading ? (
-                <TableLoadingRows columns={6} rows={6} />
-              ) : query.data?.length ? (
-                query.data.map((user) => {
-                  const id = getCrmRecordId(user);
-                  const isActive = Number(user.status) === 1;
-
-                  return (
-                    <tr key={id}>
-                      <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(user)}</span></TableCell>
-                      <TableCell><span dir="ltr">{readText(user, ["mobile"])}</span></TableCell>
-                      <TableCell>{userRoleLabel(user)}</TableCell>
-                      <TableCell><UserStatusBadge status={user.status} /></TableCell>
-                      <TableCell>{formatMoney(user.credit)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1.5">
-                          <SmallActionButton label="ویرایش" onClick={() => openUserEditor(user)} />
-                          <SmallActionButton
-                            label={isActive ? "غیرفعال‌سازی" : "فعال‌سازی"}
-                            onClick={() => setConfirm({
-                              body: isActive
-                                ? "دسترسی این کاربر تا زمان فعال‌سازی دوباره محدود می‌شود."
-                                : "حساب این کاربر دوباره فعال می‌شود.",
-                              confirmLabel: isActive ? "غیرفعال کن" : "فعال کن",
-                              onConfirm: async () => { await handleToggleStatus(id); },
-                              title: isActive ? "غیرفعال‌سازی کاربر" : "فعال‌سازی کاربر",
-                            })}
-                            tone={isActive ? "danger" : "success"}
-                          />
-                        </div>
-                      </TableCell>
-                    </tr>
-                  );
-                })
-              ) : (
-                <TableEmptyRow columns={6} message="کاربری مطابق جستجوی شما پیدا نشد." />
-              )}
-            </tbody>
-          </table>
+        <div className="mt-5 space-y-4">
+          {query.isLoading ? (
+            <section className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
+              <div className="border-b border-[#e6e6e6] px-4 py-3">
+                <div className="h-5 w-40 animate-pulse rounded bg-[#e9edf3]" />
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
+                  <tbody><TableLoadingRows columns={6} rows={4} /></tbody>
+                </table>
+              </div>
+            </section>
+          ) : userGroups.length ? (
+            userGroups.map((group) => (
+              <section className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white" key={group.slug}>
+                <div className="flex items-center justify-between gap-3 border-b border-[#f0f0f0] bg-[#fafafa] px-4 py-3">
+                  <div>
+                    <h3 className="m-0 text-sm font-bold text-[#1a1a1a]">{group.label}</h3>
+                    <p className="m-0 mt-1 text-xs text-[#7b8494]">کاربران این نقش جداگانه نمایش داده شده‌اند.</p>
+                  </div>
+                  <span className="rounded-lg bg-[#eaf1ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
+                    {new Intl.NumberFormat("fa-IR").format(group.users.length)} کاربر
+                  </span>
+                </div>
+                {renderUsersTable(group.users, `کاربری با نقش ${group.label} پیدا نشد.`)}
+              </section>
+            ))
+          ) : (
+            <div className="rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-4 py-10 text-center text-sm text-[#7b8494]">
+              کاربری مطابق جستجوی شما پیدا نشد.
+            </div>
+          )}
         </div>
       </Panel>
 
@@ -1105,26 +1206,41 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
     },
   });
 
+  const statusMutation = useMutation({
+    mutationFn: ({ agency, status }: { agency: CrmRecord; status: "wait" | "accepted" | "rejected" }) =>
+      saveCrmAgency(getCrmRecordId(agency), buildAgencyPayload(agency, status)),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
+      notify("وضعیت آژانس به‌روزرسانی شد.");
+    },
+  });
+
   const openAgencyEditor = (agency: CrmRecord = {}) => {
     const id = getCrmRecordId(agency) || null;
 
     setEditor({
       fields: [
         { label: "نام آژانس", name: "name", value: agency.name },
-        { label: "شناسه محله", name: "neighborhood_id", value: agency.neighborhood_id },
-        { label: "عرض جغرافیایی", name: "lat", type: "number", value: agency.lat ?? DEFAULT_CENTER[0] },
-        { label: "طول جغرافیایی", name: "lng", type: "number", value: agency.lng ?? DEFAULT_CENTER[1] },
+        { label: "وضعیت", name: "status", options: [{ label: "در انتظار تایید", value: "wait" }, { label: "تایید", value: "accepted" }, { label: "رد شده", value: "rejected" }], type: "select", value: normalizeAgencyStatus(agency.status) },
+        { label: "محله‌های تحت پوشش", name: "neighborhood_ids", type: "neighborhood-multi", value: Array.isArray(agency.neighborhood_ids) ? agency.neighborhood_ids : [] },
+        { label: "موقعیت آژانس روی نقشه", name: "map_location", type: "map-point", value: JSON.stringify({ lat: Number(agency.lat) || DEFAULT_CENTER[0], lng: Number(agency.lng) || DEFAULT_CENTER[1] }) },
         { label: "شماره تماس", name: "phone1", value: agency.phone1 },
         { label: "آدرس", name: "address", value: agency.address },
         { label: "درباره آژانس", name: "about_us", type: "textarea", value: agency.about_us },
       ],
       onSubmit: async (values) => {
+        const point = parseMapPointValue(values.map_location);
         const payload: CrmRecord = {
-          ...values,
-          lat: values.lat ? Number(values.lat) : undefined,
-          lng: values.lng ? Number(values.lng) : undefined,
+          about_us: values.about_us ?? "",
+          address: values.address ?? "",
+          lat: String(point.lat),
+          lng: String(point.lng),
+          name: values.name ?? "",
+          neighborhood_ids: values.neighborhood_ids.split(",").map((value) => value.trim()).filter(Boolean),
+          phone1: values.phone1 ?? "",
+          status: normalizeAgencyStatus(values.status),
         };
-        await saveMutation.mutateAsync({ id, payload: cleanEmptyValues(payload) });
+        await saveMutation.mutateAsync({ id, payload });
       },
       title: id ? "ویرایش آژانس" : "ثبت آژانس جدید",
     });
@@ -1142,7 +1258,7 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
         />
 
         <form
-          className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-[#f0f0f0] p-4"
+          className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4"
           onSubmit={(event) => {
             event.preventDefault();
             setFilterName(name);
@@ -1191,7 +1307,25 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
                         <small className="mt-1 block text-sm text-[#9aa2af]">{id}</small>
                       </TableCell>
                       <TableCell><span dir="ltr">{readText(agency, ["phone1", "phone2", "phone3"])}</span></TableCell>
-                      <TableCell><StatusBadge status={agency.status} /></TableCell>
+                      <TableCell>
+                        <select
+                          aria-label={`وضعیت ${readText(agency, ["name"])}`}
+                          className={`h-10 min-w-[132px] rounded-lg border px-2.5 text-sm font-bold outline-none disabled:opacity-60 ${agencyStatusTone(agency.status)}`}
+                          disabled={statusMutation.isPending}
+                          onChange={async (event) => {
+                            try {
+                              await statusMutation.mutateAsync({ agency, status: event.target.value as "wait" | "accepted" | "rejected" });
+                            } catch (error) {
+                              notify(getApiErrorMessage(error, "به‌روزرسانی وضعیت آژانس ناموفق بود."), "error");
+                            }
+                          }}
+                          value={normalizeAgencyStatus(agency.status)}
+                        >
+                          <option value="wait">در انتظار تایید</option>
+                          <option value="accepted">تایید</option>
+                          <option value="rejected">رد شده</option>
+                        </select>
+                      </TableCell>
                       <TableCell><span dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</span></TableCell>
                       <TableCell>
                         <div className="flex gap-1.5">
@@ -1274,7 +1408,7 @@ function CategoriesView({ notify, refreshNonce }: ViewProps) {
           title="درخت دسته‌بندی‌ها"
         />
 
-        <div className="mt-5 rounded-2xl border border-[#d9d9d9] bg-[#fafbfc] p-4">
+        <div className="mt-5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4">
           {query.isLoading ? (
             <ListSkeleton count={7} />
           ) : query.data?.length ? (
@@ -1300,7 +1434,7 @@ function CategoryTree({ categories, depth = 0, onEdit }: { categories: CrmRecord
         return (
           <div key={id || `${getCategoryLabel(category)}-${depth}`}>
             <div
-              className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-[#e4e8ef] bg-white px-4 shadow-[0_4px_16px_rgba(31,48,78,0.03)]"
+              className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-[#f0f0f0] bg-white px-4 transition hover:border-[#d9e2f2] hover:bg-[#fbfcff]"
               style={{ marginRight: depth * 24 }}
             >
               <div className="flex min-w-0 items-center gap-3">
@@ -1457,7 +1591,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         <Panel>
           <PanelHeader
             action={<PrimaryButton icon="plus" label="شهر جدید" onClick={() => openCityEditor()} />}
@@ -1465,7 +1599,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
             title="شهرها"
           />
           <form
-            className="mt-4 flex items-end gap-2 rounded-2xl bg-[#f0f0f0] p-3"
+            className="mt-4 flex items-end gap-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-3"
             onSubmit={(event) => {
               event.preventDefault();
               setCityFilter(citySearch);
@@ -1477,7 +1611,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
             <button className={iconButtonClassName} aria-label="جستجو" type="submit"><CrmIcon name="search" size={19} /></button>
           </form>
 
-          <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-2xl border border-[#d9d9d9]">
+          <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-xl border border-[#f0f0f0]">
             <table className="w-full min-w-[620px] border-separate border-spacing-0 text-right">
               <thead>
                 <tr className="text-sm font-bold text-[#4d4d4d]">
@@ -1538,7 +1672,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
             title="محله‌ها"
           />
 
-          <div className="mt-4 flex items-center gap-2 rounded-2xl bg-[#f0f0f0] p-3">
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></span>
             <div className="min-w-0 flex-1">
               <p className="m-0 text-sm font-bold text-[#4f5a6c]">شناسه شهر انتخاب‌شده</p>
@@ -1546,7 +1680,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
             </div>
           </div>
 
-          <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-2xl border border-[#d9d9d9]">
+          <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-xl border border-[#f0f0f0]">
             <table className="w-full min-w-[620px] border-separate border-spacing-0 text-right">
               <thead>
                 <tr className="text-sm font-bold text-[#4d4d4d]">
@@ -1663,8 +1797,8 @@ function AdvertiseFormCard({ form }: { form: CrmRecord }) {
   const fields = readArray(form, "fields") as CrmRecord[];
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[#d9d9d9] bg-white shadow-[0_8px_28px_rgba(31,48,78,0.04)]">
-      <header className="flex items-start justify-between gap-3 border-b border-[#edf0f5] bg-[#fafbfc] p-4">
+    <article className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
+      <header className="flex items-start justify-between gap-3 border-b border-[#f0f0f0] bg-[#fafafa] p-4">
         <div className="min-w-0">
           <h3 className="m-0 truncate text-sm font-bold text-[#1a1a1a]">{readText(form, ["title", "code"])}</h3>
           <p className="m-0 mt-1 text-sm text-[#9098a6]">
@@ -1730,7 +1864,12 @@ function EditorModal({
 
     setValues(
       Object.fromEntries(
-        editor.fields.map((field) => [field.name, stringifyValue(field.value)]),
+        editor.fields.map((field) => [
+          field.name,
+          (field.type === "checklist" || field.type === "neighborhood-multi") && Array.isArray(field.value)
+            ? field.value.map((item) => String(item)).join(",")
+            : stringifyValue(field.value),
+        ]),
       ),
     );
   }, [editor]);
@@ -1751,12 +1890,12 @@ function EditorModal({
   return (
     <ModalShell onClose={isPending ? undefined : onClose}>
       <form
-        className={`max-h-[calc(100vh-64px)] overflow-hidden rounded-3xl bg-white shadow-[0_28px_90px_rgba(14,34,68,0.24)] ${
+        className={`max-h-[calc(100vh-64px)] overflow-hidden rounded-xl bg-white shadow-[0_24px_70px_rgba(14,34,68,0.18)] ${
           wide ? "w-[min(960px,calc(100vw-64px))]" : "w-[min(760px,calc(100vw-64px))]"
         }`}
         onSubmit={submit}
       >
-        <div className="flex h-16 items-center justify-between border-b border-[#d9d9d9] px-6">
+        <div className="flex h-16 items-center justify-between border-b border-[#f0f0f0] px-6">
           <div>
             <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{editor.title}</h2>
             <p className="m-0 mt-1 text-sm text-[#919aa8]">فیلدهای لازم را تکمیل و سپس ذخیره کنید.</p>
@@ -1794,6 +1933,18 @@ function EditorModal({
                 );
               }
 
+              if (field.type === "neighborhood-multi") {
+                return (
+                  <div className="col-span-2" key={field.name}>
+                    <label className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</label>
+                    <CrmNeighborhoodMultiField
+                      onChange={(ids) => setValues((current) => ({ ...current, [field.name]: ids.join(",") }))}
+                      value={value}
+                    />
+                  </div>
+                );
+              }
+
               if (field.type === "geofence") {
                 return (
                   <div className="col-span-2" key={field.name}>
@@ -1812,6 +1963,56 @@ function EditorModal({
                       value={value}
                     />
                   </div>
+                );
+              }
+
+              if (field.type === "checklist") {
+                const selectedValues = value.split(",").map((item) => item.trim()).filter(Boolean);
+
+                return (
+                  <fieldset className="col-span-2" key={field.name}>
+                    <legend className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</legend>
+                    <p className="m-0 mb-3 text-xs leading-5 text-[#8b94a3]">
+                      هر نقش مستقل است و می‌توانید بیش از یک مورد را برای کاربر فعال کنید.
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {(field.options ?? []).map((option) => {
+                        const isChecked = selectedValues.includes(option.value);
+
+                        return (
+                          <label
+                            className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${
+                              isChecked
+                                ? "border-[#0048c4] bg-[#f2f6ff] text-[#0048c4]"
+                                : "border-[#d9d9d9] bg-white text-[#333333] hover:border-[#b9c7dd]"
+                            }`}
+                            key={option.value}
+                          >
+                            <input
+                              checked={isChecked}
+                              className="h-4 w-4 shrink-0 accent-[#0048c4]"
+                              name={field.name}
+                              onChange={() => {
+                                const nextValues = isChecked
+                                  ? selectedValues.filter((item) => item !== option.value)
+                                  : [...selectedValues, option.value];
+
+                                if (nextValues.length === 0) return;
+
+                                setValues((current) => ({
+                                  ...current,
+                                  [field.name]: nextValues.join(","),
+                                }));
+                              }}
+                              type="checkbox"
+                              value={option.value}
+                            />
+                            <span className="text-sm font-bold">{option.label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
                 );
               }
 
@@ -1857,7 +2058,7 @@ function EditorModal({
           </div>
         </div>
 
-        <div className="flex h-20 items-center justify-end gap-3 border-t border-[#d9d9d9] px-6">
+        <div className="flex h-20 items-center justify-end gap-3 border-t border-[#f0f0f0] px-6">
           <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
           <button className={primaryButtonClassName} disabled={isPending} type="submit">
             {isPending ? <LoadingSpinner /> : <CrmIcon name="save" size={18} />}
@@ -1901,7 +2102,7 @@ function ConfirmModal({
 
   return (
     <ModalShell onClose={isPending ? undefined : onClose}>
-      <section className="w-[min(440px,calc(100vw-40px))] rounded-3xl bg-white p-6 shadow-[0_28px_90px_rgba(14,34,68,0.24)]" dir="rtl">
+      <section className="w-[min(440px,calc(100vw-40px))] rounded-xl bg-white p-6 shadow-[0_24px_70px_rgba(14,34,68,0.18)]" dir="rtl">
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#d62f3e]">
           <CrmIcon name="warning" size={24} />
         </div>
@@ -1945,7 +2146,7 @@ function CityPointEditor({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[#cccccc] bg-white">
-      <div className="border-b border-[#e5e5e5] bg-[#f0f0f0] px-4 py-3">
+      <div className="border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-3">
         <p className="m-0 text-sm leading-6 text-[#4d4d4d]">
           روی محل مرکز شهر کلیک کنید؛ مختصات به‌صورت خودکار ثبت می‌شود.
         </p>
@@ -1969,6 +2170,48 @@ function CityPointEditor({
         <strong className="font-mono text-[#0048c4]" dir="ltr">
           {point[0].toFixed(6)}, {point[1].toFixed(6)}
         </strong>
+      </div>
+    </div>
+  );
+}
+
+function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string[]) => void; value: string }) {
+  const [query, setQuery] = useState("");
+  const cityId = readStoredSelectedCity()?.id ?? "";
+  const selectedIds = value.split(",").map((item) => item.trim()).filter(Boolean);
+  const neighborhoodsQuery = useNeighborhoodListQuery({ cityId, enabled: Boolean(cityId), perPage: 50, q: query });
+
+  const toggle = (id: string) => {
+    onChange(selectedIds.includes(id) ? selectedIds.filter((item) => item !== id) : [...selectedIds, id]);
+  };
+
+  return (
+    <div className="rounded-xl border border-[#d7dce5] bg-white p-3">
+      <input
+        className={modalInputClassName}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="جستجوی محله..."
+        value={query}
+      />
+      {!cityId ? <p className="m-0 mt-2 text-xs text-[#cc3342]">ابتدا شهر را در سایت انتخاب کنید.</p> : null}
+      {selectedIds.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {selectedIds.map((id) => {
+            const neighborhood = neighborhoodsQuery.data?.find((item) => String(item.id ?? item._id) === id);
+            return <button className="rounded-lg bg-[#eef4ff] px-2.5 py-1.5 text-xs font-bold text-[#0048c4]" key={id} onClick={() => toggle(id)} type="button">{neighborhood?.name ?? id} ×</button>;
+          })}
+        </div>
+      ) : null}
+      <div className="mt-3 max-h-48 space-y-1 overflow-y-auto">
+        {neighborhoodsQuery.isLoading ? <p className="px-2 text-sm text-[#7b8494]">در حال جستجو...</p> : neighborhoodsQuery.data?.map((neighborhood) => {
+          const id = String(neighborhood.id ?? neighborhood._id ?? "");
+          const checked = selectedIds.includes(id);
+          return (
+            <button className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-right text-sm ${checked ? "bg-[#eef4ff] font-bold text-[#0048c4]" : "hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
+              <span>{neighborhood.name}</span><span>{checked ? "✓" : "+"}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -2119,7 +2362,7 @@ function pointsToPolygonString(points: LatLngTuple[]) {
 function ModalShell({ children, onClose }: { children: ReactNode; onClose?: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-[80] grid place-items-center bg-[#17233a]/45 p-8 backdrop-blur-[3px]"
+      className="fixed inset-0 z-[80] grid place-items-center bg-[#1a1a1a]/35 p-8 backdrop-blur-[2px]"
       onMouseDown={() => onClose?.()}
     >
       <div onMouseDown={(event) => event.stopPropagation()}>{children}</div>
@@ -2127,9 +2370,9 @@ function ModalShell({ children, onClose }: { children: ReactNode; onClose?: () =
   );
 }
 
-function Panel({ children }: { children: ReactNode }) {
+function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <section className="rounded-2xl border border-[#d9d9d9] bg-white p-5 shadow-[0_8px_28px_rgba(31,48,78,0.04)]">
+    <section className={`rounded-xl bg-white p-6 ${className}`}>
       {children}
     </section>
   );
@@ -2145,10 +2388,10 @@ function PanelHeader({
   title: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{title}</h2>
-        {subtitle ? <p className="m-0 mt-1.5 text-sm font-medium text-[#808080]">{subtitle}</p> : null}
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="min-w-0">
+        <h2 className="m-0 text-base font-semibold leading-7 text-[#1a1a1a]">{title}</h2>
+        {subtitle ? <p className="m-0 mt-1 text-sm font-normal leading-6 text-[#808080]">{subtitle}</p> : null}
       </div>
       {action}
     </div>
@@ -2158,18 +2401,18 @@ function PanelHeader({
 function FilterField({ children, className = "", label }: { children: ReactNode; className?: string; label: string }) {
   return (
     <label className={`min-w-[190px] ${className}`}>
-      <span className="mb-1.5 block text-sm font-bold text-[#687386]">{label}</span>
+      <span className="mb-1.5 block text-sm font-medium text-[#4d4d4d]">{label}</span>
       {children}
     </label>
   );
 }
 
 function TableHead({ children }: { children: ReactNode }) {
-  return <th className="border-b border-[#e9edf3] bg-[#fafbfc] px-3 py-3.5 text-right first:rounded-r-xl last:rounded-l-xl">{children}</th>;
+  return <th className="border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-3.5 text-right text-sm font-semibold text-[#4d4d4d] first:rounded-r-xl last:rounded-l-xl">{children}</th>;
 }
 
 function TableCell({ children }: { children: ReactNode }) {
-  return <td className="border-b border-[#edf0f5] px-3 py-4 align-middle text-sm text-[#606b7c]">{children}</td>;
+  return <td className="border-b border-[#f0f0f0] px-4 py-4 align-middle text-sm text-[#4d4d4d]">{children}</td>;
 }
 
 function TableLoadingRows({ columns, rows }: { columns: number; rows: number }) {
@@ -2201,6 +2444,32 @@ function StatusBadge({ status }: { status: unknown }) {
       : "bg-[#fff0f0] text-[#cc3342]";
 
   return <span className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${tone}`}>{advertiseStatusLabel(status)}</span>;
+}
+
+function normalizeAgencyStatus(status: unknown): "wait" | "accepted" | "rejected" {
+  return status === "accepted" || status === "rejected" ? status : "wait";
+}
+
+function buildAgencyPayload(agency: CrmRecord, status = normalizeAgencyStatus(agency.status)): CrmRecord {
+  return {
+    about_us: readText(agency, ["about_us"], ""),
+    address: readText(agency, ["address"], ""),
+    lat: readText(agency, ["lat"], String(DEFAULT_CENTER[0])),
+    lng: readText(agency, ["lng"], String(DEFAULT_CENTER[1])),
+    name: readText(agency, ["name"], ""),
+    neighborhood_ids: Array.isArray(agency.neighborhood_ids)
+      ? agency.neighborhood_ids.map(String)
+      : agency.neighborhood_id ? [String(agency.neighborhood_id)] : [],
+    phone1: readText(agency, ["phone1"], ""),
+    status,
+  };
+}
+
+function agencyStatusTone(status: unknown) {
+  const normalized = normalizeAgencyStatus(status);
+  if (normalized === "accepted") return "border-[#b9ead2] bg-[#ebfaf3] text-[#0b8b55]";
+  if (normalized === "rejected") return "border-[#ffd0d0] bg-[#fff0f0] text-[#cc3342]";
+  return "border-[#f4d994] bg-[#fff7df] text-[#a06a00]";
 }
 
 function UserStatusBadge({ status }: { status: unknown }) {
@@ -2323,7 +2592,7 @@ function ListSkeleton({ count }: { count: number }) {
 
 function FormCardSkeleton() {
   return (
-    <div className="h-[320px] animate-pulse rounded-2xl border border-[#d9d9d9] bg-white p-4">
+    <div className="h-[320px] animate-pulse rounded-xl border border-[#f0f0f0] bg-white p-4">
       <div className="h-5 w-2/5 rounded-full bg-[#edf0f4]" />
       <div className="mt-3 h-3 w-1/4 rounded-full bg-[#f1f3f6]" />
       <div className="mt-7 space-y-4">
@@ -2348,12 +2617,6 @@ function LoadingSpinner() {
   return <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />;
 }
 
-function BrandMark() {
-  return (
-    <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#0048c4] text-lg font-black text-white shadow-[0_8px_20px_rgba(0,72,196,0.22)]">ب</span>
-  );
-}
-
 function useQueryErrorToast(errors: Array<unknown>, notify: ViewProps["notify"]) {
   const error = errors.find(Boolean);
 
@@ -2363,12 +2626,12 @@ function useQueryErrorToast(errors: Array<unknown>, notify: ViewProps["notify"])
   }, [error, notify]);
 }
 
-const inputClassName = "h-10 w-full rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#4d4d4d] outline-none transition placeholder:text-[#a3aab6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
-const modalInputClassName = "h-11 w-full rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#4d4d4d] outline-none transition placeholder:text-[#a3aab6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
-const primaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white transition hover:bg-[#003ca5] disabled:cursor-not-allowed disabled:opacity-55";
-const secondaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-bold text-[#0048c4] transition hover:bg-[#eef4ff]";
-const ghostButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-bold text-[#4d4d4d] transition hover:bg-[#f0f0f0] disabled:cursor-not-allowed disabled:opacity-50";
-const dangerButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#d93645] px-4 text-sm font-bold text-white transition hover:bg-[#bd2938] disabled:cursor-not-allowed disabled:opacity-55";
+const inputClassName = "h-10 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
+const modalInputClassName = "h-11 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
+const primaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white transition hover:bg-[#003ca5] disabled:cursor-not-allowed disabled:opacity-55";
+const secondaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-semibold text-[#0048c4] transition hover:bg-[#eef4ff]";
+const ghostButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-semibold text-[#4d4d4d] transition hover:bg-[#f0f0f0] disabled:cursor-not-allowed disabled:opacity-50";
+const dangerButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#d93645] px-4 text-sm font-semibold text-white transition hover:bg-[#bd2938] disabled:cursor-not-allowed disabled:opacity-55";
 const iconButtonClassName = "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0048c4] text-white transition hover:bg-[#003ca5]";
 const miniGhostButtonClassName = "h-9 rounded-lg border border-[#d7dfeb] bg-white px-2.5 text-sm font-bold text-[#5d6879] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45";
 
@@ -2382,6 +2645,7 @@ type IconName =
   | "close"
   | "desktop"
   | "empty"
+  | "filter"
   | "form"
   | "home"
   | "location"
@@ -2390,7 +2654,9 @@ type IconName =
   | "save"
   | "search"
   | "users"
-  | "warning";
+  | "warning"
+  | "wallet"
+  | "settings";
 
 function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   const common = {
@@ -2411,10 +2677,13 @@ function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   if (name === "category") return <svg {...common}><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>;
   if (name === "location") return <svg {...common}><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
   if (name === "form") return <svg {...common}><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h4M9 12h6m-6 4h6"/></svg>;
+  if (name === "wallet") return <svg {...common}><path d="M4 6h15a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a3 3 0 0 1 3-3h12"/><path d="M16 11h5v4h-5a2 2 0 0 1 0-4Z"/></svg>;
+  if (name === "settings") return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>;
   if (name === "account") return <svg {...common}><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.5-4.3 2.8-6.5 7-6.5s6.5 2.2 7 6.5"/></svg>;
   if (name === "refresh") return <svg {...common}><path d="M20 7v5h-5"/><path d="M18.7 16a8 8 0 1 1 .8-7"/></svg>;
   if (name === "plus") return <svg {...common}><path d="M12 5v14M5 12h14"/></svg>;
   if (name === "search") return <svg {...common}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>;
+  if (name === "filter") return <svg {...common}><path d="M4 6h16M7 12h10m-7 6h4"/><circle cx="8" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg>;
   if (name === "arrow") return <svg {...common}><path d="m9 6 6 6-6 6"/></svg>;
   if (name === "close") return <svg {...common}><path d="m6 6 12 12M18 6 6 18"/></svg>;
   if (name === "save") return <svg {...common}><path d="M5 4h12l2 2v14H5z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></svg>;

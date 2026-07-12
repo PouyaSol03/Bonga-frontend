@@ -1,4 +1,4 @@
-import { api, getApiAssetUrl, publicApi } from "../api/api";
+import { ApiError, api, baseUrl, getApiAssetUrl, publicApi } from "../api/api";
 
 export type AdvertisementItem = Record<string, unknown> & {
   _id?: string;
@@ -51,6 +51,7 @@ type AdvertisementListResponse =
 
 type AdvertisementShowResponse =
   | {
+      advertise?: AdvertisementItem;
       data?: AdvertisementItem;
       status?: boolean;
     }
@@ -59,9 +60,77 @@ type AdvertisementShowResponse =
 type AdvertisementCreateResponse =
   | {
       data?: AdvertisementItem;
+      result?: AdvertisementItem;
       status?: boolean;
     }
   | AdvertisementItem;
+
+export type AdvertisementCheckoutItem = {
+  credit_cost?: number;
+  free_quota?: {
+    available?: boolean;
+    remaining?: number;
+  } | null;
+  price?: number;
+  product: string;
+  required?: boolean;
+  selected?: boolean;
+};
+
+export type AdvertisementCheckoutPaymentMethod = {
+  action?: string | null;
+  available?: boolean;
+  balance?: number;
+  method: string;
+  remaining?: number;
+  required?: number;
+  shortage?: number;
+};
+
+export type AdvertisementCheckout = {
+  advertise_id: number | string;
+  context?: {
+    advertise_status?: number | string;
+    agency_id?: number | string | null;
+    roles?: string[];
+    user_id?: number | string;
+  };
+  items: AdvertisementCheckoutItem[];
+  payment_methods: AdvertisementCheckoutPaymentMethod[];
+  state?: string;
+  status?: boolean;
+  summary: {
+    credit_cost?: number;
+    items_count?: number;
+    payable_amount?: number;
+    total_price?: number;
+  };
+};
+
+type AdvertisementCheckoutResponse =
+  | AdvertisementCheckout
+  | {
+      data?: AdvertisementCheckout;
+      result?: AdvertisementCheckout;
+      status?: boolean;
+    };
+
+export type AdvertisementCheckoutPaymentMethodCode =
+  | "free_quota"
+  | "gateway"
+  | "package_credit"
+  | "wallet";
+
+export type SubmitAdvertisementCheckoutPayload = {
+  advertiseId: string;
+  items: string[];
+  paymentMethod: AdvertisementCheckoutPaymentMethodCode;
+};
+
+export type SubmitAdvertisementCheckoutResult = {
+  paymentUrl: string | null;
+  response: unknown;
+};
 
 type ApiMutationResponse<T = unknown> = {
   data?: T;
@@ -435,6 +504,16 @@ export async function getAdvertisementDetail(id: string) {
     : (response as AdvertisementItem);
 }
 
+export async function getAdvertisementPreview(id: string): Promise<AdvertisementItem> {
+  const response = await api
+    .get(`me/advertise/preview/${encodeURIComponent(id)}`)
+    .json<AdvertisementShowResponse>();
+
+  if ("advertise" in response && response.advertise) return response.advertise as AdvertisementItem;
+  if ("data" in response && response.data) return response.data as AdvertisementItem;
+  return response as AdvertisementItem;
+}
+
 export async function createAdvertisement(payload: FormData) {
   const response = await api
     .post("me/advertise/create", {
@@ -442,9 +521,127 @@ export async function createAdvertisement(payload: FormData) {
     })
     .json<AdvertisementCreateResponse>();
 
-  return "data" in response && response.data
-    ? (response.data as AdvertisementItem)
-    : (response as AdvertisementItem);
+  if ("data" in response && response.data) {
+    return response.data as AdvertisementItem;
+  }
+
+  if ("result" in response && response.result) {
+    return response.result as AdvertisementItem;
+  }
+
+  return response as AdvertisementItem;
+}
+
+function unwrapAdvertisementCheckoutResponse(
+  response: AdvertisementCheckoutResponse,
+): AdvertisementCheckout {
+  if ("items" in response && Array.isArray(response.items)) {
+    return response;
+  }
+
+  if ("data" in response && response.data && Array.isArray(response.data.items)) {
+    return response.data;
+  }
+
+  if ("result" in response && response.result && Array.isArray(response.result.items)) {
+    return response.result;
+  }
+
+  throw new ApiError(500, "اطلاعات پرداخت آگهی از سرور دریافت نشد.");
+}
+
+function normalizeCheckoutUrl(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return null;
+
+  const normalizedValue = value.trim();
+
+  if (!/^https?:\/\//i.test(normalizedValue) && !normalizedValue.startsWith("/")) {
+    return null;
+  }
+
+  try {
+    const fallbackOrigin =
+      typeof window !== "undefined" ? window.location.origin : "http://localhost";
+    const resolvedBaseUrl = baseUrl
+      ? new URL(baseUrl, fallbackOrigin).toString()
+      : fallbackOrigin;
+    const url = new URL(normalizedValue, resolvedBaseUrl);
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function findCheckoutPaymentUrl(value: unknown, depth = 0): string | null {
+  if (depth > 4) return null;
+
+  const directUrl = normalizeCheckoutUrl(value);
+
+  if (directUrl) return directUrl;
+  if (!value || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+
+  for (const key of [
+    "payment_url",
+    "paymentUrl",
+    "gateway_url",
+    "gatewayUrl",
+    "redirect_url",
+    "redirectUrl",
+    "url",
+  ]) {
+    const url = normalizeCheckoutUrl(record[key]);
+
+    if (url) return url;
+  }
+
+  for (const key of ["data", "result", "payment", "intent", "gateway"]) {
+    const nestedUrl = findCheckoutPaymentUrl(record[key], depth + 1);
+
+    if (nestedUrl) return nestedUrl;
+  }
+
+  return null;
+}
+
+export async function getAdvertisementCheckout(advertiseId: string) {
+  const response = await api
+    .get(`me/advertise/checkout/${encodeURIComponent(advertiseId)}`)
+    .json<AdvertisementCheckoutResponse>();
+
+  return unwrapAdvertisementCheckoutResponse(response);
+}
+
+export async function submitAdvertisementCheckout({
+  advertiseId,
+  items,
+  paymentMethod,
+}: SubmitAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
+  const response = await api
+    .post(`me/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
+      json: {
+        items,
+        payment_method: paymentMethod,
+      },
+    })
+    .json<unknown>();
+
+  if (
+    response &&
+    typeof response === "object" &&
+    (response as Record<string, unknown>).status === false
+  ) {
+    throw new ApiError(400, "پرداخت آگهی با خطا مواجه شد.");
+  }
+
+  return {
+    paymentUrl: findCheckoutPaymentUrl(response),
+    response,
+  };
 }
 
 export async function getAdvertisementMap({

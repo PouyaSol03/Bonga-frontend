@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
+import { storePaymentReturnTarget } from "../../utils/payment-return";
 import {
   useAdvertiseBadgesQuery,
   useAuthorizeMeMutation,
@@ -577,6 +578,10 @@ export function AccountWalletPage() {
                   );
                 },
                 onSuccess: ({ paymentUrl }) => {
+                  storePaymentReturnTarget({
+                    label: "بازگشت به کیف پول",
+                    path: "/account/wallet",
+                  });
                   window.location.assign(paymentUrl);
                 },
               },

@@ -5,12 +5,11 @@ import { getApiErrorMessage } from "../../api/api";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
-import { getStoredAuthSession, setStoredAuthSession, type AuthRole, type AuthRoleSlug } from "../../auth/auth-storage";
+import { setStoredActiveRole } from "../../auth/auth-storage";
 import {
-  INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_MANAGER,
   USER,
 } from "../../constants/roles.constants";
+import { getMyProfile } from "../../services/account.service";
 import { useCreateMyAgencyMutation } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
@@ -245,37 +244,6 @@ function navigateTo(path: string, state?: unknown) {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
-function markBusinessCreated(type: BusinessType) {
-  const session = getStoredAuthSession();
-
-  if (!session) return;
-
-  const nextRole = (
-    type === "agency" ? REAL_ESTATE_MANAGER : INDEPENDENT_CONSULTANT
-  ) as AuthRoleSlug;
-  const nextRoleName =
-    type === "agency" ? "مدیر آژانس املاک" : "مشاور مستقل";
-  const userRole: AuthRole = {
-    id: USER,
-    name: "کاربر",
-    slug: USER,
-  };
-  const nextBusinessRole: AuthRole = {
-    id: nextRole,
-    name: nextRoleName,
-    slug: nextRole,
-  };
-  const roles: AuthRole[] = [userRole, nextBusinessRole];
-
-  setStoredAuthSession({
-    ...session,
-    activeRole: nextRole,
-    accountType: type === "agency" ? "agency-consultant" : "independent-consultant",
-    role: nextRole,
-    roles,
-  });
-}
-
 export function BusinessCreationPage() {
   const [selectedType, setSelectedType] = useState<BusinessType>("agency");
 
@@ -460,7 +428,8 @@ function BusinessFormPage({
 
     if (!canContinue) return;
 
-    markBusinessCreated(businessType);
+    await getMyProfile();
+    setStoredActiveRole(USER);
     navigateTo("/account?businessSuccess=1", { businessSuccess: true, businessType });
   };
 

@@ -4,15 +4,20 @@ import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
   createAdvertisement,
+  getAdvertisementCheckout,
   getAdvertisementDetail,
   getAdvertisementList,
   getAdvertisementMap,
+  getAdvertisementPreview,
   getAdvertiseReportReasons,
+  submitAdvertisementCheckout,
   submitAdvertiseFeedback,
   submitAdvertiseReport,
   type AdvertisementListParams,
   type AdvertisementMapParams,
   type AdvertisementPage,
+  type SubmitAdvertisementCheckoutPayload,
+  type SubmitAdvertisementCheckoutResult,
 } from "../services/advertisement.service";
 
 export function useAdvertisementInfiniteQuery({
@@ -62,12 +67,46 @@ export function useAdvertisementDetailQuery(id: string | null) {
   });
 }
 
+export function useAdvertisementPreviewQuery(id: string | null) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: () => getAdvertisementPreview(id ?? ""),
+    queryKey: queryKeys.advertisements.preview(id ?? ""),
+  });
+}
+
 export function useCreateAdvertisementMutation() {
   return useMutation({
     mutationFn: createAdvertisement,
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.advertisements.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
+  });
+}
+
+export function useAdvertisementCheckoutQuery(advertiseId: string | null) {
+  return useQuery({
+    enabled: Boolean(advertiseId),
+    queryFn: () => getAdvertisementCheckout(advertiseId ?? ""),
+    queryKey: queryKeys.advertisements.checkout(advertiseId ?? ""),
+    staleTime: 0,
+  });
+}
+
+export function useSubmitAdvertisementCheckoutMutation() {
+  return useMutation({
+    mutationFn: submitAdvertisementCheckout,
+    onSuccess: (
+      _result: SubmitAdvertisementCheckoutResult,
+      variables: SubmitAdvertisementCheckoutPayload,
+    ) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.checkout(variables.advertiseId),
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.myAdsRoot(),

@@ -1,4 +1,11 @@
 import { ApiError, api, getApiAssetUrl } from "../api/api";
+import {
+  authRoleSlugs,
+  getStoredAuthSession,
+  setStoredAuthSession,
+  type AuthRole,
+  type AuthRoleSlug,
+} from "../auth/auth-storage";
 import type { ApiDataResponse, ApiListResponse } from "../api/response";
 import { unwrapList } from "../api/response";
 import type { AdvertisementItem } from "./advertisement.service";
@@ -15,7 +22,67 @@ export type UserProfile = {
   name?: string | null;
   nationalnumber?: string | null;
   phone?: string;
+  role?: string;
+  roles?: Array<AuthRole | string | Record<string, unknown>>;
 };
+
+function normalizeProfileRoleSlug(value: unknown): AuthRoleSlug | null {
+  if (typeof value !== "string") return null;
+
+  const normalized = value.trim().toLowerCase().replace(/_/g, "-");
+  if (
+    normalized === "superadmin" ||
+    normalized === "super admin" ||
+    normalized === "super-admin"
+  ) return "super-admin";
+
+  const slug = value.trim().toLowerCase().replace(/-/g, "_") as AuthRoleSlug;
+  return authRoleSlugs.includes(slug) ? slug : null;
+}
+
+function syncStoredRolesFromProfile(response: unknown, profile: UserProfile) {
+  const session = getStoredAuthSession();
+  if (!session) return;
+
+  const responseRecord = response as Record<string, unknown>;
+  const candidates = [
+    responseRecord.roles,
+    (responseRecord.user as Record<string, unknown> | undefined)?.roles,
+    (responseRecord.data as Record<string, unknown> | undefined)?.roles,
+    profile.roles,
+  ];
+  const rawRoles = candidates.find(Array.isArray);
+  if (!Array.isArray(rawRoles)) return;
+
+  const roles = rawRoles
+    .map((role, index): AuthRole | null => {
+      const record = role && typeof role === "object" ? role as Record<string, unknown> : null;
+      const slug = normalizeProfileRoleSlug(typeof role === "string" ? role : record?.slug ?? record?.name);
+      if (!slug) return null;
+
+      return {
+        id: String(record?.id ?? record?._id ?? index + 1),
+        name: String(record?.name ?? slug),
+        slug,
+      };
+    })
+    .filter((role): role is AuthRole => role !== null)
+    .filter((role, index, items) => items.findIndex((item) => item.slug === role.slug) === index);
+
+  if (!roles.length) return;
+
+  const activeRole: AuthRoleSlug = roles.some((role) => role.slug === session.activeRole)
+    ? session.activeRole as AuthRoleSlug
+    : roles.find((role) => role.slug === "user")?.slug ?? roles[0]!.slug;
+
+  setStoredAuthSession({
+    ...session,
+    activeRole,
+    accountType: activeRole,
+    role: activeRole,
+    roles,
+  });
+}
 
 export function isUserIdentityVerified(profile?: UserProfile | null) {
   const authorizedValue = profile?.authorized;
@@ -218,15 +285,14 @@ export async function getMyProfile() {
     .json<ApiDataResponse<UserProfile> | { status?: boolean; user?: UserProfile } | UserProfile>();
   const record = response as Record<string, unknown>;
 
-  if (record.user && typeof record.user === "object") {
-    return record.user as UserProfile;
-  }
+  const profile = record.user && typeof record.user === "object"
+    ? record.user as UserProfile
+    : record.data && typeof record.data === "object"
+      ? record.data as UserProfile
+      : response as UserProfile;
 
-  if (record.data && typeof record.data === "object") {
-    return record.data as UserProfile;
-  }
-
-  return response as UserProfile;
+  syncStoredRolesFromProfile(response, profile);
+  return profile;
 }
 
 export function updateMyProfile(payload: UpdateProfilePayload) {

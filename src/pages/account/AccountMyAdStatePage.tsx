@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { useAdvertisementDetailQuery } from "../../hooks/advertisement.hooks";
+import { useAdvertisementPreviewQuery } from "../../hooks/advertisement.hooks";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 import { PageFrame } from "../../app/PageFrame";
@@ -16,6 +16,7 @@ import {
   getAdEditPath,
   getAdIncreaseVisitsPath,
   getAdPaymentHistoryPath,
+  getAdPreviewPath,
   getAdVisitStatisticsPath,
 } from "./adManagement/adManagementData";
 import { getMyAdStatusInfo, type MyAdStatusKey } from "./myAdsStatus";
@@ -44,7 +45,7 @@ export function AccountMyAdStatePage() {
   const routeState = readRouteState();
   const adId = readAdIdFromPath() ?? String(routeState.card?.id ?? fallbackCard.id);
   const fallbackIndex = Math.max(Number(adId.replace(/\D/g, "")) - 1, 0) || 0;
-  const detailQuery = useAdvertisementDetailQuery(adId);
+  const detailQuery = useAdvertisementPreviewQuery(adId);
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
   const sourceAd = detailQuery.data ?? routeState.ad;
   const card = detailQuery.data
@@ -217,7 +218,7 @@ function RealEstateManagerAdStatePage({
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="min-h-[244px] bg-white" aria-label="عملیات آگهی">
-          <StateAdAction action={{ icon: "preview", label: "پیش‌نمایش", to: `/ads/${adId}` }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
+          <StateAdAction action={{ icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
           <ActionDivider />
           <StateAdAction action={{ icon: "edit", label: "ویرایش", to: getAdEditPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
           <ActionDivider />
@@ -529,7 +530,7 @@ function NeedsEditNotice({
 }
 
 function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
-  const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: `/ads/${adId}` };
+  const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = { icon: "edit", label: "ویرایش آگهی", to: getAdEditPath(adId) };
   const remove: StateAction = {
     icon: "delete",

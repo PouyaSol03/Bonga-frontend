@@ -384,8 +384,8 @@ function statusTone(status: unknown) {
 
 function InformationRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 border-b border-[#eeeeee] py-3.5 last:border-b-0">
-      <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f0f0f0] text-[#0048c4]">
+    <div className="flex items-start gap-3 border-b border-[#f0f0f0] py-3.5 last:border-b-0">
+      <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5f5f5] text-[#0048c4]">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
@@ -398,7 +398,7 @@ function InformationRow({ icon, label, value }: { icon: ReactNode; label: string
 
 function DetailSection({ children, icon, title }: { children: ReactNode; icon: ReactNode; title: string }) {
   return (
-    <section className="rounded-2xl border border-[#dedede] bg-white p-5 shadow-[0_5px_18px_rgba(0,72,196,0.04)]">
+    <section className="rounded-xl bg-white p-5">
       <div className="flex items-center gap-2.5">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">{icon}</span>
         <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{title}</h2>
@@ -411,13 +411,13 @@ function DetailSection({ children, icon, title }: { children: ReactNode; icon: R
 function DetailSkeleton() {
   return (
     <div className="space-y-5 animate-pulse">
-      <div className="h-64 rounded-2xl bg-white" />
+      <div className="h-64 rounded-xl bg-white" />
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => <div className="h-24 rounded-2xl bg-white" key={index} />)}
+        {Array.from({ length: 4 }).map((_, index) => <div className="h-24 rounded-xl bg-white" key={index} />)}
       </div>
       <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="h-96 rounded-2xl bg-white" />
-        <div className="h-96 rounded-2xl bg-white" />
+        <div className="h-96 rounded-xl bg-white" />
+        <div className="h-96 rounded-xl bg-white" />
       </div>
     </div>
   );
@@ -469,7 +469,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 
   if (!advertise) {
     return (
-      <section className="grid min-h-[420px] place-items-center rounded-2xl border border-[#dedede] bg-white p-8 text-center">
+      <section className="grid min-h-[420px] place-items-center rounded-xl bg-white p-8 text-center">
         <div>
           <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
             <LinearInformation className="h-7 w-7" />
@@ -533,9 +533,9 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
   });
 
   return (
-    <div className="mx-auto max-w-[1440px] pb-8" dir="rtl">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <RouteLink className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium text-[#0048c4] no-underline transition hover:bg-[#f4f7ff]" to="/crm/advertises">
+    <div className="pb-6" dir="rtl">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white px-5 py-4">
+        <RouteLink className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]" to="/crm/advertises">
           <LinearArrowRight1 className="h-5 w-5" />
           بازگشت به مدیریت آگهی‌ها
         </RouteLink>
@@ -544,10 +544,10 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
         </span>
       </div>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
-        <main className="min-w-0 overflow-hidden rounded-2xl bg-[#f0f0f0] shadow-[0_8px_30px_rgba(26,26,26,0.06)]">
-          <section className="bg-white p-5">
-            <div className="grid h-[460px] grid-cols-[minmax(0,1fr)_150px] gap-2 overflow-hidden rounded-2xl bg-[#eef2f7]">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <main className="min-w-0 space-y-4">
+          <section className="rounded-xl bg-white p-6">
+            <div className="grid h-[420px] grid-cols-[minmax(0,1fr)_140px] gap-2 overflow-hidden rounded-2xl bg-[#eef2f7]">
               <button className="relative min-w-0 overflow-hidden bg-[#e7ebf0]" type="button">
             {coverImage ? (
                   <img alt={title} className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" src={coverImage} />
@@ -645,7 +645,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
             <InformationRow icon={<LinearGps className="h-5 w-5" />} label="مختصات" value={locationCoordinates} />
           </DetailSection>
 
-          <div className="rounded-2xl border border-[#dedede] bg-white p-4 text-sm text-[#666666]">
+          <div className="rounded-xl bg-white p-5 text-sm text-[#666666]">
             <div className="flex items-center gap-2 text-[#0048c4]">
               <LinearApartment className="h-5 w-5" />
               <strong className="text-sm">شناسه آگهی</strong>
@@ -659,9 +659,9 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 }
 
 function PriceBox({ label, value }: { label: string; value: string }) {
-  return <div className="flex min-h-14 items-center justify-between rounded-lg bg-[#f5f5f5] px-4"><span className="text-sm font-medium text-[#4d4d4d]">{label}</span><strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong></div>;
+  return <div className="flex min-h-14 items-center justify-between rounded-xl bg-[#f7f7f7] px-4"><span className="text-sm font-medium text-[#4d4d4d]">{label}</span><strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong></div>;
 }
 
 function PublicStyleSection({ children, title }: { children: ReactNode; title: string }) {
-  return <section className="mt-2 bg-white px-6 py-6"><h2 className="m-0 text-lg font-semibold text-[#1a1a1a]">{title}</h2><div className="mt-6">{children}</div></section>;
+  return <section className="rounded-xl bg-white px-6 py-6"><h2 className="m-0 text-lg font-semibold text-[#1a1a1a]">{title}</h2><div className="mt-6">{children}</div></section>;
 }

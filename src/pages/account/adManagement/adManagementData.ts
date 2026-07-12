@@ -185,7 +185,7 @@ export const adManagementPaths = {
 } as const;
 
 export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
-  return `/ads/${encodeURIComponent(String(adId))}`;
+  return `/preview-ad/${encodeURIComponent(String(adId))}`;
 }
 
 export function getAdEditPath(adId?: ConsultantAd["id"] | string) {
@@ -201,6 +201,10 @@ export function getAdEditPath(adId?: ConsultantAd["id"] | string) {
   }
 
   return `${adManagementPaths.edit}?${params.toString()}`;
+}
+
+export function getAdPaymentPath(adId: ConsultantAd["id"] | string) {
+  return `${adManagementPaths.payment}/${encodeURIComponent(String(adId))}`;
 }
 
 export function getAdStatePath(adId: ConsultantAd["id"] | string) {

@@ -4,6 +4,7 @@ import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-stora
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
+import { NoConnectionState, NotFoundErrorState } from '../components/ErrorState'
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
 import { SUPER_ADMIN, USER } from '../constants/roles.constants'
@@ -23,6 +24,10 @@ import LinearUserAccount from '../components/(icons)/LinearUserAccount'
 
 const desktopDashboardMediaQuery = '(min-width: 501px)'
 const desktopCrmMediaQuery = '(min-width: 768px)'
+
+function RouteNotFoundPage() {
+  return <NotFoundErrorState />
+}
 
 function lazyNamed<TModule extends Record<string, unknown>>(
   loader: () => Promise<TModule>,
@@ -109,6 +114,10 @@ function NotificationTopBarIcon() {
 }
 
 function getCanonicalDashboardPath(path: string) {
+  if (path === '/ad-management/payment' || path.startsWith('/ad-management/payment/')) {
+    return `/account${path}`
+  }
+
   if (path === LEGACY_DASHBOARD_PATH) {
     return DASHBOARD_PATH
   }
@@ -201,6 +210,7 @@ function getResolvedPath() {
   const path = getCanonicalDashboardPath(currentPath)
   const returnTo = `${path}${window.location.search}`
   const session = getStoredAuthSession()
+  const route = getRoute(path)
 
   if (path !== currentPath) {
     window.history.replaceState(window.history.state ?? {}, '', path)
@@ -211,14 +221,17 @@ function getResolvedPath() {
     return '/home'
   }
 
-  if (path.startsWith('/account') && path !== '/account' && !getStoredAuthSession()) {
+  if (
+    route.Component !== RouteNotFoundPage &&
+    path.startsWith('/account') &&
+    path !== '/account' &&
+    !getStoredAuthSession()
+  ) {
     storeLoginRedirectPath(returnTo)
     const loginRequiredPath = getLoginRequiredPath(returnTo)
     window.history.replaceState({}, '', loginRequiredPath)
     return '/login-required'
   }
-
-  const route = getRoute(path)
 
   const desktopAccountDestination = path === '/account'
     ? getDesktopAccountDestination(session)
@@ -270,6 +283,7 @@ function getBottomNavigationKey(path: string) {
     path === '/account/ad-management/allocation' ||
     path.startsWith('/account/ad-management/allocation-review') ||
     path === '/account/ad-management/payment' ||
+    /^\/account\/ad-management\/payment\/[^/]+\/?$/.test(path) ||
     path === '/account/ad-management/delete' ||
     /^\/account\/my-ads\/[^/]+\/payment-history\/?$/.test(path) ||
     /^\/account\/my-ads\/[^/]+\/increase-visits\/?$/.test(path) ||
@@ -427,6 +441,19 @@ function getRoute(path: string): AppRoute {
     }
   }
 
+  if (/^\/account\/ad-management\/payment\/[^/]+\/?$/.test(path)) {
+    const paymentRoute = routes.find(
+      (route) => route.path === '/account/ad-management/payment',
+    )
+
+    return {
+      ...(paymentRoute ?? routes[0]),
+      path,
+      requiresAuth: true,
+      title: 'هزینه ثبت آگهی',
+    }
+  }
+
   if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
     return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage, requiresAuth: true }
   }
@@ -479,6 +506,14 @@ function getRoute(path: string): AppRoute {
     return { path, title: 'آگهی', Component: ViewAdPage }
   }
 
+  if (/^\/preview-ad\/[^/]+\/?$/.test(path)) {
+    return { path, title: 'پیش‌نمایش آگهی', Component: ViewAdPage, requiresAuth: true }
+  }
+
+  if (/^\/preview-ad\/[^/]+\/(?:equipment-facilities|property-info)\/?$/.test(path)) {
+    return { path, title: 'پیش‌نمایش آگهی', Component: ViewAdPage, requiresAuth: true }
+  }
+
   if (/^\/chat\/[^/]+\/?$/.test(path) && path !== '/chat/response-time') {
     const chatRoute = routes.find((route) => route.path === '/chat')
 
@@ -518,22 +553,31 @@ function getRoute(path: string): AppRoute {
   }
 
   if (path === CRM_PATH || path.startsWith(`${CRM_PATH}/`)) {
-    return routes.find((route) => route.path === path) ??
-      routes.find((route) => route.path === CRM_PATH) ??
-      routes[0]
+    return routes.find((route) => route.path === path) ?? {
+      path,
+      title: 'صفحه پیدا نشد',
+      Component: RouteNotFoundPage,
+    }
   }
 
   if (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`)) {
-    return routes.find((route) => route.path === path) ??
-      routes.find((route) => route.path === DASHBOARD_PATH) ??
-      routes[0]
+    return routes.find((route) => route.path === path) ?? {
+      path,
+      title: 'صفحه پیدا نشد',
+      Component: RouteNotFoundPage,
+    }
   }
 
-  return routes.find((route) => route.path === path) ?? routes[0]
+  return routes.find((route) => route.path === path) ?? {
+    path,
+    title: 'صفحه پیدا نشد',
+    Component: RouteNotFoundPage,
+  }
 }
 
 export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
+  const [isOffline, setIsOffline] = useState(() => !window.navigator.onLine)
   const route = useMemo(() => getRoute(path), [path])
   const ActivePage = route.Component
   const chromeConfig = useMemo(
@@ -541,7 +585,11 @@ export function AppRouter() {
     [route.path, route.title],
   )
   const authSession = getStoredAuthSession()
-  const requiresIdentity = Boolean(authSession && shouldRequireIdentityForPath(route.path))
+  const requiresIdentity = Boolean(
+    authSession &&
+    route.Component !== RouteNotFoundPage &&
+    shouldRequireIdentityForPath(route.path),
+  )
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
     enabled: requiresIdentity,
   })
@@ -573,6 +621,32 @@ export function AppRouter() {
       desktopCrmMedia.removeEventListener('change', handleViewportChange)
     }
   }, [])
+
+  useEffect(() => {
+    function handleOnline() {
+      setIsOffline(false)
+    }
+
+    function handleOffline() {
+      setIsOffline(true)
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  if (isOffline) {
+    return (
+      <MobileAppShell>
+        <NoConnectionState onRetry={() => setIsOffline(!window.navigator.onLine)} />
+      </MobileAppShell>
+    )
+  }
 
   const isIdentityVerified = isUserIdentityVerified(profile)
   const page = requiresIdentity && isProfileLoading ? (

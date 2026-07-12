@@ -338,6 +338,22 @@ export const routes: AppRoute[] = [
     requiresAuth: true,
   },
   {
+    path: `${CRM_PATH}/packages`,
+    title: 'بسته‌ها و اعتبار پنل',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/costs`,
+    title: 'مدیریت هزینه‌ها',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
     path: '/account/dashboard',
     title: 'داشبورد',
     Component: DashboardHomePage,

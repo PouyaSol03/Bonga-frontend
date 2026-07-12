@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
+import { getStoredAuthSession } from "../../auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
@@ -19,6 +20,10 @@ import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions"
 import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
 import { SearchNoResultsRequestCard } from "./components/SearchNoResultsRequestCard";
+import {
+  SearchRequestSenderBottomSheet,
+  type SearchRequestSenderOption,
+} from "./components/SearchRequestBottomSheets";
 import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
 import { SearchMapListView } from "./components/SearchMapListView";
 import { SearchMapView } from "./components/SearchMapView";
@@ -36,12 +41,38 @@ import { getIpDefaultMapCenter } from "./searchMapLocation";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
+type PendingSearchRequest = {
+  createdAt: string;
+  filters: Record<string, string>;
+  id: string;
+  title: string;
+};
 
 const mapRequestLimit = 100;
 const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
 const searchMapMinQueryLength = 4;
+const requestRoleLabels: Record<string, string> = {
+  user: "کاربر",
+  real_estate_manager: "مدیر آژانس",
+  real_estate_consultant: "مشاور آژانس",
+  independent_consultant: "مشاور مستقل",
+  "super-admin": "مدیر کل",
+};
+const requestRoleDescriptions: Record<string, string> = {
+  user: "درخواست به‌عنوان متقاضی ملک ثبت می‌شود.",
+  real_estate_manager: "درخواست با حساب مدیر آژانس ثبت می‌شود.",
+  real_estate_consultant: "درخواست با حساب مشاور آژانس ثبت می‌شود.",
+  independent_consultant: "درخواست با حساب مشاور مستقل ثبت می‌شود.",
+  "super-admin": "درخواست با دسترسی مدیر کل ثبت می‌شود.",
+};
+
+function getRequestSenderIcon(role: string): SearchRequestSenderOption["icon"] {
+  if (role === "user") return "user";
+  if (role === "independent_consultant") return "building";
+  return "agency";
+}
 const filterableParamKeys = [
   "form_code",
   "from_code",
@@ -715,6 +746,33 @@ function getInitialMapCenter(): SearchMapCenter {
   };
 }
 
+function getRequestSenderOptions(): SearchRequestSenderOption[] {
+  const session = getStoredAuthSession();
+  const sessionRoles = session?.roles ?? [];
+  const options: SearchRequestSenderOption[] = [
+    {
+      description: requestRoleDescriptions.user,
+      id: "user",
+      icon: "user",
+      title: requestRoleLabels.user,
+    },
+  ];
+
+  sessionRoles.forEach((role) => {
+    if (!role?.slug || role.slug === "user") return;
+    if (options.some((option) => option.id === role.slug)) return;
+
+    options.push({
+      description: requestRoleDescriptions[role.slug] ?? "درخواست با این حساب ثبت می‌شود.",
+      id: role.slug,
+      icon: getRequestSenderIcon(role.slug),
+      title: role.name || requestRoleLabels[role.slug] || role.slug,
+    });
+  });
+
+  return options;
+}
+
 export function SearchMapPage() {
   const [selectedListingId, setSelectedListingId] = useState<SearchMapListingId | null>(null);
   const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
@@ -732,9 +790,12 @@ export function SearchMapPage() {
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
   const [stableListings, setStableListings] = useState<SearchMapListing[]>([]);
+  const [pendingSearchRequest, setPendingSearchRequest] = useState<PendingSearchRequest | null>(null);
+  const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
   const didResolveIpLocationRef = useRef(false);
   const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
   const { message, showNotice } = useDemoNotice();
+  const requestSenderOptions = useMemo(() => getRequestSenderOptions(), []);
   const currentSearch = searchSnapshot;
   const chips = useMemo(() => getDynamicFilterChips(currentSearch), [currentSearch]);
   const currentSearchQuery = useMemo(() => {
@@ -980,6 +1041,26 @@ export function SearchMapPage() {
       title: title || currentSearchQuery || "درخواست ملک مشابه",
     };
 
+    setPendingSearchRequest(request);
+  }, [currentSearchQuery]);
+
+  const handleConfirmSearchRequest = useCallback((senderId: string) => {
+    if (!pendingSearchRequest) return;
+
+    const sender = requestSenderOptions.find((option) => option.id === senderId)
+      ?? requestSenderOptions[0]
+      ?? {
+        description: requestRoleDescriptions.user,
+        id: "user",
+        icon: "user" as const,
+        title: requestRoleLabels.user,
+      };
+    const request = {
+      ...pendingSearchRequest,
+      senderLabel: sender.title,
+      senderRole: sender.id || "user",
+    };
+
     try {
       const storageKey = "bonga-property-search-requests";
       const stored = window.localStorage.getItem(storageKey);
@@ -990,8 +1071,9 @@ export function SearchMapPage() {
       // The request UI still succeeds even when browser storage is unavailable.
     }
 
-    showNotice("درخواست شما با موفقیت ثبت شد.");
-  }, [currentSearchQuery, showNotice]);
+    setPendingSearchRequest(null);
+    setIsRequestSuccessOpen(true);
+  }, [pendingSearchRequest, requestSenderOptions]);
 
   const locateUser = useCallback(() => {
     if (isLocating) return;
@@ -1142,6 +1224,19 @@ export function SearchMapPage() {
         onClose={closeSearch}
         onQuerySearchChange={handleLiveSearchQueryChange}
         onSelectResult={handleSearchResult}
+      />
+      <SearchRequestSenderBottomSheet
+        isOpen={pendingSearchRequest !== null || isRequestSuccessOpen}
+        isSuccess={isRequestSuccessOpen}
+        onClose={() => {
+          setPendingSearchRequest(null);
+          setIsRequestSuccessOpen(false);
+        }}
+        onOpenResults={() => {
+          window.location.assign("/account/requests?tab=results");
+        }}
+        onSelect={handleConfirmSearchRequest}
+        options={requestSenderOptions}
       />
       <DemoNotice message={message} />
     </div>

@@ -9,7 +9,7 @@ import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services
 import { Snackbar } from "../../components/Snackbar";
 import { useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
-import { adManagementPaths } from "../account/adManagement/adManagementData";
+import { adManagementPaths, getAdPaymentPath } from "../account/adManagement/adManagementData";
 import {
   blankValues,
   dailyHotelRoomTypes,
@@ -815,12 +815,18 @@ export function NewAdFlowPage() {
         setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
       },
       onSuccess: (createdAd) => {
+        const createdAdId = createdAd.id ?? createdAd._id;
+
+        if (createdAdId === undefined || createdAdId === null || String(createdAdId).trim() === "") {
+          setSubmitError("شناسه آگهی ثبت‌شده از سرور دریافت نشد.");
+          return;
+        }
+
         const ad = mapAdvertisementToAdCard(createdAd, 0);
 
         clearNewAdDraftStorage();
-        navigateTo(adManagementPaths.payment, {
+        navigateTo(getAdPaymentPath(createdAdId), {
           ad,
-          hasFreeAdTariff: true,
           paymentFlow: "new-ad",
           tab: "status",
         });

@@ -20,6 +20,7 @@ import {
 import { getRequestErrorState, NotFoundErrorState } from "../components/ErrorState";
 import {
   useAdvertisementDetailQuery,
+  useAdvertisementPreviewQuery,
   useAdvertiseReportReasonsQuery,
   useSubmitAdvertiseFeedbackMutation,
   useSubmitAdvertiseReportMutation,
@@ -1328,7 +1329,7 @@ function ViewAdContent({
       <DetailSection icon="apartment" title="اطلاعات ملک">
         <PropertyGrid items={propertyInfoItems} />
         {hasMorePropertyInfo ? (
-          <MoreLink to={`/ads/${adId}/property-info`}>اطلاعات بیشتر</MoreLink>
+          <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>
         ) : null}
       </DetailSection>
 
@@ -2419,7 +2420,7 @@ function parseViewAdIdFromPath(pathname: string) {
     return parsedId;
   }
 
-  const match = pathname.match(/\/ads\/([^/]+)/);
+  const match = pathname.match(/\/(?:ads|preview-ad)\/([^/]+)/);
   return match?.[1] ?? null;
 }
 
@@ -2436,9 +2437,15 @@ function getViewAdSubPage(pathname: string): ViewAdSubPage {
 }
 
 function goBackToAd(adId: string) {
-  const fallbackPath = `/ads/${adId}`;
+  const fallbackPath = getCurrentViewAdBasePath(adId);
 
   goBackOrNavigate(fallbackPath);
+}
+
+function getCurrentViewAdBasePath(adId: string) {
+  return window.location.pathname.startsWith("/preview-ad/")
+    ? `/preview-ad/${adId}`
+    : `/ads/${adId}`;
 }
 
 function getHistoryBackTarget() {
@@ -3300,18 +3307,17 @@ export function ViewAdPage() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [toast, setToast] = useState<ActionToast | null>(null);
   const adId = parseViewAdIdFromPath(window.location.pathname);
+  const isPreview = window.location.pathname.startsWith("/preview-ad/");
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
   const submitFeedback = useSubmitAdvertiseFeedbackMutation();
   const submitReport = useSubmitAdvertiseReportMutation();
   const reportReasonsQuery = useAdvertiseReportReasonsQuery(isViolationReportOpen);
-  const {
-    data: ad,
-    error,
-    isError,
-    isLoading,
-    refetch,
-  } = useAdvertisementDetailQuery(adId);
+  const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
+  const previewQuery = useAdvertisementPreviewQuery(isPreview ? adId : null);
+  const { data: ad, error, isError, isLoading, refetch } = isPreview
+    ? previewQuery
+    : detailQuery;
 
   useEffect(() => {
     if (!toast) return;

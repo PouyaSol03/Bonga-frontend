@@ -42,7 +42,14 @@ export type VerifyOtpResponse = StatusResponse & {
 
 
 function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
-  if (value === "Super Admin") {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+
+  if (
+    normalized === "superadmin" ||
+    normalized === "super admin" ||
+    normalized === "super-admin" ||
+    normalized === "super_admin"
+  ) {
     return "super-admin";
   }
 

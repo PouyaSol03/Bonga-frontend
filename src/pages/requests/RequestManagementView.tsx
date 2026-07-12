@@ -174,6 +174,15 @@ function getTabs(showReceivedTab: boolean): RequestTabItem[] {
       ];
 }
 
+function getInitialRequestTab(showReceivedTab: boolean): RequestManagementTab {
+  const requestedTab = new URLSearchParams(window.location.search).get("tab");
+
+  if (requestedTab === "results" || requestedTab === "requests") return requestedTab;
+  if (requestedTab === "received" && showReceivedTab) return "received";
+
+  return showReceivedTab ? "received" : "requests";
+}
+
 function getFilterLabel(filterId: RequestFilterId) {
   return requestFilterOptions.find((option) => option.id === filterId)?.label ?? requestFilterOptions[0].label;
 }
@@ -209,7 +218,7 @@ function refreshPage() {
 }
 
 export function RequestManagementView({ backTo, showReceivedTab = false }: RequestManagementViewProps) {
-  const [activeTab, setActiveTab] = useState<RequestManagementTab>(showReceivedTab ? "received" : "requests");
+  const [activeTab, setActiveTab] = useState<RequestManagementTab>(() => getInitialRequestTab(showReceivedTab));
   const [filters, setFilters] = useState<Record<RequestManagementTab, RequestFilterId>>(defaultFilters);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [criteriaItems, setCriteriaItems] = useState<CriteriaRequest[]>(initialCriteriaRequests);

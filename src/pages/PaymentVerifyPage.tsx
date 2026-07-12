@@ -4,6 +4,7 @@ import { getApiErrorMessage } from "../api/api";
 import { PageFrame } from "../app/PageFrame";
 import { useVerifyPaymentCallbackMutation } from "../hooks/account.hooks";
 import { replaceRoute } from "../routes/navigation";
+import { clearPaymentReturnTarget, readPaymentReturnTarget } from "../utils/payment-return";
 
 type VerifyState = "checking" | "failed" | "success";
 
@@ -19,6 +20,7 @@ function readCallbackParameters() {
 export function PaymentVerifyPage() {
   const callback = useVerifyPaymentCallbackMutation();
   const parameters = useMemo(readCallbackParameters, []);
+  const returnTarget = useMemo(readPaymentReturnTarget, []);
   const [detail, setDetail] = useState("");
   const [verifyState, setVerifyState] = useState<VerifyState>("checking");
 
@@ -92,12 +94,13 @@ export function PaymentVerifyPage() {
         {!isChecking ? (
           <button
             className="mt-8 h-11 w-full max-w-[340px] rounded-xl bg-[#0048c4] px-5 text-sm font-semibold leading-5 text-white"
-            onClick={() =>
-              replaceRoute("/account/wallet", undefined, { rememberCurrent: false })
-            }
+            onClick={() => {
+              clearPaymentReturnTarget();
+              replaceRoute(returnTarget.path, undefined, { rememberCurrent: false });
+            }}
             type="button"
           >
-            بازگشت به کیف پول
+            {returnTarget.label}
           </button>
         ) : null}
       </main>

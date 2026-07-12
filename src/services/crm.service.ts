@@ -35,8 +35,30 @@ const rowContainerKeys = [
   "neighborhoods",
   "items",
   "list",
+  "packages",
   "result",
 ] as const;
+
+export type CrmPackageKind = "panel_subscription" | "credit_bundle";
+
+export type CrmPackagePayload = {
+  title: string;
+  kind: CrmPackageKind;
+  real_price: number;
+  discount_percent?: number;
+  ad_credit?: number;
+  special_credit?: number;
+  renew_credit?: number;
+  start_date?: string;
+  end_date?: string;
+  gift?: boolean;
+};
+
+export type CrmCostPayload = {
+  ad_price: number;
+  special_price: number;
+  update_price: number;
+};
 
 function compactSearchParams(params: ApiQueryParams) {
   return Object.fromEntries(
@@ -182,6 +204,26 @@ export function saveCrmAgency(id: string | null, payload: CrmRecord) {
 
 export function deleteCrmAgency(id: string) {
   return api.delete(`panel/agency/delete/${id}`).json<unknown>();
+}
+
+export async function listCrmPackages() {
+  return normalizeRows(await api.get("panel/package/list").json<unknown>());
+}
+
+export function saveCrmPackage(id: string | null, payload: CrmPackagePayload) {
+  return api.post(id ? `panel/package/update/${id}` : "panel/package/create", { json: payload }).json<unknown>();
+}
+
+export function deleteCrmPackage(id: string) {
+  return api.delete(`panel/package/delete/${id}`).json<unknown>();
+}
+
+export async function getCrmCosts() {
+  return unwrapRecord(await api.get("panel/cost/show").json<unknown>(), ["cost", "costs", "data"]);
+}
+
+export function updateCrmCosts(payload: CrmCostPayload) {
+  return api.post("panel/cost/update", { json: payload }).json<unknown>();
 }
 
 export async function listCrmCategories() {

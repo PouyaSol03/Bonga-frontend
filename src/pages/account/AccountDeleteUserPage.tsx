@@ -3,7 +3,7 @@ import { useState } from "react";
 import { PageFrame } from "../../app/PageFrame";
 import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../auth/auth-storage";
 import { TopBar } from "../../components/TopBar";
-import { USER } from "../../constants/roles.constants";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);
@@ -23,12 +23,16 @@ function downgradeBusinessToUser() {
     name: "کاربر",
     slug: USER,
   };
+  const businessRoles = new Set([REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT]);
+  const roles = session.roles.filter((role) => !businessRoles.has(role.slug));
+  if (!roles.some((role) => role.slug === USER)) roles.unshift(userRole);
+
   setStoredAuthSession({
     ...session,
     activeRole: USER,
     accountType: USER,
     role: USER,
-    roles: [userRole],
+    roles,
   });
 
   navigateTo("/account");

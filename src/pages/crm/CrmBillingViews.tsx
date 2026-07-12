@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "motion/react";
 
 import { getApiErrorMessage } from "../../api/api";
 import { SwitchButton } from "../../components/SwitchButton";
@@ -111,46 +112,172 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
   });
   const saveMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string | null; payload: CrmPackagePayload }) => saveCrmPackage(id, payload),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] }); notify("بسته با موفقیت ذخیره شد."); setEditing(undefined); },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
+      notify("بسته با موفقیت ذخیره شد.");
+      setEditing(undefined);
+    },
   });
   const deleteMutation = useMutation({
     mutationFn: deleteCrmPackage,
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] }); notify("بسته حذف شد."); },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
+      notify("بسته حذف شد.");
+    },
   });
 
-  useEffect(() => { if (query.error) notify(getApiErrorMessage(query.error, "دریافت بسته‌ها ناموفق بود."), "error"); }, [notify, query.error]);
-  const open = (item: CrmRecord | null) => { setEditing(item); setDraft(item ? draftFromPackage(item) : emptyDraft); };
+  useEffect(() => {
+    if (query.error) notify(getApiErrorMessage(query.error, "دریافت بسته‌ها ناموفق بود."), "error");
+  }, [notify, query.error]);
 
-  return <>
-    <section className="rounded-xl bg-white p-5">
-      <div className="flex items-start justify-between gap-4 border-b border-[#f0f0f0] pb-5">
-        <div><h2 className="m-0 text-lg font-bold">بسته‌ها و اعتبار پنل</h2><p className="m-0 mt-2 text-sm text-[#7b8494]">بسته‌های اشتراک و اعتبارهای زمان‌دار را ایجاد و ویرایش کنید.</p></div>
-        <button className="h-10 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white" onClick={() => open(null)} type="button">+ افزودن مورد</button>
-      </div>
-      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-3">
-        {query.isLoading ? <p className="text-sm text-[#7b8494]">در حال دریافت اطلاعات...</p> : query.data?.map((item) => {
-          const id = getCrmRecordId(item); const kind = item.kind === "credit_bundle" ? "اعتبار پنل" : "بسته";
-          const discount = Number(text(item, ["discount_percent"], "0"));
-          const finalPrice = Number(text(item, ["final_price", "real_price"], "0"));
-          return <article className="rounded-xl border border-[#d9dde7] bg-white p-5 first:border-[#0048c4] first:bg-[#eef4ff]" key={id}>
-            <div className="flex items-center justify-between"><span className="text-xs font-bold text-[#0048c4]">{kind}</span>{discount ? <span className="rounded-lg bg-[#fff0f0] px-2 py-1 text-xs text-[#ee3623]">{discount.toLocaleString("fa-IR")}٪ تخفیف</span> : null}</div>
-            <h3 className="m-0 mt-4 text-base font-bold text-[#0048c4]">{text(item, ["title"], "بدون عنوان")}</h3>
-            <div className="mt-4 text-left"><span className="block text-sm text-[#a6a6a6] line-through">{Number(text(item, ["real_price"], "0")).toLocaleString("fa-IR")}</span><strong className="text-xl text-[#1a1a1a]">{finalPrice.toLocaleString("fa-IR")} <small className="text-xs">تومان</small></strong></div>
-            <div className="my-4 border-t border-dashed border-[#cccccc]" />
-            <div className="space-y-3 text-sm"><p className="m-0">🟢 {text(item, ["ad_credit"], "۰")} اعتبار آگهی</p><p className="m-0">🟢 {text(item, ["special_credit"], "۰")} اعتبار ویژه</p><p className="m-0">🟢 {text(item, ["renew_credit"], "۰")} اعتبار بروزرسانی</p></div>
-            <div className="mt-4 flex gap-2"><button className="h-9 flex-1 rounded-lg border border-[#0048c4] text-sm font-bold text-[#0048c4]" onClick={() => open(item)} type="button">ویرایش</button><button className="h-9 rounded-lg border border-[#d93645] px-4 text-sm font-bold text-[#d93645]" disabled={deleteMutation.isPending} onClick={async () => { if (!window.confirm("این مورد حذف شود؟")) return; try { await deleteMutation.mutateAsync(id); } catch (error) { notify(getApiErrorMessage(error, "حذف ناموفق بود."), "error"); } }} type="button">حذف</button></div>
-          </article>;
-        })}
-      </div>
-    </section>
-    {editing !== undefined ? <PackageModal draft={draft} isPending={saveMutation.isPending} onChange={setDraft} onClose={() => setEditing(undefined)} onSubmit={async () => { try { await saveMutation.mutateAsync({ id: editing ? getCrmRecordId(editing) : null, payload: packagePayload(draft) }); } catch (error) { notify(getApiErrorMessage(error, error instanceof Error ? error.message : "ذخیره ناموفق بود."), "error"); } }} /> : null}
-  </>;
+  const open = (item: CrmRecord | null) => {
+    setEditing(item);
+    setDraft(item ? draftFromPackage(item) : emptyDraft);
+  };
+
+  return (
+    <>
+      <section className="rounded-xl bg-white p-6">
+        <div className="flex items-start justify-between gap-4 border-b border-[#f0f0f0] pb-5">
+          <div>
+            <h2 className="m-0 text-lg font-bold text-[#1a1a1a]">بسته‌ها و اعتبار پنل</h2>
+            <p className="m-0 mt-2 text-sm text-[#7b8494]">بسته‌های اشتراک و اعتبارهای زمان‌دار را ایجاد و ویرایش کنید.</p>
+          </div>
+          <motion.button className="h-10 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white" onClick={() => open(null)} type="button" whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
+            + افزودن مورد
+          </motion.button>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-3">
+          {query.isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div className="h-[370px] animate-pulse rounded-2xl border border-[#e4e7ed] bg-[#fafbfc] p-5" key={index}>
+                <div className="h-5 w-24 rounded bg-[#e9edf3]" />
+                <div className="mt-5 h-6 w-2/3 rounded bg-[#e9edf3]" />
+                <div className="mt-8 h-12 w-1/2 rounded bg-[#eef1f5]" />
+                <div className="mt-6 h-32 rounded-xl bg-[#eaf5ef]" />
+              </div>
+            ))
+          ) : query.data?.length ? (
+            query.data.map((item, index) => {
+              const id = getCrmRecordId(item);
+              const isCreditBundle = item.kind === "credit_bundle";
+              const kind = isCreditBundle ? "اعتبار پنل" : "بسته اشتراک";
+              const discount = Number(text(item, ["discount_percent", "discount"], "0"));
+              const realPrice = Number(text(item, ["real_price", "price"], "0"));
+              const apiFinalPrice = Number(text(item, ["final_price"], "0"));
+              const finalPrice = apiFinalPrice || Math.max(0, Math.round(realPrice * (1 - discount / 100)));
+              const creditItems = [
+                { label: "اعتبار آگهی", value: text(item, ["ad_credit"], "۰") },
+                { label: "اعتبار ویژه", value: text(item, ["special_credit"], "۰") },
+                { label: "اعتبار بروزرسانی", value: text(item, ["renew_credit"], "۰") },
+              ];
+
+              return (
+                <motion.article
+                  animate={{ opacity: 1, y: 0 }}
+                  className="group flex min-h-[370px] flex-col rounded-2xl border border-[#d9dde7] bg-gradient-to-b from-white to-[#f5f7fb] p-5 transition-shadow hover:border-[#0048c4] hover:shadow-[0_14px_36px_rgba(0,72,196,0.10)]"
+                  initial={{ opacity: 0, y: 16 }}
+                  key={id}
+                  transition={{ delay: Math.min(index * 0.06, 0.3), duration: 0.28, ease: "easeOut" }}
+                  whileHover={{ y: -4 }}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">{kind}</span>
+                    {discount > 0 ? <span className="rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]">{discount.toLocaleString("fa-IR")}٪ تخفیف</span> : null}
+                  </div>
+
+                  <h3 className="m-0 mt-5 text-lg font-bold text-[#0048c4]">{text(item, ["title"], "بدون عنوان")}</h3>
+
+                  <div className="mt-5 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
+                    {discount > 0 ? <span className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">{realPrice.toLocaleString("fa-IR")}</span> : <span />}
+                    <div className="text-right [direction:rtl]">
+                      <strong className="text-2xl font-bold text-[#1a1a1a]">{finalPrice.toLocaleString("fa-IR")}</strong>
+                      <span className="mr-1 text-xs font-medium text-[#4d4d4d]">تومان</span>
+                    </div>
+                  </div>
+
+                  <div className="my-5 border-t border-dashed border-[#cccccc]" />
+
+                  <div className="rounded-xl border border-[#11a366] bg-[#11a36614] p-4 text-[#006038]">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#11a366]">
+                      <GreenCheckIcon className="h-5 w-5" />
+                      <span>{isCreditBundle && Boolean(item.gift ?? item.is_gift) ? "اعتبارهای هدیه" : "اعتبارهای بسته"}</span>
+                    </div>
+                    <div className="grid gap-2.5">
+                      {creditItems.map((credit) => (
+                        <div className="flex items-center justify-between gap-3 text-sm font-medium" key={credit.label}>
+                          <span>{credit.label}</span>
+                          <strong className="text-[#006038]">{credit.value}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {isCreditBundle && (text(item, ["start_date"]) || text(item, ["end_date"])) ? (
+                    <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs text-[#707a8a]">
+                      <span>از {text(item, ["start_date"], "-")}</span>
+                      <span>تا {text(item, ["end_date"], "-")}</span>
+                    </div>
+                  ) : null}
+
+                  <div className="mt-auto flex gap-2 pt-5">
+                    <motion.button className="h-10 flex-1 rounded-lg border border-[#0048c4] bg-white text-sm font-bold text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white" onClick={() => open(item)} type="button" whileTap={{ scale: 0.97 }}>ویرایش</motion.button>
+                    <motion.button
+                      className="h-10 rounded-lg border border-[#d93645] bg-white px-4 text-sm font-bold text-[#d93645]"
+                      disabled={deleteMutation.isPending}
+                      onClick={async () => {
+                        if (!window.confirm("این مورد حذف شود؟")) return;
+                        try { await deleteMutation.mutateAsync(id); }
+                        catch (error) { notify(getApiErrorMessage(error, "حذف ناموفق بود."), "error"); }
+                      }}
+                      type="button"
+                      whileTap={{ scale: 0.97 }}
+                    >حذف</motion.button>
+                  </div>
+                </motion.article>
+              );
+            })
+          ) : (
+            <div className="col-span-full rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-4 py-12 text-center text-sm text-[#7b8494]">بسته‌ای برای نمایش وجود ندارد.</div>
+          )}
+        </div>
+      </section>
+
+      <AnimatePresence>
+        {editing !== undefined ? (
+          <PackageModal
+            draft={draft}
+            isPending={saveMutation.isPending}
+            onChange={setDraft}
+            onClose={() => setEditing(undefined)}
+            onSubmit={async () => {
+              try {
+                await saveMutation.mutateAsync({ id: editing ? getCrmRecordId(editing) : null, payload: packagePayload(draft) });
+              } catch (error) {
+                notify(getApiErrorMessage(error, error instanceof Error ? error.message : "ذخیره ناموفق بود."), "error");
+              }
+            }}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function GreenCheckIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
+      <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
+      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+    </svg>
+  );
 }
 
 function PackageModal({ draft, isPending, onChange, onClose, onSubmit }: { draft: PackageDraft; isPending: boolean; onChange: (draft: PackageDraft) => void; onClose: () => void; onSubmit: () => Promise<void> }) {
   const field = (key: keyof PackageDraft, value: string | boolean) => onChange({ ...draft, [key]: value });
-  return <div className="fixed inset-0 z-50 grid place-items-center bg-[#172033]/45 p-8" onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
-    <form className="max-h-[calc(100vh-64px)] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl" onSubmit={(event) => { event.preventDefault(); void onSubmit(); }}>
+  return <motion.div animate={{ opacity: 1 }} className="fixed inset-0 z-50 grid place-items-center bg-[#172033]/45 p-8" exit={{ opacity: 0 }} initial={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
+    <motion.form animate={{ opacity: 1, scale: 1, y: 0 }} className="max-h-[calc(100vh-64px)] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl" exit={{ opacity: 0, scale: 0.98, y: 8 }} initial={{ opacity: 0, scale: 0.97, y: 12 }} transition={{ duration: 0.2 }} onSubmit={(event) => { event.preventDefault(); void onSubmit(); }}>
       <div className="flex items-center justify-between"><h2 className="m-0 text-lg font-bold">{draft.title ? "ویرایش مورد" : "افزودن مورد جدید"}</h2><button className="text-2xl text-[#596477]" onClick={onClose} type="button">×</button></div>
       <div className="mt-5 grid grid-cols-2 gap-4">
         <Field label="نوع"><select className={inputClass} onChange={(e) => field("kind", e.target.value as CrmPackageKind)} value={draft.kind}><option value="panel_subscription">بسته</option><option value="credit_bundle">اعتبار پنل</option></select></Field>
@@ -161,8 +288,8 @@ function PackageModal({ draft, isPending, onChange, onClose, onSubmit }: { draft
         {(draft.kind === "panel_subscription" || draft.gift) ? <><Field label={draft.gift ? "هدیه آگهی (اختیاری)" : "تعداد آگهی"}><input className={inputClass} inputMode="numeric" onChange={(e) => field("ad", e.target.value)} value={draft.ad} /></Field><Field label={draft.gift ? "هدیه ویژه (اختیاری)" : "تعداد ویژه"}><input className={inputClass} inputMode="numeric" onChange={(e) => field("special", e.target.value)} value={draft.special} /></Field><Field label={draft.gift ? "هدیه بروزرسانی (اختیاری)" : "تعداد بروزرسانی"}><input className={inputClass} inputMode="numeric" onChange={(e) => field("update", e.target.value)} value={draft.update} /></Field></> : null}
       </div>
       <div className="mt-6 flex justify-end gap-3"><button className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</button><button className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</button></div>
-    </form>
-  </div>;
+    </motion.form>
+  </motion.div>;
 }
 
 function Field({ children, label }: { children: ReactNode; label: string }) { return <label><span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{label}</span>{children}</label>; }

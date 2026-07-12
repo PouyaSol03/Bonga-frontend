@@ -343,6 +343,7 @@ function getStatusBadgeClassName(status: string) {
     .replace(/\u200c/g, ' ')
 
   if (
+    normalizedStatus.includes('رد') ||
     normalizedStatus.includes('حذف') ||
     normalizedStatus.includes('انقضا') ||
     normalizedStatus.includes('منقض') ||

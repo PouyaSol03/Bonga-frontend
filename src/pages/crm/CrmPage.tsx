@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { LatLngTuple } from "leaflet";
 import {
   CircleMarker,
@@ -21,6 +22,7 @@ import { useMyProfileQuery } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
+import { SwitchButton } from "../../components/SwitchButton";
 import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
 import {
@@ -55,6 +57,7 @@ type CrmSection =
   | "overview"
   | "advertises"
   | "users"
+  | "consultants"
   | "agencies"
   | "categories"
   | "locations"
@@ -105,6 +108,11 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
     subtitle: "ساخت، ویرایش، فعال‌سازی و مدیریت نقش کاربران",
     title: "مدیریت کاربران",
   },
+  consultants: {
+    path: "/crm/consultants",
+    subtitle: "مدیریت مشاوران مستقل و وابسته به آژانس",
+    title: "مدیریت مشاورین",
+  },
   agencies: {
     path: "/crm/agencies",
     subtitle: "مدیریت پروفایل و اطلاعات آژانس‌های املاک",
@@ -133,6 +141,7 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "home", section: "overview" },
   { icon: "ads", section: "advertises" },
   { icon: "users", section: "users" },
+  { icon: "users", section: "consultants" },
   { icon: "building", section: "agencies" },
   { icon: "category", section: "categories" },
   { icon: "location", section: "locations" },
@@ -168,6 +177,7 @@ function getCurrentSection(): CrmSection {
 
   if (path === "/crm/advertises" || path.startsWith("/crm/advertises/")) return "advertises";
   if (path === "/crm/users") return "users";
+  if (path === "/crm/consultants") return "consultants";
   if (path === "/crm/agencies") return "agencies";
   if (path === "/crm/categories") return "categories";
   if (path === "/crm/locations") return "locations";
@@ -319,6 +329,7 @@ export function CrmPage() {
   const section = getCurrentSection();
   const advertiseDetailId = getCurrentAdvertiseDetailId();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isDesktop, setIsDesktop] = useState(() =>
@@ -463,25 +474,37 @@ export function CrmPage() {
         </aside>
 
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-          {advertiseDetailId ? (
-            <CrmAdvertiseDetailView
-              advertiseId={advertiseDetailId}
-              notify={notify}
-              refreshNonce={refreshNonce}
-            />
-          ) : (
-            <>
-              {section === "overview" ? <OverviewView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "advertises" ? <AdvertisesView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "users" ? <UsersView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "agencies" ? <AgenciesView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "categories" ? <CategoriesView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "locations" ? <LocationsView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "forms" ? <AdvertiseFormsView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "packages" ? <CrmPackagesView notify={notify} refreshNonce={refreshNonce} /> : null}
-              {section === "costs" ? <CrmCostsView notify={notify} refreshNonce={refreshNonce} /> : null}
-            </>
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="h-full min-h-0"
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -8, scale: 0.995 }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 14, scale: 0.995 }}
+              key={advertiseDetailId ? `advertise-${advertiseDetailId}` : section}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: "easeOut" }}
+            >
+              {advertiseDetailId ? (
+                <CrmAdvertiseDetailView
+                  advertiseId={advertiseDetailId}
+                  notify={notify}
+                  refreshNonce={refreshNonce}
+                />
+              ) : (
+                <>
+                  {section === "overview" ? <OverviewView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "advertises" ? <AdvertisesView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "users" ? <UsersView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "consultants" ? <ConsultantsView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "agencies" ? <AgenciesView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "categories" ? <CategoriesView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "locations" ? <LocationsView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "forms" ? <AdvertiseFormsView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "packages" ? <CrmPackagesView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "costs" ? <CrmCostsView notify={notify} refreshNonce={refreshNonce} /> : null}
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 
@@ -856,9 +879,8 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                   </div>
 
                   <div className="mt-3 border-t border-[#f0f0f0] pt-3">
-                    <div className="mb-3 flex items-center justify-between gap-3 px-1 text-xs text-[#808080]">
+                    <div className="mb-3 flex items-center px-1 text-xs text-[#808080]">
                       <span>کد پیگیری: <strong className="font-semibold text-[#4d4d4d]">{readText(ad, ["track_code"])}</strong></span>
-                      <StatusBadge status={ad.status} />
                     </div>
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-5">
                       <SmallActionLink icon={<LinearPreview className="h-4 w-4" />} label="جزئیات" to={`/crm/advertises/${encodeURIComponent(id)}`} />
@@ -1169,6 +1191,295 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
 
       <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
       <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+    </>
+  );
+}
+
+
+function consultantAgencyId(consultant: CrmRecord) {
+  const directId = readText(
+    consultant,
+    ["agency_id", "real_estate_agency_id", "agencyId"],
+    "",
+  );
+
+  if (directId) return directId;
+
+  const agency = consultant.agency ?? consultant.real_estate_agency;
+  return agency && typeof agency === "object" && !Array.isArray(agency)
+    ? getCrmRecordId(agency as CrmRecord)
+    : "";
+}
+
+function consultantAgencyName(consultant: CrmRecord, agencyNames: Map<string, string>) {
+  const directName = readText(
+    consultant,
+    ["agency_name", "real_estate_agency_name", "agency"],
+    "",
+  ) || readNestedText(consultant, ["agency", "real_estate_agency"], ["name", "title"]);
+
+  if (directName) return directName;
+
+  const agencyId = consultantAgencyId(consultant);
+  return agencyId ? agencyNames.get(agencyId) ?? "آژانس ثبت‌شده" : "مستقل";
+}
+
+function ConsultantsView({ notify, refreshNonce }: ViewProps) {
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [agencyOnly, setAgencyOnly] = useState(false);
+  const [agencyIdFilter, setAgencyIdFilter] = useState("");
+  const [editor, setEditor] = useState<EditorState | null>(null);
+
+  const usersQuery = useQuery({
+    queryFn: () => listCrmUsers(),
+    queryKey: ["crm", "consultants", "users", refreshNonce],
+  });
+  const agenciesQuery = useQuery({
+    queryFn: () => listCrmAgencies(),
+    queryKey: ["crm", "consultants", "agencies", refreshNonce],
+  });
+
+  useQueryErrorToast([usersQuery.error, agenciesQuery.error], notify);
+
+  const saveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
+      saveCrmUser(id, payload),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["crm", "consultants"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm", "users"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm", "overview", "users"] }),
+      ]);
+      notify("اطلاعات مشاور ذخیره شد.");
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: toggleCrmUserStatus,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["crm", "consultants"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm", "users"] }),
+      ]);
+      notify("وضعیت مشاور تغییر کرد.");
+    },
+  });
+
+  const agencies = agenciesQuery.data ?? [];
+  const agencyNames = useMemo<Map<string, string>>(
+    () => new Map<string, string>(
+      agencies.map((agency) => [
+        getCrmRecordId(agency),
+        readText(agency, ["name", "title"], "آژانس بدون نام"),
+      ] as [string, string]),
+    ),
+    [agencies],
+  );
+
+  const consultants = useMemo(() => {
+    const normalizedSearch = search.trim().toLocaleLowerCase("fa-IR");
+
+    return (usersQuery.data ?? [])
+      .filter((user) =>
+        userHasRole(user, "real_estate_consultant") ||
+        userHasRole(user, "independent_consultant"),
+      )
+      .filter((consultant) => {
+        const agencyId = consultantAgencyId(consultant);
+        const agencyName = consultantAgencyName(consultant, agencyNames);
+        const isAgencyConsultant = Boolean(
+          agencyId || agencyName !== "مستقل" || userHasRole(consultant, "real_estate_consultant"),
+        );
+        const matchesSearch = !normalizedSearch || [
+          fullName(consultant),
+          readText(consultant, ["mobile", "phone"], ""),
+          agencyName,
+        ].join(" ").toLocaleLowerCase("fa-IR").includes(normalizedSearch);
+        const matchesStatus = statusFilter === "" || String(Number(consultant.status) === 1 ? 1 : 0) === statusFilter;
+        const matchesAgencyMode = !agencyOnly || isAgencyConsultant;
+        const matchesAgency = !agencyOnly || !agencyIdFilter || agencyId === agencyIdFilter;
+
+        return matchesSearch && matchesStatus && matchesAgencyMode && matchesAgency;
+      });
+  }, [agencyIdFilter, agencyNames, agencyOnly, search, statusFilter, usersQuery.data]);
+
+  const openConsultantEditor = (consultant: CrmRecord = {}) => {
+    const id = getCrmRecordId(consultant) || null;
+    const currentAgencyId = consultantAgencyId(consultant);
+
+    setEditor({
+      fields: [
+        { label: "نام", name: "name", value: consultant.name },
+        { label: "نام خانوادگی", name: "family", value: consultant.family },
+        { label: "شماره موبایل", name: "mobile", value: consultant.mobile },
+        {
+          label: "آژانس محل فعالیت",
+          name: "agency_id",
+          options: [
+            { label: "مشاور مستقل", value: "" },
+            ...agencies.map((agency) => ({
+              label: readText(agency, ["name", "title"], "آژانس بدون نام"),
+              value: getCrmRecordId(agency),
+            })),
+          ],
+          type: "select",
+          value: currentAgencyId,
+        },
+      ],
+      onSubmit: async (values) => {
+        const selectedAgencyId = values.agency_id?.trim() ?? "";
+        const consultantRole = selectedAgencyId
+          ? "real_estate_consultant"
+          : "independent_consultant";
+
+        await saveMutation.mutateAsync({
+          id,
+          payload: cleanEmptyValues({
+            agency_id: selectedAgencyId || null,
+            family: values.family,
+            mobile: values.mobile,
+            name: values.name,
+            role_slug: consultantRole,
+            role_slugs: ["user", consultantRole],
+            roles: ["user", consultantRole],
+          }),
+        });
+      },
+      title: id ? "ویرایش مشاور" : "افزودن مشاور جدید",
+    });
+  };
+
+  return (
+    <>
+      <Panel>
+        <PanelHeader
+          action={<PrimaryButton icon="plus" label="مشاور جدید" onClick={() => openConsultantEditor()} />}
+          subtitle="مشاوران مستقل و وابسته به آژانس را جستجو، فیلتر و مدیریت کنید."
+          title="مدیریت مشاورین"
+        />
+
+        <div className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)]">
+          <FilterField label="جستجو">
+            <input
+              className={inputClassName}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="نام، موبایل یا آژانس"
+              type="search"
+              value={search}
+            />
+          </FilterField>
+
+          <FilterField label="وضعیت">
+            <select className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
+              <option value="">همه وضعیت‌ها</option>
+              <option value="1">فعال</option>
+              <option value="0">غیرفعال</option>
+            </select>
+          </FilterField>
+
+          <div className="flex min-h-[66px] items-end">
+            <div className="flex h-10 w-full items-center justify-between rounded-xl border border-[#dce3ef] bg-white px-3">
+              <div>
+                <span className="block text-sm font-semibold text-[#303030]">فقط مشاوران آژانس</span>
+                <span className="mt-0.5 block text-[11px] text-[#8b94a3]">مستقل‌ها نمایش داده نشوند</span>
+              </div>
+              <SwitchButton
+                ariaLabel="فیلتر مشاوران وابسته به آژانس"
+                checked={agencyOnly}
+                onChange={(checked) => {
+                  setAgencyOnly(checked);
+                  if (!checked) setAgencyIdFilter("");
+                }}
+              />
+            </div>
+          </div>
+
+          <FilterField label="آژانس">
+            <select
+              className={`${inputClassName} disabled:cursor-not-allowed disabled:bg-[#f0f0f0] disabled:text-[#a0a0a0]`}
+              disabled={!agencyOnly}
+              onChange={(event) => setAgencyIdFilter(event.target.value)}
+              value={agencyIdFilter}
+            >
+              <option value="">همه آژانس‌ها</option>
+              {agencies.map((agency) => {
+                const id = getCrmRecordId(agency);
+                return <option key={id} value={id}>{readText(agency, ["name", "title"], "آژانس بدون نام")}</option>;
+              })}
+            </select>
+          </FilterField>
+        </div>
+
+        <div className="mt-5 overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] border-separate border-spacing-0 text-right">
+              <thead>
+                <tr>
+                  <TableHead>نام مشاور</TableHead>
+                  <TableHead>شماره موبایل</TableHead>
+                  <TableHead>آژانس</TableHead>
+                  <TableHead>وضعیت</TableHead>
+                  <TableHead>عملیات</TableHead>
+                </tr>
+              </thead>
+              <tbody>
+                {usersQuery.isLoading || agenciesQuery.isLoading ? (
+                  <TableLoadingRows columns={5} rows={6} />
+                ) : consultants.length ? (
+                  consultants.map((consultant, index) => {
+                    const id = getCrmRecordId(consultant);
+                    const isActive = Number(consultant.status) === 1;
+                    const agencyName = consultantAgencyName(consultant, agencyNames);
+                    const isIndependent = agencyName === "مستقل";
+
+                    return (
+                      <motion.tr
+                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 8 }}
+                        key={id}
+                        transition={{ delay: Math.min(index * 0.035, 0.28), duration: 0.2 }}
+                      >
+                        <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(consultant)}</span></TableCell>
+                        <TableCell><span dir="ltr">{readText(consultant, ["mobile", "phone"])}</span></TableCell>
+                        <TableCell>
+                          <span className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${isIndependent ? "border-[#dce3ef] bg-[#f7f8fa] text-[#596477]" : "border-[#cfe4ff] bg-[#eef4ff] text-[#0048c4]"}`}>
+                            {agencyName}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <SwitchButton
+                              ariaLabel={`تغییر وضعیت ${fullName(consultant)}`}
+                              checked={isActive}
+                              onChange={() => statusMutation.mutate(id)}
+                            />
+                            <span className={`text-xs font-bold ${isActive ? "text-[#0b8b55]" : "text-[#cc3342]"}`}>
+                              {isActive ? "فعال" : "غیرفعال"}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <SmallActionButton
+                            disabled={saveMutation.isPending || statusMutation.isPending}
+                            label="ویرایش"
+                            onClick={() => openConsultantEditor(consultant)}
+                          />
+                        </TableCell>
+                      </motion.tr>
+                    );
+                  })
+                ) : (
+                  <TableEmptyRow columns={5} message="مشاوری مطابق فیلترهای انتخابی پیدا نشد." />
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Panel>
+
+      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
     </>
   );
 }

@@ -169,6 +169,29 @@ export function NotFoundErrorState({ onRetry, className }: ErrorStateProps) {
     );
 }
 
+function AccessDeniedIcon() {
+    return (
+        <svg
+            aria-hidden="true"
+            className="h-[66px] w-[66px]"
+            fill="none"
+            viewBox="0 0 66 66"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="M33 4.5 54 12v16.2c0 14.5-8.8 25.2-21 32.1C20.8 53.4 12 42.7 12 28.2V12l21-7.5Z"
+                fill="#E5E7EC"
+            />
+            <path
+                d="M25.5 29.5v-4.2a7.5 7.5 0 0 1 15 0v4.2"
+                stroke="white"
+                strokeLinecap="round"
+                strokeWidth="3"
+            />
+            <rect x="21" y="28" width="24" height="17" rx="3" fill="white" />
+        </svg>
+    );
+}
 
 export function AccessDeniedState({ onBack }: { onBack: () => void }) {
     return (
@@ -178,7 +201,7 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
         >
             <div className="flex w-full max-w-[320px] -translate-y-8 flex-col items-center text-center">
                 <div className="mb-6">
-                    <img src="/vectors/NoAcessIcon.svg" alt="" />
+                    <AccessDeniedIcon />
                 </div>
 
                 <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">

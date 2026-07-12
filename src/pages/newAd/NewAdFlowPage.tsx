@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
-import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiErrorMessage } from "../../api/api";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
@@ -487,8 +485,7 @@ function getMediaValidationErrors(
 ): NewAdFieldErrors {
   const errors: NewAdFieldErrors = {};
   const shouldRequireContactFields =
-    options.forceFullEditFields ||
-    getActiveAuthRole(getStoredAuthSession()) !== REAL_ESTATE_MANAGER;
+    options.forceFullEditFields || values.registrantType !== "agency";
 
   if (values.photos.length === 0) {
     errors.photos = "لطفا حداقل یک عکس برای آگهی انتخاب کنید.";

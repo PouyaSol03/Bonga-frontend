@@ -551,7 +551,7 @@ export function DetailsStep({
       </main>
 
       <Footer
-        onBack={() => navigateTo("/new-ad/category")}
+        onBack={() => navigateTo(`/new-ad/category${window.location.search}`)}
         onPrimary={onNext}
         primary="مرحله بعد"
       />

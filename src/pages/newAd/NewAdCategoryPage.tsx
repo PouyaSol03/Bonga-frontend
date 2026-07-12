@@ -6,6 +6,7 @@ import { TopBar } from "../../components/TopBar";
 import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
 
 type TransactionType = "sale" | "rent" | "project";
+type RegistrantType = "" | "personal" | "agency";
 
 type CategoryOption = {
   id: string;
@@ -131,6 +132,19 @@ function getInitialType(): TransactionType {
   }
 
   return "sale";
+}
+
+function getInitialRegistrantType(): RegistrantType {
+  const registrantType = new URLSearchParams(window.location.search).get("registrantType");
+
+  if (registrantType === "personal" || registrantType === "agency") {
+    return registrantType;
+  }
+
+  if (window.location.pathname === "/new-ad/personal") return "personal";
+  if (window.location.pathname === "/new-ad/jaliliyan-agency") return "agency";
+
+  return "";
 }
 
 function PageHeader({ title }: { title: string }) {
@@ -281,10 +295,12 @@ export function NewAdCategoryPage() {
   useEffect(() => {
     if (getStoredAuthSession()) return;
 
-    storeLoginRedirectPath("/new-ad/category");
-    navigateTo(getLoginRequiredPath("/new-ad/category"));
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    storeLoginRedirectPath(returnTo);
+    navigateTo(getLoginRequiredPath(returnTo));
   }, []);
 
+  const registrantType = getInitialRegistrantType();
   const [activeType, setActiveType] = useState<TransactionType>(getInitialType);
   const [selectedOptionsByType, setSelectedOptionsByType] = useState<
     Record<TransactionType, string | null>
@@ -350,6 +366,10 @@ export function NewAdCategoryPage() {
             category: selectedOption.id,
             label: selectedOption.label,
           });
+
+          if (registrantType) {
+            params.set("registrantType", registrantType);
+          }
 
           navigateTo(`/new-ad/details?${params.toString()}`);
         }}

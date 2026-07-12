@@ -1,12 +1,11 @@
 import { memo, useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
-import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
+import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-storage";
 import NavAccountIcon from "../assets/icons/NavAccountIcon";
 import NavAddIcon from "../assets/icons/NavAddIcon";
 import NavChatIcon from "../assets/icons/NavChatIcon";
 import NavHomeIcon from "../assets/icons/NavHomeIcon";
 import NavSearchIcon from "../assets/icons/NavSearchIcon";
-import { USER } from "../constants/roles.constants";
 import { useChatUnreadCountQuery } from "../hooks/chat.hooks";
 import { RouteLink } from "../routes/RouteLink";
 import { CreateAdBottomSheet } from "./CreateAdBottomSheet";
@@ -132,11 +131,6 @@ function BottomNavigationComponent({
                     return;
                   }
 
-                  if (getActiveAuthRole(session) === USER) {
-                    navigateTo("/new-ad/category");
-                    return;
-                  }
-
                   setIsCreateAdOpen(true);
                 }}
                 className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]
@@ -175,7 +169,7 @@ function BottomNavigationComponent({
           setIsCreateAdOpen(false);
 
           if (option.id === "personal") {
-            navigateTo("/new-ad/category");
+            navigateTo("/new-ad/personal?registrantType=personal");
           }
 
           if (option.id === "independent-consultant") {
@@ -183,7 +177,7 @@ function BottomNavigationComponent({
           }
 
           if (option.id === "jaliliyan-agency") {
-            navigateTo("/new-ad/jaliliyan-agency");
+            navigateTo("/new-ad/jaliliyan-agency?registrantType=agency");
           }
         }}
       />

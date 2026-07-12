@@ -5,6 +5,7 @@ import NoConnectionIcon from "../assets/icons/NoConnection.svg";
 import ServerErrorIcon from "../assets/icons/ServerError.svg";
 import RefreshIcon from "../assets/icons/RefreshIcon.svg";
 import NotFoundIcon from "../assets/icons/404Error.svg";
+import LinearArrowRight1 from "./(icons)/LinearArrowRight1";
 
 type RetryHandler = () => void | Promise<void>;
 
@@ -165,5 +166,40 @@ export function NotFoundErrorState({ onRetry, className }: ErrorStateProps) {
             className={className}
             iconClassName="h-[101px] w-[151.5px]"
         />
+    );
+}
+
+
+export function AccessDeniedState({ onBack }: { onBack: () => void }) {
+    return (
+        <div
+            className="flex h-full min-h-0 w-full items-center justify-center bg-white px-6"
+            dir="rtl"
+        >
+            <div className="flex w-full max-w-[320px] -translate-y-8 flex-col items-center text-center">
+                <div className="mb-6">
+                    <img src="/vectors/NoAcessIcon.svg" alt="" />
+                </div>
+
+                <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+                    دسترسی به این بخش امکان‌پذیر نیست
+                </h2>
+
+                <p className="m-0 mt-2 text-sm leading-6 text-[#4d4d4d]">
+                    شما مجوز استفاده از این بخش را ندارید.
+                    <br />
+                    در صورت نیاز، با حساب کاربری دارای دسترسی مناسب وارد شوید یا از مدیر سامانه درخواست دسترسی کنید.
+                </p>
+
+                <button
+                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium text-white transition hover:bg-[#003fae]"
+                    onClick={onBack}
+                    type="button"
+                >
+                    <LinearArrowRight1 className="h-5 w-5" />
+                    <span>بازگشت</span>
+                </button>
+            </div>
+        </div>
     );
 }

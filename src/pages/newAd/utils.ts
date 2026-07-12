@@ -107,11 +107,22 @@ export function clearNewAdDraftStorage() {
   window.localStorage.removeItem(neighborhoodIdKey);
 }
 
-export function getParams() {
+export function getParams(): {
+  category: string;
+  label: string;
+  registrantType: NewAdFormValues["registrantType"];
+  transaction: string;
+} {
   const params = new URLSearchParams(window.location.search);
+  const registrantType = params.get("registrantType");
+
   return {
     category: params.get("category") ?? "",
     label: params.get("label") ?? "آگهی ملک",
+    registrantType:
+      registrantType === "personal" || registrantType === "agency"
+        ? registrantType
+        : "",
     transaction: params.get("transaction") ?? "",
   };
 }
@@ -248,6 +259,9 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
 
 export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteState()): NewAdFormValues {
   const editDefaults = editState.isEditMode ? buildEditDefaultValues(editState) : null;
+  const selectedRegistrantType: NewAdFormValues["registrantType"] = editState.isEditMode
+    ? ""
+    : getParams().registrantType;
   const baseValues = editDefaults
     ? {
         ...blankValues,
@@ -261,6 +275,7 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
 
   return {
     ...baseValues,
+    registrantType: selectedRegistrantType || baseValues.registrantType,
     hasVideo: false,
     photos: [],
     video: null,

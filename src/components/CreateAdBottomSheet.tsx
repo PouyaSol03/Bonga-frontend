@@ -1,4 +1,4 @@
-import { getUserRole } from "../lib/getUserRole";
+import { getStoredAuthSession } from "../auth/auth-storage";
 import { useMyAgencyProfileQuery } from "../hooks/account.hooks";
 import { BottomSheet } from "./BottomSheet";
 
@@ -72,29 +72,27 @@ export function CreateAdBottomSheet({
   onSelect,
 }: CreateAdBottomSheetProps) {
 
-  const userRole = getUserRole();
-  const shouldFetchAgency =
-    userRole === "real_estate_consultant" || userRole === "real_estate_manager";
+  const session = getStoredAuthSession();
+  const availableRoles = new Set([
+    session?.role,
+    ...(session?.roles ?? []).map((role) => role.slug),
+  ].filter(Boolean));
+  const canPublishAsIndependent = availableRoles.has("independent_consultant");
+  const canPublishAsAgency =
+    availableRoles.has("real_estate_consultant") ||
+    availableRoles.has("real_estate_manager");
+  const shouldFetchAgency = canPublishAsAgency;
   const { data: agencyProfile } = useMyAgencyProfileQuery({
     enabled: isOpen && shouldFetchAgency,
   });
   const agencyName = agencyProfile?.name?.trim() ?? "";
 
   const filteredOptions = createAdOptions.filter((option) => {
-    switch (userRole) {
-      case "user":
-        return option.id === "personal";
+    if (option.id === "personal") return true;
+    if (option.id === "independent-consultant") return canPublishAsIndependent;
+    if (option.id === "jaliliyan-agency") return canPublishAsAgency;
 
-      case "independent_consultant":
-        return option.id === "independent-consultant" || option.id === "personal";
-
-      case "real_estate_consultant":
-      case "real_estate_manager":
-        return option.id === "jaliliyan-agency" || option.id === "personal";
-
-      default:
-        return option.id === "personal";
-    }
+    return false;
   });
 
   const getOptionCopy = (option: CreateAdOption) => {

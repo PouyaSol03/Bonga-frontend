@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../../constants/roles.constants";
 import { PublisherSelectField } from "../../account/adManagement/PublisherSelectField";
 import { adManagementPublisherOptions } from "../../account/adManagement/adManagementData";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
@@ -39,7 +37,7 @@ export function MediaStep({
 }) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
-  const isRealEstateManager = !forceFullEditFields && getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const isAgencyFlow = !forceFullEditFields && values.registrantType === "agency";
   const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
     setValue(key as never, value as never, { shouldDirty: true });
     onClearError?.(key);
@@ -50,11 +48,8 @@ export function MediaStep({
   };
 
   useEffect(() => {
-    if (!isRealEstateManager) return;
+    if (!isAgencyFlow) return;
 
-    if (values.registrantType !== "agency") {
-      setField("registrantType", "agency");
-    }
     if (!values.publisherName) {
       setField("publisherName", adManagementPublisherOptions[0]?.name ?? "");
     }
@@ -64,13 +59,11 @@ export function MediaStep({
     if (values.telegram) setField("telegram", "");
     if (values.whatsapp) setField("whatsapp", "");
   }, [
-    forceFullEditFields,
-    isRealEstateManager,
+    isAgencyFlow,
     values.chatEnabled,
     values.phoneEnabled,
     values.phoneNumber,
     values.publisherName,
-    values.registrantType,
     values.telegram,
     values.whatsapp,
   ]);
@@ -119,16 +112,14 @@ export function MediaStep({
 
         <Section icon="info.svg" title="اطلاعات آگهی" warning>
           <div className="space-y-4">
-            {!isRealEstateManager ? (
-              <RegistrantTypeFields
-                error={errors.registrantType}
-                onSetField={setField}
-                publisherName={values.publisherName}
-                registrantType={values.registrantType}
-              />
-            ) : null}
+            <RegistrantTypeFields
+              error={errors.registrantType}
+              onSetField={setField}
+              publisherName={values.publisherName}
+              registrantType={values.registrantType}
+            />
 
-            {!isRealEstateManager ? (
+            {!isAgencyFlow ? (
               <ContactFields
                 contactError={errors.contactMethods}
                 chatEnabled={values.chatEnabled}
@@ -139,7 +130,7 @@ export function MediaStep({
               />
             ) : null}
 
-            {!isRealEstateManager ? (
+            {!isAgencyFlow ? (
               <SocialFields
                 onSetField={setField}
                 telegram={values.telegram}
@@ -147,8 +138,8 @@ export function MediaStep({
               />
             ) : null}
 
-            <div className={isRealEstateManager ? "" : "border-t border-dashed border-[#cccccc] pt-4"}>
-              {isRealEstateManager ? (
+            <div className="border-t border-dashed border-[#cccccc] pt-4">
+              {isAgencyFlow ? (
                 <div className="mb-6">
                   <div className="mb-3 text-right text-base font-medium leading-6 text-[#4d4d4d]">
                     منتشرکننده آگهی

@@ -4,7 +4,7 @@ import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { BottomSheet } from "../components/BottomSheet";
 import { TopBar } from "../components/TopBar";
 import { RouteLink } from "../routes/RouteLink";
-import { CRM_PATH, DASHBOARD_PATH } from "../routes/routes";
+import { DASHBOARD_PATH } from "../routes/routes";
 import { useMyAgencyProfileQuery, useMyProfileQuery } from "../hooks/account.hooks";
 import { useLogoutMutation } from "../hooks/auth.hooks";
 import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
@@ -25,7 +25,6 @@ import {
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
-  SUPER_ADMIN,
   USER,
 } from "../constants/roles.constants";
 import LinearRealestate from "../components/(icons)/LinearRealestate";
@@ -201,115 +200,6 @@ function isBusinessAccount(role: string | null) {
     role === INDEPENDENT_CONSULTANT
   );
 }
-
-const superAdminActions: AccountAction[] = [
-  { icon: "dashboard", label: "نمای کلی مدیریت", to: CRM_PATH },
-  { icon: "tag", label: "مدیریت آگهی‌ها", to: `${CRM_PATH}/advertises` },
-  { icon: "team", label: "مدیریت کاربران", to: `${CRM_PATH}/users` },
-  { icon: "agency", label: "مدیریت آژانس‌ها", to: `${CRM_PATH}/agencies` },
-  { icon: "building", label: "دسته‌بندی‌ها", to: `${CRM_PATH}/categories` },
-  { icon: "request", label: "شهرها و محله‌ها", to: `${CRM_PATH}/locations` },
-  { icon: "note", label: "فرم‌های آگهی", to: `${CRM_PATH}/forms` },
-];
-
-function SuperAdminAccountPage({
-  authSession,
-  businessSuccessSheet,
-}: {
-  authSession: AuthSession;
-  businessSuccessSheet?: ReactNode;
-}) {
-  const hasAgencyRole = authSession.roles.some(
-    (role) => role.slug === REAL_ESTATE_MANAGER || role.slug === REAL_ESTATE_CONSULTANT,
-  );
-  const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({ enabled: true });
-  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({
-    enabled: hasAgencyRole,
-  });
-  const {
-    closeLogoutConfirm,
-    confirmLogout,
-    isLoggingOut,
-    isLogoutConfirmOpen,
-    openLogoutConfirm,
-  } = useLogoutAccount();
-  const accountHeader = getAccountHeader(profile);
-  const displayMobile = profile?.mobile ?? authSession.mobile ?? "";
-  const isLoading = isProfileLoading || (hasAgencyRole && isAgencyProfileLoading);
-  const accountSwitchActions = getAccountSwitchActions(
-    authSession,
-    SUPER_ADMIN,
-    profile,
-    agencyProfile,
-  );
-
-  return (
-    <TopBarNavigationLayout
-      activeKey="account"
-      contentClassName="bg-[#f0f0f0] pb-4"
-      frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      overlay={
-        <>
-          {businessSuccessSheet}
-          <AccountLogoutConfirmSheet
-            isOpen={isLogoutConfirmOpen}
-            isPending={isLoggingOut}
-            onCancel={closeLogoutConfirm}
-            onConfirm={confirmLogout}
-          />
-        </>
-      }
-      topBar={<TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب مدیر کل" />}
-    >
-      {isLoading ? (
-        <StandardAccountSkeleton />
-      ) : (
-        <>
-          <section className="bg-white" aria-label="حساب مدیر کل">
-            <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
-              <AccountProfileAvatar
-                avatarUrl={accountHeader.avatarUrl}
-                className="h-[72px] w-[72px]"
-                iconClassName="h-8 w-8 text-[#cccccc]"
-                label={accountHeader.label}
-              />
-              <div className="min-w-0 flex-1 text-right">
-                <p className="m-0 truncate text-sm font-bold leading-5 text-[#0048c4]">
-                  {accountHeader.label || "مدیر کل سامانه"}
-                </p>
-                <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
-                  {formatMobileForDisplay(displayMobile)}
-                </p>
-                <span className="mt-2 inline-flex rounded-full bg-[#eef4ff] px-2.5 py-1 text-[11px] font-bold text-[#0048c4]">
-                  دسترسی مدیر کل
-                </span>
-              </div>
-            </div>
-            <Divider />
-            <AccountSection actions={accountSwitchActions} spacedDividers />
-          </section>
-
-          <div className="h-4 bg-[#f0f0f0]" />
-          <AccountSection actions={superAdminActions} spacedDividers />
-
-          <div className="h-4 bg-[#f0f0f0]" />
-          <AccountSection
-            actions={[
-              {
-                icon: "log_out",
-                label: isLoggingOut ? "در حال خروج..." : "خروج از حساب",
-                onClick: openLogoutConfirm,
-              },
-            ]}
-          />
-        </>
-      )}
-    </TopBarNavigationLayout>
-  );
-}
-
-// Kept for possible future admin-specific entry points; `/account` always uses the standard account view.
-void SuperAdminAccountPage;
 
 function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
   const authSession = getStoredAuthSession();
@@ -544,15 +434,6 @@ function getAccountSwitchActions(
       activeRole: INDEPENDENT_CONSULTANT,
       icon: "user",
       label: "مشاور مستقل",
-      to: "/account",
-    });
-  }
-
-  if (authSession.roles.some((role) => role.slug === SUPER_ADMIN)) {
-    actions.push({
-      activeRole: SUPER_ADMIN,
-      icon: "dashboard",
-      label: "مدیریت کل سامانه",
       to: "/account",
     });
   }

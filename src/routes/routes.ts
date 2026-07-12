@@ -1,12 +1,13 @@
 import { createElement, lazy, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
 import {
+  DASHBOARD_ROLES,
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
   SUPER_ADMIN,
   USER,
 } from '../constants/roles.constants'
-import { getActiveAuthRole, type AuthSession } from '../auth/auth-storage'
+import type { AuthSession } from '../auth/auth-storage'
 
 type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>
 
@@ -130,23 +131,21 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return true
   }
 
-  if (route.layout === 'crm') {
-    if (!session) return false
-    if (route.authority?.length) {
-      return session.roles.some(
-        (role) =>
-          role.name === 'Super Admin' || route.authority?.includes(role.slug),
-      )
-    }
+  if (!session) return false
 
-    return true
+  const roleSlugs = new Set<string>([
+    session.role,
+    ...session.roles.map((role) => role.slug),
+  ])
+
+  if (route.requiresNonUser) {
+    const hasBusinessRole = DASHBOARD_ROLES.some((role) => roleSlugs.has(role))
+    if (!hasBusinessRole) return false
   }
 
-  const role = getActiveAuthRole(session)
-
-  if (!role) return false
-  if (route.requiresNonUser && role === USER) return false
-  if (route.authority?.length) return route.authority.includes(role)
+  if (route.authority?.length) {
+    return route.authority.some((role) => roleSlugs.has(role))
+  }
 
   return true
 }
@@ -528,76 +527,106 @@ export const routes: AppRoute[] = [
     path: '/account/ranking',
     title: 'نشان‌ها و رتبه',
     Component: IndependentConsultantRankingPage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/ranking/levels',
     title: 'سطح پیشرفت مشاور',
     Component: IndependentConsultantRankingLevelsPage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/guide',
     title: 'راهنمای نشان‌ها',
     Component: IndependentConsultantBadgesGuidePage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/file',
     title: 'جزئیات نشان',
     Component: IndependentConsultantFileBadgePage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/magnet',
     title: 'جزئیات نشان',
     Component: IndependentConsultantMagnetBadgePage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/response',
     title: 'جزئیات نشان',
     Component: IndependentConsultantResponseBadgePage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/time',
     title: 'جزئیات نشان',
     Component: IndependentConsultantTimeBadgePage,
+    authority: [INDEPENDENT_CONSULTANT],
+    requiresAuth: true,
   },
   {
     path: '/account/manage-ads',
     title: 'مدیریت آگهی‌ها',
     Component: IndependentConsultantAdManagementPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management',
     title: 'مدیریت آگهی‌ها',
     Component: IndependentConsultantAdManagementPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/filter',
     title: 'فیلتر',
     Component: IndependentConsultantAdFilterPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/search',
     title: 'جستجوی آگهی',
     Component: IndependentConsultantAdSearchPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/allocation',
     title: 'انتشار آگهی',
     Component: IndependentConsultantAdAllocationPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/allocation-review',
     title: 'بررسی و تخصیص',
     Component: IndependentConsultantAdAllocationReviewPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/payment',
     title: 'انتشار آگهی',
     Component: IndependentConsultantAdPaymentPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/published',
     title: 'مدیریت آگهی',
     Component: IndependentConsultantAdPublishedPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/published/edit',
@@ -615,31 +644,43 @@ export const routes: AppRoute[] = [
     path: '/account/ad-management/statistics',
     title: 'آمار آگهی‌ها',
     Component: IndependentConsultantAdStatisticsPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/ad-management/statistics/details',
     title: 'جزئیات آمار آگهی',
     Component: IndependentConsultantAdStatisticsDetailsPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/credit/panel',
     title: 'افزایش اعتبار',
     Component: IndependentConsultantPanelCreditPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/credit/panel/bonus',
     title: 'افزایش اعتبار',
     Component: IndependentConsultantPanelCreditBonusPage,
+    authority: [REAL_ESTATE_MANAGER],
+    requiresAuth: true,
   },
   {
     path: '/account/credit/packages',
     title: 'افزایش اعتبار',
     Component: IndependentConsultantCreditPackagesPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/account/credit/history',
     title: 'تاریخچه پرداخت',
     Component: IndependentConsultantCreditHistoryPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
   },
   {
     path: '/home',

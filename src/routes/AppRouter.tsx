@@ -4,7 +4,7 @@ import { getStoredAuthSession, storeLoginRedirectPath } from '../auth/auth-stora
 import { MobileAppShell } from '../app/MobileAppShell'
 import { PageFrame } from '../app/PageFrame'
 import { BottomNavigation } from '../components/BottomNavigation'
-import { NoConnectionState, NotFoundErrorState } from '../components/ErrorState'
+import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../components/ErrorState'
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
 import { SUPER_ADMIN, USER } from '../constants/roles.constants'
@@ -242,14 +242,6 @@ function getResolvedPath() {
     return desktopAccountDestination
   }
 
-  if (
-    session?.activeRole === SUPER_ADMIN &&
-    (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`))
-  ) {
-    window.history.replaceState({}, '', '/account')
-    return '/account'
-  }
-
   if (!canAccessRoute(route, session)) {
     if (!session) {
       storeLoginRedirectPath(returnTo)
@@ -257,9 +249,6 @@ function getResolvedPath() {
       window.history.replaceState({}, '', loginRequiredPath)
       return '/login-required'
     }
-
-    window.history.replaceState({}, '', '/account')
-    return '/account'
   }
 
   return path
@@ -448,6 +437,7 @@ function getRoute(path: string): AppRoute {
 
     return {
       ...(paymentRoute ?? routes[0]),
+      authority: undefined,
       path,
       requiresAuth: true,
       title: 'هزینه ثبت آگهی',
@@ -480,9 +470,9 @@ function getRoute(path: string): AppRoute {
     )
 
     return {
+      ...(allocationReviewRoute ?? routes[0]),
       path,
       title: allocationReviewRoute?.title ?? 'بررسی و تخصیص',
-      Component: allocationReviewRoute?.Component ?? routes[0].Component,
     }
   }
 
@@ -553,7 +543,10 @@ function getRoute(path: string): AppRoute {
   }
 
   if (path === CRM_PATH || path.startsWith(`${CRM_PATH}/`)) {
+    const crmRoute = routes.find((route) => route.path === CRM_PATH)
+
     return routes.find((route) => route.path === path) ?? {
+      ...(crmRoute ?? routes[0]),
       path,
       title: 'صفحه پیدا نشد',
       Component: RouteNotFoundPage,
@@ -561,7 +554,10 @@ function getRoute(path: string): AppRoute {
   }
 
   if (path === DASHBOARD_PATH || path.startsWith(`${DASHBOARD_PATH}/`)) {
+    const dashboardRoute = routes.find((route) => route.path === DASHBOARD_PATH)
+
     return routes.find((route) => route.path === path) ?? {
+      ...(dashboardRoute ?? routes[0]),
       path,
       title: 'صفحه پیدا نشد',
       Component: RouteNotFoundPage,
@@ -585,8 +581,12 @@ export function AppRouter() {
     [route.path, route.title],
   )
   const authSession = getStoredAuthSession()
+  const isAccessDenied = Boolean(
+    authSession && !canAccessRoute(route, authSession),
+  )
   const requiresIdentity = Boolean(
     authSession &&
+    !isAccessDenied &&
     route.Component !== RouteNotFoundPage &&
     shouldRequireIdentityForPath(route.path),
   )
@@ -644,6 +644,14 @@ export function AppRouter() {
     return (
       <MobileAppShell>
         <NoConnectionState onRetry={() => setIsOffline(!window.navigator.onLine)} />
+      </MobileAppShell>
+    )
+  }
+
+  if (isAccessDenied) {
+    return (
+      <MobileAppShell>
+        <AccessDeniedState onBack={() => navigateTo('/account')} />
       </MobileAppShell>
     )
   }

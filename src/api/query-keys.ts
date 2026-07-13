@@ -11,6 +11,24 @@ export const queryKeys = {
     search: (q?: string) => [...queryKeys.cities.all, "search", q ?? ""] as const,
   },
 
+  agencies: {
+    all: ["agencies"] as const,
+    list: (filters: {
+      neighborhoodId?: string;
+      perPage: number;
+      search?: string;
+      sort?: string;
+    }) =>
+      [
+        ...queryKeys.agencies.all,
+        "list",
+        filters.search ?? "",
+        filters.neighborhoodId ?? "",
+        filters.sort ?? "",
+        filters.perPage,
+      ] as const,
+  },
+
   neighborhoods: {
     all: ["neighborhoods"] as const,
     infoWithLoc: (filters: { cityId?: string; lat?: number; lng?: number }) =>

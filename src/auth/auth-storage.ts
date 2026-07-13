@@ -19,6 +19,27 @@ export const authRoleSlugs: AuthRoleSlug[] = [
   "super-admin",
 ];
 
+export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+
+  if (
+    normalized === "superadmin" ||
+    normalized === "super admin" ||
+    normalized === "super-admin" ||
+    normalized === "super_admin"
+  ) {
+    return "super-admin";
+  }
+
+  const underscored = normalized.replace(/-/g, "_");
+
+  if (authRoleSlugs.includes(underscored as AuthRoleSlug)) {
+    return underscored as AuthRoleSlug;
+  }
+
+  return "user";
+}
+
 export type AuthSession = {
   accessToken: string;
   accountType: string;
@@ -39,7 +60,30 @@ export const otpResendCooldownMilliseconds = 60_000;
 export const authSessionChangedEventName = authSessionChangedEvent;
 
 export function setStoredAuthSession(session: AuthSession) {
-  window.localStorage.setItem(authSessionKey, JSON.stringify(session));
+  const role = normalizeAuthRoleSlug(session.role);
+  const activeRole = normalizeAuthRoleSlug(session.activeRole ?? role);
+  const roles = session.roles
+    .map((item, index): AuthRole => ({
+      id: String(item.id ?? index + 1),
+      name: item.name || normalizeAuthRoleSlug(item.slug),
+      slug: normalizeAuthRoleSlug(item.slug),
+    }))
+    .filter((item, index, items) =>
+      items.findIndex((candidate) => candidate.slug === item.slug) === index,
+    );
+
+  if (!roles.some((item) => item.slug === activeRole)) {
+    roles.push({ id: activeRole, name: activeRole, slug: activeRole });
+  }
+
+  const normalizedSession: AuthSession = {
+    ...session,
+    activeRole,
+    role,
+    roles,
+  };
+
+  window.localStorage.setItem(authSessionKey, JSON.stringify(normalizedSession));
   window.dispatchEvent(new CustomEvent(authSessionChangedEvent));
 }
 
@@ -49,11 +93,49 @@ export function getStoredAuthSession() {
   if (!value) return null;
 
   try {
-    const session = JSON.parse(value) as AuthSession;
+    const parsed = JSON.parse(value) as AuthSession;
 
-    if (session.expiresAt !== null && session.expiresAt <= Date.now()) {
+    if (parsed.expiresAt !== null && parsed.expiresAt <= Date.now()) {
       clearStoredAuthSession();
       return null;
+    }
+
+    const role = normalizeAuthRoleSlug(parsed.role);
+    const activeRole = normalizeAuthRoleSlug(parsed.activeRole ?? role);
+    const roles = (Array.isArray(parsed.roles) ? parsed.roles : [])
+      .map((item, index): AuthRole | null => {
+        if (typeof item === "string") {
+          const slug = normalizeAuthRoleSlug(item);
+          return { id: String(index + 1), name: slug, slug };
+        }
+
+        if (!item || typeof item !== "object") return null;
+
+        const slug = normalizeAuthRoleSlug(item.slug ?? item.name);
+        return {
+          id: String(item.id ?? index + 1),
+          name: item.name || slug,
+          slug,
+        };
+      })
+      .filter((item): item is AuthRole => item !== null)
+      .filter((item, index, items) =>
+        items.findIndex((candidate) => candidate.slug === item.slug) === index,
+      );
+
+    if (!roles.some((item) => item.slug === activeRole)) {
+      roles.push({ id: activeRole, name: activeRole, slug: activeRole });
+    }
+
+    const session: AuthSession = {
+      ...parsed,
+      activeRole,
+      role,
+      roles,
+    };
+
+    if (JSON.stringify(parsed) !== JSON.stringify(session)) {
+      window.localStorage.setItem(authSessionKey, JSON.stringify(session));
     }
 
     return session;
@@ -66,13 +148,7 @@ export function getStoredAuthSession() {
 export function getActiveAuthRole(session: AuthSession | null) {
   if (!session) return null;
 
-  const activeRole = session.activeRole;
-
-  if (activeRole && authRoleSlugs.includes(activeRole)) {
-    return activeRole;
-  }
-
-  return session.role;
+  return normalizeAuthRoleSlug(session.activeRole ?? session.role);
 }
 
 export function setStoredActiveRole(activeRole: AuthRoleSlug) {

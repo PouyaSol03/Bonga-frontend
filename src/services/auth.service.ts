@@ -5,9 +5,8 @@ import {
   setStoredAuthSession,
   startOtpResendCooldown,
   storePendingOtpMobile,
-  authRoleSlugs,
+  normalizeAuthRoleSlug,
   type AuthRole,
-  type AuthRoleSlug,
 } from "../auth/auth-storage";
 
 type AuthRequestPayload = {
@@ -40,25 +39,6 @@ export type VerifyOtpResponse = StatusResponse & {
   };
 };
 
-
-function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
-  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-
-  if (
-    normalized === "superadmin" ||
-    normalized === "super admin" ||
-    normalized === "super-admin" ||
-    normalized === "super_admin"
-  ) {
-    return "super-admin";
-  }
-
-  if (typeof value === "string" && authRoleSlugs.includes(value as AuthRoleSlug)) {
-    return value as AuthRoleSlug;
-  }
-
-  return "user";
-}
 
 function normalizeAuthRoles(response: VerifyOtpResponse): AuthRole[] {
   const rawRoles = Array.isArray(response.roles) ? response.roles : [];

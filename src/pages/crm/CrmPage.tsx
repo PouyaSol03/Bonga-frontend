@@ -24,23 +24,25 @@ import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../routes/RouteLink";
 import { pushRoute } from "../../routes/navigation";
 import { SwitchButton } from "../../components/SwitchButton";
+import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
 import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
 import { CrmPaymentsView } from "./CrmPaymentsView";
 import {
-  deleteCrmAgency,
   deleteCrmCity,
   deleteCrmNeighborhood,
   getCrmRecordId,
   listCrmAdvertiseForms,
   listCrmAdvertises,
   listCrmAgencies,
+  listCrmAgents,
+  listCrmAgencyAgents,
   listCrmCategories,
   listCrmCities,
   listCrmNeighborhoods,
   listCrmUsers,
-  saveCrmAgency,
+  updateCrmAgencyStatus,
   saveCrmCategory,
   saveCrmCity,
   saveCrmNeighborhood,
@@ -258,6 +260,21 @@ function advertiseStatusLabel(status: unknown) {
   );
 }
 
+function normalizeCrmUserRoleSlug(value: string) {
+  const normalized = value.trim().toLowerCase();
+
+  if (
+    normalized === "super-admin" ||
+    normalized === "super_admin" ||
+    normalized === "super admin" ||
+    normalized === "superadmin"
+  ) {
+    return "superadmin";
+  }
+
+  return normalized;
+}
+
 function userRoleSlugs(user: CrmRecord) {
   if (Array.isArray(user.roles)) {
     const slugs = user.roles
@@ -269,8 +286,8 @@ function userRoleSlugs(user: CrmRecord) {
 
         return "";
       })
-      .filter(Boolean)
-      .map((slug) => slug === "super-admin" ? "superadmin" : slug);
+      .map(normalizeCrmUserRoleSlug)
+      .filter(Boolean);
 
     return Array.from(new Set(slugs));
   }
@@ -280,7 +297,7 @@ function userRoleSlugs(user: CrmRecord) {
     : [];
   const fallback = roleSlugs.length > 0 ? roleSlugs : [readText(user, ["role"], "")].filter(Boolean);
 
-  return Array.from(new Set(fallback.map((slug) => slug === "super-admin" ? "superadmin" : slug)));
+  return Array.from(new Set(fallback.map(normalizeCrmUserRoleSlug)));
 }
 
 function userHasRole(user: CrmRecord, roleSlug: string) {
@@ -955,7 +972,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
       fields: [
         { label: "نام", name: "name", value: user.name },
         { label: "نام خانوادگی", name: "family", value: user.family },
-        { label: "کد ملی", name: "nationalnumber", value: user.nationalnumber },
+        ...(!id ? [{ label: "کد ملی", name: "nationalnumber", value: user.nationalnumber }] : []),
         { label: "شماره موبایل", name: "mobile", value: user.mobile },
         { label: "ایمیل", name: "email", type: "email", value: user.email },
         {
@@ -967,21 +984,27 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
         },
       ],
       onSubmit: async (values) => {
-        const selectedRoleSlugs = (values.role_slugs ?? "")
-          .split(",")
-          .map((role) => role.trim())
-          .filter(Boolean);
-        const userValues = { ...values };
-        delete userValues.role_slugs;
+        const allowedRoleSlugs = new Set(userRoleOptions.map((option) => option.value));
+        const selectedRoleSlugs = Array.from(new Set(
+          (values.role_slugs ?? "")
+            .split(",")
+            .map(normalizeCrmUserRoleSlug)
+            .filter((role) => allowedRoleSlugs.has(role)),
+        ));
 
-        await saveMutation.mutateAsync({
-          id,
-          payload: cleanEmptyValues({
-            ...userValues,
-            role_slug: "string",
-            roles: selectedRoleSlugs,
-          }),
-        });
+        const payload: CrmRecord = {
+          email: values.email ?? "",
+          family: values.family ?? "",
+          mobile: values.mobile ?? "",
+          name: values.name ?? "",
+          roles: selectedRoleSlugs,
+        };
+
+        if (!id) {
+          payload.nationalnumber = values.nationalnumber ?? "";
+        }
+
+        await saveMutation.mutateAsync({ id, payload });
       },
       title: id ? "ویرایش کاربر" : "ساخت کاربر جدید",
     });
@@ -1164,11 +1187,12 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
   const [statusFilter, setStatusFilter] = useState("");
   const [agencyOnly, setAgencyOnly] = useState(false);
   const [agencyIdFilter, setAgencyIdFilter] = useState("");
+  const [appliedFilters, setAppliedFilters] = useState({ agencyId: "", agencyOnly: false, search: "", status: "" });
   const [editor, setEditor] = useState<EditorState | null>(null);
 
   const usersQuery = useQuery({
-    queryFn: () => listCrmUsers(),
-    queryKey: ["crm", "consultants", "users", refreshNonce],
+    queryFn: listCrmAgents,
+    queryKey: ["crm", "consultants", "agents", refreshNonce],
   });
   const agenciesQuery = useQuery({
     queryFn: () => listCrmAgencies(),
@@ -1213,14 +1237,9 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
   );
 
   const consultants = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase("fa-IR");
+    const normalizedSearch = appliedFilters.search.trim().toLocaleLowerCase("fa-IR");
 
-    return (usersQuery.data ?? [])
-      .filter((user) =>
-        userHasRole(user, "real_estate_consultant") ||
-        userHasRole(user, "independent_consultant"),
-      )
-      .filter((consultant) => {
+    return (usersQuery.data ?? []).filter((consultant) => {
         const agencyId = consultantAgencyId(consultant);
         const agencyName = consultantAgencyName(consultant, agencyNames);
         const isAgencyConsultant = Boolean(
@@ -1231,13 +1250,13 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           readText(consultant, ["mobile", "phone"], ""),
           agencyName,
         ].join(" ").toLocaleLowerCase("fa-IR").includes(normalizedSearch);
-        const matchesStatus = statusFilter === "" || String(Number(consultant.status) === 1 ? 1 : 0) === statusFilter;
-        const matchesAgencyMode = !agencyOnly || isAgencyConsultant;
-        const matchesAgency = !agencyOnly || !agencyIdFilter || agencyId === agencyIdFilter;
+        const matchesStatus = appliedFilters.status === "" || String(consultant.consultant_status ?? consultant.status ?? "") === appliedFilters.status;
+        const matchesAgencyMode = !appliedFilters.agencyOnly || isAgencyConsultant;
+        const matchesAgency = !appliedFilters.agencyOnly || !appliedFilters.agencyId || agencyId === appliedFilters.agencyId;
 
         return matchesSearch && matchesStatus && matchesAgencyMode && matchesAgency;
       });
-  }, [agencyIdFilter, agencyNames, agencyOnly, search, statusFilter, usersQuery.data]);
+  }, [agencyNames, appliedFilters, usersQuery.data]);
 
   const openConsultantEditor = (consultant: CrmRecord = {}) => {
     const id = getCrmRecordId(consultant) || null;
@@ -1270,14 +1289,14 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
 
         await saveMutation.mutateAsync({
           id,
-          payload: cleanEmptyValues({
+          payload: {
             agency_id: selectedAgencyId || null,
-            family: values.family,
-            mobile: values.mobile,
-            name: values.name,
-            role_slug: "string",
+            email: readText(consultant, ["email"], ""),
+            family: values.family ?? "",
+            mobile: values.mobile ?? "",
+            name: values.name ?? "",
             roles: ["user", consultantRole],
-          }),
+          },
         });
       },
       title: id ? "ویرایش مشاور" : "افزودن مشاور جدید",
@@ -1293,7 +1312,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           title="مدیریت مشاورین"
         />
 
-        <div className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)]">
+        <form className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)_auto]" onSubmit={(event) => { event.preventDefault(); setAppliedFilters({ agencyId: agencyIdFilter, agencyOnly, search: search.trim(), status: statusFilter }); }}>
           <FilterField label="جستجو">
             <input
               className={inputClassName}
@@ -1307,8 +1326,9 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           <FilterField label="وضعیت">
             <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="">همه وضعیت‌ها</option>
-              <option value="1">فعال</option>
-              <option value="0">غیرفعال</option>
+              <option value="0">در انتظار</option>
+              <option value="1">تأیید شده</option>
+              <option value="2">رد شده</option>
             </CrmSelect>
           </FilterField>
 
@@ -1342,7 +1362,11 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
               })}
             </CrmSelect>
           </FilterField>
-        </div>
+          <div className="flex items-end gap-2">
+            <button className={secondaryButtonClassName} type="submit"><CrmIcon name="search" size={18} /> جستجو</button>
+            {(appliedFilters.search || appliedFilters.status || appliedFilters.agencyOnly) ? <button className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); setAppliedFilters({ agencyId: "", agencyOnly: false, search: "", status: "" }); }} type="button">پاک کردن</button> : null}
+          </div>
+        </form>
 
         <div className="mt-5 overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
           <div className="overflow-x-auto">
@@ -1362,7 +1386,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
                 ) : consultants.length ? (
                   consultants.map((consultant, index) => {
                     const id = getCrmRecordId(consultant);
-                    const isActive = Number(consultant.status) === 1;
+                    const isActive = Number(consultant.consultant_status ?? consultant.status) === 1;
                     const agencyName = consultantAgencyName(consultant, agencyNames);
                     const isIndependent = agencyName === "مستقل";
 
@@ -1422,83 +1446,100 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [filterName, setFilterName] = useState("");
-  const [editor, setEditor] = useState<EditorState | null>(null);
-  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+  const [agentsAgency, setAgentsAgency] = useState<CrmRecord | null>(null);
+  const [agentEditor, setAgentEditor] = useState<EditorState | null>(null);
 
   const query = useQuery({
     queryFn: () => listCrmAgencies({ name: filterName }),
     queryKey: ["crm", "agencies", filterName, refreshNonce],
   });
-
-  useQueryErrorToast([query.error], notify);
-
-  const saveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
-      saveCrmAgency(id, payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
-      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "agencies"] });
-      notify("اطلاعات آژانس ذخیره شد.");
-    },
+  const agencyAgentsQuery = useQuery({
+    enabled: Boolean(agentsAgency),
+    queryFn: () => listCrmAgencyAgents(getCrmRecordId(agentsAgency ?? {})),
+    queryKey: ["crm", "agencies", getCrmRecordId(agentsAgency ?? {}), "agents"],
+  });
+  const agencyOptionsQuery = useQuery({
+    queryFn: () => listCrmAgencies(),
+    queryKey: ["crm", "agencies", "editor-options", refreshNonce],
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteCrmAgency,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
-      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "agencies"] });
-      notify("آژانس حذف شد.");
-    },
-  });
+  useQueryErrorToast([query.error, agencyAgentsQuery.error, agencyOptionsQuery.error], notify);
 
   const statusMutation = useMutation({
-    mutationFn: ({ agency, status }: { agency: CrmRecord; status: "wait" | "accepted" | "rejected" }) =>
-      saveCrmAgency(getCrmRecordId(agency), buildAgencyPayload(agency, status)),
+    mutationFn: ({ id, status }: { id: string; status: "accept" | "reject" }) =>
+      updateCrmAgencyStatus(id, status),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "agencies"] });
       notify("وضعیت آژانس به‌روزرسانی شد.");
     },
   });
 
-  const openAgencyEditor = (agency: CrmRecord = {}) => {
-    const id = getCrmRecordId(agency) || null;
+  const agentSaveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: CrmRecord }) => saveCrmUser(id, payload),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm", "consultants"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm", "users"] }),
+      ]);
+      notify("اطلاعات مشاور ذخیره شد.");
+    },
+  });
 
-    setEditor({
+  const openAgencyAgentEditor = (agent: CrmRecord) => {
+    const id = getCrmRecordId(agent);
+    if (!id) return;
+
+    const currentAgencyId = consultantAgencyId(agent) || getCrmRecordId(agentsAgency ?? {});
+    const agencyOptions = agencyOptionsQuery.data ?? [];
+
+    setAgentsAgency(null);
+    setAgentEditor({
       fields: [
-        { label: "نام آژانس", name: "name", value: agency.name },
-        { label: "وضعیت", name: "status", options: [{ label: "در انتظار تایید", value: "wait" }, { label: "تایید", value: "accepted" }, { label: "رد شده", value: "rejected" }], type: "select", value: normalizeAgencyStatus(agency.status) },
-        { label: "محله‌های تحت پوشش", name: "neighborhood_ids", type: "neighborhood-multi", value: Array.isArray(agency.neighborhood_ids) ? agency.neighborhood_ids : [] },
-        { label: "موقعیت آژانس روی نقشه", name: "map_location", type: "map-point", value: JSON.stringify({ lat: Number(agency.lat) || DEFAULT_CENTER[0], lng: Number(agency.lng) || DEFAULT_CENTER[1] }) },
-        { label: "شماره تماس", name: "phone1", value: agency.phone1 },
-        { label: "آدرس", name: "address", value: agency.address },
-        { label: "درباره آژانس", name: "about_us", type: "textarea", value: agency.about_us },
+        { label: "نام", name: "name", value: agent.name },
+        { label: "نام خانوادگی", name: "family", value: agent.family },
+        { label: "شماره موبایل", name: "mobile", value: agent.mobile ?? agent.phone },
+        { label: "ایمیل", name: "email", type: "email", value: agent.email },
+        {
+          label: "آژانس محل فعالیت",
+          name: "agency_id",
+          options: [
+            { label: "مشاور مستقل", value: "" },
+            ...agencyOptions.map((agency) => ({
+              label: readText(agency, ["name", "title"], "آژانس بدون نام"),
+              value: getCrmRecordId(agency),
+            })),
+          ],
+          type: "select",
+          value: currentAgencyId,
+        },
       ],
       onSubmit: async (values) => {
-        const point = parseMapPointValue(values.map_location);
-        const payload: CrmRecord = {
-          about_us: values.about_us ?? "",
-          address: values.address ?? "",
-          lat: String(point.lat),
-          lng: String(point.lng),
-          name: values.name ?? "",
-          neighborhood_ids: values.neighborhood_ids.split(",").map((value) => value.trim()).filter(Boolean),
-          phone1: values.phone1 ?? "",
-          status: normalizeAgencyStatus(values.status),
-        };
-        await saveMutation.mutateAsync({ id, payload });
+        const selectedAgencyId = values.agency_id?.trim() ?? "";
+        const consultantRole = selectedAgencyId ? "real_estate_consultant" : "independent_consultant";
+
+        await agentSaveMutation.mutateAsync({
+          id,
+          payload: {
+            agency_id: selectedAgencyId || null,
+            email: values.email ?? "",
+            family: values.family ?? "",
+            mobile: values.mobile ?? "",
+            name: values.name ?? "",
+            roles: ["user", consultantRole],
+          },
+        });
       },
-      title: id ? "ویرایش آژانس" : "ثبت آژانس جدید",
+      title: "ویرایش مشاور",
     });
   };
-
-  const handleDelete = (id: string) => deleteMutation.mutateAsync(id);
 
   return (
     <>
       <Panel>
         <PanelHeader
-          action={<PrimaryButton icon="plus" label="آژانس جدید" onClick={() => openAgencyEditor()} />}
-          subtitle="اطلاعات تماس، موقعیت و معرفی آژانس‌ها را مدیریت کنید."
+          subtitle="در این بخش فقط می‌توانید درخواست آژانس را تایید یا رد کنید."
           title="فهرست آژانس‌ها"
         />
 
@@ -1544,6 +1585,9 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
               ) : query.data?.length ? (
                 query.data.map((agency) => {
                   const id = getCrmRecordId(agency);
+                  const normalizedStatus = normalizeAgencyStatus(agency.status);
+                  const isUpdatingThisAgency =
+                    statusMutation.isPending && statusMutation.variables?.id === id;
 
                   return (
                     <tr key={id}>
@@ -1555,38 +1599,33 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
                       <TableCell>
                         <CrmSelect
                           aria-label={`وضعیت ${readText(agency, ["name"])}`}
-                          className={`h-10 min-w-[156px] rounded-lg border border-[#dce3ef] bg-white pr-3 text-sm font-bold outline-none transition focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10 disabled:opacity-60 ${agencyStatusTextTone(agency.status)}`}
-                          disabled={statusMutation.isPending}
+                          className={`h-10 min-w-[156px] rounded-lg border border-[#dce3ef] bg-white pr-3 text-sm font-bold outline-none transition focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10 disabled:cursor-not-allowed disabled:opacity-60 ${agencyStatusTextTone(agency.status)}`}
+                          disabled={!id || isUpdatingThisAgency}
                           onChange={async (event) => {
+                            const status = event.target.value;
+
+                            if (status !== "accept" && status !== "reject") return;
+
                             try {
-                              await statusMutation.mutateAsync({ agency, status: event.target.value as "wait" | "accepted" | "rejected" });
+                              await statusMutation.mutateAsync({ id, status });
                             } catch (error) {
                               notify(getApiErrorMessage(error, "به‌روزرسانی وضعیت آژانس ناموفق بود."), "error");
                             }
                           }}
-                          value={normalizeAgencyStatus(agency.status)}
+                          value={normalizedStatus === "wait" ? "" : normalizedStatus}
                         >
-                          <option value="wait">در انتظار تایید</option>
-                          <option value="accepted">تایید</option>
-                          <option value="rejected">رد شده</option>
+                          <option disabled hidden value="">انتخاب وضعیت</option>
+                          <option className="bg-white text-[#0b8b55]" style={{ backgroundColor: "#ffffff", color: "#0b8b55" }} value="accept">تایید</option>
+                          <option className="bg-white text-[#cc3342]" style={{ backgroundColor: "#ffffff", color: "#cc3342" }} value="reject">رد شده</option>
                         </CrmSelect>
                       </TableCell>
                       <TableCell><span dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</span></TableCell>
                       <TableCell>
-                        <div className="flex gap-1.5">
-                          <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => openAgencyEditor(agency)} tone="primary" />
-                          <SmallActionButton
-                            icon={<LinearDelete className="h-4 w-4" />}
-                            label="حذف"
-                            onClick={() => setConfirm({
-                              body: "اطلاعات این آژانس از پنل مدیریت حذف خواهد شد.",
-                              confirmLabel: "حذف آژانس",
-                              onConfirm: async () => { await handleDelete(id); },
-                              title: "حذف آژانس",
-                            })}
-                            tone="danger"
-                          />
-                        </div>
+                        <SmallActionButton
+                          icon={<CrmIcon name="users" size={16} />}
+                          label="مشاوران"
+                          onClick={() => setAgentsAgency(agency)}
+                        />
                       </TableCell>
                     </tr>
                   );
@@ -1599,9 +1638,71 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
         </div>
       </Panel>
 
-      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
-      <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+      <AgencyAgentsModal
+        agency={agentsAgency}
+        agents={agencyAgentsQuery.data ?? []}
+        isLoading={agencyAgentsQuery.isLoading}
+        onClose={() => setAgentsAgency(null)}
+        onEdit={openAgencyAgentEditor}
+      />
+      <EditorModal
+        editor={agentEditor}
+        isPending={agentSaveMutation.isPending}
+        notify={notify}
+        onClose={() => setAgentEditor(null)}
+      />
     </>
+  );
+}
+
+function AgencyAgentsModal({
+  agency,
+  agents,
+  isLoading,
+  onClose,
+  onEdit,
+}: {
+  agency: CrmRecord | null;
+  agents: CrmRecord[];
+  isLoading: boolean;
+  onClose: () => void;
+  onEdit: (agent: CrmRecord) => void;
+}) {
+  if (!agency) return null;
+
+  return (
+    <ModalShell onClose={onClose}>
+      <section className="max-h-[calc(100vh-64px)] w-[min(900px,calc(100vw-64px))] overflow-hidden rounded-xl bg-white shadow-[0_24px_70px_rgba(14,34,68,0.18)]" dir="rtl">
+        <div className="flex h-16 items-center justify-between border-b border-[#f0f0f0] px-6">
+          <div><h2 className="m-0 text-base font-bold">مشاوران {readText(agency, ["name"], "آژانس")}</h2><p className="m-0 mt-1 text-sm text-[#919aa8]">فهرست مشاوران وابسته به این آژانس</p></div>
+          <button aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button"><CrmIcon name="close" size={18} /></button>
+        </div>
+        <div className="max-h-[calc(100vh-160px)] overflow-auto p-6">
+          <table className="w-full min-w-[760px] border-separate border-spacing-0 text-right">
+            <thead><tr><TableHead>نام مشاور</TableHead><TableHead>شماره موبایل</TableHead><TableHead>نوع</TableHead><TableHead>وضعیت</TableHead><TableHead>عملیات</TableHead></tr></thead>
+            <tbody>{isLoading ? <TableLoadingRows columns={5} rows={5} /> : agents.length ? agents.map((agent) => {
+              const status = Number(agent.consultant_status ?? agent.status);
+              return (
+                <tr key={getCrmRecordId(agent)}>
+                  <TableCell><strong>{fullName(agent)}</strong></TableCell>
+                  <TableCell><span dir="ltr">{readText(agent, ["mobile", "phone"], "-")}</span></TableCell>
+                  <TableCell>{agent.type === "independent" ? "مستقل" : "وابسته"}</TableCell>
+                  <TableCell><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === 1 ? "bg-[#ebfaf3] text-[#0b8b55]" : status === 2 ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{status === 1 ? "تأیید شده" : status === 2 ? "رد شده" : "در انتظار"}</span></TableCell>
+                  <TableCell>
+                    <SmallActionButton
+                      icon={<LinearEdit2 className="h-4 w-4" />}
+                      label="ویرایش"
+                      onClick={() => onEdit(agent)}
+                      tone="primary"
+                    />
+                  </TableCell>
+                </tr>
+              );
+            }) : <TableEmptyRow columns={5} message="مشاوری برای این آژانس ثبت نشده است." />}</tbody>
+          </table>
+        </div>
+      </section>
+    </ModalShell>
   );
 }
 
@@ -2392,23 +2493,19 @@ function CityPointEditor({
     <div className="overflow-hidden rounded-2xl border border-[#cccccc] bg-white">
       <div className="border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-3">
         <p className="m-0 text-sm leading-6 text-[#4d4d4d]">
-          روی محل مرکز شهر کلیک کنید؛ مختصات به‌صورت خودکار ثبت می‌شود.
+          نقشه را جابه‌جا کنید تا نشانگر روی موقعیت دقیق آژانس قرار بگیرد.
         </p>
       </div>
-      <div className="h-[340px] w-full overflow-hidden">
-        <MapContainer center={point} className="h-full w-full" scrollWheelZoom zoom={11}>
+      <div className="relative h-[340px] w-full overflow-hidden">
+        <MapContainer attributionControl={false} center={point} className="h-full w-full" scrollWheelZoom zoom={15} zoomControl={false}>
           <TileLayer
             attribution={searchMapTileConfig.attribution}
             tms={searchMapTileConfig.isTms}
             url={searchMapTileConfig.urlTemplate}
           />
-          <MapPointClickCollector onSelect={selectPoint} />
-          <CircleMarker
-            center={point}
-            pathOptions={{ color: CRM_BLUE, fillColor: CRM_BLUE, fillOpacity: 0.28, weight: 3 }}
-            radius={9}
-          />
+          <MapCenterCollector onSelect={selectPoint} />
         </MapContainer>
+        <span className="pointer-events-none absolute left-1/2 top-1/2 z-[500] -translate-x-1/2 -translate-y-full"><MapPickerPinIcon /></span>
       </div>
       <div className="flex items-center justify-between gap-4 border-t border-[#e5e5e5] px-4 py-3 text-sm">
         <span className="font-medium text-[#4d4d4d]">مختصات انتخاب‌شده</span>
@@ -2447,13 +2544,13 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
           })}
         </div>
       ) : null}
-      <div className="mt-3 max-h-48 space-y-1 overflow-y-auto">
+      <div className="mt-3 max-h-56 space-y-1 overflow-y-auto">
         {neighborhoodsQuery.isLoading ? <p className="px-2 text-sm text-[#7b8494]">در حال جستجو...</p> : neighborhoodsQuery.data?.map((neighborhood) => {
           const id = String(neighborhood.id ?? neighborhood._id ?? "");
           const checked = selectedIds.includes(id);
           return (
-            <button className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-right text-sm ${checked ? "bg-[#eef4ff] font-bold text-[#0048c4]" : "hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
-              <span>{neighborhood.name}</span><span>{checked ? "✓" : "+"}</span>
+            <button aria-pressed={checked} className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-2 text-right text-base transition-colors active:bg-[#0048c40a] ${checked ? "text-[#0048c4]" : "text-[#1a1a1a] hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
+              <span className="min-w-0 flex-1 truncate">{neighborhood.name}</span><SelectionCheckIndicator checked={checked} />
             </button>
           );
         })}
@@ -2462,14 +2559,19 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
   );
 }
 
-function MapPointClickCollector({ onSelect }: { onSelect: (point: LatLngTuple) => void }) {
+function MapCenterCollector({ onSelect }: { onSelect: (point: LatLngTuple) => void }) {
   useMapEvents({
-    click(event) {
-      onSelect([event.latlng.lat, event.latlng.lng]);
+    moveend(event) {
+      const center = event.target.getCenter();
+      onSelect([center.lat, center.lng]);
     },
   });
 
   return null;
+}
+
+function MapPickerPinIcon() {
+  return <svg aria-hidden="true" className="h-[42px] w-[31px] drop-shadow-[0_8px_14px_rgba(26,26,26,0.18)]" fill="none" viewBox="0 0 31 42"><ellipse cx="15" cy="40.5" fill="#1A1A1A" fillOpacity=".12" rx="6" ry="1.5"/><path d="M20.738 30.061C26.721 27.916 31 22.199 31 15.484 31 6.932 24.06 0 15.5 0S0 6.932 0 15.484c0 6.715 4.279 12.431 10.261 14.577 2.136.868 3.947 2.591 3.947 4.778v3.87a1.292 1.292 0 0 0 2.584 0v-3.87c0-2.187 1.811-3.91 3.946-4.778Z" fill="#11A366"/><circle cx="15.5" cy="15" r="6" fill="white"/></svg>;
 }
 
 function parseMapPointValue(value: string) {
@@ -2692,30 +2794,25 @@ function StatusBadge({ status }: { status: unknown }) {
   return <span className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${tone}`}>{advertiseStatusLabel(status)}</span>;
 }
 
-function normalizeAgencyStatus(status: unknown): "wait" | "accepted" | "rejected" {
-  return status === "accepted" || status === "rejected" ? status : "wait";
-}
+function normalizeAgencyStatus(status: unknown): "wait" | "accept" | "reject" {
+  const normalized = String(status ?? "").trim().toLowerCase();
 
-function buildAgencyPayload(agency: CrmRecord, status = normalizeAgencyStatus(agency.status)): CrmRecord {
-  return {
-    about_us: readText(agency, ["about_us"], ""),
-    address: readText(agency, ["address"], ""),
-    lat: readText(agency, ["lat"], String(DEFAULT_CENTER[0])),
-    lng: readText(agency, ["lng"], String(DEFAULT_CENTER[1])),
-    name: readText(agency, ["name"], ""),
-    neighborhood_ids: Array.isArray(agency.neighborhood_ids)
-      ? agency.neighborhood_ids.map(String)
-      : agency.neighborhood_id ? [String(agency.neighborhood_id)] : [],
-    phone1: readText(agency, ["phone1"], ""),
-    status,
-  };
+  if (normalized === "accept" || normalized === "accepted" || normalized === "approved") {
+    return "accept";
+  }
+
+  if (normalized === "reject" || normalized === "rejected" || normalized === "denied") {
+    return "reject";
+  }
+
+  return "wait";
 }
 
 function agencyStatusTextTone(status: unknown) {
   const normalized = normalizeAgencyStatus(status);
-  if (normalized === "accepted") return "text-[#0b8b55]";
-  if (normalized === "rejected") return "text-[#cc3342]";
-  return "text-[#a06a00]";
+  if (normalized === "accept") return "text-[#0b8b55]";
+  if (normalized === "reject") return "text-[#cc3342]";
+  return "text-[#303030]";
 }
 
 function UserStatusBadge({ status }: { status: unknown }) {

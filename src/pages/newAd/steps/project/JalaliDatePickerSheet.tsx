@@ -10,6 +10,7 @@ import "./JalaliDatePickerSheet.css";
 type JalaliDatePickerSheetProps = {
   isOpen: boolean;
   value: string;
+  title?: string;
   onClose: () => void;
   onConfirm: (value: string) => void;
 };
@@ -32,6 +33,7 @@ function getInitialDate(value: string) {
 export function JalaliDatePickerSheet({
   isOpen,
   value,
+  title = "تاریخ تحویل",
   onClose,
   onConfirm,
 }: JalaliDatePickerSheetProps) {
@@ -44,7 +46,7 @@ export function JalaliDatePickerSheet({
 
   return (
     <BottomSheet
-      ariaLabel="تاریخ تحویل"
+      ariaLabel={title}
       className="rounded-t-[14px]"
       contentClassName="p-0"
       heightClassName="h-auto max-h-[calc(100dvh-48px)]"
@@ -55,7 +57,7 @@ export function JalaliDatePickerSheet({
       showHandle={false}
       showHeader
       showHeaderDivider={false}
-      title="تاریخ تحویل"
+      title={title}
       titleAlign="right"
     >
       <div className="jalali-date-sheet" dir="rtl">

@@ -38,7 +38,6 @@ import { getRequestErrorState } from "../../components/ErrorState";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
-import { replaceRoute } from "../../routes/navigation";
 import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
@@ -47,8 +46,25 @@ import { RequestManagementView } from "../requests/RequestManagementView";
 
 type TopBarProps = {
   action?: React.ReactNode;
+  onBack?: () => void;
   title: string;
 };
+
+type IdentityPageStep = "pending" | "verified" | "ownership";
+
+type SimCardOwnershipReason =
+  | "selling"
+  | "transferred"
+  | "purchased";
+
+const simCardOwnershipReasons: Array<{
+  id: SimCardOwnershipReason;
+  label: string;
+}> = [
+  { id: "selling", label: "می‌خواهم سیم‌کارتم را بفروشم" },
+  { id: "transferred", label: "سیم‌کارتم را واگذار کرده‌ام" },
+  { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
+];
 
 const adFilters: Array<{ label: string; type: MyAdsType }> = [
   { label: "همه", type: "all" },
@@ -999,22 +1015,41 @@ export function AccountRecentViewsPage() {
 }
 
 export function AccountIdentityPage() {
-  const [status, setStatus] = useState<"pending" | "verified">("pending");
+  const [step, setStep] = useState<IdentityPageStep>("pending");
+  const [isOwnershipWarningOpen, setIsOwnershipWarningOpen] = useState(false);
   const { message, showNotice } = useDemoNotice();
   const authorize = useAuthorizeMeMutation();
   const { data: profile } = useMyProfileQuery();
   const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
+  const mobile = getStoredAuthSession()?.mobile ?? "-";
 
   useEffect(() => {
-    if (isUserIdentityVerified(profile)) {
-      setStatus("verified");
+    if (isUserIdentityVerified(profile) && step === "pending") {
+      setStep("verified");
     }
-  }, [profile]);
+  }, [profile, step]);
+
+  const title =
+    step === "pending"
+      ? "تایید هویت"
+      : step === "verified"
+        ? "مالکیت سیم‌کارت"
+        : "ثبت تغییر مالکیت سیم‌کارت";
 
   return (
-    <AccountPageShell title={status === "verified" ? "مالکیت سیم‌کارت" : "تایید هویت"}>
+    <AccountPageShell
+      onBack={
+        step === "ownership"
+          ? () => {
+              setIsOwnershipWarningOpen(false);
+              setStep("verified");
+            }
+          : undefined
+      }
+      title={title}
+    >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
-        {status === "pending" ? (
+        {step === "pending" ? (
           <IdentityPendingState
             isPending={authorize.isPending}
             showRequiredNotice={isAuthRequired}
@@ -1026,18 +1061,71 @@ export function AccountIdentityPage() {
                     showNotice(getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"));
                   },
                   onSuccess: () => {
-                    setStatus("verified");
+                    setStep("verified");
                     showNotice("کد ملی با موفقیت تایید شد");
-                    replaceRoute("/account", undefined, { rememberCurrent: false });
                   },
                 },
               );
             }}
           />
-        ) : (
-          <IdentityVerifiedState onChangeOwner={() => showNotice("درخواست تغییر مالکیت ثبت شد")} />
-        )}
+        ) : null}
+
+        {step === "verified" ? (
+          <IdentityVerifiedState onChangeOwner={() => setStep("ownership")} />
+        ) : null}
+
+        {step === "ownership" ? (
+          <SimCardOwnershipChangeState
+            onSubmit={() => setIsOwnershipWarningOpen(true)}
+          />
+        ) : null}
       </main>
+
+      <BottomSheet
+        ariaLabel="هشدار تغییر مالکیت سیم‌کارت"
+        contentClassName="px-4 pb-4 pt-4"
+        heightClassName="h-[220px]"
+        isOpen={isOwnershipWarningOpen}
+        onClose={() => setIsOwnershipWarningOpen(false)}
+        panelPaddingClassName="pt-4"
+        showHeader={false}
+      >
+        <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
+          <WarningTriangleIcon className="h-5 w-5 shrink-0" />
+          <h2 className="m-0 text-sm font-semibold leading-6">هشدار</h2>
+        </div>
+
+        <p className="m-0 mt-3 text-right text-xs font-normal leading-6 text-[#4d4d4d]">
+          با اعلام تغییر مالکیت سیم‌کارت، همه آگهی‌های این حساب کاربری
+          {" "}
+          <span dir="ltr" className="font-medium text-[#1a1a1a]">
+            ({mobile})
+          </span>
+          {" "}
+          غیرفعال می‌شوند.
+        </p>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 [direction:ltr]">
+          <button
+            className="h-10 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+            onClick={() => {
+              setIsOwnershipWarningOpen(false);
+              setStep("verified");
+              showNotice("درخواست تغییر مالکیت سیم‌کارت ثبت شد");
+            }}
+            type="button"
+          >
+            تایید
+          </button>
+          <button
+            className="h-10 rounded-lg border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4]"
+            onClick={() => setIsOwnershipWarningOpen(false)}
+            type="button"
+          >
+            انصراف
+          </button>
+        </div>
+      </BottomSheet>
 
       <DemoNotice message={message} className="bottom-20" />
     </AccountPageShell>
@@ -1113,7 +1201,7 @@ export function AccountAboutPage() {
   );
 }
 
-function AccountPageShell({ action, children, title }: React.PropsWithChildren<TopBarProps>) {
+function AccountPageShell({ action, children, onBack, title }: React.PropsWithChildren<TopBarProps>) {
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -1121,6 +1209,7 @@ function AccountPageShell({ action, children, title }: React.PropsWithChildren<T
     >
       <TopBar
         backTo="/account"
+        onBack={onBack}
         startSlot={
           <div className="flex h-12 w-12 shrink-0 items-center justify-center">
             {action}
@@ -1557,6 +1646,66 @@ function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void })
   );
 }
 
+function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void }) {
+  const [selectedReason, setSelectedReason] =
+    useState<SimCardOwnershipReason>("selling");
+
+  return (
+    <>
+      <section className="px-4 pt-5">
+        <div className="space-y-7">
+          {simCardOwnershipReasons.map((reason) => {
+            const isSelected = selectedReason === reason.id;
+
+            return (
+              <label
+                className="flex cursor-pointer items-center justify-start gap-3 text-right"
+                key={reason.id}
+              >
+                <input
+                  checked={isSelected}
+                  className="sr-only"
+                  name="sim-card-ownership-reason"
+                  onChange={() => setSelectedReason(reason.id)}
+                  type="radio"
+                  value={reason.id}
+                />
+
+                <span
+                  aria-hidden="true"
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${
+                    isSelected
+                      ? "border-[#0048c4]"
+                      : "border-[#808080]"
+                  }`}
+                >
+                  {isSelected ? (
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#0048c4]" />
+                  ) : null}
+                </span>
+
+                <span className="text-sm font-normal leading-6 text-[#1a1a1a]">
+                  {reason.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
+      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+        <button
+          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+          onClick={onSubmit}
+          type="button"
+        >
+          ثبت
+        </button>
+      </div>
+    </>
+  );
+}
+
 function EmptyMessage({ text }: { text: string }) {
   return (
     <p className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
@@ -1909,6 +2058,25 @@ function InfoCircleIcon({ className = "" }: { className?: string }) {
       <circle cx="12" cy="12" r="9" />
       <path d="M12 11v5" />
       <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
+function WarningTriangleIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M10.3 4.2 2.6 17.5A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.5L13.7 4.2a2 2 0 0 0-3.4 0Z" />
+      <path d="M12 9v4" />
+      <path d="M12 16.5h.01" />
     </svg>
   );
 }

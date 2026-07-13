@@ -5,9 +5,8 @@ import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
   SUPER_ADMIN,
-  USER,
 } from '../constants/roles.constants'
-import type { AuthSession } from '../auth/auth-storage'
+import { normalizeAuthRoleSlug, type AuthSession } from '../auth/auth-storage'
 
 type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>
 
@@ -133,18 +132,21 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
 
   if (!session) return false
 
-  const roleSlugs = new Set<string>([
-    session.role,
-    ...session.roles.map((role) => role.slug),
-  ])
+  const activeRole = normalizeAuthRoleSlug(session.activeRole ?? session.role)
 
-  if (route.requiresNonUser) {
-    const hasBusinessRole = DASHBOARD_ROLES.some((role) => roleSlugs.has(role))
-    if (!hasBusinessRole) return false
+  if (route.requiresNonUser && !DASHBOARD_ROLES.some((role) => role === activeRole)) {
+    return false
   }
 
   if (route.authority?.length) {
-    return route.authority.some((role) => roleSlugs.has(role))
+    if (route.layout === 'crm' && route.authority.includes(SUPER_ADMIN)) {
+      return (
+        activeRole === SUPER_ADMIN ||
+        session.roles.some((role) => normalizeAuthRoleSlug(role.slug ?? role.name) === SUPER_ADMIN)
+      )
+    }
+
+    return route.authority.includes(activeRole)
   }
 
   return true
@@ -256,28 +258,24 @@ export const routes: AppRoute[] = [
     path: '/account/business/create',
     title: 'ایجاد کسب و کار',
     Component: BusinessCreationPage,
-    authority: [USER],
     requiresAuth: true,
   },
   {
     path: '/account/business/create/agency',
     title: 'ایجاد کسب و کار',
     Component: AgencyBusinessCreationPage,
-    authority: [USER],
     requiresAuth: true,
   },
   {
     path: '/account/business/create/consultant',
     title: 'ایجاد کسب و کار',
     Component: IndependentConsultantBusinessCreationPage,
-    authority: [USER],
     requiresAuth: true,
   },
   {
     path: '/account/business/create/info',
     title: 'معرفی کسب و کار',
     Component: BusinessInfoPage,
-    authority: [USER],
     requiresAuth: true,
   },
   {

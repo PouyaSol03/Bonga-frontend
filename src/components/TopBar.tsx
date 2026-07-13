@@ -86,7 +86,7 @@ function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" 
 
 function TopBarIconButton({ action }: { action: TopBarAction }) {
   const className =
-    "grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
+    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
 
   if (action.to) {
     return (
@@ -116,7 +116,7 @@ function TopBarBackButton({
   onBack,
 }: Pick<TopBarProps, "backIconDirection" | "backLabel" | "backState" | "backTo" | "onBack">) {
   const className =
-    "grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
+    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
 
   return (
     <button

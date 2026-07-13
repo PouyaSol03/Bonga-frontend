@@ -480,9 +480,7 @@ function StandardAccountPage({
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
   const isAccountLoading = isLoggedIn && (isProfileLoading || (hasAgencyRole && isAgencyProfileLoading));
-  const primaryAccountActions = isUserIdentityVerified(profile)
-    ? primaryActions.filter((action) => action.icon !== "identity")
-    : primaryActions;
+  const primaryAccountActions = primaryActions;
   const accountOverlay = (
     <>
       {businessSuccessSheet}

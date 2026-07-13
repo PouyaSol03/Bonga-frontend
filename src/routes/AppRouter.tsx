@@ -7,8 +7,7 @@ import { BottomNavigation } from '../components/BottomNavigation'
 import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../components/ErrorState'
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
-import { SUPER_ADMIN, USER } from '../constants/roles.constants'
-import { DashboardLayout } from '../dashboard/DashboardLayout'
+import { SUPER_ADMIN } from '../constants/roles.constants'
 import { isUserIdentityVerified } from "../services/account.service";
 import { useMyProfileQuery } from '../hooks/account.hooks'
 import { useNotificationUnreadCountQuery } from '../hooks/notification.hooks'
@@ -22,8 +21,6 @@ import {
 } from './routes'
 import LinearUserAccount from '../components/(icons)/LinearUserAccount'
 
-const desktopDashboardMediaQuery = '(min-width: 501px)'
-const desktopCrmMediaQuery = '(min-width: 768px)'
 
 function RouteNotFoundPage() {
   return <NotFoundErrorState />
@@ -78,22 +75,6 @@ function hasStoredCity() {
     window.localStorage.getItem('bonga-selected-city-id') ||
       window.localStorage.getItem('bonga-selected-city'),
   )
-}
-
-function isDesktopDashboardViewport() {
-  return window.matchMedia(desktopDashboardMediaQuery).matches
-}
-
-function getDesktopAccountDestination(session: ReturnType<typeof getStoredAuthSession>) {
-  if (!session) return null
-
-  const activeRole = session.activeRole ?? null
-
-  if (!activeRole || activeRole === USER) return null
-  if (activeRole === SUPER_ADMIN) return null
-  if (!isDesktopDashboardViewport()) return null
-
-  return DASHBOARD_PATH
 }
 
 function NotificationTopBarIcon() {
@@ -237,15 +218,6 @@ function getResolvedPath() {
     const loginRequiredPath = getLoginRequiredPath(returnTo)
     window.history.replaceState({}, '', loginRequiredPath)
     return '/login-required'
-  }
-
-  const desktopAccountDestination = path === '/account'
-    ? getDesktopAccountDestination(session)
-    : null
-
-  if (desktopAccountDestination) {
-    window.history.replaceState({}, '', desktopAccountDestination)
-    return desktopAccountDestination
   }
 
   if (!canAccessRoute(route, session)) {
@@ -625,21 +597,10 @@ export function AppRouter() {
       window.scrollTo({ top: 0 })
     }
 
-    function handleViewportChange() {
-      setPath(getResolvedPath())
-    }
-
-    const desktopDashboardMedia = window.matchMedia(desktopDashboardMediaQuery)
-    const desktopCrmMedia = window.matchMedia(desktopCrmMediaQuery)
-
     window.addEventListener('popstate', handleNavigation)
-    desktopDashboardMedia.addEventListener('change', handleViewportChange)
-    desktopCrmMedia.addEventListener('change', handleViewportChange)
 
     return () => {
       window.removeEventListener('popstate', handleNavigation)
-      desktopDashboardMedia.removeEventListener('change', handleViewportChange)
-      desktopCrmMedia.removeEventListener('change', handleViewportChange)
     }
   }, [])
 
@@ -701,18 +662,6 @@ export function AppRouter() {
       <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
         <CrmPage embeddedContent={page} />
       </Suspense>
-    )
-  }
-
-  if (route.layout === 'dashboard' && authSession && isDesktopDashboardViewport()) {
-    return (
-      <DashboardLayout
-        activePath={path}
-        session={authSession}
-        title={route.title}
-      >
-        {page}
-      </DashboardLayout>
     )
   }
 

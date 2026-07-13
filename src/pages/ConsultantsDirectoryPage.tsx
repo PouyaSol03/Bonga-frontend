@@ -1,22 +1,27 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
+import { getRequestErrorState } from "../components/ErrorState";
+import { useAgencyInfiniteQuery } from "../hooks/agency.hooks";
 import { useNeighborhoodListQuery } from "../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../lib/selectedCityStorage";
+import type { AgencySort, PublicAgencyDto } from "../services/agency.service";
 import type { NeighborhoodDto } from "../services/neighborhood.service";
 
 type DirectoryMode = "agency" | "consultant";
 
 type DirectoryItem = {
+  address?: string;
   badge?: string;
-  image: string;
+  id?: string;
+  image?: string;
   name: string;
   rank: string;
   score: string;
 };
 
-type SortOptionId = "score" | "rank" | "newest" | "responsive";
+type SortOptionId = AgencySort;
 
 type SortOption = {
   id: SortOptionId;
@@ -27,54 +32,46 @@ const sortOptions: SortOption[] = [
   { id: "score", label: "امتیاز" },
   { id: "rank", label: "رتبه" },
   { id: "newest", label: "جدیدترین" },
-  { id: "responsive", label: "باسابقه‌ترین" },
+  { id: "oldest", label: "قدیمی‌ترین" },
 ];
 
 const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+const agencyPageSize = 20;
+const searchDebounceMs = 350;
 
-function toPersianNumber(value: number) {
+function toPersianNumber(value: number | string) {
   return String(value).replace(
     /\d/g,
     (digit) => persianDigits[Number(digit)] ?? digit,
   );
 }
 
+function useDebouncedValue<T>(value: T, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delay);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [delay, value]);
+
+  return debouncedValue;
+}
+
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
 }
 
-const agencyItems: DirectoryItem[] = [
-  {
-    image: "/figma/consultants/agency-jaliliyan.png",
-    name: "املاک جلیلیان",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    image: "/figma/consultants/agency-mal.png",
-    name: "املاک مال مشهد",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    image: "/figma/consultants/agency-tamadon.png",
-    name: "املاک تمدن",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    image: "/figma/consultants/agency-ivan.png",
-    name: "املاک ایوان",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    image: "/figma/consultants/agency-novin.png",
-    name: "املاک نوین مشهد",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-];
+function mapAgencyToDirectoryItem(agency: PublicAgencyDto): DirectoryItem {
+  return {
+    address: agency.address,
+    id: agency.id,
+    image: agency.logo ?? agency.img,
+    name: agency.name,
+    rank: toPersianNumber(agency.rank),
+    score: toPersianNumber(agency.score),
+  };
+}
 
 const consultantItems: DirectoryItem[] = [
   {
@@ -130,6 +127,21 @@ function setRouteMode(mode: DirectoryMode) {
     mode === "consultant" ? "/consultants?type=consultant" : "/consultants";
 
   window.history.pushState({}, "", nextPath);
+}
+
+function navigateToAgency(item: DirectoryItem) {
+  if (!item.id) return;
+
+  const params = new URLSearchParams();
+
+  if (item.name) params.set("name", item.name);
+  if (item.address) params.set("location", item.address);
+
+  const queryString = params.toString();
+  const path = `/agencies/${encodeURIComponent(item.id)}${queryString ? `?${queryString}` : ""}`;
+
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 function BackIcon() {
@@ -284,20 +296,6 @@ function MapLocationIcon() {
   );
 }
 
-function SelectionCheckIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg border ${
-        checked
-          ? "border-[#0048C4] bg-[#0048C4] text-white"
-          : "border-[#808080] bg-white"
-      }`}
-    >
-      {checked ? <img alt="" src="/icons/checkTick.svg" /> : null}
-    </span>
-  );
-}
-
 function RadioIndicator({ checked }: { checked: boolean }) {
   return (
     <span
@@ -373,17 +371,28 @@ function FilterChip({
 function DirectoryCard({
   item,
   mode,
+  onClick,
 }: {
   item: DirectoryItem;
   mode: DirectoryMode;
+  onClick?: () => void;
 }) {
-  return (
-    <article className="mx-4 flex h-[104px] items-center gap-4 rounded-xl border border-[#d1d1d1] bg-white p-4 shadow-[0_0_6px_rgba(26,26,26,0.04)]">
-      <img
-        alt=""
-        className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} h-[72px] w-[72px] shrink-0 object-cover shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
-        src={item.image}
-      />
+  const content = (
+    <>
+      {item.image ? (
+        <img
+          alt=""
+          className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} h-[72px] w-[72px] shrink-0 object-cover shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
+          src={item.image}
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} grid h-[72px] w-[72px] shrink-0 place-items-center bg-[#e9f1ff] text-2xl font-bold text-[#0048c4] shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
+        >
+          {item.name.trim().charAt(0) || "آ"}
+        </span>
+      )}
 
       <div className="flex h-full min-w-0 flex-1 flex-col text-right">
         <h2 className="mt-1 truncate text-base font-semibold leading-6 text-[#4d4d4d]">
@@ -391,34 +400,64 @@ function DirectoryCard({
         </h2>
 
         {item.badge ? (
-          <span className="w-fit mt-0.5 rounded-full bg-[#80808014] px-2 text-[9px] font-medium  text-[#808080]">
+          <span className="mt-0.5 w-fit rounded-full bg-[#80808014] px-2 text-[9px] font-medium text-[#808080]">
             {item.badge}
+          </span>
+        ) : item.address ? (
+          <span className="mt-0.5 max-w-full truncate text-[10px] font-normal leading-4 text-[#808080]">
+            {item.address}
           </span>
         ) : null}
 
         <div className="mt-auto flex items-center justify-between [direction:ltr]">
           <div className="flex items-center [direction:rtl]">
             <RankIcon />
-            <span className="text-xs font-normal mr-1 leading-4 text-[#1a1a1a]">
+            <span className="mr-1 text-xs font-normal leading-4 text-[#1a1a1a]">
               رتبه
             </span>
-            <span className="text-sm font-semibold mr-2 leading-4 text-[#00a66a]">
+            <span className="mr-2 text-sm font-semibold leading-4 text-[#00a66a]">
               {item.rank}
             </span>
           </div>
 
           <div className="flex items-center [direction:rtl]">
             <StarIcon />
-            <span className="text-xs font-normal mr-1 leading-4 text-[#1a1a1a]">
+            <span className="mr-1 text-xs font-normal leading-4 text-[#1a1a1a]">
               امتیاز
             </span>
-            <span className="text-sm font-semibold mr-2 leading-6 text-[#00a66a]">
+            <span className="mr-2 text-sm font-semibold leading-6 text-[#00a66a]">
               {item.score}
             </span>
           </div>
         </div>
       </div>
-    </article>
+    </>
+  );
+  const className =
+    "mx-4 flex h-[104px] w-[calc(100%_-_2rem)] items-center gap-4 rounded-xl border border-[#d1d1d1] bg-white p-4 text-right shadow-[0_0_6px_rgba(26,26,26,0.04)]";
+
+  return onClick ? (
+    <button className={`${className} active:bg-[#fafafa]`} onClick={onClick} type="button">
+      {content}
+    </button>
+  ) : (
+    <article className={className}>{content}</article>
+  );
+}
+
+function DirectoryCardSkeleton() {
+  return (
+    <div className="mx-4 flex h-[104px] items-center gap-4 rounded-xl border border-[#e5e5e5] bg-white p-4">
+      <div className="h-[72px] w-[72px] shrink-0 animate-pulse rounded-xl bg-[#f0f0f0]" />
+      <div className="min-w-0 flex-1">
+        <div className="h-5 w-2/3 animate-pulse rounded-full bg-[#f0f0f0]" />
+        <div className="mt-3 h-3 w-1/2 animate-pulse rounded-full bg-[#f0f0f0]" />
+        <div className="mt-4 flex justify-between">
+          <div className="h-4 w-20 animate-pulse rounded-full bg-[#f0f0f0]" />
+          <div className="h-4 w-20 animate-pulse rounded-full bg-[#f0f0f0]" />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -427,19 +466,19 @@ export function ConsultantsDirectoryPage() {
   const [isNeighborhoodSheetOpen, setIsNeighborhoodSheetOpen] = useState(false);
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
   const [neighborhoodQuery, setNeighborhoodQuery] = useState("");
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<
-    NeighborhoodDto[]
-  >([]);
+  const [search, setSearch] = useState("");
+  const [selectedNeighborhood, setSelectedNeighborhood] =
+    useState<NeighborhoodDto | null>(null);
   const [selectedSort, setSelectedSort] = useState<SortOptionId | null>(null);
+  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
 
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
-  const items = mode === "agency" ? agencyItems : consultantItems;
+  const debouncedSearch = useDebouncedValue(search.trim(), searchDebounceMs);
+  const selectedNeighborhoodId = selectedNeighborhood
+    ? getNeighborhoodId(selectedNeighborhood)
+    : undefined;
   const searchPlaceholder = mode === "agency" ? "جستجوی آژانس" : "جستجوی مشاور";
-  const selectedNeighborhoodIds = useMemo(
-    () => new Set(selectedNeighborhoods.map(getNeighborhoodId)),
-    [selectedNeighborhoods],
-  );
   const neighborhoodsQuery = useNeighborhoodListQuery({
     cityId,
     enabled: isNeighborhoodSheetOpen && mode === "agency" && Boolean(cityId),
@@ -448,37 +487,106 @@ export function ConsultantsDirectoryPage() {
     q: neighborhoodQuery,
   });
   const neighborhoods = neighborhoodsQuery.data ?? [];
+  const agenciesQuery = useAgencyInfiniteQuery({
+    enabled: mode === "agency",
+    neighborhoodId: selectedNeighborhoodId,
+    perPage: agencyPageSize,
+    search: debouncedSearch,
+    sort: selectedSort ?? undefined,
+  });
+  const agencyDirectoryItems = useMemo(
+    () =>
+      agenciesQuery.data?.pages.flatMap((page) =>
+        page.data.map(mapAgencyToDirectoryItem),
+      ) ?? [],
+    [agenciesQuery.data],
+  );
+  const consultantDirectoryItems = useMemo(() => {
+    const normalizedSearch = search.trim().toLocaleLowerCase("fa");
+
+    if (!normalizedSearch) return consultantItems;
+
+    return consultantItems.filter((item) =>
+      `${item.name} ${item.badge ?? ""}`
+        .toLocaleLowerCase("fa")
+        .includes(normalizedSearch),
+    );
+  }, [search]);
+  const items =
+    mode === "agency" ? agencyDirectoryItems : consultantDirectoryItems;
   const selectedSortOption = sortOptions.find(
     (option) => option.id === selectedSort,
   );
-  const neighborhoodChipLabel =
-    selectedNeighborhoods.length === 0
-      ? "محله"
-      : selectedNeighborhoods.length === 1
-        ? selectedNeighborhoods[0].name
-        : `${toPersianNumber(selectedNeighborhoods.length)} محله`;
+  const neighborhoodChipLabel = selectedNeighborhood?.name ?? "محله";
+  const loadMoreTriggerIndex = Math.max(agencyDirectoryItems.length - 3, 0);
+  const AgencyErrorState = getRequestErrorState(agenciesQuery.error);
+
+  const loadMoreSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      loadMoreObserverRef.current?.disconnect();
+      loadMoreObserverRef.current = null;
+
+      if (
+        !node ||
+        mode !== "agency" ||
+        !agenciesQuery.hasNextPage ||
+        agenciesQuery.isFetchingNextPage
+      ) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0]?.isIntersecting &&
+            agenciesQuery.hasNextPage &&
+            !agenciesQuery.isFetchingNextPage
+          ) {
+            void agenciesQuery.fetchNextPage();
+          }
+        },
+        { root: null, rootMargin: "240px 0px", threshold: 0 },
+      );
+
+      observer.observe(node);
+      loadMoreObserverRef.current = observer;
+    },
+    [
+      agenciesQuery.fetchNextPage,
+      agenciesQuery.hasNextPage,
+      agenciesQuery.isFetchingNextPage,
+      mode,
+    ],
+  );
+
+  useEffect(
+    () => () => {
+      loadMoreObserverRef.current?.disconnect();
+    },
+    [],
+  );
 
   const handleModeChange = (nextMode: DirectoryMode) => {
     setMode(nextMode);
+    setSearch("");
+    setIsNeighborhoodSheetOpen(false);
+    setIsSortSheetOpen(false);
     setRouteMode(nextMode);
   };
 
-  const toggleNeighborhood = (neighborhood: NeighborhoodDto) => {
+  const selectNeighborhood = (neighborhood: NeighborhoodDto) => {
     const neighborhoodId = getNeighborhoodId(neighborhood);
 
-    setSelectedNeighborhoods((current) => {
-      if (current.some((item) => getNeighborhoodId(item) === neighborhoodId)) {
-        return current.filter(
-          (item) => getNeighborhoodId(item) !== neighborhoodId,
-        );
-      }
-
-      return [...current, neighborhood];
-    });
+    setSelectedNeighborhood((current) =>
+      current && getNeighborhoodId(current) === neighborhoodId
+        ? null
+        : neighborhood,
+    );
+    setIsNeighborhoodSheetOpen(false);
   };
 
-  const clearNeighborhoods = () => {
-    setSelectedNeighborhoods([]);
+  const clearNeighborhood = () => {
+    setSelectedNeighborhood(null);
   };
 
   return (
@@ -505,8 +613,10 @@ export function ConsultantsDirectoryPage() {
           <label className="relative flex h-12 items-center rounded-xl border border-[#808080] bg-white text-[#808080]">
             <input
               className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              onChange={(event) => setSearch(event.target.value)}
               placeholder={searchPlaceholder}
               type="search"
+              value={search}
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4d4d4d]">
               <SearchIcon />
@@ -525,15 +635,11 @@ export function ConsultantsDirectoryPage() {
           />
           {mode === "agency" ? (
             <FilterChip
-              active={selectedNeighborhoods.length > 0}
+              active={Boolean(selectedNeighborhood)}
               icon="location"
               label={neighborhoodChipLabel}
               onClick={() => setIsNeighborhoodSheetOpen(true)}
-              onRemove={
-                selectedNeighborhoods.length > 0
-                  ? clearNeighborhoods
-                  : undefined
-              }
+              onRemove={selectedNeighborhood ? clearNeighborhood : undefined}
             />
           ) : null}
           <FilterChip
@@ -547,11 +653,62 @@ export function ConsultantsDirectoryPage() {
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white py-4 [-webkit-overflow-scrolling:touch]">
-        <div className="space-y-4 pb-20">
-          {items.map((item) => (
-            <DirectoryCard item={item} key={item.name} mode={mode} />
-          ))}
-        </div>
+        {mode === "agency" && agenciesQuery.isLoading ? (
+          <div className="space-y-4 pb-20">
+            {Array.from({ length: 5 }, (_, index) => (
+              <DirectoryCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : mode === "agency" && agenciesQuery.isError && items.length === 0 ? (
+          <AgencyErrorState
+            className="min-h-[420px]"
+            onRetry={() => void agenciesQuery.refetch()}
+          />
+        ) : items.length > 0 ? (
+          <div className="space-y-4 pb-20">
+            {items.map((item, index) => {
+              const shouldAttachLoadMoreRef =
+                mode === "agency" &&
+                agenciesQuery.hasNextPage &&
+                index === loadMoreTriggerIndex;
+
+              return (
+                <div
+                  key={item.id ?? `${item.name}-${index}`}
+                  ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+                >
+                  <DirectoryCard
+                    item={item}
+                    mode={mode}
+                    onClick={
+                      mode === "agency" && item.id
+                        ? () => navigateToAgency(item)
+                        : undefined
+                    }
+                  />
+                </div>
+              );
+            })}
+            {mode === "agency" && agenciesQuery.isFetchingNextPage ? (
+              <>
+                <DirectoryCardSkeleton />
+                <DirectoryCardSkeleton />
+              </>
+            ) : null}
+          </div>
+        ) : (
+          <div className="flex min-h-[360px] flex-col items-center justify-center px-6 text-center">
+            <div className="grid h-14 w-14 place-items-center rounded-full bg-[#f0f0f0] text-[#808080]">
+              <SearchIcon />
+            </div>
+            <h2 className="m-0 mt-4 text-base font-semibold leading-6 text-[#1a1a1a]">
+              نتیجه‌ای پیدا نشد
+            </h2>
+            <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#808080]">
+              عبارت جستجو یا فیلترهای انتخاب‌شده را تغییر دهید.
+            </p>
+          </div>
+        )}
       </main>
 
       {mode === "agency" ? (
@@ -599,10 +756,10 @@ export function ConsultantsDirectoryPage() {
           ) : null}
         </label>
 
-        {selectedNeighborhoods.length > 0 ? (
+        {selectedNeighborhood ? (
           <button
             className="mt-3 h-10 shrink-0 self-start rounded-lg px-2 text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
-            onClick={clearNeighborhoods}
+            onClick={clearNeighborhood}
             type="button"
           >
             پاک کردن انتخاب
@@ -627,7 +784,10 @@ export function ConsultantsDirectoryPage() {
             <div className="space-y-1">
               {neighborhoods.map((neighborhood) => {
                 const neighborhoodId = getNeighborhoodId(neighborhood);
-                const isSelected = selectedNeighborhoodIds.has(neighborhoodId);
+                const isSelected = Boolean(
+                  selectedNeighborhood &&
+                    getNeighborhoodId(selectedNeighborhood) === neighborhoodId,
+                );
 
                 return (
                   <button
@@ -636,13 +796,13 @@ export function ConsultantsDirectoryPage() {
                       isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
                     }`}
                     key={neighborhoodId}
-                    onClick={() => toggleNeighborhood(neighborhood)}
+                    onClick={() => selectNeighborhood(neighborhood)}
                     type="button"
                   >
                     <span className="min-w-0 flex-1 truncate">
                       {neighborhood.name}
                     </span>
-                    <SelectionCheckIndicator checked={isSelected} />
+                    <RadioIndicator checked={isSelected} />
                   </button>
                 );
               })}

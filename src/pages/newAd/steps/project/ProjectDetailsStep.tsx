@@ -9,6 +9,7 @@ import {
 } from "../../data";
 import type { NewAdFormValues, ProjectDetailItem } from "../../types";
 import { InputBox, Tag } from "../../components/NewAdControls";
+import { useNewAdDesktopLayout } from "../../NewAdLayoutContext";
 
 type MultiProjectKey = "floors" | "rooms" | "positions";
 
@@ -177,6 +178,7 @@ export function ProjectDetailsStep({
 }: {
   onBack: () => void;
 }) {
+  const desktop = useNewAdDesktopLayout();
   const { control, getValues, setValue } = useFormContext<NewAdFormValues>();
   const [sheet, setSheet] = useState<ProjectMultiSheet | null>(null);
   const watchedProjectDetails = useWatch({ control, name: "projectDetails" });
@@ -210,8 +212,10 @@ export function ProjectDetailsStep({
 
   return (
     <>
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-3 pt-4" dir="rtl">
-        <div className="space-y-5">
+      <main className={desktop
+        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5"
+        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-3 pt-4"} dir="rtl">
+        <div className={desktop ? "mx-auto max-w-[1120px] space-y-5" : "space-y-5"}>
           {fields.map((field, index) => (
             <ProjectDetailCard
               key={field.fieldId}
@@ -232,9 +236,11 @@ export function ProjectDetailsStep({
         </div>
       </main>
 
-      <footer className="grid grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.94)]">
+      <footer className={desktop
+        ? "flex justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
+        : "grid grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.94)]"}>
         <button
-          className="h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4]"
+          className={`h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] ${desktop ? "w-40" : ""}`}
           onClick={onBack}
           type="button"
         >
@@ -242,7 +248,7 @@ export function ProjectDetailsStep({
         </button>
 
         <button
-          className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white active:bg-[#003ba1]"
+          className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white active:bg-[#003ba1] ${desktop ? "w-48" : ""}`}
           onClick={() => append(createProjectDetailItem())}
           type="button"
         >

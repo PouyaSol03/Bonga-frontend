@@ -5,6 +5,7 @@ import { TopBar } from "../../../components/TopBar";
 import { formatPrice } from "../../../lib/MoneyHandler";
 import { normalizeNumberInput, navigateTo } from "../utils";
 import type { ChipItem } from "../types";
+import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 
 export function Header({
   title,
@@ -19,9 +20,11 @@ export function Header({
       return;
     }
 
-    window.history.length > 1
-      ? window.history.back()
-      : navigateTo("/new-ad/category");
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTo("/new-ad/category");
+    }
   };
 
   return (
@@ -40,9 +43,13 @@ export function Section({
   warning?: boolean;
   children: ReactNode;
 }) {
+  const desktop = useNewAdDesktopLayout();
+
   return (
     <section
-      className="border-b-[10px] border-[#f0f0f0] bg-white px-4 py-7 text-right last:border-b-0 [direction:rtl]"
+      className={desktop
+        ? "rounded-xl border border-[#e1e7f0] bg-white px-6 py-6 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
+        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 py-7 text-right last:border-b-0 [direction:rtl]"}
     >
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
@@ -345,10 +352,14 @@ export function Footer({
   onBack: () => void;
   disabled?: boolean;
 }) {
+  const desktop = useNewAdDesktopLayout();
+
   return (
-    <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]">
+    <footer className={desktop
+      ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
+      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]"}>
       <button
-        className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6] [direction:rtl]"
+        className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6] [direction:rtl] ${desktop ? "w-48" : ""}`}
         disabled={disabled}
         onClick={onPrimary}
         type="button"
@@ -362,7 +373,7 @@ export function Footer({
       </button>
 
       <button
-        className="flex h-12 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] [direction:rtl]"
+        className={`flex h-12 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] [direction:rtl] ${desktop ? "w-40" : ""}`}
         onClick={onBack}
         type="button"
       >
@@ -442,10 +453,14 @@ export function MoreFeaturesFooter({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const desktop = useNewAdDesktopLayout();
+
   return (
-    <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]">
+    <footer className={desktop
+      ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
+      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]"}>
       <button
-        className="h-12 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white"
+        className={`h-12 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white ${desktop ? "w-48" : ""}`}
         onClick={onConfirm}
         type="button"
       >
@@ -453,7 +468,7 @@ export function MoreFeaturesFooter({
       </button>
 
       <button
-        className="h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4]"
+        className={`h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] ${desktop ? "w-40" : ""}`}
         onClick={onCancel}
         type="button"
       >

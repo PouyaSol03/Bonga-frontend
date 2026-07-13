@@ -667,10 +667,10 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendArray("exchange_with", values.exchangeEnabled ? values.exchangeTargets : []);
 
   values.photos.forEach((photo) => {
-    formData.append("images[]", photo.file);
+    if (photo.file) formData.append("images[]", photo.file);
   });
 
-  if (values.video) {
+  if (values.video?.file) {
     formData.append("video", values.video.file);
   }
 

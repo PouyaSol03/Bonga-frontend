@@ -5,6 +5,7 @@ import type { Swiper as SwiperInstance } from "swiper";
 import "swiper/css";
 
 import { BottomSheet } from "../components/BottomSheet";
+import { AdLocationMap } from "../components/AdLocationMap";
 import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { RouteLink } from "../routes/RouteLink";
 import { TopBar } from "../components/TopBar";
@@ -382,21 +383,13 @@ function MapPreview({
   latitude: number;
   longitude: number;
 }) {
-  const mapSrc = `https://neshan.org/maps/iframe/places/78bff763c73354cd9b7a48dd01792bf9#c${latitude}-${longitude}-15z-0p/${latitude}/${longitude}`;
-
   return (
-    <div className="relative mt-6 h-[198px] overflow-hidden rounded-2xl border border-[#ebebeb] bg-[#fafafa]">
-      <iframe
-        allowFullScreen
-        className="pointer-events-none h-full w-full border-0"
-        height="300"
-        loading="lazy"
-        src={mapSrc}
-        tabIndex={-1}
-        title="map-iframe"
-        width="450"
-      />
-    </div>
+    <AdLocationMap
+      className="mt-6"
+      latitude={latitude}
+      longitude={longitude}
+      title="موقعیت آگهی روی نقشه"
+    />
   );
 }
 

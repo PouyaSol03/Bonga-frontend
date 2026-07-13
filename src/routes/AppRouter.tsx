@@ -44,6 +44,7 @@ const AccountMyAdStatePage = lazyNamed(
   () => import('../pages/account/AccountMyAdStatePage'),
   'AccountMyAdStatePage',
 )
+const CrmPage = lazyNamed(() => import('../pages/crm/CrmPage'), 'CrmPage')
 const AdPaymentHistoryPage = lazyNamed(
   () => import('../pages/account/adManagement/AdPaymentHistoryPage'),
   'AdPaymentHistoryPage',
@@ -136,6 +137,11 @@ function getLoginRequiredPath(returnTo: string) {
 }
 
 function shouldRequireIdentityForPath(path: string) {
+  if (
+    path.startsWith('/new-ad') &&
+    new URLSearchParams(window.location.search).get('editSource') === 'crm'
+  ) return false
+
   if (path === '/account') return false
   if (path === '/account/profile') return false
   if (path === '/account/identity') return false
@@ -420,6 +426,21 @@ function getAppChromeConfig(path: string, title: string): AppChromeConfig {
 }
 
 function getRoute(path: string): AppRoute {
+  if (
+    path.startsWith('/new-ad') &&
+    new URLSearchParams(window.location.search).get('editSource') === 'crm'
+  ) {
+    const newAdRoute = routes.find((route) => route.path === path)
+
+    if (newAdRoute) {
+      return {
+        ...newAdRoute,
+        authority: [SUPER_ADMIN],
+        requiresAuth: true,
+      }
+    }
+  }
+
   if (/^\/crm\/advertises\/[^/]+\/?$/.test(path)) {
     const crmRoute = routes.find((route) => route.path === CRM_PATH)
 
@@ -669,6 +690,18 @@ export function AppRouter() {
 
   if (route.layout === 'crm') {
     return page
+  }
+
+  const isCrmAdvertiseFlowRoute =
+    route.path.startsWith('/new-ad') &&
+    new URLSearchParams(window.location.search).get('editSource') === 'crm'
+
+  if (isCrmAdvertiseFlowRoute) {
+    return (
+      <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
+        <CrmPage embeddedContent={page} />
+      </Suspense>
+    )
   }
 
   if (route.layout === 'dashboard' && authSession && isDesktopDashboardViewport()) {

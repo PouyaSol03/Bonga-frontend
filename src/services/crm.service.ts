@@ -7,6 +7,21 @@ export type CrmAdvertiseFilters = {
   trackCode?: string;
 };
 
+export type CrmAdvertisePayload = {
+  category_id: string;
+  form_code: string;
+  title: string;
+  neighborhood_id: string;
+  lat: number;
+  lng: number;
+  contact_type: string[];
+  owner_phone: string;
+  description: string;
+  owner_type: string;
+  virtual_tour_link: string;
+  images: string[];
+};
+
 export type CrmUserFilters = {
   mobile?: string;
   name?: string;
@@ -143,12 +158,13 @@ export async function getCrmAdvertise(id: string) {
   );
 }
 
-export function saveCrmAdvertise(id: string | null, payload: CrmRecord) {
-  return api
-    .post(id ? `panel/advertise/update/${id}` : "panel/advertise/create", {
-      json: payload,
-    })
-    .json<unknown>();
+export async function saveCrmAdvertise(id: string | null, payload: CrmAdvertisePayload) {
+  return unwrapRecord(
+    await api
+      .post(id ? `panel/advertise/update/${id}` : "panel/advertise/create", { json: payload })
+      .json<unknown>(),
+    ["advertise", "data", "result"],
+  );
 }
 
 export function updateCrmAdvertiseStatus(id: string, status: number) {

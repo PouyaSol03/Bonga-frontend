@@ -27,6 +27,7 @@ import {
   Tag,
   Toggle,
 } from "../components/NewAdControls";
+import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
@@ -62,6 +63,7 @@ export function DetailsStep({
   errors = {},
   label,
   onClearError,
+  onBack,
   onNext,
   onMoreFeatures,
   onProjectDetails,
@@ -69,10 +71,12 @@ export function DetailsStep({
   errors?: NewAdFieldErrors;
   label: string;
   onClearError?: (key: NewAdFieldErrorKey) => void;
+  onBack?: () => void;
   onNext: () => void;
   onMoreFeatures: () => void;
   onProjectDetails: () => void;
 }) {
+  const desktop = useNewAdDesktopLayout();
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const [sheet, setSheet] = useState<SheetState | null>(null);
   const [showAllHeating, setShowAllHeating] = useState(false);
@@ -178,7 +182,7 @@ export function DetailsStep({
     if (isProject) {
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
-          <div className="space-y-4">
+          <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             <InputBox
               error={errors.minPrice}
               formatNumeric
@@ -208,7 +212,7 @@ export function DetailsStep({
     if (isDailyRent) {
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
-          <div className="space-y-4">
+          <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             <InputBox
               error={errors.minPrice}
               formatNumeric
@@ -237,7 +241,7 @@ export function DetailsStep({
     if (isRent) {
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
-          <div className="space-y-4">
+          <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             <InputBox
               error={errors.mortgagePrice}
               formatNumeric
@@ -370,7 +374,9 @@ export function DetailsStep({
 
   return (
     <>
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3" dir="rtl">
+      <main className={desktop
+        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"} dir="rtl">
         <Section icon="location.svg" title="موقعیت ملک">
           <LocationBox label={label} value={values.location} />
         </Section>
@@ -385,7 +391,7 @@ export function DetailsStep({
           />
         ) : (
           <Section icon="info.svg" title="مشخصات ملک">
-            <div className="space-y-4">
+            <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
               {basicPropertyFields.map((field) => {
                 const placeholder = `${field.label}${field.required ? " *" : ""}`;
                 const value = values[field.key];
@@ -551,7 +557,7 @@ export function DetailsStep({
       </main>
 
       <Footer
-        onBack={() => navigateTo(`/new-ad/category${window.location.search}`)}
+        onBack={onBack ?? (() => navigateTo(`/new-ad/category${window.location.search}`))}
         onPrimary={onNext}
         primary="مرحله بعد"
       />

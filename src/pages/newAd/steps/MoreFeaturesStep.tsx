@@ -6,6 +6,7 @@ import { moreFeatureKeys, moreFeatureOptions } from "../data";
 import type { MoreFeatureFormKey, MoreFeatureSelectKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
 import { getMoreFeatureFields, pickMoreFeatures } from "../utils";
 import { CompactToggle, InputBox, MoreFeaturesFooter, SelectBox } from "../components/NewAdControls";
+import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 
 export function MoreFeaturesStep({
   onConfirm,
@@ -14,6 +15,7 @@ export function MoreFeaturesStep({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const desktop = useNewAdDesktopLayout();
   const { getValues, setValue } = useFormContext<NewAdFormValues>();
   const fields = getMoreFeatureFields();
 
@@ -56,11 +58,15 @@ export function MoreFeaturesStep({
   return (
     <>
       <main
-        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 py-6"
+        className={desktop
+          ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5"
+          : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 py-6"}
         dir="rtl"
       >
         {fields.length ? (
-          <div className="space-y-5">
+          <div className={desktop
+            ? "mx-auto grid max-w-[1120px] grid-cols-2 gap-5 rounded-xl border border-[#e1e7f0] bg-white p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]"
+            : "space-y-5"}>
             {fields.map((field) => {
               if (field.control === "toggle") {
                 return (
@@ -143,4 +149,3 @@ export function MoreFeaturesStep({
     </>
   );
 }
-

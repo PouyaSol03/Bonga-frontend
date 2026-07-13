@@ -19,7 +19,8 @@ export type UploadedMediaFile = {
   size: number;
   type: string;
   previewUrl: string;
-  file: File;
+  file?: File;
+  existingValue?: unknown;
 };
 
 /* ----------------------------- Basic Property ----------------------------- */

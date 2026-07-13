@@ -10,6 +10,7 @@ import LinearCall from "../../components/(icons)/LinearCall";
 import LinearCategory from "../../components/(icons)/LinearCategory";
 import LinearClock from "../../components/(icons)/LinearClock";
 import LinearDocument from "../../components/(icons)/LinearDocument";
+import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearGps from "../../components/(icons)/LinearGps";
 import LinearHome2 from "../../components/(icons)/LinearHome2";
 import LinearHouseDimensions from "../../components/(icons)/LinearHouseDimensions";
@@ -20,6 +21,7 @@ import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
 import LinearMoney from "../../components/(icons)/LinearMoney";
 import LinearOwner from "../../components/(icons)/LinearOwner";
 import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
+import { AdLocationMap } from "../../components/AdLocationMap";
 import { RouteLink } from "../../routes/RouteLink";
 import {
   getCrmAdvertise,
@@ -29,6 +31,7 @@ import {
   listCrmNeighborhoods,
   type CrmRecord,
 } from "../../services/crm.service";
+import { getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 
 type CrmAdvertiseDetailViewProps = {
   advertiseId: string;
@@ -517,9 +520,9 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
     "ثبت نشده";
   const trackCode = readText(advertise, ["track_code"], "-");
   const createdAt = formatDate(advertise.created_at ?? advertise.published_at);
-  const lat = readText(advertise, ["lat", "latitude"]);
-  const lng = readText(advertise, ["lng", "long", "longitude"]);
-  const locationCoordinates = lat && lng ? `${lat}، ${lng}` : "مختصات ثبت نشده";
+  const latitude = toNumericValue(advertise.lat ?? advertise.latitude);
+  const longitude = toNumericValue(advertise.lng ?? advertise.long ?? advertise.longitude);
+  const hasMapPosition = latitude !== null && longitude !== null;
   const savedAddress = readHumanText(advertise, ["address", "full_address", "formatted_address", "postal_address"]);
   const locationTitle = [cityName, neighborhoodName]
     .filter((value) => value && !value.includes("موجود نیست") && !value.includes("در حال دریافت"))
@@ -539,9 +542,19 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
           <LinearArrowRight1 className="h-5 w-5" />
           بازگشت به مدیریت آگهی‌ها
         </RouteLink>
-        <span className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
-          {advertiseStatusLabel(advertise.status)}
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <RouteLink
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white no-underline transition hover:bg-[#003ca4]"
+            state={getCrmAdvertiseEditState(advertiseId)}
+            to={getCrmAdvertiseEditPath(advertiseId)}
+          >
+            <LinearEdit2 className="h-5 w-5" />
+            ویرایش آگهی
+          </RouteLink>
+          <span className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
+            {advertiseStatusLabel(advertise.status)}
+          </span>
+        </div>
       </div>
 
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
@@ -642,7 +655,18 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 
           <DetailSection icon={<LinearGps className="h-5 w-5" />} title="موقعیت جغرافیایی">
             <InformationRow icon={<LinearMapsLocation className="h-5 w-5" />} label="آدرس دقیق" value={address} />
-            <InformationRow icon={<LinearGps className="h-5 w-5" />} label="مختصات" value={locationCoordinates} />
+            {hasMapPosition ? (
+              <AdLocationMap
+                className="mt-4"
+                latitude={latitude}
+                longitude={longitude}
+                title="موقعیت آگهی در مدیریت"
+              />
+            ) : (
+              <p className="m-0 mt-4 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]">
+                موقعیت این آگهی روی نقشه ثبت نشده است.
+              </p>
+            )}
           </DetailSection>
 
           <div className="rounded-xl bg-white p-5 text-sm text-[#666666]">

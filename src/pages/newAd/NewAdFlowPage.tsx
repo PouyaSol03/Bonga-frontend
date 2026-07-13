@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../app/PageFrame";
-import { getApiErrorMessage } from "../../api/api";
+import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
+import { getCategoryList, type CategoryItem } from "../../services/category.service";
+import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../services/crm.service";
 import { Snackbar } from "../../components/Snackbar";
 import { useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
+import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import { adManagementPaths, getAdPaymentPath } from "../account/adManagement/adManagementData";
 import {
   blankValues,
@@ -24,8 +28,8 @@ import {
 import { DetailsStep } from "./steps/DetailsStep";
 import { MediaStep } from "./steps/MediaStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
-import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem } from "./types";
-import { buildNewAdFormData, clearNewAdDraftStorage, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
+import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
+import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
 type AdvertisementFeature = {
@@ -83,6 +87,190 @@ function getAdvertisementFeatures(ad: AdvertisementItem | Record<string, unknown
   );
 }
 
+function isCrmAdvertiseSource() {
+  return new URLSearchParams(window.location.search).get("editSource") === "crm";
+}
+
+function normalizeCrmDynamicFields(value: unknown): AdvertisementFeature[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+      .map((item) => ({
+        key: typeof item.key === "string" ? item.key : undefined,
+        label:
+          typeof item.label === "string"
+            ? item.label
+            : typeof item.name === "string"
+              ? item.name
+              : typeof item.code === "string"
+                ? item.code
+                : undefined,
+        value: item.value,
+      }));
+  }
+
+  if (value && typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>).map(([label, fieldValue]) => ({
+      label,
+      value: fieldValue,
+    }));
+  }
+
+  return [];
+}
+
+function normalizeCrmAdvertiseForEdit(record: CrmRecord): AdvertisementItem {
+  const advertise = record as AdvertisementItem;
+  const existingFeatures = getAdvertisementFeatures(advertise);
+  const dynamicFeatures = normalizeCrmDynamicFields(
+    record.dynamic_fields ?? record.dynamicFields,
+  );
+
+  return {
+    ...advertise,
+    features: existingFeatures.length ? existingFeatures : dynamicFeatures,
+  };
+}
+
+function mediaSource(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+
+  const record = value as Record<string, unknown>;
+
+  for (const key of ["url", "path", "src", "file", "image", "video"]) {
+    const candidate = record[key];
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  }
+
+  return "";
+}
+
+function mediaName(source: string, fallback: string) {
+  const cleanSource = source.split("?")[0]?.split("#")[0] ?? source;
+  return cleanSource.split("/").filter(Boolean).pop() || fallback;
+}
+
+function getExistingPhotoMedia(ad: AdvertisementItem): UploadedMediaFile[] {
+  const imageValues = Array.isArray(ad.images)
+    ? ad.images
+    : ad.image
+      ? [ad.image]
+      : [];
+
+  return imageValues.flatMap((value, index) => {
+    const source = mediaSource(value);
+    if (!source) return [];
+
+    return [{
+      existingValue: value,
+      id: `existing-image-${index}-${source}`,
+      name: mediaName(source, `image-${index + 1}`),
+      previewUrl: getApiAssetUrl(source),
+      size: 0,
+      type: "image/*",
+    } satisfies UploadedMediaFile];
+  });
+}
+
+function getExistingVideoMedia(ad: AdvertisementItem): UploadedMediaFile | null {
+  const videoValues = Array.isArray(ad.videos)
+    ? ad.videos
+    : [ad.video, ad.video_url, ad.video_path].filter(Boolean);
+  const value = videoValues[0];
+  const source = mediaSource(value);
+
+  if (!source) return null;
+
+  return {
+    existingValue: value,
+    id: `existing-video-${source}`,
+    name: mediaName(source, "video.mp4"),
+    previewUrl: getApiAssetUrl(source),
+    size: 0,
+    type: "video/mp4",
+  };
+}
+
+function nestedRecordId(record: CrmRecord, directKey: string, nestedKeys: string[]) {
+  const directValue = record[directKey];
+  if (directValue !== undefined && directValue !== null && String(directValue).trim()) {
+    return String(directValue);
+  }
+
+  for (const key of nestedKeys) {
+    const nestedValue = record[key];
+    if (!nestedValue || typeof nestedValue !== "object" || Array.isArray(nestedValue)) continue;
+
+    const nestedRecord = nestedValue as CrmRecord;
+    const id = nestedRecord.id ?? nestedRecord._id;
+    if (id !== undefined && id !== null && String(id).trim()) return String(id);
+  }
+
+  return "";
+}
+
+function flattenCategories(categories: CategoryItem[]): CategoryItem[] {
+  return categories.flatMap((category) => [category, ...flattenCategories(category.children ?? [])]);
+}
+
+function resolveCrmCategoryId(categories: CategoryItem[], fallback: string) {
+  const target = normalizeLookupText(fallback).replace(/_/g, "-");
+  const match = flattenCategories(categories).find((category) =>
+    [category.id, category.code, category.slug]
+      .map((value) => normalizeLookupText(value).replace(/_/g, "-"))
+      .includes(target),
+  );
+
+  return match?.id ? String(match.id) : fallback;
+}
+
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("خواندن فایل تصویر ناموفق بود."));
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function buildCrmAdvertisePayload(
+  values: NewAdFormValues,
+  categories: CategoryItem[],
+  original: CrmRecord = {},
+): Promise<CrmAdvertisePayload> {
+  const params = getParams();
+  const structuredPayload = buildPayload(values);
+  const formCode = structuredPayload.features.find((feature) => feature.key === "form_code")?.value;
+  const storedLat = window.localStorage.getItem(locationLatKey);
+  const storedLng = window.localStorage.getItem(locationLngKey);
+  const storedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
+  const lat = Number(storedLat ?? original.lat ?? original.latitude);
+  const lng = Number(storedLng ?? original.lng ?? original.long ?? original.longitude);
+  const images = await Promise.all(values.photos.map(async (photo) => {
+    if (photo.file) return fileToDataUrl(photo.file);
+    return mediaSource(photo.existingValue);
+  }));
+
+  return {
+    category_id:
+      nestedRecordId(original, "category_id", ["category"]) ||
+      resolveCrmCategoryId(categories, params.category),
+    contact_type: structuredPayload.contact_type.map(String),
+    description: values.description,
+    form_code: typeof formCode === "string" ? formCode : String(formCode ?? ""),
+    images: images.filter(Boolean),
+    lat,
+    lng,
+    neighborhood_id:
+      storedNeighborhoodId || nestedRecordId(original, "neighborhood_id", ["neighborhood", "district"]),
+    owner_phone: values.phoneNumber || String(original.owner_phone ?? ""),
+    owner_type: values.registrantType || String(original.owner_type ?? ""),
+    title: values.title,
+    virtual_tour_link: values.virtualTourLink,
+  };
+}
+
 function toLatinDigits(value: string) {
   return value
     .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
@@ -134,9 +322,11 @@ function readNestedText(source: Record<string, unknown>, keys: string[]): string
 function readFeatureValue(features: AdvertisementFeature[], labels: string[]): unknown {
   const normalizedLabels = labels.map(normalizeLookupText);
   const feature = features.find((item) => {
-    const key = item.label ?? item.key ?? "";
+    const lookupValues = [item.key, item.label]
+      .map(normalizeLookupText)
+      .filter(Boolean);
 
-    return normalizedLabels.includes(normalizeLookupText(key));
+    return lookupValues.some((value) => normalizedLabels.includes(value));
   });
 
   return feature?.value;
@@ -548,8 +738,8 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
     ...blankValues,
     ...base,
     dailyHotelRooms: base.dailyHotelRooms.length ? base.dailyHotelRooms : blankValues.dailyHotelRooms,
-    photos: [],
-    video: null,
+    photos: getExistingPhotoMedia(ad),
+    video: getExistingVideoMedia(ad),
   };
   const setText = (key: keyof NewAdFormValues, value: unknown, transform: (value: unknown) => string = readText) => {
     const text = transform(value);
@@ -692,38 +882,76 @@ export function NewAdFlowPage() {
   const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
   const [submitError, setSubmitError] = useState("");
   const methods = useForm<NewAdFormValues>({ defaultValues: getDefaultValues(editAdState), mode: "onChange" });
+  const queryClient = useQueryClient();
   const createAdvertisement = useCreateAdvertisementMutation();
-  const editAdQuery = useAdvertisementDetailQuery(isEditMode ? editAdId : null);
+  const isCrmSource = isCrmAdvertiseSource();
+  const isCrmEditMode = isEditMode && isCrmSource;
+  const categoriesQuery = useQuery({
+    enabled: isCrmSource,
+    queryFn: getCategoryList,
+    queryKey: ["categories", "list"],
+  });
+  const editAdQuery = useAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
+  const crmEditAdQuery = useQuery({
+    enabled: Boolean(isCrmEditMode && editAdId),
+    queryFn: () => getCrmAdvertise(editAdId ?? ""),
+    queryKey: ["crm", "advertise", "edit", editAdId],
+  });
+  const crmSaveMutation = useMutation({
+    mutationFn: ({ id, original, values }: { id: string | null; original?: CrmRecord; values: NewAdFormValues }) =>
+      buildCrmAdvertisePayload(values, categoriesQuery.data ?? [], original).then((payload) =>
+        saveCrmAdvertise(id, payload),
+      ),
+    onSuccess: async (_result, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
+      await queryClient.invalidateQueries({ queryKey: ["crm", "advertise"] });
+      if (variables.id) {
+        await queryClient.invalidateQueries({ queryKey: ["crm", "advertise", "edit", variables.id] });
+      }
+    },
+  });
+  const crmEditRecord = crmEditAdQuery.data;
+  const editAdData = isCrmEditMode
+    ? crmEditRecord
+      ? normalizeCrmAdvertiseForEdit(crmEditRecord)
+      : undefined
+    : editAdQuery.data;
+  const editAdIsError = isCrmEditMode ? crmEditAdQuery.isError : editAdQuery.isError;
+  const editAdError = isCrmEditMode ? crmEditAdQuery.error : editAdQuery.error;
+  const editAdIsLoading = isCrmEditMode ? crmEditAdQuery.isLoading : editAdQuery.isLoading;
 
   useRequireAuth();
 
   useEffect(() => {
     if (!isEditMode) return undefined;
-    if (!editAdQuery.data || !editAdId) return undefined;
-    if (editDataAppliedRef.current === editAdId) return undefined;
+    if (!editAdData || !editAdId) return undefined;
 
-    const routeChanged = syncEditRouteParams(editAdQuery.data);
+    const appliedKey = `${isCrmEditMode ? "crm" : "user"}:${editAdId}`;
+    if (editDataAppliedRef.current === appliedKey) return undefined;
+
+    const routeChanged = syncEditRouteParams(editAdData);
     const editDefaults = getDefaultValues({
       ...editAdState,
-      ad: editAdQuery.data,
+      ad: editAdData,
       isEditMode: true,
     });
 
-    methods.reset(mapAdvertisementToEditValues(editAdQuery.data, editDefaults));
-    editDataAppliedRef.current = editAdId;
+    methods.reset(mapAdvertisementToEditValues(editAdData, editDefaults));
+    editDataAppliedRef.current = appliedKey;
 
     if (routeChanged) {
       setEditRouteVersion((version) => version + 1);
     }
 
     return undefined;
-  }, [editAdId, editAdQuery.data, isEditMode, methods]);
+  }, [editAdData, editAdId, editAdState, isCrmEditMode, isEditMode, methods]);
 
   useEffect(() => {
-    if (!isEditMode || !editAdQuery.isError) return;
+    if (!isEditMode || !editAdIsError) return;
 
-    setSubmitError(getApiErrorMessage(editAdQuery.error, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."));
-  }, [editAdQuery.error, editAdQuery.isError, isEditMode]);
+    setSubmitError(getApiErrorMessage(editAdError, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."));
+  }, [editAdError, editAdIsError, isEditMode]);
 
   useEffect(() => {
     if (isEditMode) return undefined;
@@ -771,7 +999,7 @@ export function NewAdFlowPage() {
   }, []);
 
   const submit = methods.handleSubmit((values) => {
-    if (createAdvertisement.isPending) return;
+    if (createAdvertisement.isPending || crmSaveMutation.isPending) return;
 
     const validation = validateNewAd(values, { forceFullEditFields: isEditMode });
 
@@ -782,7 +1010,53 @@ export function NewAdFlowPage() {
       return;
     }
 
+    if (isCrmSource) {
+      if (isEditMode && (!editAdId || !crmEditRecord)) {
+          setSubmitError("اطلاعات آگهی برای ذخیره تغییرات در دسترس نیست.");
+          return;
+      }
+
+      setFieldErrors({});
+      setSubmitError("");
+
+      crmSaveMutation.mutate(
+        {
+          id: isEditMode ? editAdId : null,
+          original: crmEditRecord,
+          values,
+        },
+        {
+          onError: (error) => {
+            setSubmitError(getApiErrorMessage(error, isEditMode
+              ? "ویرایش آگهی با خطا مواجه شد."
+              : "ثبت آگهی با خطا مواجه شد."));
+          },
+          onSuccess: (savedAdvertise) => {
+            clearNewAdDraftStorage();
+
+            if (isEditMode && editAdId) {
+              const returnTo = editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`;
+              const separator = returnTo.includes("?") ? "&" : "?";
+
+              navigateTo(`${returnTo}${separator}updated=1`, {
+                crmEditSuccess: true,
+                isEditMode: true,
+              });
+              return;
+            }
+
+            const createdId = getCrmRecordId(savedAdvertise);
+            navigateTo(createdId
+              ? `/crm/advertises/${encodeURIComponent(createdId)}?created=1`
+              : "/crm/advertises?created=1");
+          },
+        },
+      );
+      return;
+    }
+
     if (isEditMode) {
+
       const updatedCard = {
         ...(editAdState.card ?? editAdState.ad ?? {}),
         title: values.title || editAdState.card?.title || "آگهی ملک",
@@ -832,6 +1106,10 @@ export function NewAdFlowPage() {
   });
 
   const goToDetails = () => setStep("details");
+  const crmReturnTo = editAdId
+    ? editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`
+    : "/crm/advertises";
+  const leaveCrmEditor = () => navigateTo(crmReturnTo);
   const goToMedia = () => {
     const validation = validateNewAdDetails(methods.getValues());
 
@@ -855,12 +1133,17 @@ export function NewAdFlowPage() {
           : "ثبت آگهی";
 
   return (
-    <PageFrame className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
+    <PageFrame
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
       <FormProvider {...methods}>
-        <Header
-          title={headerTitle}
-          onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : undefined}
-        />
+        <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
+          <div className="contents">
+            <Header
+              title={headerTitle}
+              onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : isCrmEditMode ? leaveCrmEditor : undefined}
+            />
 
         {submitError ? (
           <Snackbar
@@ -870,10 +1153,15 @@ export function NewAdFlowPage() {
           />
         ) : null}
 
-        {step === "details" ? (
+        {isCrmEditMode && editAdIsLoading ? (
+          <div className="grid min-h-0 flex-1 place-items-center bg-[#f5f7fb] text-sm font-medium text-[#687386]">
+            در حال دریافت اطلاعات آگهی...
+          </div>
+        ) : step === "details" ? (
           <DetailsStep
             errors={fieldErrors}
             label={label}
+            onBack={isCrmEditMode ? leaveCrmEditor : undefined}
             onClearError={clearFieldError}
             onMoreFeatures={() => setStep("moreFeatures")}
             onProjectDetails={() => setStep("projectDetails")}
@@ -896,9 +1184,15 @@ export function NewAdFlowPage() {
             onBack={goToDetails}
             onClearError={clearFieldError}
             onSubmit={submit}
-            submitDisabled={createAdvertisement.isPending || (isEditMode && editAdQuery.isLoading)}
+            submitDisabled={
+              createAdvertisement.isPending ||
+              crmSaveMutation.isPending ||
+              (isEditMode && editAdIsLoading)
+            }
           />
         )}
+          </div>
+        </NewAdDesktopLayoutContext.Provider>
       </FormProvider>
     </PageFrame>
   );

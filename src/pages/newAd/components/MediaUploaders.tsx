@@ -83,7 +83,7 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
   const removePhoto = (photoId: string) => {
     const targetPhoto = photos.find((photo) => photo.id === photoId);
 
-    if (targetPhoto) {
+    if (targetPhoto?.file) {
       URL.revokeObjectURL(targetPhoto.previewUrl);
     }
 
@@ -173,7 +173,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
 
     if (!isValidVideo) return;
 
-    if (video) {
+    if (video?.file) {
       URL.revokeObjectURL(video.previewUrl);
     }
 
@@ -201,7 +201,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
   };
 
   const removeVideo = () => {
-    if (video) {
+    if (video?.file) {
       URL.revokeObjectURL(video.previewUrl);
     }
 

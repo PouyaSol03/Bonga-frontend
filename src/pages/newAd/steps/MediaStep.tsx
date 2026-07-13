@@ -5,6 +5,7 @@ import { PublisherSelectField } from "../../account/adManagement/PublisherSelect
 import { adManagementPublisherOptions } from "../../account/adManagement/adManagementData";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
 import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
+import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { CheckRow, RadioCard, SocialInput } from "../components/MediaControls";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
 
@@ -35,6 +36,7 @@ export function MediaStep({
   onSubmit: () => void;
   submitDisabled?: boolean;
 }) {
+  const desktop = useNewAdDesktopLayout();
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const isAgencyFlow = !forceFullEditFields && values.registrantType === "agency";
@@ -70,7 +72,9 @@ export function MediaStep({
 
   return (
     <>
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3" dir="rtl">
+      <main className={desktop
+        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"} dir="rtl">
         <Section icon="image.svg" title="عکس آگهی" warning>
           <PhotoUploader onChange={() => onClearError?.("photos")} />
           <FieldError message={errors.photos} />

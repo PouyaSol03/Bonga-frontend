@@ -163,16 +163,18 @@ function PageHeader({ title }: { title: string }) {
 }
 function TransactionSegmentedControl({
   activeType,
+  desktop = false,
   onChange,
 }: {
   activeType: TransactionType;
+  desktop?: boolean;
   onChange: (type: TransactionType) => void;
 }) {
   return (
-    <div className="bg-[#f0f0f0] px-4 pb-4">
+    <div className={desktop ? "border-b border-[#e1e7f0] bg-white px-6 py-4" : "bg-[#f0f0f0] px-4 pb-4"}>
       <div
         aria-label="نوع معامله"
-        className="grid grid-cols-3 overflow-hidden rounded-[17px] border border-[#808080] bg-white [direction:rtl]"
+        className={`grid grid-cols-3 overflow-hidden border border-[#808080] bg-white [direction:rtl] ${desktop ? "mx-auto max-w-[720px] rounded-xl" : "rounded-[17px]"}`}
         role="tablist"
       >
         {transactionTabs.map((type, index) => {
@@ -237,16 +239,18 @@ function CategoryChip({
 }
 
 function CategoryOptionSection({
+  desktop = false,
   section,
   selectedOptionId,
   onSelect,
 }: {
+  desktop?: boolean;
   section: CategorySection;
   selectedOptionId: string | null;
   onSelect: (optionId: string) => void;
 }) {
   return (
-    <section className="bg-white p-4">
+    <section className={desktop ? "rounded-xl border border-[#e1e7f0] bg-white p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]" : "bg-white p-4"}>
       <div className="border-b border-[#e0e0e0] pb-2">
         <h2 className="m-0 text-right font-medium leading-7 text-[#808080]">
           {section.title}
@@ -268,16 +272,20 @@ function CategoryOptionSection({
 }
 
 function NextActionBar({
+  desktop = false,
   disabled,
   onNext,
 }: {
+  desktop?: boolean;
   disabled: boolean;
   onNext: () => void;
 }) {
   return (
-    <footer className="relative z-20 shrink-0 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_28px_rgba(0,0,0,0.10)] before:pointer-events-none before:absolute before:inset-x-0 before:-top-8 before:h-8 before:bg-gradient-to-t before:from-white before:to-transparent">
+    <footer className={desktop
+      ? "relative z-20 flex shrink-0 justify-end border-t border-[#e1e7f0] bg-white px-6 py-4"
+      : "relative z-20 shrink-0 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_28px_rgba(0,0,0,0.10)] before:pointer-events-none before:absolute before:inset-x-0 before:-top-8 before:h-8 before:bg-gradient-to-t before:from-white before:to-transparent"}>
       <button
-        className={`w-full rounded-[10px] py-2 text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled
+        className={`${desktop ? "h-12 w-48" : "w-full py-2"} rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled
             ? "bg-[#e0e0e0] text-[#a6a6a6]"
             : "bg-[#0048c4] text-white active:bg-[#003ba1]"
           }`}
@@ -301,6 +309,7 @@ export function NewAdCategoryPage() {
   }, []);
 
   const registrantType = getInitialRegistrantType();
+  const isCrmSource = new URLSearchParams(window.location.search).get("editSource") === "crm";
   const [activeType, setActiveType] = useState<TransactionType>(getInitialType);
   const [selectedOptionsByType, setSelectedOptionsByType] = useState<
     Record<TransactionType, string | null>
@@ -331,26 +340,33 @@ export function NewAdCategoryPage() {
 
       <TransactionSegmentedControl
         activeType={activeType}
+        desktop={isCrmSource}
         onChange={(type) => setActiveType(type)}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        {activeConfig.sections.map((section) => (
-          <CategoryOptionSection
-            key={section.id}
-            onSelect={(optionId) => {
-              setSelectedOptionsByType((current) => ({
-                ...current,
-                [activeType]: optionId,
-              }));
-            }}
-            section={section}
-            selectedOptionId={selectedOptionId}
-          />
-        ))}
+      <main className={isCrmSource
+        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5"
+        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white"}>
+        <div className={isCrmSource ? "mx-auto grid max-w-[1120px] grid-cols-[repeat(auto-fit,minmax(420px,1fr))] items-start gap-5" : "contents"}>
+          {activeConfig.sections.map((section) => (
+            <CategoryOptionSection
+              desktop={isCrmSource}
+              key={section.id}
+              onSelect={(optionId) => {
+                setSelectedOptionsByType((current) => ({
+                  ...current,
+                  [activeType]: optionId,
+                }));
+              }}
+              section={section}
+              selectedOptionId={selectedOptionId}
+            />
+          ))}
+        </div>
       </main>
 
       <NextActionBar
+        desktop={isCrmSource}
         disabled={!hasSelection}
         onNext={() => {
           if (!selectedOption) return;
@@ -369,6 +385,10 @@ export function NewAdCategoryPage() {
 
           if (registrantType) {
             params.set("registrantType", registrantType);
+          }
+
+          if (new URLSearchParams(window.location.search).get("editSource") === "crm") {
+            params.set("editSource", "crm");
           }
 
           navigateTo(`/new-ad/details?${params.toString()}`);

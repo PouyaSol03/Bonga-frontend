@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode, type SelectHTMLAttributes } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { LatLngTuple } from "leaflet";
@@ -12,7 +12,6 @@ import {
 
 import { getApiErrorMessage } from "../../api/api";
 import { AdCard, type AdCardData } from "../../components/AdCard";
-import LinearPreview from "../../components/(icons)/LinearPreview";
 import LinearCheckmark from "../../components/(icons)/LinearCheckmark";
 import LinearCancel from "../../components/(icons)/LinearCancel";
 import LinearDelete from "../../components/(icons)/LinearDelete";
@@ -21,15 +20,17 @@ import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services
 import { useMyProfileQuery } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../routes/RouteLink";
+import { pushRoute } from "../../routes/navigation";
 import { SwitchButton } from "../../components/SwitchButton";
 import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
+import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
 import {
   deleteCrmAgency,
   deleteCrmCity,
   deleteCrmNeighborhood,
-  getCrmAdvertise,
   getCrmRecordId,
   listCrmAdvertiseForms,
   listCrmAdvertises,
@@ -38,7 +39,6 @@ import {
   listCrmCities,
   listCrmNeighborhoods,
   listCrmUsers,
-  saveCrmAdvertise,
   saveCrmAgency,
   saveCrmCategory,
   saveCrmCity,
@@ -165,11 +165,6 @@ const userRoleOptions = [
   { label: "مشاور آژانس", value: "real_estate_consultant" },
   { label: "مشاور مستقل", value: "independent_consultant" },
   { label: "مدیر کل", value: "super-admin" },
-];
-
-const ownerTypeOptions = [
-  { label: "شخصی", value: "personal" },
-  { label: "آژانس", value: "agency" },
 ];
 
 function getCurrentSection(): CrmSection {
@@ -325,8 +320,8 @@ function mapCrmAdvertiseToCard(advertise: CrmRecord, index: number): AdCardData 
   };
 }
 
-export function CrmPage() {
-  const section = getCurrentSection();
+export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {}) {
+  const section = embeddedContent ? "advertises" : getCurrentSection();
   const advertiseDetailId = getCurrentAdvertiseDetailId();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const prefersReducedMotion = useReducedMotion();
@@ -354,6 +349,28 @@ export function CrmPage() {
   const notify = useCallback((message: string, tone: ToastState["tone"] = "success") => {
     setToast({ id: Date.now(), message, tone });
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const wasUpdated = params.get("updated") === "1";
+    const wasCreated = params.get("created") === "1";
+
+    if (!wasUpdated && !wasCreated) return undefined;
+
+    const notifyTimer = window.setTimeout(() => {
+      notify(wasCreated ? "آگهی با موفقیت ثبت شد." : "آگهی با موفقیت ویرایش شد.");
+    }, 0);
+    params.delete("updated");
+    params.delete("created");
+    const search = params.toString();
+    window.history.replaceState(
+      window.history.state ?? {},
+      "",
+      `${window.location.pathname}${search ? `?${search}` : ""}`,
+    );
+
+    return () => window.clearTimeout(notifyTimer);
+  }, [notify]);
 
   if (!isDesktop) {
     return <DesktopRequiredPage />;
@@ -480,10 +497,14 @@ export function CrmPage() {
               className="h-full min-h-0"
               exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -8, scale: 0.995 }}
               initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 14, scale: 0.995 }}
-              key={advertiseDetailId ? `advertise-${advertiseDetailId}` : section}
+              key={embeddedContent ? "advertise-editor" : advertiseDetailId ? `advertise-${advertiseDetailId}` : section}
               transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: "easeOut" }}
             >
-              {advertiseDetailId ? (
+              {embeddedContent ? (
+                <div className="h-full min-h-0 w-full overflow-hidden rounded-xl bg-white">
+                  {embeddedContent}
+                </div>
+              ) : advertiseDetailId ? (
                 <CrmAdvertiseDetailView
                   advertiseId={advertiseDetailId}
                   notify={notify}
@@ -681,9 +702,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   const [trackCode, setTrackCode] = useState("");
   const [status, setStatus] = useState("");
   const [filters, setFilters] = useState({ status: "", trackCode: "" });
-  const [editor, setEditor] = useState<EditorState | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
-  const [isPreparingEditor, setIsPreparingEditor] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   const query = useQuery({
@@ -697,16 +716,6 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
 
   useQueryErrorToast([query.error], notify);
 
-  const saveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord }) =>
-      saveCrmAdvertise(id, payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
-      await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
-      notify("آگهی با موفقیت ذخیره شد.");
-    },
-  });
-
   const statusMutation = useMutation({
     mutationFn: ({ id, nextStatus }: { id: string; nextStatus: number }) =>
       updateCrmAdvertiseStatus(id, nextStatus),
@@ -716,29 +725,6 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
       notify("وضعیت آگهی به‌روزرسانی شد.");
     },
   });
-
-  const openEditor = (record: CrmRecord, id: string | null) => {
-    setEditor({
-      fields: advertiseEditorFields(record),
-      onSubmit: async (values) => {
-        const payload = cleanAdvertisePayload(values);
-        await saveMutation.mutateAsync({ id, payload });
-      },
-      title: id ? "ویرایش آگهی" : "ثبت آگهی جدید",
-    });
-  };
-
-  const handleEdit = async (id: string) => {
-    setIsPreparingEditor(true);
-
-    try {
-      openEditor(await getCrmAdvertise(id), id);
-    } catch (error) {
-      notify(getApiErrorMessage(error, "دریافت اطلاعات آگهی ناموفق بود."), "error");
-    } finally {
-      setIsPreparingEditor(false);
-    }
-  };
 
   const updateStatus = async (id: string, nextStatus: number) => {
     try {
@@ -802,7 +788,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
               </label>
             </div>
 
-            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => openEditor({}, null)} />
+            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => pushRoute(getCrmAdvertiseCreatePath())} />
           </div>
         </div>
 
@@ -822,12 +808,12 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
             />
           </FilterField>
           <FilterField label="وضعیت">
-            <select className={inputClassName} onChange={(event) => setStatus(event.target.value)} value={status}>
+            <CrmSelect className={inputClassName} onChange={(event) => setStatus(event.target.value)} value={status}>
               <option value="">همه وضعیت‌ها</option>
               {advertiseStatusOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
-            </select>
+            </CrmSelect>
           </FilterField>
           <button className={secondaryButtonClassName} type="submit">
             <CrmIcon name="search" size={18} />
@@ -882,9 +868,8 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                     <div className="mb-3 flex items-center px-1 text-xs text-[#808080]">
                       <span>کد پیگیری: <strong className="font-semibold text-[#4d4d4d]">{readText(ad, ["track_code"])}</strong></span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 xl:grid-cols-5">
-                      <SmallActionLink icon={<LinearPreview className="h-4 w-4" />} label="جزئیات" to={`/crm/advertises/${encodeURIComponent(id)}`} />
-                      <SmallActionButton disabled={isPreparingEditor} icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => handleEdit(id)} />
+                    <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+                      <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
                       <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
                       <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => updateStatus(id, -1)} tone="warning" />
                       <SmallActionButton
@@ -912,47 +897,9 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
         </div>
       </section>
 
-      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
       <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
     </>
   );
-}
-
-function advertiseEditorFields(ad: CrmRecord): ModalField[] {
-  return [
-    { label: "عنوان", name: "title", value: ad.title },
-    { label: "شناسه کاربر", name: "user_id", value: ad.user_id },
-    { label: "شناسه دسته‌بندی", name: "category_id", value: ad.category_id },
-    { label: "شناسه محله", name: "neighborhood_id", value: ad.neighborhood_id },
-    { label: "قیمت", name: "price", type: "number", value: ad.price ?? 0 },
-    { label: "وضعیت", name: "status", options: advertiseStatusOptions, type: "select", value: ad.status ?? 0 },
-    { label: "عرض جغرافیایی", name: "lat", type: "number", value: ad.lat ?? DEFAULT_CENTER[0] },
-    { label: "طول جغرافیایی", name: "lng", type: "number", value: ad.lng ?? DEFAULT_CENTER[1] },
-    { label: "شماره مالک", name: "owner_phone", value: ad.owner_phone },
-    { label: "نوع مالک", name: "owner_type", options: ownerTypeOptions, type: "select", value: ad.owner_type ?? "personal" },
-    { label: "لینک تور مجازی", name: "virtual_tour_link", value: ad.virtual_tour_link },
-    { label: "یادداشت مدیر", name: "admin_note", value: ad.admin_note },
-    { label: "نوع تماس (JSON)", name: "contact_type", type: "textarea", value: stringifyValue(ad.contact_type, '["phone"]') },
-    { label: "تصاویر (JSON)", name: "images", type: "textarea", value: stringifyValue(ad.images, "[]") },
-    { label: "ویدیوها (JSON)", name: "videos", type: "textarea", value: stringifyValue(ad.videos, "[]") },
-    { label: "فیلدهای پویا (JSON)", name: "dynamic_fields", type: "textarea", value: stringifyValue(ad.dynamic_fields ?? ad.dynamicFields, "[]") },
-    { label: "توضیحات", name: "description", type: "textarea", value: ad.description },
-  ];
-}
-
-function cleanAdvertisePayload(values: Record<string, string>) {
-  const payload: CrmRecord = { ...values };
-
-  for (const key of ["lat", "lng", "price", "status"]) {
-    if (values[key] !== "") payload[key] = Number(values[key]);
-  }
-
-  payload.contact_type = parseJsonValue(values.contact_type ?? "", "نوع تماس", []);
-  payload.images = parseJsonValue(values.images ?? "", "تصاویر", []);
-  payload.videos = parseJsonValue(values.videos ?? "", "ویدیوها", []);
-  payload.dynamic_fields = parseJsonValue(values.dynamic_fields ?? "", "فیلدهای پویا", []);
-
-  return cleanEmptyValues(payload);
 }
 
 function UsersView({ notify, refreshNonce }: ViewProps) {
@@ -1372,18 +1319,17 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           </FilterField>
 
           <FilterField label="وضعیت">
-            <select className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
+            <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="">همه وضعیت‌ها</option>
               <option value="1">فعال</option>
               <option value="0">غیرفعال</option>
-            </select>
+            </CrmSelect>
           </FilterField>
 
           <div className="flex min-h-[66px] items-end">
             <div className="flex h-10 w-full items-center justify-between rounded-xl border border-[#dce3ef] bg-white px-3">
               <div>
                 <span className="block text-sm font-semibold text-[#303030]">فقط مشاوران آژانس</span>
-                <span className="mt-0.5 block text-[11px] text-[#8b94a3]">مستقل‌ها نمایش داده نشوند</span>
               </div>
               <SwitchButton
                 ariaLabel="فیلتر مشاوران وابسته به آژانس"
@@ -1397,7 +1343,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           </div>
 
           <FilterField label="آژانس">
-            <select
+            <CrmSelect
               className={`${inputClassName} disabled:cursor-not-allowed disabled:bg-[#f0f0f0] disabled:text-[#a0a0a0]`}
               disabled={!agencyOnly}
               onChange={(event) => setAgencyIdFilter(event.target.value)}
@@ -1408,7 +1354,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
                 const id = getCrmRecordId(agency);
                 return <option key={id} value={id}>{readText(agency, ["name", "title"], "آژانس بدون نام")}</option>;
               })}
-            </select>
+            </CrmSelect>
           </FilterField>
         </div>
 
@@ -1463,8 +1409,10 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
                         <TableCell>
                           <SmallActionButton
                             disabled={saveMutation.isPending || statusMutation.isPending}
+                            icon={<LinearEdit2 className="h-4 w-4" />}
                             label="ویرایش"
                             onClick={() => openConsultantEditor(consultant)}
+                            tone="primary"
                           />
                         </TableCell>
                       </motion.tr>
@@ -1619,9 +1567,9 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
                       </TableCell>
                       <TableCell><span dir="ltr">{readText(agency, ["phone1", "phone2", "phone3"])}</span></TableCell>
                       <TableCell>
-                        <select
+                        <CrmSelect
                           aria-label={`وضعیت ${readText(agency, ["name"])}`}
-                          className={`h-10 min-w-[132px] rounded-lg border px-2.5 text-sm font-bold outline-none disabled:opacity-60 ${agencyStatusTone(agency.status)}`}
+                          className={`h-10 min-w-[156px] rounded-lg border border-[#dce3ef] bg-white pr-3 text-sm font-bold outline-none transition focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10 disabled:opacity-60 ${agencyStatusTextTone(agency.status)}`}
                           disabled={statusMutation.isPending}
                           onChange={async (event) => {
                             try {
@@ -1635,13 +1583,14 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
                           <option value="wait">در انتظار تایید</option>
                           <option value="accepted">تایید</option>
                           <option value="rejected">رد شده</option>
-                        </select>
+                        </CrmSelect>
                       </TableCell>
                       <TableCell><span dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</span></TableCell>
                       <TableCell>
                         <div className="flex gap-1.5">
-                          <SmallActionButton label="ویرایش" onClick={() => openAgencyEditor(agency)} />
+                          <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => openAgencyEditor(agency)} tone="primary" />
                           <SmallActionButton
+                            icon={<LinearDelete className="h-4 w-4" />}
                             label="حذف"
                             onClick={() => setConfirm({
                               body: "اطلاعات این آژانس از پنل مدیریت حذف خواهد شد.",
@@ -2333,7 +2282,7 @@ function EditorModal({
                 <label className={isWide ? "col-span-2" : ""} key={field.name}>
                   <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</span>
                   {field.type === "select" ? (
-                    <select
+                    <CrmSelect
                       className={modalInputClassName}
                       name={field.name}
                       onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
@@ -2342,7 +2291,7 @@ function EditorModal({
                       {(field.options ?? []).map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
-                    </select>
+                    </CrmSelect>
                   ) : field.type === "textarea" ? (
                     <textarea
                       className={`${modalInputClassName} min-h-24 resize-y py-3`}
@@ -2465,8 +2414,9 @@ function CityPointEditor({
       <div className="h-[340px] w-full overflow-hidden">
         <MapContainer center={point} className="h-full w-full" scrollWheelZoom zoom={11}>
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution={searchMapTileConfig.attribution}
+            tms={searchMapTileConfig.isTms}
+            url={searchMapTileConfig.urlTemplate}
           />
           <MapPointClickCollector onSelect={selectPoint} />
           <CircleMarker
@@ -2606,8 +2556,9 @@ function NeighborhoodPolygonEditor({
       <div className="h-[320px] w-full overflow-hidden">
         <MapContainer center={center} className="h-full w-full" scrollWheelZoom zoom={13}>
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution={searchMapTileConfig.attribution}
+            tms={searchMapTileConfig.isTms}
+            url={searchMapTileConfig.urlTemplate}
           />
           <PolygonClickCollector onAdd={(point) => updatePoints([...points, point])} />
           {points.length >= 3 ? <Polygon pathOptions={{ color: CRM_BLUE, fillOpacity: 0.18, weight: 2 }} positions={points} /> : null}
@@ -2776,11 +2727,11 @@ function buildAgencyPayload(agency: CrmRecord, status = normalizeAgencyStatus(ag
   };
 }
 
-function agencyStatusTone(status: unknown) {
+function agencyStatusTextTone(status: unknown) {
   const normalized = normalizeAgencyStatus(status);
-  if (normalized === "accepted") return "border-[#b9ead2] bg-[#ebfaf3] text-[#0b8b55]";
-  if (normalized === "rejected") return "border-[#ffd0d0] bg-[#fff0f0] text-[#cc3342]";
-  return "border-[#f4d994] bg-[#fff7df] text-[#a06a00]";
+  if (normalized === "accepted") return "text-[#0b8b55]";
+  if (normalized === "rejected") return "text-[#cc3342]";
+  return "text-[#a06a00]";
 }
 
 function UserStatusBadge({ status }: { status: unknown }) {
@@ -2811,26 +2762,6 @@ function PrimaryButton({
   );
 }
 
-function SmallActionLink({
-  icon,
-  label,
-  to,
-}: {
-  icon?: ReactNode;
-  label: string;
-  to: string;
-}) {
-  return (
-    <RouteLink
-      className="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#d8e1ef] bg-white px-3 text-sm font-bold text-[#3e5d88] no-underline transition hover:border-[#b8c9e2] hover:bg-[#f8faff]"
-      to={to}
-    >
-      {icon}
-      {label}
-    </RouteLink>
-  );
-}
-
 function SmallActionButton({
   disabled = false,
   icon,
@@ -2842,11 +2773,12 @@ function SmallActionButton({
   icon?: ReactNode;
   label: string;
   onClick: () => void;
-  tone?: "danger" | "default" | "success" | "warning";
+  tone?: "danger" | "default" | "primary" | "success" | "warning";
 }) {
   const classes = {
     danger: "border-[#f1c7cc] bg-[#fff7f8] text-[#c63242] hover:bg-[#fff0f1]",
     default: "border-[#d8e1ef] bg-white text-[#3e5d88] hover:border-[#b8c9e2] hover:bg-[#f8faff]",
+    primary: "border-[#c9daf8] bg-[#eef4ff] text-[#0048c4] hover:border-[#0048c4] hover:bg-[#e3edff]",
     success: "border-[#bfe6d2] bg-[#f5fcf8] text-[#087d4b] hover:bg-[#ebfaf3]",
     warning: "border-[#f0ddb1] bg-[#fffaf0] text-[#9b6800] hover:bg-[#fff5da]",
   }[tone];
@@ -2860,6 +2792,21 @@ function SmallActionButton({
     >
       {icon}{label}
     </button>
+  );
+}
+
+function CrmSelect({ children, className = "", ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <span className="relative block w-full">
+      <select className={`${className} appearance-none pl-10`} {...props}>
+        {children}
+      </select>
+      <span className="pointer-events-none absolute left-3 top-1/2 grid -translate-y-1/2 place-items-center text-[#687386]" aria-hidden="true">
+        <svg fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="16">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </span>
+    </span>
   );
 }
 

@@ -8,6 +8,7 @@ import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../..
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Header } from "./components/NewAdControls";
+import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import {
   locationKey,
   locationLatKey,
@@ -173,7 +174,9 @@ function NewAdLocationMap({
 }
 
 export function NewAdLocationPage() {
-  const label = new URLSearchParams(window.location.search).get("label") ?? "آگهی ملک";
+  const searchParams = new URLSearchParams(window.location.search);
+  const label = searchParams.get("label") ?? "آگهی ملک";
+  const isCrmSource = searchParams.get("editSource") === "crm";
   const cityId = getStoredCityId();
   const [query, setQuery] = useState("");
   const [mapCenter, setMapCenter] = useState<NewAdMapCenter>(getStoredMapCenter);
@@ -250,6 +253,7 @@ export function NewAdLocationPage() {
   };
 
   return (
+    <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
     <PageFrame className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
       <Header title="موقعیت ملک" />
       <main className="relative min-h-0 flex-1 overflow-hidden bg-[#e9eef2]">
@@ -276,7 +280,7 @@ export function NewAdLocationPage() {
 
         <button
           aria-label="موقعیت من"
-          className="absolute bottom-[200px] right-4 z-20 flex h-9 items-center gap-1 rounded-[10px] bg-white px-3 text-xs font-medium leading-4 text-[#1a1a1a] shadow-[0_4px_14px_rgba(26,26,26,0.14)]"
+          className={`absolute z-20 flex h-9 items-center gap-1 rounded-[10px] bg-white px-3 text-xs font-medium leading-4 text-[#1a1a1a] shadow-[0_4px_14px_rgba(26,26,26,0.14)] ${isCrmSource ? "bottom-6 left-6" : "bottom-[200px] right-4"}`}
           onClick={moveToBrowserLocation}
           type="button"
         >
@@ -293,7 +297,9 @@ export function NewAdLocationPage() {
           <MapPickerPinIcon />
         </div>
 
-        <section className="absolute inset-x-0 bottom-0 z-30 rounded-t-[24px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-12px_28px_rgba(26,26,26,0.14)]">
+        <section className={isCrmSource
+          ? "absolute bottom-6 right-6 z-30 w-[420px] max-w-[calc(100%_-_48px)] rounded-xl border border-[#e1e7f0] bg-white px-5 pb-5 pt-4 shadow-[0_18px_50px_rgba(26,26,26,0.2)]"
+          : "absolute inset-x-0 bottom-0 z-30 rounded-t-[24px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-12px_28px_rgba(26,26,26,0.14)]"}>
           <div className="mx-auto mb-4 h-1 w-[42px] rounded-full bg-[#d6d6d6]" />
 
           <label className="flex h-12 items-center gap-3 rounded-[10px] border border-[#cccccc] bg-white px-3 text-right focus-within:border-[#0048c4]" dir="rtl">
@@ -364,6 +370,7 @@ export function NewAdLocationPage() {
         </section>
       </main>
     </PageFrame>
+    </NewAdDesktopLayoutContext.Provider>
   );
 }
 

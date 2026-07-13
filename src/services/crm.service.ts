@@ -39,6 +39,13 @@ export type CrmNeighborhoodFilters = {
   cityId: string;
 };
 
+export type CrmPaymentFilters = {
+  method?: string;
+  query?: string;
+  service?: string;
+  status?: string;
+};
+
 const rowContainerKeys = [
   "data",
   "advertise",
@@ -51,6 +58,8 @@ const rowContainerKeys = [
   "items",
   "list",
   "packages",
+  "payments",
+  "transactions",
   "result",
 ] as const;
 
@@ -135,6 +144,184 @@ function unwrapRecord(payload: unknown, keys: string[]): CrmRecord {
 export function getCrmRecordId(record: CrmRecord) {
   const value = record.id ?? record._id;
   return value === undefined || value === null ? "" : String(value);
+}
+
+const CRM_PAYMENTS_ENDPOINT = String(import.meta.env.VITE_CRM_PAYMENTS_ENDPOINT ?? "")
+  .trim()
+  .replace(/^\/+/, "");
+
+const crmPaymentFallbackRows: CrmRecord[] = [
+  {
+    amount: 2450000,
+    created_at: "2026-07-13T08:35:00Z",
+    id: "PAY-14050422-001",
+    method: "gateway",
+    mobile: "09121234567",
+    service_name: "بسته ۵۰ آگهی",
+    status: "success",
+    tracking_code: "58964123017",
+    user: { family: "محمدی", name: "علی" },
+  },
+  {
+    amount: 890000,
+    created_at: "2026-07-12T14:10:00Z",
+    id: "PAY-14050421-002",
+    method: "wallet",
+    mobile: "09351234567",
+    service_name: "افزایش بازدید آگهی",
+    status: "success",
+    tracking_code: "58964122984",
+    user: { family: "احمدی", name: "سارا" },
+  },
+  {
+    amount: 1250000,
+    created_at: "2026-07-12T09:42:00Z",
+    id: "PAY-14050421-003",
+    method: "gateway",
+    mobile: "09153214567",
+    service_name: "اعتبار ویژه‌سازی",
+    status: "pending",
+    tracking_code: "58964122873",
+    user: { family: "رضایی", name: "مهدی" },
+  },
+  {
+    amount: 450000,
+    created_at: "2026-07-11T17:05:00Z",
+    id: "PAY-14050420-004",
+    method: "gateway",
+    mobile: "09021234567",
+    service_name: "بروزرسانی آگهی",
+    status: "failed",
+    tracking_code: "58964122751",
+    user: { family: "کاظمی", name: "ندا" },
+  },
+  {
+    amount: 5100000,
+    created_at: "2026-07-10T11:28:00Z",
+    id: "PAY-14050419-005",
+    method: "gateway",
+    mobile: "09111234567",
+    service_name: "اشتراک پنل آژانس",
+    status: "success",
+    tracking_code: "58964122630",
+    user: { family: "حسینی", name: "امیر" },
+  },
+  {
+    amount: 1780000,
+    created_at: "2026-07-09T16:55:00Z",
+    id: "PAY-14050418-006",
+    method: "wallet",
+    mobile: "09211234567",
+    service_name: "بسته اعتباری مشاور",
+    status: "success",
+    tracking_code: "58964122516",
+    user: { family: "اکبری", name: "مریم" },
+  },
+  {
+    amount: 630000,
+    created_at: "2026-07-08T07:20:00Z",
+    id: "PAY-14050417-007",
+    method: "gateway",
+    mobile: "09361234567",
+    service_name: "ویژه‌سازی آگهی",
+    status: "failed",
+    tracking_code: "58964122408",
+    user: { family: "مرادی", name: "پویان" },
+  },
+  {
+    amount: 3200000,
+    created_at: "2026-07-07T13:15:00Z",
+    id: "PAY-14050416-008",
+    method: "gateway",
+    mobile: "09131234567",
+    service_name: "بسته ۱۰۰ آگهی",
+    status: "success",
+    tracking_code: "58964122347",
+    user: { family: "جعفری", name: "الهام" },
+  },
+];
+
+function normalizePaymentSearchText(payment: CrmRecord) {
+  const user = payment.user && typeof payment.user === "object" && !Array.isArray(payment.user)
+    ? payment.user as CrmRecord
+    : {};
+
+  return [
+    payment.id,
+    payment.tracking_code,
+    payment.track_code,
+    payment.ref_id,
+    payment.mobile,
+    payment.phone,
+    payment.service,
+    payment.service_name,
+    payment.package_name,
+    user.name,
+    user.family,
+    user.mobile,
+  ]
+    .filter((value) => value !== undefined && value !== null)
+    .join(" ")
+    .toLocaleLowerCase("fa-IR");
+}
+
+function normalizePaymentStatus(value: unknown) {
+  const status = String(value ?? "").trim().toLowerCase();
+
+  if (["1", "paid", "success", "successful", "completed", "پرداخت شده", "موفق"].includes(status)) return "success";
+  if (["-1", "failed", "error", "rejected", "cancelled", "canceled", "ناموفق", "رد شده"].includes(status)) return "failed";
+  if (["0", "pending", "processing", "در انتظار", "در حال پردازش"].includes(status)) return "pending";
+
+  return status;
+}
+
+function normalizePaymentMethod(value: unknown) {
+  const method = String(value ?? "").trim().toLowerCase();
+
+  if (["online", "gateway", "bank", "درگاه", "پرداخت آنلاین"].includes(method)) return "gateway";
+  if (["wallet", "credit", "کیف پول", "اعتبار"].includes(method)) return "wallet";
+
+  return method;
+}
+
+export function hasCrmPaymentsApi() {
+  return Boolean(CRM_PAYMENTS_ENDPOINT);
+}
+
+export async function listCrmPayments(filters: CrmPaymentFilters = {}) {
+  const rows = CRM_PAYMENTS_ENDPOINT
+    ? normalizeRows(
+        await api
+          .get(CRM_PAYMENTS_ENDPOINT, {
+            searchParams: compactSearchParams({
+              method: filters.method,
+              q: filters.query?.trim(),
+              service: filters.service,
+              status: filters.status,
+              page: 1,
+              per_page: 100,
+            }),
+          })
+          .json<unknown>(),
+      )
+    : crmPaymentFallbackRows.map((row) => ({ ...row }));
+
+  const query = filters.query?.trim().toLocaleLowerCase("fa-IR") ?? "";
+
+  return rows.filter((payment) => {
+    const status = normalizePaymentStatus(payment.status ?? payment.payment_status);
+    const method = normalizePaymentMethod(payment.method ?? payment.payment_method);
+    const service = String(
+      payment.service_name ?? payment.service ?? payment.package_name ?? payment.plan_name ?? payment.title ?? "",
+    );
+
+    if (filters.status && status !== filters.status) return false;
+    if (filters.method && method !== filters.method) return false;
+    if (filters.service && service !== filters.service) return false;
+    if (query && !normalizePaymentSearchText(payment).includes(query)) return false;
+
+    return true;
+  });
 }
 
 export async function listCrmAdvertises(filters: CrmAdvertiseFilters = {}) {

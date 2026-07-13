@@ -27,6 +27,7 @@ import { SwitchButton } from "../../components/SwitchButton";
 import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
+import { CrmPaymentsView } from "./CrmPaymentsView";
 import {
   deleteCrmAgency,
   deleteCrmCity,
@@ -63,6 +64,7 @@ type CrmSection =
   | "locations"
   | "forms"
   | "packages"
+  | "payments"
   | "costs";
 
 type ToastState = {
@@ -134,6 +136,7 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
     title: "فرم‌های آگهی",
   },
   packages: { path: "/crm/packages", subtitle: "ساخت و ویرایش بسته‌ها و اعتبار پنل", title: "بسته‌ها و اعتبار" },
+  payments: { path: "/crm/payments", subtitle: "مشاهده و پیگیری تمام تراکنش‌های مالی کاربران", title: "تاریخچه پرداخت‌ها" },
   costs: { path: "/crm/costs", subtitle: "تنظیم هزینه عملیات اعتباری سامانه", title: "مدیریت هزینه‌ها" },
 };
 
@@ -147,6 +150,7 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "location", section: "locations" },
   { icon: "form", section: "forms" },
   { icon: "wallet", section: "packages" },
+  { icon: "payment", section: "payments" },
   { icon: "settings", section: "costs" },
 ];
 
@@ -164,7 +168,7 @@ const userRoleOptions = [
   { label: "مدیر آژانس", value: "real_estate_manager" },
   { label: "مشاور آژانس", value: "real_estate_consultant" },
   { label: "مشاور مستقل", value: "independent_consultant" },
-  { label: "مدیر کل", value: "super-admin" },
+  { label: "مدیر کل", value: "superadmin" },
 ];
 
 function getCurrentSection(): CrmSection {
@@ -178,6 +182,7 @@ function getCurrentSection(): CrmSection {
   if (path === "/crm/locations") return "locations";
   if (path === "/crm/forms") return "forms";
   if (path === "/crm/packages") return "packages";
+  if (path === "/crm/payments") return "payments";
   if (path === "/crm/costs") return "costs";
 
   return "overview";
@@ -254,22 +259,28 @@ function advertiseStatusLabel(status: unknown) {
 }
 
 function userRoleSlugs(user: CrmRecord) {
-  const roles = Array.isArray(user.roles) ? user.roles : [];
-  const slugs = roles
-    .map((role) => {
-      if (typeof role === "string") return role;
-      if (role && typeof role === "object" && typeof (role as CrmRecord).slug === "string") {
-        return String((role as CrmRecord).slug);
-      }
+  if (Array.isArray(user.roles)) {
+    const slugs = user.roles
+      .map((role) => {
+        if (typeof role === "string") return role;
+        if (role && typeof role === "object" && typeof (role as CrmRecord).slug === "string") {
+          return String((role as CrmRecord).slug);
+        }
 
-      return "";
-    })
-    .filter(Boolean);
+        return "";
+      })
+      .filter(Boolean)
+      .map((slug) => slug === "super-admin" ? "superadmin" : slug);
 
-  if (slugs.length > 0) return Array.from(new Set(slugs));
+    return Array.from(new Set(slugs));
+  }
 
-  const fallback = readText(user, ["role_slug", "role"], "user");
-  return fallback ? [fallback] : ["user"];
+  const roleSlugs = Array.isArray(user.role_slugs)
+    ? user.role_slugs.filter((role): role is string => typeof role === "string" && Boolean(role.trim()))
+    : [];
+  const fallback = roleSlugs.length > 0 ? roleSlugs : [readText(user, ["role"], "")].filter(Boolean);
+
+  return Array.from(new Set(fallback.map((slug) => slug === "super-admin" ? "superadmin" : slug)));
 }
 
 function userHasRole(user: CrmRecord, roleSlug: string) {
@@ -521,6 +532,7 @@ export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {
                   {section === "locations" ? <LocationsView notify={notify} refreshNonce={refreshNonce} /> : null}
                   {section === "forms" ? <AdvertiseFormsView notify={notify} refreshNonce={refreshNonce} /> : null}
                   {section === "packages" ? <CrmPackagesView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "payments" ? <CrmPaymentsView notify={notify} refreshNonce={refreshNonce} /> : null}
                   {section === "costs" ? <CrmCostsView notify={notify} refreshNonce={refreshNonce} /> : null}
                 </>
               )}
@@ -674,6 +686,7 @@ function OverviewView({ notify, refreshNonce }: ViewProps) {
               { description: "بررسی و تعیین وضعیت آگهی‌ها", icon: "ads" as const, label: "صف بررسی آگهی", to: "/crm/advertises" },
               { description: "ساخت و مدیریت حساب‌ها", icon: "users" as const, label: "مدیریت کاربران", to: "/crm/users" },
               { description: "ویرایش شهر، محله و محدوده", icon: "location" as const, label: "موقعیت‌ها", to: "/crm/locations" },
+              { description: "مشاهده و پیگیری تراکنش‌های کاربران", icon: "payment" as const, label: "تاریخچه پرداخت‌ها", to: "/crm/payments" },
             ].map((item) => (
               <RouteLink
                 className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] p-3.5 text-[#273142] no-underline transition hover:border-[#cbd8ed] hover:bg-[#fbfcff]"
@@ -942,6 +955,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
       fields: [
         { label: "نام", name: "name", value: user.name },
         { label: "نام خانوادگی", name: "family", value: user.family },
+        { label: "کد ملی", name: "nationalnumber", value: user.nationalnumber },
         { label: "شماره موبایل", name: "mobile", value: user.mobile },
         { label: "ایمیل", name: "email", type: "email", value: user.email },
         {
@@ -957,8 +971,6 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
           .split(",")
           .map((role) => role.trim())
           .filter(Boolean);
-        const roleSlugs = selectedRoleSlugs.length > 0 ? selectedRoleSlugs : ["user"];
-        const primaryRole = roleSlugs.find((role) => role !== "user") ?? "user";
         const userValues = { ...values };
         delete userValues.role_slugs;
 
@@ -966,9 +978,8 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
           id,
           payload: cleanEmptyValues({
             ...userValues,
-            role_slug: primaryRole,
-            role_slugs: roleSlugs,
-            roles: roleSlugs,
+            role_slug: "string",
+            roles: selectedRoleSlugs,
           }),
         });
       },
@@ -977,26 +988,6 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
   };
 
   const handleToggleStatus = (id: string) => statusMutation.mutateAsync(id);
-  const userGroups = useMemo(() => {
-    const users = query.data ?? [];
-    const recognizedRoles = new Set(userRoleOptions.map((option) => option.value));
-    const groups = userRoleOptions
-      .map((option) => ({
-        label: option.label,
-        slug: option.value,
-        users: users.filter((user) => userHasRole(user, option.value)),
-      }))
-      .filter((group) => group.users.length > 0);
-    const unassignedUsers = users.filter((user) =>
-      userRoleSlugs(user).every((role) => !recognizedRoles.has(role)),
-    );
-
-    if (unassignedUsers.length > 0) {
-      groups.push({ label: "نقش‌های تعریف‌نشده", slug: "unassigned", users: unassignedUsers });
-    }
-
-    return groups;
-  }, [query.data]);
 
   const renderUsersTable = (users: CrmRecord[], emptyMessage: string) => (
     <div className="overflow-x-auto">
@@ -1016,22 +1007,23 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
             users.map((user) => {
               const id = getCrmRecordId(user);
               const isActive = Number(user.status) === 1;
+              const roles = userRoleSlugs(user);
 
               return (
                 <tr key={id}>
                   <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(user)}</span></TableCell>
                   <TableCell><span dir="ltr">{readText(user, ["mobile"])}</span></TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1.5">
-                      {userRoleSlugs(user).map((role) => (
-                        <span
-                          className="rounded-lg border border-[#cbd8ed] bg-[#f6f9ff] px-2 py-1 text-xs font-bold text-[#0048c4]"
-                          key={role}
-                        >
-                          {userRoleOptions.find((option) => option.value === role)?.label ?? role}
-                        </span>
-                      ))}
-                    </div>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1.5">
+                        {roles.length > 0 ? roles.map((role) => (
+                          <span
+                            className="rounded-lg border border-[#cbd8ed] bg-[#f6f9ff] px-2 py-1 text-xs font-bold text-[#0048c4]"
+                            key={role}
+                          >
+                            {userRoleOptions.find((option) => option.value === role)?.label ?? role}
+                          </span>
+                        )) : <span className="text-xs text-[#919aa8]">بدون نقش</span>}
+                      </div>
                   </TableCell>
                   <TableCell><UserStatusBadge status={user.status} /></TableCell>
                   <TableCell>{formatMoney(user.credit)}</TableCell>
@@ -1113,21 +1105,16 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                 </table>
               </div>
             </section>
-          ) : userGroups.length ? (
-            userGroups.map((group) => (
-              <section className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white" key={group.slug}>
-                <div className="flex items-center justify-between gap-3 border-b border-[#f0f0f0] bg-[#fafafa] px-4 py-3">
-                  <div>
-                    <h3 className="m-0 text-sm font-bold text-[#1a1a1a]">{group.label}</h3>
-                    <p className="m-0 mt-1 text-xs text-[#7b8494]">کاربران این نقش جداگانه نمایش داده شده‌اند.</p>
-                  </div>
-                  <span className="rounded-lg bg-[#eaf1ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
-                    {new Intl.NumberFormat("fa-IR").format(group.users.length)} کاربر
-                  </span>
-                </div>
-                {renderUsersTable(group.users, `کاربری با نقش ${group.label} پیدا نشد.`)}
-              </section>
-            ))
+          ) : query.data?.length ? (
+            <section className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
+              <div className="flex items-center justify-between gap-3 border-b border-[#f0f0f0] bg-[#fafafa] px-4 py-3">
+                <h3 className="m-0 text-sm font-bold text-[#1a1a1a]">همه کاربران</h3>
+                <span className="rounded-lg bg-[#eaf1ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
+                  {new Intl.NumberFormat("fa-IR").format(query.data.length)} کاربر
+                </span>
+              </div>
+              {renderUsersTable(query.data, "کاربری مطابق جستجوی شما پیدا نشد.")}
+            </section>
           ) : (
             <div className="rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-4 py-10 text-center text-sm text-[#7b8494]">
               کاربری مطابق جستجوی شما پیدا نشد.
@@ -1288,8 +1275,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
             family: values.family,
             mobile: values.mobile,
             name: values.name,
-            role_slug: consultantRole,
-            role_slugs: ["user", consultantRole],
+            role_slug: "string",
             roles: ["user", consultantRole],
           }),
         });
@@ -2257,8 +2243,6 @@ function EditorModal({
                                   ? selectedValues.filter((item) => item !== option.value)
                                   : [...selectedValues, option.value];
 
-                                if (nextValues.length === 0) return;
-
                                 setValues((current) => ({
                                   ...current,
                                   [field.name]: nextValues.join(","),
@@ -2914,6 +2898,7 @@ type IconName =
   | "users"
   | "warning"
   | "wallet"
+  | "payment"
   | "settings";
 
 function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
@@ -2936,6 +2921,7 @@ function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   if (name === "location") return <svg {...common}><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>;
   if (name === "form") return <svg {...common}><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h4M9 12h6m-6 4h6"/></svg>;
   if (name === "wallet") return <svg {...common}><path d="M4 6h15a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a3 3 0 0 1 3-3h12"/><path d="M16 11h5v4h-5a2 2 0 0 1 0-4Z"/></svg>;
+  if (name === "payment") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 15h4"/><circle cx="17" cy="14" r="1.5"/></svg>;
   if (name === "settings") return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>;
   if (name === "account") return <svg {...common}><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.5-4.3 2.8-6.5 7-6.5s6.5 2.2 7 6.5"/></svg>;
   if (name === "refresh") return <svg {...common}><path d="M20 7v5h-5"/><path d="M18.7 16a8 8 0 1 1 .8-7"/></svg>;

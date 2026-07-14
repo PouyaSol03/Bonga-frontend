@@ -42,27 +42,27 @@ type PaginationMeta = {
 
 type AdvertisementListResponse =
   | {
-      data?: AdvertisementItem[];
-      meta?: PaginationMeta;
-      pagination?: PaginationMeta;
-      status?: boolean;
-    }
+    data?: AdvertisementItem[];
+    meta?: PaginationMeta;
+    pagination?: PaginationMeta;
+    status?: boolean;
+  }
   | AdvertisementItem[];
 
 type AdvertisementShowResponse =
   | {
-      advertise?: AdvertisementItem;
-      data?: AdvertisementItem;
-      status?: boolean;
-    }
+    advertise?: AdvertisementItem;
+    data?: AdvertisementItem;
+    status?: boolean;
+  }
   | AdvertisementItem;
 
 type AdvertisementCreateResponse =
   | {
-      data?: AdvertisementItem;
-      result?: AdvertisementItem;
-      status?: boolean;
-    }
+    data?: AdvertisementItem;
+    result?: AdvertisementItem;
+    status?: boolean;
+  }
   | AdvertisementItem;
 
 export type AdvertisementCheckoutItem = {
@@ -110,10 +110,10 @@ export type AdvertisementCheckout = {
 type AdvertisementCheckoutResponse =
   | AdvertisementCheckout
   | {
-      data?: AdvertisementCheckout;
-      result?: AdvertisementCheckout;
-      status?: boolean;
-    };
+    data?: AdvertisementCheckout;
+    result?: AdvertisementCheckout;
+    status?: boolean;
+  };
 
 export type AdvertisementCheckoutPaymentMethodCode =
   | "free_quota"
@@ -153,14 +153,14 @@ export type AdvertisementMapParams = AdvertisementMapBounds & {
 
 type AdvertisementMapResponse =
   | {
-      advertises?: AdvertisementItem[];
-      data?: unknown;
-      items?: AdvertisementItem[];
-      list?: AdvertisementItem[];
-      result?: unknown;
-      results?: AdvertisementItem[];
-      status?: boolean;
-    }
+    advertises?: AdvertisementItem[];
+    data?: unknown;
+    items?: AdvertisementItem[];
+    list?: AdvertisementItem[];
+    result?: unknown;
+    results?: AdvertisementItem[];
+    status?: boolean;
+  }
   | AdvertisementItem[];
 
 export type AdvertiseFeedbackPayload = {
@@ -185,10 +185,10 @@ export type AdvertiseReportReason = {
 
 type AdvertiseReportReasonsResponse =
   | {
-      data?: AdvertiseReportReason[];
-      list?: AdvertiseReportReason[];
-      status?: boolean;
-    }
+    data?: AdvertiseReportReason[];
+    list?: AdvertiseReportReason[];
+    status?: boolean;
+  }
   | AdvertiseReportReason[];
 
 export type SubmitAdvertiseReportPayload = {

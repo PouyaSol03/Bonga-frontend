@@ -20,6 +20,12 @@ import {
   getAdVisitStatisticsPath,
 } from "./adManagement/adManagementData";
 import { getMyAdStatusInfo, type MyAdStatusKey } from "./myAdsStatus";
+import LinearFlag from "../../components/(icons)/LinearFlag";
+import LinearChartUp from "../../components/(icons)/LinearChartUp";
+import LinearDelete from "../../components/(icons)/LinearDelete";
+import LinearEdit2 from "../../components/(icons)/LinearEdit2";
+import LinearPreview from "../../components/(icons)/LinearPreview";
+import LinearAnalytics from "../../components/(icons)/LinearAnalytics";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
@@ -614,51 +620,37 @@ function ActionDivider() {
 function StateIcon({ className = "", icon }: { className?: string; icon: StateActionKey }) {
   if (icon === "preview") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-        <rect height="13" rx="1.5" width="17" x="3.5" y="4" />
-        <path d="m8 11 2 2 5-5M12 17v3M8.5 20h7" />
-      </svg>
+      <LinearPreview className="h-6 w-6"/>
     );
   }
 
   if (icon === "edit") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-        <path d="M4.5 19.5h4l10-10a2.1 2.1 0 0 0-4-4l-10 10v4ZM13.5 6.5l4 4M19 15v5H4" />
-      </svg>
+      <LinearEdit2 className="h-6 w-6"/>
     );
   }
 
   if (icon === "delete") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-        <path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7M14 10v7" />
-      </svg>
+      <LinearDelete className="h-6 w-6"/>
     );
   }
 
   if (icon === "upgrade") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path d="m5 16 6-6 4 4 5-7M15 7h5v5" />
-      </svg>
+      <LinearChartUp className="h-6 w-6"/>
     );
   }
 
   if (icon === "result") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-        <path d="M6 20V5M6 5h11l-1.5 4L17 13H6" />
-      </svg>
+      <LinearFlag className="w-6 h-6"/>
     );
   }
 
   if (icon === "stats") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-        <rect height="17" rx="2" width="16" x="4" y="3" />
-        <path d="M8 16v-4M12 16V8M16 16v-6M7 18h10" />
-      </svg>
+      <LinearAnalytics className="h-6 w-6"/>
     );
   }
 

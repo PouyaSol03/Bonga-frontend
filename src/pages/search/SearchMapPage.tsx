@@ -52,7 +52,7 @@ const mapRequestLimit = 100;
 const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
-const searchMapMinQueryLength = 4;
+const searchMapMinQueryLength = 1;
 const requestRoleLabels: Record<string, string> = {
   user: "کاربر",
   real_estate_manager: "مدیر آژانس",
@@ -722,7 +722,7 @@ function hasSearchCriteria(search: string) {
   );
 }
 
-function filterListings(listings: SearchMapListing[], _chips: SearchFilterChip[]) {
+function filterListings(listings: SearchMapListing[]) {
   return listings;
 }
 
@@ -789,7 +789,6 @@ export function SearchMapPage() {
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
-  const [stableListings, setStableListings] = useState<SearchMapListing[]>([]);
   const [pendingSearchRequest, setPendingSearchRequest] = useState<PendingSearchRequest | null>(null);
   const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
   const didResolveIpLocationRef = useRef(false);
@@ -843,14 +842,18 @@ export function SearchMapPage() {
         .filter((item): item is SearchMapListing => item !== null),
     [listQuery.data, mapCenter.latitude, mapCenter.longitude],
   );
-  const listingSource = activeSearchQuery ? apiListListings : stableListings;
+  const listingSource = activeSearchQuery
+    ? apiListListings
+    : mode === "list"
+      ? apiListListings
+      : apiListings;
   const isMapLoading = activeSearchQuery
     ? listQuery.isFetching && apiListListings.length === 0
-    : !mapQueryParams || (mapQuery.isFetching && stableListings.length === 0);
+    : !mapQueryParams || (mapQuery.isFetching && apiListings.length === 0);
   const isListLoading = listQuery.isFetching && apiListListings.length === 0;
   const visibleListings = useMemo(
-    () => filterListings(listingSource, chips),
-    [chips, listingSource],
+    () => filterListings(listingSource),
+    [listingSource],
   );
   const bluePriceMarkerListingIds = useMemo(() => {
     const markerIds = new Set<SearchMapListingId>();
@@ -887,10 +890,23 @@ export function SearchMapPage() {
   }, []);
 
   useEffect(() => {
-    if (!mapQuery.isSuccess) return;
+    const params = getSearchParams();
+    const hasLegacySearchQuery = params.has("qsearch") || params.has("q");
 
-    setStableListings(apiListings);
-  }, [apiListings, mapQuery.isSuccess]);
+    if (!hasLegacySearchQuery) return;
+
+    const query = getSearchQuery(params);
+
+    if (query) {
+      params.set("query", query);
+    } else {
+      params.delete("query");
+    }
+
+    params.delete("qsearch");
+    params.delete("q");
+    writeSearchParams(params, { replace: true });
+  }, []);
 
   useEffect(() => {
     if (didResolveIpLocationRef.current) return;
@@ -1217,6 +1233,8 @@ export function SearchMapPage() {
         onActiveListingChange={handleSliderActiveListing}
       />
       <HomeSearchScreen
+        advertisementSearchCityId={listQueryParams.cityId}
+        advertisementSearchPerPage={20}
         initialQuery={currentSearchQuery}
         initialView={searchInitialView}
         isOpen={isSearchOpen}

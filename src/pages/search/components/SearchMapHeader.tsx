@@ -27,7 +27,7 @@ function SearchMapHeaderComponent({
     <header className="absolute inset-x-0 top-0 z-500 bg-[#f0f0f0]">
       <TopBar
         backTo="/home"
-        contentClassName="px-2 pt-2 !items-start"
+        contentClassName="px-2"
         heightClassName="h-16"
         search={{
           label: queryLabel,

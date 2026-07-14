@@ -7,6 +7,10 @@ export type CrmAdvertiseFilters = {
   trackCode?: string;
 };
 
+export type CrmAgentFilters = {
+  search?: string;
+};
+
 export type CrmAdvertisePayload = {
   category_id: string;
   form_code: string;
@@ -201,9 +205,17 @@ export async function listCrmPayments(filters: CrmPaymentFilters = {}): Promise<
   };
 }
 
-export async function listCrmAgents() {
+export async function listCrmAgents(filters: CrmAgentFilters = {}) {
+  const search = filters.search?.trim();
+
   return normalizeRows(
-    await api.get("panel/agents", { searchParams: { page: 1, per_page: 100 } }).json<unknown>(),
+    await api.get("panel/agents", {
+      searchParams: compactSearchParams({
+        page: 1,
+        per_page: 100,
+        search,
+      }),
+    }).json<unknown>(),
   );
 }
 

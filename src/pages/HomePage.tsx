@@ -279,7 +279,7 @@ export function HomePage() {
     [fetchNextPage, hasNextPage, isFetchingNextPage],
   );
 
-  const navigateToSearch = (options: { formCode?: string; qsearch?: string } = {}) => {
+  const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
     const cityId =
       selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
@@ -294,8 +294,8 @@ export function HomePage() {
       params.set("view", "list");
     }
 
-    if (options.qsearch) {
-      params.set("qsearch", options.qsearch);
+    if (options.query) {
+      params.set("query", options.query);
     }
 
     const queryString = params.toString();
@@ -548,7 +548,7 @@ export function HomePage() {
       <HomeSearchScreen
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        onSelectResult={(item) => navigateToSearch({ qsearch: item.title })}
+        onSelectResult={(item) => navigateToSearch({ query: item.title })}
       />
 
       <CitySelectionScreen

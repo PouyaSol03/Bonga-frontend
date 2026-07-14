@@ -731,7 +731,10 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [trackCode, setTrackCode] = useState("");
   const [status, setStatus] = useState("");
-  const [filters, setFilters] = useState({ status: "", trackCode: "" });
+  const filters = useMemo(
+    () => ({ status, trackCode: trackCode.trim() }),
+    [status, trackCode],
+  );
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -778,10 +781,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                     aria-current={isActive ? "page" : undefined}
                     className={`relative h-10 whitespace-nowrap bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
                     key={option.value || "all"}
-                    onClick={() => {
-                      setStatus(option.value);
-                      setFilters((current) => ({ ...current, status: option.value }));
-                    }}
+                    onClick={() => setStatus(option.value)}
                     type="button"
                   >
                     {option.label}
@@ -808,9 +808,6 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                 <input
                   className="h-full w-full rounded-xl border border-[#cccccc] bg-white pl-12 pr-4 text-right text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4]"
                   onChange={(event) => setTrackCode(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") setFilters((current) => ({ ...current, trackCode }));
-                  }}
                   placeholder="جستجو با کد پیگیری"
                   type="search"
                   value={trackCode}
@@ -824,10 +821,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
 
         {showFilters ? <form
           className="mt-5 flex shrink-0 flex-wrap items-end gap-3 rounded-xl bg-[#f5f5f5] p-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setFilters({ status, trackCode });
-          }}
+          onSubmit={(event) => event.preventDefault()}
         >
           <FilterField label="کد پیگیری">
             <input
@@ -845,17 +839,12 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
               ))}
             </CrmSelect>
           </FilterField>
-          <button className={secondaryButtonClassName} type="submit">
-            <CrmIcon name="search" size={18} />
-            جستجو
-          </button>
-          {(filters.status || filters.trackCode) ? (
+          {(status || trackCode) ? (
             <button
               className={ghostButtonClassName}
               onClick={() => {
                 setStatus("");
                 setTrackCode("");
-                setFilters({ status: "", trackCode: "" });
               }}
               type="button"
             >
@@ -936,7 +925,10 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [mobile, setMobile] = useState("");
   const [name, setName] = useState("");
-  const [filters, setFilters] = useState({ mobile: "", name: "" });
+  const filters = useMemo(
+    () => ({ mobile: mobile.trim(), name: name.trim() }),
+    [mobile, name],
+  );
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
 
@@ -1089,10 +1081,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
 
         <form
           className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setFilters({ mobile, name });
-          }}
+          onSubmit={(event) => event.preventDefault()}
         >
           <FilterField label="شماره موبایل">
             <input className={inputClassName} onChange={(event) => setMobile(event.target.value)} placeholder="0912..." value={mobile} />
@@ -1100,14 +1089,12 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
           <FilterField label="نام کاربر">
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="نام یا نام خانوادگی" value={name} />
           </FilterField>
-          <button className={secondaryButtonClassName} type="submit"><CrmIcon name="search" size={18} /> جستجو</button>
-          {(filters.mobile || filters.name) ? (
+          {(mobile || name) ? (
             <button
               className={ghostButtonClassName}
               onClick={() => {
                 setMobile("");
                 setName("");
-                setFilters({ mobile: "", name: "" });
               }}
               type="button"
             >
@@ -1187,12 +1174,20 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
   const [statusFilter, setStatusFilter] = useState("");
   const [agencyOnly, setAgencyOnly] = useState(false);
   const [agencyIdFilter, setAgencyIdFilter] = useState("");
-  const [appliedFilters, setAppliedFilters] = useState({ agencyId: "", agencyOnly: false, search: "", status: "" });
+  const appliedFilters = useMemo(
+    () => ({
+      agencyId: agencyOnly ? agencyIdFilter : "",
+      agencyOnly,
+      search: search.trim(),
+      status: statusFilter,
+    }),
+    [agencyIdFilter, agencyOnly, search, statusFilter],
+  );
   const [editor, setEditor] = useState<EditorState | null>(null);
 
   const usersQuery = useQuery({
-    queryFn: listCrmAgents,
-    queryKey: ["crm", "consultants", "agents", refreshNonce],
+    queryFn: () => listCrmAgents({ search: appliedFilters.search || undefined }),
+    queryKey: ["crm", "consultants", "agents", appliedFilters.search, refreshNonce],
   });
   const agenciesQuery = useQuery({
     queryFn: () => listCrmAgencies(),
@@ -1312,7 +1307,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           title="مدیریت مشاورین"
         />
 
-        <form className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)_auto]" onSubmit={(event) => { event.preventDefault(); setAppliedFilters({ agencyId: agencyIdFilter, agencyOnly, search: search.trim(), status: statusFilter }); }}>
+        <form className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)_auto]" onSubmit={(event) => event.preventDefault()}>
           <FilterField label="جستجو">
             <input
               className={inputClassName}
@@ -1363,8 +1358,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
             </CrmSelect>
           </FilterField>
           <div className="flex items-end gap-2">
-            <button className={secondaryButtonClassName} type="submit"><CrmIcon name="search" size={18} /> جستجو</button>
-            {(appliedFilters.search || appliedFilters.status || appliedFilters.agencyOnly) ? <button className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); setAppliedFilters({ agencyId: "", agencyOnly: false, search: "", status: "" }); }} type="button">پاک کردن</button> : null}
+            {(search || statusFilter || agencyOnly) ? <button className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); }} type="button">پاک کردن</button> : null}
           </div>
         </form>
 
@@ -1445,7 +1439,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
 function AgenciesView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
-  const [filterName, setFilterName] = useState("");
+  const filterName = name.trim();
   const [agentsAgency, setAgentsAgency] = useState<CrmRecord | null>(null);
   const [agentEditor, setAgentEditor] = useState<EditorState | null>(null);
 
@@ -1545,21 +1539,16 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
 
         <form
           className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setFilterName(name);
-          }}
+          onSubmit={(event) => event.preventDefault()}
         >
           <FilterField label="نام آژانس">
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="جستجوی نام" value={name} />
           </FilterField>
-          <button className={secondaryButtonClassName} type="submit"><CrmIcon name="search" size={18} /> جستجو</button>
-          {filterName ? (
+          {name ? (
             <button
               className={ghostButtonClassName}
               onClick={() => {
                 setName("");
-                setFilterName("");
               }}
               type="button"
             >
@@ -1808,7 +1797,7 @@ function CategoryTree({ categories, depth = 0, onEdit }: { categories: CrmRecord
 function LocationsView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [citySearch, setCitySearch] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
+  const cityFilter = citySearch.trim();
   const [cityId, setCityId] = useState("");
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
@@ -1947,15 +1936,11 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
           />
           <form
             className="mt-4 flex items-end gap-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setCityFilter(citySearch);
-            }}
+            onSubmit={(event) => event.preventDefault()}
           >
             <FilterField className="flex-1" label="جستجوی شهر">
               <input className={inputClassName} onChange={(event) => setCitySearch(event.target.value)} placeholder="نام شهر" value={citySearch} />
             </FilterField>
-            <button className={iconButtonClassName} aria-label="جستجو" type="submit"><CrmIcon name="search" size={19} /></button>
           </form>
 
           <div className="mt-4 max-h-[calc(100vh-320px)] overflow-auto rounded-xl border border-[#f0f0f0]">
@@ -2968,10 +2953,8 @@ function useQueryErrorToast(errors: Array<unknown>, notify: ViewProps["notify"])
 const inputClassName = "h-10 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
 const modalInputClassName = "h-11 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
 const primaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white transition hover:bg-[#003ca5] disabled:cursor-not-allowed disabled:opacity-55";
-const secondaryButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-semibold text-[#0048c4] transition hover:bg-[#eef4ff]";
 const ghostButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-semibold text-[#4d4d4d] transition hover:bg-[#f0f0f0] disabled:cursor-not-allowed disabled:opacity-50";
 const dangerButtonClassName = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#d93645] px-4 text-sm font-semibold text-white transition hover:bg-[#bd2938] disabled:cursor-not-allowed disabled:opacity-55";
-const iconButtonClassName = "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0048c4] text-white transition hover:bg-[#003ca5]";
 const miniGhostButtonClassName = "h-9 rounded-lg border border-[#d7dfeb] bg-white px-2.5 text-sm font-bold text-[#5d6879] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-45";
 
 type IconName =

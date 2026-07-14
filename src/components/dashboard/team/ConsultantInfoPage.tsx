@@ -8,11 +8,14 @@ import LinearStartup from "../../(icons)/LinearStartup";
 import LinearTag from "../../(icons)/LinearTag";
 import { TopBar } from "../../TopBar";
 import { ProgressLineChartCard } from "../home/DashboardHomeOverview";
+import { useAgencyConsultantQuery } from "../../../hooks/agency.hooks";
 import {
   ChevronDownIcon,
   ConsultantProfileSummary,
   InfoStatRow,
   getRouteConsultant,
+  getRouteConsultantId,
+  mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
 
 const consultantPieCards = [
@@ -49,7 +52,16 @@ const consultantPieCards = [
 ];
 
 export function ConsultantInfoPage() {
-  const consultant = getRouteConsultant();
+  const routeConsultant = getRouteConsultant();
+  const consultantId = getRouteConsultantId() ?? routeConsultant.id;
+  const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const consultant = consultantQuery.data
+    ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
+    : routeConsultant;
+  const formatValue = (value: number | undefined) =>
+    value === undefined
+      ? "—"
+      : new Intl.NumberFormat("fa-IR").format(value);
 
   return (
     <section
@@ -69,20 +81,20 @@ export function ConsultantInfoPage() {
 
         <section className="mt-5 grid gap-4">
           <article className="flex flex-col gap-8 rounded-2xl bg-white px-4 py-5">
-            <InfoStatRow label="آگهی‌های فعال" value="۸" />
-            <InfoStatRow label="درخواست فعال" value="۸" />
+            <InfoStatRow label="آگهی‌های فعال" value={formatValue(consultant.scores.ads)} />
+            <InfoStatRow label="درخواست فعال" value="—" />
           </article>
 
           <article className="flex flex-col gap-8 rounded-2xl bg-white px-4 py-5">
             <InfoStatRow
               icon={<LinearStar className="h-6 w-6" />}
               label="امتیاز"
-              value="۲۸۹"
+              value={formatValue(consultant.rankingScore)}
             />
             <InfoStatRow
               icon={<LinearRanking className="h-6 w-6" />}
               label="رتبه"
-              value="۹۴"
+              value="—"
             />
           </article>
 
@@ -92,21 +104,21 @@ export function ConsultantInfoPage() {
               iconClassName="bg-[#dfe8ff] text-[#0048c4] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده اعتبار آگهی"
-              value="۳۴"
+              value={formatValue(consultant.scores.ads)}
             />
             <InfoStatRow
               icon={<LinearStairs className="h-5 w-5" />}
               iconClassName="bg-[#d9f7ea] text-[#11a366] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده بروزرسانی"
-              value="۲۱"
+              value={formatValue(consultant.scores.steps)}
             />
             <InfoStatRow
               icon={<LinearStartup className="h-5 w-5" />}
               iconClassName="bg-[#fff0dc] text-[#ff7a00] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده بروزرسانی"
-              value="۱۱"
+              value={formatValue(consultant.scores.rocket)}
             />
           </article>
 

@@ -1,4 +1,4 @@
-import { getApiAssetUrl, publicApi } from "../api/api";
+import { api, getApiAssetUrl, publicApi } from "../api/api";
 
 export type AgencySort = "score" | "rank" | "newest" | "oldest";
 
@@ -31,6 +31,47 @@ export type PublicAgencyListParams = {
   sort?: AgencySort;
 };
 
+export type AgencyConsultantMetrics = {
+  publishedAdvertises: number;
+  rankingScore: number;
+  renewUsed: number;
+  specialUsed: number;
+};
+
+export type AgencyConsultantDto = {
+  avatar?: string;
+  isActive: boolean;
+  metrics: AgencyConsultantMetrics;
+  mobile: string;
+  name: string;
+  role: string;
+  roleId: number;
+  userId: number;
+};
+
+export type AgencyConsultantsPage = {
+  data: AgencyConsultantDto[];
+  page: number;
+  perPage: number;
+  total: number;
+};
+
+export type AgencyConsultantsParams = {
+  page?: number;
+  perPage?: number;
+};
+
+export type UpdateAgencyConsultantPayload = {
+  isActive: boolean;
+  role: number;
+  userId: number | string;
+};
+
+export type DeactivateAgencyConsultantPayload = {
+  reason: string;
+  userId: number | string;
+};
+
 type PublicAgencyApiItem = {
   address?: unknown;
   created_at?: unknown;
@@ -50,6 +91,36 @@ type PublicAgencyApiResponse = {
   per_page?: unknown;
   status?: boolean;
   total?: unknown;
+};
+
+type AgencyConsultantApiItem = {
+  avatar?: unknown;
+  is_active?: unknown;
+  metrics?: {
+    published_advertises?: unknown;
+    ranking_score?: unknown;
+    renew_used?: unknown;
+    special_used?: unknown;
+  };
+  mobile?: unknown;
+  name?: unknown;
+  role?: unknown;
+  role_id?: unknown;
+  user_id?: unknown;
+};
+
+type AgencyConsultantsApiResponse = {
+  data?: AgencyConsultantApiItem[];
+  page?: unknown;
+  per_page?: unknown;
+  status?: boolean;
+  total?: unknown;
+};
+
+type AgencyConsultantDetailApiResponse = {
+  consultant?: AgencyConsultantApiItem;
+  data?: AgencyConsultantApiItem;
+  status?: boolean;
 };
 
 function toText(value: unknown) {
@@ -94,6 +165,105 @@ function normalizeAgency(item: PublicAgencyApiItem): PublicAgencyDto | null {
     rank: toNumber(item.rank),
     score: toNumber(item.score),
   };
+}
+
+function normalizeAgencyConsultant(
+  item: AgencyConsultantApiItem,
+): AgencyConsultantDto | null {
+  const userId = toNumber(item.user_id, Number.NaN);
+  const name = toText(item.name);
+
+  if (!Number.isFinite(userId) || !name) return null;
+
+  return {
+    avatar: toAssetUrl(item.avatar),
+    isActive: item.is_active === true || item.is_active === 1 || item.is_active === "1",
+    metrics: {
+      publishedAdvertises: Math.max(
+        0,
+        toNumber(item.metrics?.published_advertises),
+      ),
+      rankingScore: Math.max(0, toNumber(item.metrics?.ranking_score)),
+      renewUsed: Math.max(0, toNumber(item.metrics?.renew_used)),
+      specialUsed: Math.max(0, toNumber(item.metrics?.special_used)),
+    },
+    mobile: toText(item.mobile),
+    name,
+    role: toText(item.role),
+    roleId: toNumber(item.role_id),
+    userId,
+  };
+}
+
+export async function getMyAgencyConsultants({
+  page = 1,
+  perPage = 100,
+}: AgencyConsultantsParams = {}): Promise<AgencyConsultantsPage> {
+  const response = await api
+    .get("me/agency/consultants", {
+      searchParams: {
+        page,
+        per_page: perPage,
+      },
+    })
+    .json<AgencyConsultantsApiResponse>();
+  const data = (response.data ?? [])
+    .map(normalizeAgencyConsultant)
+    .filter((item): item is AgencyConsultantDto => Boolean(item));
+
+  return {
+    data,
+    page: Math.max(1, toNumber(response.page, page)),
+    perPage: Math.max(1, toNumber(response.per_page, perPage)),
+    total: Math.max(0, toNumber(response.total, data.length)),
+  };
+}
+
+export async function getMyAgencyConsultant(
+  userId: number | string,
+): Promise<AgencyConsultantDto> {
+  const response = await api
+    .get(`me/agency/consultants/${encodeURIComponent(String(userId))}`)
+    .json<AgencyConsultantDetailApiResponse>();
+  const consultant = normalizeAgencyConsultant(
+    response.consultant ?? response.data ?? {},
+  );
+
+  if (!consultant) {
+    throw new Error("اطلاعات مشاور معتبر نیست.");
+  }
+
+  return consultant;
+}
+
+export async function updateMyAgencyConsultant({
+  isActive,
+  role,
+  userId,
+}: UpdateAgencyConsultantPayload): Promise<AgencyConsultantDto | null> {
+  const response = await api
+    .patch(`me/agency/consultants/${encodeURIComponent(String(userId))}`, {
+      json: {
+        is_active: isActive,
+        role,
+      },
+    })
+    .json<AgencyConsultantDetailApiResponse>();
+
+  return response.consultant || response.data
+    ? normalizeAgencyConsultant(response.consultant ?? response.data ?? {})
+    : null;
+}
+
+export async function deactivateMyAgencyConsultant({
+  reason,
+  userId,
+}: DeactivateAgencyConsultantPayload) {
+  return api
+    .delete(`me/agency/consultants/${encodeURIComponent(String(userId))}`, {
+      json: { reason: reason.trim() },
+    })
+    .json<{ status?: boolean }>();
 }
 
 export async function getPublicAgencies({

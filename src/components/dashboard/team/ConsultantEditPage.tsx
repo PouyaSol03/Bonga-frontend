@@ -1,25 +1,83 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { TopBar } from "../../TopBar";
+import {
+  useAgencyConsultantQuery,
+  useUpdateAgencyConsultantMutation,
+} from "../../../hooks/agency.hooks";
 import {
   AddConsultantRoleOption,
   ConsultantProfilePill,
   QuotaStepper,
   getRouteConsultant,
+  getRouteConsultantId,
   managerAccessItems,
+  mapAgencyConsultantToTeamConsultant,
   type AccessRole,
 } from "./ConsultantManagementPage";
 
+const agencyConsultantRoleIds = {
+  consultant: 2,
+  manager: 1,
+} as const;
+
+function resolveAgencyConsultantRoleId(
+  accessRole: AccessRole,
+  consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
+) {
+  const currentRole = consultant.roleLabel?.trim();
+  const currentMatchesSelection =
+    (accessRole === "manager" && ["مدیر", "مدیر آژانس"].includes(currentRole ?? "")) ||
+    (accessRole === "consultant" && currentRole === "مشاور");
+
+  if (currentMatchesSelection && consultant.roleId !== undefined) {
+    return consultant.roleId;
+  }
+
+  return agencyConsultantRoleIds[accessRole];
+}
+
+function getAgencyConsultantAccessRole(
+  consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
+): AccessRole {
+  return consultant.roleId === 0 ||
+    consultant.roleId === 1 ||
+    ["مدیر", "مدیر آژانس"].includes(consultant.roleLabel?.trim() ?? "")
+    ? "manager"
+    : "consultant";
+}
+
 export function ConsultantEditPage() {
-  const consultant = getRouteConsultant();
-  const [accessRole, setAccessRole] = useState<AccessRole>("consultant");
+  const routeConsultant = getRouteConsultant();
+  const consultantId = getRouteConsultantId() ?? routeConsultant.id;
+  const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const updateConsultantMutation = useUpdateAgencyConsultantMutation();
+  const consultant = consultantQuery.data
+    ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
+    : routeConsultant;
+  const [accessRole, setAccessRole] = useState<AccessRole>(() =>
+    getAgencyConsultantAccessRole(routeConsultant),
+  );
   const [managerAccess, setManagerAccess] = useState<string[]>(["ads", "requests"]);
-  const [adQuota, setAdQuota] = useState(36);
-  const [updateQuota, setUpdateQuota] = useState(24);
-  const [specialQuota, setSpecialQuota] = useState(13);
+  const [adQuota, setAdQuota] = useState(routeConsultant.scores.ads);
+  const [updateQuota, setUpdateQuota] = useState(routeConsultant.scores.steps);
+  const [specialQuota, setSpecialQuota] = useState(routeConsultant.scores.rocket);
 
   const isManager = accessRole === "manager";
+
+  useEffect(() => {
+    if (!consultantQuery.data) return;
+
+    setAccessRole(
+      getAgencyConsultantAccessRole(
+        mapAgencyConsultantToTeamConsultant(consultantQuery.data),
+      ),
+    );
+    setAdQuota(consultantQuery.data.metrics.publishedAdvertises);
+    setUpdateQuota(consultantQuery.data.metrics.renewUsed);
+    setSpecialQuota(consultantQuery.data.metrics.specialUsed);
+  }, [consultantQuery.data]);
 
   function toggleManagerAccess(id: string) {
     setManagerAccess((current) =>
@@ -114,6 +172,22 @@ export function ConsultantEditPage() {
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <button
           className="flex h-12 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white"
+          disabled={updateConsultantMutation.isPending}
+          onClick={() => {
+            updateConsultantMutation.mutate(
+              {
+                isActive: consultant.isActive ?? consultant.status === "active",
+                role: resolveAgencyConsultantRoleId(accessRole, consultant),
+                userId: consultantId,
+              },
+              {
+                onSuccess: () => {
+                  window.history.pushState({}, "", "/account/dashboard/team");
+                  window.dispatchEvent(new PopStateEvent("popstate"));
+                },
+              },
+            );
+          }}
           type="button"
         >
           اعمال تغییرات

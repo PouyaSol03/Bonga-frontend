@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
@@ -29,8 +29,12 @@ import { getApiAssetUrl } from "../../api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
 import { useMyAgencyProfileQuery } from "../../hooks/account.hooks";
+import { useAgencyConsultantsQuery } from "../../hooks/agency.hooks";
 import { useAgencyDashboardQuery } from "../../hooks/dashboard.hooks";
+import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../../services/account.service";
+import type { AgencyConsultantDto } from "../../services/agency.service";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
@@ -161,21 +165,11 @@ const badgeCards: BadgeInfo[] = [
   },
 ];
 
-type AgencyConsultant = {
-  avatarClassName: string;
-  id: number;
-  name: string;
-  rank: string;
-  role: string;
-  score: string;
-  src?: string;
-};
-
-const agencyConsultants: AgencyConsultant[] = [
-  { id: 1, name: "ناصر اشرفی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#f7c59f] to-[#e6a078]" },
-  { id: 2, name: "محمد اسماعیلی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#b6dcc0] to-[#68a987]" },
-  { id: 3, name: "علیرضا خراسانی", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#d7c1ab] to-[#a87556]" },
-  { id: 4, name: "حامد عرفان مقدم", role: "مشاور املاک", score: "۸۵", rank: "۱۳", avatarClassName: "from-[#f0d0a7] to-[#b98457]" },
+const consultantAvatarClasses = [
+  "from-[#f7c59f] to-[#e6a078]",
+  "from-[#b6dcc0] to-[#68a987]",
+  "from-[#d7c1ab] to-[#a87556]",
+  "from-[#f0d0a7] to-[#b98457]",
 ];
 
 const agencyTabs: { id: AgencyPreviewTab; label: string }[] = [
@@ -202,20 +196,45 @@ function getProfileNeighborhoodIds(profile?: MyAgencyProfile | null) {
   );
 }
 
+function getPreviewNeighborhoodIds() {
+  return Array.from(
+    new Set(
+      getPreviewSearchParam("neighborhood_ids")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
 function toPersianDigits(value: number | string | null | undefined) {
   if (value === null || value === undefined || value === "") return "—";
   return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit);
 }
 
+function getAgencyConsultantRoleLabel(role: string) {
+  switch (role.trim().toLowerCase()) {
+    case "owner":
+      return "مدیر آژانس";
+    case "manager":
+      return "مدیر";
+    case "consultant":
+    case "member":
+      return "مشاور املاک";
+    default:
+      return role.trim() || "مشاور املاک";
+  }
+}
+
 function resolvePreviewContactInfo(
   profile: MyAgencyProfile | null | undefined,
-  _isPublicPreview: boolean,
+  isPublicPreview: boolean,
 ): AgencyPreviewContactInfo {
   if (!profile) {
     return {
-      phone: "",
-      secondPhone: "",
-      landline: "",
+      phone: isPublicPreview ? getPreviewSearchParam("phone1") : "",
+      secondPhone: isPublicPreview ? getPreviewSearchParam("phone2") : "",
+      landline: isPublicPreview ? getPreviewSearchParam("phone3") : "",
       whatsapp: "",
       telegram: "",
       instagram: "",
@@ -273,18 +292,44 @@ function getAgencyLocationLabel() {
 
 function getAbsoluteAgencyPreviewUrl(
   agencyId?: string,
-  data?: { location?: string; logo?: string; name?: string },
+  data?: {
+    aboutUs?: string;
+    activeAds?: string;
+    cityId?: string;
+    cityName?: string;
+    location?: string;
+    logo?: string;
+    name?: string;
+    neighborhoodIds?: string[];
+    phone1?: string;
+    phone2?: string;
+    phone3?: string;
+    rank?: string;
+    score?: string;
+  },
 ) {
   if (typeof window === "undefined") return agencyPreviewPath;
 
-  const path = agencyId && !isPublicAgencyPreviewPath()
-    ? `/agencies/${encodeURIComponent(agencyId)}`
+  const path = !isPublicAgencyPreviewPath()
+    ? `/agencies/${encodeURIComponent(agencyId || "preview")}`
     : getCurrentAgencyPreviewPath();
   const url = new URL(path, window.location.origin);
 
   if (data?.name) url.searchParams.set("name", data.name);
   if (data?.location) url.searchParams.set("location", data.location);
   if (data?.logo) url.searchParams.set("logo", data.logo);
+  if (data?.aboutUs) url.searchParams.set("about_us", data.aboutUs);
+  if (data?.cityId) url.searchParams.set("city_id", data.cityId);
+  if (data?.cityName) url.searchParams.set("city_name", data.cityName);
+  if (data?.neighborhoodIds?.length) {
+    url.searchParams.set("neighborhood_ids", data.neighborhoodIds.join(","));
+  }
+  if (data?.phone1) url.searchParams.set("phone1", data.phone1);
+  if (data?.phone2) url.searchParams.set("phone2", data.phone2);
+  if (data?.phone3) url.searchParams.set("phone3", data.phone3);
+  if (data?.rank) url.searchParams.set("rank", data.rank);
+  if (data?.score) url.searchParams.set("score", data.score);
+  if (data?.activeAds) url.searchParams.set("active_ads", data.activeAds);
 
   return url.toString();
 }
@@ -296,20 +341,44 @@ function getCurrentPageUrl() {
 }
 
 async function shareOrCopyAgencyUrl(url: string, title: string, text: string) {
-  if (typeof navigator !== "undefined" && navigator.share) {
-    await navigator.share({
-      text,
-      title,
-      url,
-    });
+  const shareData = { text, title, url };
 
-    return "shared" as const;
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try {
+      if (!navigator.canShare || navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+
+        return "shared" as const;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw error;
+      }
+    }
   }
 
   if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(url);
+    try {
+      await navigator.clipboard.writeText(url);
 
-    return "copied" as const;
+      return "copied" as const;
+    } catch {
+      // Fall through to the legacy copy method for non-secure browser contexts.
+    }
+  }
+
+  if (typeof document !== "undefined") {
+    const input = document.createElement("textarea");
+    input.value = url;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(input);
+
+    if (copied) return "copied" as const;
   }
 
   throw new Error("Sharing is not supported in this browser.");
@@ -337,19 +406,50 @@ export function AgencyPreviewPage() {
     enabled: !isPublicPreview && isRealEstateManager,
     period: "30d",
   });
+  const agencyConsultantsQuery = useAgencyConsultantsQuery({
+    enabled:
+      !isPublicPreview && isRealEstateManager && activeTab === "consultants",
+    perPage: 100,
+  });
   const profile = agencyProfileQuery.data;
+  const selectedCity = readStoredSelectedCity();
   const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
   const agencyName = profile?.name?.trim() || getAgencyDisplayName();
-  const agencyLocation = profile?.address?.trim() || getAgencyLocationLabel();
+  const cityId = String(
+    profile?.city_id || getPreviewSearchParam("city_id") || selectedCity?.id || "",
+  ).trim();
+  const cityName =
+    profile?.city_name?.trim() ||
+    getPreviewSearchParam("city_name") ||
+    selectedCity?.name ||
+    "";
+  const agencyLocation =
+    profile?.address?.trim() || cityName || getAgencyLocationLabel();
   const agencyLogo = profile?.logo
     ? getApiAssetUrl(profile.logo)
     : getPreviewSearchParam("logo") || agencyLogoSrc;
-  const agencyAbout = profile?.about_us?.trim() || (isPublicPreview
-    ? "اطلاعات معرفی این آژانس هنوز از API جزئیات دریافت نشده است."
-    : "");
-  const activityAreas = profile
+  const agencyAbout =
+    profile?.about_us?.trim() ||
+    (isPublicPreview ? getPreviewSearchParam("about_us") : "");
+  const activityAreaIds = profile
     ? getProfileNeighborhoodIds(profile)
-    : [];
+    : getPreviewNeighborhoodIds();
+  const neighborhoodsQuery = useNeighborhoodListQuery({
+    cityId,
+    enabled: Boolean(cityId) && activityAreaIds.length > 0,
+    page: 1,
+    perPage: 500,
+    q: "",
+  });
+  const neighborhoodNameById = new Map(
+    (neighborhoodsQuery.data ?? []).map((neighborhood) => [
+      String(neighborhood.id ?? neighborhood._id ?? ""),
+      neighborhood.name,
+    ]),
+  );
+  const activityAreas = activityAreaIds.map(
+    (id) => neighborhoodNameById.get(id) ?? id,
+  );
   const contactInfo = resolvePreviewContactInfo(profile, isPublicPreview);
   const dashboard = agencyDashboardQuery.data;
   const agencyStats = [
@@ -372,7 +472,7 @@ export function AgencyPreviewPage() {
       label: "آگهی فعال",
       value: dashboard
         ? toPersianDigits(dashboard.publishedAdvertises.total)
-        : "—",
+        : toPersianDigits(getPreviewSearchParam("active_ads") || null),
     },
   ];
   const shareTitle = agencyName || agencyShareTitle;
@@ -380,9 +480,23 @@ export function AgencyPreviewPage() {
   const shareUrl = isPublicPreview
     ? getCurrentPageUrl()
     : getAbsoluteAgencyPreviewUrl(agencyId, {
+        aboutUs: agencyAbout,
+        activeAds: dashboard
+          ? String(dashboard.publishedAdvertises.total)
+          : undefined,
+        cityId,
+        cityName,
         location: agencyLocation,
         logo: agencyLogo,
         name: agencyName,
+        neighborhoodIds: activityAreaIds,
+        phone1: contactInfo.phone,
+        phone2: contactInfo.secondPhone,
+        phone3: contactInfo.landline,
+        rank: dashboard ? String(dashboard.ranking.rank) : undefined,
+        score: dashboard
+          ? String(dashboard.ranking.current.totalScore)
+          : undefined,
       });
 
   useEffect(() => {
@@ -460,7 +574,9 @@ export function AgencyPreviewPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[84px]">
         <AgencyHero agencyLocation={agencyLocation} agencyLogo={agencyLogo} agencyName={agencyName} agencyStats={agencyStats} />
         <AgencySegmentedTabs activeTab={activeTab} onChange={changeTab} />
-        {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? <AgencyConsultantsTab /> : (
+        {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? (
+          <AgencyConsultantsTab consultants={agencyConsultantsQuery.data?.data ?? []} />
+        ) : (
           <AgencyInfoTab
             aboutUs={agencyAbout}
             activityAreas={activityAreas}
@@ -493,13 +609,16 @@ export function AgencyQrCodePage() {
     getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
   const agencyProfileQuery = useMyAgencyProfileQuery({ enabled: isRealEstateManager });
   const profile = agencyProfileQuery.data;
+  const selectedCity = readStoredSelectedCity();
   const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
   const agencyName = profile?.name?.trim() || agencyShareTitle;
   const agencyLogo = profile?.logo ? getApiAssetUrl(profile.logo) : agencyLogoSrc;
   const agencyUrl = getAbsoluteAgencyPreviewUrl(agencyId, {
+    cityId: String(profile?.city_id ?? selectedCity?.id ?? "").trim() || undefined,
+    cityName: profile?.city_name?.trim() || selectedCity?.name || undefined,
     location: profile?.address?.trim() || undefined,
-    logo: agencyLogo,
     name: agencyName,
+    neighborhoodIds: getProfileNeighborhoodIds(profile),
   });
   const qrLabel = agencyId ? `Agency${agencyId}` : agencyQrLabel;
   const shareText = `صفحه آژانس ${agencyName}`;
@@ -583,8 +702,6 @@ function AgencyQrCard({
   agencyUrl: string;
   qrLabel: string;
 }) {
-  const gradientId = `agency-qr-${useId().replace(/:/g, "")}`;
-
   return (
     <section className="w-full max-w-[328px] rounded-3xl bg-white px-6 pb-6 pt-7 text-center shadow-[0_8px_24px_rgba(26,26,26,0.06)]">
       <img alt={`لوگوی ${agencyName}`} className="mx-auto h-16 w-16 object-contain" src={agencyLogo} />
@@ -595,19 +712,12 @@ function AgencyQrCard({
         <QRCodeSVG
           bgColor="#ffffff"
           className="mx-auto block h-auto w-full"
-          fgColor={`url(#${gradientId})`}
-          level="H"
-          marginSize={1}
+          fgColor="#1a1a1a"
+          level="M"
+          marginSize={4}
           title="کد QR صفحه آژانس"
           value={agencyUrl}
-        >
-          <defs>
-            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#002099" />
-              <stop offset="100%" stopColor="#4B5070" />
-            </linearGradient>
-          </defs>
-        </QRCodeSVG>
+        />
       </div>
 
       <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">
@@ -839,29 +949,33 @@ function AgencyAdsTab() {
   );
 }
 
-function AgencyConsultantsTab() {
+function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDto[] }) {
   return (
     <section className="flex flex-col gap-y-2">
-      {agencyConsultants.map((consultant, index) => (
+      {consultants.map((consultant, index) => (
         <article
-          className={`flex items-center justify-center gap-4 bg-white px-4 py-4 text-center ${index < agencyConsultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
-          key={consultant.id}
+          className={`flex items-center justify-center gap-4 bg-white px-4 py-4 text-center ${index < consultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
+          key={consultant.userId}
         >
           <div className="flex flex-col items-center">
-            <ConsultantAvatar className={consultant.avatarClassName} name={consultant.name} src={consultant.src} />
+            <ConsultantAvatar
+              className={consultantAvatarClasses[index % consultantAvatarClasses.length]}
+              name={consultant.name}
+              src={consultant.avatar}
+            />
             <h3 className="m-0 mt-2 font-medium leading-5 text-[#4D4D4D]">{consultant.name}</h3>
-            <p className="m-0 mt-0.5 text-xs px-2 py-0.5 rounded-lg bg-[#80808014] text-[#808080]">{consultant.role}</p>
+            <p className="m-0 mt-0.5 text-xs px-2 py-0.5 rounded-lg bg-[#80808014] text-[#808080]">{getAgencyConsultantRoleLabel(consultant.role)}</p>
             <div className="mt-2 flex items-center justify-center gap-5 text-xs font-medium leading-4 text-[#4d4d4d]">
               <span className="inline-flex items-center gap-1">
                 <LinearStar className="h-4 w-4" />
                 <p className="text-xs font-medium text-[#1A1A1A]">امتیاز</p>
-                <span className="mr-3 font-semibold text-sm text-[#11A366]">{consultant.score}</span>
+                <span className="mr-3 font-semibold text-sm text-[#11A366]">{toPersianDigits(consultant.metrics.rankingScore)}</span>
               </span>
               <div className="h-4.75 w-px bg-[#CCCCCC]"></div>
               <span className="inline-flex items-center gap-1">
                 <LinearRanking className="h-4 w-4" />
                 <p className="text-xs font-medium text-[#1A1A1A]">رتبه</p>
-                <span className="mr-3 font-semibold text-sm text-[#11A366]">{consultant.rank}</span>
+                <span className="mr-3 font-semibold text-sm text-[#11A366]">—</span>
               </span>
             </div>
           </div>

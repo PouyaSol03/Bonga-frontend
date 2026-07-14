@@ -7,10 +7,17 @@ import LinearSearch from "../../(icons)/LinearSearch";
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { TopBar } from "../../TopBar";
 import {
+  useAgencyConsultantQuery,
+  useAgencyConsultantsQuery,
+  useDeactivateAgencyConsultantMutation,
+} from "../../../hooks/agency.hooks";
+import {
+  ConsultantAvatar,
   ConsultantProfilePill,
   type TeamConsultant,
   getRouteConsultant,
-  teamConsultants,
+  getRouteConsultantId,
+  mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
 
 type ReplacementTarget =
@@ -25,7 +32,21 @@ const agencyReplacementTarget: ReplacementTarget = {
 };
 
 export function ConsultantRemovePage() {
-  const consultant = getRouteConsultant();
+  const routeConsultant = getRouteConsultant();
+  const consultantId = getRouteConsultantId() ?? routeConsultant.id;
+  const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const consultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
+  const deactivateConsultantMutation = useDeactivateAgencyConsultantMutation();
+  const consultant = consultantQuery.data
+    ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
+    : routeConsultant;
+  const consultants = useMemo(
+    () =>
+      (consultantsQuery.data?.data ?? []).map(
+        mapAgencyConsultantToTeamConsultant,
+      ),
+    [consultantsQuery.data?.data],
+  );
   const [isReplacementPickerOpen, setIsReplacementPickerOpen] = useState(false);
   const [selectedReplacement, setSelectedReplacement] =
     useState<ReplacementTarget | null>(null);
@@ -89,7 +110,23 @@ export function ConsultantRemovePage() {
               ? "bg-[#0048c4] text-white"
               : "bg-[#e5e5e5] text-[#b8b8b8]"
           }`}
-          disabled={!selectedReplacement}
+          disabled={!selectedReplacement || deactivateConsultantMutation.isPending}
+          onClick={() => {
+            if (!selectedReplacement) return;
+
+            deactivateConsultantMutation.mutate(
+              {
+                reason: `Consultant deactivated. Replacement target: ${getReplacementLabel(selectedReplacement)}`,
+                userId: consultantId,
+              },
+              {
+                onSuccess: () => {
+                  window.history.pushState({}, "", "/account/dashboard/team");
+                  window.dispatchEvent(new PopStateEvent("popstate"));
+                },
+              },
+            );
+          }}
           type="button"
         >
           حذف مشاور
@@ -99,6 +136,7 @@ export function ConsultantRemovePage() {
       {isReplacementPickerOpen ? (
         <ReplacementPicker
           currentConsultantId={consultant.id}
+          consultants={consultants}
           onClose={() => setIsReplacementPickerOpen(false)}
           onConfirm={(target) => {
             setSelectedReplacement(target);
@@ -112,11 +150,13 @@ export function ConsultantRemovePage() {
 }
 
 function ReplacementPicker({
+  consultants,
   currentConsultantId,
   onClose,
   onConfirm,
   selectedTarget,
 }: {
+  consultants: TeamConsultant[];
   currentConsultantId: number;
   onClose: () => void;
   onConfirm: (target: ReplacementTarget) => void;
@@ -127,7 +167,7 @@ function ReplacementPicker({
     useState<ReplacementTarget | null>(selectedTarget);
   const normalizedSearch = searchValue.trim();
   const replacementTargets = useMemo<ReplacementTarget[]>(() => {
-    const consultants = teamConsultants
+    const consultantTargets = consultants
       .filter(
         (item) => item.status === "active" && item.id !== currentConsultantId,
       )
@@ -137,8 +177,8 @@ function ReplacementPicker({
         consultant: item,
       }));
 
-    return [agencyReplacementTarget, ...consultants];
-  }, [currentConsultantId]);
+    return [agencyReplacementTarget, ...consultantTargets];
+  }, [consultants, currentConsultantId]);
   const visibleTargets = useMemo(() => {
     if (!normalizedSearch) return replacementTargets;
 
@@ -248,12 +288,7 @@ function ReplacementOption({
             <LinearBuilding3 className="h-6 w-6" />
           </span>
         ) : (
-          <img
-            alt=""
-            className="h-11 w-11 shrink-0 rounded-full object-cover"
-            draggable={false}
-            src={target.consultant.avatarSrc}
-          />
+          <ConsultantAvatar consultant={target.consultant} sizeClassName="h-11 w-11" />
         )}
         <div className="flex min-w-0 flex-col justify-center">
           <span className="block truncate text-sm font-semibold text-[#1a1a1a]">

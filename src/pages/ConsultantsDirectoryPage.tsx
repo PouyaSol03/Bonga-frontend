@@ -17,6 +17,7 @@ type DirectoryItem = {
   id?: string;
   image?: string;
   name: string;
+  neighborhoodIds?: string[];
   rank: string;
   score: string;
 };
@@ -68,6 +69,7 @@ function mapAgencyToDirectoryItem(agency: PublicAgencyDto): DirectoryItem {
     id: agency.id,
     image: agency.logo ?? agency.img,
     name: agency.name,
+    neighborhoodIds: agency.neighborhood_ids,
     rank: toPersianNumber(agency.rank),
     score: toPersianNumber(agency.score),
   };
@@ -133,10 +135,16 @@ function navigateToAgency(item: DirectoryItem) {
   if (!item.id) return;
 
   const params = new URLSearchParams();
+  const selectedCity = readStoredSelectedCity();
 
   if (item.name) params.set("name", item.name);
   if (item.address) params.set("location", item.address);
   if (item.image) params.set("logo", item.image);
+  if (selectedCity?.id) params.set("city_id", selectedCity.id);
+  if (selectedCity?.name) params.set("city_name", selectedCity.name);
+  if (item.neighborhoodIds?.length) {
+    params.set("neighborhood_ids", item.neighborhoodIds.join(","));
+  }
   if (item.rank) params.set("rank", item.rank);
   if (item.score) params.set("score", item.score);
 

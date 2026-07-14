@@ -127,6 +127,8 @@ export type MyAgencyProfile = {
   phone3?: string | null;
   working_hours?: string | null;
   address?: string | null;
+  city_id?: string | null;
+  city_name?: string | null;
   lat?: number | string | null;
   lng?: number | string | null;
   location?: unknown;

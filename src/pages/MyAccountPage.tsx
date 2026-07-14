@@ -315,7 +315,6 @@ function getBusinessAccountHeader(
   agencyProfile?: MyAgencyProfile,
 ) {
   const accountHeader = getAccountHeader(profile);
-  const fallbackAvatar = "/figma/account/consultant-profile.png";
   const agencyName = getAgencyDisplayName(agencyProfile);
   const agencyAvatarUrl = getAgencyAvatarUrl(agencyProfile);
 
@@ -323,7 +322,7 @@ function getBusinessAccountHeader(
     return {
       ariaLabel: "اطلاعات آژانس",
       color: "#0048C4",
-      imageSrc: agencyAvatarUrl || fallbackAvatar,
+      imageSrc: agencyAvatarUrl,
       name: agencyName,
       subtitle: "آژانس املاک",
     };
@@ -333,7 +332,7 @@ function getBusinessAccountHeader(
     return {
       ariaLabel: "اطلاعات مشاور آژانس",
       color: accountHeader.color,
-      imageSrc: accountHeader.avatarUrl || fallbackAvatar,
+      imageSrc: accountHeader.avatarUrl,
       name: accountHeader.label,
       subtitle: agencyProfile?.name?.trim() ? `مشاور آژانس ${agencyName}` : "مشاور آژانس",
     };
@@ -342,7 +341,7 @@ function getBusinessAccountHeader(
   return {
     ariaLabel: "اطلاعات مشاور",
     color: accountHeader.color,
-    imageSrc: accountHeader.avatarUrl || fallbackAvatar,
+    imageSrc: accountHeader.avatarUrl,
     name: accountHeader.label,
     subtitle: "مشاور مستقل",
   };

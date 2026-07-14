@@ -1,5 +1,5 @@
 import { useState } from "react";
-import UserSolid from "../assets/icons/UserSolid";
+import LinearUserSolid from "../components/(icons)/LinearUserSolid";
 import { getApiAssetUrl } from "../api/api";
 import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
@@ -79,7 +79,7 @@ function ProfileBox({ avatarUrl, name }: { avatarUrl: string; name: string }) {
         />
       ) : (
         <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
-          <UserSolid size={16} stroke="#808080" />
+          <LinearUserSolid className="h-4 w-4" />
         </span>
       )}
       <p className="m-0 min-w-0 truncate text-sm">{name}</p>

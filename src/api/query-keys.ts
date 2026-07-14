@@ -13,6 +13,15 @@ export const queryKeys = {
 
   agencies: {
     all: ["agencies"] as const,
+    consultant: (userId: number | string) =>
+      [...queryKeys.agencies.all, "my-consultant", String(userId)] as const,
+    consultants: (filters: { page: number; perPage: number }) =>
+      [
+        ...queryKeys.agencies.all,
+        "my-consultants",
+        filters.page,
+        filters.perPage,
+      ] as const,
     list: (filters: {
       neighborhoodId?: string;
       perPage: number;

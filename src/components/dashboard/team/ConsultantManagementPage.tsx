@@ -9,20 +9,27 @@ import LinearStairs from "../../(icons)/LinearStairs";
 import LinearStartup from "../../(icons)/LinearStartup";
 import LinearTag from "../../(icons)/LinearTag";
 import LinearUserAdd from "../../(icons)/LinearUserAdd";
+import LinearUserSolid from "../../(icons)/LinearUserSolid";
 import { RadioIndicator } from "../../RadioIndicator";
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { FormChoiceChip } from "../../form/FormControls";
 import { TopBar } from "../../TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
+import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
+import type { AgencyConsultantDto } from "../../../services/agency.service";
 
 type ConsultantStatus = "active" | "pending";
 
 export type TeamConsultant = {
   id: number;
   name: string;
-  avatarSrc: string;
+  avatarSrc?: string;
   phone: string;
+  roleLabel?: string;
+  roleId?: number;
+  isActive?: boolean;
+  rankingScore?: number;
   status: ConsultantStatus;
   scores: {
     ads: number;
@@ -30,6 +37,41 @@ export type TeamConsultant = {
     rocket: number;
   };
 };
+
+function getTeamRoleLabel(role: string) {
+  switch (role.trim().toLowerCase()) {
+    case "owner":
+      return "مدیر آژانس";
+    case "manager":
+      return "مدیر";
+    case "consultant":
+    case "member":
+      return "مشاور";
+    default:
+      return role.trim() || "مشاور";
+  }
+}
+
+export function mapAgencyConsultantToTeamConsultant(
+  consultant: AgencyConsultantDto,
+): TeamConsultant {
+  return {
+    avatarSrc: consultant.avatar,
+    id: consultant.userId,
+    isActive: consultant.isActive,
+    name: consultant.name,
+    phone: consultant.mobile,
+    roleLabel: getTeamRoleLabel(consultant.role),
+    roleId: consultant.roleId,
+    rankingScore: consultant.metrics.rankingScore,
+    scores: {
+      ads: consultant.metrics.publishedAdvertises,
+      rocket: consultant.metrics.specialUsed,
+      steps: consultant.metrics.renewUsed,
+    },
+    status: consultant.isActive ? "active" : "pending",
+  };
+}
 
 type TeamFilter = "consultants" | "pending";
 export type AccessRole = "consultant" | "manager";
@@ -106,13 +148,30 @@ type ConsultantRouteState = {
   consultant?: TeamConsultant;
 };
 
+export function getRouteConsultantId() {
+  const routeConsultantId = window.location.pathname.match(
+    /\/team\/(?:info|edit|remove)\/([^/]+)\/?$/,
+  )?.[1];
+  const parsedId = Number(routeConsultantId);
+
+  return Number.isFinite(parsedId) ? parsedId : undefined;
+}
+
 export function getRouteConsultant() {
   const routeState = window.history.state as ConsultantRouteState | null;
-  const routeConsultantId = window.location.pathname.match(/\/team\/(?:info|edit|remove)\/([^/]+)\/?$/)?.[1];
+  const routeConsultantId = getRouteConsultantId();
 
   return (
-    teamConsultants.find((consultant) => String(consultant.id) === routeConsultantId) ??
     routeState?.consultant ??
+    (routeConsultantId !== undefined
+      ? {
+          id: routeConsultantId,
+          name: "مشاور",
+          phone: "",
+          scores: { ads: 0, rocket: 0, steps: 0 },
+          status: "active" as const,
+        }
+      : undefined) ??
     teamConsultants.find((consultant) => consultant.status === "active") ??
     teamConsultants[0]
   );
@@ -121,20 +180,28 @@ export function getRouteConsultant() {
 export function ConsultantManagementPage() {
   const [activeFilter, setActiveFilter] = useState<TeamFilter>("consultants");
   const [searchValue, setSearchValue] = useState("");
+  const agencyConsultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
+  const consultants = useMemo(
+    () =>
+      (agencyConsultantsQuery.data?.data ?? []).map(
+        mapAgencyConsultantToTeamConsultant,
+      ),
+    [agencyConsultantsQuery.data?.data],
+  );
 
   const visibleConsultants = useMemo(() => {
     const normalizedSearch = searchValue.trim();
 
-    return teamConsultants.filter((consultant) => {
+    return consultants.filter((consultant) => {
       const matchesFilter =
         activeFilter === "consultants" || consultant.status === "pending";
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        consultant.name.includes(normalizedSearch);
+        `${consultant.name} ${consultant.phone}`.includes(normalizedSearch);
 
       return matchesFilter && matchesSearch;
     });
-  }, [activeFilter, searchValue]);
+  }, [activeFilter, consultants, searchValue]);
 
   return (
     <section
@@ -184,7 +251,7 @@ export function ConsultantManagementPage() {
               <ConsultantCard consultant={consultant} key={consultant.id} />
             ))}
           </div>
-        ) : (
+        ) : agencyConsultantsQuery.isPending ? null : (
           <ConsultantEmptyState />
         )}
       </div>
@@ -435,20 +502,32 @@ export function ConsultantProfilePill({ consultant }: { consultant: TeamConsulta
   );
 }
 
-function ConsultantAvatar({
+export function ConsultantAvatar({
   consultant,
   sizeClassName,
 }: {
   consultant: TeamConsultant;
   sizeClassName: string;
 }) {
+  const [hasImageError, setHasImageError] = useState(false);
+  const showAvatar = Boolean(consultant.avatarSrc) && !hasImageError;
+
   return (
-    <img
-      alt=""
-      className={`${sizeClassName} shrink-0 rounded-full object-cover`}
-      draggable={false}
-      src={consultant.avatarSrc}
-    />
+    <span
+      className={`${sizeClassName} grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]`}
+    >
+      {showAvatar ? (
+        <img
+          alt={consultant.name}
+          className="h-full w-full object-cover"
+          draggable={false}
+          onError={() => setHasImageError(true)}
+          src={consultant.avatarSrc}
+        />
+      ) : (
+        <LinearUserSolid className="h-1/2 w-1/2" />
+      )}
+    </span>
   );
 }
 
@@ -586,7 +665,7 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
           {consultant.name}
         </h2>
         <span className="rounded-lg px-2 py-0.5 text-xs text-[#808080] bg-[#80808014] font-medium">
-          مشاور
+          {consultant.roleLabel || "مشاور"}
         </span>
       </div>
 

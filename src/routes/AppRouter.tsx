@@ -265,6 +265,7 @@ function getBottomNavigationKey(path: string) {
     path.startsWith('/account/dashboard/payments') ||
     path.startsWith('/account/dashboard/ranking') ||
     path.startsWith('/account/dashboard/agency') ||
+    path.startsWith('/account/dashboard/agent') ||
     path.startsWith('/account/dashboard/requests') ||
     path.startsWith('/account/dashboard/team') ||
     path.startsWith('/account/ad-management/published') ||

@@ -68,6 +68,7 @@ const IndependentConsultantPanelCreditBonusPage = lazyNamed(() => import('../pag
 const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditPage')
 const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
 const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
+const DashboardAgentPage = lazyNamed(() => import('../pages/dashboard/AgentProfilePage'), 'AgentProfilePage')
 const DashboardAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const DashboardAgencyQrCodePage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyQrCodePage')
 const DashboardAddConsultantPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAddConsultantPage')
@@ -434,6 +435,16 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/agency`,
     title: 'صفحه آژانس',
     Component: DashboardAgencyPage,
+    authority: [REAL_ESTATE_MANAGER],
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/agent`,
+    title: 'صفحه مشاور',
+    Component: DashboardAgentPage,
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,

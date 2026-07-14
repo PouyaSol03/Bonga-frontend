@@ -15,15 +15,24 @@ export type UserProfile = {
   authorized?: number;
   authorize_date?: string | null;
   avatar?: string | null;
+  city_id?: string | null;
+  contact_social?: Record<string, unknown> | null;
+  contacts?: Record<string, unknown> | null;
   email?: string | null;
   family?: string | null;
   id?: string | number;
+  instagram?: string | null;
   mobile?: string;
   name?: string | null;
   nationalnumber?: string | null;
+  neighborhood_id?: string | null;
+  neighborhood_ids?: string[] | string | null;
   phone?: string;
   role?: string;
   roles?: Array<AuthRole | string | Record<string, unknown>>;
+  social?: Record<string, unknown> | null;
+  telegram?: string | null;
+  whatsapp?: string | null;
 };
 
 function normalizeProfileRoleSlug(value: unknown): AuthRoleSlug | null {
@@ -97,9 +106,14 @@ export function isUserIdentityVerified(profile?: UserProfile | null) {
 
 export type UpdateProfilePayload = {
   avatar?: File | null;
-  email: string | null;
-  family: string | null;
-  name: string | null;
+  email?: string | null;
+  family?: string | null;
+  instagram?: string | null;
+  name?: string | null;
+  neighborhood_ids?: string[];
+  phone?: string | null;
+  telegram?: string | null;
+  whatsapp?: string | null;
 };
 
 export type AuthorizePayload = {
@@ -299,14 +313,24 @@ export async function getMyProfile() {
 }
 
 export function updateMyProfile(payload: UpdateProfilePayload) {
-  const { avatar, ...profileFields } = payload;
+  const { avatar, neighborhood_ids, ...profileFields } = payload;
+  const normalizedProfileFields = {
+    ...profileFields,
+    ...(neighborhood_ids
+      ? {
+          neighborhood_ids: Array.from(
+            new Set(neighborhood_ids.map((item) => item.trim()).filter(Boolean)),
+          ).join(","),
+        }
+      : {}),
+  };
 
   if (avatar) {
     const formData = new FormData();
 
-    Object.entries(profileFields).forEach(([key, value]) => {
+    Object.entries(normalizedProfileFields).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        formData.append(key, value);
+        formData.append(key, String(value));
       }
     });
 
@@ -318,7 +342,7 @@ export function updateMyProfile(payload: UpdateProfilePayload) {
   }
 
   return api
-    .post("me/update/profile", { json: profileFields })
+    .post("me/update/profile", { json: normalizedProfileFields })
     .json<ApiDataResponse<UserProfile>>();
 }
 

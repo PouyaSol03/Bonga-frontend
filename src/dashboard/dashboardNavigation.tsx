@@ -28,10 +28,16 @@ export const dashboardNavigationItems: DashboardNavItem[] = [
     path: `${DASHBOARD_PATH}/ranking`,
   },
   {
-    allowedRoles: DASHBOARD_ROLES,
+    allowedRoles: [REAL_ESTATE_MANAGER],
     icon: CityIcon,
     label: "صفحه آژانس",
     path: `${DASHBOARD_PATH}/agency`,
+  },
+  {
+    allowedRoles: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
+    icon: CityIcon,
+    label: "صفحه مشاور",
+    path: `${DASHBOARD_PATH}/agent`,
   },
   {
     allowedRoles: [

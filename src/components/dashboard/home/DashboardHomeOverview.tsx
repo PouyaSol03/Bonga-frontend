@@ -21,10 +21,15 @@ import LinearClock from "../../(icons)/LinearClock";
 import LinearRanking from "../../(icons)/LinearRanking";
 import LinearStar from "../../(icons)/LinearStar";
 import LinearStartup from "../../(icons)/LinearStartup";
+import type {
+  DashboardKind,
+  DashboardOverview,
+} from "../../../services/dashboard.service";
 import {
   adTypeData,
   consultantActivityData,
   dashboardMetrics,
+  type DashboardConsultantDatum,
   type DashboardMetric,
   type DashboardMetricTone,
 } from "./dashboardHomeData";
@@ -92,8 +97,6 @@ const consultantChartAxisWidth = 38;
 const consultantVisibleItems = 4;
 const consultantChartViewportWidth =
   consultantVisibleItems * consultantChartItemWidth + consultantChartAxisWidth;
-const consultantChartWidth =
-  consultantActivityData.length * consultantChartItemWidth + consultantChartAxisWidth;
 
 const progressChartMonths = [
   "فروردین",
@@ -130,17 +133,156 @@ function formatNumber(value: number | string) {
   return numberFormatter.format(Number(value));
 }
 
-export function DashboardHomeOverview() {
+function formatOptionalNumber(value: number | null | undefined) {
+  return value === null || value === undefined ? "—" : formatNumber(value);
+}
+
+function getDeltaMetricContent(
+  delta: DashboardOverview["balanceDeltas"]["adCreditUsed"] | undefined,
+  isLoading: boolean,
+): Pick<DashboardMetric, "description" | "trend" | "trendTone"> {
+  if (isLoading) {
+    return {
+      description: "در حال دریافت اطلاعات",
+      trend: "",
+      trendTone: "neutral" as const,
+    };
+  }
+
+  if (!delta || delta.percent === null) {
+    return {
+      description: "داده‌ای برای مقایسه دوره قبل نیست",
+      trend: "",
+      trendTone: "neutral" as const,
+    };
+  }
+
+  const percent = delta.percent;
+  const trendTone: DashboardMetric["trendTone"] =
+    percent > 0 ? "positive" : percent < 0 ? "negative" : "neutral";
+  const description =
+    percent > 0
+      ? "افزایش استفاده نسبت به دوره قبل"
+      : percent < 0
+        ? "کاهش استفاده نسبت به دوره قبل"
+        : "بدون تغییر نسبت به دوره قبل";
+
+  return {
+    description,
+    trend: `${formatNumber(Math.abs(percent))}٪`,
+    trendTone,
+  };
+}
+
+function getManagerDashboardMetrics(
+  dashboard: DashboardOverview | undefined,
+  isLoading: boolean,
+): DashboardMetric[] {
+  const adDelta = getDeltaMetricContent(
+    dashboard?.balanceDeltas.adCreditUsed,
+    isLoading,
+  );
+  const renewDelta = getDeltaMetricContent(
+    dashboard?.balanceDeltas.renewCreditUsed,
+    isLoading,
+  );
+  const specialDelta = getDeltaMetricContent(
+    dashboard?.balanceDeltas.specialCreditUsed,
+    isLoading,
+  );
+  return [
+    {
+      ...adDelta,
+      icon: "ad",
+      id: "ad-credit",
+      title: "مانده اعتبار آگهی",
+      tone: "blue",
+      value: dashboard
+        ? formatNumber(dashboard.balances.adCreditBalance)
+        : "—",
+    },
+    {
+      ...renewDelta,
+      icon: "chart",
+      id: "renew-credit",
+      title: "مانده بروزرسانی",
+      tone: "green",
+      value: dashboard
+        ? formatNumber(dashboard.balances.renewCreditBalance)
+        : "—",
+    },
+    {
+      ...specialDelta,
+      icon: "startup",
+      id: "special-credit",
+      title: "مانده ویژه",
+      tone: "amber",
+      value: dashboard
+        ? formatNumber(dashboard.balances.specialCreditBalance)
+        : "—",
+    },
+    {
+      description: isLoading
+        ? "در حال دریافت اطلاعات"
+        : dashboard
+          ? "تا پایان اعتبار پنل"
+          : "اطلاعات اعتبار پنل در دسترس نیست",
+      descriptionIcon: "clock",
+      icon: "calendar",
+      id: "panel-credit",
+      title: "روز تا پایان اعتبار",
+      tone: "neutral",
+      trend: "",
+      trendTone: "neutral",
+      value: dashboard
+        ? `${formatNumber(dashboard.balances.panelDaysRemaining)} روز`
+        : "—",
+    },
+  ];
+}
+
+type DashboardHomeOverviewProps = {
+  dashboard?: DashboardOverview;
+  dashboardKind?: DashboardKind;
+  dashboardError?: string | null;
+  isDashboardLoading?: boolean;
+  useDashboardApi?: boolean;
+};
+
+export function DashboardHomeOverview({
+  dashboard,
+  dashboardError = null,
+  dashboardKind: _dashboardKind,
+  isDashboardLoading = false,
+  useDashboardApi = false,
+}: DashboardHomeOverviewProps) {
+  const metrics = useDashboardApi
+    ? getManagerDashboardMetrics(dashboard, isDashboardLoading)
+    : dashboardMetrics;
+
   return (
     <div className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4">
+      {dashboardError ? (
+        <div
+          className="rounded-xl border border-[#f3c5c1] bg-[#fff3f2] px-4 py-3 text-sm text-[#c11004]"
+          role="alert"
+        >
+          {dashboardError}
+        </div>
+      ) : null}
+
       <section className="grid gap-4">
-        {dashboardMetrics.map((metric) => (
+        {metrics.map((metric) => (
           <DashboardMetricCard key={metric.id} metric={metric} />
         ))}
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <ConsultantActivityCard />
+        <ConsultantActivityCard
+          dashboard={dashboard}
+          isLoading={isDashboardLoading}
+          useApiData={useDashboardApi}
+        />
         <PublishedAgencyAdsCard />
       </section>
 
@@ -160,14 +302,41 @@ export function DashboardHomeOverview() {
             trendTone="negative"
             trendValue="۲۳٪"
           />
-          <AgencyRankingScoreCard />
+          <AgencyRankingScoreCard
+            dashboard={dashboard}
+            isLoading={isDashboardLoading}
+            useApiData={useDashboardApi}
+          />
         </div>
       </section>
     </div>
   );
 }
 
-function AgencyRankingScoreCard() {
+function AgencyRankingScoreCard({
+  dashboard,
+  isLoading,
+  useApiData,
+}: {
+  dashboard?: DashboardOverview;
+  isLoading: boolean;
+  useApiData: boolean;
+}) {
+  const rank = useApiData
+    ? dashboard?.ranking.rank ?? dashboard?.ranking.current.rank
+    : 67;
+  const score = useApiData ? dashboard?.ranking.current.totalScore : 85;
+  const rankingRows = useApiData
+    ? dashboard?.ranking.topEntities ?? []
+    : agencyRankingRows.map((agency) => ({
+        entityId: String(agency.rank),
+        levelSlug: "",
+        levelTitle: "",
+        name: agency.name,
+        rank: agency.rank,
+        totalScore: agency.score,
+      }));
+
   return (
     <article className="rounded-2xl bg-white p-4">
       <h2 className="m-0 text-right font-semibold text-[#1a1a1a]">
@@ -178,12 +347,12 @@ function AgencyRankingScoreCard() {
         <AgencyRankMetric
           icon={<LinearRanking className="h-5 w-5" />}
           label="رتبه"
-          value="۶۷"
+          value={isLoading && useApiData ? "—" : formatOptionalNumber(rank)}
         />
         <AgencyRankMetric
           icon={<LinearStar className="h-5 w-5" />}
           label="امتیاز"
-          value="۸۵"
+          value={isLoading && useApiData ? "—" : formatOptionalNumber(score)}
         />
       </div>
 
@@ -195,19 +364,25 @@ function AgencyRankingScoreCard() {
 
         <div className="w-[95%] bg-[#CCCCCC] h-px mx-auto" />
 
-        {agencyRankingRows.map((agency) => (
+        {rankingRows.map((agency, index) => (
           <div
             className="flex p-2 items-center justify-between rounded-xl bg-transparent odd:bg-[#CCCCCC1F] px-3 text-sm font-semibold leading-6"
-            key={`${agency.rank}-${agency.name}`}
+            key={agency.entityId || `${agency.rank}-${agency.name}-${index}`}
           >
             <span className="w-fit text-right text-[#1a1a1a]">
-              {formatNumber(agency.rank)}. {agency.name}
+              {formatOptionalNumber(agency.rank)}. {agency.name}
             </span>
             <span className="w-fit text-sm text-[#11a366]">
-              {formatNumber(agency.score)}
+              {formatNumber(agency.totalScore)}
             </span>
           </div>
         ))}
+
+        {useApiData && !isLoading && rankingRows.length === 0 ? (
+          <p className="m-0 py-4 text-center text-sm text-[#808080]">
+            اطلاعاتی برای آژانس‌های برتر ثبت نشده است.
+          </p>
+        ) : null}
       </div>
     </article>
   );
@@ -670,9 +845,35 @@ function ConsultantBarShape(props: any) {
   );
 }
 
-function ConsultantActivityCard() {
+function ConsultantActivityCard({
+  dashboard,
+  isLoading,
+  useApiData,
+}: {
+  dashboard?: DashboardOverview;
+  isLoading: boolean;
+  useApiData: boolean;
+}) {
   const chartScrollRef = useRef<HTMLDivElement>(null);
   const [selectedBar, setSelectedBar] = useState<SelectedConsultantBar>(null);
+  const chartData: DashboardConsultantDatum[] = useApiData
+    ? (dashboard?.consultantActivity ?? []).map((consultant) => ({
+        ads: consultant.advertiseCount,
+        name: consultant.name,
+        renewals: consultant.renewCount,
+        specials: consultant.specialCount,
+      }))
+    : consultantActivityData;
+  const registeredAds = useApiData
+    ? (dashboard?.consultantActivity ?? []).reduce(
+        (total, consultant) => total + consultant.advertiseCount,
+        0,
+      )
+    : 325;
+  const consultantChartWidth =
+    Math.max(chartData.length, consultantVisibleItems) *
+      consultantChartItemWidth +
+    consultantChartAxisWidth;
 
   function scrollConsultantChart(direction: "next" | "previous") {
     chartScrollRef.current?.scrollBy({
@@ -714,7 +915,7 @@ function ConsultantActivityCard() {
         </div>
         <div className="flex items-center justify-start gap-2">
           <span className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
-            ۳۲۵
+            {isLoading && useApiData ? "—" : formatNumber(registeredAds)}
           </span>
           <span className="text-sm font-normal text-[#4d4d4d]">
             آگهی ثبت شده
@@ -745,21 +946,26 @@ function ConsultantActivityCard() {
         </button>
       </div>
 
-      <div
-        className="mx-auto h-[240px] max-w-full overflow-x-auto overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-rectangle:focus]:outline-none [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
-        dir="ltr"
-        ref={chartScrollRef}
-        style={{ width: consultantChartViewportWidth }}
-      >
-        <div className="h-full" style={{ width: consultantChartWidth }}>
-          <ResponsiveContainer height="100%" width="100%">
-            <BarChart
-              barCategoryGap={20}
-              barGap={5}
-              data={consultantActivityData}
-              margin={{ bottom: 0, left: -18, right: 4, top: 34 }}
-              tabIndex={-1}
-            >
+      {useApiData && !isLoading && chartData.length === 0 ? (
+        <div className="grid h-[240px] place-items-center text-sm text-[#808080]">
+          فعالیتی برای مشاوران در این دوره ثبت نشده است.
+        </div>
+      ) : (
+        <div
+          className="mx-auto h-[240px] max-w-full overflow-x-auto overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-rectangle:focus]:outline-none [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
+          dir="ltr"
+          ref={chartScrollRef}
+          style={{ width: consultantChartViewportWidth }}
+        >
+          <div className="h-full" style={{ width: consultantChartWidth }}>
+            <ResponsiveContainer height="100%" width="100%">
+              <BarChart
+                barCategoryGap={20}
+                barGap={5}
+                data={chartData}
+                margin={{ bottom: 0, left: -18, right: 4, top: 34 }}
+                tabIndex={-1}
+              >
               <CartesianGrid
                 horizontal
                 stroke="#d9d9d9"
@@ -777,11 +983,10 @@ function ConsultantActivityCard() {
               <YAxis
                 allowDecimals={false}
                 axisLine={false}
-                domain={[0, 100]}
+                domain={[0, "auto"]}
                 tick={{ fill: "#8a8a8a", fontSize: 12 }}
                 tickFormatter={(value) => formatNumber(value)}
                 tickLine={false}
-                ticks={[0, 20, 40, 60, 80, 100]}
                 width={50}
               />
               <Tooltip
@@ -838,10 +1043,11 @@ function ConsultantActivityCard() {
                   />
                 )}
               />
-            </BarChart>
-          </ResponsiveContainer>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-7 grid grid-cols-3 gap-4 text-center" dir="rtl">
         <ConsultantActivityLegendItem color="#0048c4" label="آگهی" />

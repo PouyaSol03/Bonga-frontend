@@ -87,6 +87,14 @@ export const queryKeys = {
       [...queryKeys.advertisements.all, "report-reasons"] as const,
   },
 
+  dashboard: {
+    all: ["dashboard"] as const,
+    agency: (period: string) =>
+      [...queryKeys.dashboard.all, "agency", period] as const,
+    agent: (period: string) =>
+      [...queryKeys.dashboard.all, "agent", period] as const,
+  },
+
   account: {
     all: ["account"] as const,
     profile: () => [...queryKeys.account.all, "profile"] as const,

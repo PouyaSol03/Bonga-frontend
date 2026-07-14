@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { DashboardHomeOverview } from "../../components/dashboard/home/DashboardHomeOverview";
 import {
   AddConsultantPage,
@@ -10,12 +12,77 @@ import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import { AgencyProfilePage } from "./AgencyProfilePage";
 import DashboardChatPage from "./DashboardChatPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
-import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
+import {
+  authSessionChangedEventName,
+  getActiveAuthRole,
+  getStoredAuthSession,
+} from "../../auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../constants/roles.constants";
+import { getApiErrorMessage } from "../../api/api";
+import {
+  useAgencyDashboardQuery,
+  useAgentDashboardQuery,
+} from "../../hooks/dashboard.hooks";
 import { RequestManagementView } from "../requests/RequestManagementView";
 
 export function DashboardHomePage() {
-  return <DashboardHomeOverview />;
+  const [activeRole, setActiveRole] = useState(() =>
+    getActiveAuthRole(getStoredAuthSession()),
+  );
+
+  useEffect(() => {
+    function syncActiveRole() {
+      setActiveRole(getActiveAuthRole(getStoredAuthSession()));
+    }
+
+    window.addEventListener(authSessionChangedEventName, syncActiveRole);
+    window.addEventListener("storage", syncActiveRole);
+
+    return () => {
+      window.removeEventListener(authSessionChangedEventName, syncActiveRole);
+      window.removeEventListener("storage", syncActiveRole);
+    };
+  }, []);
+
+  const isRealEstateManager = activeRole === REAL_ESTATE_MANAGER;
+  const isAgentRole =
+    activeRole === REAL_ESTATE_CONSULTANT ||
+    activeRole === INDEPENDENT_CONSULTANT;
+  const agencyDashboardQuery = useAgencyDashboardQuery({
+    enabled: isRealEstateManager,
+    period: "30d",
+  });
+  const agentDashboardQuery = useAgentDashboardQuery({
+    enabled: isAgentRole,
+    period: "30d",
+  });
+  const dashboardQuery = isRealEstateManager
+    ? agencyDashboardQuery
+    : agentDashboardQuery;
+  const useDashboardApi = isRealEstateManager || isAgentRole;
+
+  return (
+    <DashboardHomeOverview
+      dashboard={dashboardQuery.data}
+      dashboardKind={
+        isRealEstateManager ? "agency" : isAgentRole ? "agent" : undefined
+      }
+      dashboardError={
+        useDashboardApi && dashboardQuery.isError
+          ? getApiErrorMessage(
+              dashboardQuery.error,
+              "دریافت اطلاعات داشبورد با خطا مواجه شد.",
+            )
+          : null
+      }
+      isDashboardLoading={useDashboardApi && dashboardQuery.isLoading}
+      useDashboardApi={useDashboardApi}
+    />
+  );
 }
 
 export function DashboardRequestsPage() {

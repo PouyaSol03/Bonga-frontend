@@ -1,8 +1,16 @@
-import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
-import { searchMapTileConfig } from "../search/searchMapData";
+import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
+import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
+import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../../hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+import type { MyAgencyProfile } from "../../services/account.service";
+import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { RouteLink } from "../../routes/RouteLink";
+import { searchMapTileConfig } from "../search/searchMapData";
 
 type AgencyMapCenter = {
     lat: number;
@@ -10,31 +18,211 @@ type AgencyMapCenter = {
     zoom: number;
 };
 
+type SelectOption = {
+    label: string;
+    value: string;
+};
+
 const defaultAgencyCenter: AgencyMapCenter = {
     lat: 29.6179,
     lng: 52.5313,
     zoom: 15,
 };
+const agencyImageMaxBytes = 1024 * 1024;
+const agencyImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
 
-const activityAreas = ["صیاد شیرازی", "شهید قانع", "هاشمیه", "سید رضی", "دانشجو", "معلم"];
+function normalizeText(value: string | null | undefined) {
+    return value ?? "";
+}
+
+function normalizeOptionalText(value: string) {
+    const trimmedValue = value.trim();
+    return trimmedValue || null;
+}
+
+function normalizeCoordinate(value: MyAgencyProfile["lat"] | MyAgencyProfile["lng"]) {
+    const coordinate = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(coordinate) ? coordinate : null;
+}
+
+function getNeighborhoodId(neighborhood: NeighborhoodDto) {
+    return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
+}
+
+function getProfileNeighborhoodIds(profile: MyAgencyProfile) {
+    return Array.from(
+        new Set(
+            (profile.neighborhood_ids ?? [])
+                .flatMap((value) => String(value).split(","))
+                .map((value) => value.trim())
+                .filter(Boolean),
+        ),
+    );
+}
 
 export default function DashboardAgencyEditPage() {
+    const isRealEstateManager =
+        getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+    const selectedCity = readStoredSelectedCity();
+    const agencyProfileQuery = useMyAgencyProfileQuery({ enabled: isRealEstateManager });
+    const updateAgencyProfileMutation = useUpdateMyAgencyProfileMutation();
+    const neighborhoodsQuery = useNeighborhoodListQuery({
+        cityId: selectedCity?.id ?? "",
+        enabled: isRealEstateManager && Boolean(selectedCity?.id),
+        page: 1,
+        perPage: 200,
+        q: "",
+    });
+    const neighborhoods = useMemo(
+        () => neighborhoodsQuery.data ?? [],
+        [neighborhoodsQuery.data],
+    );
+    const neighborhoodNameById = useMemo(
+        () => new Map(neighborhoods.map((item) => [getNeighborhoodId(item), item.name])),
+        [neighborhoods],
+    );
+
+    const [agencyName, setAgencyName] = useState("");
+    const [mainNeighborhoodId, setMainNeighborhoodId] = useState("");
+    const [activityAreaIds, setActivityAreaIds] = useState<string[]>([]);
+    const [phone1, setPhone1] = useState("");
+    const [phone2, setPhone2] = useState("");
+    const [phone3, setPhone3] = useState("");
+    const [workingHours, setWorkingHours] = useState("");
+    const [address, setAddress] = useState("");
+    const [aboutUs, setAboutUs] = useState("");
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [mapCenter, setMapCenter] = useState(defaultAgencyCenter);
+    const [saveMessage, setSaveMessage] = useState("");
+
+    const neighborhoodOptions = useMemo<SelectOption[]>(() => {
+        const options = neighborhoods.map((item) => ({
+            label: item.name,
+            value: getNeighborhoodId(item),
+        }));
+        const missingIds = Array.from(new Set([mainNeighborhoodId, ...activityAreaIds]))
+            .filter(Boolean)
+            .filter((id) => !options.some((option) => option.value === id));
+
+        return [
+            ...options,
+            ...missingIds.map((id) => ({ label: id, value: id })),
+        ];
+    }, [activityAreaIds, mainNeighborhoodId, neighborhoods]);
+
+    useEffect(() => {
+        if (!logoPreview) return undefined;
+        return () => URL.revokeObjectURL(logoPreview);
+    }, [logoPreview]);
+
+    useEffect(() => {
+        const profile = agencyProfileQuery.data;
+        if (!profile) return;
+
+        const neighborhoodIds = getProfileNeighborhoodIds(profile);
+        const lat = normalizeCoordinate(profile.lat);
+        const lng = normalizeCoordinate(profile.lng);
+
+        setAgencyName(normalizeText(profile.name));
+        setMainNeighborhoodId(
+            profile.neighborhood_id ? String(profile.neighborhood_id) : neighborhoodIds[0] ?? "",
+        );
+        setActivityAreaIds(neighborhoodIds);
+        setPhone1(normalizeText(profile.phone1));
+        setPhone2(normalizeText(profile.phone2));
+        setPhone3(normalizeText(profile.phone3));
+        setWorkingHours(normalizeText(profile.working_hours));
+        setAddress(normalizeText(profile.address));
+        setAboutUs(normalizeText(profile.about_us));
+        setLogoFile(null);
+        setLogoPreview(null);
+        setLogoUrl(profile.logo ? getApiAssetUrl(profile.logo) : null);
+
+        if (lat !== null && lng !== null) {
+            setMapCenter({ lat, lng, zoom: defaultAgencyCenter.zoom });
+        }
+    }, [agencyProfileQuery.data]);
+
+    const handleLogoChange = (file: File | null) => {
+        if (!file) return;
+
+        if (!agencyImageMimeTypes.has(file.type)) {
+            window.alert("فرمت لوگو باید JPG، PNG یا GIF باشد.");
+            return;
+        }
+
+        if (file.size > agencyImageMaxBytes) {
+            window.alert("حجم لوگو نباید بیشتر از ۱ مگابایت باشد.");
+            return;
+        }
+
+        setLogoFile(file);
+        setLogoPreview(URL.createObjectURL(file));
+    };
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setSaveMessage("");
+
+        if (!isRealEstateManager) {
+            setSaveMessage("ویرایش مشخصات آژانس فقط برای مدیر آژانس فعال است.");
+            return;
+        }
+
+        const trimmedName = agencyName.trim();
+        const neighborhoodIds = Array.from(
+            new Set([
+                ...(mainNeighborhoodId ? [mainNeighborhoodId] : []),
+                ...activityAreaIds,
+            ]),
+        );
+
+        if (!trimmedName || neighborhoodIds.length === 0) {
+            setSaveMessage("نام آژانس و محدوده فعالیت الزامی است.");
+            return;
+        }
+
+        try {
+            await updateAgencyProfileMutation.mutateAsync({
+                about_us: normalizeOptionalText(aboutUs),
+                address: normalizeOptionalText(address),
+                agency_type: agencyProfileQuery.data?.agency_type ?? 0,
+                lat: mapCenter.lat,
+                lng: mapCenter.lng,
+                logo: logoFile,
+                name: trimmedName,
+                neighborhood_ids: neighborhoodIds,
+                phone1: normalizeOptionalText(phone1),
+                phone2: normalizeOptionalText(phone2),
+                phone3: normalizeOptionalText(phone3),
+                working_hours: normalizeOptionalText(workingHours),
+            });
+            setSaveMessage("اطلاعات آژانس ذخیره شد.");
+        } catch (error) {
+            setSaveMessage(getApiErrorMessage(error, "ذخیره اطلاعات آژانس با خطا مواجه شد."));
+        }
+    };
+
+    const addActivityArea = (id: string) => {
+        if (!id) return;
+        setActivityAreaIds((current) => current.includes(id) ? current : [...current, id]);
+    };
 
     return (
         <form
             className="min-h-full rounded-xl bg-white px-6 pb-12 pt-6 text-[#1a1a1a]"
             dir="rtl"
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={handleSubmit}
         >
             <section>
                 <SectionTitle icon={<InfoIcon />} title="مشخصات" />
 
                 <div className="mt-7 flex flex-wrap items-center justify-start gap-8">
                     <AgencyLogoUploader
-                        previewUrl={logoPreview}
-                        onChange={(previewUrl) => setLogoPreview(previewUrl)}
+                        previewUrl={logoPreview ?? logoUrl}
+                        onChange={handleLogoChange}
                     />
 
                     <div className="max-w-[430px] text-right text-xs font-normal leading-6 text-[#a6a6a6]">
@@ -48,8 +236,8 @@ export default function DashboardAgencyEditPage() {
                 </div>
 
                 <div className="mt-7 grid grid-cols-1 gap-7 lg:grid-cols-2">
-                    <TextField defaultValue="جلالیان" label="نام آژانس" placeholder="نام آژانس" />
-                    <SelectField defaultValue="صیاد شیرازی" label="محله" options={["صیاد شیرازی", "معالی آباد", "قصرالدشت"]} />
+                    <TextField label="نام آژانس" onChange={setAgencyName} placeholder="نام آژانس" value={agencyName} />
+                    <SelectField label="محله" onChange={setMainNeighborhoodId} options={neighborhoodOptions} placeholder="محله" value={mainNeighborhoodId} />
                 </div>
             </section>
 
@@ -57,9 +245,9 @@ export default function DashboardAgencyEditPage() {
                 <SectionTitle icon={<PhoneIcon />} title="اطلاعات تماس" />
 
                 <div className="mt-7 grid grid-cols-1 gap-7 lg:grid-cols-3 items-end">
-                    <TextField label="شماره تماس" placeholder="تلفن مدیریت" />
-                    <TextField placeholder="شماره تماس دوم" />
-                    <TextField placeholder="شماره همراه (مثال: 0915 111 0000)" />
+                    <TextField label="شماره تماس" onChange={setPhone1} placeholder="تلفن مدیریت" value={phone1} />
+                    <TextField onChange={setPhone2} placeholder="شماره تماس دوم" value={phone2} />
+                    <TextField onChange={setPhone3} placeholder="شماره همراه (مثال: 0915 111 0000)" value={phone3} />
                 </div>
 
                 <h3 className="m-0 mt-7 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
@@ -74,19 +262,25 @@ export default function DashboardAgencyEditPage() {
                 <TextField
                     className="mt-7"
                     label="ساعت کاری"
+                    onChange={setWorkingHours}
                     placeholder="ساعت کاری آژانس را وارد کنید (مثال: از ۹ صبح تا ۸ شب)"
+                    value={workingHours}
                 />
-                <TextField className="mt-7" label="نشانی" placeholder="نشانی آژانس را وارد کنید" />
+                <TextField className="mt-7" label="نشانی" onChange={setAddress} placeholder="نشانی آژانس را وارد کنید" value={address} />
             </section>
 
             <section className="mt-20">
                 <SectionTitle icon={<LocationPinSmallIcon />} title="محدوده فعالیت" />
                 <div className="mt-7 grid grid-cols-1 lg:grid-cols-2">
-                    <SelectField placeholder="انتخاب کنید" options={["صیاد شیرازی", "شهید قانع", "هاشمیه", "سید رضی", "دانشجو", "معلم"]} />
+                    <SelectField onChange={addActivityArea} options={neighborhoodOptions} placeholder="انتخاب کنید" value="" />
                 </div>
                 <div className="mt-7 flex flex-wrap justify-start gap-3">
-                    {activityAreas.map((area) => (
-                        <ActivityChip key={area} label={area} />
+                    {activityAreaIds.map((id) => (
+                        <ActivityChip
+                            key={id}
+                            label={neighborhoodNameById.get(id) ?? id}
+                            onRemove={() => setActivityAreaIds((current) => current.filter((item) => item !== id))}
+                        />
                     ))}
                 </div>
             </section>
@@ -105,7 +299,9 @@ export default function DashboardAgencyEditPage() {
 
                 <textarea
                     className="mt-6 h-[172px] w-full resize-none rounded-xl border border-[#cccccc] bg-white px-5 py-5 text-right text-sm font-normal leading-7 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
+                    onChange={(event) => setAboutUs(event.target.value)}
                     placeholder="شناسی آژانس را وارد کنید"
+                    value={aboutUs}
                 />
             </section>
 
@@ -116,9 +312,11 @@ export default function DashboardAgencyEditPage() {
                 <AgencyLocationMap center={mapCenter} onCenterChange={setMapCenter} />
             </section>
 
+            <span aria-live="polite" className="sr-only">{saveMessage}</span>
             <div className="mt-14 flex justify-start gap-5 [direction:ltr]">
                 <button
                     className="h-14 rounded-xl bg-[#0048c4] px-7 text-base font-semibold leading-6 text-white transition hover:bg-[#003ba1]"
+                    disabled={updateAgencyProfileMutation.isPending}
                     type="submit"
                 >
                     ذخیره اطلاعات
@@ -148,26 +346,14 @@ function AgencyLogoUploader({
     onChange,
     previewUrl,
 }: {
-    onChange: (previewUrl: string | null) => void;
+    onChange: (file: File | null) => void;
     previewUrl: string | null;
 }) {
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const objectUrlRef = useRef<string | null>(null);
-
-    useEffect(() => () => {
-        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-    }, []);
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-
-        if (!file) return;
-
-        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-
-        const nextPreviewUrl = URL.createObjectURL(file);
-        objectUrlRef.current = nextPreviewUrl;
-        onChange(nextPreviewUrl);
+        onChange(event.target.files?.[0] ?? null);
+        event.target.value = "";
     };
 
     return (
@@ -194,7 +380,7 @@ function AgencyLogoUploader({
             </button>
             <input
                 ref={inputRef}
-                accept="image/png,image/jpeg,image/gif"
+                accept="image/png,image/jpeg,image/jpg,image/gif"
                 className="hidden"
                 onChange={handleChange}
                 type="file"
@@ -205,18 +391,20 @@ function AgencyLogoUploader({
 
 function TextField({
     className = "",
-    defaultValue,
     icon,
     label,
+    onChange,
     placeholder,
     type = "text",
+    value,
 }: {
     className?: string;
-    defaultValue?: string;
     icon?: ReactNode;
     label?: string;
+    onChange?: (value: string) => void;
     placeholder: string;
     type?: string;
+    value?: string;
 }) {
     return (
         <label className={`block min-w-0 ${className}`}>
@@ -227,11 +415,11 @@ function TextField({
             ) : null}
             <span className="relative block">
                 <input
-                    className={`h-[60px] w-full rounded-xl border border-[#cccccc] bg-white py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] ${icon ? "pl-12 pr-5" : "px-5"
-                        }`}
-                    defaultValue={defaultValue}
+                    className={`h-[60px] w-full rounded-xl border border-[#cccccc] bg-white py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] ${icon ? "pl-12 pr-5" : "px-5"}`}
+                    onChange={(event) => onChange?.(event.target.value)}
                     placeholder={placeholder}
                     type={type}
+                    value={value}
                 />
                 {icon ? (
                     <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">
@@ -245,16 +433,18 @@ function TextField({
 
 function SelectField({
     className = "",
-    defaultValue = "",
     label,
+    onChange,
     options,
     placeholder,
+    value = "",
 }: {
     className?: string;
-    defaultValue?: string;
     label?: string;
-    options: string[];
+    onChange?: (value: string) => void;
+    options: SelectOption[];
     placeholder?: string;
+    value?: string;
 }) {
     return (
         <label className={`block min-w-0 ${className}`}>
@@ -266,7 +456,8 @@ function SelectField({
             <span className="relative block">
                 <select
                     className="h-[60px] w-full appearance-none rounded-xl border border-[#cccccc] bg-white px-5 pl-12 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none transition focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
-                    defaultValue={defaultValue || ""}
+                    onChange={(event) => onChange?.(event.target.value)}
+                    value={value}
                 >
                     {placeholder ? (
                         <option disabled value="">
@@ -274,8 +465,8 @@ function SelectField({
                         </option>
                     ) : null}
                     {options.map((option) => (
-                        <option key={option} value={option}>
-                            {option}
+                        <option key={option.value} value={option.value}>
+                            {option.label}
                         </option>
                     ))}
                 </select>
@@ -285,10 +476,10 @@ function SelectField({
     );
 }
 
-function ActivityChip({ label }: { label: string }) {
+function ActivityChip({ label, onRemove }: { label: string; onRemove: () => void }) {
     return (
         <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#0048c4] bg-[#0048c414] px-4 text-sm font-semibold leading-5 text-[#0048c4]">
-            <button aria-label={`حذف ${label}`} className="grid h-4 w-4 place-items-center" type="button">
+            <button aria-label={`حذف ${label}`} className="grid h-4 w-4 place-items-center" onClick={onRemove} type="button">
                 ×
             </button>
             {label}
@@ -331,7 +522,7 @@ function AgencyLocationMap({
                     tms={searchMapTileConfig.isTms}
                     url={searchMapTileConfig.urlTemplate}
                 />
-                <AgencyMapController onCenterChange={onCenterChange} />
+                <AgencyMapController center={center} onCenterChange={onCenterChange} />
                 <AgencyMapControls />
             </MapContainer>
 
@@ -343,8 +534,10 @@ function AgencyLocationMap({
 }
 
 function AgencyMapController({
+    center,
     onCenterChange,
 }: {
+    center: AgencyMapCenter;
     onCenterChange: (center: AgencyMapCenter) => void;
 }) {
     const map = useMap();
@@ -359,6 +552,10 @@ function AgencyMapController({
             onCenterChange({ lat: nextCenter.lat, lng: nextCenter.lng, zoom: map.getZoom() });
         },
     });
+
+    useEffect(() => {
+        map.setView([center.lat, center.lng], center.zoom, { animate: true });
+    }, [center.lat, center.lng, center.zoom, map]);
 
     useEffect(() => {
         map.invalidateSize();

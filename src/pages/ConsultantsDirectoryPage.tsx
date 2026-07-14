@@ -136,6 +136,9 @@ function navigateToAgency(item: DirectoryItem) {
 
   if (item.name) params.set("name", item.name);
   if (item.address) params.set("location", item.address);
+  if (item.image) params.set("logo", item.image);
+  if (item.rank) params.set("rank", item.rank);
+  if (item.score) params.set("score", item.score);
 
   const queryString = params.toString();
   const path = `/agencies/${encodeURIComponent(item.id)}${queryString ? `?${queryString}` : ""}`;

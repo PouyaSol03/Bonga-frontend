@@ -25,23 +25,28 @@ import LinearWhatsapp from "../../components/(icons)/LinearWhatsapp";
 import { TopBar } from "../../components/TopBar";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
+import { getApiAssetUrl } from "../../api/api";
+import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
+import { useMyAgencyProfileQuery } from "../../hooks/account.hooks";
+import { useAgencyDashboardQuery } from "../../hooks/dashboard.hooks";
+import type { MyAgencyProfile } from "../../services/account.service";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
 const agencyQrCodePath = `${agencyPreviewPath}/qr-code`;
 const agencyShareTitle = "املاک جلیلیان";
-const agencyShareText = "صفحه آژانس املاک جلیلیان";
 const agencyQrLabel = "Agency58945";
 const agencyLogoSrc = "/figma/agency-preview/agency-logo.png";
 const listingImageSrc = "/figma/agency-preview/listing-kitchen.png";
 
-const agencyContactInfo = {
-  phone: "۰۹۱۵۶۱۴۵۶۹۶",
-  secondPhone: "۰۹۳۶۷۰۰۸۷۴۷",
-  landline: "۰۹۱۵۶۱۴۵۶۹۶",
-  whatsapp: "09156145696",
-  telegram: "agency_jalilian",
-  instagram: "agency_jalilian",
+type AgencyPreviewContactInfo = {
+  phone: string;
+  secondPhone: string;
+  landline: string;
+  whatsapp: string;
+  telegram: string;
+  instagram: string;
 };
 
 const agencyAds: AdCardData[] = [
@@ -113,12 +118,6 @@ type BadgeInfo = {
   title: string;
 };
 
-const agencyStats = [
-  { icon: <LinearStar className="h-5 w-5" />, label: "امتیاز", value: "۸۵" },
-  { icon: <LinearRanking className="h-5 w-5" />, label: "رتبه", value: "۱۲" },
-  { icon: <LinearTag className="h-5 w-5" />, label: "آگهی فعال", value: "۲۷۳" },
-];
-
 const badgeCards: BadgeInfo[] = [
   {
     alt: "نشان تیم طلایی",
@@ -185,6 +184,54 @@ const agencyTabs: { id: AgencyPreviewTab; label: string }[] = [
   { id: "info", label: "اطلاعات" },
 ];
 
+function getPreviewSearchParam(name: string) {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get(name)?.trim() ?? "";
+}
+
+function getProfileNeighborhoodIds(profile?: MyAgencyProfile | null) {
+  if (!profile) return [];
+
+  return Array.from(
+    new Set(
+      (profile.neighborhood_ids ?? [])
+        .flatMap((value) => String(value).split(","))
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function toPersianDigits(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === "") return "—";
+  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit);
+}
+
+function resolvePreviewContactInfo(
+  profile: MyAgencyProfile | null | undefined,
+  _isPublicPreview: boolean,
+): AgencyPreviewContactInfo {
+  if (!profile) {
+    return {
+      phone: "",
+      secondPhone: "",
+      landline: "",
+      whatsapp: "",
+      telegram: "",
+      instagram: "",
+    };
+  }
+
+  return {
+    phone: profile.phone1?.trim() ?? "",
+    secondPhone: profile.phone2?.trim() ?? "",
+    landline: profile.phone3?.trim() ?? "",
+    whatsapp: "",
+    telegram: "",
+    instagram: "",
+  };
+}
+
 function getInitialAgencyTab(): AgencyPreviewTab {
   if (typeof window === "undefined") return "info";
 
@@ -224,10 +271,22 @@ function getAgencyLocationLabel() {
   return new URLSearchParams(window.location.search).get("location")?.trim() || "صیاد شیرازی";
 }
 
-function getAbsoluteAgencyPreviewUrl() {
+function getAbsoluteAgencyPreviewUrl(
+  agencyId?: string,
+  data?: { location?: string; logo?: string; name?: string },
+) {
   if (typeof window === "undefined") return agencyPreviewPath;
 
-  return new URL(getCurrentAgencyPreviewPath(), window.location.origin).toString();
+  const path = agencyId && !isPublicAgencyPreviewPath()
+    ? `/agencies/${encodeURIComponent(agencyId)}`
+    : getCurrentAgencyPreviewPath();
+  const url = new URL(path, window.location.origin);
+
+  if (data?.name) url.searchParams.set("name", data.name);
+  if (data?.location) url.searchParams.set("location", data.location);
+  if (data?.logo) url.searchParams.set("logo", data.logo);
+
+  return url.toString();
 }
 
 function getCurrentPageUrl() {
@@ -236,11 +295,11 @@ function getCurrentPageUrl() {
   return window.location.href;
 }
 
-async function shareOrCopyAgencyUrl(url: string) {
+async function shareOrCopyAgencyUrl(url: string, title: string, text: string) {
   if (typeof navigator !== "undefined" && navigator.share) {
     await navigator.share({
-      text: agencyShareText,
-      title: agencyShareTitle,
+      text,
+      title,
       url,
     });
 
@@ -269,8 +328,62 @@ export function AgencyPreviewPage() {
   const [toast, setToast] = useState<AgencyToast | null>(null);
   const isPublicPreview = isPublicAgencyPreviewPath();
   const previewPath = getCurrentAgencyPreviewPath();
-  const agencyName = getAgencyDisplayName();
-  const agencyLocation = getAgencyLocationLabel();
+  const isRealEstateManager =
+    getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const agencyProfileQuery = useMyAgencyProfileQuery({
+    enabled: !isPublicPreview && isRealEstateManager,
+  });
+  const agencyDashboardQuery = useAgencyDashboardQuery({
+    enabled: !isPublicPreview && isRealEstateManager,
+    period: "30d",
+  });
+  const profile = agencyProfileQuery.data;
+  const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
+  const agencyName = profile?.name?.trim() || getAgencyDisplayName();
+  const agencyLocation = profile?.address?.trim() || getAgencyLocationLabel();
+  const agencyLogo = profile?.logo
+    ? getApiAssetUrl(profile.logo)
+    : getPreviewSearchParam("logo") || agencyLogoSrc;
+  const agencyAbout = profile?.about_us?.trim() || (isPublicPreview
+    ? "اطلاعات معرفی این آژانس هنوز از API جزئیات دریافت نشده است."
+    : "");
+  const activityAreas = profile
+    ? getProfileNeighborhoodIds(profile)
+    : [];
+  const contactInfo = resolvePreviewContactInfo(profile, isPublicPreview);
+  const dashboard = agencyDashboardQuery.data;
+  const agencyStats = [
+    {
+      icon: <LinearStar className="h-5 w-5" />,
+      label: "امتیاز",
+      value: dashboard
+        ? toPersianDigits(dashboard.ranking.current.totalScore)
+        : toPersianDigits(getPreviewSearchParam("score") || null),
+    },
+    {
+      icon: <LinearRanking className="h-5 w-5" />,
+      label: "رتبه",
+      value: dashboard
+        ? toPersianDigits(dashboard.ranking.rank)
+        : toPersianDigits(getPreviewSearchParam("rank") || null),
+    },
+    {
+      icon: <LinearTag className="h-5 w-5" />,
+      label: "آگهی فعال",
+      value: dashboard
+        ? toPersianDigits(dashboard.publishedAdvertises.total)
+        : "—",
+    },
+  ];
+  const shareTitle = agencyName || agencyShareTitle;
+  const shareText = `صفحه آژانس ${shareTitle}`;
+  const shareUrl = isPublicPreview
+    ? getCurrentPageUrl()
+    : getAbsoluteAgencyPreviewUrl(agencyId, {
+        location: agencyLocation,
+        logo: agencyLogo,
+        name: agencyName,
+      });
 
   useEffect(() => {
     if (!toast) return;
@@ -290,7 +403,7 @@ export function AgencyPreviewPage() {
 
   async function handleShareClick() {
     try {
-      const result = await shareOrCopyAgencyUrl(getCurrentPageUrl());
+      const result = await shareOrCopyAgencyUrl(shareUrl, shareTitle, shareText);
 
       if (result === "copied") {
         showToast("لینک صفحه آژانس کپی شد.");
@@ -345,13 +458,19 @@ export function AgencyPreviewPage() {
         title="صفحه آژانس"
       />
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[84px]">
-        <AgencyHero agencyLocation={agencyLocation} agencyName={agencyName} />
+        <AgencyHero agencyLocation={agencyLocation} agencyLogo={agencyLogo} agencyName={agencyName} agencyStats={agencyStats} />
         <AgencySegmentedTabs activeTab={activeTab} onChange={changeTab} />
-        {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? <AgencyConsultantsTab /> : <AgencyInfoTab />}
+        {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? <AgencyConsultantsTab /> : (
+          <AgencyInfoTab
+            aboutUs={agencyAbout}
+            activityAreas={activityAreas}
+            agencyName={agencyName}
+          />
+        )}
       </main>
       <AgencyPreviewFooter onContactClick={() => setIsContactSheetOpen(true)} />
       <AgencyContactBottomSheet
-        contactInfo={agencyContactInfo}
+        contactInfo={contactInfo}
         isOpen={isContactSheetOpen}
         onClose={() => setIsContactSheetOpen(false)}
       />
@@ -370,7 +489,20 @@ export function AgencyPreviewPage() {
 
 export function AgencyQrCodePage() {
   const [toast, setToast] = useState<AgencyToast | null>(null);
-  const agencyUrl = getAbsoluteAgencyPreviewUrl();
+  const isRealEstateManager =
+    getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const agencyProfileQuery = useMyAgencyProfileQuery({ enabled: isRealEstateManager });
+  const profile = agencyProfileQuery.data;
+  const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
+  const agencyName = profile?.name?.trim() || agencyShareTitle;
+  const agencyLogo = profile?.logo ? getApiAssetUrl(profile.logo) : agencyLogoSrc;
+  const agencyUrl = getAbsoluteAgencyPreviewUrl(agencyId, {
+    location: profile?.address?.trim() || undefined,
+    logo: agencyLogo,
+    name: agencyName,
+  });
+  const qrLabel = agencyId ? `Agency${agencyId}` : agencyQrLabel;
+  const shareText = `صفحه آژانس ${agencyName}`;
 
   useEffect(() => {
     if (!toast) return;
@@ -390,7 +522,7 @@ export function AgencyQrCodePage() {
 
   async function handleShareClick() {
     try {
-      const result = await shareOrCopyAgencyUrl(agencyUrl);
+      const result = await shareOrCopyAgencyUrl(agencyUrl, agencyName, shareText);
 
       if (result === "copied") {
         showToast("لینک صفحه آژانس کپی شد.");
@@ -414,7 +546,7 @@ export function AgencyQrCodePage() {
       />
 
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-28 pt-8">
-        <AgencyQrCard agencyUrl={agencyUrl} />
+        <AgencyQrCard agencyLogo={agencyLogo} agencyName={agencyName} agencyUrl={agencyUrl} qrLabel={qrLabel} />
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
@@ -440,13 +572,23 @@ export function AgencyQrCodePage() {
   );
 }
 
-function AgencyQrCard({ agencyUrl }: { agencyUrl: string }) {
+function AgencyQrCard({
+  agencyLogo,
+  agencyName,
+  agencyUrl,
+  qrLabel,
+}: {
+  agencyLogo: string;
+  agencyName: string;
+  agencyUrl: string;
+  qrLabel: string;
+}) {
   const gradientId = `agency-qr-${useId().replace(/:/g, "")}`;
 
   return (
     <section className="w-full max-w-[328px] rounded-3xl bg-white px-6 pb-6 pt-7 text-center shadow-[0_8px_24px_rgba(26,26,26,0.06)]">
-      <img alt="لوگوی املاک جلیلیان" className="mx-auto h-16 w-16 object-contain" src={agencyLogoSrc} />
-      <h1 className="m-0 mt-2 text-lg font-bold leading-7 text-[#4d4d4d]">املاک جلیلیان</h1>
+      <img alt={`لوگوی ${agencyName}`} className="mx-auto h-16 w-16 object-contain" src={agencyLogo} />
+      <h1 className="m-0 mt-2 text-lg font-bold leading-7 text-[#4d4d4d]">{agencyName}</h1>
       <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">اسکن کنید و صفحه آژانس را ببینید</p>
 
       <div className="mx-auto mt-6 w-full max-w-[252px] bg-white text-center">
@@ -469,16 +611,26 @@ function AgencyQrCard({ agencyUrl }: { agencyUrl: string }) {
       </div>
 
       <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">
-        {agencyQrLabel}
+        {qrLabel}
       </p>
     </section>
   );
 }
 
-function AgencyHero({ agencyLocation, agencyName }: { agencyLocation: string; agencyName: string }) {
+function AgencyHero({
+  agencyLocation,
+  agencyLogo,
+  agencyName,
+  agencyStats,
+}: {
+  agencyLocation: string;
+  agencyLogo: string;
+  agencyName: string;
+  agencyStats: Array<{ icon: ReactNode; label: string; value: string }>;
+}) {
   return (
     <section className="bg-white px-4 pb-4 pt-3 text-center">
-      <img alt={agencyName} className="mx-auto h-19 w-19 object-contain" src={agencyLogoSrc} />
+      <img alt={agencyName} className="mx-auto h-19 w-19 object-contain" src={agencyLogo} />
       <h2 className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">{agencyName}</h2>
       <div className="mx-auto mt-1 inline-flex h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 text-xs font-medium text-[#4B5070]">
         <LinearLocation className="h-4 w-4 text-[#4B5070]" />
@@ -530,9 +682,21 @@ function AgencySegmentedTabs({
   );
 }
 
-function AgencyInfoTab() {
+function AgencyInfoTab({
+  aboutUs,
+  activityAreas,
+  agencyName,
+}: {
+  aboutUs: string;
+  activityAreas: string[];
+  agencyName: string;
+}) {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<BadgeInfo | null>(null);
+  const activityAreaText = activityAreas.length
+    ? activityAreas.join("، ")
+    : "محدوده فعالیت ثبت نشده است.";
+  const aboutText = aboutUs || "توضیحی برای این آژانس ثبت نشده است.";
 
   return (
     <div className="space-y-2 bg-[#f0f0f0]">
@@ -548,9 +712,7 @@ function AgencyInfoTab() {
       <section className="bg-white p-4">
         <h3 className="m-0 text-base font-semibold leading-6">محدوده فعالیت</h3>
         <p className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
-          صیاد شیرازی، شهید قانع، هفت تیر، سید رضی، بلوار معلم،
-          <br />
-          بلوار دانشجو، وکیل آباد، فارغ التحصیلان
+          {activityAreaText}
         </p>
       </section>
 
@@ -558,31 +720,22 @@ function AgencyInfoTab() {
       <AgencyActionRow icon={<LinearCalendar className="h-6 w-6" />} title="ثبت بازخورد" />
 
       <section className="bg-white px-4 pb-7 pt-7 text-center">
-        <h3 className="m-0 text-right text-base font-semibold leading-6">درباره املاک جلیلیان</h3>
+        <h3 className="m-0 text-right text-base font-semibold leading-6">درباره {agencyName}</h3>
         <img alt="" src="/vectors/Bonga.svg" />
-        <p className="m-0 mt-5 text-right font-normal leading-8 text-[#4d4d4d]">
-          کارگزاری املاک جلیلیان از سال ۱۳۷۰ تحت نام املاک آشتیانه در مشهد مقدس با مدیریت مرحوم محمد جلیلیان فعالیت خود در زمینه فروش و اجاره املاک و مستغلات را آغاز نمود. سال های بعد با گسترش فعالیت ها و به منظور ارتقاء خدمات کیفی و کمی در سال ۱۳۸۸ به املاک عاقبتی تغییر نام داد، در حال حاضر نیز برند املاک جلیلیان تحت مدیریت جواد جلیلیان به عنوان نام و علامت ثبت شده در رشته املاک در مشهد و سراسر ایران فعالیت می‌نماید.
+        <p className={`m-0 mt-5 text-right font-normal leading-8 text-[#4d4d4d] ${isAboutExpanded ? "" : "line-clamp-5"}`}>
+          {aboutText}
         </p>
-        <div
-          className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out ${isAboutExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-            }`}
-        >
-          <div className="overflow-hidden">
-            <p className="m-0 mt-2 text-center text-sm font-normal leading-6 text-[#d0d0d0]">
-              این مجموعه عضو رسمی درجه یک اتحادیه صنف مشاورین املاک است.
-            </p>
-          </div>
-        </div>
-
-        <button
-          aria-expanded={isAboutExpanded}
-          className="mx-auto mt-2 inline-flex items-center gap-1 text-xs font-semibold leading-4 text-[#0048c4]"
-          onClick={() => setIsAboutExpanded((prev) => !prev)}
-          type="button"
-        >
-          <LinearArrowDown1 className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""}`} />
-          {isAboutExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
-        </button>
+        {aboutText.length > 220 ? (
+          <button
+            aria-expanded={isAboutExpanded}
+            className="mx-auto mt-2 inline-flex items-center gap-1 text-xs font-semibold leading-4 text-[#0048c4]"
+            onClick={() => setIsAboutExpanded((prev) => !prev)}
+            type="button"
+          >
+            <LinearArrowDown1 className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""}`} />
+            {isAboutExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
+          </button>
+        ) : null}
       </section>
 
       <AgencyBadgeBottomSheet badge={selectedBadge} onClose={() => setSelectedBadge(null)} />
@@ -753,7 +906,7 @@ function AgencyContactBottomSheet({
   isOpen,
   onClose,
 }: {
-  contactInfo: typeof agencyContactInfo;
+  contactInfo: AgencyPreviewContactInfo;
   isOpen: boolean;
   onClose: () => void;
 }) {
@@ -775,9 +928,18 @@ function AgencyContactBottomSheet({
       onClose={onClose}
       title="اطلاعات تماس"
     >
-      <ContactRow href={`tel:${phoneHref}`} label="شماره اصلی" value={contactInfo.phone} />
-      <ContactRow href={`tel:${secondPhoneHref}`} label="شماره دوم" value={contactInfo.secondPhone} />
-      <ContactRow href={`tel:${landlineHref}`} label="ثابت" value={contactInfo.landline} />
+      {contactInfo.phone ? (
+        <ContactRow href={`tel:${phoneHref}`} label="شماره اصلی" value={contactInfo.phone} />
+      ) : null}
+      {contactInfo.secondPhone ? (
+        <ContactRow href={`tel:${secondPhoneHref}`} label="شماره دوم" value={contactInfo.secondPhone} />
+      ) : null}
+      {contactInfo.landline ? (
+        <ContactRow href={`tel:${landlineHref}`} label="ثابت" value={contactInfo.landline} />
+      ) : null}
+      {!contactInfo.phone && !contactInfo.secondPhone && !contactInfo.landline ? (
+        <p className="m-0 py-4 text-center text-sm text-[#808080]">شماره تماسی ثبت نشده است.</p>
+      ) : null}
 
       <div className="mt-3 overflow-hidden rounded-2xl border border-[#eeeeee] bg-[#f6f2eb]">
         <AgencyMiniMap />

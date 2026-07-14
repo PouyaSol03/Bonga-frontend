@@ -16,6 +16,8 @@ import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicato
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
+import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
 import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity, selectedCityStorageKeys } from "../../lib/selectedCityStorage";
@@ -31,6 +33,8 @@ import LinearX from "../../components/(icons)/LinearX";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 
 const neighborhoodSearchDebounceMs = 250;
+const agencyImageMaxBytes = 1024 * 1024;
+const agencyImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
 
 type SelectedNeighborhood = {
   id: string;
@@ -147,7 +151,14 @@ function resolveNeighborhoodById(
 }
 
 function resolveProfileNeighborhoodIds(profile: MyAgencyProfile) {
-  return (profile.neighborhood_ids ?? []).map(String).filter(Boolean);
+  return Array.from(
+    new Set(
+      (profile.neighborhood_ids ?? [])
+        .flatMap((value) => String(value).split(","))
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
 }
 
 function useDebouncedValue<T>(value: T, delay: number) {
@@ -170,6 +181,7 @@ export function AgencyProfilePage() {
   const [phone1, setPhone1] = useState("");
   const [phone2, setPhone2] = useState("");
   const [phone3, setPhone3] = useState("");
+  const [workingHours, setWorkingHours] = useState("");
   const [address, setAddress] = useState("");
   const [aboutUs, setAboutUs] = useState("");
   const [mapCenter, setMapCenter] = useState<AgencyProfileMapCenter>(
@@ -183,7 +195,9 @@ export function AgencyProfilePage() {
   const [toast, setToast] = useState<AgencyProfileToast | null>(null);
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
-  const agencyProfileQuery = useMyAgencyProfileQuery();
+  const isRealEstateManager =
+    getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const agencyProfileQuery = useMyAgencyProfileQuery({ enabled: isRealEstateManager });
   const updateAgencyProfileMutation = useUpdateMyAgencyProfileMutation();
   const neighborhoodListQuery = useNeighborhoodListQuery({
     cityId,
@@ -248,16 +262,20 @@ export function AgencyProfilePage() {
     setPhone1(normalizeProfileText(profile.phone1));
     setPhone2(normalizeProfileText(profile.phone2));
     setPhone3(normalizeProfileText(profile.phone3));
+    setWorkingHours(normalizeProfileText(profile.working_hours));
     setAddress(normalizeProfileText(profile.address));
     setAboutUs(normalizeProfileText(profile.about_us));
     setLogoFile(null);
     setLogoPreviewUrl(null);
     setLogoUrl(profile.logo ? getApiAssetUrl(profile.logo) : null);
 
-    const neighborhoodId = profile.neighborhood_id ? String(profile.neighborhood_id) : null;
+    const profileNeighborhoodIds = resolveProfileNeighborhoodIds(profile);
+    const neighborhoodId = profile.neighborhood_id
+      ? String(profile.neighborhood_id)
+      : profileNeighborhoodIds[0] ?? null;
     setSelectedNeighborhood(resolveNeighborhoodById(neighborhoodId, neighborhoods));
     setSelectedActivityAreas(
-      resolveProfileNeighborhoodIds(profile)
+      profileNeighborhoodIds
         .map((id) => resolveNeighborhoodById(id, neighborhoods))
         .filter((item): item is SelectedNeighborhood => Boolean(item)),
     );
@@ -277,11 +295,26 @@ export function AgencyProfilePage() {
   };
 
   const handleLogoChange = (file: File | null) => {
+    if (file && !agencyImageMimeTypes.has(file.type)) {
+      showToast("فرمت لوگو باید JPG، PNG یا GIF باشد.", "خطا", "error");
+      return;
+    }
+
+    if (file && file.size > agencyImageMaxBytes) {
+      showToast("حجم لوگو نباید بیشتر از ۱ مگابایت باشد.", "خطا", "error");
+      return;
+    }
+
     setLogoFile(file);
     setLogoPreviewUrl(file ? URL.createObjectURL(file) : null);
   };
 
   const handleSave = async () => {
+    if (!isRealEstateManager) {
+      showToast("ویرایش مشخصات آژانس فقط برای نقش مدیر آژانس فعال است.", "خطا", "error");
+      return;
+    }
+
     setHasSubmitted(true);
     setSaveMessage(null);
     updateAgencyProfileMutation.reset();
@@ -297,20 +330,27 @@ export function AgencyProfilePage() {
       return;
     }
 
+    const neighborhoodIds = Array.from(
+      new Set([
+        ...(selectedNeighborhood?.id ? [selectedNeighborhood.id] : []),
+        ...selectedActivityAreaIds,
+      ]),
+    );
+
     try {
       await updateAgencyProfileMutation.mutateAsync({
         about_us: normalizeOptionalText(aboutUs),
         address: normalizeOptionalText(address),
-        agency_type: 0,
+        agency_type: agencyProfileQuery.data?.agency_type ?? 0,
         lat: mapCenter.lat,
         lng: mapCenter.lng,
         logo: logoFile,
         name: trimmedAgencyName,
-        neighborhood_id: selectedNeighborhood?.id ?? null,
-        neighborhood_ids: selectedActivityAreaIds,
+        neighborhood_ids: neighborhoodIds,
         phone1: normalizeOptionalText(phone1),
         phone2: normalizeOptionalText(phone2),
         phone3: normalizeOptionalText(phone3),
+        working_hours: normalizeOptionalText(workingHours),
       });
       showToast("اطلاعات آژانس ذخیره شد.");
     } catch (error) {
@@ -485,6 +525,7 @@ function AgencyLogoUpload({
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     onLogoChange(event.target.files?.[0] ?? null);
+    event.target.value = "";
   };
 
   return (

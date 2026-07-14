@@ -112,8 +112,8 @@ export type CreateMyAgencyPayload = {
 };
 
 export type MyAgencyProfile = {
-  _id?: string;
-  id?: string;
+  _id?: string | number;
+  id?: string | number;
   name?: string | null;
   neighborhood_id?: string | null;
   neighborhood_ids?: string[] | null;
@@ -133,6 +133,7 @@ export type MyAgencyProfile = {
   about_us?: string | null;
   created_at?: string;
   updated_at?: string;
+  status_text?: string;
 };
 
 export type UpdateMyAgencyProfilePayload = {
@@ -334,10 +335,39 @@ export function createMyAgency(payload: CreateMyAgencyPayload) {
     .json<ApiDataResponse<unknown>>();
 }
 
-function appendAgencyFormValue(formData: FormData, key: string, value: string | number | null | undefined) {
-  if (value === null || value === undefined || value === "") return;
+function appendAgencyFormValue(
+  formData: FormData,
+  key: string,
+  value: string | number | null | undefined,
+) {
+  formData.append(key, value === null || value === undefined ? "" : String(value));
+}
 
-  formData.append(key, String(value));
+function normalizeOptionalAgencyValue(value: string | number | null | undefined) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "string") return value.trim() || null;
+
+  return value;
+}
+
+function normalizeAgencyNeighborhoodIds(value: unknown) {
+  const values = Array.isArray(value) ? value : value === null || value === undefined ? [] : [value];
+
+  return Array.from(
+    new Set(
+      values
+        .flatMap((item) => String(item ?? "").split(","))
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function normalizeMyAgencyProfile(profile: MyAgencyProfile): MyAgencyProfile {
+  return {
+    ...profile,
+    neighborhood_ids: normalizeAgencyNeighborhoodIds(profile.neighborhood_ids),
+  };
 }
 
 function unwrapMyAgencyProfile(
@@ -349,14 +379,14 @@ function unwrapMyAgencyProfile(
   const record = response as Record<string, unknown>;
 
   if (record.agency && typeof record.agency === "object") {
-    return record.agency as MyAgencyProfile;
+    return normalizeMyAgencyProfile(record.agency as MyAgencyProfile);
   }
 
   if (record.data && typeof record.data === "object") {
-    return record.data as MyAgencyProfile;
+    return normalizeMyAgencyProfile(record.data as MyAgencyProfile);
   }
 
-  return response as MyAgencyProfile;
+  return normalizeMyAgencyProfile(response as MyAgencyProfile);
 }
 
 export async function getMyAgencyProfile() {
@@ -370,29 +400,37 @@ export async function getMyAgencyProfile() {
 }
 
 export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayload) {
-  const formData = new FormData();
+  const fields = {
+    about_us: normalizeOptionalAgencyValue(payload.about_us),
+    address: normalizeOptionalAgencyValue(payload.address),
+    agency_type: normalizeOptionalAgencyValue(payload.agency_type),
+    lat: normalizeOptionalAgencyValue(payload.lat),
+    lng: normalizeOptionalAgencyValue(payload.lng),
+    name: payload.name.trim(),
+    neighborhood_ids: Array.from(
+      new Set(payload.neighborhood_ids.map((item) => item.trim()).filter(Boolean)),
+    ).join(","),
+    phone1: normalizeOptionalAgencyValue(payload.phone1),
+    phone2: normalizeOptionalAgencyValue(payload.phone2),
+    phone3: normalizeOptionalAgencyValue(payload.phone3),
+    working_hours: normalizeOptionalAgencyValue(payload.working_hours),
+  };
+  const hasFile = Boolean(payload.logo || payload.img);
+  const request = hasFile
+    ? (() => {
+        const formData = new FormData();
 
-  appendAgencyFormValue(formData, "name", payload.name);
-  appendAgencyFormValue(formData, "neighborhood_id", payload.neighborhood_id);
+        Object.entries(fields).forEach(([key, value]) => {
+          appendAgencyFormValue(formData, key, value);
+        });
+        if (payload.logo) formData.append("logo", payload.logo);
+        if (payload.img) formData.append("img", payload.img);
 
-  payload.neighborhood_ids.forEach((neighborhoodId) => {
-    if (neighborhoodId) formData.append("neighborhood_ids", neighborhoodId);
-  });
+        return api.post("me/agency/update/profile", { body: formData });
+      })()
+    : api.post("me/agency/update/profile", { json: fields });
 
-  appendAgencyFormValue(formData, "phone1", payload.phone1);
-  appendAgencyFormValue(formData, "phone2", payload.phone2);
-  appendAgencyFormValue(formData, "phone3", payload.phone3);
-  appendAgencyFormValue(formData, "working_hours", payload.working_hours);
-  appendAgencyFormValue(formData, "address", payload.address);
-  appendAgencyFormValue(formData, "about_us", payload.about_us);
-  appendAgencyFormValue(formData, "lat", payload.lat);
-  appendAgencyFormValue(formData, "lng", payload.lng);
-  appendAgencyFormValue(formData, "agency_type", payload.agency_type);
-
-  if (payload.logo) formData.append("logo", payload.logo);
-  if (payload.img) formData.append("img", payload.img);
-
-  const response = await api.post("me/agency/update/profile", { body: formData }).json<
+  const response = await request.json<
     | ApiDataResponse<MyAgencyProfile>
     | { agency?: MyAgencyProfile; status?: boolean }
     | MyAgencyProfile

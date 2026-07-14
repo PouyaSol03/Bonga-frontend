@@ -805,11 +805,6 @@ export function SearchMapPage() {
   const queryLabel = useMemo(() => {
     return currentSearchQuery || searchDefaultLabel;
   }, [currentSearchQuery]);
-  const activeSearchQuery = useMemo(() => {
-    const params = getSearchParamsFromSnapshot(currentSearch);
-
-    return getApiSearchQuery(params);
-  }, [currentSearch]);
   const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds, currentSearch), [currentSearch, mapBounds]);
   const listQueryParams = useMemo(() => buildListQueryParams(currentSearch), [currentSearch]);
   const hasActiveSearchCriteria = useMemo(() => hasSearchCriteria(currentSearch), [currentSearch]);
@@ -842,14 +837,8 @@ export function SearchMapPage() {
         .filter((item): item is SearchMapListing => item !== null),
     [listQuery.data, mapCenter.latitude, mapCenter.longitude],
   );
-  const listingSource = activeSearchQuery
-    ? apiListListings
-    : mode === "list"
-      ? apiListListings
-      : apiListings;
-  const isMapLoading = activeSearchQuery
-    ? listQuery.isFetching && apiListListings.length === 0
-    : !mapQueryParams || (mapQuery.isFetching && apiListings.length === 0);
+  const listingSource = mode === "list" ? apiListListings : apiListings;
+  const isMapLoading = !mapQueryParams || (mapQuery.isFetching && apiListings.length === 0);
   const isListLoading = listQuery.isFetching && apiListListings.length === 0;
   const visibleListings = useMemo(
     () => filterListings(listingSource),
@@ -1017,6 +1006,7 @@ export function SearchMapPage() {
 
     params.delete("focus");
     params.delete("categoryId");
+    params.delete("view");
     setIsSearchOpen(false);
     setSelectedListingId(null);
     setMode("map");
@@ -1040,7 +1030,9 @@ export function SearchMapPage() {
     params.delete("qsearch");
     params.delete("q");
     params.delete("focus");
+    params.delete("view");
     setSelectedListingId(null);
+    setMode("map");
     writeSearchParams(params, { replace: true });
   }, []);
 
@@ -1145,7 +1137,7 @@ export function SearchMapPage() {
   const isFullListOpen = mode === "list";
   const showMapEmptyState =
     hasActiveSearchCriteria &&
-    (activeSearchQuery ? listQuery.isSuccess : mapQuery.isSuccess) &&
+    mapQuery.isSuccess &&
     !isMapLoading &&
     visibleListings.length === 0;
   const showListEmptyState =

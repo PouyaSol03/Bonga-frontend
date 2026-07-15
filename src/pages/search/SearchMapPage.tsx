@@ -15,7 +15,7 @@ import type {
   AdvertisementListParams,
   AdvertisementSearchFilters,
 } from "../../services/advertisement.service";
-import { HomeSearchScreen } from "../home/components/HomeSearchScreen";
+import { SearchMapSearchScreen } from "./components/SearchMapSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
@@ -1011,6 +1011,7 @@ export function SearchMapPage() {
     setSelectedListingId(null);
     setMode("map");
     writeSearchParams(params, { replace: true });
+    setSearchSnapshot(window.location.search);
   }, []);
 
   const handleLiveSearchQueryChange = useCallback((query: string) => {
@@ -1034,6 +1035,7 @@ export function SearchMapPage() {
     setSelectedListingId(null);
     setMode("map");
     writeSearchParams(params, { replace: true });
+    setSearchSnapshot(window.location.search);
   }, []);
 
   const handleEmptyRequestSubmit = useCallback((title: string) => {
@@ -1224,16 +1226,14 @@ export function SearchMapPage() {
         selectedListingId={selectedListingId}
         onActiveListingChange={handleSliderActiveListing}
       />
-      <HomeSearchScreen
-        advertisementSearchCityId={listQueryParams.cityId}
-        advertisementSearchPerPage={20}
+      <SearchMapSearchScreen
         initialQuery={currentSearchQuery}
         initialView={searchInitialView}
         isOpen={isSearchOpen}
         minSearchQueryLength={searchMapMinQueryLength}
         onClose={closeSearch}
-        onQuerySearchChange={handleLiveSearchQueryChange}
-        onSelectResult={handleSearchResult}
+        onQueryChange={handleLiveSearchQueryChange}
+        onSubmit={(query) => handleSearchResult({ title: query })}
       />
       <SearchRequestSenderBottomSheet
         isOpen={pendingSearchRequest !== null || isRequestSuccessOpen}

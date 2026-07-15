@@ -4,14 +4,16 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { getApiErrorMessage } from "../../api/api";
 import { SwitchButton } from "../../components/SwitchButton";
-import { getPackages } from "../../services/package.service";
 import {
   deleteCrmPackage,
+  getCrmPackage,
   getCrmRecordId,
   listCrmCheckoutProducts,
+  listCrmPackages,
   saveCrmPackage,
   updateCrmCheckoutProduct,
   updateCrmCheckoutProductStatus,
+  updateCrmPackageStatus,
   type CrmCheckoutProductPayload,
   type CrmPackageKind,
   type CrmPackagePayload,
@@ -22,23 +24,37 @@ type Notify = (message: string, tone?: "error" | "success") => void;
 type ViewProps = { notify: Notify; refreshNonce: number };
 
 type PackageDraft = {
-  ad: string;
-  discount: string;
-  endDate: string;
-  gift: boolean;
+  adCredit: string;
+  discountPercent: string;
+  durationDays: string;
+  id: string;
+  isActive: boolean;
   kind: CrmPackageKind;
-  price: string;
-  special: string;
-  startDate: string;
+  realPrice: string;
+  renewCredit: string;
+  slug: string;
+  sortOrder: string;
+  specialCredit: string;
   title: string;
-  update: string;
 };
 
 const emptyDraft: PackageDraft = {
-  ad: "", discount: "", endDate: "", gift: false, kind: "panel_subscription",
-  price: "", special: "", startDate: "", title: "", update: "",
+  adCredit: "",
+  discountPercent: "",
+  durationDays: "",
+  id: "",
+  isActive: true,
+  kind: "panel_subscription",
+  realPrice: "",
+  renewCredit: "",
+  slug: "",
+  sortOrder: "",
+  specialCredit: "",
+  title: "",
 };
-const inputClass = "h-11 w-full rounded-xl border border-[#d7dce5] bg-white px-3 text-sm text-[#303030] outline-none focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
+
+const inputClass =
+  "h-11 w-full rounded-xl border border-[#d7dce5] bg-white px-3 text-sm text-[#303030] outline-none focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10";
 
 function text(record: CrmRecord, keys: string[], fallback = "") {
   for (const key of keys) {
@@ -48,58 +64,116 @@ function text(record: CrmRecord, keys: string[], fallback = "") {
   return fallback;
 }
 
-function numberValue(value: string, label: string): number;
-function numberValue(value: string, label: string, optional: true): number | undefined;
-function numberValue(value: string, label: string, optional = false): number | undefined {
-  if (!value.trim() && optional) return undefined;
+function numberValue(value: string, label: string) {
   const parsed = Number(value.replace(/,/g, ""));
-  if (!Number.isFinite(parsed) || parsed < 0) throw new Error(`${label} باید عددی مثبت باشد.`);
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`${label} باید عدد صفر یا بزرگ‌تر باشد.`);
+  }
+
   return parsed;
 }
 
-function validateJalali(value: string, label: string) {
-  if (!/^1[34]\d{2}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/.test(value)) {
-    throw new Error(`${label} را به فرمت شمسی YYYY/MM/DD وارد کنید.`);
+function integerValue(value: string, label: string) {
+  const parsed = numberValue(value, label);
+
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`${label} باید عدد صحیح باشد.`);
   }
-  return value;
+
+  return parsed;
+}
+
+function positiveIntegerValue(value: string, label: string) {
+  const parsed = integerValue(value, label);
+
+  if (parsed < 1) {
+    throw new Error(`${label} باید حداقل ۱ باشد.`);
+  }
+
+  return parsed;
+}
+
+function nullableNumberValue(value: string, label: string) {
+  return value.trim() ? numberValue(value, label) : null;
+}
+
+function nullableIntegerValue(value: string, label: string) {
+  return value.trim() ? integerValue(value, label) : null;
+}
+
+function nullablePositiveIntegerValue(value: string, label: string) {
+  return value.trim() ? positiveIntegerValue(value, label) : null;
+}
+
+function nullableDiscountValue(value: string) {
+  if (!value.trim()) return null;
+
+  const parsed = numberValue(value, "درصد تخفیف");
+
+  if (parsed > 100) {
+    throw new Error("درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.");
+  }
+
+  return parsed;
+}
+
+function visibleNumberText(record: CrmRecord, key: string) {
+  const value = record[key];
+  const parsed = Number(value);
+
+  return value !== null && value !== undefined && Number.isFinite(parsed) && parsed !== 0
+    ? String(value)
+    : "";
+}
+
+function packageRecordId(item: CrmRecord) {
+  return getCrmRecordId(item) || text(item, ["slug"]);
 }
 
 function draftFromPackage(item: CrmRecord): PackageDraft {
-  const kind = item.kind === "credit_bundle" ? "credit_bundle" : "panel_subscription";
   return {
-    ad: text(item, ["ad_credit"]),
-    discount: text(item, ["discount", "discount_percent"]),
-    endDate: text(item, ["end_date"]),
-    gift: Boolean(item.gift ?? item.is_gift),
-    kind,
-    price: text(item, ["price", "real_price"]),
-    special: text(item, ["special_credit"]),
-    startDate: text(item, ["start_date"]),
+    adCredit: visibleNumberText(item, "ad_credit"),
+    discountPercent: visibleNumberText(item, "discount_percent"),
+    durationDays: visibleNumberText(item, "duration_days"),
+    id: text(item, ["id", "_id"]),
+    isActive: item.is_active !== false,
+    kind: item.kind === "credit_bundle" ? "credit_bundle" : "panel_subscription",
+    realPrice: visibleNumberText(item, "real_price"),
+    renewCredit: visibleNumberText(item, "renew_credit"),
+    slug: text(item, ["slug"]),
+    sortOrder: visibleNumberText(item, "sort_order"),
+    specialCredit: visibleNumberText(item, "special_credit"),
     title: text(item, ["title"]),
-    update: text(item, ["renew_credit"]),
   };
 }
 
 function packagePayload(draft: PackageDraft): CrmPackagePayload {
-  if (!draft.title.trim()) throw new Error("عنوان الزامی است.");
-  const base = {
-    title: draft.title.trim(), kind: draft.kind,
-    real_price: numberValue(draft.price, "قیمت"),
-    discount_percent: numberValue(draft.discount, "تخفیف", true),
-  };
-  if (draft.kind === "panel_subscription") {
-    return { ...base, ad_credit: numberValue(draft.ad, "تعداد آگهی"), special_credit: numberValue(draft.special, "تعداد ویژه"), renew_credit: numberValue(draft.update, "تعداد بروزرسانی") };
-  }
+  const id = draft.id.trim();
+  const slug = draft.slug.trim();
+  const title = draft.title.trim();
+
+  if (!id) throw new Error("شناسه بسته الزامی است.");
+  if (!slug) throw new Error("اسلاگ بسته الزامی است.");
+  if (!title) throw new Error("عنوان بسته الزامی است.");
+
+  const isPanelSubscription = draft.kind === "panel_subscription";
+
   return {
-    ...base,
-    start_date: validateJalali(draft.startDate, "تاریخ شروع"),
-    end_date: validateJalali(draft.endDate, "تاریخ پایان"),
-    gift: draft.gift,
-    ...(draft.gift ? {
-      ad_credit: numberValue(draft.ad, "هدیه آگهی", true),
-      special_credit: numberValue(draft.special, "هدیه ویژه", true),
-      renew_credit: numberValue(draft.update, "هدیه بروزرسانی", true),
-    } : {}),
+    id,
+    slug,
+    kind: draft.kind,
+    title,
+    real_price: nullableNumberValue(draft.realPrice, "قیمت"),
+    discount_percent: nullableDiscountValue(draft.discountPercent),
+    duration_days: isPanelSubscription
+      ? nullablePositiveIntegerValue(draft.durationDays, "مدت بسته")
+      : null,
+    ad_credit: isPanelSubscription ? null : nullableIntegerValue(draft.adCredit, "اعتبار آگهی"),
+    special_credit: isPanelSubscription ? null : nullableIntegerValue(draft.specialCredit, "اعتبار ویژه"),
+    renew_credit: isPanelSubscription ? null : nullableIntegerValue(draft.renewCredit, "اعتبار بروزرسانی"),
+    sort_order: nullableIntegerValue(draft.sortOrder, "ترتیب نمایش"),
+    is_active: draft.isActive,
   };
 }
 
@@ -107,33 +181,72 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<CrmRecord | null | undefined>(undefined);
   const [draft, setDraft] = useState<PackageDraft>(emptyDraft);
+
   const query = useQuery({
-    queryFn: async () => (await getPackages()) as unknown as CrmRecord[],
-    queryKey: ["crm", "packages", "public", refreshNonce],
+    queryFn: listCrmPackages,
+    queryKey: ["crm", "packages", refreshNonce],
   });
+
   const saveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string | null; payload: CrmPackagePayload }) => saveCrmPackage(id, payload),
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmPackagePayload }) =>
+      saveCrmPackage(id, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
       notify("بسته با موفقیت ذخیره شد.");
       setEditing(undefined);
     },
   });
+
+  const detailMutation = useMutation({
+    mutationFn: getCrmPackage,
+    onSuccess: (item) => {
+      setEditing(item);
+      setDraft(draftFromPackage(item));
+    },
+    onError: (error) => {
+      notify(getApiErrorMessage(error, "دریافت جزئیات بسته ناموفق بود."), "error");
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: deleteCrmPackage,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
-      notify("بسته حذف شد.");
+      notify("بسته غیرفعال شد.");
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      updateCrmPackageStatus(id, isActive),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
+      notify(variables.isActive ? "بسته فعال شد." : "بسته غیرفعال شد.");
     },
   });
 
   useEffect(() => {
-    if (query.error) notify(getApiErrorMessage(query.error, "دریافت بسته‌ها ناموفق بود."), "error");
+    if (query.error) {
+      notify(getApiErrorMessage(query.error, "دریافت بسته‌ها ناموفق بود."), "error");
+    }
   }, [notify, query.error]);
 
   const open = (item: CrmRecord | null) => {
-    setEditing(item);
-    setDraft(item ? draftFromPackage(item) : emptyDraft);
+    if (!item) {
+      setEditing(null);
+      setDraft(emptyDraft);
+      return;
+    }
+
+    const id = packageRecordId(item);
+
+    if (!id) {
+      setEditing(item);
+      setDraft(draftFromPackage(item));
+      return;
+    }
+
+    detailMutation.mutate(id);
   };
 
   return (
@@ -142,105 +255,204 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
         <div className="flex items-start justify-between gap-4 border-b border-[#f0f0f0] pb-5">
           <div>
             <h2 className="m-0 text-lg font-bold text-[#1a1a1a]">بسته‌ها و اعتبار پنل</h2>
-            <p className="m-0 mt-2 text-sm text-[#7b8494]">بسته‌های اشتراک و اعتبارهای زمان‌دار را ایجاد و ویرایش کنید.</p>
+            <p className="m-0 mt-2 text-sm text-[#7b8494]">
+              تمام بسته‌های فعال و غیرفعال پنل را ایجاد، ویرایش و مدیریت کنید.
+            </p>
           </div>
-          <motion.button className="h-10 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white" onClick={() => open(null)} type="button" whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
-            + افزودن مورد
+          <motion.button
+            className="h-10 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white"
+            onClick={() => open(null)}
+            type="button"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            + افزودن بسته
           </motion.button>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-3">
           {query.isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div className="h-[370px] animate-pulse rounded-2xl border border-[#e4e7ed] bg-[#fafbfc] p-5" key={index}>
+              <div
+                className="h-[405px] animate-pulse rounded-2xl border border-[#e4e7ed] bg-[#fafbfc] p-5"
+                key={index}
+              >
                 <div className="h-5 w-24 rounded bg-[#e9edf3]" />
                 <div className="mt-5 h-6 w-2/3 rounded bg-[#e9edf3]" />
                 <div className="mt-8 h-12 w-1/2 rounded bg-[#eef1f5]" />
-                <div className="mt-6 h-32 rounded-xl bg-[#eaf5ef]" />
+                <div className="mt-6 h-40 rounded-xl bg-[#eaf5ef]" />
               </div>
             ))
           ) : query.data?.length ? (
             query.data.map((item, index) => {
-              const id = getCrmRecordId(item);
+              const id = packageRecordId(item);
+              const isActive = item.is_active !== false;
               const isCreditBundle = item.kind === "credit_bundle";
-              const kind = isCreditBundle ? "اعتبار پنل" : "بسته اشتراک";
-              const discount = Number(text(item, ["discount_percent", "discount"], "0"));
-              const realPrice = Number(text(item, ["real_price", "price"], "0"));
-              const apiFinalPrice = Number(text(item, ["final_price"], "0"));
-              const finalPrice = apiFinalPrice || Math.max(0, Math.round(realPrice * (1 - discount / 100)));
+              const kind = isCreditBundle ? "بسته اعتباری" : "اعتبار پنل";
+              const discount = Number(item.discount_percent ?? 0);
+              const realPrice = Number(item.real_price ?? 0);
+              const hasApiFinalPrice = item.final_price !== undefined && item.final_price !== null;
+              const apiFinalPrice = Number(item.final_price ?? 0);
+              const finalPrice = hasApiFinalPrice && Number.isFinite(apiFinalPrice)
+                ? apiFinalPrice
+                : Math.max(0, Math.round(realPrice * (1 - discount / 100)));
+              const hasPrice = Number.isFinite(finalPrice) && finalPrice > 0;
+              const durationDays = Number(item.duration_days ?? 0);
               const creditItems = [
-                { label: "اعتبار آگهی", value: text(item, ["ad_credit"], "۰") },
-                { label: "اعتبار ویژه", value: text(item, ["special_credit"], "۰") },
-                { label: "اعتبار بروزرسانی", value: text(item, ["renew_credit"], "۰") },
-              ];
+                { label: "اعتبار آگهی", value: Number(item.ad_credit ?? 0) },
+                { label: "اعتبار ویژه", value: Number(item.special_credit ?? 0) },
+                { label: "اعتبار بروزرسانی", value: Number(item.renew_credit ?? 0) },
+              ].filter((credit) => Number.isFinite(credit.value) && credit.value > 0);
+              const isLoadingDetail = detailMutation.isPending && detailMutation.variables === id;
+              const isChangingStatus = statusMutation.isPending && statusMutation.variables?.id === id;
+              const isDeactivating = deleteMutation.isPending && deleteMutation.variables === id;
 
               return (
                 <motion.article
                   animate={{ opacity: 1, y: 0 }}
-                  className="group flex min-h-[370px] flex-col rounded-2xl border border-[#d9dde7] bg-gradient-to-b from-white to-[#f5f7fb] p-5 transition-shadow hover:border-[#0048c4] hover:shadow-[0_14px_36px_rgba(0,72,196,0.10)]"
+                  className={`group flex min-h-[405px] flex-col rounded-2xl border p-5 transition-shadow ${
+                    isActive
+                      ? "border-[#d9dde7] bg-gradient-to-b from-white to-[#f5f7fb] hover:border-[#0048c4] hover:shadow-[0_14px_36px_rgba(0,72,196,0.10)]"
+                      : "border-[#e2e2e2] bg-[#f7f7f7] opacity-80"
+                  }`}
                   initial={{ opacity: 0, y: 16 }}
-                  key={id}
+                  key={id || `${text(item, ["slug"], "package")}-${index}`}
                   transition={{ delay: Math.min(index * 0.06, 0.3), duration: 0.28, ease: "easeOut" }}
                   whileHover={{ y: -4 }}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">{kind}</span>
-                    {discount > 0 ? <span className="rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]">{discount.toLocaleString("fa-IR")}٪ تخفیف</span> : null}
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
+                        {kind}
+                      </span>
+                      <span
+                        className={`rounded-lg px-2 py-1 text-xs font-bold ${
+                          isActive ? "bg-[#e9f8f1] text-[#0b8555]" : "bg-[#eeeeee] text-[#777777]"
+                        }`}
+                      >
+                        {isActive ? "فعال" : "غیرفعال"}
+                      </span>
+                    </div>
+                    <div className={isChangingStatus ? "pointer-events-none opacity-50" : ""}>
+                      <SwitchButton
+                        ariaLabel={`وضعیت ${text(item, ["title"], "بسته")}`}
+                        checked={isActive}
+                        onChange={async (next) => {
+                          if (!id) return;
 
-                  <h3 className="m-0 mt-5 text-lg font-bold text-[#0048c4]">{text(item, ["title"], "بدون عنوان")}</h3>
-
-                  <div className="mt-5 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
-                    {discount > 0 ? <span className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">{realPrice.toLocaleString("fa-IR")}</span> : <span />}
-                    <div className="text-right [direction:rtl]">
-                      <strong className="text-2xl font-bold text-[#1a1a1a]">{finalPrice.toLocaleString("fa-IR")}</strong>
-                      <span className="mr-1 text-xs font-medium text-[#4d4d4d]">تومان</span>
+                          try {
+                            await statusMutation.mutateAsync({ id, isActive: next });
+                          } catch (error) {
+                            notify(getApiErrorMessage(error, "تغییر وضعیت بسته ناموفق بود."), "error");
+                          }
+                        }}
+                      />
                     </div>
                   </div>
 
-                  <div className="my-5 border-t border-dashed border-[#cccccc]" />
+                  <h3 className="m-0 mt-5 text-lg font-bold text-[#0048c4]">
+                    {text(item, ["title"], "بدون عنوان")}
+                  </h3>
+                  <span className="mt-1 break-all font-mono text-xs text-[#8a94a3]" dir="ltr">
+                    {text(item, ["slug"], id || "-")}
+                  </span>
 
-                  <div className="rounded-xl border border-[#11a366] bg-[#11a36614] p-4 text-[#006038]">
-                    <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#11a366]">
-                      <GreenCheckIcon className="h-5 w-5" />
-                      <span>{isCreditBundle && Boolean(item.gift ?? item.is_gift) ? "اعتبارهای هدیه" : "اعتبارهای بسته"}</span>
+                  {hasPrice ? (
+                    <div className="mt-5 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
+                      {discount > 0 && realPrice > 0 ? (
+                        <span className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">
+                          {realPrice.toLocaleString("fa-IR")}
+                        </span>
+                      ) : (
+                        <span />
+                      )}
+                      <div className="text-right [direction:rtl]">
+                        <strong className="text-2xl font-bold text-[#1a1a1a]">
+                          {finalPrice.toLocaleString("fa-IR")}
+                        </strong>
+                        <span className="mr-1 text-xs font-medium text-[#4d4d4d]">تومان</span>
+                      </div>
                     </div>
-                    <div className="grid gap-2.5">
-                      {creditItems.map((credit) => (
-                        <div className="flex items-center justify-between gap-3 text-sm font-medium" key={credit.label}>
-                          <span>{credit.label}</span>
-                          <strong className="text-[#006038]">{credit.value}</strong>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  ) : null}
 
-                  {isCreditBundle && (text(item, ["start_date"]) || text(item, ["end_date"])) ? (
+                  {discount > 0 ? (
+                    <span className="mt-2 w-fit rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]">
+                      {discount.toLocaleString("fa-IR")}٪ تخفیف
+                    </span>
+                  ) : null}
+
+                  {hasPrice || creditItems.length > 0 || durationDays > 0 ? (
+                    <div className="my-4 border-t border-dashed border-[#cccccc]" />
+                  ) : null}
+
+                  {creditItems.length > 0 ? (
+                    <div className="rounded-xl border border-[#11a366] bg-[#11a36614] p-4 text-[#006038]">
+                      <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#11a366]">
+                        <GreenCheckIcon className="h-5 w-5" />
+                        <span>اعتبارهای بسته</span>
+                      </div>
+                      <div className="grid gap-2.5">
+                        {creditItems.map((credit) => (
+                          <div
+                            className="flex items-center justify-between gap-3 text-sm font-medium"
+                            key={credit.label}
+                          >
+                            <span>{credit.label}</span>
+                            <strong className="text-[#006038]">
+                              {credit.value.toLocaleString("fa-IR")}
+                            </strong>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {Number.isFinite(durationDays) && durationDays > 0 ? (
                     <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs text-[#707a8a]">
-                      <span>از {text(item, ["start_date"], "-")}</span>
-                      <span>تا {text(item, ["end_date"], "-")}</span>
+                      <span>مدت بسته</span>
+                      <strong className="text-[#4d4d4d]">
+                        {durationDays.toLocaleString("fa-IR")} روز
+                      </strong>
                     </div>
                   ) : null}
 
                   <div className="mt-auto flex gap-2 pt-5">
-                    <motion.button className="h-10 flex-1 rounded-lg border border-[#0048c4] bg-white text-sm font-bold text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white" onClick={() => open(item)} type="button" whileTap={{ scale: 0.97 }}>ویرایش</motion.button>
                     <motion.button
-                      className="h-10 rounded-lg border border-[#d93645] bg-white px-4 text-sm font-bold text-[#d93645]"
-                      disabled={deleteMutation.isPending}
-                      onClick={async () => {
-                        if (!window.confirm("این مورد حذف شود؟")) return;
-                        try { await deleteMutation.mutateAsync(id); }
-                        catch (error) { notify(getApiErrorMessage(error, "حذف ناموفق بود."), "error"); }
-                      }}
+                      className="h-10 flex-1 rounded-lg border border-[#0048c4] bg-white text-sm font-bold text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white disabled:opacity-60"
+                      disabled={isLoadingDetail}
+                      onClick={() => open(item)}
                       type="button"
                       whileTap={{ scale: 0.97 }}
-                    >حذف</motion.button>
+                    >
+                      {isLoadingDetail ? "در حال دریافت..." : "ویرایش"}
+                    </motion.button>
+                    {isActive ? (
+                      <motion.button
+                        className="h-10 rounded-lg border border-[#d93645] bg-white px-4 text-sm font-bold text-[#d93645] disabled:opacity-60"
+                        disabled={isDeactivating}
+                        onClick={async () => {
+                          if (!id || !window.confirm("این بسته غیرفعال شود؟")) return;
+
+                          try {
+                            await deleteMutation.mutateAsync(id);
+                          } catch (error) {
+                            notify(getApiErrorMessage(error, "غیرفعال‌سازی بسته ناموفق بود."), "error");
+                          }
+                        }}
+                        type="button"
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        {isDeactivating ? "در حال انجام..." : "غیرفعال‌سازی"}
+                      </motion.button>
+                    ) : null}
                   </div>
                 </motion.article>
               );
             })
           ) : (
-            <div className="col-span-full rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-4 py-12 text-center text-sm text-[#7b8494]">بسته‌ای برای نمایش وجود ندارد.</div>
+            <div className="col-span-full rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-4 py-12 text-center text-sm text-[#7b8494]">
+              بسته‌ای برای نمایش وجود ندارد.
+            </div>
           )}
         </div>
       </section>
@@ -249,14 +461,24 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
         {editing !== undefined ? (
           <PackageModal
             draft={draft}
+            isEditing={Boolean(editing)}
             isPending={saveMutation.isPending}
             onChange={setDraft}
             onClose={() => setEditing(undefined)}
             onSubmit={async () => {
               try {
-                await saveMutation.mutateAsync({ id: editing ? getCrmRecordId(editing) : null, payload: packagePayload(draft) });
+                await saveMutation.mutateAsync({
+                  id: editing ? packageRecordId(editing) : null,
+                  payload: packagePayload(draft),
+                });
               } catch (error) {
-                notify(getApiErrorMessage(error, error instanceof Error ? error.message : "ذخیره ناموفق بود."), "error");
+                notify(
+                  getApiErrorMessage(
+                    error,
+                    error instanceof Error ? error.message : "ذخیره بسته ناموفق بود.",
+                  ),
+                  "error",
+                );
               }
             }}
           />
@@ -270,30 +492,257 @@ function GreenCheckIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
       <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
-      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+      <path
+        d="m6.2 10 2.4 2.3 5.1-5.2"
+        fill="none"
+        stroke="#fff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 }
 
-function PackageModal({ draft, isPending, onChange, onClose, onSubmit }: { draft: PackageDraft; isPending: boolean; onChange: (draft: PackageDraft) => void; onClose: () => void; onSubmit: () => Promise<void> }) {
-  const field = (key: keyof PackageDraft, value: string | boolean) => onChange({ ...draft, [key]: value });
-  return <motion.div animate={{ opacity: 1 }} className="fixed inset-0 z-50 grid place-items-center bg-[#172033]/45 p-8" exit={{ opacity: 0 }} initial={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
-    <motion.form animate={{ opacity: 1, scale: 1, y: 0 }} className="max-h-[calc(100vh-64px)] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl" exit={{ opacity: 0, scale: 0.98, y: 8 }} initial={{ opacity: 0, scale: 0.97, y: 12 }} transition={{ duration: 0.2 }} onSubmit={(event) => { event.preventDefault(); void onSubmit(); }}>
-      <div className="flex items-center justify-between"><h2 className="m-0 text-lg font-bold">{draft.title ? "ویرایش مورد" : "افزودن مورد جدید"}</h2><button className="text-2xl text-[#596477]" onClick={onClose} type="button">×</button></div>
-      <div className="mt-5 grid grid-cols-2 gap-4">
-        <Field label="نوع"><select className={inputClass} onChange={(e) => field("kind", e.target.value as CrmPackageKind)} value={draft.kind}><option value="panel_subscription">بسته</option><option value="credit_bundle">اعتبار پنل</option></select></Field>
-        <Field label="عنوان"><input className={inputClass} onChange={(e) => field("title", e.target.value)} value={draft.title} /></Field>
-        <Field label="قیمت (تومان)"><input className={inputClass} inputMode="numeric" onChange={(e) => field("price", e.target.value)} value={draft.price} /></Field>
-        <Field label="تخفیف (اختیاری)"><input className={inputClass} inputMode="numeric" onChange={(e) => field("discount", e.target.value)} value={draft.discount} /></Field>
-        {draft.kind === "credit_bundle" ? <><Field label="تاریخ شروع شمسی"><input className={inputClass} dir="ltr" placeholder="1405/01/01" onChange={(e) => field("startDate", e.target.value)} value={draft.startDate} /></Field><Field label="تاریخ پایان شمسی"><input className={inputClass} dir="ltr" placeholder="1405/12/29" onChange={(e) => field("endDate", e.target.value)} value={draft.endDate} /></Field><div className="col-span-2 flex items-center justify-between rounded-xl border border-[#e1e5eb] p-4"><div><strong className="block text-sm">هدیه</strong><span className="mt-1 block text-xs text-[#7b8494]">اعتبار رایگان همراه این مورد ارائه شود.</span></div><SwitchButton ariaLabel="فعال‌سازی هدیه" checked={draft.gift} onChange={(value) => field("gift", value)} /></div></> : null}
-        {(draft.kind === "panel_subscription" || draft.gift) ? <><Field label={draft.gift ? "هدیه آگهی (اختیاری)" : "تعداد آگهی"}><input className={inputClass} inputMode="numeric" onChange={(e) => field("ad", e.target.value)} value={draft.ad} /></Field><Field label={draft.gift ? "هدیه ویژه (اختیاری)" : "تعداد ویژه"}><input className={inputClass} inputMode="numeric" onChange={(e) => field("special", e.target.value)} value={draft.special} /></Field><Field label={draft.gift ? "هدیه بروزرسانی (اختیاری)" : "تعداد بروزرسانی"}><input className={inputClass} inputMode="numeric" onChange={(e) => field("update", e.target.value)} value={draft.update} /></Field></> : null}
-      </div>
-      <div className="mt-6 flex justify-end gap-3"><button className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</button><button className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</button></div>
-    </motion.form>
-  </motion.div>;
+function PackageModal({
+  draft,
+  isEditing,
+  isPending,
+  onChange,
+  onClose,
+  onSubmit,
+}: {
+  draft: PackageDraft;
+  isEditing: boolean;
+  isPending: boolean;
+  onChange: (draft: PackageDraft) => void;
+  onClose: () => void;
+  onSubmit: () => Promise<void>;
+}) {
+  const field = (key: keyof PackageDraft, value: string | boolean) => {
+    onChange({ ...draft, [key]: value });
+  };
+
+  const selectKind = (kind: CrmPackageKind) => {
+    onChange({
+      ...draft,
+      kind,
+      ...(kind === "panel_subscription"
+        ? { adCredit: "", renewCredit: "", specialCredit: "" }
+        : { durationDays: "" }),
+    });
+  };
+
+  const isPanelSubscription = draft.kind === "panel_subscription";
+
+  return (
+    <motion.div
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-50 grid place-items-center bg-[#172033]/45 p-8"
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <motion.form
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="max-h-[calc(100vh-64px)] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+        exit={{ opacity: 0, scale: 0.98, y: 8 }}
+        initial={{ opacity: 0, scale: 0.97, y: 12 }}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void onSubmit();
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="m-0 text-lg font-bold">
+              {isEditing ? "ویرایش بسته" : "افزودن بسته جدید"}
+            </h2>
+            <p className="m-0 mt-1 text-xs text-[#7b8494]">
+              مبلغ نهایی بر اساس قیمت اصلی و درصد تخفیف توسط سرور محاسبه می‌شود.
+            </p>
+          </div>
+          <button className="text-2xl text-[#596477]" onClick={onClose} type="button">
+            ×
+          </button>
+        </div>
+
+        <div className="mt-5">
+          <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">نوع بسته</span>
+          <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نوع بسته">
+            <button
+              aria-selected={isPanelSubscription}
+              className={`text-sm font-bold transition ${
+                isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
+              }`}
+              onClick={() => selectKind("panel_subscription")}
+              role="tab"
+              type="button"
+            >
+              اعتبار پنل
+            </button>
+            <button
+              aria-selected={!isPanelSubscription}
+              className={`border-r border-[#0048c4] text-sm font-bold transition ${
+                !isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
+              }`}
+              onClick={() => selectKind("credit_bundle")}
+              role="tab"
+              type="button"
+            >
+              بسته‌ها
+            </button>
+          </div>
+          <p className="m-0 mt-2 text-xs text-[#7b8494]">
+            {isPanelSubscription
+              ? "برای اعتبار پنل فقط مدت زمان بسته ثبت می‌شود."
+              : "برای بسته‌ها تعداد آگهی، ویژه و بروزرسانی ثبت می‌شود."}
+          </p>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Field label="شناسه بسته">
+            <input
+              className={inputClass}
+              dir="ltr"
+              onChange={(event) => field("id", event.target.value)}
+              placeholder="panel-basic"
+              value={draft.id}
+            />
+          </Field>
+          <Field label="اسلاگ">
+            <input
+              className={inputClass}
+              dir="ltr"
+              onChange={(event) => field("slug", event.target.value)}
+              placeholder="panel-basic"
+              value={draft.slug}
+            />
+          </Field>
+          <Field label="عنوان">
+            <input
+              className={inputClass}
+              onChange={(event) => field("title", event.target.value)}
+              placeholder="پکیج پایه"
+              value={draft.title}
+            />
+          </Field>
+          <Field label="قیمت اصلی (تومان)">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              onChange={(event) => field("realPrice", event.target.value)}
+              value={draft.realPrice}
+            />
+          </Field>
+          <Field label="درصد تخفیف">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              max="100"
+              min="0"
+              onChange={(event) => field("discountPercent", event.target.value)}
+              value={draft.discountPercent}
+            />
+          </Field>
+          {isPanelSubscription ? (
+            <Field label="مدت بسته (روز)">
+              <input
+                className={inputClass}
+                inputMode="numeric"
+                min="1"
+                onChange={(event) => field("durationDays", event.target.value)}
+                value={draft.durationDays}
+              />
+            </Field>
+          ) : null}
+          <Field label="ترتیب نمایش">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              min="0"
+              onChange={(event) => field("sortOrder", event.target.value)}
+              value={draft.sortOrder}
+            />
+          </Field>
+          {!isPanelSubscription ? (
+            <>
+              <Field label="تعداد آگهی">
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  min="0"
+                  onChange={(event) => field("adCredit", event.target.value)}
+                  value={draft.adCredit}
+                />
+              </Field>
+              <Field label="تعداد ویژه">
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  min="0"
+                  onChange={(event) => field("specialCredit", event.target.value)}
+                  value={draft.specialCredit}
+                />
+              </Field>
+              <Field label="تعداد بروزرسانی">
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  min="0"
+                  onChange={(event) => field("renewCredit", event.target.value)}
+                  value={draft.renewCredit}
+                />
+              </Field>
+            </>
+          ) : null}
+          <div className="flex items-center justify-between rounded-xl border border-[#e1e5eb] p-4">
+            <div>
+              <strong className="block text-sm">وضعیت بسته</strong>
+              <span className="mt-1 block text-xs text-[#7b8494]">
+                بسته فعال برای استفاده در پنل در دسترس است.
+              </span>
+            </div>
+            <SwitchButton
+              ariaLabel="وضعیت بسته"
+              checked={draft.isActive}
+              onChange={(value) => field("isActive", value)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold"
+            onClick={onClose}
+            type="button"
+          >
+            انصراف
+          </button>
+          <button
+            className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60"
+            disabled={isPending}
+            type="submit"
+          >
+            {isPending ? "در حال ذخیره..." : "ذخیره"}
+          </button>
+        </div>
+      </motion.form>
+    </motion.div>
+  );
 }
 
-function Field({ children, label }: { children: ReactNode; label: string }) { return <label><span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{label}</span>{children}</label>; }
+function Field({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <label>
+      <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{label}</span>
+      {children}
+    </label>
+  );
+}
 
 export function CrmCostsView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();

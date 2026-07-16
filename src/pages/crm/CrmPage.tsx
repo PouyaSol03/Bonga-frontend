@@ -93,7 +93,12 @@ type EditorState = {
 type ConfirmState = {
   body: string;
   confirmLabel?: string;
-  onConfirm: () => Promise<void>;
+  onConfirm: (promptValue?: string) => Promise<void>;
+  prompt?: {
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+  };
   title: string;
 };
 
@@ -160,8 +165,10 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
 const advertiseStatusOptions = [
   { label: "ثبت شده", value: "0" },
   { label: "در انتظار مدیر", value: "1" },
+  { label: "در انتظار مشاور", value: "2" },
   { label: "تأیید شده", value: "3" },
   { label: "رد شده", value: "-1" },
+  { label: "نیازمند ویرایش", value: "-4" },
   { label: "حذف شده", value: "-2" },
   { label: "منقضی شده", value: "-3" },
 ];
@@ -254,8 +261,10 @@ function advertiseStatusLabel(status: unknown) {
       "-3": "منقضی شده",
       "-2": "حذف شده",
       "-1": "رد شده",
+      "-4": "نیازمند ویرایش",
       "0": "ثبت شده",
       "1": "در انتظار بررسی",
+      "2": "در انتظار مشاور",
       "3": "منتشر شده",
     }[key] ?? key ?? "-"
   );
@@ -751,8 +760,8 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   useQueryErrorToast([query.error], notify);
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, nextStatus }: { id: string; nextStatus: number }) =>
-      updateCrmAdvertiseStatus(id, nextStatus),
+    mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: number; reason?: string }) =>
+      updateCrmAdvertiseStatus(id, nextStatus, reason),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
       await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
@@ -766,6 +775,22 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
     } catch (error) {
       notify(getApiErrorMessage(error, "به‌روزرسانی وضعیت آگهی ناموفق بود."), "error");
     }
+  };
+
+  const openRejectModal = (id: string) => {
+    setConfirm({
+      body: "دلیل رد یا نیاز به اصلاح آگهی برای کاربر نمایش داده می‌شود.",
+      confirmLabel: "ثبت دلیل",
+      onConfirm: async (reason) => {
+        await statusMutation.mutateAsync({ id, nextStatus: -4, reason });
+      },
+      prompt: {
+        label: "دلیل نیاز به اصلاح",
+        placeholder: "مثلاً تصاویر واضح نیست یا اطلاعات آگهی کامل نیست.",
+        required: true,
+      },
+      title: "نیاز به اصلاح آگهی",
+    });
   };
 
   return (
@@ -891,7 +916,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                       <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
                       <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
-                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => updateStatus(id, -1)} tone="warning" />
+                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => openRejectModal(id)} tone="warning" />
                       <SmallActionButton
                         icon={<LinearDelete className="h-4 w-4" />}
                         label="حذف"
@@ -2445,18 +2470,30 @@ function ConfirmModal({
   onClose: () => void;
 }) {
   const [isPending, setIsPending] = useState(false);
+  const [promptValue, setPromptValue] = useState("");
 
   useEffect(() => {
-    if (!confirm) setIsPending(false);
+    if (!confirm) {
+      setIsPending(false);
+      setPromptValue("");
+    }
   }, [confirm]);
 
   if (!confirm) return null;
 
+  const trimmedPromptValue = promptValue.trim();
+  const isPromptInvalid = Boolean(confirm.prompt?.required && !trimmedPromptValue);
+
   const handleConfirm = async () => {
+    if (isPromptInvalid) {
+      notify("لطفاً دلیل را وارد کنید.", "error");
+      return;
+    }
+
     setIsPending(true);
 
     try {
-      await confirm.onConfirm();
+      await confirm.onConfirm(confirm.prompt ? trimmedPromptValue : undefined);
       onClose();
     } catch (error) {
       notify(getApiErrorMessage(error, "انجام عملیات ناموفق بود."), "error");
@@ -2473,9 +2510,21 @@ function ConfirmModal({
         </div>
         <h2 className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">{confirm.title}</h2>
         <p className="m-0 mt-2 text-sm leading-7 text-[#707a8a]">{confirm.body}</p>
+        {confirm.prompt ? (
+          <label className="mt-4 block">
+            <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{confirm.prompt.label}</span>
+            <textarea
+              className={`${modalInputClassName} min-h-28 resize-y py-3`}
+              disabled={isPending}
+              onChange={(event) => setPromptValue(event.target.value)}
+              placeholder={confirm.prompt.placeholder}
+              value={promptValue}
+            />
+          </label>
+        ) : null}
         <div className="mt-6 flex justify-end gap-3">
           <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
-          <button className={dangerButtonClassName} disabled={isPending} onClick={handleConfirm} type="button">
+          <button className={dangerButtonClassName} disabled={isPending || isPromptInvalid} onClick={handleConfirm} type="button">
             {isPending ? <LoadingSpinner /> : null}
             {isPending ? "در حال انجام..." : confirm.confirmLabel ?? "تأیید"}
           </button>

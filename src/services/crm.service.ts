@@ -257,9 +257,11 @@ export async function saveCrmAdvertise(id: string | null, payload: CrmAdvertiseP
   );
 }
 
-export function updateCrmAdvertiseStatus(id: string, status: number) {
+export function updateCrmAdvertiseStatus(id: string, status: number, reason?: string) {
   return api
-    .post(`panel/advertise/status/${id}`, { json: { status } })
+    .post(`panel/advertise/status/${id}`, {
+      json: reason?.trim() ? { reason: reason.trim(), status } : { status },
+    })
     .json<unknown>();
 }
 
@@ -327,15 +329,18 @@ export function deleteCrmAgency(id: string) {
 }
 
 export async function listCrmPackages() {
-  return normalizeRows(await api.get("panel/package/list").json<unknown>());
+  return normalizeRows(await api.get("panel/packages").json<unknown>());
 }
 
 export function saveCrmPackage(id: string | null, payload: CrmPackagePayload) {
-  return api.post(id ? `panel/package/update/${id}` : "panel/package/create", { json: payload }).json<unknown>();
+  const request = id
+    ? api.patch(`panel/packages/${id}`, { json: payload })
+    : api.post("panel/packages", { json: payload });
+  return request.json<unknown>();
 }
 
 export function deleteCrmPackage(id: string) {
-  return api.delete(`panel/package/delete/${id}`).json<unknown>();
+  return api.delete(`panel/packages/${id}`).json<unknown>();
 }
 
 export async function listCrmCheckoutProducts() {

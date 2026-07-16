@@ -86,7 +86,7 @@ export function getMyAdStatusInfo(
   const rawStatus = readCandidateStatus(source);
   const status = normalizeStatusText(rawStatus);
 
-  if (["5", "delete", "deleted", "removed"].includes(status)) {
+  if (["-2", "5", "delete", "deleted", "removed"].includes(status)) {
     return myAdStatusConfig.deleted;
   }
 
@@ -94,7 +94,7 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.deleted;
   }
 
-  if (["4", "deactive", "disabled", "expire", "expired", "inactive"].includes(status)) {
+  if (["-3", "4", "deactive", "disabled", "expire", "expired", "inactive"].includes(status)) {
     return myAdStatusConfig.expired;
   }
 
@@ -102,7 +102,7 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.expired;
   }
 
-  if (["2", "edit", "need-edit", "needs-edit", "rejected", "stopped"].includes(status)) {
+  if (["-4", "-1", "edit", "need-edit", "needs-edit", "rejected", "stopped"].includes(status)) {
     return myAdStatusConfig.needs_edit;
   }
 
@@ -116,7 +116,7 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.needs_edit;
   }
 
-  if (["0", "1", "pending", "review", "waiting", "in-review"].includes(status)) {
+  if (["0", "1", "2", "pending", "review", "waiting", "in-review"].includes(status)) {
     return myAdStatusConfig.pending;
   }
 

@@ -99,9 +99,8 @@ export function isUserIdentityVerified(profile?: UserProfile | null) {
     authorizedValue === 1 ||
     String(authorizedValue ?? "").trim() === "1" ||
     String(authorizedValue ?? "").toLowerCase().trim() === "true";
-  const hasNationalNumber = Boolean(profile?.nationalnumber?.trim());
 
-  return isAuthorized || hasNationalNumber;
+  return isAuthorized;
 }
 
 export type UpdateProfilePayload = {

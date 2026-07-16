@@ -47,6 +47,7 @@ import {
   saveCrmCity,
   saveCrmNeighborhood,
   saveCrmUser,
+  toggleCrmUserAuthorization,
   toggleCrmUserStatus,
   updateCrmAdvertiseStatus,
   type CrmRecord,
@@ -957,6 +958,14 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
     },
   });
 
+  const authorizationMutation = useMutation({
+    mutationFn: toggleCrmUserAuthorization,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
+      notify("وضعیت تایید کد ملی کاربر تغییر کرد.");
+    },
+  });
+
   const openUserEditor = (user: CrmRecord = {}) => {
     const id = getCrmRecordId(user) || null;
 
@@ -1003,16 +1012,18 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
   };
 
   const handleToggleStatus = (id: string) => statusMutation.mutateAsync(id);
+  const handleToggleAuthorization = (id: string) => authorizationMutation.mutateAsync(id);
 
   const renderUsersTable = (users: CrmRecord[], emptyMessage: string) => (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
+      <table className="w-full min-w-[980px] border-separate border-spacing-0 text-right">
         <thead>
           <tr className="text-sm font-bold text-[#4d4d4d]">
             <TableHead>نام</TableHead>
             <TableHead>موبایل</TableHead>
             <TableHead>نقش‌ها</TableHead>
             <TableHead>وضعیت</TableHead>
+            <TableHead>تایید کد ملی</TableHead>
             <TableHead>اعتبار</TableHead>
             <TableHead>عملیات</TableHead>
           </tr>
@@ -1022,6 +1033,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
             users.map((user) => {
               const id = getCrmRecordId(user);
               const isActive = Number(user.status) === 1;
+              const isAuthorized = Number(user.authorized) === 1;
               const roles = userRoleSlugs(user);
 
               return (
@@ -1041,9 +1053,20 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                       </div>
                   </TableCell>
                   <TableCell><UserStatusBadge status={user.status} /></TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex rounded-lg px-2.5 py-1 text-xs font-bold ${
+                        isAuthorized
+                          ? "bg-[#e9f8f0] text-[#0b8b55]"
+                          : "bg-[#f4f6f8] text-[#7b8494]"
+                      }`}
+                    >
+                      {isAuthorized ? "تایید شده" : "تایید نشده"}
+                    </span>
+                  </TableCell>
                   <TableCell>{formatMoney(user.credit)}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1.5">
+                    <div className="flex flex-wrap gap-1.5">
                       <SmallActionButton label="ویرایش" onClick={() => openUserEditor(user)} />
                       <SmallActionButton
                         label={isActive ? "غیرفعال‌سازی" : "فعال‌سازی"}
@@ -1057,13 +1080,25 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                         })}
                         tone={isActive ? "danger" : "success"}
                       />
+                      <SmallActionButton
+                        label={isAuthorized ? "لغو تایید کد ملی" : "تایید کد ملی"}
+                        onClick={() => setConfirm({
+                          body: isAuthorized
+                            ? "تایید کد ملی این کاربر لغو می‌شود و وضعیت احراز هویت او به تایید نشده تغییر می‌کند."
+                            : "کد ملی این کاربر به عنوان تایید شده ثبت می‌شود.",
+                          confirmLabel: isAuthorized ? "لغو تایید" : "تایید کن",
+                          onConfirm: async () => { await handleToggleAuthorization(id); },
+                          title: isAuthorized ? "لغو تایید کد ملی" : "تایید کد ملی",
+                        })}
+                        tone={isAuthorized ? "danger" : "success"}
+                      />
                     </div>
                   </TableCell>
                 </tr>
               );
             })
           ) : (
-            <TableEmptyRow columns={6} message={emptyMessage} />
+            <TableEmptyRow columns={7} message={emptyMessage} />
           )}
         </tbody>
       </table>
@@ -1110,8 +1145,8 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                 <div className="h-5 w-40 animate-pulse rounded bg-[#e9edf3]" />
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
-                  <tbody><TableLoadingRows columns={6} rows={4} /></tbody>
+                <table className="w-full min-w-[980px] border-separate border-spacing-0 text-right">
+                  <tbody><TableLoadingRows columns={7} rows={4} /></tbody>
                 </table>
               </div>
             </section>

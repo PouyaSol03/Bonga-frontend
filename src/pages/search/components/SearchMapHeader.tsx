@@ -7,6 +7,9 @@ import { SearchMapFilterChips } from "./SearchMapFilterChips";
 type SearchMapHeaderProps = {
   queryLabel?: string;
   savedCount?: number;
+  isCurrentSearchSaved?: boolean;
+  isSavingSearch?: boolean;
+  isSaveSearchDisabled?: boolean;
   chips: SearchFilterChip[];
   onChipClick?: (chip: SearchFilterChip) => void;
   onChipRemove?: (chip: SearchFilterChip) => void;
@@ -17,6 +20,9 @@ type SearchMapHeaderProps = {
 function SearchMapHeaderComponent({
   queryLabel = "جستجو در آگهی‌ها",
   savedCount = 0,
+  isCurrentSearchSaved = false,
+  isSavingSearch = false,
+  isSaveSearchDisabled = false,
   chips,
   onChipClick,
   onChipRemove,
@@ -33,8 +39,13 @@ function SearchMapHeaderComponent({
           label: queryLabel,
           onClick: onSearchClick,
           onSavedClick,
+          isSaved: isCurrentSearchSaved,
+          isSaving: isSavingSearch,
+          isSavedDisabled: isSaveSearchDisabled,
           savedCount,
-          savedLabel: "جستجوی ذخیره شده",
+          savedLabel: isCurrentSearchSaved
+            ? "نمایش جستجوهای ذخیره شده"
+            : "ذخیره جستجوی فعلی",
         }}
       />
 

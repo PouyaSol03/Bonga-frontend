@@ -4,6 +4,10 @@ import {
   useDeleteSearchHistoryMutation,
   useSearchHistoryQuery,
 } from "../../../hooks/search-history.hooks";
+import {
+  useDeleteSavedSearchMutation,
+  useSavedSearchesQuery,
+} from "../../../hooks/saved-search.hooks";
 import { useAdvertisementListQuery } from "../../../hooks/advertisement.hooks";
 import { TopBar } from "../../../components/TopBar";
 import { getRequestErrorState } from "../../../components/ErrorState";
@@ -12,13 +16,7 @@ import type { SearchHistoryItem } from "../../../services/search-history.service
 import type { AdvertisementItem } from "../../../services/advertisement.service";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
-import {
-  initialRecentSearches,
-  initialSavedSearches,
-} from "../homeData";
-
-import type { RecentSearch, SavedSearch } from "../homeTypes";
-import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
+import type { SavedSearchItem } from "../../../services/saved-search.service";
 
 type HomeSearchScreenProps = {
   advertisementSearchCityId?: string;
@@ -90,11 +88,17 @@ function mapAdToSearchResult(
   const city = readAdText(item, ["city", "city_name"]);
   const category = readAdText(item, ["category", "category_name", "form_title"]);
 
+  const title = readAdText(item, ["title", "label"]) || "آگهی ملک";
+  const tags = [city, neighborhood].filter(Boolean);
+
   return {
+    content: tags,
+    filters: {},
     id: String(item.id ?? item._id ?? `ad-search-${index + 1}`),
     subtitle: [category, neighborhood || city].filter(Boolean).join("، "),
-    tags: [city, neighborhood].filter(Boolean),
-    title: readAdText(item, ["title", "label"]) || "آگهی ملک",
+    tags,
+    title,
+    url: `/search?query=${encodeURIComponent(title)}`,
   };
 }
 
@@ -113,8 +117,6 @@ export function HomeSearchScreen({
   const lastPublishedQueryRef = useRef("");
   const wasOpenRef = useRef(false);
   const [query, setQuery] = useState("");
-  const [recentSearches, setRecentSearches] = useState(initialRecentSearches);
-  const [savedSearches, setSavedSearches] = useState(initialSavedSearches);
   const [isSavedView, setIsSavedView] = useState(false);
   const [removingRecentSearchId, setRemovingRecentSearchId] = useState<
     string | number | null
@@ -162,11 +164,11 @@ export function HomeSearchScreen({
       : null,
   );
   const deleteHistoryMutation = useDeleteSearchHistoryMutation();
-  const visibleRecentSearches = isAuthenticated && apiRecentSearches.length > 0
-    ? apiRecentSearches
-    : isAuthenticated
-      ? recentSearches
-      : [];
+  const savedSearchesQuery = useSavedSearchesQuery(
+    isOpen && isSavedView && isAuthenticated,
+  );
+  const deleteSavedSearchMutation = useDeleteSavedSearchMutation();
+  const visibleRecentSearches = isAuthenticated ? apiRecentSearches : [];
   const advertisementResults = (apiAdvertisementResults?.data ?? []).map(
     mapAdToSearchResult,
   );
@@ -255,7 +257,6 @@ export function HomeSearchScreen({
 
     setRemovingRecentSearchId(id);
     removeTimerRef.current = window.setTimeout(() => {
-      setRecentSearches((items) => items.filter((item) => item.id !== id));
       deleteHistoryMutation.mutate(String(id));
       setRemovingRecentSearchId(null);
       removeTimerRef.current = null;
@@ -272,11 +273,25 @@ export function HomeSearchScreen({
     return (
       <SavedSearchesView
         isOpen={isOpen}
-        savedSearches={savedSearches}
+        isError={savedSearchesQuery.isError}
+        isLoading={savedSearchesQuery.isLoading}
+        savedSearches={savedSearchesQuery.data ?? []}
         onBack={() => setIsSavedView(false)}
-        onDelete={(id) =>
-          setSavedSearches((items) => items.filter((item) => item.id !== id))
-        }
+        onDelete={(id) => deleteSavedSearchMutation.mutate(String(id))}
+        onRetry={() => void savedSearchesQuery.refetch()}
+        onSelect={(item) => {
+          setIsSavedView(false);
+          setQuery("");
+          onClose();
+
+          if (item.url.startsWith("/")) {
+            window.history.pushState({}, "", item.url);
+            window.dispatchEvent(new PopStateEvent("popstate"));
+            return;
+          }
+
+          onSelectResult?.({ title: item.title });
+        }}
       />
     );
   }
@@ -305,7 +320,7 @@ export function HomeSearchScreen({
         }`}
       aria-hidden={!isOpen}
     >
-      <div className="shrink-0 bg-[#f0f0f0] py-2.5">
+      <div className="shrink-0 bg-[#f0f0f0]">
         <TopBar
           centerClassName="px-2"
           centerSlot={
@@ -313,20 +328,30 @@ export function HomeSearchScreen({
               isOpen={isOpen}
               query={query}
               onQueryChange={updateQuery}
-              onSavedClick={() => setIsSavedView(true)}
             />
           }
           contentClassName="px-2"
           onBack={closeSearch}
         />
-        <div className="flex h-11 items-center justify-start px-4">
+        <div className="flex h-11 items-center justify-between gap-4 px-4">
           <h2 className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
             {isResultsView ? "نتایج جستجو" : "جستجوهای اخیر"}
           </h2>
+
+          {!isResultsView ? (
+            <button
+              className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4] [direction:ltr]"
+              onClick={() => setIsSavedView(true)}
+              type="button"
+            >
+              <SavedSearchChevronIcon />
+              <span className="[direction:rtl]">ذخیره شده‌ها</span>
+            </button>
+          ) : null}
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isResultsView ? (
           !hasEnoughSearchQueryLength ? (
             <div className="flex flex-col">
@@ -375,25 +400,24 @@ export function HomeSearchScreen({
           />
         ) : visibleRecentSearches.length > 0 ? (
           <div className="flex flex-col">
-            {visibleRecentSearches.map((item, index) => (
-              <div
-                className={`${removingRecentSearchId === item.id
-                  ? "hidden"
-                  : ""
-                  }`}
+            {visibleRecentSearches.map((item) => (
+              <RecentSearchRow
+                item={item}
+                isDeleting={removingRecentSearchId === item.id}
                 key={item.id}
-              >
-                <RecentSearchRow
-                  item={item}
-                  isDeleting={removingRecentSearchId === item.id}
-                  onDelete={() => deleteRecentSearch(item.id)}
-                />
-                {index < visibleRecentSearches.length - 1 ? (
-                  <div className="mx-4 flex h-[17px] items-center">
-                    <span className="h-px w-full bg-[#cccccc]" />
-                  </div>
-                ) : null}
-              </div>
+                onDelete={() => deleteRecentSearch(item.id)}
+                onSelect={() => {
+                  if (item.url) {
+                    setQuery("");
+                    onClose();
+                    window.history.pushState({}, "", item.url);
+                    window.dispatchEvent(new PopStateEvent("popstate"));
+                    return;
+                  }
+
+                  onSelectResult?.(item);
+                }}
+              />
             ))}
           </div>
         ) : (
@@ -406,14 +430,22 @@ export function HomeSearchScreen({
 
 function SavedSearchesView({
   isOpen,
+  isError,
+  isLoading,
   savedSearches,
   onBack,
   onDelete,
+  onRetry,
+  onSelect,
 }: {
   isOpen: boolean;
-  savedSearches: SavedSearch[];
+  isError: boolean;
+  isLoading: boolean;
+  savedSearches: SavedSearchItem[];
   onBack: () => void;
   onDelete: (id: string | number) => void;
+  onRetry: () => void;
+  onSelect: (item: SavedSearchItem) => void;
 }) {
   const removeTimerRef = useRef<number | null>(null);
   const [removingSavedSearchId, setRemovingSavedSearchId] = useState<
@@ -450,22 +482,26 @@ function SavedSearchesView({
       <TopBar onBack={onBack} title="جستجوی ذخیره شده" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        {savedSearches.length > 0 ? (
-          <div className="flex flex-col gap-2 bg-[#f0f0f0]">
+        {isLoading ? (
+          <SearchRowsSkeleton />
+        ) : isError ? (
+          <button
+            className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
+            onClick={onRetry}
+            type="button"
+          >
+            دریافت جستجوهای ذخیره‌شده ناموفق بود؛ تلاش دوباره
+          </button>
+        ) : savedSearches.length > 0 ? (
+          <div className="flex flex-col bg-white">
             {savedSearches.map((item) => (
-              <div
-                className={`${removingSavedSearchId === item.id
-                  ? "hidden"
-                  : ""
-                  }`}
+              <SavedSearchRow
+                item={item}
+                isDeleting={removingSavedSearchId === item.id}
                 key={item.id}
-              >
-                <SavedSearchRow
-                  item={item}
-                  isDeleting={removingSavedSearchId === item.id}
-                  onDelete={() => deleteSavedSearch(item.id)}
-                />
-              </div>
+                onDelete={() => deleteSavedSearch(item.id)}
+                onSelect={() => onSelect(item)}
+              />
             ))}
           </div>
         ) : (
@@ -490,32 +526,31 @@ function SearchField({
   isOpen,
   query,
   onQueryChange,
-  onSavedClick,
 }: {
   isOpen: boolean;
   query: string;
   onQueryChange: (query: string) => void;
-  onSavedClick: () => void;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [isOpen]);
+
   return (
-    <div className="relative flex h-12 w-full min-w-0 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3">
-      <button
-        className="right-3 grid place-items-center text-[#1a1a1a]"
-        type="button"
-        aria-label="جستجوی ذخیره شده"
-        tabIndex={isOpen ? 0 : -1}
-        onClick={onSavedClick}
-      >
-        <LinearBookmarkSolid className="h-6 w-6 text-[#4d4d4d]" />
-      </button>
-
-      <div className="h-6 w-px bg-[#cccccc]" />
-
+    <div className="relative flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white px-3">
       <input
         aria-label="جستجو"
-        className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+        className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent pl-9 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
         type="search"
         placeholder="جستجو"
+        ref={inputRef}
         value={query}
         tabIndex={isOpen ? 0 : -1}
         onChange={(event) => onQueryChange(event.target.value)}
@@ -523,27 +558,13 @@ function SearchField({
 
       {query.length > 0 ? (
         <button
-          className="absolute left-3 grid h-8 w-8 place-items-center text-[#808080]"
+          className="absolute left-2 grid h-8 w-8 place-items-center text-[#808080]"
           type="button"
           aria-label="پاک کردن جستجو"
           tabIndex={isOpen ? 0 : -1}
           onClick={() => onQueryChange("")}
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15.15 15.15L8.85068 8.85M8.85136 15.15L15.1507 8.85M21 12C21 7.02943 16.9705 3 12 3C7.02943 3 3 7.02943 3 12C3 16.9705 7.02943 21 12 21C16.9705 21 21 16.9705 21 12Z"
-              stroke="#808080"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <ClearSearchIcon />
         </button>
       ) : null}
     </div>
@@ -554,82 +575,89 @@ function RecentSearchRow({
   item,
   isDeleting,
   onDelete,
+  onSelect,
 }: {
-  item: RecentSearch;
+  item: SearchHistoryItem;
   isDeleting: boolean;
   onDelete: () => void;
+  onSelect: () => void;
 }) {
   const pointerStartXRef = useRef<number | null>(null);
+  const didSwipeRef = useRef(false);
   const [dragOffset, setDragOffset] = useState(0);
+  const tags = item.tags.length > 0 ? item.tags : item.subtitle ? [item.subtitle] : [];
 
   const finishSwipe = () => {
-    if (dragOffset >= SWIPE_DELETE_THRESHOLD) {
-      onDelete();
-    }
-
+    if (dragOffset >= SWIPE_DELETE_THRESHOLD && !isDeleting) onDelete();
+    const shouldSuppressClick = didSwipeRef.current;
     setDragOffset(0);
     pointerStartXRef.current = null;
+
+    if (shouldSuppressClick) {
+      window.setTimeout(() => {
+        didSwipeRef.current = false;
+      }, 0);
+    }
   };
 
   return (
     <article
-      className="relative h-[82px] overflow-hidden bg-white"
+      className={`relative overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
+      onPointerCancel={finishSwipe}
       onPointerDown={(event) => {
+        if (isDeleting) return;
         pointerStartXRef.current = event.clientX;
+        didSwipeRef.current = false;
+        event.currentTarget.setPointerCapture(event.pointerId);
       }}
       onPointerMove={(event) => {
         if (pointerStartXRef.current === null || isDeleting) return;
-
-        setDragOffset(Math.max(0, event.clientX - pointerStartXRef.current));
+        const offset = Math.min(80, Math.max(0, event.clientX - pointerStartXRef.current));
+        if (offset > 5) didSwipeRef.current = true;
+        setDragOffset(offset);
       }}
-      onPointerCancel={finishSwipe}
       onPointerUp={finishSwipe}
+      style={{ touchAction: "pan-y" }}
     >
       <button
-        className="absolute inset-y-0 left-0 flex w-[72px] flex-col items-center justify-center gap-1 bg-[#fdecec] text-xs font-medium leading-4 text-[#ee3623]"
-        type="button"
-        aria-label="Ø­Ø°Ù Ø¬Ø³ØªØ¬ÙˆÛŒ Ø§Ø®ÛŒØ±"
+        aria-label={`حذف ${item.title}`}
+        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-sm font-medium text-[#d92d20]"
         disabled={isDeleting}
         onClick={onDelete}
+        type="button"
       >
-        <TrashIcon />
-        <span>Ø­Ø°Ù</span>
+        حذف
       </button>
-      <div
-        className="h-full bg-white px-4 pb-3"
-        style={{ transform: `translateX(${Math.min(dragOffset, 72)}px)` }}
+
+      <button
+        className="relative flex w-full flex-col justify-center bg-white px-4 py-3 text-right transition-transform duration-150 ease-out"
+        disabled={isDeleting}
+        onClick={() => {
+          if (!didSwipeRef.current) onSelect();
+        }}
+        style={{ transform: `translateX(${dragOffset}px)` }}
+        type="button"
       >
-        <div className="relative h-12 w-full">
-          <button
-            className="absolute left-0 top-0 grid h-12 w-12 place-items-center text-[#4d4d4d]"
-            type="button"
-            aria-label="حذف جستجوی اخیر"
-            disabled={isDeleting}
-            onClick={onDelete}
-          >
-            <SmallCloseIcon />
-          </button>
-
-          <h3 className="m-0 flex h-12 w-full items-center justify-start pl-12 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+        <span className="flex w-full items-center justify-start gap-2">
+          <ApartmentIcon />
+          <strong className="min-w-0 flex-1 text-base font-medium leading-6 text-[#1a1a1a]">
             {item.title}
-          </h3>
-        </div>
+          </strong>
+        </span>
 
-        <div className="flex h-5 w-full items-center justify-start gap-2">
-          <span className="shrink-0 text-sm font-medium leading-5 text-[#808080]">
-            {item.subtitle}
+        {tags.length > 0 ? (
+          <span className="mt-3 flex flex-wrap justify-start gap-2 pr-8">
+            {tags.map((tag) => (
+              <span
+                className="rounded-md bg-[#f0f0f0] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"
+                key={tag}
+              >
+                {tag}
+              </span>
+            ))}
           </span>
-
-          {item.tags.map((tag) => (
-            <span
-              className="flex h-5 shrink-0 items-center rounded-md bg-[#e9eaee] px-2 text-xs font-medium leading-4 text-[#4d4d4d]"
-              key={tag}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
+        ) : null}
+      </button>
     </article>
   );
 }
@@ -700,80 +728,115 @@ function SavedSearchRow({
   item,
   isDeleting,
   onDelete,
+  onSelect,
 }: {
-  item: SavedSearch;
+  item: SavedSearchItem;
   isDeleting: boolean;
   onDelete: () => void;
+  onSelect: () => void;
 }) {
+  const pointerStartXRef = useRef<number | null>(null);
+  const didSwipeRef = useRef(false);
+  const [dragOffset, setDragOffset] = useState(0);
+
+  const finishSwipe = () => {
+    if (dragOffset >= SWIPE_DELETE_THRESHOLD && !isDeleting) onDelete();
+    const shouldSuppressClick = didSwipeRef.current;
+    setDragOffset(0);
+    pointerStartXRef.current = null;
+
+    if (shouldSuppressClick) {
+      window.setTimeout(() => {
+        didSwipeRef.current = false;
+      }, 0);
+    }
+  };
+
   return (
-    <article className="h-[122px] shrink-0 bg-white px-4 pb-4 pt-2 [direction:rtl]">
-      <div className="flex h-12 w-full items-center gap-2 [direction:ltr]">
-        <button
-          className="grid h-12 w-12 shrink-0 place-items-center text-[#4d4d4d]"
-          type="button"
-          aria-label="حذف جستجوی ذخیره شده"
-          disabled={isDeleting}
-          onClick={onDelete}
-        >
-          <TrashIcon />
-        </button>
+    <article
+      className={`relative overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
+      onPointerCancel={finishSwipe}
+      onPointerDown={(event) => {
+        if (isDeleting) return;
+        pointerStartXRef.current = event.clientX;
+        didSwipeRef.current = false;
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }}
+      onPointerMove={(event) => {
+        if (pointerStartXRef.current === null || isDeleting) return;
+        const offset = Math.min(80, Math.max(0, event.clientX - pointerStartXRef.current));
+        if (offset > 5) didSwipeRef.current = true;
+        setDragOffset(offset);
+      }}
+      onPointerUp={finishSwipe}
+      style={{ touchAction: "pan-y" }}
+    >
+      <button
+        aria-label={`حذف ${item.title}`}
+        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-sm font-medium text-[#d92d20]"
+        disabled={isDeleting}
+        onClick={onDelete}
+        type="button"
+      >
+        حذف
+      </button>
 
-        <h3 className="m-0 flex h-12 min-w-0 flex-1 items-center justify-start text-right text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
-          {item.title}
-        </h3>
+      <button
+        className="relative flex w-full flex-col justify-center bg-white px-4 py-3 text-right transition-transform duration-150 ease-out"
+        disabled={isDeleting}
+        onClick={() => {
+          if (!didSwipeRef.current) onSelect();
+        }}
+        style={{ transform: `translateX(${dragOffset}px)` }}
+        type="button"
+      >
+        <span className="flex w-full items-center justify-start gap-2">
+          <ApartmentIcon />
+          <strong className="min-w-0 flex-1 text-base font-medium leading-6 text-[#1a1a1a]">
+            {item.title}
+          </strong>
+        </span>
 
-        <ApartmentIcon />
-      </div>
-
-      <div className="mt-0.5 flex h-12 w-full flex-wrap content-start justify-start gap-x-2 gap-y-2 pr-8 [direction:rtl]">
-        {item.tags.map((tag) => (
-          <span
-            className="flex h-5 shrink-0 items-center rounded-md bg-[#e9eaee] px-2 text-xs font-medium leading-4 text-[#4d4d4d]"
-            key={tag}
-          >
-            {tag}
+        {item.content.length > 0 ? (
+          <span className="mt-3 flex flex-wrap justify-start gap-2 pr-8">
+            {item.content.map((tag) => (
+              <span
+                className="rounded-md bg-[#f0f0f0] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"
+                key={tag}
+              >
+                {tag}
+              </span>
+            ))}
           </span>
-        ))}
-      </div>
+        ) : null}
+      </button>
     </article>
   );
 }
 
-function SmallCloseIcon() {
+function ClearSearchIcon() {
   return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg aria-hidden="true" fill="none" height="24" viewBox="0 0 24 24" width="24">
       <path
         d="M15.15 15.15L8.85068 8.85M8.85136 15.15L15.1507 8.85M21 12C21 7.02943 16.9705 3 12 3C7.02943 3 3 7.02943 3 12C3 16.9705 7.02943 21 12 21C16.9705 21 21 16.9705 21 12Z"
-        stroke="#808080"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
       />
     </svg>
   );
 }
 
-function TrashIcon() {
+function SavedSearchChevronIcon() {
   return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg aria-hidden="true" fill="none" height="16" viewBox="0 0 16 16" width="16">
       <path
-        d="M18.6667 6.15L17.879 19.3089C17.8221 20.2589 17.0445 21 16.1044 21H7.89552C6.95545 21 6.17787 20.2589 6.121 19.3089L5.33333 6.15M4 6.15H8.44444M8.44444 6.15L9.54689 3.54547C9.68696 3.21456 10.0083 3 10.3639 3H13.6361C13.9916 3 14.3131 3.21456 14.4531 3.54547L15.5556 6.15M8.44444 6.15H15.5556M20 6.15H15.5556M9.77778 16.05V10.65M14.2222 16.05V10.65"
-        stroke="#4D4D4D"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        d="M9.5 4.5L6 8L9.5 11.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
       />
     </svg>
   );

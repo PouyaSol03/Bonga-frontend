@@ -8,7 +8,7 @@ export type CrmAdvertiseFilters = {
 };
 
 export type CrmConsultantType = "independent" | "dependent";
-export type CrmConsultantStatus = "pending" | "accept" | "reject";
+export type CrmConsultantStatus = "pending" | "approved" | "rejected";
 
 export type CrmAgentFilters = {
   type?: CrmConsultantType;

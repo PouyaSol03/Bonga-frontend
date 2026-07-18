@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
+import {
+  getApiAssetUrl,
+  getApiErrorMessage,
+  isUnauthorizedApiError,
+} from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
+import {
+  useSavedSearchesQuery,
+  useSaveSearchMutation,
+} from "../../hooks/saved-search.hooks";
 import { DemoNotice } from "../../components/DemoNotice";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import {
@@ -38,6 +46,7 @@ import {
   type SearchMapListingId,
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
+import type { SavedSearchItem, SaveSearchInput } from "../../services/saved-search.service";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
@@ -722,6 +731,42 @@ function hasSearchCriteria(search: string) {
   );
 }
 
+function buildSaveSearchInput(
+  search: string,
+  chips: SearchFilterChip[],
+): SaveSearchInput | null {
+  const params = getSearchParamsFromSnapshot(search);
+
+  params.delete("focus");
+  params.delete("view");
+  if (!hasSearchCriteria(`?${params.toString()}`)) return null;
+
+  const selectedCity = readStoredSelectedCity();
+  if (!params.get("city_id") && selectedCity?.id) {
+    params.set("city_id", selectedCity.id);
+  }
+
+  const query = getSearchQuery(params);
+  const content = chips
+    .filter((chip) => chip.id !== "filters" && chip.isActive)
+    .map((chip) => chip.label);
+  const filters = Object.fromEntries(
+    Array.from(params.entries())
+      .filter(([key]) => !["query", "q", "qsearch"].includes(key))
+      .map(([key, value]) => {
+        const numericValue = Number(value);
+        return [key, value !== "" && Number.isFinite(numericValue) ? numericValue : value];
+      }),
+  );
+
+  return {
+    content,
+    filters,
+    title: query || content[0] || "جستجوی آگهی",
+    url: `/search?${params.toString()}`,
+  };
+}
+
 function filterListings(listings: SearchMapListing[]) {
   return listings;
 }
@@ -791,10 +836,14 @@ export function SearchMapPage() {
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
   const [pendingSearchRequest, setPendingSearchRequest] = useState<PendingSearchRequest | null>(null);
   const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
+  const [savedSearchUrl, setSavedSearchUrl] = useState<string | null>(null);
   const didResolveIpLocationRef = useRef(false);
   const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
   const { message, showNotice } = useDemoNotice();
   const requestSenderOptions = useMemo(() => getRequestSenderOptions(), []);
+  const isAuthenticated = Boolean(getStoredAuthSession());
+  const savedSearchesQuery = useSavedSearchesQuery(isAuthenticated);
+  const saveSearchMutation = useSaveSearchMutation();
   const currentSearch = searchSnapshot;
   const chips = useMemo(() => getDynamicFilterChips(currentSearch), [currentSearch]);
   const currentSearchQuery = useMemo(() => {
@@ -808,6 +857,15 @@ export function SearchMapPage() {
   const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds, currentSearch), [currentSearch, mapBounds]);
   const listQueryParams = useMemo(() => buildListQueryParams(currentSearch), [currentSearch]);
   const hasActiveSearchCriteria = useMemo(() => hasSearchCriteria(currentSearch), [currentSearch]);
+  const saveSearchInput = useMemo(
+    () => buildSaveSearchInput(currentSearch, chips),
+    [chips, currentSearch],
+  );
+  const isCurrentSearchSaved = Boolean(
+    saveSearchInput &&
+      (savedSearchUrl === saveSearchInput.url ||
+        savedSearchesQuery.data?.some((item) => item.url === saveSearchInput.url)),
+  );
   const mapQuery = useAdvertisementMapQuery(mapQueryParams);
   const listQuery = useAdvertisementListQuery(listQueryParams);
   const apiListings = useMemo(
@@ -1025,6 +1083,31 @@ export function SearchMapPage() {
     setSearchSnapshot(window.location.search);
   }, []);
 
+  const handleSavedSearchSelect = useCallback((item: SavedSearchItem) => {
+    let params: URLSearchParams;
+
+    if (item.url) {
+      try {
+        const savedUrl = new URL(item.url, window.location.origin);
+        params = savedUrl.searchParams;
+      } catch {
+        params = new URLSearchParams();
+      }
+    } else {
+      params = new URLSearchParams();
+      Object.entries(item.filters).forEach(([key, value]) => {
+        params.set(key, Array.isArray(value) ? value.join("_") : String(value));
+      });
+    }
+
+    params.delete("focus");
+    params.delete("view");
+    writeSearchParams(params);
+    setSearchSnapshot(window.location.search);
+    setSelectedListingId(null);
+    setMode("map");
+  }, []);
+
   const handleEmptyRequestSubmit = useCallback((title: string) => {
     const params = getSearchParams();
     const requestFilters: Record<string, string> = {};
@@ -1111,6 +1194,45 @@ export function SearchMapPage() {
     setIsSearchOpen(true);
   }, []);
 
+  const handleSaveSearch = useCallback(() => {
+    if (isCurrentSearchSaved) {
+      openSavedSearches();
+      return;
+    }
+
+    if (!saveSearchInput || saveSearchMutation.isPending) return;
+
+    saveSearchMutation.mutate(saveSearchInput, {
+      onError: (error) => {
+        if (isUnauthorizedApiError(error)) {
+          const returnTo = `${window.location.pathname}${window.location.search}`;
+          const params = new URLSearchParams({
+            action: "ذخیره جستجو",
+            returnTo,
+          });
+
+          window.history.pushState({}, "", `/login-required?${params.toString()}`);
+          window.dispatchEvent(new PopStateEvent("popstate"));
+          return;
+        }
+
+        showNotice(
+          getApiErrorMessage(error, "ذخیره جستجو انجام نشد. دوباره تلاش کنید."),
+        );
+      },
+      onSuccess: () => {
+        setSavedSearchUrl(saveSearchInput.url);
+        showNotice("جستجوی شما ذخیره شد.");
+      },
+    });
+  }, [
+    isCurrentSearchSaved,
+    openSavedSearches,
+    saveSearchInput,
+    saveSearchMutation,
+    showNotice,
+  ]);
+
   const closeSearch = useCallback(() => {
     setIsSearchOpen(false);
   }, []);
@@ -1176,13 +1298,16 @@ export function SearchMapPage() {
       ) : null}
 
       <SearchMapHeader
-        savedCount={2}
+        savedCount={savedSearchesQuery.data?.length ?? 0}
+        isCurrentSearchSaved={isCurrentSearchSaved}
+        isSavingSearch={saveSearchMutation.isPending}
+        isSaveSearchDisabled={!saveSearchInput}
         chips={chips}
         onChipClick={toggleChip}
         onChipRemove={handleRemoveChip}
         queryLabel={queryLabel}
         onSearchClick={openSearch}
-        onSavedClick={openSavedSearches}
+        onSavedClick={handleSaveSearch}
       />
 
 
@@ -1220,7 +1345,9 @@ export function SearchMapPage() {
         minSearchQueryLength={searchMapMinQueryLength}
         onClose={closeSearch}
         onQueryChange={handleLiveSearchQueryChange}
+        onSavedSelect={handleSavedSearchSelect}
         onSubmit={(query) => handleSearchResult({ title: query })}
+        saveInput={saveSearchInput}
       />
       <SearchRequestSenderBottomSheet
         isOpen={pendingSearchRequest !== null || isRequestSuccessOpen}

@@ -6,6 +6,7 @@ import LinearDanger from "../../(icons)/LinearDanger";
 import LinearSearch from "../../(icons)/LinearSearch";
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { TopBar } from "../../TopBar";
+import { useMyAgencyProfileQuery } from "../../../hooks/account.hooks";
 import {
   useAgencyConsultantQuery,
   useAgencyConsultantsQuery,
@@ -24,16 +25,10 @@ type ReplacementTarget =
   | { id: "agency"; kind: "agency"; name: string; subtitle: string }
   | { id: string; kind: "consultant"; consultant: TeamConsultant };
 
-const agencyReplacementTarget: ReplacementTarget = {
-  id: "agency",
-  kind: "agency",
-  name: "آژانس جلیلیان",
-  subtitle: "انتقال اطلاعات به حساب آژانس",
-};
-
 export function ConsultantRemovePage() {
   const routeConsultant = getRouteConsultant();
   const consultantId = getRouteConsultantId() ?? routeConsultant.id;
+  const agencyProfileQuery = useMyAgencyProfileQuery();
   const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
   const consultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
   const deactivateConsultantMutation = useDeactivateAgencyConsultantMutation();
@@ -46,6 +41,15 @@ export function ConsultantRemovePage() {
         mapAgencyConsultantToTeamConsultant,
       ),
     [consultantsQuery.data?.data],
+  );
+  const agencyReplacementTarget = useMemo<ReplacementTarget>(
+    () => ({
+      id: "agency",
+      kind: "agency",
+      name: agencyProfileQuery.data?.name?.trim() || "حساب آژانس شما",
+      subtitle: "انتقال اطلاعات به حساب آژانس",
+    }),
+    [agencyProfileQuery.data?.name],
   );
   const [isReplacementPickerOpen, setIsReplacementPickerOpen] = useState(false);
   const [selectedReplacement, setSelectedReplacement] =
@@ -141,6 +145,7 @@ export function ConsultantRemovePage() {
 
       {isReplacementPickerOpen ? (
         <ReplacementPicker
+          agencyTarget={agencyReplacementTarget}
           currentConsultantId={consultant.id}
           consultants={consultants}
           onClose={() => setIsReplacementPickerOpen(false)}
@@ -156,12 +161,14 @@ export function ConsultantRemovePage() {
 }
 
 function ReplacementPicker({
+  agencyTarget,
   consultants,
   currentConsultantId,
   onClose,
   onConfirm,
   selectedTarget,
 }: {
+  agencyTarget: ReplacementTarget;
   consultants: TeamConsultant[];
   currentConsultantId: number;
   onClose: () => void;
@@ -183,8 +190,8 @@ function ReplacementPicker({
         consultant: item,
       }));
 
-    return [agencyReplacementTarget, ...consultantTargets];
-  }, [consultants, currentConsultantId]);
+    return [agencyTarget, ...consultantTargets];
+  }, [agencyTarget, consultants, currentConsultantId]);
   const visibleTargets = useMemo(() => {
     if (!normalizedSearch) return replacementTargets;
 

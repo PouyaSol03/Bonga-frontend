@@ -186,4 +186,9 @@ export const queryKeys = {
     list: (qsearch?: string) =>
       [...queryKeys.searchHistory.all, "list", qsearch ?? ""] as const,
   },
+
+  savedSearches: {
+    all: ["saved-searches"] as const,
+    list: () => [...queryKeys.savedSearches.all, "list"] as const,
+  },
 };

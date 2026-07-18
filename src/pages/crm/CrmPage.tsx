@@ -1238,23 +1238,23 @@ function consultantStatusValue(consultant: CrmRecord): CrmConsultantStatus {
 
   // Read older API values safely, but only send the current string contract.
   if (rawStatus === "1" || rawStatus === "accept" || rawStatus === "accepted" || rawStatus === "approved") {
-    return "accept";
+    return "approved";
   }
   if (rawStatus === "2" || rawStatus === "reject" || rawStatus === "rejected") {
-    return "reject";
+    return "rejected";
   }
   return "pending";
 }
 
 function consultantStatusLabel(status: CrmConsultantStatus) {
-  if (status === "accept") return "تأیید شده";
-  if (status === "reject") return "رد شده";
+  if (status === "approved") return "تأیید شده";
+  if (status === "rejected") return "رد شده";
   return "در انتظار";
 }
 
 function consultantStatusTone(status: CrmConsultantStatus) {
-  if (status === "accept") return "text-[#0b8b55]";
-  if (status === "reject") return "text-[#cc3342]";
+  if (status === "approved") return "text-[#0b8b55]";
+  if (status === "rejected") return "text-[#cc3342]";
   return "text-[#a06a00]";
 }
 
@@ -1418,12 +1418,12 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           label: "وضعیت مشاور",
           name: "status",
           options: [
-            { label: "انتخاب وضعیت", value: "" },
-            { label: "تأیید شده", value: "accept" },
-            { label: "رد شده", value: "reject" },
+            { label: "در انتظار", value: "pending" },
+            { label: "تأیید شده", value: "approved" },
+            { label: "رد شده", value: "rejected" },
           ],
           type: "select" as const,
-          value: currentStatus === "pending" ? "" : currentStatus,
+          value: currentStatus,
         }] : []),
       ],
       onSubmit: async (values) => {
@@ -1431,8 +1431,8 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
 
         if (id) {
           const selectedStatus = values.status;
-          if (selectedStatus !== "accept" && selectedStatus !== "reject") {
-            throw new Error("وضعیت مشاور را روی تأیید شده یا رد شده قرار دهید.");
+          if (selectedStatus !== "pending" && selectedStatus !== "approved" && selectedStatus !== "rejected") {
+            throw new Error("یک وضعیت معتبر برای مشاور انتخاب کنید.");
           }
 
           await saveMutation.mutateAsync({
@@ -1493,8 +1493,8 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
             <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="">همه وضعیت‌ها</option>
               <option value="pending">در انتظار</option>
-              <option value="accept">تأیید شده</option>
-              <option value="reject">رد شده</option>
+              <option value="approved">تأیید شده</option>
+              <option value="rejected">رد شده</option>
             </CrmSelect>
           </FilterField>
 
@@ -1573,10 +1573,10 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
                           <div className="flex items-center gap-2">
                             <SwitchButton
                               ariaLabel={`تغییر وضعیت ${fullName(consultant)}`}
-                              checked={status === "accept"}
+                              checked={status === "approved"}
                               onChange={() => statusMutation.mutate({
                                 consultant,
-                                status: status === "accept" ? "reject" : "accept",
+                                status: status === "approved" ? "rejected" : "approved",
                               })}
                             />
                             <span className={`text-xs font-bold ${consultantStatusTone(status)}`}>

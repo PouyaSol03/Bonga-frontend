@@ -26,6 +26,9 @@ type TopBarSearch = {
   label: string;
   onClick?: () => void;
   onSavedClick?: () => void;
+  isSaved?: boolean;
+  isSaving?: boolean;
+  isSavedDisabled?: boolean;
   savedCount?: number;
   savedLabel?: string;
 };
@@ -162,7 +165,13 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
       {hasSavedAction ? (
         <button
           aria-label={search.savedLabel ?? "جستجوی ذخیره شده"}
-          className="relative grid h-12 w-12 shrink-0 place-items-center text-[#1a1a1a] active:bg-[#1a1a1a0a]"
+          aria-pressed={search.isSaved}
+          className={`relative grid h-12 w-12 shrink-0 place-items-center transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            search.isSaved || search.isSaving
+              ? "bg-[#0048c4] text-white"
+              : "text-[#1a1a1a] active:bg-[#1a1a1a0a]"
+          }`}
+          disabled={search.isSaving || search.isSavedDisabled}
           onClick={(event) => {
             event.stopPropagation();
             search.onSavedClick?.();

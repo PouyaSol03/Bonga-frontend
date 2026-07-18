@@ -1,4 +1,3 @@
-import NoSavedSearchIcon from "/vectors/NoSavedSearch.svg";
 import NoSearchIcon from "/vectors/NoSearch.svg";
 import NotFoundSearchIcon from "/vectors/NotFoundSearch.svg";
 
@@ -22,21 +21,21 @@ const searchErrorContent: Record<
     icon: NoSearchIcon,
     title: "هنوز جستجویی انجام نداده‌اید",
     description: "پس از اولین جستجو، سوابق آن در این بخش نمایش داده خواهد شد.",
-    iconClassName: "w-[82px] h-[82px]",
+    iconClassName: "w-[66px] h-[66px]",
   },
 
   "not-found": {
     icon: NotFoundSearchIcon,
     title: "هیچ نتیجه‌ای یافت نشد!",
     description: "فیلترها یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید.",
-    iconClassName: "w-[82px] h-[82px]",
+    iconClassName: "w-[66px] h-[66px]",
   },
 
   "no-saved-search": {
-    icon: NoSavedSearchIcon,
+    icon: NoSearchIcon,
     title: "هیچ جستجوی ذخیره‌شده‌ای وجود ندارد",
     description: "جستجوهای موردنظر خود را ذخیره کنید تا در این بخش نمایش داده شوند.",
-    iconClassName: "w-[78px] h-[78px]",
+    iconClassName: "w-[66px] h-[66px]",
   },
 };
 
@@ -56,7 +55,7 @@ export default function SearchErrors({
           draggable={false}
         />
 
-        <h3 className="mb-2 font-bold leading-6 text-[#111827]">
+        <h3 className="mb-2 font-semibold leading-6 text-[#111827]">
           {content.title}
         </h3>
 

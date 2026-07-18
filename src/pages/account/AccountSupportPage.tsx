@@ -97,6 +97,7 @@ const supportItems: SupportMenuItemProps[] = [
     description: "پاسخ سوالات رایج شما",
     icon: LinearQuestion,
     title: "سوالات متداول",
+    to: "/account/support/faq",
   },
   {
     description: "سوالتان بی‌پاسخ ماند؟ تماس بگیرید",

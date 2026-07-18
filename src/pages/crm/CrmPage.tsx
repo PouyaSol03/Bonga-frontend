@@ -19,6 +19,7 @@ import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
 import { useMyProfileQuery } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../routes/RouteLink";
@@ -1235,21 +1236,25 @@ function consultantStatusValue(consultant: CrmRecord): CrmConsultantStatus {
       ?? "pending",
   ).trim().toLowerCase();
 
-  // Keep legacy numeric responses readable, but always send string statuses.
-  if (rawStatus === "1" || rawStatus === "approved") return "approved";
-  if (rawStatus === "2" || rawStatus === "rejected") return "rejected";
+  // Read older API values safely, but only send the current string contract.
+  if (rawStatus === "1" || rawStatus === "accept" || rawStatus === "accepted" || rawStatus === "approved") {
+    return "accept";
+  }
+  if (rawStatus === "2" || rawStatus === "reject" || rawStatus === "rejected") {
+    return "reject";
+  }
   return "pending";
 }
 
 function consultantStatusLabel(status: CrmConsultantStatus) {
-  if (status === "approved") return "تأیید شده";
-  if (status === "rejected") return "رد شده";
+  if (status === "accept") return "تأیید شده";
+  if (status === "reject") return "رد شده";
   return "در انتظار";
 }
 
 function consultantStatusTone(status: CrmConsultantStatus) {
-  if (status === "approved") return "text-[#0b8b55]";
-  if (status === "rejected") return "text-[#cc3342]";
+  if (status === "accept") return "text-[#0b8b55]";
+  if (status === "reject") return "text-[#cc3342]";
   return "text-[#a06a00]";
 }
 
@@ -1281,6 +1286,7 @@ function buildCrmConsultantPayload(
 function ConsultantsView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search.trim(), 350);
   const [statusFilter, setStatusFilter] = useState("");
   const [agencyOnly, setAgencyOnly] = useState(false);
   const [agencyIdFilter, setAgencyIdFilter] = useState("");
@@ -1288,10 +1294,10 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
     () => ({
       agencyId: agencyOnly ? agencyIdFilter : "",
       agencyOnly,
-      search: search.trim(),
+      search: debouncedSearch,
       status: statusFilter,
     }),
-    [agencyIdFilter, agencyOnly, search, statusFilter],
+    [agencyIdFilter, agencyOnly, debouncedSearch, statusFilter],
   );
   const [editor, setEditor] = useState<EditorState | null>(null);
 
@@ -1413,12 +1419,11 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           name: "status",
           options: [
             { label: "انتخاب وضعیت", value: "" },
-            { label: "در انتظار", value: "pending" },
-            { label: "تأیید شده", value: "approved" },
-            { label: "رد شده", value: "rejected" },
+            { label: "تأیید شده", value: "accept" },
+            { label: "رد شده", value: "reject" },
           ],
           type: "select" as const,
-          value: currentStatus,
+          value: currentStatus === "pending" ? "" : currentStatus,
         }] : []),
       ],
       onSubmit: async (values) => {
@@ -1426,8 +1431,8 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
 
         if (id) {
           const selectedStatus = values.status;
-          if (selectedStatus !== "pending" && selectedStatus !== "approved" && selectedStatus !== "rejected") {
-            throw new Error("یک وضعیت معتبر برای مشاور انتخاب کنید.");
+          if (selectedStatus !== "accept" && selectedStatus !== "reject") {
+            throw new Error("وضعیت مشاور را روی تأیید شده یا رد شده قرار دهید.");
           }
 
           await saveMutation.mutateAsync({
@@ -1488,8 +1493,8 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
             <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="">همه وضعیت‌ها</option>
               <option value="pending">در انتظار</option>
-              <option value="approved">تأیید شده</option>
-              <option value="rejected">رد شده</option>
+              <option value="accept">تأیید شده</option>
+              <option value="reject">رد شده</option>
             </CrmSelect>
           </FilterField>
 
@@ -1568,10 +1573,10 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
                           <div className="flex items-center gap-2">
                             <SwitchButton
                               ariaLabel={`تغییر وضعیت ${fullName(consultant)}`}
-                              checked={status === "approved"}
+                              checked={status === "accept"}
                               onChange={() => statusMutation.mutate({
                                 consultant,
-                                status: status === "approved" ? "rejected" : "approved",
+                                status: status === "accept" ? "reject" : "accept",
                               })}
                             />
                             <span className={`text-xs font-bold ${consultantStatusTone(status)}`}>

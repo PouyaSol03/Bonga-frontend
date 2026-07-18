@@ -4,11 +4,8 @@ import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid
 import { TopBar } from "../../../components/TopBar";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import { useSearchHistoryQuery } from "../../../hooks/search-history.hooks";
-import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
 import { initialRecentSearches, initialSavedSearches } from "../../home/homeData";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
-
-const SEARCH_DEBOUNCE_MS = 350;
 
 type SearchMapSearchScreenProps = {
   initialQuery?: string;
@@ -37,9 +34,10 @@ export function SearchMapSearchScreen({
   const [view, setView] = useState<"search" | "saved">(initialView);
   const wasOpenRef = useRef(false);
   const lastPublishedQueryRef = useRef(normalizeQuery(initialQuery));
-  const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
+  const normalizedInitialQuery = normalizeQuery(initialQuery);
   const normalizedQuery = normalizeQuery(query);
-  const normalizedDebouncedQuery = normalizeQuery(debouncedQuery);
+  const shouldSyncQueryFromUrl =
+    normalizedInitialQuery !== lastPublishedQueryRef.current;
   const isAuthenticated = Boolean(getStoredAuthSession());
   const { data: apiRecentSearches = [], isLoading: isRecentSearchLoading } =
     useSearchHistoryQuery({
@@ -67,19 +65,11 @@ export function SearchMapSearchScreen({
   }, [initialQuery, initialView, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || view !== "search") return;
-    if (normalizedDebouncedQuery.length < minSearchQueryLength) return;
-    if (normalizedDebouncedQuery === lastPublishedQueryRef.current) return;
+    if (!isOpen || !wasOpenRef.current || !shouldSyncQueryFromUrl) return;
 
-    lastPublishedQueryRef.current = normalizedDebouncedQuery;
-    onQueryChange(normalizedDebouncedQuery);
-  }, [
-    isOpen,
-    minSearchQueryLength,
-    normalizedDebouncedQuery,
-    onQueryChange,
-    view,
-  ]);
+    setQuery(initialQuery);
+    lastPublishedQueryRef.current = normalizedInitialQuery;
+  }, [initialQuery, isOpen, normalizedInitialQuery, shouldSyncQueryFromUrl]);
 
   const publishQuery = (nextQuery: string, closeAfterPublish = false) => {
     const normalized = normalizeQuery(nextQuery);
@@ -94,12 +84,12 @@ export function SearchMapSearchScreen({
 
   const updateQuery = (nextQuery: string) => {
     setQuery(nextQuery);
+    const normalized = normalizeQuery(nextQuery);
 
-    if (normalizeQuery(nextQuery)) return;
-    if (lastPublishedQueryRef.current === "") return;
+    if (normalized === lastPublishedQueryRef.current) return;
 
-    lastPublishedQueryRef.current = "";
-    onQueryChange("");
+    lastPublishedQueryRef.current = normalized;
+    onQueryChange(normalized);
   };
 
   const closeScreen = () => {

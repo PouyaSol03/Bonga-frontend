@@ -204,29 +204,30 @@ function SupportRequestTabs({
   onChange: (filter: SupportRequestFilter) => void;
 }) {
   return (
-    <div className="border-b border-[#e6e6e6] bg-white px-3 py-2">
-      <div className="grid h-9 grid-cols-4 gap-1 rounded-lg border border-[#1473e6] bg-white p-0.5">
-        {filters.map((filter) => {
-          const isActive = activeFilter === filter.id;
+    <nav
+      aria-label="فیلتر وضعیت درخواست‌ها"
+      className="flex h-[52px] shrink-0 gap-2 overflow-x-auto border-b border-[#e6e6e6] bg-white px-3 py-2 [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      {filters.map((filter) => {
+        const isActive = activeFilter === filter.id;
 
-          return (
-            <button
-              aria-pressed={isActive}
-              className={`min-w-0 rounded-md px-1 text-[11px] font-medium leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0048c4] ${
-                isActive
-                  ? "bg-[#1268d8] text-white"
-                  : "bg-white text-[#1a1a1a] active:bg-[#edf4ff]"
-              }`}
-              key={filter.id}
-              onClick={() => onChange(filter.id)}
-              type="button"
-            >
-              <span className="block truncate">{filter.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+        return (
+          <button
+            aria-pressed={isActive}
+            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-[#0048c440] ${
+              isActive
+                ? "border-[#1268d8] bg-[#eaf1ff] text-[#0048c4]"
+                : "border-[#d6d6d6] bg-white text-[#4d4d4d] active:bg-[#f5f5f5]"
+            }`}
+            key={filter.id}
+            onClick={() => onChange(filter.id)}
+            type="button"
+          >
+            {filter.label}
+          </button>
+        );
+      })}
+    </nav>
   );
 }
 

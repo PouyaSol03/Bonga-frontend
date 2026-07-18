@@ -8,7 +8,7 @@ export type CrmAdvertiseFilters = {
 };
 
 export type CrmConsultantType = "independent" | "dependent";
-export type CrmConsultantStatus = "pending" | "approved" | "rejected";
+export type CrmConsultantStatus = "pending" | "accept" | "reject";
 
 export type CrmAgentFilters = {
   type?: CrmConsultantType;
@@ -358,15 +358,31 @@ export async function listCrmPackages() {
   return normalizeRows(await api.get("panel/packages").json<unknown>());
 }
 
+export async function getCrmPackage(id: string) {
+  return unwrapRecord(
+    await api.get(`panel/packages/${encodeURIComponent(id)}`).json<unknown>(),
+    ["package", "data", "result"],
+  );
+}
+
 export function saveCrmPackage(id: string | null, payload: CrmPackagePayload) {
   const request = id
-    ? api.patch(`panel/packages/${id}`, { json: payload })
+    ? api.patch(`panel/packages/${encodeURIComponent(id)}`, { json: payload })
     : api.post("panel/packages", { json: payload });
   return request.json<unknown>();
 }
 
 export function deleteCrmPackage(id: string) {
-  return api.delete(`panel/packages/${id}`).json<unknown>();
+  return api.delete(`panel/packages/${encodeURIComponent(id)}`).json<unknown>();
+}
+
+export async function updateCrmPackageStatus(id: string, isActive: boolean) {
+  return unwrapRecord(
+    await api.patch(`panel/packages/${encodeURIComponent(id)}/status`, {
+      json: { is_active: isActive },
+    }).json<unknown>(),
+    ["package", "data", "result"],
+  );
 }
 
 export async function listCrmCheckoutProducts() {

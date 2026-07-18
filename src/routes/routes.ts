@@ -48,6 +48,7 @@ const AccountSupportChatPage = lazyNamed(() => import('../pages/account/AccountS
 const AccountSupportNewChatPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportNewChatPage')
 const AccountSupportRequestsPage = lazyNamed(() => import('../pages/account/AccountSupportRequestsPage'), 'AccountSupportRequestsPage')
 const AccountSupportNewRequestPage = lazyNamed(() => import('../pages/account/AccountSupportRequestsPage'), 'AccountSupportNewRequestPage')
+const AccountSupportFaqPage = lazyNamed(() => import('../pages/account/AccountSupportFaqPage'), 'AccountSupportFaqPage')
 const AccountWalletHistoryPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletHistoryPage')
 const AccountWalletPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletPage')
 const IndependentConsultantRankingPage = lazyNamed(() => import('../pages/account/IndependentConsultantRankingPage'), 'IndependentConsultantRankingPage')
@@ -277,6 +278,12 @@ export const routes: AppRoute[] = [
     path: '/account/support/requests/new',
     title: 'ایجاد درخواست',
     Component: AccountSupportNewRequestPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/support/faq',
+    title: 'سوالات متداول',
+    Component: AccountSupportFaqPage,
     requiresAuth: true,
   },
   {

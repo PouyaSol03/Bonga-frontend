@@ -994,22 +994,12 @@ export function SearchMapPage() {
 
   const handleSearchResult = useCallback((item: { title: string }) => {
     const params = getSearchParams();
-    const cityId = params.get("city_id") || "";
 
     params.set("query", item.title);
     params.delete("qsearch");
     params.delete("q");
-
-    if (cityId) {
-      params.set("city_id", cityId);
-    }
-
-    params.delete("focus");
-    params.delete("categoryId");
-    params.delete("view");
     setIsSearchOpen(false);
     setSelectedListingId(null);
-    setMode("map");
     writeSearchParams(params, { replace: true });
     setSearchSnapshot(window.location.search);
   }, []);
@@ -1030,10 +1020,7 @@ export function SearchMapPage() {
 
     params.delete("qsearch");
     params.delete("q");
-    params.delete("focus");
-    params.delete("view");
     setSelectedListingId(null);
-    setMode("map");
     writeSearchParams(params, { replace: true });
     setSearchSnapshot(window.location.search);
   }, []);

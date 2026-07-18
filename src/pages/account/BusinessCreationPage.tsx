@@ -10,7 +10,7 @@ import {
   USER,
 } from "../../constants/roles.constants";
 import { getMyProfile } from "../../services/account.service";
-import { useCreateMyAgencyMutation } from "../../hooks/account.hooks";
+import { useCreateMyAgencyMutation, useCreateMyAgentMutation } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
@@ -223,6 +223,14 @@ function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
 }
 
+function normalizePhoneDigits(value: string) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/\s+/g, "")
+    .trim();
+}
+
 function getBusinessTypePath(type: BusinessType) {
   return type === "agency"
     ? "/account/business/create/agency"
@@ -372,6 +380,57 @@ export function AgencyBusinessCreationPage() {
 export function IndependentConsultantBusinessCreationPage() {
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [toast, setToast] = useState<BusinessToast | null>(null);
+  const createAgentMutation = useCreateMyAgentMutation();
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => setToast(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const handleSubmitAgent = async () => {
+    createAgentMutation.reset();
+
+    const trimmedFullName = fullName.trim();
+    const normalizedMobile = normalizePhoneDigits(mobile);
+
+    if (!trimmedFullName) {
+      setToast({
+        message: "نام و نام خانوادگی مشاور الزامی است.",
+        title: "خطا",
+        variant: "error",
+      });
+      return false;
+    }
+
+    if (!normalizedMobile) {
+      setToast({
+        message: "شماره همراه الزامی است.",
+        title: "خطا",
+        variant: "error",
+      });
+      return false;
+    }
+
+    try {
+      await createAgentMutation.mutateAsync({
+        full_name: trimmedFullName,
+        mobile: normalizedMobile,
+      });
+
+      return true;
+    } catch (error) {
+      setToast({
+        message: getApiErrorMessage(error, "ایجاد کسب و کار با خطا مواجه شد."),
+        title: "خطا",
+        variant: "error",
+      });
+      return false;
+    }
+  };
 
   return (
     <BusinessFormPage
@@ -400,6 +459,10 @@ export function IndependentConsultantBusinessCreationPage() {
           </div>
         </>
       }
+      isSubmitting={createAgentMutation.isPending}
+      onDismissToast={() => setToast(null)}
+      onSubmit={handleSubmitAgent}
+      toast={toast}
     />
   );
 }

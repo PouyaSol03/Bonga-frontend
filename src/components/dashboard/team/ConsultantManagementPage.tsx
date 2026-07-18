@@ -1,4 +1,4 @@
-import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
 import LinearCancel from "../../(icons)/LinearCancel";
 import LinearDelete from "../../(icons)/LinearDelete";
@@ -13,23 +13,36 @@ import LinearUserSolid from "../../(icons)/LinearUserSolid";
 import { RadioIndicator } from "../../RadioIndicator";
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { FormChoiceChip } from "../../form/FormControls";
+import { Snackbar } from "../../Snackbar";
 import { TopBar } from "../../TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
-import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
-import type { AgencyConsultantDto } from "../../../services/agency.service";
+import { getApiErrorMessage } from "../../../api/api";
+import {
+  useAddAgencyConsultantMutation,
+  useAgencyConsultantsQuery,
+  usePublicAgentsQuery,
+} from "../../../hooks/agency.hooks";
+import type {
+  AgencyConsultantDto,
+  AgencyConsultantPermissions,
+} from "../../../services/agency.service";
 
 type ConsultantStatus = "active" | "pending";
 
 export type TeamConsultant = {
+  adQuota?: number;
   id: number;
   name: string;
   avatarSrc?: string;
   phone: string;
+  permissions?: AgencyConsultantPermissions;
+  renewQuota?: number;
   roleLabel?: string;
   roleId?: number;
   isActive?: boolean;
   rankingScore?: number;
+  specialQuota?: number;
   status: ConsultantStatus;
   scores: {
     ads: number;
@@ -56,14 +69,18 @@ export function mapAgencyConsultantToTeamConsultant(
   consultant: AgencyConsultantDto,
 ): TeamConsultant {
   return {
+    adQuota: consultant.adQuota,
     avatarSrc: consultant.avatar,
     id: consultant.userId,
     isActive: consultant.isActive,
     name: consultant.name,
+    permissions: consultant.permissions,
     phone: consultant.mobile,
+    renewQuota: consultant.renewQuota,
     roleLabel: getTeamRoleLabel(consultant.role),
     roleId: consultant.roleId,
     rankingScore: consultant.metrics.rankingScore,
+    specialQuota: consultant.specialQuota,
     scores: {
       ads: consultant.metrics.publishedAdvertises,
       rocket: consultant.metrics.specialUsed,
@@ -115,27 +132,13 @@ export const teamConsultants: TeamConsultant[] = [
   },
 ];
 
-const consultantSearchResults = [
-  {
-    id: 1,
-    name: "ناصر اشرفی",
-    phone: "09154884578",
-    avatarSrc: "/figma/consultants/consultant-naser.png",
-  },
-  {
-    id: 2,
-    name: "محمدرضا میرزایی",
-    phone: "09154884578",
-    avatarSrc: "/figma/consultants/consultant-mohammad.png",
-  },
-];
 
 export const managerAccessItems = [
   { id: "ads", label: "مدیریت آگهی‌ها" },
   { id: "consultants", label: "مدیریت مشاورین" },
   { id: "requests", label: "مدیریت درخواست‌ها" },
   { id: "payments", label: "مدیریت اعتبار" },
-  { id: "پشتیبانی", label: "پشتیبانی" },
+  { id: "support", label: "پشتیبانی" },
 ];
 
 const consultantTeamPaths = {
@@ -271,23 +274,87 @@ export function ConsultantManagementPage() {
 
 export function AddConsultantPage() {
   const [searchValue, setSearchValue] = useState("");
-  const [selectedConsultantId, setSelectedConsultantId] = useState<number | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedConsultantId, setSelectedConsultantId] = useState<string | null>(null);
   const [accessRole, setAccessRole] = useState<AccessRole>("consultant");
   const [managerAccess, setManagerAccess] = useState<string[]>(["ads", "requests"]);
+  const [adQuota, setAdQuota] = useState(0);
+  const [updateQuota, setUpdateQuota] = useState(0);
+  const [specialQuota, setSpecialQuota] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+  const addConsultantMutation = useAddAgencyConsultantMutation();
 
-  const normalizedSearch = searchValue.trim();
-  const hasSearch = normalizedSearch.length > 0;
-  const visibleResults = hasSearch
-    ? consultantSearchResults.filter((consultant) =>
-      `${consultant.name} ${consultant.phone}`.includes(normalizedSearch),
-    )
-    : [];
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchValue.trim());
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [searchValue]);
+
+  useEffect(() => {
+    if (!errorMessage) return;
+
+    const timer = window.setTimeout(() => setErrorMessage(""), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [errorMessage]);
+
+  const hasSearch = searchValue.trim().length > 0;
+  const publicAgentsQuery = usePublicAgentsQuery({
+    enabled: debouncedSearch.length > 0,
+    page: 1,
+    perPage: 100,
+    search: debouncedSearch,
+  });
+  const isSearchReady = hasSearch && searchValue.trim() === debouncedSearch;
+  const visibleResults = isSearchReady ? publicAgentsQuery.data?.data ?? [] : [];
 
   const toggleManagerAccess = (id: string) => {
     setManagerAccess((current) =>
       current.includes(id)
         ? current.filter((item) => item !== id)
         : [...current, id],
+    );
+  };
+
+  const handleAddConsultant = () => {
+    if (!selectedConsultantId) {
+      setErrorMessage("ابتدا یک مشاور را از نتیجه جستجو انتخاب کنید.");
+      return;
+    }
+
+    const permissions: Record<string, boolean> =
+      accessRole === "manager"
+        ? {
+            manage_advertises: managerAccess.includes("ads"),
+            manage_consultants: managerAccess.includes("consultants"),
+            manage_credits: managerAccess.includes("payments"),
+            manage_requests: managerAccess.includes("requests"),
+            support: managerAccess.includes("support"),
+          }
+        : {};
+
+    addConsultantMutation.mutate(
+      {
+        adQuota,
+        permissions,
+        renewQuota: updateQuota,
+        role: accessRole,
+        specialQuota,
+        userId: selectedConsultantId,
+      },
+      {
+        onError: (error) => {
+          setErrorMessage(
+            getApiErrorMessage(error, "اضافه کردن مشاور با خطا مواجه شد."),
+          );
+        },
+        onSuccess: () => {
+          window.history.pushState({}, "", "/account/dashboard/team");
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        },
+      },
     );
   };
 
@@ -303,6 +370,15 @@ export function AddConsultantPage() {
         title="انتخاب مشاور"
         titleClassName="text-center text-sm font-semibold leading-5"
       />
+
+      {errorMessage ? (
+        <Snackbar
+          message={errorMessage}
+          onDismiss={() => setErrorMessage("")}
+          title="خطا"
+          variant="error"
+        />
+      ) : null}
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-24">
         <div className="bg-white px-4 pb-5 pt-3">
@@ -350,18 +426,24 @@ export function AddConsultantPage() {
                       type="button"
                     >
                       <div className="flex flex-1 gap-x-2">
-                        <img
-                          alt=""
-                          className="h-11 w-11 shrink-0 rounded-full object-cover"
-                          draggable={false}
-                          src={consultant.avatarSrc}
-                        />
+                        {consultant.avatar ? (
+                          <img
+                            alt=""
+                            className="h-11 w-11 shrink-0 rounded-full object-cover"
+                            draggable={false}
+                            src={consultant.avatar}
+                          />
+                        ) : (
+                          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
+                            <LinearUserSolid className="h-6 w-6" />
+                          </span>
+                        )}
                         <div className="flex flex-col justify-center">
                           <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
-                            {consultant.name}
+                            {consultant.fullName}
                           </span>
                           <span className="block text-xs font-medium text-[#808080]">
-                            {consultant.phone}
+                            {consultant.mobile ?? ""}
                           </span>
                         </div>
                       </div>
@@ -420,16 +502,42 @@ export function AddConsultantPage() {
               })}
             </div>
           </section>
+
+          <section className="grid gap-4 border-t border-[#f0f0f0] bg-white px-4 py-5">
+            <QuotaStepper
+              label="سهمیه آگهی"
+              remaining="باقیمانده سهمیه آژانس: ۱۹۵"
+              remainingClassName="text-[#0048c4]"
+              setValue={setAdQuota}
+              value={adQuota}
+            />
+            <QuotaStepper
+              label="سهمیه بروزرسانی"
+              remaining="باقیمانده سهمیه آژانس: ۹۳"
+              remainingClassName="text-[#11a366]"
+              setValue={setUpdateQuota}
+              value={updateQuota}
+            />
+            <QuotaStepper
+              label="سهمیه ویژه"
+              remaining="باقیمانده سهمیه آژانس: ۱۹۵"
+              remainingClassName="text-[#ff6d00]"
+              setValue={setSpecialQuota}
+              value={specialQuota}
+            />
+          </section>
         </div>
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <button
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white transition"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white transition disabled:bg-[#b3c8ef]"
+          disabled={addConsultantMutation.isPending}
+          onClick={handleAddConsultant}
           type="button"
         >
           <span className="text-[13px] leading-none">+</span>
-          اضافه کن
+          {addConsultantMutation.isPending ? "در حال افزودن..." : "اضافه کن"}
         </button>
       </div>
     </section>

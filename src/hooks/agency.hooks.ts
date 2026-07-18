@@ -3,13 +3,18 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
+  addMyAgencyConsultant,
   deactivateMyAgencyConsultant,
   getMyAgencyConsultant,
   getMyAgencyConsultants,
   getPublicAgencies,
+  getPublicAgencyDetail,
+  getPublicAgents,
+  getPublicAgentDetail,
   updateMyAgencyConsultant,
   type AgencySort,
   type PublicAgencyPage,
+  type PublicAgentsPage,
 } from "../services/agency.service";
 
 export function useAgencyConsultantQuery({
@@ -70,6 +75,47 @@ export function useDeactivateAgencyConsultantMutation() {
   });
 }
 
+export function useAddAgencyConsultantMutation() {
+  return useMutation({
+    mutationFn: addMyAgencyConsultant,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencies.all,
+      });
+    },
+  });
+}
+
+
+
+export function usePublicAgencyDetailQuery({
+  enabled = true,
+  id,
+}: {
+  enabled?: boolean;
+  id?: number | string;
+}) {
+  return useQuery({
+    enabled: enabled && id !== undefined && String(id).trim().length > 0,
+    queryFn: () => getPublicAgencyDetail(id as number | string),
+    queryKey: [...queryKeys.agencies.all, "public-detail", String(id ?? "")],
+  });
+}
+
+export function usePublicAgentDetailQuery({
+  enabled = true,
+  id,
+}: {
+  enabled?: boolean;
+  id?: number | string;
+}) {
+  return useQuery({
+    enabled: enabled && id !== undefined && String(id).trim().length > 0,
+    queryFn: () => getPublicAgentDetail(id as number | string),
+    queryKey: [...queryKeys.agencies.all, "public-agent-detail", String(id ?? "")],
+  });
+}
+
 export type AgencyInfiniteQueryParams = {
   enabled?: boolean;
   neighborhoodId?: string;
@@ -109,6 +155,74 @@ export function useAgencyInfiniteQuery({
       perPage,
       search,
       sort,
+    }),
+  });
+}
+
+export function usePublicAgentsQuery({
+  agencyId,
+  enabled = true,
+  page = 1,
+  perPage = 20,
+  search = "",
+}: {
+  agencyId?: number | string;
+  enabled?: boolean;
+  page?: number;
+  perPage?: number;
+  search?: string;
+} = {}) {
+  return useQuery({
+    enabled,
+    queryFn: () =>
+      getPublicAgents({
+        agencyId,
+        page,
+        perPage,
+        search,
+      }),
+    queryKey: queryKeys.agencies.publicAgents({
+      agencyId,
+      page,
+      perPage,
+      search,
+    }),
+  });
+}
+
+export function usePublicAgentsInfiniteQuery({
+  agencyId,
+  enabled = true,
+  perPage = 20,
+  search = "",
+}: {
+  agencyId?: number | string;
+  enabled?: boolean;
+  perPage?: number;
+  search?: string;
+} = {}) {
+  return useInfiniteQuery<
+    PublicAgentsPage,
+    Error,
+    { pages: PublicAgentsPage[]; pageParams: number[] },
+    ReturnType<typeof queryKeys.agencies.publicAgents>,
+    number
+  >({
+    enabled,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getPublicAgents({
+        agencyId,
+        page: pageParam,
+        perPage,
+        search,
+      }),
+    queryKey: queryKeys.agencies.publicAgents({
+      agencyId,
+      perPage,
+      search,
     }),
   });
 }

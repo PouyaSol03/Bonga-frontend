@@ -22,6 +22,20 @@ export const queryKeys = {
         filters.page,
         filters.perPage,
       ] as const,
+    publicAgents: (filters: {
+      agencyId?: number | string;
+      page?: number;
+      perPage: number;
+      search?: string;
+    }) =>
+      [
+        ...queryKeys.agencies.all,
+        "public-agents",
+        String(filters.agencyId ?? ""),
+        filters.search ?? "",
+        filters.page ?? "infinite",
+        filters.perPage,
+      ] as const,
     list: (filters: {
       neighborhoodId?: string;
       perPage: number;

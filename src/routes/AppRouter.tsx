@@ -130,6 +130,7 @@ function shouldRequireIdentityForPath(path: string) {
   if (path === '/account/profile') return false
   if (path === '/account/identity') return false
   if (path === '/account/about') return false
+  if (path.startsWith('/account/support')) return false
   if (path === '/login' || path.startsWith('/login/')) return false
 
   return (
@@ -244,6 +245,7 @@ type AppChromeConfig = {
 }
 
 function getBottomNavigationKey(path: string) {
+  if (path.startsWith('/account/support')) return undefined
   if (path === '/home') return 'home'
   if (path.startsWith('/search')) return 'search'
   if (path === '/chat') return 'chat'
@@ -310,6 +312,8 @@ function getAccountFallbackBackTo(path: string) {
 }
 
 function getRouteTopBar(path: string, title: string): TopBarProps | undefined {
+  if (path.startsWith('/account/support')) return undefined
+
   if (path === '/login') {
     return { showBack: false, title }
   }

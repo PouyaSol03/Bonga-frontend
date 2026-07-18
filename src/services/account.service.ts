@@ -125,6 +125,11 @@ export type CreateMyAgencyPayload = {
   neighborhood_ids: string[];
 };
 
+export type CreateMyAgentPayload = {
+  full_name: string;
+  mobile: string;
+};
+
 export type MyAgencyProfile = {
   _id?: string | number;
   id?: string | number;
@@ -359,6 +364,17 @@ export function createMyAgency(payload: CreateMyAgencyPayload) {
       },
     })
     .json<ApiDataResponse<unknown>>();
+}
+
+export function createMyAgent(payload: CreateMyAgentPayload) {
+  return api.post("me/agent/create", {
+    context: { allowNonJsonResponse: true },
+    headers: { Accept: "*/*" },
+    json: {
+      full_name: payload.full_name.trim(),
+      mobile: payload.mobile.trim(),
+    },
+  });
 }
 
 function appendAgencyFormValue(

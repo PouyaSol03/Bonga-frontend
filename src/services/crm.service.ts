@@ -7,8 +7,25 @@ export type CrmAdvertiseFilters = {
   trackCode?: string;
 };
 
+export type CrmConsultantType = "independent" | "dependent";
+export type CrmConsultantStatus = "pending" | "approved" | "rejected";
+
 export type CrmAgentFilters = {
+  type?: CrmConsultantType;
+  status?: CrmConsultantStatus;
   search?: string;
+  page?: number;
+  perPage?: number;
+  agencyId?: string;
+};
+
+export type CrmConsultantPayload = {
+  name: string;
+  family: string;
+  mobile: string;
+  status: CrmConsultantStatus;
+  type: CrmConsultantType;
+  agency_id: string | number | null;
 };
 
 export type CrmAdvertisePayload = {
@@ -208,17 +225,24 @@ export async function listCrmPayments(filters: CrmPaymentFilters = {}): Promise<
 }
 
 export async function listCrmAgents(filters: CrmAgentFilters = {}) {
-  const search = filters.search?.trim();
-
   return normalizeRows(
-    await api.get("panel/agents", {
+    await api.get("panel/consultant/list", {
       searchParams: compactSearchParams({
-        page: 1,
-        per_page: 100,
-        search,
+        type: filters.type,
+        status: filters.status,
+        search: filters.search?.trim(),
+        page: filters.page ?? 1,
+        per_page: filters.perPage ?? 100,
+        agency_id: filters.agencyId?.trim(),
       }),
     }).json<unknown>(),
   );
+}
+
+export function updateCrmConsultant(id: string, payload: CrmConsultantPayload) {
+  return api
+    .patch(`panel/consultant/${encodeURIComponent(id)}`, { json: payload })
+    .json<unknown>();
 }
 
 export async function listCrmAgencyAgents(agencyId: string) {

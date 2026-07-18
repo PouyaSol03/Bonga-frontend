@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
-import { useAgencyInfiniteQuery } from "../hooks/agency.hooks";
+import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../hooks/agency.hooks";
 import { useNeighborhoodListQuery } from "../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../lib/selectedCityStorage";
-import type { AgencySort, PublicAgencyDto } from "../services/agency.service";
+import type { AgencySort, PublicAgencyDto, PublicAgentListDto } from "../services/agency.service";
 import type { NeighborhoodDto } from "../services/neighborhood.service";
 
 type DirectoryMode = "agency" | "consultant";
@@ -75,43 +75,16 @@ function mapAgencyToDirectoryItem(agency: PublicAgencyDto): DirectoryItem {
   };
 }
 
-const consultantItems: DirectoryItem[] = [
-  {
-    badge: "مشاور مستقل",
-    image: "/figma/consultants/consultant-naser.png",
-    name: "ناصر اشرفی",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    badge: "مشاور آژانس تمدن",
-    image: "/figma/consultants/consultant-mohammad.png",
-    name: "محمد اسماعیلی",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    badge: "مشاور آژانس مال مشهد",
-    image: "/figma/consultants/consultant-alireza.png",
-    name: "علیرضا خراسانی",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    badge: "مشاور مستقل",
-    image: "/figma/consultants/consultant-hamed.png",
-    name: "حامد تهرانی مقدم",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-  {
-    badge: "مشاور مستقل",
-    image: "/figma/consultants/consultant-khashayar.png",
-    name: "خشایار عبداللی",
-    rank: "۱۲",
-    score: "۸۵",
-  },
-];
+function mapAgentToDirectoryItem(agent: PublicAgentListDto): DirectoryItem {
+  return {
+    badge: agent.agency?.name ? `مشاور ${agent.agency.name}` : "مشاور",
+    id: agent.id,
+    image: agent.avatar,
+    name: agent.fullName,
+    rank: toPersianNumber(agent.rank ?? 0),
+    score: toPersianNumber(agent.score ?? 0),
+  };
+}
 
 function getInitialMode(): DirectoryMode {
   const mode = new URLSearchParams(window.location.search).get("type");
@@ -150,6 +123,21 @@ function navigateToAgency(item: DirectoryItem) {
 
   const queryString = params.toString();
   const path = `/agencies/${encodeURIComponent(item.id)}${queryString ? `?${queryString}` : ""}`;
+
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function navigateToAgent(item: DirectoryItem) {
+  if (!item.id) return;
+
+  const params = new URLSearchParams();
+
+  if (item.name) params.set("name", item.name);
+  if (item.image) params.set("logo", item.image);
+
+  const queryString = params.toString();
+  const path = `/agents/${encodeURIComponent(item.id)}${queryString ? `?${queryString}` : ""}`;
 
   window.history.pushState({}, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
@@ -474,6 +462,7 @@ function DirectoryCardSkeleton() {
 
 export function ConsultantsDirectoryPage() {
   const [mode, setMode] = useState<DirectoryMode>(getInitialMode);
+  const [isModeSheetOpen, setIsModeSheetOpen] = useState(false);
   const [isNeighborhoodSheetOpen, setIsNeighborhoodSheetOpen] = useState(false);
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
   const [neighborhoodQuery, setNeighborhoodQuery] = useState("");
@@ -505,6 +494,11 @@ export function ConsultantsDirectoryPage() {
     search: debouncedSearch,
     sort: selectedSort ?? undefined,
   });
+  const agentsQuery = usePublicAgentsInfiniteQuery({
+    enabled: mode === "consultant",
+    perPage: agencyPageSize,
+    search: debouncedSearch,
+  });
   const agencyDirectoryItems = useMemo(
     () =>
       agenciesQuery.data?.pages.flatMap((page) =>
@@ -512,25 +506,22 @@ export function ConsultantsDirectoryPage() {
       ) ?? [],
     [agenciesQuery.data],
   );
-  const consultantDirectoryItems = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase("fa");
-
-    if (!normalizedSearch) return consultantItems;
-
-    return consultantItems.filter((item) =>
-      `${item.name} ${item.badge ?? ""}`
-        .toLocaleLowerCase("fa")
-        .includes(normalizedSearch),
-    );
-  }, [search]);
+  const consultantDirectoryItems = useMemo(
+    () =>
+      agentsQuery.data?.pages.flatMap((page) =>
+        page.data.map(mapAgentToDirectoryItem),
+      ) ?? [],
+    [agentsQuery.data],
+  );
   const items =
     mode === "agency" ? agencyDirectoryItems : consultantDirectoryItems;
   const selectedSortOption = sortOptions.find(
     (option) => option.id === selectedSort,
   );
   const neighborhoodChipLabel = selectedNeighborhood?.name ?? "محله";
-  const loadMoreTriggerIndex = Math.max(agencyDirectoryItems.length - 3, 0);
-  const AgencyErrorState = getRequestErrorState(agenciesQuery.error);
+  const loadMoreTriggerIndex = Math.max(items.length - 3, 0);
+  const activeQuery = mode === "agency" ? agenciesQuery : agentsQuery;
+  const DirectoryErrorState = getRequestErrorState(activeQuery.error);
 
   const loadMoreSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -539,9 +530,8 @@ export function ConsultantsDirectoryPage() {
 
       if (
         !node ||
-        mode !== "agency" ||
-        !agenciesQuery.hasNextPage ||
-        agenciesQuery.isFetchingNextPage
+        !activeQuery.hasNextPage ||
+        activeQuery.isFetchingNextPage
       ) {
         return;
       }
@@ -550,10 +540,10 @@ export function ConsultantsDirectoryPage() {
         (entries) => {
           if (
             entries[0]?.isIntersecting &&
-            agenciesQuery.hasNextPage &&
-            !agenciesQuery.isFetchingNextPage
+            activeQuery.hasNextPage &&
+            !activeQuery.isFetchingNextPage
           ) {
-            void agenciesQuery.fetchNextPage();
+            void activeQuery.fetchNextPage();
           }
         },
         { root: null, rootMargin: "240px 0px", threshold: 0 },
@@ -563,10 +553,9 @@ export function ConsultantsDirectoryPage() {
       loadMoreObserverRef.current = observer;
     },
     [
-      agenciesQuery.fetchNextPage,
-      agenciesQuery.hasNextPage,
-      agenciesQuery.isFetchingNextPage,
-      mode,
+      activeQuery.fetchNextPage,
+      activeQuery.hasNextPage,
+      activeQuery.isFetchingNextPage,
     ],
   );
 
@@ -580,6 +569,7 @@ export function ConsultantsDirectoryPage() {
   const handleModeChange = (nextMode: DirectoryMode) => {
     setMode(nextMode);
     setSearch("");
+    setIsModeSheetOpen(false);
     setIsNeighborhoodSheetOpen(false);
     setIsSortSheetOpen(false);
     setRouteMode(nextMode);
@@ -640,9 +630,7 @@ export function ConsultantsDirectoryPage() {
             active
             icon="chevron"
             label={mode === "agency" ? "آژانس" : "مشاور"}
-            onClick={() =>
-              handleModeChange(mode === "agency" ? "consultant" : "agency")
-            }
+            onClick={() => setIsModeSheetOpen(true)}
           />
           {mode === "agency" ? (
             <FilterChip
@@ -664,24 +652,22 @@ export function ConsultantsDirectoryPage() {
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white py-4 [-webkit-overflow-scrolling:touch]">
-        {mode === "agency" && agenciesQuery.isLoading ? (
+        {activeQuery.isLoading ? (
           <div className="space-y-4 pb-20">
             {Array.from({ length: 5 }, (_, index) => (
               <DirectoryCardSkeleton key={index} />
             ))}
           </div>
-        ) : mode === "agency" && agenciesQuery.isError && items.length === 0 ? (
-          <AgencyErrorState
+        ) : activeQuery.isError && items.length === 0 ? (
+          <DirectoryErrorState
             className="min-h-[420px]"
-            onRetry={() => void agenciesQuery.refetch()}
+            onRetry={() => void activeQuery.refetch()}
           />
         ) : items.length > 0 ? (
           <div className="space-y-4 pb-20">
             {items.map((item, index) => {
               const shouldAttachLoadMoreRef =
-                mode === "agency" &&
-                agenciesQuery.hasNextPage &&
-                index === loadMoreTriggerIndex;
+                activeQuery.hasNextPage && index === loadMoreTriggerIndex;
 
               return (
                 <div
@@ -692,15 +678,17 @@ export function ConsultantsDirectoryPage() {
                     item={item}
                     mode={mode}
                     onClick={
-                      mode === "agency" && item.id
-                        ? () => navigateToAgency(item)
+                      item.id
+                        ? mode === "agency"
+                          ? () => navigateToAgency(item)
+                          : () => navigateToAgent(item)
                         : undefined
                     }
                   />
                 </div>
               );
             })}
-            {mode === "agency" && agenciesQuery.isFetchingNextPage ? (
+            {activeQuery.isFetchingNextPage ? (
               <>
                 <DirectoryCardSkeleton />
                 <DirectoryCardSkeleton />
@@ -731,6 +719,43 @@ export function ConsultantsDirectoryPage() {
           <MapLocationIcon />
         </button>
       ) : null}
+
+
+      <BottomSheet
+        ariaLabel="انتخاب نوع نمایش"
+        className="rounded-t-[20px]"
+        contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
+        heightClassName="h-[240px]"
+        isOpen={isModeSheetOpen}
+        onClose={() => setIsModeSheetOpen(false)}
+        title="نمایش مشاورین"
+      >
+        <div className="space-y-2 pt-2" dir="rtl">
+          {([
+            { id: "agency" as const, label: "آژانس" },
+            { id: "consultant" as const, label: "مشاور" },
+          ]).map((option) => {
+            const checked = mode === option.id;
+
+            return (
+              <button
+                aria-pressed={checked}
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
+                  checked
+                    ? "bg-[#0048c40a] text-[#0048c4]"
+                    : "bg-white text-[#1a1a1a]"
+                }`}
+                key={option.id}
+                onClick={() => handleModeChange(option.id)}
+                type="button"
+              >
+                <span>{option.label}</span>
+                <RadioIndicator checked={checked} />
+              </button>
+            );
+          })}
+        </div>
+      </BottomSheet>
 
       <BottomSheet
         ariaLabel="انتخاب محله"

@@ -115,10 +115,16 @@ export function ConsultantRemovePage() {
             if (!selectedReplacement) return;
 
             deactivateConsultantMutation.mutate(
-              {
-                reason: `Consultant deactivated. Replacement target: ${getReplacementLabel(selectedReplacement)}`,
-                userId: consultantId,
-              },
+              selectedReplacement.kind === "agency"
+                ? {
+                    transferTo: "agency",
+                    userId: consultantId,
+                  }
+                : {
+                    transferTo: "member",
+                    transferUserId: selectedReplacement.consultant.id,
+                    userId: consultantId,
+                  },
               {
                 onSuccess: () => {
                   window.history.pushState({}, "", "/account/dashboard/team");

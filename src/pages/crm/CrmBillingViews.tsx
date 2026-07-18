@@ -181,6 +181,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<CrmRecord | null | undefined>(undefined);
   const [draft, setDraft] = useState<PackageDraft>(emptyDraft);
+  const [viewKind, setViewKind] = useState<CrmPackageKind>("panel_subscription");
 
   const query = useQuery({
     queryFn: listCrmPackages,
@@ -234,7 +235,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
   const open = (item: CrmRecord | null) => {
     if (!item) {
       setEditing(null);
-      setDraft(emptyDraft);
+      setDraft({ ...emptyDraft, kind: viewKind });
       return;
     }
 
@@ -248,6 +249,12 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
 
     detailMutation.mutate(id);
   };
+
+  const visiblePackages = (query.data ?? []).filter((item) =>
+    viewKind === "credit_bundle"
+      ? item.kind === "credit_bundle"
+      : item.kind !== "credit_bundle",
+  );
 
   return (
     <>
@@ -270,6 +277,35 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
           </motion.button>
         </div>
 
+        <div className="mt-5 grid h-11 max-w-md grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نمایش نوع بسته">
+          <button
+            aria-selected={viewKind === "panel_subscription"}
+            className={`text-sm font-bold transition ${
+              viewKind === "panel_subscription"
+                ? "bg-[#0048c4] text-white"
+                : "bg-white text-[#0048c4]"
+            }`}
+            onClick={() => setViewKind("panel_subscription")}
+            role="tab"
+            type="button"
+          >
+            اعتبار پنل
+          </button>
+          <button
+            aria-selected={viewKind === "credit_bundle"}
+            className={`border-r border-[#0048c4] text-sm font-bold transition ${
+              viewKind === "credit_bundle"
+                ? "bg-[#0048c4] text-white"
+                : "bg-white text-[#0048c4]"
+            }`}
+            onClick={() => setViewKind("credit_bundle")}
+            role="tab"
+            type="button"
+          >
+            بسته‌ها
+          </button>
+        </div>
+
         <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-3">
           {query.isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
@@ -283,8 +319,8 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                 <div className="mt-6 h-40 rounded-xl bg-[#eaf5ef]" />
               </div>
             ))
-          ) : query.data?.length ? (
-            query.data.map((item, index) => {
+          ) : visiblePackages.length ? (
+            visiblePackages.map((item, index) => {
               const id = packageRecordId(item);
               const isActive = item.is_active !== false;
               const isCreditBundle = item.kind === "credit_bundle";

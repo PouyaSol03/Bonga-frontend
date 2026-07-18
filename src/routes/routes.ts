@@ -43,6 +43,11 @@ const AccountNotesPage = lazyNamed(() => import('../pages/account/AccountSubPage
 const AccountProfilePage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountProfilePage')
 const AccountRecentViewsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountRecentViewsPage')
 const AccountRequestsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountRequestsPage')
+const AccountSupportPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportPage')
+const AccountSupportChatPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportChatPage')
+const AccountSupportNewChatPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportNewChatPage')
+const AccountSupportRequestsPage = lazyNamed(() => import('../pages/account/AccountSupportRequestsPage'), 'AccountSupportRequestsPage')
+const AccountSupportNewRequestPage = lazyNamed(() => import('../pages/account/AccountSupportRequestsPage'), 'AccountSupportNewRequestPage')
 const AccountWalletHistoryPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletHistoryPage')
 const AccountWalletPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletPage')
 const IndependentConsultantRankingPage = lazyNamed(() => import('../pages/account/IndependentConsultantRankingPage'), 'IndependentConsultantRankingPage')
@@ -243,6 +248,36 @@ export const routes: AppRoute[] = [
     path: '/account/about',
     title: 'درباره ما',
     Component: AccountAboutPage,
+  },
+  {
+    path: '/account/support',
+    title: 'پشتیبانی',
+    Component: AccountSupportPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/support/chat',
+    title: 'گفتگو با پشتیبانی',
+    Component: AccountSupportChatPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/support/chat/new',
+    title: 'شروع گفتگوی جدید',
+    Component: AccountSupportNewChatPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/support/requests',
+    title: 'درخواست‌های من',
+    Component: AccountSupportRequestsPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/support/requests/new',
+    title: 'ایجاد درخواست',
+    Component: AccountSupportNewRequestPage,
+    requiresAuth: true,
   },
   {
     path: '/account/delete-user',

@@ -151,7 +151,7 @@ const secondaryActions: AccountAction[] = [
   { icon: "setting", label: "تنظیمات", to: "/account/about" },
   { icon: "info", label: "درباره ما", to: "/account/about" },
   { icon: "legal", label: "ضوابط و قوانین", to: "/account/about" },
-  { icon: "headphone", label: "پشتیبانی", to: "/account/about" },
+  { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
 ];
 
 
@@ -357,6 +357,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
     { icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` },
     { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
     { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
+    { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
   ];
 
   if (role === REAL_ESTATE_MANAGER) {
@@ -371,6 +372,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
       { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
+      { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
     ];
   }
 
@@ -383,6 +385,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
       { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
       { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
+      { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
     ];
   }
 

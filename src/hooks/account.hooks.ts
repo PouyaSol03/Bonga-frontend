@@ -6,6 +6,7 @@ import {
   authorizeMe,
   chargeWallet,
   createMyAgency,
+  createMyAgent,
   deleteAdvertiseBadge,
   deleteAdvertiseNote,
   getAdvertiseBadges,
@@ -84,6 +85,20 @@ export function useCreateMyAgencyMutation() {
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.agencyProfile(),
+      });
+    },
+  });
+}
+
+export function useCreateMyAgentMutation() {
+  return useMutation({
+    mutationFn: createMyAgent,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.profile(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.all,
       });
     },
   });

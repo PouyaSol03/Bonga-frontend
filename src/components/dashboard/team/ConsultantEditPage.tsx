@@ -6,6 +6,7 @@ import {
   useAgencyConsultantQuery,
   useUpdateAgencyConsultantMutation,
 } from "../../../hooks/agency.hooks";
+import type { AgencyConsultantPermissions } from "../../../services/agency.service";
 import {
   AddConsultantRoleOption,
   ConsultantProfilePill,
@@ -17,27 +18,6 @@ import {
   type AccessRole,
 } from "./ConsultantManagementPage";
 
-const agencyConsultantRoleIds = {
-  consultant: 2,
-  manager: 1,
-} as const;
-
-function resolveAgencyConsultantRoleId(
-  accessRole: AccessRole,
-  consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
-) {
-  const currentRole = consultant.roleLabel?.trim();
-  const currentMatchesSelection =
-    (accessRole === "manager" && ["مدیر", "مدیر آژانس"].includes(currentRole ?? "")) ||
-    (accessRole === "consultant" && currentRole === "مشاور");
-
-  if (currentMatchesSelection && consultant.roleId !== undefined) {
-    return consultant.roleId;
-  }
-
-  return agencyConsultantRoleIds[accessRole];
-}
-
 function getAgencyConsultantAccessRole(
   consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
 ): AccessRole {
@@ -46,6 +26,46 @@ function getAgencyConsultantAccessRole(
     ["مدیر", "مدیر آژانس"].includes(consultant.roleLabel?.trim() ?? "")
     ? "manager"
     : "consultant";
+}
+
+function getManagerAccessFromPermissions(
+  permissions?: AgencyConsultantPermissions,
+) {
+  if (!permissions) return [];
+
+  return managerAccessItems
+    .filter((item) => {
+      switch (item.id) {
+        case "ads":
+          return permissions.manage_advertises;
+        case "consultants":
+          return permissions.manage_consultants;
+        case "requests":
+          return permissions.manage_requests;
+        case "payments":
+          return permissions.manage_credits;
+        case "support":
+          return permissions.support;
+        default:
+          return false;
+      }
+    })
+    .map((item) => item.id);
+}
+
+function buildManagerPermissions(
+  accessRole: AccessRole,
+  managerAccess: string[],
+): AgencyConsultantPermissions | Record<string, never> {
+  if (accessRole === "consultant") return {};
+
+  return {
+    manage_advertises: managerAccess.includes("ads"),
+    manage_consultants: managerAccess.includes("consultants"),
+    manage_credits: managerAccess.includes("payments"),
+    manage_requests: managerAccess.includes("requests"),
+    support: managerAccess.includes("support"),
+  };
 }
 
 export function ConsultantEditPage() {
@@ -59,10 +79,14 @@ export function ConsultantEditPage() {
   const [accessRole, setAccessRole] = useState<AccessRole>(() =>
     getAgencyConsultantAccessRole(routeConsultant),
   );
-  const [managerAccess, setManagerAccess] = useState<string[]>(["ads", "requests"]);
-  const [adQuota, setAdQuota] = useState(routeConsultant.scores.ads);
-  const [updateQuota, setUpdateQuota] = useState(routeConsultant.scores.steps);
-  const [specialQuota, setSpecialQuota] = useState(routeConsultant.scores.rocket);
+  const [managerAccess, setManagerAccess] = useState<string[]>(() =>
+    getManagerAccessFromPermissions(routeConsultant.permissions),
+  );
+  const [adQuota, setAdQuota] = useState(routeConsultant.adQuota ?? 0);
+  const [updateQuota, setUpdateQuota] = useState(routeConsultant.renewQuota ?? 0);
+  const [specialQuota, setSpecialQuota] = useState(
+    routeConsultant.specialQuota ?? 0,
+  );
 
   const isManager = accessRole === "manager";
 
@@ -74,9 +98,12 @@ export function ConsultantEditPage() {
         mapAgencyConsultantToTeamConsultant(consultantQuery.data),
       ),
     );
-    setAdQuota(consultantQuery.data.metrics.publishedAdvertises);
-    setUpdateQuota(consultantQuery.data.metrics.renewUsed);
-    setSpecialQuota(consultantQuery.data.metrics.specialUsed);
+    setManagerAccess(
+      getManagerAccessFromPermissions(consultantQuery.data.permissions),
+    );
+    setAdQuota(consultantQuery.data.adQuota);
+    setUpdateQuota(consultantQuery.data.renewQuota);
+    setSpecialQuota(consultantQuery.data.specialQuota);
   }, [consultantQuery.data]);
 
   function toggleManagerAccess(id: string) {
@@ -172,12 +199,17 @@ export function ConsultantEditPage() {
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <button
           className="flex h-12 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white"
-          disabled={updateConsultantMutation.isPending}
+          disabled={
+            updateConsultantMutation.isPending || consultantQuery.isPending
+          }
           onClick={() => {
             updateConsultantMutation.mutate(
               {
-                isActive: consultant.isActive ?? consultant.status === "active",
-                role: resolveAgencyConsultantRoleId(accessRole, consultant),
+                adQuota,
+                permissions: buildManagerPermissions(accessRole, managerAccess),
+                renewQuota: updateQuota,
+                role: accessRole,
+                specialQuota,
                 userId: consultantId,
               },
               {

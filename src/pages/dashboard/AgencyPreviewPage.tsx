@@ -25,16 +25,24 @@ import LinearWhatsapp from "../../components/(icons)/LinearWhatsapp";
 import { TopBar } from "../../components/TopBar";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
-import { getApiAssetUrl } from "../../api/api";
+import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
 import { useMyAgencyProfileQuery } from "../../hooks/account.hooks";
-import { useAgencyConsultantsQuery } from "../../hooks/agency.hooks";
+import {
+  useAgencyConsultantsQuery,
+  usePublicAgencyDetailQuery,
+  usePublicAgentDetailQuery,
+} from "../../hooks/agency.hooks";
 import { useAgencyDashboardQuery } from "../../hooks/dashboard.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../../services/account.service";
-import type { AgencyConsultantDto } from "../../services/agency.service";
+import type {
+  AgencyConsultantDto,
+  PublicAgentAgencySummary,
+} from "../../services/agency.service";
+import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
@@ -256,6 +264,10 @@ function getInitialAgencyTab(): AgencyPreviewTab {
 
   const tab = new URLSearchParams(window.location.search).get("tab");
 
+  if (window.location.pathname.startsWith("/agents/") && tab === "consultants") {
+    return "info";
+  }
+
   return tab === "ads" || tab === "consultants" || tab === "info" ? tab : "info";
 }
 
@@ -270,6 +282,17 @@ function isPublicAgencyPreviewPath() {
     (window.location.pathname.startsWith("/agencies/") ||
       window.location.pathname.startsWith("/agents/"))
   );
+}
+
+function isPublicAgentPreviewPath() {
+  return typeof window !== "undefined" && window.location.pathname.startsWith("/agents/");
+}
+
+function getPublicPreviewId() {
+  if (typeof window === "undefined") return "";
+
+  const match = window.location.pathname.match(/^\/(?:agencies|agents)\/([^/]+)\/?$/);
+  return match?.[1] ? decodeURIComponent(match[1]) : "";
 }
 
 function getCurrentAgencyPreviewPath() {
@@ -396,9 +419,19 @@ export function AgencyPreviewPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [toast, setToast] = useState<AgencyToast | null>(null);
   const isPublicPreview = isPublicAgencyPreviewPath();
+  const isAgentPreview = isPublicAgentPreviewPath();
   const previewPath = getCurrentAgencyPreviewPath();
+  const publicPreviewId = getPublicPreviewId();
   const isRealEstateManager =
     getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const publicAgencyQuery = usePublicAgencyDetailQuery({
+    enabled: isPublicPreview && !isAgentPreview,
+    id: publicPreviewId,
+  });
+  const publicAgentQuery = usePublicAgentDetailQuery({
+    enabled: isPublicPreview && isAgentPreview,
+    id: publicPreviewId,
+  });
   const agencyProfileQuery = useMyAgencyProfileQuery({
     enabled: !isPublicPreview && isRealEstateManager,
   });
@@ -412,9 +445,15 @@ export function AgencyPreviewPage() {
     perPage: 100,
   });
   const profile = agencyProfileQuery.data;
+  const publicAgency = publicAgencyQuery.data;
+  const publicAgent = publicAgentQuery.data;
   const selectedCity = readStoredSelectedCity();
-  const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
-  const agencyName = profile?.name?.trim() || getAgencyDisplayName();
+  const entityId = isAgentPreview
+    ? publicAgent?.id ?? publicPreviewId
+    : publicAgency?.id ?? String(profile?.id ?? profile?._id ?? "").trim();
+  const entityName = isAgentPreview
+    ? publicAgent?.name || getAgencyDisplayName()
+    : publicAgency?.name || profile?.name?.trim() || getAgencyDisplayName();
   const cityId = String(
     profile?.city_id || getPreviewSearchParam("city_id") || selectedCity?.id || "",
   ).trim();
@@ -423,17 +462,27 @@ export function AgencyPreviewPage() {
     getPreviewSearchParam("city_name") ||
     selectedCity?.name ||
     "";
-  const agencyLocation =
-    profile?.address?.trim() || cityName || getAgencyLocationLabel();
-  const agencyLogo = profile?.logo
-    ? getApiAssetUrl(profile.logo)
-    : getPreviewSearchParam("logo") || agencyLogoSrc;
-  const agencyAbout =
-    profile?.about_us?.trim() ||
-    (isPublicPreview ? getPreviewSearchParam("about_us") : "");
-  const activityAreaIds = profile
-    ? getProfileNeighborhoodIds(profile)
-    : getPreviewNeighborhoodIds();
+  const entityLocation = isAgentPreview
+    ? publicAgent?.agency?.address ||
+      publicAgent?.agency?.name ||
+      cityName ||
+      getAgencyLocationLabel()
+    : publicAgency?.address || profile?.address?.trim() || cityName || getAgencyLocationLabel();
+  const entityLogo = isAgentPreview
+    ? publicAgent?.avatar || getPreviewSearchParam("logo")
+    : publicAgency?.logo ||
+      publicAgency?.img ||
+      (profile?.logo ? getApiAssetUrl(profile.logo) : "") ||
+      getPreviewSearchParam("logo");
+  const entityAbout = isAgentPreview
+    ? publicAgent?.about_us || getPreviewSearchParam("about_us")
+    : publicAgency?.about_us ||
+      profile?.about_us?.trim() ||
+      (isPublicPreview ? getPreviewSearchParam("about_us") : "");
+  const activityAreaIds = isAgentPreview
+    ? publicAgent?.neighborhood_ids ?? getPreviewNeighborhoodIds()
+    : publicAgency?.neighborhood_ids ??
+      (profile ? getProfileNeighborhoodIds(profile) : getPreviewNeighborhoodIds());
   const neighborhoodsQuery = useNeighborhoodListQuery({
     cityId,
     enabled: Boolean(cityId) && activityAreaIds.length > 0,
@@ -450,45 +499,95 @@ export function AgencyPreviewPage() {
   const activityAreas = activityAreaIds.map(
     (id) => neighborhoodNameById.get(id) ?? id,
   );
-  const contactInfo = resolvePreviewContactInfo(profile, isPublicPreview);
+  const contactInfo: AgencyPreviewContactInfo = isAgentPreview
+    ? {
+        phone: publicAgent?.mobile ?? getPreviewSearchParam("phone1"),
+        secondPhone: "",
+        landline: "",
+        whatsapp: publicAgent?.whatsapp ?? "",
+        telegram: publicAgent?.telegram ?? "",
+        instagram: publicAgent?.instagram ?? "",
+      }
+    : publicAgency
+      ? {
+          phone: publicAgency.phone1 ?? "",
+          secondPhone: publicAgency.phone2 ?? "",
+          landline: publicAgency.phone3 ?? "",
+          whatsapp: "",
+          telegram: "",
+          instagram: "",
+        }
+      : resolvePreviewContactInfo(profile, isPublicPreview);
   const dashboard = agencyDashboardQuery.data;
-  const agencyStats = [
+  const publicScore = isAgentPreview ? publicAgent?.score : publicAgency?.score;
+  const publicRank = isAgentPreview ? publicAgent?.rank : publicAgency?.rank;
+  const publicActiveAds = isAgentPreview
+    ? publicAgent?.active_advertises_count
+    : publicAgency?.active_advertises_count;
+  const entityLevel = isAgentPreview
+    ? publicAgent?.level_slug
+    : publicAgency?.level_slug;
+  const workingHours = isAgentPreview ? "" : publicAgency?.working_hours ?? profile?.working_hours ?? "";
+  const entityStats = [
     {
       icon: <LinearStar className="h-5 w-5" />,
       label: "امتیاز",
-      value: dashboard
-        ? toPersianDigits(dashboard.ranking.current.totalScore)
-        : toPersianDigits(getPreviewSearchParam("score") || null),
+      value: isPublicPreview
+        ? toPersianDigits(publicScore ?? null)
+        : dashboard
+          ? toPersianDigits(dashboard.ranking.current.totalScore)
+          : toPersianDigits(getPreviewSearchParam("score") || null),
     },
     {
       icon: <LinearRanking className="h-5 w-5" />,
       label: "رتبه",
-      value: dashboard
-        ? toPersianDigits(dashboard.ranking.rank)
-        : toPersianDigits(getPreviewSearchParam("rank") || null),
+      value: isPublicPreview
+        ? toPersianDigits(publicRank ?? null)
+        : dashboard
+          ? toPersianDigits(dashboard.ranking.rank)
+          : toPersianDigits(getPreviewSearchParam("rank") || null),
     },
     {
       icon: <LinearTag className="h-5 w-5" />,
       label: "آگهی فعال",
-      value: dashboard
-        ? toPersianDigits(dashboard.publishedAdvertises.total)
-        : toPersianDigits(getPreviewSearchParam("active_ads") || null),
+      value: isPublicPreview
+        ? toPersianDigits(publicActiveAds ?? null)
+        : dashboard
+          ? toPersianDigits(dashboard.publishedAdvertises.total)
+          : toPersianDigits(getPreviewSearchParam("active_ads") || null),
     },
   ];
-  const shareTitle = agencyName || agencyShareTitle;
-  const shareText = `صفحه آژانس ${shareTitle}`;
+  const recentAdvertises = isAgentPreview
+    ? publicAgent?.recent_advertises ?? []
+    : publicAgency?.recent_advertises ?? [];
+  const previewAds = isPublicPreview
+    ? recentAdvertises.map((advertise, index) => ({
+        ...mapAdvertisementToAdCard(advertise, index),
+        agency: entityName,
+      }))
+    : agencyAds;
+  const consultants = isPublicPreview
+    ? publicAgency?.consultants ?? []
+    : agencyConsultantsQuery.data?.data ?? [];
+  const availableTabs = isAgentPreview
+    ? agencyTabs.filter((tab) => tab.id !== "consultants")
+    : agencyTabs;
+  const entityLabel = isAgentPreview ? "مشاور" : "آژانس";
+  const pageTitle = `صفحه ${entityLabel}`;
+  const shareTitle = entityName || (isAgentPreview ? "مشاور املاک" : agencyShareTitle);
+  const shareText = `${pageTitle} ${shareTitle}`;
   const shareUrl = isPublicPreview
     ? getCurrentPageUrl()
-    : getAbsoluteAgencyPreviewUrl(agencyId, {
-        aboutUs: agencyAbout,
+    : getAbsoluteAgencyPreviewUrl(entityId, {
+        aboutUs: entityAbout,
         activeAds: dashboard
           ? String(dashboard.publishedAdvertises.total)
           : undefined,
         cityId,
         cityName,
-        location: agencyLocation,
-        logo: agencyLogo,
-        name: agencyName,
+        location: entityLocation,
+        logo: entityLogo,
+        name: entityName,
         neighborhoodIds: activityAreaIds,
         phone1: contactInfo.phone,
         phone2: contactInfo.secondPhone,
@@ -498,6 +597,19 @@ export function AgencyPreviewPage() {
           ? String(dashboard.ranking.current.totalScore)
           : undefined,
       });
+  const publicPreviewLoading = isAgentPreview
+    ? publicAgentQuery.isLoading
+    : publicAgencyQuery.isLoading;
+  const publicPreviewError = isAgentPreview
+    ? publicAgentQuery.error
+    : publicAgencyQuery.error;
+  const hasPublicPreviewData = isAgentPreview ? Boolean(publicAgent) : Boolean(publicAgency);
+
+  useEffect(() => {
+    if (isAgentPreview && activeTab === "consultants") {
+      setActiveTab("info");
+    }
+  }, [activeTab, isAgentPreview]);
 
   useEffect(() => {
     if (!toast) return;
@@ -520,7 +632,7 @@ export function AgencyPreviewPage() {
       const result = await shareOrCopyAgencyUrl(shareUrl, shareTitle, shareText);
 
       if (result === "copied") {
-        showToast("لینک صفحه آژانس کپی شد.");
+        showToast(`لینک صفحه ${entityLabel} کپی شد.`);
       }
     } catch (shareError) {
       if (shareError instanceof DOMException && shareError.name === "AbortError") {
@@ -532,12 +644,22 @@ export function AgencyPreviewPage() {
   }
 
   function changeTab(tab: AgencyPreviewTab) {
+    if (isAgentPreview && tab === "consultants") return;
+
     setActiveTab(tab);
 
     const params = new URLSearchParams(window.location.search);
     params.set("tab", tab);
     window.history.replaceState(window.history.state ?? {}, "", `${previewPath}?${params.toString()}`);
   }
+
+  const retryPublicPreview = () => {
+    if (isAgentPreview) {
+      void publicAgentQuery.refetch();
+    } else {
+      void publicAgencyQuery.refetch();
+    }
+  };
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
@@ -569,22 +691,65 @@ export function AgencyPreviewPage() {
         }
         backTo={isPublicPreview ? "/home" : agencyEditPath}
         contentClassName="px-1"
-        title="صفحه آژانس"
+        title={pageTitle}
       />
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[84px]">
-        <AgencyHero agencyLocation={agencyLocation} agencyLogo={agencyLogo} agencyName={agencyName} agencyStats={agencyStats} />
-        <AgencySegmentedTabs activeTab={activeTab} onChange={changeTab} />
-        {activeTab === "ads" ? <AgencyAdsTab /> : activeTab === "consultants" ? (
-          <AgencyConsultantsTab consultants={agencyConsultantsQuery.data?.data ?? []} />
-        ) : (
-          <AgencyInfoTab
-            aboutUs={agencyAbout}
-            activityAreas={activityAreas}
-            agencyName={agencyName}
+        {isPublicPreview && publicPreviewLoading ? (
+          <PublicPreviewLoadingState />
+        ) : isPublicPreview && (!hasPublicPreviewData || publicPreviewError) ? (
+          <PublicPreviewErrorState
+            message={
+              publicPreviewError instanceof Error
+                ? publicPreviewError.message
+                : getApiErrorMessage(
+                    publicPreviewError,
+                    `دریافت اطلاعات ${entityLabel} ناموفق بود.`,
+                  )
+            }
+            onRetry={retryPublicPreview}
           />
+        ) : (
+          <>
+            <AgencyHero
+              agencyLocation={entityLocation}
+              agencyLogo={entityLogo}
+              agencyName={entityName}
+              agencyStats={entityStats}
+              isAgent={isAgentPreview}
+              levelSlug={entityLevel}
+            />
+            <AgencySegmentedTabs
+              activeTab={activeTab}
+              onChange={changeTab}
+              tabs={availableTabs}
+            />
+            {activeTab === "ads" ? (
+              <AgencyAdsTab
+                ads={previewAds}
+                previewPath={previewPath}
+                showFilter={!isPublicPreview}
+              />
+            ) : activeTab === "consultants" && !isAgentPreview ? (
+              <AgencyConsultantsTab consultants={consultants} />
+            ) : (
+              <AgencyInfoTab
+                aboutUs={entityAbout}
+                activityAreas={activityAreas}
+                agencyName={entityName}
+                agentAgency={isAgentPreview ? publicAgent?.agency : undefined}
+                entityLabel={entityLabel}
+                workingHours={workingHours}
+              />
+            )}
+          </>
         )}
       </main>
-      <AgencyPreviewFooter onContactClick={() => setIsContactSheetOpen(true)} />
+      {(!isPublicPreview || hasPublicPreviewData) ? (
+        <AgencyPreviewFooter
+          entityLabel={entityLabel}
+          onContactClick={() => setIsContactSheetOpen(true)}
+        />
+      ) : null}
       <AgencyContactBottomSheet
         contactInfo={contactInfo}
         isOpen={isContactSheetOpen}
@@ -727,24 +892,87 @@ function AgencyQrCard({
   );
 }
 
+function PublicPreviewLoadingState() {
+  return (
+    <div className="animate-pulse space-y-2">
+      <section className="bg-white px-4 pb-5 pt-5 text-center">
+        <div className="mx-auto h-20 w-20 rounded-full bg-[#e6e9ef]" />
+        <div className="mx-auto mt-4 h-7 w-40 rounded-lg bg-[#e6e9ef]" />
+        <div className="mx-auto mt-3 h-6 w-28 rounded-full bg-[#eef0f4]" />
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div className="h-12 rounded-lg bg-[#eef0f4]" key={index} />
+          ))}
+        </div>
+      </section>
+      <div className="h-14 bg-white" />
+      <div className="h-48 bg-white" />
+    </div>
+  );
+}
+
+function PublicPreviewErrorState({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="flex min-h-[420px] flex-col items-center justify-center px-6 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-[#fff0ef] text-2xl text-[#d93645]">!</div>
+      <h2 className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">دریافت اطلاعات ناموفق بود</h2>
+      <p className="m-0 mt-2 max-w-sm text-sm leading-6 text-[#808080]">{message}</p>
+      <button
+        className="mt-5 h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-semibold text-white"
+        onClick={onRetry}
+        type="button"
+      >
+        تلاش دوباره
+      </button>
+    </div>
+  );
+}
+
 function AgencyHero({
   agencyLocation,
   agencyLogo,
   agencyName,
   agencyStats,
+  isAgent = false,
+  levelSlug,
 }: {
   agencyLocation: string;
-  agencyLogo: string;
+  agencyLogo?: string;
   agencyName: string;
   agencyStats: Array<{ icon: ReactNode; label: string; value: string }>;
+  isAgent?: boolean;
+  levelSlug?: string;
 }) {
   return (
     <section className="bg-white px-4 pb-4 pt-3 text-center">
-      <img alt={agencyName} className="mx-auto h-19 w-19 object-contain" src={agencyLogo} />
+      {agencyLogo ? (
+        <img
+          alt={agencyName}
+          className={`mx-auto h-19 w-19 ${isAgent ? "rounded-full object-cover" : "object-contain"}`}
+          src={agencyLogo}
+        />
+      ) : (
+        <div className="mx-auto grid h-19 w-19 place-items-center rounded-full bg-[#eef0f4] text-[#808080]">
+          <LinearUserSolid className="h-10 w-10" />
+        </div>
+      )}
       <h2 className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">{agencyName}</h2>
-      <div className="mx-auto mt-1 inline-flex h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 text-xs font-medium text-[#4B5070]">
-        <LinearLocation className="h-4 w-4 text-[#4B5070]" />
-        {agencyLocation}
+      <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+        <div className="inline-flex min-h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 py-1 text-xs font-medium text-[#4B5070]">
+          <LinearLocation className="h-4 w-4 text-[#4B5070]" />
+          {agencyLocation}
+        </div>
+        {levelSlug ? (
+          <span className="inline-flex min-h-7 items-center rounded-full bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#0048c4]">
+            سطح {levelSlug.replace(/[-_]/g, " ")}
+          </span>
+        ) : null}
       </div>
 
       <div className="mt-5 grid grid-cols-3 divide-x divide-x-reverse divide-[#dddddd] text-[#4d4d4d]">
@@ -765,14 +993,19 @@ function AgencyHero({
 function AgencySegmentedTabs({
   activeTab,
   onChange,
+  tabs = agencyTabs,
 }: {
   activeTab: AgencyPreviewTab;
   onChange: (tab: AgencyPreviewTab) => void;
+  tabs?: Array<{ id: AgencyPreviewTab; label: string }>;
 }) {
   return (
     <div className="bg-white px-4 pb-4 shadow-lg">
-      <div className="grid h-10 grid-cols-3 overflow-hidden rounded-xl border border-[#808080] bg-white text-sm font-semibold leading-5 text-[#4d4d4d]">
-        {agencyTabs.map((tab) => {
+      <div
+        className="grid h-10 overflow-hidden rounded-xl border border-[#808080] bg-white text-sm font-semibold leading-5 text-[#4d4d4d]"
+        style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+      >
+        {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
           return (
@@ -796,17 +1029,23 @@ function AgencyInfoTab({
   aboutUs,
   activityAreas,
   agencyName,
+  agentAgency,
+  entityLabel = "آژانس",
+  workingHours = "",
 }: {
   aboutUs: string;
   activityAreas: string[];
   agencyName: string;
+  agentAgency?: PublicAgentAgencySummary;
+  entityLabel?: string;
+  workingHours?: string;
 }) {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<BadgeInfo | null>(null);
   const activityAreaText = activityAreas.length
     ? activityAreas.join("، ")
     : "محدوده فعالیت ثبت نشده است.";
-  const aboutText = aboutUs || "توضیحی برای این آژانس ثبت نشده است.";
+  const aboutText = aboutUs || `توضیحی برای این ${entityLabel} ثبت نشده است.`;
 
   return (
     <div className="space-y-2 bg-[#f0f0f0]">
@@ -825,6 +1064,44 @@ function AgencyInfoTab({
           {activityAreaText}
         </p>
       </section>
+
+      {agentAgency?.name ? (
+        <button
+          className="flex w-full items-center gap-3 bg-white p-4 text-right"
+          onClick={() => {
+            if (agentAgency.id) {
+              navigateTo(`/agencies/${encodeURIComponent(agentAgency.id)}`);
+            }
+          }}
+          type="button"
+        >
+          {agentAgency.logo ? (
+            <img
+              alt={agentAgency.name}
+              className="h-12 w-12 shrink-0 rounded-xl object-contain"
+              src={agentAgency.logo}
+            />
+          ) : (
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#eef0f4] text-[#808080]">
+              <LinearUserSolid className="h-6 w-6" />
+            </div>
+          )}
+          <span className="min-w-0 flex-1">
+            <strong className="block truncate text-sm text-[#1a1a1a]">{agentAgency.name}</strong>
+            {agentAgency.address ? (
+              <span className="mt-1 block truncate text-xs text-[#808080]">{agentAgency.address}</span>
+            ) : null}
+          </span>
+          {agentAgency.id ? <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" /> : null}
+        </button>
+      ) : null}
+
+      {workingHours ? (
+        <section className="bg-white p-4">
+          <h3 className="m-0 text-base font-semibold leading-6">ساعات کاری</h3>
+          <p className="m-0 mt-3 text-sm leading-6 text-[#4d4d4d]">{workingHours}</p>
+        </section>
+      ) : null}
 
       <AgencyActionRow icon={<LinearAdd className="h-6 w-6" />} title="ثبت آگهی رایگان" />
       <AgencyActionRow icon={<LinearCalendar className="h-6 w-6" />} title="ثبت بازخورد" />
@@ -916,20 +1193,30 @@ function AgencyActionRow({ icon, title }: { icon: ReactNode; title: string }) {
   );
 }
 
-function AgencyAdsTab() {
-  const filterReturnTo = encodeURIComponent(`${agencyPreviewPath}?tab=ads`);
+function AgencyAdsTab({
+  ads,
+  previewPath,
+  showFilter = true,
+}: {
+  ads: AdCardData[];
+  previewPath: string;
+  showFilter?: boolean;
+}) {
+  const filterReturnTo = encodeURIComponent(`${previewPath}?tab=ads`);
 
   return (
     <div className="space-y-2 bg-[#f0f0f0] px-0 pb-3 pt-5">
       <div className="flex items-center gap-2 px-4 [direction:ltr]">
-        <button
-          aria-label="فیلتر آگهی‌ها"
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[#0062ff] bg-[#eaf2ff] text-[#0062ff]"
-          onClick={() => navigateTo(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
-          type="button"
-        >
-          <LinearFilterHorizontal className="h-6 w-6" />
-        </button>
+        {showFilter ? (
+          <button
+            aria-label="فیلتر آگهی‌ها"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[#0062ff] bg-[#eaf2ff] text-[#0062ff]"
+            onClick={() => navigateTo(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
+            type="button"
+          >
+            <LinearFilterHorizontal className="h-6 w-6" />
+          </button>
+        ) : null}
         <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-[#a6a6a6] bg-white px-3 [direction:rtl]">
           <LinearSearch className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
           <input
@@ -941,9 +1228,13 @@ function AgencyAdsTab() {
       </div>
 
       <div className="flex flex-col gap-3 pt-4">
-        {agencyAds.map((ad) => (
-          <AdCard key={ad.id} ad={ad} to={`/ads/${ad.id}`} />
-        ))}
+        {ads.length ? (
+          ads.map((ad) => <AdCard key={ad.id} ad={ad} to={`/ads/${ad.id}`} />)
+        ) : (
+          <div className="bg-white px-4 py-12 text-center text-sm text-[#808080]">
+            آگهی فعالی برای نمایش وجود ندارد.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -953,9 +1244,11 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
   return (
     <section className="flex flex-col gap-y-2">
       {consultants.map((consultant, index) => (
-        <article
-          className={`flex items-center justify-center gap-4 bg-white px-4 py-4 text-center ${index < consultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
+        <button
+          className={`flex w-full items-center justify-center gap-4 bg-white px-4 py-4 text-center transition active:bg-[#fafafa] ${index < consultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
           key={consultant.userId}
+          onClick={() => navigateTo(`/agents/${encodeURIComponent(String(consultant.userId))}`)}
+          type="button"
         >
           <div className="flex flex-col items-center">
             <ConsultantAvatar
@@ -979,7 +1272,7 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
               </span>
             </div>
           </div>
-        </article>
+        </button>
       ))}
     </section>
   );
@@ -1138,7 +1431,13 @@ function normalizeSocialUrl(type: "instagram" | "telegram" | "whatsapp", value: 
   return `https://wa.me/${digits.startsWith("0") ? `98${digits.slice(1)}` : digits}`;
 }
 
-function AgencyPreviewFooter({ onContactClick }: { onContactClick: () => void }) {
+function AgencyPreviewFooter({
+  entityLabel = "آژانس",
+  onContactClick,
+}: {
+  entityLabel?: string;
+  onContactClick: () => void;
+}) {
   return (
     <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
       <div className="grid h-10 grid-cols-2 gap-4 [direction:ltr]">
@@ -1147,10 +1446,10 @@ function AgencyPreviewFooter({ onContactClick }: { onContactClick: () => void })
           onClick={onContactClick}
           type="button"
         >
-          تماس با آژانس
+          تماس با {entityLabel}
         </button>
         <button className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]" type="button">
-          چت با آژانس
+          چت با {entityLabel}
           <LinearChat className="h-5 w-5" />
         </button>
       </div>

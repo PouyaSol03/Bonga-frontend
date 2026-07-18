@@ -47,6 +47,7 @@ import {
   saveCrmCity,
   saveCrmNeighborhood,
   saveCrmUser,
+  toggleCrmUserAuthorization,
   toggleCrmUserStatus,
   updateCrmAdvertiseStatus,
   updateCrmConsultant,
@@ -95,7 +96,12 @@ type EditorState = {
 type ConfirmState = {
   body: string;
   confirmLabel?: string;
-  onConfirm: () => Promise<void>;
+  onConfirm: (promptValue?: string) => Promise<void>;
+  prompt?: {
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+  };
   title: string;
 };
 
@@ -162,8 +168,10 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
 const advertiseStatusOptions = [
   { label: "ثبت شده", value: "0" },
   { label: "در انتظار مدیر", value: "1" },
+  { label: "در انتظار مشاور", value: "2" },
   { label: "تأیید شده", value: "3" },
   { label: "رد شده", value: "-1" },
+  { label: "نیازمند ویرایش", value: "-4" },
   { label: "حذف شده", value: "-2" },
   { label: "منقضی شده", value: "-3" },
 ];
@@ -256,8 +264,10 @@ function advertiseStatusLabel(status: unknown) {
       "-3": "منقضی شده",
       "-2": "حذف شده",
       "-1": "رد شده",
+      "-4": "نیازمند ویرایش",
       "0": "ثبت شده",
       "1": "در انتظار بررسی",
+      "2": "در انتظار مشاور",
       "3": "منتشر شده",
     }[key] ?? key ?? "-"
   );
@@ -749,8 +759,8 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   useQueryErrorToast([query.error], notify);
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, nextStatus }: { id: string; nextStatus: number }) =>
-      updateCrmAdvertiseStatus(id, nextStatus),
+    mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: number; reason?: string }) =>
+      updateCrmAdvertiseStatus(id, nextStatus, reason),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
       await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
@@ -764,6 +774,22 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
     } catch (error) {
       notify(getApiErrorMessage(error, "به‌روزرسانی وضعیت آگهی ناموفق بود."), "error");
     }
+  };
+
+  const openRejectModal = (id: string) => {
+    setConfirm({
+      body: "دلیل رد یا نیاز به اصلاح آگهی برای کاربر نمایش داده می‌شود.",
+      confirmLabel: "ثبت دلیل",
+      onConfirm: async (reason) => {
+        await statusMutation.mutateAsync({ id, nextStatus: -4, reason });
+      },
+      prompt: {
+        label: "دلیل نیاز به اصلاح",
+        placeholder: "مثلاً تصاویر واضح نیست یا اطلاعات آگهی کامل نیست.",
+        required: true,
+      },
+      title: "نیاز به اصلاح آگهی",
+    });
   };
 
   return (
@@ -889,7 +915,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                       <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
                       <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
-                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => updateStatus(id, -1)} tone="warning" />
+                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => openRejectModal(id)} tone="warning" />
                       <SmallActionButton
                         icon={<LinearDelete className="h-4 w-4" />}
                         label="حذف"
@@ -956,6 +982,14 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
     },
   });
 
+  const authorizationMutation = useMutation({
+    mutationFn: toggleCrmUserAuthorization,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
+      notify("وضعیت تایید کد ملی کاربر تغییر کرد.");
+    },
+  });
+
   const openUserEditor = (user: CrmRecord = {}) => {
     const id = getCrmRecordId(user) || null;
 
@@ -1002,16 +1036,18 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
   };
 
   const handleToggleStatus = (id: string) => statusMutation.mutateAsync(id);
+  const handleToggleAuthorization = (id: string) => authorizationMutation.mutateAsync(id);
 
   const renderUsersTable = (users: CrmRecord[], emptyMessage: string) => (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
+      <table className="w-full min-w-[980px] border-separate border-spacing-0 text-right">
         <thead>
           <tr className="text-sm font-bold text-[#4d4d4d]">
             <TableHead>نام</TableHead>
             <TableHead>موبایل</TableHead>
             <TableHead>نقش‌ها</TableHead>
             <TableHead>وضعیت</TableHead>
+            <TableHead>تایید کد ملی</TableHead>
             <TableHead>اعتبار</TableHead>
             <TableHead>عملیات</TableHead>
           </tr>
@@ -1021,6 +1057,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
             users.map((user) => {
               const id = getCrmRecordId(user);
               const isActive = Number(user.status) === 1;
+              const isAuthorized = Number(user.authorized) === 1;
               const roles = userRoleSlugs(user);
 
               return (
@@ -1040,9 +1077,20 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                       </div>
                   </TableCell>
                   <TableCell><UserStatusBadge status={user.status} /></TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex rounded-lg px-2.5 py-1 text-xs font-bold ${
+                        isAuthorized
+                          ? "bg-[#e9f8f0] text-[#0b8b55]"
+                          : "bg-[#f4f6f8] text-[#7b8494]"
+                      }`}
+                    >
+                      {isAuthorized ? "تایید شده" : "تایید نشده"}
+                    </span>
+                  </TableCell>
                   <TableCell>{formatMoney(user.credit)}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1.5">
+                    <div className="flex flex-wrap gap-1.5">
                       <SmallActionButton label="ویرایش" onClick={() => openUserEditor(user)} />
                       <SmallActionButton
                         label={isActive ? "غیرفعال‌سازی" : "فعال‌سازی"}
@@ -1056,13 +1104,25 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                         })}
                         tone={isActive ? "danger" : "success"}
                       />
+                      <SmallActionButton
+                        label={isAuthorized ? "لغو تایید کد ملی" : "تایید کد ملی"}
+                        onClick={() => setConfirm({
+                          body: isAuthorized
+                            ? "تایید کد ملی این کاربر لغو می‌شود و وضعیت احراز هویت او به تایید نشده تغییر می‌کند."
+                            : "کد ملی این کاربر به عنوان تایید شده ثبت می‌شود.",
+                          confirmLabel: isAuthorized ? "لغو تایید" : "تایید کن",
+                          onConfirm: async () => { await handleToggleAuthorization(id); },
+                          title: isAuthorized ? "لغو تایید کد ملی" : "تایید کد ملی",
+                        })}
+                        tone={isAuthorized ? "danger" : "success"}
+                      />
                     </div>
                   </TableCell>
                 </tr>
               );
             })
           ) : (
-            <TableEmptyRow columns={6} message={emptyMessage} />
+            <TableEmptyRow columns={7} message={emptyMessage} />
           )}
         </tbody>
       </table>
@@ -1109,8 +1169,8 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
                 <div className="h-5 w-40 animate-pulse rounded bg-[#e9edf3]" />
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right">
-                  <tbody><TableLoadingRows columns={6} rows={4} /></tbody>
+                <table className="w-full min-w-[980px] border-separate border-spacing-0 text-right">
+                  <tbody><TableLoadingRows columns={7} rows={4} /></tbody>
                 </table>
               </div>
             </section>
@@ -2519,18 +2579,30 @@ function ConfirmModal({
   onClose: () => void;
 }) {
   const [isPending, setIsPending] = useState(false);
+  const [promptValue, setPromptValue] = useState("");
 
   useEffect(() => {
-    if (!confirm) setIsPending(false);
+    if (!confirm) {
+      setIsPending(false);
+      setPromptValue("");
+    }
   }, [confirm]);
 
   if (!confirm) return null;
 
+  const trimmedPromptValue = promptValue.trim();
+  const isPromptInvalid = Boolean(confirm.prompt?.required && !trimmedPromptValue);
+
   const handleConfirm = async () => {
+    if (isPromptInvalid) {
+      notify("لطفاً دلیل را وارد کنید.", "error");
+      return;
+    }
+
     setIsPending(true);
 
     try {
-      await confirm.onConfirm();
+      await confirm.onConfirm(confirm.prompt ? trimmedPromptValue : undefined);
       onClose();
     } catch (error) {
       notify(getApiErrorMessage(error, "انجام عملیات ناموفق بود."), "error");
@@ -2547,9 +2619,21 @@ function ConfirmModal({
         </div>
         <h2 className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">{confirm.title}</h2>
         <p className="m-0 mt-2 text-sm leading-7 text-[#707a8a]">{confirm.body}</p>
+        {confirm.prompt ? (
+          <label className="mt-4 block">
+            <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{confirm.prompt.label}</span>
+            <textarea
+              className={`${modalInputClassName} min-h-28 resize-y py-3`}
+              disabled={isPending}
+              onChange={(event) => setPromptValue(event.target.value)}
+              placeholder={confirm.prompt.placeholder}
+              value={promptValue}
+            />
+          </label>
+        ) : null}
         <div className="mt-6 flex justify-end gap-3">
           <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
-          <button className={dangerButtonClassName} disabled={isPending} onClick={handleConfirm} type="button">
+          <button className={dangerButtonClassName} disabled={isPending || isPromptInvalid} onClick={handleConfirm} type="button">
             {isPending ? <LoadingSpinner /> : null}
             {isPending ? "در حال انجام..." : confirm.confirmLabel ?? "تأیید"}
           </button>

@@ -37,6 +37,14 @@ function readErrorMessage(payload: ErrorPayload) {
   for (const key of ["message", "error", "detail"]) {
     const value = payload[key];
 
+    if (Array.isArray(value)) {
+      const messages = value
+        .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        .map((item) => item.trim());
+
+      if (messages.length > 0) return messages.join("، ");
+    }
+
     if (typeof value === "string" && value.trim()) return value;
   }
 

@@ -1521,6 +1521,8 @@ function IdentityPendingState({
 }) {
   const mobile = getStoredAuthSession()?.mobile ?? "-";
   const [nationalnumber, setNationalnumber] = useState("");
+  const normalizedNationalnumber = nationalnumber.trim();
+  const isNationalnumberComplete = normalizedNationalnumber.length === 10;
 
   return (
     <>
@@ -1579,8 +1581,9 @@ function IdentityPendingState({
           <input
             className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
             inputMode="numeric"
+            maxLength={10}
             value={nationalnumber}
-            onChange={(event) => setNationalnumber(event.target.value)}
+            onChange={(event) => setNationalnumber(normalizeNumericInput(event.target.value).slice(0, 10))}
           />
         </label>
       </section>
@@ -1588,8 +1591,8 @@ function IdentityPendingState({
       <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <button
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
-          disabled={nationalnumber.trim().length === 0 || isPending}
-          onClick={() => onVerify(nationalnumber)}
+          disabled={!isNationalnumberComplete || isPending}
+          onClick={() => onVerify(normalizedNationalnumber)}
           type="button"
         >
           {isPending ? "در حال بررسی..." : "بررسی و تایید هویت"}
@@ -1597,6 +1600,13 @@ function IdentityPendingState({
       </div>
     </>
   );
+}
+
+function normalizeNumericInput(value: string) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/\D/g, "");
 }
 
 function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void }) {

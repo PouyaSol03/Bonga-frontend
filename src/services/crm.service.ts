@@ -283,9 +283,11 @@ export async function saveCrmAdvertise(id: string | null, payload: CrmAdvertiseP
   );
 }
 
-export function updateCrmAdvertiseStatus(id: string, status: number) {
+export function updateCrmAdvertiseStatus(id: string, status: number, reason?: string) {
   return api
-    .post(`panel/advertise/status/${id}`, { json: { status } })
+    .post(`panel/advertise/status/${id}`, {
+      json: reason?.trim() ? { reason: reason.trim(), status } : { status },
+    })
     .json<unknown>();
 }
 
@@ -312,6 +314,10 @@ export function saveCrmUser(id: string | null, payload: CrmRecord) {
 
 export function toggleCrmUserStatus(id: string) {
   return api.get(`panel/user/status/${id}`).json<unknown>();
+}
+
+export function toggleCrmUserAuthorization(id: string) {
+  return api.get(`panel/user/authorize/${id}`).json<unknown>();
 }
 
 export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
@@ -352,35 +358,15 @@ export async function listCrmPackages() {
   return normalizeRows(await api.get("panel/packages").json<unknown>());
 }
 
-export async function getCrmPackage(id: string) {
-  return unwrapRecord(
-    await api.get(`panel/packages/${encodeURIComponent(id)}`).json<unknown>(),
-    ["package", "data", "result"],
-  );
-}
-
-export async function saveCrmPackage(id: string | null, payload: CrmPackagePayload) {
+export function saveCrmPackage(id: string | null, payload: CrmPackagePayload) {
   const request = id
-    ? api.patch(`panel/packages/${encodeURIComponent(id)}`, { json: payload })
+    ? api.patch(`panel/packages/${id}`, { json: payload })
     : api.post("panel/packages", { json: payload });
-
-  return unwrapRecord(await request.json<unknown>(), ["package", "data", "result"]);
+  return request.json<unknown>();
 }
 
-export async function deleteCrmPackage(id: string) {
-  return unwrapRecord(
-    await api.delete(`panel/packages/${encodeURIComponent(id)}`).json<unknown>(),
-    ["package", "data", "result"],
-  );
-}
-
-export async function updateCrmPackageStatus(id: string, isActive: boolean) {
-  return unwrapRecord(
-    await api.patch(`panel/packages/${encodeURIComponent(id)}/status`, {
-      json: { is_active: isActive },
-    }).json<unknown>(),
-    ["package", "data", "result"],
-  );
+export function deleteCrmPackage(id: string) {
+  return api.delete(`panel/packages/${id}`).json<unknown>();
 }
 
 export async function listCrmCheckoutProducts() {

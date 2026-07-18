@@ -143,28 +143,7 @@ type Conversation = {
   message: string;
 };
 
-const conversations: Conversation[] = [
-  {
-    date: "امروز، ۱۷:۳۵",
-    isOpen: true,
-    message: "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا...",
-  },
-  {
-    date: "دیروز، ۸:۱۹",
-    isOpen: true,
-    message: "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا...",
-  },
-  {
-    date: "۲ روز پیش، ۱۷:۳۵",
-    isOpen: false,
-    message: "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا...",
-  },
-  {
-    date: "۱۴۰۵/۰۴/۱۶، ۱۷:۳۵",
-    isOpen: false,
-    message: "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا...",
-  },
-];
+const conversations: Conversation[] = [];
 
 function SupportAgents() {
   const agents = [
@@ -218,6 +197,27 @@ function WelcomeCard() {
   );
 }
 
+function SupportChatsEmptyState() {
+  return (
+    <div className="flex min-h-[300px] flex-1 flex-col items-center justify-center px-6 pb-6 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="h-auto w-[72px] shrink-0"
+        src="/vectors/NoSupportChat.svg"
+      />
+
+      <h3 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+        هنوز گفتگویی ندارید!
+      </h3>
+
+      <p className="m-0 mt-2 max-w-[270px] text-sm font-normal leading-6 text-[#666666]">
+        اگر سوال یا مشکلی دارید، پیام خود را برای پشتیبان ارسال کنید.
+      </p>
+    </div>
+  );
+}
+
 function ConversationCard({ conversation }: { conversation: Conversation }) {
   return (
     <button
@@ -268,10 +268,13 @@ export function AccountSupportChatPage() {
         titleClassName="text-center text-base font-semibold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-[88px] pt-4">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-4 pb-[88px] pt-4">
         <WelcomeCard />
 
-        <section className="mt-6" aria-labelledby="recent-support-conversations">
+        <section
+          aria-labelledby="recent-support-conversations"
+          className="mt-6 flex min-h-0 flex-1 flex-col"
+        >
           <h2
             className="m-0 text-right text-base font-semibold leading-6 text-[#4d4d4d]"
             id="recent-support-conversations"
@@ -279,11 +282,15 @@ export function AccountSupportChatPage() {
             گفتگوهای اخیر
           </h2>
 
-          <div className="mt-4 space-y-4">
-            {conversations.map((conversation) => (
-              <ConversationCard conversation={conversation} key={conversation.date} />
-            ))}
-          </div>
+          {conversations.length === 0 ? (
+            <SupportChatsEmptyState />
+          ) : (
+            <div className="mt-4 space-y-4">
+              {conversations.map((conversation) => (
+                <ConversationCard conversation={conversation} key={conversation.date} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
 

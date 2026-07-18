@@ -44,32 +44,7 @@ const filters: Array<{ id: SupportRequestFilter; label: string }> = [
   { id: "closed", label: "بسته شده" },
 ];
 
-const initialRequests: SupportRequest[] = [
-  {
-    id: "wallet-charge",
-    category: "مالی",
-    title: "مشکل در شارژ کیف پول",
-    requestNumber: "#۴۵۶۷۵",
-    createdAt: "امروز، ۱۷:۲۰",
-    status: "in_progress",
-  },
-  {
-    id: "advertise-image",
-    category: "فنی",
-    title: "خطا در بارگذاری تصویر آگهی",
-    requestNumber: "#۴۵۶۳۲",
-    createdAt: "امروز، ۱۳:۲۰",
-    status: "open",
-  },
-  {
-    id: "restore-advertise",
-    category: "آگهی",
-    title: "درخواست بازیابی آگهی حذف شده",
-    requestNumber: "#۴۵۶۲۲",
-    createdAt: "امروز، ۱۲:۲۵",
-    status: "closed",
-  },
-];
+const initialRequests: SupportRequest[] = [];
 
 const categoryOptions: SelectOption[] = [
   { id: "advertises", title: "آگهی‌ها", value: "آگهی‌ها" },
@@ -196,6 +171,28 @@ function SupportRequestCard({ request }: { request: SupportRequest }) {
   );
 }
 
+function SupportRequestsEmptyState() {
+  return (
+    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 pb-8 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="h-auto w-[64px] shrink-0"
+        src="/vectors/NoSupportRequest.svg"
+      />
+
+      <h2 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+        درخواستی ثبت نشده است!
+      </h2>
+
+      <p className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-[#666666]">
+        اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم
+        پشتیبانی ثبت کنید.
+      </p>
+    </div>
+  );
+}
+
 function SupportRequestTabs({
   activeFilter,
   onChange,
@@ -266,18 +263,28 @@ export function AccountSupportRequestsPage() {
         onChange={setActiveFilter}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-[76px] pt-3">
-        <div className="space-y-3">
-          {filteredRequests.map((request) => (
-            <SupportRequestCard key={request.id} request={request} />
-          ))}
-        </div>
+      <main
+        className={`min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-[76px] ${
+          requests.length === 0 ? "flex pt-0" : "pt-3"
+        }`}
+      >
+        {requests.length === 0 ? (
+          <SupportRequestsEmptyState />
+        ) : (
+          <>
+            <div className="space-y-3">
+              {filteredRequests.map((request) => (
+                <SupportRequestCard key={request.id} request={request} />
+              ))}
+            </div>
 
-        {filteredRequests.length === 0 ? (
-          <div className="flex min-h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[#808080]">
-            درخواستی با این وضعیت وجود ندارد.
-          </div>
-        ) : null}
+            {filteredRequests.length === 0 ? (
+              <div className="flex min-h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[#808080]">
+                درخواستی با این وضعیت وجود ندارد.
+              </div>
+            ) : null}
+          </>
+        )}
       </main>
 
       <div className="absolute inset-x-0 bottom-0 z-20 bg-white px-3 pb-2.5 pt-2">

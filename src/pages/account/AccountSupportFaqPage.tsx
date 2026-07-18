@@ -164,15 +164,15 @@ function FaqAccordionItem({
   onToggle: () => void;
 }) {
   return (
-    <article className="overflow-hidden rounded-xl border border-[#e1e1e1] bg-white">
+    <article className="overflow-hidden flex flex-col p-4 gap-4.5 rounded-xl border border-[#e1e1e1] bg-white">
       <button
         aria-expanded={isOpen}
-        className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-right outline-none transition-colors active:bg-[#fafafa] focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440]"
+        className="flex w-full items-center justify-between gap-3 text-right outline-none transition-colors active:bg-[#fafafa] focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440]"
         onClick={onToggle}
         type="button"
       >
         <span
-          className={`min-w-0 flex-1 text-sm font-semibold leading-6 ${
+          className={`min-w-0 flex-1 text-sm font-semibold ${
             isOpen ? "text-[#0048c4]" : "text-[#1a1a1a]"
           }`}
         >
@@ -187,8 +187,8 @@ function FaqAccordionItem({
       </button>
 
       {isOpen ? (
-        <div className="px-4 pb-4">
-          <p className="m-0 text-right text-xs font-normal leading-6 text-[#4d4d4d]">
+        <div className="">
+          <p className="m-0 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
             {item.answer}
           </p>
         </div>

@@ -17,6 +17,7 @@ import LinearCancel from "../../components/(icons)/LinearCancel";
 import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearFlag from "../../components/(icons)/LinearFlag";
+import LinearRequestList from "../../components/(icons)/LinearRequestList";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
 import { useMyProfileQuery } from "../../hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
@@ -158,7 +159,7 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
   payments: { path: "/crm/payments", subtitle: "مشاهده و پیگیری تمام تراکنش‌های مالی کاربران", title: "تاریخچه پرداخت‌ها" },
   costs: { path: "/crm/costs", subtitle: "تنظیم هزینه عملیات اعتباری سامانه", title: "مدیریت هزینه‌ها" },
   reports: { path: "/crm/reports", subtitle: "مشاهده و بررسی گزارش‌های تخلف آگهی‌ها و کاربران", title: "گزارش‌های تخلف" },
-  requests: { path: "/crm/requests", subtitle: "مشاهده و پاسخگویی به درخواست‌های پشتیبانی کاربران", title: "درخواست‌ها" },
+  requests: { path: "/crm/requests", subtitle: "مشاهده و پاسخگویی به درخواست‌های ثبت‌شده از حساب کاربری", title: "درخواست‌های کاربران" },
   support: { path: "/crm/support", subtitle: "پاسخگویی فوری به مشتریان حاضر در صف پشتیبانی", title: "پشتیبانی" },
 };
 
@@ -175,7 +176,7 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "payment", section: "payments" },
   { icon: "settings", section: "costs" },
   { icon: "reports", section: "reports" },
-  { icon: "form", section: "requests" },
+  { icon: "requests", section: "requests" },
   { icon: "support", section: "support" },
 ];
 
@@ -736,6 +737,7 @@ function OverviewView({ notify, refreshNonce }: ViewProps) {
               { description: "ویرایش شهر، محله و محدوده", icon: "location" as const, label: "موقعیت‌ها", to: "/crm/locations" },
               { description: "مشاهده و پیگیری تراکنش‌های کاربران", icon: "payment" as const, label: "تاریخچه پرداخت‌ها", to: "/crm/payments" },
               { description: "بررسی گزارش‌های آگهی و کاربران", icon: "reports" as const, label: "گزارش‌های تخلف", to: "/crm/reports" },
+              { description: "مشاهده و پاسخگویی به درخواست‌های ثبت‌شده کاربران", icon: "requests" as const, label: "درخواست‌های کاربران", to: "/crm/requests" },
             ].map((item) => (
               <RouteLink
                 className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] p-3.5 text-[#273142] no-underline transition hover:border-[#cbd8ed] hover:bg-[#fbfcff]"
@@ -3200,6 +3202,7 @@ type IconName =
   | "wallet"
   | "payment"
   | "reports"
+  | "requests"
   | "settings"
   | "support";
 
@@ -3225,6 +3228,7 @@ function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   if (name === "wallet") return <svg {...common}><path d="M4 6h15a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a3 3 0 0 1 3-3h12"/><path d="M16 11h5v4h-5a2 2 0 0 1 0-4Z"/></svg>;
   if (name === "payment") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 15h4"/><circle cx="17" cy="14" r="1.5"/></svg>;
   if (name === "reports") return <LinearFlag aria-hidden="true" height={size} width={size} />;
+  if (name === "requests") return <LinearRequestList aria-hidden="true" height={size} width={size} />;
   if (name === "settings") return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>;
   if (name === "support") return <svg {...common}><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8m-8 3h5"/><path d="M18 18.5a2.5 2.5 0 0 0 2.5 2.5"/></svg>;
   if (name === "account") return <svg {...common}><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.5-4.3 2.8-6.5 7-6.5s6.5 2.2 7 6.5"/></svg>;

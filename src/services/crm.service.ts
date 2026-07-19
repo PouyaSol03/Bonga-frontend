@@ -1,10 +1,25 @@
-import { api, type ApiQueryParams } from "../api/api";
+import { ApiError, api, type ApiQueryParams } from "../api/api";
 
 export type CrmRecord = Record<string, unknown>;
 
 export type CrmAdvertiseFilters = {
   status?: number;
   trackCode?: string;
+};
+
+export type CrmReportKind = "advertise" | "user";
+
+export type CrmReportFilters = {
+  page?: number;
+  perPage?: number;
+  search?: string;
+};
+
+export type CrmReportListResult = {
+  data: CrmRecord[];
+  total: number;
+  page: number;
+  perPage: number;
 };
 
 export type CrmConsultantType = "independent" | "dependent";
@@ -107,6 +122,10 @@ const rowContainerKeys = [
   "packages",
   "payments",
   "transactions",
+  "reports",
+  "advertise_reports",
+  "user_reports",
+  "chat_reports",
   "result",
 ] as const;
 
@@ -187,6 +206,82 @@ function unwrapRecord(payload: unknown, keys: string[]): CrmRecord {
 export function getCrmRecordId(record: CrmRecord) {
   const value = record.id ?? record._id;
   return value === undefined || value === null ? "" : String(value);
+}
+
+function findPaginationRecord(payload: unknown): CrmRecord {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return {};
+
+  const current = payload as CrmRecord;
+  const hasPagination = ["total", "count", "page", "current_page", "per_page", "perPage"].some(
+    (key) => current[key] !== undefined,
+  );
+
+  if (hasPagination) return current;
+
+  for (const key of ["data", "result", "meta", "pagination"]) {
+    const nested = current[key];
+    const match = findPaginationRecord(nested);
+
+    if (Object.keys(match).length > 0) return match;
+  }
+
+  return {};
+}
+
+async function requestCrmReportList(
+  endpoint: string,
+  filters: Required<Pick<CrmReportFilters, "page" | "perPage">> & Pick<CrmReportFilters, "search">,
+) {
+  const query = compactSearchParams({
+    page: filters.page,
+    per_page: filters.perPage,
+    search: filters.search?.trim(),
+  });
+
+  try {
+    return await api.get(endpoint, { searchParams: query }).json<unknown>();
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 405) throw error;
+
+    return api
+      .post(endpoint, {
+        json: {
+          page: filters.page,
+          per_page: filters.perPage,
+          ...(filters.search?.trim() ? { search: filters.search.trim() } : {}),
+        },
+      })
+      .json<unknown>();
+  }
+}
+
+export async function listCrmReports(
+  kind: CrmReportKind,
+  filters: CrmReportFilters = {},
+): Promise<CrmReportListResult> {
+  const page = filters.page ?? 1;
+  const perPage = filters.perPage ?? 20;
+  const endpoint =
+    kind === "advertise"
+      ? "panel/advertise/report/list"
+      : "panel/chat/report/list";
+  const payload = await requestCrmReportList(endpoint, {
+    page,
+    perPage,
+    search: filters.search,
+  });
+  const data = normalizeRows(payload);
+  const pagination = findPaginationRecord(payload);
+  const totalValue = Number(pagination.total ?? pagination.count ?? data.length);
+  const pageValue = Number(pagination.page ?? pagination.current_page ?? page);
+  const perPageValue = Number(pagination.per_page ?? pagination.perPage ?? perPage);
+
+  return {
+    data,
+    total: Number.isFinite(totalValue) ? totalValue : data.length,
+    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : page,
+    perPage: Number.isFinite(perPageValue) && perPageValue > 0 ? perPageValue : perPage,
+  };
 }
 
 export async function listCrmPayments(filters: CrmPaymentFilters = {}): Promise<CrmPaymentListResult> {

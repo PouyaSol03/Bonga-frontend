@@ -103,11 +103,10 @@ function ChatBubble({ message }: { message: SupportMessage }) {
   return (
     <div className={`flex ${isSupport ? "justify-start" : "justify-end"}`}>
       <div
-        className={`max-w-[72%] rounded-2xl px-4 py-3 shadow-sm ${
-          isSupport
+        className={`max-w-[72%] rounded-2xl px-4 py-3 shadow-sm ${isSupport
             ? "rounded-br-md bg-[#eaf1ff] text-[#1a1a1a]"
             : "rounded-bl-md border border-[#ececec] bg-white text-[#303030]"
-        }`}
+          }`}
       >
         <p className="m-0 text-sm font-medium leading-7">{message.text}</p>
         <span className="mt-1 block text-left text-[11px] font-medium text-[#999999]">
@@ -196,17 +195,17 @@ export function CrmSupportView() {
       current.map((customer, index) =>
         index === activeIndex
           ? {
-              ...customer,
-              messages: [
-                ...customer.messages,
-                {
-                  id: createMessageId(),
-                  sender: "support",
-                  text,
-                  time: currentTimeLabel(),
-                },
-              ],
-            }
+            ...customer,
+            messages: [
+              ...customer.messages,
+              {
+                id: createMessageId(),
+                sender: "support",
+                text,
+                time: currentTimeLabel(),
+              },
+            ],
+          }
           : customer,
       ),
     );
@@ -281,8 +280,43 @@ export function CrmSupportView() {
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl bg-white">
+      <div className="flex min-h-0 flex-1 gap-4">
+        <aside className="flex w-[360px] shrink-0 min-h-0 flex-col overflow-hidden rounded-xl bg-white">
+          <div className="shrink-0 border-b border-[#eeeeee] px-4 py-4">
+            <h2 className="m-0 text-sm font-bold text-[#1a1a1a]">صف انتظار</h2>
+            <p className="m-0 mt-1 text-xs font-medium text-[#808080]">
+              ترتیب مشتریان بعدی
+            </p>
+          </div>
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
+            {queueCustomers.length ? (
+              queueCustomers.map((customer, index) => (
+                <div className="flex items-center gap-3 rounded-xl border border-[#eeeeee] px-3 py-3" key={customer.id}>
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f0f3f8] text-xs font-bold text-[#5d6879]">
+                    {new Intl.NumberFormat("fa-IR").format(index + 1)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <strong className="block truncate text-xs font-bold text-[#303030]">
+                      {customer.name}
+                    </strong>
+                    <span className="mt-1 block truncate text-[11px] font-medium text-[#999999]">
+                      {customer.phone}
+                    </span>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-medium text-[#999999]">
+                    {customer.waitingTime}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="grid h-full min-h-40 place-items-center text-center text-xs font-medium text-[#999999]">
+                مشتری دیگری در صف نیست.
+              </div>
+            )}
+          </div>
+        </aside>
+
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-white">
           <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[#eeeeee] px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-sm font-bold text-[#0048c4]">
@@ -339,41 +373,6 @@ export function CrmSupportView() {
             </button>
           </form>
         </div>
-
-        <aside className="flex min-h-0 flex-col overflow-hidden rounded-xl bg-white">
-          <div className="shrink-0 border-b border-[#eeeeee] px-4 py-4">
-            <h2 className="m-0 text-sm font-bold text-[#1a1a1a]">صف انتظار</h2>
-            <p className="m-0 mt-1 text-xs font-medium text-[#808080]">
-              ترتیب مشتریان بعدی
-            </p>
-          </div>
-          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
-            {queueCustomers.length ? (
-              queueCustomers.map((customer, index) => (
-                <div className="flex items-center gap-3 rounded-xl border border-[#eeeeee] px-3 py-3" key={customer.id}>
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f0f3f8] text-xs font-bold text-[#5d6879]">
-                    {new Intl.NumberFormat("fa-IR").format(index + 1)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <strong className="block truncate text-xs font-bold text-[#303030]">
-                      {customer.name}
-                    </strong>
-                    <span className="mt-1 block truncate text-[11px] font-medium text-[#999999]">
-                      {customer.phone}
-                    </span>
-                  </div>
-                  <span className="shrink-0 text-[10px] font-medium text-[#999999]">
-                    {customer.waitingTime}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="grid h-full min-h-40 place-items-center text-center text-xs font-medium text-[#999999]">
-                مشتری دیگری در صف نیست.
-              </div>
-            )}
-          </div>
-        </aside>
       </div>
 
       {isFinishDialogOpen ? (

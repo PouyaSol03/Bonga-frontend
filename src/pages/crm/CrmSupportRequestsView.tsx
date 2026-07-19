@@ -492,9 +492,6 @@ export function CrmSupportRequestsView({
             <>
               <div className="flex shrink-0 flex-wrap items-start justify-between gap-4 border-b border-[#eeeeee] px-5 py-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-sm font-bold text-[#0048c4]">
-                    {selectedRequest.customerName.slice(0, 1)}
-                  </div>
                   <div className="min-w-0">
                     <strong className="block truncate text-sm font-bold text-[#1a1a1a]">
                       {selectedRequest.customerName}
@@ -508,7 +505,7 @@ export function CrmSupportRequestsView({
                 <div className="flex items-center gap-2">
                   <StatusChip status={selectedRequest.status} />
                   <button
-                    className="h-9 rounded-lg border border-[#e3a2a2] bg-white px-3 text-xs font-semibold text-[#c32929] transition hover:bg-[#fff5f5] disabled:cursor-not-allowed disabled:border-[#e4e4e4] disabled:text-[#a6a6a6]"
+                    className="rounded-lg border border-[#e3a2a2] bg-white px-3 py-1 text-xs! font-semibold text-[#c32929] transition hover:bg-[#fff5f5] disabled:cursor-not-allowed disabled:border-[#e4e4e4] disabled:text-[#a6a6a6]"
                     disabled={selectedRequest.status === "closed"}
                     onClick={closeRequest}
                     type="button"

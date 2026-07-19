@@ -11,18 +11,21 @@ import {
   getChatUnreadCount,
   getChats,
   reportChat,
+  type ChatCategory,
 } from "../services/chat.service";
 
 export function useChatsQuery({
+  category = "advertise",
   page = 1,
   perPage = 10,
 }: {
+  category?: ChatCategory;
   page?: number;
   perPage?: number;
 } = {}) {
   return useQuery({
-    queryFn: () => getChats({ page, perPage }),
-    queryKey: queryKeys.chats.list({ page, perPage }),
+    queryFn: () => getChats({ category, page, perPage }),
+    queryKey: queryKeys.chats.list({ category, page, perPage }),
   });
 }
 

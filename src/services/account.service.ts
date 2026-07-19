@@ -192,6 +192,33 @@ export type WalletPaymentsResult = {
   total: number;
 };
 
+export type PaymentHistoryItem = {
+  id: number | string;
+  _id: number | string;
+  status: "registered" | "paid" | "failed" | "unknown";
+  status_code: number;
+  payment_type: "gateway" | "wallet" | "unknown";
+  payment_type_code: number;
+  payment_for:
+    | "advertise"
+    | "wallet_charge"
+    | "package"
+    | "advertise_checkout"
+    | "unknown";
+  payment_for_code: number;
+  price: number;
+  ref_code: string | null;
+  created_at: string;
+};
+
+export type AccountCreditHistoryPage = {
+  data: PaymentHistoryItem[];
+  hasNextPage: boolean;
+  page: number;
+  perPage: number;
+  total: number;
+};
+
 export type ChargeWalletPayload = {
   price: number;
 };
@@ -488,6 +515,107 @@ export async function getWallet(): Promise<WalletResult> {
     : record;
 
   return { credit: (data.credit as number | string | undefined) ?? 0 };
+}
+
+function asPaginationRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function readFiniteNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function readPaymentHistoryItems(value: unknown): PaymentHistoryItem[] {
+  if (Array.isArray(value)) return value as PaymentHistoryItem[];
+
+  const record = asPaginationRecord(value);
+  if (!record) return [];
+
+  for (const key of ["payments", "history", "items", "list", "result"]) {
+    if (Array.isArray(record[key])) return record[key] as PaymentHistoryItem[];
+  }
+
+  if (Array.isArray(record.data)) return record.data as PaymentHistoryItem[];
+
+  return readPaymentHistoryItems(record.data);
+}
+
+export async function getAccountCreditHistory({
+  page = 1,
+  perPage = 20,
+}: {
+  page?: number;
+  perPage?: number;
+} = {}): Promise<AccountCreditHistoryPage> {
+  const response = await api
+    .get("me/account/credit/history", {
+      searchParams: { page, per_page: perPage },
+    })
+    .json<unknown>();
+  const root = asPaginationRecord(response);
+  const nestedData = asPaginationRecord(root?.data);
+  const meta =
+    asPaginationRecord(root?.meta) ??
+    asPaginationRecord(root?.pagination) ??
+    asPaginationRecord(nestedData?.meta) ??
+    asPaginationRecord(nestedData?.pagination);
+  const data = readPaymentHistoryItems(response);
+  const currentPage =
+    readFiniteNumber(
+      meta?.current_page ??
+        meta?.page ??
+        nestedData?.current_page ??
+        nestedData?.page ??
+        root?.current_page ??
+        root?.page,
+    ) ?? page;
+  const resolvedPerPage =
+    readFiniteNumber(
+      meta?.per_page ??
+        meta?.perPage ??
+        nestedData?.per_page ??
+        nestedData?.perPage ??
+        root?.per_page ??
+        root?.perPage,
+    ) ?? perPage;
+  const reportedTotal = readFiniteNumber(
+    meta?.total ?? nestedData?.total ?? root?.total,
+  );
+  const total = reportedTotal ?? data.length;
+  const lastPage = readFiniteNumber(
+    meta?.last_page ??
+      meta?.lastPage ??
+      meta?.total_pages ??
+      nestedData?.last_page ??
+      nestedData?.lastPage ??
+      nestedData?.total_pages ??
+      root?.last_page ??
+      root?.lastPage ??
+      root?.total_pages,
+  );
+
+  return {
+    data,
+    hasNextPage:
+      lastPage !== undefined
+        ? currentPage < lastPage
+        : reportedTotal !== undefined
+          ? currentPage * resolvedPerPage < reportedTotal
+          : data.length >= resolvedPerPage,
+    page: currentPage,
+    perPage: resolvedPerPage,
+    total,
+  };
 }
 
 export async function getWalletPayments(page = 1): Promise<WalletPaymentsResult> {

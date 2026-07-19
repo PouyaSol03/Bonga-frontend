@@ -2,6 +2,7 @@ import { io, type Socket } from "socket.io-client";
 
 import { getStoredAccessToken } from "../auth/auth-storage";
 import { baseUrl } from "./api";
+import type { ChatCategory } from "../services/chat.service";
 
 type ChatSocketServerToClientEvents = {
   "chat:error": (payload: { message?: string }) => void;
@@ -59,13 +60,13 @@ export type ChatSocket = Socket<
   ChatSocketClientToServerEvents
 >;
 
-let chatSocket: ChatSocket | null = null;
+const chatSockets = new Map<ChatCategory, ChatSocket>();
 
-function getChatSocketUrl() {
+function getChatSocketUrl(category: ChatCategory) {
   const socketBaseUrl =
     baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
 
-  return `${socketBaseUrl.replace(/\/$/, "")}/chat`;
+  return `${socketBaseUrl.replace(/\/$/, "")}/chats?category=${encodeURIComponent(category)}`;
 }
 
 export function readSocketThreadId(payload: ChatJoinPayload) {
@@ -86,16 +87,18 @@ export function readSocketThreadId(payload: ChatJoinPayload) {
   );
 }
 
-export function getChatSocket() {
+export function getChatSocket(category: ChatCategory = "advertise") {
   const token = getStoredAccessToken();
+  let chatSocket = chatSockets.get(category);
 
   if (!chatSocket) {
-    chatSocket = io(getChatSocketUrl(), {
+    chatSocket = io(getChatSocketUrl(category), {
       auth: {
         token,
       },
       autoConnect: false,
     });
+    chatSockets.set(category, chatSocket);
   }
 
   chatSocket.auth = { token };
@@ -108,13 +111,15 @@ export function getChatSocket() {
 }
 
 export function joinChatThread({
+  category = "advertise",
   onJoined,
   threadId,
 }: {
+  category?: ChatCategory;
   onJoined?: (threadId: string) => void;
   threadId: string;
 }) {
-  const socket = getChatSocket();
+  const socket = getChatSocket(category);
   const handleJoinPayload = (payload: ChatJoinPayload) => {
     const joinedThreadId = readSocketThreadId(payload);
 
@@ -128,30 +133,40 @@ export function joinChatThread({
   return socket;
 }
 
-export function leaveChatThread(threadId: string) {
-  getChatSocket().emit("chat:leave", { threadId });
+export function leaveChatThread(
+  threadId: string,
+  category: ChatCategory = "advertise",
+) {
+  getChatSocket(category).emit("chat:leave", { threadId });
 }
 
-export function markChatRead(threadId: string) {
-  getChatSocket().emit("chat:read", { threadId });
+export function markChatRead(
+  threadId: string,
+  category: ChatCategory = "advertise",
+) {
+  getChatSocket(category).emit("chat:read", { threadId });
 }
 
 export function sendChatTextMessage({
   body,
+  category = "advertise",
   threadId,
 }: {
   body: string;
+  category?: ChatCategory;
   threadId: string;
 }) {
-  getChatSocket().emit("chat:message:send", { body, threadId, type: "text" });
+  getChatSocket(category).emit("chat:message:send", { body, threadId, type: "text" });
 }
 
 export function sendChatTyping({
+  category = "advertise",
   threadId,
   typing,
 }: {
+  category?: ChatCategory;
   threadId: string;
   typing: boolean;
 }) {
-  getChatSocket().emit("chat:typing", { threadId, typing });
+  getChatSocket(category).emit("chat:typing", { threadId, typing });
 }

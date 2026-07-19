@@ -9,6 +9,7 @@ import {
   createMyAgent,
   deleteAdvertiseBadge,
   deleteAdvertiseNote,
+  getAccountCreditHistory,
   getAdvertiseBadges,
   getMyAds,
   getMyAgencyProfile,
@@ -22,6 +23,7 @@ import {
   updateMyAgencyProfile,
   updateMyProfile,
   verifyPaymentCallback,
+  type AccountCreditHistoryPage,
   type AdvertiseBadgesPage,
   type MyAdsPage,
   type MyAdsType,
@@ -115,6 +117,27 @@ export function useWalletPaymentsQuery(page = 1) {
   return useQuery({
     queryFn: () => getWalletPayments(page),
     queryKey: queryKeys.account.walletPayments(page),
+  });
+}
+
+export function useAccountCreditHistoryInfiniteQuery({
+  perPage = 20,
+}: {
+  perPage?: number;
+} = {}) {
+  return useInfiniteQuery<
+    AccountCreditHistoryPage,
+    Error,
+    { pages: AccountCreditHistoryPage[]; pageParams: number[] },
+    ReturnType<typeof queryKeys.account.creditHistory>,
+    number
+  >({
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getAccountCreditHistory({ page: pageParam, perPage }),
+    queryKey: queryKeys.account.creditHistory(perPage),
   });
 }
 

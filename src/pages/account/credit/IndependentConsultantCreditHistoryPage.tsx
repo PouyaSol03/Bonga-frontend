@@ -1,10 +1,102 @@
-import type { ReactNode } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
 
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
-import { creditPayments, type CreditPayment } from "./creditData";
+import { useAccountCreditHistoryInfiniteQuery } from "../../../hooks/account.hooks";
+import type { PaymentHistoryItem } from "../../../services/account.service";
+import type { CreditPayment } from "./creditData";
+
+const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
+
+const paymentStatusLabels: Record<PaymentHistoryItem["status"], string> = {
+  failed: "ناموفق",
+  paid: "پرداخت شده",
+  registered: "ثبت شده",
+  unknown: "نامشخص",
+};
+
+const paymentTypeLabels: Record<PaymentHistoryItem["payment_type"], string> = {
+  gateway: "پرداخت آنلاین",
+  unknown: "نامشخص",
+  wallet: "کیف پول",
+};
+
+const paymentForLabels: Record<PaymentHistoryItem["payment_for"], string> = {
+  advertise: "آگهی",
+  advertise_checkout: "پرداخت آگهی",
+  package: "بسته",
+  unknown: "نامشخص",
+  wallet_charge: "افزایش اعتبار کیف پول",
+};
+
+function formatPaymentDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return value || "-";
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "2-digit",
+    month: "long",
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+  }).format(date);
+}
+
+function mapPaymentHistoryItem(item: PaymentHistoryItem): CreditPayment {
+  return {
+    amount: `${persianNumberFormatter.format(item.price)} تومان`,
+    id: item.ref_code?.trim() || "-",
+    method: paymentTypeLabels[item.payment_type] ?? paymentTypeLabels.unknown,
+    paidAt: formatPaymentDate(item.created_at),
+    service: paymentForLabels[item.payment_for] ?? paymentForLabels.unknown,
+    status: paymentStatusLabels[item.status] ?? paymentStatusLabels.unknown,
+    statusTone: item.status === "paid" ? "success" : "error",
+  };
+}
 
 export function IndependentConsultantCreditHistoryPage() {
+  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
+  const {
+    data: historyPages,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAccountCreditHistoryInfiniteQuery({ perPage: 20 });
+  const payments = useMemo(
+    () =>
+      historyPages?.pages.flatMap((page) =>
+        page.data.map(mapPaymentHistoryItem),
+      ) ?? [],
+    [historyPages],
+  );
+  const loadMoreTriggerIndex = Math.max(payments.length - 6, 0);
+  const loadMoreSentinelRef = useCallback(
+    (node: HTMLElement | null) => {
+      loadMoreObserverRef.current?.disconnect();
+      loadMoreObserverRef.current = null;
+
+      if (!node || !hasNextPage || isFetchingNextPage) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage();
+          }
+        },
+        { root: null, rootMargin: "240px 0px", threshold: 0 },
+      );
+
+      observer.observe(node);
+      loadMoreObserverRef.current = observer;
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
+
   return (
     <PageFrame
       className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -13,17 +105,37 @@ export function IndependentConsultantCreditHistoryPage() {
       <TopBar backTo="/account/credit/panel" title="تاریخچه پرداخت" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        {creditPayments.map((payment, index) => (
-          <PaymentHistoryCard key={`${payment.id}-${payment.service}-${index}`} payment={payment} />
-        ))}
+        {payments.map((payment, index) => {
+          const shouldAttachLoadMoreRef =
+            index === loadMoreTriggerIndex &&
+            hasNextPage &&
+            !isFetchingNextPage;
+
+          return (
+            <PaymentHistoryCard
+              key={`${payment.id}-${payment.service}-${payment.paidAt}-${index}`}
+              payment={payment}
+              ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+            />
+          );
+        })}
       </main>
     </PageFrame>
   );
 }
 
-function PaymentHistoryCard({ payment }: { payment: CreditPayment }) {
+function PaymentHistoryCard({
+  payment,
+  ref,
+}: {
+  payment: CreditPayment;
+  ref?: (node: HTMLElement | null) => void;
+}) {
   return (
-    <section className="mb-2 flex h-[224px] flex-col justify-between bg-white px-4 py-4 last:mb-0">
+    <section
+      className="mb-2 flex h-[224px] flex-col justify-between bg-white px-4 py-4 last:mb-0"
+      ref={ref}
+    >
       <PaymentHistoryRow
         label="وضعیت"
         value={payment.status}

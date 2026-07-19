@@ -130,6 +130,8 @@ export const queryKeys = {
     wallet: () => [...queryKeys.account.all, "wallet"] as const,
     walletPayments: (page: number) =>
       [...queryKeys.account.all, "wallet-payments", page] as const,
+    creditHistory: (perPage: number) =>
+      [...queryKeys.account.all, "credit-history", perPage] as const,
     myAdsRoot: () => [...queryKeys.account.all, "my-ads"] as const,
     myAds: (filters: { perPage: number; type: string }) =>
       [...queryKeys.account.myAdsRoot(), filters.type, filters.perPage] as const,
@@ -150,8 +152,14 @@ export const queryKeys = {
         params.threadId ?? "",
         params.advertiseId ?? "",
       ] as const,
-    list: (filters: { page: number; perPage: number }) =>
-      [...queryKeys.chats.all, "list", filters.page, filters.perPage] as const,
+    list: (filters: { category: string; page: number; perPage: number }) =>
+      [
+        ...queryKeys.chats.all,
+        "list",
+        filters.category,
+        filters.page,
+        filters.perPage,
+      ] as const,
     messages: (threadId: string) =>
       [...queryKeys.chats.detail(threadId), "messages"] as const,
     unreadCount: () => [...queryKeys.chats.all, "unread-count"] as const,

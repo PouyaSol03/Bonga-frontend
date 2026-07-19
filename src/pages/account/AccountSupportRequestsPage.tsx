@@ -4,6 +4,7 @@ import { PageFrame } from "../../app/PageFrame";
 import LinearAdd from "../../components/(icons)/LinearAdd";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearAttachment from "../../components/(icons)/LinearAttachment";
+import LinearTick from "../../components/(icons)/LinearTick";
 import {
   BottomSheet,
   BottomSheetActionList,
@@ -58,10 +59,15 @@ const categoryOptions: SelectOption[] = [
 ];
 
 const priorityOptions: SelectOption[] = [
-  { id: "urgent", title: "فوری", value: "فوری" },
-  { id: "high", title: "زیاد", value: "زیاد" },
-  { id: "normal", title: "متوسط", value: "متوسط" },
-  { id: "low", title: "کم", value: "کم" },
+  { id: "normal", title: "عادی", value: "عادی" },
+  { id: "important", title: "مهم", value: "مهم" },
+  {
+    id: "urgent",
+    title: "فوری",
+    value: "فوری",
+    description:
+      "فقط در صورت اختلال جدی در استفاده از سامانه، گزینه «فوری» را انتخاب کنید.",
+  },
 ];
 
 const statusPresentation: Record<
@@ -371,14 +377,60 @@ function RequestOptionBottomSheet({
       title={title}
       titleAlign="center"
     >
-      <BottomSheetActionList
-        align="center"
-        isOpen={isOpen}
-        items={options}
-        onSelect={(option) => onSelect(option.value)}
-        selectedId={selectedOption?.id}
-        showCheckIcon
-      />
+      {options.some((option) => option.description) ? (
+        <div>
+          {options.map((option, index) => {
+            const isSelected = option.id === selectedOption?.id;
+
+            return (
+              <div key={option.id}>
+                <button
+                  aria-pressed={isSelected}
+                  className={`relative flex min-h-12 w-full items-center justify-center bg-white px-10 py-2.5 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440] ${
+                    isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
+                  }`}
+                  onClick={() => onSelect(option.value)}
+                  tabIndex={isOpen ? 0 : -1}
+                  type="button"
+                >
+                  {isSelected ? (
+                    <LinearTick
+                      aria-hidden="true"
+                      className="absolute right-4 h-5 w-5"
+                    />
+                  ) : null}
+
+                  <span className="flex min-w-0 flex-col items-center">
+                    <span className="text-base font-normal leading-6">
+                      {option.title}
+                    </span>
+                    {option.description ? (
+                      <span className="mt-1 max-w-[360px] text-xs font-normal leading-5 text-[#808080]">
+                        {option.description}
+                      </span>
+                    ) : null}
+                  </span>
+                </button>
+
+                {index < options.length - 1 ? (
+                  <div className="px-4 py-2">
+                    <div className="h-px bg-[#f0f0f0]" />
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <BottomSheetActionList
+          align="center"
+          isOpen={isOpen}
+          items={options}
+          onSelect={(option) => onSelect(option.value)}
+          selectedId={selectedOption?.id}
+          showCheckIcon
+        />
+      )}
     </BottomSheet>
   );
 }

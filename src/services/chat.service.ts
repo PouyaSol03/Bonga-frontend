@@ -1,5 +1,7 @@
 import { api } from "../api/api";
 
+export type ChatCategory = "advertise" | "support";
+
 export type ChatThread = Record<string, unknown> & {
   _id?: string;
   ad?: Record<string, unknown>;
@@ -177,15 +179,18 @@ function readChatUnreadCount(response: ChatUnreadCountResponse) {
 }
 
 export async function getChats({
+  category = "advertise",
   page = 1,
   perPage = 10,
 }: {
+  category?: ChatCategory;
   page?: number;
   perPage?: number;
 } = {}): Promise<ChatsPage> {
   const response = await api
     .get("chats", {
       searchParams: {
+        category,
         page,
         per_page: perPage,
       },

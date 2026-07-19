@@ -1774,6 +1774,7 @@ export function UserChatDetailPage() {
     if (!activeThreadId) return;
 
     const socket = joinChatThread({
+      category: "advertise",
       onJoined: setActiveThreadId,
       threadId: activeThreadId,
     });
@@ -1792,7 +1793,7 @@ export function UserChatDetailPage() {
       }
 
       setLiveMessages((current) => dedupeChatMessages([...current, nextMessage]));
-      markChatRead(activeThreadId);
+      markChatRead(activeThreadId, "advertise");
     };
     const handleTyping = (payload: { typing?: boolean; userId?: number | string }) => {
       if (payload.typing) {
@@ -1818,14 +1819,14 @@ export function UserChatDetailPage() {
     socket.on("chat:typing", handleTyping);
     socket.on("chat:read", handleRead);
     socket.on("chat:error", handleError);
-    markChatRead(activeThreadId);
+    markChatRead(activeThreadId, "advertise");
 
     return () => {
       socket.off("chat:message:new", handleNewMessage);
       socket.off("chat:typing", handleTyping);
       socket.off("chat:read", handleRead);
       socket.off("chat:error", handleError);
-      leaveChatThread(activeThreadId);
+      leaveChatThread(activeThreadId, "advertise");
     };
   }, [activeThreadId, currentUserId, messagesQuery.refetch, showNotice]);
 
@@ -1869,14 +1870,14 @@ export function UserChatDetailPage() {
 
     if (!activeThreadId) return;
 
-    sendChatTyping({ threadId: activeThreadId, typing: true });
+    sendChatTyping({ category: "advertise", threadId: activeThreadId, typing: true });
 
     if (typingTimeoutRef.current) {
       window.clearTimeout(typingTimeoutRef.current);
     }
 
     typingTimeoutRef.current = window.setTimeout(() => {
-      sendChatTyping({ threadId: activeThreadId, typing: false });
+      sendChatTyping({ category: "advertise", threadId: activeThreadId, typing: false });
       typingTimeoutRef.current = null;
     }, 1200);
   };
@@ -1890,7 +1891,7 @@ export function UserChatDetailPage() {
         text,
         (pendingOutgoingBodiesRef.current.get(text) ?? 0) + 1,
       );
-      sendChatTextMessage({ body: text, threadId: activeThreadId });
+      sendChatTextMessage({ body: text, category: "advertise", threadId: activeThreadId });
     }
 
     setDraftMessage("");
@@ -2140,7 +2141,7 @@ export function UserChatHomePage() {
     isError,
     isLoading,
     refetch,
-  } = useChatsQuery({ page: 1, perPage: 10 });
+  } = useChatsQuery({ category: "advertise", page: 1, perPage: 10 });
   const chats = useMemo(
     () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
     [chatsPage?.data],

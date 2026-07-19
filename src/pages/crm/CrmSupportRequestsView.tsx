@@ -105,7 +105,7 @@ const sampleRequests: CrmSupportRequest[] = [
     requestNumber: "#۱۲۴۶۳",
     createdAt: "۲۵ تیر ۱۴۰۵ - ۰۹:۴۸",
     status: "in_progress",
-    priority: "زیاد",
+    priority: "مهم",
     description:
       "هزینه خرید بسته از حساب من کسر شده اما اعتبار آگهی و بروزرسانی به پنل اضافه نشده است.",
     customerName: "سارا احمدی",
@@ -126,7 +126,7 @@ const sampleRequests: CrmSupportRequest[] = [
     requestNumber: "#۱۲۳۹۸",
     createdAt: "۲۴ تیر ۱۴۰۵ - ۱۶:۲۱",
     status: "closed",
-    priority: "متوسط",
+    priority: "عادی",
     description:
       "شماره قبلی من غیرفعال شده و می‌خواهم شماره تماس حساب کاربری را تغییر دهم.",
     customerName: "علی حسینی",
@@ -306,9 +306,9 @@ function PriorityChip({ priority }: { priority?: string }) {
   const className =
     priority === "فوری"
       ? "bg-[#fff0ee] text-[#d92d20]"
-      : priority === "زیاد"
+      : priority === "مهم" || priority === "زیاد"
         ? "bg-[#fff5e6] text-[#b54708]"
-        : priority === "متوسط"
+        : priority === "عادی" || priority === "متوسط"
           ? "bg-[#eef4ff] text-[#0048c4]"
           : "bg-[#f3f3f3] text-[#666666]";
 

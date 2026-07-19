@@ -1,11 +1,25 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
+import {
+  joinChatThread,
+  leaveChatThread,
+  markChatRead,
+  sendChatTextMessage,
+  sendChatTyping,
+} from "../../api/chat-socket";
+import { getStoredAuthSession } from "../../auth/auth-storage";
 import LinearAttachment from "../../components/(icons)/LinearAttachment";
 import LinearCancel from "../../components/(icons)/LinearCancel";
 import LinearChat from "../../components/(icons)/LinearChat";
 import LinearSent from "../../components/(icons)/LinearSent";
 import LinearTick from "../../components/(icons)/LinearTick";
+import {
+  useChatMessagesQuery,
+  useChatsQuery,
+  useDeleteChatMutation,
+} from "../../hooks/chat.hooks";
+import type { ChatMessage, ChatThread } from "../../services/chat.service";
 
 type SupportMessage = {
   id: string;
@@ -23,86 +37,285 @@ type SupportCustomer = {
   waitingTime: string;
 };
 
-const initialCustomers: SupportCustomer[] = [
-  {
-    id: "support-101",
-    name: "محمد رضایی",
-    phone: "۰۹۱۲ ۳۴۵ ۶۷۸۹",
-    unreadCount: 0,
-    waitingTime: "۴ دقیقه",
-    messages: [
-      {
-        id: "m-101-1",
-        sender: "customer",
-        text: "سلام، هنگام ثبت آگهی در مرحله انتخاب محله با خطا روبه‌رو می‌شوم.",
-        time: "۱۰:۳۲",
-      },
-      {
-        id: "m-101-2",
-        sender: "support",
-        text: "سلام، وقت بخیر. لطفاً بفرمایید این خطا بعد از انتخاب شهر نمایش داده می‌شود؟",
-        time: "۱۰:۳۳",
-      },
-      {
-        id: "m-101-3",
-        sender: "customer",
-        text: "بله، شهر را انتخاب می‌کنم اما فهرست محله‌ها باز نمی‌شود.",
-        time: "۱۰:۳۴",
-      },
-    ],
-  },
-  {
-    id: "support-102",
-    name: "سارا احمدی",
-    phone: "۰۹۳۵ ۱۲۳ ۴۵۶۷",
-    unreadCount: 2,
-    waitingTime: "۷ دقیقه",
-    messages: [
-      {
-        id: "m-102-1",
-        sender: "customer",
-        text: "سلام، مبلغ بسته از حسابم کم شده اما اعتبار پنل اضافه نشده است.",
-        time: "۱۰:۲۸",
-      },
-      {
-        id: "m-102-2",
-        sender: "customer",
-        text: "شماره پیگیری پرداخت را هم دارم؛ برای شما ارسال کنم؟",
-        time: "۱۰:۳۰",
-      },
-    ],
-  },
-  {
-    id: "support-103",
-    name: "علی حسینی",
-    phone: "۰۹۱۵ ۸۷۶ ۵۴۳۲",
-    unreadCount: 1,
-    waitingTime: "۱۲ دقیقه",
-    messages: [
-      {
-        id: "m-103-1",
-        sender: "customer",
-        text: "برای تغییر شماره تماس حساب کاربری باید از کدام قسمت اقدام کنم؟",
-        time: "۱۰:۲۳",
-      },
-    ],
-  },
-  {
-    id: "support-104",
-    name: "مریم کریمی",
-    phone: "۰۹۰۱ ۲۲۲ ۳۳۴۴",
-    unreadCount: 1,
-    waitingTime: "۱۵ دقیقه",
-    messages: [
-      {
-        id: "m-104-1",
-        sender: "customer",
-        text: "مدارک احراز هویت من رد شده است. لطفاً راهنمایی می‌کنید چه چیزی باید اصلاح شود؟",
-        time: "۱۰:۲۰",
-      },
-    ],
-  },
-];
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function readText(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (typeof value === "number") return String(value);
+
+  return "";
+}
+
+function readNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function readPathText(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asRecord(current)?.[key];
+    }
+
+    const text = readText(current);
+    if (text) return text;
+  }
+
+  return "";
+}
+
+function readPathRecord(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asRecord(current)?.[key];
+    }
+
+    const record = asRecord(current);
+    if (record) return record;
+  }
+
+  return undefined;
+}
+
+function readThreadId(source: unknown) {
+  return readPathText(source, [
+    "id",
+    "_id",
+    "threadId",
+    "thread_id",
+    "thread.id",
+    "thread._id",
+  ]);
+}
+
+function readMessageBody(message: ChatMessage) {
+  return readPathText(message, [
+    "body",
+    "text",
+    "content",
+    "description",
+    "message",
+    "message.body",
+    "message.text",
+    "data.body",
+    "data.text",
+    "data.message",
+  ]);
+}
+
+function readMessageSenderId(message: ChatMessage) {
+  return readPathText(message, [
+    "sender_id",
+    "senderId",
+    "user_id",
+    "userId",
+    "sender.id",
+    "sender._id",
+    "user.id",
+    "user._id",
+  ]);
+}
+
+function readCurrentUserId() {
+  const token = getStoredAuthSession()?.accessToken;
+  if (!token) return "";
+
+  try {
+    const [, payload = ""] = token.split(".");
+    const normalizedPayload = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payload.length / 4) * 4, "=");
+    const decodedPayload = JSON.parse(window.atob(normalizedPayload)) as {
+      sub?: unknown;
+      userId?: unknown;
+      user_id?: unknown;
+    };
+
+    return readText(
+      decodedPayload.sub ?? decodedPayload.userId ?? decodedPayload.user_id,
+    );
+  } catch {
+    return "";
+  }
+}
+
+function isSupportMessage(message: ChatMessage, currentUserId: string) {
+  const senderId = readMessageSenderId(message);
+  const senderRole = readPathText(message, [
+    "sender.role",
+    "sender.role.slug",
+    "user.role",
+    "user.role.slug",
+    "role",
+  ]).toLowerCase();
+
+  return (
+    message.is_mine === true ||
+    message.isMine === true ||
+    message.from_me === true ||
+    message.fromMe === true ||
+    (Boolean(currentUserId) && senderId === currentUserId) ||
+    senderRole.includes("support") ||
+    senderRole.includes("admin")
+  );
+}
+
+function formatMessageTime(value: unknown) {
+  const text = readText(value);
+  if (!text) return currentTimeLabel();
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Tehran",
+  }).format(date);
+}
+
+function formatWaitingTime(value: unknown) {
+  const text = readText(value);
+  if (!text) return "همین حالا";
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
+
+  if (elapsedMinutes < 1) return "همین حالا";
+  if (elapsedMinutes < 60) {
+    return `${new Intl.NumberFormat("fa-IR").format(elapsedMinutes)} دقیقه`;
+  }
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  if (elapsedHours < 24) {
+    return `${new Intl.NumberFormat("fa-IR").format(elapsedHours)} ساعت`;
+  }
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Tehran",
+  }).format(date);
+}
+
+function mapChatMessage(
+  message: ChatMessage,
+  index: number,
+  currentUserId: string,
+): SupportMessage | null {
+  const text = readMessageBody(message);
+  if (!text) return null;
+
+  return {
+    id:
+      readPathText(message, ["id", "_id", "messageId", "message_id"]) ||
+      `api-${index}-${text}`,
+    sender: isSupportMessage(message, currentUserId) ? "support" : "customer",
+    text,
+    time: formatMessageTime(
+      readPathText(message, [
+        "sent_at",
+        "sentAt",
+        "created_at",
+        "createdAt",
+        "date",
+      ]),
+    ),
+  };
+}
+
+function dedupeSupportMessages(messages: SupportMessage[]) {
+  const seen = new Set<string>();
+
+  return messages.filter((message) => {
+    const key = `${message.id}:${message.sender}:${message.text}`;
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function mapThreadToCustomer(
+  thread: ChatThread,
+  index: number,
+  currentUserId: string,
+): SupportCustomer | null {
+  const id = readThreadId(thread);
+  if (!id) return null;
+
+  const user =
+    readPathRecord(thread, [
+      "user",
+      "customer",
+      "participant",
+      "sender",
+      "receiver",
+      "last_message.user",
+    ]) ?? {};
+  const lastMessageRecord = readPathRecord(thread, [
+    "last_message",
+    "lastMessage",
+    "message",
+  ]);
+  const lastMessage = lastMessageRecord
+    ? mapChatMessage(lastMessageRecord as ChatMessage, index, currentUserId)
+    : null;
+
+  return {
+    id,
+    messages: lastMessage ? [lastMessage] : [],
+    name:
+      readPathText(user, [
+        "full_name",
+        "fullName",
+        "name",
+        "username",
+      ]) ||
+      readPathText(thread, [
+        "user_name",
+        "userName",
+        "full_name",
+        "fullName",
+        "name",
+      ]) ||
+      "کاربر",
+    phone:
+      readPathText(user, ["mobile", "phone", "phone_number", "phoneNumber"]) ||
+      readPathText(thread, ["mobile", "phone", "phone_number", "phoneNumber"]) ||
+      "-",
+    unreadCount:
+      readNumber(thread.unread_count ?? thread.unreadCount) ?? 0,
+    waitingTime: formatWaitingTime(
+      readPathText(thread, [
+        "last_message_at",
+        "lastMessageAt",
+        "updated_at",
+        "updatedAt",
+        "created_at",
+        "createdAt",
+      ]),
+    ),
+  };
+}
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -249,15 +462,77 @@ function CloseConversationDialog({
 
 export function CrmSupportView() {
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [customers, setCustomers] = useState(initialCustomers);
-  const [activeCustomerId, setActiveCustomerId] = useState<string | null>(
-    initialCustomers[0]?.id ?? null,
-  );
+  const currentUserId = useMemo(readCurrentUserId, []);
+  const [activeCustomerId, setActiveCustomerId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false);
+  const [closedCustomerIds, setClosedCustomerIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [readCustomerIds, setReadCustomerIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [unreadDeltas, setUnreadDeltas] = useState<Record<string, number>>({});
+  const [liveMessages, setLiveMessages] = useState<Record<string, SupportMessage[]>>(
+    {},
+  );
   const composerInputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const pendingOutgoingBodiesRef = useRef<Map<string, number>>(new Map());
+  const typingTimeoutRef = useRef<number | null>(null);
+  const { data: chatsPage } = useChatsQuery({
+    category: "support",
+    page: 1,
+    perPage: 50,
+  });
+  const messagesQuery = useChatMessagesQuery(activeCustomerId);
+  const deleteChatMutation = useDeleteChatMutation();
+  const apiMessages = useMemo(
+    () =>
+      (messagesQuery.data ?? [])
+        .map((message, index) =>
+          mapChatMessage(message, index, currentUserId),
+        )
+        .filter((message): message is SupportMessage => message !== null),
+    [currentUserId, messagesQuery.data],
+  );
+  const customers = useMemo(
+    () =>
+      (chatsPage?.data ?? [])
+        .map((thread, index) =>
+          mapThreadToCustomer(thread, index, currentUserId),
+        )
+        .filter((customer): customer is SupportCustomer => customer !== null)
+        .filter((customer) => !closedCustomerIds.has(customer.id))
+        .map((customer) => {
+          const baseMessages =
+            customer.id === activeCustomerId && apiMessages.length > 0
+              ? apiMessages
+              : customer.messages;
+          const unreadCount = readCustomerIds.has(customer.id)
+            ? unreadDeltas[customer.id] ?? 0
+            : customer.unreadCount + (unreadDeltas[customer.id] ?? 0);
 
+          return {
+            ...customer,
+            messages: dedupeSupportMessages([
+              ...baseMessages,
+              ...(liveMessages[customer.id] ?? []),
+            ]),
+            unreadCount,
+          };
+        }),
+    [
+      activeCustomerId,
+      apiMessages,
+      chatsPage?.data,
+      closedCustomerIds,
+      currentUserId,
+      liveMessages,
+      readCustomerIds,
+      unreadDeltas,
+    ],
+  );
   const activeCustomer = useMemo(
     () => customers.find((customer) => customer.id === activeCustomerId),
     [activeCustomerId, customers],
@@ -268,20 +543,153 @@ export function CrmSupportView() {
   );
 
   useEffect(() => {
+    if (customers.length === 0) {
+      if (activeCustomerId) setActiveCustomerId(null);
+      return;
+    }
+
+    if (activeCustomerId && customers.some((customer) => customer.id === activeCustomerId)) {
+      return;
+    }
+
+    const firstCustomerId = customers[0]?.id ?? null;
+    setActiveCustomerId(firstCustomerId);
+
+    if (firstCustomerId) {
+      setReadCustomerIds((current) => new Set(current).add(firstCustomerId));
+      setUnreadDeltas((current) => ({ ...current, [firstCustomerId]: 0 }));
+      markChatRead(firstCustomerId, "support");
+    }
+  }, [activeCustomerId, customers]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "end" });
   }, [activeCustomer?.id, activeCustomer?.messages.length]);
 
+  useEffect(() => {
+    if (!activeCustomerId) return;
+
+    const threadId = activeCustomerId;
+    const socket = joinChatThread({ category: "support", threadId });
+    const handleNewMessage = (payload: { message?: unknown }) => {
+      if (!payload.message || typeof payload.message !== "object") return;
+
+      const rawMessage = payload.message as ChatMessage;
+      const targetThreadId = readThreadId(rawMessage) || threadId;
+      const mappedMessage = mapChatMessage(rawMessage, Date.now(), currentUserId);
+      if (!mappedMessage) return;
+
+      const pendingKey = `${targetThreadId}:${mappedMessage.text}`;
+      const pendingCount = pendingOutgoingBodiesRef.current.get(pendingKey) ?? 0;
+
+      setLiveMessages((current) => {
+        const currentMessages = current[targetThreadId] ?? [];
+        let nextMessages = currentMessages;
+
+        if (mappedMessage.sender === "support" && pendingCount > 0) {
+          const optimisticIndex = currentMessages.findLastIndex(
+            (message) =>
+              message.sender === "support" &&
+              message.text === mappedMessage.text &&
+              message.id.startsWith("local-"),
+          );
+
+          if (optimisticIndex >= 0) {
+            nextMessages = currentMessages.map((message, index) =>
+              index === optimisticIndex ? mappedMessage : message,
+            );
+          } else {
+            nextMessages = [...currentMessages, mappedMessage];
+          }
+        } else {
+          nextMessages = [...currentMessages, mappedMessage];
+        }
+
+        return {
+          ...current,
+          [targetThreadId]: dedupeSupportMessages(nextMessages),
+        };
+      });
+
+      if (mappedMessage.sender === "support" && pendingCount > 0) {
+        if (pendingCount === 1) pendingOutgoingBodiesRef.current.delete(pendingKey);
+        else pendingOutgoingBodiesRef.current.set(pendingKey, pendingCount - 1);
+      }
+
+      if (targetThreadId === activeCustomerId) {
+        markChatRead(targetThreadId, "support");
+        return;
+      }
+
+      if (mappedMessage.sender === "customer") {
+        setReadCustomerIds((current) => {
+          const next = new Set(current);
+          next.delete(targetThreadId);
+          return next;
+        });
+        setUnreadDeltas((current) => ({
+          ...current,
+          [targetThreadId]: (current[targetThreadId] ?? 0) + 1,
+        }));
+      }
+    };
+    const handleRead = (payload: { threadId?: number | string }) => {
+      const readThreadId = readText(payload.threadId);
+      if (readThreadId && readThreadId !== threadId) return;
+
+      void messagesQuery.refetch();
+    };
+
+    socket.on("chat:message:new", handleNewMessage);
+    socket.on("chat:read", handleRead);
+    markChatRead(threadId, "support");
+
+    return () => {
+      socket.off("chat:message:new", handleNewMessage);
+      socket.off("chat:read", handleRead);
+      leaveChatThread(threadId, "support");
+    };
+  }, [activeCustomerId, currentUserId, messagesQuery.refetch]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        window.clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const selectCustomer = (customerId: string) => {
     setActiveCustomerId(customerId);
-    setCustomers((current) =>
-      current.map((customer) =>
-        customer.id === customerId && customer.unreadCount > 0
-          ? { ...customer, unreadCount: 0 }
-          : customer,
-      ),
-    );
+    setReadCustomerIds((current) => new Set(current).add(customerId));
+    setUnreadDeltas((current) => ({ ...current, [customerId]: 0 }));
+    markChatRead(customerId, "support");
     setDraft("");
     window.requestAnimationFrame(() => composerInputRef.current?.focus());
+  };
+
+  const changeDraft = (value: string) => {
+    setDraft(value);
+    if (!activeCustomerId) return;
+
+    sendChatTyping({
+      category: "support",
+      threadId: activeCustomerId,
+      typing: true,
+    });
+
+    if (typingTimeoutRef.current) {
+      window.clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = window.setTimeout(() => {
+      sendChatTyping({
+        category: "support",
+        threadId: activeCustomerId,
+        typing: false,
+      });
+      typingTimeoutRef.current = null;
+    }, 1200);
   };
 
   const sendMessage = (event: FormEvent<HTMLFormElement>) => {
@@ -290,30 +698,36 @@ export function CrmSupportView() {
 
     if (!text || !activeCustomer) return;
 
-    setCustomers((current) =>
-      current.map((customer) =>
-        customer.id === activeCustomer.id
-          ? {
-              ...customer,
-              messages: [
-                ...customer.messages,
-                {
-                  id: createMessageId(),
-                  sender: "support",
-                  text,
-                  time: currentTimeLabel(),
-                },
-              ],
-            }
-          : customer,
-      ),
+    const message: SupportMessage = {
+      id: `local-${createMessageId()}`,
+      sender: "support",
+      text,
+      time: currentTimeLabel(),
+    };
+    const pendingKey = `${activeCustomer.id}:${text}`;
+
+    pendingOutgoingBodiesRef.current.set(
+      pendingKey,
+      (pendingOutgoingBodiesRef.current.get(pendingKey) ?? 0) + 1,
     );
+    setLiveMessages((current) => ({
+      ...current,
+      [activeCustomer.id]: dedupeSupportMessages([
+        ...(current[activeCustomer.id] ?? []),
+        message,
+      ]),
+    }));
+    sendChatTextMessage({
+      body: text,
+      category: "support",
+      threadId: activeCustomer.id,
+    });
     setDraft("");
     window.requestAnimationFrame(() => composerInputRef.current?.focus());
   };
 
   const closeActiveConversation = () => {
-    if (!activeCustomer) return;
+    if (!activeCustomer || deleteChatMutation.isPending) return;
 
     const activeIndex = customers.findIndex(
       (customer) => customer.id === activeCustomer.id,
@@ -321,18 +735,26 @@ export function CrmSupportView() {
     const nextCustomer =
       customers[activeIndex + 1] ?? customers[activeIndex - 1] ?? null;
 
-    setCustomers((current) =>
-      current
-        .filter((customer) => customer.id !== activeCustomer.id)
-        .map((customer) =>
-          customer.id === nextCustomer?.id
-            ? { ...customer, unreadCount: 0 }
-            : customer,
-        ),
-    );
-    setActiveCustomerId(nextCustomer?.id ?? null);
-    setDraft("");
-    setIsCloseDialogOpen(false);
+    deleteChatMutation.mutate(activeCustomer.id, {
+      onSuccess: () => {
+        setClosedCustomerIds((current) =>
+          new Set(current).add(activeCustomer.id),
+        );
+        setActiveCustomerId(nextCustomer?.id ?? null);
+        if (nextCustomer) {
+          setReadCustomerIds((current) =>
+            new Set(current).add(nextCustomer.id),
+          );
+          setUnreadDeltas((current) => ({
+            ...current,
+            [nextCustomer.id]: 0,
+          }));
+          markChatRead(nextCustomer.id, "support");
+        }
+        setDraft("");
+        setIsCloseDialogOpen(false);
+      },
+    });
   };
 
   if (!activeCustomer) {
@@ -674,7 +1096,7 @@ export function CrmSupportView() {
               </motion.button>
               <input
                 className="h-11 min-w-0 flex-1 rounded-xl border border-[#d9d9d9] bg-white px-4 text-sm font-medium text-[#303030] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10"
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) => changeDraft(event.target.value)}
                 placeholder="پیام خود را بنویسید..."
                 ref={composerInputRef}
                 value={draft}

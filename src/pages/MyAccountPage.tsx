@@ -356,7 +356,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
     { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
     { icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` },
     { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
-    { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
+    { icon: "message", label: "پیام‌ها", to: "/chat" },
     { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
   ];
 
@@ -371,7 +371,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
       { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
-      { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
+      { icon: "message", label: "پیام‌ها", to: "/chat" },
       { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
     ];
   }
@@ -384,7 +384,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
-      { icon: "message", label: "پیام‌ها", to: `${DASHBOARD_PATH}/messages` },
+      { icon: "message", label: "پیام‌ها", to: "/chat" },
       { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
     ];
   }

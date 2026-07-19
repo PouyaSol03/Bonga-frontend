@@ -30,6 +30,8 @@ import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
 import { CrmPaymentsView } from "./CrmPaymentsView";
+import { CrmSupportView } from "./CrmSupportView";
+import { CrmSupportRequestsView } from "./CrmSupportRequestsView";
 import {
   deleteCrmCity,
   deleteCrmNeighborhood,
@@ -72,7 +74,9 @@ type CrmSection =
   | "forms"
   | "packages"
   | "payments"
-  | "costs";
+  | "costs"
+  | "requests"
+  | "support";
 
 type ToastState = {
   id: number;
@@ -150,6 +154,8 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
   packages: { path: "/crm/packages", subtitle: "ساخت و ویرایش بسته‌ها و اعتبار پنل", title: "بسته‌ها و اعتبار" },
   payments: { path: "/crm/payments", subtitle: "مشاهده و پیگیری تمام تراکنش‌های مالی کاربران", title: "تاریخچه پرداخت‌ها" },
   costs: { path: "/crm/costs", subtitle: "تنظیم هزینه عملیات اعتباری سامانه", title: "مدیریت هزینه‌ها" },
+  requests: { path: "/crm/requests", subtitle: "مشاهده و پاسخگویی به درخواست‌های پشتیبانی کاربران", title: "درخواست‌ها" },
+  support: { path: "/crm/support", subtitle: "پاسخگویی فوری به مشتریان حاضر در صف پشتیبانی", title: "پشتیبانی" },
 };
 
 const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
@@ -164,6 +170,8 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "wallet", section: "packages" },
   { icon: "payment", section: "payments" },
   { icon: "settings", section: "costs" },
+  { icon: "form", section: "requests" },
+  { icon: "support", section: "support" },
 ];
 
 const advertiseStatusOptions = [
@@ -198,6 +206,8 @@ function getCurrentSection(): CrmSection {
   if (path === "/crm/packages") return "packages";
   if (path === "/crm/payments") return "payments";
   if (path === "/crm/costs") return "costs";
+  if (path === "/crm/requests") return "requests";
+  if (path === "/crm/support") return "support";
 
   return "overview";
 }
@@ -561,6 +571,10 @@ export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {
                   {section === "packages" ? <CrmPackagesView notify={notify} refreshNonce={refreshNonce} /> : null}
                   {section === "payments" ? <CrmPaymentsView notify={notify} refreshNonce={refreshNonce} /> : null}
                   {section === "costs" ? <CrmCostsView notify={notify} refreshNonce={refreshNonce} /> : null}
+                  {section === "requests" ? (
+                    <CrmSupportRequestsView notify={notify} refreshNonce={refreshNonce} />
+                  ) : null}
+                  {section === "support" ? <CrmSupportView /> : null}
                 </>
               )}
             </motion.div>
@@ -3177,7 +3191,8 @@ type IconName =
   | "warning"
   | "wallet"
   | "payment"
-  | "settings";
+  | "settings"
+  | "support";
 
 function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   const common = {
@@ -3201,6 +3216,7 @@ function CrmIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   if (name === "wallet") return <svg {...common}><path d="M4 6h15a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a3 3 0 0 1 3-3h12"/><path d="M16 11h5v4h-5a2 2 0 0 1 0-4Z"/></svg>;
   if (name === "payment") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 15h4"/><circle cx="17" cy="14" r="1.5"/></svg>;
   if (name === "settings") return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>;
+  if (name === "support") return <svg {...common}><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8m-8 3h5"/><path d="M18 18.5a2.5 2.5 0 0 0 2.5 2.5"/></svg>;
   if (name === "account") return <svg {...common}><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.5-4.3 2.8-6.5 7-6.5s6.5 2.2 7 6.5"/></svg>;
   if (name === "refresh") return <svg {...common}><path d="M20 7v5h-5"/><path d="M18.7 16a8 8 0 1 1 .8-7"/></svg>;
   if (name === "plus") return <svg {...common}><path d="M12 5v14M5 12h14"/></svg>;

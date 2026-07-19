@@ -8,7 +8,6 @@ import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../com
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
 import { SUPER_ADMIN } from '../constants/roles.constants'
-import { DashboardLayout } from '../dashboard/DashboardLayout'
 import { isUserIdentityVerified } from "../services/account.service";
 import { useMyProfileQuery } from '../hooks/account.hooks'
 import { useNotificationUnreadCountQuery } from '../hooks/notification.hooks'
@@ -21,8 +20,6 @@ import {
   type AppRoute,
 } from './routes'
 import LinearUserAccount from '../components/(icons)/LinearUserAccount'
-
-const desktopDashboardMediaQuery = '(min-width: 501px)'
 
 
 function RouteNotFoundPage() {
@@ -64,6 +61,10 @@ const AdCloseResultPage = lazyNamed(
 const UserChatDetailPage = lazyNamed(
   () => import('../pages/UserChatHomePage'),
   'UserChatDetailPage',
+)
+const ChatReportPage = lazyNamed(
+  () => import('../pages/chat/ChatReportPage'),
+  'ChatReportPage',
 )
 const ViewAdPage = lazyNamed(() => import('../pages/ViewAdPage'), 'ViewAdPage')
 const PublicAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
@@ -505,6 +506,15 @@ function getRoute(path: string): AppRoute {
     return { path, title: 'پیش‌نمایش آگهی', Component: ViewAdPage, requiresAuth: true }
   }
 
+  if (/^\/chat\/[^/]+\/report\/?$/.test(path)) {
+    return {
+      path,
+      title: 'گزارش تخلف',
+      Component: ChatReportPage,
+      requiresAuth: true,
+    }
+  }
+
   if (/^\/chat\/[^/]+\/?$/.test(path) && path !== '/chat/response-time') {
     const chatRoute = routes.find((route) => route.path === '/chat')
 
@@ -575,9 +585,6 @@ function getRoute(path: string): AppRoute {
 export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
   const [isOffline, setIsOffline] = useState(() => !window.navigator.onLine)
-  const [isDesktopDashboard, setIsDesktopDashboard] = useState(() =>
-    window.matchMedia(desktopDashboardMediaQuery).matches,
-  )
   const route = useMemo(() => getRoute(path), [path])
   const ActivePage = route.Component
   const chromeConfig = useMemo(
@@ -608,18 +615,10 @@ export function AppRouter() {
       window.scrollTo({ top: 0 })
     }
 
-    const desktopDashboardMedia = window.matchMedia(desktopDashboardMediaQuery)
-
-    function handleDashboardViewportChange(event: MediaQueryListEvent) {
-      setIsDesktopDashboard(event.matches)
-    }
-
     window.addEventListener('popstate', handleNavigation)
-    desktopDashboardMedia.addEventListener('change', handleDashboardViewportChange)
 
     return () => {
       window.removeEventListener('popstate', handleNavigation)
-      desktopDashboardMedia.removeEventListener('change', handleDashboardViewportChange)
     }
   }, [])
 
@@ -670,18 +669,6 @@ export function AppRouter() {
 
   if (route.layout === 'crm') {
     return page
-  }
-
-  if (route.layout === 'dashboard' && authSession && isDesktopDashboard) {
-    return (
-      <DashboardLayout
-        activePath={path}
-        session={authSession}
-        title={route.title}
-      >
-        {page}
-      </DashboardLayout>
-    )
   }
 
   const isCrmAdvertiseFlowRoute =

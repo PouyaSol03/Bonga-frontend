@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import {
   Bar,
@@ -10,6 +10,7 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -256,6 +257,10 @@ export function DashboardHomeOverview({
   isDashboardLoading = false,
   useDashboardApi = false,
 }: DashboardHomeOverviewProps) {
+  if (useDashboardApi && isDashboardLoading && !dashboard) {
+    return <DashboardHomeOverviewSkeleton />;
+  }
+
   const metrics = useDashboardApi
     ? getManagerDashboardMetrics(dashboard, isDashboardLoading)
     : dashboardMetrics;
@@ -277,7 +282,7 @@ export function DashboardHomeOverview({
         ))}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      <section className="grid gap-4">
         <ConsultantActivityCard
           dashboard={dashboard}
           isLoading={isDashboardLoading}
@@ -286,7 +291,7 @@ export function DashboardHomeOverview({
         <PublishedAgencyAdsCard />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
+      <section className="grid gap-4">
         <div className="grid gap-4">
           <ProgressLineChartCard
             title="نمودار پیشرفت ثبت آگهی"
@@ -310,6 +315,79 @@ export function DashboardHomeOverview({
         </div>
       </section>
     </div>
+  );
+}
+
+function DashboardSkeletonBlock({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+}
+
+function DashboardHomeOverviewSkeleton() {
+  return (
+    <div
+      aria-busy="true"
+      aria-label="در حال دریافت اطلاعات داشبورد"
+      className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4"
+      role="status"
+    >
+      <section className="grid gap-4">
+        {Array.from({ length: 4 }, (_, index) => (
+          <article className="rounded-2xl bg-white p-4" key={index}>
+            <div className="flex items-start gap-3">
+              <DashboardSkeletonBlock className="h-12 w-12 shrink-0 rounded-xl" />
+              <div className="min-w-0 flex-1 space-y-3 pt-1">
+                <DashboardSkeletonBlock className="ml-auto h-4 w-28" />
+                <DashboardSkeletonBlock className="ml-auto h-7 w-16" />
+              </div>
+            </div>
+            <div className="mt-5 flex items-center justify-between border-t border-[#f0f0f0] pt-4">
+              <DashboardSkeletonBlock className="h-4 w-32" />
+              <DashboardSkeletonBlock className="h-4 w-12" />
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="grid gap-4">
+        <DashboardChartSkeleton chartClassName="h-[240px]" />
+        <DashboardChartSkeleton chartClassName="mx-auto h-[180px] w-[180px] rounded-full" />
+      </section>
+
+      <section className="grid gap-4">
+        <DashboardChartSkeleton chartClassName="h-[220px]" />
+        <DashboardChartSkeleton chartClassName="h-[220px]" />
+        <article className="rounded-2xl bg-white p-4">
+          <DashboardSkeletonBlock className="ml-auto h-5 w-36" />
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <DashboardSkeletonBlock className="h-20 w-full rounded-xl" />
+            <DashboardSkeletonBlock className="h-20 w-full rounded-xl" />
+          </div>
+          <div className="mt-6 space-y-3">
+            {Array.from({ length: 5 }, (_, index) => (
+              <DashboardSkeletonBlock className="h-10 w-full rounded-xl" key={index} />
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <span className="sr-only">در حال دریافت اطلاعات داشبورد...</span>
+    </div>
+  );
+}
+
+function DashboardChartSkeleton({ chartClassName }: { chartClassName: string }) {
+  return (
+    <article className="rounded-2xl bg-white p-4">
+      <div className="flex items-center justify-between">
+        <DashboardSkeletonBlock className="h-5 w-36" />
+        <DashboardSkeletonBlock className="h-7 w-16" />
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <DashboardSkeletonBlock className="h-6 w-12" />
+        <DashboardSkeletonBlock className="h-4 w-28" />
+      </div>
+      <DashboardSkeletonBlock className={`mt-7 ${chartClassName}`} />
+    </article>
   );
 }
 
@@ -656,6 +734,47 @@ function ProgressMonthTick(props: any) {
 }
 
 function PublishedAgencyAdsCard() {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const pieContainerRef = useRef<HTMLDivElement | null>(null);
+  const selectedEntry = selectedIndex === null ? null : adTypeData[selectedIndex];
+  const selectedGeometry =
+    selectedIndex === null
+      ? null
+      : getDashboardPieSelectionGeometry(adTypeData, selectedIndex);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const container = pieContainerRef.current;
+
+      if (!container?.contains(event.target as Node)) {
+        setSelectedIndex(null);
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const scaleX = dashboardPieChartSize / rect.width;
+      const scaleY = dashboardPieChartSize / rect.height;
+      const pointerX = (event.clientX - rect.left) * scaleX;
+      const pointerY = (event.clientY - rect.top) * scaleY;
+      const distanceFromCenter = Math.hypot(
+        pointerX - dashboardPieCenter,
+        pointerY - dashboardPieCenter,
+      );
+
+      if (
+        distanceFromCenter >
+        dashboardPieOuterRadius + dashboardPieSelectedOffset + 12
+      ) {
+        setSelectedIndex(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [selectedIndex]);
+
   return (
     <article className="rounded-2xl bg-white p-4">
       <div className="mb-7 grid gap-3">
@@ -694,27 +813,80 @@ function PublishedAgencyAdsCard() {
         </div>
       </div>
 
-      <div className="mx-auto h-[143px] max-w-[143px]" dir="ltr">
+      <div
+        className="relative mx-auto h-[180px] max-w-[180px]"
+        dir="ltr"
+        ref={pieContainerRef}
+      >
+        {selectedEntry && selectedGeometry ? (
+          <>
+            <svg
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible"
+              viewBox={`0 0 ${dashboardPieChartSize} ${dashboardPieChartSize}`}
+            >
+              <line
+                x1={selectedGeometry.lineStartX}
+                y1={selectedGeometry.lineStartY}
+                x2={selectedGeometry.lineEndX}
+                y2={selectedGeometry.lineEndY}
+                stroke="#1a1a1a"
+                strokeLinecap="round"
+                strokeWidth="1.6"
+              />
+              <circle
+                cx={selectedGeometry.dotX}
+                cy={selectedGeometry.dotY}
+                fill="#1a1a1a"
+                r="6"
+              />
+            </svg>
+            <div
+              className="absolute z-20 grid place-items-center rounded-lg bg-[#333333] text-center text-xs font-semibold leading-4 text-white shadow-[0_8px_18px_rgba(26,26,26,0.18)]"
+              style={{
+                height: dashboardPieTooltipHeight,
+                left: selectedGeometry.tooltipLeft,
+                top: selectedGeometry.tooltipTop,
+                width: dashboardPieTooltipWidth,
+              }}
+            >
+              <span>
+                {selectedEntry.name}
+                <br />
+                {formatNumber(selectedEntry.value)}٪
+              </span>
+            </div>
+          </>
+        ) : null}
+
         <ResponsiveContainer height="100%" width="100%">
           <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
             <Pie
               data={adTypeData}
               dataKey="value"
-              endAngle={-272}
+              endAngle={dashboardPieEndAngle}
               isAnimationActive={false}
               nameKey="name"
-              outerRadius="100%"
-              startAngle={88}
+              outerRadius={dashboardPieOuterRadius}
+              startAngle={dashboardPieStartAngle}
               stroke="none"
             >
-              {adTypeData.map((entry) => (
-                <Cell fill={entry.color} key={entry.name} />
+              {adTypeData.map((entry, index) => (
+                <Cell
+                  className="cursor-pointer outline-none"
+                  fill={selectedIndex === index ? "transparent" : entry.color}
+                  key={entry.name}
+                  onClick={() => setSelectedIndex(index)}
+                />
               ))}
             </Pie>
-            <Tooltip
-              formatter={(value) => `${formatNumber(String(value))}٪`}
-              separator=": "
-            />
+            {selectedIndex !== null ? (
+              <DashboardPulledPieSlice
+                color={adTypeData[selectedIndex].color}
+                data={adTypeData}
+                selectedIndex={selectedIndex}
+              />
+            ) : null}
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -730,6 +902,103 @@ function PublishedAgencyAdsCard() {
         ))}
       </div>
     </article>
+  );
+}
+
+type DashboardPieSelectionDatum = {
+  value: number;
+};
+
+const dashboardPieChartSize = 180;
+const dashboardPieCenter = dashboardPieChartSize / 2;
+const dashboardPieOuterRadius = 70;
+const dashboardPieSelectedOffset = 8;
+const dashboardPieStartAngle = 88;
+const dashboardPieEndAngle = -272;
+const dashboardPieTooltipWidth = 76;
+const dashboardPieTooltipHeight = 48;
+const dashboardPieTooltipGap = 20;
+const dashboardPieTooltipLineOverlap = 6;
+
+function getDashboardPieSelectionGeometry(
+  data: DashboardPieSelectionDatum[],
+  selectedIndex: number,
+) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const precedingValue = data
+    .slice(0, selectedIndex)
+    .reduce((sum, item) => sum + item.value, 0);
+  const selectedValue = data[selectedIndex]?.value ?? 0;
+  const startAngle =
+    dashboardPieStartAngle - (precedingValue / total) * 360;
+  const midAngle = startAngle - (selectedValue / total) * 180;
+  const radians = (Math.PI / 180) * midAngle;
+  const selectedCenterX =
+    dashboardPieCenter + dashboardPieSelectedOffset * Math.cos(radians);
+  const selectedCenterY =
+    dashboardPieCenter - dashboardPieSelectedOffset * Math.sin(radians);
+  const pointAt = (radius: number) => ({
+    x: selectedCenterX + radius * Math.cos(radians),
+    y: selectedCenterY - radius * Math.sin(radians),
+  });
+  const dot = pointAt(36);
+  const isLeft = dot.x < dashboardPieCenter;
+  const isTop = dot.y < dashboardPieCenter;
+  const tooltipLeft = isLeft
+    ? dot.x - dashboardPieTooltipWidth - dashboardPieTooltipGap
+    : dot.x + dashboardPieTooltipGap;
+  const tooltipTop = isTop
+    ? dot.y - dashboardPieTooltipHeight - dashboardPieTooltipGap
+    : dot.y + dashboardPieTooltipGap;
+  const lineEndX = isLeft
+    ? tooltipLeft + dashboardPieTooltipWidth - dashboardPieTooltipLineOverlap
+    : tooltipLeft + dashboardPieTooltipLineOverlap;
+  const lineEndY = isTop
+    ? tooltipTop + dashboardPieTooltipHeight - dashboardPieTooltipLineOverlap
+    : tooltipTop + dashboardPieTooltipLineOverlap;
+
+  return {
+    dotX: dot.x,
+    dotY: dot.y,
+    endAngle: startAngle - (selectedValue / total) * 360,
+    lineEndX,
+    lineEndY,
+    lineStartX: dot.x,
+    lineStartY: dot.y,
+    midAngle,
+    startAngle,
+    tooltipLeft,
+    tooltipTop,
+  };
+}
+
+function DashboardPulledPieSlice({
+  color,
+  data,
+  selectedIndex,
+}: {
+  color: string;
+  data: DashboardPieSelectionDatum[];
+  selectedIndex: number;
+}) {
+  const geometry = getDashboardPieSelectionGeometry(data, selectedIndex);
+  const radians = (Math.PI / 180) * geometry.midAngle;
+  const cx =
+    dashboardPieCenter + dashboardPieSelectedOffset * Math.cos(radians);
+  const cy =
+    dashboardPieCenter - dashboardPieSelectedOffset * Math.sin(radians);
+
+  return (
+    <Sector
+      cx={cx}
+      cy={cy}
+      endAngle={geometry.endAngle}
+      fill={color}
+      innerRadius={0}
+      outerRadius={dashboardPieOuterRadius}
+      startAngle={geometry.startAngle}
+      stroke="none"
+    />
   );
 }
 

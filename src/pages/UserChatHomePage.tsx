@@ -1934,6 +1934,16 @@ export function UserChatDetailPage() {
       return;
     }
 
+    if (id === "report") {
+      window.history.pushState(
+        { returnTo: window.location.pathname },
+        "",
+        `/chat/${encodeURIComponent(activeThreadId)}/report`,
+      );
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      return;
+    }
+
     showNotice(`${title} انتخاب شد`);
   };
 

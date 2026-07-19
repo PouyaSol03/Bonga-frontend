@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import { getRequestErrorState } from "../../components/ErrorState";
@@ -37,7 +37,6 @@ type MobileCreditPlan = {
   title: string;
 };
 
-const mobileDashboardPaymentQuery = "(max-width: 500px)";
 const defaultManagerGiftBenefits = ["۵۰ آگهی", "۲۰ ویژه", "۲۵ بروزرسانی"];
 
 function getCreditItems(plan: PackageItem) {
@@ -70,25 +69,7 @@ function mapBundlePlan(plan: PackageItem): PricingCardPlan {
 }
 
 function useIsMobileDashboardPayment() {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === "undefined") return false;
-
-    return window.matchMedia(mobileDashboardPaymentQuery).matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return undefined;
-
-    const media = window.matchMedia(mobileDashboardPaymentQuery);
-    const handleChange = () => setIsMobile(media.matches);
-
-    handleChange();
-    media.addEventListener("change", handleChange);
-
-    return () => media.removeEventListener("change", handleChange);
-  }, []);
-
-  return isMobile;
+  return true;
 }
 
 function PricingCardsSkeleton({ count = 3 }: { count?: number }) {

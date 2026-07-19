@@ -71,7 +71,7 @@ export const dashboardNavigationItems: DashboardNavItem[] = [
     allowedRoles: DASHBOARD_ROLES,
     icon: CommentIcon,
     label: "پیام‌ها",
-    path: `${DASHBOARD_PATH}/messages`,
+    path: "/chat",
   },
 ];
 

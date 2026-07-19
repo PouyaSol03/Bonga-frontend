@@ -50,7 +50,7 @@ type AgentProfileToast = {
 };
 
 function isDesktopDashboard() {
-  return typeof window !== "undefined" && window.matchMedia("(min-width: 501px)").matches;
+  return false;
 }
 
 function normalizeOptionalText(value: string) {

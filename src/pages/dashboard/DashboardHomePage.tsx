@@ -8,9 +8,7 @@ import {
 import { ConsultantEditPage } from "../../components/dashboard/team/ConsultantEditPage";
 import { ConsultantInfoPage } from "../../components/dashboard/team/ConsultantInfoPage";
 import { ConsultantRemovePage } from "../../components/dashboard/team/ConsultantRemovePage";
-import DashboardAgencyEditPage from "./DashboardAgencyEditPage";
 import { AgencyProfilePage } from "./AgencyProfilePage";
-import DashboardChatPage from "./DashboardChatPage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
 import {
   authSessionChangedEventName,
@@ -122,13 +120,5 @@ export function DashboardPaymentsPage() {
 
 
 export function DashboardAgencyPage() {
-  if (typeof window !== "undefined" && window.matchMedia("(min-width: 501px)").matches) {
-    return <DashboardAgencyEditPage />;
-  }
-
   return <AgencyProfilePage />;
-}
-
-export function DashboardMessagesPage() {
-  return <DashboardChatPage />;
 }

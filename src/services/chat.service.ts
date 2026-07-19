@@ -236,10 +236,34 @@ export async function getChatUnreadCount() {
   return readChatUnreadCount(response);
 }
 
-export function blockChat(threadId: string) {
-  return api.post(`chats/${threadId}/block`).json<{ status?: boolean }>();
+export type ChatReportPayload = {
+  description?: string;
+  reason: string;
+  threadId: string;
+};
+
+export async function blockChat(threadId: string) {
+  await api.post(`chats/${threadId}/block`, {
+    context: { allowNonJsonResponse: true },
+  });
 }
 
-export function deleteChat(threadId: string) {
-  return api.delete(`chats/${threadId}`).json<{ status?: boolean }>();
+export async function deleteChat(threadId: string) {
+  await api.delete(`chats/${threadId}`, {
+    context: { allowNonJsonResponse: true },
+  });
+}
+
+export async function reportChat({
+  description,
+  reason,
+  threadId,
+}: ChatReportPayload) {
+  await api.post(`chats/${threadId}/report`, {
+    context: { allowNonJsonResponse: true },
+    json: {
+      reason,
+      ...(description ? { description } : {}),
+    },
+  });
 }

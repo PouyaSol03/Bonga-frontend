@@ -10,6 +10,7 @@ import {
   getChatMessages,
   getChatUnreadCount,
   getChats,
+  reportChat,
 } from "../services/chat.service";
 
 export function useChatsQuery({
@@ -82,5 +83,11 @@ export function useDeleteChatMutation() {
         queryKey: queryKeys.chats.all,
       });
     },
+  });
+}
+
+export function useReportChatMutation() {
+  return useMutation({
+    mutationFn: reportChat,
   });
 }

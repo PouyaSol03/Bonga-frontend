@@ -82,7 +82,6 @@ const DashboardConsultantEditPage = lazyNamed(() => import('../pages/dashboard/D
 const DashboardConsultantInfoPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantInfoPage')
 const DashboardConsultantRemovePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardConsultantRemovePage')
 const DashboardHomePage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardHomePage')
-const DashboardMessagesPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardMessagesPage')
 const DashboardPaymentsPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardPaymentsPage')
 const DashboardRankingPage = lazyNamed(() => import('../pages/dashboard/DashboardRankingPage'), 'DashboardRankingPage')
 const DashboardBadgesGuidePage = lazyNamed(() => import('../pages/dashboard/DashboardBadgesGuidePage'), 'DashboardBadgesGuidePage')
@@ -112,6 +111,15 @@ export const LEGACY_DASHBOARD_PATH = '/dashboard'
 function LoginRedirect() {
   useEffect(() => {
     window.history.replaceState({}, '', LOGIN_PATH)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }, [])
+
+  return null
+}
+
+function DashboardMessagesRedirect() {
+  useEffect(() => {
+    window.history.replaceState({}, '', '/chat')
     window.dispatchEvent(new PopStateEvent('popstate'))
   }, [])
 
@@ -410,6 +418,22 @@ export const routes: AppRoute[] = [
     requiresAuth: true,
   },
   {
+    path: `${CRM_PATH}/requests`,
+    title: 'درخواست‌ها',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/support`,
+    title: 'پشتیبانی',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
     path: '/account/dashboard',
     title: 'داشبورد',
     Component: DashboardHomePage,
@@ -585,7 +609,7 @@ export const routes: AppRoute[] = [
   {
     path: `${DASHBOARD_PATH}/messages`,
     title: 'پیام‌ها',
-    Component: DashboardMessagesPage,
+    Component: DashboardMessagesRedirect,
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,

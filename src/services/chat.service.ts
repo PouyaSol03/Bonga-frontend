@@ -219,6 +219,17 @@ export async function createOrGetAdvertiseChat(advertiseId: string) {
   return readChatThread(response);
 }
 
+export async function createOrGetSupportChat() {
+  const response = await api
+    .post("chats", {
+      json: { category: "support" },
+      searchParams: { category: "support" },
+    })
+    .json<ChatThreadResponse>();
+
+  return readChatThread(response);
+}
+
 export async function getChatDetail(threadId: string) {
   const response = await api.get(`chats/${threadId}`).json<ChatThreadResponse>();
 

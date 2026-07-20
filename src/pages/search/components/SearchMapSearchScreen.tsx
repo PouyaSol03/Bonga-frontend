@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
 import { TopBar } from "../../../components/TopBar";
+import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import {
   useDeleteSearchHistoryMutation,
@@ -271,9 +272,9 @@ export function SearchMapSearchScreen({
             </button>
           </div>
         ) : isRecentSearchLoading ? (
-          <div className="flex flex-col gap-4 px-4 py-2">
+          <div className="flex flex-col bg-[#f0f0f0]" aria-hidden="true">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div className="h-14 rounded-xl bg-[#f0f0f0]" key={index} />
+              <AdCardSkeleton key={index} />
             ))}
           </div>
         ) : isRecentSearchError ? (

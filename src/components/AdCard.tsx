@@ -156,7 +156,7 @@ export function AdCard({
           <AdCardBody
             ad={ad}
             hasSecondaryPrice={hasSecondaryPrice}
-            showBadges={false}
+            showBadges={showBadges}
           />
         </RouteLink>
       </article>

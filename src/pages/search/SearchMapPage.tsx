@@ -6,6 +6,7 @@ import {
 } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
+import { usePublisherOptions } from "../../hooks/publisher-options.hooks";
 import {
   useSavedSearchesQuery,
   useSaveSearchMutation,
@@ -27,13 +28,9 @@ import { SearchMapSearchScreen } from "./components/SearchMapSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
-import { SearchNoResultsRequestCard } from "./components/SearchNoResultsRequestCard";
-import {
-  SearchRequestSenderBottomSheet,
-  type SearchRequestSenderOption,
-} from "./components/SearchRequestBottomSheets";
-import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
+import { SearchRequestSenderBottomSheet } from "./components/SearchRequestBottomSheets";
 import { SearchMapListView } from "./components/SearchMapListView";
+import { SearchNoResultsView } from "./components/SearchNoResultsView";
 import { SearchMapView } from "./components/SearchMapView";
 import {
   SEARCH_MAP_DEMO_PHOTO,
@@ -47,6 +44,8 @@ import {
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
 import type { SavedSearchItem, SaveSearchInput } from "../../services/saved-search.service";
+import { savePropertyRequest } from "../../services/property-request.service";
+import { getStoredBackTarget, pushRoute } from "../../routes/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
@@ -62,26 +61,6 @@ const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
 const searchMapMinQueryLength = 1;
-const requestRoleLabels: Record<string, string> = {
-  user: "کاربر",
-  real_estate_manager: "مدیر آژانس",
-  real_estate_consultant: "مشاور آژانس",
-  independent_consultant: "مشاور مستقل",
-  "super-admin": "مدیر کل",
-};
-const requestRoleDescriptions: Record<string, string> = {
-  user: "درخواست به‌عنوان متقاضی ملک ثبت می‌شود.",
-  real_estate_manager: "درخواست با حساب مدیر آژانس ثبت می‌شود.",
-  real_estate_consultant: "درخواست با حساب مشاور آژانس ثبت می‌شود.",
-  independent_consultant: "درخواست با حساب مشاور مستقل ثبت می‌شود.",
-  "super-admin": "درخواست با دسترسی مدیر کل ثبت می‌شود.",
-};
-
-function getRequestSenderIcon(role: string): SearchRequestSenderOption["icon"] {
-  if (role === "user") return "user";
-  if (role === "independent_consultant") return "building";
-  return "agency";
-}
 const filterableParamKeys = [
   "form_code",
   "from_code",
@@ -205,6 +184,14 @@ function writeSearchParams(params: URLSearchParams, options: { replace?: boolean
     window.history.pushState({}, "", nextUrl);
   }
 
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+function navigateToLoginRequired(action: string) {
+  const returnTo = `${window.location.pathname}${window.location.search}`;
+  const params = new URLSearchParams({ action, returnTo });
+
+  window.history.pushState({}, "", `/login-required?${params.toString()}`);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -791,33 +778,6 @@ function getInitialMapCenter(): SearchMapCenter {
   };
 }
 
-function getRequestSenderOptions(): SearchRequestSenderOption[] {
-  const session = getStoredAuthSession();
-  const sessionRoles = session?.roles ?? [];
-  const options: SearchRequestSenderOption[] = [
-    {
-      description: requestRoleDescriptions.user,
-      id: "user",
-      icon: "user",
-      title: requestRoleLabels.user,
-    },
-  ];
-
-  sessionRoles.forEach((role) => {
-    if (!role?.slug || role.slug === "user") return;
-    if (options.some((option) => option.id === role.slug)) return;
-
-    options.push({
-      description: requestRoleDescriptions[role.slug] ?? "درخواست با این حساب ثبت می‌شود.",
-      id: role.slug,
-      icon: getRequestSenderIcon(role.slug),
-      title: role.name || requestRoleLabels[role.slug] || role.slug,
-    });
-  });
-
-  return options;
-}
-
 export function SearchMapPage() {
   const [selectedListingId, setSelectedListingId] = useState<SearchMapListingId | null>(null);
   const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
@@ -829,7 +789,6 @@ export function SearchMapPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isEmptyStateDismissed, setIsEmptyStateDismissed] = useState(false);
   const [searchInitialView, setSearchInitialView] = useState<"search" | "saved">("search");
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
@@ -840,7 +799,7 @@ export function SearchMapPage() {
   const didResolveIpLocationRef = useRef(false);
   const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
   const { message, showNotice } = useDemoNotice();
-  const requestSenderOptions = useMemo(() => getRequestSenderOptions(), []);
+  const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
   const isAuthenticated = Boolean(getStoredAuthSession());
   const savedSearchesQuery = useSavedSearchesQuery(isAuthenticated);
   const saveSearchMutation = useSaveSearchMutation();
@@ -928,7 +887,6 @@ export function SearchMapPage() {
       setSearchSnapshot(nextSearch);
       setMode(getInitialSearchMode());
       setSelectedListingId(null);
-      setIsEmptyStateDismissed(false);
     };
 
     window.addEventListener("popstate", handleSearchSnapshotChange);
@@ -1109,6 +1067,11 @@ export function SearchMapPage() {
   }, []);
 
   const handleEmptyRequestSubmit = useCallback((title: string) => {
+    if (!isAuthenticated) {
+      navigateToLoginRequired("ثبت درخواست");
+      return;
+    }
+
     const params = getSearchParams();
     const requestFilters: Record<string, string> = {};
     params.forEach((value, key) => {
@@ -1122,7 +1085,7 @@ export function SearchMapPage() {
     };
 
     setPendingSearchRequest(request);
-  }, [currentSearchQuery]);
+  }, [currentSearchQuery, isAuthenticated]);
 
   const handleConfirmSearchRequest = useCallback((senderId: string) => {
     if (!pendingSearchRequest) return;
@@ -1130,29 +1093,24 @@ export function SearchMapPage() {
     const sender = requestSenderOptions.find((option) => option.id === senderId)
       ?? requestSenderOptions[0]
       ?? {
-        description: requestRoleDescriptions.user,
-        id: "user",
+        description: "انتشار در آگهی های شخصی",
+        id: "personal",
         icon: "user" as const,
-        title: requestRoleLabels.user,
+        senderRole: "user",
+        title: "آگهی شخصی",
       };
     const request = {
       ...pendingSearchRequest,
       senderLabel: sender.title,
-      senderRole: sender.id || "user",
+      senderRole: sender.senderRole || "user",
     };
 
-    try {
-      const storageKey = "bonga-property-search-requests";
-      const stored = window.localStorage.getItem(storageKey);
-      const current = stored ? JSON.parse(stored) : [];
-      const requests = Array.isArray(current) ? current : [];
-      window.localStorage.setItem(storageKey, JSON.stringify([request, ...requests]));
-    } catch {
-      // The request UI still succeeds even when browser storage is unavailable.
-    }
+    savePropertyRequest(request);
 
     setPendingSearchRequest(null);
-    setIsRequestSuccessOpen(true);
+    window.requestAnimationFrame(() => {
+      setIsRequestSuccessOpen(true);
+    });
   }, [pendingSearchRequest, requestSenderOptions]);
 
   const locateUser = useCallback(() => {
@@ -1195,6 +1153,11 @@ export function SearchMapPage() {
   }, []);
 
   const handleSaveSearch = useCallback(() => {
+    if (!isAuthenticated) {
+      navigateToLoginRequired("ذخیره جستجو");
+      return;
+    }
+
     if (isCurrentSearchSaved) {
       openSavedSearches();
       return;
@@ -1226,6 +1189,7 @@ export function SearchMapPage() {
       },
     });
   }, [
+    isAuthenticated,
     isCurrentSearchSaved,
     openSavedSearches,
     saveSearchInput,
@@ -1233,16 +1197,46 @@ export function SearchMapPage() {
     showNotice,
   ]);
 
+  const handleBack = useCallback(() => {
+    const storedBackTarget = getStoredBackTarget();
+
+    if (storedBackTarget && !storedBackTarget.backTo.startsWith("/search")) {
+      pushRoute(
+        storedBackTarget.backTo,
+        storedBackTarget.backState,
+        { rememberCurrent: false },
+      );
+      return;
+    }
+
+    pushRoute("/home", undefined, { rememberCurrent: false });
+  }, []);
+
   const closeSearch = useCallback(() => {
     setIsSearchOpen(false);
   }, []);
 
-  const returnToMapView = useCallback(() => {
+  const changeViewMode = useCallback((nextMode: "map" | "list") => {
     const params = getSearchParams();
-    params.delete("view");
-    writeSearchParams(params, { replace: true });
-    setMode("map");
+
+    if (nextMode === "list") {
+      params.set("view", "list");
+      params.delete("focus");
+    } else {
+      params.delete("view");
+    }
+
+    const queryString = params.toString();
+    window.history.replaceState({}, "", queryString ? `/search?${queryString}` : "/search");
+    setSearchSnapshot(window.location.search);
+    setSelectedListingId(null);
+    setMode(nextMode);
+
   }, []);
+
+  const returnToMapView = useCallback(() => {
+    changeViewMode("map");
+  }, [changeViewMode]);
 
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
@@ -1256,45 +1250,42 @@ export function SearchMapPage() {
     listQuery.isSuccess &&
     !isListLoading &&
     apiListListings.length === 0;
+  const showCurrentEmptyState = isFullListOpen
+    ? showListEmptyState
+    : showMapEmptyState;
 
   return (
     <div className="relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]">
-      {isFullListOpen ? (
-        <SearchMapListView
-          hasEmptyResults={showListEmptyState}
-          isLoading={isListLoading}
-          listings={apiListListings}
-          onMapClick={returnToMapView}
-          onRequestSubmit={handleEmptyRequestSubmit}
-        />
-      ) : (
-        <SearchMapView
-          center={mapCenter}
-          centerSignal={mapCenterSignal}
-          listings={visibleListings}
-          priceMarkerListingIds={bluePriceMarkerListingIds}
-          seenListingIds={seenListingIds}
-          selectedListingId={selectedListingId}
-          tileConfig={searchMapTileConfig}
-          userLocation={userLocation}
-          onBoundsChange={handleBoundsChange}
-          onMapClick={handleMapClick}
-          onSelectListing={handleSelectListing}
-        />
-      )}
+      {!showCurrentEmptyState ? (
+        isFullListOpen ? (
+          <SearchMapListView
+            isLoading={isListLoading}
+            listings={apiListListings}
+            onMapClick={returnToMapView}
+          />
+        ) : (
+          <SearchMapView
+            center={mapCenter}
+            centerSignal={mapCenterSignal}
+            listings={visibleListings}
+            priceMarkerListingIds={bluePriceMarkerListingIds}
+            seenListingIds={seenListingIds}
+            selectedListingId={selectedListingId}
+            tileConfig={searchMapTileConfig}
+            userLocation={userLocation}
+            onBoundsChange={handleBoundsChange}
+            onMapClick={handleMapClick}
+            onSelectListing={handleSelectListing}
+          />
+        )
+      ) : null}
 
-      {!isFullListOpen && showMapEmptyState && !isEmptyStateDismissed ? (
-        <div className="pointer-events-auto absolute inset-x-0 bottom-0 top-[116px] z-400 overflow-y-auto bg-white pb-20 pt-4">
-          <SearchNoResultsRequestCard onSubmit={handleEmptyRequestSubmit} />
-          <button
-            className="absolute bottom-4 left-1/2 flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-sm font-bold leading-5 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-            onClick={() => setIsEmptyStateDismissed(true)}
-            type="button"
-          >
-            <LinearMapsLocation className="h-5 w-5" />
-            <span>نقشه</span>
-          </button>
-        </div>
+      {showCurrentEmptyState ? (
+        <SearchNoResultsView
+          mode={isFullListOpen ? "list" : "map"}
+          onRequestSubmit={handleEmptyRequestSubmit}
+          onToggleMode={() => changeViewMode(isFullListOpen ? "map" : "list")}
+        />
       ) : null}
 
       <SearchMapHeader
@@ -1308,12 +1299,13 @@ export function SearchMapPage() {
         queryLabel={queryLabel}
         onSearchClick={openSearch}
         onSavedClick={handleSaveSearch}
+        onBack={handleBack}
       />
 
 
       <SearchMapFloatingActions
         isDrawing={isDrawMode}
-        isHidden={mode !== "map" || (showMapEmptyState && !isEmptyStateDismissed)}
+        isHidden={mode !== "map" || showCurrentEmptyState}
         isLocated={isLocated}
         isLocating={isLocating}
         onLocateClick={locateUser}
@@ -1321,14 +1313,7 @@ export function SearchMapPage() {
           setIsDrawMode((current) => !current);
           showNotice(isDrawMode ? "انتخاب محدوده پایان یافت" : "محدوده موردنظر را روی نقشه مشخص کنید");
         }}
-        onListClick={() => {
-          const params = getSearchParams();
-          params.set("view", "list");
-          params.delete("focus");
-          writeSearchParams(params, { replace: true });
-          setSelectedListingId(null);
-          setMode("list");
-        }}
+        onListClick={() => changeViewMode("list")}
       />
 
       <SearchMapListingSlider

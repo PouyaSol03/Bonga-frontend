@@ -22,7 +22,6 @@ export function CategoryBottomSheet({
   selectedCategory,
 }: CategoryBottomSheetProps) {
   const [selectedOption, setSelectedOption] = useState<CategoryOption | null>(null)
-  const [query, setQuery] = useState('')
 
   const isDrilldown = selectedOption !== null
   const title = selectedOption?.label ?? selectedCategory?.label ?? 'فروش'
@@ -30,11 +29,9 @@ export function CategoryBottomSheet({
   const options = selectedOption
     ? selectedOption.children?.map(normalizeCategoryOption) ?? []
     : selectedCategory?.options ?? quickActions[0].options
-  const visibleOptions = options.filter((option) => option.label.includes(query.trim()))
 
   const closeSheet = () => {
     setSelectedOption(null)
-    setQuery('')
     onClose()
   }
 
@@ -57,22 +54,8 @@ export function CategoryBottomSheet({
       onClose={closeSheet}
       title={title}
     >
-        <div className="px-4">
-          <label className="relative flex h-11 items-center rounded-xl border border-[#808080] bg-white min-[390px]:h-12">
-            <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] min-[390px]:text-base min-[390px]:leading-6"
-              type="search"
-              placeholder="جستجو در دسته‌بندی‌ها"
-              tabIndex={isOpen ? 0 : -1}
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-            <span className="home-search-icon" aria-hidden="true" />
-          </label>
-        </div>
-
         <div className="pt-3 min-[390px]:pt-4">
-          {visibleOptions.map((option) => (
+          {options.map((option) => (
             <button
               className="flex h-12 w-full cursor-pointer items-center gap-3 border-b border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] [direction:ltr] last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] min-[390px]:h-14 min-[390px]:text-base min-[390px]:leading-6"
               data-category-sheet-row={option.label}
@@ -93,11 +76,6 @@ export function CategoryBottomSheet({
               <span className="min-w-0 flex-1 [direction:rtl]">{option.label}</span>
             </button>
           ))}
-          {visibleOptions.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-[#808080]">
-              دسته‌بندی‌ای یافت نشد
-            </p>
-          ) : null}
         </div>
     </BottomSheet>
   )

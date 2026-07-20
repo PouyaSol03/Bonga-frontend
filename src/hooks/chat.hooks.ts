@@ -5,6 +5,7 @@ import { queryKeys } from "../api/query-keys";
 import {
   blockChat,
   createOrGetAdvertiseChat,
+  createOrGetSupportChat,
   deleteChat,
   getChatDetail,
   getChatMessages,
@@ -43,6 +44,17 @@ export function useChatEntryQuery({
         ? getChatDetail(threadId)
         : createOrGetAdvertiseChat(advertiseId ?? ""),
     queryKey: queryKeys.chats.entry({ advertiseId, threadId }),
+  });
+}
+
+export function useCreateSupportChatMutation() {
+  return useMutation({
+    mutationFn: createOrGetSupportChat,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.chats.all,
+      });
+    },
   });
 }
 

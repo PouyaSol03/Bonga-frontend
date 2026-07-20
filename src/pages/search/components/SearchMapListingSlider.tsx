@@ -104,7 +104,7 @@ function SearchMapListingSliderComponent({
 
   return (
     <section
-      className={`absolute inset-x-0 bottom-3 z-500 bg-transparent ${
+      className={`absolute inset-x-0 bottom-3 z-[500] bg-transparent ${
         isOpen
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-8 opacity-0"

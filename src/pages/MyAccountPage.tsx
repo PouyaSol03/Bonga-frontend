@@ -482,7 +482,13 @@ function StandardAccountPage({
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
   const isAccountLoading = isLoggedIn && (isProfileLoading || (hasAgencyRole && isAgencyProfileLoading));
-  const primaryAccountActions = primaryActions;
+  const primaryAccountActions = isUserIdentityVerified(profile)
+    ? primaryActions.map((action) =>
+        action.to === "/account/identity"
+          ? { ...action, label: "مدیریت سیم‌کارت" }
+          : action,
+      )
+    : primaryActions;
   const accountOverlay = (
     <>
       {businessSuccessSheet}

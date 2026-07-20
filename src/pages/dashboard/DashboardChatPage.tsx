@@ -931,7 +931,10 @@ export default function DashboardChatPage() {
     if (!isApiConversation || !activeConversation?.id) return;
 
     const threadId = activeConversation.id;
-    const socket = joinChatThread({ threadId });
+    // Keep the dashboard socket on the same channel as the conversation.
+    // Support threads must never be sent through the advertise namespace.
+    const category = activeConversation.isSupport ? "support" : "advertise";
+    const socket = joinChatThread({ category, threadId });
     const handleNewMessage = (payload: { message?: unknown }) => {
       if (!payload.message || typeof payload.message !== "object") return;
 
@@ -940,7 +943,7 @@ export default function DashboardChatPage() {
       if (!mappedMessage) return;
 
       setLiveMessages((current) => [...current, mappedMessage]);
-      markChatRead(threadId);
+      markChatRead(threadId, category);
     };
     const handleRead = () => {
       setLiveMessages((current) => current.map((message) => ({ ...message, isRead: true })));
@@ -949,14 +952,14 @@ export default function DashboardChatPage() {
 
     socket.on("chat:message:new", handleNewMessage);
     socket.on("chat:read", handleRead);
-    markChatRead(threadId);
+    markChatRead(threadId, category);
 
     return () => {
       socket.off("chat:message:new", handleNewMessage);
       socket.off("chat:read", handleRead);
-      leaveChatThread(threadId);
+      leaveChatThread(threadId, category);
     };
-  }, [activeConversation?.id, isApiConversation, messagesQuery.refetch]);
+  }, [activeConversation?.id, activeConversation?.isSupport, isApiConversation, messagesQuery.refetch]);
 
   const updateScrollState = useCallback(() => {
     const scrollElement = scrollRef.current;
@@ -981,14 +984,22 @@ export default function DashboardChatPage() {
 
     if (!isApiConversation || !activeConversation?.id) return;
 
-    sendChatTyping({ threadId: activeConversation.id, typing: true });
+    sendChatTyping({
+      category: activeConversation.isSupport ? "support" : "advertise",
+      threadId: activeConversation.id,
+      typing: true,
+    });
 
     if (typingTimeoutRef.current) {
       window.clearTimeout(typingTimeoutRef.current);
     }
 
     typingTimeoutRef.current = window.setTimeout(() => {
-      sendChatTyping({ threadId: activeConversation.id, typing: false });
+      sendChatTyping({
+        category: activeConversation.isSupport ? "support" : "advertise",
+        threadId: activeConversation.id,
+        typing: false,
+      });
       typingTimeoutRef.current = null;
     }, 900);
   };
@@ -1014,7 +1025,11 @@ export default function DashboardChatPage() {
     setDraft("");
 
     if (isApiConversation) {
-      sendChatTextMessage({ body: text, threadId: activeConversation.id });
+      sendChatTextMessage({
+        body: text,
+        category: activeConversation.isSupport ? "support" : "advertise",
+        threadId: activeConversation.id,
+      });
     }
   };
 

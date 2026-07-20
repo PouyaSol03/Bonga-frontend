@@ -33,6 +33,7 @@ import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEdit
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
 import { CrmPaymentsView } from "./CrmPaymentsView";
 import { CrmReportsView } from "./CrmReportsView";
+import { CrmPropertyRequestsView } from "./CrmPropertyRequestsView";
 import { CrmSupportView } from "./CrmSupportView";
 import { CrmSupportRequestsView } from "./CrmSupportRequestsView";
 import {
@@ -80,6 +81,7 @@ type CrmSection =
   | "costs"
   | "reports"
   | "requests"
+  | "propertyRequests"
   | "support";
 
 type ToastState = {
@@ -159,7 +161,8 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
   payments: { path: "/crm/payments", subtitle: "مشاهده و پیگیری تمام تراکنش‌های مالی کاربران", title: "تاریخچه پرداخت‌ها" },
   costs: { path: "/crm/costs", subtitle: "تنظیم هزینه عملیات اعتباری سامانه", title: "مدیریت هزینه‌ها" },
   reports: { path: "/crm/reports", subtitle: "مشاهده و بررسی گزارش‌های تخلف آگهی‌ها و کاربران", title: "گزارش‌های تخلف" },
-  requests: { path: "/crm/requests", subtitle: "مشاهده و پاسخگویی به درخواست‌های ثبت‌شده از حساب کاربری", title: "درخواست‌های کاربران" },
+  requests: { path: "/crm/requests", subtitle: "مشاهده و پاسخگویی به درخواست‌های ثبت‌شده در بخش پشتیبانی", title: "درخواست‌های پشتیبانی" },
+  propertyRequests: { path: "/crm/property-requests", subtitle: "مشاهده درخواست‌هایی که کاربران برای یافتن آگهی مناسب ثبت کرده‌اند", title: "درخواست‌های یافتن آگهی" },
   support: { path: "/crm/support", subtitle: "پاسخگویی فوری به مشتریان حاضر در صف پشتیبانی", title: "پشتیبانی" },
 };
 
@@ -177,6 +180,7 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "settings", section: "costs" },
   { icon: "reports", section: "reports" },
   { icon: "requests", section: "requests" },
+  { icon: "ads", section: "propertyRequests" },
   { icon: "support", section: "support" },
 ];
 
@@ -214,6 +218,7 @@ function getCurrentSection(): CrmSection {
   if (path === "/crm/costs") return "costs";
   if (path === "/crm/reports") return "reports";
   if (path === "/crm/requests") return "requests";
+  if (path === "/crm/property-requests") return "propertyRequests";
   if (path === "/crm/support") return "support";
 
   return "overview";
@@ -582,6 +587,9 @@ export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {
                   {section === "requests" ? (
                     <CrmSupportRequestsView notify={notify} refreshNonce={refreshNonce} />
                   ) : null}
+                  {section === "propertyRequests" ? (
+                    <CrmPropertyRequestsView notify={notify} refreshNonce={refreshNonce} />
+                  ) : null}
                   {section === "support" ? <CrmSupportView /> : null}
                 </>
               )}
@@ -737,7 +745,8 @@ function OverviewView({ notify, refreshNonce }: ViewProps) {
               { description: "ویرایش شهر، محله و محدوده", icon: "location" as const, label: "موقعیت‌ها", to: "/crm/locations" },
               { description: "مشاهده و پیگیری تراکنش‌های کاربران", icon: "payment" as const, label: "تاریخچه پرداخت‌ها", to: "/crm/payments" },
               { description: "بررسی گزارش‌های آگهی و کاربران", icon: "reports" as const, label: "گزارش‌های تخلف", to: "/crm/reports" },
-              { description: "مشاهده و پاسخگویی به درخواست‌های ثبت‌شده کاربران", icon: "requests" as const, label: "درخواست‌های کاربران", to: "/crm/requests" },
+              { description: "مشاهده و پاسخگویی به درخواست‌های پشتیبانی کاربران", icon: "requests" as const, label: "درخواست‌های پشتیبانی", to: "/crm/requests" },
+              { description: "بررسی درخواست‌های کاربران برای یافتن ملک یا آگهی مناسب", icon: "ads" as const, label: "درخواست‌های یافتن آگهی", to: "/crm/property-requests" },
             ].map((item) => (
               <RouteLink
                 className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] p-3.5 text-[#273142] no-underline transition hover:border-[#cbd8ed] hover:bg-[#fbfcff]"

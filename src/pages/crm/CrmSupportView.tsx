@@ -103,6 +103,23 @@ function readThreadId(source: unknown) {
   ]);
 }
 
+function readMessageThreadId(source: unknown) {
+  return readPathText(source, [
+    "threadId",
+    "thread_id",
+    "chatId",
+    "chat_id",
+    "thread.id",
+    "thread._id",
+    "chat.id",
+    "chat._id",
+    "message.threadId",
+    "message.thread_id",
+    "message.chatId",
+    "message.chat_id",
+  ]);
+}
+
 function readMessageBody(message: ChatMessage) {
   return readPathText(message, [
     "body",
@@ -575,7 +592,7 @@ export function CrmSupportView() {
       if (!payload.message || typeof payload.message !== "object") return;
 
       const rawMessage = payload.message as ChatMessage;
-      const targetThreadId = readThreadId(rawMessage) || threadId;
+      const targetThreadId = readMessageThreadId(payload) || readMessageThreadId(rawMessage) || threadId;
       const mappedMessage = mapChatMessage(rawMessage, Date.now(), currentUserId);
       if (!mappedMessage) return;
 

@@ -118,12 +118,13 @@ export function useSubmitAdvertisementCheckoutMutation() {
 export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) {
   return useQuery({
     enabled: Boolean(params),
-    gcTime: 0,
+    gcTime: 2 * 60_000,
+    placeholderData: (previousData) => previousData,
     queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
     queryKey: queryKeys.advertisements.map(params ?? {}),
     refetchOnMount: "always",
     refetchOnReconnect: "always",
-    staleTime: 0,
+    staleTime: 15_000,
   });
 }
 

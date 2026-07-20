@@ -1,4 +1,6 @@
 import {
+  useEffect,
+  useMemo,
   useRef,
   useState,
   type ComponentType,
@@ -7,17 +9,32 @@ import {
 } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
+
+import {
+  joinChatThread,
+  leaveChatThread,
+  markChatRead,
+  sendChatTextMessage,
+  sendChatTyping,
+} from "../../api/chat-socket";
+import { getStoredAuthSession } from "../../auth/auth-storage";
 import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 import LinearCall from "../../components/(icons)/LinearCall";
 import LinearChat from "../../components/(icons)/LinearChat";
 import LinearMoreVertical from "../../components/(icons)/LinearMoreVertical";
 import LinearQuestion from "../../components/(icons)/LinearQuestion";
 import LinearRequestList from "../../components/(icons)/LinearRequestList";
+import LinearSent from "../../components/(icons)/LinearSent";
 import LinearSupport from "../../components/(icons)/LinearSupport";
 import LinearAttachment from "../../components/(icons)/LinearAttachment";
 import LinearTickDouble from "../../components/(icons)/LinearTickDouble";
 import LinearWavingHand from "../../components/(icons)/LinearWavingHand";
 import { TopBar } from "../../components/TopBar";
+import {
+  useChatMessagesQuery,
+  useChatsQuery,
+} from "../../hooks/chat.hooks";
+import type { ChatMessage, ChatThread } from "../../services/chat.service";
 import { RouteLink } from "../../routes/RouteLink";
 
 const SUPPORT_CHAT_PATH = "/account/support/chat";
@@ -311,48 +328,213 @@ type SupportChatMessage = {
   direction: "incoming" | "outgoing";
   sender?: string;
   text: string;
+  threadId: string;
   time: string;
 };
 
-const initialSupportChatMessages: SupportChatMessage[] = [
-  {
-    id: "customer-question",
-    direction: "outgoing",
-    text: "سلام\nقیمت بسته‌ای که گذاشتین چقدره؟\nقیمت چرا توی پنل درج نشده؟",
-    time: "۱۸:۱۸",
-  },
-  {
-    id: "support-answer",
-    direction: "incoming",
-    sender: "پشتیبانی",
-    text: "سلام دوست عزیز\nقیمت و تعداد آگهی، ویژه و بروزرسانی هر بسته داخل پنل درج شده.\nبرای مشاهده وارد بخش شارژ پنل شوید.",
-    time: "۱۸:۲۱",
-  },
-  {
-    id: "customer-thanks",
-    direction: "outgoing",
-    text: "خیلی ممنونم",
-    time: "۱۸:۲۱",
-  },
-];
+function asChatRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
 
-function SupportSendIcon({ className = "" }: { className?: string }) {
+function readChatText(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (typeof value === "number") return String(value);
+
+  return "";
+}
+
+function readChatPathText(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asChatRecord(current)?.[key];
+    }
+
+    const text = readChatText(current);
+    if (text) return text;
+  }
+
+  return "";
+}
+
+function readSupportThreadId(source: unknown) {
+  return readChatPathText(source, [
+    "id",
+    "_id",
+    "threadId",
+    "thread_id",
+    "thread.id",
+    "thread._id",
+  ]);
+}
+
+function isOpenSupportThread(thread: ChatThread) {
+  const record = asChatRecord(thread);
+  const status = readChatPathText(thread, ["status", "state"]).toLowerCase();
+  const closedAt = readChatPathText(thread, ["closed_at", "closedAt"]);
+  const isClosed = record?.is_closed === true || record?.closed === true;
+
   return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M20.4 3.6 10.95 13.05M20.4 3.6l-6.05 16.8-3.4-7.35-7.35-3.4L20.4 3.6Z"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    </svg>
+    !isClosed &&
+    !closedAt &&
+    !["closed", "resolved", "done", "finished"].includes(status)
   );
+}
+
+function readSupportMessageThreadId(source: unknown) {
+  return readChatPathText(source, [
+    "threadId",
+    "thread_id",
+    "chatId",
+    "chat_id",
+    "thread.id",
+    "thread._id",
+    "chat.id",
+    "chat._id",
+    "message.threadId",
+    "message.thread_id",
+    "message.chatId",
+    "message.chat_id",
+  ]);
+}
+
+function readSupportMessageBody(message: ChatMessage) {
+  return readChatPathText(message, [
+    "body",
+    "text",
+    "content",
+    "description",
+    "message",
+    "message.body",
+    "message.text",
+    "data.body",
+    "data.text",
+    "data.message",
+  ]);
+}
+
+function readSupportMessageSenderId(message: ChatMessage) {
+  return readChatPathText(message, [
+    "sender_id",
+    "senderId",
+    "user_id",
+    "userId",
+    "sender.id",
+    "sender._id",
+    "user.id",
+    "user._id",
+  ]);
+}
+
+function readCurrentAccountUserId() {
+  const token = getStoredAuthSession()?.accessToken;
+  if (!token) return "";
+
+  try {
+    const [, payload = ""] = token.split(".");
+    const normalizedPayload = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payload.length / 4) * 4, "=");
+    const decodedPayload = JSON.parse(window.atob(normalizedPayload)) as {
+      sub?: unknown;
+      userId?: unknown;
+      user_id?: unknown;
+    };
+
+    return readChatText(
+      decodedPayload.sub ?? decodedPayload.userId ?? decodedPayload.user_id,
+    );
+  } catch {
+    return "";
+  }
+}
+
+function isOwnSupportMessage(message: ChatMessage, currentUserId: string) {
+  const senderId = readSupportMessageSenderId(message);
+
+  return (
+    message.is_mine === true ||
+    message.isMine === true ||
+    message.from_me === true ||
+    message.fromMe === true ||
+    (Boolean(currentUserId) && senderId === currentUserId)
+  );
+}
+
+function formatSupportMessageTime(value: unknown) {
+  const text = readChatText(value);
+  if (!text) {
+    return new Intl.DateTimeFormat("fa-IR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date());
+  }
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Tehran",
+  }).format(date);
+}
+
+function mapAccountSupportMessage(
+  message: ChatMessage,
+  index: number,
+  currentUserId: string,
+  threadId: string,
+): SupportChatMessage | null {
+  const text = readSupportMessageBody(message);
+  if (!text) return null;
+  const isOwn = isOwnSupportMessage(message, currentUserId);
+
+  return {
+    id:
+      readChatPathText(message, ["id", "_id", "messageId", "message_id"]) ||
+      `api-${threadId}-${index}-${text}`,
+    direction: isOwn ? "outgoing" : "incoming",
+    sender: isOwn ? undefined : "پشتیبانی",
+    text,
+    threadId,
+    time: formatSupportMessageTime(
+      readChatPathText(message, [
+        "sent_at",
+        "sentAt",
+        "created_at",
+        "createdAt",
+        "date",
+      ]),
+    ),
+  };
+}
+
+function readSocketSupportMessage(payload: unknown) {
+  const payloadRecord = asChatRecord(payload);
+  const message = asChatRecord(payloadRecord?.message) ?? payloadRecord;
+
+  return message as ChatMessage | undefined;
+}
+
+function mergeSupportChatMessages(messages: SupportChatMessage[]) {
+  const seenIds = new Set<string>();
+  const seenContent = new Set<string>();
+
+  return messages.filter((message) => {
+    if (seenIds.has(message.id)) return false;
+
+    const contentKey = `${message.threadId}:${message.direction}:${message.text}:${message.time}`;
+    if (seenContent.has(contentKey)) return false;
+
+    seenIds.add(message.id);
+    seenContent.add(contentKey);
+    return true;
+  });
 }
 
 function SupportMessageBubble({ message }: { message: SupportChatMessage }) {
@@ -397,7 +579,7 @@ function SupportChatDateChip() {
   return (
     <div className="flex justify-center py-0.5">
       <span className="rounded-md bg-[#f5f5f5] px-2.5 py-1 text-[10px] font-normal leading-4 text-[#808080]">
-        ۲۲ بهمن
+        امروز
       </span>
     </div>
   );
@@ -451,7 +633,7 @@ function SupportChatComposer({
         className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1268d8] text-white outline-none active:bg-[#0758bd] focus-visible:ring-3 focus-visible:ring-[#1268d840]"
         type="submit"
       >
-        <SupportSendIcon className="h-5 w-5" />
+        <LinearSent className="h-5 w-5" />
       </button>
     </form>
   );
@@ -459,28 +641,208 @@ function SupportChatComposer({
 
 export function AccountSupportNewChatPage() {
   const [draftMessage, setDraftMessage] = useState("");
-  const [messages, setMessages] = useState<SupportChatMessage[]>(
-    initialSupportChatMessages,
+  const [createdThread, setCreatedThread] = useState<ChatThread | null>(null);
+  const [liveMessages, setLiveMessages] = useState<SupportChatMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const createPromiseRef = useRef<Promise<string> | null>(null);
+  const currentUserId = useMemo(readCurrentAccountUserId, []);
+  const supportChatsQuery = useChatsQuery({
+    category: "support",
+    page: 1,
+    perPage: 20,
+  });
+  const listedThread =
+    supportChatsQuery.data?.data.find(isOpenSupportThread) ?? null;
+  const activeThread = createdThread ?? listedThread;
+  const activeThreadId = readSupportThreadId(activeThread);
+  const messagesQuery = useChatMessagesQuery(activeThreadId || null);
+
+  const apiMessages = useMemo(() => {
+    if (!activeThreadId) return [];
+
+    return (messagesQuery.data ?? []).flatMap((message, index) => {
+      const mappedMessage = mapAccountSupportMessage(
+        message,
+        index,
+        currentUserId,
+        activeThreadId,
+      );
+
+      return mappedMessage ? [mappedMessage] : [];
+    });
+  }, [activeThreadId, currentUserId, messagesQuery.data]);
+
+  const messages = useMemo(
+    () =>
+      mergeSupportChatMessages([
+        ...apiMessages,
+        ...liveMessages.filter((message) => message.threadId === activeThreadId),
+      ]),
+    [activeThreadId, apiMessages, liveMessages],
   );
+
+  useEffect(() => {
+    if (!activeThreadId) return undefined;
+
+    const socket = joinChatThread({
+      category: "support",
+      threadId: activeThreadId,
+    });
+    const handleNewMessage = (payload: unknown) => {
+      const rawMessage = readSocketSupportMessage(payload);
+      if (!rawMessage) return;
+
+      const payloadThreadId =
+        readSupportMessageThreadId(payload) ||
+        readSupportMessageThreadId(rawMessage) ||
+        activeThreadId;
+      if (payloadThreadId !== activeThreadId) return;
+
+      const mappedMessage = mapAccountSupportMessage(
+        rawMessage,
+        Date.now(),
+        currentUserId,
+        activeThreadId,
+      );
+      if (!mappedMessage) return;
+
+      setLiveMessages((current) => {
+        const optimisticIndex = current.findIndex(
+          (message) =>
+            message.threadId === activeThreadId &&
+            message.id.startsWith("local-") &&
+            message.direction === mappedMessage.direction &&
+            message.text === mappedMessage.text,
+        );
+
+        if (optimisticIndex < 0) {
+          return mergeSupportChatMessages([...current, mappedMessage]);
+        }
+
+        const next = [...current];
+        next[optimisticIndex] = mappedMessage;
+        return mergeSupportChatMessages(next);
+      });
+
+      if (mappedMessage.direction === "incoming") {
+        markChatRead(activeThreadId, "support");
+      }
+    };
+
+    socket.on("chat:message:new", handleNewMessage);
+    markChatRead(activeThreadId, "support");
+
+    return () => {
+      socket.off("chat:message:new", handleNewMessage);
+      leaveChatThread(activeThreadId, "support");
+    };
+  }, [activeThreadId, currentUserId]);
+
+  useEffect(() => {
+    if (!activeThreadId || !draftMessage.trim()) return undefined;
+
+    sendChatTyping({
+      category: "support",
+      threadId: activeThreadId,
+      typing: true,
+    });
+    const timer = window.setTimeout(() => {
+      sendChatTyping({
+        category: "support",
+        threadId: activeThreadId,
+        typing: false,
+      });
+    }, 900);
+
+    return () => {
+      window.clearTimeout(timer);
+      sendChatTyping({
+        category: "support",
+        threadId: activeThreadId,
+        typing: false,
+      });
+    };
+  }, [activeThreadId, draftMessage]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [messages.length]);
+
+  const ensureSupportThread = async () => {
+    if (activeThreadId) return activeThreadId;
+
+    if (!createPromiseRef.current) {
+      createPromiseRef.current = new Promise<string>((resolve, reject) => {
+        let timeoutId = 0;
+        const finish = (threadId: string) => {
+          window.clearTimeout(timeoutId);
+          socket.off("chat:error", handleError);
+          resolve(threadId);
+        };
+        const handleError = (payload: { message?: string }) => {
+          window.clearTimeout(timeoutId);
+          socket.off("chat:error", handleError);
+          reject(new Error(payload.message || "Unable to start support chat"));
+        };
+        const socket = joinChatThread({
+          category: "support",
+          onJoined: finish,
+        });
+
+        socket.once("chat:error", handleError);
+        timeoutId = window.setTimeout(() => {
+          socket.off("chat:error", handleError);
+          reject(new Error("Support socket did not return a thread id"));
+        }, 10_000);
+      });
+    }
+
+    try {
+      const threadId = await createPromiseRef.current;
+      setCreatedThread({ _id: threadId });
+      return threadId;
+    } finally {
+      createPromiseRef.current = null;
+    }
+  };
 
   const sendMessage = () => {
     const text = draftMessage.trim();
-
     if (!text) return;
 
-    setMessages((current) => [
-      ...current,
-      {
-        id: `support-message-${Date.now()}`,
-        direction: "outgoing",
-        text,
-        time: new Intl.DateTimeFormat("fa-IR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }).format(new Date()),
-      },
-    ]);
-    setDraftMessage("");
+    void ensureSupportThread()
+      .then((threadId) => {
+        if (!threadId) return;
+
+        const optimisticMessage: SupportChatMessage = {
+          id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          direction: "outgoing",
+          text,
+          threadId,
+          time: formatSupportMessageTime(new Date().toISOString()),
+        };
+
+        setLiveMessages((current) =>
+          mergeSupportChatMessages([...current, optimisticMessage]),
+        );
+        setDraftMessage("");
+
+        if (threadId !== activeThreadId) {
+          joinChatThread({ category: "support", threadId });
+        }
+        sendChatTextMessage({
+          body: text,
+          category: "support",
+          threadId,
+        });
+      })
+      .catch(() => {
+        // Keep the typed message so the user can retry when the request succeeds.
+      });
   };
 
   return (
@@ -512,11 +874,12 @@ export function AccountSupportNewChatPage() {
             <SupportMessageBubble key={message.id} message={message} />
           ))}
 
-          <SupportChatDateChip />
+          {messages.length > 2 ? <SupportChatDateChip /> : null}
 
           {messages.slice(2).map((message) => (
             <SupportMessageBubble key={message.id} message={message} />
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </main>
 

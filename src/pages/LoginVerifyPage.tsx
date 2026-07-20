@@ -43,6 +43,8 @@ export function LoginVerifyPage() {
   } | null>(null);
   const [resendSeconds, setResendSeconds] = useState(getOtpResendSecondsRemaining);
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const lastAutoSubmittedCodeRef = useRef("");
   const phoneNumber = getPendingOtpMobile();
   const verifyOtpMutation = useVerifyOtpMutation();
   const resendOtpMutation = useResendOtpMutation();
@@ -60,6 +62,19 @@ export function LoginVerifyPage() {
 
     return () => window.clearInterval(timerId);
   }, [resendSeconds]);
+
+
+  useEffect(() => {
+    const code = verificationCodeSlots.join("");
+
+    if (!/^\d{4}$/.test(code) || isSubmitting || isResending) return;
+    if (lastAutoSubmittedCodeRef.current === code) return;
+
+    lastAutoSubmittedCodeRef.current = code;
+    const timerId = window.setTimeout(() => formRef.current?.requestSubmit(), 0);
+
+    return () => window.clearTimeout(timerId);
+  }, [isResending, isSubmitting, verificationCodeSlots]);
 
   function handleCodeChange(index: number, rawValue: string) {
     const digits = normalizeDigits(rawValue)
@@ -178,6 +193,7 @@ export function LoginVerifyPage() {
     try {
       await resendOtpMutation.mutateAsync({ mobile });
       setVerificationCodeSlots(["", "", "", ""]);
+      lastAutoSubmittedCodeRef.current = "";
       setResendSeconds(getOtpResendSecondsRemaining());
       otpInputRefs.current[0]?.focus();
       setNotice({
@@ -199,7 +215,7 @@ export function LoginVerifyPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
       variant="flush"
     >
-      <form className="contents" noValidate onSubmit={handleSubmit}>
+      <form className="contents" noValidate onSubmit={handleSubmit} ref={formRef}>
         <TopBar
           backTo="/account"
           onBack={() => goBackOrNavigate("/login/phone")}
@@ -267,7 +283,7 @@ export function LoginVerifyPage() {
                   <input
                     aria-invalid={notice?.variant === "error" ? "true" : undefined}
                     autoComplete={index === 0 ? "one-time-code" : "off"}
-                    className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] min-[390px]:h-14"
+                    className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center text-[22px] font-normal leading-7 text-[#1a1a1a] outline-none placeholder:text-[22px] placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] min-[390px]:h-14"
                     aria-label={`رقم ${index + 1}`}
                     inputMode="numeric"
                     maxLength={1}

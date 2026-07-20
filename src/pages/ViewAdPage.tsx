@@ -3289,6 +3289,20 @@ function isLoggedIn() {
   return Boolean(getStoredAuthSession());
 }
 
+function readAdvertisementBookmarkState(advertisement: AdvertisementItem | undefined) {
+  if (!advertisement) return undefined;
+
+  for (const key of ["is_bookmarked", "bookmarked", "is_badged", "has_badge"] as const) {
+    const value = advertisement[key];
+
+    if (typeof value === "boolean") return value;
+    if (value === 1 || value === "1" || value === "true") return true;
+    if (value === 0 || value === "0" || value === "false") return false;
+  }
+
+  return undefined;
+}
+
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
@@ -3311,6 +3325,14 @@ export function ViewAdPage() {
   const { data: ad, error, isError, isLoading, refetch } = isPreview
     ? previewQuery
     : detailQuery;
+
+  useEffect(() => {
+    const bookmarkState = readAdvertisementBookmarkState(ad);
+
+    if (bookmarkState !== undefined) {
+      setIsBookmarked(bookmarkState);
+    }
+  }, [ad]);
 
   useEffect(() => {
     if (!toast) return;
@@ -3473,10 +3495,16 @@ export function ViewAdPage() {
         return;
       }
 
+      const previousBookmarkedState = isBookmarked;
+      const nextBookmarkedState = !previousBookmarkedState;
+
+      setIsBookmarked(nextBookmarkedState);
       toggleBadge.mutate(adId, {
         onError: (badgeError) => {
+          setIsBookmarked(previousBookmarkedState);
+
           if (isUnauthorizedApiError(badgeError)) {
-            requireAuthorization("نشان کردن آگهی");
+            navigateToLoginRequiredPage("نشان کردن آگهی");
             return;
           }
 
@@ -3487,17 +3515,11 @@ export function ViewAdPage() {
           );
         },
         onSuccess: () => {
-          setIsBookmarked((current) => {
-            const next = !current;
-
-            showToast(
-              next
-                ? "آگهی به نشان‌ها اضافه شد"
-                : "آگهی از نشان‌ها حذف شد",
-            );
-
-            return next;
-          });
+          showToast(
+            nextBookmarkedState
+              ? "آگهی به نشان‌ها اضافه شد"
+              : "آگهی از نشان‌ها حذف شد",
+          );
         },
       });
     }

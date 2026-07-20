@@ -9,7 +9,6 @@ import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
-import { DemoNotice } from "../components/DemoNotice";
 import { getRequestErrorState } from "../components/ErrorState";
 import { SwitchButton } from "../components/SwitchButton";
 import { TopBar } from "../components/TopBar";
@@ -22,7 +21,6 @@ import {
   useNotificationUnreadCountQuery,
   useUpdateNotificationPreferenceMutation,
 } from "../hooks/notification.hooks";
-import { useDemoNotice } from "../hooks/useDemoNotice";
 import type {
   NotificationCategory,
   NotificationItem,
@@ -684,7 +682,6 @@ export function NotificationsPage() {
     () => new Set(),
   );
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
-  const { message, showNotice } = useDemoNotice();
 
   const notificationsQuery = useNotificationsInfiniteQuery({
     perPage: notificationsPerPage,
@@ -784,7 +781,6 @@ export function NotificationsPage() {
           notification,
           ...current.filter((item) => String(item.id) !== String(notification.id)),
         ]);
-        showNotice(notification.title || "اعلان جدید دریافت شد");
       }
 
       if (typeof nextUnreadCount === "number") {
@@ -831,7 +827,9 @@ export function NotificationsPage() {
     };
 
     const handleSocketError = ({ message: socketMessage }: { message?: string }) => {
-      showNotice(socketMessage || "اتصال اعلان‌ها با خطا مواجه شد");
+      if (import.meta.env.DEV) {
+        console.error(socketMessage || "اتصال اعلان‌ها با خطا مواجه شد");
+      }
     };
 
     socket.on("connect", handleConnect);
@@ -849,7 +847,7 @@ export function NotificationsPage() {
       loadMoreObserverRef.current?.disconnect();
       disconnectNotificationSocket();
     };
-  }, [refetchNotifications, refetchUnreadCount, showNotice]);
+  }, [refetchNotifications, refetchUnreadCount]);
 
   const toggleFilter = (id: NotificationCategory) => {
     setSelectedFilterIds((current) => {
@@ -876,7 +874,6 @@ export function NotificationsPage() {
   const refreshNotifications = async () => {
     setRealtimeNotifications([]);
     await Promise.all([notificationsQuery.refetch(), unreadCountQuery.refetch()]);
-    showNotice("اعلان‌ها بروزرسانی شد");
   };
 
   const openNotification = async (notification: NotificationItem) => {
@@ -886,15 +883,19 @@ export function NotificationsPage() {
           String(item.id) === String(notification.id) ? { ...item, is_read: true } : item,
         ),
       );
-      await markReadMutation.mutateAsync(String(notification.id));
+
+      try {
+        await markReadMutation.mutateAsync(String(notification.id));
+      } catch {
+        void notificationsQuery.refetch();
+        void unreadCountQuery.refetch();
+      }
     }
 
     const path = getNotificationPath(notification);
 
     if (path) {
       navigateTo(path);
-    } else {
-      showNotice("اعلان خوانده شد");
     }
   };
 
@@ -902,25 +903,36 @@ export function NotificationsPage() {
     setRealtimeNotifications((current) =>
       current.filter((item) => String(item.id) !== String(notification.id)),
     );
-    await deleteMutation.mutateAsync(String(notification.id));
-    showNotice("اعلان حذف شد");
+
+    try {
+      await deleteMutation.mutateAsync(String(notification.id));
+    } catch {
+      void notificationsQuery.refetch();
+    }
   };
 
   const markAllRead = async () => {
-    await markAllReadMutation.mutateAsync(undefined);
-    setRealtimeNotifications((current) =>
-      current.map((notification) => ({ ...notification, is_read: true })),
-    );
-    setIsSettingsSheetOpen(false);
-    showNotice("همه اعلان‌ها خوانده شد");
+    try {
+      await markAllReadMutation.mutateAsync(undefined);
+      setRealtimeNotifications((current) =>
+        current.map((notification) => ({ ...notification, is_read: true })),
+      );
+      setIsSettingsSheetOpen(false);
+    } catch {
+      void notificationsQuery.refetch();
+      void unreadCountQuery.refetch();
+    }
   };
 
   const togglePreference = async (
     category: NotificationCategory,
     enabled: boolean,
   ) => {
-    await updatePreferenceMutation.mutateAsync({ category, enabled });
-    showNotice(enabled ? "دسته اعلان فعال شد" : "دسته اعلان غیرفعال شد");
+    try {
+      await updatePreferenceMutation.mutateAsync({ category, enabled });
+    } catch {
+      void preferencesQuery.refetch();
+    }
   };
 
   return (
@@ -1003,7 +1015,6 @@ export function NotificationsPage() {
         onTogglePreference={(category, enabled) => void togglePreference(category, enabled)}
         preferences={preferencesQuery.data ?? []}
       />
-      <DemoNotice message={message} />
     </PageFrame>
   );
 }

@@ -13,7 +13,7 @@ type ChatSocketServerToClientEvents = {
 
 type ChatSocketClientToServerEvents = {
   "chat:join": (
-    payload: { threadId: string },
+    payload: { threadId?: string },
     callback?: (payload: ChatJoinPayload) => void,
   ) => void;
   "chat:leave": (payload: { threadId: string }) => void;
@@ -117,7 +117,7 @@ export function joinChatThread({
 }: {
   category?: ChatCategory;
   onJoined?: (threadId: string) => void;
-  threadId: string;
+  threadId?: string;
 }) {
   const socket = getChatSocket(category);
   const handleJoinPayload = (payload: ChatJoinPayload) => {
@@ -128,7 +128,7 @@ export function joinChatThread({
     }
   };
 
-  socket.emit("chat:join", { threadId }, handleJoinPayload);
+  socket.emit("chat:join", threadId ? { threadId } : {}, handleJoinPayload);
 
   return socket;
 }

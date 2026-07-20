@@ -749,10 +749,10 @@ export function CrmSupportRequestsView({
             </span>
             <div>
               <h1 className="m-0 text-lg font-bold text-[#1a1a1a]">
-                درخواست‌های کاربران
+                درخواست‌های پشتیبانی
               </h1>
               <p className="m-0 mt-1 text-sm font-medium text-[#808080]">
-                مشاهده، پاسخگویی و پیگیری درخواست‌های ثبت‌شده از حساب کاربری
+                مشاهده، پاسخگویی و پیگیری درخواست‌های ثبت‌شده در بخش پشتیبانی
               </p>
             </div>
           </div>

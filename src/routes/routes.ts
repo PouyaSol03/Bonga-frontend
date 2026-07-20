@@ -427,7 +427,15 @@ export const routes: AppRoute[] = [
   },
   {
     path: `${CRM_PATH}/requests`,
-    title: 'درخواست‌ها',
+    title: 'درخواست‌های پشتیبانی',
+    Component: CrmPage,
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/property-requests`,
+    title: 'درخواست‌های یافتن آگهی',
     Component: CrmPage,
     authority: [SUPER_ADMIN],
     layout: 'crm',

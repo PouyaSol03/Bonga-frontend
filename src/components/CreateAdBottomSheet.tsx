@@ -1,13 +1,10 @@
-import { getStoredAuthSession } from "../auth/auth-storage";
-import { useMyAgencyProfileQuery } from "../hooks/account.hooks";
+import {
+  usePublisherOptions,
+  type PublisherOption,
+} from "../hooks/publisher-options.hooks";
 import { BottomSheet } from "./BottomSheet";
 
-type CreateAdOption = {
-  id: string;
-  title: string;
-  description: string;
-  icon: "user" | "building" | "agency";
-};
+type CreateAdOption = PublisherOption;
 
 type CreateAdBottomSheetProps = {
   isOpen: boolean;
@@ -15,53 +12,66 @@ type CreateAdBottomSheetProps = {
   onSelect?: (option: CreateAdOption) => void;
 };
 
-const createAdOptions: CreateAdOption[] = [
-  {
-    id: "personal",
-    title: "آگهی شخصی",
-    description: "انتشار در آگهی های شخصی",
-    icon: "user",
-  },
-  {
-    id: "independent-consultant",
-    title: "مشاور مستقل",
-    description: "انتشار آگهی در صفحه مشاور مستقل",
-    icon: "building",
-  },
-  {
-    id: "jaliliyan-agency",
-    title: "مشاور آژانس",
-    description: "انتشار آگهی در صفحه مشاور آژانس",
-    icon: "agency",
-  },
-];
-
 function CreateAdIcon({ type }: { type: CreateAdOption["icon"] }) {
   if (type === "user") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+        <path
+          d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M4 21a8 8 0 0 1 16 0"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.8"
+        />
       </svg>
     );
   }
 
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 21V4l10 3v14" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="M15 11h4v10" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="M8 8h3M8 12h3M8 16h3" stroke="currentColor" strokeWidth="1.8" />
-      {type === "agency" && (
-        <path d="M3 21h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      )}
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M5 21V4l10 3v14"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M15 11h4v10"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M8 8h3M8 12h3M8 16h3"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      {type === "agency" ? (
+        <path
+          d="M3 21h18"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.8"
+        />
+      ) : null}
     </svg>
   );
 }
 
 function ChevronLeftIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M15 6l-6 6 6 6"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
     </svg>
   );
 }
@@ -71,41 +81,7 @@ export function CreateAdBottomSheet({
   onClose,
   onSelect,
 }: CreateAdBottomSheetProps) {
-
-  const session = getStoredAuthSession();
-  const availableRoles = new Set([
-    session?.role,
-    ...(session?.roles ?? []).map((role) => role.slug),
-  ].filter(Boolean));
-  const canPublishAsIndependent = availableRoles.has("independent_consultant");
-  const canPublishAsAgency =
-    availableRoles.has("real_estate_consultant") ||
-    availableRoles.has("real_estate_manager");
-  const shouldFetchAgency = canPublishAsAgency;
-  const { data: agencyProfile } = useMyAgencyProfileQuery({
-    enabled: isOpen && shouldFetchAgency,
-  });
-  const agencyName = agencyProfile?.name?.trim() ?? "";
-
-  const filteredOptions = createAdOptions.filter((option) => {
-    if (option.id === "personal") return true;
-    if (option.id === "independent-consultant") return canPublishAsIndependent;
-    if (option.id === "jaliliyan-agency") return canPublishAsAgency;
-
-    return false;
-  });
-
-  const getOptionCopy = (option: CreateAdOption) => {
-    if (option.id !== "jaliliyan-agency") return option;
-
-    return {
-      ...option,
-      description: agencyName
-        ? `انتشار آگهی در صفحه مشاور آژانس ${agencyName}`
-        : option.description,
-      title: agencyName ? `مشاور آژانس ${agencyName}` : option.title,
-    };
-  };
+  const options = usePublisherOptions(isOpen);
 
   return (
     <BottomSheet
@@ -117,16 +93,13 @@ export function CreateAdBottomSheet({
       title="ثبت آگهی"
       zIndexClassName="z-2000"
     >
-      {filteredOptions.map((option) => {
-        const optionCopy = getOptionCopy(option);
-
-        return (
+      {options.map((option) => (
         <button
-          key={option.id}
-          type="button"
-          tabIndex={isOpen ? 0 : -1}
-          onClick={() => onSelect?.(optionCopy)}
           className="flex w-full items-center gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          key={option.id}
+          onClick={() => onSelect?.(option)}
+          tabIndex={isOpen ? 0 : -1}
+          type="button"
         >
           <span className="shrink-0 text-[#4d4d4d]">
             <span className="block size-6">
@@ -136,11 +109,10 @@ export function CreateAdBottomSheet({
 
           <span className="min-w-0 flex-1">
             <span className="block text-base font-normal leading-6 text-[#1a1a1a]">
-              {optionCopy.title}
+              {option.title}
             </span>
-
             <span className="mt-0.5 block text-sm font-normal leading-5 text-[#808080]">
-              {optionCopy.description}
+              {option.description}
             </span>
           </span>
 
@@ -150,8 +122,7 @@ export function CreateAdBottomSheet({
             </span>
           </span>
         </button>
-        );
-      })}
+      ))}
     </BottomSheet>
   );
 }

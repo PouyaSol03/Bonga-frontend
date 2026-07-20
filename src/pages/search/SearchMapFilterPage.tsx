@@ -328,7 +328,7 @@ function getMoneySupportingText(value: string | number | undefined) {
   return normalized && numericValue > 0 ? `${formatBigNumber(numericValue)} تومان` : "";
 }
 
-const customRangeOptionLabel = "وارد کردن مقدار دلخواه";
+const customRangeOptionLabel = "افزودن مقدار دلخواه";
 
 const areaRangeOptions = [
   "۳۰",
@@ -1140,17 +1140,9 @@ export function AdvertisementFilterPage({
       </main>
 
       <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
-        <div className="flex items-center gap-4" dir="rtl">
+        <div dir="rtl">
           <button
-            className="flex h-10 w-[119px] items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]"
-            onClick={() => setFilters({ ...initialFilters, transaction: filters.transaction, category: filters.category })}
-            type="button"
-          >
-            <TrashIcon />
-            <span>حذف همه</span>
-          </button>
-          <button
-            className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
+            className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
             onClick={() => {
               window.history.pushState({}, "", buildSearchUrl(filters, applyBasePath));
               window.dispatchEvent(new PopStateEvent("popstate"));
@@ -1329,14 +1321,6 @@ function MoreButton({
 function FilterAssetIcon({ src }: { src: string }) {
   return (
     <img alt="" aria-hidden="true" className="h-6 w-6 shrink-0 object-contain" src={src} />
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
-      <path d="M6 6v9m4-9v9m4-9v9M4 5h12M8 3h4" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
-    </svg>
   );
 }
 
@@ -2026,6 +2010,11 @@ function RangeSelectField({
     setCustomValue("");
   };
 
+  const openCustomInput = () => {
+    setCustomValue(formatPersianPlainNumber(value));
+    setIsCustomInputVisible(true);
+  };
+
   return (
     <div className="min-w-0 flex-1">
       <button
@@ -2040,80 +2029,84 @@ function RangeSelectField({
       </button>
 
       <BottomSheet
-        ariaLabel={label}
-        contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
+        ariaLabel={isCustomInputVisible ? customRangeOptionLabel : label}
+        contentClassName="min-h-0 overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
         heightClassName="max-h-[min(74dvh,520px)]"
         isOpen={isOpen}
+        onBack={isCustomInputVisible ? () => setIsCustomInputVisible(false) : closeSheet}
         onClose={closeSheet}
         showHeaderDivider
-        title={label}
+        title={isCustomInputVisible ? customRangeOptionLabel : label}
       >
-        <div className="space-y-1" dir="rtl">
-          {value ? (
+        {isCustomInputVisible ? (
+          <div className="space-y-4 pt-2" dir="rtl">
+            <FormTextField
+              badge="متر"
+              label="مقدار دلخواه"
+              onChange={(event) => setCustomValue(formatPersianPlainNumber(event.target.value))}
+              onClear={() => setCustomValue("")}
+              placeholder="مقدار دلخواه را وارد کنید"
+              value={customValue}
+            />
             <button
-              className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
+              className="h-11 w-full rounded-xl bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:cursor-not-allowed disabled:bg-[#d9d9d9]"
+              disabled={!normalizeRangeNumber(customValue)}
               onClick={() => {
-                onChange("");
+                const normalizedCustomValue = normalizeRangeNumber(customValue);
+
+                if (!normalizedCustomValue) return;
+
+                onChange(normalizedCustomValue);
                 closeSheet();
               }}
               type="button"
             >
-              <span>پاک کردن انتخاب</span>
-              <ClearCircleIcon />
+              تایید مقدار
             </button>
-          ) : null}
-
-          {areaRangeOptions.map((option) => {
-            const normalizedOption = normalizeRangeNumber(option);
-            const selected = Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
-
-            return (
+          </div>
+        ) : (
+          <div className="space-y-1" dir="rtl">
+            {value ? (
               <button
-                aria-pressed={selected}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
-                  selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
-                }`}
-                key={option}
+                className="flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
                 onClick={() => {
-                  if (option === customRangeOptionLabel) {
-                    setIsCustomInputVisible(true);
-                    return;
-                  }
-
-                  onChange(formatPersianPlainNumber(option));
+                  onChange("");
                   closeSheet();
                 }}
                 type="button"
               >
-                <span>{option}</span>
-                {option === customRangeOptionLabel ? <ChevronLeftIcon /> : <SelectionCheckIndicator checked={selected} />}
+                <span>پاک کردن انتخاب</span>
               </button>
-            );
-          })}
+            ) : null}
 
-          {isCustomInputVisible ? (
-            <div className="space-y-3 rounded-[12px] bg-[#f7f7f7] p-3">
-              <FormTextField
-                label="مقدار دلخواه"
-                onChange={(event) => setCustomValue(formatPersianPlainNumber(event.target.value))}
-                onClear={() => setCustomValue("")}
-                placeholder="مقدار دلخواه"
-                value={customValue}
-              />
-              <button
-                className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:bg-[#d9d9d9]"
-                disabled={!normalizeRangeNumber(customValue)}
-                onClick={() => {
-                  onChange(formatPersianPlainNumber(customValue));
-                  closeSheet();
-                }}
-                type="button"
-              >
-                تایید
-              </button>
-            </div>
-          ) : null}
-        </div>
+            {areaRangeOptions.map((option) => {
+              const normalizedOption = normalizeRangeNumber(option);
+              const selected = Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
+
+              return (
+                <button
+                  aria-pressed={selected}
+                  className={`flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 ${
+                    selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
+                  }`}
+                  key={option}
+                  onClick={() => {
+                    if (option === customRangeOptionLabel) {
+                      openCustomInput();
+                      return;
+                    }
+
+                    onChange(normalizedOption);
+                    closeSheet();
+                  }}
+                  type="button"
+                >
+                  <span>{option}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </BottomSheet>
     </div>
   );

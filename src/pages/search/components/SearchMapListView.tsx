@@ -55,18 +55,18 @@ export function SearchMapListView({
   return (
     <>
       <main
-        className="absolute inset-0 z-0 min-h-0 overflow-y-auto overscroll-contain bg-white pb-20 pt-[60px]"
+        className="absolute inset-0 z-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain bg-white pb-20 pt-[60px]"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >
-        <div className={`flex flex-col gap-3 ${hasEmptyResults ? "bg-white" : "bg-[#f0f0f0]"}`}>
+        <div className={`flex min-h-full flex-col gap-3 ${hasEmptyResults ? "bg-white" : "bg-[#f0f0f0]"}`}>
           {isLoading
             ? Array.from({ length: 3 }).map((_, index) => (
                 <AdCardSkeleton key={index} />
               ))
             : hasEmptyResults
               ? (
-                <div className="bg-white pt-4">
+                <div className="flex flex-1 flex-col bg-white pt-3">
                   <SearchNoResultsRequestCard onSubmit={onRequestSubmit} />
                 </div>
               )
@@ -81,7 +81,7 @@ export function SearchMapListView({
       </main>
 
       <button
-        className="absolute bottom-4 left-1/2 z-520 flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-sm font-bold leading-5 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        className="absolute bottom-4 left-1/2 z-[520] flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-sm font-bold leading-5 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
         type="button"
         onClick={onMapClick}
       >

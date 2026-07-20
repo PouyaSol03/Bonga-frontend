@@ -10,6 +10,8 @@ import {
 } from "../../../hooks/saved-search.hooks";
 import { useAdvertisementListQuery } from "../../../hooks/advertisement.hooks";
 import { TopBar } from "../../../components/TopBar";
+import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import LinearDelete from "../../../components/(icons)/LinearDelete";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
@@ -514,9 +516,9 @@ function SavedSearchesView({
 
 function SearchRowsSkeleton() {
   return (
-    <div className="flex flex-col gap-4 px-4 py-2">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div className="h-14 rounded-xl bg-[#f0f0f0]" key={index} />
+    <div className="flex flex-col bg-[#f0f0f0]" aria-hidden="true">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <AdCardSkeleton key={index} />
       ))}
     </div>
   );
@@ -602,7 +604,7 @@ function RecentSearchRow({
 
   return (
     <article
-      className={`relative overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
+      className={`relative h-[96px] overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
       onPointerCancel={finishSwipe}
       onPointerDown={(event) => {
         if (isDeleting) return;
@@ -621,12 +623,12 @@ function RecentSearchRow({
     >
       <button
         aria-label={`حذف ${item.title}`}
-        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-sm font-medium text-[#d92d20]"
+        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-[#d92d20]"
         disabled={isDeleting}
         onClick={onDelete}
         type="button"
       >
-        حذف
+        <LinearDelete className="h-6 w-6" />
       </button>
 
       <button
@@ -646,7 +648,7 @@ function RecentSearchRow({
         </span>
 
         {tags.length > 0 ? (
-          <span className="mt-3 flex flex-wrap justify-start gap-2 pr-8">
+          <span className="mt-2 flex max-h-7 flex-nowrap justify-start gap-2 overflow-hidden pr-8">
             {tags.map((tag) => (
               <span
                 className="rounded-md bg-[#f0f0f0] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"
@@ -754,7 +756,7 @@ function SavedSearchRow({
 
   return (
     <article
-      className={`relative overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
+      className={`relative h-[96px] overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
       onPointerCancel={finishSwipe}
       onPointerDown={(event) => {
         if (isDeleting) return;
@@ -773,12 +775,12 @@ function SavedSearchRow({
     >
       <button
         aria-label={`حذف ${item.title}`}
-        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-sm font-medium text-[#d92d20]"
+        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-[#d92d20]"
         disabled={isDeleting}
         onClick={onDelete}
         type="button"
       >
-        حذف
+        <LinearDelete className="h-6 w-6" />
       </button>
 
       <button
@@ -798,7 +800,7 @@ function SavedSearchRow({
         </span>
 
         {item.content.length > 0 ? (
-          <span className="mt-3 flex flex-wrap justify-start gap-2 pr-8">
+          <span className="mt-2 flex max-h-7 flex-nowrap justify-start gap-2 overflow-hidden pr-8">
             {item.content.map((tag) => (
               <span
                 className="rounded-md bg-[#f0f0f0] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"

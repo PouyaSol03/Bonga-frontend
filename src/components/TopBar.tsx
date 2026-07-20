@@ -11,7 +11,6 @@ import {
 import { getStoredBackTarget, pushRoute } from "../routes/navigation";
 import { RouteLink } from "../routes/RouteLink";
 import LinearSearch from "./(icons)/LinearSearch";
-import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
 
 export type TopBarAction = {
   icon: ReactNode;
@@ -67,6 +66,25 @@ type RegisteredTopBar = {
 };
 
 const TopBarLayoutContext = createContext<TopBarLayoutContextValue | null>(null);
+
+function TopBarBookmarkIcon({ filled = false }: { filled?: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-6 w-6"
+      fill={filled ? "#1a1a1a" : "none"}
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z"
+        stroke="#1a1a1a"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
 
 function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" }) {
   const path =
@@ -166,11 +184,7 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
         <button
           aria-label={search.savedLabel ?? "جستجوی ذخیره شده"}
           aria-pressed={search.isSaved}
-          className={`relative grid h-12 w-12 shrink-0 place-items-center transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-            search.isSaved || search.isSaving
-              ? "bg-[#0048c4] text-white"
-              : "text-[#1a1a1a] active:bg-[#1a1a1a0a]"
-          }`}
+          className="relative grid h-12 w-12 shrink-0 place-items-center bg-transparent text-[#1a1a1a] transition-colors [-webkit-tap-highlight-color:transparent] active:bg-transparent focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
           disabled={search.isSaving || search.isSavedDisabled}
           onClick={(event) => {
             event.stopPropagation();
@@ -178,7 +192,7 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
           }}
           type="button"
         >
-          <LinearBookmarkSolid className="h-6 w-6" />
+          <TopBarBookmarkIcon filled={Boolean(search.isSaved)} />
           {search.savedCount && search.savedCount > 0 ? (
             <span className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-[#0048c4] px-1 text-[10px] font-bold leading-4 text-white">
               {search.savedCount > 99

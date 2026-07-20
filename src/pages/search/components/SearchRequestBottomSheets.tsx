@@ -2,9 +2,10 @@ import { BottomSheet } from "../../../components/BottomSheet";
 
 export type SearchRequestSenderOption = {
   description: string;
-  id: string;
-  title: string;
   icon: "user" | "building" | "agency";
+  id: string;
+  senderRole: string;
+  title: string;
 };
 
 type SearchRequestSenderBottomSheetProps = {
@@ -155,52 +156,50 @@ export function SearchRequestSenderBottomSheet({
   onSelect,
   options,
 }: SearchRequestSenderBottomSheetProps) {
-  if (isSuccess) {
-    return (
+  return (
+    <>
+      <BottomSheet
+        ariaLabel="ثبت درخواست"
+        contentClassName="mt-5 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
+        heightClassName="max-h-[min(88dvh,560px)]"
+        isOpen={isOpen && !isSuccess}
+        onClose={onClose}
+        title="ثبت درخواست"
+        zIndexClassName="z-[2000]"
+      >
+        {options.map((option) => (
+          <button
+            className="flex w-full items-center gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            key={option.id}
+            onClick={() => onSelect(option.id)}
+            tabIndex={isOpen && !isSuccess ? 0 : -1}
+            type="button"
+          >
+            <span className="block size-6 shrink-0 text-[#4d4d4d]">
+              <RequestSenderIcon type={option.icon} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-base font-normal leading-6 text-[#1a1a1a]">{option.title}</span>
+              <span className="mt-0.5 block text-sm font-normal leading-5 text-[#808080]">{option.description}</span>
+            </span>
+            <span className="block size-6 shrink-0 text-[#4d4d4d]">
+              <ChevronLeftIcon />
+            </span>
+          </button>
+        ))}
+      </BottomSheet>
+
       <BottomSheet
         ariaLabel="ثبت موفق درخواست"
         contentClassName="pb-[max(1.75rem,env(safe-area-inset-bottom,0px))]"
         heightClassName="h-[480px] max-h-[100dvh]"
-        isOpen={isOpen}
+        isOpen={isOpen && isSuccess}
         onClose={onClose}
         showHeader={false}
-        zIndexClassName="z-2000"
+        zIndexClassName="z-[2000]"
       >
         <RequestSuccessContent onClose={onClose} onOpenResults={onOpenResults} />
       </BottomSheet>
-    );
-  }
-
-  return (
-    <BottomSheet
-      ariaLabel="ثبت درخواست"
-      contentClassName="mt-5 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
-      heightClassName="max-h-[min(88dvh,560px)]"
-      isOpen={isOpen}
-      onClose={onClose}
-      title="ثبت درخواست"
-      zIndexClassName="z-2000"
-    >
-      {options.map((option) => (
-        <button
-          className="flex w-full items-center gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
-          key={option.id}
-          onClick={() => onSelect(option.id)}
-          tabIndex={isOpen ? 0 : -1}
-          type="button"
-        >
-          <span className="block size-6 shrink-0 text-[#4d4d4d]">
-            <RequestSenderIcon type={option.icon} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-normal leading-6 text-[#1a1a1a]">{option.title}</span>
-            <span className="mt-0.5 block text-sm font-normal leading-5 text-[#808080]">{option.description}</span>
-          </span>
-          <span className="block size-6 shrink-0 text-[#4d4d4d]">
-            <ChevronLeftIcon />
-          </span>
-        </button>
-      ))}
-    </BottomSheet>
+    </>
   );
 }

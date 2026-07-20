@@ -13,7 +13,7 @@ export function SearchMapFilterChips({
 }: SearchMapFilterChipsProps) {
   return (
     <section
-      className="overflow-x-auto px-4 py-3"
+      className="overflow-x-auto px-4 py-2"
       aria-label="فیلترهای جستجو"
       dir="rtl"
     >

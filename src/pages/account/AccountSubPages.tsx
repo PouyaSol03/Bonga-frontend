@@ -858,7 +858,6 @@ export function AccountNotesPage() {
 export function AccountBookmarksPage() {
   const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const { message, showNotice } = useDemoNotice();
   const {
     data,
     error,
@@ -896,24 +895,13 @@ export function AccountBookmarksPage() {
   }, [bookmarks.length, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const deleteBookmark = (advertiseId: string) => {
-    deleteBadge.mutate(advertiseId, {
-      onError: (deleteError) => {
-        showNotice(getApiErrorMessage(deleteError, "حذف نشان با خطا مواجه شد."));
-      },
-      onSuccess: () => {
-        showNotice("آگهی از نشان‌ها حذف شد");
-      },
-    });
+    deleteBadge.mutate(advertiseId);
   };
 
   const deleteAllBookmarks = () => {
     deleteBadge.mutate("all", {
-      onError: (deleteError) => {
-        showNotice(getApiErrorMessage(deleteError, "حذف نشان‌ها با خطا مواجه شد."));
-      },
       onSuccess: () => {
         setIsConfirmDeleteAllOpen(false);
-        showNotice("همه نشان‌ها حذف شدند");
       },
     });
   };
@@ -995,7 +983,6 @@ export function AccountBookmarksPage() {
           </button>
         </div>
       </BottomSheet>
-      <DemoNotice message={message} />
     </AccountPageShell>
   );
 }

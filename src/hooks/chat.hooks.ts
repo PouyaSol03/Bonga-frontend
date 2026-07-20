@@ -7,6 +7,7 @@ import {
   createOrGetAdvertiseChat,
   createOrGetSupportChat,
   deleteChat,
+  deleteChats,
   getChatDetail,
   getChatMessages,
   getChatUnreadCount,
@@ -94,6 +95,17 @@ export function useDeleteChatMutation() {
   return useMutation({
     mutationFn: deleteChat,
     onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.chats.all,
+      });
+    },
+  });
+}
+
+export function useDeleteChatsMutation() {
+  return useMutation({
+    mutationFn: deleteChats,
+    onSettled: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.chats.all,
       });

@@ -16,6 +16,7 @@ import {
   useChatMessagesQuery,
   useChatsQuery,
   useDeleteChatMutation,
+  useDeleteChatsMutation,
 } from "../hooks/chat.hooks";
 import { useDemoNotice } from "../hooks/useDemoNotice";
 import { TopBar } from "../components/TopBar";
@@ -518,8 +519,19 @@ function MoreVerticalIcon({ className = "" }: { className?: string }) {
 
 function BlockedIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M5.7 5.7L18.3 18.3M21 12C21 7.02944 16.9705 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9705 7.02944 21 12 21C16.9705 21 21 16.9705 21 12Z" stroke="#c11004" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M5.7 5.7 18.3 18.3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
     </svg>
   );
 }
@@ -554,6 +566,23 @@ function ChevronLeftIcon({ className = "" }: { className?: string }) {
       viewBox="0 0 24 24"
     >
       <path d="m15 6-6 6 6 6" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="m9 6 6 6-6 6" />
     </svg>
   );
 }
@@ -802,27 +831,32 @@ function ToggleSwitch({
 
 function ChatMenuRow({
   children,
+  compact = false,
   icon,
-  labelClassName = "text-sm leading-5",
   onClick,
   trailing,
 }: {
   children: ReactNode;
+  compact?: boolean;
   icon?: ReactNode;
-  labelClassName?: string;
   onClick?: () => void;
   trailing?: ReactNode;
 }) {
   const content = (
     <>
-      {icon ? <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{icon}</span> : null}
-      <span className={`min-w-0 flex-1 text-base leading-6 ${labelClassName}`}>{children}</span>
+      {icon ? (
+        <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">
+          {icon}
+        </span>
+      ) : null}
+      <span className="min-w-0 flex-1 text-base font-normal leading-6">
+        {children}
+      </span>
       {trailing ? <span className="grid shrink-0 place-items-center">{trailing}</span> : null}
     </>
   );
 
-  const className =
-    "flex h-[54px] w-full items-center gap-3 bg-white px-4 text-right font-normal text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]";
+  const className = `flex ${compact ? "h-14" : "h-[72px]"} w-full items-center gap-3 bg-white px-4 text-right text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]`;
 
   if (!onClick) {
     return <div className={className}>{content}</div>;
@@ -857,32 +891,43 @@ function ChatMenuBottomSheet({
 
   return (
     <BottomSheet
-      ariaLabel="منوی چت"
+      ariaLabel="مدیریت چت"
       className="rounded-t-[18px]"
-      contentClassName="mt-3"
-      heightClassName="h-[415px]"
+      contentClassName="mt-1"
+      heightClassName="h-[448px]"
       isOpen={isOpen}
       onClose={onClose}
       panelPaddingClassName="pt-3"
-      scrimClassName="bg-[#1a1a1a]/35"
+      scrimClassName="bg-[#1a1a1a]/60"
       showHeader={false}
     >
-      <ChatMenuRow icon={<ChevronLeftIcon className="h-5 w-5" />} onClick={() => onSelect("settings")}>
-        مدیریت چت
+      <ChatMenuRow
+        compact
+        icon={<ChevronRightIcon className="h-6 w-6" />}
+        onClick={onClose}
+      >
+        <strong className="font-semibold">مدیریت چت</strong>
       </ChatMenuRow>
-      <ChatMenuRow icon={<ClockAlarmIcon className="h-6 w-6" />} onClick={() => onSelect("hours")}>
+      <ChatMenuRow
+        icon={<ClockAlarmIcon className="h-6 w-6" />}
+        onClick={() => onSelect("hours")}
+      >
         ساعات پاسخگویی
       </ChatMenuRow>
       <ChatMenuDivider />
+      <ChatMenuRow
+        icon={<TrashIcon className="h-6 w-6" />}
+        onClick={() => onSelect("rename")}
+      >
+        تغییر نام چت
+      </ChatMenuRow>
       <ChatMenuDivider />
       <ChatMenuRow
-        labelClassName="text-base leading-6"
         trailing={<ToggleSwitch checked={showBlocked} onChange={setShowBlocked} />}
       >
         نمایش چت‌های مسدود شده
       </ChatMenuRow>
       <ChatMenuRow
-        labelClassName="text-base leading-6"
         trailing={<ToggleSwitch checked={showMyAds} onChange={setShowMyAds} />}
       >
         نمایش آگهی‌های من
@@ -912,7 +957,7 @@ function UnreadBadge({ count }: { count?: string }) {
 function BlockedBadge() {
   return (
     <span className="flex h-5 items-center gap-1 rounded-lg bg-[#dd2b1e1f] px-2 text-xs font-normal leading-4 text-[#c11004]">
-      <BlockedIcon className="h-3 w-3 text-[#c11004]" />
+      <BlockedIcon className="h-3 w-3 text-[#808080]" />
       <span>مسدود</span>
     </span>
   );
@@ -2124,16 +2169,9 @@ export function UserChatDetailPage() {
 
 export function UserChatHomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [deletedChatIds, setDeletedChatIds] = useState<Set<string>>(
-    () => new Set(),
-  );
-  const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(
-    () => new Set(),
-  );
   const { message, showNotice } = useDemoNotice();
   const {
     data: chatsPage,
@@ -2157,36 +2195,20 @@ export function UserChatHomePage() {
       return;
     }
 
-    if (id === "settings") {
-      showNotice("تنظیمات نمایشی گفتگو باز شد");
+    if (id === "rename") {
+      showNotice("امکان تغییر نام چت به‌زودی اضافه می‌شود");
       return;
     }
 
     if (id === "bulk-delete") {
-      setIsBulkDeleteMode(true);
-      setSelectedChatIds(new Set());
+      window.history.pushState({}, "", "/chat/bulk-delete");
+      window.dispatchEvent(new PopStateEvent("popstate"));
     }
   }, [showNotice]);
 
-  const toggleSelectedChat = useCallback((id: string) => {
-    setSelectedChatIds((current) => {
-      const next = new Set(current);
-
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-
-      return next;
-    });
-  }, []);
-
   const visibleChats = useMemo(() => chats.filter((item) => {
-    const itemId = item.id ?? "";
     const normalizedQuery = query.trim();
 
-    if (itemId && deletedChatIds.has(itemId)) return false;
     if (normalizedQuery && !`${item.userName} ${item.adTitle} ${item.message}`.includes(normalizedQuery)) {
       return false;
     }
@@ -2195,28 +2217,11 @@ export function UserChatHomePage() {
     if (activeFilter === "آگهی‌های من" && item.adLabel !== "آگهی من") return false;
     if (activeFilter === "آگهی‌های دیگران" && item.adLabel === "آگهی من") return false;
     return true;
-  }), [activeFilter, chats, deletedChatIds, query]);
-
-  const deleteSelectedChats = useCallback(() => {
-    const count = selectedChatIds.size;
-    setDeletedChatIds((current) => new Set([...current, ...selectedChatIds]));
-    setSelectedChatIds(new Set());
-    setIsBulkDeleteMode(false);
-    showNotice(`${count} گفتگو حذف شد`);
-  }, [selectedChatIds, showNotice]);
-
-  const closeBulkDeleteMode = useCallback(() => {
-    setIsBulkDeleteMode(false);
-    setSelectedChatIds(new Set());
-  }, []);
+  }), [activeFilter, chats, query]);
 
   const toggleSearch = useCallback(() => {
     setIsSearchOpen((current) => !current);
     setQuery("");
-  }, []);
-
-  const openMenu = useCallback(() => {
-    setIsMenuOpen(true);
   }, []);
 
   const selectFilter = useCallback((filter: string) => {
@@ -2245,25 +2250,6 @@ export function UserChatHomePage() {
             activeFilter={activeFilter}
             onSelect={selectFilter}
           />
-          {isBulkDeleteMode ? (
-            <div className="flex h-12 shrink-0 items-center justify-between bg-white px-4 [direction:ltr]">
-              <button
-                className="text-sm font-medium text-[#4d4d4d]"
-                onClick={closeBulkDeleteMode}
-                type="button"
-              >
-                انصراف
-              </button>
-              <button
-                className="rounded-lg bg-[#ee3623] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-                disabled={selectedChatIds.size === 0}
-                onClick={deleteSelectedChats}
-                type="button"
-              >
-                حذف ({selectedChatIds.size})
-              </button>
-            </div>
-          ) : null}
         </>
       }
       frameClassName="relative bg-[#cccccc] text-[#1a1a1a] [direction:rtl]"
@@ -2276,31 +2262,12 @@ export function UserChatHomePage() {
       }
       topBar={
         <ChatHeader
-          onOpenMenu={openMenu}
+          onOpenMenu={() => setIsMenuOpen(true)}
           onOpenSearch={toggleSearch}
         />
       }
     >
-      {isLoading && chats.length === 0 ? (
-        <div className="space-y-px bg-white">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              className="h-[140px] animate-pulse border-b border-[#f0f0f0] px-4 py-4"
-              key={index}
-            >
-              <div className="mb-4 h-5 w-3/4 rounded bg-[#f0f0f0]" />
-              <div className="mb-5 h-4 w-full rounded bg-[#f0f0f0]" />
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-[72px] rounded bg-[#f0f0f0]" />
-                <div className="min-w-0 flex-1 space-y-2">
-                  <div className="h-4 w-1/2 rounded bg-[#f0f0f0]" />
-                  <div className="h-5 w-4/5 rounded bg-[#f0f0f0]" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      {isLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
       {RequestErrorState && chats.length === 0 ? (
         <RequestErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
       ) : null}
@@ -2311,11 +2278,11 @@ export function UserChatHomePage() {
           <ChatCard
             chatId={chatId}
             index={index}
-            isBulkDeleteMode={isBulkDeleteMode}
-            isSelected={selectedChatIds.has(chatId)}
+            isBulkDeleteMode={false}
+            isSelected={false}
             item={item}
             key={chatId}
-            onToggleSelected={toggleSelectedChat}
+            onToggleSelected={() => undefined}
           />
         );
       })}
@@ -2323,11 +2290,218 @@ export function UserChatHomePage() {
         <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
       ) : null}
       <DemoNotice message={message} />
+    </TopBarNavigationLayout>
+  );
+}
+
+function ChatListSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="space-y-px bg-white">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          className="h-[140px] animate-pulse border-b border-[#f0f0f0] px-4 py-4"
+          key={index}
+        >
+          <div className="mb-4 h-5 w-3/4 rounded bg-[#f0f0f0]" />
+          <div className="mb-5 h-4 w-full rounded bg-[#f0f0f0]" />
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-[72px] rounded bg-[#f0f0f0]" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-4 w-1/2 rounded bg-[#f0f0f0]" />
+              <div className="h-5 w-4/5 rounded bg-[#f0f0f0]" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BulkSelectAllControl({
+  checked,
+  disabled,
+  onToggle,
+}: {
+  checked: boolean;
+  disabled: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      aria-pressed={checked}
+      className="flex h-11 items-center gap-3 text-sm font-semibold leading-5 text-[#1a1a1a] disabled:opacity-50"
+      disabled={disabled}
+      onClick={onToggle}
+      type="button"
+    >
+      <span
+        className={`grid h-[18px] w-[18px] place-items-center rounded border ${checked
+          ? "border-[#808080] bg-white text-[#4d4d4d]"
+          : "border-[#808080] bg-white text-transparent"
+        }`}
+      >
+        <CheckIcon className="h-[14px] w-[14px]" />
+      </span>
+      <span>انتخاب همه</span>
+    </button>
+  );
+}
+
+export function UserChatBulkDeletePage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(() => new Set());
+  const [deleteError, setDeleteError] = useState("");
+  const { message, showNotice } = useDemoNotice();
+  const {
+    data: chatsPage,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = useChatsQuery({ category: "advertise", page: 1, perPage: 50 });
+  const deleteChatsMutation = useDeleteChatsMutation();
+  const chats = useMemo(
+    () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
+    [chatsPage?.data],
+  );
+  const selectableChatIds = useMemo(
+    () => chats.map((item) => item.id).filter((id): id is string => Boolean(id)),
+    [chats],
+  );
+  const areAllSelected = selectableChatIds.length > 0
+    && selectableChatIds.every((id) => selectedChatIds.has(id));
+  const RequestErrorState = isError ? getRequestErrorState(error) : null;
+
+  const toggleSelectedChat = useCallback((id: string) => {
+    if (!id) return;
+
+    setSelectedChatIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedChatIds((current) => {
+      const alreadySelected = selectableChatIds.length > 0
+        && selectableChatIds.every((id) => current.has(id));
+
+      return alreadySelected ? new Set() : new Set(selectableChatIds);
+    });
+  }, [selectableChatIds]);
+
+  const deleteSelectedChats = useCallback(() => {
+    const threadIds = [...selectedChatIds];
+    if (threadIds.length === 0 || deleteChatsMutation.isPending) return;
+
+    setDeleteError("");
+    deleteChatsMutation.mutate(threadIds, {
+      onError: () => {
+        setDeleteError("حذف گفتگوها با خطا مواجه شد. دوباره تلاش کنید.");
+      },
+      onSuccess: () => {
+        window.history.replaceState({}, "", "/chat");
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      },
+    });
+  }, [deleteChatsMutation, selectedChatIds]);
+
+  const handleMenuSelect = useCallback((id: string) => {
+    setIsMenuOpen(false);
+
+    if (id === "hours") {
+      window.history.pushState({}, "", "/chat/response-time");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      return;
+    }
+
+    if (id === "rename") {
+      showNotice("امکان تغییر نام چت به‌زودی اضافه می‌شود");
+    }
+  }, [showNotice]);
+
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        actions={[
+          {
+            icon: <MoreVerticalIcon className="h-6 w-6" />,
+            id: "more",
+            label: "گزینه‌های بیشتر",
+            onClick: () => setIsMenuOpen(true),
+          },
+        ]}
+        backLabel="بازگشت به چت‌ها"
+        backTo="/chat"
+        centerSlot={
+          <h1 className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+            حذف گروهی گفتگوها
+          </h1>
+        }
+        className="border-b border-[#cccccc]"
+        contentClassName="px-2"
+        heightClassName="h-[60px]"
+      />
+
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-[78px]">
+        {isLoading && chats.length === 0 ? <ChatListSkeleton count={5} /> : null}
+        {RequestErrorState && chats.length === 0 ? (
+          <RequestErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
+        ) : null}
+        {chats.map((item, index) => {
+          const chatId = item.id ?? "";
+
+          return (
+            <ChatCard
+              chatId={chatId}
+              index={index}
+              isBulkDeleteMode
+              isSelected={Boolean(chatId && selectedChatIds.has(chatId))}
+              item={item}
+              key={chatId || `chat-${index}`}
+              onToggleSelected={toggleSelectedChat}
+            />
+          );
+        })}
+        {!isLoading && !isError && chats.length === 0 ? (
+          <p className="py-16 text-center text-sm text-[#808080]">گفتگویی برای حذف وجود ندارد</p>
+        ) : null}
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-3 pt-2 shadow-[0_-8px_22px_rgba(0,0,0,0.06)]">
+        {deleteError ? (
+          <p className="mb-2 text-center text-xs leading-5 text-[#c11004]">{deleteError}</p>
+        ) : null}
+        <div className="flex items-center justify-between gap-4 [direction:ltr]">
+          <button
+            className="h-[42px] min-w-[183px] rounded-lg bg-[#0048c4] px-6 text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={selectedChatIds.size === 0 || deleteChatsMutation.isPending}
+            onClick={deleteSelectedChats}
+            type="button"
+          >
+            {deleteChatsMutation.isPending ? "در حال حذف..." : "حذف"}
+          </button>
+          <BulkSelectAllControl
+            checked={areAllSelected}
+            disabled={selectableChatIds.length === 0 || deleteChatsMutation.isPending}
+            onToggle={toggleSelectAll}
+          />
+        </div>
+      </footer>
+
       <ChatMenuBottomSheet
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         onSelect={handleMenuSelect}
       />
-    </TopBarNavigationLayout>
+      <DemoNotice className="bottom-20" message={message} />
+    </PageFrame>
   );
 }

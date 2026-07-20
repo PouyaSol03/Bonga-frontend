@@ -126,7 +126,8 @@ function SearchMapListingSliderComponent({
           ? Array.from({ length: 2 }).map((_, index) => (
               <AdCardSkeleton
                 key={index}
-                className="mx-0 h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center"
+                className="mx-0 snap-center"
+                variant="mapPreview"
               />
             ))
           : listings.map((listing) => (

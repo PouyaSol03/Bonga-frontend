@@ -62,6 +62,10 @@ const UserChatDetailPage = lazyNamed(
   () => import('../pages/UserChatHomePage'),
   'UserChatDetailPage',
 )
+const UserChatBulkDeletePage = lazyNamed(
+  () => import('../pages/UserChatHomePage'),
+  'UserChatBulkDeletePage',
+)
 const ChatReportPage = lazyNamed(
   () => import('../pages/chat/ChatReportPage'),
   'ChatReportPage',
@@ -511,6 +515,15 @@ function getRoute(path: string): AppRoute {
       path,
       title: 'گزارش تخلف',
       Component: ChatReportPage,
+      requiresAuth: true,
+    }
+  }
+
+  if (path === '/chat/bulk-delete') {
+    return {
+      path,
+      title: 'حذف گروهی گفتگوها',
+      Component: UserChatBulkDeletePage,
       requiresAuth: true,
     }
   }

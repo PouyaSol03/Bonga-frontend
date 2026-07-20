@@ -270,6 +270,12 @@ export async function deleteChat(threadId: string) {
   });
 }
 
+export async function deleteChats(threadIds: string[]) {
+  const uniqueThreadIds = [...new Set(threadIds.filter(Boolean))];
+
+  await Promise.all(uniqueThreadIds.map((threadId) => deleteChat(threadId)));
+}
+
 export async function reportChat({
   description,
   reason,

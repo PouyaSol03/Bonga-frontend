@@ -96,6 +96,7 @@ const SearchMapPage = lazyNamed(() => import('../pages/search/SearchMapPage'), '
 const SearchMapFilterPage = lazyNamed(() => import('../pages/search/SearchMapFilterPage'), 'SearchMapFilterPage')
 const UserChatDetailPage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatDetailPage')
 const UserChatHomePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatHomePage')
+const UserChatBulkDeletePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatBulkDeletePage')
 const UserChatResponseTimePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatResponseTimePage')
 const ConsultantsDirectoryPage = lazyNamed(() => import('../pages/ConsultantsDirectoryPage'), 'ConsultantsDirectoryPage')
 const AgencyBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'AgencyBusinessCreationPage')
@@ -873,6 +874,12 @@ export const routes: AppRoute[] = [
     path: "/chat/response-time",
     title: "ساعت پاسخگویی",
     Component: UserChatResponseTimePage,
+    requiresAuth: true,
+  },
+  {
+    path: "/chat/bulk-delete",
+    title: "حذف گروهی گفتگوها",
+    Component: UserChatBulkDeletePage,
     requiresAuth: true,
   },
   {

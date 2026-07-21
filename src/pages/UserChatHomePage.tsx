@@ -17,6 +17,7 @@ import {
   useChatsQuery,
   useDeleteChatMutation,
   useDeleteChatsMutation,
+  useUnblockChatMutation,
 } from "../hooks/chat.hooks";
 import { useDemoNotice } from "../hooks/useDemoNotice";
 import { TopBar } from "../components/TopBar";
@@ -32,9 +33,10 @@ type ChatItem = {
   adLabel: string;
   adTitle: string;
   badgeCount?: string;
+  category?: "advertise" | "support";
   date: string;
   detailPath?: string;
-  detailState?: { threadId: string };
+  detailState?: { thread?: ChatThread; threadId: string };
   highlighted?: boolean;
   id?: string;
   imageUrl?: string;
@@ -67,6 +69,18 @@ function getChatRouteStateThreadId() {
   return typeof threadId === "string" || typeof threadId === "number"
     ? String(threadId)
     : "";
+}
+
+function getChatRouteStateThread() {
+  const state = window.history.state;
+
+  if (!state || typeof state !== "object") return undefined;
+
+  const thread = (state as { thread?: unknown }).thread;
+
+  return thread && typeof thread === "object" && !Array.isArray(thread)
+    ? (thread as ChatThread)
+    : undefined;
 }
 
 const filters = ["پشتیبانی", "خوانده نشده", "آگهی‌های من", "آگهی‌های دیگران"];
@@ -168,6 +182,14 @@ function readNumber(value: unknown) {
   return undefined;
 }
 
+function readBoolean(value: unknown) {
+  if (typeof value === "boolean") return value;
+  if (value === 1 || value === "1" || value === "true") return true;
+  if (value === 0 || value === "0" || value === "false") return false;
+
+  return undefined;
+}
+
 function readPathText(source: unknown, paths: string[]) {
   for (const path of paths) {
     let current: unknown = source;
@@ -216,14 +238,30 @@ function readPathRecord(source: unknown, paths: string[]) {
   return undefined;
 }
 
+function readPathBoolean(source: unknown, paths: string[]) {
+  for (const path of paths) {
+    let current: unknown = source;
+
+    for (const key of path.split(".")) {
+      current = asRecord(current)?.[key];
+    }
+
+    const value = readBoolean(current);
+
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+}
+
 function readChatThreadId(source: unknown) {
   return readPathText(source, [
-    "id",
-    "_id",
-    "threadId",
     "thread_id",
+    "threadId",
     "thread.id",
     "thread._id",
+    "id",
+    "_id",
   ]);
 }
 
@@ -419,7 +457,7 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       "consultant",
       "last_message.user",
     ]) ?? {};
-  const id = readText(chat.id) || readText(chat._id) || String(index + 1);
+  const id = readChatThreadId(chat) || String(index + 1);
   const unreadCount = readNumber(
     chat.unread_count ?? chat.unreadCount ?? chat.messages_count,
   );
@@ -441,12 +479,13 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       readPathText(ad, ["title", "label", "name"]) ||
       chatItems[0].adTitle,
     badgeCount: unreadCount && unreadCount > 0 ? new Intl.NumberFormat("fa-IR").format(unreadCount) : undefined,
+    category: readPathText(chat, ["category"]) === "support" ? "support" : "advertise",
     date: formatChatDate(
       readPathText(lastMessage, ["sent_at", "sentAt", "created_at", "createdAt", "date"]) ||
       readPathText(chat, ["last_message_at", "lastMessageAt", "updated_at", "updatedAt", "created_at", "createdAt"]),
     ),
     detailPath: `/chat/${id}`,
-    detailState: { threadId: id },
+    detailState: { thread: chat, threadId: id },
     highlighted: unreadCount !== undefined && unreadCount > 0,
     id,
     imageUrl: readImageUrl(ad) ?? readImageUrl(chat),
@@ -708,26 +747,6 @@ function ClockAlarmIcon({ className = "" }: { className?: string }) {
       <path d="M12 8.5V12l2.5 2.2" />
       <path d="m7.5 20.5-1.4 1.4" />
       <path d="m16.5 20.5 1.4 1.4" />
-    </svg>
-  );
-}
-
-function HeadphoneIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.7"
-      viewBox="0 0 24 24"
-    >
-      <path d="M4 13.2v-1.4a8 8 0 0 1 16 0v1.4" />
-      <path d="M4 13.4a2.2 2.2 0 0 1 2.2-2.2H8v6H6.2A2.2 2.2 0 0 1 4 15v-1.6Z" />
-      <path d="M20 13.4a2.2 2.2 0 0 0-2.2-2.2H16v6h1.8A2.2 2.2 0 0 0 20 15v-1.6Z" />
-      <path d="M16 18.5h-2.2a2 2 0 0 1-2-2V16" />
     </svg>
   );
 }
@@ -1115,7 +1134,13 @@ const ChatCard = memo(function ChatCard({
   );
 });
 
-function ChatDetailHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
+function ChatDetailHeader({
+  onOpenMenu,
+  title,
+}: {
+  onOpenMenu: () => void;
+  title: string;
+}) {
   return (
     <TopBar
       actions={[
@@ -1131,52 +1156,55 @@ function ChatDetailHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
       className="border-b border-[#e6e6e6]"
       contentClassName="px-0"
       heightClassName="h-[52px]"
-      title="آژانس جلالیان"
+      title={title}
       titleClassName="text-base font-semibold leading-6"
     />
   );
 }
 
-function ChatPropertyStrip() {
-  return (
-    <section className="flex shrink-0 items-center gap-2 bg-[#F5F5F5] py-2 px-4 text-right [direction:rtl]">
+function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
+  const advertise =
+    readPathRecord(thread, ["advertise", "ad", "advertisement", "property"]) ?? {};
+  const advertiseId = readPathText(advertise, ["id", "_id"]);
+  const advertiseTitle =
+    readPathText(advertise, ["title", "label", "name"]) || "جزئیات آگهی";
+  const advertiseCategory =
+    readPathText(advertise, [
+      "category.name",
+      "category.title",
+      "category",
+      "form.name",
+      "type",
+    ]) || "آگهی";
+  const imageUrl = readImageUrl(advertise) ?? "/figma/view-ad-album.png";
+  const content = (
+    <section className="flex h-[52px] shrink-0 items-center gap-2 bg-[#f5f5f5] px-4 text-right [direction:rtl]">
       <img
-        alt=""
+        alt={advertiseTitle}
         className="h-10 w-[54px] shrink-0 rounded-md object-cover"
-        src="/figma/view-ad-album.png"
+        src={imageUrl}
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">
-          فروش مسکونی / آپارتمان
+          {advertiseCategory}
         </p>
         <p className="mt-1 truncate text-xs font-medium leading-4 text-[#1a1a1a]">
-          ۱۳۰متر - دونبش جنوبی - معاوضه با آپارتمان شما
+          {advertiseTitle}
         </p>
       </div>
     </section>
   );
-}
 
-function AgencyResponseCard() {
+  if (!advertiseId) return content;
+
   return (
-    <section className="h-[84px] rounded-lg border border-[#0048c4] bg-[#eef4ff] px-3 py-2 text-right">
-      <div className="flex h-5 items-center gap-1.5 [direction:rtl]">
-        <HeadphoneIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
-        <h2 className="text-sm font-semibold leading-5 text-[#0048c4]">
-          ساعت پاسخگویی آژانس
-        </h2>
-      </div>
-      <div className="mt-2 space-y-1 text-xs font-normal leading-4">
-        <p className="flex items-center justify-between gap-3">
-          <span className="text-[#808080]">روزهای هفته:</span>
-          <span className="text-[#1a1a1a]">شنبه تا چهارشنبه</span>
-        </p>
-        <p className="flex items-center justify-between gap-3">
-          <span className="text-[#808080]">ساعت:</span>
-          <span className="text-[#1a1a1a]">از 8 صبح - تا 9 شب</span>
-        </p>
-      </div>
-    </section>
+    <RouteLink
+      aria-label={`مشاهده ${advertiseTitle}`}
+      className="block shrink-0 text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+      to={`/ads/${encodeURIComponent(advertiseId)}`}
+    >
+      {content}
+    </RouteLink>
   );
 }
 
@@ -1208,12 +1236,12 @@ function ChatBubble({
           {children}
         </p>
         <div
-          className={`mt-1 flex items-center gap-1 text-sm font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-[#0048c4]" : "justify-start text-[#808080]"
+          className={`mt-1 flex items-center gap-0.5 text-[11px] font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-[#0048c4]" : "justify-start text-[#808080]"
             }`}
         >
           <span>{time}</span>
           {isOutgoing ? (
-            <DoubleTickIcon className={`h-5 w-5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
+            <DoubleTickIcon className={`h-4 w-4 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
           ) : null}
         </div>
       </div>
@@ -1457,33 +1485,35 @@ function SendFileBottomSheet({
   );
 }
 
-const chatSettingsOptions = [
-  {
-    id: "block",
-    title: "مسدود کردن",
-    Icon: BlockedIcon,
-  },
-  {
-    id: "delete",
-    title: "حذف مکالمه",
-    Icon: TrashIcon,
-  },
-  {
-    id: "report",
-    title: "گزارش تخلف",
-    Icon: InfoIcon,
-  },
-];
-
 function ChatSettingsBottomSheet({
+  isBlockedByMe,
   isOpen,
   onClose,
   onSelect,
 }: {
+  isBlockedByMe: boolean;
   isOpen: boolean;
   onClose: () => void;
   onSelect: (id: string, title: string) => void;
 }) {
+  const options = [
+    {
+      id: isBlockedByMe ? "unblock" : "block",
+      title: isBlockedByMe ? "رفع مسدودیت" : "مسدود کردن",
+      Icon: BlockedIcon,
+    },
+    {
+      id: "delete",
+      title: "حذف مکالمه",
+      Icon: TrashIcon,
+    },
+    {
+      id: "report",
+      title: "گزارش تخلف",
+      Icon: InfoIcon,
+    },
+  ];
+
   return (
     <BottomSheet
       ariaLabel="تنظیمات مکالمه"
@@ -1500,10 +1530,98 @@ function ChatSettingsBottomSheet({
       <BottomSheetActionList
         isOpen={isOpen}
         itemClassName="h-11 text-[12px] leading-5"
-        items={chatSettingsOptions}
+        items={options}
         onSelect={(item) => onSelect(item.id, item.title)}
       />
     </BottomSheet>
+  );
+}
+
+function BlockChatConfirmBottomSheet({
+  isOpen,
+  isPending,
+  onCancel,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  isPending: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <BottomSheet
+      ariaLabel="تأیید مسدود کردن کاربر"
+      className="rounded-t-[20px]"
+      contentClassName="h-full"
+      heightClassName="h-[144px]"
+      isOpen={isOpen}
+      onClose={onCancel}
+      panelPaddingClassName="pt-0"
+      scrimClassName="bg-[#1a1a1a]/60"
+      showHandle={false}
+      showHeader={false}
+      zIndexClassName="z-[70]"
+    >
+      <div className="flex h-full flex-col justify-between px-4 pb-7 pt-7">
+        <p className="m-0 text-center text-base font-medium leading-6 text-[#1a1a1a]">
+          آیا از مسدود کردن کاربر مطمئن هستید؟
+        </p>
+        <div className="grid grid-cols-2 gap-4 [direction:ltr]">
+          <button
+            className="h-10 rounded-lg bg-[#0048c4] px-3 text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+            disabled={isPending}
+            onClick={onConfirm}
+            type="button"
+          >
+            {isPending ? "در حال مسدود کردن..." : "بله مسدود کن!"}
+          </button>
+          <button
+            className="h-10 rounded-lg border border-[#0048c4] bg-white px-3 text-sm font-semibold leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:opacity-60"
+            disabled={isPending}
+            onClick={onCancel}
+            type="button"
+          >
+            انصراف
+          </button>
+        </div>
+      </div>
+    </BottomSheet>
+  );
+}
+
+function ChatBlockedFooter({
+  blockedMe,
+  isPending,
+  onUnblock,
+}: {
+  blockedMe: boolean;
+  isPending: boolean;
+  onUnblock: () => void;
+}) {
+  return (
+    <footer className="shrink-0 bg-white px-4 pb-4 pt-2">
+      <div className="flex min-h-[52px] items-center justify-between gap-3 rounded-full bg-[#f5f5f5] p-1 [direction:ltr]">
+        {blockedMe ? (
+          <span className="min-w-0 flex-1 px-3 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
+            این کاربر شما را مسدود کرده است
+          </span>
+        ) : (
+          <>
+            <button
+              className="h-11 min-w-[132px] shrink-0 rounded-full bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+              disabled={isPending}
+              onClick={onUnblock}
+              type="button"
+            >
+              {isPending ? "در حال انجام..." : "رفع مسدودیت"}
+            </button>
+            <span className="min-w-0 flex-1 px-2 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
+              این کاربر را مسدود کرده اید
+            </span>
+          </>
+        )}
+      </div>
+    </footer>
   );
 }
 
@@ -1778,11 +1896,22 @@ export function UserChatResponseTimePage() {
 
 export function UserChatDetailPage() {
   const routeId = getChatRouteThreadId();
-  const routeThreadId = getChatRouteStateThreadId();
+  const routeThreadId = getChatRouteStateThreadId() || routeId;
+  const routeThread = getChatRouteStateThread();
   const [isSendFileSheetOpen, setIsSendFileSheetOpen] = useState(false);
   const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
+  const [isBlockConfirmSheetOpen, setIsBlockConfirmSheetOpen] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
   const [activeThreadId, setActiveThreadId] = useState(routeThreadId);
+  const [blockedByMe, setBlockedByMe] = useState(
+    () => readPathBoolean(routeThread, ["blocked_by_me", "blockedByMe"]) ?? false,
+  );
+  const [blockedMe, setBlockedMe] = useState(
+    () => readPathBoolean(routeThread, ["blocked_me", "blockedMe"]) ?? false,
+  );
+  const [isBlocked, setIsBlocked] = useState(
+    () => readPathBoolean(routeThread, ["is_blocked", "isBlocked", "blocked"]) ?? false,
+  );
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [readThreadIds, setReadThreadIds] = useState<Set<string>>(() => new Set());
   const [sentMessages, setSentMessages] = useState<SentChatMessage[]>([]);
@@ -1797,17 +1926,37 @@ export function UserChatDetailPage() {
   const [, setHasMoreMessagesBelow] = useState(false);
   const currentUserId = useMemo(readCurrentUserId, []);
   const blockChatMutation = useBlockChatMutation();
+  const unblockChatMutation = useUnblockChatMutation();
   const deleteChatMutation = useDeleteChatMutation();
   const chatEntryQuery = useChatEntryQuery({
-    advertiseId: routeThreadId ? undefined : routeId,
-    threadId: routeThreadId || undefined,
+    initialThread: routeThread,
+    threadId: routeThreadId,
   });
-  const resolvedThreadId = readChatThreadId(chatEntryQuery.data) || routeThreadId;
+  const chatThread = chatEntryQuery.data ?? routeThread;
+  const resolvedThreadId = readChatThreadId(chatThread) || routeThreadId;
   const messagesQuery = useChatMessagesQuery(activeThreadId || null);
-  const apiMessages = useMemo(
-    () => dedupeChatMessages([...(messagesQuery.data ?? []), ...liveMessages]),
-    [liveMessages, messagesQuery.data],
-  );
+  const apiMessages = useMemo(() => {
+    const lastMessage = readPathRecord(chatThread, ["last_message", "lastMessage"]);
+
+    return dedupeChatMessages([
+      ...(messagesQuery.data ?? []),
+      ...(lastMessage ? [lastMessage as ChatMessage] : []),
+      ...liveMessages,
+    ]);
+  }, [chatThread, liveMessages, messagesQuery.data]);
+  const participantName =
+    readPathText(chatThread, [
+      "participant.full_name",
+      "participant.fullName",
+      "participant.name",
+      "user.full_name",
+      "user.fullName",
+      "user.name",
+    ]) || "گفتگو";
+  const chatCategory = readPathText(chatThread, ["category"]) === "support"
+    ? "support"
+    : "advertise";
+  const isChatBlocked = isBlocked || blockedByMe || blockedMe;
 
   useEffect(() => {
     if (resolvedThreadId) {
@@ -1816,10 +1965,26 @@ export function UserChatDetailPage() {
   }, [resolvedThreadId]);
 
   useEffect(() => {
+    if (!chatThread) return;
+
+    const nextBlockedByMe =
+      readPathBoolean(chatThread, ["blocked_by_me", "blockedByMe"]) ?? false;
+    const nextBlockedMe =
+      readPathBoolean(chatThread, ["blocked_me", "blockedMe"]) ?? false;
+    const nextIsBlocked =
+      readPathBoolean(chatThread, ["is_blocked", "isBlocked", "blocked"]) ??
+      (nextBlockedByMe || nextBlockedMe);
+
+    setBlockedByMe(nextBlockedByMe);
+    setBlockedMe(nextBlockedMe);
+    setIsBlocked(nextIsBlocked);
+  }, [chatThread]);
+
+  useEffect(() => {
     if (!activeThreadId) return;
 
     const socket = joinChatThread({
-      category: "advertise",
+      category: chatCategory,
       onJoined: setActiveThreadId,
       threadId: activeThreadId,
     });
@@ -1838,7 +2003,7 @@ export function UserChatDetailPage() {
       }
 
       setLiveMessages((current) => dedupeChatMessages([...current, nextMessage]));
-      markChatRead(activeThreadId, "advertise");
+      markChatRead(activeThreadId, chatCategory);
     };
     const handleTyping = (payload: { typing?: boolean; userId?: number | string }) => {
       if (payload.typing) {
@@ -1864,16 +2029,16 @@ export function UserChatDetailPage() {
     socket.on("chat:typing", handleTyping);
     socket.on("chat:read", handleRead);
     socket.on("chat:error", handleError);
-    markChatRead(activeThreadId, "advertise");
+    markChatRead(activeThreadId, chatCategory);
 
     return () => {
       socket.off("chat:message:new", handleNewMessage);
       socket.off("chat:typing", handleTyping);
       socket.off("chat:read", handleRead);
       socket.off("chat:error", handleError);
-      leaveChatThread(activeThreadId, "advertise");
+      leaveChatThread(activeThreadId, chatCategory);
     };
-  }, [activeThreadId, currentUserId, messagesQuery.refetch, showNotice]);
+  }, [activeThreadId, chatCategory, currentUserId, messagesQuery.refetch, showNotice]);
 
   const updateScrollShadow = useCallback(() => {
     const scrollElement = chatScrollRef.current;
@@ -1915,19 +2080,21 @@ export function UserChatDetailPage() {
 
     if (!activeThreadId) return;
 
-    sendChatTyping({ category: "advertise", threadId: activeThreadId, typing: true });
+    sendChatTyping({ category: chatCategory, threadId: activeThreadId, typing: true });
 
     if (typingTimeoutRef.current) {
       window.clearTimeout(typingTimeoutRef.current);
     }
 
     typingTimeoutRef.current = window.setTimeout(() => {
-      sendChatTyping({ category: "advertise", threadId: activeThreadId, typing: false });
+      sendChatTyping({ category: chatCategory, threadId: activeThreadId, typing: false });
       typingTimeoutRef.current = null;
     }, 1200);
   };
 
   const sendMessage = (nextMessage = draftMessage) => {
+    if (isChatBlocked) return;
+
     const text = nextMessage.trim();
     if (!text) return;
 
@@ -1936,7 +2103,7 @@ export function UserChatDetailPage() {
         text,
         (pendingOutgoingBodiesRef.current.get(text) ?? 0) + 1,
       );
-      sendChatTextMessage({ body: text, category: "advertise", threadId: activeThreadId });
+      sendChatTextMessage({ body: text, category: chatCategory, threadId: activeThreadId });
     }
 
     setDraftMessage("");
@@ -1945,6 +2112,37 @@ export function UserChatDetailPage() {
   const navigateToChatHome = () => {
     window.history.pushState({}, "", "/chat");
     window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const confirmBlockChat = () => {
+    if (!activeThreadId || blockChatMutation.isPending) return;
+
+    blockChatMutation.mutate(activeThreadId, {
+      onError: () => {
+        showNotice("مسدود کردن گفتگو با خطا مواجه شد");
+      },
+      onSuccess: () => {
+        setBlockedByMe(true);
+        setIsBlocked(true);
+        setDraftMessage("");
+        setIsSendFileSheetOpen(false);
+        setIsBlockConfirmSheetOpen(false);
+      },
+    });
+  };
+
+  const unblockCurrentChat = () => {
+    if (!activeThreadId || unblockChatMutation.isPending) return;
+
+    unblockChatMutation.mutate(activeThreadId, {
+      onError: () => {
+        showNotice("رفع مسدودیت گفتگو با خطا مواجه شد");
+      },
+      onSuccess: () => {
+        setBlockedByMe(false);
+        setIsBlocked(blockedMe);
+      },
+    });
   };
 
   const handleSettingsSelect = (id: string, title: string) => {
@@ -1956,14 +2154,12 @@ export function UserChatDetailPage() {
     }
 
     if (id === "block") {
-      blockChatMutation.mutate(activeThreadId, {
-        onError: () => {
-          showNotice("مسدود کردن گفتگو با خطا مواجه شد");
-        },
-        onSuccess: () => {
-          showNotice("گفتگو مسدود شد");
-        },
-      });
+      setIsBlockConfirmSheetOpen(true);
+      return;
+    }
+
+    if (id === "unblock") {
+      unblockCurrentChat();
       return;
     }
 
@@ -2075,19 +2271,20 @@ export function UserChatDetailPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <ChatDetailHeader onOpenMenu={() => setIsSettingsSheetOpen(true)} />
-      <ChatPropertyStrip />
+      <ChatDetailHeader
+        onOpenMenu={() => setIsSettingsSheetOpen(true)}
+        title={participantName}
+      />
+      <ChatPropertyStrip thread={chatThread} />
 
       <div className="relative min-h-0 flex-1 bg-white">
         <main
           ref={chatScrollRef}
           onScroll={updateScrollShadow}
-          className="h-full overflow-y-auto bg-white px-2.5 pb-[92px] pt-3"
+          className={`h-full overflow-y-auto bg-white px-4 pt-4 ${isChatBlocked ? "pb-[84px]" : "pb-[92px]"}`}
         >
-          <AgencyResponseCard />
-
-          <div className="mt-3 space-y-3">
-            {messagesQuery.isLoading ? (
+          <div className="space-y-3">
+            {messagesQuery.isLoading && apiMessages.length === 0 ? (
               <p className="py-6 text-center text-xs text-[#808080]">
                 در حال دریافت پیام‌ها...
               </p>
@@ -2145,22 +2342,39 @@ export function UserChatDetailPage() {
       />
 
       <div className="absolute inset-x-0 bottom-0 z-30">
-        <ChatComposer
-          message={draftMessage}
-          onChangeMessage={changeDraftMessage}
-          onOpenAttach={() => setIsSendFileSheetOpen(true)}
-          onSend={() => sendMessage()}
-        />
+        {isChatBlocked ? (
+          <ChatBlockedFooter
+            blockedMe={blockedMe && !blockedByMe}
+            isPending={unblockChatMutation.isPending}
+            onUnblock={unblockCurrentChat}
+          />
+        ) : (
+          <ChatComposer
+            message={draftMessage}
+            onChangeMessage={changeDraftMessage}
+            onOpenAttach={() => setIsSendFileSheetOpen(true)}
+            onSend={() => sendMessage()}
+          />
+        )}
       </div>
       <SendFileBottomSheet
-        isOpen={isSendFileSheetOpen}
+        isOpen={!isChatBlocked && isSendFileSheetOpen}
         onClose={() => setIsSendFileSheetOpen(false)}
         onSelect={handleSendFileSelect}
       />
       <ChatSettingsBottomSheet
+        isBlockedByMe={blockedByMe}
         isOpen={isSettingsSheetOpen}
         onClose={() => setIsSettingsSheetOpen(false)}
         onSelect={handleSettingsSelect}
+      />
+      <BlockChatConfirmBottomSheet
+        isOpen={isBlockConfirmSheetOpen}
+        isPending={blockChatMutation.isPending}
+        onCancel={() => {
+          if (!blockChatMutation.isPending) setIsBlockConfirmSheetOpen(false);
+        }}
+        onConfirm={confirmBlockChat}
       />
       <DemoNotice className="bottom-20" message={message} />
     </PageFrame>
@@ -2174,16 +2388,27 @@ export function UserChatHomePage() {
   const [query, setQuery] = useState("");
   const { message, showNotice } = useDemoNotice();
   const {
-    data: chatsPage,
-    error,
-    isError,
-    isLoading,
-    refetch,
+    data: advertiseChatsPage,
+    error: advertiseError,
+    isError: isAdvertiseError,
+    isLoading: isAdvertiseLoading,
+    refetch: refetchAdvertiseChats,
   } = useChatsQuery({ category: "advertise", page: 1, perPage: 10 });
+  const supportChatsQuery = useChatsQuery({ category: "support", page: 1, perPage: 20 });
   const chats = useMemo(
-    () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
-    [chatsPage?.data],
+    () => [
+      ...(advertiseChatsPage?.data ?? []),
+      ...(supportChatsQuery.data?.data ?? []),
+    ].map(mapChatThreadToChatItem),
+    [advertiseChatsPage?.data, supportChatsQuery.data?.data],
   );
+  const isLoading = isAdvertiseLoading || supportChatsQuery.isLoading;
+  const isError = isAdvertiseError && supportChatsQuery.isError;
+  const error = advertiseError ?? supportChatsQuery.error;
+  const refetch = useCallback(() => Promise.all([
+    refetchAdvertiseChats(),
+    supportChatsQuery.refetch(),
+  ]), [refetchAdvertiseChats, supportChatsQuery.refetch]);
   const RequestErrorState = isError ? getRequestErrorState(error) : null;
 
   const handleMenuSelect = useCallback((id: string) => {
@@ -2213,7 +2438,7 @@ export function UserChatHomePage() {
       return false;
     }
     if (activeFilter === "خوانده نشده" && !item.badgeCount) return false;
-    if (activeFilter === "پشتیبانی" && !item.isBlocked) return false;
+    if (activeFilter === "پشتیبانی" && item.category !== "support") return false;
     if (activeFilter === "آگهی‌های من" && item.adLabel !== "آگهی من") return false;
     if (activeFilter === "آگهی‌های دیگران" && item.adLabel === "آگهی من") return false;
     return true;

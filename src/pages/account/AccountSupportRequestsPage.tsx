@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { PageFrame } from "../../app/PageFrame";
 import LinearAdd from "../../components/(icons)/LinearAdd";
@@ -11,14 +12,18 @@ import {
   type BottomSheetAction,
 } from "../../components/BottomSheet";
 import { TopBar } from "../../components/TopBar";
+import { getRequestErrorState } from "../../components/ErrorState";
 import { RouteLink } from "../../routes/RouteLink";
 import { replaceRoute } from "../../routes/navigation";
+import {
+  createSupportRequest,
+  getSupportRequests,
+  type SupportRequestItem,
+} from "../../services/support-request.service";
 
 const SUPPORT_PATH = "/account/support";
 const REQUESTS_PATH = "/account/support/requests";
 const NEW_REQUEST_PATH = "/account/support/requests/new";
-const SUPPORT_REQUESTS_STORAGE_KEY = "bonga-support-requests";
-
 type SupportRequestStatus = "open" | "in_progress" | "closed";
 type SupportRequestFilter = "all" | SupportRequestStatus;
 
@@ -32,6 +37,7 @@ type SupportRequest = {
   priority?: string;
   description?: string;
   attachmentName?: string;
+  threadId?: string;
 };
 
 type SelectOption = BottomSheetAction & {
@@ -45,26 +51,24 @@ const filters: Array<{ id: SupportRequestFilter; label: string }> = [
   { id: "closed", label: "بسته شده" },
 ];
 
-const initialRequests: SupportRequest[] = [];
-
 const categoryOptions: SelectOption[] = [
-  { id: "advertises", title: "آگهی‌ها", value: "آگهی‌ها" },
-  { id: "requests", title: "درخواست‌ها", value: "درخواست‌ها" },
-  { id: "chats", title: "چت‌ها", value: "چت‌ها" },
-  { id: "wallet", title: "پرداخت و کیف پول", value: "پرداخت و کیف پول" },
-  { id: "account", title: "حساب کاربری", value: "حساب کاربری" },
-  { id: "agency", title: "آژانس و مشاوران", value: "آژانس و مشاوران" },
-  { id: "technical", title: "فنی", value: "فنی" },
-  { id: "report", title: "گزارش تخلف", value: "گزارش تخلف" },
+  { id: "advertises", title: "آگهی‌ها", value: "advertises" },
+  { id: "requests", title: "درخواست‌ها", value: "requests" },
+  { id: "chats", title: "چت‌ها", value: "chats" },
+  { id: "payments_wallet", title: "پرداخت و کیف پول", value: "payments_wallet" },
+  { id: "account", title: "حساب کاربری", value: "account" },
+  { id: "agency", title: "آژانس و مشاوران", value: "agency" },
+  { id: "technical", title: "فنی", value: "technical" },
+  { id: "report", title: "گزارش تخلف", value: "report" },
 ];
 
 const priorityOptions: SelectOption[] = [
-  { id: "normal", title: "عادی", value: "عادی" },
-  { id: "important", title: "مهم", value: "مهم" },
+  { id: "normal", title: "عادی", value: "normal" },
+  { id: "important", title: "مهم", value: "important" },
   {
     id: "urgent",
     title: "فوری",
-    value: "فوری",
+    value: "urgent",
     description:
       "فقط در صورت اختلال جدی در استفاده از سامانه، گزینه «فوری» را انتخاب کنید.",
   },
@@ -88,55 +92,40 @@ const statusPresentation: Record<
   },
 };
 
-function loadStoredRequests(): SupportRequest[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const storedValue = window.localStorage.getItem(SUPPORT_REQUESTS_STORAGE_KEY);
-    if (!storedValue) return [];
-
-    const parsedValue: unknown = JSON.parse(storedValue);
-    if (!Array.isArray(parsedValue)) return [];
-
-    return parsedValue.filter((item): item is SupportRequest => {
-      if (!item || typeof item !== "object") return false;
-
-      const candidate = item as Partial<SupportRequest>;
-      return (
-        typeof candidate.id === "string" &&
-        typeof candidate.category === "string" &&
-        typeof candidate.title === "string" &&
-        typeof candidate.requestNumber === "string" &&
-        typeof candidate.createdAt === "string" &&
-        (candidate.status === "open" ||
-          candidate.status === "in_progress" ||
-          candidate.status === "closed")
-      );
-    });
-  } catch {
-    return [];
-  }
-}
-
-function saveRequest(request: SupportRequest) {
-  try {
-    const currentRequests = loadStoredRequests();
-    window.localStorage.setItem(
-      SUPPORT_REQUESTS_STORAGE_KEY,
-      JSON.stringify([request, ...currentRequests]),
-    );
-  } catch {
-    // The UI remains usable when local storage is unavailable.
-  }
-}
-
 function toPersianDigits(value: number | string) {
   return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
-function createRequestNumber() {
-  const value = Math.floor(10000 + Math.random() * 90000);
-  return `#${toPersianDigits(value)}`;
+function mapSupportRequest(item: SupportRequestItem): SupportRequest {
+  const id = item.id === undefined || item.id === null ? "" : String(item.id);
+  const threadId = item.thread_id === undefined || item.thread_id === null
+    ? undefined
+    : String(item.thread_id);
+  const status: SupportRequestStatus = item.status === "closed"
+    ? "closed"
+    : item.status === "in_progress"
+      ? "in_progress"
+      : "open";
+  const createdAt = item.created_at
+    ? new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+        day: "numeric",
+        month: "long",
+        timeZone: "Asia/Tehran",
+        year: "numeric",
+      }).format(new Date(item.created_at))
+    : "";
+
+  return {
+    category: item.category_label || item.category || "پشتیبانی",
+    createdAt,
+    description: item.description,
+    id: id || threadId || "support-request",
+    priority: item.priority,
+    requestNumber: `#${toPersianDigits(id || "-")}`,
+    status,
+    threadId,
+    title: item.subject || "درخواست پشتیبانی",
+  };
 }
 
 function SupportRequestStatusChip({ status }: { status: SupportRequestStatus }) {
@@ -152,7 +141,7 @@ function SupportRequestStatusChip({ status }: { status: SupportRequestStatus }) 
 }
 
 function SupportRequestCard({ request }: { request: SupportRequest }) {
-  return (
+  const card = (
     <article className="rounded-2xl border border-[#e1e1e1] bg-white px-4 py-3.5 text-right shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -175,6 +164,16 @@ function SupportRequestCard({ request }: { request: SupportRequest }) {
       </div>
     </article>
   );
+
+  return request.threadId ? (
+    <RouteLink
+      className="block text-inherit no-underline"
+      state={{ threadId: request.threadId }}
+      to={`/account/support/chat/new?thread_id=${encodeURIComponent(request.threadId)}`}
+    >
+      {card}
+    </RouteLink>
+  ) : card;
 }
 
 function SupportRequestsEmptyState() {
@@ -236,10 +235,13 @@ function SupportRequestTabs({
 
 export function AccountSupportRequestsPage() {
   const [activeFilter, setActiveFilter] = useState<SupportRequestFilter>("all");
-  const [storedRequests] = useState<SupportRequest[]>(loadStoredRequests);
+  const requestsQuery = useQuery({
+    queryFn: () => getSupportRequests({ page: 1, perPage: 100 }),
+    queryKey: ["support-requests", "account"],
+  });
   const requests = useMemo(
-    () => [...storedRequests, ...initialRequests],
-    [storedRequests],
+    () => (requestsQuery.data?.data ?? []).map(mapSupportRequest),
+    [requestsQuery.data?.data],
   );
   const filteredRequests = useMemo(
     () =>
@@ -248,6 +250,9 @@ export function AccountSupportRequestsPage() {
         : requests.filter((request) => request.status === activeFilter),
     [activeFilter, requests],
   );
+  const RequestErrorState = requestsQuery.isError
+    ? getRequestErrorState(requestsQuery.error)
+    : null;
 
   return (
     <PageFrame
@@ -274,7 +279,11 @@ export function AccountSupportRequestsPage() {
           requests.length === 0 ? "flex pt-0" : "pt-3"
         }`}
       >
-        {requests.length === 0 ? (
+        {requestsQuery.isLoading ? (
+          <p className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</p>
+        ) : RequestErrorState ? (
+          <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
+        ) : requests.length === 0 ? (
           <SupportRequestsEmptyState />
         ) : (
           <>
@@ -445,6 +454,7 @@ export function AccountSupportNewRequestPage() {
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [isPrioritySheetOpen, setIsPrioritySheetOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const createRequestMutation = useMutation({ mutationFn: createSupportRequest });
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -457,19 +467,29 @@ export function AccountSupportNewRequestPage() {
       return;
     }
 
-    saveRequest({
-      id: `support-request-${Date.now()}`,
-      attachmentName: attachment?.name,
+    createRequestMutation.mutate({
       category,
-      createdAt: "اکنون",
       description: normalizedDescription,
-      priority,
-      requestNumber: createRequestNumber(),
-      status: "open",
-      title: normalizedSubject,
-    });
+      priority: priority as "normal" | "important" | "urgent",
+      subject: normalizedSubject,
+    }, {
+      onError: () => {
+        setErrorMessage("ثبت درخواست با خطا مواجه شد. دوباره تلاش کنید.");
+      },
+      onSuccess: (request) => {
+        const threadId = request.thread_id === undefined || request.thread_id === null
+          ? ""
+          : String(request.thread_id);
 
-    replaceRoute(REQUESTS_PATH, undefined, { rememberCurrent: false });
+        replaceRoute(
+          threadId
+            ? `/account/support/chat/new?thread_id=${encodeURIComponent(threadId)}`
+            : REQUESTS_PATH,
+          threadId ? { threadId } : undefined,
+          { rememberCurrent: false },
+        );
+      },
+    });
   };
 
   return (
@@ -511,14 +531,14 @@ export function AccountSupportNewRequestPage() {
               label="دسته‌بندی"
               onClick={() => setIsCategorySheetOpen(true)}
               placeholder="موضوع درخواست را وارد کنید"
-              value={category}
+              value={categoryOptions.find((option) => option.value === category)?.title ?? ""}
             />
 
             <RequestSelectField
               label="اولویت"
               onClick={() => setIsPrioritySheetOpen(true)}
               placeholder="موضوع درخواست را وارد کنید"
-              value={priority}
+              value={priorityOptions.find((option) => option.value === priority)?.title ?? ""}
             />
 
             <label className="block">
@@ -599,9 +619,10 @@ export function AccountSupportNewRequestPage() {
         <div className="absolute inset-x-0 bottom-0 z-20 bg-white px-3 pb-2.5 pt-2">
           <button
             className="h-10 w-full rounded-lg bg-[#0759cf] px-4 text-sm font-semibold leading-5 text-white outline-none active:bg-[#0048b5] focus-visible:ring-3 focus-visible:ring-[#0759cf40]"
+            disabled={createRequestMutation.isPending}
             type="submit"
           >
-            ثبت درخواست
+            {createRequestMutation.isPending ? "در حال ثبت..." : "ثبت درخواست"}
           </button>
         </div>
       </form>

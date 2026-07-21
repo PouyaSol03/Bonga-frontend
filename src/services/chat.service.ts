@@ -1,17 +1,35 @@
-import { api } from "../api/api";
+import { ApiError, api } from "../api/api";
 
 export type ChatCategory = "advertise" | "support";
 
 export type ChatThread = Record<string, unknown> & {
   _id?: string;
   ad?: Record<string, unknown>;
-  advertise?: Record<string, unknown>;
+  advertise?: Record<string, unknown> & {
+    id?: number | string;
+    image?: string | null;
+    title?: string;
+  };
   advertisement?: Record<string, unknown>;
+  blocked_by_me?: boolean;
+  blocked_me?: boolean;
+  category?: ChatCategory;
   created_at?: string;
   id?: number | string;
-  last_message?: unknown;
+  is_blocked?: boolean;
+  last_message?: ChatMessage | null;
   message?: unknown;
   messages_count?: number | string;
+  participant?: Record<string, unknown> & {
+    avatar?: string | null;
+    family?: string;
+    full_name?: string;
+    id?: number | string;
+    name?: string;
+  };
+  status?: string;
+  threadId?: number | string;
+  thread_id?: number | string;
   unread_count?: number | string;
   updated_at?: string;
   user?: Record<string, unknown>;
@@ -262,6 +280,22 @@ export async function blockChat(threadId: string) {
   await api.post(`chats/${threadId}/block`, {
     context: { allowNonJsonResponse: true },
   });
+}
+
+export async function unblockChat(threadId: string) {
+  try {
+    await api.post(`chats/${threadId}/unblock`, {
+      context: { allowNonJsonResponse: true },
+    });
+  } catch (error) {
+    if (!(error instanceof ApiError) || ![404, 405].includes(error.status)) {
+      throw error;
+    }
+
+    await api.delete(`chats/${threadId}/block`, {
+      context: { allowNonJsonResponse: true },
+    });
+  }
 }
 
 export async function deleteChat(threadId: string) {

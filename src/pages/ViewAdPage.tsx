@@ -27,6 +27,7 @@ import {
   useSubmitAdvertiseReportMutation,
 } from "../hooks/advertisement.hooks";
 import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../hooks/account.hooks";
+import { useCreateAdvertiseChatMutation } from "../hooks/chat.hooks";
 import type {
   AdvertiseFeedbackPayload,
   AdvertiseReportReason,
@@ -43,6 +44,8 @@ import { ViewAdIcon } from "./viewAd/ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import { getStoredAuthSession } from "../auth/auth-storage";
+import { pushRoute } from "../routes/navigation";
+import type { ChatThread } from "../services/chat.service";
 
 type AlbumMediaItem = {
   src: string;
@@ -3274,6 +3277,15 @@ function DetailInfoFullPage({
   );
 }
 
+function getChatThreadId(thread: ChatThread) {
+  const value = thread.id ?? thread._id;
+
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  if (typeof value === "string" && value.trim()) return value.trim();
+
+  return "";
+}
+
 function navigateToLoginRequiredPage(actionLabel: string) {
   const redirectPath = `${window.location.pathname}${window.location.search}`;
   const params = new URLSearchParams({
@@ -3317,6 +3329,7 @@ export function ViewAdPage() {
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
+  const createAdvertiseChat = useCreateAdvertiseChatMutation();
   const submitFeedback = useSubmitAdvertiseFeedbackMutation();
   const submitReport = useSubmitAdvertiseReportMutation();
   const reportReasonsQuery = useAdvertiseReportReasonsQuery(isViolationReportOpen);
@@ -3427,6 +3440,39 @@ export function ViewAdPage() {
     navigateToLoginRequiredPage(actionLabel);
 
     return false;
+  };
+
+  const openAdvertiseChat = () => {
+    if (!requireAuthorization("شروع گفتگو با مشاور")) return;
+    if (createAdvertiseChat.isPending) return;
+
+    createAdvertiseChat.mutate(String(adId), {
+      onError: (error) => {
+        if (isUnauthorizedApiError(error)) {
+          navigateToLoginRequiredPage("شروع گفتگو با مشاور");
+          return;
+        }
+
+        showToast(
+          getApiErrorMessage(error, "شروع گفتگو با خطا مواجه شد. دوباره تلاش کنید."),
+          "خطا",
+          "error",
+        );
+      },
+      onSuccess: (thread) => {
+        const threadId = getChatThreadId(thread);
+
+        if (!threadId) {
+          showToast("شناسه گفتگو از سرور دریافت نشد.", "خطا", "error");
+          return;
+        }
+
+        pushRoute(`/chat/${encodeURIComponent(threadId)}`, {
+          thread,
+          threadId,
+        });
+      },
+    });
   };
 
   const handleRowAction = (label: string) => {
@@ -3677,18 +3723,15 @@ export function ViewAdPage() {
               </button>
             ) : null}
             {hasChatContact ? (
-              <RouteLink
-                className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-                onClick={(event) => {
-                  if (requireAuthorization("شروع گفتگو با مشاور")) return;
-
-                  event.preventDefault();
-                }}
-                to={`/chat/${adId}`}
+              <button
+                className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+                disabled={createAdvertiseChat.isPending}
+                onClick={openAdvertiseChat}
+                type="button"
               >
-                <span>چت با مشاور</span>
+                <span>{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</span>
                 <ViewAdIcon className="h-5 w-5" name="chat" />
-              </RouteLink>
+              </button>
             ) : null}
           </div>
         ) : (

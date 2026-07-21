@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { PageFrame } from "../../app/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getStoredAuthSession } from "../../auth/auth-storage";
@@ -38,11 +39,11 @@ import { getRequestErrorState } from "../../components/ErrorState";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
-import { latestMashhadAds } from "../home/homeData";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { RequestManagementView } from "../requests/RequestManagementView";
+import { getRecentViews } from "../../services/recent-views.service";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -988,6 +989,21 @@ export function AccountBookmarksPage() {
 }
 
 export function AccountRecentViewsPage() {
+  const recentViewsQuery = useQuery({
+    queryFn: () => getRecentViews({ includeMissing: false, page: 1, perPage: 100 }),
+    queryKey: ["account", "recent-views"],
+  });
+  const recentAdvertises = useMemo(() => {
+    if (!recentViewsQuery.data) return [];
+    if (recentViewsQuery.data.advertises.length > 0) {
+      return recentViewsQuery.data.advertises as AdvertisementItem[];
+    }
+
+    return recentViewsQuery.data.data.flatMap((view) =>
+      view.advertise ? [view.advertise as AdvertisementItem] : [],
+    );
+  }, [recentViewsQuery.data]);
+
   return (
     <AccountPageShell
       action={
@@ -996,7 +1012,32 @@ export function AccountRecentViewsPage() {
       }
       title="بازدیدهای اخیر"
     >
-      <ListingCardsPage count={9} />
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        {recentViewsQuery.isLoading ? <AccountAdCardsSkeleton /> : null}
+        {recentViewsQuery.isError ? (
+          <AccountRetryState
+            error={recentViewsQuery.error}
+            message={getApiErrorMessage(recentViewsQuery.error, "دریافت بازدیدهای اخیر با خطا مواجه شد.")}
+            onRetry={() => void recentViewsQuery.refetch()}
+          />
+        ) : null}
+        {!recentViewsQuery.isLoading && !recentViewsQuery.isError ? (
+          <div className="space-y-2 bg-[#f0f0f0] pt-2">
+            {recentAdvertises.map((advertise, index) => {
+              const ad = mapAdvertisementToAdCard(advertise, index);
+
+              return <AdCard ad={ad} key={ad.id || index} />;
+            })}
+            {recentAdvertises.length === 0 ? (
+              <EmptyAccountState
+                description="آگهی‌هایی که مشاهده می‌کنید در این بخش نمایش داده می‌شوند."
+                iconSrc="/vectors/NoSearch.svg"
+                title="هنوز آگهی‌ای مشاهده نکرده‌اید!"
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </main>
     </AccountPageShell>
   );
 }
@@ -1239,21 +1280,6 @@ function AdFilterTabs({
         ))}
       </div>
     </section>
-  );
-}
-
-function ListingCardsPage({ count, emptyText }: { count: number; emptyText?: string }) {
-  return (
-    <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-      <div className="space-y-2 bg-[#f0f0f0] pt-2">
-        {Array.from({ length: count }).map((_, index) => (
-          <div key={index}>
-            <AdCard ad={latestMashhadAds[index % latestMashhadAds.length]} />
-          </div>
-        ))}
-        {count === 0 && emptyText ? <EmptyMessage text={emptyText} /> : null}
-      </div>
-    </main>
   );
 }
 

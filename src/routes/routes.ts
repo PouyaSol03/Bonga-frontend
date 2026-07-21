@@ -33,6 +33,7 @@ const NewAdLocationPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage')
 const PublicLandingPage = lazyNamed(() => import('../pages/PublicLandingPage'), 'PublicLandingPage')
 const CrmPage = lazyNamed(() => import('../pages/crm/CrmPage'), 'CrmPage')
 const NotificationsPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationsPage')
+const NotificationManagementPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationManagementPage')
 const AccountAboutPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountAboutPage')
 const AccountBookmarksPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountBookmarksPage')
 const AccountDeleteUserPage = lazyNamed(() => import('../pages/account/AccountDeleteUserPage'), 'AccountDeleteUserPage')
@@ -862,6 +863,12 @@ export const routes: AppRoute[] = [
     path: "/notifications",
     title: "اعلان‌ها",
     Component: NotificationsPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/notifications/settings",
+    title: "مدیریت اعلان‌ها",
+    Component: NotificationManagementPage,
     requiresAuth: true,
   },
   {

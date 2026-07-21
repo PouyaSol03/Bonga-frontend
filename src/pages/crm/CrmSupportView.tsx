@@ -94,12 +94,12 @@ function readPathRecord(source: unknown, paths: string[]) {
 
 function readThreadId(source: unknown) {
   return readPathText(source, [
-    "id",
-    "_id",
-    "threadId",
     "thread_id",
+    "threadId",
     "thread.id",
     "thread._id",
+    "id",
+    "_id",
   ]);
 }
 

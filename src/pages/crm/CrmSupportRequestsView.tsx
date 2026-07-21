@@ -8,7 +8,9 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useQuery } from "@tanstack/react-query";
 
+import { sendChatTextMessage } from "../../api/chat-socket";
 import LinearAttachment from "../../components/(icons)/LinearAttachment";
 import LinearBubbleChat from "../../components/(icons)/LinearBubbleChat";
 import LinearCalendar from "../../components/(icons)/LinearCalendar";
@@ -24,6 +26,10 @@ import LinearRequestList from "../../components/(icons)/LinearRequestList";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import LinearSendComment from "../../components/(icons)/LinearSendComment";
 import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
+import {
+  getSupportRequests,
+  type SupportRequestItem,
+} from "../../services/support-request.service";
 
 const SUPPORT_REQUESTS_STORAGE_KEY = "bonga-support-requests";
 
@@ -39,6 +45,7 @@ type RequestReply = {
 
 type CrmSupportRequest = {
   id: string;
+  threadId?: string;
   category: string;
   title: string;
   requestNumber: string;
@@ -234,6 +241,51 @@ function loadRequests() {
     ...accountRequests,
     ...sampleRequests.filter((request) => !accountRequestIds.has(request.id)),
   ];
+}
+
+function formatApiRequestDate(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "long",
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+  }).format(date);
+}
+
+function mapApiSupportRequest(item: SupportRequestItem): CrmSupportRequest {
+  const user = item.user ?? {};
+  const name = typeof user.name === "string" ? user.name : "";
+  const family = typeof user.family === "string" ? user.family : "";
+  const requestId = item.id === undefined || item.id === null ? "" : String(item.id);
+  const threadId = item.thread_id === undefined || item.thread_id === null
+    ? undefined
+    : String(item.thread_id);
+  const status: SupportRequestStatus = item.status === "closed"
+    ? "closed"
+    : item.status === "in_progress"
+      ? "in_progress"
+      : "open";
+
+  return {
+    category: item.category_label || item.category || "پشتیبانی",
+    createdAt: formatApiRequestDate(item.created_at),
+    customerMobile: typeof user.mobile === "string" ? user.mobile : "شماره تماس ثبت نشده",
+    customerName: `${name} ${family}`.trim() || "کاربر بنگاه",
+    description: item.description,
+    id: requestId || threadId || `request-${item.created_at ?? "unknown"}`,
+    priority: item.priority,
+    replies: [],
+    requestNumber: `#${requestId || "-"}`,
+    status,
+    threadId,
+    title: item.subject || "درخواست پشتیبانی",
+  };
 }
 
 function persistAccountRequest(request: CrmSupportRequest) {
@@ -584,6 +636,10 @@ export function CrmSupportRequestsView({
   const [requests, setRequests] = useState<CrmSupportRequest[]>(
     initialState.items,
   );
+  const supportRequestsQuery = useQuery({
+    queryFn: () => getSupportRequests({ page: 1, perPage: 100 }),
+    queryKey: ["support-requests", "crm", refreshNonce],
+  });
   const [activeFilter, setActiveFilter] =
     useState<SupportRequestFilter>("all");
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
@@ -605,8 +661,10 @@ export function CrmSupportRequestsView({
   }, []);
 
   useEffect(() => {
-    replaceRequests(loadRequests());
-  }, [refreshNonce, replaceRequests]);
+    if (!supportRequestsQuery.data) return;
+
+    replaceRequests(supportRequestsQuery.data.data.map(mapApiSupportRequest));
+  }, [replaceRequests, supportRequestsQuery.data]);
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
@@ -718,6 +776,14 @@ export function CrmSupportRequestsView({
       ],
     }));
 
+    if (selectedRequest.threadId) {
+      sendChatTextMessage({
+        body: text,
+        category: "support",
+        threadId: selectedRequest.threadId,
+      });
+    }
+
     setDraft("");
     notify("پاسخ درخواست ارسال شد.", "success");
     window.requestAnimationFrame(() => composerRef.current?.focus());
@@ -735,8 +801,9 @@ export function CrmSupportRequestsView({
   };
 
   const refreshRequests = () => {
-    replaceRequests(loadRequests());
-    notify("فهرست درخواست‌ها بروزرسانی شد.", "success");
+    void supportRequestsQuery.refetch().then(() => {
+      notify("فهرست درخواست‌ها بروزرسانی شد.", "success");
+    });
   };
 
   return (

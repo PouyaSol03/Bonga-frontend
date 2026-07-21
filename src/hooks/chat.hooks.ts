@@ -13,7 +13,9 @@ import {
   getChatUnreadCount,
   getChats,
   reportChat,
+  unblockChat,
   type ChatCategory,
+  type ChatThread,
 } from "../services/chat.service";
 
 export function useChatsQuery({
@@ -33,18 +35,32 @@ export function useChatsQuery({
 
 export function useChatEntryQuery({
   advertiseId,
+  initialThread,
   threadId,
 }: {
   advertiseId?: string;
+  initialThread?: ChatThread;
   threadId?: string;
 }) {
   return useQuery({
     enabled: Boolean(advertiseId || threadId),
+    initialData: initialThread,
     queryFn: () =>
       threadId
         ? getChatDetail(threadId)
         : createOrGetAdvertiseChat(advertiseId ?? ""),
     queryKey: queryKeys.chats.entry({ advertiseId, threadId }),
+  });
+}
+
+export function useCreateAdvertiseChatMutation() {
+  return useMutation({
+    mutationFn: createOrGetAdvertiseChat,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [...queryKeys.chats.all, "list"],
+      });
+    },
   });
 }
 
@@ -85,7 +101,18 @@ export function useBlockChatMutation() {
     mutationFn: blockChat,
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.chats.all,
+        queryKey: [...queryKeys.chats.all, "list"],
+      });
+    },
+  });
+}
+
+export function useUnblockChatMutation() {
+  return useMutation({
+    mutationFn: unblockChat,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [...queryKeys.chats.all, "list"],
       });
     },
   });

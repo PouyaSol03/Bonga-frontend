@@ -156,11 +156,11 @@ export function AccountSupportPage() {
 
 type Conversation = {
   date: string;
+  id: string;
   isOpen: boolean;
   message: string;
+  thread: ChatThread;
 };
-
-const conversations: Conversation[] = [];
 
 function SupportAgents() {
   const agents = [
@@ -237,9 +237,10 @@ function SupportChatsEmptyState() {
 
 function ConversationCard({ conversation }: { conversation: Conversation }) {
   return (
-    <button
+    <RouteLink
       className="block w-full rounded-2xl border border-[#dedede] bg-white px-4 py-5 text-right outline-none active:bg-[#fafafa] focus-visible:ring-2 focus-visible:ring-[#0048c440]"
-      type="button"
+      state={{ thread: conversation.thread, threadId: conversation.id }}
+      to={`${SUPPORT_NEW_CHAT_PATH}?thread_id=${encodeURIComponent(conversation.id)}`}
     >
       <span className="flex items-center justify-between gap-3">
         <span className="text-xs font-normal leading-none text-[#808080]">
@@ -259,11 +260,38 @@ function ConversationCard({ conversation }: { conversation: Conversation }) {
       <span className="mt-3 block truncate text-sm font-normal leading-4 text-[#4d4d4d]">
         {conversation.message}
       </span>
-    </button>
+    </RouteLink>
   );
 }
 
 export function AccountSupportChatPage() {
+  const supportChatsQuery = useChatsQuery({
+    category: "support",
+    page: 1,
+    perPage: 50,
+  });
+  const conversations = useMemo<Conversation[]>(
+    () =>
+      (supportChatsQuery.data?.data ?? []).flatMap((thread) => {
+        const id = readSupportThreadId(thread);
+        if (!id) return [];
+
+        const lastMessage = asChatRecord(thread.last_message ?? thread.message);
+
+        return [{
+          date: formatSupportConversationDate(
+            readChatPathText(lastMessage, ["created_at", "createdAt", "sent_at", "sentAt"]) ||
+              readChatPathText(thread, ["updated_at", "updatedAt", "created_at", "createdAt"]),
+          ),
+          id,
+          isOpen: isOpenSupportThread(thread),
+          message: readSupportMessageBody((lastMessage ?? {}) as ChatMessage) || "گفتگو با پشتیبانی",
+          thread,
+        }];
+      }),
+    [supportChatsQuery.data?.data],
+  );
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
@@ -299,12 +327,14 @@ export function AccountSupportChatPage() {
             گفتگوهای اخیر
           </h2>
 
-          {conversations.length === 0 ? (
+          {supportChatsQuery.isLoading ? (
+            <p className="py-12 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</p>
+          ) : conversations.length === 0 ? (
             <SupportChatsEmptyState />
           ) : (
             <div className="mt-4 space-y-4">
               {conversations.map((conversation) => (
-                <ConversationCard conversation={conversation} key={conversation.date} />
+                <ConversationCard conversation={conversation} key={conversation.id} />
               ))}
             </div>
           )}
@@ -362,13 +392,27 @@ function readChatPathText(source: unknown, paths: string[]) {
 
 function readSupportThreadId(source: unknown) {
   return readChatPathText(source, [
-    "id",
-    "_id",
-    "threadId",
     "thread_id",
+    "threadId",
     "thread.id",
     "thread._id",
+    "id",
+    "_id",
   ]);
+}
+
+function formatSupportConversationDate(value: unknown) {
+  const text = readChatText(value);
+  if (!text) return "";
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Tehran",
+  }).format(date);
 }
 
 function isOpenSupportThread(thread: ChatThread) {
@@ -640,6 +684,7 @@ function SupportChatComposer({
 }
 
 export function AccountSupportNewChatPage() {
+  const selectedThreadId = new URLSearchParams(window.location.search).get("thread_id") ?? "";
   const [draftMessage, setDraftMessage] = useState("");
   const [createdThread, setCreatedThread] = useState<ChatThread | null>(null);
   const [liveMessages, setLiveMessages] = useState<SupportChatMessage[]>([]);
@@ -651,9 +696,12 @@ export function AccountSupportNewChatPage() {
     page: 1,
     perPage: 20,
   });
-  const listedThread =
-    supportChatsQuery.data?.data.find(isOpenSupportThread) ?? null;
-  const activeThread = createdThread ?? listedThread;
+  const listedThread = selectedThreadId
+    ? supportChatsQuery.data?.data.find(
+        (thread) => readSupportThreadId(thread) === selectedThreadId,
+      ) ?? ({ thread_id: selectedThreadId } as ChatThread)
+    : supportChatsQuery.data?.data.find(isOpenSupportThread) ?? null;
+  const activeThread = selectedThreadId ? listedThread : createdThread ?? listedThread;
   const activeThreadId = readSupportThreadId(activeThread);
   const messagesQuery = useChatMessagesQuery(activeThreadId || null);
 

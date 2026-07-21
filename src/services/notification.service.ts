@@ -5,7 +5,8 @@ export type NotificationCategory =
   | "chats"
   | "requests"
   | "trades"
-  | "systems";
+  | "systems"
+  | "support";
 
 export type NotificationPayload = Record<string, unknown> & {
   advertise_id?: number | string;
@@ -207,9 +208,14 @@ export async function updateNotificationPreference({
         enabled,
       },
     })
-    .json<{ data?: NotificationPreference; status?: boolean } | NotificationPreference>();
+    .json<{
+      data?: NotificationPreference;
+      preference?: NotificationPreference;
+      status?: boolean;
+    } | NotificationPreference>();
 
   if ("data" in response && response.data) return response.data;
+  if ("preference" in response && response.preference) return response.preference;
 
   return response as NotificationPreference;
 }

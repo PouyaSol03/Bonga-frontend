@@ -12,6 +12,9 @@ import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
 import { SwitchButton } from "../components/SwitchButton";
 import { TopBar } from "../components/TopBar";
+import LinearDelete from "../components/(icons)/LinearDelete";
+import LinearNotification from "../components/(icons)/LinearNotification";
+import LinearTickDouble from "../components/(icons)/LinearTickDouble";
 import {
   useDeleteNotificationMutation,
   useMarkAllNotificationsReadMutation,
@@ -24,8 +27,9 @@ import {
 import type {
   NotificationCategory,
   NotificationItem,
-  NotificationPreference,
 } from "../services/notification.service";
+import LinearArrowRight2 from "../components/(icons)/LinearArrowRight2";
+import LinearArrowLeft1 from "../components/(icons)/LinearArrowLeft1";
 
 type FilterOption = {
   id: NotificationCategory;
@@ -39,6 +43,7 @@ const notificationFilterOptions: FilterOption[] = [
   { id: "trades", label: "معاملات" },
   { id: "requests", label: "درخواست‌ها" },
   { id: "chats", label: "چت‌ها" },
+  { id: "support", label: "پشتیبانی" },
   { id: "systems", label: "سیستم" },
 ];
 
@@ -46,11 +51,24 @@ const categoryColorClassNames: Record<NotificationCategory, string> = {
   advertise: "bg-[#00a66a]",
   chats: "bg-[#0048c4]",
   requests: "bg-[#f97316]",
+  support: "bg-[#11a366]",
   systems: "bg-[#64748b]",
   trades: "bg-[#8b5cf6]",
 };
 
-const defaultPreferenceCategories = notificationFilterOptions.map((option) => option.id);
+const allPreferenceCategories = notificationFilterOptions.map((option) => option.id);
+
+const notificationManagementOptions: Array<{
+  category: NotificationCategory;
+  description: string;
+  label: string;
+}> = [
+  { category: "advertise", description: "انتشار مجدد و وضعیت آگهی‌ها", label: "آگهی‌ها" },
+  { category: "trades", description: "ثبت، تایید و نتیجه معاملات", label: "معاملات" },
+  { category: "requests", description: "درخواست‌های جدید و پاسخ‌ها", label: "درخواست‌ها" },
+  { category: "chats", description: "گفتگوها", label: "چت‌ها" },
+  { category: "systems", description: "امنیت حساب و بروزرسانی‌ها", label: "سیستم" },
+];
 
 function MoreVerticalIcon({ className = "" }: { className?: string }) {
   return (
@@ -149,10 +167,6 @@ function readPayloadId(value: unknown) {
   return "";
 }
 
-function formatFaNumber(value: number) {
-  return new Intl.NumberFormat("fa-IR").format(value);
-}
-
 function formatNotificationTime(value?: string) {
   if (!value) return "";
 
@@ -222,13 +236,22 @@ function getNotificationPath(notification: NotificationItem) {
       return "/account/dashboard/agency";
 
     case "support":
-      return "/account/about";
+      {
+        const threadId = readPayloadId(payload.chat_thread_id);
+        if (threadId) {
+          return `/account/support/chat/new?thread_id=${encodeURIComponent(threadId)}`;
+        }
+
+        return "/account/support/requests";
+      }
 
     case "profile":
       return "/account/profile";
 
     case "request":
-      return "/account/requests";
+      return payload.support_ticket_id
+        ? "/account/support/requests"
+        : "/account/requests";
 
     default:
       return "";
@@ -252,11 +275,9 @@ function getNotificationActionLabel(notification: NotificationItem) {
 function NotificationHeader({
   onOpenSettings,
   onRefresh,
-  unreadCount,
 }: {
   onOpenSettings: () => void;
   onRefresh: () => void;
-  unreadCount: number;
 }) {
   return (
     <TopBar
@@ -277,7 +298,7 @@ function NotificationHeader({
       backLabel="بازگشت به خانه"
       backTo="/home"
       heightClassName="h-14"
-      title={unreadCount > 0 ? `اعلان‌ها (${formatFaNumber(unreadCount)})` : "اعلان‌ها"}
+      title="اعلان‌ها"
     />
   );
 }
@@ -385,78 +406,87 @@ function NotificationFilterSheet({
 }
 
 function NotificationSettingsSheet({
+  isClearingRead,
   isMarkingAllRead,
   isOpen,
-  isPreferencesLoading,
+  markAllUnread,
+  onClearRead,
   onClose,
   onMarkAllRead,
-  onTogglePreference,
-  preferences,
+  onMarkAllUnreadChange,
+  onManage,
 }: {
+  isClearingRead: boolean;
   isMarkingAllRead: boolean;
   isOpen: boolean;
-  isPreferencesLoading: boolean;
+  markAllUnread: boolean;
+  onClearRead: () => void;
   onClose: () => void;
   onMarkAllRead: () => void;
-  onTogglePreference: (category: NotificationCategory, enabled: boolean) => void;
-  preferences: NotificationPreference[];
+  onMarkAllUnreadChange: (checked: boolean) => void;
+  onManage: () => void;
 }) {
-  const preferenceMap = new Map(
-    preferences.map((preference) => [preference.category, preference.enabled]),
-  );
-
   return (
     <BottomSheet
-      ariaLabel="تنظیمات اعلان‌ها"
-      className="rounded-t-[22px]"
-      contentClassName="mt-4"
-      heightClassName="h-[460px]"
+      ariaLabel="تنظیمات اعلان"
+      className="rounded-t-[16px]"
+      contentClassName="mt-2"
+      handleClassName="h-[3px] w-[42px] rounded-full bg-[#e0e0e0]"
+      heightClassName=""
       isOpen={isOpen}
       onClose={onClose}
-      panelPaddingClassName="pt-3"
-      scrimClassName="bg-[#1a1a1a]/60"
-      title="تنظیمات اعلان‌ها"
-      showHeaderDivider={false}
+      panelPaddingClassName="pt-2.5"
+      scrimClassName="bg-[#1a1a1a]/70"
+      showHeader={false}
     >
-      <div className="space-y-2 px-4 pb-5">
+      <div className="px-3">
+        <div className="flex h-[72px] items-center gap-2 border-b border-[#f0f0f0] px-1 text-right [direction:rtl]">
+          <LinearArrowRight2 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <h2 className="m-0 font-medium leading-5 text-[#1a1a1a]">تنظیمات اعلان</h2>
+        </div>
+
+        <div className="flex h-[72px] items-center justify-between border-b border-[#f0f0f0] px-1 [direction:ltr]">
+          <SwitchButton
+            ariaLabel="علامت‌گذاری همه به‌عنوان خوانده‌نشده"
+            checked={markAllUnread}
+            onChange={onMarkAllUnreadChange}
+          />
+          <span className="text-right font-normal leading-4 text-[#1a1a1a]" dir="rtl">
+            علامت‌گذاری همه به‌عنوان خوانده‌نشده
+          </span>
+        </div>
+
         <button
-          className="mb-2 flex h-12 w-full items-center justify-center rounded-xl bg-[#0048c4] text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-[72px] w-full items-center justify-between border-b border-[#f0f0f0] px-1 text-[#1a1a1a] [direction:ltr]"
+          onClick={onManage}
+          type="button"
+        >
+          <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <span className="flex items-center gap-2 font-normal leading-4 [direction:rtl]">
+            <LinearNotification className="h-6 w-6 text-[#4D4D4D]" />
+            مدیریت اعلان‌ها
+          </span>
+        </button>
+
+        <button
+          className="flex h-[72px] w-full items-center gap-2 border-b border-[#f0f0f0] px-1 text-[11px] font-normal leading-4 text-[#1a1a1a] disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
           disabled={isMarkingAllRead}
           onClick={onMarkAllRead}
           type="button"
         >
-          {isMarkingAllRead ? "در حال ثبت..." : "خواندن همه اعلان‌ها"}
+          <LinearTickDouble className="h-6 w-6 text-[#4D4D4D]" />
+          <span>{isMarkingAllRead ? "در حال ثبت..." : "علامت‌گذاری همه به‌عنوان خوانده شده"}</span>
         </button>
 
-        {isPreferencesLoading ? (
-          <p className="py-8 text-center text-sm text-[#808080]">در حال دریافت تنظیمات...</p>
-        ) : (
-          defaultPreferenceCategories.map((category) => {
-            const option = notificationFilterOptions.find((item) => item.id === category);
-            const enabled = preferenceMap.get(category) ?? true;
-
-            return (
-              <div
-                className="flex min-h-[58px] items-center justify-between border-b border-[#eeeeee]"
-                key={category}
-              >
-                <div className="text-right">
-                  <p className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
-                    {option?.label ?? category}
-                  </p>
-                  <p className="m-0 mt-1 text-xs leading-4 text-[#808080]">
-                    {enabled ? "اعلان‌های این دسته نمایش داده می‌شود" : "این دسته پنهان است"}
-                  </p>
-                </div>
-                <SwitchButton
-                  ariaLabel={`تغییر وضعیت ${option?.label ?? category}`}
-                  checked={enabled}
-                  onChange={(nextEnabled) => onTogglePreference(category, nextEnabled)}
-                />
-              </div>
-            );
-          })
-        )}
+        <button
+          className="flex h-[72px] w-full items-center gap-2 px-1 text-[11px] font-normal leading-4 text-[#1a1a1a] disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
+          disabled={isClearingRead}
+          onClick={onClearRead}
+          type="button"
+        >
+          <LinearDelete className="h-6 w-6 text-[#4D4D4D]" />
+          <span>{isClearingRead ? "در حال پاک کردن..." : "پاک کردن اعلان‌های خوانده شده"}</span>
+        </button>
       </div>
     </BottomSheet>
   );
@@ -677,6 +707,8 @@ function mergeNotifications(
 export function NotificationsPage() {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
+  const [isClearingRead, setIsClearingRead] = useState(false);
+  const [markAllUnread, setMarkAllUnread] = useState(false);
   const [realtimeNotifications, setRealtimeNotifications] = useState<NotificationItem[]>([]);
   const [selectedFilterIds, setSelectedFilterIds] = useState<Set<NotificationCategory>>(
     () => new Set(),
@@ -687,11 +719,9 @@ export function NotificationsPage() {
     perPage: notificationsPerPage,
   });
   const unreadCountQuery = useNotificationUnreadCountQuery();
-  const preferencesQuery = useNotificationPreferencesQuery();
   const markReadMutation = useMarkNotificationReadMutation();
   const markAllReadMutation = useMarkAllNotificationsReadMutation();
   const deleteMutation = useDeleteNotificationMutation();
-  const updatePreferenceMutation = useUpdateNotificationPreferenceMutation();
 
   const serverNotifications = useMemo(
     () => notificationsQuery.data?.pages.flatMap((page) => page.data) ?? [],
@@ -716,7 +746,6 @@ export function NotificationsPage() {
     );
   }, [notifications, selectedFilterIds]);
 
-  const unreadCount = unreadCountQuery.data ?? 0;
   const ErrorState = getRequestErrorState(notificationsQuery.error);
   const fetchNextNotificationsPage = notificationsQuery.fetchNextPage;
   const hasNextNotificationsPage = notificationsQuery.hasNextPage;
@@ -924,14 +953,26 @@ export function NotificationsPage() {
     }
   };
 
-  const togglePreference = async (
-    category: NotificationCategory,
-    enabled: boolean,
-  ) => {
+  const clearReadNotifications = async () => {
+    if (isClearingRead) return;
+    const readNotificationIds = notifications
+      .filter((notification) => notification.is_read === true)
+      .map((notification) => String(notification.id));
+
+    setIsClearingRead(true);
     try {
-      await updatePreferenceMutation.mutateAsync({ category, enabled });
+      for (const notificationId of readNotificationIds) {
+        await deleteMutation.mutateAsync(notificationId);
+      }
+      setRealtimeNotifications((current) =>
+        current.filter((notification) => notification.is_read === false),
+      );
+      await notificationsQuery.refetch();
+      setIsSettingsSheetOpen(false);
     } catch {
-      void preferencesQuery.refetch();
+      void notificationsQuery.refetch();
+    } finally {
+      setIsClearingRead(false);
     }
   };
 
@@ -943,7 +984,6 @@ export function NotificationsPage() {
       <NotificationHeader
         onOpenSettings={() => setIsSettingsSheetOpen(true)}
         onRefresh={() => void refreshNotifications()}
-        unreadCount={unreadCount}
       />
       <NotificationFilterBar
         onOpenFilters={() => setIsFilterSheetOpen(true)}
@@ -969,7 +1009,7 @@ export function NotificationsPage() {
           !notificationsQuery.isError &&
           visibleNotifications.map((notification, index) => {
             const shouldAttachLoadMoreRef =
-              index === Math.max(visibleNotifications.length - 3, 0) &&
+              index === Math.max(visibleNotifications.length - 10, 0) &&
               notificationsQuery.hasNextPage &&
               !notificationsQuery.isFetchingNextPage;
 
@@ -1007,14 +1047,215 @@ export function NotificationsPage() {
         selectedFilterIds={selectedFilterIds}
       />
       <NotificationSettingsSheet
+        isClearingRead={isClearingRead}
         isMarkingAllRead={markAllReadMutation.isPending}
         isOpen={isSettingsSheetOpen}
-        isPreferencesLoading={preferencesQuery.isLoading}
+        markAllUnread={markAllUnread}
+        onClearRead={() => void clearReadNotifications()}
         onClose={() => setIsSettingsSheetOpen(false)}
         onMarkAllRead={() => void markAllRead()}
-        onTogglePreference={(category, enabled) => void togglePreference(category, enabled)}
-        preferences={preferencesQuery.data ?? []}
+        onMarkAllUnreadChange={setMarkAllUnread}
+        onManage={() => {
+          setIsSettingsSheetOpen(false);
+          navigateTo("/notifications/settings");
+        }}
       />
+    </PageFrame>
+  );
+}
+
+export function NotificationManagementPage() {
+  const preferencesQuery = useNotificationPreferencesQuery();
+  const updatePreferenceMutation = useUpdateNotificationPreferenceMutation();
+  const [optimisticPreferences, setOptimisticPreferences] = useState<
+    Partial<Record<NotificationCategory, boolean>>
+  >({});
+  const [pendingCategories, setPendingCategories] = useState<Set<NotificationCategory>>(
+    () => new Set(),
+  );
+  const preferenceMap = new Map<NotificationCategory, boolean>(
+    (preferencesQuery.data ?? []).map((preference) => [
+      preference.category,
+      preference.enabled,
+    ]),
+  );
+
+  allPreferenceCategories.forEach((category) => {
+    const optimisticValue = optimisticPreferences[category];
+
+    if (optimisticValue !== undefined) {
+      preferenceMap.set(category, optimisticValue);
+    }
+  });
+
+  useEffect(() => {
+    if (!preferencesQuery.data) return;
+
+    setOptimisticPreferences((current) => {
+      const next = { ...current };
+      let hasChanges = false;
+
+      preferencesQuery.data.forEach((preference) => {
+        if (
+          next[preference.category] !== undefined &&
+          next[preference.category] === preference.enabled
+        ) {
+          delete next[preference.category];
+          hasChanges = true;
+        }
+      });
+
+      return hasChanges ? next : current;
+    });
+  }, [preferencesQuery.data]);
+
+  const allNotificationsEnabled = allPreferenceCategories.every(
+    (category) => preferenceMap.get(category) ?? true,
+  );
+
+  const updateCategory = async (
+    category: NotificationCategory,
+    enabled: boolean,
+  ) => {
+    const previousOptimisticValue = optimisticPreferences[category];
+
+    setOptimisticPreferences((current) => ({ ...current, [category]: enabled }));
+    setPendingCategories((current) => new Set(current).add(category));
+
+    try {
+      await updatePreferenceMutation.mutateAsync({ category, enabled });
+    } catch {
+      setOptimisticPreferences((current) => {
+        if (current[category] !== enabled) return current;
+
+        const next = { ...current };
+
+        if (previousOptimisticValue === undefined) {
+          delete next[category];
+        } else {
+          next[category] = previousOptimisticValue;
+        }
+
+        return next;
+      });
+      void preferencesQuery.refetch();
+    } finally {
+      setPendingCategories((current) => {
+        const next = new Set(current);
+        next.delete(category);
+        return next;
+      });
+    }
+  };
+
+  const updateAllCategories = async (enabled: boolean) => {
+    const previousOptimisticValues = { ...optimisticPreferences };
+
+    setOptimisticPreferences((current) => {
+      const next = { ...current };
+      allPreferenceCategories.forEach((category) => {
+        next[category] = enabled;
+      });
+      return next;
+    });
+    setPendingCategories((current) =>
+      new Set([...current, ...allPreferenceCategories]),
+    );
+
+    try {
+      for (const category of allPreferenceCategories) {
+        await updatePreferenceMutation.mutateAsync({ category, enabled });
+      }
+    } catch {
+      setOptimisticPreferences((current) => {
+        const next = { ...current };
+
+        allPreferenceCategories.forEach((category) => {
+          if (current[category] !== enabled) return;
+
+          const previousValue = previousOptimisticValues[category];
+
+          if (previousValue === undefined) {
+            delete next[category];
+          } else {
+            next[category] = previousValue;
+          }
+        });
+
+        return next;
+      });
+      void preferencesQuery.refetch();
+    } finally {
+      setPendingCategories((current) => {
+        const next = new Set(current);
+        allPreferenceCategories.forEach((category) => next.delete(category));
+        return next;
+      });
+    }
+  };
+
+  const hasPendingCategories = pendingCategories.size > 0;
+
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        backLabel="بازگشت به اعلان‌ها"
+        backTo="/notifications"
+        heightClassName="h-14"
+        title="مدیریت اعلان‌ها"
+        titleClassName="text-sm font-semibold leading-5"
+      />
+
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-6">
+        <section className="flex  items-center justify-between px-4 py-3 [direction:ltr]">
+          <SwitchButton
+            ariaLabel="فعال‌سازی اعلان‌ها"
+            checked={allNotificationsEnabled}
+            disabled={preferencesQuery.isLoading || hasPendingCategories}
+            onChange={(enabled) => void updateAllCategories(enabled)}
+          />
+          <div className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
+            <LinearNotification className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+            <div className="min-w-0">
+              <h2 className="m-0 text-[#1a1a1a]">فعال‌سازی اعلان‌ها</h2>
+              <p className="m-0 max-w-[220px] text-sm text-[#a6a6a6]">
+                با غیرفعال کردن این گزینه، همه اعلان‌ها متوقف می‌شوند.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <div className="h-1.5 bg-[#f5f5f5]" />
+
+        <section aria-label="دسته‌بندی اعلان‌ها">
+          {notificationManagementOptions.map((option) => {
+            const enabled = preferenceMap.get(option.category) ?? true;
+
+            return (
+              <div
+                className="flex items-center justify-between border-b border-[#f0f0f0] px-4 py-3.5 [direction:ltr] last:border-b-0"
+                key={option.category}
+              >
+                <SwitchButton
+                  ariaLabel={`تغییر وضعیت ${option.label}`}
+                  checked={enabled}
+                  disabled={preferencesQuery.isLoading || pendingCategories.has(option.category)}
+                  onChange={(nextEnabled) => void updateCategory(option.category, nextEnabled)}
+                />
+                <div className="min-w-0 flex-1 text-right" dir="rtl">
+                  <h2 className="m-0 text-[#1a1a1a]">{option.label}</h2>
+                  <p className="m-0 text-sm font-normal text-[#a6a6a6]">
+                    {option.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      </main>
     </PageFrame>
   );
 }

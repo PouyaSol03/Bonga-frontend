@@ -43,6 +43,7 @@ export type ChatMessage = Record<string, unknown> & {
   is_mine?: boolean;
   is_read?: boolean;
   message?: string;
+  metadata?: Record<string, unknown>;
   read?: boolean;
   read_at?: string | null;
   read_by?: Array<number | string>;
@@ -52,6 +53,14 @@ export type ChatMessage = Record<string, unknown> & {
   thread_id?: number | string;
   type?: string;
   user_id?: number | string;
+};
+
+export type ChatAttachmentUpload = {
+  file_name: string;
+  mime_type: string;
+  size: number;
+  status: boolean;
+  url: string;
 };
 
 type ChatsResponse =
@@ -260,6 +269,17 @@ export async function getChatMessages(threadId: string) {
     .json<ChatMessagesResponse>();
 
   return readChatMessages(response);
+}
+
+export async function uploadChatAttachment(threadId: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return api
+    .post(`chats/${threadId}/attachments`, {
+      body: formData,
+    })
+    .json<ChatAttachmentUpload>();
 }
 
 export async function getChatUnreadCount() {

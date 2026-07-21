@@ -19,8 +19,20 @@ type ChatSocketClientToServerEvents = {
   "chat:leave": (payload: { threadId: string }) => void;
   "chat:message:send": (payload: {
     body: string;
+    metadata?:
+      | {
+          attachment_url: string;
+          file_name: string;
+          mime_type: string;
+          size: number;
+        }
+      | {
+          address: string;
+          lat: number;
+          lng: number;
+        };
     threadId: string;
-    type: "text";
+    type: "image" | "location" | "text";
   }) => void;
   "chat:read": (payload: { threadId: string }) => void;
   "chat:typing": (payload: { threadId: string; typing: boolean }) => void;
@@ -41,7 +53,9 @@ export type ChatJoinPayload =
   | string;
 
 export type ChatMessageNewPayload = {
+  data?: unknown;
   message?: unknown;
+  [key: string]: unknown;
 };
 
 export type ChatTypingPayload = {
@@ -62,11 +76,11 @@ export type ChatSocket = Socket<
 
 const chatSockets = new Map<ChatCategory, ChatSocket>();
 
-function getChatSocketUrl(category: ChatCategory) {
+function getChatSocketUrl() {
   const socketBaseUrl =
     baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
 
-  return `${socketBaseUrl.replace(/\/$/, "")}/chats?category=${encodeURIComponent(category)}`;
+  return `${socketBaseUrl.replace(/\/$/, "")}/chat`;
 }
 
 export function readSocketThreadId(payload: ChatJoinPayload) {
@@ -92,11 +106,12 @@ export function getChatSocket(category: ChatCategory = "advertise") {
   let chatSocket = chatSockets.get(category);
 
   if (!chatSocket) {
-    chatSocket = io(getChatSocketUrl(category), {
+    chatSocket = io(getChatSocketUrl(), {
       auth: {
         token,
       },
       autoConnect: false,
+      transports: ["websocket"],
     });
     chatSockets.set(category, chatSocket);
   }
@@ -157,6 +172,57 @@ export function sendChatTextMessage({
   threadId: string;
 }) {
   getChatSocket(category).emit("chat:message:send", { body, threadId, type: "text" });
+}
+
+export function sendChatImageMessage({
+  attachmentUrl,
+  category = "advertise",
+  fileName,
+  mimeType,
+  size,
+  threadId,
+}: {
+  attachmentUrl: string;
+  category?: ChatCategory;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  threadId: string;
+}) {
+  getChatSocket(category).emit("chat:message:send", {
+    body: "",
+    metadata: {
+      attachment_url: attachmentUrl,
+      file_name: fileName,
+      mime_type: mimeType,
+      size,
+    },
+    threadId,
+    type: "image",
+  });
+}
+
+export function sendChatLocationMessage({
+  category = "advertise",
+  latitude,
+  longitude,
+  threadId,
+}: {
+  category?: ChatCategory;
+  latitude: number;
+  longitude: number;
+  threadId: string;
+}) {
+  getChatSocket(category).emit("chat:message:send", {
+    body: "",
+    metadata: {
+      address: "",
+      lat: latitude,
+      lng: longitude,
+    },
+    threadId,
+    type: "location",
+  });
 }
 
 export function sendChatTyping({

@@ -1,9 +1,11 @@
 import { memo, type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getApiAssetUrl } from "../api/api";
+import { getApiAssetUrl, getApiErrorMessage } from "../api/api";
 import {
   joinChatThread,
   leaveChatThread,
   markChatRead,
+  sendChatImageMessage,
+  sendChatLocationMessage,
   sendChatTextMessage,
   sendChatTyping,
 } from "../api/chat-socket";
@@ -26,7 +28,11 @@ import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
 import { RouteLink } from "../routes/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../lib/browserLocation";
 import { getStoredAuthSession } from "../auth/auth-storage";
-import type { ChatMessage, ChatThread } from "../services/chat.service";
+import {
+  uploadChatAttachment,
+  type ChatMessage,
+  type ChatThread,
+} from "../services/chat.service";
 
 type ChatItem = {
   adCategory: string;
@@ -47,7 +53,7 @@ type ChatItem = {
 
 type SentChatMessage =
   | { id: string; type: "text"; text: string }
-  | { id: string; type: "image"; imageUrl: string; fileName: string }
+  | { id: string; type: "image"; imageUrl: string; attachmentUrl: string; fileName: string }
   | { id: string; type: "location"; latitude: number; longitude: number; mapsUrl: string };
 
 const createChatMessageId = () =>
@@ -287,6 +293,80 @@ function readChatMessageBody(message: ChatMessage) {
   );
 }
 
+function readChatMessageType(message: ChatMessage) {
+  return readPathText(message, [
+    "type",
+    "message.type",
+    "data.type",
+    "payload.type",
+  ]).toLowerCase();
+}
+
+function readChatMessageAttachment(message: ChatMessage) {
+  const attachmentUrl = readPathText(message, [
+    "metadata.attachment_url",
+    "metadata.attachmentUrl",
+    "attachment_url",
+    "attachmentUrl",
+    "message.metadata.attachment_url",
+    "data.metadata.attachment_url",
+    "payload.metadata.attachment_url",
+  ]);
+  const fileName = readPathText(message, [
+    "metadata.file_name",
+    "metadata.fileName",
+    "file_name",
+    "fileName",
+    "message.metadata.file_name",
+    "data.metadata.file_name",
+    "payload.metadata.file_name",
+  ]);
+
+  return {
+    attachmentUrl,
+    fileName: fileName || "تصویر ارسالی",
+    imageUrl: attachmentUrl
+      ? (/^https?:\/\//i.test(attachmentUrl)
+          ? attachmentUrl
+          : getApiAssetUrl(attachmentUrl))
+      : "",
+  };
+}
+
+function readChatMessageLocation(message: ChatMessage) {
+  const latitude = readNumber(
+    readPathText(message, [
+      "metadata.lat",
+      "metadata.latitude",
+      "lat",
+      "latitude",
+      "message.metadata.lat",
+      "data.metadata.lat",
+      "payload.metadata.lat",
+    ]),
+  );
+  const longitude = readNumber(
+    readPathText(message, [
+      "metadata.lng",
+      "metadata.longitude",
+      "lng",
+      "longitude",
+      "message.metadata.lng",
+      "data.metadata.lng",
+      "payload.metadata.lng",
+    ]),
+  );
+
+  return {
+    latitude,
+    longitude,
+    mapsUrl:
+      latitude !== undefined && longitude !== undefined
+        ? `https://www.google.com/maps?q=${latitude},${longitude}`
+        : "",
+  };
+}
+
 function readChatMessageTime(message: ChatMessage) {
   const text = readPathText(message, ["sent_at", "sentAt", "created_at", "createdAt", "date"]);
 
@@ -386,6 +466,12 @@ function getChatMessageDedupeKey(message: ChatMessage) {
   return [
     "body",
     readChatMessageBody(message),
+    "type",
+    readChatMessageType(message),
+    "attachment",
+    readChatMessageAttachment(message).attachmentUrl,
+    "location",
+    readChatMessageLocation(message).mapsUrl,
     "time",
     readPathText(message, ["created_at", "createdAt", "date"]),
     "sender",
@@ -1260,10 +1346,30 @@ function ChatDateChip() {
 }
 
 
-function ChatImageBubble({ fileName, imageUrl }: { fileName: string; imageUrl: string }) {
+function ChatImageBubble({
+  direction = "outgoing",
+  fileName,
+  imageUrl,
+  isRead = false,
+  time,
+}: {
+  direction?: "incoming" | "outgoing";
+  fileName: string;
+  imageUrl: string;
+  isRead?: boolean;
+  time?: string;
+}) {
+  const isOutgoing = direction === "outgoing";
+
   return (
-    <div className="flex justify-end [direction:ltr]">
-      <div className="max-w-[220px] rounded-lg rounded-tr-none bg-[#eef3fb] p-1.5 text-right" dir="rtl">
+    <div className={`flex [direction:ltr] ${isOutgoing ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[220px] rounded-lg p-1.5 text-right ${isOutgoing
+          ? "rounded-tr-none bg-[#eef3fb]"
+          : "rounded-tl-none border border-[#e6e6e6] bg-white"
+        }`}
+        dir="rtl"
+      >
         <a href={imageUrl} target="_blank" rel="noreferrer" aria-label={`مشاهده ${fileName}`}>
           <img
             alt={fileName || "تصویر ارسالی"}
@@ -1271,20 +1377,39 @@ function ChatImageBubble({ fileName, imageUrl }: { fileName: string; imageUrl: s
             src={imageUrl}
           />
         </a>
-        <div className="mt-1 flex items-center justify-between gap-2 px-1 text-[10px] leading-4 text-[#0048c4] [direction:ltr]">
-          <span>18:21</span>
-          <DoubleTickIcon className="h-3.5 w-3.5 text-[#0048c4]" />
+        <div className={`mt-1 flex items-center gap-1 px-1 text-[10px] leading-4 [direction:ltr] ${
+          isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
+        }`}>
+          <span>{time}</span>
+          {isOutgoing ? (
+            <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
 
-function ChatLocationBubble({ mapsUrl }: { mapsUrl: string }) {
+function ChatLocationBubble({
+  direction = "outgoing",
+  isRead = false,
+  mapsUrl,
+  time,
+}: {
+  direction?: "incoming" | "outgoing";
+  isRead?: boolean;
+  mapsUrl: string;
+  time?: string;
+}) {
+  const isOutgoing = direction === "outgoing";
+
   return (
-    <div className="flex justify-end [direction:ltr]">
+    <div className={`flex [direction:ltr] ${isOutgoing ? "justify-end" : "justify-start"}`}>
       <a
-        className="block w-[220px] rounded-lg rounded-tr-none bg-[#eef3fb] px-3 py-2 text-right no-underline"
+        className={`block w-[220px] rounded-lg px-3 py-2 text-right no-underline ${isOutgoing
+          ? "rounded-tr-none bg-[#eef3fb]"
+          : "rounded-tl-none border border-[#e6e6e6] bg-white"
+        }`}
         dir="rtl"
         href={mapsUrl}
         target="_blank"
@@ -1299,9 +1424,13 @@ function ChatLocationBubble({ mapsUrl }: { mapsUrl: string }) {
         <p className="mt-2 text-[11px] leading-4 text-[#4d4d4d]">
           برای مشاهده موقعیت روی نقشه لمس کنید.
         </p>
-        <div className="mt-1 flex items-center justify-end gap-1 text-[10px] leading-4 text-[#0048c4] [direction:ltr]">
-          <span>18:21</span>
-          <DoubleTickIcon className="h-3.5 w-3.5 text-[#0048c4]" />
+        <div className={`mt-1 flex items-center gap-1 text-[10px] leading-4 [direction:ltr] ${
+          isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
+        }`}>
+          <span>{time}</span>
+          {isOutgoing ? (
+            <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
+          ) : null}
         </div>
       </a>
     </div>
@@ -1329,15 +1458,51 @@ function ChatApiMessageBubble({
   forceRead: boolean;
   message: ChatMessage;
 }) {
+  const direction = isOutgoingChatMessage(message, currentUserId) ? "outgoing" : "incoming";
+  const isRead = forceRead || isReadChatMessage(message);
+  const time = readChatMessageTime(message);
+  const type = readChatMessageType(message);
+
+  if (type === "image") {
+    const attachment = readChatMessageAttachment(message);
+
+    if (!attachment.imageUrl) return null;
+
+    return (
+      <ChatImageBubble
+        direction={direction}
+        fileName={attachment.fileName}
+        imageUrl={attachment.imageUrl}
+        isRead={isRead}
+        time={time}
+      />
+    );
+  }
+
+  if (type === "location") {
+    const location = readChatMessageLocation(message);
+
+    if (!location.mapsUrl) return null;
+
+    return (
+      <ChatLocationBubble
+        direction={direction}
+        isRead={isRead}
+        mapsUrl={location.mapsUrl}
+        time={time}
+      />
+    );
+  }
+
   const body = readChatMessageBody(message);
 
   if (!body) return null;
 
   return (
     <ChatBubble
-      direction={isOutgoingChatMessage(message, currentUserId) ? "outgoing" : "incoming"}
-      isRead={forceRead || isReadChatMessage(message)}
-      time={readChatMessageTime(message)}
+      direction={direction}
+      isRead={isRead}
+      time={time}
     >
       {body}
     </ChatBubble>
@@ -1915,12 +2080,14 @@ export function UserChatDetailPage() {
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([]);
   const [readThreadIds, setReadThreadIds] = useState<Set<string>>(() => new Set());
   const [sentMessages, setSentMessages] = useState<SentChatMessage[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [isSendingLocation, setIsSendingLocation] = useState(false);
   const { message, showNotice } = useDemoNotice();
   const chatScrollRef = useRef<HTMLElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
-  const imageObjectUrlsRef = useRef<string[]>([]);
+  const pendingOutgoingAttachmentsRef = useRef<Set<string>>(new Set());
+  const pendingOutgoingLocationsRef = useRef<Set<string>>(new Set());
   const pendingOutgoingBodiesRef = useRef<Map<string, number>>(new Map());
   const typingTimeoutRef = useRef<number | null>(null);
   const [, setHasMoreMessagesBelow] = useState(false);
@@ -1988,10 +2155,13 @@ export function UserChatDetailPage() {
       onJoined: setActiveThreadId,
       threadId: activeThreadId,
     });
-    const handleNewMessage = (payload: { message?: unknown }) => {
-      if (!payload.message || typeof payload.message !== "object") return;
+    const handleNewMessage = (payload: { data?: unknown; message?: unknown; [key: string]: unknown }) => {
+      const data = asRecord(payload.data);
+      const rawMessage = payload.message ?? data?.message ?? payload.data ?? payload;
 
-      const nextMessage = payload.message as ChatMessage;
+      if (!rawMessage || typeof rawMessage !== "object" || Array.isArray(rawMessage)) return;
+
+      const nextMessage = rawMessage as ChatMessage;
       const body = readChatMessageBody(nextMessage);
       const pendingCount = pendingOutgoingBodiesRef.current.get(body) ?? 0;
 
@@ -2000,6 +2170,38 @@ export function UserChatDetailPage() {
         nextMessage.is_mine = true;
         nextMessage.is_read = false;
         nextMessage.read = false;
+      }
+
+      const messageType = readChatMessageType(nextMessage);
+
+      if (messageType === "image") {
+        const { attachmentUrl } = readChatMessageAttachment(nextMessage);
+
+        if (pendingOutgoingAttachmentsRef.current.delete(attachmentUrl)) {
+          nextMessage.is_mine = true;
+        }
+
+        setSentMessages((current) =>
+          current.filter(
+            (message) => message.type !== "image" || message.attachmentUrl !== attachmentUrl,
+          ),
+        );
+      } else if (messageType === "location") {
+        const { latitude, longitude } = readChatMessageLocation(nextMessage);
+        const locationKey = `${latitude},${longitude}`;
+
+        if (pendingOutgoingLocationsRef.current.delete(locationKey)) {
+          nextMessage.is_mine = true;
+        }
+
+        setSentMessages((current) =>
+          current.filter(
+            (message) =>
+              message.type !== "location" ||
+              message.latitude !== latitude ||
+              message.longitude !== longitude,
+          ),
+        );
       }
 
       setLiveMessages((current) => dedupeChatMessages([...current, nextMessage]));
@@ -2067,8 +2269,6 @@ export function UserChatDetailPage() {
 
   useEffect(() => {
     return () => {
-      imageObjectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-      imageObjectUrlsRef.current = [];
       if (typingTimeoutRef.current) {
         window.clearTimeout(typingTimeoutRef.current);
       }
@@ -2189,7 +2389,7 @@ export function UserChatDetailPage() {
     showNotice(`${title} انتخاب شد`);
   };
 
-  const sendImageFiles = (files: FileList | null) => {
+  const sendImageFiles = async (files: FileList | null) => {
     const imageFiles = Array.from(files ?? []).filter((file) => file.type.startsWith("image/"));
 
     if (imageFiles.length === 0) {
@@ -2197,23 +2397,58 @@ export function UserChatDetailPage() {
       return;
     }
 
-    const imageMessages = imageFiles.map((file) => {
-      const imageUrl = URL.createObjectURL(file);
-      imageObjectUrlsRef.current.push(imageUrl);
+    if (!activeThreadId || isUploadingImages) {
+      if (!activeThreadId) showNotice("ابتدا گفتگو را باز کنید");
+      return;
+    }
 
-      return {
-        id: createChatMessageId(),
-        type: "image" as const,
-        imageUrl,
-        fileName: file.name || "تصویر ارسالی",
-      };
-    });
+    setIsUploadingImages(true);
+    showNotice("در حال ارسال تصویر...");
 
-    setSentMessages((current) => [...current, ...imageMessages]);
+    const results = await Promise.allSettled(
+      imageFiles.map(async (file) => {
+        const attachment = await uploadChatAttachment(activeThreadId, file);
+
+        if (!attachment.status || !attachment.url) {
+          throw new Error("آپلود تصویر ناموفق بود");
+        }
+
+        const optimisticMessage: SentChatMessage = {
+          attachmentUrl: attachment.url,
+          fileName: attachment.file_name || file.name || "تصویر ارسالی",
+          id: createChatMessageId(),
+          imageUrl: getApiAssetUrl(attachment.url),
+          type: "image",
+        };
+
+        setSentMessages((current) => [...current, optimisticMessage]);
+        pendingOutgoingAttachmentsRef.current.add(attachment.url);
+        sendChatImageMessage({
+          attachmentUrl: attachment.url,
+          category: chatCategory,
+          fileName: attachment.file_name,
+          mimeType: attachment.mime_type,
+          size: attachment.size,
+          threadId: activeThreadId,
+        });
+      }),
+    );
+    const failedResult = results.find((result) => result.status === "rejected");
+
+    if (failedResult?.status === "rejected") {
+      showNotice(getApiErrorMessage(failedResult.reason, "ارسال تصویر با خطا مواجه شد"));
+    } else {
+      showNotice(imageFiles.length > 1 ? "تصاویر ارسال شدند" : "تصویر ارسال شد");
+    }
+
+    setIsUploadingImages(false);
   };
 
   const sendCurrentLocation = () => {
-    if (isSendingLocation) return;
+    if (isSendingLocation || !activeThreadId) {
+      if (!activeThreadId) showNotice("ابتدا گفتگو را باز کنید");
+      return;
+    }
 
     setIsSendingLocation(true);
     showNotice("در حال دریافت موقعیت شما...");
@@ -2232,6 +2467,13 @@ export function UserChatDetailPage() {
             mapsUrl,
           },
         ]);
+        pendingOutgoingLocationsRef.current.add(`${latitude},${longitude}`);
+        sendChatLocationMessage({
+          category: chatCategory,
+          latitude,
+          longitude,
+          threadId: activeThreadId,
+        });
         showNotice("موقعیت ارسال شد");
       })
       .catch((error) => {
@@ -2394,22 +2636,11 @@ export function UserChatHomePage() {
     isLoading: isAdvertiseLoading,
     refetch: refetchAdvertiseChats,
   } = useChatsQuery({ category: "advertise", page: 1, perPage: 10 });
-  const supportChatsQuery = useChatsQuery({ category: "support", page: 1, perPage: 20 });
   const chats = useMemo(
-    () => [
-      ...(advertiseChatsPage?.data ?? []),
-      ...(supportChatsQuery.data?.data ?? []),
-    ].map(mapChatThreadToChatItem),
-    [advertiseChatsPage?.data, supportChatsQuery.data?.data],
+    () => (advertiseChatsPage?.data ?? []).map(mapChatThreadToChatItem),
+    [advertiseChatsPage?.data],
   );
-  const isLoading = isAdvertiseLoading || supportChatsQuery.isLoading;
-  const isError = isAdvertiseError && supportChatsQuery.isError;
-  const error = advertiseError ?? supportChatsQuery.error;
-  const refetch = useCallback(() => Promise.all([
-    refetchAdvertiseChats(),
-    supportChatsQuery.refetch(),
-  ]), [refetchAdvertiseChats, supportChatsQuery.refetch]);
-  const RequestErrorState = isError ? getRequestErrorState(error) : null;
+  const RequestErrorState = isAdvertiseError ? getRequestErrorState(advertiseError) : null;
 
   const handleMenuSelect = useCallback((id: string) => {
     setIsMenuOpen(false);
@@ -2492,9 +2723,9 @@ export function UserChatHomePage() {
         />
       }
     >
-      {isLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
+      {isAdvertiseLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
       {RequestErrorState && chats.length === 0 ? (
-        <RequestErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
+        <RequestErrorState className="min-h-[420px]" onRetry={() => void refetchAdvertiseChats()} />
       ) : null}
       {visibleChats.map((item, index) => {
         const chatId = item.id ?? String(index);
@@ -2511,7 +2742,7 @@ export function UserChatHomePage() {
           />
         );
       })}
-      {!isLoading && !isError && visibleChats.length === 0 ? (
+      {!isAdvertiseLoading && !isAdvertiseError && visibleChats.length === 0 ? (
         <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
       ) : null}
       <DemoNotice message={message} />

@@ -422,7 +422,7 @@ export function HomePage() {
             {!isCategoryLoading &&
               quickActions.map((item) => (
                 <button
-                  className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-[11px] font-medium leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px] min-[390px]:text-xs"
+                  className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-base font-medium leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px]"
                   key={item.label}
                   type="button"
                   onClick={() => {

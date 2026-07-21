@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import LinearArrowRight2 from "./(icons)/LinearArrowRight2";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -47,20 +48,6 @@ type BottomSheetActionListProps<TItem extends BottomSheetAction> = {
   showCheckIcon?: boolean;
   showDividers?: boolean;
 };
-
-function BottomSheetBackIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M5 12h14M13 5l7 7-7 7"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
 
 function BottomSheetCheckIcon() {
   return (
@@ -145,24 +132,21 @@ export function BottomSheet({
             {showHeader ? (
               <>
                 <header
-                  className={`flex h-10 items-center gap-2 px-4 ${showHandle ? "mt-5" : "mt-0"
-                    }`}
+                  className={`flex h-10 items-center gap-2 px-4 `}
                 >
                   {showBackButton ? (
                     <button
                       aria-label="بازگشت"
-                      className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                      className="grid shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                       onClick={onBack ?? onClose}
                       type="button"
                     >
-                      <span className="block h-6 w-6">
-                        <BottomSheetBackIcon />
-                      </span>
+                        <LinearArrowRight2  className="h-6 w-6 text-[#4D4D4D]"/>
                     </button>
                   ) : null}
 
                   <h2
-                    className={`m-0 min-w-0 flex-1 text-xl font-semibold leading-7 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
+                    className={`m-0 min-w-0 flex-1 text-base font-semibold leading-6 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
                       }`}
                   >
                     {title ?? ariaLabel}

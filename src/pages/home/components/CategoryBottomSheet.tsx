@@ -47,17 +47,17 @@ export function CategoryBottomSheet({
   return (
     <BottomSheet
       ariaLabel={`انتخاب دسته‌بندی ${title}`}
-      contentClassName="mt-5"
+      contentClassName=""
       heightClassName="max-h-[min(88dvh,560px)]"
       isOpen={isOpen}
       onBack={handleBack}
       onClose={closeSheet}
       title={title}
     >
-        <div className="pt-3 min-[390px]:pt-4">
+        <div className="">
           {options.map((option) => (
             <button
-              className="flex h-12 w-full cursor-pointer items-center gap-3 border-b border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] [direction:ltr] last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] min-[390px]:h-14 min-[390px]:text-base min-[390px]:leading-6"
+              className="flex w-full cursor-pointer items-center gap-3 border-b border-[#cccccc] bg-white px-4 py-6 text-right text-base! font-normal leading-6 text-[#1a1a1a] [direction:ltr] last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] min-[390px]:h-14"
               data-category-sheet-row={option.label}
               key={option.label}
               type="button"

@@ -2095,6 +2095,7 @@ export function UserChatResponseTimePage() {
 }
 
 const CHAT_DISPLAY_NAME_STORAGE_KEY = "bonga-chat-display-name";
+const CHAT_RENAME_NOTICE_STORAGE_KEY = "bonga-chat-rename-notice";
 
 function navigateFromChatSettings(path: string, replace = false) {
   const method = replace ? "replaceState" : "pushState";
@@ -2108,7 +2109,7 @@ export function UserChatRenamePage() {
     () => window.localStorage.getItem(CHAT_DISPLAY_NAME_STORAGE_KEY) ?? "",
   );
   const [errorMessage, setErrorMessage] = useState("");
-  const { message, showNotice } = useDemoNotice();
+  const { message } = useDemoNotice();
 
   const saveChatName = () => {
     const normalizedName = chatName.trim();
@@ -2121,7 +2122,8 @@ export function UserChatRenamePage() {
     window.localStorage.setItem(CHAT_DISPLAY_NAME_STORAGE_KEY, normalizedName);
     setChatName(normalizedName);
     setErrorMessage("");
-    showNotice("نام چت ذخیره شد");
+    window.sessionStorage.setItem(CHAT_RENAME_NOTICE_STORAGE_KEY, "تغییر نام با موفقیت انجام شد");
+    navigateFromChatSettings("/chat", true);
   };
 
   return (
@@ -2130,38 +2132,30 @@ export function UserChatRenamePage() {
       variant="flush"
     >
       <TopBar
-        actions={[
-          {
-            icon: <MoreVerticalIcon className="h-5 w-5" />,
-            id: "more",
-            label: "گزینه‌های بیشتر",
-            onClick: () => showNotice("گزینه دیگری برای این بخش وجود ندارد"),
-          },
-        ]}
         backLabel="بازگشت به چت‌ها"
         backTo="/chat"
         className="border-b border-[#e6e6e6]"
         contentClassName="px-1"
         heightClassName="h-[60px]"
         title="تغییر نام چت"
-        titleClassName="text-sm font-semibold leading-5"
+        titleClassName="font-semibold"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-28 pt-5">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white p-4">
         <section className="text-right">
           <label
-            className="block text-sm font-semibold leading-5 text-[#1a1a1a]"
+            className="block font-semibold text-[#1a1a1a]"
             htmlFor="chat-display-name"
           >
             نام و نام خانوادگی
           </label>
-          <p className="mb-3 mt-1 text-[11px] font-normal leading-5 text-[#808080]">
+          <p className="mb-3 mt-1 text-sm font-normal text-[#808080]">
             کاربران در چت شما را با این نام می‌بینند
           </p>
           <input
             autoComplete="name"
-            className={`h-12 w-full rounded-lg border bg-white px-3 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41f] ${
-              errorMessage ? "border-[#c11004]" : "border-[#bfbfbf]"
+            className={`w-full rounded-xl border bg-white px-3 py-3.75 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41f] ${
+              errorMessage ? "border-[#c11004]" : "border-[#6e6e6e]"
             }`}
             id="chat-display-name"
             onChange={(event) => {
@@ -2772,7 +2766,14 @@ export function UserChatHomePage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const { message } = useDemoNotice();
+  const { message, showNotice } = useDemoNotice();
+  useEffect(() => {
+    const notice = window.sessionStorage.getItem(CHAT_RENAME_NOTICE_STORAGE_KEY);
+    if (!notice) return;
+
+    window.sessionStorage.removeItem(CHAT_RENAME_NOTICE_STORAGE_KEY);
+    showNotice(notice);
+  }, [showNotice]);
   const {
     data: advertiseChatsPage,
     error: advertiseError,

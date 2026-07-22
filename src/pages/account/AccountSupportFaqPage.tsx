@@ -226,7 +226,7 @@ export function AccountSupportFaqPage() {
         backTo={SUPPORT_PATH}
         className="border-b border-[#e6e6e6]"
         heightClassName="h-[52px]"
-        placement="inline"
+       
         reserveStartSpace
         title="سوالات متداول"
         titleClassName="text-center text-sm font-semibold leading-5"

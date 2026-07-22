@@ -164,13 +164,13 @@ type Conversation = {
 
 function SupportAgents() {
   const agents = [
-    "/support/support-agent-3.webp",
-    "/support/support-agent-2.webp",
-    "/support/support-agent-1.webp",
+    "/support/support-agent-1.png",
+    "/support/support-agent-2.png",
+    "/support/support-agent-3.png",
   ];
 
   return (
-    <div className="flex shrink-0 -space-x-3 [direction:ltr]" aria-label="کارشناسان پشتیبانی">
+    <div className="flex shrink-0 -space-x-5  [direction:ltr]" aria-label="کارشناسان پشتیبانی">
       {agents.map((src, index) => (
         <img
           alt=""
@@ -238,7 +238,7 @@ function SupportChatsEmptyState() {
 function ConversationCard({ conversation }: { conversation: Conversation }) {
   return (
     <RouteLink
-      className="block w-full rounded-2xl border border-[#dedede] bg-white px-4 py-5 text-right outline-none active:bg-[#fafafa] focus-visible:ring-2 focus-visible:ring-[#0048c440]"
+      className="block w-full rounded-2xl border border-[#dedede] bg-white p-4 text-right outline-none active:bg-[#fafafa] focus-visible:ring-2 focus-visible:ring-[#0048c440]"
       state={{ thread: conversation.thread, threadId: conversation.id }}
       to={`${SUPPORT_NEW_CHAT_PATH}?thread_id=${encodeURIComponent(conversation.id)}`}
     >

@@ -4,6 +4,7 @@ import {
   useContext,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -336,12 +337,12 @@ export function TopBarLayoutProvider({
   resetKey: string;
 }) {
   const [registeredTopBar, setRegisteredTopBar] = useState<RegisteredTopBar | null>(null);
-  const setTopBar = useCallback(
-    (props: LayoutTopBarProps | null) => {
-      setRegisteredTopBar(props ? { props, resetKey } : null);
-    },
-    [resetKey],
-  );
+  const resetKeyRef = useRef(resetKey);
+  resetKeyRef.current = resetKey;
+
+  const setTopBar = useCallback((props: LayoutTopBarProps | null) => {
+    setRegisteredTopBar(props ? { props, resetKey: resetKeyRef.current } : null);
+  }, []);
   const contextValue = useMemo<TopBarLayoutContextValue>(
     () => ({ setTopBar }),
     [setTopBar],

@@ -41,7 +41,11 @@ const AccountMyAdStatePage = lazyNamed(
   () => import('../pages/account/AccountMyAdStatePage'),
   'AccountMyAdStatePage',
 )
-const CrmPage = lazyNamed(() => import('../pages/crm/CrmPage'), 'CrmPage')
+const CrmLayout = lazyNamed(() => import('../pages/crm/CrmLayout'), 'CrmLayout')
+const CrmAdvertiseDetailPage = lazyNamed(
+  () => import('../pages/crm/routes/CrmAdvertiseDetailPage'),
+  'CrmAdvertiseDetailPage',
+)
 const AdPaymentHistoryPage = lazyNamed(
   () => import('../pages/account/adManagement/AdPaymentHistoryPage'),
   'AdPaymentHistoryPage',
@@ -287,6 +291,14 @@ function getBottomNavigationKey(path: string) {
 
 function getAccountFallbackBackTo(path: string) {
   if (path === '/account') return '/home'
+  if (path === '/account/support/chat/new') return '/account/support/chat'
+  if (path === '/account/support/requests/new') return '/account/support/requests'
+  if (
+    path === '/account/support/chat' ||
+    path === '/account/support/requests' ||
+    path === '/account/support/faq'
+  ) return '/account/support'
+  if (path === '/account/support') return '/account'
   if (path === '/account/wallet/history') return '/account/wallet'
   if (path.startsWith('/account/ranking/badges')) return '/account/ranking'
   if (path === '/account/ranking/levels') return '/account/ranking'
@@ -317,8 +329,6 @@ function getAccountFallbackBackTo(path: string) {
 }
 
 function getRouteTopBar(path: string, title: string): TopBarProps | undefined {
-  if (path.startsWith('/account/support')) return undefined
-
   if (path === '/login') {
     return { showBack: false, title }
   }
@@ -431,6 +441,8 @@ function getRoute(path: string): AppRoute {
 
     return {
       ...(crmRoute ?? routes[0]),
+      Component: CrmAdvertiseDetailPage,
+      crmSection: 'advertises',
       path,
       title: 'جزئیات آگهی',
     }
@@ -685,7 +697,19 @@ export function AppRouter() {
   )
 
   if (route.layout === 'crm') {
-    return page
+    return (
+      <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
+        <CrmLayout
+          contentKey={route.path}
+          renderContent={(viewProps) => (
+            <Suspense fallback={<div className="h-full min-h-80 rounded-xl bg-white" />}>
+              <ActivePage {...viewProps} />
+            </Suspense>
+          )}
+          section={route.crmSection ?? 'overview'}
+        />
+      </Suspense>
+    )
   }
 
   const isCrmAdvertiseFlowRoute =
@@ -695,7 +719,7 @@ export function AppRouter() {
   if (isCrmAdvertiseFlowRoute) {
     return (
       <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
-        <CrmPage embeddedContent={page} />
+        <CrmLayout embeddedContent={page} section="advertises" />
       </Suspense>
     )
   }

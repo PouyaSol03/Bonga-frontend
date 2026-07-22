@@ -31,34 +31,48 @@ const NewAdCategoryPage = lazyNamed(() => import('../pages/newAd/NewAdCategoryPa
 const NewAdFlowPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdFlowPage')
 const NewAdLocationPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdLocationPage')
 const PublicLandingPage = lazyNamed(() => import('../pages/PublicLandingPage'), 'PublicLandingPage')
-const CrmPage = lazyNamed(() => import('../pages/crm/CrmPage'), 'CrmPage')
+const CrmOverviewPage = lazyNamed(() => import('../pages/crm/routes/CrmOverviewPage'), 'CrmOverviewPage')
+const CrmAdvertisesPage = lazyNamed(() => import('../pages/crm/routes/CrmAdvertisesPage'), 'CrmAdvertisesPage')
+const CrmUsersPage = lazyNamed(() => import('../pages/crm/routes/CrmUsersPage'), 'CrmUsersPage')
+const CrmConsultantsPage = lazyNamed(() => import('../pages/crm/routes/CrmConsultantsPage'), 'CrmConsultantsPage')
+const CrmAgenciesPage = lazyNamed(() => import('../pages/crm/routes/CrmAgenciesPage'), 'CrmAgenciesPage')
+const CrmCategoriesPage = lazyNamed(() => import('../pages/crm/routes/CrmCategoriesPage'), 'CrmCategoriesPage')
+const CrmLocationsPage = lazyNamed(() => import('../pages/crm/routes/CrmLocationsPage'), 'CrmLocationsPage')
+const CrmFormsPage = lazyNamed(() => import('../pages/crm/routes/CrmFormsPage'), 'CrmFormsPage')
+const CrmPackagesPage = lazyNamed(() => import('../pages/crm/routes/CrmPackagesPage'), 'CrmPackagesPage')
+const CrmPaymentsPage = lazyNamed(() => import('../pages/crm/routes/CrmPaymentsPage'), 'CrmPaymentsPage')
+const CrmCostsPage = lazyNamed(() => import('../pages/crm/routes/CrmCostsPage'), 'CrmCostsPage')
+const CrmReportsPage = lazyNamed(() => import('../pages/crm/routes/CrmReportsPage'), 'CrmReportsPage')
+const CrmSupportRequestsPage = lazyNamed(() => import('../pages/crm/routes/CrmSupportRequestsPage'), 'CrmSupportRequestsPage')
+const CrmPropertyRequestsPage = lazyNamed(() => import('../pages/crm/routes/CrmPropertyRequestsPage'), 'CrmPropertyRequestsPage')
+const CrmSupportPage = lazyNamed(() => import('../pages/crm/routes/CrmSupportPage'), 'CrmSupportPage')
 const NotificationsPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationsPage')
 const NotificationManagementPage = lazyNamed(() => import('../pages/NotificationsPage'), 'NotificationManagementPage')
-const AccountAboutPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountAboutPage')
-const AccountBookmarksPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountBookmarksPage')
+const AccountAboutPage = lazyNamed(() => import('../pages/account/routes/AccountAboutPage'), 'AccountAboutPage')
+const AccountBookmarksPage = lazyNamed(() => import('../pages/account/routes/AccountBookmarksPage'), 'AccountBookmarksPage')
 const AccountDeleteUserPage = lazyNamed(() => import('../pages/account/AccountDeleteUserPage'), 'AccountDeleteUserPage')
-const AccountIdentityPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountIdentityPage')
-const AccountMyAdsEmptyPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountMyAdsEmptyPage')
-const AccountMyAdsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountMyAdsPage')
-const AccountNotesPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountNotesPage')
-const AccountProfilePage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountProfilePage')
-const AccountRecentViewsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountRecentViewsPage')
-const AccountRequestsPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountRequestsPage')
-const AccountSupportPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportPage')
-const AccountSupportChatPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportChatPage')
-const AccountSupportNewChatPage = lazyNamed(() => import('../pages/account/AccountSupportPage'), 'AccountSupportNewChatPage')
-const AccountSupportRequestsPage = lazyNamed(() => import('../pages/account/AccountSupportRequestsPage'), 'AccountSupportRequestsPage')
-const AccountSupportNewRequestPage = lazyNamed(() => import('../pages/account/AccountSupportRequestsPage'), 'AccountSupportNewRequestPage')
+const AccountIdentityPage = lazyNamed(() => import('../pages/account/routes/AccountIdentityPage'), 'AccountIdentityPage')
+const AccountMyAdsEmptyPage = lazyNamed(() => import('../pages/account/routes/AccountMyAdsEmptyPage'), 'AccountMyAdsEmptyPage')
+const AccountMyAdsPage = lazyNamed(() => import('../pages/account/routes/AccountMyAdsPage'), 'AccountMyAdsPage')
+const AccountNotesPage = lazyNamed(() => import('../pages/account/routes/AccountNotesPage'), 'AccountNotesPage')
+const AccountProfilePage = lazyNamed(() => import('../pages/account/routes/AccountProfilePage'), 'AccountProfilePage')
+const AccountRecentViewsPage = lazyNamed(() => import('../pages/account/routes/AccountRecentViewsPage'), 'AccountRecentViewsPage')
+const AccountRequestsPage = lazyNamed(() => import('../pages/account/routes/AccountRequestsPage'), 'AccountRequestsPage')
+const AccountSupportPage = lazyNamed(() => import('../pages/account/routes/AccountSupportPage'), 'AccountSupportPage')
+const AccountSupportChatPage = lazyNamed(() => import('../pages/account/routes/AccountSupportChatPage'), 'AccountSupportChatPage')
+const AccountSupportNewChatPage = lazyNamed(() => import('../pages/account/routes/AccountSupportNewChatPage'), 'AccountSupportNewChatPage')
+const AccountSupportRequestsPage = lazyNamed(() => import('../pages/account/routes/AccountSupportRequestsPage'), 'AccountSupportRequestsPage')
+const AccountSupportNewRequestPage = lazyNamed(() => import('../pages/account/routes/AccountSupportNewRequestPage'), 'AccountSupportNewRequestPage')
 const AccountSupportFaqPage = lazyNamed(() => import('../pages/account/AccountSupportFaqPage'), 'AccountSupportFaqPage')
-const AccountWalletHistoryPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletHistoryPage')
-const AccountWalletPage = lazyNamed(() => import('../pages/account/AccountSubPages'), 'AccountWalletPage')
+const AccountWalletHistoryPage = lazyNamed(() => import('../pages/account/routes/AccountWalletHistoryPage'), 'AccountWalletHistoryPage')
+const AccountWalletPage = lazyNamed(() => import('../pages/account/routes/AccountWalletPage'), 'AccountWalletPage')
 const IndependentConsultantRankingPage = lazyNamed(() => import('../pages/account/IndependentConsultantRankingPage'), 'IndependentConsultantRankingPage')
 const IndependentConsultantRankingLevelsPage = lazyNamed(() => import('../pages/account/IndependentConsultantRankingLevelsPage'), 'IndependentConsultantRankingLevelsPage')
 const IndependentConsultantBadgesGuidePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgesGuidePage'), 'IndependentConsultantBadgesGuidePage')
-const IndependentConsultantFileBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantFileBadgePage')
-const IndependentConsultantMagnetBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantMagnetBadgePage')
-const IndependentConsultantResponseBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantResponseBadgePage')
-const IndependentConsultantTimeBadgePage = lazyNamed(() => import('../pages/account/IndependentConsultantBadgeDetailsPage'), 'IndependentConsultantTimeBadgePage')
+const IndependentConsultantFileBadgePage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantFileBadgePage'), 'IndependentConsultantFileBadgePage')
+const IndependentConsultantMagnetBadgePage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantMagnetBadgePage'), 'IndependentConsultantMagnetBadgePage')
+const IndependentConsultantResponseBadgePage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantResponseBadgePage'), 'IndependentConsultantResponseBadgePage')
+const IndependentConsultantTimeBadgePage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantTimeBadgePage'), 'IndependentConsultantTimeBadgePage')
 const IndependentConsultantAdManagementPage = lazyNamed(() => import('../pages/account/IndependentConsultantAdManagementPage'), 'IndependentConsultantAdManagementPage')
 const DashboardAdsPage = lazyNamed(() => import('../pages/dashboard/DashboardAdsPage'), 'DashboardAdsPage')
 const IndependentConsultantAdAllocationPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdAllocationPage'), 'IndependentConsultantAdAllocationPage')
@@ -70,9 +84,9 @@ const AdDeleteReasonPage = lazyNamed(() => import('../pages/account/adManagement
 const IndependentConsultantAdSearchPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdSearchPage'), 'IndependentConsultantAdSearchPage')
 const IndependentConsultantAdStatisticsDetailsPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdStatisticsDetailsPage'), 'IndependentConsultantAdStatisticsDetailsPage')
 const IndependentConsultantAdStatisticsPage = lazyNamed(() => import('../pages/account/adManagement/IndependentConsultantAdStatisticsPage'), 'IndependentConsultantAdStatisticsPage')
-const IndependentConsultantCreditPackagesPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantCreditPackagesPage')
-const IndependentConsultantPanelCreditBonusPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditBonusPage')
-const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditPage'), 'IndependentConsultantPanelCreditPage')
+const IndependentConsultantCreditPackagesPage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantCreditPackagesPage'), 'IndependentConsultantCreditPackagesPage')
+const IndependentConsultantPanelCreditBonusPage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantPanelCreditBonusPage'), 'IndependentConsultantPanelCreditBonusPage')
+const IndependentConsultantPanelCreditPage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantPanelCreditPage'), 'IndependentConsultantPanelCreditPage')
 const IndependentConsultantCreditHistoryPage = lazyNamed(() => import('../pages/account/credit/IndependentConsultantCreditHistoryPage'), 'IndependentConsultantCreditHistoryPage')
 const DashboardAgencyPage = lazyNamed(() => import('../pages/dashboard/DashboardHomePage'), 'DashboardAgencyPage')
 const DashboardAgentPage = lazyNamed(() => import('../pages/dashboard/AgentProfilePage'), 'AgentProfilePage')
@@ -101,10 +115,10 @@ const UserChatBulkDeletePage = lazyNamed(() => import('../pages/UserChatHomePage
 const UserChatResponseTimePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatResponseTimePage')
 const UserChatRenamePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatRenamePage')
 const ConsultantsDirectoryPage = lazyNamed(() => import('../pages/ConsultantsDirectoryPage'), 'ConsultantsDirectoryPage')
-const AgencyBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'AgencyBusinessCreationPage')
-const BusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'BusinessCreationPage')
-const BusinessInfoPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'BusinessInfoPage')
-const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'IndependentConsultantBusinessCreationPage')
+const AgencyBusinessCreationPage = lazyNamed(() => import('../pages/account/routes/AgencyBusinessCreationPage'), 'AgencyBusinessCreationPage')
+const BusinessCreationPage = lazyNamed(() => import('../pages/account/routes/BusinessCreationPage'), 'BusinessCreationPage')
+const BusinessInfoPage = lazyNamed(() => import('../pages/account/routes/BusinessInfoPage'), 'BusinessInfoPage')
+const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../pages/account/routes/IndependentConsultantBusinessCreationPage'), 'IndependentConsultantBusinessCreationPage')
 
 export const LOGIN_PATH = '/login/phone'
 export const DASHBOARD_PATH = '/account/dashboard'
@@ -135,6 +149,7 @@ function AccountRoleRedirect() {
 
 export type AppRoute = {
   authority?: string[]
+  crmSection?: 'overview' | 'advertises' | 'users' | 'consultants' | 'agencies' | 'categories' | 'locations' | 'forms' | 'packages' | 'payments' | 'costs' | 'reports' | 'requests' | 'propertyRequests' | 'support'
   layout?: 'crm' | 'dashboard'
   path: string
   requiresAuth?: boolean
@@ -335,7 +350,8 @@ export const routes: AppRoute[] = [
   {
     path: CRM_PATH,
     title: 'مرکز مدیریت کل',
-    Component: CrmPage,
+    Component: CrmOverviewPage,
+    crmSection: 'overview',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -343,7 +359,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/advertises`,
     title: 'مدیریت آگهی‌ها',
-    Component: CrmPage,
+    Component: CrmAdvertisesPage,
+    crmSection: 'advertises',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -351,7 +368,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/users`,
     title: 'مدیریت کاربران',
-    Component: CrmPage,
+    Component: CrmUsersPage,
+    crmSection: 'users',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -359,7 +377,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/consultants`,
     title: 'مدیریت مشاورین',
-    Component: CrmPage,
+    Component: CrmConsultantsPage,
+    crmSection: 'consultants',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -367,7 +386,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/agencies`,
     title: 'مدیریت آژانس‌ها',
-    Component: CrmPage,
+    Component: CrmAgenciesPage,
+    crmSection: 'agencies',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -375,7 +395,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/categories`,
     title: 'دسته‌بندی‌ها',
-    Component: CrmPage,
+    Component: CrmCategoriesPage,
+    crmSection: 'categories',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -383,7 +404,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/locations`,
     title: 'مدیریت موقعیت‌ها',
-    Component: CrmPage,
+    Component: CrmLocationsPage,
+    crmSection: 'locations',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -391,7 +413,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/forms`,
     title: 'فرم‌های آگهی',
-    Component: CrmPage,
+    Component: CrmFormsPage,
+    crmSection: 'forms',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -399,7 +422,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/packages`,
     title: 'بسته‌ها و اعتبار پنل',
-    Component: CrmPage,
+    Component: CrmPackagesPage,
+    crmSection: 'packages',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -407,7 +431,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/payments`,
     title: 'تاریخچه پرداخت‌ها',
-    Component: CrmPage,
+    Component: CrmPaymentsPage,
+    crmSection: 'payments',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -415,7 +440,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/costs`,
     title: 'مدیریت هزینه‌ها',
-    Component: CrmPage,
+    Component: CrmCostsPage,
+    crmSection: 'costs',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -423,7 +449,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/reports`,
     title: 'گزارش‌های تخلف',
-    Component: CrmPage,
+    Component: CrmReportsPage,
+    crmSection: 'reports',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -431,7 +458,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/requests`,
     title: 'درخواست‌های پشتیبانی',
-    Component: CrmPage,
+    Component: CrmSupportRequestsPage,
+    crmSection: 'requests',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -439,7 +467,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/property-requests`,
     title: 'درخواست‌های یافتن آگهی',
-    Component: CrmPage,
+    Component: CrmPropertyRequestsPage,
+    crmSection: 'propertyRequests',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
@@ -447,7 +476,8 @@ export const routes: AppRoute[] = [
   {
     path: `${CRM_PATH}/support`,
     title: 'پشتیبانی',
-    Component: CrmPage,
+    Component: CrmSupportPage,
+    crmSection: 'support',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,

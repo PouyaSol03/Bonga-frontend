@@ -15,6 +15,13 @@ import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../routes/RouteLink";
 import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
 import { getCrmRecordId, type CrmConsultantPayload, type CrmConsultantStatus, type CrmRecord } from "../../services/crm.service";
+import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
+import {
+  CRM_ADVERTISE_MANAGER,
+  CRM_FINANCE_MANAGER,
+  SUPPORT,
+  SUPER_ADMIN,
+} from "../../constants/roles.constants";
 
 
 const CRM_BLUE = "#0048c4";
@@ -143,6 +150,32 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "support", section: "support" },
 ];
 
+const roleSectionAccess: Record<string, CrmSection[]> = {
+  [SUPER_ADMIN]: navigationItems.map((item) => item.section),
+  [CRM_ADVERTISE_MANAGER]: ["advertises"],
+  [CRM_FINANCE_MANAGER]: ["payments", "packages", "costs"],
+  [SUPPORT]: ["requests", "support", "reports"],
+};
+
+const crmRoleLabels: Record<string, { subtitle: string; title: string }> = {
+  [SUPER_ADMIN]: {
+    subtitle: "دسترسی کامل مدیریتی",
+    title: "پنل سوپر ادمین",
+  },
+  [CRM_ADVERTISE_MANAGER]: {
+    subtitle: "دسترسی مدیریت آگهی",
+    title: "مدیریت آگهی",
+  },
+  [CRM_FINANCE_MANAGER]: {
+    subtitle: "دسترسی مدیریت مالی",
+    title: "مدیریت مالی",
+  },
+  [SUPPORT]: {
+    subtitle: "دسترسی پشتیبانی",
+    title: "پشتیبانی",
+  },
+};
+
 export const advertiseStatusOptions = [
   { label: "ثبت شده", value: "0" },
   { label: "در انتظار مدیر", value: "1" },
@@ -159,6 +192,9 @@ export const userRoleOptions = [
   { label: "مدیر آژانس", value: "real_estate_manager" },
   { label: "مشاور آژانس", value: "real_estate_consultant" },
   { label: "مشاور مستقل", value: "independent_consultant" },
+  { label: "مدیریت آگهی", value: CRM_ADVERTISE_MANAGER },
+  { label: "مدیریت مالی", value: CRM_FINANCE_MANAGER },
+  { label: "پشتیبانی", value: SUPPORT },
   { label: "مدیر کل", value: "superadmin" },
 ];
 
@@ -215,6 +251,7 @@ export function formatMoney(value: unknown) {
 
 function advertiseStatusLabel(status: unknown) {
   const key = String(status ?? "");
+
   return (
     {
       "-3": "منقضی شده",
@@ -267,6 +304,40 @@ export function userRoleSlugs(user: CrmRecord) {
   const fallback = roleSlugs.length > 0 ? roleSlugs : [readText(user, ["role"], "")].filter(Boolean);
 
   return Array.from(new Set(fallback.map(normalizeCrmUserRoleSlug)));
+}
+
+function crmSessionRoleSlugs() {
+  const session = getStoredAuthSession();
+  if (!session) return [];
+
+  return Array.from(
+    new Set([
+      normalizeAuthRoleSlug(session.activeRole ?? session.role),
+      normalizeAuthRoleSlug(session.role),
+      ...session.roles.map((role) => normalizeAuthRoleSlug(role.slug ?? role.name)),
+    ]),
+  );
+}
+
+function allowedCrmSectionsForRoles(roles: string[]) {
+  const sections = new Set<CrmSection>();
+
+  for (const role of roles) {
+    for (const section of roleSectionAccess[role] ?? []) {
+      sections.add(section);
+    }
+  }
+
+  return sections;
+}
+
+function primaryCrmRoleLabel(roles: string[]) {
+  const primaryRole =
+    roles.find((role) => role === SUPER_ADMIN) ??
+    roles.find((role) => roleSectionAccess[role]) ??
+    SUPER_ADMIN;
+
+  return crmRoleLabels[primaryRole] ?? crmRoleLabels[SUPER_ADMIN];
 }
 
 export function parseJsonValue(value: string, fieldLabel: string, fallback: unknown) {
@@ -377,6 +448,13 @@ export function CrmLayout({
     return <DesktopRequiredPage />;
   }
 
+  const crmRoleSlugs = crmSessionRoleSlugs();
+  const allowedSections = allowedCrmSectionsForRoles(crmRoleSlugs);
+  const visibleNavigationItems = navigationItems.filter((item) =>
+    allowedSections.has(item.section),
+  );
+  const roleLabel = primaryCrmRoleLabel(crmRoleSlugs);
+
   const profileName = [profile?.name, profile?.family]
     .map((value) => value?.trim())
     .filter(Boolean)
@@ -403,7 +481,7 @@ export function CrmLayout({
             </span>
             <div className="min-w-0">
               <p className="m-0 truncate text-sm font-semibold text-[#1a1a1a]">{profileName}</p>
-              <p className="m-0 truncate text-xs font-medium text-[#808080]">مدیر کل سامانه</p>
+              <p className="m-0 truncate text-xs font-medium text-[#808080]">{roleLabel.title}</p>
             </div>
           </div>
 
@@ -447,14 +525,14 @@ export function CrmLayout({
                 <CrmIcon name="home" size={20} />
               </span>
               <div className="min-w-0">
-                <strong className="block truncate text-sm font-semibold text-[#303030]">پنل سوپر ادمین</strong>
-                <span className="mt-1 block truncate text-xs text-[#808080]">دسترسی کامل مدیریتی</span>
+                <strong className="block truncate text-sm font-semibold text-[#303030]">{roleLabel.title}</strong>
+                <span className="mt-1 block truncate text-xs text-[#808080]">{roleLabel.subtitle}</span>
               </div>
             </div>
           ) : null}
 
           <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto" aria-label="منوی مدیریت">
-            {navigationItems.map((item) => {
+            {visibleNavigationItems.map((item) => {
               const itemMeta = sectionMeta[item.section];
               const isActive = section === item.section;
 

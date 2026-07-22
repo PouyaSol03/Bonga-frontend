@@ -7,7 +7,7 @@ import { BottomNavigation } from '../components/BottomNavigation'
 import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../components/ErrorState'
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider, type TopBarProps } from '../components/TopBar'
-import { SUPER_ADMIN } from '../constants/roles.constants'
+import { CRM_ADVERTISE_ROLES } from '../constants/roles.constants'
 import { isUserIdentityVerified } from "../services/account.service";
 import { useMyProfileQuery } from '../hooks/account.hooks'
 import { useNotificationUnreadCountQuery } from '../hooks/notification.hooks'
@@ -15,6 +15,7 @@ import {
   canAccessRoute,
   CRM_PATH,
   DASHBOARD_PATH,
+  getDefaultCrmPath,
   LEGACY_DASHBOARD_PATH,
   routes,
   type AppRoute,
@@ -243,6 +244,14 @@ function getResolvedPath() {
     }
   }
 
+  if (path === CRM_PATH && session) {
+    const defaultCrmPath = getDefaultCrmPath(session)
+    if (defaultCrmPath !== CRM_PATH) {
+      window.history.replaceState(window.history.state ?? {}, '', defaultCrmPath)
+      return defaultCrmPath
+    }
+  }
+
   return path
 }
 
@@ -431,14 +440,14 @@ function getRoute(path: string): AppRoute {
     if (newAdRoute) {
       return {
         ...newAdRoute,
-        authority: [SUPER_ADMIN],
+        authority: CRM_ADVERTISE_ROLES,
         requiresAuth: true,
       }
     }
   }
 
   if (/^\/crm\/advertises\/[^/]+\/?$/.test(path)) {
-    const crmRoute = routes.find((route) => route.path === CRM_PATH)
+    const crmRoute = routes.find((route) => route.path === `${CRM_PATH}/advertises`)
 
     return {
       ...(crmRoute ?? routes[0]),

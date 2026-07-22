@@ -1,5 +1,9 @@
 import { createElement, lazy, useEffect, type ComponentType, type LazyExoticComponent } from 'react'
 import {
+  CRM_ADVERTISE_ROLES,
+  CRM_FINANCE_ROLES,
+  CRM_PANEL_ROLES,
+  CRM_SUPPORT_ROLES,
   DASHBOARD_ROLES,
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
@@ -172,17 +176,46 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
   }
 
   if (route.authority?.length) {
-    if (route.layout === 'crm' && route.authority.includes(SUPER_ADMIN)) {
-      return (
-        activeRole === SUPER_ADMIN ||
-        session.roles.some((role) => normalizeAuthRoleSlug(role.slug ?? role.name) === SUPER_ADMIN)
-      )
-    }
-
-    return route.authority.includes(activeRole)
+    const sessionRoles = getSessionRoleSlugs(session)
+    return route.authority.some((role) => sessionRoles.includes(role))
   }
 
   return true
+}
+
+export function getSessionRoleSlugs(session: AuthSession | null) {
+  if (!session) return []
+
+  const roles: string[] = [
+    normalizeAuthRoleSlug(session.activeRole ?? session.role),
+    normalizeAuthRoleSlug(session.role),
+    ...session.roles.map((role) => normalizeAuthRoleSlug(role.slug ?? role.name)),
+  ]
+
+  return Array.from(new Set(roles))
+}
+
+export function getDefaultCrmPath(session: AuthSession | null) {
+  if (!session) return CRM_PATH
+
+  const priorityPaths = [
+    `${CRM_PATH}/advertises`,
+    `${CRM_PATH}/payments`,
+    `${CRM_PATH}/requests`,
+  ]
+  const priorityRoute = priorityPaths
+    .map((path) => routes.find((candidate) => candidate.path === path))
+    .find((candidate): candidate is AppRoute =>
+      Boolean(candidate && canAccessRoute(candidate, session)),
+    )
+  const route = priorityRoute ?? routes.find(
+    (candidate) =>
+      candidate.layout === 'crm' &&
+      candidate.path !== CRM_PATH &&
+      canAccessRoute(candidate, session),
+  )
+
+  return route?.path ?? CRM_PATH
 }
 
 export const routes: AppRoute[] = [
@@ -352,7 +385,7 @@ export const routes: AppRoute[] = [
     title: 'مرکز مدیریت کل',
     Component: CrmOverviewPage,
     crmSection: 'overview',
-    authority: [SUPER_ADMIN],
+    authority: CRM_PANEL_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -361,7 +394,7 @@ export const routes: AppRoute[] = [
     title: 'مدیریت آگهی‌ها',
     Component: CrmAdvertisesPage,
     crmSection: 'advertises',
-    authority: [SUPER_ADMIN],
+    authority: CRM_ADVERTISE_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -424,7 +457,7 @@ export const routes: AppRoute[] = [
     title: 'بسته‌ها و اعتبار پنل',
     Component: CrmPackagesPage,
     crmSection: 'packages',
-    authority: [SUPER_ADMIN],
+    authority: CRM_FINANCE_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -433,7 +466,7 @@ export const routes: AppRoute[] = [
     title: 'تاریخچه پرداخت‌ها',
     Component: CrmPaymentsPage,
     crmSection: 'payments',
-    authority: [SUPER_ADMIN],
+    authority: CRM_FINANCE_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -442,7 +475,7 @@ export const routes: AppRoute[] = [
     title: 'مدیریت هزینه‌ها',
     Component: CrmCostsPage,
     crmSection: 'costs',
-    authority: [SUPER_ADMIN],
+    authority: CRM_FINANCE_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -451,7 +484,7 @@ export const routes: AppRoute[] = [
     title: 'گزارش‌های تخلف',
     Component: CrmReportsPage,
     crmSection: 'reports',
-    authority: [SUPER_ADMIN],
+    authority: CRM_SUPPORT_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -460,7 +493,7 @@ export const routes: AppRoute[] = [
     title: 'درخواست‌های پشتیبانی',
     Component: CrmSupportRequestsPage,
     crmSection: 'requests',
-    authority: [SUPER_ADMIN],
+    authority: CRM_SUPPORT_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },
@@ -478,7 +511,7 @@ export const routes: AppRoute[] = [
     title: 'پشتیبانی',
     Component: CrmSupportPage,
     crmSection: 'support',
-    authority: [SUPER_ADMIN],
+    authority: CRM_SUPPORT_ROLES,
     layout: 'crm',
     requiresAuth: true,
   },

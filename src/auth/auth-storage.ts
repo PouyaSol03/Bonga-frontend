@@ -3,7 +3,10 @@ export type AuthRoleSlug =
   | "real_estate_manager"
   | "real_estate_consultant"
   | "independent_consultant"
-  | "super-admin";
+  | "super-admin"
+  | "crm_advertise_manager"
+  | "crm_finance_manager"
+  | "support";
 
 export type AuthRole = {
   id: string;
@@ -17,6 +20,9 @@ export const authRoleSlugs: AuthRoleSlug[] = [
   "real_estate_consultant",
   "independent_consultant",
   "super-admin",
+  "crm_advertise_manager",
+  "crm_finance_manager",
+  "support",
 ];
 
 export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {

@@ -13,8 +13,10 @@ import LinearFlag from "../../components/(icons)/LinearFlag";
 import LinearInformation from "../../components/(icons)/LinearInformation";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
+import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { RouteLink } from "../../routes/RouteLink";
+import { SUPPORT, SUPER_ADMIN } from "../../constants/roles.constants";
 import {
   getCrmRecordId,
   listCrmReports,
@@ -303,7 +305,20 @@ function QueryError({ onRetry }: { onRetry: () => void }) {
 
 export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
   const prefersReducedMotion = useReducedMotion();
-  const [activeKind, setActiveKind] = useState<CrmReportKind>("advertise");
+  const session = getStoredAuthSession();
+  const sessionRoles = new Set([
+    normalizeAuthRoleSlug(session?.activeRole ?? session?.role),
+    normalizeAuthRoleSlug(session?.role),
+    ...(session?.roles ?? []).map((role) => normalizeAuthRoleSlug(role.slug ?? role.name)),
+  ]);
+  const isSupportOnlyReports = sessionRoles.has(SUPPORT) && !sessionRoles.has(SUPER_ADMIN);
+  const allowedTabs = useMemo(
+    () => (isSupportOnlyReports ? tabs.filter((tab) => tab.id === "user") : tabs),
+    [isSupportOnlyReports],
+  );
+  const [activeKind, setActiveKind] = useState<CrmReportKind>(
+    isSupportOnlyReports ? "user" : "advertise",
+  );
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), 350);
   const [pages, setPages] = useState<Record<CrmReportKind, number>>({ advertise: 1, user: 1 });
@@ -313,13 +328,19 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
     setPages({ advertise: 1, user: 1 });
   }, [debouncedSearch]);
 
+  useEffect(() => {
+    if (!allowedTabs.some((tab) => tab.id === activeKind)) {
+      setActiveKind(allowedTabs[0]?.id ?? "user");
+    }
+  }, [activeKind, allowedTabs]);
+
   const advertiseQuery = useQuery({
-    enabled: activeKind === "advertise",
+    enabled: activeKind === "advertise" && allowedTabs.some((tab) => tab.id === "advertise"),
     queryFn: () => listCrmReports("advertise", { page: pages.advertise, perPage: PAGE_SIZE, search: debouncedSearch }),
     queryKey: ["crm", "reports", "advertise", pages.advertise, debouncedSearch, refreshNonce],
   });
   const userQuery = useQuery({
-    enabled: activeKind === "user",
+    enabled: activeKind === "user" && allowedTabs.some((tab) => tab.id === "user"),
     queryFn: () => listCrmReports("user", { page: pages.user, perPage: PAGE_SIZE, search: debouncedSearch }),
     queryKey: ["crm", "reports", "user", pages.user, debouncedSearch, refreshNonce],
   });
@@ -342,7 +363,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
   const currentPage = activeQuery.data?.page ?? pages[activeKind];
   const perPage = activeQuery.data?.perPage ?? PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
-  const activeTab = tabs.find((tab) => tab.id === activeKind) ?? tabs[0];
+  const activeTab = allowedTabs.find((tab) => tab.id === activeKind) ?? allowedTabs[0] ?? tabs[1];
 
   const reportCounts = useMemo<Record<CrmReportKind, number>>(
     () => ({
@@ -387,7 +408,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2" role="tablist" aria-label="نوع گزارش تخلف">
-          {tabs.map((tab) => {
+          {allowedTabs.map((tab) => {
             const isActive = activeKind === tab.id;
             const Icon = tab.icon;
             const tabQuery = tab.id === "advertise" ? advertiseQuery : userQuery;

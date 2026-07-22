@@ -7,6 +7,7 @@ import { Snackbar } from "../../../components/Snackbar";
 import { TopBar } from "../../../components/TopBar";
 import { USER } from "../../../constants/roles.constants";
 import { storePaymentReturnTarget } from "../../../utils/payment-return";
+import { useChargeWalletMutation, useWalletQuery } from "../../../hooks/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
   useSubmitAdvertisementCheckoutMutation,
@@ -413,7 +414,7 @@ function CheckoutTariffView({
   );
 }
 
-function ApiPaymentCheckoutView({
+export function ApiPaymentCheckoutView({
   children,
   gatewayMethod,
   method,
@@ -424,6 +425,7 @@ function ApiPaymentCheckoutView({
   pending,
   totalPrice,
   walletMethod,
+  submitLabelPrefix = "پرداخت و انتشار",
 }: {
   children?: ReactNode;
   gatewayMethod?: AdvertisementCheckoutPaymentMethod;
@@ -435,6 +437,7 @@ function ApiPaymentCheckoutView({
   pending: boolean;
   totalPrice: number;
   walletMethod?: AdvertisementCheckoutPaymentMethod;
+  submitLabelPrefix?: string;
 }) {
   const walletBalance = toSafeNumber(walletMethod?.balance);
   const walletRequired = toSafeNumber(walletMethod?.required, payableAmount);
@@ -442,7 +445,9 @@ function ApiPaymentCheckoutView({
     toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
     0,
   );
-  const walletAvailable = walletMethod?.available !== false && Boolean(walletMethod);
+  // A wallet with insufficient credit is still a valid payment choice: keep it
+  // selectable so the shortage and the wallet-charge action are visible.
+  const walletAvailable = Boolean(walletMethod);
   const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
   const selectedMethodAvailable =
     method === "wallet"
@@ -538,7 +543,7 @@ function ApiPaymentCheckoutView({
         >
           {pending
             ? "در حال پردازش پرداخت..."
-            : `پرداخت و انتشار - ${formatShortPayment(payableAmount)}`}
+            : `${submitLabelPrefix} - ${formatShortPayment(payableAmount)}`}
         </button>
       </footer>
     </PageFrame>
@@ -695,7 +700,8 @@ export function PaymentCheckoutView({
   publishState: unknown;
   total: number;
 }) {
-  const walletBalance = 10_000;
+  const { data: wallet } = useWalletQuery();
+  const walletBalance = toSafeNumber(wallet?.credit);
   const walletDeficit = Math.max(total - walletBalance, 0);
   const finalState = completeState ?? publishState;
 
@@ -777,38 +783,97 @@ export function PaymentCheckoutView({
 }
 
 function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-3 py-3 [direction:ltr]">
-      <button
-        className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#11a366] px-4 py-1.5 text-xs font-semibold leading-5 text-white"
-        onClick={() => navigateTo("/account/wallet")}
-        type="button"
-      >
-        افزایش موجودی
-        <span className="flex text-base leading-none">+</span>
-      </button>
+  const chargeWalletMutation = useChargeWalletMutation();
+  const [errorMessage, setErrorMessage] = useState("");
 
-      <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
-        کسری: {formatTariffToman(deficit)} تومان
-      </span>
+  function chargeWallet() {
+    if (chargeWalletMutation.isPending || deficit <= 0) return;
+
+    setErrorMessage("");
+    chargeWalletMutation.mutate(
+      { price: Math.ceil(deficit) },
+      {
+        onError: (error: unknown) => {
+          setErrorMessage(getApiErrorMessage(error, "شارژ کیف پول با خطا مواجه شد."));
+        },
+        onSuccess: ({ paymentUrl }) => {
+          storePaymentReturnTarget({
+            label: "بازگشت به پرداخت آگهی",
+            path: window.location.pathname,
+          });
+          window.location.assign(paymentUrl);
+        },
+      },
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-3 py-3 [direction:ltr]">
+        <button
+          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#11a366] px-4 py-1.5 text-xs font-semibold leading-5 text-white disabled:opacity-60"
+          disabled={chargeWalletMutation.isPending}
+          onClick={chargeWallet}
+          type="button"
+        >
+          {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
+          <span className="flex text-base leading-none">+</span>
+        </button>
+
+        <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+          کسری: {formatTariffToman(deficit)} تومان
+        </span>
+      </div>
+      {errorMessage ? (
+        <Snackbar
+          className="relative inset-x-auto bottom-auto mt-2"
+          message={errorMessage}
+          onDismiss={() => setErrorMessage("")}
+          title="خطا در شارژ کیف پول"
+          variant="error"
+        />
+      ) : null}
     </div>
   );
 }
 
 function WalletDeficitBox({ deficit }: { deficit: number }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-4 py-3 [direction:ltr]">
-      <button
-        className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#ff6a00] px-4 py-1.5 text-xs font-semibold leading-5 text-white"
-        type="button"
-      >
-        افزایش موجودی
-        <span className="flex text-base leading-none">+</span>
-      </button>
+  const chargeWalletMutation = useChargeWalletMutation();
+  const [errorMessage, setErrorMessage] = useState("");
 
-      <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
-        کسری: {formatTariffToman(deficit)} تومان
-      </span>
+  function chargeWallet() {
+    if (chargeWalletMutation.isPending || deficit <= 0) return;
+    setErrorMessage("");
+    chargeWalletMutation.mutate(
+      { price: Math.ceil(deficit) },
+      {
+        onError: (error: unknown) => setErrorMessage(getApiErrorMessage(error, "شارژ کیف پول با خطا مواجه شد.")),
+        onSuccess: ({ paymentUrl }) => {
+          storePaymentReturnTarget({ label: "بازگشت به پرداخت آگهی", path: window.location.pathname });
+          window.location.assign(paymentUrl);
+        },
+      },
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-4 py-3 [direction:ltr]">
+        <button
+          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#ff6a00] px-4 py-1.5 text-xs font-semibold leading-5 text-white disabled:opacity-60"
+          disabled={chargeWalletMutation.isPending}
+          onClick={chargeWallet}
+          type="button"
+        >
+          {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
+          <span className="flex text-base leading-none">+</span>
+        </button>
+
+        <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+          کسری: {formatTariffToman(deficit)} تومان
+        </span>
+      </div>
+      {errorMessage ? <Snackbar className="relative inset-x-auto bottom-auto mt-2" message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در شارژ کیف پول" variant="error" /> : null}
     </div>
   );
 }

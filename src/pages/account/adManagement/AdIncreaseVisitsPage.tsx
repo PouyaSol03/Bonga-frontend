@@ -1,102 +1,137 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { getApiErrorMessage } from "../../../api/api";
 import { PageFrame } from "../../../app/PageFrame";
+import { Snackbar } from "../../../components/Snackbar";
 import { TopBar } from "../../../components/TopBar";
-import { useAdvertisementDetailQuery } from "../../../hooks/advertisement.hooks";
+import {
+  useAdvertisementCheckoutQuery,
+  useAdvertisementDetailQuery,
+  useSubmitAdvertisementCheckoutMutation,
+} from "../../../hooks/advertisement.hooks";
+import { storePaymentReturnTarget } from "../../../utils/payment-return";
+import type {
+  AdvertisementCheckout,
+  AdvertisementCheckoutItem,
+  AdvertisementCheckoutPaymentMethod,
+  AdvertisementCheckoutPaymentMethodCode,
+} from "../../../services/advertisement.service";
+import {
+  ApiPaymentCheckoutView,
+  type PaymentMethod,
+} from "./IndependentConsultantAdPaymentPage";
 import {
   AdTariffOptionsList,
   createAdTariffOptions,
   getTariffTotal,
   type AdTariffOptionId,
 } from "./AdTariffOptionsView";
-import { PaymentCheckoutView, type PaymentMethod } from "./IndependentConsultantAdPaymentPage";
 import {
   adManagementPaths,
   getAdManagementRouteState,
   getAdStatePath,
-  getSelectedConsultantAd,
 } from "./adManagementData";
 
-const upgradePrice = 40_000;
+const fallbackPrice = 40_000;
 
 export function AdIncreaseVisitsPage() {
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const backTo = routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
-  const query = useAdvertisementDetailQuery(adId ?? null);
-  const fetchedAd = query.data;
-  const card = routeState.card ?? getSelectedConsultantAd(adId);
-  const ad = fetchedAd ?? routeState.ad ?? card;
+  const adQuery = useAdvertisementDetailQuery(adId ?? null);
+  const checkoutQuery = useAdvertisementCheckoutQuery(adId ?? null);
+  const checkoutMutation = useSubmitAdvertisementCheckoutMutation();
   const [step, setStep] = useState<"options" | "checkout">("options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["special"]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const checkout = checkoutQuery.data;
+  const products = useMemo(() => resolveUpgradeProducts(checkout), [checkout]);
   const tariffOptions = useMemo(
-    () => createAdTariffOptions({ price: upgradePrice }),
-    [],
+    () => createAdTariffOptions({ price: products[0]?.price ?? fallbackPrice }),
+    [products],
   );
-  const payableAmount = getTariffTotal(tariffOptions, selectedTariffs);
+  const selectedProducts = useMemo(
+    () => Array.from(new Set(selectedTariffs.map((id) => resolveProductForOption(id, products)).filter(Boolean))),
+    [products, selectedTariffs],
+  );
+  const payableAmount = useMemo(() => {
+    const amount = selectedProducts.reduce((total, product) => total + (products.find((item) => item.product === product)?.price ?? 0), 0);
+    return amount || getCheckoutAmount(checkout) || getTariffTotal(tariffOptions, selectedTariffs);
+  }, [checkout, products, selectedProducts, selectedTariffs, tariffOptions]);
+  const ad = adQuery.data ?? routeState.ad ?? routeState.card;
   const completeState = useMemo(
-    () => ({
-      ad,
-      card,
-      showPaymentSuccess: true,
-      returnTo: routeState.returnTo,
-      tab: routeState.tab ?? "status",
-    }),
-    [ad, card, routeState.returnTo, routeState.tab],
+    () => ({ ad, card: routeState.card ?? ad, showPaymentSuccess: true, returnTo: routeState.returnTo, tab: routeState.tab ?? "status" }),
+    [ad, routeState.card, routeState.returnTo, routeState.tab],
   );
+  const walletMethod = checkout ? findMethod(checkout, "wallet") : undefined;
+  const gatewayMethod = checkout ? findMethod(checkout, "gateway") : undefined;
 
-  function toggleTariff(optionId: AdTariffOptionId) {
-    setSelectedTariffs((selected) =>
-      selected.includes(optionId)
-        ? selected.filter((item) => item !== optionId)
-        : [...selected, optionId],
+  useEffect(() => {
+    if (gatewayMethod?.available === false && walletMethod?.available !== false) setMethod("wallet");
+  }, [gatewayMethod?.available, walletMethod?.available]);
+
+  function toggleTariff(id: AdTariffOptionId) {
+    setSelectedTariffs((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  }
+
+  function submit(paymentMethod: AdvertisementCheckoutPaymentMethodCode) {
+    if (!adId || selectedProducts.length === 0 || checkoutMutation.isPending) return;
+    setErrorMessage("");
+    checkoutMutation.mutate(
+      { advertiseId: adId, items: selectedProducts, paymentMethod },
+      {
+        onError: (error: unknown) => setErrorMessage(getApiErrorMessage(error, "پرداخت و افزایش بازدید با خطا مواجه شد.")),
+        onSuccess: ({ paymentUrl }) => {
+          if (paymentMethod === "gateway") {
+            if (!paymentUrl) {
+              setErrorMessage("آدرس درگاه پرداخت از سرور دریافت نشد.");
+              return;
+            }
+            storePaymentReturnTarget({ label: "بازگشت به وضعیت آگهی", path: backTo });
+            window.location.assign(paymentUrl);
+            return;
+          }
+          navigateTo(backTo, completeState, true);
+        },
+      },
     );
   }
 
+  if (checkoutQuery.isLoading || !adId) {
+    return <StatusPage backTo={backTo} message={adId ? "در حال دریافت هزینه و روش‌های پرداخت..." : "شناسه آگهی یافت نشد."} />;
+  }
+  if (checkoutQuery.isError || !checkout) {
+    return <StatusPage backTo={backTo} message={getApiErrorMessage(checkoutQuery.error, "دریافت اطلاعات پرداخت با خطا مواجه شد.")} onRetry={() => void checkoutQuery.refetch()} />;
+  }
   if (step === "checkout") {
     return (
-      <PaymentCheckoutView
-        completeLabelPrefix="پرداخت و افزایش بازدید"
-        completeState={completeState}
-        completeTo={backTo}
+      <ApiPaymentCheckoutView
+        gatewayMethod={gatewayMethod}
         method={method}
         onBack={() => setStep("options")}
         onMethodChange={setMethod}
-        publishState={completeState}
-        total={payableAmount}
-      />
+        onSubmit={() => submit(method === "wallet" ? "wallet" : "gateway")}
+        payableAmount={payableAmount}
+        pending={checkoutMutation.isPending}
+        submitLabelPrefix="پرداخت و افزایش بازدید"
+        totalPrice={payableAmount}
+        walletMethod={walletMethod}
+      >
+        {errorMessage ? <Snackbar message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در پرداخت" /> : null}
+      </ApiPaymentCheckoutView>
     );
   }
 
   return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar
-        backState={{ ad, card, returnTo: routeState.returnTo, tab: routeState.tab ?? "status" }}
-        backTo={backTo}
-        className="bg-[#f0f0f0] [&_a]:text-[#1a1a1a]"
-        title="افزایش بازدید"
-      />
-
+    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
+      <TopBar backTo={backTo} className="bg-[#f0f0f0]" title="افزایش بازدید" />
+      {errorMessage ? <Snackbar message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در پرداخت" /> : null}
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[76px]">
-        {query.isLoading ? <LoadingNotice /> : null}
-        {query.isError ? <ErrorNotice onRetry={() => void query.refetch()} /> : null}
-        <AdTariffOptionsList
-          onToggle={toggleTariff}
-          options={tariffOptions}
-          selectedIds={selectedTariffs}
-        />
+        <AdTariffOptionsList onToggle={toggleTariff} options={tariffOptions} selectedIds={selectedTariffs} />
       </main>
-
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          onClick={() => setStep("checkout")}
-          type="button"
-        >
+        <button className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-60" disabled={selectedProducts.length === 0} onClick={() => setStep("checkout")} type="button">
           تکمیل خرید
         </button>
       </footer>
@@ -104,43 +139,58 @@ export function AdIncreaseVisitsPage() {
   );
 }
 
+function resolveUpgradeProducts(checkout?: AdvertisementCheckout): AdvertisementCheckoutItem[] {
+  const items = checkout?.items ?? [];
+  const upgradeItems = items.filter((item) => !/publish|ثبت|انتشار/i.test(item.product));
+  return upgradeItems.length > 0 ? upgradeItems : [{ product: "advertise_upgrade", price: fallbackPrice }];
+}
+
+function resolveProductForOption(id: AdTariffOptionId, products: AdvertisementCheckoutItem[]) {
+  const keywords: Record<AdTariffOptionId, string[]> = {
+    refresh: ["refresh", "update", "بازر", "برروز"],
+    special: ["special", "featured", "vip", "upgrade", "ویژه"],
+    renew: ["renew", "تمدید"],
+    refreshSpecial: ["refresh-special", "refresh_special", "combined"],
+  };
+  const match = products.find((item) => keywords[id].some((keyword) => item.product.toLowerCase().includes(keyword.toLowerCase())));
+  return (match ?? products[0])?.product;
+}
+
+function getCheckoutAmount(checkout?: AdvertisementCheckout) {
+  const value = checkout?.summary.payable_amount ?? checkout?.summary.total_price;
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function findMethod(checkout: AdvertisementCheckout, method: string): AdvertisementCheckoutPaymentMethod | undefined {
+  return checkout.payment_methods.find((item) => item.method === method);
+}
+
+function navigateTo(path: string, state?: unknown, replace = false) {
+  window.history[replace ? "replaceState" : "pushState"](state ?? {}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
 function readAdIdFromPath() {
   const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/increase-visits\/?$/);
-
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }
 
-function readQueryAdId() {
-  return new URLSearchParams(window.location.search).get("adId") ?? undefined;
-}
+function readQueryAdId() { return new URLSearchParams(window.location.search).get("adId") ?? undefined; }
 
 function readEntityId(entity: unknown) {
   if (!entity || typeof entity !== "object") return undefined;
-
-  const record = entity as Record<string, unknown>;
-  const id = record.id ?? record._id ?? record.advertise_id ?? record.advertiseId;
-
-  if (typeof id === "string" && id.trim()) return id;
-  if (typeof id === "number") return String(id);
-
-  return undefined;
+  const value = (entity as Record<string, unknown>).id ?? (entity as Record<string, unknown>)._id ?? (entity as Record<string, unknown>).advertise_id;
+  return typeof value === "string" && value.trim() ? value : typeof value === "number" ? String(value) : undefined;
 }
 
-function LoadingNotice() {
+function StatusPage({ backTo, message, onRetry }: { backTo: string; message: string; onRetry?: () => void }) {
   return (
-    <div className="px-4 py-3 text-center text-xs font-medium leading-5 text-[#808080]">
-      در حال دریافت اطلاعات آگهی...
-    </div>
-  );
-}
-
-function ErrorNotice({ onRetry }: { onRetry: () => void }) {
-  return (
-    <div className="mx-4 my-3 rounded-lg bg-[#fff5db] px-3 py-2 text-center text-xs font-medium leading-5 text-[#ff6d00]">
-      <p className="m-0">دریافت اطلاعات آگهی با خطا مواجه شد.</p>
-      <button className="mt-1 border-0 text-xs font-semibold text-[#0048c4]" onClick={onRetry} type="button">
-        تلاش دوباره
-      </button>
-    </div>
+    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
+      <TopBar backTo={backTo} title="افزایش بازدید" />
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
+        <p className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</p>
+        {onRetry ? <button className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white" onClick={onRetry} type="button">تلاش دوباره</button> : <span className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />}
+      </main>
+    </PageFrame>
   );
 }

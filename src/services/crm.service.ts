@@ -379,10 +379,14 @@ export async function saveCrmAdvertise(id: string | null, payload: CrmAdvertiseP
 }
 
 export function updateCrmAdvertiseStatus(id: string, status: number, reason?: string) {
+  const payload: { reason?: string; status: number } = { status };
+
+  if (reason !== undefined) {
+    payload.reason = reason.trim();
+  }
+
   return api
-    .post(`panel/advertise/status/${id}`, {
-      json: reason?.trim() ? { reason: reason.trim(), status } : { status },
-    })
+    .post(`panel/advertise/status/${id}`, { json: payload })
     .json<unknown>();
 }
 

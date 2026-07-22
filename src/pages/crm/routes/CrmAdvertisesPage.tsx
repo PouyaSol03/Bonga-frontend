@@ -54,17 +54,24 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
   const openRejectModal = (id: string) => {
     setConfirm({
-      body: "دلیل رد یا نیاز به اصلاح آگهی برای کاربر نمایش داده می‌شود.",
-      confirmLabel: "ثبت دلیل",
+      body: "لطفاً دلیل رد آگهی را وارد کنید. این دلیل برای کاربر ثبت و نمایش داده می‌شود.",
+      confirmLabel: "رد آگهی",
       onConfirm: async (reason) => {
-        await statusMutation.mutateAsync({ id, nextStatus: -4, reason });
+        const normalizedReason = reason?.trim();
+        if (!normalizedReason) throw new Error("دلیل رد آگهی الزامی است.");
+
+        await statusMutation.mutateAsync({
+          id,
+          nextStatus: -4,
+          reason: normalizedReason,
+        });
       },
       prompt: {
-        label: "دلیل نیاز به اصلاح",
-        placeholder: "مثلاً تصاویر واضح نیست یا اطلاعات آگهی کامل نیست.",
+        label: "دلیل رد آگهی",
+        placeholder: "دلیل رد آگهی را بنویسید...",
         required: true,
       },
-      title: "نیاز به اصلاح آگهی",
+      title: "رد آگهی",
     });
   };
 
@@ -191,7 +198,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                       <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
                       <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
-                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => openRejectModal(id)} tone="warning" />
+                      <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد آگهی" onClick={() => openRejectModal(id)} tone="warning" />
                       <SmallActionButton
                         icon={<LinearDelete className="h-4 w-4" />}
                         label="حذف"

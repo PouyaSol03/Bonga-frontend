@@ -1,14 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
-import Linear3d from "../../components/(icons)/Linear3d";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
 import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearImage from "../../components/(icons)/LinearImage";
 import LinearRefresh from "../../components/(icons)/LinearRefresh";
-import LinearVideo from "../../components/(icons)/LinearVideo";
 import { AdCard, type AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
 import { RadioIndicator } from "../../components/RadioIndicator";
@@ -24,6 +21,8 @@ import {
   type PropertySearchRequest,
 } from "../../services/property-request.service";
 import { PropertyRequestResults } from "./PropertyRequestResults";
+import { RequestResultImageMeta } from "./RequestResultImageMeta";
+import LinearCancel from "../../components/(icons)/LinearCancel";
 
 type RequestManagementTab = "received" | "requests" | "results";
 type RequestFilterId = "all" | string;
@@ -36,7 +35,6 @@ type RequestManagementViewProps = {
 type RequestTabItem = {
   id: RequestManagementTab;
   label: string;
-  showDot?: boolean;
 };
 
 type RequestFilterOption = {
@@ -55,9 +53,10 @@ const baseRequestAds: AdCardData[] = [
     id: 1,
     agency: "ناصر اشرفی",
     area: "۱۱۰ متر",
-    badges: ["جدید"],
-    imageClassName: "ad-card__image--one",
-    imageCount: "۵",
+    badges: [],
+    imageClassName: "",
+    imageCount: "۸",
+    imageUrl: "/images/request-result-living-room.png",
     priceLabelPrimary: "",
     priceLabelSecondary: "",
     pricePrimary: "۳/۸۵۰ میلیارد",
@@ -72,9 +71,10 @@ const baseRequestAds: AdCardData[] = [
     id: 2,
     agency: "آژانس املاک اشرفی",
     area: "۱۷۰ متر",
-    badges: ["فوری", "بروزرسانی"],
-    imageClassName: "ad-card__image--two",
-    imageCount: "۵",
+    badges: [],
+    imageClassName: "",
+    imageCount: "۶",
+    imageUrl: "/images/request-result-kitchen.png",
     priceLabelPrimary: "اجاره:",
     priceLabelSecondary: "رهن:",
     pricePrimary: "۱/۱ میلیارد",
@@ -90,9 +90,9 @@ const baseRequestAds: AdCardData[] = [
 function getTabs(showReceivedTab: boolean): RequestTabItem[] {
   return showReceivedTab
     ? [
-        { id: "results", label: "نتایج", showDot: true },
+        { id: "results", label: "نتایج" },
         { id: "requests", label: "درخواست‌ها" },
-        { id: "received", label: "دریافت‌ها", showDot: true },
+        { id: "received", label: "دریافتی‌ها" },
       ]
     : [
         { id: "results", label: "نتایج" },
@@ -108,7 +108,7 @@ function getInitialRequestTab(showReceivedTab: boolean): RequestManagementTab {
   }
   if (requestedTab === "received" && showReceivedTab) return "received";
 
-  return showReceivedTab ? "received" : "requests";
+  return showReceivedTab ? "results" : "requests";
 }
 
 function getRequestFilterOptions(
@@ -139,6 +139,9 @@ export function RequestManagementView({
   const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [toast, setToast] = useState<RequestToast | null>(null);
+  const [dismissedReceivedAdIds, setDismissedReceivedAdIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const tabs = useMemo(() => getTabs(showReceivedTab), [showReceivedTab]);
   const requestFilterOptions = useMemo(
     () => getRequestFilterOptions(requests),
@@ -159,14 +162,20 @@ export function RequestManagementView({
     [activeFilterId, requests],
   );
   const filteredReceivedAds = useMemo(() => {
-    if (activeFilterId === "all") return baseRequestAds;
+    const selectedAds =
+      activeFilterId === "all"
+        ? baseRequestAds
+        : [
+            baseRequestAds[
+              Math.max(
+                requests.findIndex((request) => request.id === activeFilterId),
+                0,
+              ) % baseRequestAds.length
+            ],
+          ];
 
-    const requestIndex = Math.max(
-      requests.findIndex((request) => request.id === activeFilterId),
-      0,
-    );
-    return [baseRequestAds[requestIndex % baseRequestAds.length]];
-  }, [activeFilterId, requests]);
+    return selectedAds.filter((ad) => !dismissedReceivedAdIds.has(String(ad.id)));
+  }, [activeFilterId, dismissedReceivedAdIds, requests]);
 
   useEffect(() => {
     if (!toast) return;
@@ -175,9 +184,10 @@ export function RequestManagementView({
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  useEffect(() =>
-    subscribePropertyRequests(() => setRequests(loadPropertyRequests())),
-  []);
+  useEffect(
+    () => subscribePropertyRequests(() => setRequests(loadPropertyRequests())),
+    [],
+  );
 
   useEffect(() => {
     if (
@@ -200,7 +210,22 @@ export function RequestManagementView({
 
   const refreshRequests = () => {
     setRequests(loadPropertyRequests());
+    setDismissedReceivedAdIds(new Set<string>());
     showToast("درخواست‌ها بروزرسانی شدند.");
+  };
+
+  const changeTab = (tab: RequestManagementTab) => {
+    setActiveTab(tab);
+    setIsFilterSheetOpen(false);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("tab", tab);
+    const query = params.toString();
+    window.history.replaceState(
+      window.history.state ?? {},
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}`,
+    );
   };
 
   const openEditSheet = (request: PropertySearchRequest) => {
@@ -239,7 +264,7 @@ export function RequestManagementView({
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f5f5f5] text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -252,33 +277,32 @@ export function RequestManagementView({
           },
         ]}
         backTo={backTo}
-        className="bg-[#f0f0f0]"
-        contentClassName="px-1"
+        className="border-b border-[#eeeeee] bg-[#f5f5f5]"
+        contentClassName="px-2"
         title="درخواست‌ها"
+        titleClassName="text-base font-bold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f5f5] pb-6">
-        <RequestTabs activeTab={activeTab} onChange={setActiveTab} tabs={tabs} />
-
-        {activeTab === "results" && requests.length > 0 && !showReceivedTab ? (
-          <RequestFilterChips
-            activeFilterId={activeFilterId}
-            onSelect={(filterId) =>
-              setFilters((current) => ({ ...current, results: filterId }))
-            }
-            options={requestFilterOptions}
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f5f5] pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+        <div className="bg-white">
+          <RequestTabs
+            activeTab={activeTab}
+            onChange={changeTab}
+            tabs={tabs}
           />
-        ) : activeTab !== "requests" && requests.length > 0 ? (
-          <section className="px-4 pt-3">
-            <RequestFilterButton
-              label={activeFilterLabel}
-              onClick={() => setIsFilterSheetOpen(true)}
-            />
-          </section>
-        ) : null}
+
+          {activeTab !== "requests" && requests.length > 0 ? (
+            <section className="border-t border-[#f0f0f0] px-4 pb-3 pt-3">
+              <RequestFilterButton
+                label={activeFilterLabel}
+                onClick={() => setIsFilterSheetOpen(true)}
+              />
+            </section>
+          ) : null}
+        </div>
 
         {activeTab === "requests" ? (
-          <div className="space-y-2 bg-[#f5f5f5] pt-3">
+          <div className="space-y-2 bg-[#f5f5f5] pt-2">
             {requests.map((request) => (
               <CriteriaRequestCard
                 key={request.id}
@@ -292,11 +316,11 @@ export function RequestManagementView({
             ) : null}
           </div>
         ) : activeTab === "results" ? (
-          <div className="space-y-2 bg-[#f5f5f5] pb-2 pt-2">
+          <div className="space-y-2 bg-[#f5f5f5] pt-2">
             {filteredRequests.map((request) => (
               <PropertyRequestResults
                 bare
-                className="bg-white px-4 py-4"
+                className="bg-white pb-5"
                 compact
                 key={request.id}
                 maxResults={4}
@@ -310,14 +334,23 @@ export function RequestManagementView({
             ) : null}
           </div>
         ) : (
-          <div className="space-y-2 bg-[#f5f5f5] pt-4">
-            {filteredReceivedAds.map((ad, index) => (
+          <div className="space-y-2 bg-[#f5f5f5] pt-2">
+            {filteredReceivedAds.map((ad) => (
               <RequestResultCard
                 ad={ad}
-                isNew={index === 0}
-                key={`received-${ad.id}-${index}`}
+                key={`received-${ad.id}`}
+                onDismiss={() =>
+                  setDismissedReceivedAdIds((current) => {
+                    const next = new Set(current);
+                    next.add(String(ad.id));
+                    return next;
+                  })
+                }
               />
             ))}
+            {filteredReceivedAds.length === 0 ? (
+              <EmptyRequestState text="آگهی دریافتی وجود ندارد" />
+            ) : null}
           </div>
         )}
       </main>
@@ -364,81 +397,34 @@ function RequestTabs({
   tabs: RequestTabItem[];
 }) {
   return (
-    <section className="bg-[#f5f5f5] px-4 py-2">
+    <section className="px-4 pb-3 pt-2.5">
       <div
-        className="grid h-10 overflow-hidden rounded-2xl border border-[#808080] bg-white [direction:ltr]"
+        className="grid h-[35px] overflow-hidden rounded-[11px] border border-[#808080] bg-white [direction:ltr]"
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
-        {tabs.map((tab) => {
+        {tabs.map((tab, index) => {
           const isActive = activeTab === tab.id;
 
           return (
             <button
               aria-current={isActive ? "page" : undefined}
-              className={`inline-flex items-center justify-center gap-1 text-base font-medium leading-6 transition ${
+              className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 text-[13px] font-medium leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+                index === 0 ? "" : "border-l"
+              } ${
                 isActive
-                  ? "bg-[#0048c414] text-[#002099]"
-                  : "bg-white text-[#4d4d4d]"
+                  ? "bg-[#eaf0ff] text-[#002099]"
+                  : "bg-white text-[#4d4d4d] active:bg-[#f7f7f7]"
               }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
             >
-              {tab.showDot ? (
-                <span
-                  aria-hidden="true"
-                  className="h-1.5 w-1.5 rounded-full bg-[#c11004]"
-                />
-              ) : null}
-              <span>{tab.label}</span>
+              <span className="truncate">{tab.label}</span>
             </button>
           );
         })}
       </div>
     </section>
-  );
-}
-
-
-function RequestFilterChips({
-  activeFilterId,
-  onSelect,
-  options,
-}: {
-  activeFilterId: RequestFilterId;
-  onSelect: (filterId: RequestFilterId) => void;
-  options: RequestFilterOption[];
-}) {
-  return (
-    <div
-      aria-label="فیلتر نتایج درخواست‌ها"
-      className="flex gap-2 overflow-x-auto bg-[#f5f5f5] px-4 py-2 [direction:rtl] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      role="radiogroup"
-    >
-      {options.map((option) => {
-        const isSelected = option.id === activeFilterId;
-
-        return (
-          <button
-            aria-checked={isSelected}
-            className={`inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border px-2.5 text-sm font-medium leading-5 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-              isSelected
-                ? "border-[#0048c4] bg-[#0048c414] text-[#002099]"
-                : "border-[#cccccc] bg-white text-[#4d4d4d]"
-            }`}
-            key={option.id}
-            onClick={() => onSelect(option.id)}
-            role="radio"
-            type="button"
-          >
-            <span>{option.label}</span>
-            {isSelected ? (
-              <LinearCancelSmall className="h-4 w-4" />
-            ) : null}
-          </button>
-        );
-      })}
-    </div>
   );
 }
 
@@ -451,11 +437,11 @@ function RequestFilterButton({
 }) {
   return (
     <button
-      className="flex h-11 w-full items-center justify-between rounded-xl border border-[#cccccc] bg-white px-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f8f8f8] [direction:ltr]"
+      className="flex h-[34px] w-full items-center justify-between rounded-[10px] border border-[#cccccc] bg-white px-3 text-right text-xs font-normal leading-5 text-[#1a1a1a] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f8f8f8] [direction:ltr]"
       onClick={onClick}
       type="button"
     >
-      <LinearArrowDown1 className="h-5 w-5 shrink-0 text-[#808080]" />
+      <LinearArrowDown1 className="h-4 w-4 shrink-0 text-[#a6a6a6]" />
       <span className="min-w-0 flex-1 truncate pr-3 text-right [direction:rtl]">
         {label}
       </span>
@@ -593,59 +579,58 @@ function CriteriaRequestCard({
   );
 
   return (
-    <article className="h-[216px] overflow-hidden bg-white px-4 py-4 text-right">
-      <div className="flex items-center justify-between gap-3 [direction:ltr]">
+    <article className="min-h-[148px] overflow-hidden bg-white p-4 text-right">
+      <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
         <button
-          className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-[10px] px-1 text-sm font-medium leading-5 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440] active:bg-[#fff0f0]"
+          className="inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-lg px-0.5 font-medium leading-4 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440] active:bg-[#fff0f0]"
           onClick={onCancel}
           type="button"
         >
-          <span>لغو</span>
-          <LinearCancelSmall className="h-5 w-5 text-[#4d4d4d]" />
+          <span className="text-sm font-medium">لغو</span>
+          <LinearCancel className="h-4 w-4 text-[#4d4d4d]" />
         </button>
 
         <button
           aria-label={`ویرایش ${request.title}`}
-          className="flex min-w-0 flex-1 items-center justify-end gap-2 rounded-[10px] text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#0048c440] [direction:ltr]"
+          className="flex min-w-0 flex-1 items-center justify-end gap-1.5 rounded-lg text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#0048c440] [direction:ltr]"
           onClick={onEdit}
           type="button"
         >
-          <LinearEdit2 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-          <span className="min-w-0 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+          <LinearEdit2 className="h-4 w-4 shrink-0 text-[#4d4d4d]" />
+          <span className="min-w-0 truncate text-right font-semibold leading-5 text-[#1a1a1a] [direction:rtl]">
             {request.title}
           </span>
         </button>
       </div>
 
       {visibleDetails.length ? (
-        <div className="mt-4 grid grid-cols-2 gap-2 [direction:rtl]">
+        <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
           {visibleDetails.map((detail) => (
             <span
-              className="min-w-0 truncate whitespace-nowrap rounded-lg border border-[#cccccc] bg-white px-2.5 py-1.5 text-sm font-normal leading-5 text-[#1a1a1a]"
+              className="inline-flex max-w-full items-center rounded-lg border border-[#CCCCCC] bg-white text-sm font-semibold leading-4 text-[#4D4D4D]"
               title={detail}
               key={detail}
             >
-              {detail}
+              <span className="max-w-full py-1.5 px-2">{detail}</span>
             </span>
           ))}
           {hiddenCount > 0 ? (
-            <span className="min-w-0 truncate whitespace-nowrap rounded-lg border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-sm font-medium leading-5 text-[#4d4d4d]">
+            <span className="inline-flex h-[25px] items-center rounded-[7px] border border-[#d4d4d4] bg-[#f7f7f7] px-2 text-[11px] font-medium leading-4 text-[#4d4d4d]">
               و {toPersianDigits(hiddenCount)} مورد بیشتر
             </span>
           ) : null}
         </div>
       ) : null}
-
     </article>
   );
 }
 
 function RequestResultCard({
   ad,
-  isNew = false,
+  onDismiss,
 }: {
   ad: AdCardData;
-  isNew?: boolean;
+  onDismiss: () => void;
 }) {
   return (
     <AdCard
@@ -653,43 +638,25 @@ function RequestResultCard({
       imageAction={
         <button
           aria-label="حذف از لیست"
-          className="absolute left-2 top-2 z-3 grid h-8 w-8 place-items-center rounded-lg bg-white text-[#4d4d4d] shadow-[0_4px_14px_rgba(0,0,0,0.12)] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
+          className="absolute left-2 top-2 z-3 grid h-9 w-9 place-items-center rounded-[10px] bg-white text-[#4d4d4d] shadow-[0_2px_8px_rgba(0,0,0,0.12)] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
+          onClick={onDismiss}
           type="button"
         >
           <LinearDelete className="h-5 w-5" />
         </button>
       }
-      imageMeta={
-        <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center overflow-hidden rounded-lg bg-[#1a1a1a99] text-[#fafafa]">
-          <ImageMetaIcon icon={<LinearImage className="h-4.5 w-4.5" />} />
-          <ImageMetaIcon icon={<LinearVideo className="h-4.5 w-4.5" />} />
-          <ImageMetaIcon icon={<Linear3d className="h-4.5 w-4.5" />} />
-        </div>
-      }
+      imageMeta={<RequestResultImageMeta imageCount={ad.imageCount} />}
+      showAgency={false}
+      showBadges={false}
       to={`/ads/${ad.id}`}
-      topBadge={
-        isNew ? (
-          <p className="absolute left-5 top-0.5 z-10 mb-1 flex items-center justify-end rounded-md text-xs font-medium leading-4 text-white">
-            <span className="rounded-xl bg-[#ee3623] px-1">جدید</span>
-          </p>
-        ) : null
-      }
       variant="requestResult"
     />
   );
 }
 
-function ImageMetaIcon({ icon }: { icon: ReactNode }) {
-  return (
-    <span className="grid h-7 w-7 place-items-center border-l border-white/20 last:border-l-0">
-      {icon}
-    </span>
-  );
-}
-
 function EmptyRequestState({ text }: { text: string }) {
   return (
-    <div className="px-4 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
+    <div className="bg-white px-4 py-10 text-center text-sm font-normal leading-6 text-[#808080]">
       {text}
     </div>
   );

@@ -69,19 +69,23 @@ function AboutSection({ children, description, items, title }: AboutSectionProps
 
 function AboutIntroCard() {
   return (
-    <section className="relative mx-4 mt-4 px-4 py-2 min-h-[316px] overflow-hidden rounded-2xl bg-[#ebf0fa]">
+    <section className="relative mx-4 mt-4 min-h-[316px] overflow-hidden rounded-2xl bg-[#ebf0fa]">
       <div className="relative mx-2">
         <img
           alt="تصویری از خدمات بونگا در بازار املاک"
           className="block h-auto w-full"
-          height={142}
+          height={292}
           loading="eager"
-          src="/images/about-hero.svg"
-          width={296}
+          src="/images/about-hero.png"
+          width={624}
         />
+
+        <h1 className="absolute bottom-0 right-2 m-0 text-[16px] font-semibold leading-6 text-[#0052c8]">
+          درباره ما
+        </h1>
       </div>
 
-      <p className="m-0 text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
+      <p className="m-0 px-4 pb-4 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
         ما بیش از ۱۰ سال است که در دنیای املاک همراه خریداران، فروشندگان و آژانس‌های املاک هستیم. در این سال‌ها هدف ما همیشه یک چیز بوده؛ ساده‌تر کردن مسیر معامله ملک و ایجاد بستری مطمئن برای همه کسانی که در بازار املاک فعالیت دارند.
       </p>
     </section>

@@ -10,6 +10,7 @@ import {
   createPropertyRequestAdvertisementParams,
   type PropertySearchRequest,
 } from "../../services/property-request.service";
+import { RequestResultImageMeta } from "./RequestResultImageMeta";
 
 type PropertyRequestResultsProps = {
   bare?: boolean;
@@ -105,7 +106,7 @@ export function PropertyRequestResults({
 
       {!query.isLoading && !query.isError && visibleAds.length > 0 ? (
         <div
-          className={`${showHeading ? "mt-3" : ""} grid gap-3 ${
+          className={`${showHeading ? "mt-3" : ""} grid gap-2 bg-[#f5f5f5] ${
             compact
               ? "grid-cols-1"
               : "grid-cols-1 xl:grid-cols-2"
@@ -114,7 +115,7 @@ export function PropertyRequestResults({
           {visibleAds.map((ad) => (
             <AdCard
               ad={ad}
-              className="overflow-hidden rounded-2xl border border-[#e3e3e3] bg-white"
+              className="overflow-hidden bg-white"
               imageAction={
                 showDismissAction ? (
                   <button
@@ -133,7 +134,10 @@ export function PropertyRequestResults({
                   </button>
                 ) : undefined
               }
+              imageMeta={<RequestResultImageMeta imageCount={ad.imageCount} />}
               key={ad.id}
+              showAgency={false}
+              showBadges={false}
               to={`/ads/${ad.id}`}
               variant="requestResult"
             />

@@ -254,13 +254,145 @@ export function formatPropertyRequestValue(value: string) {
   return toPersianDigits(value.replace(/_/g, "، "));
 }
 
+function toLatinDigits(value: string) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+}
+
+function formatCompactToman(value: string) {
+  const amount = Number(toLatinDigits(value).replace(/[^0-9.-]/g, ""));
+  if (!Number.isFinite(amount) || amount <= 0) return formatPropertyRequestValue(value);
+
+  const formatNumber = (number: number) =>
+    toPersianDigits(
+      new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: number % 1 === 0 ? 0 : 1,
+      }).format(number),
+    );
+
+  if (amount >= 1_000_000_000) return `${formatNumber(amount / 1_000_000_000)} میلیارد تومان`;
+  if (amount >= 1_000_000) return `${formatNumber(amount / 1_000_000)} میلیون تومان`;
+  return `${toPersianDigits(new Intl.NumberFormat("en-US").format(amount))} تومان`;
+}
+
+function formatFormCode(value: string) {
+  const normalized = value.trim().toLowerCase();
+  const labels: Record<string, string> = {
+    "rent-apartment": "اجاره آپارتمان",
+    "sale-apartment": "فروش آپارتمان",
+    "sale-garden-villa": "فروش باغ ویلا",
+    "rent-villa": "اجاره ویلا",
+    "sale-villa": "فروش ویلا",
+  };
+
+  return labels[normalized] ?? formatPropertyRequestValue(value);
+}
+
+function formatRooms(value: string) {
+  const roomLabels: Record<string, string> = {
+    "0": "بدون اتاق",
+    "1": "یک خوابه",
+    "2": "دو خوابه",
+    "3": "سه خوابه",
+    "4": "چهار خوابه",
+    "5": "پنج خوابه",
+    "2_3": "دو یا سه خوابه",
+  };
+
+  return roomLabels[value] ?? `${formatPropertyRequestValue(value)} خوابه`;
+}
+
+function formatRange(
+  minimum: string | undefined,
+  maximum: string | undefined,
+  formatter: (value: string) => string,
+  prefix: string,
+) {
+  if (minimum && maximum) return `${prefix} از ${formatter(minimum)} تا ${formatter(maximum)}`;
+  if (minimum) return `${prefix} از ${formatter(minimum)}`;
+  if (maximum) return `${prefix} تا ${formatter(maximum)}`;
+  return "";
+}
+
 export function getPropertyRequestDetails(request: PropertySearchRequest) {
-  return Object.entries(request.filters)
-    .filter(([key]) => key !== "focus" && key !== "view")
-    .map(([key, value]) => {
-      const label = propertyRequestFilterLabels[key] ?? key.replace(/_/g, " ");
-      return `${label}: ${formatPropertyRequestValue(value)}`;
-    });
+  const filters = request.filters;
+  const details: string[] = [];
+  const formCode = filters.form_code || filters.from_code;
+  const neighborhood = filters.neighborhood_id || filters.neighborhoods;
+
+  if (formCode) details.push(formatFormCode(formCode));
+  if (neighborhood) details.push(`محله ${formatPropertyRequestValue(neighborhood)}`);
+  if (filters.building_age) details.push(`سال ساخت ${formatPropertyRequestValue(filters.building_age)}`);
+
+  const priceRange = formatRange(
+    filters.price_min,
+    filters.price_max,
+    formatCompactToman,
+    "قیمت",
+  );
+  if (priceRange) details.push(priceRange);
+
+  if (filters.rooms) details.push(formatRooms(filters.rooms));
+
+  const areaRange = filters.area_min && filters.area_max
+    ? `متراژ از ${formatPropertyRequestValue(filters.area_min)} تا ${formatPropertyRequestValue(filters.area_max)} متر`
+    : filters.area_min
+      ? `متراژ از ${formatPropertyRequestValue(filters.area_min)} متر`
+      : filters.area_max
+        ? `متراژ تا ${formatPropertyRequestValue(filters.area_max)} متر`
+        : "";
+  if (areaRange) details.push(areaRange);
+
+  if (filters.city_id) {
+    const cityLabels: Record<string, string> = {
+      isfahan: "اصفهان",
+      mashhad: "مشهد",
+      shiraz: "شیراز",
+      tehran: "تهران",
+    };
+    details.push(`شهر ${cityLabels[filters.city_id.toLowerCase()] ?? formatPropertyRequestValue(filters.city_id)}`);
+  }
+
+  const handledKeys = new Set([
+    "area_max",
+    "area_min",
+    "building_age",
+    "city_id",
+    "form_code",
+    "from_code",
+    "neighborhood_id",
+    "neighborhoods",
+    "price_max",
+    "price_min",
+    "rooms",
+  ]);
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (handledKeys.has(key) || key === "focus" || key === "view") return;
+
+    if (key === "has_image") {
+      if (value === "true" || value === "1") details.push("دارای تصویر");
+      return;
+    }
+    if (key === "has_video") {
+      if (value === "true" || value === "1") details.push("دارای ویدئو");
+      return;
+    }
+    if (key === "is_special") {
+      if (value === "true" || value === "1") details.push("آگهی ویژه");
+      return;
+    }
+    if (key === "query" || key === "q" || key === "qsearch") {
+      details.push(formatPropertyRequestValue(value));
+      return;
+    }
+
+    const label = propertyRequestFilterLabels[key] ?? key.replace(/_/g, " ");
+    details.push(`${label} ${formatPropertyRequestValue(value)}`);
+  });
+
+  return details;
 }
 
 export function getCollapsedPropertyRequestDetails(

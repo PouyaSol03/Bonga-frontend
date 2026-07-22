@@ -42,6 +42,7 @@ type AdCardProps = {
   mapPreviewImages?: string[]
   mapSliderCardId?: number | string
   showBadges?: boolean
+  showAgency?: boolean
   showImageCount?: boolean
   showStatusBadge?: boolean
   state?: unknown
@@ -74,6 +75,7 @@ export function AdCard({
   mapPreviewFallbackImage,
   mapPreviewImages = [],
   mapSliderCardId,
+  showAgency = true,
   showBadges = true,
   showImageCount = true,
   showStatusBadge = false,
@@ -139,6 +141,7 @@ export function AdCard({
             <AdCardImage
               ad={ad}
               imageMeta={imageMeta}
+              showAgency={showAgency}
               showImageCount={false}
               showStatusBadge={false}
             />
@@ -176,6 +179,7 @@ export function AdCard({
         <AdCardImage
           ad={ad}
           className={isDashboard ? 'h-[224px] w-auto' : undefined}
+          showAgency={showAgency}
           showImageCount={showImageCount}
           showStatusBadge={showStatusBadge}
         />
@@ -195,12 +199,14 @@ function AdCardImage({
   ad,
   className = '',
   imageMeta,
+  showAgency = true,
   showImageCount,
   showStatusBadge,
 }: {
   ad: AdCardData
   className?: string
   imageMeta?: ReactNode
+  showAgency?: boolean
   showImageCount: boolean
   showStatusBadge: boolean
 }) {
@@ -221,7 +227,7 @@ function AdCardImage({
           <span className="truncate">{ad.status}</span>
         </span>
       ) : null}
-      {ad.agency ? (
+      {showAgency && ad.agency ? (
         <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]">
           <AdCardOwnerIcon className="h-5 w-5 shrink-0" />
           <span className="truncate">{ad.agency}</span>

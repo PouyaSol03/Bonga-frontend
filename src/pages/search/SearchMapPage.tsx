@@ -32,6 +32,14 @@ import { SearchRequestSenderBottomSheet } from "./components/SearchRequestBottom
 import { SearchMapListView } from "./components/SearchMapListView";
 import { SearchNoResultsView } from "./components/SearchNoResultsView";
 import { SearchMapView } from "./components/SearchMapView";
+import { SearchMapGeofenceControls } from "./components/SearchMapGeofenceControls";
+import { SearchMapResultsSummary } from "./components/SearchMapResultsSummary";
+import type {
+  DrawingState,
+  GeofenceResult,
+  GeofenceValidationResult,
+} from "./geofence/geofenceTypes";
+import { serializeGeofenceForApi } from "./geofence/geofenceApi";
 import {
   SEARCH_MAP_DEMO_PHOTO,
   searchMapCenter,
@@ -49,6 +57,16 @@ import { getStoredBackTarget, pushRoute } from "../../routes/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
+type InvalidGeofenceResult = Exclude<
+  GeofenceValidationResult,
+  { isValid: true }
+>;
+
+type GeofenceHistoryEntry = {
+  result: GeofenceResult;
+  state: "preview" | "confirmed";
+};
+
 type PendingSearchRequest = {
   createdAt: string;
   filters: Record<string, string>;
@@ -57,6 +75,7 @@ type PendingSearchRequest = {
 };
 
 const mapRequestLimit = 100;
+const emptyListingIds = new Set<SearchMapListingId>();
 const maxBluePriceMarkers = 4;
 const selectedCityMapZoom = 12;
 const searchDefaultLabel = "جستجو در آگهی‌ها";
@@ -677,7 +696,11 @@ function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters 
   };
 }
 
-function buildMapQueryParams(bounds: SearchMapBounds | null, search: string) {
+function buildMapQueryParams(
+  bounds: SearchMapBounds | null,
+  search: string,
+  geofence?: string,
+) {
   if (!bounds) return null;
 
   const params = getSearchParamsFromSnapshot(search);
@@ -689,6 +712,7 @@ function buildMapQueryParams(bounds: SearchMapBounds | null, search: string) {
     filters,
     ...(cityId ? { cityId } : {}),
     east: roundCoordinate(bounds.east),
+    ...(geofence ? { geofence } : {}),
     limit: mapRequestLimit,
     north: roundCoordinate(bounds.north),
     south: roundCoordinate(bounds.south),
@@ -785,6 +809,11 @@ export function SearchMapPage() {
   );
   const [mode, setMode] = useState<SearchMapMode>(getInitialSearchMode);
   const [isDrawMode, setIsDrawMode] = useState(false);
+  const [drawingState, setDrawingState] = useState<DrawingState>("idle");
+  const [geofenceResult, setGeofenceResult] = useState<GeofenceResult | null>(null);
+  const [geofenceError, setGeofenceError] = useState<string | null>(null);
+  const [geofenceHistory, setGeofenceHistory] = useState<GeofenceHistoryEntry | null>(null);
+  const [geofenceResetSignal, setGeofenceResetSignal] = useState(0);
   const [isLocated, setIsLocated] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
@@ -792,6 +821,7 @@ export function SearchMapPage() {
   const [searchInitialView, setSearchInitialView] = useState<"search" | "saved">("search");
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
+  const [mapResizeSignal, setMapResizeSignal] = useState(0);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
   const [pendingSearchRequest, setPendingSearchRequest] = useState<PendingSearchRequest | null>(null);
   const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
@@ -813,7 +843,17 @@ export function SearchMapPage() {
   const queryLabel = useMemo(() => {
     return currentSearchQuery || searchDefaultLabel;
   }, [currentSearchQuery]);
-  const mapQueryParams = useMemo(() => buildMapQueryParams(mapBounds, currentSearch), [currentSearch, mapBounds]);
+  const confirmedGeofence = useMemo(
+    () =>
+      drawingState === "confirmed" && geofenceResult
+        ? serializeGeofenceForApi(geofenceResult)
+        : undefined,
+    [drawingState, geofenceResult],
+  );
+  const mapQueryParams = useMemo(
+    () => buildMapQueryParams(mapBounds, currentSearch, confirmedGeofence),
+    [confirmedGeofence, currentSearch, mapBounds],
+  );
   const listQueryParams = useMemo(() => buildListQueryParams(currentSearch), [currentSearch]);
   const hasActiveSearchCriteria = useMemo(() => hasSearchCriteria(currentSearch), [currentSearch]);
   const saveSearchInput = useMemo(
@@ -1000,8 +1040,95 @@ export function SearchMapPage() {
   }, []);
 
   const handleMapClick = useCallback(() => {
+    if (isDrawMode) return;
+
     setSelectedListingId(null);
     setMode("map");
+  }, [isDrawMode]);
+
+  const startFreehandDrawing = useCallback(() => {
+    if (geofenceResult) {
+      setGeofenceHistory({
+        result: geofenceResult,
+        state: drawingState === "confirmed" ? "confirmed" : "preview",
+      });
+    } else if (drawingState !== "invalid") {
+      setGeofenceHistory(null);
+    }
+
+    setSelectedListingId(null);
+    setMode("map");
+    setGeofenceResult(null);
+    setGeofenceError(null);
+    setDrawingState("idle");
+    setGeofenceResetSignal((current) => current + 1);
+    setMapResizeSignal((current) => current + 1);
+    setIsDrawMode(true);
+  }, [drawingState, geofenceResult]);
+
+  const cancelFreehandDrawing = useCallback(() => {
+    setIsDrawMode(false);
+    setGeofenceError(null);
+    setGeofenceResetSignal((current) => current + 1);
+    setMapResizeSignal((current) => current + 1);
+
+    if (geofenceHistory) {
+      setGeofenceResult(geofenceHistory.result);
+      setDrawingState(geofenceHistory.state);
+      setGeofenceHistory(null);
+    } else {
+      setGeofenceResult(null);
+      setDrawingState("idle");
+    }
+  }, [geofenceHistory]);
+
+  const handleGeofenceComplete = useCallback((result: GeofenceResult) => {
+    setGeofenceResult(result);
+    setGeofenceError(null);
+    setDrawingState("preview");
+    setIsDrawMode(false);
+  }, []);
+
+  const handleGeofenceInvalid = useCallback(
+    (validation: InvalidGeofenceResult) => {
+      setGeofenceResult(null);
+      setGeofenceError(validation.message);
+      setDrawingState("invalid");
+      setIsDrawMode(false);
+    },
+    [],
+  );
+
+  const deleteGeofenceAndRedraw = useCallback(() => {
+    setDrawingState("idle");
+    setGeofenceResult(null);
+    setGeofenceError(null);
+    setGeofenceHistory(null);
+    setGeofenceResetSignal((current) => current + 1);
+    setIsDrawMode(true);
+  }, []);
+
+  const confirmGeofence = useCallback(() => {
+    if (!geofenceResult) return;
+
+    setDrawingState("confirmed");
+    setIsDrawMode(false);
+    setGeofenceHistory(null);
+    setMapResizeSignal((current) => current + 1);
+    window.dispatchEvent(
+      new CustomEvent<GeofenceResult>("search:geofence:confirmed", {
+        detail: geofenceResult,
+      }),
+    );
+  }, [geofenceResult]);
+
+  const clearConfirmedGeofence = useCallback(() => {
+    setDrawingState("idle");
+    setGeofenceResult(null);
+    setGeofenceError(null);
+    setGeofenceHistory(null);
+    setGeofenceResetSignal((current) => current + 1);
+    setIsDrawMode(false);
   }, []);
 
   const handleSliderActiveListing = useCallback((listing: SearchMapListing) => {
@@ -1240,7 +1367,10 @@ export function SearchMapPage() {
 
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
+  const isGeofenceConfirmed =
+    drawingState === "confirmed" && geofenceResult !== null;
   const showMapEmptyState =
+    !isGeofenceConfirmed &&
     hasActiveSearchCriteria &&
     mapQuery.isSuccess &&
     !isMapLoading &&
@@ -1253,9 +1383,19 @@ export function SearchMapPage() {
   const showCurrentEmptyState = isFullListOpen
     ? showListEmptyState
     : showMapEmptyState;
+  const isGeofenceEditorOpen =
+    mode === "map" &&
+    !showCurrentEmptyState &&
+    (isDrawMode || drawingState === "preview" || drawingState === "invalid");
 
   return (
-    <div className="relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]">
+    <div
+      className={
+        isGeofenceEditorOpen
+          ? "fixed inset-y-0 left-1/2 z-[900] h-[100svh] w-full max-w-[500px] -translate-x-1/2 overflow-hidden bg-[#f0f0f0]"
+          : "relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]"
+      }
+    >
       {!showCurrentEmptyState ? (
         isFullListOpen ? (
           <SearchMapListView
@@ -1267,12 +1407,23 @@ export function SearchMapPage() {
           <SearchMapView
             center={mapCenter}
             centerSignal={mapCenterSignal}
-            listings={visibleListings}
-            priceMarkerListingIds={bluePriceMarkerListingIds}
+            resizeSignal={mapResizeSignal}
+            listings={isGeofenceEditorOpen ? [] : visibleListings}
+            priceMarkerListingIds={
+              isGeofenceEditorOpen ? emptyListingIds : bluePriceMarkerListingIds
+            }
             seenListingIds={seenListingIds}
-            selectedListingId={selectedListingId}
+            selectedListingId={isGeofenceEditorOpen ? null : selectedListingId}
             tileConfig={searchMapTileConfig}
             userLocation={userLocation}
+            freehandGeofenceEnabled={isDrawMode}
+            geofenceResetSignal={geofenceResetSignal}
+            geofenceResult={geofenceResult}
+            geofenceDisplayMode={isGeofenceConfirmed ? "confirmed" : "editing"}
+            onGeofenceCancelled={cancelFreehandDrawing}
+            onGeofenceComplete={handleGeofenceComplete}
+            onGeofenceInvalid={handleGeofenceInvalid}
+            onGeofenceStateChange={setDrawingState}
             onBoundsChange={handleBoundsChange}
             onMapClick={handleMapClick}
             onSelectListing={handleSelectListing}
@@ -1288,37 +1439,57 @@ export function SearchMapPage() {
         />
       ) : null}
 
-      <SearchMapHeader
-        savedCount={savedSearchesQuery.data?.length ?? 0}
-        isCurrentSearchSaved={isCurrentSearchSaved}
-        isSavingSearch={saveSearchMutation.isPending}
-        isSaveSearchDisabled={!saveSearchInput}
-        chips={chips}
-        onChipClick={toggleChip}
-        onChipRemove={handleRemoveChip}
-        queryLabel={queryLabel}
-        onSearchClick={openSearch}
-        onSavedClick={handleSaveSearch}
-        onBack={handleBack}
-      />
+      {!isGeofenceEditorOpen ? (
+        <SearchMapHeader
+          savedCount={savedSearchesQuery.data?.length ?? 0}
+          isCurrentSearchSaved={isCurrentSearchSaved}
+          isSavingSearch={saveSearchMutation.isPending}
+          isSaveSearchDisabled={!saveSearchInput}
+          chips={chips}
+          onChipClick={toggleChip}
+          onChipRemove={handleRemoveChip}
+          queryLabel={queryLabel}
+          onSearchClick={openSearch}
+          onSavedClick={handleSaveSearch}
+          onBack={handleBack}
+        />
+      ) : null}
 
+      {mode === "map" && !isGeofenceEditorOpen && !showCurrentEmptyState ? (
+        <SearchMapResultsSummary
+          count={mapQuery.data?.length ?? 0}
+          hasGeofence={isGeofenceConfirmed}
+          isLoading={isMapLoading || mapQuery.isFetching}
+          onRemoveGeofence={clearConfirmedGeofence}
+        />
+      ) : null}
 
       <SearchMapFloatingActions
         isDrawing={isDrawMode}
+        isEditorMode={isGeofenceEditorOpen}
         isHidden={mode !== "map" || showCurrentEmptyState}
         isLocated={isLocated}
         isLocating={isLocating}
         onLocateClick={locateUser}
-        onHandClick={() => {
-          setIsDrawMode((current) => !current);
-          showNotice(isDrawMode ? "انتخاب محدوده پایان یافت" : "محدوده موردنظر را روی نقشه مشخص کنید");
-        }}
+        onHandClick={startFreehandDrawing}
         onListClick={() => changeViewMode("list")}
+        showListButton={!isGeofenceEditorOpen}
       />
+
+      {isGeofenceEditorOpen ? (
+        <SearchMapGeofenceControls
+          drawingState={drawingState}
+          errorMessage={geofenceError}
+          geofenceResult={geofenceResult}
+          onBack={cancelFreehandDrawing}
+          onConfirm={confirmGeofence}
+          onDelete={deleteGeofenceAndRedraw}
+        />
+      ) : null}
 
       <SearchMapListingSlider
         isLoading={isMapLoading}
-        isOpen={isListPreviewOpen}
+        isOpen={isListPreviewOpen && !isGeofenceEditorOpen}
         listings={visibleListings}
         selectedListingId={selectedListingId}
         onActiveListingChange={handleSliderActiveListing}

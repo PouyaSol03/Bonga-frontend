@@ -528,7 +528,11 @@ function getRoute(path: string): AppRoute {
     }
   }
 
-  if (/^\/chat\/[^/]+\/?$/.test(path) && path !== '/chat/response-time') {
+  if (
+    /^\/chat\/[^/]+\/?$/.test(path) &&
+    path !== '/chat/response-time' &&
+    path !== '/chat/rename'
+  ) {
     const chatRoute = routes.find((route) => route.path === '/chat')
 
     return {

@@ -99,6 +99,7 @@ const UserChatDetailPage = lazyNamed(() => import('../pages/UserChatHomePage'), 
 const UserChatHomePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatHomePage')
 const UserChatBulkDeletePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatBulkDeletePage')
 const UserChatResponseTimePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatResponseTimePage')
+const UserChatRenamePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatRenamePage')
 const ConsultantsDirectoryPage = lazyNamed(() => import('../pages/ConsultantsDirectoryPage'), 'ConsultantsDirectoryPage')
 const AgencyBusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'AgencyBusinessCreationPage')
 const BusinessCreationPage = lazyNamed(() => import('../pages/account/BusinessCreationPage'), 'BusinessCreationPage')
@@ -881,6 +882,12 @@ export const routes: AppRoute[] = [
     path: "/chat/response-time",
     title: "ساعت پاسخگویی",
     Component: UserChatResponseTimePage,
+    requiresAuth: true,
+  },
+  {
+    path: "/chat/rename",
+    title: "تغییر نام چت",
+    Component: UserChatRenamePage,
     requiresAuth: true,
   },
   {

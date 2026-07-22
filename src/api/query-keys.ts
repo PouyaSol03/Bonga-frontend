@@ -90,6 +90,7 @@ export const queryKeys = {
       cityId?: string;
       east?: number;
       filters?: unknown;
+      geofence?: string;
       limit?: number;
       north?: number;
       south?: number;
@@ -100,6 +101,7 @@ export const queryKeys = {
         "map",
         filters.cityId ?? "",
         JSON.stringify(filters.filters ?? {}),
+        filters.geofence ?? "",
         filters.north ?? "",
         filters.south ?? "",
         filters.east ?? "",

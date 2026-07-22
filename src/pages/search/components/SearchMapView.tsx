@@ -3,6 +3,14 @@ import { DivIcon } from "leaflet";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { BrowserLocation } from "../../../lib/browserLocation";
 import { SearchMapMarker } from "./SearchMapMarker";
+import { SearchMapGeofenceConfirmedLayer } from "../geofence/SearchMapGeofenceConfirmedLayer";
+import { SearchMapGeofenceLayer } from "../geofence/SearchMapGeofenceLayer";
+import { SearchMapGeofencePreviewLayer } from "../geofence/SearchMapGeofencePreviewLayer";
+import type {
+  DrawingState,
+  GeofenceResult,
+  GeofenceValidationResult,
+} from "../geofence/geofenceTypes";
 import type {
   SearchMapBounds,
   SearchMapCenter,
@@ -12,9 +20,15 @@ import type {
   SearchMapTileConfig,
 } from "../searchMapData";
 
+type InvalidGeofenceResult = Exclude<
+  GeofenceValidationResult,
+  { isValid: true }
+>;
+
 type SearchMapViewProps = {
   center: SearchMapCenter;
   centerSignal?: number;
+  resizeSignal?: number;
   listings: SearchMapListing[];
   dotMarkers?: SearchMapDotMarker[];
   priceMarkerListingIds: Set<SearchMapListingId>;
@@ -22,6 +36,14 @@ type SearchMapViewProps = {
   selectedListingId: SearchMapListingId | null;
   tileConfig: SearchMapTileConfig;
   userLocation?: BrowserLocation | null;
+  freehandGeofenceEnabled?: boolean;
+  geofenceResetSignal?: number;
+  geofenceResult?: GeofenceResult | null;
+  geofenceDisplayMode?: "editing" | "confirmed";
+  onGeofenceCancelled?: () => void;
+  onGeofenceComplete?: (result: GeofenceResult) => void;
+  onGeofenceInvalid?: (validation: InvalidGeofenceResult) => void;
+  onGeofenceStateChange?: (state: DrawingState) => void;
   onBoundsChange: (bounds: SearchMapBounds) => void;
   onMapClick: () => void;
   onSelectListing: (listing: SearchMapListing) => void;
@@ -50,11 +72,13 @@ function createUserLocationIcon() {
 function SearchMapController({
   center,
   centerSignal = 0,
+  resizeSignal = 0,
   onBoundsChange,
   onMapClick,
 }: {
   center: SearchMapCenter;
   centerSignal?: number;
+  resizeSignal?: number;
   onBoundsChange: (bounds: SearchMapBounds) => void;
   onMapClick: () => void;
 }) {
@@ -79,7 +103,7 @@ function SearchMapController({
     }, 120);
 
     return () => window.clearTimeout(timer);
-  }, [emitBounds, map]);
+  }, [emitBounds, map, resizeSignal]);
 
   useEffect(() => {
     map.setView([center.latitude, center.longitude], center.zoom, {
@@ -93,6 +117,7 @@ function SearchMapController({
 function SearchMapViewComponent({
   center,
   centerSignal = 0,
+  resizeSignal = 0,
   listings,
   dotMarkers = [],
   priceMarkerListingIds,
@@ -100,6 +125,14 @@ function SearchMapViewComponent({
   selectedListingId,
   tileConfig,
   userLocation,
+  freehandGeofenceEnabled = false,
+  geofenceResetSignal = 0,
+  geofenceResult = null,
+  geofenceDisplayMode = "editing",
+  onGeofenceCancelled = () => undefined,
+  onGeofenceComplete = () => undefined,
+  onGeofenceInvalid = () => undefined,
+  onGeofenceStateChange = () => undefined,
   onBoundsChange,
   onMapClick,
   onSelectListing,
@@ -155,8 +188,30 @@ function SearchMapViewComponent({
       <SearchMapController
         center={center}
         centerSignal={centerSignal}
+        resizeSignal={resizeSignal}
         onBoundsChange={onBoundsChange}
         onMapClick={onMapClick}
+      />
+
+      <SearchMapGeofenceLayer
+        enabled={freehandGeofenceEnabled}
+        geofenceResult={geofenceResult}
+        displayMode={geofenceDisplayMode}
+        resetSignal={geofenceResetSignal}
+        onCancelled={onGeofenceCancelled}
+        onComplete={onGeofenceComplete}
+        onInvalid={onGeofenceInvalid}
+        onStateChange={onGeofenceStateChange}
+      />
+
+      <SearchMapGeofencePreviewLayer
+        geofenceResult={geofenceResult}
+        isVisible={geofenceDisplayMode === "editing"}
+      />
+
+      <SearchMapGeofenceConfirmedLayer
+        geofenceResult={geofenceResult}
+        isVisible={geofenceDisplayMode === "confirmed"}
       />
 
       {dotMarkers.map((marker) => {

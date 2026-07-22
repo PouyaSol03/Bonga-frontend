@@ -1,4 +1,5 @@
 import { ApiError, api, baseUrl, getApiAssetUrl, publicApi } from "../api/api";
+import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 
 export type AdvertisementItem = Record<string, unknown> & {
   _id?: string;
@@ -148,6 +149,7 @@ export type AdvertisementMapBounds = {
 export type AdvertisementMapParams = AdvertisementMapBounds & {
   cityId?: string;
   filters?: AdvertisementSearchFilters;
+  geofence?: string;
   limit?: number;
 };
 
@@ -648,23 +650,24 @@ export async function getAdvertisementMap({
   cityId,
   east,
   filters,
+  geofence,
   limit = 100,
   north,
   south,
   west,
 }: AdvertisementMapParams) {
+  const searchParams = compactSearchParams({
+    ...buildAdvertiseSearchParams(filters),
+    ...(cityId ? { city_id: cityId } : {}),
+    east,
+    geofence,
+    limit,
+    north,
+    south,
+    west,
+  });
   const response = await publicApi
-    .get("public/advertise/map", {
-      searchParams: compactSearchParams({
-        ...buildAdvertiseSearchParams(filters),
-        ...(cityId ? { city_id: cityId } : {}),
-        east,
-        limit,
-        north,
-        south,
-        west,
-      }),
-    })
+    .get(buildAdvertisementMapRequestPath(searchParams))
     .json<AdvertisementMapResponse>();
 
   return extractAdvertisementItems(response);

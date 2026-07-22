@@ -1827,23 +1827,56 @@ const responseHourOptions = [
 function ResponseTimeSelectBox({
   label,
   onClick,
+  onClear,
   value,
 }: {
   label: string;
   onClick: () => void;
+  onClear?: () => void;
   value?: string;
 }) {
+  const hasValue = Boolean(value);
+
   return (
-    <button
-      className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-right focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-      onClick={onClick}
-      type="button"
-    >
-      <ArrowDownIcon className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-      <span className={`min-w-0 flex-1 truncate text-sm leading-5 ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
-        {value ?? label}
-      </span>
-    </button>
+    <div className="flex h-14 min-w-0 flex-1 items-center rounded-lg border border-[#cccccc] bg-white px-2">
+      <button
+        className="flex h-full min-w-0 flex-1 items-center gap-2 px-1 text-right focus-visible:outline-3 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0048c440]"
+        onClick={onClick}
+        type="button"
+      >
+        <span className="min-w-0 flex-1 text-right">
+          {hasValue ? (
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="truncate text-[10px] font-normal leading-4 text-[#a6a6a6]">
+                {label}
+              </span>
+              <span className="truncate text-xs font-medium leading-4 text-[#1a1a1a]">
+                {value}
+              </span>
+            </span>
+          ) : (
+            <span className="block truncate text-xs font-normal leading-4 text-[#a6a6a6]">
+              {label}
+            </span>
+          )}
+        </span>
+
+        {!hasValue ? <ArrowDownIcon className="h-4 w-4 shrink-0 text-[#4d4d4d]" /> : null}
+      </button>
+
+      {hasValue && onClear ? (
+        <button
+          aria-label={`پاک کردن ${label}`}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#a6a6a6] focus-visible:outline-2 focus-visible:outline-[#0048c4]"
+          onClick={onClear}
+          type="button"
+        >
+          <span className="grid h-5 w-5 place-items-center rounded-full border border-[#cccccc]">
+            <CloseIcon className="h-3 w-3" />
+          </span>
+        </button>
+      ) : null}
+    </div>
   );
 }
 
@@ -1946,8 +1979,8 @@ function ResponseTimeHourSheet({
 
 export function UserChatResponseTimePage() {
   const [selectedDays, setSelectedDays] = useState<string[]>(["شنبه", "یک شنبه", "دوشنبه", "سه شنبه"]);
-  const [startHour, setStartHour] = useState("۸ صبح");
-  const [endHour, setEndHour] = useState("۱۲ شب");
+  const [startHour, setStartHour] = useState<string | undefined>("۸ صبح");
+  const [endHour, setEndHour] = useState<string | undefined>("۱۲ شب");
   const [openSheet, setOpenSheet] = useState<ResponseTimeSheet>(null);
   const { message, showNotice } = useDemoNotice();
 
@@ -1975,51 +2008,53 @@ export function UserChatResponseTimePage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-28">
-        <section className="px-4 py-5 text-right text-sm font-normal leading-7 text-[#1a1a1a]">
+        <section className="px-4 pb-4 pt-5 text-right text-xs font-normal leading-5 text-[#1a1a1a]">
           <p>ساعت پاسخگویی خود را در چت مشخص کنید.</p>
           <p>این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.</p>
         </section>
 
         <button
-          className="flex min-h-[70px] w-full items-center gap-3 border-b border-[#cccccc] px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          className="flex h-14 w-full items-center gap-3 px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
           onClick={() => setOpenSheet("days")}
           type="button"
         >
-          <span className="min-w-0 flex-1 text-sm font-semibold leading-5 text-[#1a1a1a]">
+          <span className="min-w-0 flex-1 text-xs font-semibold leading-5 text-[#1a1a1a]">
             روزهای هفته
           </span>
-          <ChevronLeftIcon className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+          <ChevronLeftIcon className="h-4 w-4 shrink-0 text-[#4d4d4d]" />
         </button>
 
         {selectedDays.length ? (
-          <div className="flex flex-wrap justify-start gap-2 px-4 py-5 [direction:rtl]">
+          <div className="flex flex-wrap justify-start gap-2 px-4 pb-4 pt-1 [direction:rtl]">
             {selectedDays.map((day) => (
               <button
-                className="flex h-10 items-center gap-2 rounded-lg border border-[#0048c4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4]"
+                className="flex h-8 items-center gap-1.5 rounded-md border border-[#0048c4] bg-[#0048c414] px-2.5 text-[11px] font-medium leading-4 text-[#0048c4]"
                 key={day}
                 onClick={() => toggleDay(day)}
                 type="button"
               >
-                <CloseIcon className="h-4 w-4" />
                 <span>{day}</span>
+                <CloseIcon className="h-3 w-3" />
               </button>
             ))}
           </div>
         ) : null}
 
-        <section className="border-t border-[#cccccc] px-4 pt-6">
-          <h2 className="mb-5 text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+        <section className="border-t border-[#cccccc] px-4 pt-5">
+          <h2 className="mb-4 text-right text-xs font-semibold leading-5 text-[#1a1a1a]">
             تعیین ساعت شروع و پایان
           </h2>
-          <div className="flex gap-4 [direction:rtl]">
+          <div className="flex gap-2 [direction:rtl]">
             <ResponseTimeSelectBox
               label="از ساعت"
               onClick={() => setOpenSheet("start")}
+              onClear={() => setStartHour(undefined)}
               value={startHour}
             />
             <ResponseTimeSelectBox
               label="تا ساعت"
               onClick={() => setOpenSheet("end")}
+              onClear={() => setEndHour(undefined)}
               value={endHour}
             />
           </div>
@@ -2054,6 +2089,115 @@ export function UserChatResponseTimePage() {
         onSelect={setEndHour}
         title="تا ساعت"
       />
+      <DemoNotice className="bottom-20" message={message} />
+    </PageFrame>
+  );
+}
+
+const CHAT_DISPLAY_NAME_STORAGE_KEY = "bonga-chat-display-name";
+
+function navigateFromChatSettings(path: string, replace = false) {
+  const method = replace ? "replaceState" : "pushState";
+
+  window.history[method]({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+export function UserChatRenamePage() {
+  const [chatName, setChatName] = useState(
+    () => window.localStorage.getItem(CHAT_DISPLAY_NAME_STORAGE_KEY) ?? "",
+  );
+  const [errorMessage, setErrorMessage] = useState("");
+  const { message, showNotice } = useDemoNotice();
+
+  const saveChatName = () => {
+    const normalizedName = chatName.trim();
+
+    if (!normalizedName) {
+      setErrorMessage("نام و نام خانوادگی خود را وارد کنید.");
+      return;
+    }
+
+    window.localStorage.setItem(CHAT_DISPLAY_NAME_STORAGE_KEY, normalizedName);
+    setChatName(normalizedName);
+    setErrorMessage("");
+    showNotice("نام چت ذخیره شد");
+  };
+
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        actions={[
+          {
+            icon: <MoreVerticalIcon className="h-5 w-5" />,
+            id: "more",
+            label: "گزینه‌های بیشتر",
+            onClick: () => showNotice("گزینه دیگری برای این بخش وجود ندارد"),
+          },
+        ]}
+        backLabel="بازگشت به چت‌ها"
+        backTo="/chat"
+        className="border-b border-[#e6e6e6]"
+        contentClassName="px-1"
+        heightClassName="h-[60px]"
+        title="تغییر نام چت"
+        titleClassName="text-sm font-semibold leading-5"
+      />
+
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-28 pt-5">
+        <section className="text-right">
+          <label
+            className="block text-sm font-semibold leading-5 text-[#1a1a1a]"
+            htmlFor="chat-display-name"
+          >
+            نام و نام خانوادگی
+          </label>
+          <p className="mb-3 mt-1 text-[11px] font-normal leading-5 text-[#808080]">
+            کاربران در چت شما را با این نام می‌بینند
+          </p>
+          <input
+            autoComplete="name"
+            className={`h-12 w-full rounded-lg border bg-white px-3 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41f] ${
+              errorMessage ? "border-[#c11004]" : "border-[#bfbfbf]"
+            }`}
+            id="chat-display-name"
+            onChange={(event) => {
+              setChatName(event.target.value);
+              if (errorMessage) setErrorMessage("");
+            }}
+            placeholder="نام خود را وارد کنید"
+            value={chatName}
+          />
+          {errorMessage ? (
+            <p className="mt-1.5 text-[11px] leading-4 text-[#c11004]">
+              {errorMessage}
+            </p>
+          ) : null}
+        </section>
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
+        <div className="flex gap-3 [direction:rtl]">
+          <button
+            className="h-11 min-w-0 flex-1 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
+            onClick={saveChatName}
+            type="button"
+          >
+            ذخیره نام
+          </button>
+          <button
+            className="h-11 min-w-0 flex-1 rounded-lg border border-[#0048c4] bg-white text-xs font-semibold leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#0048c40a]"
+            onClick={() => navigateFromChatSettings("/chat", true)}
+            type="button"
+          >
+            انصراف
+          </button>
+        </div>
+      </footer>
+
       <DemoNotice className="bottom-20" message={message} />
     </PageFrame>
   );
@@ -2628,7 +2772,7 @@ export function UserChatHomePage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const { message, showNotice } = useDemoNotice();
+  const { message } = useDemoNotice();
   const {
     data: advertiseChatsPage,
     error: advertiseError,
@@ -2652,7 +2796,8 @@ export function UserChatHomePage() {
     }
 
     if (id === "rename") {
-      showNotice("امکان تغییر نام چت به‌زودی اضافه می‌شود");
+      window.history.pushState({}, "", "/chat/rename");
+      window.dispatchEvent(new PopStateEvent("popstate"));
       return;
     }
 
@@ -2660,7 +2805,7 @@ export function UserChatHomePage() {
       window.history.pushState({}, "", "/chat/bulk-delete");
       window.dispatchEvent(new PopStateEvent("popstate"));
     }
-  }, [showNotice]);
+  }, []);
 
   const visibleChats = useMemo(() => chats.filter((item) => {
     const normalizedQuery = query.trim();
@@ -2807,7 +2952,7 @@ export function UserChatBulkDeletePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(() => new Set());
   const [deleteError, setDeleteError] = useState("");
-  const { message, showNotice } = useDemoNotice();
+  const { message } = useDemoNotice();
   const {
     data: chatsPage,
     error,
@@ -2876,9 +3021,10 @@ export function UserChatBulkDeletePage() {
     }
 
     if (id === "rename") {
-      showNotice("امکان تغییر نام چت به‌زودی اضافه می‌شود");
+      window.history.pushState({}, "", "/chat/rename");
+      window.dispatchEvent(new PopStateEvent("popstate"));
     }
-  }, [showNotice]);
+  }, []);
 
   return (
     <PageFrame

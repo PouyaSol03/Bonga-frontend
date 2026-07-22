@@ -36,6 +36,7 @@ function SearchMapHeaderComponent({
       <TopBar
         backTo="/home"
         onBack={onBack}
+        className="relative z-[700]"
         contentClassName="px-2"
         heightClassName="h-16"
         search={{

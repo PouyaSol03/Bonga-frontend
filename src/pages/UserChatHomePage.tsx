@@ -547,19 +547,18 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
   const unreadCount = readNumber(
     chat.unread_count ?? chat.unreadCount ?? chat.messages_count,
   );
+  const apiAdLabel = readPathText(chat, ["ad_label", "adLabel"]);
   const isMine =
     chat.is_mine === true ||
     chat.isMine === true ||
-    readPathText(chat, ["ad_label", "adLabel"]).includes("Ù…Ù†");
+    apiAdLabel.includes("آگهی من");
 
   return {
     adCategory:
       readPathText(chat, ["ad_category", "adCategory", "category.name"]) ||
       readPathText(ad, ["category.name", "category", "type", "form.name"]) ||
       chatItems[0].adCategory,
-    adLabel:
-      readPathText(chat, ["ad_label", "adLabel"]) ||
-      (isMine ? chatItems[0].adLabel : "Ø¢Ú¯Ù‡ÛŒ Ø¯ÛŒÚ¯Ø±Ø§Ù†"),
+    adLabel: apiAdLabel || (isMine ? "آگهی من" : ""),
     adTitle:
       readPathText(chat, ["ad_title", "adTitle"]) ||
       readPathText(ad, ["title", "label", "name"]) ||
@@ -1123,8 +1122,11 @@ const ChatCard = memo(function ChatCard({
     ? isSelected
     : Boolean(displayItem.highlighted);
 
-  const cardClassName = `relative h-[140px] shrink-0 overflow-visible border-b border-[#f0f0f0] px-4 py-4 text-right ${isHighlighted ? "bg-[#0048c41f]" : "bg-white"
-    }`;
+  const cardClassName = `relative shrink-0 overflow-visible border-b px-4 text-right ${
+    isBulkDeleteMode
+      ? "h-[147px] border-[#cccccc] pb-[19px] pt-5"
+      : "h-[140px] border-[#f0f0f0] py-4"
+  } ${isHighlighted ? "bg-[#edf3ff]" : "bg-white"}`;
 
   const cardContent = (
     <article
@@ -1145,10 +1147,11 @@ const ChatCard = memo(function ChatCard({
       tabIndex={isBulkDeleteMode ? 0 : undefined}
     >
       <div
-        className={`flex items-start justify-between [direction:ltr] ${isBulkDeleteMode ? "h-12" : "h-5"
-          }`}
+        className={`flex items-start justify-between [direction:ltr] ${
+          isBulkDeleteMode ? "h-12 gap-2" : "h-5"
+        }`}
       >
-        <div className={isBulkDeleteMode ? "w-[276px] min-w-0" : "w-full min-w-0"}>
+        <div className={isBulkDeleteMode ? "min-w-0 flex-1" : "w-full min-w-0"}>
           <div className="flex h-5 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-2 text-xs font-normal leading-4 text-[#808080]">
               <span>{displayItem.date}</span>
@@ -1183,13 +1186,15 @@ const ChatCard = memo(function ChatCard({
 
       <div className="mt-3 flex h-12 items-center justify-between [direction:ltr]">
         <div className="min-w-0 flex-1 pr-2 text-right">
-          <div className="flex h-5 items-center justify-start gap-2 [direction:rtl]">
-            <span className="truncate text-xs font-normal leading-4 text-[#808080]">
+          <div className="flex h-5 min-w-0 items-center justify-start gap-2 [direction:rtl]">
+            <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080]">
               {displayItem.adCategory}
             </span>
-            {/* <span className="rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
-              {displayItem.adLabel}
-            </span> */}
+            {isBulkDeleteMode && displayItem.adLabel ? (
+              <span className="shrink-0 rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
+                {displayItem.adLabel}
+              </span>
+            ) : null}
           </div>
           <div className="mt-2 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
             {displayItem.adTitle}
@@ -3050,10 +3055,10 @@ export function UserChatBulkDeletePage() {
         }
         className="border-b border-[#cccccc]"
         contentClassName="px-2"
-        heightClassName="h-[60px]"
+        heightClassName="h-16"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-[78px]">
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white pb-[72px]">
         {isLoading && chats.length === 0 ? <ChatListSkeleton count={5} /> : null}
         {RequestErrorState && chats.length === 0 ? (
           <RequestErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
@@ -3078,13 +3083,15 @@ export function UserChatBulkDeletePage() {
         ) : null}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-3 pt-2 shadow-[0_-8px_22px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 z-20 h-[72px] border-t border-[#f0f0f0] bg-white px-4 shadow-[0_-8px_22px_rgba(0,0,0,0.06)]">
         {deleteError ? (
-          <p className="mb-2 text-center text-xs leading-5 text-[#c11004]">{deleteError}</p>
+          <p className="absolute inset-x-4 bottom-full mb-2 rounded-lg bg-white px-3 py-2 text-center text-xs leading-5 text-[#c11004] shadow-sm">
+            {deleteError}
+          </p>
         ) : null}
-        <div className="flex items-center justify-between gap-4 [direction:ltr]">
+        <div className="flex h-full items-center justify-between gap-4 [direction:ltr]">
           <button
-            className="h-[42px] min-w-[183px] rounded-lg bg-[#0048c4] px-6 text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="h-[42px] w-[191px] shrink-0 rounded-lg bg-[#0048c4] px-6 text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-40"
             disabled={selectedChatIds.size === 0 || deleteChatsMutation.isPending}
             onClick={deleteSelectedChats}
             type="button"

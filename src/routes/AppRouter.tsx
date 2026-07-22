@@ -20,6 +20,7 @@ import {
   type AppRoute,
 } from './routes'
 import LinearUserAccount from '../components/(icons)/LinearUserAccount'
+import type { CrmRoutePageProps } from '../pages/crm/CrmLayout'
 
 
 function RouteNotFoundPage() {
@@ -701,7 +702,7 @@ export function AppRouter() {
       <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
         <CrmLayout
           contentKey={route.path}
-          renderContent={(viewProps) => (
+          renderContent={(viewProps: CrmRoutePageProps) => (
             <Suspense fallback={<div className="h-full min-h-80 rounded-xl bg-white" />}>
               <ActivePage {...viewProps} />
             </Suspense>

@@ -200,6 +200,8 @@ export async function getSearchHistory(qsearch?: string) {
   return data.map(mapSearchHistoryItem);
 }
 
-export function deleteSearchHistory(id: string) {
-  return api.delete(`me/search-history/${encodeURIComponent(id)}`).json();
+export async function deleteSearchHistory(id: string) {
+  await api.delete(`me/search-history/${encodeURIComponent(id)}`, {
+    context: { allowNonJsonResponse: true },
+  });
 }

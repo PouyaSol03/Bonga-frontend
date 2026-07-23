@@ -3116,11 +3116,11 @@ function DetailInfoItemCard({
   const labelPaddingClassName = showIcon ? "pr-[26px]" : "pr-0";
 
   return (
-    <div className="flex min-h-[58px] w-full flex-col items-start justify-start gap-1 text-right [direction:rtl]">
+    <div className="flex w-full flex-col items-start justify-start gap-1 text-right [direction:rtl]">
       <div className="flex min-h-7 w-full items-center justify-start gap-2 text-right text-base font-semibold leading-6 text-[#1A1A1A] [direction:rtl]">
         {showIcon ? <DetailInfoIcon item={item} /> : null}
 
-        <div className="text-base font-semibold leading-6 text-[#1A1A1A]">
+        <div className="text-base font-semibold text-[#1A1A1A]">
           <DetailInfoValueView align="start" item={item} />
         </div>
       </div>
@@ -3164,17 +3164,17 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
 function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
   return (
     <div className="border-b border-[#e0e0e0] last:border-b-0">
-      <div className="flex min-h-[60px] items-center justify-start gap-2 py-2 text-right [direction:rtl]">
+      <div className="flex items-center justify-start gap-2 py-4 text-right [direction:rtl]">
         {item.iconSrc ? (
           <img
             alt=""
             aria-hidden="true"
-            className="h-[18px] w-[18px] shrink-0 object-contain"
+            className="h-6 w-6 shrink-0 object-contain"
             src={item.iconSrc}
           />
         ) : null}
 
-        <span className="text-base font-medium leading-6 text-[#808080]">
+        <span className="text-base font-medium text-[#808080]">
           {item.label}
         </span>
 
@@ -3217,7 +3217,7 @@ function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
       </div>
 
       {isRowsLayout ? (
-        <div className="pt-3">
+        <div>
           {section.items.map((item) => (
             <DetailInfoRowCard
               item={item}

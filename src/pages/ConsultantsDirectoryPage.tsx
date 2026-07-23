@@ -4,6 +4,7 @@ import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
+import { RadioIndicator } from "../components/RadioIndicator";
 import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../hooks/agency.hooks";
 import { useNeighborhoodListQuery } from "../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../lib/selectedCityStorage";
@@ -293,20 +294,6 @@ function MapLocationIcon() {
       />
       <circle cx="14" cy="8.5" fill="white" r="1.1" />
     </svg>
-  );
-}
-
-function RadioIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border ${
-        checked
-          ? "border-[#0048c4] bg-[#0048c4]"
-          : "border-[#808080] bg-white"
-      }`}
-    >
-      {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-    </span>
   );
 }
 

@@ -1,4 +1,5 @@
 import type { NeighborhoodDto } from "../../../services/neighborhood.service";
+import { RadioIndicator } from "../../../components/RadioIndicator";
 
 function BackIcon() {
   return (
@@ -11,18 +12,6 @@ function BackIcon() {
         strokeWidth="1.7"
       />
     </svg>
-  );
-}
-
-function Radio({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${
-        checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#8a8a8a] bg-white"
-      }`}
-    >
-      {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-    </span>
   );
 }
 
@@ -156,7 +145,7 @@ export function AgencyNeighborhoodFilterPage({
                       </span>
                     ) : null}
                   </span>
-                  <Radio checked={checked} />
+                  <RadioIndicator checked={checked} />
                 </button>
               );
             })}

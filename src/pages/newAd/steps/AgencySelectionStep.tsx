@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { BottomSheet } from "../../../components/BottomSheet";
 import { TopBar } from "../../../components/TopBar";
+import { RadioIndicator } from "../../../components/RadioIndicator";
+import { SortIcon } from "../../../components/SortIcon";
 import { useAgencyInfiniteQuery } from "../../../hooks/agency.hooks";
 import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
@@ -12,6 +14,10 @@ import {
   AgencyDirectoryMapView,
   type AgencyDirectoryMapItem,
 } from "../../consultants/AgencyDirectoryMapView";
+import LinearArrowLeft2 from "../../../components/(icons)/LinearArrowLeft2";
+import LinearStar from "../../../components/(icons)/LinearStar";
+import LinearRanking from "../../../components/(icons)/LinearRanking";
+import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
 
 const pageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -75,57 +81,7 @@ function LocationIcon() {
   );
 }
 
-function SortIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path d="M5 3.5v13m0 0-2.5-2.6M5 16.5l2.5-2.6M15 16.5v-13m0 0-2.5 2.6M15 3.5l2.5 2.6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.45" />
-    </svg>
-  );
-}
 
-function MapIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path d="M4 5.5 9 3l6 2.5L20 3v15.5L15 21l-6-2.5L4 21V5.5Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.55" />
-      <path d="M9 3v15.5M15 5.5V21" stroke="currentColor" strokeWidth="1.55" />
-      <path d="M18.2 10.1c0 2.3-3.2 5.7-3.2 5.7s-3.2-3.4-3.2-5.7a3.2 3.2 0 1 1 6.4 0Z" fill="#fff" stroke="currentColor" strokeWidth="1.35" />
-      <circle cx="15" cy="10.1" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function StarIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path d="m10 2.4 2.2 4.4 4.9.7-3.5 3.4.8 4.9-4.4-2.3-4.4 2.3.8-4.9-3.5-3.4 4.9-.7L10 2.4Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.35" />
-    </svg>
-  );
-}
-
-function RankIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path d="M3 15.5h14M4.5 15.5v-4h3v4m1-7h3v7h-3v-7Zm4 3h3v4h-3v-4Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
-      <path d="m10 2 .7 1.5 1.7.2-1.2 1.2.3 1.7-1.5-.8-1.5.8.3-1.7-1.2-1.2 1.7-.2L10 2Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.1" />
-    </svg>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path d="M15.5 10H4.5m0 0 4-4m-4 4 4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-function Radio({ checked }: { checked: boolean }) {
-  return (
-    <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${checked ? "border-[#0b55d4] bg-[#0b55d4]" : "border-[#8a8a8a] bg-white"}`}>
-      {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-    </span>
-  );
-}
 
 function AgencyCard({
   agency,
@@ -156,12 +112,11 @@ function AgencyCard({
           </span>
         )}
 
-        <span className="flex min-w-0 flex-1 flex-col">
-          <strong className="truncate text-base font-semibold leading-7 text-[#4d4d4d]">{agency.name}</strong>
-          {agency.address ? <span className="mt-0.5 truncate text-[11px] leading-5 text-[#808080]">{agency.address}</span> : null}
-          <span className="mt-auto flex items-center justify-between pt-4 text-sm text-[#1a1a1a]">
-            <span className="flex items-center gap-1.5"><StarIcon /><span>امتیاز</span><b className="font-semibold text-[#00a66a]">{toPersianNumber(agency.score)}</b></span>
-            <span className="flex items-center gap-1.5"><RankIcon /><span>رتبه</span><b className="font-semibold text-[#00a66a]">{toPersianNumber(agency.rank)}</b></span>
+        <span className="flex min-w-0 flex-1 flex-col justify-between py-1.5">
+          <strong className="truncate text-base font-medium text-[#4d4d4d]">{agency.name}</strong>
+          <span className="flex items-center justify-between text-xs text-[#1a1a1a]">
+            <span className="flex items-center gap-1"><LinearStar  className="w-4 h-4 text-[#4D4D4D]"/><span>امتیاز</span><b className="font-semibold text-[#00a66a] px-2">{agency.score}</b></span>
+            <span className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><span>رتبه</span><b className="font-semibold text-[#00a66a] px-2">{agency.rank}</b></span>
           </span>
         </span>
       </button>
@@ -169,17 +124,17 @@ function AgencyCard({
       <div className="mx-4 h-px bg-[#d9d9d9]" />
 
       <div className="flex h-[58px] items-center justify-between gap-3 px-4" dir="rtl">
-        <button className="flex items-center gap-2 text-base font-medium text-[#4d4d4d]" onClick={onSelect} type="button">
-          <Radio checked={selected} />
-          <span>انتخاب</span>
+        <button className="flex items-center gap-3 text-[#4d4d4d]" onClick={onSelect} type="button">
+          <RadioIndicator checked={selected} />
+          <span className="text-sm font-medium">انتخاب</span>
         </button>
         <button
-          className={`flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-semibold ${selected ? "border-[#0b55d4] text-[#0b55d4]" : "border-[#cccccc] text-[#1a1a1a]"}`}
+          className={`flex h-10 px-4 py-2.5 items-center justify-center gap-2 rounded-xl border ${selected ? "border-[#0b55d4] text-[#0b55d4]" : "border-[#cccccc] text-[#1a1a1a]"}`}
           onClick={onOpenProfile}
           type="button"
         >
-          <span className="truncate">مشاهده پروفایل آژانس</span>
-          <ArrowIcon />
+          <span className="text-sm font-medium">مشاهده پروفایل آژانس</span>
+          <LinearArrowLeft2 className="text-[#4D4D4D] w-5 h-5"/>
         </button>
       </div>
     </article>
@@ -371,7 +326,7 @@ export function AgencySelectionStep({
               <LocationIcon /><span className="max-w-28 truncate">{selectedNeighborhood?.name ?? "محله"}</span>
             </button>
             <button className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => setIsSortOpen(true)} type="button">
-              <SortIcon /><span>{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</span>
+              <SortIcon className="h-5 w-5 text-[#4D4D4D]" /><span>{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</span>
             </button>
           </div>
         </div>
@@ -407,7 +362,7 @@ export function AgencySelectionStep({
 
       <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t border-[#eeeeee] bg-white px-4" dir="rtl">
         <button className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]" onClick={() => setView("map")} type="button">
-          <MapIcon /><span>نقشه</span>
+          <LinearMapsLocation className="w-6 h-6 text-[#4D4D4D]" /><span>نقشه</span>
         </button>
         <button
           className="h-12 min-w-0 flex-1 rounded-xl bg-[#0b55d4] px-4 text-base font-semibold text-white disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
@@ -457,7 +412,7 @@ export function AgencySelectionStep({
                   type="button"
                 >
                   <span>{item.title}</span>
-                  <Radio checked={checked} />
+                  <RadioIndicator checked={checked} />
                 </button>
               );
             })}

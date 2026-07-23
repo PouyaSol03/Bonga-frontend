@@ -574,6 +574,13 @@ export function ConsultantsDirectoryPage() {
     [],
   );
 
+  useEffect(() => {
+    if (mode !== "consultant") return;
+
+    setIsMapOpen(false);
+    setSelectedMapAgencyId(null);
+  }, [mode]);
+
   const handleModeChange = (nextMode: DirectoryMode) => {
     setMode(nextMode);
     setIsMapOpen(false);
@@ -600,7 +607,7 @@ export function ConsultantsDirectoryPage() {
     setSelectedNeighborhood(null);
   };
 
-  if (isMapOpen) {
+  if (isMapOpen && mode === "agency") {
     const mapCenter =
       selectedCity?.latitude !== undefined &&
       selectedCity.longitude !== undefined
@@ -623,6 +630,10 @@ export function ConsultantsDirectoryPage() {
             setIsMapOpen(false);
           }}
           onOpenAgency={navigateToAgency}
+          onOpenList={() => {
+            setSelectedMapAgencyId(null);
+            setIsMapOpen(false);
+          }}
           onSelectAgency={setSelectedMapAgencyId}
           selectedAgencyId={selectedMapAgencyId}
         />

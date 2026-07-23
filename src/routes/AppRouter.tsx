@@ -77,6 +77,14 @@ const ChatReportPage = lazyNamed(
   'ChatReportPage',
 )
 const ViewAdPage = lazyNamed(() => import('../pages/ViewAdPage'), 'ViewAdPage')
+const ViewAdPropertyInfoPage = lazyNamed(
+  () => import('../pages/viewAd/pages/ViewAdPropertyInfoPage'),
+  'ViewAdPropertyInfoPage',
+)
+const ViewAdEquipmentFacilitiesPage = lazyNamed(
+  () => import('../pages/viewAd/pages/ViewAdEquipmentFacilitiesPage'),
+  'ViewAdEquipmentFacilitiesPage',
+)
 const PublicAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const AgentPreviewPage = PublicAgencyPreviewPage
 
@@ -513,11 +521,11 @@ function getRoute(path: string): AppRoute {
   }
 
   if (/^\/ads\/[^/]+\/equipment-facilities\/?$/.test(path)) {
-    return { path, title: 'تجهیزات و امکانات', Component: ViewAdPage }
+    return { path, title: 'تجهیزات و امکانات', Component: ViewAdEquipmentFacilitiesPage }
   }
 
   if (/^\/ads\/[^/]+\/property-info\/?$/.test(path)) {
-    return { path, title: 'اطلاعات ملک', Component: ViewAdPage }
+    return { path, title: 'اطلاعات ملک', Component: ViewAdPropertyInfoPage }
   }
 
   if (/^\/ads\/[^/]+\/?$/.test(path)) {
@@ -528,8 +536,12 @@ function getRoute(path: string): AppRoute {
     return { path, title: 'پیش‌نمایش آگهی', Component: ViewAdPage, requiresAuth: true }
   }
 
-  if (/^\/preview-ad\/[^/]+\/(?:equipment-facilities|property-info)\/?$/.test(path)) {
-    return { path, title: 'پیش‌نمایش آگهی', Component: ViewAdPage, requiresAuth: true }
+  if (/^\/preview-ad\/[^/]+\/property-info\/?$/.test(path)) {
+    return { path, title: 'پیش‌نمایش اطلاعات ملک', Component: ViewAdPropertyInfoPage, requiresAuth: true }
+  }
+
+  if (/^\/preview-ad\/[^/]+\/equipment-facilities\/?$/.test(path)) {
+    return { path, title: 'پیش‌نمایش تجهیزات و امکانات', Component: ViewAdEquipmentFacilitiesPage, requiresAuth: true }
   }
 
   if (/^\/chat\/[^/]+\/report\/?$/.test(path)) {

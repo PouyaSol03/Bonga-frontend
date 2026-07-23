@@ -1,8 +1,99 @@
+import type { ComponentType, SVGProps } from "react";
+
+import LinearAdd from "../../components/(icons)/LinearAdd";
+import LinearAlbum from "../../components/(icons)/LinearAlbum";
+import LinearApartment from "../../components/(icons)/LinearApartment";
+import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
+import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
+import LinearArrowRight1 from "../../components/(icons)/LinearArrowRight1";
+import LinearArrowUp1 from "../../components/(icons)/LinearArrowUp1";
+import LinearAttachment from "../../components/(icons)/LinearAttachment";
+import LinearBed from "../../components/(icons)/LinearBed";
+import LinearBookmarkAll from "../../components/(icons)/LinearBookmarkAll";
+import LinearBookmarkSolid from "../../components/(icons)/LinearBookmarkSolid";
+import LinearBuilding from "../../components/(icons)/LinearBuilding";
+import LinearCabinet from "../../components/(icons)/LinearCabinet";
+import LinearCalendar from "../../components/(icons)/LinearCalendar";
+import LinearCeramic from "../../components/(icons)/LinearCeramic";
+import LinearChat from "../../components/(icons)/LinearChat";
+import LinearCooler from "../../components/(icons)/LinearCooler";
+import LinearDimensions from "../../components/(icons)/LinearDimensions";
+import LinearDocument from "../../components/(icons)/LinearDocument";
+import LinearEvalator from "../../components/(icons)/LinearEvalator";
+import LinearExchange from "../../components/(icons)/LinearExchange";
+import LinearFloor from "../../components/(icons)/LinearFloor";
+import LinearInformation from "../../components/(icons)/LinearInformation";
+import LinearLocation from "../../components/(icons)/LinearLocation";
+import LinearMoney from "../../components/(icons)/LinearMoney";
+import LinearMoreVertical from "../../components/(icons)/LinearMoreVertical";
+import LinearNavigation from "../../components/(icons)/LinearNavigation";
+import LinearNoteAdd from "../../components/(icons)/LinearNoteAdd";
+import LinearParking from "../../components/(icons)/LinearParking";
+import LinearPayment from "../../components/(icons)/LinearPayment";
+import LinearRadiator from "../../components/(icons)/LinearRadiator";
+import LinearRanking from "../../components/(icons)/LinearRanking";
+import LinearRequestList from "../../components/(icons)/LinearRequestList";
+import LinearRuler from "../../components/(icons)/LinearRuler";
+import LinearSaveMoney from "../../components/(icons)/LinearSaveMoney";
+import LinearShare from "../../components/(icons)/LinearShare";
+import LinearStar from "../../components/(icons)/LinearStar";
+import LinearTerrace from "../../components/(icons)/LinearTerrace";
+import LinearTooman from "../../components/(icons)/LinearTooman";
+import LinearUnderfloorHeating from "../../components/(icons)/LinearUnderfloorHeating";
+import LinearVideo from "../../components/(icons)/LinearVideo";
+import LinearWarehouse from "../../components/(icons)/LinearWarehouse";
+import LinearWaterCooler from "../../components/(icons)/LinearWaterCooler";
+import LinearWaterHeater from "../../components/(icons)/LinearWaterHeater";
+import LinearYard from "../../components/(icons)/LinearYard";
 import type { IconName } from "./viewAdTypes";
 
-function PublicIcon({ className, src }: { className: string; src: string }) {
-  return <img alt="" aria-hidden="true" className={`${className} object-contain`} src={src} />;
-}
+type SvgIconComponent = ComponentType<SVGProps<SVGSVGElement>>;
+
+const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = {
+  add: LinearAdd,
+  album: LinearAlbum,
+  apartment: LinearApartment,
+  area: LinearDimensions,
+  attachment: LinearAttachment,
+  arrowLeft: LinearArrowLeft1,
+  arrowDown: LinearArrowDown1,
+  arrowUp: LinearArrowUp1,
+  back: LinearArrowRight1,
+  bed: LinearBed,
+  building: LinearBuilding,
+  cabinet: LinearCabinet,
+  calendar: LinearCalendar,
+  ceramic: LinearCeramic,
+  chat: LinearChat,
+  checklist: LinearRequestList,
+  cooler: LinearCooler,
+  document: LinearDocument,
+  elevator: LinearEvalator,
+  exchange: LinearExchange,
+  floor: LinearFloor,
+  info: LinearInformation,
+  loan: LinearSaveMoney,
+  location: LinearLocation,
+  money: LinearMoney,
+  more: LinearMoreVertical,
+  navigation: LinearNavigation,
+  note: LinearNoteAdd,
+  parking: LinearParking,
+  payment: LinearPayment,
+  radiator: LinearRadiator,
+  ranking: LinearRanking,
+  ruler: LinearRuler,
+  share: LinearShare,
+  star: LinearStar,
+  terrace: LinearTerrace,
+  tooman: LinearTooman,
+  underfloorHeating: LinearUnderfloorHeating,
+  video: LinearVideo,
+  warehouse: LinearWarehouse,
+  waterCooler: LinearWaterCooler,
+  waterHeater: LinearWaterHeater,
+  yard: LinearYard,
+};
 
 export function ViewAdIcon({
   className = "",
@@ -13,122 +104,13 @@ export function ViewAdIcon({
   filled?: boolean;
   name: IconName;
 }) {
-  const common = {
-    className: `h-6 w-6 shrink-0 ${className}`,
-    fill: "none",
-    stroke: "currentColor",
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    strokeWidth: 1.8,
-    viewBox: "0 0 24 24",
-  };
+  const resolvedClassName = `h-6 w-6 shrink-0 ${className}`;
 
-  switch (name) {
-    case "add":
-      return <svg {...common}><path d="M12 5v14M5 12h14" /></svg>;
-    case "album":
-      return <svg {...common}><rect width="15" height="15" x="5" y="4" rx="2" /><path d="M3 8v10a2 2 0 0 0 2 2h10" /></svg>;
-    case "apartment":
-      return <svg {...common}><path d="M7 21V4h10v17M10 8h4M10 12h4M10 16h4" /></svg>;
-    case "area":
-      return (
-        <svg {...common} viewBox="0 0 20 20">
-          <path d="M5 6.667H2.5M5 10H2.5M5 13.333H2.5M13.333 15v2.5M10 15v2.5M6.667 15v2.5M2.5 3.333v13.334c0 .46.373.833.833.833h13.334c.46 0 .833-.373.833-.833V12.5c0-.46-.373-.833-.833-.833H8.333V3.333c0-.46-.373-.833-.833-.833H3.333c-.46 0-.833.373-.833.833Z" strokeWidth="1.5" />
-        </svg>
-      );
-    case "attachment":
-      return <svg {...common}><path d="m8.5 12.5 5.8-5.8a3 3 0 1 1 4.2 4.2l-7.6 7.6a5 5 0 0 1-7.1-7.1l7.7-7.7" /></svg>;
-    case "arrowLeft":
-      return <svg {...common}><path d="m15 6-6 6 6 6" /></svg>;
-    case "arrowDown":
-      return <svg {...common}><path d="m6 9 6 6 6-6" /></svg>
-    case "arrowUp":
-      return <svg {...common}><path d="m6 15 6-6 6 6" /></svg>
-    case "back":
-      return <svg {...common}><path d="M4 12h16M14 6l6 6-6 6" /></svg>;
-    case "bed":
-      return <svg {...common}><path d="M4 11V6M20 14H4M20 18v-4a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3v4M8 11V9h5v2" /></svg>;
-    case "bookmark":
-      if (filled) {
-        return (
-          <svg {...common} fill="currentColor">
-            <path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
-          </svg>
-        );
-      }
-
-      return (
-        <svg {...common}>
-          <path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
-        </svg>
-      );
-    case "building":
-      return <svg {...common}><path d="M6 21V4h10v17M10 8h2M10 12h2M10 16h2M16 10h2v11" /></svg>;
-    case "cabinet":
-      return <svg {...common}><path d="M4 6h16v14H4V6ZM4 11h16M12 6v14M8 14h.01M16 14h.01" /></svg>;
-    case "calendar":
-      return <svg {...common}><path d="M8 3v4M16 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" /></svg>;
-    case "ceramic":
-      return <svg {...common}><path d="M4 7h7v5H4V7ZM13 7h7v5h-7V7ZM4 14h7v3H4v-3ZM13 14h7v3h-7v-3Z" /></svg>;
-    case "chat":
-      return <PublicIcon className={common.className} src="/icons/chat.svg" />;
-    case "checklist":
-      return <svg {...common}><rect width="15" height="17" x="5" y="4" rx="2" /><path d="m8 9 1.5 1.5L12 8M14 10h3M8 15l1.5 1.5L12 14M14 16h3" /></svg>;
-    case "cooler":
-      return <svg {...common}><rect width="18" height="8" x="3" y="4" rx="2" /><path d="M8 17v2M12 17v2M16 17v2M8 12c0 2 8 2 8 0" /></svg>;
-    case "document":
-      return <svg {...common}><path d="M6 3h8l4 4v14H6V3ZM14 3v5h5M9 13h6M9 17h4" /></svg>;
-    case "elevator":
-      return <svg {...common}><rect width="14" height="18" x="5" y="3" rx="1.5" /><path d="M12 6v12M8.5 11l-2 2-2-2M15.5 13l2-2 2 2" /></svg>;
-    case "exchange":
-      return <svg {...common}><path d="M7 7h13l-4-4M17 17H4l4 4" /></svg>;
-    case "floor":
-      return <svg {...common}><path d="M6 21V4h12v17M9 8h6M9 12h6M9 16h6M4 21h16" /></svg>;
-    case "info":
-      return <svg {...common}><path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z" /><path d="M12 10v6M12 7.5h.01" /></svg>;
-    case "loan":
-      return <svg {...common}><path d="M4 10h16v8H4v-8ZM7 10V7a5 5 0 0 1 10 0v3M8 14h.01M16 14h.01" /></svg>;
-    case "location":
-      return <svg {...common}><path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11Z" /><circle cx="12" cy="10" r="2.4" /></svg>;
-    case "money":
-      return <svg {...common}><rect width="18" height="10" x="3" y="7" rx="2" /><path d="M7 12h.01M17 12h.01M12 9.5a2.5 2.5 0 1 1 0 5" /></svg>;
-    case "more":
-      return <svg {...common}><path d="M12 6h.01M12 12h.01M12 18h.01" /></svg>;
-    case "navigation":
-      return <svg {...common}><path d="m12 3 7 18-7-4-7 4 7-18Z" /></svg>;
-    case "note":
-      return <PublicIcon className={common.className} src="/icons/note_add.svg" />;
-    case "parking":
-      return <svg {...common}><path d="M5 21V7l7-4 7 4v14M8 16h8M8 16l1.5-5h5l1.5 5M9 18h.01M15 18h.01" /></svg>;
-    case "payment":
-      return <svg {...common}><rect width="18" height="11" x="3" y="7" rx="2" /><path d="M3 10h18M7 15h4" /></svg>;
-    case "radiator":
-      return <svg {...common}><path d="M5 10h14v9H5v-9ZM8 10V6M12 10V6M16 10V6M7 19v2M17 19v2M8 15h8" /></svg>;
-    case "ruler":
-      return <svg {...common}><path d="M4 17 17 4l3 3L7 20l-3-3ZM8 13l3 3M11 10l2 2M14 7l3 3" /></svg>;
-    case "share":
-      return <PublicIcon className={common.className} src="/icons/share.svg" />;
-    case "ranking":
-      return <PublicIcon className={common.className} src="/icons/ranking.svg" />;
-    case "star":
-      return <PublicIcon className={common.className} src="/icons/star.svg" />;
-    case "terrace":
-      return <svg {...common}><path d="M5 21v-7h14v7M4 10l8-7 8 7H4ZM9 21v-7M15 21v-7" /></svg>;
-    case "tooman":
-      return <svg {...common}><path d="M6 7h12M9 7v10M15 7v10M5 17h14" /></svg>;
-    case "underfloorHeating":
-      return <svg {...common}><path d="M4 15c2.5-3 5.5 3 8 0s5.5 3 8 0M7 4v6M12 4v6M17 4v6" /></svg>;
-    case "video":
-      return <svg {...common}><path d="M4 8h10v8H4zM14 11l6-3v8l-6-3" /></svg>;
-    case "warehouse":
-      return <svg {...common}><path d="M4 21V9l8-5 8 5v12M8 21v-8h8v8M8 13h8M10 17h4" /></svg>;
-    case "waterCooler":
-      return <svg {...common}><path d="M6 4h12v16H6V4ZM9 8h6M9 12h6M9 16h3" /></svg>;
-    case "waterHeater":
-      return <svg {...common}><rect width="10" height="17" x="7" y="3" rx="2" /><circle cx="12" cy="13" r="2.5" /><path d="M10 21v-1M14 21v-1" /></svg>;
-    case "yard":
-      return <svg {...common}><path d="M12 21V10M7 14c-2-1-3-3-3-5 4 0 6 2 8 5M17 14c2-1 3-3 3-5-4 0-6 2-8 5M8 21h8" /></svg>;
-    default:
-      return null;
+  if (name === "bookmark") {
+    const BookmarkIcon = filled ? LinearBookmarkSolid : LinearBookmarkAll;
+    return <BookmarkIcon aria-hidden="true" className={resolvedClassName} />;
   }
+
+  const IconComponent = iconComponents[name];
+  return <IconComponent aria-hidden="true" className={resolvedClassName} />;
 }

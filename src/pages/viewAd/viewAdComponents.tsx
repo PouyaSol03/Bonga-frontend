@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { ColorableSvgIcon } from "../../components/ColorableSvgIcon";
+import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { ViewAdIcon } from "./ViewAdIcon";
@@ -17,18 +19,20 @@ function DetailItemIcon({
   className?: string;
   item: Pick<
     DetailItem,
-    "icon" | "iconSrc" | "hideFallbackIcon" | "label" | "value"
+    "icon" | "iconSrc" | "featureIconLabel" | "hideFallbackIcon" | "label" | "value"
   >;
 }) {
-  if (item.iconSrc) {
+  if (item.featureIconLabel) {
     return (
-      <img
-        alt={item.label || item.value}
-        className={`${className} object-contain`}
-        src={item.iconSrc}
-        title={item.label || item.value}
+      <FeaturesIcons
+        className={className}
+        feature={item.featureIconLabel}
       />
     );
+  }
+
+  if (item.iconSrc) {
+    return <ColorableSvgIcon className={className} src={item.iconSrc} />;
   }
 
   if (item.hideFallbackIcon) {

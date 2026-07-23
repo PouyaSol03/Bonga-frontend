@@ -1,4 +1,4 @@
-import { getFeatureIconSrc } from "../lib/handleFeaturesIcons";
+import { FeatureIcon } from "./FeatureIcon";
 
 type FeaturesIconsProps = {
   feature: string;
@@ -7,18 +7,7 @@ type FeaturesIconsProps = {
 
 export function FeaturesIcons({
   feature,
-  className = "w-6 h-6 object-contain",
+  className = "h-6 w-6",
 }: FeaturesIconsProps) {
-  const iconSrc = getFeatureIconSrc(feature);
-
-  if (!iconSrc) return null;
-
-  return (
-    <img
-      src={iconSrc}
-      alt={feature}
-      title={feature}
-      className={className}
-    />
-  );
+  return <FeatureIcon className={className} feature={feature} />;
 }

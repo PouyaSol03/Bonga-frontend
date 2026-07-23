@@ -110,9 +110,12 @@ export const blankValues: NewAdFormValues = {
 
   registrantType: "",
   publisherName: "",
+  agencyId: "",
   chatEnabled: false,
   phoneEnabled: false,
   phoneNumber: "",
+  ownerFullName: "",
+  ownerExactAddress: "",
   telegram: "",
   whatsapp: "",
 

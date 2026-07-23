@@ -29,7 +29,7 @@ export function RadioCard({
   return (
     <button
       aria-pressed={checked}
-      className={`w-full rounded-[12px] border px-4 py-4 text-right [direction:ltr] ${checked ? "border-[#0048c4] bg-[#0048C414]" : "border-[#cccccc]"
+      className={`w-full rounded-[12px] border px-4 py-3.5 text-right [direction:ltr] ${checked ? "border-[#0048c4] bg-[#0048C414]" : "border-[#cccccc]"
         }`}
       onClick={onClick}
       type="button"
@@ -55,9 +55,21 @@ export function RadioCard({
           }`}
       >
         <div className="overflow-hidden">
-          <p className="m-0 rounded-[10px] text-right text-sm font-normal leading-6 text-[#4B5070] [direction:rtl]">
-            {description}
-          </p>
+          <div className="flex items-start gap-2 [direction:rtl]">
+            <svg
+              aria-hidden="true"
+              className="mt-0.5 h-4 w-4 shrink-0 text-[#4d4d4d]"
+              fill="none"
+              viewBox="0 0 16 16"
+            >
+              <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.25" />
+              <path d="M8 6.9v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.25" />
+              <circle cx="8" cy="4.9" fill="currentColor" r=".65" />
+            </svg>
+            <p className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal leading-6 text-[#4B5070]">
+              {description}
+            </p>
+          </div>
         </div>
       </div>
     </button>

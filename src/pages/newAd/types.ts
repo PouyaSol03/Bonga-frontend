@@ -2,7 +2,8 @@ export type FlowStep =
   | "details"
   | "moreFeatures"
   | "projectDetails"
-  | "media";
+  | "media"
+  | "agencySelection";
 
 export type RegistrantType = "" | "personal" | "agency";
 
@@ -251,9 +252,12 @@ export type NewAdFormValues = {
 
   registrantType: RegistrantType;
   publisherName: string;
+  agencyId: string;
   chatEnabled: boolean;
   phoneEnabled: boolean;
   phoneNumber: string;
+  ownerFullName: string;
+  ownerExactAddress: string;
   telegram: string;
   whatsapp: string;
 

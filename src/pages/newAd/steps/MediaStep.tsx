@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { PublisherSelectField } from "../../account/adManagement/PublisherSelectField";
-import { adManagementPublisherOptions } from "../../account/adManagement/adManagementData";
+import { getStoredAuthSession } from "../../../auth/auth-storage";
+import { useMyProfileQuery } from "../../../hooks/account.hooks";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
+import { AdInformationFields } from "../components/AdInformationFields";
 import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
-import { CheckRow, RadioCard, SocialInput } from "../components/MediaControls";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
 
 function FieldError({ message }: { message?: string }) {
@@ -21,7 +21,6 @@ function FieldError({ message }: { message?: string }) {
 
 export function MediaStep({
   errors = {},
-  forceFullEditFields = false,
   label,
   onBack,
   onClearError,
@@ -39,8 +38,19 @@ export function MediaStep({
   const desktop = useNewAdDesktopLayout();
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
-  const isAgencyFlow = !forceFullEditFields && values.registrantType === "agency";
-  const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
+  const { data: profile } = useMyProfileQuery();
+  const storedMobile = getStoredAuthSession()?.mobile?.trim() ?? "";
+  const profileMobile = profile?.mobile?.trim() || storedMobile;
+  const profileFullName = [profile?.name, profile?.family]
+    .map((part) => part?.trim() ?? "")
+    .filter(Boolean)
+    .join(" ");
+  const isAgencyFlow = values.registrantType === "agency";
+
+  const setField = <T extends keyof NewAdFormValues>(
+    key: T,
+    value: NewAdFormValues[T],
+  ) => {
     setValue(key as never, value as never, { shouldDirty: true });
     onClearError?.(key);
 
@@ -52,29 +62,69 @@ export function MediaStep({
   useEffect(() => {
     if (!isAgencyFlow) return;
 
-    if (!values.publisherName) {
-      setField("publisherName", adManagementPublisherOptions[0]?.name ?? "");
+    if (!values.chatEnabled) {
+      setValue("chatEnabled", true, { shouldDirty: true });
     }
-    if (values.chatEnabled) setField("chatEnabled", false);
-    if (values.phoneEnabled) setField("phoneEnabled", false);
-    if (values.phoneNumber) setField("phoneNumber", "");
-    if (values.telegram) setField("telegram", "");
-    if (values.whatsapp) setField("whatsapp", "");
+    if (!values.phoneEnabled) {
+      setValue("phoneEnabled", true, { shouldDirty: true });
+    }
+    if (!values.phoneNumber && profileMobile) {
+      setValue("phoneNumber", profileMobile, { shouldDirty: true });
+    }
+    if (!values.ownerFullName && profileFullName) {
+      setValue("ownerFullName", profileFullName, { shouldDirty: true });
+    }
   }, [
     isAgencyFlow,
+    profileFullName,
+    profileMobile,
+    setValue,
     values.chatEnabled,
+    values.ownerFullName,
     values.phoneEnabled,
     values.phoneNumber,
-    values.publisherName,
-    values.telegram,
-    values.whatsapp,
   ]);
+
+  const selectPersonal = () => {
+    setField("registrantType", "personal");
+    setField("publisherName", "");
+    setField("agencyId", "");
+    setField("chatEnabled", true);
+    setField("phoneEnabled", false);
+    setField("phoneNumber", "");
+  };
+
+  const selectAgency = () => {
+    setField("registrantType", "agency");
+    setField("publisherName", "");
+    setField("agencyId", "");
+    setField("chatEnabled", true);
+    setField("phoneEnabled", true);
+
+    if (profileMobile) setField("phoneNumber", profileMobile);
+    if (!values.ownerFullName && profileFullName) {
+      setField("ownerFullName", profileFullName);
+    }
+  };
+
+  const primaryLabel = submitDisabled
+    ? isAgencyFlow
+      ? "در حال آماده‌سازی..."
+      : "در حال ثبت..."
+    : isAgencyFlow
+      ? "انتخاب آژانس"
+      : "ثبت آگهی";
 
   return (
     <>
-      <main className={desktop
-        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
-        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"} dir="rtl">
+      <main
+        className={
+          desktop
+            ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+            : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"
+        }
+        dir="rtl"
+      >
         <Section icon="image.svg" title="عکس آگهی" warning>
           <PhotoUploader onChange={() => onClearError?.("photos")} />
           <FieldError message={errors.photos} />
@@ -89,7 +139,9 @@ export function MediaStep({
               }}
             />
           </div>
-          {values.hasVideo ? <VideoUploader onChange={() => onClearError?.("video")} /> : null}
+          {values.hasVideo ? (
+            <VideoUploader onChange={() => onClearError?.("video")} />
+          ) : null}
           <FieldError message={values.hasVideo ? errors.video : undefined} />
           <div className="mt-5">
             <Toggle
@@ -115,201 +167,24 @@ export function MediaStep({
         </Section>
 
         <Section icon="info.svg" title="اطلاعات آگهی" warning>
-          <div className="space-y-4">
-            <RegistrantTypeFields
-              error={errors.registrantType}
-              onSetField={setField}
-              publisherName={values.publisherName}
-              registrantType={values.registrantType}
-            />
-
-            {!isAgencyFlow ? (
-              <ContactFields
-                contactError={errors.contactMethods}
-                chatEnabled={values.chatEnabled}
-                onSetField={setField}
-                phoneEnabled={values.phoneEnabled}
-                phoneError={errors.phoneNumber}
-                phoneNumber={values.phoneNumber}
-              />
-            ) : null}
-
-            {!isAgencyFlow ? (
-              <SocialFields
-                onSetField={setField}
-                telegram={values.telegram}
-                whatsapp={values.whatsapp}
-              />
-            ) : null}
-
-            <div className="border-t border-dashed border-[#cccccc] pt-4">
-              {isAgencyFlow ? (
-                <div className="mb-6">
-                  <div className="mb-3 text-right text-base font-medium leading-6 text-[#4d4d4d]">
-                    منتشرکننده آگهی
-                  </div>
-                  <PublisherSelectField
-                    onChange={(publisher) => setField("publisherName", publisher?.name ?? "")}
-                    value={values.publisherName || adManagementPublisherOptions[0]?.name}
-                  />
-                  <div className="mt-6 border-t border-dashed border-[#cccccc]" />
-                </div>
-              ) : null}
-
-              <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">
-                عنوان آگهی <span className="text-[#ff3b30]">*</span>
-              </div>
-              <InputBox
-                error={errors.title}
-                onChange={(value) => setField("title", value)}
-                placeholder={`مثال: ${label} ۱۲۰ متری، ۲ خوابه، طبقه اول`}
-                value={values.title}
-              />
-            </div>
-
-            <div>
-              <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">
-                توضیحات آگهی <span className="text-[#ff3b30]">*</span>
-              </div>
-              <label className={`block min-h-32 w-full rounded-[12px] border bg-white px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] ${errors.description ? "border-[#ff3b30]" : "border-[#cccccc]"}`}>
-                <textarea
-                  aria-invalid={Boolean(errors.description)}
-                  className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6]"
-                  onChange={(event) => setField("description", event.target.value)}
-                  placeholder="اطلاعات بیشتر را وارد کنید..."
-                  value={values.description}
-                />
-              </label>
-              <FieldError message={errors.description} />
-            </div>
-          </div>
+          <AdInformationFields
+            errors={errors}
+            label={label}
+            mobile={profileMobile || values.phoneNumber}
+            onSelectAgency={selectAgency}
+            onSelectPersonal={selectPersonal}
+            onSetField={setField}
+            values={values}
+          />
         </Section>
       </main>
+
       <Footer
         disabled={submitDisabled}
         onBack={onBack}
         onPrimary={onSubmit}
-        primary={submitDisabled ? "در حال ثبت..." : "ثبت اطلاعات"}
+        primary={primaryLabel}
       />
     </>
-  );
-}
-
-type SetNewAdField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => void;
-
-function RegistrantTypeFields({
-  error,
-  onSetField,
-  publisherName,
-  registrantType,
-}: {
-  error?: string;
-  onSetField: SetNewAdField;
-  publisherName: string;
-  registrantType: NewAdFormValues["registrantType"];
-}) {
-  return (
-    <div>
-      <div className="mb-3 text-right leading-7 text-[#1a1a1a]">
-        ثبت کننده آگهی <span className="text-[#ff3b30]">*</span>
-      </div>
-      <div className="space-y-3">
-        <RadioCard
-          checked={registrantType === "personal"}
-          label="شخصی"
-          description={`با فعال بودن این گزینه، می‌توانید آگهی خود را به صورت شخصی ثبت نمایید.
-بعد از ثبت اطلاعات به صفحه وضعیت آگهی می‌روید.`}
-          onClick={() => {
-            onSetField("registrantType", "personal");
-            onSetField("publisherName", "");
-          }}
-        />
-
-        <RadioCard
-          badge="رایگان"
-          checked={registrantType === "agency"}
-          label="آژانس"
-          description={`با فعال بودن این گزینه، می‌توانید آگهی خود را به آژانس املاکی مورد نظر خود بسپارید.
-بعد از ثبت اطلاعات به صفحه انتخاب آژانس املاک هدایت می‌روید.`}
-          onClick={() => {
-            onSetField("registrantType", "agency");
-            if (!publisherName) {
-              onSetField("publisherName", adManagementPublisherOptions[0]?.name ?? "");
-            }
-          }}
-        />
-      </div>
-      <FieldError message={error} />
-    </div>
-  );
-}
-
-function ContactFields({
-  chatEnabled,
-  contactError,
-  onSetField,
-  phoneEnabled,
-  phoneError,
-  phoneNumber,
-}: {
-  chatEnabled: boolean;
-  contactError?: string;
-  onSetField: SetNewAdField;
-  phoneEnabled: boolean;
-  phoneError?: string;
-  phoneNumber: string;
-}) {
-  return (
-    <div className="border-t border-dashed border-[#cccccc] pt-4">
-      <div className="mb-2 flex items-center justify-start gap-1 font-semibold leading-7 text-[#1a1a1a]">
-        <span>
-          روش‌های ارتباطی <span className="text-[#ff3b30]">*</span>
-        </span>
-        <img src="/icons/add_advertisement/warning.svg" alt="" />
-      </div>
-      <CheckRow checked={chatEnabled} label="چت با کاربران" onChange={(checked) => onSetField("chatEnabled", checked)} />
-      <CheckRow
-        checked={phoneEnabled}
-        label="شماره تماس"
-        onChange={(checked) => {
-          onSetField("phoneEnabled", checked);
-          if (!checked) onSetField("phoneNumber", "");
-        }}
-      />
-      <FieldError message={contactError} />
-      {phoneEnabled ? (
-        <div className="mt-3">
-          <InputBox
-            error={phoneError}
-            numeric
-            onChange={(value) => onSetField("phoneNumber", value)}
-            placeholder="شماره تماس را وارد کنید *"
-            value={phoneNumber}
-          />
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function SocialFields({
-  onSetField,
-  telegram,
-  whatsapp,
-}: {
-  onSetField: SetNewAdField;
-  telegram: string;
-  whatsapp: string;
-}) {
-  return (
-    <div>
-      <div className="mb-3 text-right font-semibold leading-7 text-[#1a1a1a]">
-        شبکه‌های اجتماعی
-      </div>
-      <div className="space-y-3">
-        <SocialInput icon="telegram" onChange={(value) => onSetField("telegram", value)} placeholder="آیدی تلگرام خود را وارد کنید" value={telegram} />
-        <SocialInput icon="whatsapp" onChange={(value) => onSetField("whatsapp", value)} placeholder="شماره واتساپ خود را بدون صفر وارد کنید" value={whatsapp} />
-      </div>
-    </div>
   );
 }

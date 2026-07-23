@@ -6,6 +6,7 @@ import { PageFrame } from "../../app/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
 import { getCategoryList, type CategoryItem } from "../../services/category.service";
+import type { PublicAgencyDto } from "../../services/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../services/crm.service";
 import { Snackbar } from "../../components/Snackbar";
 import { useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../hooks/advertisement.hooks";
@@ -27,6 +28,7 @@ import {
 } from "./data";
 import { DetailsStep } from "./steps/DetailsStep";
 import { MediaStep } from "./steps/MediaStep";
+import { AgencySelectionStep } from "./steps/AgencySelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
 import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
@@ -674,8 +676,9 @@ function getMediaValidationErrors(
   options: { forceFullEditFields?: boolean } = {},
 ): NewAdFieldErrors {
   const errors: NewAdFieldErrors = {};
-  const shouldRequireContactFields =
-    options.forceFullEditFields || values.registrantType !== "agency";
+  const isAgencyFlow = values.registrantType === "agency";
+  const shouldRequirePersonalContactFields =
+    options.forceFullEditFields || values.registrantType === "personal";
 
   if (values.photos.length === 0) {
     errors.photos = "لطفا حداقل یک عکس برای آگهی انتخاب کنید.";
@@ -689,16 +692,24 @@ function getMediaValidationErrors(
     errors.virtualTourLink = "لطفا لینک تور مجازی را وارد کنید.";
   }
 
-  if (shouldRequireContactFields && !values.registrantType) {
+  if (!values.registrantType) {
     errors.registrantType = "لطفا نوع ثبت کننده آگهی را انتخاب کنید.";
   }
 
-  if (shouldRequireContactFields && !values.chatEnabled && !values.phoneEnabled) {
+  if (shouldRequirePersonalContactFields && !values.chatEnabled && !values.phoneEnabled) {
     errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
   }
 
-  if (shouldRequireContactFields && values.phoneEnabled && !hasRequiredText(values.phoneNumber)) {
+  if (shouldRequirePersonalContactFields && values.phoneEnabled && !hasRequiredText(values.phoneNumber)) {
     errors.phoneNumber = "لطفا شماره تماس را وارد کنید.";
+  }
+
+  if (isAgencyFlow && !hasRequiredText(values.ownerFullName)) {
+    errors.ownerFullName = "لطفا نام و نام خانوادگی خود را وارد کنید.";
+  }
+
+  if (isAgencyFlow && !hasRequiredText(values.ownerExactAddress)) {
+    errors.ownerExactAddress = "لطفا آدرس دقیق منزل را وارد کنید.";
   }
 
   if (!hasRequiredText(values.title)) {
@@ -811,6 +822,9 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
   setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
   setText("publisherName", readPublisherName(ad, features));
+  setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId"], ["agency_id", "agencyId"]));
+  setText("ownerFullName", readTextValue(ad, features, ["owner_name", "advertiser_name"], ["owner_name", "advertiser_name"]));
+  setText("ownerExactAddress", readTextValue(ad, features, ["owner_address", "contact_address"], ["owner_address", "contact_address"]));
   setText("telegram", readSocialValue(ad, "telegram"));
   setText("whatsapp", readSocialValue(ad, "whatsapp"));
 
@@ -1110,6 +1124,44 @@ export function NewAdFlowPage() {
     ? editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`
     : "/crm/advertises";
   const leaveCrmEditor = () => navigateTo(crmReturnTo);
+  const goToAgencySelection = () => {
+    const values = methods.getValues();
+    const validation = validateNewAd(values, { forceFullEditFields: isEditMode });
+
+    if (validation) {
+      setFieldErrors(validation.errors);
+      setSubmitError("");
+      setStep(validation.step);
+      return;
+    }
+
+    setFieldErrors({});
+    setSubmitError("");
+    setStep("agencySelection");
+  };
+
+  const handleMediaPrimary = () => {
+    const values = methods.getValues();
+    const shouldChooseAgency = !isEditMode && !isCrmSource && values.registrantType === "agency";
+
+    if (shouldChooseAgency) {
+      goToAgencySelection();
+      return;
+    }
+
+    void submit();
+  };
+
+  const selectAgency = (agency: PublicAgencyDto | null) => {
+    methods.setValue("agencyId", agency?.id ?? "", { shouldDirty: true });
+    methods.setValue("publisherName", agency?.name ?? "", { shouldDirty: true });
+  };
+
+  const confirmAgency = (agency: PublicAgencyDto) => {
+    selectAgency(agency);
+    window.setTimeout(() => void submit(), 0);
+  };
+
   const goToMedia = () => {
     const validation = validateNewAdDetails(methods.getValues());
 
@@ -1128,9 +1180,11 @@ export function NewAdFlowPage() {
       ? "ویژگی‌های بیشتر"
       : step === "projectDetails"
         ? "جزئیات پروژه"
-        : isEditMode
-          ? "ویرایش آگهی"
-          : "ثبت آگهی";
+        : step === "agencySelection"
+          ? "ثبت آگهی / انتخاب آژانس"
+          : isEditMode
+            ? "ویرایش آگهی"
+            : "ثبت آگهی";
 
   return (
     <PageFrame
@@ -1140,10 +1194,12 @@ export function NewAdFlowPage() {
       <FormProvider {...methods}>
         <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
           <div className="contents">
-            <Header
-              title={headerTitle}
-              onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : isCrmEditMode ? leaveCrmEditor : undefined}
-            />
+            {step !== "agencySelection" ? (
+              <Header
+                title={headerTitle}
+                onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : isCrmEditMode ? leaveCrmEditor : undefined}
+              />
+            ) : null}
 
         {submitError ? (
           <Snackbar
@@ -1176,6 +1232,13 @@ export function NewAdFlowPage() {
           <ProjectDetailsStep
             onBack={goToDetails}
           />
+        ) : step === "agencySelection" ? (
+          <AgencySelectionStep
+            onBack={() => setStep("media")}
+            onConfirm={confirmAgency}
+            onSelect={selectAgency}
+            selectedAgencyId={methods.watch("agencyId")}
+          />
         ) : (
           <MediaStep
             errors={fieldErrors}
@@ -1183,7 +1246,7 @@ export function NewAdFlowPage() {
             label={label}
             onBack={goToDetails}
             onClearError={clearFieldError}
-            onSubmit={submit}
+            onSubmit={handleMediaPrimary}
             submitDisabled={
               createAdvertisement.isPending ||
               crmSaveMutation.isPending ||

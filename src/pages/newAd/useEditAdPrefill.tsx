@@ -488,6 +488,9 @@ export function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdF
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
   setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
   setText("publisherName", readPublisherName(ad, features));
+  setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId"], ["agency_id", "agencyId"]));
+  setText("ownerFullName", readTextValue(ad, features, ["owner_name", "advertiser_name"], ["owner_name", "advertiser_name"]));
+  setText("ownerExactAddress", readTextValue(ad, features, ["owner_address", "contact_address"], ["owner_address", "contact_address"]));
   setText("telegram", readSocialValue(ad, "telegram"));
   setText("whatsapp", readSocialValue(ad, "whatsapp"));
 

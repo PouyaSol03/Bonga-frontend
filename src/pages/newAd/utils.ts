@@ -250,6 +250,7 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     phoneNumber,
     price,
     publisherName,
+    agencyId: readText(ad.agency_id, ad.agencyId),
     registrantType: publisherName ? "agency" : "personal",
     rentPrice,
     rooms: pickFirstNumber(readText(card.rooms, ad.rooms)),
@@ -487,6 +488,7 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "has_virtual_tour", values.hasVirtualTour);
   addFeature(features, "advertiser_type", values.registrantType);
   addFeature(features, "publisher", values.registrantType === "agency" ? values.publisherName : "");
+  addFeature(features, "agency_id", values.registrantType === "agency" ? values.agencyId : "");
 
   if (isProject && !isPartnership) {
     addFeature(features, "project_total_floors", toNumber(values.projectTotalFloors));
@@ -518,6 +520,8 @@ export function buildPayload(values: NewAdFormValues) {
       values.phoneEnabled ? "phone" : null,
     ].filter(Boolean),
     owner_phone: values.phoneNumber || null,
+    owner_name: values.ownerFullName || null,
+    owner_address: values.ownerExactAddress || null,
     social: {
       telegram: values.telegram || null,
       whatsapp: values.whatsapp || null,
@@ -552,6 +556,11 @@ export function buildNewAdFormData(values: NewAdFormValues) {
     "contact_type",
     "owner_phone",
     "owner_type",
+    "agency_id",
+    "owner_name",
+    "owner_address",
+    "telegram",
+    "whatsapp",
   ]);
   const searchFlagFields = [
     "advertiser_type",
@@ -656,7 +665,12 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendValue("build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
   appendValue("advertiser_type", advertiserType);
   appendValue("owner_type", values.registrantType);
+  appendValue("agency_id", values.registrantType === "agency" ? values.agencyId : "");
   appendValue("owner_phone", values.phoneNumber);
+  appendValue("owner_name", values.ownerFullName);
+  appendValue("owner_address", values.ownerExactAddress);
+  appendValue("telegram", values.telegram);
+  appendValue("whatsapp", values.whatsapp);
   appendValue("has_image", values.photos.length > 0);
   appendValue("has_video", Boolean(values.video));
 

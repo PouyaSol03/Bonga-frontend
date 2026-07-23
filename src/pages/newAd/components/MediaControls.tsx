@@ -1,3 +1,5 @@
+import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
+
 function RadioIndicator({ checked }: { checked: boolean }) {
   return (
     <span
@@ -37,11 +39,11 @@ export function RadioCard({
       <div className="flex items-center justify-between">
         <RadioIndicator checked={checked} />
 
-        <span className="flex items-center gap-2  font-medium leading-7 text-[#1a1a1a] [direction:rtl]">
+        <span className="flex items-center gap-2 font-medium text-[#1a1a1a] [direction:rtl]">
           <span className={`${checked && 'text-[#0048c4]'}`}>{label}</span>
 
           {badge ? (
-            <span className="rounded-[4px] border border-[#11a366] px-2 py-0.5 text-sm font-medium leading-5 text-[#11a366]">
+            <span className="rounded-[4px] border border-[#11a366] px-2 py-0.5 text-sm font-medium text-[#11a366]">
               {badge}
             </span>
           ) : null}
@@ -56,17 +58,8 @@ export function RadioCard({
       >
         <div className="overflow-hidden">
           <div className="flex items-start gap-2 [direction:rtl]">
-            <svg
-              aria-hidden="true"
-              className="mt-0.5 h-4 w-4 shrink-0 text-[#4d4d4d]"
-              fill="none"
-              viewBox="0 0 16 16"
-            >
-              <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.25" />
-              <path d="M8 6.9v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.25" />
-              <circle cx="8" cy="4.9" fill="currentColor" r=".65" />
-            </svg>
-            <p className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal leading-6 text-[#4B5070]">
+            <LinearInfoCircle className="w-4 h-4 text-[#4D4D4D]"/>
+            <p className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal text-[#4B5070]">
               {description}
             </p>
           </div>

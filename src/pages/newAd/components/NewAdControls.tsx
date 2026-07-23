@@ -49,7 +49,7 @@ export function Section({
     <section
       className={desktop
         ? "rounded-xl border border-[#e1e7f0] bg-white px-6 py-6 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
-        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 py-7 text-right last:border-b-0 [direction:rtl]"}
+        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 pt-7 pb-5 text-right last:border-b-0 [direction:rtl]"}
     >
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">

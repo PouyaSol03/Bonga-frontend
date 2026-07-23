@@ -1,6 +1,7 @@
 import type { NewAdFieldErrors, NewAdFormValues } from "../types";
 import { InputBox } from "./NewAdControls";
 import { CheckRow, RadioCard, SocialInput } from "./MediaControls";
+import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
 
 type SetNewAdField = <T extends keyof NewAdFormValues>(
   key: T,
@@ -17,20 +18,6 @@ function FieldError({ message }: { message?: string }) {
   );
 }
 
-function InformationIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-5 w-5 shrink-0 text-[#4d4d4d]"
-      fill="none"
-      viewBox="0 0 20 20"
-    >
-      <circle cx="10" cy="10" r="7.75" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M10 8.6v4.2" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <circle cx="10" cy="6.2" fill="currentColor" r=".85" />
-    </svg>
-  );
-}
 
 function SectionHeading({ required = false, title }: { required?: boolean; title: string }) {
   return (
@@ -38,7 +25,7 @@ function SectionHeading({ required = false, title }: { required?: boolean; title
       <div className="text-right text-base font-semibold leading-7 text-[#1a1a1a]">
         {title} {required ? <span className="text-[#ff3b30]">*</span> : null}
       </div>
-      <InformationIcon />
+      <LinearInfoCircle className="w-6 h-6 text-[#4D4D4D]!" />
     </div>
   );
 }

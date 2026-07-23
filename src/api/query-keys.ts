@@ -77,6 +77,8 @@ export const queryKeys = {
     all: ["advertisements"] as const,
     checkout: (id: string) => [...queryKeys.advertisements.all, "checkout", id] as const,
     detail: (id: string) => [...queryKeys.advertisements.all, "detail", id] as const,
+    quickSearch: (query: string) =>
+      [...queryKeys.advertisements.all, "quick-search", query] as const,
     preview: (id: string) => [...queryKeys.advertisements.all, "preview", id] as const,
     list: (filters: { cityId?: string; filters?: unknown; perPage: number }) =>
       [

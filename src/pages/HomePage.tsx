@@ -548,7 +548,12 @@ export function HomePage() {
       <HomeSearchScreen
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        onSelectResult={(item) => navigateToSearch({ query: item.title })}
+        onSelectResult={(item) =>
+          navigateToSearch({
+            formCode: item.formCode,
+            query: item.title,
+          })
+        }
       />
 
       <CitySelectionScreen

@@ -1334,3 +1334,9 @@ input[type="search"]::-webkit-search-results-decoration {
     line-height: 22px;
   }
 }
+
+.agency-directory-map-marker-wrapper {
+  border: 0;
+  background: transparent;
+  filter: drop-shadow(0 8px 14px rgba(26, 26, 26, 0.18));
+}

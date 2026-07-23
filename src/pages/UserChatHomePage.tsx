@@ -12,6 +12,7 @@ import {
 import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
 import { DemoNotice } from "../components/DemoNotice";
 import { getRequestErrorState } from "../components/ErrorState";
+import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import {
   useBlockChatMutation,
   useChatEntryQuery,
@@ -889,24 +890,26 @@ const FilterTabs = memo(function FilterTabs({
   onSelect: (filter: string) => void;
 }) {
   return (
-    <section className="h-[52px] shrink-0 overflow-hidden bg-[#f0f0f0] px-4 py-2">
-      <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {filters.map((filter) => (
-          <button
-            aria-pressed={activeFilter === filter}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter
-              ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-              : "border-[#cccccc] bg-white text-[#4d4d4d]"
-              }`}
-            key={filter}
-            onClick={() => onSelect(filter)}
-            type="button"
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-    </section>
+    <HorizontalFilterBar
+      ariaLabel="فیلتر چت‌ها"
+      className="h-[52px] bg-[#f0f0f0]"
+      contentClassName="h-9"
+    >
+      {filters.map((filter) => (
+        <button
+          aria-pressed={activeFilter === filter}
+          className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter
+            ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
+            : "border-[#cccccc] bg-white text-[#4d4d4d]"
+            }`}
+          key={filter}
+          onClick={() => onSelect(filter)}
+          type="button"
+        >
+          {filter}
+        </button>
+      ))}
+    </HorizontalFilterBar>
   );
 });
 

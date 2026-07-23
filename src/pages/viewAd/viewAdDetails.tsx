@@ -1655,7 +1655,7 @@ function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
     <div className="border-b border-[#e0e0e0] last:border-b-0">
       <div className="flex items-center justify-start gap-2 py-4 text-right [direction:rtl]">
         {item.iconSrc ? (
-          <ColorableSvgIcon className="h-6 w-6 shrink-0" src={item.iconSrc} />
+          <ColorableSvgIcon className="h-6 w-6 shrink-0 text-[#4D4D4D]" src={item.iconSrc} />
         ) : null}
 
         <span className="text-base font-medium text-[#808080]">
@@ -1695,7 +1695,7 @@ function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
   const isRowsLayout = section.layout === "rows";
 
   return (
-    <section className="border-b-8 border-[#f0f0f0] bg-white px-4 py-4 last:border-b-0">
+    <section className="border-b-8 border-[#f0f0f0] bg-white px-4 pt-4 last:border-b-0">
       <div className="border-b border-[#e0e0e0] pb-4 text-right text-[15px] font-medium leading-5 text-[#808080]">
         {section.title}
       </div>

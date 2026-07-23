@@ -10,6 +10,7 @@ import { queryKeys } from "../api/query-keys";
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
+import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import { SwitchButton } from "../components/SwitchButton";
 import { TopBar } from "../components/TopBar";
 import LinearDelete from "../components/(icons)/LinearDelete";
@@ -331,23 +332,25 @@ function NotificationFilterBar({
   selectedFilters: FilterOption[];
 }) {
   return (
-    <section className="shrink-0 overflow-hidden bg-[#f0f0f0] px-4 py-2" aria-label="فیلتر اعلان‌ها">
-      <div className="flex min-h-10 items-center gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <NotificationFilterButton count={selectedFilters.length} onClick={onOpenFilters} />
-        {selectedFilters.map((filter) => (
-          <button
-            aria-label={`حذف فیلتر ${filter.label}`}
-            className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#0048C4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-            key={filter.id}
-            onClick={() => onRemoveFilter(filter.id)}
-            type="button"
-          >
-            <span>{filter.label}</span>
-            <CloseIcon className="h-4 w-4" />
-          </button>
-        ))}
-      </div>
-    </section>
+    <HorizontalFilterBar
+      ariaLabel="فیلتر اعلان‌ها"
+      className="bg-[#f0f0f0]"
+      contentClassName="min-h-10"
+    >
+      <NotificationFilterButton count={selectedFilters.length} onClick={onOpenFilters} />
+      {selectedFilters.map((filter) => (
+        <button
+          aria-label={`حذف فیلتر ${filter.label}`}
+          className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#0048C4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          key={filter.id}
+          onClick={() => onRemoveFilter(filter.id)}
+          type="button"
+        >
+          <span>{filter.label}</span>
+          <CloseIcon className="h-4 w-4" />
+        </button>
+      ))}
+    </HorizontalFilterBar>
   );
 }
 

@@ -1,3 +1,4 @@
+import { HorizontalFilterBar } from "../../../components/HorizontalFilterBar";
 import type { SearchFilterChip } from "../searchMapData";
 
 type SearchMapFilterChipsProps = {
@@ -12,54 +13,48 @@ export function SearchMapFilterChips({
   onChipRemove,
 }: SearchMapFilterChipsProps) {
   return (
-    <section
-      className="overflow-x-auto px-4 py-2"
-      aria-label="فیلترهای جستجو"
-      dir="rtl"
-    >
-      <div className="flex w-max min-w-full items-center gap-2">
-        {[...chips].map((chip) => (
-          <button
-            key={chip.id}
-            dir="rtl"
-            className={`inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-              chip.isActive
-                ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
-                : "border-[#cccccc] bg-white text-[#1a1a1a]"
-            }`}
-            type="button"
-            onClick={() => onChipClick?.(chip)}
-          >
-            {chip.id === "filters" ? <FilterSlidersIcon /> : null}
+    <HorizontalFilterBar ariaLabel="فیلترهای جستجو">
+      {[...chips].map((chip) => (
+        <button
+          key={chip.id}
+          dir="rtl"
+          className={`inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+            chip.isActive
+              ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
+              : "border-[#cccccc] bg-white text-[#1a1a1a]"
+          }`}
+          type="button"
+          onClick={() => onChipClick?.(chip)}
+        >
+          {chip.id === "filters" ? <FilterSlidersIcon /> : null}
 
-            <span className="whitespace-nowrap">{chip.label}</span>
+          <span className="whitespace-nowrap">{chip.label}</span>
 
-            {chip.removable ? (
-              <span
-                className="relative h-4 w-4 shrink-0"
-                aria-label={`حذف فیلتر ${chip.label}`}
-                role="button"
-                tabIndex={0}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onChipRemove?.(chip);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key !== "Enter" && event.key !== " ") return;
+          {chip.removable ? (
+            <span
+              className="relative h-4 w-4 shrink-0"
+              aria-label={`حذف فیلتر ${chip.label}`}
+              role="button"
+              tabIndex={0}
+              onClick={(event) => {
+                event.stopPropagation();
+                onChipRemove?.(chip);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
 
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onChipRemove?.(chip);
-                }}
-              >
-                <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
-                <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
-              </span>
-            ) : null}
-          </button>
-        ))}
-      </div>
-    </section>
+                event.preventDefault();
+                event.stopPropagation();
+                onChipRemove?.(chip);
+              }}
+            >
+              <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
+              <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
+            </span>
+          ) : null}
+        </button>
+      ))}
+    </HorizontalFilterBar>
   );
 }
 

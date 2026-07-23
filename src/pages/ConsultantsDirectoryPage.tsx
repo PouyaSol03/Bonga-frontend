@@ -3,23 +3,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
+import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../hooks/agency.hooks";
 import { useNeighborhoodListQuery } from "../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../lib/selectedCityStorage";
 import type { AgencySort, PublicAgencyDto, PublicAgentListDto } from "../services/agency.service";
 import type { NeighborhoodDto } from "../services/neighborhood.service";
+import {
+  AgencyDirectoryMapView,
+  type AgencyDirectoryMapItem,
+} from "./consultants/AgencyDirectoryMapView";
 
 type DirectoryMode = "agency" | "consultant";
 
-type DirectoryItem = {
-  address?: string;
+type DirectoryItem = AgencyDirectoryMapItem & {
   badge?: string;
-  id?: string;
-  image?: string;
-  name: string;
-  neighborhoodIds?: string[];
-  rank: string;
-  score: string;
 };
 
 type SortOptionId = AgencySort;
@@ -38,6 +36,7 @@ const sortOptions: SortOption[] = [
 
 const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
 const agencyPageSize = 20;
+const loadMoreRemainingItemCount = 10;
 const searchDebounceMs = 350;
 
 function toPersianNumber(value: number | string) {
@@ -68,6 +67,8 @@ function mapAgencyToDirectoryItem(agency: PublicAgencyDto): DirectoryItem {
     address: agency.address,
     id: agency.id,
     image: agency.logo ?? agency.img,
+    latitude: agency.lat,
+    longitude: agency.lng,
     name: agency.name,
     neighborhoodIds: agency.neighborhood_ids,
     rank: toPersianNumber(agency.rank),
@@ -470,6 +471,10 @@ export function ConsultantsDirectoryPage() {
   const [selectedNeighborhood, setSelectedNeighborhood] =
     useState<NeighborhoodDto | null>(null);
   const [selectedSort, setSelectedSort] = useState<SortOptionId | null>(null);
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [selectedMapAgencyId, setSelectedMapAgencyId] = useState<string | null>(
+    null,
+  );
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
 
   const selectedCity = readStoredSelectedCity();
@@ -519,7 +524,10 @@ export function ConsultantsDirectoryPage() {
     (option) => option.id === selectedSort,
   );
   const neighborhoodChipLabel = selectedNeighborhood?.name ?? "محله";
-  const loadMoreTriggerIndex = Math.max(items.length - 3, 0);
+  const loadMoreTriggerIndex = Math.max(
+    items.length - loadMoreRemainingItemCount - 1,
+    0,
+  );
   const activeQuery = mode === "agency" ? agenciesQuery : agentsQuery;
   const DirectoryErrorState = getRequestErrorState(activeQuery.error);
 
@@ -546,7 +554,7 @@ export function ConsultantsDirectoryPage() {
             void activeQuery.fetchNextPage();
           }
         },
-        { root: null, rootMargin: "240px 0px", threshold: 0 },
+        { root: null, rootMargin: "0px", threshold: 0.1 },
       );
 
       observer.observe(node);
@@ -568,6 +576,8 @@ export function ConsultantsDirectoryPage() {
 
   const handleModeChange = (nextMode: DirectoryMode) => {
     setMode(nextMode);
+    setIsMapOpen(false);
+    setSelectedMapAgencyId(null);
     setSearch("");
     setIsModeSheetOpen(false);
     setIsNeighborhoodSheetOpen(false);
@@ -589,6 +599,36 @@ export function ConsultantsDirectoryPage() {
   const clearNeighborhood = () => {
     setSelectedNeighborhood(null);
   };
+
+  if (isMapOpen) {
+    const mapCenter =
+      selectedCity?.latitude !== undefined &&
+      selectedCity.longitude !== undefined
+        ? {
+            latitude: selectedCity.latitude,
+            longitude: selectedCity.longitude,
+          }
+        : undefined;
+
+    return (
+      <PageFrame
+        className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+        variant="flush"
+      >
+        <AgencyDirectoryMapView
+          center={mapCenter}
+          items={agencyDirectoryItems}
+          onBack={() => {
+            setSelectedMapAgencyId(null);
+            setIsMapOpen(false);
+          }}
+          onOpenAgency={navigateToAgency}
+          onSelectAgency={setSelectedMapAgencyId}
+          selectedAgencyId={selectedMapAgencyId}
+        />
+      </PageFrame>
+    );
+  }
 
   return (
     <PageFrame
@@ -625,7 +665,10 @@ export function ConsultantsDirectoryPage() {
           </label>
         </div>
 
-        <div className="flex h-[53px] items-start gap-2 overflow-x-auto px-4 pt-2 [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <HorizontalFilterBar
+          ariaLabel="فیلتر مشاورین"
+          className="h-[53px] py-0 pt-2"
+        >
           <FilterChip
             active
             icon="chevron"
@@ -648,7 +691,7 @@ export function ConsultantsDirectoryPage() {
             onClick={() => setIsSortSheetOpen(true)}
             onRemove={selectedSort ? () => setSelectedSort(null) : undefined}
           />
-        </div>
+        </HorizontalFilterBar>
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white py-4 [-webkit-overflow-scrolling:touch]">
@@ -713,6 +756,10 @@ export function ConsultantsDirectoryPage() {
       {mode === "agency" ? (
         <button
           className="absolute bottom-[16px] left-1/2 z-10 inline-flex h-10 -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          onClick={() => {
+            setSelectedMapAgencyId(null);
+            setIsMapOpen(true);
+          }}
           type="button"
         >
           <span>نقشه</span>

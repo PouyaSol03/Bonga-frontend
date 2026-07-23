@@ -1,32 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useSearchHistoryQuery } from "../../../hooks/search-history.hooks";
 import {
   useDeleteSavedSearchMutation,
   useSavedSearchesQuery,
 } from "../../../hooks/saved-search.hooks";
-import { useAdvertisementListQuery } from "../../../hooks/advertisement.hooks";
+import { useQuickAdvertisementSearchQuery } from "../../../hooks/quick-advertisement-search.hooks";
+import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
 import { TopBar } from "../../../components/TopBar";
-import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import LinearDelete from "../../../components/(icons)/LinearDelete";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
-import type { AdvertisementItem } from "../../../services/advertisement.service";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
-import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
 import type { SavedSearchItem } from "../../../services/saved-search.service";
+import type { QuickAdvertisementSearchItem } from "../../../services/quick-advertisement-search.service";
 
 type HomeSearchScreenProps = {
-  advertisementSearchCityId?: string;
-  advertisementSearchPerPage?: number;
   initialQuery?: string;
   initialView?: "search" | "saved";
   isOpen: boolean;
   minSearchQueryLength?: number;
   onClose: () => void;
   onQuerySearchChange?: (query: string) => void;
-  onSelectResult?: (item: SearchHistoryItem | { title: string }) => void;
+  onSelectResult?: (item: { formCode?: string; title: string }) => void;
 };
 
 const DEFAULT_MIN_SEARCH_QUERY_LENGTH = 1;
@@ -78,60 +74,7 @@ function toPersianDigits(value: string | number) {
   return String(value).replace(/\d/g, (digit) => persianDigits[digit] ?? digit);
 }
 
-function readNestedName(value: unknown) {
-  if (typeof value === "string" && value.trim()) return value;
-
-  if (value && typeof value === "object" && "name" in value) {
-    const name = (value as { name?: unknown }).name;
-
-    return typeof name === "string" ? name : "";
-  }
-
-  return "";
-}
-
-function readAdText(item: AdvertisementItem, keys: string[]) {
-  for (const key of keys) {
-    const value = item[key];
-    const nestedName = readNestedName(value);
-
-    if (nestedName) return nestedName;
-    if (typeof value === "number") return String(value);
-  }
-
-  return "";
-}
-
-function mapAdToSearchResult(
-  item: AdvertisementItem,
-  index: number,
-): SearchHistoryItem {
-  const neighborhood = readAdText(item, [
-    "neighborhood",
-    "neighborhood_name",
-    "district",
-    "district_name",
-  ]);
-  const city = readAdText(item, ["city", "city_name"]);
-  const category = readAdText(item, ["category", "category_name", "form_title"]);
-
-  const title = readAdText(item, ["title", "label"]) || "آگهی ملک";
-  const tags = [city, neighborhood].filter(Boolean);
-
-  return {
-    content: tags,
-    filters: {},
-    id: String(item.id ?? item._id ?? `ad-search-${index + 1}`),
-    subtitle: [category, neighborhood || city].filter(Boolean).join("، "),
-    tags,
-    title,
-    url: `/search?query=${encodeURIComponent(title)}`,
-  };
-}
-
 export function HomeSearchScreen({
-  advertisementSearchCityId,
-  advertisementSearchPerPage = 12,
   initialQuery = "",
   initialView = "search",
   isOpen,
@@ -146,39 +89,26 @@ export function HomeSearchScreen({
   const [isSavedView, setIsSavedView] = useState(false);
 
   const trimmedQuery = query.trim();
+  const debouncedQuery = useDebouncedValue(trimmedQuery, 250);
   const isResultsView = trimmedQuery.length > 0;
   const isAuthenticated = Boolean(getStoredAuthSession());
   const hasEnoughSearchQueryLength = trimmedQuery.length >= minSearchQueryLength;
-  const canFetchSearchResults = hasEnoughSearchQueryLength;
-  const selectedCity = readStoredSelectedCity();
+  const hasEnoughDebouncedQueryLength =
+    debouncedQuery.length >= minSearchQueryLength;
+  const isWaitingForDebounce =
+    hasEnoughSearchQueryLength && trimmedQuery !== debouncedQuery;
   const savedSearchesQuery = useSavedSearchesQuery(isOpen && isAuthenticated);
   const deleteSavedSearchMutation = useDeleteSavedSearchMutation();
   const {
-    data: apiSearchResults = [],
-    error: searchResultsError,
-    isError: isSearchResultsError,
-    isLoading: isSearchResultsLoading,
-    refetch: refetchSearchResults,
-  } = useSearchHistoryQuery({
-    enabled: isOpen && isAuthenticated && hasEnoughSearchQueryLength && canFetchSearchResults,
-    qsearch: canFetchSearchResults ? trimmedQuery : undefined,
+    data: quickSearchResults = [],
+    error: quickSearchError,
+    isError: isQuickSearchError,
+    isFetching: isQuickSearchFetching,
+    refetch: refetchQuickSearch,
+  } = useQuickAdvertisementSearchQuery({
+    enabled: isOpen && hasEnoughDebouncedQueryLength,
+    query: debouncedQuery,
   });
-  const {
-    data: apiAdvertisementResults,
-    error: advertisementSearchError,
-    isError: isAdvertisementSearchError,
-    isFetching: isAdvertisementSearchLoading,
-    refetch: refetchAdvertisementSearch,
-  } = useAdvertisementListQuery(
-    isOpen && hasEnoughSearchQueryLength && canFetchSearchResults
-      ? {
-        cityId: advertisementSearchCityId ?? selectedCity?.id,
-        filters: { query: trimmedQuery },
-        page: 1,
-        perPage: advertisementSearchPerPage,
-      }
-      : null,
-  );
   const {
     deleteItem: deleteRecentSearch,
     removingId: removingRecentSearchId,
@@ -188,27 +118,17 @@ export function HomeSearchScreen({
   const visibleRecentSearches = isAuthenticated
     ? savedSearchesQuery.data ?? []
     : [];
-  const advertisementResults = (apiAdvertisementResults?.data ?? []).map(
-    mapAdToSearchResult,
-  );
-  const visibleSearchResults =
-    advertisementResults.length > 0 ? advertisementResults : apiSearchResults;
   const RecentSearchErrorState = getRequestErrorState(savedSearchesQuery.error);
-  const SearchResultsErrorState = getRequestErrorState(searchResultsError);
-  const AdvertisementSearchErrorState = getRequestErrorState(advertisementSearchError);
+  const QuickSearchErrorState = getRequestErrorState(quickSearchError);
   const activeErrorState = isResultsView
-    ? hasEnoughSearchQueryLength && canFetchSearchResults && isAdvertisementSearchError
-      ? AdvertisementSearchErrorState
-      : hasEnoughSearchQueryLength && canFetchSearchResults && isSearchResultsError
-      ? SearchResultsErrorState
+    ? hasEnoughSearchQueryLength && !isWaitingForDebounce && isQuickSearchError
+      ? QuickSearchErrorState
       : null
     : savedSearchesQuery.isError
       ? RecentSearchErrorState
       : null;
   const retryActiveError = isResultsView
-    ? isAdvertisementSearchError
-      ? () => void refetchAdvertisementSearch()
-      : () => void refetchSearchResults()
+    ? () => void refetchQuickSearch()
     : () => void savedSearchesQuery.refetch();
 
   useEffect(() => {
@@ -229,13 +149,13 @@ export function HomeSearchScreen({
     if (!isOpen || !onQuerySearchChange) return;
     if (isSavedView) return;
 
-    const nextQuery = canFetchSearchResults ? trimmedQuery : "";
+    const nextQuery = hasEnoughSearchQueryLength ? trimmedQuery : "";
     if (nextQuery === lastPublishedQueryRef.current) return;
 
     lastPublishedQueryRef.current = nextQuery;
     onQuerySearchChange(nextQuery);
   }, [
-    canFetchSearchResults,
+    hasEnoughSearchQueryLength,
     isOpen,
     isSavedView,
     onQuerySearchChange,
@@ -261,12 +181,6 @@ export function HomeSearchScreen({
     setIsSavedView(false);
     setQuery("");
     onClose();
-  };
-
-  const handleDirectSearch = () => {
-    if (trimmedQuery.length < minSearchQueryLength) return;
-
-    onSelectResult?.({ title: trimmedQuery });
   };
 
   if (isSavedView) {
@@ -338,16 +252,14 @@ export function HomeSearchScreen({
             {isResultsView ? "نتایج جستجو" : "جستجوهای اخیر"}
           </h2>
 
-          {!isResultsView ? (
-            <button
-              className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4] [direction:ltr]"
-              onClick={() => setIsSavedView(true)}
-              type="button"
-            >
-              <SavedSearchChevronIcon />
-              <span className="[direction:rtl]">ذخیره شده‌ها</span>
-            </button>
-          ) : null}
+          <button
+            className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4] [direction:ltr]"
+            onClick={() => setIsSavedView(true)}
+            type="button"
+          >
+            <SavedSearchChevronIcon />
+            <span className="[direction:rtl]">ذخیره شده‌ها</span>
+          </button>
         </div>
       </div>
 
@@ -359,37 +271,30 @@ export function HomeSearchScreen({
                 برای دریافت نتایج، حداقل {toPersianDigits(String(minSearchQueryLength))} کاراکتر وارد کنید.
               </p>
             </div>
-          ) : isAdvertisementSearchLoading ? (
+          ) : isWaitingForDebounce || isQuickSearchFetching ? (
             <SearchRowsSkeleton />
-          ) : isAdvertisementSearchError ? (
-            <AdvertisementSearchErrorState
+          ) : isQuickSearchError ? (
+            <QuickSearchErrorState
               className="min-h-full"
-              onRetry={() => void refetchAdvertisementSearch()}
+              onRetry={() => void refetchQuickSearch()}
             />
-          ) : (
+          ) : quickSearchResults.length > 0 ? (
             <div className="flex flex-col">
-              <DirectSearchRow query={trimmedQuery} onSelect={handleDirectSearch} />
-              {isSearchResultsLoading ? (
-                <p className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-                  در حال دریافت پیشنهادهای مرتبط...
-                </p>
-              ) : null}
-              {!isSearchResultsError && visibleSearchResults.length > 0 ? (
-                visibleSearchResults.map((item) => (
-                  <SearchSuggestionRow
-                    item={item}
-                    key={item.id}
-                    onSelect={() => onSelectResult?.(item)}
-                    query={trimmedQuery}
-                  />
-                ))
-              ) : null}
-              {!isSearchResultsError && visibleSearchResults.length === 0 ? (
-                <p className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-                  برای جستجوی همین عبارت، ردیف بالا را انتخاب کنید.
-                </p>
-              ) : null}
+              {quickSearchResults.map((item) => (
+                <QuickSearchResultRow
+                  item={item}
+                  key={`${item.formCode}-${item.category}-${item.title}`}
+                  onSelect={() =>
+                    onSelectResult?.({
+                      formCode: item.formCode,
+                      title: item.title,
+                    })
+                  }
+                />
+              ))}
             </div>
+          ) : (
+            <SearchErrors variant="no-search" />
           )
         ) : savedSearchesQuery.isLoading ? (
           <SearchRowsSkeleton />
@@ -495,9 +400,18 @@ function SavedSearchesView({
 
 function SearchRowsSkeleton() {
   return (
-    <div className="flex flex-col bg-[#f0f0f0]" aria-hidden="true">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <AdCardSkeleton key={index} />
+    <div className="flex flex-col bg-white" aria-hidden="true">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          className="flex min-h-[73px] items-center justify-between gap-4 border-b border-[#f0f0f0] px-4 py-3"
+          key={index}
+        >
+          <div className="h-4 w-16 animate-pulse rounded-full bg-[#f0f0f0]" />
+          <div className="flex flex-1 flex-col items-end gap-2">
+            <div className="h-5 w-24 animate-pulse rounded-full bg-[#f0f0f0]" />
+            <div className="h-4 w-40 max-w-full animate-pulse rounded-full bg-[#f0f0f0]" />
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -525,7 +439,7 @@ function SearchField({
   }, [isOpen]);
 
   return (
-    <div className="relative flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white px-3">
+    <div className="relative flex h-12 w-full min-w-0 items-center rounded-xl border-2 border-[#0048c4] bg-white px-3">
       <input
         aria-label="جستجو"
         className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent pl-9 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
@@ -651,61 +565,35 @@ function SearchRecordRow({
   );
 }
 
-function DirectSearchRow({
-  onSelect,
-  query,
-}: {
-  onSelect: () => void;
-  query: string;
-}) {
-  return (
-    <button
-      className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-3 border-b border-[#cccccc] bg-white px-4 py-2.5 text-right [direction:ltr] min-[390px]:min-h-[73px] min-[390px]:gap-4 min-[390px]:py-3"
-      onClick={onSelect}
-      type="button"
-    >
-      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0048c414] px-2.5 py-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
-        جستجو
-      </span>
-
-      <span className="flex min-w-0 flex-col items-start [direction:rtl]">
-        <strong className="text-sm font-normal leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-          جستجوی «{query}»
-        </strong>
-        <span className="text-sm font-normal leading-5 text-[#a6a6a6]">
-          نمایش آگهی‌های مرتبط با این عبارت
-        </span>
-      </span>
-    </button>
-  );
-}
-
-function SearchSuggestionRow({
+function QuickSearchResultRow({
   item,
   onSelect,
-  query,
 }: {
-  item: SearchHistoryItem;
+  item: QuickAdvertisementSearchItem;
   onSelect: () => void;
-  query: string;
 }) {
+  const formattedCount =
+    item.count >= 1000
+      ? `${toPersianDigits(1000)}+ آگهی`
+      : `${toPersianDigits(item.count)} آگهی`;
+
   return (
     <button
-      className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-3 border-b border-[#cccccc] bg-white px-4 py-2.5 text-right [direction:ltr] last:border-b-0 min-[390px]:min-h-[73px] min-[390px]:gap-4 min-[390px]:py-3"
+      className="flex min-h-[73px] w-full cursor-pointer justify-between gap-4 border-b border-[#f0f0f0] bg-white px-4 py-3 text-right [direction:ltr] last:border-b-0 active:bg-[#fafafa]"
       onClick={onSelect}
       type="button"
     >
-      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal leading-4 text-[#a6a6a6] [direction:ltr]">
-        <span>آگهی</span>
+      <span className="inline-flex shrink-0 text-xs font-normal leading-5 text-[#a6a6a6] [direction:rtl]">
+        {formattedCount}
       </span>
 
-      <span className="flex min-w-0 flex-col items-start [direction:rtl]">
-        <strong className="text-sm font-normal leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6">
-          {query || item.title}
+      <span className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
+        <strong className="max-w-full truncate text-base font-normal leading-6 text-[#1a1a1a]">
+          {item.title}
         </strong>
-        {item.subtitle ? (
-          <span className="text-sm font-normal leading-5 text-[#a6a6a6]">
-            {item.subtitle}
+        {item.category ? (
+          <span className="max-w-full truncate text-sm font-normal leading-5 text-[#a6a6a6]">
+            {item.category}
           </span>
         ) : null}
       </span>

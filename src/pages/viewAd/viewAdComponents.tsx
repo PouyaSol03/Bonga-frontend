@@ -191,7 +191,7 @@ export function PropertyGrid({
       {items.map((item) => (
         <div className="flex min-w-0 items-start gap-3" key={`${item.icon}-${item.value}`}>
           <DetailItemIcon
-            className="mt-0.5 h-6 w-6 shrink-0 text-[#808080]"
+            className="h-6 w-6 shrink-0 text-[#4D4D4D]"
             item={item}
           />
           <div className="min-w-0 text-right">

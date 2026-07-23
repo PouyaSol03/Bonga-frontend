@@ -8,7 +8,9 @@ export type PublicAgencyDto = {
   created_at?: string;
   id: string;
   img?: string;
+  lat?: number;
   level_slug?: string;
+  lng?: number;
   logo?: string;
   name: string;
   neighborhood_ids: string[];
@@ -123,8 +125,11 @@ type PublicAgencyApiItem = {
   address?: unknown;
   created_at?: unknown;
   id?: unknown;
+  _id?: unknown;
   img?: unknown;
+  lat?: unknown;
   level_slug?: unknown;
+  lng?: unknown;
   logo?: unknown;
   name?: unknown;
   neighborhood_ids?: unknown;
@@ -213,6 +218,14 @@ function toNumber(value: unknown, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function toOptionalNumber(value: unknown) {
+  if (value === null || value === undefined || value === "") return undefined;
+
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 function toStringArray(value: unknown) {
   const values = Array.isArray(value)
     ? value
@@ -221,7 +234,8 @@ function toStringArray(value: unknown) {
       : [];
 
   return values
-    .map((item) => String(item ?? "").trim())
+    .flatMap((item) => String(item ?? "").split(","))
+    .map((item) => item.trim())
     .filter(Boolean);
 }
 
@@ -232,7 +246,7 @@ function toAssetUrl(value: unknown) {
 }
 
 function normalizeAgency(item: PublicAgencyApiItem): PublicAgencyDto | null {
-  const id = String(item.id ?? "").trim();
+  const id = String(item.id ?? item._id ?? "").trim();
   const name = toText(item.name);
 
   if (!id || !name) return null;
@@ -242,7 +256,9 @@ function normalizeAgency(item: PublicAgencyApiItem): PublicAgencyDto | null {
     created_at: toText(item.created_at) || undefined,
     id,
     img: toAssetUrl(item.img),
+    lat: toOptionalNumber(item.lat),
     level_slug: toText(item.level_slug) || undefined,
+    lng: toOptionalNumber(item.lng),
     logo: toAssetUrl(item.logo),
     name,
     neighborhood_ids: toStringArray(item.neighborhood_ids),
@@ -369,8 +385,6 @@ export type PublicAgencyDetailDto = PublicAgencyDto & {
   about_us?: string;
   agency_type?: number;
   consultants: AgencyConsultantDto[];
-  lat?: number;
-  lng?: number;
   phone1?: string;
   phone2?: string;
   phone3?: string;
@@ -490,8 +504,8 @@ function normalizePublicAgencyDetail(
       ? Number(item.agency_type)
       : undefined,
     consultants,
-    lat: Number.isFinite(Number(item.lat)) ? Number(item.lat) : undefined,
-    lng: Number.isFinite(Number(item.lng)) ? Number(item.lng) : undefined,
+    lat: toOptionalNumber(item.lat),
+    lng: toOptionalNumber(item.lng),
     phone1: firstText(item.phone1, item.phone) || undefined,
     phone2: firstText(item.phone2) || undefined,
     phone3: firstText(item.phone3, item.landline) || undefined,

@@ -18,6 +18,8 @@ import LinearUserConfirmation from "../../components/(icons)/LinearUserConfirmat
 import LinearInfoCircle from "../../components/(icons)/LinearInfoCircle";
 import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
+import { RadioIndicator } from "../../components/RadioIndicator";
+import { HorizontalFilterBar } from "../../components/HorizontalFilterBar";
 
 
 type TopBarProps = {
@@ -366,26 +368,31 @@ function AdFilterTabs({
   onSelect: (filter: { label: string; type: MyAdsType }) => void;
 }) {
   return (
-    <section className="h-[52px] overflow-hidden bg-[#f0f0f0] px-4 py-2">
-      <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {adFilters.map((filter) => (
+    <HorizontalFilterBar
+      ariaLabel="فیلتر آگهی‌های من"
+      className="h-[52px] bg-[#f0f0f0]"
+      contentClassName="h-9"
+    >
+      {adFilters.map((filter) => {
+        const isActive = activeFilter.label === filter.label;
+
+        return (
           <button
-            className={`relative h-9 shrink-0 overflow-hidden rounded-lg border px-3 text-sm font-medium leading-5 ${activeFilter.label === filter.label
-              ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-              : "border-[#cccccc] bg-white text-[#1a1a1a]"
-              }`}
+            aria-pressed={isActive}
+            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+              isActive
+                ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
+                : "border-[#cccccc] bg-white text-[#1a1a1a]"
+            }`}
             key={filter.label}
             onClick={() => onSelect(filter)}
             type="button"
           >
-            {activeFilter.label === filter.label ? (
-              <span className="absolute inset-0 rounded-lg bg-[#0048c414]" />
-            ) : null}
-            <span className="relative z-10">{filter.label}</span>
+            {filter.label}
           </button>
-        ))}
-      </div>
-    </section>
+        );
+      })}
+    </HorizontalFilterBar>
   );
 }
 
@@ -783,14 +790,18 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
   return (
     <>
-      <section className="px-4 pt-5">
-        <div className="space-y-7">
+      <section className="px-9 pt-8">
+        <div
+          aria-label="دلیل تغییر مالکیت سیم‌کارت"
+          className="space-y-12"
+          role="radiogroup"
+        >
           {simCardOwnershipReasons.map((reason) => {
             const isSelected = selectedReason === reason.id;
 
             return (
               <label
-                className="flex cursor-pointer items-center justify-start gap-3 text-right"
+                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-[#0048c440]"
                 key={reason.id}
               >
                 <input
@@ -802,30 +813,20 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
                   value={reason.id}
                 />
 
-                <span
-                  aria-hidden="true"
-                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${isSelected
-                      ? "border-[#0048c4]"
-                      : "border-[#808080]"
-                    }`}
-                >
-                  {isSelected ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#0048c4]" />
-                  ) : null}
-                </span>
-
-                <span className="text-sm font-normal leading-6 text-[#1a1a1a]">
+                <span className="text-base font-normal leading-6 text-[#1a1a1a]">
                   {reason.label}
                 </span>
+
+                <RadioIndicator checked={isSelected} />
               </label>
             );
           })}
         </div>
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
         <button
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+          className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white active:bg-[#003da6] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           onClick={onSubmit}
           type="button"
         >

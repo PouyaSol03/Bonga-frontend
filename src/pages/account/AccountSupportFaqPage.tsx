@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearArrowUp1 from "../../components/(icons)/LinearArrowUp1";
 import LinearChat from "../../components/(icons)/LinearChat";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import { TopBar } from "../../components/TopBar";
@@ -164,7 +163,7 @@ function FaqAccordionItem({
   onToggle: () => void;
 }) {
   return (
-    <article className="overflow-hidden flex flex-col p-4 gap-4.5 rounded-xl border border-[#e1e1e1] bg-white">
+    <article className="overflow-hidden rounded-xl border border-[#e1e1e1] bg-white p-4">
       <button
         aria-expanded={isOpen}
         className="flex w-full items-center justify-between gap-3 text-right outline-none transition-colors active:bg-[#fafafa] focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440]"
@@ -179,20 +178,27 @@ function FaqAccordionItem({
           {item.question}
         </span>
 
-        {isOpen ? (
-          <LinearArrowUp1 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-        ) : (
-          <LinearArrowDown1 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-        )}
+        <LinearArrowDown1
+          className={`h-5 w-5 shrink-0 text-[#4d4d4d] transition-transform duration-300 ease-out motion-reduce:transition-none ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
+        />
       </button>
 
-      {isOpen ? (
-        <div className="">
-          <p className="m-0 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
+      <div
+        aria-hidden={!isOpen}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${
+          isOpen
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <p className="m-0 pt-4 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
             {item.answer}
           </p>
         </div>
-      ) : null}
+      </div>
     </article>
   );
 }

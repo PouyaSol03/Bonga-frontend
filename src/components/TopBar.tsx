@@ -11,6 +11,8 @@ import {
 
 import { getStoredBackTarget, pushRoute } from "../routes/navigation";
 import { RouteLink } from "../routes/RouteLink";
+import BoldBookmarkSolid from "./(icons)/BoldBookmarkSolid";
+import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
 import LinearSearch from "./(icons)/LinearSearch";
 
 export type TopBarAction = {
@@ -69,22 +71,9 @@ type RegisteredTopBar = {
 const TopBarLayoutContext = createContext<TopBarLayoutContextValue | null>(null);
 
 function TopBarBookmarkIcon({ filled = false }: { filled?: boolean }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-6 w-6"
-      fill={filled ? "#1a1a1a" : "none"}
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z"
-        stroke="#1a1a1a"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
+  const BookmarkIcon = filled ? BoldBookmarkSolid : LinearBookmarkSolid;
+
+  return <BookmarkIcon aria-hidden="true" className="h-6 w-6" />;
 }
 
 function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" }) {

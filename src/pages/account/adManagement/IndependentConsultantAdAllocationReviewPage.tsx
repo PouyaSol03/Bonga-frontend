@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { PageFrame } from "../../../app/PageFrame";
-import LinearBuilding3 from "../../../components/(icons)/LinearBuilding3";
 import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
 import LinearPreview from "../../../components/(icons)/LinearPreview";
-import LinearUserAccount from "../../../components/(icons)/LinearUserAccount";
 import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
 import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronLeftIcon } from "./AdManagementIcons";
+import { AnimatePresence, motion } from "motion/react";
 import {
   adManagementPaths,
   getAdEditPath,
@@ -22,6 +21,8 @@ import {
 } from "./adManagementData";
 import LinearBuilding2 from "../../../components/(icons)/LinearBuilding2";
 import LinearUserSolid from "../../../components/(icons)/LinearUserSolid";
+import LinearCancel from "../../../components/(icons)/LinearCancel";
+import LinearSearch from "../../../components/(icons)/LinearSearch";
 
 type PublisherType = "agency" | "consultant";
 
@@ -37,19 +38,19 @@ const publisherOptions: {
   label: string;
   value: PublisherType;
 }[] = [
-  {
-    description: "انتشار و مدیریت آگهی توسط حساب آژانس انجام می‌شود.",
-    icon: "agency",
-    label: "آژانس",
-    value: "agency",
-  },
-  {
-    description: "انتشار و مدیریت آگهی توسط یکی از مشاوران انجام می‌شود.",
-    icon: "consultant",
-    label: "مشاور",
-    value: "consultant",
-  },
-];
+    {
+      description: "انتشار و مدیریت آگهی توسط حساب آژانس انجام می‌شود.",
+      icon: "agency",
+      label: "آژانس",
+      value: "agency",
+    },
+    {
+      description: "انتشار و مدیریت آگهی توسط یکی از مشاوران انجام می‌شود.",
+      icon: "consultant",
+      label: "مشاور",
+      value: "consultant",
+    },
+  ];
 
 export function IndependentConsultantAdAllocationReviewPage() {
   const routeState = getAdManagementRouteState();
@@ -68,10 +69,10 @@ export function IndependentConsultantAdAllocationReviewPage() {
   const selectableConsultants = useMemo(
     () =>
       (consultantsQuery.data?.data ?? []).map((consultant) => ({
-          avatarSrc: consultant.avatar,
-          id: String(consultant.userId),
-          name: consultant.name || `مشاور شماره ${consultant.userId}`,
-        })),
+        avatarSrc: consultant.avatar,
+        id: String(consultant.userId),
+        name: consultant.name || `مشاور شماره ${consultant.userId}`,
+      })),
     [consultantsQuery.data],
   );
   const initialConsultantId = String(
@@ -163,8 +164,8 @@ export function IndependentConsultantAdAllocationReviewPage() {
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="px-4 pb-6 pt-5" aria-label="منتشرکننده آگهی">
-          <h2 className="m-0 mb-4 text-right text-sm font-medium leading-5 text-[#1a1a1a]">
-            منتشرکننده آگهی <span className="text-[#ee3623]">*</span>
+          <h2 className="m-0 mb-4 text-right font-medium leading-5 text-[#1a1a1a]">
+            منتشرکننده آگهی <span className="text-[#ee3623] text-sm">*</span>
           </h2>
 
           <div className="space-y-3" role="radiogroup" aria-label="انتخاب منتشرکننده آگهی">
@@ -203,9 +204,8 @@ export function IndependentConsultantAdAllocationReviewPage() {
 
       <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <button
-          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${
-            canContinue ? "bg-[#0048c4] text-white active:bg-[#003aa0]" : "bg-[#e5e5e5] text-[#b8b8b8]"
-          }`}
+          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${canContinue ? "bg-[#0048c4] text-white active:bg-[#003aa0]" : "bg-[#e5e5e5] text-[#b8b8b8]"
+            }`}
           disabled={!canContinue}
           onClick={handleContinue}
           type="button"
@@ -282,7 +282,7 @@ function RejectAction() {
     >
       <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
       <span className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-        <LinearCancelSmall className="h-6 w-6 text-[#4d4d4d]" />
+        <LinearCancel className="h-6 w-6 text-[#4d4d4d]" />
         رد ثبت آگهی
       </span>
     </button>
@@ -305,53 +305,77 @@ function PublisherOptionCard({
   const isConsultant = option.value === "consultant";
 
   return (
-    <div
-      className={`w-full rounded-xl border bg-white px-3 py-3 text-right transition-colors ${
-        selected ? "border-[#0048c4] ring-1 ring-[#0048c4]" : "border-[#cccccc]"
-      }`}
+    <motion.div
+      layout
+      animate={{
+        scale: selected ? 1.01 : 1,
+      }}
+      whileTap={{ scale: 0.985 }}
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 30,
+      }}
+      className={`w-full rounded-xl border p-4 text-right ${selected ? "border-[#0048c4]" : "border-[#cccccc]"
+        }`}
     >
       <button
         aria-checked={selected}
-        className="flex min-h-[48px] w-full items-center justify-between gap-3 border-0 bg-transparent p-0 text-right [direction:ltr]"
+        className="flex min-h-[48px] w-full justify-between gap-3 border-0 bg-transparent text-right [direction:ltr]"
         onClick={onSelect}
         role="radio"
         type="button"
       >
-        <RadioIndicator checked={selected} />
+        <RadioIndicator className="m-3" checked={selected} />
         <span className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
           <PublisherIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" icon={option.icon} />
           <span className="min-w-0 flex-1">
-            <strong className="block  text-[#1a1a1a]">
+            <p className="block text-normal text-[#1a1a1a]">
               {option.label}
-            </strong>
-            <span className="mt-1 block text-xs font-normal leading-5 text-[#a6a6a6]">
+            </p>
+            <span className="block text-sm font-normal text-[#a6a6a6]">
               {option.description}
             </span>
           </span>
         </span>
       </button>
 
-      {selected && isConsultant ? (
-        <div className="mt-3 rounded-lg border border-[#0048c4] bg-white p-2">
-          {assignedConsultant ? (
-            <div className="mb-2 flex items-center gap-2 px-1 py-1 text-right [direction:rtl]">
-              <ConsultantAvatar consultant={assignedConsultant} className="h-10 w-10" />
-              <span className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
-                {assignedConsultant.name}
-              </span>
-            </div>
-          ) : null}
-          <button
-            className="inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]"
-            onClick={onAssignConsultant}
-            type="button"
+      <AnimatePresence initial={false}>
+        {selected && isConsultant ? (
+          <motion.div
+            key="consultant-options"
+            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+            animate={{ height: "auto", opacity: 1, marginTop: 22 }}
+            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+            transition={{
+              duration: 0.25,
+              ease: "easeInOut",
+            }}
+            className="overflow-hidden rounded-lg border border-[#0048c4] bg-white"
           >
-            {assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}
-            <ChevronLeftIcon className="h-5 w-5" />
-          </button>
-        </div>
-      ) : null}
-    </div>
+              {assignedConsultant ? (
+                <div className="mb-2 flex items-center justify-center gap-2 px-1 py-1 text-right [direction:rtl]">
+                  <ConsultantAvatar consultant={assignedConsultant} className="h-10 w-10" />
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+                    {assignedConsultant.name}
+                  </span>
+                </div>
+              ) : null}
+            <div className="py-4">
+              <button
+                className="inline-flex items-center justify-center w-full gap-1 rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4]"
+                onClick={onAssignConsultant}
+                type="button"
+              >
+                {assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+            </div>
+          </motion.div>
+        ) : null
+        }
+      </AnimatePresence >
+    </motion.div >
   );
 }
 
@@ -406,20 +430,18 @@ function ConsultantPickerPage({
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-3">
-        <label className="flex h-10 items-center gap-2 rounded-lg border border-[#d9d9d9] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
+        <label className="flex items-center gap-2 rounded-xl border border-[#808080] bg-white p-3 focus-within:border-[#0048c4] ">
           <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080]"
             onChange={(event) => setSearchValue(event.target.value)}
             placeholder="جستجوی مشاور"
             type="search"
             value={searchValue}
           />
-          <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 24 24">
-            <path d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
-          </svg>
+          <LinearSearch className="h-6 w-6 text-[#4D4D4D]"/>
         </label>
 
-        <div className="mt-5 grid gap-1">
+        <div className="mt-6 grid gap-1">
           {isLoading ? (
             <p className="py-10 text-center text-sm text-[#808080]">در حال دریافت مشاوران...</p>
           ) : isError ? (
@@ -442,18 +464,18 @@ function ConsultantPickerPage({
               return (
                 <button
                   aria-checked={selected}
-                  className="flex h-12 w-full items-center justify-between gap-3 rounded-lg bg-white px-1 text-right [direction:ltr] active:bg-[#f7f7f7]"
+                  className="flex w-full items-center justify-between gap-3 rounded-lg bg-white px-6 text-right [direction:ltr] active:bg-[#f7f7f7]"
                   key={consultant.id}
                   onClick={() => setDraftConsultantId(consultant.id)}
                   role="radio"
                   type="button"
                 >
                   <RadioIndicator checked={selected} />
-                  <span className="flex min-w-0 flex-1 items-center justify-end gap-3 [direction:rtl]">
-                    <span className="truncate text-xs font-medium leading-5 text-[#1a1a1a]">
+                  <span className="flex flex-1 items-center gap-3 [direction:rtl]">
+                    <ConsultantAvatar consultant={consultant} className="h-14 w-14" />
+                    <span className="leading-5 text-[#1a1a1a]">
                       {consultant.name}
                     </span>
-                    <ConsultantAvatar consultant={consultant} className="h-9 w-9" />
                   </span>
                 </button>
               );
@@ -464,9 +486,8 @@ function ConsultantPickerPage({
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <button
-          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 ${
-            draftConsultant ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
-          }`}
+          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 ${draftConsultant ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
+            }`}
           disabled={!draftConsultant}
           onClick={() => {
             if (draftConsultant) onConfirm(draftConsultant);

@@ -14,6 +14,10 @@ import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { AdCardTomanIcon } from "../../components/AdCardIcons";
 import { getMyAdStatusInfo } from "./myAdsStatus";
+import LinearUserConfirmation from "../../components/(icons)/LinearUserConfirmation";
+import LinearInfoCircle from "../../components/(icons)/LinearInfoCircle";
+import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
+import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
 
 
 type TopBarProps = {
@@ -33,10 +37,10 @@ const simCardOwnershipReasons: Array<{
   id: SimCardOwnershipReason;
   label: string;
 }> = [
-  { id: "selling", label: "می‌خواهم سیم‌کارتم را بفروشم" },
-  { id: "transferred", label: "سیم‌کارتم را واگذار کرده‌ام" },
-  { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
-];
+    { id: "selling", label: "می‌خواهم سیم‌کارتم را بفروشم" },
+    { id: "transferred", label: "سیم‌کارتم را واگذار کرده‌ام" },
+    { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
+  ];
 
 const adFilters: Array<{ label: string; type: MyAdsType }> = [
   { label: "همه", type: "all" },
@@ -654,20 +658,20 @@ export function IdentityPendingState({
         </section>
       ) : null}
 
-      <section className="px-2 pt-3">
+      <section className="p-4 pb-0">
         <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
-          <div className="flex items-center justify-start gap-2 text-[#0048C4]">
-            <IdentityCheckIcon className="h-6 w-6" />
-            <h2 className="m-0 font-semibold leading-5">
+          <div className="flex items-center justify-start gap-2.5 text-[#0048C4]">
+            <LinearUserAccount className="h-6 w-6" />
+            <h2 className="m-0 font-medium">
               ملاحظات در تایید هویت
             </h2>
           </div>
 
-          <p className="m-0 mt-3 font-normal leading-7 text-[#1a1a1a]">
+          <p className="m-0 mt-4 text-[#1a1a1a]">
             برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
           </p>
 
-          <p className="m-0 mt-2 font-medium leading-6 text-[#1a1a1a]">
+          <p className="m-0 mt-4 text-[#1a1a1a]">
             شماره همراه فعال:{" "}
             <span dir="ltr" className="font-semibold text-[#11A366]">
               {mobile}
@@ -676,14 +680,14 @@ export function IdentityPendingState({
         </div>
       </section>
 
-      <section className="px-2 pt-4 text-center">
-        <h2 className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
+      <section className="p-4">
+        <h2 className="m-0 text-sm font-semibold text-[#1a1a1a]">
           تایید با کد ملی
         </h2>
 
-        <div className="mt-1 flex items-center justify-center gap-1 text-[#808080]">
-          <InfoCircleIcon className="h-3.5 w-3.5 shrink-0" />
-          <p className="m-0 text-[11px] font-normal leading-5">
+        <div className="mt-2 flex gap-1 text-[#808080]">
+          <LinearInfoCircle className="h-4.5 w-4.5 shrink-0" />
+          <p className="m-0 text-xs">
             کد ملی باید متعلق به مالک همین شماره همراه باشد.
           </p>
         </div>
@@ -727,44 +731,46 @@ function normalizeNumericInput(value: string) {
 export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void }) {
   return (
     <>
-      <section className="px-2 pt-2">
-        <div className="rounded-xl border border-[#11A366] bg-[#11A36614] px-4 pb-5 pt-4 text-center">
-          <div className="flex items-center justify-center gap-2 text-[#11A366]">
-            <IdentityCheckIcon className="h-4 w-4" />
-            <h2 className="m-0 text-sm font-semibold leading-5">
+      <section className="p-4">
+        <div className="rounded-xl border border-[#11A366] bg-[#11A36614] p-5">
+          <div className="flex gap-2 text-[#11A366]">
+            <LinearUserConfirmation className="h-6 w-6" />
+            <h2 className="m-0 font-medium">
               هویت شما تایید شده است
             </h2>
           </div>
 
-          <p className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
-            احراز هویت شما در بهمن ۱۴۰۱ با موفقیت انجام شده است.
+          <p className="mt-4 text-[#4d4d4d]">
+            احراز هویت شما در
+            {" "}<span className="font-medium">بهمن 1401</span> {" "}
+            با موفقیت انجام شده است.
           </p>
         </div>
       </section>
 
       <div className="mt-3 h-0.5 bg-[#f0f0f0]" />
 
-      <section className="px-2 pt-4 text-center">
-        <h2 className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
+      <section className="p-4">
+        <h2 className="m-0 font-medium text-[#1a1a1a]">
           مالکیت سیم‌کارت
         </h2>
 
-        <div className="mt-2 flex items-start justify-center gap-1 text-[#808080]">
-          <InfoCircleIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <p className="m-0 max-w-[240px] text-[11px] font-normal leading-5">
+        <div className="mt-2 flex items-start gap-1 text-[#808080]">
+          <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-[#4D4D4D]" />
+          <p className="text-xs font-normal">
             در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
-            <br />
+            <br/>
             در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
           </p>
         </div>
 
         <button
-          className="relative mt-6 flex h-12 w-full items-center justify-center rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-semibold leading-5 text-[#0048c4]"
+          className="flex justify-between mt-6 w-full rounded-xl border border-[#0048c4] bg-white p-4 font-medium text-[#0048c4]"
           onClick={onChangeOwner}
           type="button"
         >
-          <ChevronLeftIcon className="absolute left-4 h-4 w-4" />
-          <span>ثبت تغییر مالکیت سیم‌کارت</span>
+          <span className="font-medium">ثبت تغییر مالکیت سیم‌کارت</span>
+          <LinearArrowLeft1 className="h-6 w-6" />
         </button>
       </section>
     </>
@@ -798,11 +804,10 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
                 <span
                   aria-hidden="true"
-                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${
-                    isSelected
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${isSelected
                       ? "border-[#0048c4]"
                       : "border-[#808080]"
-                  }`}
+                    }`}
                 >
                   {isSelected ? (
                     <span className="h-2.5 w-2.5 rounded-full bg-[#0048c4]" />
@@ -1145,15 +1150,6 @@ function UserIcon({ className = "" }: { className?: string }) {
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
       <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
       <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-    </svg>
-  );
-}
-
-function IdentityCheckIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <rect height="14" rx="2" width="18" x="3" y="5" />
-      <path d="M8.5 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM5.5 16a3 3 0 0 1 6 0M14 12l2 2 4-5" />
     </svg>
   );
 }

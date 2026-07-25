@@ -69,23 +69,23 @@ function AboutSection({ children, description, items, title }: AboutSectionProps
 
 function AboutIntroCard() {
   return (
-    <section className="relative mx-4 mt-4 min-h-[316px] overflow-hidden rounded-2xl bg-[#ebf0fa]">
-      <div className="relative mx-2">
+    <section className="relative p-4 mx-4 mt-4 overflow-hidden rounded-2xl bg-[#ebf0fa]">
+      <div className="relative">
         <img
           alt="تصویری از خدمات بونگا در بازار املاک"
           className="block h-auto w-full"
           height={292}
           loading="eager"
-          src="/images/about-hero.png"
+          src="/images/about-hero.svg"
           width={624}
         />
 
-        <h1 className="absolute bottom-0 right-2 m-0 text-[16px] font-semibold leading-6 text-[#0052c8]">
+        {/* <h1 className="absolute bottom-0 right-2 m-0 text-[16px] font-semibold leading-6 text-[#0052c8]">
           درباره ما
-        </h1>
+        </h1> */}
       </div>
 
-      <p className="m-0 px-4 pb-4 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
+      <p className="m-0 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
         ما بیش از ۱۰ سال است که در دنیای املاک همراه خریداران، فروشندگان و آژانس‌های املاک هستیم. در این سال‌ها هدف ما همیشه یک چیز بوده؛ ساده‌تر کردن مسیر معامله ملک و ایجاد بستری مطمئن برای همه کسانی که در بازار املاک فعالیت دارند.
       </p>
     </section>
@@ -96,7 +96,7 @@ export function AccountAboutPage() {
   return (
     <AccountPageShell title="درباره ما">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        <div className="mx-auto w-full max-w-[360px] pb-1">
+        <div className="mx-auto w-full pb-1">
           <AboutIntroCard />
 
           <AboutSection

@@ -275,7 +275,7 @@ export function LoginVerifyPage() {
             </div>
 
             <div
-              className="grid w-full mt-7 grid-cols-4 gap-2.5"
+              className="grid w-full mt-6 grid-cols-4 gap-2.5"
               dir="ltr"
               aria-label="کد تایید"
             >

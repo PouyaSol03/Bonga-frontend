@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { PageFrame } from "../../../app/PageFrame";
 import LinearBuilding3 from "../../../components/(icons)/LinearBuilding3";
@@ -8,35 +8,28 @@ import LinearPreview from "../../../components/(icons)/LinearPreview";
 import LinearUserAccount from "../../../components/(icons)/LinearUserAccount";
 import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
+import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronLeftIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
-  adManagementPublisherOptions,
   getAdEditPath,
+  getAdManagementRouteState,
   getAdPaymentPath,
   getAdPreviewPath,
   getSelectedConsultantAd,
   type ConsultantAd,
 } from "./adManagementData";
+import LinearBuilding2 from "../../../components/(icons)/LinearBuilding2";
+import LinearUserSolid from "../../../components/(icons)/LinearUserSolid";
 
 type PublisherType = "agency" | "consultant";
 
 type SelectableConsultant = {
-  avatarSrc: string;
+  avatarSrc?: string;
   id: string;
   name: string;
 };
-
-const selectableConsultants: SelectableConsultant[] = adManagementPublisherOptions
-  .filter((publisher) => publisher.id !== "jalilian-real-estate")
-  .map((publisher) => ({
-    avatarSrc: publisher.image,
-    id: publisher.id,
-    name: publisher.name,
-  }));
-
-const defaultSelectedConsultant = selectableConsultants[1] ?? selectableConsultants[0] ?? null;
 
 const publisherOptions: {
   description: string;
@@ -59,16 +52,61 @@ const publisherOptions: {
 ];
 
 export function IndependentConsultantAdAllocationReviewPage() {
+  const routeState = getAdManagementRouteState();
+  const assignment = routeState.assignment;
   const ad = getSelectedConsultantAd();
-  const [publisher, setPublisher] = useState<PublisherType>("agency");
+  const [publisher, setPublisher] = useState<PublisherType>(
+    routeState.publisherType ?? assignment?.targetType ?? "agency",
+  );
   const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(null);
   const [isConsultantPickerOpen, setIsConsultantPickerOpen] = useState(false);
+  const consultantsQuery = useAgencyConsultantsQuery({
+    enabled: isConsultantPickerOpen || publisher === "consultant",
+    page: 1,
+    perPage: 100,
+  });
+  const selectableConsultants = useMemo(
+    () =>
+      (consultantsQuery.data?.data ?? []).map((consultant) => ({
+          avatarSrc: consultant.avatar,
+          id: String(consultant.userId),
+          name: consultant.name || `مشاور شماره ${consultant.userId}`,
+        })),
+    [consultantsQuery.data],
+  );
+  const initialConsultantId = String(
+    routeState.consultantId ?? assignment?.consultantId ?? "",
+  );
   const canContinue = publisher === "agency" || Boolean(assignedConsultant);
+
+  useEffect(() => {
+    if (assignedConsultant || !initialConsultantId) return;
+
+    const currentConsultant = selectableConsultants.find(
+      (consultant) => consultant.id === initialConsultantId,
+    );
+
+    if (currentConsultant) {
+      setAssignedConsultant(currentConsultant);
+      setPublisher("consultant");
+    }
+  }, [assignedConsultant, initialConsultantId, selectableConsultants]);
 
   function handleContinue() {
     if (!canContinue) return;
 
-    window.history.pushState({ ad, tab: "status" }, "", getAdPaymentPath(ad.id));
+    window.history.pushState(
+      {
+        ad,
+        assignment,
+        assignmentId: assignment?.id,
+        consultantId: publisher === "consultant" ? assignedConsultant?.id : undefined,
+        publisherType: publisher,
+        tab: "status",
+      },
+      "",
+      getAdPaymentPath(ad.id),
+    );
     window.dispatchEvent(new PopStateEvent("popstate"));
   }
 
@@ -109,6 +147,8 @@ export function IndependentConsultantAdAllocationReviewPage() {
             label="ویرایش"
             state={{
               ad,
+              assignment,
+              assignmentId: assignment?.id,
               card: ad,
               editReturnTo: getAllocationReviewPathForCurrentAd(ad.id),
               isEditMode: true,
@@ -147,13 +187,17 @@ export function IndependentConsultantAdAllocationReviewPage() {
 
       {isConsultantPickerOpen ? (
         <ConsultantPickerPage
+          consultants={selectableConsultants}
+          isError={consultantsQuery.isError}
+          isLoading={consultantsQuery.isLoading}
           onClose={() => setIsConsultantPickerOpen(false)}
           onConfirm={(consultant) => {
             setAssignedConsultant(consultant);
             setPublisher("consultant");
             setIsConsultantPickerOpen(false);
           }}
-          selectedConsultant={assignedConsultant ?? defaultSelectedConsultant}
+          onRetry={() => void consultantsQuery.refetch()}
+          selectedConsultant={assignedConsultant}
         />
       ) : null}
 
@@ -275,9 +319,9 @@ function PublisherOptionCard({
       >
         <RadioIndicator checked={selected} />
         <span className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
-          <PublisherIcon className="mt-0.5 h-6 w-6 shrink-0 text-[#4d4d4d]" icon={option.icon} />
+          <PublisherIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" icon={option.icon} />
           <span className="min-w-0 flex-1">
-            <strong className="block text-base font-medium leading-6 text-[#1a1a1a]">
+            <strong className="block  text-[#1a1a1a]">
               {option.label}
             </strong>
             <span className="mt-1 block text-xs font-normal leading-5 text-[#a6a6a6]">
@@ -291,12 +335,7 @@ function PublisherOptionCard({
         <div className="mt-3 rounded-lg border border-[#0048c4] bg-white p-2">
           {assignedConsultant ? (
             <div className="mb-2 flex items-center gap-2 px-1 py-1 text-right [direction:rtl]">
-              <img
-                alt=""
-                className="h-10 w-10 shrink-0 rounded-full object-cover"
-                draggable={false}
-                src={assignedConsultant.avatarSrc}
-              />
+              <ConsultantAvatar consultant={assignedConsultant} className="h-10 w-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
                 {assignedConsultant.name}
               </span>
@@ -317,26 +356,37 @@ function PublisherOptionCard({
 }
 
 function ConsultantPickerPage({
+  consultants,
+  isError,
+  isLoading,
   onClose,
   onConfirm,
+  onRetry,
   selectedConsultant,
 }: {
+  consultants: SelectableConsultant[];
+  isError: boolean;
+  isLoading: boolean;
   onClose: () => void;
   onConfirm: (consultant: SelectableConsultant) => void;
+  onRetry: () => void;
   selectedConsultant: SelectableConsultant | null;
 }) {
   const [searchValue, setSearchValue] = useState("");
   const [draftConsultantId, setDraftConsultantId] = useState<string | null>(
-    selectedConsultant?.id ?? defaultSelectedConsultant?.id ?? null,
+    selectedConsultant?.id ?? null,
   );
   const normalizedSearch = searchValue.trim();
   const visibleConsultants = normalizedSearch
-    ? selectableConsultants.filter((consultant) => consultant.name.includes(normalizedSearch))
-    : selectableConsultants;
+    ? consultants.filter((consultant) => consultant.name.includes(normalizedSearch))
+    : consultants;
   const draftConsultant =
-    visibleConsultants.find((consultant) => consultant.id === draftConsultantId) ??
-    selectableConsultants.find((consultant) => consultant.id === draftConsultantId) ??
-    null;
+    consultants.find((consultant) => consultant.id === draftConsultantId) ?? null;
+
+  useEffect(() => {
+    if (draftConsultantId || consultants.length === 0) return;
+    setDraftConsultantId(consultants[0].id);
+  }, [consultants, draftConsultantId]);
 
   return (
     <section
@@ -370,33 +420,45 @@ function ConsultantPickerPage({
         </label>
 
         <div className="mt-5 grid gap-1">
-          {visibleConsultants.map((consultant) => {
-            const selected = draftConsultantId === consultant.id;
-
-            return (
+          {isLoading ? (
+            <p className="py-10 text-center text-sm text-[#808080]">در حال دریافت مشاوران...</p>
+          ) : isError ? (
+            <div className="py-8 text-center text-sm leading-6 text-[#808080]">
+              دریافت فهرست مشاوران با خطا مواجه شد.
               <button
-                aria-checked={selected}
-                className="flex h-12 w-full items-center justify-between gap-3 rounded-lg bg-white px-1 text-right [direction:ltr] active:bg-[#f7f7f7]"
-                key={consultant.id}
-                onClick={() => setDraftConsultantId(consultant.id)}
-                role="radio"
+                className="mt-3 block w-full font-semibold text-[#0048c4]"
+                onClick={onRetry}
                 type="button"
               >
-                <RadioIndicator checked={selected} />
-                <span className="flex min-w-0 flex-1 items-center justify-end gap-3 [direction:rtl]">
-                  <span className="truncate text-xs font-medium leading-5 text-[#1a1a1a]">
-                    {consultant.name}
-                  </span>
-                  <img
-                    alt=""
-                    className="h-9 w-9 shrink-0 rounded-full object-cover"
-                    draggable={false}
-                    src={consultant.avatarSrc}
-                  />
-                </span>
+                تلاش دوباره
               </button>
-            );
-          })}
+            </div>
+          ) : visibleConsultants.length === 0 ? (
+            <p className="py-10 text-center text-sm text-[#808080]">مشاوری پیدا نشد.</p>
+          ) : (
+            visibleConsultants.map((consultant) => {
+              const selected = draftConsultantId === consultant.id;
+
+              return (
+                <button
+                  aria-checked={selected}
+                  className="flex h-12 w-full items-center justify-between gap-3 rounded-lg bg-white px-1 text-right [direction:ltr] active:bg-[#f7f7f7]"
+                  key={consultant.id}
+                  onClick={() => setDraftConsultantId(consultant.id)}
+                  role="radio"
+                  type="button"
+                >
+                  <RadioIndicator checked={selected} />
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-3 [direction:rtl]">
+                    <span className="truncate text-xs font-medium leading-5 text-[#1a1a1a]">
+                      {consultant.name}
+                    </span>
+                    <ConsultantAvatar consultant={consultant} className="h-9 w-9" />
+                  </span>
+                </button>
+              );
+            })
+          )}
         </div>
       </main>
 
@@ -418,8 +480,36 @@ function ConsultantPickerPage({
   );
 }
 
-function PublisherIcon({ className, icon }: { className?: string; icon: "agency" | "consultant" }) {
-  if (icon === "agency") return <LinearBuilding3 className={className} />;
+function ConsultantAvatar({
+  className,
+  consultant,
+}: {
+  className: string;
+  consultant: SelectableConsultant;
+}) {
+  if (consultant.avatarSrc) {
+    return (
+      <img
+        alt=""
+        className={`${className} shrink-0 rounded-full object-cover`}
+        draggable={false}
+        src={consultant.avatarSrc}
+      />
+    );
+  }
 
-  return <LinearUserAccount className={className} />;
+  return (
+    <span
+      aria-hidden="true"
+      className={`${className} grid shrink-0 place-items-center rounded-full bg-[#edf3ff] text-xs font-semibold text-[#0048c4]`}
+    >
+      {consultant.name.trim().charAt(0) || "م"}
+    </span>
+  );
+}
+
+function PublisherIcon({ className, icon }: { className?: string; icon: "agency" | "consultant" }) {
+  if (icon === "agency") return <LinearBuilding2 className={className} />;
+
+  return <LinearUserSolid className={className} />;
 }

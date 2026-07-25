@@ -148,13 +148,24 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const publishState = useMemo(
     () => ({
       ad: routeState.ad,
+      assignment: routeState.assignment,
+      assignmentId: routeState.assignmentId,
       card: routeState.card ?? routeState.ad,
+      consultantId: routeState.consultantId,
+      publisherType: routeState.publisherType,
       returnTo: "/account/my-ads",
       showPaymentSuccess: true,
       status: "published",
       tab: "status" as const,
     }),
-    [routeState.ad, routeState.card],
+    [
+      routeState.ad,
+      routeState.assignment,
+      routeState.assignmentId,
+      routeState.card,
+      routeState.consultantId,
+      routeState.publisherType,
+    ],
   );
 
   const checkout = checkoutQuery.data;

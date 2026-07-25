@@ -603,7 +603,10 @@ export function buildNewAdFormData(values: NewAdFormValues) {
     if (!allowedFields.has(key)) return;
     if (!hasFeatureValue(value)) return;
 
-    formData.append(key, String(value));
+    const serializedValue =
+      typeof value === "boolean" ? (value ? "1" : "0") : String(value);
+
+    formData.append(key, serializedValue);
   };
 
   const appendArray = (key: string, value: string[]) => {
@@ -665,7 +668,10 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendValue("build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
   appendValue("advertiser_type", advertiserType);
   appendValue("owner_type", values.registrantType);
-  appendValue("agency_id", values.registrantType === "agency" ? values.agencyId : "");
+  appendValue(
+    "agency_id",
+    values.registrantType === "agency" ? values.agencyId.trim() : "",
+  );
   appendValue("owner_phone", values.phoneNumber);
   appendValue("owner_name", values.ownerFullName);
   appendValue("owner_address", values.ownerExactAddress);

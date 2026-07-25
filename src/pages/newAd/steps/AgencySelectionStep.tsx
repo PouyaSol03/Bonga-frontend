@@ -172,12 +172,16 @@ export function AgencySelectionStep({
   onBack,
   onConfirm,
   onSelect,
+  selectedAgencyName,
   selectedAgencyId,
+  submitDisabled = false,
 }: {
   onBack: () => void;
   onConfirm: (agency: PublicAgencyDto) => void;
   onSelect: (agency: PublicAgencyDto | null) => void;
+  selectedAgencyName?: string;
   selectedAgencyId: string;
+  submitDisabled?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<AgencySort>("score");
@@ -211,11 +215,28 @@ export function AgencySelectionStep({
     [agenciesQuery.data],
   );
   const selectedAgency = useMemo(
-    () =>
-      selectedAgencyCache?.id === selectedAgencyId
-        ? selectedAgencyCache
-        : agencies.find((agency) => agency.id === selectedAgencyId) ?? null,
-    [agencies, selectedAgencyCache, selectedAgencyId],
+    () => {
+      if (selectedAgencyCache?.id === selectedAgencyId) {
+        return selectedAgencyCache;
+      }
+
+      const agencyFromCurrentResults = agencies.find(
+        (agency) => agency.id === selectedAgencyId,
+      );
+
+      if (agencyFromCurrentResults) return agencyFromCurrentResults;
+
+      if (!selectedAgencyId || !selectedAgencyName?.trim()) return null;
+
+      return {
+        id: selectedAgencyId,
+        name: selectedAgencyName.trim(),
+        neighborhood_ids: [],
+        rank: 0,
+        score: 0,
+      } satisfies PublicAgencyDto;
+    },
+    [agencies, selectedAgencyCache, selectedAgencyId, selectedAgencyName],
   );
   const mapItems = useMemo(() => agencies.map(agencyToMapItem), [agencies]);
   const preloadIndex = Math.max(agencies.length - loadMoreRemainingCount - 1, 0);
@@ -274,10 +295,12 @@ export function AgencySelectionStep({
     return (
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <AgencyDirectoryMapView
-          confirmDisabled={!selectedAgency}
+          confirmDisabled={!selectedAgency || submitDisabled}
           items={mapItems}
           onBack={() => setView("list")}
-          onConfirmSelection={() => selectedAgency && onConfirm(selectedAgency)}
+          onConfirmSelection={() => {
+            if (!submitDisabled && selectedAgency) onConfirm(selectedAgency);
+          }}
           onOpenAgency={(item) => {
             const agency = agencies.find((candidate) => candidate.id === item.id);
             if (agency) openProfile(agency);
@@ -366,11 +389,13 @@ export function AgencySelectionStep({
         </button>
         <button
           className="h-12 min-w-0 flex-1 rounded-xl bg-[#0b55d4] px-4 text-base font-semibold text-white disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
-          disabled={!selectedAgency}
-          onClick={() => selectedAgency && onConfirm(selectedAgency)}
+          disabled={!selectedAgency || submitDisabled}
+          onClick={() => {
+            if (!submitDisabled && selectedAgency) onConfirm(selectedAgency);
+          }}
           type="button"
         >
-          ارسال به آژانس
+          {submitDisabled ? "در حال ارسال..." : "ارسال به آژانس"}
         </button>
       </footer>
 

@@ -892,6 +892,7 @@ export function NewAdFlowPage() {
   const isEditMode = editAdState.isEditMode === true;
   const editAdId = getEditAdId(editAdState);
   const editDataAppliedRef = useRef<string | null>(null);
+  const submitLockRef = useRef(false);
   const [step, setStep] = useState<FlowStep>("details");
   const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
   const [submitError, setSubmitError] = useState("");
@@ -1013,7 +1014,13 @@ export function NewAdFlowPage() {
   }, []);
 
   const submit = methods.handleSubmit((values) => {
-    if (createAdvertisement.isPending || crmSaveMutation.isPending) return;
+    if (
+      submitLockRef.current ||
+      createAdvertisement.isPending ||
+      crmSaveMutation.isPending
+    ) {
+      return;
+    }
 
     const validation = validateNewAd(values, { forceFullEditFields: isEditMode });
 
@@ -1021,6 +1028,17 @@ export function NewAdFlowPage() {
       setFieldErrors(validation.errors);
       setSubmitError("");
       setStep(validation.step);
+      return;
+    }
+
+    if (
+      !isEditMode &&
+      !isCrmSource &&
+      values.registrantType === "agency" &&
+      !values.agencyId.trim()
+    ) {
+      setSubmitError("لطفا آژانس مورد نظر را انتخاب کنید.");
+      setStep("agencySelection");
       return;
     }
 
@@ -1032,6 +1050,7 @@ export function NewAdFlowPage() {
 
       setFieldErrors({});
       setSubmitError("");
+      submitLockRef.current = true;
 
       crmSaveMutation.mutate(
         {
@@ -1044,6 +1063,9 @@ export function NewAdFlowPage() {
             setSubmitError(getApiErrorMessage(error, isEditMode
               ? "ویرایش آگهی با خطا مواجه شد."
               : "ثبت آگهی با خطا مواجه شد."));
+          },
+          onSettled: () => {
+            submitLockRef.current = false;
           },
           onSuccess: (savedAdvertise) => {
             clearNewAdDraftStorage();
@@ -1095,6 +1117,7 @@ export function NewAdFlowPage() {
 
     setFieldErrors({});
     setSubmitError("");
+    submitLockRef.current = true;
     createAdvertisement.mutate(formData, {
       onError: (error) => {
         setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
@@ -1115,6 +1138,9 @@ export function NewAdFlowPage() {
           paymentFlow: "new-ad",
           tab: "status",
         });
+      },
+      onSettled: () => {
+        submitLockRef.current = false;
       },
     });
   });
@@ -1155,11 +1181,18 @@ export function NewAdFlowPage() {
   const selectAgency = (agency: PublicAgencyDto | null) => {
     methods.setValue("agencyId", agency?.id ?? "", { shouldDirty: true });
     methods.setValue("publisherName", agency?.name ?? "", { shouldDirty: true });
+
+    if (agency) {
+      setSubmitError("");
+      clearFieldError("agencyId");
+    }
   };
 
   const confirmAgency = (agency: PublicAgencyDto) => {
+    if (submitLockRef.current || createAdvertisement.isPending) return;
+
     selectAgency(agency);
-    window.setTimeout(() => void submit(), 0);
+    window.queueMicrotask(() => void submit());
   };
 
   const goToMedia = () => {
@@ -1237,7 +1270,9 @@ export function NewAdFlowPage() {
             onBack={() => setStep("media")}
             onConfirm={confirmAgency}
             onSelect={selectAgency}
+            selectedAgencyName={methods.watch("publisherName")}
             selectedAgencyId={methods.watch("agencyId")}
+            submitDisabled={createAdvertisement.isPending || submitLockRef.current}
           />
         ) : (
           <MediaStep

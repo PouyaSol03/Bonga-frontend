@@ -1,10 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
+import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../components/(icons)/LinearFilterHorizontal";
+import LinearTimeQuarter from "../../components/(icons)/LinearTimeQuarter";
 import { SwitchButton } from "../../components/SwitchButton";
 import { TopBar } from "../../components/TopBar";
+import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../../hooks/agency-advertise-assignment.hooks";
 import { RouteLink } from "../../routes/RouteLink";
+import type { AgencyAdvertiseAssignmentDto } from "../../services/agency-advertise-assignment.service";
+import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";
 import {
@@ -20,21 +25,19 @@ import {
   type AdsTab,
   type ConsultantAd,
 } from "./adManagement/adManagementData";
-import LinearTimeQuarter from "../../components/(icons)/LinearTimeQuarter";
-import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
 
 const adStatusLabels = ["در انتظار انتشار", "منتشر شده", "در انتظار انتشار", "منتشر شده"];
-
-const allocationCountdowns = [
-  { hours: 16, minutes: 20 },
-  { hours: 8, minutes: 45 },
-  { hours: 2, minutes: 30 },
-  { hours: 1, minutes: 15 },
-];
+const assignmentPageSize = 20;
+const loadMoreRemainingCount = 10;
 
 const emptyFilters: AdManagementFilters = {
   neighborhoods: [],
 };
+
+type AssignmentCountdown = {
+  hours: number;
+  minutes: number;
+} | null;
 
 function isAssignedTab(tab: AdsTab) {
   return tab === "status";
@@ -134,49 +137,140 @@ function getFilterPropertyTypes(filters: AdManagementFilters) {
       : [];
 }
 
+function matchesAdFilters(
+  ad: ConsultantAd & { publisher?: string },
+  filters: AdManagementFilters,
+  assignedTab: boolean,
+) {
+  const matchesStatus = assignedTab ? true : filters.status ? ad.status === filters.status : true;
+  const matchesNeighborhood = filters.neighborhoods.length
+    ? filters.neighborhoods.some((neighborhood) =>
+        ad.timeAndLocation.includes(neighborhood.name),
+      )
+    : true;
+  const matchesPublisher = assignedTab ? true : filters.publisher ? ad.publisher === filters.publisher : true;
+  const matchesType = matchesPropertyType(
+    ad.title,
+    filters.propertyTypes,
+    filters.propertyType,
+  );
+
+  return (
+    matchesStatus &&
+    matchesNeighborhood &&
+    matchesPublisher &&
+    matchesTransaction(ad.title, filters) &&
+    matchesType
+  );
+}
+
+function mapAssignmentToAd(
+  assignment: AgencyAdvertiseAssignmentDto,
+  index: number,
+): ConsultantAd {
+  if (assignment.advertise) {
+    return {
+      ...mapAdvertisementToAdCard(assignment.advertise, index),
+      id: assignment.advertiseId,
+      status: "در انتظار انتشار",
+    };
+  }
+
+  return {
+    agency: "",
+    area: "-",
+    badges: [],
+    id: assignment.advertiseId,
+    imageClassName: `ad-card__image--${(index % 4) + 1}`,
+    imageCount: "0",
+    priceLabelPrimary: "",
+    priceLabelSecondary: "",
+    pricePrimary: "توافقی",
+    priceSecondary: "",
+    rooms: "-",
+    status: "در انتظار انتشار",
+    timeAndLocation: "",
+    title: `آگهی شماره ${toPersianDigits(assignment.advertiseId)}`,
+    year: "-",
+  };
+}
+
+function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto): AssignmentCountdown {
+  if (!assignment.expiresAt) return null;
+
+  const expiresAt = Date.parse(assignment.expiresAt);
+  if (!Number.isFinite(expiresAt)) return null;
+
+  const remainingMinutes = Math.max(0, Math.ceil((expiresAt - Date.now()) / 60_000));
+
+  return {
+    hours: Math.floor(remainingMinutes / 60),
+    minutes: remainingMinutes % 60,
+  };
+}
+
 export function IndependentConsultantAdManagementPage() {
   const routeState = getAdManagementRouteState();
   const [activeTab, setActiveTab] = useState<AdsTab>(routeState.tab ?? "active");
   const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
   const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyFilters);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const assignedTab = isAssignedTab(activeTab);
   const scopedFilters = getScopedFilters(filters, activeTab);
   const hasFilters = hasActiveFilters(scopedFilters, activeTab);
+  const assignmentsQuery = useAgencyAdvertiseAssignmentsInfiniteQuery({
+    enabled: assignedTab,
+    perPage: assignmentPageSize,
+    status: "pending",
+  });
+  const assignmentItems = useMemo(
+    () => assignmentsQuery.data?.pages.flatMap((page) => page.data) ?? [],
+    [assignmentsQuery.data],
+  );
+  const assignedAdvertisements = useMemo(
+    () =>
+      assignmentItems
+        .map((assignment, index) => ({
+          ad: mapAssignmentToAd(assignment, index),
+          assignment,
+        }))
+        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true)),
+    [assignmentItems, scopedFilters],
+  );
   const ads = useMemo(
     () =>
-      getAdsForTab(activeTab)
+      getAdsForTab("active")
         .map((ad, index) => ({
           ...ad,
           publisher:
             adManagementPublisherOptions[index % adManagementPublisherOptions.length].name,
           status: adStatusLabels[index % adStatusLabels.length],
         }))
-        .filter((ad) => {
-          const matchesStatus = assignedTab ? true : filters.status ? ad.status === filters.status : true;
-          const matchesNeighborhood = scopedFilters.neighborhoods.length
-            ? scopedFilters.neighborhoods.some((neighborhood) =>
-                ad.timeAndLocation.includes(neighborhood.name),
-              )
-            : true;
-
-          const matchesPublisher = assignedTab ? true : filters.publisher ? ad.publisher === filters.publisher : true;
-          const matchesType = matchesPropertyType(
-            ad.title,
-            scopedFilters.propertyTypes,
-            scopedFilters.propertyType,
-          );
-
-          return (
-            matchesStatus &&
-            matchesNeighborhood &&
-            matchesPublisher &&
-            matchesTransaction(ad.title, scopedFilters) &&
-            matchesType
-          );
-        }),
-    [activeTab, assignedTab, filters, scopedFilters],
+        .filter((ad) => matchesAdFilters(ad, scopedFilters, false)),
+    [scopedFilters],
   );
+  const preloadIndex = Math.max(assignedAdvertisements.length - loadMoreRemainingCount - 1, 0);
   const filterLabel = hasFilters ? "فیلترها" : "فیلتر";
+
+  const loadMoreRef = (node: HTMLElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+
+    if (!node || !assignmentsQuery.hasNextPage || assignmentsQuery.isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        observer.disconnect();
+        void assignmentsQuery.fetchNextPage();
+      },
+      { rootMargin: "160px 0px" },
+    );
+    observer.observe(node);
+    observerRef.current = observer;
+  };
+
+  useEffect(() => () => observerRef.current?.disconnect(), []);
 
   return (
     <PageFrame
@@ -282,29 +376,50 @@ export function IndependentConsultantAdManagementPage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pt-4">
         <div className={assignedTab ? "space-y-3 pb-4" : "space-y-2"}>
-          {ads.length > 0 ? (
-            ads.map((ad, index) =>
-              assignedTab ? (
+          {assignedTab ? (
+            assignmentsQuery.isLoading ? (
+              <AssignmentStatusMessage>در حال دریافت آگهی‌های تخصیصی...</AssignmentStatusMessage>
+            ) : assignmentsQuery.isError ? (
+              <AssignmentStatusMessage>
+                دریافت آگهی‌های تخصیصی با خطا مواجه شد.
+                <button
+                  className="mt-3 block w-full font-semibold text-[#0048c4]"
+                  onClick={() => void assignmentsQuery.refetch()}
+                  type="button"
+                >
+                  تلاش دوباره
+                </button>
+              </AssignmentStatusMessage>
+            ) : assignedAdvertisements.length > 0 ? (
+              assignedAdvertisements.map(({ ad, assignment }, index) => (
                 <AssignedConsultantAdCard
                   ad={ad}
-                  countdown={allocationCountdowns[index % allocationCountdowns.length]}
-                  key={`${ad.title}-${index}`}
+                  assignment={assignment}
+                  countdown={getAssignmentCountdown(assignment)}
+                  key={String(assignment.id)}
+                  loadMoreRef={index === preloadIndex ? loadMoreRef : undefined}
                 />
-              ) : (
-                <ConsultantAdCard
-                  ad={ad}
-                  key={`${ad.title}-${index}`}
-                  showStatusBadge
-                  state={{ card: ad, ad, returnTo: adManagementPaths.root, tab: "active" }}
-                  to={getAdStatePath(ad.id)}
-                />
-              ),
+              ))
+            ) : (
+              <AssignmentStatusMessage>آگهی تخصیصی در انتظار بررسی وجود ندارد.</AssignmentStatusMessage>
             )
+          ) : ads.length > 0 ? (
+            ads.map((ad, index) => (
+              <ConsultantAdCard
+                ad={ad}
+                key={`${ad.title}-${index}`}
+                showStatusBadge
+                state={{ card: ad, ad, returnTo: adManagementPaths.root, tab: "active" }}
+                to={getAdStatePath(ad.id)}
+              />
+            ))
           ) : (
-            <div className="mx-4 rounded-2xl bg-white px-4 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
-              آگهی‌ای با این فیلترها پیدا نشد.
-            </div>
+            <AssignmentStatusMessage>آگهی‌ای با این فیلترها پیدا نشد.</AssignmentStatusMessage>
           )}
+
+          {assignedTab && assignmentsQuery.isFetchingNextPage ? (
+            <AssignmentStatusMessage>در حال دریافت موارد بیشتر...</AssignmentStatusMessage>
+          ) : null}
         </div>
       </main>
     </PageFrame>
@@ -313,33 +428,49 @@ export function IndependentConsultantAdManagementPage() {
 
 function AssignedConsultantAdCard({
   ad,
+  assignment,
   countdown,
+  loadMoreRef,
 }: {
   ad: ConsultantAd;
-  countdown: { hours: number; minutes: number };
+  assignment: AgencyAdvertiseAssignmentDto;
+  countdown: AssignmentCountdown;
+  loadMoreRef?: (node: HTMLElement | null) => void;
 }) {
-  const countdownClassName = getAllocationCountdownClassName(countdown.hours);
+  const countdownClassName = getAllocationCountdownClassName(countdown?.hours);
+  const routeState = {
+    ad,
+    assignment,
+    assignmentId: assignment.id,
+    returnTo: adManagementPaths.root,
+    tab: "status" as const,
+  };
 
   return (
-    <article className="overflow-hidden bg-white shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl]">
+    <article
+      className="overflow-hidden bg-white shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl]"
+      ref={loadMoreRef}
+    >
       <div
         className={`flex gap-2 items-center rounded-4xl mt-4 mx-4 py-2 px-3 text-center text-sm font-medium ${countdownClassName}`}
       >
         <LinearTimeQuarter className="w-4 h-4"/>
-        {formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص
+        {countdown
+          ? `${formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص`
+          : "زمان پایان مهلت تخصیص مشخص نیست"}
       </div>
 
       <ConsultantAdCard
         ad={ad}
         showStatusBadge
-        state={{ ad, returnTo: adManagementPaths.root, tab: "status" }}
+        state={routeState}
         to={getAllocationReviewPath(ad.id)}
       />
 
       <div className="px-4 pb-4 pt-1">
         <RouteLink
           className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4] no-underline border border-[#0048c4] active:bg-[#003aa0]"
-          state={{ ad, returnTo: adManagementPaths.root, tab: "status" }}
+          state={routeState}
           to={getAllocationReviewPath(ad.id)}
         >
           بررسی و تخصیص
@@ -350,18 +481,26 @@ function AssignedConsultantAdCard({
   );
 }
 
+function AssignmentStatusMessage({ children }: { children: ReactNode }) {
+  return (
+    <div className="mx-4 rounded-2xl bg-white px-4 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
+      {children}
+    </div>
+  );
+}
+
 function formatAllocationCountdown({ hours, minutes }: { hours: number; minutes: number }) {
   return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
 }
 
-function getAllocationCountdownClassName(hours: number) {
-  if (hours < 3) return "bg-[#ffebed] text-[#ee3623]";
-  if (hours < 12) return "bg-[#fff8e1] text-[#ff6d00]";
+function getAllocationCountdownClassName(hours?: number) {
+  if (hours !== undefined && hours < 3) return "bg-[#ffebed] text-[#ee3623]";
+  if (hours !== undefined && hours < 12) return "bg-[#fff8e1] text-[#ff6d00]";
 
   return "bg-[#e6efff] text-[#0048c4]";
 }
 
-function toPersianDigits(value: number) {
+function toPersianDigits(value: number | string) {
   return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 

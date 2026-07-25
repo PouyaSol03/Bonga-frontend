@@ -73,6 +73,28 @@ export const queryKeys = {
       ] as const,
   },
 
+  agencyAdvertiseAssignments: {
+    all: ["agency-advertise-assignments"] as const,
+    list: (filters: {
+      advertiseId?: number | string;
+      agencyId?: number | string;
+      consultantId?: number | string;
+      perPage: number;
+      status?: string;
+      targetType?: string;
+    }) =>
+      [
+        ...queryKeys.agencyAdvertiseAssignments.all,
+        "list",
+        String(filters.advertiseId ?? ""),
+        String(filters.agencyId ?? ""),
+        String(filters.consultantId ?? ""),
+        filters.status ?? "",
+        filters.targetType ?? "",
+        filters.perPage,
+      ] as const,
+  },
+
   advertisements: {
     all: ["advertisements"] as const,
     checkout: (id: string) => [...queryKeys.advertisements.all, "checkout", id] as const,

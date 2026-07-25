@@ -1,4 +1,5 @@
 import type { AdCardData } from "../../../components/AdCard";
+import type { AgencyAdvertiseAssignmentDto } from "../../../services/agency-advertise-assignment.service";
 import { latestMashhadAds } from "../../home/homeData";
 
 export type ConsultantAd = AdCardData;
@@ -153,6 +154,10 @@ export type StatisticsAd = Pick<
 
 export type AdManagementRouteState = {
   ad?: ConsultantAd;
+  assignment?: AgencyAdvertiseAssignmentDto;
+  assignmentId?: number | string;
+  consultantId?: number | string;
+  publisherType?: "agency" | "consultant";
   hasFreeAdTariff?: boolean;
   paymentFlow?: "new-ad" | "upgrade";
   paymentStep?: "options" | "checkout";

@@ -60,6 +60,7 @@ type AdvertisementShowResponse =
 
 type AdvertisementCreateResponse =
   | {
+    advertise?: AdvertisementItem;
     data?: AdvertisementItem;
     result?: AdvertisementItem;
     status?: boolean;
@@ -529,6 +530,10 @@ export async function createAdvertisement(payload: FormData) {
 
   if ("result" in response && response.result) {
     return response.result as AdvertisementItem;
+  }
+
+  if ("advertise" in response && response.advertise) {
+    return response.advertise as AdvertisementItem;
   }
 
   return response as AdvertisementItem;

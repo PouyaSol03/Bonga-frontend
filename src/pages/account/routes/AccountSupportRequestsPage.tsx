@@ -29,10 +29,6 @@ export function AccountSupportRequestsPage() {
   const RequestErrorState = requestsQuery.isError
     ? getRequestErrorState(requestsQuery.error)
     : null;
-  const showEmptyState =
-    !requestsQuery.isLoading &&
-    !requestsQuery.isError &&
-    filteredRequests.length === 0;
 
   return (
     <PageFrame
@@ -55,35 +51,30 @@ export function AccountSupportRequestsPage() {
       />
 
       <main
-        className={`min-h-0 flex-1 bg-white px-3 pb-[76px] ${
-          showEmptyState
-            ? "flex overflow-hidden pt-0"
-            : "overflow-y-auto pt-3"
+        className={`min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-[76px] ${
+          requests.length === 0 ? "flex pt-0" : "pt-3"
         }`}
       >
         {requestsQuery.isLoading ? (
           <p className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</p>
         ) : RequestErrorState ? (
           <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
-        ) : showEmptyState ? (
-          <SupportRequestsEmptyState
-            description={
-              requests.length === 0
-                ? undefined
-                : "درخواستی با وضعیت انتخاب‌شده وجود ندارد."
-            }
-            title={
-              requests.length === 0
-                ? undefined
-                : "درخواستی با این وضعیت وجود ندارد"
-            }
-          />
+        ) : requests.length === 0 ? (
+          <SupportRequestsEmptyState />
         ) : (
-          <div className="w-full space-y-3">
-            {filteredRequests.map((request) => (
-              <SupportRequestCard key={request.id} request={request} />
-            ))}
-          </div>
+          <>
+            <div className="space-y-3">
+              {filteredRequests.map((request) => (
+                <SupportRequestCard key={request.id} request={request} />
+              ))}
+            </div>
+
+            {filteredRequests.length === 0 ? (
+              <div className="flex min-h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[#808080]">
+                درخواستی با این وضعیت وجود ندارد.
+              </div>
+            ) : null}
+          </>
         )}
       </main>
 

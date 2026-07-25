@@ -12,7 +12,6 @@ import {
   type BottomSheetAction,
 } from "../../components/BottomSheet";
 import { TopBar } from "../../components/TopBar";
-import { EmptyState } from "../../components/EmptyState";
 import { getRequestErrorState } from "../../components/ErrorState";
 import { RouteLink } from "../../routes/RouteLink";
 import { replaceRoute } from "../../routes/navigation";
@@ -179,11 +178,23 @@ function SupportRequestCard({ request }: { request: SupportRequest }) {
 
 function SupportRequestsEmptyState() {
   return (
-    <EmptyState
-      description="اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم پشتیبانی ثبت کنید."
-      iconSrc="/vectors/NoSupportRequest.svg"
-      title="درخواستی ثبت نشده است!"
-    />
+    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 pb-8 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="h-auto w-[64px] shrink-0"
+        src="/vectors/NoSupportRequest.svg"
+      />
+
+      <h2 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+        درخواستی ثبت نشده است!
+      </h2>
+
+      <p className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-[#666666]">
+        اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم
+        پشتیبانی ثبت کنید.
+      </p>
+    </div>
   );
 }
 

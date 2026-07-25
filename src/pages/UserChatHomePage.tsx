@@ -11,7 +11,6 @@ import {
 } from "../api/chat-socket";
 import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
 import { DemoNotice } from "../components/DemoNotice";
-import { EmptyState } from "../components/EmptyState";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import {
@@ -2829,10 +2828,6 @@ export function UserChatHomePage() {
     if (activeFilter === "آگهی‌های دیگران" && item.adLabel === "آگهی من") return false;
     return true;
   }), [activeFilter, chats, query]);
-  const showEmptyState =
-    !isAdvertiseLoading &&
-    !isAdvertiseError &&
-    visibleChats.length === 0;
 
   const toggleSearch = useCallback(() => {
     setIsSearchOpen((current) => !current);
@@ -2846,7 +2841,7 @@ export function UserChatHomePage() {
   return (
     <TopBarNavigationLayout
       activeKey="chat"
-      contentClassName={showEmptyState ? "overflow-hidden bg-white" : "bg-white"}
+      contentClassName="bg-white"
       fixedAfterTopBar={
         <>
           {isSearchOpen ? (
@@ -2901,16 +2896,8 @@ export function UserChatHomePage() {
           />
         );
       })}
-      {showEmptyState ? (
-        <EmptyState
-          description={
-            chats.length === 0
-              ? "گفتگوهای مربوط به آگهی‌ها و پشتیبانی در این بخش نمایش داده می‌شوند."
-              : "عبارت جستجو یا فیلتر انتخاب‌شده را تغییر دهید."
-          }
-          iconSrc="/vectors/NoSupportChat.svg"
-          title={chats.length === 0 ? "هنوز گفتگویی ندارید!" : "گفتگویی یافت نشد"}
-        />
+      {!isAdvertiseLoading && !isAdvertiseError && visibleChats.length === 0 ? (
+        <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
       ) : null}
       <DemoNotice message={message} />
     </TopBarNavigationLayout>

@@ -10,7 +10,7 @@ export function AccountMyAdsEmptyPage() {
       }
       title="آگهی‌های من"
     >
-      <AccountMyAdsContent />
+      <AccountMyAdsContent emptyMode="full" />
     </AccountPageShell>
   );
 }

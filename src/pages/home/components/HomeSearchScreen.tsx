@@ -130,15 +130,6 @@ export function HomeSearchScreen({
   const retryActiveError = isResultsView
     ? () => void refetchQuickSearch()
     : () => void savedSearchesQuery.refetch();
-  const showEmptyState = isResultsView
-    ? hasEnoughSearchQueryLength &&
-      !isWaitingForDebounce &&
-      !isQuickSearchFetching &&
-      !isQuickSearchError &&
-      quickSearchResults.length === 0
-    : !savedSearchesQuery.isLoading &&
-      !savedSearchesQuery.isError &&
-      visibleRecentSearches.length === 0;
 
   useEffect(() => {
     if (!isOpen) {
@@ -272,11 +263,7 @@ export function HomeSearchScreen({
         </div>
       </div>
 
-      <main
-        className={`min-h-0 flex-1 overflow-x-hidden bg-white ${
-          showEmptyState ? "overflow-hidden" : "overflow-y-auto"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isResultsView ? (
           !hasEnoughSearchQueryLength ? (
             <div className="flex flex-col">
@@ -380,13 +367,7 @@ function SavedSearchesView({
     >
       <TopBar onBack={onBack} title="جستجوی ذخیره شده" />
 
-      <main
-        className={`min-h-0 flex-1 overflow-x-hidden bg-white ${
-          !isLoading && !isError && savedSearches.length === 0
-            ? "overflow-hidden"
-            : "overflow-y-auto"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isLoading ? (
           <SearchRowsSkeleton />
         ) : isError ? (

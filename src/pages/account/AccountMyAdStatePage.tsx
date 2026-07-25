@@ -6,7 +6,6 @@ import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
-import { RadioIndicator } from "../../components/RadioIndicator";
 import type { AdCardData } from "../../components/AdCard";
 import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
@@ -337,7 +336,7 @@ function ManagerPublisherPickerPage({
                 role="radio"
                 type="button"
               >
-                <RadioIndicator checked={selected} />
+                <RadioCircle checked={selected} />
                 <span className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]">
                   <img
                     alt=""
@@ -363,6 +362,19 @@ function ManagerPublisherPickerPage({
         </button>
       </footer>
     </section>
+  );
+}
+
+function RadioCircle({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border ${
+        checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"
+      }`}
+    >
+      {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
+    </span>
   );
 }
 

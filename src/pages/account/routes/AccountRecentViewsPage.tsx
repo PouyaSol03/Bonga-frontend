@@ -22,10 +22,6 @@ export function AccountRecentViewsPage() {
       view.advertise ? [view.advertise as AdvertisementItem] : [],
     );
   }, [recentViewsQuery.data]);
-  const showEmptyState =
-    !recentViewsQuery.isLoading &&
-    !recentViewsQuery.isError &&
-    recentAdvertises.length === 0;
 
   return (
     <AccountPageShell
@@ -35,11 +31,7 @@ export function AccountRecentViewsPage() {
       }
       title="بازدیدهای اخیر"
     >
-      <main
-        className={`min-h-0 flex-1 overflow-x-hidden ${
-          showEmptyState ? "overflow-hidden bg-white" : "overflow-y-auto bg-[#f0f0f0]"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         {recentViewsQuery.isLoading ? <AccountAdCardsSkeleton /> : null}
         {recentViewsQuery.isError ? (
           <AccountRetryState
@@ -49,13 +41,7 @@ export function AccountRecentViewsPage() {
           />
         ) : null}
         {!recentViewsQuery.isLoading && !recentViewsQuery.isError ? (
-          <div
-            className={
-              showEmptyState
-                ? "flex h-full min-h-0 flex-col bg-white"
-                : "space-y-2 bg-[#f0f0f0] pt-2"
-            }
-          >
+          <div className="space-y-2 bg-[#f0f0f0] pt-2">
             {recentAdvertises.map((advertise, index) => {
               const ad = mapAdvertisementToAdCard(advertise, index);
 

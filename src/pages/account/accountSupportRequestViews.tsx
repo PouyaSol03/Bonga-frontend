@@ -2,7 +2,6 @@ import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearTick from "../../components/(icons)/LinearTick";
 import { BottomSheet, BottomSheetActionList, type BottomSheetAction } from "../../components/BottomSheet";
 import { RouteLink } from "../../routes/RouteLink";
-import { EmptyState } from "../../components/EmptyState";
 import type { SupportRequestItem } from "../../services/support-request.service";
 
 
@@ -161,19 +160,25 @@ export function SupportRequestCard({ request }: { request: SupportRequest }) {
   ) : card;
 }
 
-export function SupportRequestsEmptyState({
-  description = "اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم پشتیبانی ثبت کنید.",
-  title = "درخواستی ثبت نشده است!",
-}: {
-  description?: string;
-  title?: string;
-} = {}) {
+export function SupportRequestsEmptyState() {
   return (
-    <EmptyState
-      description={description}
-      iconSrc="/vectors/NoSupportRequest.svg"
-      title={title}
-    />
+    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 pb-8 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="h-auto w-[64px] shrink-0"
+        src="/vectors/NoSupportRequest.svg"
+      />
+
+      <h2 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+        درخواستی ثبت نشده است!
+      </h2>
+
+      <p className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-[#666666]">
+        اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم
+        پشتیبانی ثبت کنید.
+      </p>
+    </div>
   );
 }
 

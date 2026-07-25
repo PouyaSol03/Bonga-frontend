@@ -67,11 +67,6 @@ export function CitySelectionScreen({
   const normalizedQuery = query.trim();
 
   const visibleSearchResults = cityList;
-  const showEmptyState =
-    isSearching &&
-    !isLoading &&
-    normalizedQuery.length > 0 &&
-    visibleSearchResults.length === 0;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -179,11 +174,7 @@ export function CitySelectionScreen({
         title={isSearching ? undefined : "انتخاب شهر"}
       />
 
-      <main
-        className={`min-h-0 flex-1 overflow-x-hidden bg-white ${
-          showEmptyState ? "overflow-hidden" : "overflow-y-auto"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {isSearching ? (
           isLoading ? (
             <div className="flex flex-col gap-4 px-4 py-4">

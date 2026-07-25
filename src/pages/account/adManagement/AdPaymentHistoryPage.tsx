@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
-import { EmptyState } from "../../../components/EmptyState";
 import { useAdvertisementDetailQuery } from "../../../hooks/advertisement.hooks";
 import { RouteLink } from "../../../routes/RouteLink";
 import type { AdvertisementItem } from "../../../services/advertisement.service";
@@ -64,11 +63,7 @@ export function AdPaymentHistoryPage() {
         title="تاریخچه پرداخت"
       />
 
-      <main
-        className={`min-h-0 flex-1 overflow-x-hidden bg-white ${
-          showEmpty ? "overflow-hidden" : "overflow-y-auto"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {query.isLoading ? <PaymentHistoryLoading /> : null}
 
         {query.isError && payments.length === 0 ? (
@@ -190,29 +185,32 @@ function EmptyPaymentHistory({
   returnTo?: string;
 }) {
   return (
-    <EmptyState
-      action={
-        <RouteLink
-          className="inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white no-underline"
-          state={{
-            ad: card ?? ad,
-            card,
-            paymentFlow: "upgrade",
-            paymentHistoryReturnTo: window.location.pathname,
-            returnTo,
-            tab: "status",
-          }}
-          to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
-        >
-          <span>افزایش بازدید</span>
-          <ArrowLeftIcon className="h-4 w-4" />
-          {adId ? <span className="sr-only">برای آگهی {adId}</span> : null}
-        </RouteLink>
-      }
-      description="پس از اولین پرداخت برای این آگهی، سابقه‌ها در این بخش نمایش داده می‌شود."
-      iconSrc="/vectors/NoPaymentHistory.svg"
-      title="هیچ تراکنشی برای نمایش وجود ندارد"
-    />
+    <section className="flex h-full min-h-[430px] flex-col items-center justify-center px-8 pb-12 text-center">
+      <img src="/vectors/NoPaymentHistory.svg" alt="" />
+      <h2 className="m-0 mt-3 text-base font-semibold leading-6 text-[#1a1a1a]">
+        هیچ تراکنشی برای نمایش وجود ندارد
+      </h2>
+      <p className="m-0 mt-2 max-w-[260px] text-xs font-normal leading-5 text-[#4d4d4d]">
+        پس از اولین پرداخت برای این آگهی، سابقه‌ها در این بخش نمایش داده می‌شود
+      </p>
+
+      <RouteLink
+        className="mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white no-underline"
+        state={{
+          ad: card ?? ad,
+          card,
+          paymentFlow: "upgrade",
+          paymentHistoryReturnTo: window.location.pathname,
+          returnTo,
+          tab: "status",
+        }}
+        to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
+      >
+        <span>افزایش بازدید</span>
+        <ArrowLeftIcon className="h-4 w-4" />
+        {adId ? <span className="sr-only">برای آگهی {adId}</span> : null}
+      </RouteLink>
+    </section>
   );
 }
 

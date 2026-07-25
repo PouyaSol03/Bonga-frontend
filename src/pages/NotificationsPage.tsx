@@ -9,7 +9,6 @@ import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
-import { EmptyState } from "../components/EmptyState";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import { SwitchButton } from "../components/SwitchButton";
@@ -499,11 +498,20 @@ function NotificationSettingsSheet({
 
 function NotificationsEmptyState() {
   return (
-    <EmptyState
-      description="تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود."
-      iconSrc="/vectors/NoNotification.svg"
-      title="هنوز اعلانی دریافت نکرده‌اید"
-    />
+    <section className="flex h-[calc(100dvh-134px)] flex-col items-center justify-center px-10 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="mb-4 h-[66px] w-[66px] object-contain"
+        src="/vectors/NoNotification.svg"
+      />
+      <h2 className="m-0 font-semibold text-[#1a1a1a]">
+        هنوز اعلانی دریافت نکرده‌اید
+      </h2>
+      <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+        تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود.
+      </p>
+    </section>
   );
 }
 
@@ -971,11 +979,6 @@ export function NotificationsPage() {
     }
   };
 
-  const showEmptyState =
-    !notificationsQuery.isLoading &&
-    !notificationsQuery.isError &&
-    visibleNotifications.length === 0;
-
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
@@ -991,13 +994,7 @@ export function NotificationsPage() {
         selectedFilters={selectedFilters}
       />
 
-      <main
-        className={`min-h-0 flex-1 overflow-x-hidden bg-white ${
-          showEmptyState
-            ? "overflow-hidden"
-            : "overflow-y-auto pb-5 [-webkit-overflow-scrolling:touch]"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
         {notificationsQuery.isLoading ? (
           <p className="py-16 text-center text-sm text-[#808080]">
             در حال دریافت اعلان‌ها...
@@ -1033,7 +1030,11 @@ export function NotificationsPage() {
             );
           })}
 
-        {showEmptyState ? <NotificationsEmptyState /> : null}
+        {!notificationsQuery.isLoading &&
+        !notificationsQuery.isError &&
+        visibleNotifications.length === 0 ? (
+          <NotificationsEmptyState />
+        ) : null}
 
         {notificationsQuery.isFetchingNextPage ? (
           <p className="py-4 text-center text-xs text-[#808080]">

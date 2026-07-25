@@ -11,7 +11,6 @@ import LinearTickDouble from "../../components/(icons)/LinearTickDouble";
 import LinearWavingHand from "../../components/(icons)/LinearWavingHand";
 import type { ChatMessage, ChatThread } from "../../services/chat.service";
 import { RouteLink } from "../../routes/RouteLink";
-import { EmptyState } from "../../components/EmptyState";
 
 
 export const SUPPORT_CHAT_PATH = "/account/support/chat";
@@ -162,12 +161,22 @@ export function WelcomeCard() {
 
 export function SupportChatsEmptyState() {
   return (
-    <EmptyState
-      description="اگر سوال یا مشکلی دارید، پیام خود را برای پشتیبان ارسال کنید."
-      iconSrc="/vectors/NoSupportChat.svg"
-      title="هنوز گفتگویی ندارید!"
-      titleAs="h3"
-    />
+    <div className="flex min-h-[300px] flex-1 flex-col items-center justify-center px-6 pb-6 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="h-auto w-[72px] shrink-0"
+        src="/vectors/NoSupportChat.svg"
+      />
+
+      <h3 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+        هنوز گفتگویی ندارید!
+      </h3>
+
+      <p className="m-0 mt-2 max-w-[270px] text-sm font-normal leading-6 text-[#666666]">
+        اگر سوال یا مشکلی دارید، پیام خود را برای پشتیبان ارسال کنید.
+      </p>
+    </div>
   );
 }
 

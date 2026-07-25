@@ -78,35 +78,31 @@ export function AccountIdentityPage() {
 
       <BottomSheet
         ariaLabel="هشدار تغییر مالکیت سیم‌کارت"
-        className="!rounded-t-[16px] flex flex-col"
-        contentClassName="flex min-h-0 flex-1 flex-col"
-        handleClassName="h-1 w-[60px] rounded-full bg-[#808080]"
-        heightClassName="h-[232px]"
+        contentClassName="px-4 pb-4 pt-4"
+        heightClassName="h-[220px]"
         isOpen={isOwnershipWarningOpen}
         onClose={() => setIsOwnershipWarningOpen(false)}
-        panelPaddingClassName="pt-1.5"
+        panelPaddingClassName="pt-4"
         showHeader={false}
       >
-        <div className="min-h-0 flex-1 px-4 pt-4">
-          <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
-            <WarningTriangleIcon className="h-6 w-6 shrink-0" />
-            <h2 className="m-0 text-base font-semibold leading-6">هشدار</h2>
-          </div>
-
-          <p className="m-0 mt-4 text-right text-base font-normal leading-8 text-[#1a1a1a]">
-            با اعلام «تغییر مالکیت سیم‌کارت»، همهٔ آگهی‌های این حساب کاربری
-            {" "}
-            <span dir="ltr" className="whitespace-nowrap text-[#1a1a1a]">
-              ({mobile})
-            </span>
-            {" "}
-            غیرفعال می‌شود.
-          </p>
+        <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
+          <WarningTriangleIcon className="h-5 w-5 shrink-0" />
+          <h2 className="m-0 text-sm font-semibold leading-6">هشدار</h2>
         </div>
 
-        <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
+        <p className="m-0 mt-3 text-right text-xs font-normal leading-6 text-[#4d4d4d]">
+          با اعلام تغییر مالکیت سیم‌کارت، همه آگهی‌های این حساب کاربری
+          {" "}
+          <span dir="ltr" className="font-medium text-[#1a1a1a]">
+            ({mobile})
+          </span>
+          {" "}
+          غیرفعال می‌شوند.
+        </p>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 [direction:ltr]">
           <button
-            className="h-10 w-full rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white active:bg-[#003da6] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            className="h-10 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
             onClick={() => {
               setIsOwnershipWarningOpen(false);
               setStep("verified");
@@ -114,7 +110,14 @@ export function AccountIdentityPage() {
             }}
             type="button"
           >
-            ثبت
+            تایید
+          </button>
+          <button
+            className="h-10 rounded-lg border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4]"
+            onClick={() => setIsOwnershipWarningOpen(false)}
+            type="button"
+          >
+            انصراف
           </button>
         </div>
       </BottomSheet>

@@ -1439,7 +1439,7 @@ export function SearchMapPage() {
         />
       ) : null}
 
-      {!isGeofenceEditorOpen && !isSearchOpen ? (
+      {!isGeofenceEditorOpen ? (
         <SearchMapHeader
           savedCount={savedSearchesQuery.data?.length ?? 0}
           isCurrentSearchSaved={isCurrentSearchSaved}
@@ -1494,19 +1494,17 @@ export function SearchMapPage() {
         selectedListingId={selectedListingId}
         onActiveListingChange={handleSliderActiveListing}
       />
-      {isSearchOpen ? (
-        <SearchMapSearchScreen
-          initialQuery={currentSearchQuery}
-          initialView={searchInitialView}
-          isOpen
-          minSearchQueryLength={searchMapMinQueryLength}
-          onClose={closeSearch}
-          onQueryChange={handleLiveSearchQueryChange}
-          onSavedSelect={handleSavedSearchSelect}
-          onSubmit={(query) => handleSearchResult({ title: query })}
-          saveInput={saveSearchInput}
-        />
-      ) : null}
+      <SearchMapSearchScreen
+        initialQuery={currentSearchQuery}
+        initialView={searchInitialView}
+        isOpen={isSearchOpen}
+        minSearchQueryLength={searchMapMinQueryLength}
+        onClose={closeSearch}
+        onQueryChange={handleLiveSearchQueryChange}
+        onSavedSelect={handleSavedSearchSelect}
+        onSubmit={(query) => handleSearchResult({ title: query })}
+        saveInput={saveSearchInput}
+      />
       <SearchRequestSenderBottomSheet
         isOpen={pendingSearchRequest !== null || isRequestSuccessOpen}
         isSuccess={isRequestSuccessOpen}

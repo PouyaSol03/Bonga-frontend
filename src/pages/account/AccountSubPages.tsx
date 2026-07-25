@@ -1161,7 +1161,7 @@ export function AccountIdentityPage() {
 }
 
 export function AccountRequestsPage() {
-  return <RequestManagementView backTo="/account" variant="account" />;
+  return <RequestManagementView backTo="/account" />;
 }
 
 export function AccountAboutPage() {

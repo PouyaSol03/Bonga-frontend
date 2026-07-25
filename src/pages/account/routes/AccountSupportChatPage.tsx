@@ -35,6 +35,10 @@ export function AccountSupportChatPage() {
       }),
     [supportChatsQuery.data?.data],
   );
+  const showEmptyState =
+    !supportChatsQuery.isLoading &&
+    !supportChatsQuery.isError &&
+    conversations.length === 0;
 
   return (
     <PageFrame
@@ -57,7 +61,11 @@ export function AccountSupportChatPage() {
         titleClassName="text-center text-base font-semibold leading-6"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-4 pb-[88px] pt-4">
+      <main
+        className={`flex min-h-0 flex-1 flex-col bg-white px-4 pb-[88px] pt-4 ${
+          showEmptyState ? "overflow-hidden" : "overflow-y-auto"
+        }`}
+      >
         <WelcomeCard />
 
         <section

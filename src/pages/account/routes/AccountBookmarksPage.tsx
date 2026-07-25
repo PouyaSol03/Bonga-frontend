@@ -23,6 +23,7 @@ export function AccountBookmarksPage() {
     [data],
   );
   const prefetchIndex = Math.max(bookmarks.length - 6, 0);
+  const showEmptyState = !isLoading && !isError && bookmarks.length === 0;
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -70,8 +71,18 @@ export function AccountBookmarksPage() {
       }
       title="نشان‌ها"
     >
-      <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
-        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "space-y-2 bg-[#f0f0f0] pt-2"}`}>
+      <main
+        className={`min-h-0 flex-1 overflow-x-hidden ${
+          showEmptyState ? "overflow-hidden bg-white" : "overflow-y-auto bg-[#f0f0f0]"
+        }`}
+      >
+        <div
+          className={
+            showEmptyState
+              ? "flex h-full min-h-0 flex-col bg-white"
+              : "space-y-2 bg-[#f0f0f0] pt-2"
+          }
+        >
           {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
@@ -93,7 +104,7 @@ export function AccountBookmarksPage() {
             </div>
           ))}
           {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} /> : null}
-          {!isLoading && !isError && bookmarks.length === 0 ? (
+          {showEmptyState ? (
             <EmptyAccountState
               description="آگهی‌های موردعلاقه خود را نشان کنید تا در این بخش نمایش داده شوند."
               iconSrc="/vectors/NoBadges.svg"

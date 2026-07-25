@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearRefresh from "../../components/(icons)/LinearRefresh";
+import LinearRequest from "../../components/(icons)/LinearRequest";
 import { AdCard, type AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
+import { EmptyState } from "../../components/EmptyState";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
@@ -19,7 +21,10 @@ import {
   updatePropertyRequestTitle,
   type PropertySearchRequest,
 } from "../../services/property-request.service";
-import { PropertyRequestResults } from "./PropertyRequestResults";
+import {
+  PropertyRequestResults,
+  type PropertyRequestResultsStatus,
+} from "./PropertyRequestResults";
 import { RequestResultImageMeta } from "./RequestResultImageMeta";
 import LinearCancel from "../../components/(icons)/LinearCancel";
 
@@ -29,6 +34,7 @@ type RequestFilterId = "all" | string;
 type RequestManagementViewProps = {
   backTo: string;
   showReceivedTab?: boolean;
+  variant?: "account" | "default";
 };
 
 type RequestTabItem = {
@@ -122,6 +128,7 @@ function getRequestFilterOptions(
 export function RequestManagementView({
   backTo,
   showReceivedTab = false,
+  variant = "default",
 }: RequestManagementViewProps) {
   const [activeTab, setActiveTab] = useState<RequestManagementTab>(() =>
     getInitialRequestTab(showReceivedTab),
@@ -141,6 +148,9 @@ export function RequestManagementView({
   const [dismissedReceivedAdIds, setDismissedReceivedAdIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const [resultStatuses, setResultStatuses] = useState<
+    Record<string, PropertyRequestResultsStatus>
+  >({});
   const tabs = useMemo(() => getTabs(showReceivedTab), [showReceivedTab]);
   const requestFilterOptions = useMemo(
     () => getRequestFilterOptions(requests),
@@ -160,6 +170,40 @@ export function RequestManagementView({
         : requests.filter((request) => request.id === activeFilterId),
     [activeFilterId, requests],
   );
+  const resultsAreSettled =
+    filteredRequests.length > 0 &&
+    filteredRequests.every((request) => {
+      const status = resultStatuses[request.id];
+      return Boolean(status && !status.isLoading);
+    });
+  const hasVisibleResults = filteredRequests.some(
+    (request) => (resultStatuses[request.id]?.visibleCount ?? 0) > 0,
+  );
+  const hasResultErrors = filteredRequests.some(
+    (request) => resultStatuses[request.id]?.isError,
+  );
+  const showResultsEmpty =
+    filteredRequests.length === 0 ||
+    (resultsAreSettled && !hasVisibleResults && !hasResultErrors);
+  const handleResultStatusChange = useCallback(
+    (status: PropertyRequestResultsStatus) => {
+      setResultStatuses((current) => {
+        const previous = current[status.requestId];
+
+        if (
+          previous &&
+          previous.isError === status.isError &&
+          previous.isLoading === status.isLoading &&
+          previous.visibleCount === status.visibleCount
+        ) {
+          return current;
+        }
+
+        return { ...current, [status.requestId]: status };
+      });
+    },
+    [],
+  );
   const filteredReceivedAds = useMemo(() => {
     const selectedAds =
       activeFilterId === "all"
@@ -175,6 +219,12 @@ export function RequestManagementView({
 
     return selectedAds.filter((ad) => !dismissedReceivedAdIds.has(String(ad.id)));
   }, [activeFilterId, dismissedReceivedAdIds, requests]);
+  const showCurrentEmptyState =
+    activeTab === "requests"
+      ? requests.length === 0
+      : activeTab === "results"
+        ? showResultsEmpty
+        : filteredReceivedAds.length === 0;
 
   useEffect(() => {
     if (!toast) return;
@@ -187,6 +237,10 @@ export function RequestManagementView({
     () => subscribePropertyRequests(() => setRequests(loadPropertyRequests())),
     [],
   );
+
+  useEffect(() => {
+    setResultStatuses({});
+  }, [filteredRequests]);
 
   useEffect(() => {
     if (
@@ -276,18 +330,29 @@ export function RequestManagementView({
           },
         ]}
         backTo={backTo}
-        className="border-b border-[#eeeeee] bg-[#f5f5f5]"
+        className={
+          variant === "account"
+            ? "border-b border-[#e8e8e8] bg-[#f0f0f0]"
+            : "border-b border-[#eeeeee] bg-[#f5f5f5]"
+        }
         contentClassName="px-2"
         title="درخواست‌ها"
         titleClassName="text-base font-bold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f5f5] pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
-        <div className="bg-white">
+      <main
+        className={`flex min-h-0 flex-1 flex-col overflow-x-hidden ${
+          showCurrentEmptyState
+            ? "overflow-hidden"
+            : "overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+        } ${variant === "account" ? "bg-[#f0f0f0]" : "bg-[#f5f5f5]"}`}
+      >
+        <div className={`shrink-0 ${variant === "account" ? "bg-[#f0f0f0]" : "bg-white"}`}>
           <RequestTabs
             activeTab={activeTab}
             onChange={changeTab}
             tabs={tabs}
+            variant={variant}
           />
 
           {activeTab !== "requests" && requests.length > 0 ? (
@@ -301,7 +366,13 @@ export function RequestManagementView({
         </div>
 
         {activeTab === "requests" ? (
-          <div className="space-y-2 bg-[#f5f5f5] pt-2">
+          <div
+            className={
+              requests.length > 0
+                ? "space-y-2 bg-[#f5f5f5] pt-2"
+                : "min-h-0 flex-1 bg-white"
+            }
+          >
             {requests.map((request) => (
               <CriteriaRequestCard
                 key={request.id}
@@ -311,29 +382,49 @@ export function RequestManagementView({
               />
             ))}
             {requests.length === 0 ? (
-              <EmptyRequestState text="درخواستی ثبت نشده است" />
+              <EmptyRequestState
+                description="پس از ثبت درخواست، اینجا نمایش داده می‌شود."
+                title="هنوز درخواستی ثبت نشده است"
+              />
             ) : null}
           </div>
         ) : activeTab === "results" ? (
-          <div className="space-y-2 bg-[#f5f5f5] pt-2">
+          <div
+            className={
+              showResultsEmpty
+                ? "min-h-0 flex-1 bg-white"
+                : "space-y-2 bg-[#f5f5f5] pt-2"
+            }
+          >
             {filteredRequests.map((request) => (
               <PropertyRequestResults
                 bare
                 className="bg-white pb-5"
                 compact
+                hideWhenEmpty
                 key={request.id}
                 maxResults={4}
+                onStatusChange={handleResultStatusChange}
                 request={request}
                 showDismissAction
                 showHeading={false}
               />
             ))}
-            {filteredRequests.length === 0 ? (
-              <EmptyRequestState text="نتیجه ای برای این درخواست وجود ندارد" />
+            {showResultsEmpty ? (
+              <EmptyRequestState
+                description="پس از ثبت درخواست، نتیجه بررسی‌ها و پاسخ‌های مرتبط از اینجا نمایش داده می‌شود."
+                title="هنوز نتیجه‌ای ثبت نشده است"
+              />
             ) : null}
           </div>
         ) : (
-          <div className="space-y-2 bg-[#f5f5f5] pt-2">
+          <div
+            className={
+              filteredReceivedAds.length > 0
+                ? "space-y-2 bg-[#f5f5f5] pt-2"
+                : "min-h-0 flex-1 bg-white"
+            }
+          >
             {filteredReceivedAds.map((ad) => (
               <RequestResultCard
                 ad={ad}
@@ -348,7 +439,10 @@ export function RequestManagementView({
               />
             ))}
             {filteredReceivedAds.length === 0 ? (
-              <EmptyRequestState text="آگهی دریافتی وجود ندارد" />
+              <EmptyRequestState
+                description="آگهی‌های مرتبط با درخواست‌های شما از اینجا نمایش داده می‌شوند."
+                title="هنوز آگهی دریافتی وجود ندارد"
+              />
             ) : null}
           </div>
         )}
@@ -390,15 +484,19 @@ function RequestTabs({
   activeTab,
   onChange,
   tabs,
+  variant,
 }: {
   activeTab: RequestManagementTab;
   onChange: (tab: RequestManagementTab) => void;
   tabs: RequestTabItem[];
+  variant: "account" | "default";
 }) {
   return (
-    <section className="px-4 pb-3 pt-2.5">
+    <section className={variant === "account" ? "px-4 py-2" : "px-4 pb-3 pt-2.5"}>
       <div
-        className="grid h-[35px] overflow-hidden rounded-[11px] border border-[#808080] bg-white [direction:ltr]"
+        className={`grid overflow-hidden border border-[#808080] bg-white [direction:ltr] ${
+          variant === "account" ? "h-10 rounded-xl" : "h-[35px] rounded-[11px]"
+        }`}
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         {tabs.map((tab, index) => {
@@ -407,11 +505,15 @@ function RequestTabs({
           return (
             <button
               aria-current={isActive ? "page" : undefined}
-              className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 text-[13px] font-medium leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+              className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 font-medium leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+                variant === "account" ? "text-sm" : "text-[13px]"
+              } ${
                 index === 0 ? "" : "border-l"
               } ${
                 isActive
-                  ? "bg-[#eaf0ff] text-[#002099]"
+                  ? variant === "account"
+                    ? "bg-[#dce6f7] text-[#002099]"
+                    : "bg-[#eaf0ff] text-[#002099]"
                   : "bg-white text-[#4d4d4d] active:bg-[#f7f7f7]"
               }`}
               key={tab.id}
@@ -653,10 +755,18 @@ function RequestResultCard({
   );
 }
 
-function EmptyRequestState({ text }: { text: string }) {
+function EmptyRequestState({
+  description,
+  title,
+}: {
+  description: string;
+  title: string;
+}) {
   return (
-    <div className="bg-white px-4 py-10 text-center text-sm font-normal leading-6 text-[#808080]">
-      {text}
-    </div>
+    <EmptyState
+      description={description}
+      iconSrc="/vectors/NoResult.svg"
+      title={title}
+    />
   );
 }

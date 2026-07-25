@@ -5,10 +5,17 @@ import { AccountLoadingState, AccountPageShell, AccountRetryState, EmptyMessage,
 export function AccountWalletHistoryPage() {
   const { data: wallet, error, isError, isLoading, refetch } = useWalletPaymentsQuery();
   const payments = wallet?.payments ?? [];
+  const showEmptyState = !isLoading && !isError && payments.length === 0;
 
   return (
     <AccountPageShell title="تاریخچه پرداخت کیف پول">
-      <main className="min-h-0 flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden bg-[#F0F0F0]">
+      <main
+        className={`min-h-0 flex flex-1 flex-col overflow-x-hidden ${
+          showEmptyState
+            ? "overflow-hidden bg-white"
+            : "gap-2 overflow-y-auto bg-[#F0F0F0]"
+        }`}
+      >
         {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
 
         {isError ? (
@@ -26,7 +33,7 @@ export function AccountWalletHistoryPage() {
           />
         ))}
 
-        {!isLoading && !isError && payments.length === 0 ? (
+        {showEmptyState ? (
           <EmptyMessage text="تاریخچه پرداختی وجود ندارد" />
         ) : null}
       </main>

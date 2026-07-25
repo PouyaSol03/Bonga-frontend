@@ -15,6 +15,7 @@ export function AccountNotesPage() {
   const { data: notes = [], error, isError, isLoading, refetch } = useMyNotesQuery();
   const deleteNote = useDeleteAdvertiseNoteMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
+  const showEmptyState = !isLoading && !isError && notes.length === 0;
 
   useEffect(() => {
     if (!toast) return;
@@ -106,8 +107,12 @@ export function AccountNotesPage() {
         />
       ) : null}
 
-      <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
-        <div className={`${!isLoading && !isError && notes.length === 0 ? "bg-white" : "space-y-0 bg-white"}`}>
+      <main
+        className={`min-h-0 flex-1 overflow-x-hidden ${
+          showEmptyState ? "overflow-hidden bg-white" : "overflow-y-auto bg-[#f0f0f0]"
+        }`}
+      >
+        <div className={showEmptyState ? "flex h-full min-h-0 flex-col bg-white" : "space-y-0 bg-white"}>
           {isLoading ? <AccountNotesSkeleton count={6} /> : null}
           {isError ? (
             <AccountRetryState
@@ -125,7 +130,7 @@ export function AccountNotesPage() {
               onEdit={openEditNote}
             />
           ))}
-          {!isLoading && !isError && notes.length === 0 ? (
+          {showEmptyState ? (
             <EmptyAccountState
               description="با ثبت یادداشت برای آگهی‌ها، آن‌ها در این بخش نمایش داده خواهند شد."
               iconSrc="/vectors/NoNotes.svg"

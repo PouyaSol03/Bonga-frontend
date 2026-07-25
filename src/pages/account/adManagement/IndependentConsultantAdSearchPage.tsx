@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
+import { EmptyState } from "../../../components/EmptyState";
 import { ConsultantAdCard } from "./ConsultantAdCard";
 import { adManagementPaths, getAdManagementRouteState, getAdsForTab } from "./adManagementData";
 
@@ -17,6 +18,7 @@ export function IndependentConsultantAdSearchPage() {
             .join(" ")
             .includes(normalizedQuery),
         );
+  const showEmptyState = normalizedQuery.length > 0 && matchedAds.length === 0;
 
   return (
     <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white" variant="flush">
@@ -38,7 +40,11 @@ export function IndependentConsultantAdSearchPage() {
         }
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main
+        className={`min-h-0 flex-1 overflow-x-hidden ${
+          showEmptyState ? "overflow-hidden bg-white" : "overflow-y-auto bg-[#f0f0f0]"
+        }`}
+      >
         {normalizedQuery.length > 0 ? (
           matchedAds.length > 0 ? (
             <div className="space-y-2">
@@ -47,9 +53,11 @@ export function IndependentConsultantAdSearchPage() {
               ))}
             </div>
           ) : (
-            <p className="m-0 bg-white px-4 py-6 text-right text-sm font-normal leading-5 text-[#808080]">
-              آگهی‌ای یافت نشد
-            </p>
+            <EmptyState
+              description="عبارت جستجو را تغییر دهید و دوباره تلاش کنید."
+              iconSrc="/vectors/NotFoundSearch.svg"
+              title="آگهی‌ای یافت نشد"
+            />
           )
         ) : null}
       </main>

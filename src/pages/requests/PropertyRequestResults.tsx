@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import LinearAdvertisiment from "../../components/(icons)/LinearAdvertisiment";
 import LinearDelete from "../../components/(icons)/LinearDelete";
@@ -12,11 +12,20 @@ import {
 } from "../../services/property-request.service";
 import { RequestResultImageMeta } from "./RequestResultImageMeta";
 
+export type PropertyRequestResultsStatus = {
+  isError: boolean;
+  isLoading: boolean;
+  requestId: string;
+  visibleCount: number;
+};
+
 type PropertyRequestResultsProps = {
   bare?: boolean;
   className?: string;
   compact?: boolean;
+  hideWhenEmpty?: boolean;
   maxResults?: number;
+  onStatusChange?: (status: PropertyRequestResultsStatus) => void;
   request: PropertySearchRequest;
   showDismissAction?: boolean;
   showHeading?: boolean;
@@ -26,7 +35,9 @@ export function PropertyRequestResults({
   bare = false,
   className = "",
   compact = false,
+  hideWhenEmpty = false,
   maxResults = 4,
+  onStatusChange,
   request,
   showDismissAction = false,
   showHeading = true,
@@ -50,6 +61,19 @@ export function PropertyRequestResults({
     () => ads.filter((ad) => !dismissedAdIds.has(String(ad.id))),
     [ads, dismissedAdIds],
   );
+
+  useEffect(() => {
+    onStatusChange?.({
+      isError: query.isError,
+      isLoading: query.isLoading,
+      requestId: request.id,
+      visibleCount: visibleAds.length,
+    });
+  }, [onStatusChange, query.isError, query.isLoading, request.id, visibleAds.length]);
+
+  if (hideWhenEmpty && !query.isLoading && !query.isError && visibleAds.length === 0) {
+    return null;
+  }
 
   return (
     <section

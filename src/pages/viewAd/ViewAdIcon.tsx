@@ -9,7 +9,7 @@ import LinearArrowRight1 from "../../components/(icons)/LinearArrowRight1";
 import LinearArrowUp1 from "../../components/(icons)/LinearArrowUp1";
 import LinearAttachment from "../../components/(icons)/LinearAttachment";
 import LinearBed from "../../components/(icons)/LinearBed";
-import LinearBookmarkAll from "../../components/(icons)/LinearBookmarkAll";
+import BoldBookmarkSolid from "../../components/(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../components/(icons)/LinearBookmarkSolid";
 import LinearBuilding from "../../components/(icons)/LinearBuilding";
 import LinearCabinet from "../../components/(icons)/LinearCabinet";
@@ -107,7 +107,7 @@ export function ViewAdIcon({
   const resolvedClassName = `h-6 w-6 shrink-0 ${className}`;
 
   if (name === "bookmark") {
-    const BookmarkIcon = filled ? LinearBookmarkSolid : LinearBookmarkAll;
+    const BookmarkIcon = filled ? BoldBookmarkSolid : LinearBookmarkSolid;
     return <BookmarkIcon aria-hidden="true" className={resolvedClassName} />;
   }
 

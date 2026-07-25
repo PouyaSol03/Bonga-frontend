@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
+import BoldBookmarkSolid from "../../../components/(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
 import { TopBar } from "../../../components/TopBar";
+import { EmptyState } from "../../../components/EmptyState";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import {
@@ -90,6 +92,12 @@ export function SearchMapSearchScreen({
       (savedSearchUrl === saveInput.url ||
         savedSearches.some((item) => item.url === saveInput.url)),
   );
+  const showEmptyState = view === "saved"
+    ? !isSavedSearchLoading && !isSavedSearchError && savedSearches.length === 0
+    : !normalizedQuery &&
+      !isRecentSearchLoading &&
+      !isRecentSearchError &&
+      recentSearches.length === 0;
 
   const saveCurrentSearch = () => {
     if (!saveInput || saveMutation.isPending || isCurrentSearchSaved) return;
@@ -193,9 +201,13 @@ export function SearchMapSearchScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
+      <main
+        className={`flex min-h-0 flex-1 flex-col overflow-x-hidden bg-white pt-4 ${
+          showEmptyState ? "overflow-hidden" : "overflow-y-auto"
+        }`}
+      >
         {view === "saved" ? (
-          <div className="flex flex-col">
+          <div className="flex min-h-0 flex-1 flex-col">
             {saveInput ? (
               <div className="border-b border-[#e6e6e6] px-4 pb-4">
                 <button
@@ -246,9 +258,11 @@ export function SearchMapSearchScreen({
                 />
               ))
             ) : (
-              <p className="m-0 px-4 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
-                هنوز جستجوی ذخیره‌شده‌ای ندارید.
-              </p>
+              <EmptyState
+                description="جستجوهای موردنظر خود را ذخیره کنید تا در این بخش نمایش داده شوند."
+                iconSrc="/vectors/NoSearch.svg"
+                title="هنوز جستجوی ذخیره‌شده‌ای ندارید"
+              />
             )}
           </div>
         ) : normalizedQuery ? (
@@ -304,9 +318,11 @@ export function SearchMapSearchScreen({
             ))}
           </div>
         ) : (
-          <p className="m-0 px-4 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
-            هنوز جستجویی ثبت نشده است.
-          </p>
+          <EmptyState
+            description="پس از اولین جستجو، سوابق آن در این بخش نمایش داده خواهد شد."
+            iconSrc="/vectors/NoSearch.svg"
+            title="هنوز جستجویی ثبت نشده است"
+          />
         )}
       </main>
     </section>
@@ -427,9 +443,9 @@ function SearchMapField({
       <button
         aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
         aria-pressed={isSaved}
-        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
           isSaved || isSaving
-            ? "bg-[#0048c4] text-white"
+            ? "text-[#1a1a1a]"
             : "text-[#4d4d4d] active:bg-[#0048c414]"
         }`}
         disabled={isSaveDisabled || isSaving || isSaved}
@@ -437,7 +453,11 @@ function SearchMapField({
         tabIndex={isOpen ? 0 : -1}
         type="button"
       >
-        <LinearBookmarkSolid className="h-6 w-6" />
+        {isSaved || isSaving ? (
+          <BoldBookmarkSolid className="h-6 w-6" />
+        ) : (
+          <LinearBookmarkSolid className="h-6 w-6" />
+        )}
       </button>
       <div className="h-6 w-px bg-[#cccccc]" />
       <input

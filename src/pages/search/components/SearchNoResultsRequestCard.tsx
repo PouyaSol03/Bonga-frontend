@@ -25,7 +25,7 @@ export function SearchNoResultsRequestCard({
         <img
           alt=""
           aria-hidden="true"
-          className="h-[64px] w-[64px] object-contain"
+          className="h-[66px] w-[66px] object-contain"
           draggable={false}
           src={NoSearchIcon}
         />

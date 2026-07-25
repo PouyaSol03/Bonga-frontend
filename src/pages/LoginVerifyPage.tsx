@@ -23,6 +23,7 @@ import {
   getOtpResendSecondsRemaining,
   getPendingOtpMobile,
 } from "../auth/auth-storage";
+import LinearArrowRight2 from "../components/(icons)/LinearArrowRight2";
 
 function goBackOrNavigate(fallbackPath: string) {
   if (window.history.length > 1) {
@@ -232,7 +233,7 @@ export function LoginVerifyPage() {
 
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
           <section
-            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-white p-3 min-[390px]:min-h-60 min-[390px]:p-4"
+            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-white"
             aria-hidden="true"
           >
             <img
@@ -244,17 +245,17 @@ export function LoginVerifyPage() {
           </section>
 
           <section
-            className="flex min-h-0 flex-1 basis-0 flex-col items-center gap-7 overflow-hidden px-4 pb-4 min-[390px]:gap-12 min-[390px]:px-6 min-[390px]:pb-6"
+            className="flex min-h-0 flex-1 basis-0 flex-col items-center overflow-hidden px-4 pb-4 min-[390px]:gap-12 min-[390px]:px-6 min-[390px]:pb-6"
             aria-labelledby="login-verify-title"
           >
             <div className="flex w-full flex-col gap-4">
               <h2
-                className="m-0 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
+                className="m-0 text-right font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
                 id="login-verify-title"
               >
                 ورود کد ارسالی
               </h2>
-              <p className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-xs font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
+              <p className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
                 <span>کد ارسال شده به </span>
                 <RouteLink
                   dir="ltr"
@@ -264,7 +265,7 @@ export function LoginVerifyPage() {
                   {phoneNumber}
                 </RouteLink>
                 <img
-                  className="block h-4 w-4 object-contain"
+                  className="block h-3 w-3 object-contain"
                   src="/figma/otp/edit.svg"
                   alt=""
                   aria-hidden="true"
@@ -274,7 +275,7 @@ export function LoginVerifyPage() {
             </div>
 
             <div
-              className="grid w-full grid-cols-4 gap-2.5"
+              className="grid w-full mt-7 grid-cols-4 gap-2.5"
               dir="ltr"
               aria-label="کد تایید"
             >
@@ -283,7 +284,7 @@ export function LoginVerifyPage() {
                   <input
                     aria-invalid={notice?.variant === "error" ? "true" : undefined}
                     autoComplete={index === 0 ? "one-time-code" : "off"}
-                    className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center text-[22px] font-normal leading-7 text-[#1a1a1a] outline-none placeholder:text-[22px] placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] min-[390px]:h-14"
+                    className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center !text-[22px] font-medium leading-none text-[#1a1a1a] outline-none caret-[#0048c4] placeholder:!text-sm placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] [:-webkit-autofill]:[box-shadow:0_0_0_1000px_white_inset] [:-webkit-autofill]:[-webkit-text-fill-color:#1a1a1a] min-[390px]:h-14"
                     aria-label={`رقم ${index + 1}`}
                     inputMode="numeric"
                     maxLength={1}
@@ -304,28 +305,26 @@ export function LoginVerifyPage() {
 
             {resendSeconds > 0 ? (
               <div
-                className="flex h-9 items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a]"
+                className="flex py-2 px-6 items-center justify-center gap-2 mt-12 rounded-2xl bg-[#f5f5f5] text-sm font-medium leading-5 text-[#1a1a1a]"
                 aria-live="polite"
               >
+                <span dir="ltr">{formatCountdownSeconds(resendSeconds)}</span>
                 <img
-                  className="block h-5 w-5 object-contain"
+                  className="block h-4 w-4 object-contain"
                   src="/figma/otp/timer.svg"
                   alt=""
                   aria-hidden="true"
                 />
-                <span dir="ltr">{formatCountdownSeconds(resendSeconds)}</span>
               </div>
             ) : (
               <button
-                className="flex h-9 cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex py-2 px-6 cursor-pointer flex-row-reverse items-center mt-12 justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isResending || isSubmitting}
                 onClick={handleResend}
                 type="button"
               >
-                <span>{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M12.0583 5.39107C12.3023 5.14699 12.698 5.14699 12.9421 5.39107L17.1087 9.55773C17.3528 9.80181 17.3528 10.1974 17.1087 10.4415L12.9421 14.6082C12.698 14.8522 12.3023 14.8522 12.0583 14.6082C11.8142 14.3641 11.8142 13.9685 12.0583 13.7244L15.158 10.6246H3.3335C2.98832 10.6246 2.7085 10.3448 2.7085 9.99963C2.7085 9.65445 2.98832 9.37463 3.3335 9.37463H15.158L12.0583 6.27486C11.8142 6.03078 11.8142 5.63514 12.0583 5.39107Z" fill="#4D4D4D" />
-                </svg>
+                <span className="text-sm font-medium">{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</span>
+                <LinearArrowRight2 className="w-5 h-5 text-[#4d4d4d]" />
               </button>
             )}
           </section>

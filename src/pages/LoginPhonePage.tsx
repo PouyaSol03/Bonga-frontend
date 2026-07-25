@@ -78,7 +78,7 @@ export function LoginPhonePage() {
 
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
           <section
-            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden p-3 min-[390px]:min-h-60 min-[390px]:p-4"
+            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden min-[390px]:min-h-60"
             aria-hidden="true"
           >
             <img
@@ -90,23 +90,23 @@ export function LoginPhonePage() {
           </section>
 
           <section
-            className="flex min-h-0 flex-1 basis-0 flex-col items-start gap-3 overflow-hidden px-4 pb-3 min-[390px]:gap-4 min-[390px]:px-6 min-[390px]:pb-4"
+            className="flex min-h-0 flex-1 basis-0 flex-col items-start gap-4 overflow-hidden px-4 pb-3 min-[390px]:gap-4 min-[390px]:px-6 min-[390px]:pb-4"
             aria-labelledby="login-phone-title"
           >
             <h2
-              className="m-0 text-right text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
+              className="m-0 text-right font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
               id="login-phone-title"
             >
               شماره موبایل خود را وارد کنید
             </h2>
-            <p className="m-0 w-full text-right text-xs font-normal leading-5 text-[#4d4d4d] min-[390px]:text-sm">
+            <p className="m-0 w-full text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:text-sm">
               برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
             </p>
 
             <label className="block w-full" htmlFor="mobileNumber">
               <input
                 aria-invalid={notice?.variant === "error" ? "true" : undefined}
-                className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] min-[390px]:h-14"
+                className="w-full rounded-xl border border-[#cccccc] bg-white px-3 py-4.5 text-right text-sm font-normal h-14 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a] caret-[#0048c4] focus:border-[#0048c4] focus:border-2 [:-webkit-autofill]:[box-shadow:0_0_0_1000px_white_inset] [:-webkit-autofill]:[-webkit-text-fill-color:#1a1a1a]"
                 autoComplete="tel-national"
                 dir="ltr"
                 id="mobileNumber"
@@ -123,15 +123,15 @@ export function LoginPhonePage() {
               />
             </label>
 
-            <p className="flex max-w-full flex-wrap items-center justify-start py-1 text-[11px] font-normal leading-5 min-[390px]:text-xs">
-              <span>با ثبت‌نام، </span>
+            <p className="flex max-w-full flex-wrap items-center justify-start py-1 text-sm font-normal leading-5 min-[390px]:text-xs">
+              <span className="ml-0.5">با ثبت‌نام،</span>
               <RouteLink
-                className="text-[#0048c4] underline underline-offset-3"
+                className="text-[#0048c4] underline underline-offset-6"
                 to="/"
               >
                 قوانین ایران شناسا
               </RouteLink>
-              <span> را می‌پذیرم!</span>
+              <span className="mr-0.5"> را می‌پذیرم!</span>
             </p>
           </section>
         </main>

@@ -124,14 +124,14 @@ function toEnglishDigits(value: unknown) {
 
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex h-14 items-center justify-between rounded-lg bg-[#f5f5f5] px-4 [direction:ltr]">
+    <div className="flex items-center justify-between rounded-lg bg-[#f5f5f5] p-4 [direction:ltr]">
       <div className="flex items-center gap-1">
-        <AdCardTomanIcon className="h-5 w-5" />
-        <strong className="text-base font-semibold leading-6 text-[#1A1A1A] [direction:rtl] [unicode-bidi:isolate]">
+        <AdCardTomanIcon className="h-6 w-6 text-[#4D4D4D]" />
+        <strong className="text-base font-semibold text-[#1A1A1A] [direction:rtl] [unicode-bidi:isolate]">
           {value}
         </strong>
       </div>
-      <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+      <span className="text-right text-sm font-medium text-[#4D4D4D]">
         {label}
       </span>
     </div>
@@ -659,9 +659,9 @@ function ViewAdContent({
               <span dir="rtl">{details.age}</span>
               <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
-            <div className="flex items-center gap-2 text-sm font-medium leading-5 [direction:rtl]">
-              <span className="text-[#4d4d4d]">کد آگهی:</span>
-              <strong className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+            <div className="flex items-center gap-2 text-sm leading-5 [direction:rtl]">
+              <span className="text-[#4d4d4d] font-medium">کد آگهی:</span>
+              <strong className="text-sm font-medium leading-5 text-[#1a1a1a]">
                 {details.adCode}
               </strong>
             </div>
@@ -671,7 +671,7 @@ function ViewAdContent({
             <p className="m-0 text-sm font-normal leading-5 text-[#4d4d4d]">
               {details.locationTitle}
             </p>
-            <h1 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+            <h1 className="m-0 text-base font-semibold mt-2 text-[#1a1a1a]">
               {details.headline}
             </h1>
           </div>
@@ -744,14 +744,14 @@ function ViewAdContent({
       <section className="border-t-8 border-[#f0f0f0] bg-white">
         {visibleRows.map((row) => (
           <button
-            className="flex h-[88px] w-full items-center justify-between border-b-8 border-[#f0f0f0] px-8 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
             onClick={() => onRowAction(row.label)}
             type="button"
           >
             <div className="flex min-w-0 items-center gap-3">
               <ViewAdIcon className="text-[#808080]" name={row.icon} />
-              <span className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
+              <span className="truncate text-base font-medium text-[#1a1a1a]">
                 {row.label}
               </span>
             </div>

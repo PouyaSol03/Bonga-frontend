@@ -11,6 +11,7 @@ import type {
   IconName,
   PropertyInfoRow,
 } from "./viewAdTypes";
+import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 
 function DetailItemIcon({
   className = "h-6 w-6 shrink-0",
@@ -149,11 +150,11 @@ export function MoreLink({
 }) {
   return (
     <RouteLink
-      className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-[#0048c4] no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-1 px-4 text-xs font-medium leading-4 text-[#0048c4] no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
       to={to}
     >
       <span>{children}</span>
-      <ViewAdIcon className="h-4 w-4" name="arrowLeft" />
+      <LinearArrowLeft1 className="h-4 w-4" name="arrowLeft" />
     </RouteLink>
   );
 }
@@ -199,7 +200,7 @@ export function PropertyGrid({
               {item.value}
             </div>
             {withLabels ? (
-              <div className="mt-0.5 truncate text-xs font-medium leading-4 text-[#a6a6a6]">
+              <div className="truncate text-xs font-medium leading-4 text-[#a6a6a6]">
                 {item.label}
               </div>
             ) : null}

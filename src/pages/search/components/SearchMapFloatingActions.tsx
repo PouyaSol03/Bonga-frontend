@@ -2,6 +2,8 @@ import { memo } from "react";
 import GpsIcon from "../../../assets/icons/GpsIcon";
 import HandDrawIcon from "../../../assets/icons/HandDrawIcon";
 import ListIcon from "../../../assets/icons/ListIcon";
+import LinearHandDraw from "../../../components/(icons)/LinearHandDraw";
+import LinearGps from "../../../components/(icons)/LinearGps";
 
 type SearchMapFloatingActionsProps = {
   isDrawing?: boolean;
@@ -51,8 +53,8 @@ function SearchMapFloatingActionsComponent({
 
       <div className="pointer-events-auto absolute bottom-0 right-4 flex flex-col items-center gap-4">
         <button
-          className={`flex h-10 w-9 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-            isLocated ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"
+          className={`flex p-2 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+            isLocated ? "bg-[#0048c4] text-white" : "bg-white text-white"
           }`}
           type="button"
           aria-label="موقعیت من"
@@ -62,14 +64,14 @@ function SearchMapFloatingActionsComponent({
           onClick={onLocateClick}
         >
           <span>
-            <GpsIcon />
+            <LinearGps className={`h-5 w-5 ${isLocated ? 'text-white' : 'text-[#4d4d4d]'}`} />
           </span>
         </button>
 
         <button
           aria-pressed={isDrawing}
-          className={`flex h-10 w-9 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-            isDrawing ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"
+          className={`flex p-2 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+            isDrawing ? "bg-[#0048c4] text-white" : "bg-white text-white"
           }`}
           type="button"
           aria-label="انتخاب محدوده روی نقشه"
@@ -77,7 +79,7 @@ function SearchMapFloatingActionsComponent({
           onClick={onHandClick}
         >
           <span>
-            <HandDrawIcon />
+            <LinearHandDraw className={`w-5 h-5 ${isDrawing ? "text-white" : "text-[#4d4d4d]"}`}/>
           </span>
         </button>
       </div>

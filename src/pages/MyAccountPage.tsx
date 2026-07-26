@@ -811,7 +811,7 @@ function AccountProfileAvatar({
 
   return (
     <div className={`relative shrink-0 overflow-visible ${className}`}>
-      <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]">
+      <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#F0F0F0] text-[#CCCCCC]">
         {showAvatar ? (
           <img
             alt={label}
@@ -943,7 +943,7 @@ function AccountMenuRow({
   const content = (
     <>
       <ChevronLeftIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-      <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
+      <span className="flex-1 text-right text-base font-medium [direction:rtl]">
         {action.label}
       </span>
       <AccountIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" name={action.icon} />
@@ -954,7 +954,7 @@ function AccountMenuRow({
     <>
       {action.to ? (
         <RouteLink
-          className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          className="flex w-full cursor-pointer items-center gap-2 bg-white p-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
           onClick={(event) => {
             if (action.requiresAuth && !getStoredAuthSession()) {
               event.preventDefault();

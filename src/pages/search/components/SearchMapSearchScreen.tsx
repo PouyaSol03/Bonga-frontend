@@ -419,7 +419,7 @@ function SearchMapField({
 }) {
   return (
     <form
-      className="relative flex h-12 w-full min-w-0 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3"
+      className="relative flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
@@ -444,7 +444,7 @@ function SearchMapField({
           <LinearBookmarkSolid className="h-6 w-6" />
         )}
       </button>
-      <div className="h-6 w-px bg-[#cccccc]" />
+      <div className="h-6 w-px me-[11px] bg-[#cccccc]" />
       <input
         aria-label="جستجو در آگهی‌های نقشه"
         autoFocus={isOpen}

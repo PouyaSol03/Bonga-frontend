@@ -19,6 +19,7 @@ export function useSavedSearchesQuery(enabled = true) {
 export function useSaveSearchMutation() {
   return useMutation({
     mutationFn: saveSearch,
+    /*
     onSuccess: (savedSearch) => {
       queryClient.setQueryData(
         queryKeys.savedSearches.list(),
@@ -37,12 +38,17 @@ export function useSaveSearchMutation() {
       );
       void queryClient.invalidateQueries({ queryKey: queryKeys.savedSearches.all });
     },
+    */
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.savedSearches.all });
+    },
   });
 }
 
 export function useDeleteSavedSearchMutation() {
   return useMutation({
     mutationFn: deleteSavedSearch,
+    /*
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.savedSearches.all });
       const previous = queryClient.getQueryData(queryKeys.savedSearches.list());
@@ -60,6 +66,7 @@ export function useDeleteSavedSearchMutation() {
         queryClient.setQueryData(queryKeys.savedSearches.list(), context.previous);
       }
     },
+    */
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.savedSearches.all });
     },

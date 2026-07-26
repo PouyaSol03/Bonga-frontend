@@ -55,7 +55,8 @@ export function useAdvertisementListQuery(params: AdvertisementListParams | null
       filters: params?.filters,
       perPage: params?.perPage ?? 20,
     }),
-    staleTime: 0,
+    // Cache disabled globally in src/api/query-client.ts.
+    // staleTime: 0,
   });
 }
 
@@ -94,7 +95,8 @@ export function useAdvertisementCheckoutQuery(advertiseId: string | null) {
     enabled: Boolean(advertiseId),
     queryFn: () => getAdvertisementCheckout(advertiseId ?? ""),
     queryKey: queryKeys.advertisements.checkout(advertiseId ?? ""),
-    staleTime: 0,
+    // Cache disabled globally in src/api/query-client.ts.
+    // staleTime: 0,
   });
 }
 
@@ -118,13 +120,14 @@ export function useSubmitAdvertisementCheckoutMutation() {
 export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) {
   return useQuery({
     enabled: Boolean(params),
-    gcTime: 2 * 60_000,
-    placeholderData: (previousData) => previousData,
+    // Previous map-result caching is temporarily disabled.
+    // gcTime: 2 * 60_000,
+    // placeholderData: (previousData) => previousData,
     queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
     queryKey: queryKeys.advertisements.map(params ?? {}),
     refetchOnMount: "always",
     refetchOnReconnect: "always",
-    staleTime: 15_000,
+    // staleTime: 15_000,
   });
 }
 
@@ -139,7 +142,8 @@ export function useAdvertiseReportReasonsQuery(enabled: boolean) {
     enabled,
     queryFn: getAdvertiseReportReasons,
     queryKey: queryKeys.advertisements.reportReasons(),
-    staleTime: 5 * 60_000,
+    // Cache disabled globally in src/api/query-client.ts.
+    // staleTime: 5 * 60_000,
   });
 }
 

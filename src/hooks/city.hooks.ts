@@ -33,6 +33,7 @@ export function useMostVisitedCityListQuery() {
   return useQuery({
     queryFn: getMostVisitedCityList,
     queryKey: queryKeys.cities.mostVisited(),
-    staleTime: 1000 * 60 * 15,
+    // Cache disabled globally in src/api/query-client.ts.
+    // staleTime: 1000 * 60 * 15,
   });
 }

@@ -678,14 +678,12 @@ export function ConsultantsDirectoryPage() {
           </div>
         ) : (
           <div className="flex min-h-[360px] flex-col items-center justify-center px-6 text-center">
-            <div className="grid h-14 w-14 place-items-center rounded-full bg-[#f0f0f0] text-[#808080]">
-              <SearchIcon />
-            </div>
+            <img src="/vectors/NoSearch.svg" className="w-16.5 h-16.5" alt="" />
             <h2 className="m-0 mt-4 text-base font-semibold leading-6 text-[#1a1a1a]">
-              نتیجه‌ای پیدا نشد
+              هیچ نتیجه‌ای یافت نشد!
             </h2>
-            <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#808080]">
-              عبارت جستجو یا فیلترهای انتخاب‌شده را تغییر دهید.
+            <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+              فیلترها یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید.
             </p>
           </div>
         )}

@@ -14,6 +14,7 @@ export function useQuickAdvertisementSearchQuery({
     enabled: enabled && query.trim().length > 0,
     queryFn: () => quickSearchAdvertisements(query),
     queryKey: queryKeys.advertisements.quickSearch(query.trim()),
-    staleTime: 30_000,
+    // Cache disabled globally in src/api/query-client.ts.
+    // staleTime: 30_000,
   });
 }

@@ -792,10 +792,13 @@ export function NotificationsPage() {
     const socket = subscribeToNotifications({
       onSnapshot: (snapshot) => {
         if (typeof snapshot.unread_count === "number") {
+          /*
           queryClient.setQueryData(
             queryKeys.notifications.unreadCount(),
             snapshot.unread_count,
           );
+          */
+          void refetchUnreadCount();
         }
       },
       perPage: notificationsPerPage,
@@ -816,16 +819,20 @@ export function NotificationsPage() {
       }
 
       if (typeof nextUnreadCount === "number") {
+        /*
         queryClient.setQueryData(
           queryKeys.notifications.unreadCount(),
           nextUnreadCount,
         );
+        */
+        void refetchUnreadCount();
       }
     };
 
     const handleUnreadCount = ({ count }: { count?: number }) => {
       if (typeof count === "number") {
-        queryClient.setQueryData(queryKeys.notifications.unreadCount(), count);
+        // queryClient.setQueryData(queryKeys.notifications.unreadCount(), count);
+        void refetchUnreadCount();
       }
     };
 

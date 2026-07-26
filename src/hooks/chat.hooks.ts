@@ -35,7 +35,6 @@ export function useChatsQuery({
 
 export function useChatEntryQuery({
   advertiseId,
-  initialThread,
   threadId,
 }: {
   advertiseId?: string;
@@ -44,7 +43,8 @@ export function useChatEntryQuery({
 }) {
   return useQuery({
     enabled: Boolean(advertiseId || threadId),
-    initialData: initialThread,
+    // Cached initial thread data is temporarily disabled.
+    // initialData: initialThread,
     queryFn: () =>
       threadId
         ? getChatDetail(threadId)

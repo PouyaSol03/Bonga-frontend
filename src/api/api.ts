@@ -64,6 +64,7 @@ export class ApiError extends Error {
 }
 
 const apiOptions: Options = {
+  cache: "no-store",
   credentials: "include",
   headers: {
     Accept: "application/json",

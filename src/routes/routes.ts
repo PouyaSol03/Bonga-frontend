@@ -119,6 +119,10 @@ const UserChatBulkDeletePage = lazyNamed(() => import('../pages/UserChatHomePage
 const UserChatResponseTimePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatResponseTimePage')
 const UserChatRenamePage = lazyNamed(() => import('../pages/UserChatHomePage'), 'UserChatRenamePage')
 const ConsultantsDirectoryPage = lazyNamed(() => import('../pages/ConsultantsDirectoryPage'), 'ConsultantsDirectoryPage')
+const ConsultantsNeighborhoodPage = lazyNamed(
+  () => import('../pages/consultants/ConsultantsNeighborhoodPage'),
+  'ConsultantsNeighborhoodPage',
+)
 const AgencyBusinessCreationPage = lazyNamed(() => import('../pages/account/routes/AgencyBusinessCreationPage'), 'AgencyBusinessCreationPage')
 const BusinessCreationPage = lazyNamed(() => import('../pages/account/routes/BusinessCreationPage'), 'BusinessCreationPage')
 const BusinessInfoPage = lazyNamed(() => import('../pages/account/routes/BusinessInfoPage'), 'BusinessInfoPage')
@@ -864,6 +868,11 @@ export const routes: AppRoute[] = [
     path: "/consultants",
     title: "مشاورین",
     Component: ConsultantsDirectoryPage,
+  },
+  {
+    path: "/consultants/neighborhood",
+    title: "انتخاب محله",
+    Component: ConsultantsNeighborhoodPage,
   },
   {
     path: "/search",

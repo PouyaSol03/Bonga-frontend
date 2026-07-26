@@ -871,26 +871,6 @@ input[type="search"]::-webkit-search-results-decoration {
   transform: rotate(45deg);
 }
 
-.category-sheet-row-icon {
-  position: relative;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  color: #4d4d4d;
-}
-
-.category-sheet-row-icon::before {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: 7px;
-  width: 8px;
-  height: 8px;
-  border-left: 1.8px solid currentColor;
-  border-bottom: 1.8px solid currentColor;
-  transform: rotate(45deg);
-}
-
 .home-quick-actions__icon {
   position: relative;
   width: 32px;

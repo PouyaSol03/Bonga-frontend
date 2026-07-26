@@ -135,7 +135,7 @@ function AgencyDirectoryCard({
 }) {
   return (
     <button
-      className="absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border border-[#e6e6e6] bg-white p-4 text-right shadow-[0_10px_28px_rgba(26,26,26,0.16)] active:bg-[#fafafa]"
+      className="absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border border-[#e6e6e6] bg-white p-4 text-right shadow-[0_-4px_16px_rgba(26,26,26,0.08)] active:bg-[#fafafa]"
       dir="rtl"
       onClick={onClick}
       type="button"
@@ -150,7 +150,7 @@ function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
   return item.image ? (
     <img
       alt=""
-      className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover shadow-[0_0_16px_rgba(77,77,77,0.1)]"
+      className="h-[72px] w-[72px] block shrink-0 rounded-xl object-cover shadow-[0_0_16px_rgba(77,77,77,0.08)]"
       src={item.image}
     />
   ) : (
@@ -165,14 +165,14 @@ function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
 
 function AgencySummary({ item }: { item: AgencyDirectoryMapItem }) {
   return (
-    <span className="flex flex-1 flex-col py-1.5 justify-between">
-      <strong className="truncate text-base font-semibold text-[#4d4d4d]">{item.name}</strong>
+    <span className="flex flex-1 flex-col h-full gap-y-4">
+      <strong className="truncate text-base font-medium text-[#4d4d4d]">{item.name}</strong>
       {item.address ? (
         <span className="mt-1 truncate text-[10px] font-normal text-[#808080]">{item.address}</span>
       ) : null}
-      <span className="flex items-center justify-between text-xs leading-5 text-[#1a1a1a]">
-        <span className="flex items-center gap-1.5"><LinearStar className="w-4 h-4 text-[#4D4D4D]" /><span>امتیاز</span><b className="text-sm font-semibold text-[#00a66a]">{item.score}</b></span>
-        <span className="flex items-center gap-1.5"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><span>رتبه</span><b className="text-sm font-semibold text-[#00a66a]">{item.rank}</b></span>
+      <span className="flex items-center justify-between text-xs font-medium leading-5 text-[#1a1a1a]">
+        <span className="flex items-center gap-1.5"><LinearStar className="w-4 h-4 text-[#4D4D4D]" /><span>امتیاز</span><b className="text-sm font-semibold text-[#00a66a] px-2">{item.score}</b></span>
+        <span className="flex items-center gap-1.5"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><span>رتبه</span><b className="text-sm font-semibold text-[#00a66a] px-2">{item.rank}</b></span>
       </span>
     </span>
   );

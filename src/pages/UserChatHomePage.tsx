@@ -16,12 +16,14 @@ import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import { SearchEmptyState } from "../components/SearchEmptyState";
 import {
   useBlockChatMutation,
+  useChatAvailabilityQuery,
   useChatEntryQuery,
   useChatMessagesQuery,
   useChatsQuery,
   useDeleteChatMutation,
   useDeleteChatsMutation,
   useUnblockChatMutation,
+  useUpdateChatAvailabilityMutation,
 } from "../hooks/chat.hooks";
 import { useDemoNotice } from "../hooks/useDemoNotice";
 import { TopBar } from "../components/TopBar";
@@ -32,6 +34,9 @@ import { getBrowserLocation, getBrowserLocationNotice } from "../lib/browserLoca
 import { getStoredAuthSession } from "../auth/auth-storage";
 import {
   uploadChatAttachment,
+  type ChatAvailability,
+  type ChatDayOfWeek,
+  type ChatFilter,
   type ChatMessage,
   type ChatThread,
 } from "../services/chat.service";
@@ -91,7 +96,12 @@ function getChatRouteStateThread() {
     : undefined;
 }
 
-const filters = ["پشتیبانی", "خوانده نشده", "آگهی‌های من", "آگهی‌های دیگران"];
+const filters: Array<{ label: string; value: ChatFilter }> = [
+  { label: "پشتیبانی", value: "support" },
+  { label: "خوانده نشده", value: "not_read" },
+  { label: "آگهی‌های من", value: "my_ads" },
+  { label: "آگهی‌های دیگران", value: "others_ads" },
+];
 
 const chatItems: ChatItem[] = [
   {
@@ -887,8 +897,8 @@ const FilterTabs = memo(function FilterTabs({
   activeFilter,
   onSelect,
 }: {
-  activeFilter: string | null;
-  onSelect: (filter: string) => void;
+  activeFilter: ChatFilter | null;
+  onSelect: (filter: ChatFilter) => void;
 }) {
   return (
     <HorizontalFilterBar
@@ -898,16 +908,16 @@ const FilterTabs = memo(function FilterTabs({
     >
       {filters.map((filter) => (
         <button
-          aria-pressed={activeFilter === filter}
-          className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter
+          aria-pressed={activeFilter === filter.value}
+          className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter.value
             ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
             : "border-[#cccccc] bg-white text-[#4d4d4d]"
             }`}
-          key={filter}
-          onClick={() => onSelect(filter)}
+          key={filter.value}
+          onClick={() => onSelect(filter.value)}
           type="button"
         >
-          {filter}
+          {filter.label}
         </button>
       ))}
     </HorizontalFilterBar>
@@ -1231,9 +1241,11 @@ const ChatCard = memo(function ChatCard({
 
 function ChatDetailHeader({
   onOpenMenu,
+  subtitle,
   title,
 }: {
   onOpenMenu: () => void;
+  subtitle?: string;
   title: string;
 }) {
   return (
@@ -1248,11 +1260,21 @@ function ChatDetailHeader({
       ]}
       backLabel="بازگشت به چت‌ها"
       backTo="/chat"
+      centerSlot={
+        <div className="min-w-0 text-right">
+          <h1 className="m-0 truncate text-base font-semibold leading-5 text-[#1a1a1a]">
+            {title}
+          </h1>
+          {subtitle ? (
+            <p className="mt-0.5 truncate text-[10px] font-normal leading-4 text-[#808080]">
+              {subtitle}
+            </p>
+          ) : null}
+        </div>
+      }
       className="border-b border-[#e6e6e6]"
       contentClassName="px-0"
-      heightClassName="h-[52px]"
-      title={title}
-      titleClassName="text-base font-semibold leading-6"
+      heightClassName={subtitle ? "h-[60px]" : "h-[52px]"}
     />
   );
 }
@@ -1801,37 +1823,75 @@ function ChatBlockedFooter({
 
 type ResponseTimeSheet = "days" | "start" | "end" | null;
 
-const responseWeekDays = [
-  "شنبه",
-  "یک شنبه",
-  "دوشنبه",
-  "سه شنبه",
-  "چهارشنبه",
-  "پنجشنبه",
-  "جمعه",
+type ResponseWeekDay = {
+  label: string;
+  value: ChatDayOfWeek;
+};
+
+const responseWeekDays: ResponseWeekDay[] = [
+  { label: "شنبه", value: "saturday" },
+  { label: "یکشنبه", value: "sunday" },
+  { label: "دوشنبه", value: "monday" },
+  { label: "سه‌شنبه", value: "tuesday" },
+  { label: "چهارشنبه", value: "wednesday" },
+  { label: "پنجشنبه", value: "thursday" },
+  { label: "جمعه", value: "friday" },
 ];
 
-const responseHourOptions = [
-  "۶ صبح",
-  "۷ صبح",
-  "۸ صبح",
-  "۹ صبح",
-  "۱۰ صبح",
-  "۱۱ صبح",
-  "۱۲ صبح",
-  "۱ ظهر",
-  "۲ ظهر",
-  "۳ ظهر",
-  "۴ عصر",
-  "۵ عصر",
-  "۶ عصر",
-  "۷ شب",
-  "۸ شب",
-  "۹ شب",
-  "۱۰ شب",
-  "۱۱ شب",
-  "۱۲ شب",
-];
+const responseHourOptions = Array.from({ length: 48 }, (_, index) => {
+  const hours = Math.floor(index / 2);
+  const minutes = index % 2 === 0 ? 0 : 30;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+});
+
+const persianTwoDigitNumber = new Intl.NumberFormat("fa-IR", {
+  minimumIntegerDigits: 2,
+  useGrouping: false,
+});
+
+function formatResponseTime(value: string) {
+  const [hours, minutes] = value.split(":").map(Number);
+
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return value;
+
+  return `${persianTwoDigitNumber.format(hours)}:${persianTwoDigitNumber.format(minutes)}`;
+}
+
+function getResponseDayLabel(day: ChatDayOfWeek) {
+  return responseWeekDays.find((item) => item.value === day)?.label ?? day;
+}
+
+function sortResponseDays(days: ChatDayOfWeek[]) {
+  const selectedDays = new Set(days);
+
+  return responseWeekDays
+    .map((item) => item.value)
+    .filter((day) => selectedDays.has(day));
+}
+
+function areResponseDaysEqual(first: ChatDayOfWeek[], second: ChatDayOfWeek[]) {
+  const normalizedFirst = sortResponseDays(first);
+  const normalizedSecond = sortResponseDays(second);
+
+  return normalizedFirst.length === normalizedSecond.length &&
+    normalizedFirst.every((day, index) => day === normalizedSecond[index]);
+}
+
+function formatChatAvailabilitySummary(availability?: ChatAvailability) {
+  if (!availability?.days?.length || !availability.start_time || !availability.end_time) {
+    return "";
+  }
+
+  const dayLabels = availability.days.map(
+    (day) => day.day_label || getResponseDayLabel(day.day_of_week),
+  );
+  const daysText = dayLabels.length === responseWeekDays.length
+    ? "همه‌روزه"
+    : dayLabels.join("، ");
+
+  return `${daysText} از ${formatResponseTime(availability.start_time)} تا ${formatResponseTime(availability.end_time)}`;
+}
 
 function ResponseTimeSelectBox({
   label,
@@ -1897,8 +1957,8 @@ function ResponseTimeDaysSheet({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onToggleDay: (day: string) => void;
-  selectedDays: string[];
+  onToggleDay: (day: ChatDayOfWeek) => void;
+  selectedDays: ChatDayOfWeek[];
 }) {
   return (
     <BottomSheet
@@ -1915,16 +1975,16 @@ function ResponseTimeDaysSheet({
     >
       <div className="space-y-2 px-4">
         {responseWeekDays.map((day) => {
-          const isSelected = selectedDays.includes(day);
+          const isSelected = selectedDays.includes(day.value);
 
           return (
             <button
               className="flex h-[54px] w-full items-center justify-between text-right text-sm leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-              key={day}
-              onClick={() => onToggleDay(day)}
+              key={day.value}
+              onClick={() => onToggleDay(day.value)}
               type="button"
             >
-              <span>{day}</span>
+              <span>{day.label}</span>
               <span
                 className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
                   ? "border-[#0048c4] bg-[#0048c4] text-white"
@@ -1978,7 +2038,7 @@ function ResponseTimeHourSheet({
             }}
             type="button"
           >
-            {hour}
+            {formatResponseTime(hour)}
           </button>
         ))}
       </div>
@@ -1987,19 +2047,88 @@ function ResponseTimeHourSheet({
 }
 
 export function UserChatResponseTimePage() {
-  const [selectedDays, setSelectedDays] = useState<string[]>(["شنبه", "یک شنبه", "دوشنبه", "سه شنبه"]);
-  const [startHour, setStartHour] = useState<string | undefined>("۸ صبح");
-  const [endHour, setEndHour] = useState<string | undefined>("۱۲ شب");
+  const availabilityQuery = useChatAvailabilityQuery();
+  const updateAvailabilityMutation = useUpdateChatAvailabilityMutation();
+  const [selectedDays, setSelectedDays] = useState<ChatDayOfWeek[]>([]);
+  const [startHour, setStartHour] = useState<string | undefined>();
+  const [endHour, setEndHour] = useState<string | undefined>();
   const [openSheet, setOpenSheet] = useState<ResponseTimeSheet>(null);
   const { message, showNotice } = useDemoNotice();
 
-  const toggleDay = (day: string) => {
+  useEffect(() => {
+    if (!availabilityQuery.data) return;
+
+    const availableDays = sortResponseDays(
+      availabilityQuery.data.days.map((day) => day.day_of_week),
+    );
+
+    setSelectedDays(availableDays);
+    setStartHour(availableDays.length ? availabilityQuery.data.start_time ?? undefined : undefined);
+    setEndHour(availableDays.length ? availabilityQuery.data.end_time ?? undefined : undefined);
+  }, [availabilityQuery.data]);
+
+  const toggleDay = (day: ChatDayOfWeek) => {
     setSelectedDays((current) =>
       current.includes(day)
         ? current.filter((item) => item !== day)
-        : [...current, day],
+        : sortResponseDays([...current, day]),
     );
   };
+
+  const saveAvailability = async () => {
+    const currentAvailability = availabilityQuery.data ?? {
+      days: [],
+      end_time: null,
+      start_time: null,
+    };
+    const currentDays = currentAvailability.days.map((day) => day.day_of_week);
+
+    if (selectedDays.length > 0 && (!startHour || !endHour)) {
+      showNotice("ساعت شروع و پایان را انتخاب کنید");
+      return;
+    }
+
+    if (selectedDays.length > 0 && startHour && endHour && startHour >= endHour) {
+      showNotice("ساعت پایان باید بعد از ساعت شروع باشد");
+      return;
+    }
+
+    const payload: {
+      days?: ChatDayOfWeek[];
+      end_time?: string;
+      start_time?: string;
+    } = {};
+
+    if (selectedDays.length === 0) {
+      payload.days = [];
+    } else {
+      if (!areResponseDaysEqual(selectedDays, currentDays)) {
+        payload.days = sortResponseDays(selectedDays);
+      }
+      if (startHour !== currentAvailability.start_time) {
+        payload.start_time = startHour;
+      }
+      if (endHour !== currentAvailability.end_time) {
+        payload.end_time = endHour;
+      }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      showNotice("تغییری برای ثبت وجود ندارد");
+      return;
+    }
+
+    try {
+      await updateAvailabilityMutation.mutateAsync(payload);
+      showNotice(selectedDays.length === 0
+        ? "ساعت پاسخگویی پاک شد"
+        : "ساعت پاسخگویی ثبت شد");
+    } catch (error) {
+      showNotice(getApiErrorMessage(error, "ثبت ساعت پاسخگویی با خطا مواجه شد"));
+    }
+  };
+
+  const isBusy = availabilityQuery.isLoading || updateAvailabilityMutation.isPending;
 
   return (
     <PageFrame
@@ -2022,8 +2151,22 @@ export function UserChatResponseTimePage() {
           <p>این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.</p>
         </section>
 
+        {availabilityQuery.isError ? (
+          <div className="mx-4 mb-3 rounded-lg bg-[#fff1f0] px-3 py-2 text-xs leading-5 text-[#b42318]">
+            دریافت ساعت پاسخگویی با خطا مواجه شد.
+            <button
+              className="mr-2 font-semibold text-[#0048c4]"
+              onClick={() => void availabilityQuery.refetch()}
+              type="button"
+            >
+              تلاش دوباره
+            </button>
+          </div>
+        ) : null}
+
         <button
-          className="flex h-14 w-full items-center gap-3 px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          className="flex h-14 w-full items-center gap-3 px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+          disabled={availabilityQuery.isLoading}
           onClick={() => setOpenSheet("days")}
           type="button"
         >
@@ -2042,12 +2185,16 @@ export function UserChatResponseTimePage() {
                 onClick={() => toggleDay(day)}
                 type="button"
               >
-                <span>{day}</span>
+                <span>{getResponseDayLabel(day)}</span>
                 <CloseIcon className="h-3 w-3" />
               </button>
             ))}
           </div>
-        ) : null}
+        ) : (
+          <p className="px-4 pb-4 text-[11px] leading-4 text-[#808080]">
+            با ثبت بدون انتخاب روز، ساعت پاسخگویی پاک می‌شود.
+          </p>
+        )}
 
         <section className="border-t border-[#cccccc] px-4 pt-5">
           <h2 className="mb-4 text-right text-xs font-semibold leading-5 text-[#1a1a1a]">
@@ -2058,13 +2205,13 @@ export function UserChatResponseTimePage() {
               label="از ساعت"
               onClick={() => setOpenSheet("start")}
               onClear={() => setStartHour(undefined)}
-              value={startHour}
+              value={startHour ? formatResponseTime(startHour) : undefined}
             />
             <ResponseTimeSelectBox
               label="تا ساعت"
               onClick={() => setOpenSheet("end")}
               onClear={() => setEndHour(undefined)}
-              value={endHour}
+              value={endHour ? formatResponseTime(endHour) : undefined}
             />
           </div>
         </section>
@@ -2072,11 +2219,16 @@ export function UserChatResponseTimePage() {
 
       <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
         <button
-          className="h-11 w-full rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
-          onClick={() => showNotice("ساعت پاسخگویی ثبت شد")}
+          className="h-11 w-full rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8] disabled:cursor-wait disabled:opacity-60"
+          disabled={isBusy}
+          onClick={() => void saveAvailability()}
           type="button"
         >
-          ثبت
+          {updateAvailabilityMutation.isPending
+            ? "در حال ثبت..."
+            : availabilityQuery.isLoading
+              ? "در حال دریافت..."
+              : "ثبت"}
         </button>
       </footer>
 
@@ -2270,6 +2422,9 @@ export function UserChatDetailPage() {
   const chatCategory = readPathText(chatThread, ["category"]) === "support"
     ? "support"
     : "advertise";
+  const participantAvailabilityLabel = formatChatAvailabilitySummary(
+    chatThread?.participant?.availability,
+  );
   const isChatBlocked = isBlocked || blockedByMe || blockedMe;
 
   useEffect(() => {
@@ -2662,6 +2817,7 @@ export function UserChatDetailPage() {
     >
       <ChatDetailHeader
         onOpenMenu={() => setIsSettingsSheetOpen(true)}
+        subtitle={participantAvailabilityLabel}
         title={participantName}
       />
       <ChatPropertyStrip thread={chatThread} />
@@ -2773,7 +2929,7 @@ export function UserChatDetailPage() {
 export function UserChatHomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<ChatFilter | null>(null);
   const [query, setQuery] = useState("");
   const { message, showNotice } = useDemoNotice();
   useEffect(() => {
@@ -2784,17 +2940,17 @@ export function UserChatHomePage() {
     showNotice(notice);
   }, [showNotice]);
   const {
-    data: advertiseChatsPage,
-    error: advertiseError,
-    isError: isAdvertiseError,
-    isLoading: isAdvertiseLoading,
-    refetch: refetchAdvertiseChats,
-  } = useChatsQuery({ category: "advertise", page: 1, perPage: 10 });
+    data: chatsPage,
+    error: chatsError,
+    isError: isChatsError,
+    isLoading: isChatsLoading,
+    refetch: refetchChats,
+  } = useChatsQuery({ filter: activeFilter ?? undefined, page: 1, perPage: 10 });
   const chats = useMemo(
-    () => (advertiseChatsPage?.data ?? []).map(mapChatThreadToChatItem),
-    [advertiseChatsPage?.data],
+    () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
+    [chatsPage?.data],
   );
-  const RequestErrorState = isAdvertiseError ? getRequestErrorState(advertiseError) : null;
+  const RequestErrorState = isChatsError ? getRequestErrorState(chatsError) : null;
 
   const handleMenuSelect = useCallback((id: string) => {
     setIsMenuOpen(false);
@@ -2820,22 +2976,15 @@ export function UserChatHomePage() {
   const visibleChats = useMemo(() => chats.filter((item) => {
     const normalizedQuery = query.trim();
 
-    if (normalizedQuery && !`${item.userName} ${item.adTitle} ${item.message}`.includes(normalizedQuery)) {
-      return false;
-    }
-    if (activeFilter === "خوانده نشده" && !item.badgeCount) return false;
-    if (activeFilter === "پشتیبانی" && item.category !== "support") return false;
-    if (activeFilter === "آگهی‌های من" && item.adLabel !== "آگهی من") return false;
-    if (activeFilter === "آگهی‌های دیگران" && item.adLabel === "آگهی من") return false;
-    return true;
-  }), [activeFilter, chats, query]);
+    return !normalizedQuery || `${item.userName} ${item.adTitle} ${item.message}`.includes(normalizedQuery);
+  }), [chats, query]);
 
   const toggleSearch = useCallback(() => {
     setIsSearchOpen((current) => !current);
     setQuery("");
   }, []);
 
-  const selectFilter = useCallback((filter: string) => {
+  const selectFilter = useCallback((filter: ChatFilter) => {
     setActiveFilter((current) => (current === filter ? null : filter));
   }, []);
 
@@ -2878,9 +3027,9 @@ export function UserChatHomePage() {
         />
       }
     >
-      {isAdvertiseLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
+      {isChatsLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
       {RequestErrorState && chats.length === 0 ? (
-        <RequestErrorState className="min-h-[420px]" onRetry={() => void refetchAdvertiseChats()} />
+        <RequestErrorState className="min-h-[420px]" onRetry={() => void refetchChats()} />
       ) : null}
       {visibleChats.map((item, index) => {
         const chatId = item.id ?? String(index);
@@ -2897,7 +3046,7 @@ export function UserChatHomePage() {
           />
         );
       })}
-      {!isAdvertiseLoading && !isAdvertiseError && visibleChats.length === 0 ? (
+      {!isChatsLoading && !isChatsError && visibleChats.length === 0 ? (
         query.trim() || activeFilter ? (
           <SearchEmptyState />
         ) : (
@@ -2973,7 +3122,7 @@ export function UserChatBulkDeletePage() {
     isError,
     isLoading,
     refetch,
-  } = useChatsQuery({ category: "advertise", page: 1, perPage: 50 });
+  } = useChatsQuery({ page: 1, perPage: 50 });
   const deleteChatsMutation = useDeleteChatsMutation();
   const chats = useMemo(
     () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),

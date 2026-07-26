@@ -8,30 +8,57 @@ import {
   createOrGetSupportChat,
   deleteChat,
   deleteChats,
+  getChatAvailability,
   getChatDetail,
   getChatMessages,
   getChatMessagesPage,
   getChatUnreadCount,
   getChats,
   reportChat,
+  updateChatAvailability,
   uploadChatAttachment,
   unblockChat,
   type ChatCategory,
+  type ChatFilter,
   type ChatThread,
+  type UpdateChatAvailabilityPayload,
 } from "../services/chat.service";
 
 export function useChatsQuery({
-  category = "advertise",
+  category,
+  filter,
   page = 1,
   perPage = 10,
 }: {
   category?: ChatCategory;
+  filter?: ChatFilter;
   page?: number;
   perPage?: number;
 } = {}) {
+  const resolvedFilter = filter ?? (category === "support" ? "support" : undefined);
+
   return useQuery({
-    queryFn: () => getChats({ category, page, perPage }),
-    queryKey: queryKeys.chats.list({ category, page, perPage }),
+    queryFn: () => getChats({ filter: resolvedFilter, page, perPage }),
+    queryKey: queryKeys.chats.list({ filter: resolvedFilter, page, perPage }),
+  });
+}
+
+export function useChatAvailabilityQuery() {
+  return useQuery({
+    queryFn: getChatAvailability,
+    queryKey: queryKeys.chats.availability(),
+  });
+}
+
+export function useUpdateChatAvailabilityMutation() {
+  return useMutation({
+    mutationFn: (payload: UpdateChatAvailabilityPayload) =>
+      updateChatAvailability(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.chats.all,
+      });
+    },
   });
 }
 

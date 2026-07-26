@@ -19,8 +19,8 @@ type ReportReason = {
 };
 
 const reportReasons: ReportReason[] = [
-  { id: "fraud", title: "کلاه برداری" },
-  { id: "illegal-or-unethical", title: "غیر قانون یا غیر اخلاقی" },
+  { id: "fraud", title: "کلاهبرداری" },
+  { id: "illegal-or-unethical", title: "غیر قانونی یا غیر اخلاقی" },
   { id: "wrong-category", title: "دسته بندی اشتباه" },
   { id: "wrong-price", title: "قیمت اشتباه" },
   { id: "wrong-information", title: "اطلاعات اشتباه" },
@@ -61,13 +61,12 @@ function navigateTo(path: string, replace = false) {
 export function ChatReportPage() {
   const threadId = useMemo(getReportThreadId, []);
   const returnPath = useMemo(() => getReportReturnPath(threadId), [threadId]);
-  const [selectedReasonId, setSelectedReasonId] = useState<ReportReasonId | null>(null);
+  const [selectedReasonId, setSelectedReasonId] = useState<ReportReasonId>("fraud");
   const [description, setDescription] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const reportMutation = useReportChatMutation();
   const selectedReason = reportReasons.find((reason) => reason.id === selectedReasonId);
-  const shouldShowDescription = selectedReasonId === "other";
 
   useEffect(() => {
     if (!successMessage) return;
@@ -77,16 +76,11 @@ export function ChatReportPage() {
   }, [returnPath, successMessage]);
 
   const submitReport = () => {
-    if (!threadId || reportMutation.isPending) return;
-
-    if (!selectedReason) {
-      setValidationMessage("لطفا دلیل گزارش را انتخاب کنید.");
-      return;
-    }
+    if (!threadId || !selectedReason || reportMutation.isPending) return;
 
     const cleanDescription = description.trim();
 
-    if (shouldShowDescription && !cleanDescription) {
+    if (selectedReasonId === "other" && !cleanDescription) {
       setValidationMessage("لطفا توضیح گزارش را وارد کنید.");
       return;
     }
@@ -94,7 +88,7 @@ export function ChatReportPage() {
     setValidationMessage("");
     reportMutation.mutate(
       {
-        description: shouldShowDescription ? cleanDescription : undefined,
+        description: cleanDescription || undefined,
         reason: selectedReason.title,
         threadId,
       },
@@ -114,64 +108,54 @@ export function ChatReportPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <TopBar backTo={returnPath} title="گزارش تخلف" />
+      <TopBar
+        backTo={returnPath}
+        centerClassName="px-2"
+        contentClassName="px-2"
+        heightClassName="h-[60px]"
+        title="گزارش تخلف کاربر"
+        titleClassName="text-base font-semibold leading-6"
+      />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-28 pt-4">
-        <p className="m-0 mb-2 text-sm font-semibold leading-6 text-[#303030]">
-          دلیل گزارش را انتخاب کنید
-        </p>
-        <p className="m-0 mb-4 text-xs font-normal leading-6 text-[#808080]">
-          گزارش شما بررسی می‌شود و اطلاعات آن برای طرف مقابل نمایش داده نخواهد شد.
-        </p>
-
-        <div className="divide-y divide-[#f0f0f0] rounded-xl border border-[#eeeeee] px-3">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-3">
+        <div role="radiogroup" aria-label="دلیل گزارش تخلف">
           {reportReasons.map((reason) => {
             const checked = reason.id === selectedReasonId;
 
             return (
               <button
-                aria-pressed={checked}
-                className="flex min-h-14 w-full items-center justify-between gap-4 bg-white px-1 text-right focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                aria-checked={checked}
+                className="flex h-16 w-full items-center justify-between gap-4 bg-white px-5 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
                 key={reason.id}
                 onClick={() => {
                   setSelectedReasonId(reason.id);
                   setValidationMessage("");
                   setSuccessMessage("");
-                  if (reason.id !== "other") setDescription("");
                 }}
+                role="radio"
                 type="button"
               >
-                <span className={`text-sm font-medium leading-6 ${checked ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}>
+                <span className="text-base font-normal leading-6 text-[#1a1a1a]">
                   {reason.title}
                 </span>
-                <RadioIndicator checked={checked} />
+                <RadioIndicator checked={checked} className="h-[18px] w-[18px]" />
               </button>
             );
           })}
         </div>
 
-        {shouldShowDescription ? (
-          <div className="mt-4">
-            <label className="mb-2 block text-sm font-semibold text-[#303030]" htmlFor="chat-report-description">
-              توضیحات
-            </label>
-            <textarea
-              className="h-32 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-3 py-3 text-right text-sm font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10"
-              id="chat-report-description"
-              maxLength={500}
-              onChange={(event) => {
-                setDescription(event.target.value);
-                setValidationMessage("");
-                setSuccessMessage("");
-              }}
-              placeholder="لطفا دلیل گزارش را توضیح دهید"
-              value={description}
-            />
-            <span className="mt-1 block text-left text-[11px] text-[#999999]">
-              {new Intl.NumberFormat("fa-IR").format(description.length)} / ۵۰۰
-            </span>
-          </div>
-        ) : null}
+        <textarea
+          aria-label="یادداشت شما"
+          className="mt-4 h-[121px] w-full resize-none rounded-xl border border-[#cccccc] bg-white p-4 text-right text-sm font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10"
+          maxLength={500}
+          onChange={(event) => {
+            setDescription(event.target.value);
+            setValidationMessage("");
+            setSuccessMessage("");
+          }}
+          placeholder="یادداشت شما"
+          value={description}
+        />
 
         {validationMessage ? (
           <p className="m-0 mt-3 rounded-lg bg-[#fff1f0] px-3 py-2 text-right text-xs font-medium leading-5 text-[#c11004]">
@@ -186,14 +170,22 @@ export function ChatReportPage() {
         ) : null}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 border-t border-[#f0f0f0] bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
+      <footer className="absolute inset-x-0 bottom-0 flex h-16 items-center gap-4 bg-white px-4 shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:ltr]">
         <button
-          className="h-11 w-full rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 min-w-0 flex-1 rounded-[10px] bg-[#0048c4] text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-50"
           disabled={reportMutation.isPending || Boolean(successMessage)}
           onClick={submitReport}
           type="button"
         >
-          {reportMutation.isPending ? "در حال ارسال..." : "ثبت گزارش"}
+          {reportMutation.isPending ? "در حال ارسال..." : "تایید"}
+        </button>
+        <button
+          className="h-10 min-w-0 flex-1 rounded-[10px] border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={reportMutation.isPending}
+          onClick={() => navigateTo(returnPath, true)}
+          type="button"
+        >
+          انصراف
         </button>
       </footer>
     </PageFrame>

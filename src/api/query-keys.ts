@@ -170,6 +170,7 @@ export const queryKeys = {
 
   chats: {
     all: ["chats"] as const,
+    availability: () => [...queryKeys.chats.all, "availability"] as const,
     detail: (threadId: string) => [...queryKeys.chats.all, "detail", threadId] as const,
     entry: (params: { advertiseId?: string; threadId?: string }) =>
       [
@@ -178,11 +179,11 @@ export const queryKeys = {
         params.threadId ?? "",
         params.advertiseId ?? "",
       ] as const,
-    list: (filters: { category: string; page: number; perPage: number }) =>
+    list: (filters: { filter?: string; page: number; perPage: number }) =>
       [
         ...queryKeys.chats.all,
         "list",
-        filters.category,
+        filters.filter ?? "",
         filters.page,
         filters.perPage,
       ] as const,

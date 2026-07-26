@@ -1,6 +1,32 @@
 import { ApiError, api } from "../api/api";
 
 export type ChatCategory = "advertise" | "support";
+export type ChatFilter = "support" | "not_read" | "my_ads" | "others_ads";
+export type ChatDayOfWeek =
+  | "saturday"
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday";
+
+export type ChatAvailabilityDay = {
+  day_label: string;
+  day_of_week: ChatDayOfWeek;
+};
+
+export type ChatAvailability = {
+  days: ChatAvailabilityDay[];
+  end_time: string | null;
+  start_time: string | null;
+};
+
+export type UpdateChatAvailabilityPayload = {
+  days?: ChatDayOfWeek[];
+  end_time?: string;
+  start_time?: string;
+};
 
 export type ChatThread = Record<string, unknown> & {
   _id?: string;
@@ -21,6 +47,7 @@ export type ChatThread = Record<string, unknown> & {
   message?: unknown;
   messages_count?: number | string;
   participant?: Record<string, unknown> & {
+    availability?: ChatAvailability;
     avatar?: string | null;
     family?: string;
     full_name?: string;
@@ -207,6 +234,62 @@ function readNumber(value: unknown) {
   return undefined;
 }
 
+const chatDayOfWeekValues = new Set<ChatDayOfWeek>([
+  "saturday",
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+]);
+
+function readTime(value: unknown) {
+  return typeof value === "string" && /^\d{2}:\d{2}$/.test(value.trim())
+    ? value.trim()
+    : null;
+}
+
+function normalizeChatAvailability(value: unknown): ChatAvailability {
+  const root = asRecord(value);
+  const data = asRecord(root?.data);
+  const source =
+    asRecord(root?.availability) ??
+    asRecord(data?.availability) ??
+    data ??
+    root ??
+    {};
+  const rawDays = Array.isArray(source.days) ? source.days : [];
+  const days = rawDays.flatMap((item) => {
+    if (typeof item === "string") {
+      const day = item.trim().toLowerCase() as ChatDayOfWeek;
+
+      return chatDayOfWeekValues.has(day)
+        ? [{ day_label: "", day_of_week: day }]
+        : [];
+    }
+
+    const day = asRecord(item);
+    const dayOfWeek =
+      typeof day?.day_of_week === "string"
+        ? (day.day_of_week.trim().toLowerCase() as ChatDayOfWeek)
+        : null;
+
+    if (!dayOfWeek || !chatDayOfWeekValues.has(dayOfWeek)) return [];
+
+    return [{
+      day_label: typeof day.day_label === "string" ? day.day_label.trim() : "",
+      day_of_week: dayOfWeek,
+    }];
+  });
+
+  return {
+    days,
+    end_time: readTime(source.end_time),
+    start_time: readTime(source.start_time),
+  };
+}
+
 function readChatUnreadCount(response: ChatUnreadCountResponse) {
   const directCount = readNumber(response.count ?? response.unread_count);
 
@@ -222,18 +305,18 @@ function readChatUnreadCount(response: ChatUnreadCountResponse) {
 }
 
 export async function getChats({
-  category = "advertise",
+  filter,
   page = 1,
   perPage = 10,
 }: {
-  category?: ChatCategory;
+  filter?: ChatFilter;
   page?: number;
   perPage?: number;
 } = {}): Promise<ChatsPage> {
   const response = await api
     .get("chats", {
       searchParams: {
-        category,
+        filter,
         page,
         per_page: perPage,
       },
@@ -252,6 +335,20 @@ export async function getChats({
     perPage: resolvedPerPage,
     total,
   };
+}
+
+export async function getChatAvailability() {
+  const response = await api.get("chats/availability").json<unknown>();
+
+  return normalizeChatAvailability(response);
+}
+
+export async function updateChatAvailability(payload: UpdateChatAvailabilityPayload) {
+  await api.patch("chats/availability", {
+    context: { allowNonJsonResponse: true },
+    headers: { Accept: "*/*" },
+    json: payload,
+  });
 }
 
 export async function createOrGetAdvertiseChat(advertiseId: string) {

@@ -1,4 +1,10 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  type InfiniteData,
+  type QueryKey,
+} from "@tanstack/react-query";
 
 import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
@@ -20,6 +26,7 @@ import {
   unblockChat,
   type ChatCategory,
   type ChatFilter,
+  type ChatMessagesPage,
   type ChatThread,
   type UpdateChatAvailabilityPayload,
 } from "../services/chat.service";
@@ -113,7 +120,13 @@ export function useChatMessagesQuery(threadId: string | null) {
 }
 
 export function useInfiniteChatMessagesQuery(threadId: string | null, limit = 30) {
-  return useInfiniteQuery({
+  return useInfiniteQuery<
+    ChatMessagesPage,
+    Error,
+    InfiniteData<ChatMessagesPage, string | undefined>,
+    QueryKey,
+    string | undefined
+  >({
     enabled: Boolean(threadId),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,

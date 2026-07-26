@@ -278,7 +278,8 @@ function normalizeChatAvailability(value: unknown): ChatAvailability {
     if (!dayOfWeek || !chatDayOfWeekValues.has(dayOfWeek)) return [];
 
     return [{
-      day_label: typeof day.day_label === "string" ? day.day_label.trim() : "",
+      day_label:
+        typeof day?.day_label === "string" ? day.day_label.trim() : "",
       day_of_week: dayOfWeek,
     }];
   });

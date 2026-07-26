@@ -1,6 +1,4 @@
 import { memo } from "react";
-import GpsIcon from "../../../assets/icons/GpsIcon";
-import HandDrawIcon from "../../../assets/icons/HandDrawIcon";
 import ListIcon from "../../../assets/icons/ListIcon";
 import LinearHandDraw from "../../../components/(icons)/LinearHandDraw";
 import LinearGps from "../../../components/(icons)/LinearGps";

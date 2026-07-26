@@ -1,5 +1,4 @@
 import LinearCancel from "../../../components/(icons)/LinearCancel";
-import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
 
 type SearchMapResultsSummaryProps = {
   count: number;
@@ -7,24 +6,6 @@ type SearchMapResultsSummaryProps = {
   isLoading: boolean;
   onRemoveGeofence: () => void;
 };
-
-function CloseIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-5 w-5 shrink-0"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M6.75 6.75 17.25 17.25M17.25 6.75 6.75 17.25"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
 
 export function SearchMapResultsSummary({
   count,

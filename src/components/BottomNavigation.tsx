@@ -13,6 +13,8 @@ import LinearUserSolid from "./(icons)/LinearUserSolid";
 type BottomNavigationIconProps = SVGProps<SVGSVGElement> & {
   active?: boolean;
   size?: number | string;
+  solidColor?: string;
+  solidOpacity?: number;
 };
 
 type BottomNavigationItem = {
@@ -144,8 +146,12 @@ function BottomNavigationComponent({
                     className="h-6 w-6 shrink-0"
                     size={24}
                     color={isActive ? "#0048c4" : "#999999"}
-                    solidColor={isActive ? "#0048c4" : undefined}
-                    solidOpacity={0.16}
+                    {...(isNewAd
+                      ? {}
+                      : {
+                          solidColor: isActive ? "#0048c4" : undefined,
+                          solidOpacity: 0.16,
+                        })}
                   />
 
                   {item.key === "chat" && hasUnreadChats ? (

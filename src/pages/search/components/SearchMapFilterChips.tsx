@@ -58,27 +58,3 @@ export function SearchMapFilterChips({
     </HorizontalFilterBar>
   );
 }
-
-function FilterSlidersIcon() {
-  return (
-    <svg
-      className="h-5 w-5 shrink-0"
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M3 5h8M15 5h2M3 10h2M9 10h8M3 15h8M15 15h2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M11 3.25h4v3.5h-4v-3.5ZM5 8.25h4v3.5H5v-3.5ZM11 13.25h4v3.5h-4v-3.5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}

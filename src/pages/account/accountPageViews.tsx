@@ -1165,25 +1165,6 @@ export function BuildingClusterIcon({ className = "" }: { className?: string }) 
   );
 }
 
-function InfoCircleIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5" />
-      <path d="M12 8h.01" />
-    </svg>
-  );
-}
-
 export function WarningTriangleIcon({ className = "" }: { className?: string }) {
   return (
     <svg

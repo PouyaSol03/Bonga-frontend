@@ -199,8 +199,10 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                       </tr>
                     );
                   })
+                ) : cityFilter ? (
+                  <SearchTableEmptyRow columns={4} />
                 ) : (
-                  {cityFilter ? <SearchTableEmptyRow columns={4} /> : <TableEmptyRow columns={4} message="هنوز شهری ثبت نشده است." />}
+                  <TableEmptyRow columns={4} message="هنوز شهری ثبت نشده است." />
                 )}
               </tbody>
             </table>

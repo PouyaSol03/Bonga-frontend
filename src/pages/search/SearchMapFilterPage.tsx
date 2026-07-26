@@ -7,6 +7,7 @@ import {
 } from "../../components/form/FormControls";
 import { BottomSheet } from "../../components/BottomSheet";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { getFeatureIconSrc } from "../../lib/handleFeaturesIcons";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
@@ -1833,9 +1834,11 @@ function NeighborhoodFilterSection({
                 );
               })}
             </div>
+          ) : query.trim() ? (
+            <SearchEmptyState compact />
           ) : (
             <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-              محله‌ای با این عبارت پیدا نشد.
+              محله‌ای برای این شهر ثبت نشده است.
             </p>
           )}
         </div>

@@ -11,6 +11,7 @@ import { PageFrame } from "../app/PageFrame";
 import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
+import { SearchEmptyState } from "../components/SearchEmptyState";
 import { SwitchButton } from "../components/SwitchButton";
 import { TopBar } from "../components/TopBar";
 import LinearDelete from "../components/(icons)/LinearDelete";
@@ -1040,7 +1041,7 @@ export function NotificationsPage() {
         {!notificationsQuery.isLoading &&
         !notificationsQuery.isError &&
         visibleNotifications.length === 0 ? (
-          <NotificationsEmptyState />
+          selectedFilterIds.size > 0 ? <SearchEmptyState /> : <NotificationsEmptyState />
         ) : null}
 
         {notificationsQuery.isFetchingNextPage ? (

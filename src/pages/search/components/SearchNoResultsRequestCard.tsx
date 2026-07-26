@@ -4,10 +4,12 @@ import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
 
 type SearchNoResultsRequestCardProps = {
   onSubmit?: (title: string) => void;
+  showEmptyHeader?: boolean;
 };
 
 export function SearchNoResultsRequestCard({
   onSubmit,
+  showEmptyHeader = true,
 }: SearchNoResultsRequestCardProps) {
   const [title, setTitle] = useState("");
 
@@ -21,19 +23,23 @@ export function SearchNoResultsRequestCard({
       className="mx-3 rounded-2xl border border-[#d6d6d6] bg-white px-3 pb-3 pt-5 text-right [direction:rtl]"
       onSubmit={submit}
     >
-      <div className="flex justify-center">
-        <img
-          alt=""
-          aria-hidden="true"
-          className="h-[64px] w-[64px] object-contain"
-          draggable={false}
-          src={NoSearchIcon}
-        />
-      </div>
+      {showEmptyHeader ? (
+        <>
+          <div className="flex justify-center">
+            <img
+              alt=""
+              aria-hidden="true"
+              className="h-[64px] w-[64px] object-contain"
+              draggable={false}
+              src={NoSearchIcon}
+            />
+          </div>
 
-      <h2 className="m-0 mt-3 text-center font-semibold leading-6 text-[#1a1a1a]">
-        ملک مورد علاقه‌م یافت نشد!
-      </h2>
+          <h2 className="m-0 mt-3 text-center font-semibold leading-6 text-[#1a1a1a]">
+            ملک مورد علاقه‌م یافت نشد!
+          </h2>
+        </>
+      ) : null}
 
       <ul className="m-0 mt-1 px-4 list-disc space-y-0.5 pr-5 text-sm text-[#333333] marker:text-[#333333]">
         <li>اگر چیزی که می‌خواهید را پیدا نکردید، همین حالا درخواست خود را ثبت کنید.</li>

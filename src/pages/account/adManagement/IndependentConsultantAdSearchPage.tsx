@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { ConsultantAdCard } from "./ConsultantAdCard";
 import { adManagementPaths, getAdManagementRouteState, getAdsForTab } from "./adManagementData";
 
@@ -47,9 +48,7 @@ export function IndependentConsultantAdSearchPage() {
               ))}
             </div>
           ) : (
-            <p className="m-0 bg-white px-4 py-6 text-right text-sm font-normal leading-5 text-[#808080]">
-              آگهی‌ای یافت نشد
-            </p>
+            <SearchEmptyState />
           )
         ) : null}
       </main>

@@ -22,6 +22,7 @@ import {
 } from './routes'
 import LinearUserAccount from '../components/(icons)/LinearUserAccount'
 import type { CrmRoutePageProps } from '../pages/crm/CrmLayout'
+import { replaceRoute } from './navigation'
 
 
 function RouteNotFoundPage() {
@@ -249,6 +250,11 @@ function getResolvedPath() {
       const loginRequiredPath = getLoginRequiredPath(returnTo)
       window.history.replaceState({}, '', loginRequiredPath)
       return '/login-required'
+    }
+
+    if (path === CRM_PATH || path.startsWith(`${CRM_PATH}/`)) {
+      window.history.replaceState({}, '', '/403')
+      return '/403'
     }
   }
 
@@ -659,6 +665,17 @@ export function AppRouter() {
   useEffect(() => {
     document.title = `بنگاه | ${route.title}`
   }, [route.title])
+
+  useEffect(() => {
+    if (
+      !isAccessDenied ||
+      (!route.path.startsWith(`${CRM_PATH}/`) && route.path !== CRM_PATH)
+    ) {
+      return;
+    }
+
+    replaceRoute('/403', undefined, { rememberCurrent: false })
+  }, [isAccessDenied, route.path])
 
   useEffect(() => {
     function handleNavigation() {

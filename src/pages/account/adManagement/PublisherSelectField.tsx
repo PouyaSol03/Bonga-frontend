@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { TopBar } from "../../../components/TopBar";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { SearchIcon } from "./AdManagementIcons";
 import { adManagementPublisherOptions, type AdManagementPublisherOption } from "./adManagementData";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
@@ -146,9 +147,7 @@ export function PublisherSelectField({
                 })}
               </div>
             ) : (
-              <p className="m-0 px-2 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
-                منتشر کننده‌ای با این عبارت پیدا نشد.
-              </p>
+              <SearchEmptyState compact />
             )}
           </main>
 

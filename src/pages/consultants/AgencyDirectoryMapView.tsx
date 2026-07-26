@@ -11,6 +11,7 @@ import {
 import ListIcon from "../../assets/icons/ListIcon";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { searchMapCenter, searchMapTileConfig } from "../search/searchMapData";
 import LinearList from "../../components/(icons)/LinearList";
 import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
@@ -361,7 +362,11 @@ export function AgencyDirectoryMapView({
           </label>
         ) : null}
 
-        {mappableItems.length === 0 ? (
+        {isSelection && searchValue.trim() && items.length === 0 ? (
+          <div className="absolute inset-x-0 bottom-0 top-16 z-[450] overflow-y-auto bg-white">
+            <SearchEmptyState />
+          </div>
+        ) : mappableItems.length === 0 ? (
           <div className={`pointer-events-none absolute inset-x-6 z-[400] rounded-xl bg-white/95 px-4 py-3 text-center text-sm font-medium leading-6 text-[#4d4d4d] shadow-sm ${isSelection ? "top-20" : "top-6"}`}>
             برای آژانس‌های دریافت‌شده هنوز موقعیت مکانی ثبت نشده است.
           </div>

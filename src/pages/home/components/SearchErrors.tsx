@@ -1,5 +1,5 @@
-import NoSearchIcon from "/vectors/NoSearch.svg";
-import NotFoundSearchIcon from "/vectors/NotFoundSearch.svg";
+import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 
 type SearchErrorVariant = "no-search" | "not-found" | "no-saved-search";
 
@@ -25,7 +25,7 @@ const searchErrorContent: Record<
   },
 
   "not-found": {
-    icon: NotFoundSearchIcon,
+    icon: NoSearchIcon,
     title: "هیچ نتیجه‌ای یافت نشد!",
     description: "فیلترها یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید.",
     iconClassName: "w-[66px] h-[66px]",
@@ -43,6 +43,10 @@ export default function SearchErrors({
   className = "min-h-[520px]",
   variant = "no-search",
 }: SearchErrorsProps) {
+  if (variant === "not-found") {
+    return <SearchEmptyState className={className} />;
+  }
+
   const content = searchErrorContent[variant];
 
   return (

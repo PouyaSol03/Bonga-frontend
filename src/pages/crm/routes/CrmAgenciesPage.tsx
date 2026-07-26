@@ -2,7 +2,7 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, updateCrmAgencyStatus, saveCrmUser } from "../../../services/crm.service";
 import { getApiErrorMessage } from "../../../api/api";
-import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
+import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 
 export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -189,7 +189,7 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   );
                 })
               ) : (
-                <TableEmptyRow columns={5} message="آژانسی مطابق جستجوی شما پیدا نشد." />
+                <SearchTableEmptyRow columns={5} />
               )}
             </tbody>
           </table>

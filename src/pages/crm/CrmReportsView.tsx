@@ -13,6 +13,7 @@ import LinearFlag from "../../components/(icons)/LinearFlag";
 import LinearInformation from "../../components/(icons)/LinearInformation";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { RouteLink } from "../../routes/RouteLink";
@@ -268,7 +269,9 @@ function ReportTableSkeleton() {
   );
 }
 
-function EmptyReports({ kind }: { kind: CrmReportKind }) {
+function EmptyReports({ isSearch, kind }: { isSearch: boolean; kind: CrmReportKind }) {
+  if (isSearch) return <SearchEmptyState className="min-h-64" />;
+
   return (
     <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
       <span className="grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
@@ -545,7 +548,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7}><EmptyReports kind={activeKind} /></td>
+                  <td colSpan={7}><EmptyReports isSearch={Boolean(debouncedSearch)} kind={activeKind} /></td>
                 </tr>
               )}
             </tbody>

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
@@ -24,6 +24,7 @@ import LinearTelegram from "../../components/(icons)/LinearTelegram";
 import LinearWhatsapp from "../../components/(icons)/LinearWhatsapp";
 import { TopBar } from "../../components/TopBar";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
@@ -1202,7 +1203,21 @@ function AgencyAdsTab({
   previewPath: string;
   showFilter?: boolean;
 }) {
+  const [query, setQuery] = useState("");
   const filterReturnTo = encodeURIComponent(`${previewPath}?tab=ads`);
+  const normalizedQuery = query.trim().toLocaleLowerCase("fa-IR");
+  const visibleAds = useMemo(
+    () =>
+      normalizedQuery
+        ? ads.filter((ad) =>
+            [ad.title, ad.agency, ad.area, ad.timeAndLocation, ...ad.badges]
+              .join(" ")
+              .toLocaleLowerCase("fa-IR")
+              .includes(normalizedQuery),
+          )
+        : ads,
+    [ads, normalizedQuery],
+  );
 
   return (
     <div className="space-y-2 bg-[#f0f0f0] px-0 pb-3 pt-5">
@@ -1221,15 +1236,19 @@ function AgencyAdsTab({
           <LinearSearch className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
           <input
             className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+            onChange={(event) => setQuery(event.target.value)}
             placeholder="جستجو در آگهی‌ها"
             type="search"
+            value={query}
           />
         </label>
       </div>
 
       <div className="flex flex-col gap-3 pt-4">
-        {ads.length ? (
-          ads.map((ad) => <AdCard key={ad.id} ad={ad} to={`/ads/${ad.id}`} />)
+        {visibleAds.length ? (
+          visibleAds.map((ad) => <AdCard key={ad.id} ad={ad} to={`/ads/${ad.id}`} />)
+        ) : normalizedQuery ? (
+          <SearchEmptyState />
         ) : (
           <div className="bg-white px-4 py-12 text-center text-sm text-[#808080]">
             آگهی فعالی برای نمایش وجود ندارد.

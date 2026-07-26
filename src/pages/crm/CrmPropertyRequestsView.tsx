@@ -6,6 +6,7 @@ import LinearPropertySearch from "../../components/(icons)/LinearPropertySearch"
 import LinearRefresh from "../../components/(icons)/LinearRefresh";
 import LinearRequestList from "../../components/(icons)/LinearRequestList";
 import LinearSearch from "../../components/(icons)/LinearSearch";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import {
   formatPropertyRequestValue,
   getCollapsedPropertyRequestDetails,
@@ -138,6 +139,8 @@ function PropertyRequestCard({
 }
 
 function EmptyState({ searchQuery }: { searchQuery: string }) {
+  if (searchQuery.trim()) return <SearchEmptyState />;
+
   return (
     <div className="grid min-h-[380px] place-items-center rounded-2xl border border-dashed border-[#d7dde7] bg-white px-7 text-center">
       <div>

@@ -11,6 +11,7 @@ import LinearTag from "../../(icons)/LinearTag";
 import LinearUserAdd from "../../(icons)/LinearUserAdd";
 import LinearUserSolid from "../../(icons)/LinearUserSolid";
 import { RadioIndicator } from "../../RadioIndicator";
+import { SearchEmptyState } from "../../SearchEmptyState";
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { FormChoiceChip } from "../../form/FormControls";
 import { Snackbar } from "../../Snackbar";
@@ -254,7 +255,9 @@ export function ConsultantManagementPage() {
               <ConsultantCard consultant={consultant} key={consultant.id} />
             ))}
           </div>
-        ) : agencyConsultantsQuery.isPending ? null : (
+        ) : agencyConsultantsQuery.isPending ? null : searchValue.trim() || activeFilter !== "consultants" ? (
+          <SearchEmptyState />
+        ) : (
           <ConsultantEmptyState />
         )}
       </div>
@@ -453,6 +456,8 @@ export function AddConsultantPage() {
                 })}
               </div>
             </section>
+          ) : hasSearch && isSearchReady && !publicAgentsQuery.isLoading ? (
+            <SearchEmptyState />
           ) : (
             <AddConsultantEmptyState />
           )}

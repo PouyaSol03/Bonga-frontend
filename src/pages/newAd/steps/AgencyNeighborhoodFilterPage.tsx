@@ -1,5 +1,6 @@
 import type { NeighborhoodDto } from "../../../services/neighborhood.service";
 import { RadioIndicator } from "../../../components/RadioIndicator";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 
 function BackIcon() {
   return (
@@ -120,9 +121,7 @@ export function AgencyNeighborhoodFilterPage({
             </button>
           </div>
         ) : items.length === 0 ? (
-          <div className="flex min-h-[320px] items-center justify-center px-8 text-center text-sm leading-7 text-[#808080]">
-            محله‌ای با این عبارت پیدا نشد.
-          </div>
+          <SearchEmptyState />
         ) : (
           <div className="px-4">
             {items.map((item) => {

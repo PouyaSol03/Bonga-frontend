@@ -5,6 +5,7 @@ import { BottomSheet } from "../components/BottomSheet";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import { RadioIndicator } from "../components/RadioIndicator";
+import { SearchEmptyState } from "../components/SearchEmptyState";
 import { TopBar } from "../components/TopBar";
 import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../hooks/agency.hooks";
 import { readStoredSelectedCity } from "../lib/selectedCityStorage";
@@ -677,15 +678,7 @@ export function ConsultantsDirectoryPage() {
             ) : null}
           </div>
         ) : (
-          <div className="flex min-h-[360px] flex-col items-center justify-center px-6 text-center">
-            <img src="/vectors/NoSearch.svg" className="w-16.5 h-16.5" alt="" />
-            <h2 className="m-0 mt-4 text-base font-semibold leading-6 text-[#1a1a1a]">
-              هیچ نتیجه‌ای یافت نشد!
-            </h2>
-            <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
-              فیلترها یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید.
-            </p>
-          </div>
+          <SearchEmptyState />
         )}
       </main>
 

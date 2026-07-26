@@ -5,11 +5,12 @@ import { getApiErrorMessage } from "../../../api/api";
 import { pushRoute } from "../../../routes/navigation";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "../crmAdvertiseNavigation";
 import { AdCard } from "../../../components/AdCard";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
 import LinearCheckmark from "../../../components/(icons)/LinearCheckmark";
 import LinearCancel from "../../../components/(icons)/LinearCancel";
 import LinearDelete from "../../../components/(icons)/LinearDelete";
-import { ConfirmModal, CrmIcon, CrmSelect, EmptyState, FilterField, PrimaryButton, SmallActionButton, advertiseStatusOptions, ghostButtonClassName, inputClassName, mapCrmAdvertiseToCard, readText, useQueryErrorToast } from "../CrmLayout";
+import { ConfirmModal, CrmIcon, CrmSelect, FilterField, PrimaryButton, SmallActionButton, advertiseStatusOptions, ghostButtonClassName, inputClassName, mapCrmAdvertiseToCard, readText, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps } from "../CrmLayout";
 
 export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -216,8 +217,8 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               );
             })
           ) : (
-            <div className="col-span-full rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa]">
-              <EmptyState description="آگهی‌ای مطابق فیلترهای انتخابی پیدا نشد." />
+            <div className="col-span-full rounded-xl bg-white">
+              <SearchEmptyState />
             </div>
           )}
           </div>

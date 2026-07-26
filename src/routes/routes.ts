@@ -30,6 +30,7 @@ const LoginPhonePage = lazyNamed(() => import('../pages/LoginPhonePage'), 'Login
 const LoginRequiredPage = lazyNamed(() => import('../pages/LoginRequiredPage'), 'LoginRequiredPage')
 const LoginVerifyPage = lazyNamed(() => import('../pages/LoginVerifyPage'), 'LoginVerifyPage')
 const PaymentVerifyPage = lazyNamed(() => import('../pages/PaymentVerifyPage'), 'PaymentVerifyPage')
+const AccessDeniedPage = lazyNamed(() => import('../pages/AccessDeniedPage'), 'AccessDeniedPage')
 const MyAccountPage = lazyNamed(() => import('../pages/MyAccountPage'), 'MyAccountPage')
 const NewAdCategoryPage = lazyNamed(() => import('../pages/newAd/NewAdCategoryPage'), 'NewAdCategoryPage')
 const NewAdFlowPage = lazyNamed(() => import('../pages/newAd/NewAdFlowPage'), 'NewAdFlowPage')
@@ -259,6 +260,11 @@ export const routes: AppRoute[] = [
     Component: PaymentVerifyPage,
   },
   {
+    path: '/403',
+    title: 'دسترسی غیرمجاز',
+    Component: AccessDeniedPage,
+  },
+  {
     path: '/account/profile',
     title: 'مشخصات من',
     Component: AccountProfilePage,
@@ -328,6 +334,12 @@ export const routes: AppRoute[] = [
   {
     path: '/account/support/chat/new',
     title: 'شروع گفتگوی جدید',
+    Component: AccountSupportNewChatPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/support/chat',
+    title: 'گفتگو با پشتیبانی',
     Component: AccountSupportNewChatPage,
     requiresAuth: true,
   },
@@ -488,7 +500,7 @@ export const routes: AppRoute[] = [
     title: 'گزارش‌های تخلف',
     Component: CrmReportsPage,
     crmSection: 'reports',
-    authority: CRM_SUPPORT_ROLES,
+    authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
   },
@@ -497,7 +509,7 @@ export const routes: AppRoute[] = [
     title: 'درخواست‌های پشتیبانی',
     Component: CrmSupportRequestsPage,
     crmSection: 'requests',
-    authority: CRM_SUPPORT_ROLES,
+    authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
   },

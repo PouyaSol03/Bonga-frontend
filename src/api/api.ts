@@ -31,6 +31,25 @@ function resolveAssetPath(path: string) {
   return path.replace(/^\/+/, "");
 }
 
+
+function redirectForAuthError(status: number) {
+  if (typeof window === "undefined") return;
+
+  if (status === 401) {
+    clearStoredAuthSession();
+    if (!window.location.pathname.startsWith("/login")) {
+      const returnTo = `${window.location.pathname}${window.location.search}`;
+      window.sessionStorage.setItem("bonga-login-redirect-path", returnTo);
+      window.location.assign("/login");
+    }
+    return;
+  }
+
+  if (status === 403 && window.location.pathname !== "/403") {
+    window.location.assign("/403");
+  }
+}
+
 function readErrorMessage(payload: ErrorPayload) {
   if (!payload) return null;
 
@@ -102,8 +121,8 @@ const apiOptions: Options = {
           /\bapplication\/[a-z0-9.+-]+\+json\b/.test(contentType);
 
         if (!isJsonResponse) {
-          if (response.status === 401) {
-            clearStoredAuthSession();
+          if (response.status === 401 || response.status === 403) {
+            redirectForAuthError(response.status);
           }
 
           const message = contentType.includes("text/html")
@@ -117,8 +136,8 @@ const apiOptions: Options = {
     beforeError: [
       async ({ error }) => {
         if (error instanceof HTTPError) {
-          if (error.response.status === 401) {
-            clearStoredAuthSession();
+          if (error.response.status === 401 || error.response.status === 403) {
+            redirectForAuthError(error.response.status);
           }
 
           const payload =

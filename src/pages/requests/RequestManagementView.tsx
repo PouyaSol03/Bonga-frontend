@@ -11,6 +11,7 @@ import { BottomSheet } from "../../components/BottomSheet";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import {
   getCollapsedPropertyRequestDetails,
   loadPropertyRequests,
@@ -403,11 +404,15 @@ export function RequestManagementView({
               />
             ))}
             {showResultsEmpty ? (
-              <EmptyRequestState
-                description="پس از ثبت درخواست، نتیجه بررسی‌ها و پاسخ‌های مرتبط از اینجا نمایش داده می‌شود."
-                title="هنوز نتیجه‌ای ثبت نشده است"
-                variant={variant}
-              />
+              activeFilterId !== "all" ? (
+                <SearchEmptyState />
+              ) : (
+                <EmptyRequestState
+                  description="پس از ثبت درخواست، نتیجه بررسی‌ها و پاسخ‌های مرتبط از اینجا نمایش داده می‌شود."
+                  title="هنوز نتیجه‌ای ثبت نشده است"
+                  variant={variant}
+                />
+              )
             ) : null}
           </div>
         ) : (
@@ -432,11 +437,15 @@ export function RequestManagementView({
               />
             ))}
             {filteredReceivedAds.length === 0 ? (
-              <EmptyRequestState
-                description="آگهی‌های مرتبط با درخواست‌های شما از اینجا نمایش داده می‌شوند."
-                title="هنوز آگهی دریافتی وجود ندارد"
-                variant={variant}
-              />
+              activeFilterId !== "all" ? (
+                <SearchEmptyState />
+              ) : (
+                <EmptyRequestState
+                  description="آگهی‌های مرتبط با درخواست‌های شما از اینجا نمایش داده می‌شوند."
+                  title="هنوز آگهی دریافتی وجود ندارد"
+                  variant={variant}
+                />
+              )
             ) : null}
           </div>
         )}

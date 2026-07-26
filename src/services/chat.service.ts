@@ -86,16 +86,27 @@ type ChatThreadResponse =
 
 type ChatMessagesResponse =
   | {
+      cursor?: string | null;
       data?:
         | ChatMessage[]
         | {
+            cursor?: string | null;
+            has_more?: boolean;
             items?: ChatMessage[];
             list?: ChatMessage[];
             messages?: ChatMessage[];
+            next_cursor?: string | null;
           };
+      has_more?: boolean;
       items?: ChatMessage[];
       list?: ChatMessage[];
       messages?: ChatMessage[];
+      meta?: {
+        cursor?: string | null;
+        has_more?: boolean;
+        next_cursor?: string | null;
+      };
+      next_cursor?: string | null;
       status?: boolean;
     }
   | ChatMessage[];
@@ -113,6 +124,11 @@ export type ChatsPage = {
   page: number;
   perPage: number;
   total: number;
+};
+
+export type ChatMessagesPage = {
+  data: ChatMessage[];
+  nextCursor: string | null;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
@@ -248,10 +264,7 @@ export async function createOrGetAdvertiseChat(advertiseId: string) {
 
 export async function createOrGetSupportChat() {
   const response = await api
-    .post("chats", {
-      json: { category: "support" },
-      searchParams: { category: "support" },
-    })
+    .post("support/chat")
     .json<ChatThreadResponse>();
 
   return readChatThread(response);
@@ -263,12 +276,60 @@ export async function getChatDetail(threadId: string) {
   return readChatThread(response);
 }
 
-export async function getChatMessages(threadId: string) {
-  const response = await api
-    .get(`chats/${threadId}/messages`)
-    .json<ChatMessagesResponse>();
+function readCursorValue(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
 
-  return readChatMessages(response);
+function readMessageCreatedAt(message: ChatMessage) {
+  for (const key of ["created_at", "createdAt", "sent_at", "sentAt"]) {
+    const value = message[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+
+  return null;
+}
+
+export async function getChatMessagesPage(
+  threadId: string,
+  { cursor, limit = 30 }: { cursor?: string; limit?: number } = {},
+): Promise<ChatMessagesPage> {
+  const response = await api
+    .get(`chats/${threadId}/messages`, {
+      searchParams: { cursor, limit },
+    })
+    .json<ChatMessagesResponse>();
+  const data = readChatMessages(response);
+
+  if (Array.isArray(response)) {
+    return { data, nextCursor: null };
+  }
+
+  const nestedData = asRecord(response.data);
+  const explicitCursor = readCursorValue(
+    response.next_cursor ??
+      response.cursor ??
+      response.meta?.next_cursor ??
+      response.meta?.cursor ??
+      nestedData?.next_cursor ??
+      nestedData?.cursor,
+  );
+  const hasMore =
+    response.has_more === true ||
+    response.meta?.has_more === true ||
+    nestedData?.has_more === true;
+  const fallbackCursor = hasMore && data.length > 0
+    ? readMessageCreatedAt(data[data.length - 1]) ?? readMessageCreatedAt(data[0])
+    : null;
+
+  return {
+    data,
+    nextCursor: explicitCursor ?? fallbackCursor,
+  };
+}
+
+export async function getChatMessages(threadId: string) {
+  const page = await getChatMessagesPage(threadId);
+  return page.data;
 }
 
 export async function uploadChatAttachment(threadId: string, file: File) {

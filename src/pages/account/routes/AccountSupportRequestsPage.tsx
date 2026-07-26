@@ -4,6 +4,7 @@ import { getSupportRequests } from "../../../services/support-request.service";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { RouteLink } from "../../../routes/RouteLink";
 import LinearAdd from "../../../components/(icons)/LinearAdd";
 import { NEW_REQUEST_PATH, SUPPORT_PATH, SupportRequestCard, SupportRequestTabs, SupportRequestsEmptyState, mapSupportRequest } from "../accountSupportRequestViews";
@@ -70,9 +71,10 @@ export function AccountSupportRequestsPage() {
             </div>
 
             {filteredRequests.length === 0 ? (
-              <div className="flex min-h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[#808080]">
-                درخواستی با این وضعیت وجود ندارد.
-              </div>
+              <SearchEmptyState
+                className="min-h-[320px]"
+                description="فیلتر وضعیت را تغییر دهید و دوباره تلاش کنید."
+              />
             ) : null}
           </>
         )}

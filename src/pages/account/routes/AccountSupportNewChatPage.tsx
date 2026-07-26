@@ -1,49 +1,115 @@
-import { useState, useRef, useMemo, useEffect } from "react";
-import type { ChatThread } from "../../../services/chat.service";
-import { useChatsQuery, useChatMessagesQuery } from "../../../hooks/chat.hooks";
-import { joinChatThread, markChatRead, leaveChatThread, sendChatTyping, sendChatTextMessage } from "../../../api/chat-socket";
+import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
+
+import {
+  joinChatThread,
+  leaveChatThread,
+  markChatRead,
+  sendChatAttachmentMessage,
+  sendChatTextMessage,
+  sendChatTyping,
+} from "../../../api/chat-socket";
 import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
 import LinearMoreVertical from "../../../components/(icons)/LinearMoreVertical";
-import { SUPPORT_CHAT_PATH, SupportChatComposer, SupportChatDateChip, SupportMessageBubble, formatSupportMessageTime, isOpenSupportThread, mapAccountSupportMessage, mergeSupportChatMessages, readCurrentAccountUserId, readSocketSupportMessage, readSupportMessageThreadId, readSupportThreadId } from "../accountSupportViews";
-import type { SupportChatMessage } from "../accountSupportViews";
+import { TopBar } from "../../../components/TopBar";
+import {
+  useCreateSupportChatMutation,
+  useInfiniteChatMessagesQuery,
+  useUploadChatAttachmentMutation,
+} from "../../../hooks/chat.hooks";
+import type { ChatMessage } from "../../../services/chat.service";
+import {
+  SUPPORT_CHAT_PATH,
+  SupportChatComposer,
+  SupportChatDateChip,
+  SupportMessageBubble,
+  formatSupportMessageTime,
+  mapAccountSupportMessage,
+  mergeSupportChatMessages,
+  readChatPathText,
+  readCurrentAccountUserId,
+  readSocketSupportMessage,
+  readSupportMessageThreadId,
+  readSupportThreadId,
+  type SupportChatMessage,
+} from "../accountSupportViews";
+
+function readMessageTimestamp(message: ChatMessage) {
+  const value = readChatPathText(message, [
+    "created_at",
+    "createdAt",
+    "sent_at",
+    "sentAt",
+    "date",
+  ]);
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
 
 export function AccountSupportNewChatPage() {
-  const selectedThreadId = new URLSearchParams(window.location.search).get("thread_id") ?? "";
+  const selectedThreadId =
+    new URLSearchParams(window.location.search).get("thread_id") ?? "";
+  const [createdThreadId, setCreatedThreadId] = useState("");
   const [draftMessage, setDraftMessage] = useState("");
-  const [createdThread, setCreatedThread] = useState<ChatThread | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [liveMessages, setLiveMessages] = useState<SupportChatMessage[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const createPromiseRef = useRef<Promise<string> | null>(null);
   const currentUserId = useMemo(readCurrentAccountUserId, []);
-  const supportChatsQuery = useChatsQuery({
-    category: "support",
-    page: 1,
-    perPage: 20,
-  });
-  const listedThread = selectedThreadId
-    ? supportChatsQuery.data?.data.find(
-        (thread) => readSupportThreadId(thread) === selectedThreadId,
-      ) ?? ({ thread_id: selectedThreadId } as ChatThread)
-    : supportChatsQuery.data?.data.find(isOpenSupportThread) ?? null;
-  const activeThread = selectedThreadId ? listedThread : createdThread ?? listedThread;
-  const activeThreadId = readSupportThreadId(activeThread);
-  const messagesQuery = useChatMessagesQuery(activeThreadId || null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const scrollAreaRef = useRef<HTMLElement | null>(null);
+  const hasRequestedSupportChatRef = useRef(false);
+  const createSupportChatPromiseRef = useRef<Promise<string> | null>(null);
+  const createSupportChatMutation = useCreateSupportChatMutation();
+  const uploadAttachmentMutation = useUploadChatAttachmentMutation();
+  const activeThreadId = selectedThreadId || createdThreadId;
+  const messagesQuery = useInfiniteChatMessagesQuery(activeThreadId || null, 30);
+
+  useEffect(() => {
+    if (
+      selectedThreadId ||
+      createdThreadId ||
+      hasRequestedSupportChatRef.current
+    ) {
+      return;
+    }
+
+    hasRequestedSupportChatRef.current = true;
+    createSupportChatMutation.mutate(undefined, {
+      onError: () => {
+        setErrorMessage("شروع گفتگوی پشتیبانی با خطا مواجه شد. دوباره تلاش کنید.");
+      },
+      onSuccess: (thread) => {
+        const threadId = readSupportThreadId(thread);
+        if (!threadId) {
+          setErrorMessage("شناسه گفتگوی پشتیبانی از سرور دریافت نشد.");
+          return;
+        }
+
+        // A newly created support thread must be joined before its first message.
+        joinChatThread({ category: "support", threadId });
+        setCreatedThreadId(threadId);
+      },
+    });
+  }, [createSupportChatMutation, createdThreadId, selectedThreadId]);
 
   const apiMessages = useMemo(() => {
     if (!activeThreadId) return [];
 
-    return (messagesQuery.data ?? []).flatMap((message, index) => {
-      const mappedMessage = mapAccountSupportMessage(
+    const rawMessages = (messagesQuery.data?.pages ?? [])
+      .flatMap((page) => page.data)
+      .sort((first, second) => readMessageTimestamp(first) - readMessageTimestamp(second));
+
+    return rawMessages.flatMap((message, index) => {
+      const mapped = mapAccountSupportMessage(
         message,
         index,
         currentUserId,
         activeThreadId,
       );
 
-      return mappedMessage ? [mappedMessage] : [];
+      return mapped ? [mapped] : [];
     });
-  }, [activeThreadId, currentUserId, messagesQuery.data]);
+  }, [activeThreadId, currentUserId, messagesQuery.data?.pages]);
 
   const messages = useMemo(
     () =>
@@ -57,10 +123,7 @@ export function AccountSupportNewChatPage() {
   useEffect(() => {
     if (!activeThreadId) return undefined;
 
-    const socket = joinChatThread({
-      category: "support",
-      threadId: activeThreadId,
-    });
+    const socket = joinChatThread({ category: "support", threadId: activeThreadId });
     const handleNewMessage = (payload: unknown) => {
       const rawMessage = readSocketSupportMessage(payload);
       if (!rawMessage) return;
@@ -85,7 +148,8 @@ export function AccountSupportNewChatPage() {
             message.threadId === activeThreadId &&
             message.id.startsWith("local-") &&
             message.direction === mappedMessage.direction &&
-            message.text === mappedMessage.text,
+            message.text === mappedMessage.text &&
+            message.attachmentUrl === mappedMessage.attachmentUrl,
         );
 
         if (optimisticIndex < 0) {
@@ -101,12 +165,29 @@ export function AccountSupportNewChatPage() {
         markChatRead(activeThreadId, "support");
       }
     };
+    const handleTyping = (payload: {
+      threadId?: number | string;
+      typing?: boolean;
+      userId?: number | string;
+    }) => {
+      if (String(payload.threadId ?? "") !== activeThreadId) return;
+      if (String(payload.userId ?? "") === currentUserId) return;
+      setIsAgentTyping(payload.typing === true);
+    };
+
+    const handleSocketError = (payload: { message?: string }) => {
+      setErrorMessage(payload.message || "ارسال پیام با خطا مواجه شد. دوباره تلاش کنید.");
+    };
 
     socket.on("chat:message:new", handleNewMessage);
+    socket.on("chat:typing", handleTyping);
+    socket.on("chat:error", handleSocketError);
     markChatRead(activeThreadId, "support");
 
     return () => {
       socket.off("chat:message:new", handleNewMessage);
+      socket.off("chat:typing", handleTyping);
+      socket.off("chat:error", handleSocketError);
       leaveChatThread(activeThreadId, "support");
     };
   }, [activeThreadId, currentUserId]);
@@ -114,26 +195,14 @@ export function AccountSupportNewChatPage() {
   useEffect(() => {
     if (!activeThreadId || !draftMessage.trim()) return undefined;
 
-    sendChatTyping({
-      category: "support",
-      threadId: activeThreadId,
-      typing: true,
-    });
+    sendChatTyping({ category: "support", threadId: activeThreadId, typing: true });
     const timer = window.setTimeout(() => {
-      sendChatTyping({
-        category: "support",
-        threadId: activeThreadId,
-        typing: false,
-      });
+      sendChatTyping({ category: "support", threadId: activeThreadId, typing: false });
     }, 900);
 
     return () => {
       window.clearTimeout(timer);
-      sendChatTyping({
-        category: "support",
-        threadId: activeThreadId,
-        typing: false,
-      });
+      sendChatTyping({ category: "support", threadId: activeThreadId, typing: false });
     };
   }, [activeThreadId, draftMessage]);
 
@@ -146,77 +215,118 @@ export function AccountSupportNewChatPage() {
   }, [messages.length]);
 
   const ensureSupportThread = async () => {
-    if (activeThreadId) return activeThreadId;
+    if (activeThreadId) {
+      joinChatThread({ category: "support", threadId: activeThreadId });
+      return activeThreadId;
+    }
 
-    if (!createPromiseRef.current) {
-      createPromiseRef.current = new Promise<string>((resolve, reject) => {
-        let timeoutId = 0;
-        const finish = (threadId: string) => {
-          window.clearTimeout(timeoutId);
-          socket.off("chat:error", handleError);
-          resolve(threadId);
-        };
-        const handleError = (payload: { message?: string }) => {
-          window.clearTimeout(timeoutId);
-          socket.off("chat:error", handleError);
-          reject(new Error(payload.message || "Unable to start support chat"));
-        };
-        const socket = joinChatThread({
-          category: "support",
-          onJoined: finish,
+    if (!createSupportChatPromiseRef.current) {
+      createSupportChatPromiseRef.current = createSupportChatMutation
+        .mutateAsync()
+        .then((thread) => {
+          const threadId = readSupportThreadId(thread);
+          if (!threadId) throw new Error("Missing support thread id");
+
+          // Keep join and send on the same socket and in this exact order.
+          joinChatThread({ category: "support", threadId });
+          setCreatedThreadId(threadId);
+          return threadId;
+        })
+        .finally(() => {
+          createSupportChatPromiseRef.current = null;
         });
-
-        socket.once("chat:error", handleError);
-        timeoutId = window.setTimeout(() => {
-          socket.off("chat:error", handleError);
-          reject(new Error("Support socket did not return a thread id"));
-        }, 10_000);
-      });
     }
 
-    try {
-      const threadId = await createPromiseRef.current;
-      setCreatedThread({ _id: threadId });
-      return threadId;
-    } finally {
-      createPromiseRef.current = null;
-    }
+    const pendingThread = createSupportChatPromiseRef.current;
+    if (!pendingThread) throw new Error("Unable to start support chat");
+    return pendingThread;
   };
 
   const sendMessage = () => {
     const text = draftMessage.trim();
     if (!text) return;
 
+    setErrorMessage("");
     void ensureSupportThread()
       .then((threadId) => {
-        if (!threadId) return;
-
         const optimisticMessage: SupportChatMessage = {
-          id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
           direction: "outgoing",
+          id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
           text,
           threadId,
           time: formatSupportMessageTime(new Date().toISOString()),
+          type: "text",
         };
 
         setLiveMessages((current) =>
           mergeSupportChatMessages([...current, optimisticMessage]),
         );
         setDraftMessage("");
+        joinChatThread({ category: "support", threadId });
+        sendChatTextMessage({ body: text, category: "support", threadId });
+      })
+      .catch(() => {
+        setErrorMessage("ارسال پیام انجام نشد. اتصال خود را بررسی و دوباره تلاش کنید.");
+      });
+  };
 
-        if (threadId !== activeThreadId) {
-          joinChatThread({ category: "support", threadId });
-        }
-        sendChatTextMessage({
-          body: text,
+  const uploadAttachment = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMessage("حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.");
+      return;
+    }
+
+    setErrorMessage("");
+    void ensureSupportThread()
+      .then(async (threadId) => {
+        const attachment = await uploadAttachmentMutation.mutateAsync({ file, threadId });
+        const fileName = attachment.file_name || file.name;
+        const mimeType = attachment.mime_type || file.type || "application/octet-stream";
+        const size = attachment.size || file.size;
+
+        setLiveMessages((current) =>
+          mergeSupportChatMessages([
+            ...current,
+            {
+              attachmentUrl: attachment.url,
+              direction: "outgoing",
+              fileName,
+              id: `local-file-${Date.now()}`,
+              mimeType,
+              text: fileName,
+              threadId,
+              time: formatSupportMessageTime(new Date().toISOString()),
+              type: mimeType.startsWith("image/") ? "image" : "file",
+            },
+          ]),
+        );
+        joinChatThread({ category: "support", threadId });
+        sendChatAttachmentMessage({
+          attachmentUrl: attachment.url,
           category: "support",
+          fileName,
+          mimeType,
+          size,
           threadId,
         });
       })
       .catch(() => {
-        // Keep the typed message so the user can retry when the request succeeds.
+        setErrorMessage("بارگذاری فایل انجام نشد. دوباره تلاش کنید.");
       });
   };
+
+  const handleScroll = (event: UIEvent<HTMLElement>) => {
+    if (
+      event.currentTarget.scrollTop < 80 &&
+      messagesQuery.hasNextPage &&
+      !messagesQuery.isFetchingNextPage
+    ) {
+      void messagesQuery.fetchNextPage();
+    }
+  };
+
+  const isStarting = createSupportChatMutation.isPending && !activeThreadId;
+  const isSending = isStarting || uploadAttachmentMutation.isPending;
 
   return (
     <PageFrame
@@ -241,24 +351,60 @@ export function AccountSupportNewChatPage() {
         titleClassName="text-center text-base font-semibold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-2.5 pb-[82px] pt-3">
-        <div className="space-y-2.5">
-          {messages.slice(0, 2).map((message) => (
-            <SupportMessageBubble key={message.id} message={message} />
-          ))}
+      <main
+        className="min-h-0 flex-1 overflow-y-auto bg-white px-2.5 pb-[92px] pt-3"
+        onScroll={handleScroll}
+        ref={scrollAreaRef}
+      >
+        {messagesQuery.isFetchingNextPage ? (
+          <p className="pb-3 text-center text-xs text-[#808080]">در حال دریافت پیام‌های قبلی...</p>
+        ) : null}
 
-          {messages.length > 2 ? <SupportChatDateChip /> : null}
+        {isStarting ? (
+          <p className="py-16 text-center text-sm text-[#808080]">در حال شروع گفتگو...</p>
+        ) : (
+          <div className="space-y-2.5">
+            {messages.slice(0, 2).map((message) => (
+              <SupportMessageBubble key={message.id} message={message} />
+            ))}
 
-          {messages.slice(2).map((message) => (
-            <SupportMessageBubble key={message.id} message={message} />
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
+            {messages.length > 2 ? <SupportChatDateChip /> : null}
+
+            {messages.slice(2).map((message) => (
+              <SupportMessageBubble key={message.id} message={message} />
+            ))}
+
+            {isAgentTyping ? (
+              <p className="px-3 py-1 text-right text-xs text-[#808080]">
+                پشتیبان در حال نوشتن است...
+              </p>
+            ) : null}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-2 pb-3 pt-2">
+        {errorMessage ? (
+          <p className="m-0 mb-2 px-2 text-center text-xs leading-5 text-[#d92d20]">
+            {errorMessage}
+          </p>
+        ) : null}
+        <input
+          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) uploadAttachment(file);
+            event.target.value = "";
+          }}
+          ref={fileInputRef}
+          type="file"
+        />
         <SupportChatComposer
+          isSending={isSending}
           message={draftMessage}
+          onAttachmentClick={() => fileInputRef.current?.click()}
           onChange={setDraftMessage}
           onSubmit={sendMessage}
         />

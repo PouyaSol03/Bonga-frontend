@@ -1,7 +1,7 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { listCrmCities, getCrmRecordId, listCrmNeighborhoods, type CrmRecord, saveCrmCity, deleteCrmCity, saveCrmNeighborhood, deleteCrmNeighborhood } from "../../../services/crm.service";
-import { ConfirmModal, CrmIcon, DEFAULT_CENTER, DEFAULT_COUNTRY_ID, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, cleanEmptyValues, inputClassName, parseJsonValue, parseMapPointValue, readText, stringifyValue, useQueryErrorToast } from "../CrmLayout";
+import { ConfirmModal, CrmIcon, DEFAULT_CENTER, DEFAULT_COUNTRY_ID, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, SearchTableEmptyRow, TableHead, TableLoadingRows, cleanEmptyValues, inputClassName, parseJsonValue, parseMapPointValue, readText, stringifyValue, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 
 export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -200,7 +200,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     );
                   })
                 ) : (
-                  <TableEmptyRow columns={4} message="شهری پیدا نشد." />
+                  {cityFilter ? <SearchTableEmptyRow columns={4} /> : <TableEmptyRow columns={4} message="هنوز شهری ثبت نشده است." />}
                 )}
               </tbody>
             </table>

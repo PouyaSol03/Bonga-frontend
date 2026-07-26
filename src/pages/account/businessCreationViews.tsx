@@ -3,6 +3,7 @@ import { PageFrame } from "../../app/PageFrame";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { setStoredActiveRole } from "../../auth/auth-storage";
 import { USER } from "../../constants/roles.constants";
 import { getMyProfile } from "../../services/account.service";
@@ -506,9 +507,11 @@ export function AgencyFields({
                 );
               })}
             </div>
+          ) : neighborhoodQuery.trim() ? (
+            <SearchEmptyState compact />
           ) : (
             <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
-              محله‌ای با این عبارت پیدا نشد.
+              محله‌ای برای این شهر ثبت نشده است.
             </p>
           )}
         </div>

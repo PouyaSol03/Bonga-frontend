@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { PageFrame } from "../../app/PageFrame";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { getBrowserLocation } from "../../lib/browserLocation";
 import { readStoredSelectedCity, selectedCityStorageKeys } from "../../lib/selectedCityStorage";
 import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
@@ -324,7 +325,9 @@ export function NewAdLocationPage() {
           </label>
 
           {canSearchNeighborhoods ? (
-            <div className="max-h-40 overflow-y-auto pt-3">
+            <div
+              className={`${neighborhoodsQuery.isLoading || locations.length ? "max-h-40" : "max-h-[280px]"} overflow-y-auto pt-3`}
+            >
               {neighborhoodsQuery.isLoading ? (
                 <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
               ) : locations.length ? (
@@ -344,9 +347,7 @@ export function NewAdLocationPage() {
                   ))}
                 </div>
               ) : (
-                <p className="m-0 px-3 py-2 text-right text-xs font-normal leading-5 text-[#808080]">
-                  محله‌ای با این عبارت پیدا نشد.
-                </p>
+                <SearchEmptyState compact className="px-2" />
               )}
             </div>
           ) : null}

@@ -9,6 +9,7 @@ import { RadioIndicator } from "../../../components/RadioIndicator";
 import { SelectionCheckIndicator } from "../../../components/SelectionCheckIndicator";
 import { SwitchButton } from "../../../components/SwitchButton";
 import { TopBar } from "../../../components/TopBar";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
 import { RouteLink } from "../../../routes/RouteLink";
@@ -551,9 +552,11 @@ function NeighborhoodPickerRow({
                 );
               })}
             </div>
+          ) : query.trim() ? (
+            <SearchEmptyState compact />
           ) : (
             <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
-              محله‌ای با این عبارت پیدا نشد.
+              محله‌ای برای این شهر ثبت نشده است.
             </p>
           )}
         </div>
@@ -724,9 +727,7 @@ function PublisherSelectField({
                 })}
               </div>
             ) : (
-              <p className="m-0 px-2 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
-                نشر دهنده‌ای با این عبارت پیدا نشد.
-              </p>
+              <SearchEmptyState compact />
             )}
           </main>
 

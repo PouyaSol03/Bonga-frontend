@@ -4,6 +4,7 @@ import BoldBookmarkSolid from "../../../components/(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
 import { TopBar } from "../../../components/TopBar";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import SearchErrors from "../../home/components/SearchErrors";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import {
   useDeleteSearchHistoryMutation,
@@ -247,9 +248,7 @@ export function SearchMapSearchScreen({
                 />
               ))
             ) : (
-              <p className="m-0 px-4 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
-                هنوز جستجوی ذخیره‌شده‌ای ندارید.
-              </p>
+              <SearchErrors className="min-h-[360px]" variant="no-saved-search" />
             )}
           </div>
         ) : normalizedQuery ? (
@@ -305,9 +304,7 @@ export function SearchMapSearchScreen({
             ))}
           </div>
         ) : (
-          <p className="m-0 px-4 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
-            هنوز جستجویی ثبت نشده است.
-          </p>
+          <SearchErrors className="min-h-[360px]" variant="no-search" />
         )}
       </main>
     </section>

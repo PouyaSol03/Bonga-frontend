@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleCrmUserAuthorization, getCrmRecordId } from "../../../services/crm.service";
 import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, UserStatusBadge, formatMoney, fullName, ghostButtonClassName, inputClassName, normalizeCrmUserRoleSlug, readText, useQueryErrorToast, userRoleOptions, userRoleSlugs } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 
 export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -243,8 +244,8 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
               {renderUsersTable(query.data, "کاربری مطابق جستجوی شما پیدا نشد.")}
             </section>
           ) : (
-            <div className="rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-4 py-10 text-center text-sm text-[#7b8494]">
-              کاربری مطابق جستجوی شما پیدا نشد.
+            <div className="rounded-xl bg-white">
+              <SearchEmptyState />
             </div>
           )}
         </div>

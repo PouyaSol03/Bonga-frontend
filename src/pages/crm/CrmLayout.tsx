@@ -14,6 +14,7 @@ import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../routes/RouteLink";
 import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { getCrmRecordId, type CrmConsultantPayload, type CrmConsultantStatus, type CrmRecord } from "../../services/crm.service";
 import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
 import {
@@ -154,7 +155,7 @@ const roleSectionAccess: Record<string, CrmSection[]> = {
   [SUPER_ADMIN]: navigationItems.map((item) => item.section),
   [CRM_ADVERTISE_MANAGER]: ["advertises"],
   [CRM_FINANCE_MANAGER]: ["payments", "packages", "costs"],
-  [SUPPORT]: ["requests", "support", "reports"],
+  [SUPPORT]: ["support"],
 };
 
 const crmRoleLabels: Record<string, { subtitle: string; title: string }> = {
@@ -1452,6 +1453,16 @@ export function TableEmptyRow({ columns, message }: { columns: number; message: 
   return (
     <tr>
       <td className="py-14 text-center text-sm text-[#8f98a6]" colSpan={columns}>{message}</td>
+    </tr>
+  );
+}
+
+export function SearchTableEmptyRow({ columns }: { columns: number }) {
+  return (
+    <tr>
+      <td colSpan={columns}>
+        <SearchEmptyState className="min-h-[320px]" />
+      </td>
     </tr>
   );
 }

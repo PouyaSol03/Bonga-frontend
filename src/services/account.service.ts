@@ -30,6 +30,7 @@ export type UserProfile = {
   phone?: string;
   role?: string;
   roles?: Array<AuthRole | string | Record<string, unknown>>;
+  role_slugs?: string[];
   social?: Record<string, unknown> | null;
   telegram?: string | null;
   whatsapp?: string | null;
@@ -54,11 +55,17 @@ function syncStoredRolesFromProfile(response: unknown, profile: UserProfile) {
   if (!session) return;
 
   const responseRecord = response as Record<string, unknown>;
+  const responseUser = responseRecord.user as Record<string, unknown> | undefined;
+  const responseData = responseRecord.data as Record<string, unknown> | undefined;
   const candidates = [
     responseRecord.roles,
-    (responseRecord.user as Record<string, unknown> | undefined)?.roles,
-    (responseRecord.data as Record<string, unknown> | undefined)?.roles,
+    responseRecord.role_slugs,
+    responseUser?.roles,
+    responseUser?.role_slugs,
+    responseData?.roles,
+    responseData?.role_slugs,
     profile.roles,
+    profile.role_slugs,
   ];
   const rawRoles = candidates.find(Array.isArray);
   if (!Array.isArray(rawRoles)) return;

@@ -8,6 +8,7 @@ import {
   sendChatTyping,
 } from "../../api/chat-socket";
 import { getRequestErrorState } from "../../components/ErrorState";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { useChatMessagesQuery, useChatsQuery } from "../../hooks/chat.hooks";
 import type { ChatMessage, ChatThread } from "../../services/chat.service";
 
@@ -661,9 +662,7 @@ function DashboardChatSidebar({
             onSelect={() => onSelectConversation(item.id)}
           />
         ))}
-        {conversations.length === 0 ? (
-          <p className="px-6 py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
-        ) : null}
+        {conversations.length === 0 ? <SearchEmptyState className="min-h-[420px]" /> : null}
       </div>
     </aside>
   );

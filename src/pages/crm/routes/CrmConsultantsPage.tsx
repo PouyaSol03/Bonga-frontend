@@ -6,7 +6,7 @@ import { getApiErrorMessage } from "../../../api/api";
 import { SwitchButton } from "../../../components/SwitchButton";
 import { motion } from "motion/react";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
-import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, buildCrmConsultantPayload, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
+import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, buildCrmConsultantPayload, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 
 export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -323,7 +323,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                     );
                   })
                 ) : (
-                  <TableEmptyRow columns={5} message="مشاوری مطابق فیلترهای انتخابی پیدا نشد." />
+                  <SearchTableEmptyRow columns={5} />
                 )}
               </tbody>
             </table>

@@ -5,6 +5,7 @@ import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
 import LinearPreview from "../../../components/(icons)/LinearPreview";
 import { RadioIndicator } from "../../../components/RadioIndicator";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { TopBar } from "../../../components/TopBar";
 import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
 import { RouteLink } from "../../../routes/RouteLink";
@@ -456,7 +457,7 @@ function ConsultantPickerPage({
               </button>
             </div>
           ) : visibleConsultants.length === 0 ? (
-            <p className="py-10 text-center text-sm text-[#808080]">مشاوری پیدا نشد.</p>
+            <SearchEmptyState />
           ) : (
             visibleConsultants.map((consultant) => {
               const selected = draftConsultantId === consultant.id;

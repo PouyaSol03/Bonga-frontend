@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
@@ -10,9 +10,11 @@ import {
   deleteChats,
   getChatDetail,
   getChatMessages,
+  getChatMessagesPage,
   getChatUnreadCount,
   getChats,
   reportChat,
+  uploadChatAttachment,
   unblockChat,
   type ChatCategory,
   type ChatThread,
@@ -80,6 +82,27 @@ export function useChatMessagesQuery(threadId: string | null) {
     enabled: Boolean(threadId),
     queryFn: () => getChatMessages(threadId ?? ""),
     queryKey: queryKeys.chats.messages(threadId ?? ""),
+  });
+}
+
+export function useInfiniteChatMessagesQuery(threadId: string | null, limit = 30) {
+  return useInfiniteQuery({
+    enabled: Boolean(threadId),
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      getChatMessagesPage(threadId ?? "", {
+        cursor: pageParam,
+        limit,
+      }),
+    queryKey: [...queryKeys.chats.messages(threadId ?? ""), "infinite", limit],
+  });
+}
+
+export function useUploadChatAttachmentMutation() {
+  return useMutation({
+    mutationFn: ({ file, threadId }: { file: File; threadId: string }) =>
+      uploadChatAttachment(threadId, file),
   });
 }
 

@@ -7,6 +7,7 @@ import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
 import { RadioIndicator } from "../../components/RadioIndicator";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import type { AdCardData } from "../../components/AdCard";
 import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
@@ -325,7 +326,7 @@ function ManagerPublisherPickerPage({
         </label>
 
         <div className="mt-5 grid gap-2" role="radiogroup" aria-label="انتخاب منتشرکننده">
-          {visiblePublishers.map((publisher) => {
+          {visiblePublishers.length === 0 ? <SearchEmptyState /> : visiblePublishers.map((publisher) => {
             const selected = draftPublisherId === publisher.id;
 
             return (

@@ -32,7 +32,7 @@ type ChatSocketClientToServerEvents = {
           lng: number;
         };
     threadId: string;
-    type: "image" | "location" | "text";
+    type: "file" | "image" | "location" | "text";
   }) => void;
   "chat:read": (payload: { threadId: string }) => void;
   "chat:typing": (payload: { threadId: string; typing: boolean }) => void;
@@ -108,7 +108,7 @@ export function getChatSocket(category: ChatCategory = "advertise") {
   if (!chatSocket) {
     chatSocket = io(getChatSocketUrl(), {
       auth: {
-        token,
+        token: token ? `Bearer ${token}` : "",
       },
       autoConnect: false,
       transports: ["websocket"],
@@ -116,7 +116,7 @@ export function getChatSocket(category: ChatCategory = "advertise") {
     chatSockets.set(category, chatSocket);
   }
 
-  chatSocket.auth = { token };
+  chatSocket.auth = { token: token ? `Bearer ${token}` : "" };
 
   if (!chatSocket.connected) {
     chatSocket.connect();
@@ -199,6 +199,35 @@ export function sendChatImageMessage({
     },
     threadId,
     type: "image",
+  });
+}
+
+
+export function sendChatAttachmentMessage({
+  attachmentUrl,
+  category = "advertise",
+  fileName,
+  mimeType,
+  size,
+  threadId,
+}: {
+  attachmentUrl: string;
+  category?: ChatCategory;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  threadId: string;
+}) {
+  getChatSocket(category).emit("chat:message:send", {
+    body: "",
+    metadata: {
+      attachment_url: attachmentUrl,
+      file_name: fileName,
+      mime_type: mimeType,
+      size,
+    },
+    threadId,
+    type: mimeType.startsWith("image/") ? "image" : "file",
   });
 }
 

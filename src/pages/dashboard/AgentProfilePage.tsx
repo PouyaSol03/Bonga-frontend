@@ -24,6 +24,7 @@ import { FormChoiceChip } from "../../components/form/FormControls";
 import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import {
   useMyProfileQuery,
   useUpdateMyProfileMutation,
@@ -794,9 +795,11 @@ function NeighborhoodSelectionSheet({
               );
             })}
           </div>
+        ) : query.trim() ? (
+          <SearchEmptyState compact />
         ) : (
           <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
-            محله‌ای با این عبارت پیدا نشد.
+            محله‌ای برای این شهر ثبت نشده است.
           </p>
         )}
       </div>

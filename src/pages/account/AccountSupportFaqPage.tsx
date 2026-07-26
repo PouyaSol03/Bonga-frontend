@@ -5,6 +5,7 @@ import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearChat from "../../components/(icons)/LinearChat";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
 
 const SUPPORT_PATH = "/account/support";
@@ -277,9 +278,10 @@ export function AccountSupportFaqPage() {
         </div>
 
         {visibleItems.length === 0 ? (
-          <div className="flex min-h-52 items-center justify-center px-5 text-center text-sm leading-6 text-[#808080]">
-            سوالی مطابق جستجوی شما پیدا نشد.
-          </div>
+          <SearchEmptyState
+            className="min-h-[320px]"
+            description="دسته‌بندی یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید."
+          />
         ) : null}
       </main>
 

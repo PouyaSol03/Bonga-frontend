@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "../../../components/BottomSheet";
 import { TopBar } from "../../../components/TopBar";
 import { RadioIndicator } from "../../../components/RadioIndicator";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { SortIcon } from "../../../components/SortIcon";
 import { useAgencyInfiniteQuery } from "../../../hooks/agency.hooks";
 import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
@@ -365,7 +366,7 @@ export function AgencySelectionStep({
               <button className="mt-3 block w-full font-semibold text-[#0048c4]" onClick={() => void agenciesQuery.refetch()} type="button">تلاش دوباره</button>
             </div>
           ) : agencies.length === 0 ? (
-            <div className="mx-4 rounded-xl bg-[#f7f7f7] px-4 py-10 text-center text-sm leading-6 text-[#808080]">آژانسی با این مشخصات پیدا نشد.</div>
+            <SearchEmptyState />
           ) : (
             agencies.map((agency, index) => (
               <AgencyCard

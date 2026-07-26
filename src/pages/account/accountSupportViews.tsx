@@ -210,12 +210,16 @@ export function ConversationCard({ conversation }: { conversation: Conversation 
 }
 
 export type SupportChatMessage = {
-  id: string;
+  attachmentUrl?: string;
   direction: "incoming" | "outgoing";
+  fileName?: string;
+  id: string;
+  mimeType?: string;
   sender?: string;
   text: string;
   threadId: string;
   time: string;
+  type: "file" | "image" | "text";
 };
 
 export function asChatRecord(value: unknown): Record<string, unknown> | undefined {
@@ -390,15 +394,32 @@ export function mapAccountSupportMessage(
   currentUserId: string,
   threadId: string,
 ): SupportChatMessage | null {
-  const text = readSupportMessageBody(message);
-  if (!text) return null;
+  const metadata = asChatRecord(message.metadata);
+  const attachmentUrl = readChatPathText(metadata, [
+    "attachment_url",
+    "attachmentUrl",
+    "url",
+  ]);
+  const fileName = readChatPathText(metadata, ["file_name", "fileName", "name"]);
+  const mimeType = readChatPathText(metadata, ["mime_type", "mimeType"]);
+  const rawType = readChatPathText(message, ["type"]).toLowerCase();
+  const type: SupportChatMessage["type"] = attachmentUrl
+    ? rawType === "image" || mimeType.startsWith("image/")
+      ? "image"
+      : "file"
+    : "text";
+  const text = readSupportMessageBody(message) || (attachmentUrl ? fileName || "فایل پیوست‌شده" : "");
+  if (!text && !attachmentUrl) return null;
   const isOwn = isOwnSupportMessage(message, currentUserId);
 
   return {
+    attachmentUrl: attachmentUrl || undefined,
+    direction: isOwn ? "outgoing" : "incoming",
+    fileName: fileName || undefined,
     id:
       readChatPathText(message, ["id", "_id", "messageId", "message_id"]) ||
-      `api-${threadId}-${index}-${text}`,
-    direction: isOwn ? "outgoing" : "incoming",
+      `api-${threadId}-${index}-${text || attachmentUrl}`,
+    mimeType: mimeType || undefined,
     sender: isOwn ? undefined : "پشتیبانی",
     text,
     threadId,
@@ -411,6 +432,7 @@ export function mapAccountSupportMessage(
         "date",
       ]),
     ),
+    type,
   };
 }
 
@@ -428,7 +450,7 @@ export function mergeSupportChatMessages(messages: SupportChatMessage[]) {
   return messages.filter((message) => {
     if (seenIds.has(message.id)) return false;
 
-    const contentKey = `${message.threadId}:${message.direction}:${message.text}:${message.time}`;
+    const contentKey = `${message.threadId}:${message.direction}:${message.type}:${message.text}:${message.attachmentUrl ?? ""}:${message.time}`;
     if (seenContent.has(contentKey)) return false;
 
     seenIds.add(message.id);
@@ -456,9 +478,32 @@ export function SupportMessageBubble({ message }: { message: SupportChatMessage 
           </p>
         ) : null}
 
-        <p className="whitespace-pre-line text-[12px] font-normal leading-[19px] text-[#1a1a1a]">
-          {message.text}
-        </p>
+        {message.attachmentUrl ? (
+          message.type === "image" ? (
+            <a href={message.attachmentUrl} rel="noreferrer" target="_blank">
+              <img
+                alt={message.fileName || "تصویر پیوست‌شده"}
+                className="mb-2 max-h-52 w-full rounded-lg object-cover"
+                src={message.attachmentUrl}
+              />
+            </a>
+          ) : (
+            <a
+              className="mb-2 block break-all text-xs font-medium text-[#0048c4] underline"
+              href={message.attachmentUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {message.fileName || "مشاهده فایل پیوست"}
+            </a>
+          )
+        ) : null}
+
+        {message.text ? (
+          <p className="whitespace-pre-line text-[12px] font-normal leading-[19px] text-[#1a1a1a]">
+            {message.text}
+          </p>
+        ) : null}
 
         <div
           className={`mt-1 flex items-center gap-1 text-[10px] leading-4 ${
@@ -486,11 +531,15 @@ export function SupportChatDateChip() {
 }
 
 export function SupportChatComposer({
+  isSending = false,
   message,
+  onAttachmentClick,
   onChange,
   onSubmit,
 }: {
+  isSending?: boolean;
   message: string;
+  onAttachmentClick?: () => void;
   onChange: (value: string) => void;
   onSubmit: () => void;
 }) {
@@ -509,7 +558,9 @@ export function SupportChatComposer({
     >
       <button
         aria-label="افزودن فایل"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#666] outline-none active:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#0048c440]"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#666] outline-none active:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#0048c440] disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isSending}
+        onClick={onAttachmentClick}
         type="button"
       >
         <LinearAttachment className="h-5 w-5" />
@@ -530,7 +581,8 @@ export function SupportChatComposer({
 
       <button
         aria-label="ارسال پیام"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1268d8] text-white outline-none active:bg-[#0758bd] focus-visible:ring-3 focus-visible:ring-[#1268d840]"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1268d8] text-white outline-none active:bg-[#0758bd] focus-visible:ring-3 focus-visible:ring-[#1268d840] disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isSending || !message.trim()}
         type="submit"
       >
         <LinearSent className="h-5 w-5" />

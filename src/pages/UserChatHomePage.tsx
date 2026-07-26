@@ -13,6 +13,7 @@ import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
 import { DemoNotice } from "../components/DemoNotice";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
+import { SearchEmptyState } from "../components/SearchEmptyState";
 import {
   useBlockChatMutation,
   useChatEntryQuery,
@@ -2897,7 +2898,11 @@ export function UserChatHomePage() {
         );
       })}
       {!isAdvertiseLoading && !isAdvertiseError && visibleChats.length === 0 ? (
-        <p className="py-16 text-center text-sm text-[#808080]">گفتگویی یافت نشد</p>
+        query.trim() || activeFilter ? (
+          <SearchEmptyState />
+        ) : (
+          <p className="py-16 text-center text-sm text-[#808080]">هنوز گفتگویی ندارید.</p>
+        )
       ) : null}
       <DemoNotice message={message} />
     </TopBarNavigationLayout>

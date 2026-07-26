@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import { RadioIndicator } from "../../components/RadioIndicator";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { TopBar } from "../../components/TopBar";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
@@ -156,9 +157,10 @@ export function ConsultantsNeighborhoodPage() {
             </button>
           </div>
         ) : neighborhoods.length === 0 ? (
-          <div className="flex min-h-[320px] items-center justify-center px-8 text-center text-sm gap-2 text-[#808080]">
-            محله‌ای با این عبارت پیدا نشد.
-          </div>
+          <SearchEmptyState
+            className="min-h-[320px]"
+            description="عبارت جستجوی محله را تغییر دهید و دوباره تلاش کنید."
+          />
         ) : (
           <div className="py-4 px-8 flex flex-col gap-2" dir="rtl">
             {neighborhoods.map((neighborhood) => {

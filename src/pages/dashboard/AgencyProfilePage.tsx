@@ -14,6 +14,7 @@ import { FormChoiceChip } from "../../components/form/FormControls";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
 import { TopBar } from "../../components/TopBar";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
@@ -1042,9 +1043,11 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
               );
             })}
           </div>
+        ) : query.trim() ? (
+          <SearchEmptyState compact />
         ) : (
           <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
-            محله‌ای با این عبارت پیدا نشد.
+            محله‌ای برای این شهر ثبت نشده است.
           </p>
         )}
       </div>

@@ -1,5 +1,6 @@
 import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
 import ListIcon from "../../../assets/icons/ListIcon";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 
 type SearchNoResultsViewProps = {
@@ -21,8 +22,13 @@ export function SearchNoResultsView({
       className="absolute inset-x-0 bottom-0 top-[60px] z-[450] min-h-0 overflow-y-auto overscroll-contain bg-white p-4 pb-24"
       dir="rtl"
     >
-      <div className="bg-white">
-        <SearchNoResultsRequestCard onSubmit={onRequestSubmit} />
+      <SearchEmptyState />
+
+      <div className="bg-white pb-4">
+        <SearchNoResultsRequestCard
+          onSubmit={onRequestSubmit}
+          showEmptyHeader={false}
+        />
       </div>
 
       <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center px-4">

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { SwitchButton } from "../../components/SwitchButton";
+import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard, type DashboardAd } from "./DashboardAdCard";
@@ -194,11 +195,15 @@ export function DashboardAdsPage() {
       </div>
 
       <div className="mt-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pl-1">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
-          {visibleAds.map((ad) => (
-            <DashboardAdCard ad={ad} key={ad.id} />
-          ))}
-        </div>
+        {visibleAds.length > 0 ? (
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
+            {visibleAds.map((ad) => (
+              <DashboardAdCard ad={ad} key={ad.id} />
+            ))}
+          </div>
+        ) : (
+          <SearchEmptyState />
+        )}
       </div>
     </section>
   );

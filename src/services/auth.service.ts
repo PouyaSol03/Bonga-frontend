@@ -33,6 +33,7 @@ export type VerifyOtpResponse = StatusResponse & {
   expires_in: number;
   role?: string;
   roles?: Array<AuthRole | string>;
+  role_slugs?: string[];
   token: string;
   tokens: {
     access_token: string;
@@ -41,7 +42,11 @@ export type VerifyOtpResponse = StatusResponse & {
 
 
 function normalizeAuthRoles(response: VerifyOtpResponse): AuthRole[] {
-  const rawRoles = Array.isArray(response.roles) ? response.roles : [];
+  const rawRoles = Array.isArray(response.roles)
+    ? response.roles
+    : Array.isArray(response.role_slugs)
+      ? response.role_slugs
+      : [];
   const normalizedRoles = rawRoles
     .map((role, index): AuthRole | null => {
       if (typeof role === "string") {

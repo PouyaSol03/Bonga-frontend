@@ -6,6 +6,7 @@ import LinearDanger from "../../(icons)/LinearDanger";
 import LinearSearch from "../../(icons)/LinearSearch";
 import { SelectionCheckIndicator } from "../../SelectionCheckIndicator";
 import { TopBar } from "../../TopBar";
+import { SearchEmptyState } from "../../SearchEmptyState";
 import { useMyAgencyProfileQuery } from "../../../hooks/account.hooks";
 import {
   useAgencyConsultantQuery,
@@ -251,9 +252,11 @@ function ReplacementPicker({
                 );
               })}
             </div>
+          ) : normalizedSearch ? (
+            <SearchEmptyState compact />
           ) : (
             <p className="m-0 px-2 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
-              مشاوری برای نمایش نیست!
+              مشاور دیگری برای جایگزینی وجود ندارد.
             </p>
           )}
         </section>

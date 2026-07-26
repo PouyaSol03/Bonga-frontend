@@ -73,7 +73,7 @@ export function BottomSheet({
   isOpen,
   onBack,
   onClose,
-  panelPaddingClassName = "pt-5",
+  panelPaddingClassName = "pt-4",
   scrimClassName = "bg-black/60",
   showBackButton = true,
   showHandle = true,
@@ -132,7 +132,7 @@ export function BottomSheet({
             {showHeader ? (
               <>
                 <header
-                  className={`flex h-10 items-center gap-2 px-4 `}
+                  className={`flex h-12 items-center gap-4 px-4 `}
                 >
                   {showBackButton ? (
                     <button

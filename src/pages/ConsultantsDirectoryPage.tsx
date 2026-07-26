@@ -14,6 +14,7 @@ import {
   AgencyDirectoryMapView,
   type AgencyDirectoryMapItem,
 } from "./consultants/AgencyDirectoryMapView";
+import LinearMapsLocation from "../components/(icons)/LinearMapsLocation";
 
 type DirectoryMode = "agency" | "consultant";
 
@@ -318,11 +319,21 @@ function FilterChip({
     ) : icon === "sort" ? (
       <SortIcon />
     ) : null;
-  const chipClassName = `inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-sm font-medium leading-5 transition-colors ${
-    active
-      ? "border-[#0048c4] bg-[#e9f1ff] text-[#0048c4]"
+
+  const chipContent = (
+    <>
+      {icon !== "chevron" && chipIcon}
+      <span className={onRemove ? "max-w-[92px] truncate" : undefined}>
+        {label}
+      </span>
+      {icon === "chevron" && chipIcon}
+    </>
+  );
+
+  const chipClassName = `inline-flex items-center justify-center gap-1 rounded-lg border p-2 text-sm! font-medium! transition-colors ${active
+      ? "border-[#0048C4] bg-[#0048C416] text-[#0048c4]"
       : "border-[#cccccc] bg-white text-[#4d4d4d]"
-  }`;
+    }`;
 
   if (onRemove) {
     return (
@@ -332,9 +343,9 @@ function FilterChip({
           onClick={onClick}
           type="button"
         >
-          {chipIcon}
-          <span className="max-w-[92px] truncate">{label}</span>
+          {chipContent}
         </button>
+
         <button
           aria-label={`حذف ${label}`}
           className="grid h-full w-8 shrink-0 place-items-center text-inherit active:bg-[#0048c414]"
@@ -348,9 +359,13 @@ function FilterChip({
   }
 
   return (
-    <button className={chipClassName} onClick={onClick} type="button">
-      {chipIcon}
-      <span>{label}</span>
+    <button
+      className={chipClassName}
+      dir="rtl"
+      onClick={onClick}
+      type="button"
+    >
+      {chipContent}
     </button>
   );
 }
@@ -597,11 +612,11 @@ export function ConsultantsDirectoryPage() {
   if (isMapOpen && mode === "agency") {
     const mapCenter =
       selectedCity?.latitude !== undefined &&
-      selectedCity.longitude !== undefined
+        selectedCity.longitude !== undefined
         ? {
-            latitude: selectedCity.latitude,
-            longitude: selectedCity.longitude,
-          }
+          latitude: selectedCity.latitude,
+          longitude: selectedCity.longitude,
+        }
         : undefined;
 
     return (
@@ -634,7 +649,7 @@ export function ConsultantsDirectoryPage() {
       variant="flush"
     >
       <header className="shrink-0 bg-[#f0f0f0]">
-        <div className="flex h-14 items-center gap-4 px-4 [direction:rtl]">
+        <div className="flex items-center gap-2 p-4 [direction:rtl]">
           <button
             aria-label="بازگشت"
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] active:bg-[#1a1a1a0a]"
@@ -649,15 +664,15 @@ export function ConsultantsDirectoryPage() {
         </div>
 
         <div className="px-4 pt-2">
-          <label className="relative flex h-12 items-center rounded-xl border border-[#808080] bg-white text-[#808080]">
+          <label className="relative flex items-center rounded-xl border border-[#808080] bg-white text-[#808080]">
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={searchPlaceholder}
               type="search"
               value={search}
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4d4d4d]">
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#808080]">
               <SearchIcon />
             </span>
           </label>
@@ -753,15 +768,15 @@ export function ConsultantsDirectoryPage() {
 
       {mode === "agency" ? (
         <button
-          className="absolute bottom-[16px] left-1/2 z-10 inline-flex h-10 -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="absolute bottom-[16px] left-1/2 z-10 inline-flex -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 py-2 leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           onClick={() => {
             setSelectedMapAgencyId(null);
             setIsMapOpen(true);
           }}
           type="button"
         >
-          <span>نقشه</span>
-          <MapLocationIcon />
+          <LinearMapsLocation className="w-6 h-6 text-white" />
+          <span className="font-medium">نقشه</span>
         </button>
       ) : null}
 
@@ -769,13 +784,13 @@ export function ConsultantsDirectoryPage() {
       <BottomSheet
         ariaLabel="انتخاب نوع نمایش"
         className="rounded-t-[20px]"
-        contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
-        heightClassName="h-[240px]"
+        contentClassName=""
+        heightClassName=""
         isOpen={isModeSheetOpen}
         onClose={() => setIsModeSheetOpen(false)}
         title="نمایش مشاورین"
       >
-        <div className="space-y-2 pt-2" dir="rtl">
+        <div className="pt-2" dir="rtl">
           {([
             { id: "agency" as const, label: "آژانس" },
             { id: "consultant" as const, label: "مشاور" },
@@ -785,11 +800,10 @@ export function ConsultantsDirectoryPage() {
             return (
               <button
                 aria-pressed={checked}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
-                  checked
-                    ? "bg-[#0048c40a] text-[#0048c4]"
+                className={`flex w-full px-4 py-6 items-center justify-between text-right font-medium leading-5 ${checked
+                    ? "text-[#0048c4]"
                     : "bg-white text-[#1a1a1a]"
-                }`}
+                  }`}
                 key={option.id}
                 onClick={() => handleModeChange(option.id)}
                 type="button"
@@ -867,15 +881,14 @@ export function ConsultantsDirectoryPage() {
                 const neighborhoodId = getNeighborhoodId(neighborhood);
                 const isSelected = Boolean(
                   selectedNeighborhood &&
-                    getNeighborhoodId(selectedNeighborhood) === neighborhoodId,
+                  getNeighborhoodId(selectedNeighborhood) === neighborhoodId,
                 );
 
                 return (
                   <button
                     aria-pressed={isSelected}
-                    className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-1 text-right text-base font-normal leading-6 transition-colors active:bg-[#0048c40a] ${
-                      isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
-                    }`}
+                    className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-1 text-right text-base font-normal leading-6 transition-colors active:bg-[#0048c40a] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
+                      }`}
                     key={neighborhoodId}
                     onClick={() => selectNeighborhood(neighborhood)}
                     type="button"
@@ -900,7 +913,7 @@ export function ConsultantsDirectoryPage() {
         ariaLabel="مرتب سازی"
         className="rounded-t-[20px]"
         contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
-        heightClassName="h-[367px]"
+        heightClassName=""
         isOpen={isSortSheetOpen}
         onClose={() => setIsSortSheetOpen(false)}
         title="مرتب سازی بر اساس"
@@ -912,11 +925,10 @@ export function ConsultantsDirectoryPage() {
             return (
               <button
                 aria-pressed={checked}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
-                  checked
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${checked
                     ? "bg-[#0048c40a] text-[#0048c4]"
                     : "bg-white text-[#1a1a1a]"
-                }`}
+                  }`}
                 key={option.id}
                 onClick={() => {
                   setSelectedSort(option.id);

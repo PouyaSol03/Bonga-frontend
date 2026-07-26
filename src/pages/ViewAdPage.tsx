@@ -744,7 +744,7 @@ function ViewAdContent({
       <section className="border-t-8 border-[#f0f0f0] bg-white">
         {visibleRows.map((row) => (
           <button
-            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-16 last:border-white focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
             onClick={() => onRowAction(row.label)}
             type="button"
@@ -1232,12 +1232,12 @@ export function ViewAdPage() {
         />
       </main>
 
-      <div className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-8px_24px_rgba(26,26,26,0.12)]">
+      <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_8px_rgba(26,26,26,0.08)]">
         {contactActionCount > 0 ? (
-          <div className={`grid ${contactActionsGridClassName} gap-8 [direction:ltr]`}>
+          <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
             {hasContactSheetData ? (
               <button
-                className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                className=" rounded-[10px] bg-[#0048c4] py-2.5 flex-1 text-sm! font-medium! text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                 onClick={() => setIsContactSheetOpen(true)}
                 type="button"
               >
@@ -1246,13 +1246,13 @@ export function ViewAdPage() {
             ) : null}
             {hasChatContact ? (
               <button
-                className="flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+                className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-[#0048c4] bg-white text-sm font-medium text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
                 disabled={createAdvertiseChat.isPending}
                 onClick={openAdvertiseChat}
                 type="button"
               >
-                <span>{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</span>
-                <ViewAdIcon className="h-5 w-5" name="chat" />
+                <span className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</span>
+                <ViewAdIcon className="h-5! w-5!" name="chat" />
               </button>
             ) : null}
           </div>

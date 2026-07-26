@@ -1,3 +1,5 @@
+import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
+import LinearFilterHorizontal from "../../../components/(icons)/LinearFilterHorizontal";
 import { HorizontalFilterBar } from "../../../components/HorizontalFilterBar";
 import type { SearchFilterChip } from "../searchMapData";
 
@@ -18,7 +20,7 @@ export function SearchMapFilterChips({
         <button
           key={chip.id}
           dir="rtl"
-          className={`inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+          className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
             chip.isActive
               ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
               : "border-[#cccccc] bg-white text-[#1a1a1a]"
@@ -26,9 +28,9 @@ export function SearchMapFilterChips({
           type="button"
           onClick={() => onChipClick?.(chip)}
         >
-          {chip.id === "filters" ? <FilterSlidersIcon /> : null}
+          {chip.id === "filters" ? <LinearFilterHorizontal className="w-5 h-5"/> : null}
 
-          <span className="whitespace-nowrap">{chip.label}</span>
+          <span className="whitespace-nowrap text-sm font-medium">{chip.label}</span>
 
           {chip.removable ? (
             <span
@@ -48,8 +50,7 @@ export function SearchMapFilterChips({
                 onChipRemove?.(chip);
               }}
             >
-              <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
-              <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
+              <LinearCancelSmall className="w-5 h-5"/>
             </span>
           ) : null}
         </button>

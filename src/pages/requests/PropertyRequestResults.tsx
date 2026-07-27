@@ -5,6 +5,7 @@ import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearRefresh from "../../components/(icons)/LinearRefresh";
 import { AdCard } from "../../components/AdCard";
 import { useAdvertisementListQuery } from "../../hooks/advertisement.hooks";
+import { usePropertyRequestMatchesQuery } from "../../hooks/property-request.hooks";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import {
   createPropertyRequestAdvertisementParams,
@@ -27,6 +28,7 @@ type PropertyRequestResultsProps = {
   maxResults?: number;
   onStatusChange?: (status: PropertyRequestResultsStatus) => void;
   request: PropertySearchRequest;
+  resultSource?: "matches" | "search";
   showDismissAction?: boolean;
   showHeading?: boolean;
 };
@@ -39,20 +41,35 @@ export function PropertyRequestResults({
   maxResults = 4,
   onStatusChange,
   request,
+  resultSource = "matches",
   showDismissAction = false,
   showHeading = true,
 }: PropertyRequestResultsProps) {
-  const params = useMemo(
-    () => createPropertyRequestAdvertisementParams(request, maxResults),
-    [maxResults, request],
+  const useMatchesEndpoint = resultSource === "matches";
+  const searchParams = useMemo(
+    () =>
+      useMatchesEndpoint
+        ? null
+        : createPropertyRequestAdvertisementParams(request, maxResults),
+    [maxResults, request, useMatchesEndpoint],
   );
-  const query = useAdvertisementListQuery(params);
+  const searchQuery = useAdvertisementListQuery(searchParams);
+  const matchesQuery = usePropertyRequestMatchesQuery(
+    request.id,
+    1,
+    maxResults,
+    useMatchesEndpoint,
+  );
+  const query = useMatchesEndpoint ? matchesQuery : searchQuery;
+  const resultItems = useMatchesEndpoint
+    ? matchesQuery.data?.data
+    : searchQuery.data?.data;
   const ads = useMemo(
     () =>
-      (query.data?.data ?? [])
+      (resultItems ?? [])
         .slice(0, maxResults)
         .map((item, index) => mapAdvertisementToAdCard(item, index)),
-    [maxResults, query.data?.data],
+    [maxResults, resultItems],
   );
   const [dismissedAdIds, setDismissedAdIds] = useState<Set<string>>(
     () => new Set(),

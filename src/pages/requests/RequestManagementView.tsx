@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { getApiErrorMessage } from "../../api/api";
 import { PageFrame } from "../../app/PageFrame";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearDelete from "../../components/(icons)/LinearDelete";
@@ -13,12 +14,13 @@ import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
 import { TopBar } from "../../components/TopBar";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
 import {
+  useDeletePropertyRequestMutation,
+  usePropertyRequestsQuery,
+  useRenamePropertyRequestMutation,
+} from "../../hooks/property-request.hooks";
+import {
   getCollapsedPropertyRequestDetails,
-  loadPropertyRequests,
-  removePropertyRequest,
-  subscribePropertyRequests,
   toPersianDigits,
-  updatePropertyRequestTitle,
   type PropertySearchRequest,
 } from "../../services/property-request.service";
 import {
@@ -138,9 +140,27 @@ export function RequestManagementView({
     requests: "all",
     results: "all",
   });
-  const [requests, setRequests] = useState<PropertySearchRequest[]>(
-    loadPropertyRequests,
+  const requestsQuery = usePropertyRequestsQuery(1, 20);
+  const renameRequestMutation = useRenamePropertyRequestMutation();
+  const deleteRequestMutation = useDeletePropertyRequestMutation();
+  const requests = useMemo(
+    () => requestsQuery.data?.data ?? [],
+    [requestsQuery.data?.data],
   );
+  const requestLoadState = requestsQuery.isLoading
+    ? {
+        description: "در حال دریافت درخواست‌های شما هستیم.",
+        title: "در حال بارگذاری درخواست‌ها",
+      }
+    : requestsQuery.isError
+      ? {
+          description: getApiErrorMessage(
+            requestsQuery.error,
+            "دریافت درخواست‌ها با خطا مواجه شد. از دکمه بروزرسانی استفاده کنید.",
+          ),
+          title: "دریافت درخواست‌ها ناموفق بود",
+        }
+      : null;
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -227,11 +247,6 @@ export function RequestManagementView({
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  useEffect(
-    () => subscribePropertyRequests(() => setRequests(loadPropertyRequests())),
-    [],
-  );
-
   useEffect(() => {
     setResultStatuses({});
   }, [filteredRequests]);
@@ -256,9 +271,20 @@ export function RequestManagementView({
   };
 
   const refreshRequests = () => {
-    setRequests(loadPropertyRequests());
     setDismissedReceivedAdIds(new Set<string>());
-    showToast("درخواست‌ها بروزرسانی شدند.");
+
+    void requestsQuery.refetch().then((result) => {
+      if (result.isError) {
+        showToast(
+          getApiErrorMessage(result.error, "بروزرسانی درخواست‌ها با خطا مواجه شد."),
+          "خطا",
+          "error",
+        );
+        return;
+      }
+
+      showToast("درخواست‌ها بروزرسانی شدند.");
+    });
   };
 
   const changeTab = (tab: RequestManagementTab) => {
@@ -293,20 +319,41 @@ export function RequestManagementView({
       return;
     }
 
-    updatePropertyRequestTitle(editingRequest.id, nextTitle);
-    setRequests((items) =>
-      items.map((item) =>
-        item.id === editingRequest.id ? { ...item, title: nextTitle } : item,
-      ),
+    if (renameRequestMutation.isPending) return;
+
+    renameRequestMutation.mutate(
+      { id: editingRequest.id, name: nextTitle },
+      {
+        onError: (error) => {
+          showToast(
+            getApiErrorMessage(error, "ویرایش درخواست با خطا مواجه شد."),
+            "خطا",
+            "error",
+          );
+        },
+        onSuccess: () => {
+          closeEditSheet();
+          showToast("درخواست با موفقیت ویرایش شد.");
+        },
+      },
     );
-    closeEditSheet();
-    showToast("درخواست با موفقیت ویرایش شد.");
   };
 
   const cancelRequest = (requestId: string) => {
-    removePropertyRequest(requestId);
-    setRequests((items) => items.filter((item) => item.id !== requestId));
-    showToast("درخواست لغو شد.");
+    if (deleteRequestMutation.isPending) return;
+
+    deleteRequestMutation.mutate(requestId, {
+      onError: (error) => {
+        showToast(
+          getApiErrorMessage(error, "لغو درخواست با خطا مواجه شد."),
+          "خطا",
+          "error",
+        );
+      },
+      onSuccess: () => {
+        showToast("درخواست لغو شد.");
+      },
+    });
   };
 
   return (
@@ -358,63 +405,79 @@ export function RequestManagementView({
         </div>
 
         {activeTab === "requests" ? (
-          <div
-            className={
-              requests.length > 0
-                ? "space-y-2 bg-[#f5f5f5] pt-2"
-                : "bg-white"
-            }
-          >
-            {requests.map((request) => (
-              <CriteriaRequestCard
-                key={request.id}
-                onCancel={() => cancelRequest(request.id)}
-                onEdit={() => openEditSheet(request)}
-                request={request}
-              />
-            ))}
-            {requests.length === 0 ? (
-              <EmptyRequestState
-                description="پس از ثبت درخواست، اینجا نمایش داده می‌شود."
-                title="هنوز درخواستی ثبت نشده است"
-                variant={variant}
-              />
-            ) : null}
-          </div>
-        ) : activeTab === "results" ? (
-          <div
-            className={
-              showResultsEmpty
-                ? "bg-white"
-                : "space-y-2 bg-[#f5f5f5] pt-2"
-            }
-          >
-            {filteredRequests.map((request) => (
-              <PropertyRequestResults
-                bare
-                className="bg-white pb-5"
-                compact
-                hideWhenEmpty
-                key={request.id}
-                maxResults={4}
-                onStatusChange={handleResultStatusChange}
-                request={request}
-                showDismissAction
-                showHeading={false}
-              />
-            ))}
-            {showResultsEmpty ? (
-              activeFilterId !== "all" ? (
-                <SearchEmptyState />
-              ) : (
+          requestLoadState ? (
+            <EmptyRequestState
+              description={requestLoadState.description}
+              title={requestLoadState.title}
+              variant={variant}
+            />
+          ) : (
+            <div
+              className={
+                requests.length > 0
+                  ? "space-y-2 bg-[#f5f5f5] pt-2"
+                  : "bg-white"
+              }
+            >
+              {requests.map((request) => (
+                <CriteriaRequestCard
+                  key={request.id}
+                  onCancel={() => cancelRequest(request.id)}
+                  onEdit={() => openEditSheet(request)}
+                  request={request}
+                />
+              ))}
+              {requests.length === 0 ? (
                 <EmptyRequestState
-                  description="پس از ثبت درخواست، نتیجه بررسی‌ها و پاسخ‌های مرتبط از اینجا نمایش داده می‌شود."
-                  title="هنوز نتیجه‌ای ثبت نشده است"
+                  description="پس از ثبت درخواست، اینجا نمایش داده می‌شود."
+                  title="هنوز درخواستی ثبت نشده است"
                   variant={variant}
                 />
-              )
-            ) : null}
-          </div>
+              ) : null}
+            </div>
+          )
+        ) : activeTab === "results" ? (
+          requestLoadState ? (
+            <EmptyRequestState
+              description={requestLoadState.description}
+              title={requestLoadState.title}
+              variant={variant}
+            />
+          ) : (
+            <div
+              className={
+                showResultsEmpty
+                  ? "bg-white"
+                  : "space-y-2 bg-[#f5f5f5] pt-2"
+              }
+            >
+              {filteredRequests.map((request) => (
+                <PropertyRequestResults
+                  bare
+                  className="bg-white pb-5"
+                  compact
+                  hideWhenEmpty
+                  key={request.id}
+                  maxResults={4}
+                  onStatusChange={handleResultStatusChange}
+                  request={request}
+                  showDismissAction
+                  showHeading={false}
+                />
+              ))}
+              {showResultsEmpty ? (
+                activeFilterId !== "all" ? (
+                  <SearchEmptyState />
+                ) : (
+                  <EmptyRequestState
+                    description="پس از ثبت درخواست، نتیجه بررسی‌ها و پاسخ‌های مرتبط از اینجا نمایش داده می‌شود."
+                    title="هنوز نتیجه‌ای ثبت نشده است"
+                    variant={variant}
+                  />
+                )
+              ) : null}
+            </div>
+          )
         ) : (
           <div
             className={

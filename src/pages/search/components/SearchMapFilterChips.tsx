@@ -34,7 +34,7 @@ export function SearchMapFilterChips({
 
           {chip.removable ? (
             <span
-              className="relative h-4 w-4 shrink-0"
+              className="relative h-5 w-5 shrink-0"
               aria-label={`حذف فیلتر ${chip.label}`}
               role="button"
               tabIndex={0}

@@ -7,6 +7,7 @@ import {
 import { getStoredAuthSession } from "../../auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
 import { usePublisherOptions } from "../../hooks/publisher-options.hooks";
+import { useCreatePropertyRequestMutation } from "../../hooks/property-request.hooks";
 import {
   useSavedSearchesQuery,
   useSaveSearchMutation,
@@ -52,7 +53,7 @@ import {
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
 import type { SavedSearchItem, SaveSearchInput } from "../../services/saved-search.service";
-import { savePropertyRequest } from "../../services/property-request.service";
+import { getPropertyRequestScope } from "../../services/property-request.service";
 import { getStoredBackTarget, pushRoute } from "../../routes/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
@@ -830,6 +831,11 @@ export function SearchMapPage() {
   const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
   const { message, showNotice } = useDemoNotice();
   const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
+  const createPropertyRequestMutation = useCreatePropertyRequestMutation();
+  const requestResultsPath =
+    getPropertyRequestScope().ownerType === "agency"
+      ? "/account/dashboard/requests?tab=results"
+      : "/account/requests?tab=results";
   const isAuthenticated = Boolean(getStoredAuthSession());
   const savedSearchesQuery = useSavedSearchesQuery(isAuthenticated);
   const saveSearchMutation = useSaveSearchMutation();
@@ -1214,31 +1220,29 @@ export function SearchMapPage() {
     setPendingSearchRequest(request);
   }, [currentSearchQuery, isAuthenticated]);
 
-  const handleConfirmSearchRequest = useCallback((senderId: string) => {
-    if (!pendingSearchRequest) return;
+  const handleConfirmSearchRequest = useCallback((_senderId: string) => {
+    if (!pendingSearchRequest || createPropertyRequestMutation.isPending) return;
 
-    const sender = requestSenderOptions.find((option) => option.id === senderId)
-      ?? requestSenderOptions[0]
-      ?? {
-        description: "انتشار در آگهی های شخصی",
-        id: "personal",
-        icon: "user" as const,
-        senderRole: "user",
-        title: "آگهی شخصی",
-      };
-    const request = {
-      ...pendingSearchRequest,
-      senderLabel: sender.title,
-      senderRole: sender.senderRole || "user",
-    };
-
-    savePropertyRequest(request);
-
-    setPendingSearchRequest(null);
-    window.requestAnimationFrame(() => {
-      setIsRequestSuccessOpen(true);
-    });
-  }, [pendingSearchRequest, requestSenderOptions]);
+    createPropertyRequestMutation.mutate(
+      {
+        filters: pendingSearchRequest.filters,
+        name: pendingSearchRequest.title,
+      },
+      {
+        onError: (error) => {
+          showNotice(
+            getApiErrorMessage(error, "ثبت درخواست با خطا مواجه شد."),
+          );
+        },
+        onSuccess: () => {
+          setPendingSearchRequest(null);
+          window.requestAnimationFrame(() => {
+            setIsRequestSuccessOpen(true);
+          });
+        },
+      },
+    );
+  }, [createPropertyRequestMutation, pendingSearchRequest, showNotice]);
 
   const locateUser = useCallback(() => {
     if (isLocating) return;
@@ -1509,11 +1513,13 @@ export function SearchMapPage() {
         isOpen={pendingSearchRequest !== null || isRequestSuccessOpen}
         isSuccess={isRequestSuccessOpen}
         onClose={() => {
+          if (createPropertyRequestMutation.isPending) return;
+
           setPendingSearchRequest(null);
           setIsRequestSuccessOpen(false);
         }}
         onOpenResults={() => {
-          window.location.assign("/account/requests?tab=results");
+          window.location.assign(requestResultsPath);
         }}
         onSelect={handleConfirmSearchRequest}
         options={requestSenderOptions}

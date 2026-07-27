@@ -1,4 +1,30 @@
 export const queryKeys = {
+  propertyRequests: {
+    all: ["property-requests"] as const,
+    list: (ownerType: "agency" | "user", page: number, perPage: number) =>
+      [
+        ...queryKeys.propertyRequests.all,
+        "list",
+        ownerType,
+        page,
+        perPage,
+      ] as const,
+    matches: (
+      ownerType: "agency" | "user",
+      requestId: string,
+      page: number,
+      perPage: number,
+    ) =>
+      [
+        ...queryKeys.propertyRequests.all,
+        "matches",
+        ownerType,
+        requestId,
+        page,
+        perPage,
+      ] as const,
+  },
+
   categories: {
     all: ["categories"] as const,
     list: () => [...queryKeys.categories.all, "list"] as const,

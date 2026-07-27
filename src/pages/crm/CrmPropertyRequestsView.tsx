@@ -131,6 +131,7 @@ function PropertyRequestCard({
           compact
           maxResults={1}
           request={request}
+          resultSource="search"
           showHeading={false}
         />
       </div>

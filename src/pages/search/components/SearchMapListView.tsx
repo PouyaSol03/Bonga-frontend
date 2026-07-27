@@ -59,19 +59,23 @@ export function SearchMapListView({
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >
-        <div className={`flex min-h-full flex-col gap-3 ${hasEmptyResults ? "bg-white" : "bg-[#f0f0f0]"}`}>
+        <div className={`flex min-h-full flex-col ${hasEmptyResults ? "bg-white" : "bg-[#f0f0f0]"}`}>
           {isLoading
             ? Array.from({ length: 3 }).map((_, index) => (
-                <AdCardSkeleton key={index} />
+                <AdCardSkeleton
+                  className="shrink-0 border-b-[12px] border-[#f0f0f0] last:border-b-0"
+                  key={index}
+                />
               ))
             : hasEmptyResults
               ? (
                 <div className="flex flex-1 flex-col bg-white pt-3">
-                  <SearchNoResultsRequestCard onSubmit={onRequestSubmit} />
+                  <SearchNoResultsRequestCard className="mx-4" onSubmit={onRequestSubmit} />
                 </div>
               )
             : listings.map((listing) => (
                 <AdCard
+                  className="shrink-0 border-b-[12px] border-[#f0f0f0] last:border-b-0"
                   key={listing.id}
                   ad={searchMapListingToAdCardData(listing)}
                   to={`/ads/${listing.id}`}

@@ -874,7 +874,7 @@ const FilterTabs = memo(function FilterTabs({
       {filters.map((filter) => (
         <button
           aria-pressed={activeFilter === filter.value}
-          className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter.value
+          className={`flex shrink-0 items-center justify-center rounded-lg border p-2 text-sm! font-medium! focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter.value
             ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
             : "border-[#cccccc] bg-white text-[#4d4d4d]"
             }`}

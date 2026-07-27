@@ -841,19 +841,16 @@ function EmptyRequestState({
       }`}
     >
       {isAccount ? (
-        <LinearRequest
-          aria-hidden="true"
-          className="mb-5 h-16 w-16 shrink-0 text-[#d9dde6]"
-        />
+        <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
       ) : (
         <span
           aria-hidden="true"
           className="mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-[#f0f1f5] text-[#cfd3dd]"
         >
-          <LinearRequest className="h-10 w-10" />
+          <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
         </span>
       )}
-      <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+      <h2 className="m-0 text-base font-semiBold mt-4 text-[#1a1a1a]">
         {title}
       </h2>
       <p className="m-0 mt-2 max-w-[320px] text-sm font-normal leading-6 text-[#4d4d4d]">

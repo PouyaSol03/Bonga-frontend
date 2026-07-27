@@ -34,6 +34,7 @@ export type PropertySearchRequest = {
   createdAt: string;
   filters: Record<string, string>;
   id: string;
+  isNew?: boolean;
   myAgencyId?: number | string | null;
   senderLabel: string;
   senderRole: string;
@@ -354,6 +355,10 @@ export function normalizePropertyRequest(
     createdAt: readText(record.createdAt ?? record.created_at),
     filters: normalizeFilters(record.filters),
     id,
+    isNew: readBoolean(
+      record.is_new ?? record.isNew ?? record.unread ?? record.is_unread,
+      readText(record.status).toLowerCase() === "new",
+    ),
     myAgencyId:
       (record.my_agency_id as number | string | null | undefined) ??
       (record.myAgencyId as number | string | null | undefined),

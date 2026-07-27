@@ -1,4 +1,6 @@
 import { BottomSheet } from "../../../components/BottomSheet";
+import LinearCity from "../../../components/(icons)/LinearCity";
+import LinearUser from "../../../components/(icons)/LinearUserSolid";
 
 export type SearchRequestSenderOption = {
   description: string;
@@ -19,22 +21,10 @@ type SearchRequestSenderBottomSheetProps = {
 
 function RequestSenderIcon({ type }: { type: SearchRequestSenderOption["icon"] }) {
   if (type === "user") {
-    return (
-      <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
-        <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
-      </svg>
-    );
+    return <LinearUser aria-hidden="true" className="h-6 w-6" />;
   }
 
-  return (
-    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
-      <path d="M5 21V4l10 3v14" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.8" />
-      <path d="M15 11h4v10" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.8" />
-      <path d="M8 8h3M8 12h3M8 16h3" stroke="currentColor" strokeWidth="1.8" />
-      {type === "agency" ? <path d="M3 21h18" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" /> : null}
-    </svg>
-  );
+  return <LinearCity aria-hidden="true" className="h-6 w-6" />;
 }
 
 function ChevronLeftIcon() {

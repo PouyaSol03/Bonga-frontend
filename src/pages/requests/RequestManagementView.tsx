@@ -3,11 +3,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getApiErrorMessage } from "../../api/api";
 import { PageFrame } from "../../app/PageFrame";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
+import LinearCancel from "../../components/(icons)/LinearCancel";
+import LinearCity from "../../components/(icons)/LinearCity";
 import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
+import LinearInfoCircle from "../../components/(icons)/LinearInfoCircle";
 import LinearRefresh from "../../components/(icons)/LinearRefresh";
 import LinearRequest from "../../components/(icons)/LinearRequest";
-import { AdCard, type AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
@@ -20,6 +22,7 @@ import {
 } from "../../hooks/property-request.hooks";
 import {
   getCollapsedPropertyRequestDetails,
+  getPropertyRequestDetails,
   toPersianDigits,
   type PropertySearchRequest,
 } from "../../services/property-request.service";
@@ -27,8 +30,6 @@ import {
   PropertyRequestResults,
   type PropertyRequestResultsStatus,
 } from "./PropertyRequestResults";
-import { RequestResultImageMeta } from "./RequestResultImageMeta";
-import LinearCancel from "../../components/(icons)/LinearCancel";
 
 type RequestManagementTab = "received" | "requests" | "results";
 type RequestFilterId = "all" | string;
@@ -55,44 +56,88 @@ type RequestToast = {
   variant: SnackbarVariant;
 };
 
-const baseRequestAds: AdCardData[] = [
-  {
-    id: 1,
-    agency: "ناصر اشرفی",
-    area: "۱۱۰ متر",
-    badges: [],
-    imageClassName: "",
-    imageCount: "۸",
-    imageUrl: "/images/request-result-living-room.png",
-    priceLabelPrimary: "",
-    priceLabelSecondary: "",
-    pricePrimary: "۳/۸۵۰ میلیارد",
-    priceSecondary: "",
-    rooms: "۲ اتاق",
-    status: "",
-    timeAndLocation: "۱ ساعت پیش در الهیه",
-    title: "آپارتمان ۱۱۰ متری شمال تک واحدی سنددار رحیمی",
-    year: "۱۴۰۰",
-  },
-  {
-    id: 2,
-    agency: "آژانس املاک اشرفی",
-    area: "۱۷۰ متر",
-    badges: [],
-    imageClassName: "",
-    imageCount: "۶",
-    imageUrl: "/images/request-result-kitchen.png",
-    priceLabelPrimary: "اجاره:",
-    priceLabelSecondary: "رهن:",
-    pricePrimary: "۱/۱ میلیارد",
-    priceSecondary: "۷/۵ میلیون",
-    rooms: "۳ اتاق",
-    status: "",
-    timeAndLocation: "۱ روز پیش در الهیه",
-    title: "اجاره آپارتمان ابتدای هاشمیه طبقه اول ۱۷۰ متری",
-    year: "۱۳۹۰",
-  },
-];
+const receivedRequestsGuideStorageKey =
+  "bonga-received-requests-guide-dismissed";
+
+function getRequestCreatedAt(request: PropertySearchRequest) {
+  const createdAt = new Date(request.createdAt);
+
+  return Number.isNaN(createdAt.getTime()) ? null : createdAt;
+}
+
+function isReceivedRequestNew(request: PropertySearchRequest) {
+  if (request.isNew) return true;
+
+  const createdAt = getRequestCreatedAt(request);
+  if (!createdAt) return false;
+
+  const age = Date.now() - createdAt.getTime();
+  return age >= 0 && age < 24 * 60 * 60 * 1000;
+}
+
+function formatReceivedRequestDate(request: PropertySearchRequest) {
+  const createdAt = getRequestCreatedAt(request);
+  if (!createdAt) return "";
+
+  const age = Math.max(0, Date.now() - createdAt.getTime());
+  const hours = Math.floor(age / (60 * 60 * 1000));
+  const days = Math.floor(age / (24 * 60 * 60 * 1000));
+
+  if (hours < 1) return "امروز";
+  if (hours < 24) return `${toPersianDigits(hours)} ساعت پیش`;
+  if (days < 7) return `${toPersianDigits(days)} روز پیش`;
+  if (days < 14) return "هفته پیش";
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+    .format(createdAt)
+    .replace(/[\u200e\u200f]/g, "");
+}
+
+function getReceivedRequestDetailPriority(detail: string) {
+  if (detail.includes("خوابه") || detail === "بدون اتاق") return 0;
+  if (detail.startsWith("سال ساخت")) return 1;
+  if (
+    detail.startsWith("قیمت") ||
+    detail.startsWith("رهن") ||
+    detail.startsWith("اجاره")
+  ) {
+    return 2;
+  }
+  if (detail.startsWith("متراژ")) return 3;
+  if (detail.startsWith("محله")) return 4;
+  return 5;
+}
+
+function getReceivedRequestDetails(
+  request: PropertySearchRequest,
+  maxVisibleItems = 6,
+) {
+  const details = getPropertyRequestDetails(request)
+    .map((detail, index) => ({ detail, index }))
+    .sort(
+      (left, right) =>
+        getReceivedRequestDetailPriority(left.detail) -
+          getReceivedRequestDetailPriority(right.detail) ||
+        left.index - right.index,
+    )
+    .map(({ detail }) => detail);
+  const safeMaxVisibleItems = Math.max(1, Math.floor(maxVisibleItems));
+
+  if (details.length <= safeMaxVisibleItems) {
+    return { hiddenCount: 0, visibleDetails: details };
+  }
+
+  const visibleDetailCount = Math.max(0, safeMaxVisibleItems - 1);
+
+  return {
+    hiddenCount: details.length - visibleDetailCount,
+    visibleDetails: details.slice(0, visibleDetailCount),
+  };
+}
 
 function getTabs(showReceivedTab: boolean): RequestTabItem[] {
   return showReceivedTab
@@ -165,9 +210,18 @@ export function RequestManagementView({
   const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [toast, setToast] = useState<RequestToast | null>(null);
-  const [dismissedReceivedAdIds, setDismissedReceivedAdIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [dismissedReceivedRequestIds, setDismissedReceivedRequestIds] = useState<
+    Set<string>
+  >(() => new Set());
+  const [isReceivedGuideVisible, setIsReceivedGuideVisible] = useState(() => {
+    try {
+      return (
+        window.sessionStorage.getItem(receivedRequestsGuideStorageKey) !== "1"
+      );
+    } catch {
+      return true;
+    }
+  });
   const [resultStatuses, setResultStatuses] = useState<
     Record<string, PropertyRequestResultsStatus>
   >({});
@@ -224,21 +278,14 @@ export function RequestManagementView({
     },
     [],
   );
-  const filteredReceivedAds = useMemo(() => {
-    const selectedAds =
-      activeFilterId === "all"
-        ? baseRequestAds
-        : [
-            baseRequestAds[
-              Math.max(
-                requests.findIndex((request) => request.id === activeFilterId),
-                0,
-              ) % baseRequestAds.length
-            ],
-          ];
-
-    return selectedAds.filter((ad) => !dismissedReceivedAdIds.has(String(ad.id)));
-  }, [activeFilterId, dismissedReceivedAdIds, requests]);
+  const receivedRequests = useMemo(
+    () =>
+      requests.filter(
+        (request) => !dismissedReceivedRequestIds.has(String(request.id)),
+      ),
+    [dismissedReceivedRequestIds, requests],
+  );
+  const hasNewReceivedRequests = receivedRequests.some(isReceivedRequestNew);
 
   useEffect(() => {
     if (!toast) return;
@@ -271,7 +318,7 @@ export function RequestManagementView({
   };
 
   const refreshRequests = () => {
-    setDismissedReceivedAdIds(new Set<string>());
+    setDismissedReceivedRequestIds(new Set<string>());
 
     void requestsQuery.refetch().then((result) => {
       if (result.isError) {
@@ -356,6 +403,44 @@ export function RequestManagementView({
     });
   };
 
+  const deleteReceivedRequest = (requestId: string) => {
+    if (deleteRequestMutation.isPending) return;
+
+    setDismissedReceivedRequestIds((current) => {
+      const next = new Set(current);
+      next.add(requestId);
+      return next;
+    });
+
+    deleteRequestMutation.mutate(requestId, {
+      onError: (error) => {
+        setDismissedReceivedRequestIds((current) => {
+          const next = new Set(current);
+          next.delete(requestId);
+          return next;
+        });
+        showToast(
+          getApiErrorMessage(error, "حذف درخواست دریافتی با خطا مواجه شد."),
+          "خطا",
+          "error",
+        );
+      },
+      onSuccess: () => {
+        showToast("درخواست دریافتی حذف شد.");
+      },
+    });
+  };
+
+  const dismissReceivedGuide = () => {
+    setIsReceivedGuideVisible(false);
+
+    try {
+      window.sessionStorage.setItem(receivedRequestsGuideStorageKey, "1");
+    } catch {
+      // The guide can still close when browser storage is unavailable.
+    }
+  };
+
   return (
     <PageFrame
       className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
@@ -374,27 +459,29 @@ export function RequestManagementView({
         className={
           variant === "account"
             ? "border-b border-[#e8e8e8] bg-[#f0f0f0]"
-            : "border-b border-[#eeeeee] bg-[#f5f5f5]"
+            : "bg-[#f0f0f0]"
         }
         contentClassName="px-2"
+        heightClassName={variant === "account" ? "h-14" : "h-12"}
         title="درخواست‌ها"
-        titleClassName="text-base font-bold leading-6"
+        titleClassName={
+          variant === "account"
+            ? "text-base font-bold leading-6"
+            : "text-[20px] font-bold leading-7"
+        }
       />
 
-      <main
-        className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[max(1rem,env(safe-area-inset-bottom,0px))] ${
-          variant === "account" ? "bg-[#f0f0f0]" : "bg-[#f5f5f5]"
-        }`}
-      >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
         <div className={variant === "account" ? "bg-[#f0f0f0]" : "bg-white"}>
           <RequestTabs
             activeTab={activeTab}
+            hasReceivedIndicator={hasNewReceivedRequests}
             onChange={changeTab}
             tabs={tabs}
             variant={variant}
           />
 
-          {activeTab !== "requests" && requests.length > 0 ? (
+          {activeTab === "results" && requests.length > 0 ? (
             <section className="border-t border-[#f0f0f0] px-4 pb-3 pt-3">
               <RequestFilterButton
                 label={activeFilterLabel}
@@ -479,37 +566,40 @@ export function RequestManagementView({
             </div>
           )
         ) : (
-          <div
-            className={
-              filteredReceivedAds.length > 0
-                ? "space-y-2 bg-[#f5f5f5] pt-2"
-                : "bg-white"
-            }
-          >
-            {filteredReceivedAds.map((ad) => (
-              <RequestResultCard
-                ad={ad}
-                key={`received-${ad.id}`}
-                onDismiss={() =>
-                  setDismissedReceivedAdIds((current) => {
-                    const next = new Set(current);
-                    next.add(String(ad.id));
-                    return next;
-                  })
-                }
-              />
-            ))}
-            {filteredReceivedAds.length === 0 ? (
-              activeFilterId !== "all" ? (
-                <SearchEmptyState />
-              ) : (
-                <EmptyRequestState
-                  description="آگهی‌های مرتبط با درخواست‌های شما از اینجا نمایش داده می‌شوند."
-                  title="هنوز آگهی دریافتی وجود ندارد"
-                  variant={variant}
-                />
-              )
+          <div className="bg-[#f0f0f0]">
+            {isReceivedGuideVisible ? (
+              <ReceivedRequestsGuide onClose={dismissReceivedGuide} />
             ) : null}
+
+            {requestsQuery.isLoading ? (
+              <ReceivedRequestsSkeleton />
+            ) : requestsQuery.isError ? (
+              <EmptyRequestState
+                description={
+                  requestLoadState?.description ??
+                  "دریافت درخواست‌های دریافتی با خطا مواجه شد."
+                }
+                title={requestLoadState?.title ?? "دریافت درخواست‌ها ناموفق بود"}
+                variant={variant}
+              />
+            ) : receivedRequests.length > 0 ? (
+              <div aria-label="درخواست‌های دریافتی">
+                {receivedRequests.map((request) => (
+                  <ReceivedRequestCard
+                    isNew={isReceivedRequestNew(request)}
+                    key={`received-${request.id}`}
+                    onDelete={() => deleteReceivedRequest(request.id)}
+                    request={request}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyRequestState
+                description="درخواست‌های ملکی کاربران که برای آژانس شما ارسال شده‌اند، اینجا نمایش داده می‌شوند."
+                title="هنوز درخواست دریافتی وجود ندارد"
+                variant={variant}
+              />
+            )}
           </div>
         )}
       </main>
@@ -548,20 +638,24 @@ export function RequestManagementView({
 
 function RequestTabs({
   activeTab,
+  hasReceivedIndicator,
   onChange,
   tabs,
   variant,
 }: {
   activeTab: RequestManagementTab;
+  hasReceivedIndicator: boolean;
   onChange: (tab: RequestManagementTab) => void;
   tabs: RequestTabItem[];
   variant: "account" | "default";
 }) {
   return (
-    <section className={variant === "account" ? "px-4 py-2" : "px-4 pb-3 pt-2.5"}>
+    <section className={variant === "account" ? "px-4 py-2" : "bg-[#f5f5f5] px-4 py-4"}>
       <div
         className={`grid overflow-hidden border border-[#808080] bg-white [direction:ltr] ${
-          variant === "account" ? "h-10 rounded-xl" : "h-[35px] rounded-[11px]"
+          variant === "account"
+            ? "h-10 rounded-xl"
+            : "h-10 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.18)]"
         }`}
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
@@ -571,22 +665,32 @@ function RequestTabs({
           return (
             <button
               aria-current={isActive ? "page" : undefined}
-              className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 font-medium leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
-                variant === "account" ? "text-sm" : "text-[13px]"
+              className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+                variant === "account"
+                  ? "text-sm font-medium"
+                  : "text-base font-semibold"
               } ${
                 index === 0 ? "" : "border-l"
               } ${
                 isActive
                   ? variant === "account"
                     ? "bg-[#dce6f7] text-[#002099]"
-                    : "bg-[#eaf0ff] text-[#002099]"
+                    : "bg-[#dce6f7] text-[#002099]"
                   : "bg-white text-[#4d4d4d] active:bg-[#f7f7f7]"
               }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
             >
-              <span className="truncate">{tab.label}</span>
+              <span className="inline-flex min-w-0 items-center justify-center gap-1 [direction:ltr]">
+                {tab.id === "received" && hasReceivedIndicator ? (
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ef3326]"
+                  />
+                ) : null}
+                <span className="truncate [direction:rtl]">{tab.label}</span>
+              </span>
             </button>
           );
         })}
@@ -792,32 +896,134 @@ function CriteriaRequestCard({
   );
 }
 
-function RequestResultCard({
-  ad,
-  onDismiss,
-}: {
-  ad: AdCardData;
-  onDismiss: () => void;
-}) {
+function ReceivedRequestsGuide({ onClose }: { onClose: () => void }) {
   return (
-    <AdCard
-      ad={ad}
-      imageAction={
+    <section className="border-b-8 border-[#f0f0f0] bg-white px-4 py-4">
+      <div className="rounded-2xl bg-[#eaf1ff] px-4 pb-4 pt-5 text-[#0054c8]">
+        <div className="flex items-center justify-between [direction:ltr]">
+          <button
+            aria-label="بستن راهنما"
+            className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-white/60"
+            onClick={onClose}
+            type="button"
+          >
+            <LinearCancel className="h-5 w-5" />
+          </button>
+
+          <div className="flex items-center gap-2 text-[#0054c8] [direction:rtl]">
+            <LinearInfoCircle className="h-6 w-6 shrink-0" />
+            <h2 className="m-0 text-base font-semibold leading-6">راهنما</h2>
+          </div>
+        </div>
+
+        <p className="m-0 mt-3 text-right text-[15px] font-normal leading-7 [direction:rtl]">
+          در این بخش، درخواست‌های ملکی کاربران نمایش داده می‌شود. شما می‌توانید
+          براساس نیازهای اعلام‌شده، ملک مناسب را پیدا کرده و فایل مرتبط را برای
+          مشتری منتشر کنید. این بخش به شما کمک می‌کند سریع‌تر و دقیق‌تر نیاز
+          مشتری را برطرف کنید.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function ReceivedRequestCard({
+  isNew,
+  onDelete,
+  request,
+}: {
+  isNew: boolean;
+  onDelete: () => void;
+  request: PropertySearchRequest;
+}) {
+  const { hiddenCount, visibleDetails } = getReceivedRequestDetails(request, 6);
+  const requestDate = formatReceivedRequestDate(request);
+
+  return (
+    <article className="relative border-b-8 border-[#f0f0f0] bg-white px-4 pb-6 pt-7 text-right">
+      {isNew ? (
+        <span className="absolute left-4 top-2 inline-flex h-6 items-center rounded-full bg-[#ef3326] px-2.5 text-xs font-medium leading-6 text-white">
+          جدید
+        </span>
+      ) : null}
+
+      <div className="flex items-start justify-between gap-4 [direction:ltr]">
         <button
-          aria-label="حذف از لیست"
-          className="absolute left-2 top-2 z-3 grid h-9 w-9 place-items-center rounded-[10px] bg-white text-[#4d4d4d] shadow-[0_2px_8px_rgba(0,0,0,0.12)] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
-          onClick={onDismiss}
+          aria-label={`حذف ${request.title}`}
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
+          onClick={onDelete}
           type="button"
         >
-          <LinearDelete className="h-5 w-5" />
+          <LinearDelete className="h-6 w-6" />
         </button>
-      }
-      imageMeta={<RequestResultImageMeta imageCount={ad.imageCount} />}
-      showAgency={false}
-      showBadges={false}
-      to={`/ads/${ad.id}`}
-      variant="requestResult"
-    />
+
+        <div className="min-w-0 flex-1 [direction:rtl]">
+          <div className="flex min-h-10 flex-wrap items-center gap-2">
+            <LinearCity className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+            <h2 className="m-0 min-w-0 text-[17px] font-bold leading-7 text-[#1a1a1a]">
+              {request.title}
+            </h2>
+            {requestDate ? (
+              <time
+                className="inline-flex h-8 shrink-0 items-center rounded-[10px] bg-[#f5f5f5] px-3 text-xs font-normal leading-5 text-[#1a1a1a]"
+                dateTime={request.createdAt}
+              >
+                {requestDate}
+              </time>
+            ) : null}
+          </div>
+
+          {visibleDetails.length ? (
+            <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
+              {visibleDetails.map((detail) => (
+                <span
+                  className="inline-flex max-w-full items-center rounded-[9px] border border-[#cccccc] bg-white px-2.5 py-1.5 text-sm font-semibold leading-5 text-[#4d4d4d]"
+                  key={detail}
+                  title={detail}
+                >
+                  {detail}
+                </span>
+              ))}
+              {hiddenCount > 0 ? (
+                <span className="inline-flex items-center rounded-[9px] border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-xs font-medium leading-5 text-[#4d4d4d]">
+                  و {toPersianDigits(hiddenCount)} مورد بیشتر
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ReceivedRequestsSkeleton() {
+  return (
+    <div aria-label="در حال بارگذاری درخواست‌های دریافتی" aria-live="polite">
+      {Array.from({ length: 3 }, (_, index) => (
+        <article
+          className="border-b-8 border-[#f0f0f0] bg-white px-4 pb-6 pt-7"
+          key={index}
+        >
+          <div className="flex items-start justify-between gap-4 [direction:ltr]">
+            <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-[#eeeeee]" />
+            <div className="min-w-0 flex-1 [direction:rtl]">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 shrink-0 animate-pulse rounded bg-[#eeeeee]" />
+                <div className="h-6 w-36 animate-pulse rounded bg-[#eeeeee]" />
+                <div className="h-8 w-16 animate-pulse rounded-[10px] bg-[#f1f1f1]" />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <div className="h-8 w-24 animate-pulse rounded-[9px] bg-[#eeeeee]" />
+                <div className="h-8 w-32 animate-pulse rounded-[9px] bg-[#eeeeee]" />
+                <div className="h-8 w-28 animate-pulse rounded-[9px] bg-[#eeeeee]" />
+                <div className="h-8 w-40 animate-pulse rounded-[9px] bg-[#eeeeee]" />
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
   );
 }
 

@@ -19,7 +19,7 @@ export type PublisherOption = {
 const basePublisherOptions: PublisherOption[] = [
   {
     id: "personal",
-    title: "آگهی شخصی",
+    title: "شخصی",
     description: "انتشار در آگهی های شخصی",
     icon: "user",
     senderRole: "user",

@@ -34,6 +34,7 @@ import type { CrmRoutePageProps } from "./CrmLayout";
 
 function readParticipant(thread: ChatThread) {
   const participant = thread.participant ?? thread.user ?? {};
+  const showingName = readChatPathText(participant, ["showing_name", "showingName"]);
   const name = readChatPathText(participant, ["full_name", "fullName"]);
   const firstName = readChatPathText(participant, ["name", "first_name"]);
   const family = readChatPathText(participant, ["family", "last_name"]);
@@ -41,7 +42,7 @@ function readParticipant(thread: ChatThread) {
   return {
     avatar: readChatPathText(participant, ["avatar", "image", "profile_image"]),
     mobile: readChatPathText(participant, ["mobile", "phone", "phone_number"]),
-    name: name || `${firstName} ${family}`.trim() || "کاربر بنگاه",
+    name: showingName || name || `${firstName} ${family}`.trim() || "کاربر بنگاه",
   };
 }
 

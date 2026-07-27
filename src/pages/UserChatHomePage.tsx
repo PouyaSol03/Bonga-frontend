@@ -19,16 +19,20 @@ import {
   useChatAvailabilityQuery,
   useChatEntryQuery,
   useChatMessagesQuery,
+  useChatShowingNameQuery,
   useChatsQuery,
   useDeleteChatMutation,
   useDeleteChatsMutation,
   useUnblockChatMutation,
   useUpdateChatAvailabilityMutation,
+  useUpdateChatShowingNameMutation,
 } from "../hooks/chat.hooks";
 import { useDemoNotice } from "../hooks/useDemoNotice";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
+import NavHomeIcon from "../assets/icons/NavHomeIcon";
 import { RouteLink } from "../routes/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../lib/browserLocation";
 import { getStoredAuthSession } from "../auth/auth-storage";
@@ -101,75 +105,6 @@ const filters: Array<{ label: string; value: ChatFilter }> = [
   { label: "خوانده نشده", value: "not_read" },
   { label: "آگهی‌های من", value: "my_ads" },
   { label: "آگهی‌های دیگران", value: "others_ads" },
-];
-
-const chatItems: ChatItem[] = [
-  {
-    adCategory: "اجاره روزانه باغ ویلا",
-    adLabel: "آگهی من",
-    adTitle: "باغ ویلا با استخر آب گرم",
-    badgeCount: "2",
-    date: "12 فروردین",
-    highlighted: true,
-    isBlocked: true,
-    message:
-      "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا تاریخ مدنظر و تعداد نفرات را در تلگرام یا روبیکا به همین شماره ارسال کنید تا عکس های باغ بهمراه قیمت خدمت شما ارسال شود",
-    userName: "ناصر اشرفی",
-  },
-  {
-    adCategory: "اجاره آپارتمان",
-    adLabel: "آگهی من",
-    adTitle: "باغ ویلا با استخر آب گرم",
-    badgeCount: "1",
-    date: "12 فروردین",
-    message:
-      "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا تاریخ مدنظر و تعداد نفرات را در تلگرام یا روبیکا به همین شماره ارسال کنید تا عکس های باغ بهمراه قیمت خدمت شما ارسال شود",
-    userName: "ناصر اشرفی",
-  },
-  {
-    adCategory: "باغ ویلا با استخر آب گرم",
-    adLabel: "آگهی من",
-    adTitle: "باغ ویلا با استخر آب گرم",
-    date: "03/12/6",
-    isBlocked: true,
-    message:
-      "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا تاریخ مدنظر و تعداد نفرات را در تلگرام یا روبیکا به همین شماره ارسال کنید تا عکس های باغ بهمراه قیمت خدمت شما ارسال شود",
-    userName: "ناصر اشرفی",
-  },
-  {
-    adCategory: "باغ ویلا با استخر آب گرم",
-    adLabel: "آگهی من",
-    adTitle: "باغ ویلا با استخر آب گرم",
-    date: "12/2",
-    isBlocked: true,
-    message:
-      "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا تاریخ مدنظر و تعداد نفرات را در تلگرام یا روبیکا به همین شماره ارسال کنید تا عکس های باغ بهمراه قیمت خدمت شما ارسال شود",
-    userName: "ناصر اشرفی",
-  },
-  {
-    adCategory: "باغ ویلا با استخر آب گرم",
-    adLabel: "آگهی من",
-    adTitle: "باغ ویلا با استخر آب گرم",
-    date: "12/2",
-    message:
-      "سلام وقت بخیر جهت استعلام قیمت و مشاهده باغ ویلا لطفا تاریخ مدنظر و تعداد نفرات را در تلگرام یا روبیکا به همین شماره ارسال کنید تا عکس های باغ بهمراه قیمت خدمت شما ارسال شود",
-    userName: "ناصر اشرفی",
-  },
-];
-
-const chatCardOverrides: Partial<ChatItem>[] = [
-  {},
-  {
-    adCategory: "فروش آپارتمان",
-    badgeCount: undefined,
-    date: "25 خرداد",
-    isBlocked: true,
-  },
-  {
-    adCategory: "اجاره آپارتمان",
-    date: "6 شهریور",
-    isBlocked: true,
-  },
 ];
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
@@ -272,6 +207,19 @@ function readPathBoolean(source: unknown, paths: string[]) {
   return undefined;
 }
 
+function readAdvertiseFormTitle(source: unknown) {
+  return readPathText(source, [
+    "form_title",
+    "formTitle",
+    "form.title",
+    "form.name",
+    "category_name",
+    "categoryName",
+    "category.title",
+    "category.name",
+  ]);
+}
+
 function readChatThreadId(source: unknown) {
   return readPathText(source, [
     "thread_id",
@@ -339,8 +287,8 @@ function readChatMessageAttachment(message: ChatMessage) {
     fileName: fileName || "تصویر ارسالی",
     imageUrl: attachmentUrl
       ? (/^https?:\/\//i.test(attachmentUrl)
-          ? attachmentUrl
-          : getApiAssetUrl(attachmentUrl))
+        ? attachmentUrl
+        : getApiAssetUrl(attachmentUrl))
       : "",
   };
 }
@@ -561,20 +509,37 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
   );
   const apiAdLabel = readPathText(chat, ["ad_label", "adLabel"]);
   const isMine =
-    chat.is_mine === true ||
-    chat.isMine === true ||
+    readPathBoolean(chat, [
+      "is_mine",
+      "isMine",
+      "mine",
+      "ad.is_mine",
+      "ad.isMine",
+      "advertise.is_mine",
+      "advertise.isMine",
+      "advertisement.is_mine",
+      "advertisement.isMine",
+      "property.is_mine",
+      "property.isMine",
+    ]) === true ||
     apiAdLabel.includes("آگهی من");
 
   return {
     adCategory:
-      readPathText(chat, ["ad_category", "adCategory", "category.name"]) ||
-      readPathText(ad, ["category.name", "category", "type", "form.name"]) ||
-      chatItems[0].adCategory,
+      readAdvertiseFormTitle(ad) ||
+      readPathText(chat, [
+        "form_title",
+        "formTitle",
+        "advertise.form_title",
+        "advertise.form.title",
+        "ad.form_title",
+        "ad.form.title",
+      ]),
     adLabel: apiAdLabel || (isMine ? "آگهی من" : ""),
     adTitle:
       readPathText(chat, ["ad_title", "adTitle"]) ||
       readPathText(ad, ["title", "label", "name"]) ||
-      chatItems[0].adTitle,
+      "جزئیات ملک",
     badgeCount: unreadCount && unreadCount > 0 ? new Intl.NumberFormat("fa-IR").format(unreadCount) : undefined,
     category: readPathText(chat, ["category"]) === "support" ? "support" : "advertise",
     date: formatChatDate(
@@ -621,8 +586,8 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       readString(chat.last_message) ||
       "",
     userName:
-      readPathText(user, ["full_name", "fullName", "name", "username", "mobile", "phone"]) ||
-      readPathText(chat, ["participant.full_name", "participant.fullName", "user_name", "userName", "full_name", "fullName", "name"]) ||
+      readPathText(user, ["showing_name", "showingName", "full_name", "fullName", "name", "username", "mobile", "phone"]) ||
+      readPathText(chat, ["participant.showing_name", "participant.showingName", "participant.full_name", "participant.fullName", "user_name", "userName", "full_name", "fullName", "name"]) ||
       "کاربر",
   };
 }
@@ -998,15 +963,20 @@ function ChatMenuDivider() {
 function ChatMenuBottomSheet({
   isOpen,
   onClose,
+  onShowBlockedChange,
+  onShowMyAdsChange,
   onSelect,
+  showBlocked,
+  showMyAds,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onShowBlockedChange: (checked: boolean) => void;
+  onShowMyAdsChange: (checked: boolean) => void;
   onSelect: (id: string) => void;
+  showBlocked: boolean;
+  showMyAds: boolean;
 }) {
-  const [showBlocked, setShowBlocked] = useState(false);
-  const [showMyAds, setShowMyAds] = useState(false);
-
   return (
     <BottomSheet
       ariaLabel="مدیریت چت"
@@ -1041,12 +1011,12 @@ function ChatMenuBottomSheet({
       </ChatMenuRow>
       <ChatMenuDivider />
       <ChatMenuRow
-        trailing={<ToggleSwitch checked={showBlocked} onChange={setShowBlocked} />}
+        trailing={<ToggleSwitch checked={showBlocked} onChange={onShowBlockedChange} />}
       >
         نمایش چت‌های مسدود شده
       </ChatMenuRow>
       <ChatMenuRow
-        trailing={<ToggleSwitch checked={showMyAds} onChange={setShowMyAds} />}
+        trailing={<ToggleSwitch checked={showMyAds} onChange={onShowMyAdsChange} />}
       >
         نمایش آگهی‌های من
       </ChatMenuRow>
@@ -1077,6 +1047,23 @@ function BlockedBadge() {
     <span className="flex h-5 items-center gap-1 rounded-lg bg-[#dd2b1e1f] px-2 text-xs font-normal leading-4 text-[#c11004]">
       <BlockedIcon className="h-3 w-3 text-[#808080]" />
       <span>مسدود</span>
+    </span>
+  );
+}
+
+function SystemChatIcon() {
+  return (
+    <span
+      aria-hidden="true"
+      className="grid h-5 w-5 shrink-0 place-items-center rounded-xl bg-[#003f9f] text-white"
+    >
+      <NavHomeIcon
+        active
+        color="currentColor"
+        duotoneOpacity={0.24}
+        size={30}
+        strokeWidth={2}
+      />
     </span>
   );
 }
@@ -1118,7 +1105,6 @@ const ChatCard = memo(function ChatCard({
   isSelected,
   item,
   onToggleSelected,
-  useCardOverrides = false,
 }: {
   chatId: string;
   index: number;
@@ -1126,23 +1112,68 @@ const ChatCard = memo(function ChatCard({
   isSelected: boolean;
   item: ChatItem;
   onToggleSelected: (id: string) => void;
-  useCardOverrides?: boolean;
 }) {
-  const displayItem = {
-    ...item,
-    ...(useCardOverrides ? chatCardOverrides[index] : {}),
-  };
+  const displayItem = item;
+  const isSupportChat = displayItem.category === "support";
   const isHighlighted = isBulkDeleteMode
     ? isSelected
     : Boolean(displayItem.highlighted);
 
-  const cardClassName = `relative shrink-0 overflow-visible border-b px-4 text-right ${
-    isBulkDeleteMode
+  const cardClassName = `relative shrink-0 overflow-visible border-b px-4 text-right ${isBulkDeleteMode
       ? "h-[147px] border-[#cccccc] pb-[19px] pt-5"
       : "h-[140px] border-[#f0f0f0] py-4"
-  } ${isHighlighted ? "bg-[#edf3ff]" : "bg-white"}`;
+    } ${isHighlighted ? "bg-[#edf3ff]" : "bg-white"}`;
 
-  const cardContent = (
+  const supportCardContent = (
+    <article
+      aria-pressed={isBulkDeleteMode ? isSelected : undefined}
+      className={`relative shrink-0 text-right ${isHighlighted ? "bg-[#edf3ff]" : "bg-white"}`}
+      onClick={isBulkDeleteMode ? () => onToggleSelected(chatId) : undefined}
+      onKeyDown={
+        isBulkDeleteMode
+          ? (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+
+            event.preventDefault();
+            onToggleSelected(chatId);
+          }
+          : undefined
+      }
+      role={isBulkDeleteMode ? "button" : undefined}
+      tabIndex={isBulkDeleteMode ? 0 : undefined}
+    >
+      <div className="flex items-start gap-2 border-b border-[#d9d9d9] p-4 [direction:ltr]">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-4 [direction:ltr]">
+            <div className="flex shrink-0 items-center gap-2 text-xs font-normal leading-4 text-[#808080]">
+              <span>{displayItem.date}</span>
+              <UnreadBadge count={displayItem.badgeCount} />
+            </div>
+
+            <div className="flex min-w-0 items-center gap-5.5 [direction:rtl]">
+              <SystemChatIcon />
+              <div className="flex flex-col min-w-0 gap-2">
+                <p className="text-sm font-medium  text-[#1a1a1a]">
+                  پیام سیستم
+                </p>
+                <p className="text-right text-sm font-normal text-[#1a1a1a]">
+                  {displayItem.message}
+                </p>
+                {displayItem.isBlocked ? <BlockedBadge /> : null}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {isBulkDeleteMode ? (
+          <SelectionCheckbox isSelected={isSelected} onToggle={() => onToggleSelected(chatId)} />
+        ) : null}
+      </div>
+    </article>
+  );
+
+  const advertiseCardContent = (
     <article
       aria-pressed={isBulkDeleteMode ? isSelected : undefined}
       className={cardClassName}
@@ -1161,9 +1192,8 @@ const ChatCard = memo(function ChatCard({
       tabIndex={isBulkDeleteMode ? 0 : undefined}
     >
       <div
-        className={`flex items-start justify-between [direction:ltr] ${
-          isBulkDeleteMode ? "h-12 gap-2" : "h-5"
-        }`}
+        className={`flex items-start justify-between [direction:ltr] ${isBulkDeleteMode ? "h-12 gap-2" : "h-5"
+          }`}
       >
         <div className={isBulkDeleteMode ? "min-w-0 flex-1" : "w-full min-w-0"}>
           <div className="flex h-5 items-center justify-between [direction:ltr]">
@@ -1204,7 +1234,7 @@ const ChatCard = memo(function ChatCard({
             <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080]">
               {displayItem.adCategory}
             </span>
-            {isBulkDeleteMode && displayItem.adLabel ? (
+            {displayItem.adLabel ? (
               <span className="shrink-0 rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
                 {displayItem.adLabel}
               </span>
@@ -1222,6 +1252,7 @@ const ChatCard = memo(function ChatCard({
       </div>
     </article>
   );
+  const cardContent = isSupportChat ? supportCardContent : advertiseCardContent;
 
   if (isBulkDeleteMode) {
     return cardContent;
@@ -1280,19 +1311,14 @@ function ChatDetailHeader({
 }
 
 function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
-  const advertise =
-    readPathRecord(thread, ["advertise", "ad", "advertisement", "property"]) ?? {};
+  const advertise = readPathRecord(thread, ["advertise", "ad", "advertisement", "property"]);
+
+  if (!advertise) return null;
+
   const advertiseId = readPathText(advertise, ["id", "_id"]);
   const advertiseTitle =
-    readPathText(advertise, ["title", "label", "name"]) || "جزئیات آگهی";
-  const advertiseCategory =
-    readPathText(advertise, [
-      "category.name",
-      "category.title",
-      "category",
-      "form.name",
-      "type",
-    ]) || "آگهی";
+    readPathText(advertise, ["title", "label", "name"]) || "جزئیات ملک";
+  const advertiseFormTitle = readAdvertiseFormTitle(advertise);
   const imageUrl = readImageUrl(advertise) ?? "/figma/view-ad-album.png";
   const content = (
     <section className="flex h-[52px] shrink-0 items-center gap-2 bg-[#f5f5f5] px-4 text-right [direction:rtl]">
@@ -1302,10 +1328,12 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
         src={imageUrl}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">
-          {advertiseCategory}
-        </p>
-        <p className="mt-1 truncate text-xs font-medium leading-4 text-[#1a1a1a]">
+        {advertiseFormTitle ? (
+          <p className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">
+            {advertiseFormTitle}
+          </p>
+        ) : null}
+        <p className={`${advertiseFormTitle ? "mt-1" : ""} truncate text-xs font-medium leading-4 text-[#1a1a1a]`}>
           {advertiseTitle}
         </p>
       </div>
@@ -1398,7 +1426,7 @@ function ChatImageBubble({
         className={`max-w-[220px] rounded-lg p-1.5 text-right ${isOutgoing
           ? "rounded-tr-none bg-[#eef3fb]"
           : "rounded-tl-none border border-[#e6e6e6] bg-white"
-        }`}
+          }`}
         dir="rtl"
       >
         <a href={imageUrl} target="_blank" rel="noreferrer" aria-label={`مشاهده ${fileName}`}>
@@ -1408,9 +1436,8 @@ function ChatImageBubble({
             src={imageUrl}
           />
         </a>
-        <div className={`mt-1 flex items-center gap-1 px-1 text-[10px] leading-4 [direction:ltr] ${
-          isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
-        }`}>
+        <div className={`mt-1 flex items-center gap-1 px-1 text-[10px] leading-4 [direction:ltr] ${isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
+          }`}>
           <span>{time}</span>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
@@ -1440,7 +1467,7 @@ function ChatLocationBubble({
         className={`block w-[220px] rounded-lg px-3 py-2 text-right no-underline ${isOutgoing
           ? "rounded-tr-none bg-[#eef3fb]"
           : "rounded-tl-none border border-[#e6e6e6] bg-white"
-        }`}
+          }`}
         dir="rtl"
         href={mapsUrl}
         target="_blank"
@@ -1455,9 +1482,8 @@ function ChatLocationBubble({
         <p className="mt-2 text-[11px] leading-4 text-[#4d4d4d]">
           برای مشاهده موقعیت روی نقشه لمس کنید.
         </p>
-        <div className={`mt-1 flex items-center gap-1 text-[10px] leading-4 [direction:ltr] ${
-          isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
-        }`}>
+        <div className={`mt-1 flex items-center gap-1 text-[10px] leading-4 [direction:ltr] ${isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
+          }`}>
           <span>{time}</span>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
@@ -2255,7 +2281,6 @@ export function UserChatResponseTimePage() {
   );
 }
 
-const CHAT_DISPLAY_NAME_STORAGE_KEY = "bonga-chat-display-name";
 const CHAT_RENAME_NOTICE_STORAGE_KEY = "bonga-chat-rename-notice";
 
 function navigateFromChatSettings(path: string, replace = false) {
@@ -2266,25 +2291,34 @@ function navigateFromChatSettings(path: string, replace = false) {
 }
 
 export function UserChatRenamePage() {
-  const [chatName, setChatName] = useState(
-    () => window.localStorage.getItem(CHAT_DISPLAY_NAME_STORAGE_KEY) ?? "",
-  );
+  const showingNameQuery = useChatShowingNameQuery();
+  const updateShowingNameMutation = useUpdateChatShowingNameMutation();
+  const [chatName, setChatName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const didHydrateShowingNameRef = useRef(false);
   const { message } = useDemoNotice();
 
-  const saveChatName = () => {
+  useEffect(() => {
+    if (showingNameQuery.data === undefined || didHydrateShowingNameRef.current) return;
+
+    didHydrateShowingNameRef.current = true;
+    setChatName(showingNameQuery.data ?? "");
+  }, [showingNameQuery.data]);
+
+  const saveChatName = async () => {
     const normalizedName = chatName.trim();
 
-    if (!normalizedName) {
-      setErrorMessage("نام و نام خانوادگی خود را وارد کنید.");
-      return;
+    try {
+      setErrorMessage("");
+      await updateShowingNameMutation.mutateAsync(normalizedName || null);
+      window.sessionStorage.setItem(
+        CHAT_RENAME_NOTICE_STORAGE_KEY,
+        normalizedName ? "تغییر نام با موفقیت انجام شد" : "نام نمایشی پاک شد",
+      );
+      navigateFromChatSettings("/chat", true);
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "ثبت نام نمایشی با خطا مواجه شد."));
     }
-
-    window.localStorage.setItem(CHAT_DISPLAY_NAME_STORAGE_KEY, normalizedName);
-    setChatName(normalizedName);
-    setErrorMessage("");
-    window.sessionStorage.setItem(CHAT_RENAME_NOTICE_STORAGE_KEY, "تغییر نام با موفقیت انجام شد");
-    navigateFromChatSettings("/chat", true);
   };
 
   return (
@@ -2315,10 +2349,10 @@ export function UserChatRenamePage() {
           </p>
           <input
             autoComplete="name"
-            className={`w-full rounded-xl border bg-white px-3 py-3.75 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41f] ${
-              errorMessage ? "border-[#c11004]" : "border-[#6e6e6e]"
-            }`}
+            className={`w-full rounded-xl border bg-white px-3 py-3.75 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41f] ${errorMessage ? "border-[#c11004]" : "border-[#6e6e6e]"
+              }`}
             id="chat-display-name"
+            maxLength={80}
             onChange={(event) => {
               setChatName(event.target.value);
               if (errorMessage) setErrorMessage("");
@@ -2326,6 +2360,9 @@ export function UserChatRenamePage() {
             placeholder="نام خود را وارد کنید"
             value={chatName}
           />
+          <p className="mt-2 text-[11px] leading-4 text-[#808080]">
+            برای نمایش نام و نام خانوادگی اصلی، این فیلد را خالی ذخیره کنید.
+          </p>
           {errorMessage ? (
             <p className="mt-1.5 text-[11px] leading-4 text-[#c11004]">
               {errorMessage}
@@ -2338,10 +2375,11 @@ export function UserChatRenamePage() {
         <div className="flex gap-3 [direction:rtl]">
           <button
             className="h-11 min-w-0 flex-1 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
-            onClick={saveChatName}
+            disabled={showingNameQuery.isLoading || updateShowingNameMutation.isPending}
+            onClick={() => void saveChatName()}
             type="button"
           >
-            ذخیره نام
+            {updateShowingNameMutation.isPending ? "در حال ذخیره..." : "ذخیره نام"}
           </button>
           <button
             className="h-11 min-w-0 flex-1 rounded-lg border border-[#0048c4] bg-white text-xs font-semibold leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#0048c40a]"
@@ -2412,6 +2450,8 @@ export function UserChatDetailPage() {
   }, [chatThread, liveMessages, messagesQuery.data]);
   const participantName =
     readPathText(chatThread, [
+      "participant.showing_name",
+      "participant.showingName",
       "participant.full_name",
       "participant.fullName",
       "participant.name",
@@ -2457,7 +2497,7 @@ export function UserChatDetailPage() {
       onJoined: setActiveThreadId,
       threadId: activeThreadId,
     });
-    const handleNewMessage = (payload: { data?: unknown; message?: unknown; [key: string]: unknown }) => {
+    const handleNewMessage = (payload: { data?: unknown; message?: unknown;[key: string]: unknown }) => {
       const data = asRecord(payload.data);
       const rawMessage = payload.message ?? data?.message ?? payload.data ?? payload;
 
@@ -2472,6 +2512,15 @@ export function UserChatDetailPage() {
         nextMessage.is_mine = true;
         nextMessage.is_read = false;
         nextMessage.read = false;
+        setSentMessages((current) => {
+          const optimisticIndex = current.findIndex(
+            (message) => message.type === "text" && message.text === body,
+          );
+
+          return optimisticIndex < 0
+            ? current
+            : current.filter((_, index) => index !== optimisticIndex);
+        });
       }
 
       const messageType = readChatMessageType(nextMessage);
@@ -2605,7 +2654,26 @@ export function UserChatDetailPage() {
         text,
         (pendingOutgoingBodiesRef.current.get(text) ?? 0) + 1,
       );
-      sendChatTextMessage({ body: text, category: chatCategory, threadId: activeThreadId });
+      setSentMessages((current) => [
+        ...current,
+        { id: createChatMessageId(), text, type: "text" },
+      ]);
+      void sendChatTextMessage({
+        body: text,
+        category: chatCategory,
+        threadId: activeThreadId,
+      }).catch(() => {
+        setSentMessages((current) => {
+          const optimisticIndex = current.findIndex(
+            (message) => message.type === "text" && message.text === text,
+          );
+
+          return optimisticIndex < 0
+            ? current
+            : current.filter((_, index) => index !== optimisticIndex);
+        });
+        showNotice("ارسال پیام با خطا مواجه شد");
+      });
     }
 
     setDraftMessage("");
@@ -2692,7 +2760,15 @@ export function UserChatDetailPage() {
   };
 
   const sendImageFiles = async (files: FileList | null) => {
-    const imageFiles = Array.from(files ?? []).filter((file) => file.type.startsWith("image/"));
+    const selectedFiles = Array.from(files ?? []);
+    const oversizedFile = selectedFiles.find((file) => file.size > 10 * 1024 * 1024);
+
+    if (oversizedFile) {
+      showNotice("حجم هر فایل نباید بیشتر از ۱۰ مگابایت باشد");
+      return;
+    }
+
+    const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"));
 
     if (imageFiles.length === 0) {
       showNotice("لطفا فقط فایل تصویر انتخاب کنید");
@@ -2930,7 +3006,9 @@ export function UserChatHomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ChatFilter | null>(null);
+  const [showBlocked, setShowBlocked] = useState(false);
   const [query, setQuery] = useState("");
+  const deferredSearch = useDebouncedValue(query.trim(), 300);
   const { message, showNotice } = useDemoNotice();
   useEffect(() => {
     const notice = window.sessionStorage.getItem(CHAT_RENAME_NOTICE_STORAGE_KEY);
@@ -2945,7 +3023,13 @@ export function UserChatHomePage() {
     isError: isChatsError,
     isLoading: isChatsLoading,
     refetch: refetchChats,
-  } = useChatsQuery({ filter: activeFilter ?? undefined, page: 1, perPage: 10 });
+  } = useChatsQuery({
+    blocked: showBlocked ? true : undefined,
+    filter: activeFilter ?? undefined,
+    page: 1,
+    perPage: 10,
+    search: deferredSearch || undefined,
+  });
   const chats = useMemo(
     () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
     [chatsPage?.data],
@@ -2973,11 +3057,7 @@ export function UserChatHomePage() {
     }
   }, []);
 
-  const visibleChats = useMemo(() => chats.filter((item) => {
-    const normalizedQuery = query.trim();
-
-    return !normalizedQuery || `${item.userName} ${item.adTitle} ${item.message}`.includes(normalizedQuery);
-  }), [chats, query]);
+  const visibleChats = chats;
 
   const toggleSearch = useCallback(() => {
     setIsSearchOpen((current) => !current);
@@ -3017,7 +3097,13 @@ export function UserChatHomePage() {
         <ChatMenuBottomSheet
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
+          onShowBlockedChange={setShowBlocked}
+          onShowMyAdsChange={(checked) => {
+            setActiveFilter(checked ? "my_ads" : null);
+          }}
           onSelect={handleMenuSelect}
+          showBlocked={showBlocked}
+          showMyAds={activeFilter === "my_ads"}
         />
       }
       topBar={
@@ -3102,7 +3188,7 @@ function BulkSelectAllControl({
         className={`grid h-[18px] w-[18px] place-items-center rounded border ${checked
           ? "border-[#808080] bg-white text-[#4d4d4d]"
           : "border-[#808080] bg-white text-transparent"
-        }`}
+          }`}
       >
         <CheckIcon className="h-[14px] w-[14px]" />
       </span>
@@ -3111,8 +3197,40 @@ function BulkSelectAllControl({
   );
 }
 
+type ChatPageShellProps = {
+  action?: ReactNode;
+  children: ReactNode;
+  onBack?: () => void;
+  title: string;
+};
+
+function ChatPageShell({ action, children, onBack, title }: ChatPageShellProps) {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        backTo="/chat"
+        onBack={onBack}
+        startSlot={
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center">
+            {action}
+          </div>
+        }
+        title={title}
+      />
+      <div className="min-h-0 flex flex-1 flex-col">
+        {children}
+      </div>
+    </PageFrame>
+  );
+}
+
 export function UserChatBulkDeletePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showBlocked, setShowBlocked] = useState(false);
+  const [showMyAds, setShowMyAds] = useState(false);
   const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(() => new Set());
   const [deleteError, setDeleteError] = useState("");
   const { message } = useDemoNotice();
@@ -3122,7 +3240,12 @@ export function UserChatBulkDeletePage() {
     isError,
     isLoading,
     refetch,
-  } = useChatsQuery({ page: 1, perPage: 50 });
+  } = useChatsQuery({
+    blocked: showBlocked ? true : undefined,
+    filter: showMyAds ? "my_ads" : undefined,
+    page: 1,
+    perPage: 50,
+  });
   const deleteChatsMutation = useDeleteChatsMutation();
   const chats = useMemo(
     () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
@@ -3190,31 +3313,19 @@ export function UserChatBulkDeletePage() {
   }, []);
 
   return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
+    <ChatPageShell
+      action={
+        <button
+          aria-label="گزینه‌های بیشتر"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]"
+          onClick={() => setIsMenuOpen(true)}
+          type="button"
+        >
+          <MoreVerticalIcon className="h-6 w-6" />
+        </button>
+      }
+      title="حذف گروهی چت‌ها"
     >
-      <TopBar
-        actions={[
-          {
-            icon: <MoreVerticalIcon className="h-6 w-6" />,
-            id: "more",
-            label: "گزینه‌های بیشتر",
-            onClick: () => setIsMenuOpen(true),
-          },
-        ]}
-        backLabel="بازگشت به چت‌ها"
-        backTo="/chat"
-        centerSlot={
-          <h1 className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
-            حذف گروهی گفتگوها
-          </h1>
-        }
-        className="border-b border-[#cccccc]"
-        contentClassName="px-2"
-        heightClassName="h-16"
-      />
-
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white pb-[72px]">
         {isLoading && chats.length === 0 ? <ChatListSkeleton count={5} /> : null}
         {RequestErrorState && chats.length === 0 ? (
@@ -3266,9 +3377,19 @@ export function UserChatBulkDeletePage() {
       <ChatMenuBottomSheet
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
+        onShowBlockedChange={(checked) => {
+          setShowBlocked(checked);
+          setSelectedChatIds(new Set());
+        }}
+        onShowMyAdsChange={(checked) => {
+          setShowMyAds(checked);
+          setSelectedChatIds(new Set());
+        }}
         onSelect={handleMenuSelect}
+        showBlocked={showBlocked}
+        showMyAds={showMyAds}
       />
       <DemoNotice className="bottom-20" message={message} />
-    </PageFrame>
+    </ChatPageShell>
   );
 }

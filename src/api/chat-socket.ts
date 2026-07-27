@@ -2,7 +2,12 @@ import { io, type Socket } from "socket.io-client";
 
 import { getStoredAccessToken } from "../auth/auth-storage";
 import { baseUrl } from "./api";
-import type { ChatCategory } from "../services/chat.service";
+import {
+  markChatMessagesRead,
+  sendChatMessage,
+  type ChatCategory,
+  type ChatMessageType,
+} from "../services/chat.service";
 
 type ChatSocketServerToClientEvents = {
   "chat:error": (payload: { message?: string }) => void;
@@ -160,6 +165,43 @@ export function markChatRead(
   category: ChatCategory = "advertise",
 ) {
   getChatSocket(category).emit("chat:read", { threadId });
+  void markChatMessagesRead(threadId).catch(() => undefined);
+}
+
+function sendChatMessageWithSocketFallback({
+  body,
+  category,
+  fallbackBody,
+  fallbackMetadata,
+  threadId,
+  type,
+}: {
+  body: string;
+  category: ChatCategory;
+  fallbackBody?: string;
+  fallbackMetadata?:
+    | {
+        attachment_url: string;
+        file_name: string;
+        mime_type: string;
+        size: number;
+      }
+    | {
+        address: string;
+        lat: number;
+        lng: number;
+      };
+  threadId: string;
+  type: Exclude<ChatMessageType, "system">;
+}) {
+  return sendChatMessage({ body, threadId, type }).catch(() => {
+    getChatSocket(category).emit("chat:message:send", {
+      body: fallbackBody ?? body,
+      ...(fallbackMetadata ? { metadata: fallbackMetadata } : {}),
+      threadId,
+      type,
+    });
+  });
 }
 
 export function sendChatTextMessage({
@@ -171,7 +213,12 @@ export function sendChatTextMessage({
   category?: ChatCategory;
   threadId: string;
 }) {
-  getChatSocket(category).emit("chat:message:send", { body, threadId, type: "text" });
+  return sendChatMessageWithSocketFallback({
+    body,
+    category,
+    threadId,
+    type: "text",
+  });
 }
 
 export function sendChatImageMessage({
@@ -189,9 +236,11 @@ export function sendChatImageMessage({
   size: number;
   threadId: string;
 }) {
-  getChatSocket(category).emit("chat:message:send", {
-    body: "",
-    metadata: {
+  return sendChatMessageWithSocketFallback({
+    body: attachmentUrl,
+    category,
+    fallbackBody: "",
+    fallbackMetadata: {
       attachment_url: attachmentUrl,
       file_name: fileName,
       mime_type: mimeType,
@@ -218,16 +267,20 @@ export function sendChatAttachmentMessage({
   size: number;
   threadId: string;
 }) {
-  getChatSocket(category).emit("chat:message:send", {
-    body: "",
-    metadata: {
+  const type = mimeType.startsWith("image/") ? "image" : "file";
+
+  return sendChatMessageWithSocketFallback({
+    body: attachmentUrl,
+    category,
+    fallbackBody: "",
+    fallbackMetadata: {
       attachment_url: attachmentUrl,
       file_name: fileName,
       mime_type: mimeType,
       size,
     },
     threadId,
-    type: mimeType.startsWith("image/") ? "image" : "file",
+    type,
   });
 }
 
@@ -242,9 +295,17 @@ export function sendChatLocationMessage({
   longitude: number;
   threadId: string;
 }) {
-  getChatSocket(category).emit("chat:message:send", {
-    body: "",
-    metadata: {
+  const location = {
+    address: "",
+    lat: latitude,
+    lng: longitude,
+  };
+
+  return sendChatMessageWithSocketFallback({
+    body: JSON.stringify(location),
+    category,
+    fallbackBody: "",
+    fallbackMetadata: {
       address: "",
       lat: latitude,
       lng: longitude,

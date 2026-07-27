@@ -5,12 +5,10 @@ import { TopBar } from "../../components/TopBar";
 import { useReportChatMutation } from "../../hooks/chat.hooks";
 
 type ReportReasonId =
+  | "spam"
+  | "harassment"
   | "fraud"
-  | "illegal-or-unethical"
-  | "wrong-category"
-  | "wrong-price"
-  | "wrong-information"
-  | "duplicate-or-spam"
+  | "inappropriate_content"
   | "other";
 
 type ReportReason = {
@@ -19,12 +17,10 @@ type ReportReason = {
 };
 
 const reportReasons: ReportReason[] = [
+  { id: "spam", title: "هرزنامه یا پیام‌های تکراری" },
+  { id: "harassment", title: "مزاحمت یا آزار" },
   { id: "fraud", title: "کلاهبرداری" },
-  { id: "illegal-or-unethical", title: "غیر قانونی یا غیر اخلاقی" },
-  { id: "wrong-category", title: "دسته بندی اشتباه" },
-  { id: "wrong-price", title: "قیمت اشتباه" },
-  { id: "wrong-information", title: "اطلاعات اشتباه" },
-  { id: "duplicate-or-spam", title: "تکراری یا اسپم" },
+  { id: "inappropriate_content", title: "محتوای نامناسب" },
   { id: "other", title: "سایر" },
 ];
 
@@ -32,6 +28,12 @@ function getReportThreadId() {
   const match = window.location.pathname.match(/^\/chat\/([^/]+)\/report\/?$/);
 
   return match?.[1] ? decodeURIComponent(match[1]) : "";
+}
+
+function getReportMessageId() {
+  const messageId = new URLSearchParams(window.location.search).get("message_id")?.trim();
+
+  return messageId || undefined;
 }
 
 function getReportReturnPath(threadId: string) {
@@ -60,6 +62,7 @@ function navigateTo(path: string, replace = false) {
 
 export function ChatReportPage() {
   const threadId = useMemo(getReportThreadId, []);
+  const messageId = useMemo(getReportMessageId, []);
   const returnPath = useMemo(() => getReportReturnPath(threadId), [threadId]);
   const [selectedReasonId, setSelectedReasonId] = useState<ReportReasonId>("fraud");
   const [description, setDescription] = useState("");
@@ -89,7 +92,8 @@ export function ChatReportPage() {
     reportMutation.mutate(
       {
         description: cleanDescription || undefined,
-        reason: selectedReason.title,
+        messageId,
+        reason: selectedReason.id,
         threadId,
       },
       {

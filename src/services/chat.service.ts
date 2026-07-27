@@ -1,7 +1,14 @@
-import { ApiError, api } from "../api/api";
+import { api } from "../api/api";
 
 export type ChatCategory = "advertise" | "support";
 export type ChatFilter = "support" | "not_read" | "my_ads" | "others_ads";
+export type ChatMessageType = "text" | "image" | "file" | "location" | "system";
+export type ChatReportReason =
+  | "spam"
+  | "harassment"
+  | "fraud"
+  | "inappropriate_content"
+  | "other";
 export type ChatDayOfWeek =
   | "saturday"
   | "sunday"
@@ -28,10 +35,28 @@ export type UpdateChatAvailabilityPayload = {
   start_time?: string;
 };
 
+export type GetChatsParams = {
+  blocked?: boolean;
+  category?: ChatCategory;
+  filter?: ChatFilter;
+  mine?: boolean;
+  page?: number;
+  perPage?: number;
+  search?: string;
+  unread?: boolean;
+};
+
 export type ChatThread = Record<string, unknown> & {
   _id?: string;
   ad?: Record<string, unknown>;
   advertise?: Record<string, unknown> & {
+    form?: Record<string, unknown> & {
+      code?: string;
+      group?: string;
+      title?: string;
+    };
+    form_code?: string;
+    form_title?: string;
     id?: number | string;
     image?: string | null;
     title?: string;
@@ -53,6 +78,7 @@ export type ChatThread = Record<string, unknown> & {
     full_name?: string;
     id?: number | string;
     name?: string;
+    showing_name?: string | null;
   };
   status?: string;
   threadId?: number | string;
@@ -144,6 +170,15 @@ type ChatUnreadCountResponse = {
   status?: boolean;
   unread_count?: number | string;
 };
+
+type ChatShowingNameResponse =
+  | {
+      data?: { showing_name?: unknown } | string | null;
+      showing_name?: unknown;
+      status?: boolean;
+    }
+  | string
+  | null;
 
 export type ChatsPage = {
   data: ChatThread[];
@@ -305,21 +340,44 @@ function readChatUnreadCount(response: ChatUnreadCountResponse) {
   return readNumber(data?.count ?? data?.unread_count) ?? 0;
 }
 
+function readChatShowingName(response: ChatShowingNameResponse) {
+  if (typeof response === "string") {
+    return response.trim() || null;
+  }
+
+  if (!response) return null;
+
+  if (typeof response.data === "string") {
+    return response.data.trim() || null;
+  }
+
+  const data = asRecord(response.data);
+  const value = response.showing_name ?? data?.showing_name;
+
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
 export async function getChats({
+  blocked,
+  category,
   filter,
+  mine,
   page = 1,
   perPage = 10,
-}: {
-  filter?: ChatFilter;
-  page?: number;
-  perPage?: number;
-} = {}): Promise<ChatsPage> {
+  search,
+  unread,
+}: GetChatsParams = {}): Promise<ChatsPage> {
   const response = await api
     .get("chats", {
       searchParams: {
+        blocked,
+        category,
         filter,
+        mine,
         page,
         per_page: perPage,
+        search: search?.trim() || undefined,
+        unread,
       },
     })
     .json<ChatsResponse>();
@@ -349,6 +407,20 @@ export async function updateChatAvailability(payload: UpdateChatAvailabilityPayl
     context: { allowNonJsonResponse: true },
     headers: { Accept: "*/*" },
     json: payload,
+  });
+}
+
+export async function getChatShowingName() {
+  const response = await api.get("chats/showing-name").json<ChatShowingNameResponse>();
+
+  return readChatShowingName(response);
+}
+
+export async function updateChatShowingName(showingName: string | null) {
+  await api.patch("chats/showing-name", {
+    context: { allowNonJsonResponse: true },
+    headers: { Accept: "*/*" },
+    json: { showing_name: showingName },
   });
 }
 
@@ -431,6 +503,10 @@ export async function getChatMessages(threadId: string) {
 }
 
 export async function uploadChatAttachment(threadId: string, file: File) {
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error("Chat attachments cannot exceed 10 MB");
+  }
+
   const formData = new FormData();
   formData.append("file", file);
 
@@ -439,6 +515,29 @@ export async function uploadChatAttachment(threadId: string, file: File) {
       body: formData,
     })
     .json<ChatAttachmentUpload>();
+}
+
+export async function sendChatMessage({
+  body,
+  threadId,
+  type,
+}: {
+  body: string;
+  threadId: string;
+  type: ChatMessageType;
+}) {
+  await api.post(`chats/${threadId}/messages`, {
+    context: { allowNonJsonResponse: true },
+    headers: { Accept: "*/*" },
+    json: { body, type },
+  });
+}
+
+export async function markChatMessagesRead(threadId: string) {
+  await api.post(`chats/${threadId}/read`, {
+    context: { allowNonJsonResponse: true },
+    headers: { Accept: "*/*" },
+  });
 }
 
 export async function getChatUnreadCount() {
@@ -451,7 +550,8 @@ export async function getChatUnreadCount() {
 
 export type ChatReportPayload = {
   description?: string;
-  reason: string;
+  messageId?: string;
+  reason: ChatReportReason;
   threadId: string;
 };
 
@@ -462,19 +562,9 @@ export async function blockChat(threadId: string) {
 }
 
 export async function unblockChat(threadId: string) {
-  try {
-    await api.post(`chats/${threadId}/unblock`, {
-      context: { allowNonJsonResponse: true },
-    });
-  } catch (error) {
-    if (!(error instanceof ApiError) || ![404, 405].includes(error.status)) {
-      throw error;
-    }
-
-    await api.delete(`chats/${threadId}/block`, {
-      context: { allowNonJsonResponse: true },
-    });
-  }
+  await api.delete(`chats/${threadId}/block`, {
+    context: { allowNonJsonResponse: true },
+  });
 }
 
 export async function deleteChat(threadId: string) {
@@ -491,12 +581,14 @@ export async function deleteChats(threadIds: string[]) {
 
 export async function reportChat({
   description,
+  messageId,
   reason,
   threadId,
 }: ChatReportPayload) {
   await api.post(`chats/${threadId}/report`, {
     context: { allowNonJsonResponse: true },
     json: {
+      ...(messageId ? { message_id: messageId } : {}),
       reason,
       ...(description ? { description } : {}),
     },

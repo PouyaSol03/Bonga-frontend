@@ -89,8 +89,18 @@ const ViewAdEquipmentFacilitiesPage = lazyNamed(
 const PublicAgencyPreviewPage = lazyNamed(() => import('../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const AgentPreviewPage = PublicAgencyPreviewPage
 
+function normalizePathname(pathname: string) {
+  const normalizedPath = pathname.replace(/\/{2,}/g, '/')
+
+  if (normalizedPath === '/') {
+    return '/'
+  }
+
+  return normalizedPath.replace(/\/+$/, '') || '/'
+}
+
 function getCurrentPath() {
-  return window.location.pathname || '/'
+  return normalizePathname(window.location.pathname || '/')
 }
 
 function hasStoredCity() {
@@ -217,14 +227,19 @@ function IdentityGateLoadingPage({ title }: { title: string }) {
 }
 
 function getResolvedPath() {
+  const browserPath = window.location.pathname || '/'
   const currentPath = getCurrentPath()
   const path = getCanonicalDashboardPath(currentPath)
   const returnTo = `${path}${window.location.search}`
   const session = getStoredAuthSession()
   const route = getRoute(path)
 
-  if (path !== currentPath) {
-    window.history.replaceState(window.history.state ?? {}, '', path)
+  if (path !== browserPath) {
+    window.history.replaceState(
+      window.history.state ?? {},
+      '',
+      `${path}${window.location.search}${window.location.hash}`,
+    )
   }
 
   if (path === '/' && hasStoredCity()) {

@@ -18,35 +18,46 @@ import {
   getChatDetail,
   getChatMessages,
   getChatMessagesPage,
+  getChatShowingName,
   getChatUnreadCount,
   getChats,
   reportChat,
   updateChatAvailability,
+  updateChatShowingName,
   uploadChatAttachment,
   unblockChat,
-  type ChatCategory,
-  type ChatFilter,
   type ChatMessagesPage,
   type ChatThread,
+  type GetChatsParams,
   type UpdateChatAvailabilityPayload,
 } from "../services/chat.service";
 
 export function useChatsQuery({
+  blocked,
   category,
   filter,
+  mine,
   page = 1,
   perPage = 10,
-}: {
-  category?: ChatCategory;
-  filter?: ChatFilter;
-  page?: number;
-  perPage?: number;
-} = {}) {
+  search,
+  unread,
+}: GetChatsParams = {}) {
   const resolvedFilter = filter ?? (category === "support" ? "support" : undefined);
+  const resolvedCategory = category === "support" ? undefined : category;
+  const params = {
+    blocked,
+    category: resolvedCategory,
+    filter: resolvedFilter,
+    mine,
+    page,
+    perPage,
+    search,
+    unread,
+  };
 
   return useQuery({
-    queryFn: () => getChats({ filter: resolvedFilter, page, perPage }),
-    queryKey: queryKeys.chats.list({ filter: resolvedFilter, page, perPage }),
+    queryFn: () => getChats(params),
+    queryKey: queryKeys.chats.list(params),
   });
 }
 
@@ -65,6 +76,23 @@ export function useUpdateChatAvailabilityMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.chats.all,
       });
+    },
+  });
+}
+
+export function useChatShowingNameQuery() {
+  return useQuery({
+    queryFn: getChatShowingName,
+    queryKey: queryKeys.chats.showingName(),
+  });
+}
+
+export function useUpdateChatShowingNameMutation() {
+  return useMutation({
+    mutationFn: updateChatShowingName,
+    onSuccess: (_, showingName) => {
+      queryClient.setQueryData(queryKeys.chats.showingName(), showingName);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.chats.all });
     },
   });
 }

@@ -36,6 +36,7 @@ import NavHomeIcon from "../assets/icons/NavHomeIcon";
 import { RouteLink } from "../routes/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../lib/browserLocation";
 import { getStoredAuthSession } from "../auth/auth-storage";
+import LinearSupport from "../components/(icons)/LinearSupport";
 import {
   uploadChatAttachment,
   type ChatAvailability,
@@ -1871,6 +1872,10 @@ const responseHourOptions = Array.from({ length: 48 }, (_, index) => {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 });
 
+const persianNumber = new Intl.NumberFormat("fa-IR", {
+  useGrouping: false,
+});
+
 const persianTwoDigitNumber = new Intl.NumberFormat("fa-IR", {
   minimumIntegerDigits: 2,
   useGrouping: false,
@@ -1904,19 +1909,97 @@ function areResponseDaysEqual(first: ChatDayOfWeek[], second: ChatDayOfWeek[]) {
     normalizedFirst.every((day, index) => day === normalizedSecond[index]);
 }
 
-function formatChatAvailabilitySummary(availability?: ChatAvailability) {
-  if (!availability?.days?.length || !availability.start_time || !availability.end_time) {
-    return "";
+function formatParticipantAvailabilityDays(availability: ChatAvailability) {
+  const availableDays = sortResponseDays(
+    availability.days.map((day) => day.day_of_week),
+  );
+
+  if (availableDays.length === 0) return "";
+  if (availableDays.length === responseWeekDays.length) return "همه‌روزه";
+
+  const dayIndexes = availableDays.map((day) =>
+    responseWeekDays.findIndex((item) => item.value === day),
+  );
+  const isContinuousRange = dayIndexes.every(
+    (dayIndex, index) => index === 0 || dayIndex === dayIndexes[index - 1] + 1,
+  );
+
+  if (isContinuousRange && availableDays.length > 1) {
+    const firstDay = availableDays[0];
+    const lastDay = availableDays.at(-1) ?? firstDay;
+
+    return `${getResponseDayLabel(firstDay)} تا ${getResponseDayLabel(lastDay)}`;
   }
 
-  const dayLabels = availability.days.map(
-    (day) => day.day_label || getResponseDayLabel(day.day_of_week),
-  );
-  const daysText = dayLabels.length === responseWeekDays.length
-    ? "همه‌روزه"
-    : dayLabels.join("، ");
+  const labels = availableDays.map(getResponseDayLabel);
 
-  return `${daysText} از ${formatResponseTime(availability.start_time)} تا ${formatResponseTime(availability.end_time)}`;
+  if (labels.length === 1) return labels[0];
+
+  return `${labels.slice(0, -1).join("، ")} و ${labels.at(-1)}`;
+}
+
+function formatParticipantAvailabilityTime(value: string) {
+  const [hours, minutes] = value.split(":").map(Number);
+
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) {
+    return formatResponseTime(value);
+  }
+
+  const twelveHourValue = hours % 12 || 12;
+  const minuteText = minutes
+    ? `:${persianTwoDigitNumber.format(minutes)}`
+    : "";
+  const dayPeriod = hours < 6
+    ? "بامداد"
+    : hours < 12
+      ? "صبح"
+      : hours === 12
+        ? "ظهر"
+        : hours < 20
+          ? "عصر"
+          : "شب";
+
+  return `${persianNumber.format(twelveHourValue)}${minuteText} ${dayPeriod}`;
+}
+
+function ChatParticipantAvailabilityCard({
+  availability,
+}: {
+  availability?: ChatAvailability;
+}) {
+  if (!availability?.days?.length || !availability.start_time || !availability.end_time) {
+    return null;
+  }
+
+  const daysText = formatParticipantAvailabilityDays(availability);
+
+  if (!daysText) return null;
+
+  return (
+    <section
+      aria-label="ساعت پاسخگویی آژانس"
+      className="mb-4 h-[100px] rounded-xl border border-[#0048c4] bg-[#0048C414] p-4 text-xs font-normal leading-4 text-[#1a1a1a]"
+    >
+      <div className="flex h-5 items-center gap-2 text-sm font-medium leading-5 text-[#0048c4]">
+        <LinearSupport aria-hidden="true" className="h-5 w-5" />
+        <h2 className="m-0">ساعت پاسخگویی آژانس</h2>
+      </div>
+
+      <div className="mt-2 space-y-2 [direction:rtl]">
+        <div className="flex text-xs items-center justify-between gap-4">
+          <span className="text-[#4d4d4d]">روزهای هفته:</span>
+          <span className="min-w-0 truncate text-left text-[#1a1a1a]">{daysText}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-[#4d4d4d]">ساعت:</span>
+          <span className="min-w-0 truncate text-left text-[#1a1a1a]">
+            از {formatParticipantAvailabilityTime(availability.start_time)} - تا{" "}
+            {formatParticipantAvailabilityTime(availability.end_time)}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function ResponseTimeSelectBox({
@@ -2462,9 +2545,7 @@ export function UserChatDetailPage() {
   const chatCategory = readPathText(chatThread, ["category"]) === "support"
     ? "support"
     : "advertise";
-  const participantAvailabilityLabel = formatChatAvailabilitySummary(
-    chatThread?.participant?.availability,
-  );
+  const participantAvailability = chatThread?.participant?.availability;
   const isChatBlocked = isBlocked || blockedByMe || blockedMe;
 
   useEffect(() => {
@@ -2893,7 +2974,6 @@ export function UserChatDetailPage() {
     >
       <ChatDetailHeader
         onOpenMenu={() => setIsSettingsSheetOpen(true)}
-        subtitle={participantAvailabilityLabel}
         title={participantName}
       />
       <ChatPropertyStrip thread={chatThread} />
@@ -2904,6 +2984,8 @@ export function UserChatDetailPage() {
           onScroll={updateScrollShadow}
           className={`h-full overflow-y-auto bg-white px-4 pt-4 ${isChatBlocked ? "pb-[84px]" : "pb-[92px]"}`}
         >
+          <ChatParticipantAvailabilityCard availability={participantAvailability} />
+
           <div className="space-y-3">
             {messagesQuery.isLoading && apiMessages.length === 0 ? (
               <p className="py-6 text-center text-xs text-[#808080]">

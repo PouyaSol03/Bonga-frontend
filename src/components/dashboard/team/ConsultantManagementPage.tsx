@@ -169,12 +169,12 @@ export function getRouteConsultant() {
     routeState?.consultant ??
     (routeConsultantId !== undefined
       ? {
-          id: routeConsultantId,
-          name: "مشاور",
-          phone: "",
-          scores: { ads: 0, rocket: 0, steps: 0 },
-          status: "active" as const,
-        }
+        id: routeConsultantId,
+        name: "مشاور",
+        phone: "",
+        scores: { ads: 0, rocket: 0, steps: 0 },
+        status: "active" as const,
+      }
       : undefined) ??
     teamConsultants.find((consultant) => consultant.status === "active") ??
     teamConsultants[0]
@@ -207,9 +207,12 @@ export function ConsultantManagementPage() {
     });
   }, [activeFilter, consultants, searchValue]);
 
+  const hasConsultants = consultants.length > 0;
+  const showConsultantControls = agencyConsultantsQuery.isPending || hasConsultants;
+
   return (
     <section
-      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a]"
       dir="rtl"
     >
       <TopBar
@@ -220,34 +223,40 @@ export function ConsultantManagementPage() {
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[#f5f5f5] pb-24">
-        <div className="bg-white px-4 pb-4 pt-3">
-          <label className="flex h-12 items-center gap-2 rounded-xl border border-[#bdbdbd] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-[#1a1a1a] outline-none placeholder:text-[#bdbdbd]"
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="جستجوی مشاور"
-              type="search"
-              value={searchValue}
-            />
-            <LinearSearch className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-          </label>
+      <div
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${
+          showConsultantControls ? "bg-[#f5f5f5]" : "bg-white"
+        }`}
+      >
+        {showConsultantControls ? (
+          <div className="shrink-0 bg-white px-4 pb-4 pt-3">
+            <label className="flex h-12 items-center gap-2 rounded-xl border border-[#bdbdbd] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
+              <input
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-[#1a1a1a] outline-none placeholder:text-[#bdbdbd]"
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder="جستجوی مشاور"
+                type="search"
+                value={searchValue}
+              />
+              <LinearSearch className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+            </label>
 
-          <div className="mt-3 flex items-center gap-2">
-            <TeamFilterButton
-              isActive={activeFilter === "consultants"}
-              onClick={() => setActiveFilter("consultants")}
-            >
-              مشاورین
-            </TeamFilterButton>
-            <TeamFilterButton
-              isActive={activeFilter === "pending"}
-              onClick={() => setActiveFilter("pending")}
-            >
-              در انتظار تایید
-            </TeamFilterButton>
+            <div className="mt-3 flex items-center gap-2">
+              <TeamFilterButton
+                isActive={activeFilter === "consultants"}
+                onClick={() => setActiveFilter("consultants")}
+              >
+                مشاورین
+              </TeamFilterButton>
+              <TeamFilterButton
+                isActive={activeFilter === "pending"}
+                onClick={() => setActiveFilter("pending")}
+              >
+                در انتظار تایید
+              </TeamFilterButton>
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {visibleConsultants.length > 0 ? (
           <div className="space-y-1">
@@ -262,7 +271,7 @@ export function ConsultantManagementPage() {
         )}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="shrink-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <RouteLink
           className="flex h-12 items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white no-underline transition hover:bg-[#003da8]"
           to="/account/dashboard/team/add-consultant"
@@ -330,12 +339,12 @@ export function AddConsultantPage() {
     const permissions: Record<string, boolean> =
       accessRole === "manager"
         ? {
-            manage_advertises: managerAccess.includes("ads"),
-            manage_consultants: managerAccess.includes("consultants"),
-            manage_credits: managerAccess.includes("payments"),
-            manage_requests: managerAccess.includes("requests"),
-            support: managerAccess.includes("support"),
-          }
+          manage_advertises: managerAccess.includes("ads"),
+          manage_consultants: managerAccess.includes("consultants"),
+          manage_credits: managerAccess.includes("payments"),
+          manage_requests: managerAccess.includes("requests"),
+          support: managerAccess.includes("support"),
+        }
         : {};
 
     addConsultantMutation.mutate(
@@ -882,15 +891,16 @@ function ConsultantAction({
 
 function ConsultantEmptyState() {
   return (
-    <div className="grid min-h-[420px] place-items-center bg-white px-8 text-center">
+    <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-8 py-8 text-center">
       <div className="grid max-w-[260px] justify-items-center">
-        <img src="NoAgent.svg" alt="" className="h-[66px] w-[66px]" />
+        <img src="/vectors/NoAgent.svg" alt="" className="h-[66px] w-[66px]" />
         <h2 className="mt-4 text-sm font-semibold leading-5 text-[#1a1a1a]">
           هیچ مشاوری برای مدیریت وجود ندارد!
         </h2>
-        <p className="mt-2 text-xs font-medium leading-5 text-[#4d4d4d]">
-          برای افزودن مشاور جدید، <br />
-          ابتدا از دکمه افزودن مشاور استفاده کنید.
+        <p className="mt-2 text-sm text-[#4d4d4d]">
+          برای افزودن مشاورین جدید،<br />
+          از گزینه «افزودن مشاور»<br />
+          استفاده کنید.
         </p>
       </div>
     </div>

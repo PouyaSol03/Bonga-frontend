@@ -29,35 +29,6 @@ function RequestSenderIcon({ type }: { type: SearchRequestSenderOption["icon"] }
   return <LinearCity aria-hidden="true" className="h-6 w-6" />;
 }
 
-function ChevronLeftIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
-      <path
-        d="m15 6-6 6 6 6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-function ArrowRightIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M5 12h14m-6-6 6 6-6 6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
-
-
 function RequestSuccessContent({
   onClose,
   onOpenResults,

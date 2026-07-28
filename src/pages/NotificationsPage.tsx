@@ -39,6 +39,8 @@ type FilterOption = {
 };
 
 const notificationsPerPage = 20;
+const notificationDeleteActionWidth = 84;
+const notificationDeleteThreshold = 56;
 
 const notificationFilterOptions: FilterOption[] = [
   { id: "advertise", label: "آگهی‌ها" },
@@ -121,20 +123,6 @@ function CloseIcon({ className = "" }: { className?: string }) {
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 16 16">
       <path
         d="M4.5 4.5 11.5 11.5M11.5 4.5 4.5 11.5"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
-      <path
-        d="M9.5 4.5h5M5 7h14M7 7l.7 12.2A2 2 0 0 0 9.7 21h4.6a2 2 0 0 0 2-1.8L17 7M10 11v6M14 11v6"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -536,10 +524,12 @@ function NotificationActionButton({
 }
 
 function SwipeableNotificationCard({
+  isDeleting,
   item,
   onDelete,
   onOpen,
 }: {
+  isDeleting: boolean;
   item: NotificationItem;
   onDelete: () => void;
   onOpen: () => void;
@@ -550,11 +540,18 @@ function SwipeableNotificationCard({
   const startYRef = useRef<number | null>(null);
   const isSwipeRef = useRef(false);
   const pointerIdRef = useRef<number | null>(null);
+  const dragOffsetRef = useRef(0);
   const category = item.category ?? "systems";
   const isUnread = item.is_read === false;
 
+  const updateDragOffset = (nextOffset: number) => {
+    const clampedOffset = Math.max(0, Math.min(nextOffset, notificationDeleteActionWidth));
+    dragOffsetRef.current = clampedOffset;
+    setDragOffset(clampedOffset);
+  };
+
   const resetSwipe = () => {
-    setDragOffset(0);
+    updateDragOffset(0);
     setIsDragging(false);
     startXRef.current = null;
     startYRef.current = null;
@@ -563,21 +560,30 @@ function SwipeableNotificationCard({
   };
 
   return (
-    <div className="relative overflow-hidden border-b border-[#eeeeee] bg-white">
-      <div
-        aria-hidden="true"
-        className="absolute bottom-0 left-0 top-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f]"
+    <div
+      className={`relative w-full max-w-full overflow-hidden border-b border-[#eeeeee] bg-[#f9d9d9] [contain:paint] ${
+        isDeleting ? "opacity-60" : ""
+      }`}
+      style={{ touchAction: "pan-y" }}
+    >
+      <button
+        aria-label={`حذف اعلان ${item.title || ""}`.trim()}
+        className="absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f] disabled:cursor-not-allowed"
+        disabled={isDeleting}
+        onClick={onDelete}
+        type="button"
       >
-        <TrashIcon className="h-6 w-6" />
+        <LinearDelete className="h-6 w-6" />
         <span className="text-xs font-semibold leading-4">حذف</span>
-      </div>
+      </button>
 
       <article
-        className={`relative z-10 flex h-full touch-pan-y select-none flex-col gap-y-4 px-4 py-4 text-right ${
+        className={`relative z-10 flex h-full w-full max-w-full touch-pan-y select-none flex-col gap-y-4 overflow-hidden px-4 py-4 text-right will-change-transform ${
           isUnread ? "bg-[#f7faff]" : "bg-white"
         } ${isDragging ? "" : "transition-transform duration-200 ease-out"}`}
         style={{ transform: `translateX(${dragOffset}px)` }}
         onPointerDown={(event) => {
+          if (isDeleting) return;
           if (event.pointerType === "mouse" && event.button !== 0) return;
 
           startXRef.current = event.clientX;
@@ -586,6 +592,7 @@ function SwipeableNotificationCard({
           isSwipeRef.current = false;
         }}
         onPointerMove={(event) => {
+          if (isDeleting) return;
           const startX = startXRef.current;
           const startY = startYRef.current;
 
@@ -609,7 +616,7 @@ function SwipeableNotificationCard({
           }
 
           event.preventDefault();
-          setDragOffset(Math.min(dx, 128));
+          updateDragOffset(dx);
         }}
         onPointerUp={(event) => {
           const startX = startXRef.current;
@@ -631,13 +638,20 @@ function SwipeableNotificationCard({
 
           setIsDragging(false);
 
-          if (wasSwipe && dx >= 96 && Math.abs(dx) > Math.abs(dy)) {
-            setDragOffset(128);
+          const finalOffset = dragOffsetRef.current;
+
+          if (
+            !isDeleting &&
+            wasSwipe &&
+            finalOffset >= notificationDeleteThreshold &&
+            Math.abs(dx) > Math.abs(dy)
+          ) {
+            updateDragOffset(notificationDeleteActionWidth);
             window.setTimeout(onDelete, 120);
             return;
           }
 
-          setDragOffset(0);
+          updateDragOffset(0);
         }}
         onPointerCancel={(event) => {
           if (
@@ -940,14 +954,25 @@ export function NotificationsPage() {
   };
 
   const removeNotification = async (notification: NotificationItem) => {
+    const notificationId = String(notification.id);
+    const wasRealtimeNotification = realtimeNotifications.some(
+      (item) => String(item.id) === notificationId,
+    );
+
     setRealtimeNotifications((current) =>
-      current.filter((item) => String(item.id) !== String(notification.id)),
+      current.filter((item) => String(item.id) !== notificationId),
     );
 
     try {
-      await deleteMutation.mutateAsync(String(notification.id));
+      await deleteMutation.mutateAsync(notificationId);
     } catch {
-      void notificationsQuery.refetch();
+      if (wasRealtimeNotification) {
+        setRealtimeNotifications((current) =>
+          current.some((item) => String(item.id) === notificationId)
+            ? current
+            : [notification, ...current],
+        );
+      }
     }
   };
 
@@ -1030,6 +1055,10 @@ export function NotificationsPage() {
                 ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
               >
                 <SwipeableNotificationCard
+                  isDeleting={
+                    deleteMutation.isPending &&
+                    deleteMutation.variables === String(notification.id)
+                  }
                   item={notification}
                   onDelete={() => void removeNotification(notification)}
                   onOpen={() => void openNotification(notification)}

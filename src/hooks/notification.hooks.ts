@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, type InfiniteData } from "@tanstack/react-query";
 
 import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
@@ -95,7 +95,48 @@ export function useMarkAllNotificationsReadMutation() {
 export function useDeleteNotificationMutation() {
   return useMutation({
     mutationFn: deleteNotification,
-    onSuccess: invalidateNotifications,
+    onMutate: async (notificationId) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.notifications.all,
+      });
+
+      const previousLists = queryClient.getQueriesData<
+        InfiniteData<NotificationsPageResult, number>
+      >({
+        queryKey: [...queryKeys.notifications.all, "list"],
+      });
+
+      queryClient.setQueriesData<InfiniteData<NotificationsPageResult, number>>(
+        { queryKey: [...queryKeys.notifications.all, "list"] },
+        (current) => {
+          if (!current) return current;
+
+          return {
+            ...current,
+            pages: current.pages.map((page) => {
+              const data = page.data.filter(
+                (notification) => String(notification.id) !== notificationId,
+              );
+              const removedCount = page.data.length - data.length;
+
+              return {
+                ...page,
+                data,
+                total: Math.max(0, page.total - removedCount),
+              };
+            }),
+          };
+        },
+      );
+
+      return { previousLists };
+    },
+    onError: (_error, _notificationId, context) => {
+      context?.previousLists.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+    },
+    onSettled: invalidateNotifications,
   });
 }
 

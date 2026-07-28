@@ -47,9 +47,7 @@ function searchMapListingToPreviewAdCardData(listing: SearchMapListing): AdCardD
     rooms: listing.rooms,
     year: listing.year,
     title: listing.title,
-    timeAndLocation: [listing.postedAt, listing.locationLabel ? `در ${listing.locationLabel}` : ""]
-      .filter(Boolean)
-      .join(" "),
+    timeAndLocation: listing.postedAt || (listing.locationLabel ? `در ${listing.locationLabel}` : ""),
     imageClassName: listing.imageClassName ?? "",
     imageUrl: listing.imageSrc,
     badges: listing.badges ?? [],

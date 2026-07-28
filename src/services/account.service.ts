@@ -214,7 +214,7 @@ export type PaymentHistoryItem = {
     | "unknown";
   payment_for_code: number;
   price: number;
-  ref_code: string | null;
+  ref_code: string | number | null;
   created_at: string;
 };
 

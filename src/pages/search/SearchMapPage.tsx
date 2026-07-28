@@ -644,7 +644,7 @@ function mapAdvertisementToSearchListing(
     "city",
     "city_name",
   ]);
-  const publishedHoursAgo = toNumber(item.published_hours_ago);
+  const description = toText(item.description ?? item.short_description);
   const id = item.id ?? item._id ?? `map-ad-${index + 1}`;
 
   return {
@@ -659,10 +659,7 @@ function mapAdvertisementToSearchListing(
     latitude: position.latitude,
     locationLabel,
     longitude: position.longitude,
-    postedAt:
-      publishedHoursAgo !== undefined
-        ? `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`
-        : "",
+    postedAt: description,
     priceLabel: toText(item.price_label, "قیمت"),
     priceValue: formatPrice(item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"])),
     rooms: readFeature(item, ["rooms", "room", "bedroom", "bedrooms", "اتاق", "خواب"], item.rooms ? `${toText(item.rooms)} اتاق` : "-"),

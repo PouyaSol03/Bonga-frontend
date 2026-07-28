@@ -238,8 +238,10 @@ export function markAllNotificationsRead(category?: NotificationCategory) {
     .json<{ affected?: number; status?: boolean }>();
 }
 
-export function deleteNotification(notificationId: string) {
-  return api
-    .delete(`notifications/${notificationId}`)
-    .json<{ status?: boolean }>();
+export async function deleteNotification(notificationId: string) {
+  await api.delete(`notifications/${encodeURIComponent(notificationId)}`, {
+    context: { allowNonJsonResponse: true },
+  });
+
+  return notificationId;
 }

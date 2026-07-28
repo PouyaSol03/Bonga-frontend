@@ -47,10 +47,22 @@ function formatPaymentDate(value: string) {
   }).format(date);
 }
 
+function formatPaymentReference(value: PaymentHistoryItem["ref_code"]) {
+  if (typeof value === "string") {
+    return value.trim() || "-";
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return "-";
+}
+
 function mapPaymentHistoryItem(item: PaymentHistoryItem): CreditPayment {
   return {
     amount: `${persianNumberFormatter.format(item.price)} تومان`,
-    id: item.ref_code?.trim() || "-",
+    id: formatPaymentReference(item.ref_code),
     method: paymentTypeLabels[item.payment_type] ?? paymentTypeLabels.unknown,
     paidAt: formatPaymentDate(item.created_at),
     service: paymentForLabels[item.payment_for] ?? paymentForLabels.unknown,

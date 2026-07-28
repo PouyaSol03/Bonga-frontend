@@ -8,6 +8,7 @@ import { getFeatureIconSrc } from "../../lib/handleFeaturesIcons";
 import type { AdvertisementItem } from "../../services/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath, viewAdDemo } from "./viewAdData";
+import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../routes/navigation";
 import type { IconName, ViewAdDetails } from "./viewAdTypes";
 
 export type AlbumMediaItem = {
@@ -141,6 +142,12 @@ function formatPublishedAge(
   ad: AdvertisementItem,
   features: NonNullable<AdvertisementItem["features"]>,
 ) {
+  const publishedTimeAgo = toText(ad.published_time_ago);
+
+  if (publishedTimeAgo) {
+    return publishedTimeAgo;
+  }
+
   const publishedDays =
     (ad as { published_days?: unknown }).published_days ??
     (ad as { published_date?: unknown }).published_date;
@@ -946,37 +953,39 @@ export function getCurrentViewAdBasePath(adId: string) {
     : `/ads/${adId}`;
 }
 
-function getHistoryBackTarget() {
+function getLegacyHistoryBackTarget() {
   const state = window.history.state as { from?: unknown } | null;
-  const from = typeof state?.from === "string" ? state.from : "";
+  const from = state?.from;
 
-  if (!from || from.startsWith("/ads/")) {
+  if (!isSafeAppPath(from) || from.startsWith("/ads/") || from.startsWith("/preview-ad/")) {
     return null;
   }
 
   return from;
 }
 
-function goBackOrNavigate(fallbackPath: string) {
-  if (window.history.length > 1) {
+function goBackOrNavigate(fallbackPath: string, legacyBackTarget?: string | null) {
+  const storedBackTarget = getStoredBackTarget();
+  const safeFallbackPath = isSafeAppPath(fallbackPath) ? fallbackPath : "/home";
+  const targetPath = storedBackTarget?.backTo ?? legacyBackTarget ?? safeFallbackPath;
+  const targetState = storedBackTarget?.backState;
+
+  // Routes opened inside the app are pushed with a stored back target. In that
+  // case the previous browser entry is the correct page and preserves its own
+  // filters, query string and scroll-related state.
+  if ((storedBackTarget || legacyBackTarget) && window.history.length > 1) {
     window.history.back();
     return;
   }
 
-  window.history.pushState({}, "", fallbackPath);
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  // A directly opened or refreshed ad may have browser history that belongs to
+  // another website. Replace the ad entry with a safe app route instead of
+  // relying on history.length or leaving the back button with no visible result.
+  replaceRoute(targetPath, targetState, { rememberCurrent: false });
 }
 
 export function goBackFromAd(fallbackPath: string) {
-  const historyBackTarget = getHistoryBackTarget();
-
-  if (historyBackTarget) {
-    window.history.replaceState({}, "", historyBackTarget);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-    return;
-  }
-
-  goBackOrNavigate(fallbackPath);
+  goBackOrNavigate(fallbackPath, getLegacyHistoryBackTarget());
 }
 
 export function getDetailPageTitle(

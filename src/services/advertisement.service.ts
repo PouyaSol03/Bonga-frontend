@@ -11,6 +11,7 @@ export type AdvertisementItem = Record<string, unknown> & {
   created_at?: string;
   district?: { name?: string };
   district_name?: string;
+  description?: string;
   id?: string | number;
   image?: string;
   images?: Array<string | { path?: string; url?: string }>;
@@ -23,6 +24,7 @@ export type AdvertisementItem = Record<string, unknown> & {
   published_days?: string | number | null;
   published_date?: string | number | null;
   published_hours_ago?: number | string;
+  published_time_ago?: string | number;
   short_description?: string;
   price?: string | number;
   price_label?: string;
@@ -430,7 +432,7 @@ export function mapAdvertisementToAdCard(
     "city_name",
   ]);
   const image = toText(item.image || images[0]);
-  const publishedHoursAgo = toNumber(item.published_hours_ago);
+  const description = toText(item.description ?? item.short_description);
   const area = readFeatureValue(item, ["area", "متراژ"]) ?? item.area;
   const rooms = readFeatureValue(item, ["rooms", "اتاق", "خواب"]) ?? item.rooms;
   const buildingAge = readFeatureValue(item, ["building_age", "سال ساخت"]) ?? item.year;
@@ -449,12 +451,7 @@ export function mapAdvertisementToAdCard(
     priceSecondary: "",
     rooms: formatFeatureUnit(rooms, "اتاق"),
     status: "",
-    timeAndLocation:
-      publishedHoursAgo !== undefined
-        ? `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش${location ? ` در ${location}` : ""}`
-        : location
-          ? `در ${location}`
-          : "",
+    timeAndLocation: description || (location ? `در ${location}` : ""),
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: formatBuildingAge(buildingAge),
   };

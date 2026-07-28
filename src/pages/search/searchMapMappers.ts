@@ -238,8 +238,7 @@ export function mapAdvertisementToSearchListing(
     "city",
     "city_name",
   ]);
-  const publishedAt = item.published_at ?? readFeatureRaw(item, ["published_at"]);
-  const publishedHoursAgo = toNumber(item.published_hours_ago);
+  const description = toText(item.description ?? item.short_description);
   const id = item.id ?? item._id ?? `map-ad-${index + 1}`;
   const price = item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"]);
   const area = item.area ?? readFeatureRaw(item, ["area", "meterage", "building_area"]);
@@ -264,11 +263,7 @@ export function mapAdvertisementToSearchListing(
     latitude: position.latitude,
     locationLabel,
     longitude: position.longitude,
-    postedAt:
-      toText(publishedAt) ||
-      (publishedHoursAgo !== undefined
-        ? `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`
-        : toText(item.created_at ?? item.updated_at)),
+    postedAt: description,
     priceLabel: toText(item.price_label, "قیمت"),
     priceValue: formatPrice(price),
     rooms: rooms !== undefined && rooms !== null && rooms !== "" ? `${toText(rooms)} اتاق` : "-",

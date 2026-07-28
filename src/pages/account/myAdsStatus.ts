@@ -116,7 +116,18 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.needs_edit;
   }
 
-  if (["0", "1", "2", "pending", "review", "waiting", "in-review"].includes(status)) {
+  if ([
+    "0",
+    "1",
+    "2",
+    "pending",
+    "review",
+    "waiting",
+    "in-review",
+    "wait-for-payment",
+    "wait-for-admin",
+    "wait-for-agency",
+  ].includes(status)) {
     return myAdStatusConfig.pending;
   }
 
@@ -124,7 +135,7 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.pending;
   }
 
-  if (["3", "active", "approved", "publish", "published", "success", "paid"].includes(status)) {
+  if (["3", "accepted", "active", "approved", "publish", "published", "success", "paid"].includes(status)) {
     return myAdStatusConfig.published;
   }
 

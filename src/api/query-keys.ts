@@ -53,12 +53,14 @@ export const queryKeys = {
       page?: number;
       perPage: number;
       search?: string;
+      sort?: string;
     }) =>
       [
         ...queryKeys.agencies.all,
         "public-agents",
         String(filters.agencyId ?? ""),
         filters.search ?? "",
+        filters.sort ?? "",
         filters.page ?? "infinite",
         filters.perPage,
       ] as const,

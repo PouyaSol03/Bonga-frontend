@@ -167,12 +167,6 @@ function formatPublishedAge(
     return `${publishedDaysText} روز پیش`;
   }
 
-  const publishedHoursAgo = toNumber(ad.published_hours_ago);
-
-  if (publishedHoursAgo !== undefined) {
-    return `${new Intl.NumberFormat("fa-IR").format(publishedHoursAgo)} ساعت پیش`;
-  }
-
   return toText(getFeatureValue(features, "published_at"), viewAdDemo.age);
 }
 
@@ -795,6 +789,7 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
   const kind = isAgent && !isAgency ? "agent" : "agency";
   const name = (kind === "agent" ? agentName : agencyName) || details.agency || (kind === "agent" ? "مشاور املاک" : "آژانس املاک");
   const id = getAdvertiserPreviewId(ad, kind);
+  if (!id) return null;
   const params = new URLSearchParams({
     location: details.agencyLocation || details.locationTitle || "",
     name,
@@ -814,26 +809,32 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
 }
 
 function getAdvertiserPreviewId(ad: AdvertisementItem, kind: "agency" | "agent") {
+  const agent = ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent)
+    ? ad.agent as Record<string, unknown>
+    : {};
+  const agency = ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency)
+    ? ad.agency as Record<string, unknown>
+    : {};
   const candidates =
     kind === "agent"
       ? [
           (ad as { agent_id?: unknown }).agent_id,
           (ad as { consultant_id?: unknown }).consultant_id,
           (ad as { adviser_id?: unknown }).adviser_id,
-          (ad as { publisher_id?: unknown }).publisher_id,
-          (ad as { owner_id?: unknown }).owner_id,
+          agent.id,
+          agent._id,
         ]
       : [
           (ad as { agency_id?: unknown }).agency_id,
           (ad as { real_estate_id?: unknown }).real_estate_id,
           (ad as { office_id?: unknown }).office_id,
-          (ad as { publisher_id?: unknown }).publisher_id,
-          (ad as { owner_id?: unknown }).owner_id,
+          agency.id,
+          agency._id,
         ];
 
   const found = candidates.find((value) => value !== undefined && value !== null && String(value).trim());
 
-  return String(found ?? ad.id ?? ad._id ?? kind);
+  return found === undefined || found === null ? null : String(found);
 }
 
 function iconForFeature(label: string): IconName {
@@ -1265,6 +1266,7 @@ function createCheckBadge(
 }
 
 function createLoanRow(
+  ad: AdvertisementItem,
   features: NonNullable<AdvertisementItem["features"]>,
 ): DetailInfoItem {
   const loanStatusRaw = getFirstExistingFeatureValue(features, [
@@ -1274,22 +1276,25 @@ function createLoanRow(
     "mortgage",
   ]);
 
-  const loanAmountRaw = getFirstExistingFeatureValue(features, [
-    "loan_amount",
-    "mortgage_amount",
-    "loan_price",
-    "loan_value",
-  ]);
+  const loanAmountRaw = ad.loan?.amount ?? getFirstExistingFeatureValue(features, [
+      "loan_amount",
+      "mortgage_amount",
+      "loan_price",
+      "loan_value",
+    ]);
 
-  const installmentRaw = getFirstExistingFeatureValue(features, [
-    "loan_installment",
-    "installment_amount",
-    "loan_payment",
-    "monthly_installment",
-  ]);
+  const installmentRaw = ad.loan?.installment ?? getFirstExistingFeatureValue(features, [
+      "loan_installment",
+      "installment_amount",
+      "loan_payment",
+      "monthly_installment",
+    ]);
 
   const statusFromBoolean = toBooleanLike(loanStatusRaw);
-  const hasLoan = statusFromBoolean ?? isFilledValue(loanAmountRaw);
+  const hasTopLevelLoan = isFilledValue(ad.loan?.amount) || isFilledValue(ad.loan?.installment);
+  const hasLoan = hasTopLevelLoan || (
+    statusFromBoolean ?? (isFilledValue(loanAmountRaw) || isFilledValue(installmentRaw))
+  );
 
   const extraRows =
     hasLoan === true
@@ -1457,7 +1462,7 @@ export function buildPropertyDetailSections(
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const loanExchangeItems = [
-    createLoanRow(features),
+    createLoanRow(ad, features),
     createExchangeRow(features),
   ];
 

@@ -49,6 +49,7 @@ import {
   listCrmCities,
   listCrmNeighborhoods,
   listCrmUsers,
+  createCrmConsultant,
   updateCrmAgencyStatus,
   saveCrmCategory,
   saveCrmCity,
@@ -58,6 +59,7 @@ import {
   toggleCrmUserStatus,
   updateCrmAdvertiseStatus,
   updateCrmConsultant,
+  type AdvertiseStatus,
   type CrmConsultantPayload,
   type CrmConsultantStatus,
   type CrmRecord,
@@ -184,15 +186,15 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "support", section: "support" },
 ];
 
-const advertiseStatusOptions = [
-  { label: "ثبت شده", value: "0" },
-  { label: "در انتظار مدیر", value: "1" },
-  { label: "در انتظار مشاور", value: "2" },
-  { label: "تأیید شده", value: "3" },
-  { label: "رد شده", value: "-1" },
-  { label: "نیازمند ویرایش", value: "-4" },
-  { label: "حذف شده", value: "-2" },
-  { label: "منقضی شده", value: "-3" },
+const advertiseStatusOptions: Array<{ label: string; value: AdvertiseStatus }> = [
+  { label: "ثبت شده", value: "wait_for_payment" },
+  { label: "در انتظار مدیر", value: "wait_for_admin" },
+  { label: "در انتظار مشاور", value: "wait_for_agency" },
+  { label: "تأیید شده", value: "accepted" },
+  { label: "رد شده", value: "rejected" },
+  { label: "نیازمند ویرایش", value: "needs_edit" },
+  { label: "حذف شده", value: "deleted" },
+  { label: "منقضی شده", value: "expired" },
 ];
 
 const userRoleOptions = [
@@ -281,9 +283,17 @@ function formatMoney(value: unknown) {
 }
 
 function advertiseStatusLabel(status: unknown) {
-  const key = String(status ?? "");
+  const key = String(status ?? "").trim().toLowerCase();
   return (
     {
+      wait_for_payment: "ثبت شده",
+      wait_for_admin: "در انتظار بررسی",
+      wait_for_agency: "در انتظار مشاور",
+      accepted: "منتشر شده",
+      needs_edit: "نیازمند ویرایش",
+      rejected: "رد شده",
+      deleted: "حذف شده",
+      expired: "منقضی شده",
       "-3": "منقضی شده",
       "-2": "حذف شده",
       "-1": "رد شده",
@@ -784,7 +794,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   const query = useQuery({
     queryFn: () =>
       listCrmAdvertises({
-        status: filters.status === "" ? undefined : Number(filters.status),
+        status: filters.status === "" ? undefined : filters.status as AdvertiseStatus,
         trackCode: filters.trackCode,
       }),
     queryKey: ["crm", "advertises", filters, refreshNonce],
@@ -793,7 +803,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
   useQueryErrorToast([query.error], notify);
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: number; reason?: string }) =>
+    mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: AdvertiseStatus; reason?: string }) =>
       updateCrmAdvertiseStatus(id, nextStatus, reason),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
@@ -802,7 +812,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
     },
   });
 
-  const updateStatus = async (id: string, nextStatus: number) => {
+  const updateStatus = async (id: string, nextStatus: AdvertiseStatus) => {
     try {
       await statusMutation.mutateAsync({ id, nextStatus });
     } catch (error) {
@@ -815,7 +825,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
       body: "دلیل رد یا نیاز به اصلاح آگهی برای کاربر نمایش داده می‌شود.",
       confirmLabel: "ثبت دلیل",
       onConfirm: async (reason) => {
-        await statusMutation.mutateAsync({ id, nextStatus: -4, reason });
+        await statusMutation.mutateAsync({ id, nextStatus: "needs_edit", reason });
       },
       prompt: {
         label: "دلیل نیاز به اصلاح",
@@ -948,7 +958,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                     </div>
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                       <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
-                      <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
+                      <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, "accepted")} tone="success" />
                       <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد" onClick={() => openRejectModal(id)} tone="warning" />
                       <SmallActionButton
                         icon={<LinearDelete className="h-4 w-4" />}
@@ -956,7 +966,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                         onClick={() => setConfirm({
                           body: "این آگهی از فهرست فعال خارج و در وضعیت حذف‌شده قرار می‌گیرد.",
                           confirmLabel: "حذف آگهی",
-                          onConfirm: async () => { await statusMutation.mutateAsync({ id, nextStatus: -2 }); },
+                          onConfirm: async () => { await statusMutation.mutateAsync({ id, nextStatus: "deleted" }); },
                           title: "حذف آگهی",
                         })}
                         tone="danger"
@@ -1271,49 +1281,29 @@ function consultantStatusValue(consultant: CrmRecord): CrmConsultantStatus {
 
   // Read older API values safely, but only send the current string contract.
   if (rawStatus === "1" || rawStatus === "accept" || rawStatus === "accepted" || rawStatus === "approved") {
-    return "approved";
+    return "accept";
   }
   if (rawStatus === "2" || rawStatus === "reject" || rawStatus === "rejected") {
-    return "rejected";
+    return "reject";
   }
   return "pending";
 }
 
 function consultantStatusLabel(status: CrmConsultantStatus) {
-  if (status === "approved") return "تأیید شده";
-  if (status === "rejected") return "رد شده";
+  if (status === "accept") return "تأیید شده";
+  if (status === "reject") return "رد شده";
   return "در انتظار";
 }
 
 function consultantStatusTone(status: CrmConsultantStatus) {
-  if (status === "approved") return "text-[#0b8b55]";
-  if (status === "rejected") return "text-[#cc3342]";
+  if (status === "accept") return "text-[#0b8b55]";
+  if (status === "reject") return "text-[#cc3342]";
   return "text-[#a06a00]";
 }
 
 function consultantApiIdentifier(value: string) {
   const normalized = value.trim();
   return /^\d+$/.test(normalized) ? Number(normalized) : normalized;
-}
-
-function buildCrmConsultantPayload(
-  consultant: CrmRecord,
-  overrides: Partial<CrmConsultantPayload> = {},
-): CrmConsultantPayload {
-  const agencyId = consultantAgencyId(consultant);
-  const type = readText(consultant, ["type"], "") === "dependent" || agencyId
-    ? "dependent"
-    : "independent";
-
-  return {
-    name: readText(consultant, ["name"], ""),
-    family: readText(consultant, ["family"], ""),
-    mobile: readText(consultant, ["mobile", "phone"], ""),
-    status: consultantStatusValue(consultant),
-    type,
-    agency_id: type === "dependent" && agencyId ? consultantApiIdentifier(agencyId) : null,
-    ...overrides,
-  };
 }
 
 function ConsultantsView({ notify, refreshNonce }: ViewProps) {
@@ -1362,10 +1352,10 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
   useQueryErrorToast([usersQuery.error, agenciesQuery.error], notify);
 
   const saveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord | CrmConsultantPayload }) =>
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmConsultantPayload }) =>
       id
-        ? updateCrmConsultant(id, payload as CrmConsultantPayload)
-        : saveCrmUser(null, payload as CrmRecord),
+        ? updateCrmConsultant(id, payload)
+        : createCrmConsultant(payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["crm", "consultants"] }),
@@ -1379,7 +1369,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
   const statusMutation = useMutation({
     mutationFn: ({ consultant, status }: { consultant: CrmRecord; status: Exclude<CrmConsultantStatus, "pending"> }) => {
       const id = getCrmRecordId(consultant);
-      return updateCrmConsultant(id, buildCrmConsultantPayload(consultant, { status }));
+      return updateCrmConsultant(id, { status });
     },
     onSuccess: async () => {
       await Promise.all([
@@ -1452,8 +1442,8 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           name: "status",
           options: [
             { label: "در انتظار", value: "pending" },
-            { label: "تأیید شده", value: "approved" },
-            { label: "رد شده", value: "rejected" },
+            { label: "تأیید شده", value: "accept" },
+            { label: "رد شده", value: "reject" },
           ],
           type: "select" as const,
           value: currentStatus,
@@ -1464,7 +1454,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
 
         if (id) {
           const selectedStatus = values.status;
-          if (selectedStatus !== "pending" && selectedStatus !== "approved" && selectedStatus !== "rejected") {
+          if (selectedStatus !== "pending" && selectedStatus !== "accept" && selectedStatus !== "reject") {
             throw new Error("یک وضعیت معتبر برای مشاور انتخاب کنید.");
           }
 
@@ -1482,19 +1472,15 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
           return;
         }
 
-        const consultantRole = selectedAgencyId
-          ? "real_estate_consultant"
-          : "independent_consultant";
-
         await saveMutation.mutateAsync({
           id: null,
           payload: {
-            agency_id: selectedAgencyId || null,
-            email: readText(consultant, ["email"], ""),
-            family: values.family ?? "",
-            mobile: values.mobile ?? "",
-            name: values.name ?? "",
-            roles: ["user", consultantRole],
+            agency_id: selectedAgencyId ? consultantApiIdentifier(selectedAgencyId) : null,
+            family: values.family?.trim() ?? "",
+            mobile: values.mobile?.trim() ?? "",
+            name: values.name?.trim() ?? "",
+            status: "pending",
+            type: selectedAgencyId ? "dependent" : "independent",
           },
         });
       },
@@ -1526,8 +1512,8 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
             <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="">همه وضعیت‌ها</option>
               <option value="pending">در انتظار</option>
-              <option value="approved">تأیید شده</option>
-              <option value="rejected">رد شده</option>
+              <option value="accept">تأیید شده</option>
+              <option value="reject">رد شده</option>
             </CrmSelect>
           </FilterField>
 
@@ -1606,10 +1592,10 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
                           <div className="flex items-center gap-2">
                             <SwitchButton
                               ariaLabel={`تغییر وضعیت ${fullName(consultant)}`}
-                              checked={status === "approved"}
+                              checked={status === "accept"}
                               onChange={() => statusMutation.mutate({
                                 consultant,
-                                status: status === "approved" ? "rejected" : "approved",
+                                status: status === "accept" ? "reject" : "accept",
                               })}
                             />
                             <span className={`text-xs font-bold ${consultantStatusTone(status)}`}>
@@ -1677,7 +1663,7 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
   });
 
   const agentSaveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: CrmRecord }) => saveCrmUser(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CrmConsultantPayload> }) => updateCrmConsultant(id, payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] }),
@@ -1718,17 +1704,15 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
       ],
       onSubmit: async (values) => {
         const selectedAgencyId = values.agency_id?.trim() ?? "";
-        const consultantRole = selectedAgencyId ? "real_estate_consultant" : "independent_consultant";
 
         await agentSaveMutation.mutateAsync({
           id,
           payload: {
-            agency_id: selectedAgencyId || null,
-            email: values.email ?? "",
-            family: values.family ?? "",
-            mobile: values.mobile ?? "",
-            name: values.name ?? "",
-            roles: ["user", consultantRole],
+            agency_id: selectedAgencyId ? consultantApiIdentifier(selectedAgencyId) : null,
+            family: values.family?.trim() ?? "",
+            mobile: values.mobile?.trim() ?? "",
+            name: values.name?.trim() ?? "",
+            type: selectedAgencyId ? "dependent" : "independent",
           },
         });
       },
@@ -1877,13 +1861,13 @@ function AgencyAgentsModal({
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-right">
             <thead><tr><TableHead>نام مشاور</TableHead><TableHead>شماره موبایل</TableHead><TableHead>نوع</TableHead><TableHead>وضعیت</TableHead><TableHead>عملیات</TableHead></tr></thead>
             <tbody>{isLoading ? <TableLoadingRows columns={5} rows={5} /> : agents.length ? agents.map((agent) => {
-              const status = Number(agent.consultant_status ?? agent.status);
+              const status = consultantStatusValue(agent);
               return (
                 <tr key={getCrmRecordId(agent)}>
                   <TableCell><strong>{fullName(agent)}</strong></TableCell>
                   <TableCell><span dir="ltr">{readText(agent, ["mobile", "phone"], "-")}</span></TableCell>
                   <TableCell>{agent.type === "independent" ? "مستقل" : "وابسته"}</TableCell>
-                  <TableCell><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === 1 ? "bg-[#ebfaf3] text-[#0b8b55]" : status === 2 ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{status === 1 ? "تأیید شده" : status === 2 ? "رد شده" : "در انتظار"}</span></TableCell>
+                  <TableCell><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === "accept" ? "bg-[#ebfaf3] text-[#0b8b55]" : status === "reject" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{consultantStatusLabel(status)}</span></TableCell>
                   <TableCell>
                     <SmallActionButton
                       icon={<LinearEdit2 className="h-4 w-4" />}

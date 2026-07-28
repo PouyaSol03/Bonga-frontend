@@ -432,6 +432,7 @@ export function ConsultantsDirectoryPage() {
     enabled: mode === "consultant",
     perPage: agencyPageSize,
     search: debouncedSearch,
+    sort: selectedSort ?? undefined,
   });
   const agencyDirectoryItems = useMemo(
     () =>

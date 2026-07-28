@@ -477,7 +477,6 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "price", toNumber(values.price));
   }
 
-  addFeature(features, "has_loan", isSale && !isSaleGardenVilla && values.loanEnabled);
   addFeature(features, "loan_amount", isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanAmount) : null);
   addFeature(features, "loan_installment", isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanInstallment) : null);
   addFeature(features, "has_exchange", isSale && values.exchangeEnabled);
@@ -581,18 +580,18 @@ export function buildNewAdFormData(values: NewAdFormValues) {
     "rent-garden-villa": ["area", "land_area", "building_area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "villa_type", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-hotel": ["area", "land_area", "building_area", "land_position", "rent_price", "mortgage_price", "suitable_for", "building_age", "hotel_stars", "floor", "renovated", "furnished", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-office": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "furnished", "suitable_for", "commercial_permit", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-apartment": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "has_loan", "suitable_for", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
+    "rent-apartment": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "suitable_for", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-villa-house": ["area", "land_area", "building_area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "renovated", "house_type", "heating_cooling", "facilities", ...searchFlagFields],
     "rent-warehouse": ["area", "land_area", "building_area", "land_position", "height", "rent_price", "mortgage_price", "suitable_for", "commercial_permit", "facilities", ...searchFlagFields],
-    "sale-apartment": ["area", "price", "building_age", "rooms", "floor", "renovated", "furnished", "has_loan", "document_type", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
-    "sale-commercial": ["area", "price", "building_age", "rooms", "renovated", "furnished", "has_loan", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-factory": ["area", "land_area", "building_area", "price", "document_type", "has_loan", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-apartment": ["area", "price", "building_age", "rooms", "floor", "renovated", "furnished", "loan_amount", "loan_installment", "document_type", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
+    "sale-commercial": ["area", "price", "building_age", "rooms", "renovated", "furnished", "loan_amount", "loan_installment", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-factory": ["area", "land_area", "building_area", "price", "document_type", "loan_amount", "loan_installment", "facilities", "exchange_with", ...searchFlagFields],
     "sale-garden-villa": ["land_area", "building_area", "price", "building_age", "rooms", "furnished", "document_type", "villa_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-hotel": ["area", "land_position", "price", "building_age", "rooms", "hotel_stars", "floor", "renovated", "furnished", "has_loan", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-hotel": ["area", "land_position", "price", "building_age", "rooms", "hotel_stars", "floor", "renovated", "furnished", "loan_amount", "loan_installment", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
     "sale-land": ["land_area", "price", "land_use", "build_permit", "document_type", "density", "land_position", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-office": ["area", "price", "building_age", "rooms", "floor", "has_document", "renovated", "furnished", "has_loan", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-villa-house": ["land_area", "building_area", "price", "building_age", "rooms", "renovated", "furnished", "has_loan", "document_type", "land_position", "house_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-warehouse": ["area", "land_area", "building_area", "land_position", "price", "height", "commercial_permit", "suitable_for", "document_type", "has_loan", "facilities", "exchange_with", "building_age", ...searchFlagFields],
+    "sale-office": ["area", "price", "building_age", "rooms", "floor", "has_document", "renovated", "furnished", "loan_amount", "loan_installment", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-villa-house": ["land_area", "building_area", "price", "building_age", "rooms", "renovated", "furnished", "loan_amount", "loan_installment", "document_type", "land_position", "house_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
+    "sale-warehouse": ["area", "land_area", "building_area", "land_position", "price", "height", "commercial_permit", "suitable_for", "document_type", "loan_amount", "loan_installment", "facilities", "exchange_with", "building_age", ...searchFlagFields],
   };
   const allowedFields = new Set([
     ...baseCreateFields,
@@ -649,7 +648,8 @@ export function buildNewAdFormData(values: NewAdFormValues) {
   appendValue("capacity", values.standardCapacity);
   appendValue("renovated", values.renovated);
   appendValue("furnished", values.furnished);
-  appendValue("has_loan", values.loanEnabled);
+  appendValue("loan_amount", values.loanEnabled ? toNumber(values.loanAmount) : null);
+  appendValue("loan_installment", values.loanEnabled ? toNumber(values.loanInstallment) : null);
   appendValue("has_document", Boolean(values.documentType));
   appendValue("document_type", values.documentType);
   appendValue("unit_type", values.unitType);

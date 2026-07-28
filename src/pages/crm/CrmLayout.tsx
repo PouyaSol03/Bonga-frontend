@@ -178,14 +178,14 @@ const crmRoleLabels: Record<string, { subtitle: string; title: string }> = {
 };
 
 export const advertiseStatusOptions = [
-  { label: "ثبت شده", value: "0" },
-  { label: "در انتظار مدیر", value: "1" },
-  { label: "در انتظار مشاور", value: "2" },
-  { label: "تأیید شده", value: "3" },
-  { label: "رد شده", value: "-1" },
-  { label: "نیازمند ویرایش", value: "-4" },
-  { label: "حذف شده", value: "-2" },
-  { label: "منقضی شده", value: "-3" },
+  { label: "ثبت شده", value: "wait_for_payment" },
+  { label: "در انتظار مدیر", value: "wait_for_admin" },
+  { label: "در انتظار مشاور", value: "wait_for_agency" },
+  { label: "تأیید شده", value: "accepted" },
+  { label: "رد شده", value: "rejected" },
+  { label: "نیازمند ویرایش", value: "needs_edit" },
+  { label: "حذف شده", value: "deleted" },
+  { label: "منقضی شده", value: "expired" },
 ];
 
 export const userRoleOptions = [
@@ -251,10 +251,18 @@ export function formatMoney(value: unknown) {
 }
 
 function advertiseStatusLabel(status: unknown) {
-  const key = String(status ?? "");
+  const key = String(status ?? "").trim().toLowerCase();
 
   return (
     {
+      accepted: "منتشر شده",
+      deleted: "حذف شده",
+      expired: "منقضی شده",
+      needs_edit: "نیازمند ویرایش",
+      rejected: "رد شده",
+      wait_for_admin: "در انتظار بررسی",
+      wait_for_agency: "در انتظار مشاور",
+      wait_for_payment: "ثبت شده",
       "-3": "منقضی شده",
       "-2": "حذف شده",
       "-1": "رد شده",
@@ -660,23 +668,23 @@ export function consultantStatusValue(consultant: CrmRecord): CrmConsultantStatu
 
   // Read older API values safely, but only send the current string contract.
   if (rawStatus === "1" || rawStatus === "accept" || rawStatus === "accepted" || rawStatus === "approved") {
-    return "approved";
+    return "accept";
   }
   if (rawStatus === "2" || rawStatus === "reject" || rawStatus === "rejected") {
-    return "rejected";
+    return "reject";
   }
   return "pending";
 }
 
 export function consultantStatusLabel(status: CrmConsultantStatus) {
-  if (status === "approved") return "تأیید شده";
-  if (status === "rejected") return "رد شده";
+  if (status === "accept") return "تأیید شده";
+  if (status === "reject") return "رد شده";
   return "در انتظار";
 }
 
 export function consultantStatusTone(status: CrmConsultantStatus) {
-  if (status === "approved") return "text-[#0b8b55]";
-  if (status === "rejected") return "text-[#cc3342]";
+  if (status === "accept") return "text-[#0b8b55]";
+  if (status === "reject") return "text-[#cc3342]";
   return "text-[#a06a00]";
 }
 
@@ -731,13 +739,13 @@ export function AgencyAgentsModal({
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-right">
             <thead><tr><TableHead>نام مشاور</TableHead><TableHead>شماره موبایل</TableHead><TableHead>نوع</TableHead><TableHead>وضعیت</TableHead><TableHead>عملیات</TableHead></tr></thead>
             <tbody>{isLoading ? <TableLoadingRows columns={5} rows={5} /> : agents.length ? agents.map((agent) => {
-              const status = Number(agent.consultant_status ?? agent.status);
+              const status = consultantStatusValue(agent);
               return (
                 <tr key={getCrmRecordId(agent)}>
                   <TableCell><strong>{fullName(agent)}</strong></TableCell>
                   <TableCell><span dir="ltr">{readText(agent, ["mobile", "phone"], "-")}</span></TableCell>
                   <TableCell>{agent.type === "independent" ? "مستقل" : "وابسته"}</TableCell>
-                  <TableCell><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === 1 ? "bg-[#ebfaf3] text-[#0b8b55]" : status === 2 ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{status === 1 ? "تأیید شده" : status === 2 ? "رد شده" : "در انتظار"}</span></TableCell>
+                  <TableCell><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === "accept" ? "bg-[#ebfaf3] text-[#0b8b55]" : status === "reject" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{consultantStatusLabel(status)}</span></TableCell>
                   <TableCell>
                     <SmallActionButton
                       icon={<LinearEdit2 className="h-4 w-4" />}
@@ -1468,12 +1476,14 @@ export function SearchTableEmptyRow({ columns }: { columns: number }) {
 }
 
 export function StatusBadge({ status }: { status: unknown }) {
-  const key = String(status ?? "");
-  const tone = key === "3" || key === "1"
-    ? key === "3" ? "bg-[#ebfaf3] text-[#0b8b55]" : "bg-[#fff7df] text-[#a06a00]"
-    : key === "0"
+  const key = String(status ?? "").trim().toLowerCase();
+  const tone = key === "accepted" || key === "3"
+    ? "bg-[#ebfaf3] text-[#0b8b55]"
+    : key === "wait_for_payment" || key === "0"
       ? "bg-[#eef4ff] text-[#0048c4]"
-      : "bg-[#fff0f0] text-[#cc3342]";
+      : key === "wait_for_admin" || key === "wait_for_agency" || key === "1" || key === "2"
+        ? "bg-[#fff7df] text-[#a06a00]"
+        : "bg-[#fff0f0] text-[#cc3342]";
 
   return <span className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${tone}`}>{advertiseStatusLabel(status)}</span>;
 }

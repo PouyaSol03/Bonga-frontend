@@ -35,16 +35,21 @@ export type PublicAgencyListParams = {
 };
 
 export type PublicAgentListDto = {
+  agencyId?: string;
   agency?: PublicAgentAgencySummary;
   avatar?: string;
   family?: string;
   fullName: string;
   id: string;
+  levelSlug?: string;
+  levelTitle?: string;
   mobile?: string;
   name?: string;
   rank?: number;
   role?: string;
   score?: number;
+  status?: string;
+  userId?: string;
 };
 
 export type PublicAgentsPage = {
@@ -60,6 +65,7 @@ export type PublicAgentListParams = {
   page?: number;
   perPage?: number;
   search?: string;
+  sort?: AgencySort;
 };
 
 export type AgencyConsultantPermissions = {
@@ -88,6 +94,7 @@ export type AgencyConsultantMetrics = {
 
 export type AgencyConsultantDto = {
   adQuota: number;
+  agentId?: number;
   avatar?: string;
   isActive: boolean;
   metrics: AgencyConsultantMetrics;
@@ -148,15 +155,21 @@ type PublicAgencyApiResponse = {
 type PublicAgentListApiItem = {
   _id?: unknown;
   agency?: unknown;
+  agency_id?: unknown;
   avatar?: unknown;
   family?: unknown;
   full_name?: unknown;
   id?: unknown;
+  level_slug?: unknown;
+  level_title?: unknown;
   mobile?: unknown;
   name?: unknown;
+  phonenumber?: unknown;
   rank?: unknown;
   role?: unknown;
   score?: unknown;
+  status?: unknown;
+  user_id?: unknown;
 };
 
 type PublicAgentsApiResponse = {
@@ -168,10 +181,12 @@ type PublicAgentsApiResponse = {
 };
 
 type AgencyConsultantApiItem = {
+  _id?: unknown;
   ad_quota?: unknown;
   agency_membership?: unknown;
   avatar?: unknown;
   full_name?: unknown;
+  id?: unknown;
   is_active?: unknown;
   member?: unknown;
   membership?: unknown;
@@ -281,7 +296,7 @@ function normalizePublicAgentListItem(
   if (!id || !fullName) return null;
 
   const agencyRecord = asRecord(item.agency);
-  const agencyId = firstText(agencyRecord.id, agencyRecord._id);
+  const agencyId = firstText(item.agency_id, agencyRecord.id, agencyRecord._id);
   const agencyName = firstText(agencyRecord.name, agencyRecord.title);
   const agency: PublicAgentAgencySummary | undefined =
     agencyId || agencyName
@@ -294,16 +309,21 @@ function normalizePublicAgentListItem(
       : undefined;
 
   return {
+    agencyId: agencyId || undefined,
     agency,
     avatar: toAssetUrl(item.avatar),
     family: family || undefined,
     fullName,
     id,
-    mobile: toText(item.mobile) || undefined,
+    levelSlug: toText(item.level_slug) || undefined,
+    levelTitle: toText(item.level_title) || undefined,
+    mobile: firstText(item.mobile, item.phonenumber) || undefined,
     name: name || undefined,
     rank: Number.isFinite(Number(item.rank)) ? Math.max(0, Number(item.rank)) : undefined,
     role: toText(item.role) || undefined,
     score: Number.isFinite(Number(item.score)) ? Math.max(0, Number(item.score)) : undefined,
+    status: toText(item.status) || undefined,
+    userId: firstText(item.user_id) || undefined,
   };
 }
 
@@ -336,6 +356,7 @@ function normalizeAgencyConsultant(
   );
   const user = asRecord(item.user);
   const quotas = asRecord(item.quotas ?? membership.quotas);
+  const agentId = toNumber(item.id ?? item._id, Number.NaN);
   const userId = toNumber(item.user_id ?? user.id ?? user._id, Number.NaN);
   const name = firstText(item.name, item.full_name, user.full_name, user.name);
   const isActiveValue = item.is_active ?? membership.is_active;
@@ -347,6 +368,7 @@ function normalizeAgencyConsultant(
       0,
       toNumber(item.ad_quota ?? membership.ad_quota ?? quotas.ad_quota),
     ),
+    agentId: Number.isFinite(agentId) ? agentId : undefined,
     avatar: toAssetUrl(item.avatar ?? user.avatar),
     isActive: normalizePermissionFlag(isActiveValue),
     metrics: {
@@ -402,18 +424,23 @@ export type PublicAgentAgencySummary = {
 export type PublicAgentDetailDto = {
   active_advertises_count: number;
   about_us?: string;
+  agencyId?: string;
   agency?: PublicAgentAgencySummary;
   avatar?: string;
   id: string;
   instagram?: string;
   level_slug?: string;
+  level_title?: string;
   mobile?: string;
   name: string;
   neighborhood_ids: string[];
   rank: number;
   recent_advertises: AdvertisementItem[];
+  role?: string;
   score: number;
+  status?: string;
   telegram?: string;
+  userId?: string;
   whatsapp?: string;
 };
 
@@ -527,15 +554,7 @@ function normalizePublicAgentDetail(
   const currentRanking = asRecord(ranking.current);
   const level = asRecord(ranking.level);
   const agencyRecord = asRecord(item.agency ?? item.agency_summary);
-  const id = firstText(
-    item.id,
-    item._id,
-    item.user_id,
-    profile.id,
-    profile._id,
-    user.id,
-    user._id,
-  );
+  const id = firstText(item.id, item._id);
   const composedName = [
     firstText(profile.name, user.name),
     firstText(profile.family, user.family),
@@ -548,7 +567,7 @@ function normalizePublicAgentDetail(
 
   if (!id || !name) return null;
 
-  const agencyId = firstText(agencyRecord.id, agencyRecord._id);
+  const agencyId = firstText(item.agency_id, agencyRecord.id, agencyRecord._id);
   const agencyName = firstText(agencyRecord.name, agencyRecord.title);
   const agency: PublicAgentAgencySummary | undefined =
     agencyId || agencyName
@@ -579,6 +598,7 @@ function normalizePublicAgentDetail(
       profile.about_us,
       profile.bio,
     ) || undefined,
+    agencyId: agencyId || undefined,
     agency,
     avatar: toAssetUrl(item.avatar ?? item.img ?? profile.avatar ?? user.avatar),
     id,
@@ -590,8 +610,16 @@ function normalizePublicAgentDetail(
       currentRanking.level_slug,
       level.slug,
     ) || undefined,
+    level_title: firstText(
+      item.level_title,
+      ranking.level_title,
+      currentRanking.level_title,
+      level.title,
+      level.name,
+    ) || undefined,
     mobile: firstText(
       item.mobile,
+      item.phonenumber,
       item.phone,
       profile.mobile,
       profile.phone,
@@ -614,6 +642,7 @@ function normalizePublicAgentDetail(
       item.recent_ads,
       item.advertises,
     ),
+    role: firstText(item.role) || undefined,
     score: Math.max(
       0,
       firstNumber(
@@ -626,7 +655,9 @@ function normalizePublicAgentDetail(
         currentRanking.total_score,
       ),
     ),
+    status: firstText(item.status) || undefined,
     telegram: readSocialValue(item, "telegram") || undefined,
+    userId: firstText(item.user_id, user.id, user._id) || undefined,
     whatsapp: readSocialValue(item, "whatsapp") || undefined,
   };
 }
@@ -759,6 +790,7 @@ export async function getPublicAgents({
   page = 1,
   perPage = 20,
   search,
+  sort,
 }: PublicAgentListParams = {}): Promise<PublicAgentsPage> {
   const response = await publicApi
     .get("public/agents", {
@@ -767,6 +799,7 @@ export async function getPublicAgents({
         page,
         per_page: perPage,
         search: search?.trim() || undefined,
+        sort,
       },
     })
     .json<PublicAgentsApiResponse>();

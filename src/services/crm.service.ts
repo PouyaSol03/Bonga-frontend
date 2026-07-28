@@ -3,9 +3,19 @@ import { ApiError, api, type ApiQueryParams } from "../api/api";
 export type CrmRecord = Record<string, unknown>;
 
 export type CrmAdvertiseFilters = {
-  status?: number;
+  status?: AdvertiseStatus;
   trackCode?: string;
 };
+
+export type AdvertiseStatus =
+  | "wait_for_payment"
+  | "wait_for_admin"
+  | "wait_for_agency"
+  | "accepted"
+  | "needs_edit"
+  | "rejected"
+  | "deleted"
+  | "expired";
 
 export type CrmReportKind = "advertise" | "user";
 
@@ -23,7 +33,7 @@ export type CrmReportListResult = {
 };
 
 export type CrmConsultantType = "independent" | "dependent";
-export type CrmConsultantStatus = "pending" | "approved" | "rejected";
+export type CrmConsultantStatus = "pending" | "accept" | "reject";
 
 export type CrmAgentFilters = {
   type?: CrmConsultantType;
@@ -334,18 +344,28 @@ export async function listCrmAgents(filters: CrmAgentFilters = {}) {
   );
 }
 
-export function updateCrmConsultant(id: string, payload: CrmConsultantPayload) {
+export function createCrmConsultant(payload: CrmConsultantPayload) {
+  return api
+    .post("panel/consultant", { json: payload })
+    .json<unknown>();
+}
+
+export function updateCrmConsultant(
+  id: string,
+  payload: Partial<CrmConsultantPayload>,
+) {
   return api
     .patch(`panel/consultant/${encodeURIComponent(id)}`, { json: payload })
     .json<unknown>();
 }
 
 export async function listCrmAgencyAgents(agencyId: string) {
-  return normalizeRows(
-    await api.get(`panel/agencies/${agencyId}/agents`, {
-      searchParams: { page: 1, per_page: 100 },
-    }).json<unknown>(),
-  );
+  return listCrmAgents({
+    agencyId,
+    page: 1,
+    perPage: 100,
+    type: "dependent",
+  });
 }
 
 export async function listCrmAdvertises(filters: CrmAdvertiseFilters = {}) {
@@ -378,8 +398,8 @@ export async function saveCrmAdvertise(id: string | null, payload: CrmAdvertiseP
   );
 }
 
-export function updateCrmAdvertiseStatus(id: string, status: number, reason?: string) {
-  const payload: { reason?: string; status: number } = { status };
+export function updateCrmAdvertiseStatus(id: string, status: AdvertiseStatus, reason?: string) {
+  const payload: { reason?: string; status: AdvertiseStatus } = { status };
 
   if (reason !== undefined) {
     payload.reason = reason.trim();

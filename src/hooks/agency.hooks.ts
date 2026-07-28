@@ -165,12 +165,14 @@ export function usePublicAgentsQuery({
   page = 1,
   perPage = 20,
   search = "",
+  sort,
 }: {
   agencyId?: number | string;
   enabled?: boolean;
   page?: number;
   perPage?: number;
   search?: string;
+  sort?: AgencySort;
 } = {}) {
   return useQuery({
     enabled,
@@ -180,12 +182,14 @@ export function usePublicAgentsQuery({
         page,
         perPage,
         search,
+        sort,
       }),
     queryKey: queryKeys.agencies.publicAgents({
       agencyId,
       page,
       perPage,
       search,
+      sort,
     }),
   });
 }
@@ -195,11 +199,13 @@ export function usePublicAgentsInfiniteQuery({
   enabled = true,
   perPage = 20,
   search = "",
+  sort,
 }: {
   agencyId?: number | string;
   enabled?: boolean;
   perPage?: number;
   search?: string;
+  sort?: AgencySort;
 } = {}) {
   return useInfiniteQuery<
     PublicAgentsPage,
@@ -218,11 +224,13 @@ export function usePublicAgentsInfiniteQuery({
         page: pageParam,
         perPage,
         search,
+        sort,
       }),
     queryKey: queryKeys.agencies.publicAgents({
       agencyId,
       perPage,
       search,
+      sort,
     }),
   });
 }

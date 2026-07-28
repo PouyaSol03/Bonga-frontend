@@ -1,12 +1,12 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
-import { listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, saveCrmUser, getCrmRecordId } from "../../../services/crm.service";
+import { createCrmConsultant, listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, getCrmRecordId } from "../../../services/crm.service";
 import { getApiErrorMessage } from "../../../api/api";
 import { SwitchButton } from "../../../components/SwitchButton";
 import { motion } from "motion/react";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
-import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, buildCrmConsultantPayload, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
+import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 
 export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -55,10 +55,10 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
   useQueryErrorToast([usersQuery.error, agenciesQuery.error], notify);
 
   const saveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string | null; payload: CrmRecord | CrmConsultantPayload }) =>
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmConsultantPayload }) =>
       id
-        ? updateCrmConsultant(id, payload as CrmConsultantPayload)
-        : saveCrmUser(null, payload as CrmRecord),
+        ? updateCrmConsultant(id, payload)
+        : createCrmConsultant(payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["crm", "consultants"] }),
@@ -72,7 +72,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const statusMutation = useMutation({
     mutationFn: ({ consultant, status }: { consultant: CrmRecord; status: Exclude<CrmConsultantStatus, "pending"> }) => {
       const id = getCrmRecordId(consultant);
-      return updateCrmConsultant(id, buildCrmConsultantPayload(consultant, { status }));
+      return updateCrmConsultant(id, { status });
     },
     onSuccess: async () => {
       await Promise.all([
@@ -145,8 +145,8 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
           name: "status",
           options: [
             { label: "در انتظار", value: "pending" },
-            { label: "تأیید شده", value: "approved" },
-            { label: "رد شده", value: "rejected" },
+            { label: "تأیید شده", value: "accept" },
+            { label: "رد شده", value: "reject" },
           ],
           type: "select" as const,
           value: currentStatus,
@@ -157,7 +157,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
 
         if (id) {
           const selectedStatus = values.status;
-          if (selectedStatus !== "pending" && selectedStatus !== "approved" && selectedStatus !== "rejected") {
+          if (selectedStatus !== "pending" && selectedStatus !== "accept" && selectedStatus !== "reject") {
             throw new Error("یک وضعیت معتبر برای مشاور انتخاب کنید.");
           }
 
@@ -175,19 +175,15 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
           return;
         }
 
-        const consultantRole = selectedAgencyId
-          ? "real_estate_consultant"
-          : "independent_consultant";
-
         await saveMutation.mutateAsync({
           id: null,
           payload: {
-            agency_id: selectedAgencyId || null,
-            email: readText(consultant, ["email"], ""),
-            family: values.family ?? "",
-            mobile: values.mobile ?? "",
-            name: values.name ?? "",
-            roles: ["user", consultantRole],
+            agency_id: selectedAgencyId ? consultantApiIdentifier(selectedAgencyId) : null,
+            family: values.family?.trim() ?? "",
+            mobile: values.mobile?.trim() ?? "",
+            name: values.name?.trim() ?? "",
+            status: "pending",
+            type: selectedAgencyId ? "dependent" : "independent",
           },
         });
       },
@@ -219,8 +215,8 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
             <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="">همه وضعیت‌ها</option>
               <option value="pending">در انتظار</option>
-              <option value="approved">تأیید شده</option>
-              <option value="rejected">رد شده</option>
+              <option value="accept">تأیید شده</option>
+              <option value="reject">رد شده</option>
             </CrmSelect>
           </FilterField>
 
@@ -299,10 +295,10 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                           <div className="flex items-center gap-2">
                             <SwitchButton
                               ariaLabel={`تغییر وضعیت ${fullName(consultant)}`}
-                              checked={status === "approved"}
+                              checked={status === "accept"}
                               onChange={() => statusMutation.mutate({
                                 consultant,
-                                status: status === "approved" ? "rejected" : "approved",
+                                status: status === "accept" ? "reject" : "accept",
                               })}
                             />
                             <span className={`text-xs font-bold ${consultantStatusTone(status)}`}>

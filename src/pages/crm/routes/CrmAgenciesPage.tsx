@@ -1,8 +1,8 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, updateCrmAgencyStatus, saveCrmUser } from "../../../services/crm.service";
+import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, updateCrmAgencyStatus, updateCrmConsultant } from "../../../services/crm.service";
 import { getApiErrorMessage } from "../../../api/api";
-import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
+import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, consultantApiIdentifier, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 
 export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -39,7 +39,7 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   });
 
   const agentSaveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: CrmRecord }) => saveCrmUser(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CrmConsultantPayload> }) => updateCrmConsultant(id, payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] }),
@@ -80,17 +80,14 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
       ],
       onSubmit: async (values) => {
         const selectedAgencyId = values.agency_id?.trim() ?? "";
-        const consultantRole = selectedAgencyId ? "real_estate_consultant" : "independent_consultant";
-
         await agentSaveMutation.mutateAsync({
           id,
           payload: {
-            agency_id: selectedAgencyId || null,
-            email: values.email ?? "",
-            family: values.family ?? "",
-            mobile: values.mobile ?? "",
-            name: values.name ?? "",
-            roles: ["user", consultantRole],
+            agency_id: selectedAgencyId ? consultantApiIdentifier(selectedAgencyId) : null,
+            family: values.family?.trim() ?? "",
+            mobile: values.mobile?.trim() ?? "",
+            name: values.name?.trim() ?? "",
+            type: selectedAgencyId ? "dependent" : "independent",
           },
         });
       },

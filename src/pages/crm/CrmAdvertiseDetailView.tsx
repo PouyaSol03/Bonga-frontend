@@ -366,22 +366,36 @@ function findRecordNameById(records: CrmRecord[], id: string): string {
 }
 
 function advertiseStatusLabel(status: unknown) {
+  const value = String(status ?? "").trim().toLowerCase();
+
   return (
     {
+      wait_for_payment: "ثبت‌شده",
+      wait_for_admin: "در انتظار بررسی",
+      wait_for_agency: "در انتظار مشاور",
+      accepted: "منتشرشده",
+      needs_edit: "نیازمند ویرایش",
+      rejected: "ردشده",
+      deleted: "حذف‌شده",
+      expired: "منقضی‌شده",
+      "-4": "نیازمند ویرایش",
       "-3": "منقضی‌شده",
       "-2": "حذف‌شده",
       "-1": "ردشده",
       "0": "ثبت‌شده",
       "1": "در انتظار بررسی",
+      "2": "در انتظار مشاور",
       "3": "منتشرشده",
-    }[String(status ?? "")] ?? "نامشخص"
+    }[value] ?? "نامشخص"
   );
 }
 
 function statusTone(status: unknown) {
-  const value = String(status ?? "");
-  if (value === "3") return "bg-[#eaf8f1] text-[#087d4b]";
-  if (value === "-1" || value === "-2" || value === "-3") return "bg-[#fff0f1] text-[#c63242]";
+  const value = String(status ?? "").trim().toLowerCase();
+  if (value === "accepted" || value === "3") return "bg-[#eaf8f1] text-[#087d4b]";
+  if (["needs_edit", "rejected", "deleted", "expired", "-4", "-1", "-2", "-3"].includes(value)) {
+    return "bg-[#fff0f1] text-[#c63242]";
+  }
   return "bg-[#fff7df] text-[#9b6800]";
 }
 

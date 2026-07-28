@@ -1265,8 +1265,11 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
       {consultants.map((consultant, index) => (
         <button
           className={`flex w-full items-center justify-center gap-4 bg-white px-4 py-4 text-center transition active:bg-[#fafafa] ${index < consultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
-          key={consultant.userId}
-          onClick={() => navigateTo(`/agents/${encodeURIComponent(String(consultant.userId))}`)}
+          key={consultant.agentId ?? consultant.userId}
+          onClick={() => {
+            if (consultant.agentId === undefined) return;
+            navigateTo(`/agents/${encodeURIComponent(String(consultant.agentId))}`);
+          }}
           type="button"
         >
           <div className="flex flex-col items-center">

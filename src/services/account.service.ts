@@ -12,6 +12,7 @@ import type { AdvertisementItem } from "./advertisement.service";
 
 export type UserProfile = {
   _id?: string;
+  agency_id?: string | number | null;
   authorized?: number;
   authorize_date?: string | null;
   avatar?: string | null;
@@ -127,13 +128,38 @@ export type AuthorizePayload = {
 };
 
 export type CreateMyAgencyPayload = {
+  lat?: number;
+  lng?: number;
   name: string;
   neighborhood_ids: string[];
 };
 
 export type CreateMyAgentPayload = {
-  full_name: string;
-  mobile: string;
+  agency_id?: string | number | null;
+  name: string;
+  phonenumber?: string;
+};
+
+export type AgentRequestItem = {
+  agency_id?: string | number | null;
+  created_at?: string;
+  id: string | number;
+  name: string;
+  phonenumber?: string;
+  status?: string;
+  updated_at?: string;
+  user_id: string | number;
+};
+
+type CreateMyAgentResponse = {
+  agent: AgentRequestItem;
+  status: boolean;
+};
+
+type CreateMyAgencyResponse = {
+  action?: "created" | "updated";
+  agency?: MyAgencyProfile;
+  status?: boolean;
 };
 
 export type MyAgencyProfile = {
@@ -392,22 +418,25 @@ export function createMyAgency(payload: CreateMyAgencyPayload) {
   return api
     .post("me/agency/create", {
       json: {
+        lat: payload.lat,
+        lng: payload.lng,
         name: payload.name,
         neighborhood_ids: payload.neighborhood_ids,
       },
     })
-    .json<ApiDataResponse<unknown>>();
+    .json<CreateMyAgencyResponse>();
 }
 
 export function createMyAgent(payload: CreateMyAgentPayload) {
-  return api.post("me/agent/create", {
-    context: { allowNonJsonResponse: true },
-    headers: { Accept: "*/*" },
+  const phonenumber = payload.phonenumber?.trim();
+
+  return api.post("me/agent", {
     json: {
-      full_name: payload.full_name.trim(),
-      mobile: payload.mobile.trim(),
+      agency_id: payload.agency_id ?? null,
+      name: payload.name.trim(),
+      ...(phonenumber ? { phonenumber } : {}),
     },
-  });
+  }).json<CreateMyAgentResponse>();
 }
 
 function appendAgencyFormValue(

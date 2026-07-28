@@ -161,7 +161,7 @@ function normalizeRankingEntity(
 ): DashboardRankingEntity {
   const entity = asRecord(value);
   const entityId = String(
-    entity.agency_id ?? entity.agent_id ?? entity.user_id ?? entity.id ?? "",
+    entity.agency_id ?? entity.agent_id ?? entity.id ?? entity._id ?? entity.user_id ?? "",
   ).trim();
 
   return {

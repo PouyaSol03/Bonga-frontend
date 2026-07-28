@@ -417,8 +417,9 @@ export function IndependentConsultantBusinessCreationPage() {
 
     try {
       await createAgentMutation.mutateAsync({
-        full_name: trimmedFullName,
-        mobile: normalizedMobile,
+        agency_id: null,
+        name: trimmedFullName,
+        phonenumber: normalizedMobile,
       });
 
       return true;

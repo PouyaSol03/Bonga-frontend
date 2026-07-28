@@ -1,9 +1,19 @@
 import { ApiError, api, baseUrl, getApiAssetUrl, publicApi } from "../api/api";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 
+export type AdvertisementStatus =
+  | "wait_for_payment"
+  | "wait_for_admin"
+  | "wait_for_agency"
+  | "accepted"
+  | "needs_edit"
+  | "rejected"
+  | "deleted"
+  | "expired";
+
 export type AdvertisementItem = Record<string, unknown> & {
   _id?: string;
-  agency?: string;
+  agency?: string | { id?: string | number; _id?: string | number; name?: string };
   area?: string | number;
   badges?: string[];
   city?: { name?: string };
@@ -17,18 +27,23 @@ export type AdvertisementItem = Record<string, unknown> & {
   images?: Array<string | { path?: string; url?: string }>;
   features?: Array<{ label?: string; value?: unknown }>;
   label?: string;
-  neighborhood?: { name?: string };
+  loan?: {
+    amount?: string | number | null;
+    installment?: string | number | null;
+  } | null;
+  neighborhood?: { id?: string | number; name?: string };
   neighborhood_name?: string;
   form_neighborhood_title?: string | null;
   is_mine?: boolean;
   published_days?: string | number | null;
   published_date?: string | number | null;
-  published_hours_ago?: number | string;
   published_time_ago?: string | number;
   short_description?: string;
   price?: string | number;
   price_label?: string;
   rooms?: string | number;
+  status?: AdvertisementStatus | string;
+  status_code?: number;
   title?: string;
   updated_at?: string;
   year?: string | number;
@@ -495,7 +510,7 @@ export async function getAdvertisementList({
 }
 
 export async function getAdvertisementDetail(id: string) {
-  const response = await api
+  const response = await publicApi
     .get(`public/advertise/${id}`)
     .json<AdvertisementShowResponse>();
 
@@ -521,19 +536,19 @@ export async function createAdvertisement(payload: FormData) {
     })
     .json<AdvertisementCreateResponse>();
 
-  if ("data" in response && response.data) {
-    return response.data as AdvertisementItem;
-  }
+  const createdAdvertise = "data" in response && response.data
+    ? response.data as AdvertisementItem
+    : "result" in response && response.result
+      ? response.result as AdvertisementItem
+      : "advertise" in response && response.advertise
+        ? response.advertise as AdvertisementItem
+        : response as AdvertisementItem;
 
-  if ("result" in response && response.result) {
-    return response.result as AdvertisementItem;
-  }
-
-  if ("advertise" in response && response.advertise) {
-    return response.advertise as AdvertisementItem;
-  }
-
-  return response as AdvertisementItem;
+  return {
+    ...createdAdvertise,
+    status: "wait_for_payment",
+    status_code: 0,
+  } satisfies AdvertisementItem;
 }
 
 function unwrapAdvertisementCheckoutResponse(

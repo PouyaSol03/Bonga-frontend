@@ -1,6 +1,6 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmAdvertises, updateCrmAdvertiseStatus, getCrmRecordId } from "../../../services/crm.service";
+import { listCrmAdvertises, updateCrmAdvertiseStatus, getCrmRecordId, type AdvertiseStatus } from "../../../services/crm.service";
 import { getApiErrorMessage } from "../../../api/api";
 import { pushRoute } from "../../../routes/navigation";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "../crmAdvertiseNavigation";
@@ -27,7 +27,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const query = useQuery({
     queryFn: () =>
       listCrmAdvertises({
-        status: filters.status === "" ? undefined : Number(filters.status),
+        status: filters.status === "" ? undefined : filters.status as AdvertiseStatus,
         trackCode: filters.trackCode,
       }),
     queryKey: ["crm", "advertises", filters, refreshNonce],
@@ -36,7 +36,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   useQueryErrorToast([query.error], notify);
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: number; reason?: string }) =>
+    mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: AdvertiseStatus; reason?: string }) =>
       updateCrmAdvertiseStatus(id, nextStatus, reason),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });
@@ -45,7 +45,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
     },
   });
 
-  const updateStatus = async (id: string, nextStatus: number) => {
+  const updateStatus = async (id: string, nextStatus: AdvertiseStatus) => {
     try {
       await statusMutation.mutateAsync({ id, nextStatus });
     } catch (error) {
@@ -63,7 +63,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
         await statusMutation.mutateAsync({
           id,
-          nextStatus: -4,
+          nextStatus: "needs_edit",
           reason: normalizedReason,
         });
       },
@@ -198,7 +198,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     </div>
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                       <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
-                      <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, 3)} tone="success" />
+                      <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, "accepted")} tone="success" />
                       <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد آگهی" onClick={() => openRejectModal(id)} tone="warning" />
                       <SmallActionButton
                         icon={<LinearDelete className="h-4 w-4" />}
@@ -206,7 +206,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                         onClick={() => setConfirm({
                           body: "این آگهی از فهرست فعال خارج و در وضعیت حذف‌شده قرار می‌گیرد.",
                           confirmLabel: "حذف آگهی",
-                          onConfirm: async () => { await statusMutation.mutateAsync({ id, nextStatus: -2 }); },
+                          onConfirm: async () => { await statusMutation.mutateAsync({ id, nextStatus: "deleted" }); },
                           title: "حذف آگهی",
                         })}
                         tone="danger"

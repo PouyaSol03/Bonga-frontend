@@ -74,7 +74,7 @@ export const singleAdMockData: AdvertisementItem = {
   category_id: "000000000000000000000235",
   neighborhood_id: "000000000000000000000301",
   user_id: null,
-  status: 3,
+  status: "wait_for_admin",
   description:
     "فروش کامل واحد اداری در مشهد با تمام فیلدهای فرم برای تست کامل فرانت‌اند.",
   track_code: 930001,

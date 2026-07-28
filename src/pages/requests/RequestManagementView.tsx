@@ -501,7 +501,7 @@ export function RequestManagementView({
             <div
               className={
                 requests.length > 0
-                  ? "space-y-2 bg-[#f5f5f5] pt-2"
+                  ? "space-y-2 bg-[#f5f5f5]"
                   : "bg-white"
               }
             >
@@ -534,7 +534,7 @@ export function RequestManagementView({
               className={
                 showResultsEmpty
                   ? "bg-white"
-                  : "space-y-2 bg-[#f5f5f5] pt-2"
+                  : "space-y-2 bg-[#f5f5f5]"
               }
             >
               {filteredRequests.map((request) => (
@@ -1055,10 +1055,10 @@ function EmptyRequestState({
           <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
         </span>
       )}
-      <h2 className="m-0 text-base font-semiBold mt-4 text-[#1a1a1a]">
+      <h2 className="m-0 text-base font-semibold mt-4 text-[#1a1a1a]">
         {title}
       </h2>
-      <p className="m-0 mt-2 max-w-[320px] text-sm font-normal leading-6 text-[#4d4d4d]">
+      <p className="m-0 mt-2 max-w-[320px] text-sm font-normal text-[#4d4d4d]">
         {description}
       </p>
     </section>

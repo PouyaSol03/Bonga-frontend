@@ -68,7 +68,7 @@ export function BottomSheet({
   children,
   className = "",
   contentClassName = "",
-  handleClassName = "h-1 w-[42px] rounded-full bg-[#e0e0e0]",
+  handleClassName = "h-1 w-[56px] rounded-full bg-[#e0e0e0]",
   heightClassName = "h-[298px]",
   isOpen,
   onBack,

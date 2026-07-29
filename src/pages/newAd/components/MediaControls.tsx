@@ -1,19 +1,5 @@
 import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
-
-function RadioIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${checked
-        ? "border-[#0048c4] bg-[#0048c4]"
-        : "border-[#808080] bg-white"
-        }`}
-    >
-      {checked ? (
-        <span className="h-2 w-2 rounded-full bg-white" />
-      ) : null}
-    </span>
-  );
-}
+import { ChoiceIndicator } from "../../../components/ui/Choice";
 
 export function RadioCard({
   checked,
@@ -37,7 +23,7 @@ export function RadioCard({
       type="button"
     >
       <div className="flex items-center justify-between">
-        <RadioIndicator checked={checked} />
+        <ChoiceIndicator checked={checked} className="h-4.5 w-4.5" type="radio" />
 
         <span className="flex items-center gap-2 font-medium text-[#1a1a1a] [direction:rtl]">
           <span className={`${checked && 'text-[#0048c4]'}`}>{label}</span>
@@ -72,7 +58,7 @@ export function RadioCard({
 export function CheckRow({ checked, label, onChange }: { checked: boolean; label: string; onChange: (checked: boolean) => void }) {
   return (
     <button className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]" onClick={() => onChange(!checked)} type="button">
-      <span className={`grid h-6 w-6 place-items-center rounded-lg border ${checked ? "border-[#0048C4] bg-[#0048C4] text-white" : "border-[#808080] bg-white"}`}>{checked ? <img src="/icons/checkTick.svg" alt="" /> : null}</span>
+      <ChoiceIndicator checked={checked} />
       <span>{label}</span>
     </button>
   );
@@ -86,4 +72,3 @@ export function SocialInput({ value, placeholder, icon, onChange }: { value: str
     </label>
   );
 }
-

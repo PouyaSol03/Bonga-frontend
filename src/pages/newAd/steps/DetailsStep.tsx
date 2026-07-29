@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../components/BottomSheet";
+import { ChoiceIndicator } from "../../../components/ui/Choice";
 import { formatBigNumber } from "../../../lib/MoneyHandler";
 import {
   exchangeTargets,
@@ -52,11 +53,7 @@ function formatPersianCount(value: number) {
 }
 
 function ExchangeCheckIcon({ checked }: { checked: boolean }) {
-  return (
-    <span className={`grid h-6 w-6 place-items-center rounded-lg border ${checked ? "border-[#0048C4] bg-[#0048C4] text-white" : "border-[#808080] bg-white"}`}>
-      {checked ? <img src="/icons/checkTick.svg" alt="" /> : null}
-    </span>
-  );
+  return <ChoiceIndicator checked={checked} />;
 }
 
 export function DetailsStep({

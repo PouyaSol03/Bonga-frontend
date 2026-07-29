@@ -1,3 +1,5 @@
+import "../../../components/AdCard.css";
+
 import type { SearchMapListing } from "../searchMapData";
 
 type SearchMapBottomBarProps = {

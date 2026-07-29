@@ -161,6 +161,7 @@ export type AppRoute = {
   crmSection?: 'overview' | 'advertises' | 'users' | 'consultants' | 'agencies' | 'categories' | 'locations' | 'forms' | 'packages' | 'payments' | 'costs' | 'reports' | 'requests' | 'propertyRequests' | 'support'
   layout?: 'crm' | 'dashboard'
   path: string
+  placeholderNote?: string
   requiresAuth?: boolean
   requiresNonUser?: boolean
   title: string
@@ -222,6 +223,8 @@ export function getDefaultCrmPath(session: AuthSession | null) {
 
   return route?.path ?? CRM_PATH
 }
+
+const dashboardHomePlaceholderNote = 'Intentional dashboard placeholder: route currently reuses DashboardHomePage until a dedicated dashboard screen is implemented.'
 
 export const routes: AppRoute[] = [
   {
@@ -601,6 +604,7 @@ export const routes: AppRoute[] = [
     Component: DashboardAgencyPage,
     authority: [REAL_ESTATE_MANAGER],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -648,6 +652,7 @@ export const routes: AppRoute[] = [
     Component: DashboardRequestsPage,
     authority: ['real_estate_manager', 'independent_consultant'],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -657,6 +662,7 @@ export const routes: AppRoute[] = [
     Component: DashboardTeamPage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -666,6 +672,7 @@ export const routes: AppRoute[] = [
     Component: DashboardAddConsultantPage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -675,6 +682,7 @@ export const routes: AppRoute[] = [
     Component: DashboardConsultantInfoPage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -684,6 +692,7 @@ export const routes: AppRoute[] = [
     Component: DashboardConsultantEditPage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -693,6 +702,7 @@ export const routes: AppRoute[] = [
     Component: DashboardConsultantRemovePage,
     authority: ['real_estate_manager'],
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -701,6 +711,7 @@ export const routes: AppRoute[] = [
     title: 'پرداخت‌ها',
     Component: DashboardPaymentsPage,
     layout: 'dashboard',
+    placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
     requiresNonUser: true,
   },

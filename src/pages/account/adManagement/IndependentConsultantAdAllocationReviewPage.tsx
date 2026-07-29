@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
+import "../../../components/AdCard.css";
+
 import { PageFrame } from "../../../app/PageFrame";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
 import LinearPreview from "../../../components/(icons)/LinearPreview";

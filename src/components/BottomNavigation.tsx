@@ -4,10 +4,10 @@ import { getStoredAuthSession, storeLoginRedirectPath } from "../auth/auth-stora
 import { useChatUnreadCountQuery } from "../hooks/chat.hooks";
 import { RouteLink } from "../routes/RouteLink";
 import { CreateAdBottomSheet } from "./CreateAdBottomSheet";
-import LinearHome3 from "./(icons)/LinearHome3";
-import LinearSearch from "./(icons)/LinearSearch";
 import LinearAddCircle from "./(icons)/LinearAddCircle";
 import LinearChat from "./(icons)/LinearChat";
+import LinearHome3 from "./(icons)/LinearHome3";
+import LinearSearch from "./(icons)/LinearSearch";
 import LinearUserSolid from "./(icons)/LinearUserSolid";
 
 type BottomNavigationIconProps = SVGProps<SVGSVGElement> & {

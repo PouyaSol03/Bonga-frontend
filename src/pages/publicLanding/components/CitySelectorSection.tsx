@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import "../../home/homeArtwork.css";
 import { useMostVisitedCityListQuery } from "../../../hooks/city.hooks";
 import type { CityDto } from "../../../services/city.service";
 import { RouteLink } from "../../../routes/RouteLink";

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import './AdCard.css'
 
 import { RouteLink } from '../routes/RouteLink'
 import {

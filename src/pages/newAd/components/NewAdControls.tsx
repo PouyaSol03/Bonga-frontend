@@ -1,5 +1,16 @@
 import type { ReactNode } from "react";
 
+import LinearArrowDown1 from "../../../components/(icons)/LinearArrowDown1";
+import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
+import LinearArrowLeft2 from "../../../components/(icons)/LinearArrowLeft2";
+import LinearArrowRight2 from "../../../components/(icons)/LinearArrowRight2";
+import LinearArrowUp1 from "../../../components/(icons)/LinearArrowUp1";
+import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
+import { Button } from "../../../components/ui/Button";
+import { Chip as UiChip } from "../../../components/ui/Chip";
+import { SelectField } from "../../../components/ui/SelectField";
+import { Switch } from "../../../components/ui/Switch";
+import { TextField } from "../../../components/ui/TextField";
 import { FeaturesIcons } from "../../../components/FeaturesIcons";
 import { TopBar } from "../../../components/TopBar";
 import { formatPrice } from "../../../lib/MoneyHandler";
@@ -88,25 +99,8 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
       }}
       type="button"
     >
-      <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 12 12">
-        <path
-          d="M3.25 3.25l5.5 5.5M8.75 3.25l-5.5 5.5"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="1.5"
-        />
-      </svg>
+      <LinearCancelSmall aria-hidden="true" className="h-3 w-3" />
     </button>
-  );
-}
-
-function FloatingFieldLabel({ show, text }: { show: boolean; text: string }) {
-  if (!show) return null;
-
-  return (
-    <span className="pointer-events-none absolute -top-2 right-4 max-w-[calc(100%-4rem)] truncate bg-white px-1 text-right text-xs font-normal leading-5 text-[#808080]">
-      {text}
-    </span>
   );
 }
 
@@ -136,30 +130,18 @@ export function InputBox({
   const floatingLabel = leftText
     ? placeholder.replace(/\s\*$/, ` (${leftText}) *`)
     : placeholder;
-  const helperText = error || supportingText;
 
   return (
-    <div>
-      <label className={`relative flex h-14 w-full items-center gap-3 rounded-[12px] border bg-white px-4 text-base font-normal leading-6 text-[#1a1a1a] transition focus-within:border-[#0048c4] [direction:ltr] ${error ? "border-[#ff3b30]" : "border-[#cccccc]"}`}>
-        <FloatingFieldLabel show={hasValue} text={floatingLabel} />
-        {hasValue ? (
-          <ClearFieldButton onClick={() => onChange("")} />
-        ) : leftText ? <span className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</span> : null}
-        <input
-          aria-invalid={Boolean(error)}
-          className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
-          inputMode={numeric ? "numeric" : "text"}
-          onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
-          placeholder={hasValue ? "" : placeholder}
-          value={displayValue}
-        />
-      </label>
-      {helperText ? (
-        <p className={`mt-1 px-4 text-right text-xs font-normal leading-5 ${error ? "text-[#ff3b30]" : "text-[#808080]"}`}>
-          {helperText}
-        </p>
-      ) : null}
-    </div>
+    <TextField
+      error={error}
+      inputMode={numeric ? "numeric" : "text"}
+      label={floatingLabel}
+      leadingSlot={hasValue ? <ClearFieldButton onClick={() => onChange("")} /> : leftText ? <span className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</span> : undefined}
+      onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
+      placeholder={hasValue ? "" : placeholder}
+      supportingText={supportingText}
+      value={displayValue}
+    />
   );
 }
 
@@ -176,91 +158,35 @@ export function SelectBox({
   placeholder: string;
   value: string;
 }) {
-  const hasValue = Boolean(value);
-
   return (
-    <div>
-      <button
-        aria-invalid={Boolean(error)}
-        className={`relative flex h-14 w-full items-center gap-3 rounded-[12px] border bg-white px-4 text-base font-normal leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr] ${error ? "border-[#ff3b30]" : "border-[#cccccc]"}`}
-        onClick={onClick}
-        type="button"
-      >
-        <FloatingFieldLabel show={hasValue} text={placeholder} />
-        {hasValue && onClear ? (
-          <ClearFieldButton onClick={onClear} />
-        ) : null}
-
-        <span
-          className={`min-w-0 flex-1 truncate text-right [direction:rtl] ${hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
-            }`}
-        >
-          {value || placeholder}
-        </span>
-
-        {(!hasValue || !onClear) ? (
-          <svg
-            aria-hidden="true"
-            className="h-5 w-5 shrink-0 text-[#4d4d4d]"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M7 10l5 5 5-5"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-            />
-          </svg>
-        ) : null}
-      </button>
-      {error ? (
-        <p className="mt-1 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
-          {error}
-        </p>
-      ) : null}
-    </div>
+    <SelectField
+      error={error}
+      leadingSlot={value && onClear ? <ClearFieldButton onClick={onClear} /> : undefined}
+      onClick={onClick}
+      placeholder={placeholder}
+      value={value}
+    />
   );
 }
 
 export function LocationBox({ value, label }: { value: string; label: string }) {
   return (
-    <button
-      className="flex h-14 w-full items-center justify-end gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:rtl]"
+    <SelectField
       onClick={() => {
         const search = window.location.search || `?label=${encodeURIComponent(label)}`;
         navigateTo(`/new-ad/location${search}`);
       }}
-      type="button"
-    >
-      <span
-        className={`min-w-0 flex-1 truncate text-right ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
-          }`}
-      >
-        {value || "تعیین مکان"}
-      </span>
-
-      <svg
-        aria-hidden="true"
-        className="h-5 w-5 shrink-0 text-[#4d4d4d]"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M15 6l-6 6 6 6"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-      </svg>
-    </button>
+      placeholder="تعیین مکان"
+      value={value}
+      leadingSlot={
+        <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+      }
+    />
   );
 }
 
 export function Tag({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return <button className="flex h-9 items-center gap-2 rounded-[7px] border border-[#0048c4] bg-[#0048c41f] px-3 text-sm font-medium leading-5 text-[#0048c4]" onClick={onRemove} type="button"><span>{label}</span><span className="text-base leading-none">×</span></button>;
+  return <UiChip onClick={onRemove} removable selected>{label}</UiChip>;
 }
 
 export function Chip({
@@ -273,25 +199,21 @@ export function Chip({
   onClick: () => void;
 }) {
   return (
-    <button
-      aria-pressed={selected}
-      className={`flex h-9 items-center justify-center gap-1.5 rounded-[8px] border px-3 text-sm font-medium leading-5 ${selected
-        ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
-        : "border-[#cccccc] bg-white text-[#4d4d4d]"
-        }`}
+    <UiChip
+      icon={
+        <FeaturesIcons
+          feature={item.label}
+          className={`h-5 w-5 shrink-0 object-contain ${selected
+            ? "[filter:brightness(0)_saturate(100%)_invert(20%)_sepia(95%)_saturate(2950%)_hue-rotate(211deg)_brightness(88%)_contrast(105%)]"
+            : "[filter:brightness(0)_saturate(100%)_invert(28%)_sepia(0%)_saturate(0%)_hue-rotate(178deg)_brightness(95%)_contrast(85%)]"
+            }`}
+        />
+      }
       onClick={onClick}
-      type="button"
+      selected={selected}
     >
-      <span>{item.label}</span>
-
-      <FeaturesIcons
-        feature={item.label}
-        className={`h-5 w-5 shrink-0 object-contain ${selected
-          ? "[filter:brightness(0)_saturate(100%)_invert(20%)_sepia(95%)_saturate(2950%)_hue-rotate(211deg)_brightness(88%)_contrast(105%)]"
-          : "[filter:brightness(0)_saturate(100%)_invert(28%)_sepia(0%)_saturate(0%)_hue-rotate(178deg)_brightness(95%)_contrast(85%)]"
-          }`}
-      />
-    </button>
+      {item.label}
+    </UiChip>
   );
 }
 
@@ -302,23 +224,7 @@ export function SwitchButton({
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
-  return (
-    <button
-      aria-checked={checked}
-      className={`relative h-6 w-11 shrink-0 rounded-full ${checked ? "bg-[#0048c4]" : "bg-[#d1d1d1]"
-        }`}
-      onClick={() => onChange(!checked)}
-      role="switch"
-      type="button"
-    >
-      <span
-        className={`absolute left-1 top-1 h-4 w-4 rounded-full ${checked
-          ? "translate-x-5 bg-white"
-          : "translate-x-0 bg-[#808080]"
-          }`}
-      />
-    </button>
-  );
+  return <Switch checked={checked} onChange={onChange} />;
 }
 
 export function Toggle({
@@ -358,32 +264,25 @@ export function Footer({
     <footer className={desktop
       ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
       : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]"}>
-      <button
-        className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6] [direction:rtl] ${desktop ? "w-48" : ""}`}
+      <Button
+        className={desktop ? "w-48" : ""}
         disabled={disabled}
+        fullWidth={!desktop}
         onClick={onPrimary}
-        type="button"
+        trailingIcon={<LinearArrowLeft2 aria-hidden="true" className="h-5 w-5 shrink-0" />}
       >
         <span>{primary}</span>
-        <span className="text-xl leading-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M7.49992 5.83301L3.33325 9.99962L7.49989 14.1664M3.33325 9.99962L16.6666 9.99987" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </span>
-      </button>
+      </Button>
 
-      <button
-        className={`flex h-12 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] [direction:rtl] ${desktop ? "w-40" : ""}`}
+      <Button
+        className={desktop ? "w-40" : ""}
+        fullWidth={!desktop}
         onClick={onBack}
-        type="button"
+        leadingIcon={<LinearArrowRight2 aria-hidden="true" className="h-5 w-5 shrink-0" />}
+        variant="secondary"
       >
-        <span className="text-xl leading-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.4999 5.8335L16.6666 10.0002L12.5 14.1668M16.6666 10.0002H3.33325" stroke="#0048C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </span>
         <span>مرحله قبل</span>
-      </button>
+      </Button>
     </footer>
   );
 }
@@ -408,20 +307,11 @@ export function MoreButton({
         {expanded ? "نمایش کمتر" : `نمایش ${count} مورد بیشتر`}
       </span>
 
-      <svg
-        aria-hidden="true"
-        className="h-5 w-5 shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d={expanded ? "M7 14l5-5 5 5" : "M7 10l5 5 5-5"}
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-      </svg>
+      {expanded ? (
+        <LinearArrowUp1 aria-hidden="true" className="h-5 w-5 shrink-0" />
+      ) : (
+        <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0" />
+      )}
     </button>
   );
 }
@@ -459,21 +349,22 @@ export function MoreFeaturesFooter({
     <footer className={desktop
       ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
       : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]"}>
-      <button
-        className={`h-12 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white ${desktop ? "w-48" : ""}`}
+      <Button
+        className={desktop ? "w-48" : ""}
+        fullWidth={!desktop}
         onClick={onConfirm}
-        type="button"
       >
         تایید
-      </button>
+      </Button>
 
-      <button
-        className={`h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] ${desktop ? "w-40" : ""}`}
+      <Button
+        className={desktop ? "w-40" : ""}
+        fullWidth={!desktop}
         onClick={onCancel}
-        type="button"
+        variant="secondary"
       >
         انصراف
-      </button>
+      </Button>
     </footer>
   );
 }

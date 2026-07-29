@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "./searchMap.css";
 import {
   getApiAssetUrl,
   getApiErrorMessage,

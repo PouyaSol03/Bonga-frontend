@@ -1,4 +1,6 @@
 import { useState } from "react";
+import "../../../components/AdCard.css";
+
 import { PageFrame } from "../../../app/PageFrame";
 import { BottomSheet } from "../../../components/BottomSheet";
 import { TopBar } from "../../../components/TopBar";

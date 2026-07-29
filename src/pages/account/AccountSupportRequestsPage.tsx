@@ -377,14 +377,13 @@ function RequestOptionBottomSheet({
     <BottomSheet
       ariaLabel={title}
       contentClassName="max-h-[calc(100dvh-150px)] overflow-y-auto pb-3"
-      heightClassName="h-auto max-h-[calc(100dvh-72px)] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
       isOpen={isOpen}
       onClose={onClose}
-      panelPaddingClassName="pt-3"
       showBackButton={false}
       showHeaderDivider
       title={title}
       titleAlign="center"
+      variant="actions"
     >
       {options.some((option) => option.description) ? (
         <div>

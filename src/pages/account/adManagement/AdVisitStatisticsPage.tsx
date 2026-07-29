@@ -10,6 +10,8 @@ import {
   YAxis,
 } from "recharts";
 
+import "../../../components/AdCard.css";
+
 import { PageFrame } from "../../../app/PageFrame";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
 import { BottomSheet } from "../../../components/BottomSheet";

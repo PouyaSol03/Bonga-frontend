@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
+import { SearchInputBar } from "../../../components/ui/SearchBar";
 import { ConsultantAdCard } from "./ConsultantAdCard";
 import { adManagementPaths, getAdManagementRouteState, getAdsForTab } from "./adManagementData";
 
@@ -26,13 +27,15 @@ export function IndependentConsultantAdSearchPage() {
         backTo={adManagementPaths.root}
         className="[&_a]:text-[#4d4d4d]"
         centerSlot={
-          <input
+          <SearchInputBar
             aria-label="جستجوی آگهی"
             autoFocus
-            className="h-12 w-full border-0 bg-transparent px-0 text-right text-base font-semibold leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6]"
-            dir="rtl"
+            compact
+            containerClassName="border-0 bg-transparent px-0"
+            inputClassName="text-base font-semibold caret-[#0048c4]"
             inputMode="search"
-            onChange={(event) => setQuery(event.target.value)}
+            onValueChange={setQuery}
+            showSearchIcon={false}
             type="search"
             value={query}
           />

@@ -1,3 +1,5 @@
+import "../../../components/AdCard.css";
+
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";

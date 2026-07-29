@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import { TopBar } from "../../../components/TopBar";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { SearchIcon } from "./AdManagementIcons";
+import { SearchInputBar } from "../../../components/ui/SearchBar";
 import { adManagementPublisherOptions, type AdManagementPublisherOption } from "./adManagementData";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
 
@@ -90,26 +90,16 @@ export function PublisherSelectField({
           />
 
           <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-28 pt-4 [-webkit-overflow-scrolling:touch]">
-            <label className="flex h-[46px] items-center gap-2 rounded-[10px] border border-[#808080] bg-white px-3 focus-within:border-[#0048c4] [direction:ltr]">
-              <SearchIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-              <input
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="جستجو"
-                type="search"
-                value={query}
-              />
-              {query ? (
-                <button
-                  aria-label="پاک کردن جستجو"
-                  className="grid h-6 w-6 shrink-0 place-items-center text-[#a6a6a6]"
-                  onClick={() => setQuery("")}
-                  type="button"
-                >
-                  <ClearCircleIcon />
-                </button>
-              ) : null}
-            </label>
+            <SearchInputBar
+              aria-label="جستجو"
+              containerClassName="h-[46px] rounded-[10px] border-[#808080]"
+              inputClassName="text-sm leading-5"
+              onClear={() => setQuery("")}
+              onValueChange={setQuery}
+              placeholder="جستجو"
+              type="search"
+              value={query}
+            />
 
             {filteredPublishers.length > 0 ? (
               <div className="mt-8 space-y-5">
@@ -181,14 +171,5 @@ export function PublisherCard({ publisher }: { publisher: AdManagementPublisherO
         <img alt="" className="h-full w-full object-cover" src={publisher.image} />
       </span>
     </div>
-  );
-}
-
-function ClearCircleIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.4" />
-      <path d="m7.5 7.5 5 5m0-5-5 5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.3" />
-    </svg>
   );
 }

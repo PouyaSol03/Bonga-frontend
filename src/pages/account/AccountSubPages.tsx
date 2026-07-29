@@ -35,6 +35,7 @@ import { AdCardSkeleton } from "../../components/AdCardSkeleton";
 import { BottomSheet } from "../../components/BottomSheet";
 import { DemoNotice } from "../../components/DemoNotice";
 import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
+import { Button } from "../../components/ui/Button";
 import { getRequestErrorState } from "../../components/ErrorState";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { TopBar } from "../../components/TopBar";
@@ -792,40 +793,42 @@ export function AccountNotesPage() {
       <BottomSheet
         ariaLabel="حذف همه یادداشت‌ها"
         contentClassName="px-4 pt-7"
-        heightClassName="h-[220px]"
         isOpen={isConfirmDeleteAllOpen}
         onClose={() => setIsConfirmDeleteAllOpen(false)}
         showHeader={false}
+        variant="confirm"
       >
         <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه یادداشت‌ها مطمئن هستید؟
         </p>
         <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
-            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4] disabled:opacity-50"
+          <Button
+            className="h-10"
             disabled={deleteNote.isPending}
             onClick={deleteAllNotes}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             بله
-          </button>
-          <button
-            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4]"
+          </Button>
+          <Button
+            className="h-10"
             onClick={() => setIsConfirmDeleteAllOpen(false)}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             خیر
-          </button>
+          </Button>
         </div>
       </BottomSheet>
 
       <BottomSheet
         ariaLabel="ویرایش یادداشت"
         contentClassName="px-4 pt-4"
-        heightClassName="h-[360px]"
         isOpen={Boolean(editingNote)}
         onClose={() => setEditingNote(null)}
         title="ویرایش یادداشت"
+        variant="form"
       >
         <textarea
           aria-label="متن یادداشت"
@@ -835,21 +838,23 @@ export function AccountNotesPage() {
           value={noteDraft}
         />
         <div className="mt-5 grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
-            className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white disabled:opacity-50"
+          <Button
+            className="h-10"
             disabled={!noteDraft.trim() || !editingNote || !getNoteAdvertiseId(editingNote) || saveNote.isPending}
+            loading={saveNote.isPending}
             onClick={updateEditingNote}
-            type="button"
+            size="sm"
           >
-            {saveNote.isPending ? "در حال ذخیره..." : "ذخیره"}
-          </button>
-          <button
-            className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4]"
+            ذخیره
+          </Button>
+          <Button
+            className="h-10"
             onClick={() => setEditingNote(null)}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             انصراف
-          </button>
+          </Button>
         </div>
       </BottomSheet>
     </AccountPageShell>
@@ -958,30 +963,32 @@ export function AccountBookmarksPage() {
       <BottomSheet
         ariaLabel="حذف همه نشان‌ها"
         contentClassName="px-4 pt-7"
-        heightClassName="h-[220px]"
         isOpen={isConfirmDeleteAllOpen}
         onClose={() => setIsConfirmDeleteAllOpen(false)}
         showHeader={false}
+        variant="confirm"
       >
         <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه نشان‌ها مطمئن هستید؟
         </p>
         <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
-            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4] disabled:opacity-50"
+          <Button
+            className="h-10"
             disabled={deleteBadge.isPending}
             onClick={deleteAllBookmarks}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             بله
-          </button>
-          <button
-            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4]"
+          </Button>
+          <Button
+            className="h-10"
             onClick={() => setIsConfirmDeleteAllOpen(false)}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             خیر
-          </button>
+          </Button>
         </div>
       </BottomSheet>
     </AccountPageShell>
@@ -1112,11 +1119,11 @@ export function AccountIdentityPage() {
       <BottomSheet
         ariaLabel="هشدار تغییر مالکیت سیم‌کارت"
         contentClassName="px-4 pb-4 pt-4"
-        heightClassName="h-[220px]"
         isOpen={isOwnershipWarningOpen}
         onClose={() => setIsOwnershipWarningOpen(false)}
         panelPaddingClassName="pt-4"
         showHeader={false}
+        variant="confirm"
       >
         <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
           <WarningTriangleIcon className="h-5 w-5 shrink-0" />
@@ -1134,24 +1141,25 @@ export function AccountIdentityPage() {
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-3 [direction:ltr]">
-          <button
-            className="h-10 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+          <Button
+            className="h-10"
             onClick={() => {
               setIsOwnershipWarningOpen(false);
               setStep("verified");
               showNotice("درخواست تغییر مالکیت سیم‌کارت ثبت شد");
             }}
-            type="button"
+            size="sm"
           >
             تایید
-          </button>
-          <button
-            className="h-10 rounded-lg border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4]"
+          </Button>
+          <Button
+            className="h-10"
             onClick={() => setIsOwnershipWarningOpen(false)}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             انصراف
-          </button>
+          </Button>
         </div>
       </BottomSheet>
 

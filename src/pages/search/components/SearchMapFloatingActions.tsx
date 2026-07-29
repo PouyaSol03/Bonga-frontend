@@ -38,7 +38,7 @@ function SearchMapFloatingActionsComponent({
       {showListButton ? (
         <div className="pointer-events-auto absolute bottom-0 left-1/2 -translate-x-1/2">
           <button
-            className="flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            className="flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             type="button"
             tabIndex={isHidden ? -1 : 0}
             onClick={onListClick}

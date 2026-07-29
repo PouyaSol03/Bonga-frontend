@@ -5,6 +5,7 @@ import { PageFrame } from "../../../app/PageFrame";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
 import { Snackbar } from "../../../components/Snackbar";
 import { TopBar } from "../../../components/TopBar";
+import { ChoiceIndicator } from "../../../components/ui/Choice";
 import { USER } from "../../../constants/roles.constants";
 import { storePaymentReturnTarget } from "../../../utils/payment-return";
 import { useChargeWalletMutation, useWalletQuery } from "../../../hooks/account.hooks";
@@ -358,7 +359,7 @@ function CheckoutTariffView({
             </span>
 
             <span className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
-              <SelectionBox checked disabled />
+              <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
               هزینه ثبت آگهی
             </span>
           </div>
@@ -392,7 +393,7 @@ function CheckoutTariffView({
 
                   <div className="min-w-0 flex-1 text-right [direction:rtl]">
                     <div className="flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#808080]">
-                      <SelectionBox checked={false} disabled />
+                      <ChoiceIndicator checked={false} className="h-5 w-5 rounded-[4px]" disabled />
                       {option.title}
                     </div>
                     <p className="m-0 mt-4 text-sm font-normal leading-6 text-[#808080]">
@@ -916,7 +917,7 @@ function PaymentMethodOption({
       onClick={onClick}
       type="button"
     >
-      <RadioIndicator active={active} disabled={disabled} />
+      <ChoiceIndicator checked={active} className="h-5 w-5" disabled={disabled} type="radio" />
       <span className="inline-flex items-center gap-3 text-right [direction:rtl]">
         <PaymentOptionIcon className="h-7 w-7 shrink-0" icon={icon} />
         <span className="block">
@@ -953,50 +954,6 @@ function SummaryRow({
       </span>
       <span className={`[direction:rtl] ${labelClassName}`}>{label}</span>
     </div>
-  );
-}
-
-function SelectionBox({ checked, disabled = false }: { checked: boolean; disabled?: boolean }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${
-        checked
-          ? disabled
-            ? "bg-[#b8b8b8] text-white"
-            : "bg-[#0048c4] text-white"
-          : disabled
-            ? "border border-[#b8b8b8] bg-white text-transparent"
-            : "border border-[#808080] bg-white text-transparent"
-      }`}
-    >
-      <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16">
-        <path
-          d="m3.5 8.5 3 3 6-7"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-        />
-      </svg>
-    </span>
-  );
-}
-
-function RadioIndicator({ active, disabled = false }: { active: boolean; disabled?: boolean }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${
-        disabled
-          ? "border-[#cccccc]"
-          : active
-            ? "border-[#0057d9]"
-            : "border-[#808080]"
-      }`}
-    >
-      {active && !disabled ? <span className="h-2.5 w-2.5 rounded-full bg-[#0057d9]" /> : null}
-    </span>
   );
 }
 

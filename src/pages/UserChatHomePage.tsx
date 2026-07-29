@@ -10,6 +10,7 @@ import {
   sendChatTyping,
 } from "../api/chat-socket";
 import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
+import { Button } from "../components/ui/Button";
 import { DemoNotice } from "../components/DemoNotice";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
@@ -32,7 +33,7 @@ import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
 import { TopBarNavigationLayout } from "../app/TopBarNavigationLayout";
-import NavHomeIcon from "../assets/icons/NavHomeIcon";
+import NavHomeIcon from "../components/(icons)/NavHomeIcon";
 import { RouteLink } from "../routes/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../lib/browserLocation";
 import { getStoredAuthSession } from "../auth/auth-storage";
@@ -1690,12 +1691,11 @@ function SendFileBottomSheet({
       ariaLabel="ارسال فایل"
       className="rounded-t-[18px]"
       contentClassName="mt-2"
-      heightClassName="h-[260px]"
       isOpen={isOpen}
       onClose={onClose}
-      panelPaddingClassName="pt-2"
       scrimClassName="bg-[#1a1a1a]/65"
       title="ارسال"
+      variant="actions"
       zIndexClassName="z-[60]"
     >
       <BottomSheetActionList
@@ -1742,12 +1742,11 @@ function ChatSettingsBottomSheet({
       ariaLabel="تنظیمات مکالمه"
       className="rounded-t-[18px]"
       contentClassName="mt-2"
-      heightClassName="h-[260px]"
       isOpen={isOpen}
       onClose={onClose}
-      panelPaddingClassName="pt-2"
       scrimClassName="bg-[#1a1a1a]/65"
       title="تنظیمات مکالمه"
+      variant="actions"
       zIndexClassName="z-[60]"
     >
       <BottomSheetActionList
@@ -1775,37 +1774,37 @@ function BlockChatConfirmBottomSheet({
     <BottomSheet
       ariaLabel="تأیید مسدود کردن کاربر"
       className="rounded-t-[20px]"
-      contentClassName="h-full"
-      heightClassName="h-[144px]"
+      contentClassName="px-4 pb-7 pt-7"
       isOpen={isOpen}
       onClose={onCancel}
-      panelPaddingClassName="pt-0"
       scrimClassName="bg-[#1a1a1a]/60"
       showHandle={false}
       showHeader={false}
+      variant="confirm"
       zIndexClassName="z-[70]"
     >
-      <div className="flex h-full flex-col justify-between px-4 pb-7 pt-7">
+      <div className="flex flex-col gap-5">
         <p className="m-0 text-center text-base font-medium leading-6 text-[#1a1a1a]">
           آیا از مسدود کردن کاربر مطمئن هستید؟
         </p>
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
-            className="h-10 rounded-lg bg-[#0048c4] px-3 text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+          <Button
             disabled={isPending}
+            fullWidth
             onClick={onConfirm}
-            type="button"
+            size="sm"
           >
             {isPending ? "در حال مسدود کردن..." : "بله مسدود کن!"}
-          </button>
-          <button
-            className="h-10 rounded-lg border border-[#0048c4] bg-white px-3 text-sm font-semibold leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:opacity-60"
+          </Button>
+          <Button
             disabled={isPending}
+            fullWidth
             onClick={onCancel}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             انصراف
-          </button>
+          </Button>
         </div>
       </div>
     </BottomSheet>

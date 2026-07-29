@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
+import "./home/homeArtwork.css";
 
 import { AdCard } from "../components/AdCard";
 
@@ -28,6 +29,8 @@ import SaleCategoryIcon from "../assets/icons/SaleCategoryIcon.svg";
 import RentCategoryIcon from "../assets/icons/RentCategoryIcon.svg";
 import ProjectCategoryIcon from "../assets/icons/ProjectCategoryIcon.svg";
 import ConsultantCategoryIcon from "../assets/icons/ConsultantCategoryIcon.svg";
+import LinearNotification from "../components/(icons)/LinearNotification";
+import LinearSearch from "../components/(icons)/LinearSearch";
 
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
@@ -347,11 +350,11 @@ export function HomePage() {
           <div className="flex items-center justify-center gap-2">
             <button
               aria-label="اعلان‌ها"
-              className="relative grid h-10 w-10 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              className="relative grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
               onClick={navigateToNotifications}
               type="button"
             >
-              <NotificationIcon />
+              <LinearNotification className="h-6 w-6" />
               {unreadNotificationsCount > 0 ? (
                 <span
                   aria-hidden="true"
@@ -361,7 +364,7 @@ export function HomePage() {
             </button>
 
             <button
-              className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2 text-sm font-medium leading-5 text-[#0048C4] min-[390px]:py-2.5 min-[390px]:text-base min-[390px]:leading-6"
+              className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4]"
               type="button"
               onClick={() => setIsCityOpen(true)}
             >
@@ -394,14 +397,14 @@ export function HomePage() {
             }}
           >
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pl-12 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] min-[390px]:text-base min-[390px]:leading-6"
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] "
               type="search"
               placeholder="جستجو در آگهی‌ها"
               onFocus={() => setIsSearchOpen(true)}
               onClick={() => setIsSearchOpen(true)}
               readOnly
             />
-            <span className="home-search-icon" aria-hidden="true" />
+            <LinearSearch className="h-6 w-6 text-[#4d4d4d] ml-3"/>
           </label>
 
           <div
@@ -422,7 +425,7 @@ export function HomePage() {
             {!isCategoryLoading &&
               quickActions.map((item) => (
                 <button
-                  className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1.5 bg-white p-0 text-base font-medium leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:min-h-[70px] min-[390px]:gap-[7px]"
+                  className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-0.5 bg-white p-0 text-xs! font-medium! leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                   key={item.label}
                   type="button"
                   onClick={() => {
@@ -441,7 +444,7 @@ export function HomePage() {
                   <img
                     src={item.icon}
                     alt=""
-                    className="h-8 w-8 shrink-0 min-[390px]:h-10 min-[390px]:w-10"
+                    className="h-8 w-8 shrink-0"
                     aria-hidden="true"
                   />
 

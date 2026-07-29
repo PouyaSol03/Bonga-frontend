@@ -4,10 +4,13 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage
 import { useAdvertisementPreviewQuery } from "../../hooks/advertisement.hooks";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
+import "../../components/AdCard.css";
+
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
+import { SearchInputBar } from "../../components/ui/SearchBar";
 import type { AdCardData } from "../../components/AdCard";
 import { RouteLink } from "../../routes/RouteLink";
 import { latestMashhadAds } from "../home/homeData";
@@ -312,18 +315,17 @@ function ManagerPublisherPickerPage({
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-3">
-        <label className="flex h-10 items-center gap-2 rounded-lg border border-[#d9d9d9] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-            onChange={(event) => setSearchValue(event.target.value)}
-            placeholder="جستجوی مشاور"
-            type="search"
-            value={searchValue}
-          />
-          <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 24 24">
-            <path d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
-          </svg>
-        </label>
+        <SearchInputBar
+          aria-label="جستجوی مشاور"
+          containerClassName="rounded-lg border-[#d9d9d9]"
+          inputClassName="text-xs leading-5"
+          onClear={() => setSearchValue("")}
+          onValueChange={setSearchValue}
+          placeholder="جستجوی مشاور"
+          size="dense"
+          type="search"
+          value={searchValue}
+        />
 
         <div className="mt-5 grid gap-2" role="radiogroup" aria-label="انتخاب منتشرکننده">
           {visiblePublishers.length === 0 ? <SearchEmptyState /> : visiblePublishers.map((publisher) => {

@@ -6,6 +6,8 @@ import {
   FormTextField,
 } from "../../components/form/FormControls";
 import { BottomSheet } from "../../components/BottomSheet";
+import { Button } from "../../components/ui/Button";
+import { ChoiceIndicator } from "../../components/ui/Choice";
 import { TopBar } from "../../components/TopBar";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
@@ -1829,7 +1831,7 @@ function NeighborhoodFilterSection({
                         {selectedCity?.name ?? "شهر انتخاب‌شده"}
                       </span>
                     </span>
-                    <SelectionCheckIndicator checked={isSelected} />
+                    <ChoiceIndicator checked={isSelected} />
                   </button>
                 );
               })}
@@ -1843,31 +1845,19 @@ function NeighborhoodFilterSection({
           )}
         </div>
         <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-          <button
-            className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white"
+          <Button
+            fullWidth
             onClick={() => setIsPickerOpen(false)}
-            type="button"
+            size="sm"
           >
             تایید
-          </button>
+          </Button>
         </div>
             </div>
           </PageFrame>
         </div>
       ) : null}
     </section>
-  );
-}
-
-function SelectionCheckIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg border ${
-        checked ? "border-[#0048C4] bg-[#0048C4] text-white" : "border-[#808080] bg-white"
-      }`}
-    >
-      {checked ? <img alt="" src="/icons/checkTick.svg" /> : null}
-    </span>
   );
 }
 
@@ -2034,12 +2024,12 @@ function RangeSelectField({
       <BottomSheet
         ariaLabel={isCustomInputVisible ? customRangeOptionLabel : label}
         contentClassName="min-h-0 overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
-        heightClassName="max-h-[min(74dvh,520px)]"
         isOpen={isOpen}
         onBack={isCustomInputVisible ? () => setIsCustomInputVisible(false) : closeSheet}
         onClose={closeSheet}
         showHeaderDivider
         title={isCustomInputVisible ? customRangeOptionLabel : label}
+        variant="form"
       >
         {isCustomInputVisible ? (
           <div className="space-y-4 pt-2" dir="rtl">
@@ -2051,9 +2041,9 @@ function RangeSelectField({
               placeholder="مقدار دلخواه را وارد کنید"
               value={customValue}
             />
-            <button
-              className="h-11 w-full rounded-xl bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:cursor-not-allowed disabled:bg-[#d9d9d9]"
+            <Button
               disabled={!normalizeRangeNumber(customValue)}
+              fullWidth
               onClick={() => {
                 const normalizedCustomValue = normalizeRangeNumber(customValue);
 
@@ -2062,10 +2052,10 @@ function RangeSelectField({
                 onChange(normalizedCustomValue);
                 closeSheet();
               }}
-              type="button"
+              size="sm"
             >
               تایید مقدار
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-1" dir="rtl">
@@ -2199,9 +2189,7 @@ function CheckboxRow({
       <span className="min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
         {label}
       </span>
-      <span className={`grid h-5 w-5 shrink-0 place-items-center rounded border ${checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"}`}>
-        {checked ? <img alt="" aria-hidden="true" className="h-3.5 w-3.5" src="/icons/checkTick.svg" /> : null}
-      </span>
+      <ChoiceIndicator checked={checked} className="h-5 w-5 rounded" />
     </button>
   );
 }
@@ -2252,11 +2240,11 @@ function SelectOnlySection({
       <BottomSheet
         ariaLabel={label}
         contentClassName="px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2"
-        heightClassName="max-h-[min(70dvh,480px)]"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         showHeaderDivider
         title={label}
+        variant="actions"
       >
         <div className="space-y-1" dir="rtl">
           {value ? (
@@ -2290,7 +2278,7 @@ function SelectOnlySection({
                 type="button"
               >
                 <span>{option}</span>
-                <SelectionCheckIndicator checked={selected} />
+                <ChoiceIndicator checked={selected} />
               </button>
             );
           })}

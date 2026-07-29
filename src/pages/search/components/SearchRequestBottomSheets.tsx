@@ -1,4 +1,7 @@
 import { BottomSheet } from "../../../components/BottomSheet";
+import { Button } from "../../../components/ui/Button";
+import { IconButton } from "../../../components/ui/IconButton";
+import { ListItem } from "../../../components/ui/ListItem";
 import LinearCity from "../../../components/(icons)/LinearCity";
 import LinearUser from "../../../components/(icons)/LinearUserSolid";
 import LinearArrowRight2 from "../../../components/(icons)/LinearArrowRight2";
@@ -35,14 +38,14 @@ function RequestSuccessContent({
 }: Pick<SearchRequestSenderBottomSheetProps, "onClose" | "onOpenResults">) {
   return (
     <div className="text-right [direction:rtl]">
-      <button
+      <IconButton
         aria-label="بستن"
-        className="grid h-6 w-6 place-items-center rounded-full text-[#444444] transition hover:bg-[#f3f3f3] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        className="text-[#444444]"
         onClick={onClose}
-        type="button"
+        size="dense"
       >
         <LinearArrowRight2 />
-      </button>
+      </IconButton>
 
       <div className="flex flex-col items-center">
       <div className="mt-10 flex justify-center">
@@ -56,13 +59,13 @@ function RequestSuccessContent({
         یافته‌های جدید به محض ثبت، در بخش نتایج درخواست‌های من در مدیریت درخواست‌های پنل کاربری برایتان نمایش داده خواهد شد.
       </p>
 
-      <button
-        className="mt-4 flex items-center justify-center rounded-xl bg-[#0756cc] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#0048b8] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      <Button
+        className="mt-4"
         onClick={onOpenResults}
-        type="button"
+        size="sm"
         >
         نتایج درخواست‌های من
-      </button>
+      </Button>
         </div>
     </div>
   );
@@ -81,41 +84,34 @@ export function SearchRequestSenderBottomSheet({
       <BottomSheet
         ariaLabel="ثبت درخواست"
         contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-4"
-        heightClassName=""
         isOpen={isOpen && !isSuccess}
         onClose={onClose}
         title="ثبت درخواست"
+        variant="actions"
         zIndexClassName="z-[2000]"
       >
         {options.map((option) => (
-          <button
-            className="flex w-full items-center gap-2 border-b border-[#cccccc] bg-white px-4 py-2 text-right last:border-b-0 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          <ListItem
+            className="border-b border-[#cccccc] last:border-b-0"
+            description={option.description}
             key={option.id}
+            leading={<RequestSenderIcon type={option.icon} />}
             onClick={() => onSelect(option.id)}
             tabIndex={isOpen && !isSuccess ? 0 : -1}
-            type="button"
+            title={option.title}
+            trailing={<LinearArrowLeft1 />}
           >
-            <span className="block size-6 shrink-0 text-[#4d4d4d]">
-              <RequestSenderIcon type={option.icon} />
-            </span>
-            <span className="min-w-0 flex-1 py-1.5">
-              <span className="block text-base font-normal text-[#1a1a1a]">{option.title}</span>
-              <span className="block text-sm font-normal text-[#808080]">{option.description}</span>
-            </span>
-            <span className="block h-6 w-6 text-[#4d4d4d]">
-              <LinearArrowLeft1 />
-            </span>
-          </button>
+          </ListItem>
         ))}
       </BottomSheet>
 
       <BottomSheet
         ariaLabel="ثبت موفق درخواست"
         contentClassName="px-4 pt-4 pb-6"
-        heightClassName=""
         isOpen={isOpen && isSuccess}
         onClose={onClose}
         showHeader={false}
+        variant="confirm"
         zIndexClassName="z-[2000]"
       >
         <RequestSuccessContent onClose={onClose} onOpenResults={onOpenResults} />

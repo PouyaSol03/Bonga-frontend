@@ -1,4 +1,6 @@
-export type SnackbarVariant = "error" | "success" | "info";
+import LinearCancelSmall from "./(icons)/LinearCancelSmall";
+
+export type SnackbarVariant = "error" | "success" | "info" | "warning";
 
 type SnackbarProps = {
   actionLabel?: string;
@@ -15,9 +17,9 @@ const snackbarStyles: Record<
   { background: string; border: string; text: string }
 > = {
   error: {
-    background: "bg-[#fff7f0]",
-    border: "border-[#ff6d00]",
-    text: "text-[#ff6d00]",
+    background: "bg-[#ffebed]",
+    border: "border-[#ee3623]",
+    text: "text-[#ee3623]",
   },
   info: {
     background: "bg-[#f3f7ff]",
@@ -28,6 +30,11 @@ const snackbarStyles: Record<
     background: "bg-[#effaf5]",
     border: "border-[#11a366]",
     text: "text-[#11a366]",
+  },
+  warning: {
+    background: "bg-[#fff8e1]",
+    border: "border-[#ffb100]",
+    text: "text-[#ff6d00]",
   },
 };
 
@@ -57,7 +64,7 @@ export function Snackbar({
           onClick={onDismiss}
           type="button"
         >
-          <CloseIcon />
+          <LinearCancelSmall aria-hidden="true" className="h-6 w-6" />
         </button>
 
         <div className={`min-w-0 flex-1 px-3 py-3 text-right [direction:rtl] ${styles.text}`}>
@@ -75,18 +82,5 @@ export function Snackbar({
         </div>
       </div>
     </div>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M9 9l6 6m0-6-6 6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </svg>
   );
 }

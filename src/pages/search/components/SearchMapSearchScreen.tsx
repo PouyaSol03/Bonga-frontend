@@ -4,6 +4,7 @@ import BoldBookmarkSolid from "../../../components/(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
 import { TopBar } from "../../../components/TopBar";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import { SearchInputBar } from "../../../components/ui/SearchBar";
 import SearchErrors from "../../home/components/SearchErrors";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import {
@@ -414,63 +415,44 @@ function SearchMapField({
   onSubmit: () => void;
   query: string;
 }) {
-  return (
-    <form
-      className="relative flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
-    >
-      <button
-        aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
-        aria-pressed={isSaved}
-        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
-          isSaved || isSaving
-            ? "text-[#1a1a1a]"
-            : "text-[#4d4d4d] active:bg-[#0048c414]"
-        }`}
-        disabled={isSaveDisabled || isSaving || isSaved}
-        onClick={onSavedClick}
-        tabIndex={isOpen ? 0 : -1}
-        type="button"
-      >
-        {isSaved || isSaving ? (
-          <BoldBookmarkSolid className="h-6 w-6" />
-        ) : (
-          <LinearBookmarkSolid className="h-6 w-6" />
-        )}
-      </button>
-      <div className="h-6 w-px me-[11px] bg-[#cccccc]" />
-      <input
-        aria-label="جستجو در آگهی‌های نقشه"
-        autoFocus={isOpen}
-        className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-        onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="جستجو"
-        tabIndex={isOpen ? 0 : -1}
-        type="search"
-        value={query}
-      />
-      {query ? (
+  const savedSlot = (
         <button
-          aria-label="پاک کردن جستجو"
-          className="grid h-8 w-8 shrink-0 place-items-center text-[#808080]"
-          onClick={() => onQueryChange("")}
+      aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
+      aria-pressed={isSaved}
+      className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
+        isSaved || isSaving
+          ? "text-[#1a1a1a]"
+          : "text-[#4d4d4d] active:bg-[#0048c414]"
+      }`}
+      disabled={isSaveDisabled || isSaving || isSaved}
+      onClick={onSavedClick}
+      tabIndex={isOpen ? 0 : -1}
+      type="button"
+    >
+      {isSaved || isSaving ? (
+        <BoldBookmarkSolid className="h-6 w-6" />
+      ) : (
+        <LinearBookmarkSolid className="h-6 w-6" />
+      )}
+    </button>
+  );
+
+  return (
+    <SearchInputBar
+      aria-label="جستجو در آگهی‌های نقشه"
+      autoFocus={isOpen}
+      compact
+      containerClassName="border-[#808080]"
+      inputClassName="home-search-input"
+      onClear={() => onQueryChange("")}
+      onSubmit={onSubmit}
+      onValueChange={onQueryChange}
+      placeholder="جستجو"
+      savedSlot={savedSlot}
+      showSearchIcon={false}
           tabIndex={isOpen ? 0 : -1}
-          type="button"
-        >
-          <svg aria-hidden="true" fill="none" height="24" viewBox="0 0 24 24" width="24">
-            <path
-              d="M15.15 15.15L8.85068 8.85M8.85136 15.15L15.1507 8.85M21 12C21 7.02943 16.9705 3 12 3C7.02943 3 3 7.02943 3 12C3 16.9705 7.02943 21 12 21C16.9705 21 21 16.9705 21 12Z"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </button>
-      ) : null}
-    </form>
+      type="search"
+      value={query}
+    />
   );
 }

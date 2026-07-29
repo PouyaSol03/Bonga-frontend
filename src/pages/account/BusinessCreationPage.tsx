@@ -16,6 +16,7 @@ import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { RouteLink } from "../../routes/RouteLink";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
+import { ChoiceIndicator } from "../../components/ui/Choice";
 
 export type BusinessType = "agency" | "independent-consultant";
 
@@ -721,7 +722,7 @@ function AgencyFields({
                     type="button"
                   >
                     <span className="min-w-0 flex-1 truncate">{neighborhood.name}</span>
-                    <SelectionCheckIndicator checked={isSelected} />
+                    <ChoiceIndicator checked={isSelected} />
                   </button>
                 );
               })}
@@ -940,7 +941,7 @@ function BusinessTypeCard({
       onClick={onClick}
       type="button"
     >
-      <RadioIndicator checked={isSelected} />
+      <ChoiceIndicator checked={isSelected} className="h-[18px] w-[18px]" type="radio" />
       <span className="mx-4 h-10 w-px shrink-0 bg-[#0048c433]" aria-hidden="true" />
       <BusinessSmallIcon type={icon} />
       <span className="mr-2 min-w-0 flex-1 truncate text-base font-semibold leading-6">
@@ -1058,30 +1059,6 @@ function RequiredLabel({ children }: { children: ReactNode }) {
       {children}
       <span className="mr-1 text-[#c11004]">*</span>
     </label>
-  );
-}
-
-function SelectionCheckIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg border ${checked
-        ? "border-[#0048c4] bg-[#0048c4] text-white"
-        : "border-[#808080] bg-white"
-        }`}
-    >
-      {checked ? <img alt="" src="/icons/checkTick.svg" /> : null}
-    </span>
-  );
-}
-
-function RadioIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border ${checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"
-        }`}
-    >
-      {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-    </span>
   );
 }
 

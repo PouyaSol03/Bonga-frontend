@@ -21,6 +21,7 @@
 - Do not change API payloads, query keys, auth/session shape, map behavior, or route destinations unless a task explicitly says to.
 - Do not replace the custom router with React Router in this pass.
 - Do not add a new component library or CSS-in-JS system.
+- All product UI icons must come from TSX icon components under `src/components/(icons)/`. Do not add inline SVGs, CSS-drawn icons, raw SVG imports, or new icon files under `src/assets/icons/` for app UI. If an icon is missing, create a typed TSX icon component in `src/components/(icons)/` and import it from there.
 - Do not touch unrelated dirty worktree files except the planned documentation and code files.
 - Run `npm.cmd run build` after every implementation batch.
 
@@ -53,6 +54,7 @@ The shared component layer is incomplete. `NewAdControls.tsx` defines its own `I
 - `src/components/ui/Avatar.tsx`: user, agency, fallback initials, icon fallback.
 - `src/components/ui/Divider.tsx`: semantic separators.
 - `src/components/ui/Slider.tsx`: reusable horizontal carousel scaffolding where Swiper is not required.
+- `src/components/(icons)/*.tsx`: the only source for app UI icons. Existing raw SVG imports, inline SVG definitions, CSS-drawn icons, and `src/assets/icons/Nav*.tsx` product icons should be migrated here or replaced by matching existing components.
 - `src/routes/routeChrome.ts`: route chrome metadata, bottom-navigation key mapping, top-bar descriptors, and fallback back targets.
 - `src/pages/search/searchMap.css`: Leaflet marker and map-specific CSS that cannot be expressed safely with Tailwind.
 - `src/pages/home/homeArtwork.css` or TSX artwork components: home-specific drawn/illustration CSS that should not live globally.
@@ -121,8 +123,8 @@ The shared component layer is incomplete. `NewAdControls.tsx` defines its own `I
 ### Bottom Navigation
 
 - Keep `src/components/BottomNavigation.tsx` as the one mobile bottom navigation.
-- Use the dynamic TSX icons in `src/assets/icons/NavHomeIcon.tsx`, `NavSearchIcon.tsx`, `NavChatIcon.tsx`, and `NavAccountIcon.tsx` for active/inactive states.
-- Create a matching `NavCreateIcon.tsx` if the design needs a duotone create-ad state; otherwise use a standardized plus-circle icon through `IconButton`.
+- Use the restored Figma-matched navigation glyphs from TSX components in `src/components/(icons)/`: `LinearHome3`, `LinearSearch`, `LinearAddCircle`, `LinearChat`, and `LinearUserSolid`.
+- Keep any alternative `Nav*Icon.tsx` components in `src/components/(icons)/` only as centralized icon assets; do not use `src/assets/icons/` for product UI icons.
 - Bar height: current `64px` is acceptable unless the component README specifies a different exact height; keep safe-area handling.
 - Item icon: `24px`.
 - Item label: `12px`, line-height `16px`, weight `500`.
@@ -155,101 +157,121 @@ The shared component layer is incomplete. `NewAdControls.tsx` defines its own `I
 
 ### 1. Create Design-System Token Layer
 
-- [ ] Add `src/design-system/tokens.ts`.
-- [ ] Add `src/design-system/typography.ts`.
-- [ ] Add `src/design-system/classes.ts`.
-- [ ] Encode semantic colors first, then raw aliases only when unavoidable.
-- [ ] Include named sizes for `fieldHeight=56`, `buttonHeight=48`, `bottomNavHeight=64`, `topBarHeight=56`, `iconButtonDense=40`, `iconButtonDefault=48`, `chipHeight=36`, `mobileMaxWidth=500`.
-- [ ] Include radius names: `field=12`, `button=10`, `chip=8`, `sheet=20`, `card=8` unless an existing card requires a larger Figma radius.
-- [ ] Include typography roles: `title`, `body`, `bodyStrong`, `caption`, `button`, `navLabel`, `fieldLabel`, `helper`.
-- [ ] Replace no page code in this task except imports needed by a tiny smoke check.
-- [ ] Run `npm.cmd run build`.
+- [x] Add `src/design-system/tokens.ts`.
+- [x] Add `src/design-system/typography.ts`.
+- [x] Add `src/design-system/classes.ts`.
+- [x] Encode semantic colors first, then raw aliases only when unavoidable.
+- [x] Include named sizes for `fieldHeight=56`, `buttonHeight=48`, `bottomNavHeight=64`, `topBarHeight=56`, `iconButtonDense=40`, `iconButtonDefault=48`, `chipHeight=36`, `mobileMaxWidth=500`.
+- [x] Include radius names: `field=12`, `button=10`, `chip=8`, `sheet=20`, `card=8` unless an existing card requires a larger Figma radius.
+- [x] Include typography roles: `title`, `body`, `bodyStrong`, `caption`, `button`, `navLabel`, `fieldLabel`, `helper`.
+- [x] Replace no page code in this task except imports needed by a tiny smoke check.
+- [x] Run `npm.cmd run build`.
 
 ### 2. Add Core Button Primitives
 
-- [ ] Add `src/components/ui/Button.tsx`.
-- [ ] Add `src/components/ui/IconButton.tsx`.
-- [ ] Support variants `primary`, `secondary`, `ghost`, `text`, `danger`, and `neutral`.
-- [ ] Support sizes `sm`, `md`, and `lg`, with `md` mapping to the 48px Figma action button.
-- [ ] Support `loading`, `disabled`, `leadingIcon`, `trailingIcon`, `fullWidth`, and `dir="rtl"`.
-- [ ] Keep native `button` semantics and allow `type`.
-- [ ] Use `RouteLink` separately for navigation until a typed link-button wrapper is added.
-- [ ] Migrate only `NewAdControls.Footer` and `MoreFeaturesFooter` first as a low-risk pilot.
-- [ ] Run `npm.cmd run build`.
+- [x] Add `src/components/ui/Button.tsx`.
+- [x] Add `src/components/ui/IconButton.tsx`.
+- [x] Support variants `primary`, `secondary`, `ghost`, `text`, `danger`, and `neutral`.
+- [x] Support sizes `sm`, `md`, and `lg`, with `md` mapping to the 48px Figma action button.
+- [x] Support `loading`, `disabled`, `leadingIcon`, `trailingIcon`, `fullWidth`, and `dir="rtl"`.
+- [x] Keep native `button` semantics and allow `type`.
+- [x] Use `RouteLink` separately for navigation until a typed link-button wrapper is added.
+- [x] Migrate only `NewAdControls.Footer` and `MoreFeaturesFooter` first as a low-risk pilot.
+- [x] Run `npm.cmd run build`.
 
 ### 3. Unify Text Field, Select Field, And Search Bar
 
-- [ ] Add `src/components/ui/TextField.tsx`.
-- [ ] Add `src/components/ui/SelectField.tsx`.
-- [ ] Add `src/components/ui/SearchBar.tsx`.
-- [ ] Replace `FormTextField` internals with the new `TextField` while keeping the old export temporarily.
-- [ ] Replace `NewAdControls.InputBox`, `SelectBox`, and `LocationBox` with wrapper usage of the new primitives.
-- [ ] Preserve existing numeric normalization in New Ad and search filters.
-- [ ] Preserve all existing `aria-invalid`, clear button, helper text, and focus behavior.
-- [ ] Migrate `HomeSearchScreen`, `SearchMapHeader`, `SearchMapSearchScreen`, and account ad search after New Ad compiles.
-- [ ] Run `npm.cmd run build`.
+- [x] Add `src/components/ui/TextField.tsx`.
+- [x] Add `src/components/ui/SelectField.tsx`.
+- [x] Add `src/components/ui/SearchBar.tsx`.
+- [x] Replace `FormTextField` internals with the new `TextField` while keeping the old export temporarily.
+- [x] Replace `NewAdControls.InputBox`, `SelectBox`, and `LocationBox` with wrapper usage of the new primitives.
+- [x] Preserve existing numeric normalization in New Ad and search filters.
+- [x] Preserve all existing `aria-invalid`, clear button, helper text, and focus behavior.
+- [x] Migrate `HomeSearchScreen`, `SearchMapHeader`, `SearchMapSearchScreen`, and account ad search after New Ad compiles.
+- [x] Run `npm.cmd run build`.
 
 ### 4. Unify Chips, Tags, Radio, Checkbox, And Switch
 
-- [ ] Add `src/components/ui/Chip.tsx`.
-- [ ] Add `src/components/ui/Choice.tsx`.
-- [ ] Add `src/components/ui/Switch.tsx`.
-- [ ] Re-export compatibility wrappers from `src/components/form/FormControls.tsx`.
-- [ ] Replace `src/components/SwitchButton.tsx` implementation with the shared switch or mark it deprecated and remove imports gradually.
-- [ ] Replace page-local `RadioIndicator` and `SelectionCheckIndicator` functions in search filters, account business creation, New Ad media controls, and ad payment pages.
-- [ ] Keep visual-only indicator mode for rows that already handle selection at the parent button level.
-- [ ] Run `npm.cmd run build`.
+- [x] Add `src/components/ui/Chip.tsx`.
+- [x] Add `src/components/ui/Choice.tsx`.
+- [x] Add `src/components/ui/Switch.tsx`.
+- [x] Re-export compatibility wrappers from `src/components/form/FormControls.tsx`.
+- [x] Replace `src/components/SwitchButton.tsx` implementation with the shared switch or mark it deprecated and remove imports gradually.
+- [x] Replace page-local `RadioIndicator` and `SelectionCheckIndicator` functions in search filters, account business creation, New Ad media controls, and ad payment pages.
+- [x] Keep visual-only indicator mode for rows that already handle selection at the parent button level.
+- [x] Run `npm.cmd run build`.
 
 ### 5. Refactor Top Bar And Route Chrome
 
-- [ ] Add `src/routes/routeChrome.ts`.
-- [ ] Move bottom navigation mapping from `getBottomNavigationKey` in `src/routes/AppRouter.tsx` into typed route-chrome metadata.
-- [ ] Move account fallback back-target logic from `getAccountFallbackBackTo` into named rules in `routeChrome.ts`.
-- [ ] Move default top-bar descriptors from `getRouteTopBar` into route metadata.
-- [ ] Keep special cases for `/new-ad`, CRM embedded edit routes, and map/list modes explicit and tested.
-- [ ] Update `TopBar.tsx` to use `IconButton` and `SearchBar` primitives.
-- [ ] Normalize top-bar title, action, back, and search dimensions.
-- [ ] Run `npm.cmd run build`.
+- [x] Add `src/routes/routeChrome.ts`.
+- [x] Move bottom navigation mapping from `getBottomNavigationKey` in `src/routes/AppRouter.tsx` into typed route-chrome metadata.
+- [x] Move account fallback back-target logic from `getAccountFallbackBackTo` into named rules in `routeChrome.ts`.
+- [x] Move default top-bar descriptors from `getRouteTopBar` into route metadata.
+- [x] Keep special cases for `/new-ad`, CRM embedded edit routes, and map/list modes explicit and tested.
+- [x] Update `TopBar.tsx` to use `IconButton` and `SearchBar` primitives.
+- [x] Normalize top-bar title, action, back, and search dimensions.
+- [x] Run `npm.cmd run build`.
 
 ### 6. Refactor Bottom Navigation
 
-- [ ] Update `src/components/BottomNavigation.tsx` to use `NavHomeIcon`, `NavSearchIcon`, `NavChatIcon`, and `NavAccountIcon`.
-- [ ] Add or standardize the create-ad icon so inactive/active behavior is deliberate.
-- [ ] Keep the existing create-ad bottom-sheet behavior.
-- [ ] Keep notification unread indicator on chat.
-- [ ] Ensure `activeKey` remains driven by route chrome and does not reorder items.
-- [ ] Run `npm.cmd run build`.
+- [x] Update `src/components/BottomNavigation.tsx` to use restored Figma-matched TSX icons from `src/components/(icons)/`.
+- [x] Add or standardize the create-ad icon so inactive/active behavior is deliberate.
+- [x] Keep the existing create-ad bottom-sheet behavior.
+- [x] Keep notification unread indicator on chat.
+- [x] Ensure `activeKey` remains driven by route chrome and does not reorder items.
+- [x] Run `npm.cmd run build`.
 
 ### 7. Refactor Bottom Sheets, Dialogs, And Snackbar
 
-- [ ] Update `BottomSheet.tsx` with explicit variants and height rules.
-- [ ] Convert action sheets in `CreateAdBottomSheet`, `CategoryBottomSheet`, chat file/settings sheets, account notes/bookmarks sheets, support request sheets, and search request sheets to variant-based usage.
-- [ ] Update `Snackbar.tsx` semantic colors and add warning variant.
-- [ ] Replace ad hoc confirmation sheet buttons with `Button`.
-- [ ] Keep portal, overlay, animation, escape key, and backdrop close behavior.
-- [ ] Run `npm.cmd run build`.
+- [x] Update `BottomSheet.tsx` with explicit variants and height rules.
+- [x] Convert action sheets in `CreateAdBottomSheet`, `CategoryBottomSheet`, chat file/settings sheets, account notes/bookmarks sheets, support request sheets, and search request sheets to variant-based usage.
+- [x] Update `Snackbar.tsx` semantic colors and add warning variant.
+- [x] Replace ad hoc confirmation sheet buttons with `Button`.
+- [x] Keep portal, overlay, animation, escape key, and backdrop close behavior.
+- [x] Run `npm.cmd run build`.
 
 ### 8. Clean Global CSS Ownership
 
-- [ ] Move search-map marker CSS from `src/index.css` to `src/pages/search/searchMap.css`, imported by `SearchMapPage.tsx` or `SearchMapView.tsx`.
-- [ ] Move home-specific classes from `src/index.css` to `src/pages/home/homeArtwork.css` or replace them with TSX artwork components.
-- [ ] Move ad-card image helpers to an `AdCard`-owned CSS file only if Tailwind cannot represent them cleanly.
-- [ ] Keep global font declarations, Tailwind setup, CSS variables, safe viewport root rules, and truly global Leaflet resets if required.
-- [ ] After the move, search `src/index.css` for page nouns such as `home`, `search-map`, `agency-directory`, and `ad-card`; only intentional global entries may remain.
-- [ ] Run `npm.cmd run build`.
+- [x] Move search-map marker CSS from `src/index.css` to `src/pages/search/searchMap.css`, imported by `SearchMapPage.tsx` or `SearchMapView.tsx`.
+- [x] Move home-specific classes from `src/index.css` to `src/pages/home/homeArtwork.css` or replace them with TSX artwork components.
+- [x] Move ad-card image helpers to an `AdCard`-owned CSS file only if Tailwind cannot represent them cleanly.
+- [x] Keep global font declarations, Tailwind setup, CSS variables, safe viewport root rules, and truly global Leaflet resets if required.
+- [x] After the move, search `src/index.css` for page nouns such as `home`, `search-map`, `agency-directory`, and `ad-card`; only intentional global entries may remain.
+- [x] Run `npm.cmd run build`.
 
-### 9. Route Cleanup And Guard Tests
+### 9. Centralize Icon Ownership
+
+- [x] Inventory every UI icon import and inline SVG usage.
+
+Run:
+
+```powershell
+rg -n "from ['\"].*\\.svg['\"]|<svg|src/assets/icons|url\\(|className=.*icon|::before|::after" src
+```
+
+- [ ] Keep `src/components/(icons)/*.tsx` as the only product UI icon source.
+- [x] Move the navigation icon components currently under `src/assets/icons/NavHomeIcon.tsx`, `NavSearchIcon.tsx`, `NavChatIcon.tsx`, `NavAccountIcon.tsx`, and `NavCreateIcon.tsx` into `src/components/(icons)/`.
+- [x] Update `src/components/BottomNavigation.tsx` to import all navigation icons from `src/components/(icons)/`.
+- [x] Replace inline SVGs in shared primitives and shared shells with imports from `src/components/(icons)/`. This includes `Button` arrow usage call sites, `IconButton` call sites, `TextField` clear icon, `SelectField` chevron, `SearchBar` search/bookmark icons, `BottomSheet` check icon, and `Snackbar` close icon.
+- [ ] Replace page-local inline SVGs only when they are icons. Keep true illustrations, image placeholders, generated artwork, and content imagery out of the icon registry unless they behave as reusable UI icons.
+- [ ] Convert raw SVG imports used as interactive/category UI icons into TSX components under `src/components/(icons)/` before importing them in React components.
+- [ ] Do not move API-served images, user avatars, property photos, brand logos, or large decorative illustrations into `src/components/(icons)/`.
+- [x] Delete duplicate icon files only after imports have been updated and `rg` confirms no references remain.
+- [x] Run `npm.cmd run build`.
+
+### 10. Route Cleanup And Guard Tests
 
 - [ ] Add route/chrome tests with the project’s chosen test runner. If no runner exists yet, add Vitest in a separate dependency/setup commit.
 - [ ] Test `/`, `/home`, `/search`, `/search/filter`, `/new-ad`, `/chat`, `/chat/:id`, `/account`, dashboard paths, and CRM paths.
 - [ ] Remove static `/chat/1` through `/chat/5` routes after dynamic chat-detail matching is covered.
-- [ ] Audit dashboard placeholder routes currently mapped to `DashboardHomePage`; either wire them to real page components or document them as intentional placeholders in route metadata.
-- [ ] Keep identity gate behavior unchanged for protected account/dashboard/new-ad routes.
-- [ ] Run `npm.cmd run build`.
+- [x] Audit dashboard placeholder routes currently mapped to `DashboardHomePage`; either wire them to real page components or document them as intentional placeholders in route metadata.
+- [x] Keep identity gate behavior unchanged for protected account/dashboard/new-ad routes.
+- [x] Run `npm.cmd run build`.
 
-### 10. Page Family Migration Order
+### 11. Page Family Migration Order
 
-- [ ] New Ad first: `src/pages/newAd/components/NewAdControls.tsx` already centralizes many page controls, making it the safest pilot for fields, chips, switches, and footer buttons.
+- [x] New Ad first: `src/pages/newAd/components/NewAdControls.tsx` already centralizes many page controls, making it the safest pilot for fields, chips, switches, and footer buttons.
 - [ ] Search second: migrate `SearchMapFilterPage.tsx`, `SearchMapHeader.tsx`, `SearchMapSearchScreen.tsx`, filter chips, map list/slider actions, and request bottom sheets.
 - [ ] Account third: migrate `MyAccountPage.tsx`, `accountPageViews.tsx`, `AccountSubPages.tsx`, account route pages, notes/bookmarks/recent views/wallet/support rows and sheets.
 - [ ] Chat fourth: migrate `UserChatHomePage.tsx` top bars, filters, attachment/settings sheets, message action rows, and search surfaces.
@@ -257,9 +279,10 @@ The shared component layer is incomplete. `NewAdControls.tsx` defines its own `I
 - [ ] Dashboard and CRM last: migrate `src/dashboard/*`, `src/components/dashboard/*`, and `src/pages/crm/*` after mobile primitives stabilize, because they include wider desktop layouts and admin data tables.
 - [ ] Run `npm.cmd run build` after each family.
 
-### 11. Verification Checklist For Every Batch
+### 12. Verification Checklist For Every Batch
 
-- [ ] `npm.cmd run build` passes.
+- [x] `npm.cmd run build` passes.
+- [ ] UI icons used by components and pages are imported from `src/components/(icons)/`.
 - [ ] No new whole-app scroll is introduced.
 - [ ] Mobile pages still fit inside `500px` max width.
 - [ ] RTL alignment remains correct.
@@ -411,4 +434,3 @@ The shared component layer is incomplete. `NewAdControls.tsx` defines its own `I
 - Repeated hard-coded colors are materially reduced, especially primary blue, text colors, borders, and neutral backgrounds.
 - Static chat detail routes are removed only after dynamic route tests pass.
 - `npm.cmd run build` passes with only the existing Vite large chunk warning if that warning still appears.
-

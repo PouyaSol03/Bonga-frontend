@@ -26,16 +26,8 @@ export default function NavAccountIcon({
     >
       {active ? (
         <>
-          <path
-            d="M13 14H11C7.13401 14 4 17.134 4 21H20C20 17.134 16.866 14 13 14Z"
-            fill={color}
-            fillOpacity={duotoneOpacity}
-          />
-          <path
-            d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-            fill={color}
-            fillOpacity={duotoneOpacity}
-          />
+          <path d="M13 14H11C7.13401 14 4 17.134 4 21H20C20 17.134 16.866 14 13 14Z" fill={color} fillOpacity={duotoneOpacity} />
+          <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" fill={color} fillOpacity={duotoneOpacity} />
         </>
       ) : null}
       <path

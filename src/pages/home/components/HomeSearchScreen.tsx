@@ -9,6 +9,7 @@ import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
 import { TopBar } from "../../../components/TopBar";
 import LinearDelete from "../../../components/(icons)/LinearDelete";
 import { getRequestErrorState } from "../../../components/ErrorState";
+import { SearchInputBar } from "../../../components/ui/SearchBar";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../../services/search-history.service";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
@@ -439,30 +440,18 @@ function SearchField({
   }, [isOpen]);
 
   return (
-    <div className="relative flex h-12 w-full min-w-0 items-center rounded-xl border-2 border-[#0048c4] bg-white px-3">
-      <input
+    <SearchInputBar
         aria-label="جستجو"
-        className="home-search-input h-full w-full appearance-none rounded-[inherit] border-0 bg-transparent pl-9 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-        type="search"
+        containerClassName="border-2 border-[#0048c4]"
+        inputClassName="home-search-input"
+        onClear={() => onQueryChange("")}
+        onValueChange={onQueryChange}
         placeholder="جستجو"
         ref={inputRef}
-        value={query}
         tabIndex={isOpen ? 0 : -1}
-        onChange={(event) => onQueryChange(event.target.value)}
+        type="search"
+        value={query}
       />
-
-      {query.length > 0 ? (
-        <button
-          className="absolute left-2 grid h-8 w-8 place-items-center text-[#808080]"
-          type="button"
-          aria-label="پاک کردن جستجو"
-          tabIndex={isOpen ? 0 : -1}
-          onClick={() => onQueryChange("")}
-        >
-          <ClearSearchIcon />
-        </button>
-      ) : null}
-    </div>
   );
 }
 
@@ -598,20 +587,6 @@ function QuickSearchResultRow({
         ) : null}
       </span>
     </button>
-  );
-}
-
-function ClearSearchIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="24" viewBox="0 0 24 24" width="24">
-      <path
-        d="M15.15 15.15L8.85068 8.85M8.85136 15.15L15.1507 8.85M21 12C21 7.02943 16.9705 3 12 3C7.02943 3 3 7.02943 3 12C3 16.9705 7.02943 21 12 21C16.9705 21 21 16.9705 21 12Z"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
   );
 }
 

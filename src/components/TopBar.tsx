@@ -11,9 +11,13 @@ import {
 
 import { getStoredBackTarget, pushRoute } from "../routes/navigation";
 import { RouteLink } from "../routes/RouteLink";
+import LinearArrowLeft2 from "./(icons)/LinearArrowLeft2";
+import LinearArrowRight2 from "./(icons)/LinearArrowRight2";
 import BoldBookmarkSolid from "./(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
-import LinearSearch from "./(icons)/LinearSearch";
+import SearchBarSearchIcon from "./(icons)/SearchBarSearchIcon";
+import { IconButton } from "./ui/IconButton";
+import { SearchBar } from "./ui/SearchBar";
 
 export type TopBarAction = {
   icon: ReactNode;
@@ -77,27 +81,14 @@ function TopBarBookmarkIcon({ filled = false }: { filled?: boolean }) {
 }
 
 function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" }) {
-  const path =
-    direction === "left"
-      ? "M9 7L4 12L9 17M4 12H20"
-      : "M15 7L20 12L15 17M20 12H4";
+  const ArrowIcon = direction === "left" ? LinearArrowLeft2 : LinearArrowRight2;
 
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path
-        d={path}
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
+  return <ArrowIcon aria-hidden="true" className="h-6 w-6" />;
 }
 
 function TopBarIconButton({ action }: { action: TopBarAction }) {
   const className =
-    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
+    "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]";
 
   if (action.to) {
     return (
@@ -108,14 +99,14 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
   }
 
   return (
-    <button
+    <IconButton
       aria-label={action.label}
-      className={className}
+      className="text-[#1a1a1a]"
       onClick={action.onClick}
-      type="button"
+      size="dense"
     >
       {action.icon}
-    </button>
+    </IconButton>
   );
 }
 
@@ -126,13 +117,10 @@ function TopBarBackButton({
   backTo,
   onBack,
 }: Pick<TopBarProps, "backIconDirection" | "backLabel" | "backState" | "backTo" | "onBack">) {
-  const className =
-    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]";
-
   return (
-    <button
+    <IconButton
       aria-label={backLabel}
-      className={className}
+      className="text-[#4d4d4d]"
       onClick={() => {
         if (onBack) {
           onBack();
@@ -155,15 +143,26 @@ function TopBarBackButton({
           window.history.back();
         }
       }}
-      type="button"
+      size="dense"
     >
       <TopBarBackIcon direction={backIconDirection} />
-    </button>
+    </IconButton>
   );
 }
 
 function TopBarSearchButton({ search }: { search: TopBarSearch }) {
   const hasSavedAction = Boolean(search.onSavedClick);
+
+  if (!hasSavedAction) {
+    return (
+      <SearchBar
+        aria-label={search.label}
+        compact
+        onClick={search.onClick}
+        text={search.label}
+      />
+    );
+  }
 
   return (
     <div
@@ -201,7 +200,7 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
       >
         <span className="min-w-0 flex-1 truncate text-right">{search.label}</span>
         <span className="shrink-0 text-[#808080]">
-          <LinearSearch className="h-5 w-5" />
+          <SearchBarSearchIcon className="h-5 w-5" />
         </span>
       </button>
     </div>

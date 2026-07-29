@@ -2,6 +2,9 @@ import type { ComponentType, ReactNode, SVGProps } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import LinearArrowRight2 from "./(icons)/LinearArrowRight2";
+import LinearTick from "./(icons)/LinearTick";
+import { IconButton } from "./ui/IconButton";
+import { ListItem } from "./ui/ListItem";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -15,6 +18,7 @@ export type BottomSheetAction = {
 };
 
 type SheetAlign = "right" | "center";
+type BottomSheetVariant = "actions" | "form" | "confirm" | "media" | "full-height";
 
 type BottomSheetProps = {
   ariaLabel: string;
@@ -34,6 +38,7 @@ type BottomSheetProps = {
   showHeaderDivider?: boolean;
   title?: string;
   titleAlign?: SheetAlign;
+  variant?: BottomSheetVariant;
   zIndexClassName?: string;
 };
 
@@ -49,19 +54,21 @@ type BottomSheetActionListProps<TItem extends BottomSheetAction> = {
   showDividers?: boolean;
 };
 
-function BottomSheetCheckIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" viewBox="0 0 20 20">
-      <path
-        d="M4.5 10.2l3.4 3.4 7.6-8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
+const variantHeightClassName: Record<BottomSheetVariant, string> = {
+  actions: "h-auto max-h-[calc(100svh-56px)] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]",
+  confirm: "h-auto max-h-[calc(100svh-56px)] pb-[max(1rem,env(safe-area-inset-bottom,0px))]",
+  form: "h-auto max-h-[calc(100svh-56px)] pb-[max(1rem,env(safe-area-inset-bottom,0px))]",
+  "full-height": "h-[min(100svh,640px)]",
+  media: "h-auto max-h-[calc(100svh-56px)] pb-[max(1rem,env(safe-area-inset-bottom,0px))]",
+};
+
+const variantPaddingClassName: Record<BottomSheetVariant, string> = {
+  actions: "pt-4",
+  confirm: "pt-3",
+  form: "pt-3",
+  "full-height": "flex flex-col",
+  media: "pt-3",
+};
 
 export function BottomSheet({
   ariaLabel,
@@ -69,11 +76,11 @@ export function BottomSheet({
   className = "",
   contentClassName = "",
   handleClassName = "h-1 w-[56px] rounded-full bg-[#e0e0e0]",
-  heightClassName = "h-[298px]",
+  heightClassName,
   isOpen,
   onBack,
   onClose,
-  panelPaddingClassName = "pt-4",
+  panelPaddingClassName,
   scrimClassName = "bg-black/60",
   showBackButton = true,
   showHandle = true,
@@ -81,9 +88,12 @@ export function BottomSheet({
   showHeaderDivider = false,
   title,
   titleAlign = "right",
+  variant = "actions",
   zIndexClassName = "z-[1000]",
 }: BottomSheetProps) {
   const isCenterTitle = titleAlign === "center";
+  const resolvedHeightClassName = heightClassName ?? variantHeightClassName[variant];
+  const resolvedPanelPaddingClassName = panelPaddingClassName ?? variantPaddingClassName[variant];
   const shouldReduceMotion = useReducedMotion();
   const scrimTransition = shouldReduceMotion
     ? { duration: 0 }
@@ -116,7 +126,7 @@ export function BottomSheet({
             animate={{ y: 0 }}
             aria-label={ariaLabel}
             aria-modal="true"
-            className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${panelPaddingClassName} ${heightClassName} ${className}`}
+            className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
             exit={{ y: "100%" }}
             initial={{ y: "100%" }}
             role="dialog"
@@ -135,14 +145,14 @@ export function BottomSheet({
                   className={`flex h-12 items-center gap-4 px-4 `}
                 >
                   {showBackButton ? (
-                    <button
+                    <IconButton
                       aria-label="بازگشت"
-                      className="grid shrink-0 place-items-center text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                      className="text-[#4d4d4d]"
                       onClick={onBack ?? onClose}
-                      type="button"
+                      size="dense"
                     >
                         <LinearArrowRight2  className="h-6 w-6 text-[#4D4D4D]"/>
-                    </button>
+                    </IconButton>
                   ) : null}
 
                   <h2
@@ -195,31 +205,18 @@ export function BottomSheetActionList<TItem extends BottomSheetAction>({
 
         return (
           <div key={item.id}>
-            <button
-              className={`relative flex h-12 w-full items-center gap-3 bg-white px-4 text-base font-normal leading-6 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${isCenter
-                ? "justify-center text-center"
-                : "justify-start text-right"
-                } ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
-                } ${itemClassName}`}
+            <ListItem
+              align={isCenter ? "center" : "right"}
+              className={itemClassName}
               disabled={!isInteractive}
               onClick={() => onSelect?.(item)}
+              selected={isSelected}
               tabIndex={isOpen && isInteractive ? 0 : -1}
-              type="button"
+              title={item.title}
+              leading={Icon ? <Icon className="h-6 w-6 shrink-0 text-[#4d4d4d]" /> : undefined}
+              trailing={showCheckIcon && isSelected ? <LinearTick aria-hidden="true" className="h-5 w-5" /> : undefined}
             >
-              {showCheckIcon && isSelected ? (
-                <span className="absolute right-4 grid h-5 w-5 place-items-center">
-                  <BottomSheetCheckIcon />
-                </span>
-              ) : null}
-
-              {Icon ? (
-                <Icon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-              ) : null}
-
-              <span className={isCenter ? "" : "min-w-0 flex-1 truncate"}>
-                {item.title}
-              </span>
-            </button>
+            </ListItem>
 
             {showDividers && index < items.length - 1 ? (
               <div className="px-4 py-2">

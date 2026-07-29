@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import "../../components/AdCard.css";
 
 import { PageFrame } from "../../app/PageFrame";
 import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";

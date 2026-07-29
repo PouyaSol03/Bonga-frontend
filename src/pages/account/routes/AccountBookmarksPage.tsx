@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { useAdvertiseBadgesQuery, useDeleteAdvertiseBadgeMutation } from "../../../hooks/account.hooks";
 import { getApiErrorMessage } from "../../../api/api";
 import { BottomSheet } from "../../../components/BottomSheet";
+import { Button } from "../../../components/ui/Button";
 import { AccountAdCardsSkeleton, AccountPageShell, AccountRetryState, BookmarkAdCard, EmptyAccountState, getBadgeAdvertiseId } from "../accountPageViews";
 
 export function AccountBookmarksPage() {
@@ -106,30 +107,32 @@ export function AccountBookmarksPage() {
       <BottomSheet
         ariaLabel="حذف همه نشان‌ها"
         contentClassName="px-4 pt-7"
-        heightClassName="h-[220px]"
         isOpen={isConfirmDeleteAllOpen}
         onClose={() => setIsConfirmDeleteAllOpen(false)}
         showHeader={false}
+        variant="confirm"
       >
         <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه نشان‌ها مطمئن هستید؟
         </p>
         <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
-            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4] disabled:opacity-50"
+          <Button
+            className="h-10"
             disabled={deleteBadge.isPending}
             onClick={deleteAllBookmarks}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             بله
-          </button>
-          <button
-            className="h-10 rounded-[10px] border border-[#0048C4] bg-white px-4 text-sm font-medium leading-5 text-[#0048C4]"
+          </Button>
+          <Button
+            className="h-10"
             onClick={() => setIsConfirmDeleteAllOpen(false)}
-            type="button"
+            size="sm"
+            variant="secondary"
           >
             خیر
-          </button>
+          </Button>
         </div>
       </BottomSheet>
     </AccountPageShell>

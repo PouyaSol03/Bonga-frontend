@@ -6,6 +6,7 @@ import { isUserIdentityVerified } from "../../../services/account.service";
 import { getApiErrorMessage } from "../../../api/api";
 import { BottomSheet } from "../../../components/BottomSheet";
 import { DemoNotice } from "../../../components/DemoNotice";
+import { Button } from "../../../components/ui/Button";
 import { AccountPageShell, IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
 
@@ -81,11 +82,11 @@ export function AccountIdentityPage() {
         className="!rounded-t-[16px] flex flex-col"
         contentClassName="flex min-h-0 flex-1 flex-col"
         handleClassName="h-1 w-[60px] rounded-full bg-[#808080]"
-        heightClassName="h-[232px]"
         isOpen={isOwnershipWarningOpen}
         onClose={() => setIsOwnershipWarningOpen(false)}
         panelPaddingClassName="pt-1.5"
         showHeader={false}
+        variant="confirm"
       >
         <div className="min-h-0 flex-1 px-4 pt-4">
           <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
@@ -105,17 +106,18 @@ export function AccountIdentityPage() {
         </div>
 
         <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
-          <button
-            className="h-10 w-full rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white active:bg-[#003da6] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          <Button
+            className="h-10"
+            fullWidth
             onClick={() => {
               setIsOwnershipWarningOpen(false);
               setStep("verified");
               showNotice("درخواست تغییر مالکیت سیم‌کارت ثبت شد");
             }}
-            type="button"
+            size="sm"
           >
             ثبت
-          </button>
+          </Button>
         </div>
       </BottomSheet>
 

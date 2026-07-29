@@ -1,6 +1,7 @@
 import "../../../components/AdCard.css";
 
 import type { SearchMapListing } from "../searchMapData";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapBottomBarProps = {
   listing: SearchMapListing | null;
@@ -28,21 +29,21 @@ export function SearchMapBottomBar({
 
           <div className="flex min-w-0 flex-1 flex-col gap-1 text-right">
             <div className="flex items-center gap-1">
-              <span className="text-sm font-medium leading-5 text-[#808080]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#808080]">
                 {listing.priceLabel}:
-              </span>
+              </Typography>
               <strong className="text-base font-bold leading-6 text-[#0048c4]">
                 {listing.priceValue}
               </strong>
             </div>
 
-            <h2 className="m-0 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
               {listing.title}
-            </h2>
+            </Typography>
 
-            <p className="m-0 text-xs font-normal leading-4 text-[#808080]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-4 text-[#808080]">
               {listing.area} · {listing.rooms} · {listing.year} · {listing.locationLabel}
-            </p>
+            </Typography>
           </div>
         </article>
       ) : (
@@ -51,9 +52,9 @@ export function SearchMapBottomBar({
             <strong className="text-base font-semibold leading-6 text-[#1a1a1a]">
               {totalCount} آگهی روی نقشه
             </strong>
-            <span className="text-sm font-normal leading-5 text-[#808080]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#808080]">
               برای مشاهده جزئیات، یکی از قیمت‌ها را انتخاب کنید.
-            </span>
+            </Typography>
           </div>
 
           <button

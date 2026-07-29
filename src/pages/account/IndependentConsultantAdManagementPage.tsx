@@ -26,6 +26,7 @@ import {
   type AdsTab,
   type ConsultantAd,
 } from "./adManagement/adManagementData";
+import { Typography } from "../../components/ui/Typography";
 
 const adStatusLabels = ["در انتظار انتشار", "منتشر شده", "در انتظار انتشار", "منتشر شده"];
 const assignmentPageSize = 20;
@@ -282,9 +283,9 @@ export function IndependentConsultantAdManagementPage() {
         backTo="/account"
         centerClassName="px-0"
         centerSlot={
-          <h1 className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
             مدیریت آگهی‌ها
-          </h1>
+          </Typography>
         }
         className="bg-[#f0f0f0]"
         startSlot={
@@ -331,8 +332,8 @@ export function IndependentConsultantAdManagementPage() {
       >
         {!assignedTab ? (
           <div className="flex items-center gap-2 [direction:rtl]">
-            <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />
-            <span className="text-sm font-medium leading-5 text-[#4d4d4d]">آگهی من</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#4d4d4d]">آگهی من</Typography>
             <SwitchButton
               ariaLabel="نمایش آگهی‌های من"
               checked={showMineOnly}
@@ -350,10 +351,10 @@ export function IndependentConsultantAdManagementPage() {
           state={{ filters: scopedFilters, onlyMine: assignedTab ? false : showMineOnly, tab: activeTab }}
           to={adManagementPaths.filter}
         >
-          <span>{filterLabel}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{filterLabel}</Typography>
           <LinearFilterHorizontal className="h-5 w-5" />
           {hasFilters ? (
-            <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#0048c4] ring-2 ring-white" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#0048c4] ring-2 ring-white" />
           ) : null}
         </RouteLink>
       </section>
@@ -507,8 +508,8 @@ function toPersianDigits(value: number | string) {
 
 function ActiveFilterChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex h-8 shrink-0 items-center rounded-lg border border-[#0048c4] bg-[#e6efff] px-2 text-xs font-medium leading-4 text-[#0048c4]">
+    <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-8 shrink-0 items-center rounded-lg border border-[#0048c4] bg-[#e6efff] px-2 text-xs font-medium leading-4 text-[#0048c4]">
       {label}
-    </span>
+    </Typography>
   );
 }

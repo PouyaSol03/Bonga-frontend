@@ -31,6 +31,7 @@ import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearPreview from "../../components/(icons)/LinearPreview";
 import LinearAnalytics from "../../components/(icons)/LinearAnalytics";
+import { Typography } from "../../components/ui/Typography";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
@@ -101,9 +102,9 @@ export function AccountMyAdStatePage() {
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <section className="shrink-0 bg-white px-4 pb-4 pt-4" aria-label={card.title}>
           <div className="flex justify-start">
-            <span className={`inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
+            <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
               {statusInfo.label}
-            </span>
+            </Typography>
           </div>
 
           <StateAdSummary ad={sourceAd} card={card} />
@@ -181,9 +182,9 @@ function RealEstateManagerAdStatePage({
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
         <section className="bg-white px-4 pb-4 pt-4" aria-label={card.title}>
           <div className="flex justify-start">
-            <span className="inline-flex h-9 items-center rounded-lg bg-[#11a36614] px-3 text-sm font-medium leading-5 text-[#11a366]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#11a36614] px-3 text-sm font-medium leading-5 text-[#11a366]">
               منتشر شده
-            </span>
+            </Typography>
           </div>
 
           <ManagerAdSummary ad={ad} card={card} />
@@ -198,7 +199,7 @@ function RealEstateManagerAdStatePage({
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="bg-white px-4 pb-4 pt-4" aria-label="مسئول انتشار آگهی">
-          <h2 className="m-0 text-right font-medium text-[#1a1a1a]">مسئول انتشار آگهی</h2>
+          <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium text-[#1a1a1a]">مسئول انتشار آگهی</Typography>
           <div className="mt-3">
             <div className="flex items-center bg-[#fafafa] rounded-xl p-3 justify-end gap-3 [direction:rtl]">
               <img
@@ -208,10 +209,10 @@ function RealEstateManagerAdStatePage({
                 src={publisher.image}
               />
               <div className="flex-1 flex flex-col justify-center text-right">
-                <p className="m-0 font-medium text-[#4D4D4D]">{publisher.name}</p>
-                <p className="m-0 text-xs leading-4 text-[#808080]">
+                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 font-medium text-[#4D4D4D]">{publisher.name}</Typography>
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-4 text-[#808080]">
                   {publisher.type === "agency" ? "آژانس" : "مشاور"}
-                </p>
+                </Typography>
               </div>
             </div>
 
@@ -268,8 +269,8 @@ function ManagerAdSummary({
   return (
     <div className="mt-4 flex h-[68px] items-center rounded-2xl bg-[#fafafa] px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <p className="m-0 truncate text-xs font-normal leading-4 text-[#4d4d4d]">{subtitle}</p>
-        <h2 className="m-0 mt-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">{card.title}</h2>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-4 text-[#4d4d4d]">{subtitle}</Typography>
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">{card.title}</Typography>
       </div>
       <div
         aria-hidden="true"
@@ -341,15 +342,15 @@ function ManagerPublisherPickerPage({
                 type="button"
               >
                 <RadioIndicator checked={selected} />
-                <span className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]">
                   <img
                     alt=""
                     className={`h-14 w-14 shrink-0 object-cover ${publisher.type === "agency" ? "rounded-lg" : "rounded-full"}`}
                     draggable={false}
                     src={publisher.image}
                   />
-                  <span className="text-[#1a1a1a]">{publisher.name}</span>
-                </span>
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a]">{publisher.name}</Typography>
+                </Typography>
               </button>
             );
           })}
@@ -423,12 +424,12 @@ function StateAdSummary({
   return (
     <div className="mt-4 flex h-[80px] items-center rounded-2xl border border-[#e6e6e6] bg-[#fafafa] px-3 [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <p className="m-0 truncate text-xs font-normal leading-5 text-[#808080]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-[#808080]">
           {subtitle}
-        </p>
-        <h2 className="m-0 mt-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+        </Typography>
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
           {card.title}
-        </h2>
+        </Typography>
       </div>
 
       <div
@@ -453,8 +454,8 @@ function PublishedMeta() {
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex h-12 items-center justify-between gap-4 [direction:ltr]">
-      <span className="text-[#1a1a1a] [direction:rtl]">{value}</span>
-      <span className="text-[#808080] [direction:rtl]">{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">{label}</Typography>
     </div>
   );
 }
@@ -462,19 +463,19 @@ function MetaRow({ label, value }: { label: string; value: string }) {
 function PendingReviewNotice() {
   return (
     <div className="mt-4 rounded-lg border border-[#ffb15d] bg-[#fff7ed] px-4 py-3 text-right">
-      <p className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
         این آگهی در صف بررسی سامانه قرار دارد.
         <br />
         پس از تایید، آگهی به صورت خودکار منتشر می‌شود.
-      </p>
+      </Typography>
 
       <div className="mt-3 border-t border-dashed border-[#cccccc] pt-3">
         <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
-          <span className="text-[#1a1a1a] [direction:rtl]">بین ۱ تا ۲ ساعت</span>
-          <span className="inline-flex items-center gap-2 text-[#4d4d4d] [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">بین ۱ تا ۲ ساعت</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-[#4d4d4d] [direction:rtl]">
             <ClockIcon className="h-5 w-5" />
             زمان تقریبی بررسی:
-          </span>
+          </Typography>
         </div>
       </div>
     </div>
@@ -492,14 +493,14 @@ function NeedsEditNotice({
 }) {
   return (
     <div className="mt-4 rounded-2xl border border-[#ffd19c] bg-[#fff7ed] p-4 text-right">
-      <p className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
         برای انتشار مجدد آگهی، لطفا موارد زیر را اصلاح کنید.
-      </p>
+      </Typography>
 
       <div className="mt-3 rounded-lg border border-[#ff6d00] bg-white px-3 py-3">
         <div className="flex items-center justify-start gap-2 text-[#ff6d00]">
           <AlertIcon className="h-5 w-5 shrink-0" />
-          <h3 className="m-0 text-sm font-medium leading-5">دلیل توقف انتشار</h3>
+          <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">دلیل توقف انتشار</Typography>
         </div>
 
         <ul className="m-0 mt-2 list-disc space-y-2 pr-5 text-xs font-normal leading-6 text-[#1a1a1a] marker:text-[#808080]">
@@ -560,10 +561,10 @@ function StateAdAction({
   const content = (
     <>
       <ChevronLeftIcon className="h-6 w-6 text-[#4d4d4d]" />
-      <span className="inline-flex items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
         <StateIcon className="h-6 w-6 text-[#4d4d4d]" icon={action.icon} />
         {action.label}
-      </span>
+      </Typography>
     </>
   );
 

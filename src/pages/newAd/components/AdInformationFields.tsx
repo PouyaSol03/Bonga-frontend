@@ -2,6 +2,7 @@ import type { NewAdFieldErrors, NewAdFormValues } from "../types";
 import { InputBox } from "./NewAdControls";
 import { CheckRow, RadioCard, SocialInput } from "./MediaControls";
 import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
+import { Typography } from "../../../components/ui/Typography";
 
 type SetNewAdField = <T extends keyof NewAdFormValues>(
   key: T,
@@ -12,9 +13,9 @@ function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <p className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
       {message}
-    </p>
+    </Typography>
   );
 }
 
@@ -23,7 +24,7 @@ function SectionHeading({ required = false, title }: { required?: boolean; title
   return (
     <div className="mb-2 flex items-center justify-between gap-3">
       <div className="text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-        {title} {required ? <span className="text-[#ff3b30]">*</span> : null}
+        {title} {required ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography> : null}
       </div>
       <LinearInfoCircle className="w-6 h-6 text-[#4D4D4D]!" />
     </div>
@@ -44,7 +45,7 @@ function RegistrantTypeFields({
   return (
     <div>
       <div className="mb-3 text-right text-base font-medium leading-7 text-[#1a1a1a]">
-        ثبت کننده آگهی <span className="text-[#ff3b30]">*</span>
+        ثبت کننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
       </div>
 
       <div className="space-y-3">
@@ -141,28 +142,28 @@ function AgencyContactFields({
       <SectionHeading title="روش‌های ارتباطی" />
 
       <div className="space-y-1 text-right text-sm font-normal leading-6 text-[#808080]">
-        <p className="m-0">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
           شما با شماره{" "}
-          <span className="font-medium text-[#11a366] [direction:ltr]" dir="ltr">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#11a366] [direction:ltr]" dir="ltr">
             {mobile || "شماره ثبت‌شده شما"}
-          </span>{" "}
+          </Typography>{" "}
           وارد شده‌اید.
-        </p>
-        <p className="m-0">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
           شماره تماس با چت آگهی هر دو فعال بوده و آژانس از این طریق با شما در ارتباط می‌باشد.
-        </p>
-        <p className="m-0">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
           محتوای نام و نام خانوادگی و آدرس دقیق منزل توسط آژانس محفوظ است.
-        </p>
-        <p className="m-0">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
           در صورت تمایل می‌توانید لینک شبکه‌های اجتماعی خود را جهت تعامل بیشتر وارد کنید.
-        </p>
+        </Typography>
       </div>
 
       <div className="mt-5 space-y-4">
         <div>
           <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-            نام و نام خانوادگی <span className="text-[#ff3b30]">*</span>
+            نام و نام خانوادگی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
           </div>
           <InputBox
             error={errors.ownerFullName}
@@ -174,7 +175,7 @@ function AgencyContactFields({
 
         <div>
           <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-            آدرس دقیق منزل <span className="text-[#ff3b30]">*</span>
+            آدرس دقیق منزل <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
           </div>
           <InputBox
             error={errors.ownerExactAddress}
@@ -280,7 +281,7 @@ export function AdInformationFields({
 
       <div className="border-t border-dashed border-[#cccccc] pt-5">
         <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-          عنوان آگهی <span className="text-[#ff3b30]">*</span>
+          عنوان آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
         </div>
         <InputBox
           error={errors.title}
@@ -292,7 +293,7 @@ export function AdInformationFields({
 
       <div>
         <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-          توضیحات آگهی <span className="text-[#ff3b30]">*</span>
+          توضیحات آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
         </div>
         <label
           className={`block min-h-32 w-full rounded-[12px] border bg-white px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] ${

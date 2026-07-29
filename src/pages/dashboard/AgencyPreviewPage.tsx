@@ -44,6 +44,7 @@ import type {
   PublicAgentAgencySummary,
 } from "../../services/agency.service";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
+import { Typography } from "../../components/ui/Typography";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
@@ -871,8 +872,8 @@ function AgencyQrCard({
   return (
     <section className="w-full max-w-[328px] rounded-3xl bg-white px-6 pb-6 pt-7 text-center shadow-[0_8px_24px_rgba(26,26,26,0.06)]">
       <img alt={`لوگوی ${agencyName}`} className="mx-auto h-16 w-16 object-contain" src={agencyLogo} />
-      <h1 className="m-0 mt-2 text-lg font-bold leading-7 text-[#4d4d4d]">{agencyName}</h1>
-      <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">اسکن کنید و صفحه آژانس را ببینید</p>
+      <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 mt-2 text-lg font-bold leading-7 text-[#4d4d4d]">{agencyName}</Typography>
+      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">اسکن کنید و صفحه آژانس را ببینید</Typography>
 
       <div className="mx-auto mt-6 w-full max-w-[252px] bg-white text-center">
         <QRCodeSVG
@@ -886,9 +887,9 @@ function AgencyQrCard({
         />
       </div>
 
-      <p className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">
+      <Typography as="p" variant="headline" size="small" className="m-0 mt-2 text-center text-2xl font-bold leading-8 text-[#4b5070] [direction:ltr]">
         {qrLabel}
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -922,8 +923,8 @@ function PublicPreviewErrorState({
   return (
     <div className="flex min-h-[420px] flex-col items-center justify-center px-6 text-center">
       <div className="grid h-14 w-14 place-items-center rounded-full bg-[#fff0ef] text-2xl text-[#d93645]">!</div>
-      <h2 className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">دریافت اطلاعات ناموفق بود</h2>
-      <p className="m-0 mt-2 max-w-sm text-sm leading-6 text-[#808080]">{message}</p>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">دریافت اطلاعات ناموفق بود</Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-sm text-sm leading-6 text-[#808080]">{message}</Typography>
       <button
         className="mt-5 h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-semibold text-white"
         onClick={onRetry}
@@ -963,26 +964,26 @@ function AgencyHero({
           <LinearUserSolid className="h-10 w-10" />
         </div>
       )}
-      <h2 className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">{agencyName}</h2>
+      <Typography as="h2" variant="headline" size="small" className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">{agencyName}</Typography>
       <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
         <div className="inline-flex min-h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 py-1 text-xs font-medium text-[#4B5070]">
           <LinearLocation className="h-4 w-4 text-[#4B5070]" />
           {agencyLocation}
         </div>
         {levelSlug ? (
-          <span className="inline-flex min-h-7 items-center rounded-full bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#0048c4]">
+          <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex min-h-7 items-center rounded-full bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#0048c4]">
             سطح {levelSlug.replace(/[-_]/g, " ")}
-          </span>
+          </Typography>
         ) : null}
       </div>
 
       <div className="mt-5 grid grid-cols-3 divide-x divide-x-reverse divide-[#dddddd] text-[#4d4d4d]">
         {agencyStats.map((item) => (
           <div className="grid gap-1 text-center" key={item.label}>
-            <span className="mx-auto inline-flex items-center gap-1 text-xs">
+            <Typography as="span" variant="body" size="small" weight="regular" className="mx-auto inline-flex items-center gap-1 text-xs">
               {item.icon}
               {item.label}
-            </span>
+            </Typography>
             <strong className="text-sm font-bold leading-5 text-[#1a1a1a]">{item.value}</strong>
           </div>
         ))}
@@ -1051,7 +1052,7 @@ function AgencyInfoTab({
   return (
     <div className="space-y-2 bg-[#f0f0f0]">
       <section className="bg-white px-4 py-4">
-        <h3 className="m-0 text-right font-semibold leading-6">نشان‌ها</h3>
+        <Typography as="h3" variant="title" size="large" weight="semibold" className="m-0 text-right font-semibold leading-6">نشان‌ها</Typography>
         <div className="mt-4 flex gap-3 overflow-x-auto px-4 pb-1 [direction:rtl]">
           {badgeCards.map((badge) => (
             <BadgeCard badge={badge} key={badge.id} onClick={() => setSelectedBadge(badge)} />
@@ -1060,10 +1061,10 @@ function AgencyInfoTab({
       </section>
 
       <section className="bg-white p-4">
-        <h3 className="m-0 text-base font-semibold leading-6">محدوده فعالیت</h3>
-        <p className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">محدوده فعالیت</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
           {activityAreaText}
-        </p>
+        </Typography>
       </section>
 
       {agentAgency?.name ? (
@@ -1087,20 +1088,20 @@ function AgencyInfoTab({
               <LinearUserSolid className="h-6 w-6" />
             </div>
           )}
-          <span className="min-w-0 flex-1">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
             <strong className="block truncate text-sm text-[#1a1a1a]">{agentAgency.name}</strong>
             {agentAgency.address ? (
-              <span className="mt-1 block truncate text-xs text-[#808080]">{agentAgency.address}</span>
+              <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-[#808080]">{agentAgency.address}</Typography>
             ) : null}
-          </span>
+          </Typography>
           {agentAgency.id ? <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" /> : null}
         </button>
       ) : null}
 
       {workingHours ? (
         <section className="bg-white p-4">
-          <h3 className="m-0 text-base font-semibold leading-6">ساعات کاری</h3>
-          <p className="m-0 mt-3 text-sm leading-6 text-[#4d4d4d]">{workingHours}</p>
+          <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">ساعات کاری</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm leading-6 text-[#4d4d4d]">{workingHours}</Typography>
         </section>
       ) : null}
 
@@ -1108,11 +1109,11 @@ function AgencyInfoTab({
       <AgencyActionRow icon={<LinearCalendar className="h-6 w-6" />} title="ثبت بازخورد" />
 
       <section className="bg-white px-4 pb-7 pt-7 text-center">
-        <h3 className="m-0 text-right text-base font-semibold leading-6">درباره {agencyName}</h3>
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">درباره {agencyName}</Typography>
         <img alt="" src="/vectors/Bonga.svg" />
-        <p className={`m-0 mt-5 text-right font-normal leading-8 text-[#4d4d4d] ${isAboutExpanded ? "" : "line-clamp-5"}`}>
+        <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-5 text-right font-normal leading-8 text-[#4d4d4d] ${isAboutExpanded ? "" : "line-clamp-5"}`}>
           {aboutText}
-        </p>
+        </Typography>
         {aboutText.length > 220 ? (
           <button
             aria-expanded={isAboutExpanded}
@@ -1139,14 +1140,14 @@ function BadgeCard({ badge, onClick }: { badge: BadgeInfo; onClick: () => void }
       onClick={onClick}
       type="button"
     >
-      <span className="relative grid h-full w-full justify-items-center overflow-hidden rounded-lg">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-full w-full justify-items-center overflow-hidden rounded-lg">
         <img alt={badge.alt} className="mt-1 h-8 w-8 object-contain" src={badge.src} />
-        <span className="absolute bottom-1.5 right-2 left-2 flex justify-center gap-0.5 text-[10px] text-[#d9d9d9] [direction:ltr]">
+        <Typography as="span" variant="body" size="small" weight="regular" className="absolute bottom-1.5 right-2 left-2 flex justify-center gap-0.5 text-[10px] text-[#d9d9d9] [direction:ltr]">
           <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
           <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
           <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
-        </span>
-      </span>
+        </Typography>
+      </Typography>
     </button>
   );
 }
@@ -1166,15 +1167,15 @@ function AgencyBadgeBottomSheet({ badge, onClose }: { badge: BadgeInfo | null; o
           <div className="mx-auto mt-1 grid place-items-center rounded-2xl text-5xl">
             <img alt={badge.alt} className="h-18 w-18 object-contain" src={badge.src} />
           </div>
-          <span className="px-2 py-0.5 mt-2 items-center rounded-lg bg-[#0048c41c] text-sm font-semibold text-[#0048c4]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="px-2 py-0.5 mt-2 items-center rounded-lg bg-[#0048c41c] text-sm font-semibold text-[#0048c4]">
             {badge.pillLabel}
-          </span>
+          </Typography>
           <div className="mt-1 flex justify-center gap-0.5 text-[#FFB100] [direction:ltr]" aria-label="سه ستاره">
             <LinearStar innerColor="#FFB100" className="h-3 w-3" />
             <LinearStar innerColor="#FFB100" className="h-3 w-3" />
             <LinearStar innerColor="#FFB100" className="h-3 w-3" />
           </div>
-          <p className="m-0 mt-6 text-center text-sm font-medium text-[#1a1a1a]">{badge.countLabel}</p>
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-6 text-center text-sm font-medium text-[#1a1a1a]">{badge.countLabel}</Typography>
           <div className="mt-6 rounded-xl border border-[#11A366] bg-[#EAF8F1] px-4 py-3 text-right text-sm font-normal leading-7 text-[#0c7d4f]">
             {badge.description}
           </div>
@@ -1187,8 +1188,8 @@ function AgencyBadgeBottomSheet({ badge, onClose }: { badge: BadgeInfo | null; o
 function AgencyActionRow({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <button className="flex w-full items-center gap-3 bg-white p-4 text-right" type="button">
-      <span className="grid h-7 w-7 place-items-center text-[#4d4d4d]">{icon}</span>
-      <span className="min-w-0 flex-1 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-7 w-7 place-items-center text-[#4d4d4d]">{icon}</Typography>
+      <Typography as="span" variant="label" size="large" weight="semibold" className="min-w-0 flex-1 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</Typography>
       <LinearArrowLeft1 className="h-6 w-6 text-[#4d4d4d]" />
     </button>
   );
@@ -1278,20 +1279,20 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
               name={consultant.name}
               src={consultant.avatar}
             />
-            <h3 className="m-0 mt-2 font-medium leading-5 text-[#4D4D4D]">{consultant.name}</h3>
-            <p className="m-0 mt-0.5 text-xs px-2 py-0.5 rounded-lg bg-[#80808014] text-[#808080]">{getAgencyConsultantRoleLabel(consultant.role)}</p>
+            <Typography as="h3" variant="title" size="large" weight="medium" className="m-0 mt-2 font-medium leading-5 text-[#4D4D4D]">{consultant.name}</Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 text-xs px-2 py-0.5 rounded-lg bg-[#80808014] text-[#808080]">{getAgencyConsultantRoleLabel(consultant.role)}</Typography>
             <div className="mt-2 flex items-center justify-center gap-5 text-xs font-medium leading-4 text-[#4d4d4d]">
-              <span className="inline-flex items-center gap-1">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
                 <LinearStar className="h-4 w-4" />
-                <p className="text-xs font-medium text-[#1A1A1A]">امتیاز</p>
-                <span className="mr-3 font-semibold text-sm text-[#11A366]">{toPersianDigits(consultant.metrics.rankingScore)}</span>
-              </span>
+                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-[#1A1A1A]">امتیاز</Typography>
+                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-[#11A366]">{toPersianDigits(consultant.metrics.rankingScore)}</Typography>
+              </Typography>
               <div className="h-4.75 w-px bg-[#CCCCCC]"></div>
-              <span className="inline-flex items-center gap-1">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
                 <LinearRanking className="h-4 w-4" />
-                <p className="text-xs font-medium text-[#1A1A1A]">رتبه</p>
-                <span className="mr-3 font-semibold text-sm text-[#11A366]">—</span>
-              </span>
+                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-[#1A1A1A]">رتبه</Typography>
+                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-[#11A366]">—</Typography>
+              </Typography>
             </div>
           </div>
         </button>
@@ -1367,7 +1368,7 @@ function AgencyContactBottomSheet({
         <ContactRow href={`tel:${landlineHref}`} label="ثابت" value={contactInfo.landline} />
       ) : null}
       {!contactInfo.phone && !contactInfo.secondPhone && !contactInfo.landline ? (
-        <p className="m-0 py-4 text-center text-sm text-[#808080]">شماره تماسی ثبت نشده است.</p>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-[#808080]">شماره تماسی ثبت نشده است.</Typography>
       ) : null}
 
       <div className="mt-3 overflow-hidden rounded-2xl border border-[#eeeeee] bg-[#f6f2eb]">
@@ -1376,7 +1377,7 @@ function AgencyContactBottomSheet({
 
       {socialLinks.length ? (
         <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="text-sm font-medium text-[#4d4d4d]">شبکه‌های اجتماعی</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#4d4d4d]">شبکه‌های اجتماعی</Typography>
           <div className="flex items-center gap-4 [direction:ltr]">
             {socialLinks.map((item) => (
               <a
@@ -1400,11 +1401,11 @@ function AgencyContactBottomSheet({
 function ContactRow({ href, label, value }: { href: string; label: string; value: string }) {
   return (
     <a className="flex h-12 items-center justify-between gap-3 border-b border-[#eeeeee] text-[#1a1a1a] no-underline [direction:ltr]" href={href}>
-      <span className="text-left text-sm font-medium">{value}</span>
-      <span className="inline-flex items-center gap-2 text-right text-sm font-normal text-[#808080] [direction:rtl]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-left text-sm font-medium">{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-right text-sm font-normal text-[#808080] [direction:rtl]">
         {label}
         <LinearPhone2 className="h-5 w-5 text-[#4d4d4d]" />
-      </span>
+      </Typography>
     </a>
   );
 }
@@ -1418,9 +1419,9 @@ function AgencyMiniMap() {
       <div className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#11A366] text-white shadow-[0_4px_12px_rgba(17,163,102,.35)]">
         <LinearMapsLocation className="h-7 w-7" />
       </div>
-      <span className="absolute right-5 top-4 text-xs text-[#808080]">عسکریه</span>
-      <span className="absolute bottom-5 left-6 text-xs text-[#808080]">سجاد</span>
-      <span className="absolute bottom-16 right-6 text-xs text-[#808080]">احمدآباد</span>
+      <Typography as="span" variant="body" size="small" weight="regular" className="absolute right-5 top-4 text-xs text-[#808080]">عسکریه</Typography>
+      <Typography as="span" variant="body" size="small" weight="regular" className="absolute bottom-5 left-6 text-xs text-[#808080]">سجاد</Typography>
+      <Typography as="span" variant="body" size="small" weight="regular" className="absolute bottom-16 right-6 text-xs text-[#808080]">احمدآباد</Typography>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { DivIcon } from "leaflet";
 import { Marker } from "react-leaflet";
 
 import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapListingMarkerProps = {
   listing: SearchMapListing;
@@ -79,9 +80,9 @@ function createSearchListingIcon(
   const safePriceValue = escapeMarkerText(priceValue);
   const priceMarkerHtml = isPriceVisible
     ? `
-        <span class="search-map-marker">
+        <Typography as="span" variant="body" size="medium" weight="regular" class="search-map-marker">
           ${safePriceValue}
-        </span>
+        </Typography>
       `
     : "";
   const markerClasses = [
@@ -98,7 +99,7 @@ function createSearchListingIcon(
     className: "search-map-marker-wrapper",
     html: `
       <div class="${markerClasses}">
-        <span class="search-map-dot search-map-listing-marker__dot"></span>
+        <Typography as="span" variant="body" size="medium" weight="regular" class="search-map-dot search-map-listing-marker__dot"></Typography>
         ${priceMarkerHtml}
       </div>
     `,

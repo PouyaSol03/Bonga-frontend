@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
+import { Typography } from "./Typography";
 
 type SwitchProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> & {
   checked: boolean;
@@ -31,7 +32,7 @@ export function Switch({
       type={type}
       {...props}
     >
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
           "absolute top-1 h-4 w-4 rounded-full transition-transform",
           checked ? "left-1 translate-x-5 bg-white" : "left-1 translate-x-0 bg-[#808080]",

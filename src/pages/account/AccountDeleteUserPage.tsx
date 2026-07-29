@@ -4,6 +4,7 @@ import { PageFrame } from "../../app/PageFrame";
 import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../auth/auth-storage";
 import { TopBar } from "../../components/TopBar";
 import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
+import { Typography } from "../../components/ui/Typography";
 
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);
@@ -40,7 +41,7 @@ function downgradeBusinessToUser() {
 
 function ConfirmCheckIcon({ checked }: { checked: boolean }) {
   return (
-    <span
+    <Typography as="span" variant="body" size="medium" weight="regular"
       aria-hidden="true"
       className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[4px] border ${checked ? "border-[#0048C4] bg-[#0048C4]" : "border-[#808080] bg-white"
         }`}
@@ -56,7 +57,7 @@ function ConfirmCheckIcon({ checked }: { checked: boolean }) {
           />
         </svg>
       ) : null}
-    </span>
+    </Typography>
   );
 }
 
@@ -72,17 +73,17 @@ export function AccountDeleteUserPage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[92px] pt-6">
         <section className="px-4 text-right">
-          <h1 className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">
             آیا از حذف این کسب‌وکار مطمئن هستید؟
-          </h1>
-          <p className="m-0 mt-4 text-sm font-normal mb-2.5 text-[#4d4d4d]">
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal mb-2.5 text-[#4d4d4d]">
             برای حذف این کسب و کار همه موارد زیر را به دقت مطالعه کنید:
-          </p>
+          </Typography>
 
           <div className="rounded-2xl border border-[#808080] bg-[#80808014] p-4">
-            <p className="m-0 text-sm text-[#1A1A1A]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm text-[#1A1A1A]">
               با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های مرتبط با این کسب‌وکار به‌صورت دائمی حذف خواهند شد و امکان بازیابی آن‌ها وجود نخواهد داشت.
-            </p>
+            </Typography>
           </div>
 
           <button
@@ -91,7 +92,7 @@ export function AccountDeleteUserPage() {
             type="button"
           >
             <ConfirmCheckIcon checked={isConfirmed} />
-            <span>تمامی موارد فوق را تایید میکنم</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">تمامی موارد فوق را تایید میکنم</Typography>
           </button>
         </section>
       </main>

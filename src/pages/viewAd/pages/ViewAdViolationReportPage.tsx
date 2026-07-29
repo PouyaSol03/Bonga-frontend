@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { AdvertiseReportReason } from "../../../services/advertisement.service";
 import { ViewAdActionPageTopBar, ViewAdPageActionBar } from "./ViewAdActionPageLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export type ViolationReportSubmitPayload = {
   description: string;
@@ -19,16 +20,16 @@ function ReportRadio({
 }) {
   return (
     <label className="flex h-11 cursor-pointer items-center justify-between gap-4 text-right [direction:rtl]">
-      <span className={`text-base font-normal leading-6 ${checked ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}>
+      <Typography as="span" variant="body" size="large" weight="regular" className={`text-base font-normal leading-6 ${checked ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}>
         {label}
-      </span>
+      </Typography>
       <input checked={checked} className="sr-only" onChange={onChange} type="radio" value={label} />
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         aria-hidden="true"
         className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${checked ? "border-[#0048c4] bg-[#0048c4]" : "border-[#808080] bg-white"}`}
       >
-        {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-      </span>
+        {checked ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 rounded-full bg-white" /> : null}
+      </Typography>
     </label>
   );
 }
@@ -96,7 +97,7 @@ export function ViewAdViolationReportPage({
           </div>
         ) : errorMessage ? (
           <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-center">
-            <p className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{errorMessage}</p>
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{errorMessage}</Typography>
             <button
               className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-5 text-sm font-medium leading-5 text-[#0048c4]"
               onClick={onRetry}
@@ -107,9 +108,9 @@ export function ViewAdViolationReportPage({
           </div>
         ) : reasons.length === 0 ? (
           <div className="flex min-h-[240px] items-center justify-center text-center">
-            <p className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">
               دلیلی برای گزارش تخلف دریافت نشد.
-            </p>
+            </Typography>
           </div>
         ) : (
           <>
@@ -141,9 +142,9 @@ export function ViewAdViolationReportPage({
             ) : null}
 
             {validationMessage ? (
-              <p className="m-0 mt-3 text-right text-xs font-medium leading-5 text-[#ff4d4f]">
+              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 text-right text-xs font-medium leading-5 text-[#ff4d4f]">
                 {validationMessage}
-              </p>
+              </Typography>
             ) : null}
           </>
         )}

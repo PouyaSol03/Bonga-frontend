@@ -5,6 +5,7 @@ import { PageFrame } from "../app/PageFrame";
 import { useVerifyPaymentCallbackMutation } from "../hooks/account.hooks";
 import { replaceRoute } from "../routes/navigation";
 import { clearPaymentReturnTarget, readPaymentReturnTarget } from "../utils/payment-return";
+import { Typography } from "../components/ui/Typography";
 
 type VerifyState = "checking" | "failed" | "success";
 
@@ -81,15 +82,15 @@ export function PaymentVerifyPage() {
           {isChecking ? <LoadingIcon /> : isSuccess ? <SuccessIcon /> : <FailedIcon />}
         </div>
 
-        <h1 className="m-0 mt-6 text-xl font-bold leading-8">
+        <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 mt-6 text-xl font-bold leading-8">
           {isChecking ? "در حال بررسی پرداخت" : isSuccess ? "پرداخت موفق" : "پرداخت ناموفق"}
-        </h1>
+        </Typography>
 
-        <p className="m-0 mt-3 max-w-[330px] text-sm font-normal leading-7 text-[#666666]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 max-w-[330px] text-sm font-normal leading-7 text-[#666666]">
           {isChecking
             ? "لطفاً این صفحه را نبندید؛ نتیجه پرداخت در حال ثبت و بررسی است."
             : detail}
-        </p>
+        </Typography>
 
         {!isChecking ? (
           <button

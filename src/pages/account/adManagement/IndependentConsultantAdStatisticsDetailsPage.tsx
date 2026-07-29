@@ -8,6 +8,7 @@ import {
   adManagementPaths,
   getSelectedStatisticsAd,
 } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 const chartSections = [
   { label: "بازدید امروز:", title: "بازدید از آگهی" },
@@ -44,8 +45,8 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
         <section className="h-[104px] bg-white px-4 py-4" aria-label={ad.title}>
           <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <h2 className="m-0 truncate text-sm font-medium leading-5">{ad.title}</h2>
-              <p className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.timeAndLocation}</p>
+              <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5">{ad.title}</Typography>
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.timeAndLocation}</Typography>
             </div>
             <div
               aria-hidden="true"
@@ -92,15 +93,15 @@ function StatisticsChart({ label, title }: { label: string; title: string }) {
             <ChevronRightIcon className="h-5 w-5" />
           </button>
         </div>
-        <h2 className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
           <TrendIcon className="h-6 w-6 text-[#4d4d4d]" />
           {title}
-        </h2>
+        </Typography>
       </div>
 
       <div className="mt-4 h-[187px]">
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
-          <span className="text-sm font-normal leading-5 text-[#4d4d4d]">{label}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{label}</Typography>
           <strong className="rounded bg-[#edf0fb] px-2 text-base font-medium leading-6 text-[#002099]">
             {displayValue}
           </strong>
@@ -110,22 +111,22 @@ function StatisticsChart({ label, title }: { label: string; title: string }) {
           {chartColumns.map((column) => (
             <div className="relative h-full text-center" key={column.date}>
               {column.selected ? (
-                <span
+                <Typography as="span" variant="body" size="small" weight="regular"
                   className="absolute left-1/2 z-10 -translate-x-1/2 rounded-md bg-white px-3 py-1 text-xs font-normal leading-4 text-[#1a1a1a] shadow-[0_2px_10px_rgba(0,0,0,0.09)]"
                   style={{ bottom: column.height + 38 }}
                 >
                   ۱۲۸۵
-                  <span className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-white" />
-                </span>
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-white" />
+                </Typography>
               ) : null}
-              <span
+              <Typography as="span" variant="body" size="medium" weight="regular"
                 aria-hidden="true"
                 className="absolute bottom-[23px] left-1/2 w-[6px] -translate-x-1/2 rounded-t-full bg-gradient-to-t from-[#cccccc] via-[#45b58f] to-[#12a36a]"
                 style={{ height: column.height }}
               />
-              <span className="absolute inset-x-0 bottom-0 text-xs font-normal leading-4 text-[#4d4d4d]">
+              <Typography as="span" variant="body" size="small" weight="regular" className="absolute inset-x-0 bottom-0 text-xs font-normal leading-4 text-[#4d4d4d]">
                 {column.date}
-              </span>
+              </Typography>
             </div>
           ))}
         </div>

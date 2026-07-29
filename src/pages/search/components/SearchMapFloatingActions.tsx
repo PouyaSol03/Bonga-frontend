@@ -2,6 +2,7 @@ import { memo } from "react";
 import ListIcon from "../../../assets/icons/ListIcon";
 import LinearHandDraw from "../../../components/(icons)/LinearHandDraw";
 import LinearGps from "../../../components/(icons)/LinearGps";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapFloatingActionsProps = {
   isDrawing?: boolean;
@@ -44,7 +45,7 @@ function SearchMapFloatingActionsComponent({
             onClick={onListClick}
           >
             <ListIcon />
-            <span>لیست</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">لیست</Typography>
           </button>
         </div>
       ) : null}
@@ -61,9 +62,9 @@ function SearchMapFloatingActionsComponent({
           tabIndex={isHidden ? -1 : 0}
           onClick={onLocateClick}
         >
-          <span>
+          <Typography as="span" variant="body" size="medium" weight="regular">
             <LinearGps className={`h-5 w-5 ${isLocated ? 'text-white' : 'text-[#4d4d4d]'}`} />
-          </span>
+          </Typography>
         </button>
 
         <button
@@ -76,9 +77,9 @@ function SearchMapFloatingActionsComponent({
           tabIndex={isHidden ? -1 : 0}
           onClick={onHandClick}
         >
-          <span>
+          <Typography as="span" variant="body" size="medium" weight="regular">
             <LinearHandDraw className={`w-5 h-5 ${isDrawing ? "text-white" : "text-[#4d4d4d]"}`}/>
-          </span>
+          </Typography>
         </button>
       </div>
     </div>

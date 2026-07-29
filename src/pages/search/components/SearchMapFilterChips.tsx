@@ -2,6 +2,7 @@ import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
 import LinearFilterHorizontal from "../../../components/(icons)/LinearFilterHorizontal";
 import { HorizontalFilterBar } from "../../../components/HorizontalFilterBar";
 import type { SearchFilterChip } from "../searchMapData";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapFilterChipsProps = {
   chips: SearchFilterChip[];
@@ -30,10 +31,10 @@ export function SearchMapFilterChips({
         >
           {chip.id === "filters" ? <LinearFilterHorizontal className="w-5 h-5"/> : null}
 
-          <span className="whitespace-nowrap text-sm font-medium">{chip.label}</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="whitespace-nowrap text-sm font-medium">{chip.label}</Typography>
 
           {chip.removable ? (
-            <span
+            <Typography as="span" variant="body" size="medium" weight="regular"
               className="relative h-5 w-5 shrink-0"
               aria-label={`حذف فیلتر ${chip.label}`}
               role="button"
@@ -51,7 +52,7 @@ export function SearchMapFilterChips({
               }}
             >
               <LinearCancelSmall className="w-5 h-5"/>
-            </span>
+            </Typography>
           ) : null}
         </button>
       ))}

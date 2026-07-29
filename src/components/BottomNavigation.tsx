@@ -9,6 +9,7 @@ import LinearChat from "./(icons)/LinearChat";
 import LinearHome3 from "./(icons)/LinearHome3";
 import LinearSearch from "./(icons)/LinearSearch";
 import LinearUserSolid from "./(icons)/LinearUserSolid";
+import { Typography } from "./ui/Typography";
 
 type BottomNavigationIconProps = SVGProps<SVGSVGElement> & {
   active?: boolean;
@@ -139,7 +140,7 @@ function BottomNavigationComponent({
         gap-1 py-2 text-xs font-medium
         ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
               >
-                <span className="relative grid h-6 w-6 shrink-0 place-items-center">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-6 w-6 shrink-0 place-items-center">
                   <Icon
                     active={isActive}
                     aria-hidden="true"
@@ -155,16 +156,16 @@ function BottomNavigationComponent({
                   />
 
                   {item.key === "chat" && hasUnreadChats ? (
-                    <span
+                    <Typography as="span" variant="body" size="medium" weight="regular"
                       aria-hidden="true"
                       className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
                     />
                   ) : null}
-                </span>
+                </Typography>
 
-                <span className="max-w-full overflow-hidden text-ellipsis">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="max-w-full overflow-hidden text-ellipsis">
                   {item.label}
-                </span>
+                </Typography>
               </RouteLink>
             );
           })}

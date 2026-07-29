@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Typography } from "./ui/Typography";
 
 type EmptyStateProps = {
   action?: ReactNode;
@@ -51,9 +52,9 @@ export function EmptyState({
         </Title>
 
         {description ? (
-          <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
             {description}
-          </p>
+          </Typography>
         ) : null}
 
         {action ? <div className="mt-4">{action}</div> : null}

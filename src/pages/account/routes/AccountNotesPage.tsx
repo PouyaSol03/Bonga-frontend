@@ -7,6 +7,7 @@ import { BottomSheet } from "../../../components/BottomSheet";
 import { Button } from "../../../components/ui/Button";
 import { AccountNotesSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState, NoteCard, getNoteAdvertiseId, getNoteId, readNoteText } from "../accountPageViews";
 import type { AccountToast } from "../accountPageViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function AccountNotesPage() {
   const [editingNote, setEditingNote] = useState<NoteItem | null>(null);
@@ -144,9 +145,9 @@ export function AccountNotesPage() {
         showHeader={false}
         variant="confirm"
       >
-        <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه یادداشت‌ها مطمئن هستید؟
-        </p>
+        </Typography>
         <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"

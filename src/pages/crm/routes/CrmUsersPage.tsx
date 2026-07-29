@@ -4,6 +4,7 @@ import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleC
 import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, UserStatusBadge, formatMoney, fullName, ghostButtonClassName, inputClassName, normalizeCrmUserRoleSlug, readText, useQueryErrorToast, userRoleOptions, userRoleSlugs } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
+import { Typography } from "../../../components/ui/Typography";
 
 export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -121,23 +122,23 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
               return (
                 <tr key={id}>
-                  <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(user)}</span></TableCell>
-                  <TableCell><span dir="ltr">{readText(user, ["mobile"])}</span></TableCell>
+                  <TableCell><Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{fullName(user)}</Typography></TableCell>
+                  <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(user, ["mobile"])}</Typography></TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1.5">
                         {roles.length > 0 ? roles.map((role) => (
-                          <span
+                          <Typography as="span" variant="label" size="small" weight="semibold"
                             className="rounded-lg border border-[#cbd8ed] bg-[#f6f9ff] px-2 py-1 text-xs font-bold text-[#0048c4]"
                             key={role}
                           >
                             {userRoleOptions.find((option) => option.value === role)?.label ?? role}
-                          </span>
-                        )) : <span className="text-xs text-[#919aa8]">بدون نقش</span>}
+                          </Typography>
+                        )) : <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#919aa8]">بدون نقش</Typography>}
                       </div>
                   </TableCell>
                   <TableCell><UserStatusBadge status={user.status} /></TableCell>
                   <TableCell>
-                    <span
+                    <Typography as="span" variant="label" size="small" weight="semibold"
                       className={`inline-flex rounded-lg px-2.5 py-1 text-xs font-bold ${
                         isAuthorized
                           ? "bg-[#e9f8f0] text-[#0b8b55]"
@@ -145,7 +146,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
                       }`}
                     >
                       {isAuthorized ? "تایید شده" : "تایید نشده"}
-                    </span>
+                    </Typography>
                   </TableCell>
                   <TableCell>{formatMoney(user.credit)}</TableCell>
                   <TableCell>
@@ -236,10 +237,10 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
           ) : query.data?.length ? (
             <section className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
               <div className="flex items-center justify-between gap-3 border-b border-[#f0f0f0] bg-[#fafafa] px-4 py-3">
-                <h3 className="m-0 text-sm font-bold text-[#1a1a1a]">همه کاربران</h3>
-                <span className="rounded-lg bg-[#eaf1ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
+                <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 text-sm font-bold text-[#1a1a1a]">همه کاربران</Typography>
+                <Typography as="span" variant="label" size="small" weight="semibold" className="rounded-lg bg-[#eaf1ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
                   {new Intl.NumberFormat("fa-IR").format(query.data.length)} کاربر
-                </span>
+                </Typography>
               </div>
               {renderUsersTable(query.data, "کاربری مطابق جستجوی شما پیدا نشد.")}
             </section>

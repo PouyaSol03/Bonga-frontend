@@ -19,6 +19,7 @@ import {
   type CrmPackagePayload,
   type CrmRecord,
 } from "../../services/crm.service";
+import { Typography } from "../../components/ui/Typography";
 
 type Notify = (message: string, tone?: "error" | "success") => void;
 type ViewProps = { notify: Notify; refreshNonce: number };
@@ -261,10 +262,10 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
       <section className="rounded-xl bg-white p-6">
         <div className="flex items-start justify-between gap-4 border-b border-[#f0f0f0] pb-5">
           <div>
-            <h2 className="m-0 text-lg font-bold text-[#1a1a1a]">بسته‌ها و اعتبار پنل</h2>
-            <p className="m-0 mt-2 text-sm text-[#7b8494]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold text-[#1a1a1a]">بسته‌ها و اعتبار پنل</Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#7b8494]">
               تمام بسته‌های فعال و غیرفعال پنل را ایجاد، ویرایش و مدیریت کنید.
-            </p>
+            </Typography>
           </div>
           <motion.button
             className="h-10 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white"
@@ -358,16 +359,16 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
+                      <Typography as="span" variant="label" size="small" weight="semibold" className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
                         {kind}
-                      </span>
-                      <span
+                      </Typography>
+                      <Typography as="span" variant="label" size="small" weight="semibold"
                         className={`rounded-lg px-2 py-1 text-xs font-bold ${
                           isActive ? "bg-[#e9f8f1] text-[#0b8555]" : "bg-[#eeeeee] text-[#777777]"
                         }`}
                       >
                         {isActive ? "فعال" : "غیرفعال"}
-                      </span>
+                      </Typography>
                     </div>
                     <div className={isChangingStatus ? "pointer-events-none opacity-50" : ""}>
                       <SwitchButton
@@ -386,35 +387,35 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                     </div>
                   </div>
 
-                  <h3 className="m-0 mt-5 text-lg font-bold text-[#0048c4]">
+                  <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-lg font-bold text-[#0048c4]">
                     {text(item, ["title"], "بدون عنوان")}
-                  </h3>
-                  <span className="mt-1 break-all font-mono text-xs text-[#8a94a3]" dir="ltr">
+                  </Typography>
+                  <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 break-all font-mono text-xs text-[#8a94a3]" dir="ltr">
                     {text(item, ["slug"], id || "-")}
-                  </span>
+                  </Typography>
 
                   {hasPrice ? (
                     <div className="mt-5 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
                       {discount > 0 && realPrice > 0 ? (
-                        <span className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">
+                        <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">
                           {realPrice.toLocaleString("fa-IR")}
-                        </span>
+                        </Typography>
                       ) : (
-                        <span />
+                        <Typography as="span" variant="body" size="medium" weight="regular" />
                       )}
                       <div className="text-right [direction:rtl]">
                         <strong className="text-2xl font-bold text-[#1a1a1a]">
                           {finalPrice.toLocaleString("fa-IR")}
                         </strong>
-                        <span className="mr-1 text-xs font-medium text-[#4d4d4d]">تومان</span>
+                        <Typography as="span" variant="label" size="small" weight="medium" className="mr-1 text-xs font-medium text-[#4d4d4d]">تومان</Typography>
                       </div>
                     </div>
                   ) : null}
 
                   {discount > 0 ? (
-                    <span className="mt-2 w-fit rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]">
+                    <Typography as="span" variant="label" size="small" weight="medium" className="mt-2 w-fit rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]">
                       {discount.toLocaleString("fa-IR")}٪ تخفیف
-                    </span>
+                    </Typography>
                   ) : null}
 
                   {hasPrice || creditItems.length > 0 || durationDays > 0 ? (
@@ -425,7 +426,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                     <div className="rounded-xl border border-[#11a366] bg-[#11a36614] p-4 text-[#006038]">
                       <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#11a366]">
                         <GreenCheckIcon className="h-5 w-5" />
-                        <span>اعتبارهای بسته</span>
+                        <Typography as="span" variant="body" size="medium" weight="regular">اعتبارهای بسته</Typography>
                       </div>
                       <div className="grid gap-2.5">
                         {creditItems.map((credit) => (
@@ -433,7 +434,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                             className="flex items-center justify-between gap-3 text-sm font-medium"
                             key={credit.label}
                           >
-                            <span>{credit.label}</span>
+                            <Typography as="span" variant="body" size="medium" weight="regular">{credit.label}</Typography>
                             <strong className="text-[#006038]">
                               {credit.value.toLocaleString("fa-IR")}
                             </strong>
@@ -445,7 +446,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
 
                   {Number.isFinite(durationDays) && durationDays > 0 ? (
                     <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs text-[#707a8a]">
-                      <span>مدت بسته</span>
+                      <Typography as="span" variant="body" size="medium" weight="regular">مدت بسته</Typography>
                       <strong className="text-[#4d4d4d]">
                         {durationDays.toLocaleString("fa-IR")} روز
                       </strong>
@@ -594,12 +595,12 @@ function PackageModal({
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="m-0 text-lg font-bold">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">
               {isEditing ? "ویرایش بسته" : "افزودن بسته جدید"}
-            </h2>
-            <p className="m-0 mt-1 text-xs text-[#7b8494]">
+            </Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-[#7b8494]">
               مبلغ نهایی بر اساس قیمت اصلی و درصد تخفیف توسط سرور محاسبه می‌شود.
-            </p>
+            </Typography>
           </div>
           <button className="text-2xl text-[#596477]" onClick={onClose} type="button">
             ×
@@ -607,7 +608,7 @@ function PackageModal({
         </div>
 
         <div className="mt-5">
-          <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">نوع بسته</span>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">نوع بسته</Typography>
           <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نوع بسته">
             <button
               aria-selected={isPanelSubscription}
@@ -632,11 +633,11 @@ function PackageModal({
               بسته‌ها
             </button>
           </div>
-          <p className="m-0 mt-2 text-xs text-[#7b8494]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs text-[#7b8494]">
             {isPanelSubscription
               ? "برای اعتبار پنل فقط مدت زمان بسته ثبت می‌شود."
               : "برای بسته‌ها تعداد آگهی، ویژه و بروزرسانی ثبت می‌شود."}
-          </p>
+          </Typography>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -738,9 +739,9 @@ function PackageModal({
           <div className="flex items-center justify-between rounded-xl border border-[#e1e5eb] p-4">
             <div>
               <strong className="block text-sm">وضعیت بسته</strong>
-              <span className="mt-1 block text-xs text-[#7b8494]">
+              <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs text-[#7b8494]">
                 بسته فعال برای استفاده در پنل در دسترس است.
-              </span>
+              </Typography>
             </div>
             <SwitchButton
               ariaLabel="وضعیت بسته"
@@ -774,7 +775,7 @@ function PackageModal({
 function Field({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label>
-      <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{label}</span>
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">{label}</Typography>
       {children}
     </label>
   );
@@ -796,7 +797,7 @@ export function CrmCostsView({ notify, refreshNonce }: ViewProps) {
 
   return <>
     <section className="rounded-xl bg-white p-5">
-      <div className="border-b border-[#f0f0f0] pb-5"><h2 className="m-0 text-lg font-bold">مدیریت هزینه‌ها</h2><p className="m-0 mt-2 text-sm text-[#7b8494]">محصولات پرداخت ثبت، نردبان، ویژه، تمدید و خدمات ترکیبی آگهی را مدیریت کنید.</p></div>
+      <div className="border-b border-[#f0f0f0] pb-5"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">مدیریت هزینه‌ها</Typography><Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#7b8494]">محصولات پرداخت ثبت، نردبان، ویژه، تمدید و خدمات ترکیبی آگهی را مدیریت کنید.</Typography></div>
       <div className="mt-5 overflow-x-auto rounded-xl border border-[#edf0f5]">
         <table className="w-full min-w-[900px] border-separate border-spacing-0 text-right text-sm">
           <thead><tr className="bg-[#fafbfc] text-[#697587]"><th className="px-4 py-3">عنوان</th><th className="px-4 py-3">شناسه</th><th className="px-4 py-3">قیمت</th><th className="px-4 py-3">اعتبار</th><th className="px-4 py-3">مدت</th><th className="px-4 py-3">وضعیت</th><th className="px-4 py-3">عملیات</th></tr></thead>
@@ -839,8 +840,8 @@ function CheckoutProductModal({ isPending, item, onClose, onSubmit }: { isPendin
       duration_days: draft.durationDays ? numberValue(draft.durationDays, "مدت روز") : null, duration_months: draft.durationMonths ? numberValue(draft.durationMonths, "مدت ماه") : null,
       is_active: Boolean(item.is_active), sort_order: numberValue(draft.sortOrder || "0", "ترتیب"), metadata: item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata) ? item.metadata as Record<string, unknown> : {},
     }); }}>
-      <div className="flex items-center justify-between"><h2 className="m-0 text-lg font-bold">ویرایش {draft.title}</h2><button className="text-2xl text-[#596477]" onClick={onClose} type="button">×</button></div>
-      <div className="mt-5 grid grid-cols-2 gap-4"><Field label="عنوان"><input className={inputClass} onChange={(e) => set("title", e.target.value)} value={draft.title} /></Field><Field label="قیمت (تومان)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("price", e.target.value)} value={draft.price} /></Field><Field label="هزینه اعتباری"><input className={inputClass} inputMode="numeric" onChange={(e) => set("creditCost", e.target.value)} value={draft.creditCost} /></Field><Field label="ترتیب نمایش"><input className={inputClass} inputMode="numeric" onChange={(e) => set("sortOrder", e.target.value)} value={draft.sortOrder} /></Field><Field label="مدت (روز)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationDays", e.target.value)} value={draft.durationDays} /></Field><Field label="مدت (ماه)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationMonths", e.target.value)} value={draft.durationMonths} /></Field><label className="col-span-2"><span className="mb-2 block text-sm font-bold text-[#4f5a6c]">توضیحات</span><textarea className={`${inputClass} min-h-24 py-3`} onChange={(e) => set("description", e.target.value)} value={draft.description} /></label></div>
+      <div className="flex items-center justify-between"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">ویرایش {draft.title}</Typography><button className="text-2xl text-[#596477]" onClick={onClose} type="button">×</button></div>
+      <div className="mt-5 grid grid-cols-2 gap-4"><Field label="عنوان"><input className={inputClass} onChange={(e) => set("title", e.target.value)} value={draft.title} /></Field><Field label="قیمت (تومان)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("price", e.target.value)} value={draft.price} /></Field><Field label="هزینه اعتباری"><input className={inputClass} inputMode="numeric" onChange={(e) => set("creditCost", e.target.value)} value={draft.creditCost} /></Field><Field label="ترتیب نمایش"><input className={inputClass} inputMode="numeric" onChange={(e) => set("sortOrder", e.target.value)} value={draft.sortOrder} /></Field><Field label="مدت (روز)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationDays", e.target.value)} value={draft.durationDays} /></Field><Field label="مدت (ماه)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationMonths", e.target.value)} value={draft.durationMonths} /></Field><label className="col-span-2"><Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">توضیحات</Typography><textarea className={`${inputClass} min-h-24 py-3`} onChange={(e) => set("description", e.target.value)} value={draft.description} /></label></div>
       <div className="mt-6 flex justify-end gap-3"><button className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</button><button className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</button></div>
     </form>
   </motion.div>;

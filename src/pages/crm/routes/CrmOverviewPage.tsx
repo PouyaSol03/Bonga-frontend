@@ -3,6 +3,7 @@ import { listCrmAdvertises, listCrmUsers, listCrmAgencies, listCrmAdvertiseForms
 import { RouteLink } from "../../../routes/RouteLink";
 import { CrmIcon, EmptyState, ListSkeleton, Panel, PanelHeader, StatusBadge, TextLink, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps } from "../CrmLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const adsQuery = useQuery({
@@ -64,15 +65,15 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
             to={metric.path}
           >
             <div className="flex items-center justify-between">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white">
                 <CrmIcon name={metric.icon} size={22} />
-              </span>
+              </Typography>
               <CrmIcon name="arrow" size={18} />
             </div>
             <strong className="mt-5 block text-3xl font-black text-[#1e2633]">
               {isLoading ? "…" : new Intl.NumberFormat("fa-IR").format(metric.value)}
             </strong>
-            <span className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</span>
+            <Typography as="span" variant="label" size="medium" weight="medium" className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</Typography>
           </RouteLink>
         ))}
       </section>
@@ -95,10 +96,10 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   to={`/crm/advertises/${encodeURIComponent(getCrmRecordId(ad))}`}
                 >
                   <div className="min-w-0">
-                    <p className="m-0 truncate text-sm font-bold">{readText(ad, ["title"])}</p>
-                    <p className="m-0 mt-1 text-sm text-[#9098a6]">
+                    <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-bold">{readText(ad, ["title"])}</Typography>
+                    <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#9098a6]">
                       کد پیگیری: {readText(ad, ["track_code"])}
-                    </p>
+                    </Typography>
                   </div>
                   <StatusBadge status={ad.status} />
                 </RouteLink>
@@ -126,13 +127,13 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 key={item.label}
                 to={item.to}
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
                   <CrmIcon name={item.icon} size={20} />
-                </span>
-                <span className="min-w-0 flex-1">
+                </Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
                   <strong className="block text-sm">{item.label}</strong>
                   <small className="mt-1 block text-sm text-[#8b94a3]">{item.description}</small>
-                </span>
+                </Typography>
                 <CrmIcon name="arrow" size={17} />
               </RouteLink>
             ))}

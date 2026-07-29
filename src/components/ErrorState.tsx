@@ -6,6 +6,7 @@ import ServerErrorIcon from "../assets/icons/ServerError.svg";
 import RefreshIcon from "../assets/icons/RefreshIcon.svg";
 import NotFoundIcon from "../assets/icons/404Error.svg";
 import LinearArrowRight1 from "./(icons)/LinearArrowRight1";
+import { Typography } from "./ui/Typography";
 
 type RetryHandler = () => void | Promise<void>;
 
@@ -53,13 +54,13 @@ function BaseErrorState({
                     className={`mb-6 object-contain ${iconClassName}`}
                 />
 
-                <h2 className="mb-2 font-semibold text-[#1A1A1A]">
+                <Typography as="h2" variant="headline" size="large" className="mb-2 font-semibold text-[#1A1A1A]">
                     {title}
-                </h2>
+                </Typography>
 
-                <p className="mb-6 text-sm leading-6 text-[#4D4D4D]">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="mb-6 text-sm leading-6 text-[#4D4D4D]">
                     {description}
-                </p>
+                </Typography>
 
                 {onRetry ? <button
                     type="button"
@@ -80,7 +81,7 @@ function BaseErrorState({
                         />
                     )}
 
-                    <span>{isRetrying ? "در حال تلاش..." : retryLabel}</span>
+                    <Typography as="span" variant="body" size="medium" weight="regular">{isRetrying ? "در حال تلاش..." : retryLabel}</Typography>
                 </button> : null}
             </div>
         </div>
@@ -204,15 +205,15 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
                     <AccessDeniedIcon />
                 </div>
 
-                <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+                <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
                     دسترسی به این بخش امکان‌پذیر نیست
-                </h2>
+                </Typography>
 
-                <p className="m-0 mt-2 text-sm leading-6 text-[#4d4d4d]">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-6 text-[#4d4d4d]">
                     شما مجوز استفاده از این بخش را ندارید.
                     <br />
                     در صورت نیاز، با حساب کاربری دارای دسترسی مناسب وارد شوید یا از مدیر سامانه درخواست دسترسی کنید.
-                </p>
+                </Typography>
 
                 <button
                     className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium text-white transition hover:bg-[#003fae]"
@@ -220,7 +221,7 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
                     type="button"
                 >
                     <LinearArrowRight1 className="h-5 w-5" />
-                    <span>بازگشت</span>
+                    <Typography as="span" variant="body" size="medium" weight="regular">بازگشت</Typography>
                 </button>
             </div>
         </div>

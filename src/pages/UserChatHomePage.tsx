@@ -46,6 +46,7 @@ import {
   type ChatMessage,
   type ChatThread,
 } from "../services/chat.service";
+import { Typography } from "../components/ui/Typography";
 
 type ChatItem = {
   adCategory: string;
@@ -906,7 +907,7 @@ function ToggleSwitch({
       onClick={() => onChange(!checked)}
       type="button"
     >
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "right-[22px]" : "right-0.5"
           }`}
       />
@@ -930,14 +931,14 @@ function ChatMenuRow({
   const content = (
     <>
       {icon ? (
-        <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">
           {icon}
-        </span>
+        </Typography>
       ) : null}
-      <span className="min-w-0 flex-1 text-base font-normal leading-6">
+      <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 flex-1 text-base font-normal leading-6">
         {children}
-      </span>
-      {trailing ? <span className="grid shrink-0 place-items-center">{trailing}</span> : null}
+      </Typography>
+      {trailing ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid shrink-0 place-items-center">{trailing}</Typography> : null}
     </>
   );
 
@@ -1038,24 +1039,24 @@ function UnreadBadge({ count }: { count?: string }) {
   if (!count) return null;
 
   return (
-    <span className="grid h-4 min-w-3.5 place-items-center rounded-full bg-[#0048c4] px-1 text-xs font-medium leading-4 text-white">
+    <Typography as="span" variant="label" size="small" weight="medium" className="grid h-4 min-w-3.5 place-items-center rounded-full bg-[#0048c4] px-1 text-xs font-medium leading-4 text-white">
       {count}
-    </span>
+    </Typography>
   );
 }
 
 function BlockedBadge() {
   return (
-    <span className="flex h-5 items-center gap-1 rounded-lg bg-[#dd2b1e1f] px-2 text-xs font-normal leading-4 text-[#c11004]">
+    <Typography as="span" variant="body" size="small" weight="regular" className="flex h-5 items-center gap-1 rounded-lg bg-[#dd2b1e1f] px-2 text-xs font-normal leading-4 text-[#c11004]">
       <BlockedIcon className="h-3 w-3 text-[#808080]" />
-      <span>مسدود</span>
-    </span>
+      <Typography as="span" variant="body" size="medium" weight="regular">مسدود</Typography>
+    </Typography>
   );
 }
 
 function SystemChatIcon() {
   return (
-    <span
+    <Typography as="span" variant="body" size="medium" weight="regular"
       aria-hidden="true"
       className="grid h-5 w-5 shrink-0 place-items-center rounded-xl bg-[#003f9f] text-white"
     >
@@ -1066,7 +1067,7 @@ function SystemChatIcon() {
         size={30}
         strokeWidth={2}
       />
-    </span>
+    </Typography>
   );
 }
 
@@ -1088,14 +1089,14 @@ function SelectionCheckbox({
       }}
       type="button"
     >
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
           ? "border-[#0048c4] bg-[#0048c4] text-white"
           : "border-[#808080] bg-white text-transparent"
           }`}
       >
         <CheckIcon className="h-[14px] w-[14px]" />
-      </span>
+      </Typography>
     </button>
   );
 }
@@ -1148,19 +1149,19 @@ const ChatCard = memo(function ChatCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-4 [direction:ltr]">
             <div className="flex shrink-0 items-center gap-2 text-xs font-normal leading-4 text-[#808080]">
-              <span>{displayItem.date}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">{displayItem.date}</Typography>
               <UnreadBadge count={displayItem.badgeCount} />
             </div>
 
             <div className="flex min-w-0 items-center gap-5.5 [direction:rtl]">
               <SystemChatIcon />
               <div className="flex flex-col min-w-0 gap-2">
-                <p className="text-sm font-medium  text-[#1a1a1a]">
+                <Typography as="p" variant="body" size="medium" weight="medium" className="text-sm font-medium  text-[#1a1a1a]">
                   پیام سیستم
-                </p>
-                <p className="text-right text-sm font-normal text-[#1a1a1a]">
+                </Typography>
+                <Typography as="p" variant="body" size="medium" weight="regular" className="text-right text-sm font-normal text-[#1a1a1a]">
                   {displayItem.message}
-                </p>
+                </Typography>
                 {displayItem.isBlocked ? <BlockedBadge /> : null}
               </div>
             </div>
@@ -1200,22 +1201,22 @@ const ChatCard = memo(function ChatCard({
         <div className={isBulkDeleteMode ? "min-w-0 flex-1" : "w-full min-w-0"}>
           <div className="flex h-5 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-2 text-xs font-normal leading-4 text-[#808080]">
-              <span>{displayItem.date}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">{displayItem.date}</Typography>
               <UnreadBadge count={displayItem.badgeCount} />
             </div>
 
             <div className="flex min-w-0 items-center gap-4 [direction:rtl]">
-              <span className="flex min-w-0 items-center text-sm font-medium leading-5 text-[#1a1a1a]">
-                <span className="truncate">{displayItem.userName}</span>
-              </span>
+              <Typography as="span" variant="label" size="medium" weight="medium" className="flex min-w-0 items-center text-sm font-medium leading-5 text-[#1a1a1a]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{displayItem.userName}</Typography>
+              </Typography>
               {displayItem.isBlocked ? <BlockedBadge /> : null}
             </div>
           </div>
 
           {isBulkDeleteMode ? (
-            <p className="mt-3 line-clamp-1 text-right text-xs font-normal leading-4 text-[#4d4d4d]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="mt-3 line-clamp-1 text-right text-xs font-normal leading-4 text-[#4d4d4d]">
               {displayItem.message}
-            </p>
+            </Typography>
           ) : null}
         </div>
 
@@ -1225,21 +1226,21 @@ const ChatCard = memo(function ChatCard({
       </div>
 
       {!isBulkDeleteMode ? (
-        <p className="mt-3 line-clamp-1 text-right text-xs font-normal leading-4 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="mt-3 line-clamp-1 text-right text-xs font-normal leading-4 text-[#4d4d4d]">
           {displayItem.message}
-        </p>
+        </Typography>
       ) : null}
 
       <div className="mt-3 flex h-12 items-center justify-between [direction:ltr]">
         <div className="min-w-0 flex-1 pr-2 text-right">
           <div className="flex h-5 min-w-0 items-center justify-start gap-2 [direction:rtl]">
-            <span className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080]">
+            <Typography as="span" variant="body" size="small" weight="regular" className="min-w-0 truncate text-xs font-normal leading-4 text-[#808080]">
               {displayItem.adCategory}
-            </span>
+            </Typography>
             {displayItem.adLabel ? (
-              <span className="shrink-0 rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
+              <Typography as="span" variant="body" size="small" weight="regular" className="shrink-0 rounded bg-[#0048c414] px-2 py-0.5 text-xs font-normal leading-4 text-[#0048c4]">
                 {displayItem.adLabel}
-              </span>
+              </Typography>
             ) : null}
           </div>
           <div className="mt-2 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
@@ -1295,13 +1296,13 @@ function ChatDetailHeader({
       backTo="/chat"
       centerSlot={
         <div className="min-w-0 text-right">
-          <h1 className="m-0 truncate text-base font-semibold leading-5 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-base font-semibold leading-5 text-[#1a1a1a]">
             {title}
-          </h1>
+          </Typography>
           {subtitle ? (
-            <p className="mt-0.5 truncate text-[10px] font-normal leading-4 text-[#808080]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="mt-0.5 truncate text-[10px] font-normal leading-4 text-[#808080]">
               {subtitle}
-            </p>
+            </Typography>
           ) : null}
         </div>
       }
@@ -1331,13 +1332,13 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
       />
       <div className="min-w-0 flex-1">
         {advertiseFormTitle ? (
-          <p className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">
             {advertiseFormTitle}
-          </p>
+          </Typography>
         ) : null}
-        <p className={`${advertiseFormTitle ? "mt-1" : ""} truncate text-xs font-medium leading-4 text-[#1a1a1a]`}>
+        <Typography as="p" variant="body" size="small" weight="medium" className={`${advertiseFormTitle ? "mt-1" : ""} truncate text-xs font-medium leading-4 text-[#1a1a1a]`}>
           {advertiseTitle}
-        </p>
+        </Typography>
       </div>
     </section>
   );
@@ -1379,14 +1380,14 @@ function ChatBubble({
           }`}
         dir="rtl"
       >
-        <p className="whitespace-pre-line break-words text-sm font-normal leading-[18px] text-[#1a1a1a] [overflow-wrap:anywhere]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="whitespace-pre-line break-words text-sm font-normal leading-[18px] text-[#1a1a1a] [overflow-wrap:anywhere]">
           {children}
-        </p>
+        </Typography>
         <div
           className={`mt-1 flex items-center gap-0.5 text-[11px] font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-[#0048c4]" : "justify-start text-[#808080]"
             }`}
         >
-          <span>{time}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{time}</Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-4 w-4 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
           ) : null}
@@ -1399,9 +1400,9 @@ function ChatBubble({
 function ChatDateChip() {
   return (
     <div className="flex justify-center py-0.5">
-      <span className="rounded-lg bg-[#f5f5f5] px-3 py-1 text-[10px] font-normal leading-4 text-[#808080]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="rounded-lg bg-[#f5f5f5] px-3 py-1 text-[10px] font-normal leading-4 text-[#808080]">
         22 بهمن
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -1440,7 +1441,7 @@ function ChatImageBubble({
         </a>
         <div className={`mt-1 flex items-center gap-1 px-1 text-[10px] leading-4 [direction:ltr] ${isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
           }`}>
-          <span>{time}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{time}</Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
           ) : null}
@@ -1477,16 +1478,16 @@ function ChatLocationBubble({
       >
         <div className="flex items-center gap-2 [direction:rtl]">
           <MapLocationIcon />
-          <span className="text-xs font-medium leading-5 text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-5 text-[#1a1a1a]">
             موقعیت در نقشه
-          </span>
+          </Typography>
         </div>
-        <p className="mt-2 text-[11px] leading-4 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-[11px] leading-4 text-[#4d4d4d]">
           برای مشاهده موقعیت روی نقشه لمس کنید.
-        </p>
+        </Typography>
         <div className={`mt-1 flex items-center gap-1 text-[10px] leading-4 [direction:ltr] ${isOutgoing ? "justify-end text-[#0048c4]" : "justify-start text-[#808080]"
           }`}>
-          <span>{time}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{time}</Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-[#0048c4]" : "text-[#808080]"}`} />
           ) : null}
@@ -1606,7 +1607,7 @@ function ChatComposer({
         </button>
 
         <label className="min-w-0 flex-1">
-          <span className="sr-only">پیام خود را بنویسید</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
           <input
             ref={inputRef}
             className="h-11 w-full rounded-xl border-0 px-2 text-right text-[12px] leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:ring-0"
@@ -1784,9 +1785,9 @@ function BlockChatConfirmBottomSheet({
       zIndexClassName="z-[70]"
     >
       <div className="flex flex-col gap-5">
-        <p className="m-0 text-center text-base font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-medium leading-6 text-[#1a1a1a]">
           آیا از مسدود کردن کاربر مطمئن هستید؟
-        </p>
+        </Typography>
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             disabled={isPending}
@@ -1824,9 +1825,9 @@ function ChatBlockedFooter({
     <footer className="shrink-0 bg-white px-4 pb-4 pt-2">
       <div className="flex min-h-[52px] items-center justify-between gap-3 rounded-full bg-[#f5f5f5] p-1 [direction:ltr]">
         {blockedMe ? (
-          <span className="min-w-0 flex-1 px-3 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 px-3 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
             این کاربر شما را مسدود کرده است
-          </span>
+          </Typography>
         ) : (
           <>
             <button
@@ -1837,9 +1838,9 @@ function ChatBlockedFooter({
             >
               {isPending ? "در حال انجام..." : "رفع مسدودیت"}
             </button>
-            <span className="min-w-0 flex-1 px-2 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 px-2 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
               این کاربر را مسدود کرده اید
-            </span>
+            </Typography>
           </>
         )}
       </div>
@@ -1981,20 +1982,20 @@ function ChatParticipantAvailabilityCard({
     >
       <div className="flex h-5 items-center gap-2 text-sm font-medium leading-5 text-[#0048c4]">
         <LinearSupport aria-hidden="true" className="h-5 w-5" />
-        <h2 className="m-0">ساعت پاسخگویی آژانس</h2>
+        <Typography as="h2" variant="headline" size="large" className="m-0">ساعت پاسخگویی آژانس</Typography>
       </div>
 
       <div className="mt-2 space-y-2 [direction:rtl]">
         <div className="flex text-xs items-center justify-between gap-4">
-          <span className="text-[#4d4d4d]">روزهای هفته:</span>
-          <span className="min-w-0 truncate text-left text-[#1a1a1a]">{daysText}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">روزهای هفته:</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate text-left text-[#1a1a1a]">{daysText}</Typography>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-[#4d4d4d]">ساعت:</span>
-          <span className="min-w-0 truncate text-left text-[#1a1a1a]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">ساعت:</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate text-left text-[#1a1a1a]">
             از {formatParticipantAvailabilityTime(availability.start_time)} - تا{" "}
             {formatParticipantAvailabilityTime(availability.end_time)}
-          </span>
+          </Typography>
         </div>
       </div>
     </section>
@@ -2021,22 +2022,22 @@ function ResponseTimeSelectBox({
         onClick={onClick}
         type="button"
       >
-        <span className="min-w-0 flex-1 text-right">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 text-right">
           {hasValue ? (
-            <span className="flex min-w-0 flex-col gap-0.5">
-              <span className="truncate text-[10px] font-normal leading-4 text-[#a6a6a6]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-col gap-0.5">
+              <Typography as="span" variant="body" size="small" weight="regular" className="truncate text-[10px] font-normal leading-4 text-[#a6a6a6]">
                 {label}
-              </span>
-              <span className="truncate text-xs font-medium leading-4 text-[#1a1a1a]">
+              </Typography>
+              <Typography as="span" variant="label" size="small" weight="medium" className="truncate text-xs font-medium leading-4 text-[#1a1a1a]">
                 {value}
-              </span>
-            </span>
+              </Typography>
+            </Typography>
           ) : (
-            <span className="block truncate text-xs font-normal leading-4 text-[#a6a6a6]">
+            <Typography as="span" variant="body" size="small" weight="regular" className="block truncate text-xs font-normal leading-4 text-[#a6a6a6]">
               {label}
-            </span>
+            </Typography>
           )}
-        </span>
+        </Typography>
 
         {!hasValue ? <ArrowDownIcon className="h-4 w-4 shrink-0 text-[#4d4d4d]" /> : null}
       </button>
@@ -2048,9 +2049,9 @@ function ResponseTimeSelectBox({
           onClick={onClear}
           type="button"
         >
-          <span className="grid h-5 w-5 place-items-center rounded-full border border-[#cccccc]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-5 w-5 place-items-center rounded-full border border-[#cccccc]">
             <CloseIcon className="h-3 w-3" />
-          </span>
+          </Typography>
         </button>
       ) : null}
     </div>
@@ -2092,15 +2093,15 @@ function ResponseTimeDaysSheet({
               onClick={() => onToggleDay(day.value)}
               type="button"
             >
-              <span>{day.label}</span>
-              <span
+              <Typography as="span" variant="body" size="medium" weight="regular">{day.label}</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular"
                 className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
                   ? "border-[#0048c4] bg-[#0048c4] text-white"
                   : "border-[#808080] bg-white text-transparent"
                   }`}
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
-              </span>
+              </Typography>
             </button>
           );
         })}
@@ -2255,8 +2256,8 @@ export function UserChatResponseTimePage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-28">
         <section className="px-4 pb-4 pt-5 text-right text-xs font-normal leading-5 text-[#1a1a1a]">
-          <p>ساعت پاسخگویی خود را در چت مشخص کنید.</p>
-          <p>این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.</p>
+          <Typography as="p" variant="body" size="medium" weight="regular">ساعت پاسخگویی خود را در چت مشخص کنید.</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular">این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.</Typography>
         </section>
 
         {availabilityQuery.isError ? (
@@ -2278,9 +2279,9 @@ export function UserChatResponseTimePage() {
           onClick={() => setOpenSheet("days")}
           type="button"
         >
-          <span className="min-w-0 flex-1 text-xs font-semibold leading-5 text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="small" weight="semibold" className="min-w-0 flex-1 text-xs font-semibold leading-5 text-[#1a1a1a]">
             روزهای هفته
-          </span>
+          </Typography>
           <ChevronLeftIcon className="h-4 w-4 shrink-0 text-[#4d4d4d]" />
         </button>
 
@@ -2293,21 +2294,21 @@ export function UserChatResponseTimePage() {
                 onClick={() => toggleDay(day)}
                 type="button"
               >
-                <span>{getResponseDayLabel(day)}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular">{getResponseDayLabel(day)}</Typography>
                 <CloseIcon className="h-3 w-3" />
               </button>
             ))}
           </div>
         ) : (
-          <p className="px-4 pb-4 text-[11px] leading-4 text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pb-4 text-[11px] leading-4 text-[#808080]">
             با ثبت بدون انتخاب روز، ساعت پاسخگویی پاک می‌شود.
-          </p>
+          </Typography>
         )}
 
         <section className="border-t border-[#cccccc] px-4 pt-5">
-          <h2 className="mb-4 text-right text-xs font-semibold leading-5 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="small" weight="semibold" className="mb-4 text-right text-xs font-semibold leading-5 text-[#1a1a1a]">
             تعیین ساعت شروع و پایان
-          </h2>
+          </Typography>
           <div className="flex gap-2 [direction:rtl]">
             <ResponseTimeSelectBox
               label="از ساعت"
@@ -2426,9 +2427,9 @@ export function UserChatRenamePage() {
           >
             نام و نام خانوادگی
           </label>
-          <p className="mb-3 mt-1 text-sm font-normal text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mb-3 mt-1 text-sm font-normal text-[#808080]">
             کاربران در چت شما را با این نام می‌بینند
-          </p>
+          </Typography>
           <input
             autoComplete="name"
             className={`w-full rounded-xl border bg-white px-3 py-3.75 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41f] ${errorMessage ? "border-[#c11004]" : "border-[#6e6e6e]"
@@ -2442,13 +2443,13 @@ export function UserChatRenamePage() {
             placeholder="نام خود را وارد کنید"
             value={chatName}
           />
-          <p className="mt-2 text-[11px] leading-4 text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-[11px] leading-4 text-[#808080]">
             برای نمایش نام و نام خانوادگی اصلی، این فیلد را خالی ذخیره کنید.
-          </p>
+          </Typography>
           {errorMessage ? (
-            <p className="mt-1.5 text-[11px] leading-4 text-[#c11004]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="mt-1.5 text-[11px] leading-4 text-[#c11004]">
               {errorMessage}
-            </p>
+            </Typography>
           ) : null}
         </section>
       </main>
@@ -2987,17 +2988,17 @@ export function UserChatDetailPage() {
 
           <div className="space-y-3">
             {messagesQuery.isLoading && apiMessages.length === 0 ? (
-              <p className="py-6 text-center text-xs text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="py-6 text-center text-xs text-[#808080]">
                 در حال دریافت پیام‌ها...
-              </p>
+              </Typography>
             ) : null}
 
             {!messagesQuery.isLoading && apiMessages.length === 0 ? (
               <>
                 <ChatDateChip />
-                <p className="py-6 text-center text-xs text-[#808080]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="py-6 text-center text-xs text-[#808080]">
                   هنوز پیامی در این گفتگو ثبت نشده است.
-                </p>
+                </Typography>
               </>
             ) : null}
 
@@ -3217,7 +3218,7 @@ export function UserChatHomePage() {
         query.trim() || activeFilter ? (
           <SearchEmptyState />
         ) : (
-          <p className="py-16 text-center text-sm text-[#808080]">هنوز گفتگویی ندارید.</p>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">هنوز گفتگویی ندارید.</Typography>
         )
       ) : null}
       <DemoNotice message={message} />
@@ -3265,15 +3266,15 @@ function BulkSelectAllControl({
       onClick={onToggle}
       type="button"
     >
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-[18px] w-[18px] place-items-center rounded border ${checked
           ? "border-[#808080] bg-white text-[#4d4d4d]"
           : "border-[#808080] bg-white text-transparent"
           }`}
       >
         <CheckIcon className="h-[14px] w-[14px]" />
-      </span>
-      <span>انتخاب همه</span>
+      </Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular">انتخاب همه</Typography>
     </button>
   );
 }
@@ -3428,15 +3429,15 @@ export function UserChatBulkDeletePage() {
           );
         })}
         {!isLoading && !isError && chats.length === 0 ? (
-          <p className="py-16 text-center text-sm text-[#808080]">گفتگویی برای حذف وجود ندارد</p>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">گفتگویی برای حذف وجود ندارد</Typography>
         ) : null}
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-20 h-[72px] border-t border-[#f0f0f0] bg-white px-4 shadow-[0_-8px_22px_rgba(0,0,0,0.06)]">
         {deleteError ? (
-          <p className="absolute inset-x-4 bottom-full mb-2 rounded-lg bg-white px-3 py-2 text-center text-xs leading-5 text-[#c11004] shadow-sm">
+          <Typography as="p" variant="body" size="small" weight="regular" className="absolute inset-x-4 bottom-full mb-2 rounded-lg bg-white px-3 py-2 text-center text-xs leading-5 text-[#c11004] shadow-sm">
             {deleteError}
-          </p>
+          </Typography>
         ) : null}
         <div className="flex h-full items-center justify-between gap-4 [direction:ltr]">
           <button

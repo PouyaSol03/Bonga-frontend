@@ -4,6 +4,7 @@ import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgen
 import { getApiErrorMessage } from "../../../api/api";
 import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, consultantApiIdentifier, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -147,10 +148,10 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   return (
                     <tr key={id}>
                       <TableCell>
-                        <span className="font-bold text-[#1a1a1a]">{readText(agency, ["name"])}</span>
+                        <Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{readText(agency, ["name"])}</Typography>
                         <small className="mt-1 block text-sm text-[#9aa2af]">{id}</small>
                       </TableCell>
-                      <TableCell><span dir="ltr">{readText(agency, ["phone1", "phone2", "phone3"])}</span></TableCell>
+                      <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(agency, ["phone1", "phone2", "phone3"])}</Typography></TableCell>
                       <TableCell>
                         <CrmSelect
                           aria-label={`وضعیت ${readText(agency, ["name"])}`}
@@ -174,7 +175,7 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                           <option className="bg-white text-[#cc3342]" style={{ backgroundColor: "#ffffff", color: "#cc3342" }} value="reject">رد شده</option>
                         </CrmSelect>
                       </TableCell>
-                      <TableCell><span dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</span></TableCell>
+                      <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</Typography></TableCell>
                       <TableCell>
                         <SmallActionButton
                           icon={<CrmIcon name="users" size={16} />}

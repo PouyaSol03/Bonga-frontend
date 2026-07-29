@@ -13,6 +13,7 @@ import {
   type CrmRecord,
 } from "../../services/crm.service";
 import { JalaliDatePickerSheet } from "../newAd/steps/project/JalaliDatePickerSheet";
+import { Typography } from "../../components/ui/Typography";
 
 type CrmPaymentsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -108,23 +109,23 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
             transition={{ delay: prefersReducedMotion ? 0 : index * 0.04, duration: 0.2 }}
           >
             <div className="flex items-center justify-between gap-3">
-              <span className={`grid h-11 w-11 place-items-center rounded-2xl ${metric.iconClassName}`}>
+              <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-11 w-11 place-items-center rounded-2xl ${metric.iconClassName}`}>
                 {metric.icon}
-              </span>
-              <span className="text-xs font-semibold text-[#a0a7b2]">{metric.caption}</span>
+              </Typography>
+              <Typography as="span" variant="label" size="small" weight="semibold" className="text-xs font-semibold text-[#a0a7b2]">{metric.caption}</Typography>
             </div>
             <strong className="mt-5 block text-2xl font-black text-[#1e2633]">
               {query.isLoading ? "…" : metric.value}
             </strong>
-            <span className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</span>
+            <Typography as="span" variant="label" size="medium" weight="medium" className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</Typography>
           </motion.article>
         ))}
       </section>
 
       <section className="rounded-2xl bg-white p-5">
         <div className="flex flex-col gap-1">
-          <h2 className="m-0 text-base font-black text-[#263042]">فیلتر پرداخت‌ها</h2>
-          <p className="m-0 text-sm leading-6 text-[#8a94a3]">فیلترها مستقیماً به API پرداخت‌های پنل ارسال می‌شوند.</p>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">فیلتر پرداخت‌ها</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-[#8a94a3]">فیلترها مستقیماً به API پرداخت‌های پنل ارسال می‌شوند.</Typography>
         </div>
 
         <form
@@ -182,10 +183,10 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
       <section className="overflow-hidden rounded-2xl bg-white">
         <div className="flex flex-col gap-3 border-b border-[#edf0f5] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="m-0 text-base font-black text-[#263042]">همه پرداخت‌ها</h2>
-            <p className="m-0 mt-1 text-sm text-[#8a94a3]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">همه پرداخت‌ها</Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">
               {query.isLoading ? "در حال دریافت..." : `${formatNumber(total)} تراکنش پیدا شد`}
-            </p>
+            </Typography>
           </div>
           <label className="flex items-center gap-2 text-xs font-bold text-[#667085]">
             تعداد در صفحه
@@ -221,10 +222,10 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                 <tr>
                   <td colSpan={7}>
                     <div className="flex flex-col items-center justify-center py-14 text-center">
-                      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#cc3342]">
+                      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#cc3342]">
                         <CloseIcon />
-                      </span>
-                      <p className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">دریافت تاریخچه پرداخت‌ها ناموفق بود.</p>
+                      </Typography>
+                      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">دریافت تاریخچه پرداخت‌ها ناموفق بود.</Typography>
                       <button className="mt-3 text-sm font-bold text-[#0048c4]" onClick={() => void query.refetch()} type="button">تلاش مجدد</button>
                     </div>
                   </td>
@@ -239,15 +240,15 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                     transition={{ delay: prefersReducedMotion ? 0 : Math.min(index, 8) * 0.025, duration: 0.16 }}
                   >
                     <TableCell>
-                      <span className="inline-flex rounded-lg bg-[#f4f6f9] px-2.5 py-1.5 font-mono text-xs font-bold text-[#4d5b70] [direction:ltr]">
+                      <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex rounded-lg bg-[#f4f6f9] px-2.5 py-1.5 font-mono text-xs font-bold text-[#4d5b70] [direction:ltr]">
                         {readPaymentId(payment)}
-                      </span>
+                      </Typography>
                     </TableCell>
-                    <TableCell><span className="whitespace-nowrap font-semibold text-[#344054]">{readPaymentPurposeLabel(payment)}</span></TableCell>
+                    <TableCell><Typography as="span" variant="label" size="medium" weight="semibold" className="whitespace-nowrap font-semibold text-[#344054]">{readPaymentPurposeLabel(payment)}</Typography></TableCell>
                     <TableCell><strong className="whitespace-nowrap text-[#1f2937]">{readPaymentAmount(payment)}</strong></TableCell>
                     <TableCell><PaymentStatusBadge payment={payment} /></TableCell>
                     <TableCell><PaymentMethodBadge payment={payment} /></TableCell>
-                    <TableCell><span className="whitespace-nowrap text-[#5f6b7c]">{readPaymentDate(payment)}</span></TableCell>
+                    <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="whitespace-nowrap text-[#5f6b7c]">{readPaymentDate(payment)}</Typography></TableCell>
                     <TableCell>
                       <button
                         className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#c9daf8] bg-[#eef4ff] px-3 text-sm font-bold text-[#0048c4] transition hover:border-[#0048c4] hover:bg-[#e3edff]"
@@ -263,10 +264,10 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                 <tr>
                   <td colSpan={7}>
                     <div className="flex flex-col items-center justify-center py-14 text-center">
-                      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+                      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
                         <ReceiptIcon />
-                      </span>
-                      <p className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">پرداختی مطابق فیلترها پیدا نشد.</p>
+                      </Typography>
+                      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">پرداختی مطابق فیلترها پیدا نشد.</Typography>
                       <button className="mt-3 text-sm font-bold text-[#0048c4]" onClick={clearFilters} type="button">حذف فیلترها</button>
                     </div>
                   </td>
@@ -278,9 +279,9 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
 
         {!query.isLoading && !query.isError && total > 0 ? (
           <div className="flex flex-col gap-3 border-t border-[#edf0f5] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-sm text-[#7b8493]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm text-[#7b8493]">
               صفحه {formatNumber(currentPage)} از {formatNumber(totalPages)}
-            </span>
+            </Typography>
             <div className="flex items-center gap-2">
               <button
                 className="h-9 rounded-lg border border-[#dce3ef] bg-white px-3 text-sm font-bold text-[#526174] disabled:cursor-not-allowed disabled:opacity-40"
@@ -290,7 +291,7 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
               >
                 قبلی
               </button>
-              <span className="grid h-9 min-w-9 place-items-center rounded-lg bg-[#0048c4] px-2 text-sm font-bold text-white">{formatNumber(currentPage)}</span>
+              <Typography as="span" variant="label" size="medium" weight="semibold" className="grid h-9 min-w-9 place-items-center rounded-lg bg-[#0048c4] px-2 text-sm font-bold text-white">{formatNumber(currentPage)}</Typography>
               <button
                 className="h-9 rounded-lg border border-[#dce3ef] bg-white px-3 text-sm font-bold text-[#526174] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage >= totalPages || query.isFetching}
@@ -370,8 +371,8 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
           >
             <header className="flex shrink-0 items-center justify-between border-b border-[#edf0f5] px-5 py-4">
               <div>
-                <h2 className="m-0 text-base font-black text-[#263042]">جزئیات پرداخت</h2>
-                <p className="m-0 mt-1 text-sm text-[#8a94a3]">اطلاعات کامل تراکنش و موارد متصل به آن</p>
+                <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">جزئیات پرداخت</Typography>
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">اطلاعات کامل تراکنش و موارد متصل به آن</Typography>
               </div>
               <button aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button">
                 <ClosePlainIcon />
@@ -432,7 +433,7 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
 function DetailsSection({ children, title }: { children: ReactNode; title: string }) {
   return (
     <section className="rounded-xl border border-[#edf0f5] bg-[#fbfcfe] p-4">
-      <h3 className="m-0 mb-3 text-sm font-black text-[#344054]">{title}</h3>
+      <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 mb-3 text-sm font-black text-[#344054]">{title}</Typography>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>
     </section>
   );
@@ -441,7 +442,7 @@ function DetailsSection({ children, title }: { children: ReactNode; title: strin
 function DetailItem({ label, ltr = false, value, wide = false }: { label: string; ltr?: boolean; value: string; wide?: boolean }) {
   return (
     <div className={`rounded-lg bg-white px-3 py-2.5 ${wide ? "sm:col-span-2" : ""}`}>
-      <span className="block text-xs font-semibold text-[#8a94a3]">{label}</span>
+      <Typography as="span" variant="label" size="small" weight="semibold" className="block text-xs font-semibold text-[#8a94a3]">{label}</Typography>
       <strong className={`mt-1 block break-words text-sm font-bold text-[#303846] ${ltr ? "[direction:ltr] text-left" : ""}`}>{value}</strong>
     </div>
   );
@@ -451,7 +452,7 @@ function DateFilterButton({ label, onClick, value }: { label: string; onClick: (
   return (
     <FilterField label={label}>
       <button className={`${inputClassName} flex items-center justify-between text-right`} onClick={onClick} type="button">
-        <span className={value ? "text-[#303030]" : "text-[#999999]"}>{value || "انتخاب تاریخ شمسی"}</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#303030]" : "text-[#999999]"}>{value || "انتخاب تاریخ شمسی"}</Typography>
         <CalendarIcon />
       </button>
     </FilterField>
@@ -696,7 +697,7 @@ function PaymentStatusBadge({ payment }: { payment: CrmRecord }) {
     unknown: "bg-[#f1f3f6] text-[#697587]",
   }[status];
 
-  return <span className={`inline-flex min-w-[92px] justify-center rounded-full px-2.5 py-1.5 text-xs font-bold ${config}`}>{readPaymentStatusLabel(payment)}</span>;
+  return <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex min-w-[92px] justify-center rounded-full px-2.5 py-1.5 text-xs font-bold ${config}`}>{readPaymentStatusLabel(payment)}</Typography>;
 }
 
 function PaymentMethodBadge({ payment }: { payment: CrmRecord }) {
@@ -707,13 +708,13 @@ function PaymentMethodBadge({ payment }: { payment: CrmRecord }) {
     unknown: { label: readText(payment, ["method", "payment_method"], "نامشخص"), style: "bg-[#f1f3f6] text-[#697587]" },
   }[method];
 
-  return <span className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-bold ${config.style}`}>{config.label}</span>;
+  return <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-bold ${config.style}`}>{config.label}</Typography>;
 }
 
 function FilterField({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-bold text-[#667085]">{label}</span>
+      <Typography as="span" variant="label" size="small" weight="semibold" className="mb-1.5 block text-xs font-bold text-[#667085]">{label}</Typography>
       {children}
     </label>
   );
@@ -734,7 +735,7 @@ function PaymentTableSkeleton({ columns }: { columns: number }) {
         <tr key={rowIndex}>
           {Array.from({ length: columns }).map((__, columnIndex) => (
             <td className="border-b border-[#edf0f5] px-4 py-4" key={columnIndex}>
-              <span className={`block h-4 animate-pulse rounded-full bg-[#edf0f4] ${columnIndex === 0 ? "w-32" : "w-20"}`} />
+              <Typography as="span" variant="body" size="medium" weight="regular" className={`block h-4 animate-pulse rounded-full bg-[#edf0f4] ${columnIndex === 0 ? "w-32" : "w-20"}`} />
             </td>
           ))}
         </tr>

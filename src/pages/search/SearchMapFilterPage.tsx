@@ -32,6 +32,7 @@ import {
   projectStatusOptions,
 } from "../newAd/data";
 import type { BasicPropertyField, ChipItem, MoreFeatureField } from "../newAd/types";
+import { Typography } from "../../components/ui/Typography";
 
 type TransactionType = "sale" | "rent" | "project";
 
@@ -1114,7 +1115,7 @@ export function AdvertisementFilterPage({
           >
             <div className="flex items-center gap-2 text-sm font-medium text-[#1a1a1a]">
               <BuildingIcon />
-              <span>انتخاب دسته</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">انتخاب دسته</Typography>
             </div>
 
             <FormChoiceChip
@@ -1172,9 +1173,9 @@ function FilterSection({ children, icon, sectionId, title }: FilterSectionProps)
     <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 pb-4 pt-4" data-filter-section={sectionId} dir="rtl">
       <div className="mb-2 flex h-8 items-center justify-start gap-2 text-[#4d4d4d]">
         {icon}
-        <h2 className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
           {title}
-        </h2>
+        </Typography>
       </div>
       {children}
     </section>
@@ -1315,7 +1316,7 @@ function MoreButton({
       onClick={onClick}
       type="button"
     >
-      <span>{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</Typography>
       <ChevronDownIcon isOpen={expanded} />
     </button>
   );
@@ -1429,9 +1430,9 @@ function CategorySelectionScreen({
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-0 pt-4">
         {categoryGroupsByTransaction[draftTransaction].map((group) => (
           <section key={group.title} className="mb-6 last:mb-0">
-            <h2 className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
+            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
               {group.title}
-            </h2>
+            </Typography>
 
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
               {group.items.map((item) => (
@@ -1724,10 +1725,10 @@ function NeighborhoodFilterSection({
       >
         <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
           <LocationIcon />
-          <span>محله</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">محله</Typography>
         </div>
         <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
-          <span>انتخاب کنید</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">انتخاب کنید</Typography>
           <ChevronLeftIcon />
         </div>
       </button>
@@ -1801,9 +1802,9 @@ function NeighborhoodFilterSection({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-4 py-3" dir="rtl">
           {!cityId ? (
-            <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
               برای انتخاب محله، ابتدا شهر را انتخاب کنید.
-            </p>
+            </Typography>
           ) : neighborhoodsQuery.isLoading ? (
             <div className="space-y-2">
               <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
@@ -1823,14 +1824,14 @@ function NeighborhoodFilterSection({
                     onClick={() => toggleNeighborhood(neighborhood)}
                     type="button"
                   >
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold leading-5 text-[#1a1a1a]">
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
+                      <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold leading-5 text-[#1a1a1a]">
                         {neighborhood.name}
-                      </span>
-                      <span className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
+                      </Typography>
+                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
                         {selectedCity?.name ?? "شهر انتخاب‌شده"}
-                      </span>
-                    </span>
+                      </Typography>
+                    </Typography>
                     <ChoiceIndicator checked={isSelected} />
                   </button>
                 );
@@ -1839,9 +1840,9 @@ function NeighborhoodFilterSection({
           ) : query.trim() ? (
             <SearchEmptyState compact />
           ) : (
-            <p className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
               محله‌ای برای این شهر ثبت نشده است.
-            </p>
+            </Typography>
           )}
         </div>
         <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
@@ -2016,9 +2017,9 @@ function RangeSelectField({
         type="button"
       >
         <ChevronDownIcon isOpen={isOpen} />
-        <span className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
           {displayValue || label}
-        </span>
+        </Typography>
       </button>
 
       <BottomSheet
@@ -2068,7 +2069,7 @@ function RangeSelectField({
                 }}
                 type="button"
               >
-                <span>پاک کردن انتخاب</span>
+                <Typography as="span" variant="body" size="medium" weight="regular">پاک کردن انتخاب</Typography>
               </button>
             ) : null}
 
@@ -2094,7 +2095,7 @@ function RangeSelectField({
                   }}
                   type="button"
                 >
-                  <span>{option}</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
                 </button>
               );
             })}
@@ -2186,9 +2187,9 @@ function CheckboxRow({
       onClick={() => onChange(!checked)}
       type="button"
     >
-      <span className="min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
         {label}
-      </span>
+      </Typography>
       <ChoiceIndicator checked={checked} className="h-5 w-5 rounded" />
     </button>
   );
@@ -2218,10 +2219,10 @@ function SelectOnlySection({
       >
         <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
           <SettingsIcon />
-          <span>{label}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
         </div>
         <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
-          <span>انتخاب</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
           <ChevronLeftIcon />
         </div>
       </button>
@@ -2256,7 +2257,7 @@ function SelectOnlySection({
               }}
               type="button"
             >
-              <span>پاک کردن انتخاب</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">پاک کردن انتخاب</Typography>
               <ClearCircleIcon />
             </button>
           ) : null}
@@ -2277,7 +2278,7 @@ function SelectOnlySection({
                 }}
                 type="button"
               >
-                <span>{option}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
                 <ChoiceIndicator checked={selected} />
               </button>
             );

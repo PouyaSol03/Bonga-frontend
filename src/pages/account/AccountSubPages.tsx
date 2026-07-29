@@ -45,6 +45,7 @@ import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { RequestManagementView } from "../requests/RequestManagementView";
 import { getRecentViews } from "../../services/recent-views.service";
+import { Typography } from "../../components/ui/Typography";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -205,13 +206,13 @@ function AccountProfileForm({
     <>
       <section className="flex flex-col items-center px-4 pt-4">
         <div className="relative grid h-[100px] w-[100px] place-items-center overflow-visible text-[#808080]">
-          <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0]">
             {avatarSrc ? (
               <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
             ) : (
               <UserIcon className="h-10 w-10" />
             )}
-          </span>
+          </Typography>
 
           <label
             aria-label="ویرایش تصویر"
@@ -335,12 +336,12 @@ function AccountMyAdsEmptyState({
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <h2 className="m-0 font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
         {title}
-      </h2>
-      <p className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]">
         {description}
-      </p>
+      </Typography>
       {isAllFilter ? (
         <RouteLink
           className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
@@ -495,9 +496,9 @@ export function AccountWalletPage() {
           <section className="px-3 pt-4 text-right">
             <div className="flex items-center justify-between rounded-xl border border-[#d6e1ff] bg-[#0048c414] p-4 [direction:rtl]">
               <div>
-                <p className="m-0 text-xs font-medium leading-5 text-[#4D4D4D]">
+                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-xs font-medium leading-5 text-[#4D4D4D]">
                   اعتبار قابل استفاده:
-                </p>
+                </Typography>
 
                 <div className="mt-2 flex items-end gap-1 text-[#0048c4]">
                   <strong className="text-2xl font-bold leading-7">
@@ -514,15 +515,15 @@ export function AccountWalletPage() {
 
             <div className="mt-5 pt-5 flex items-center gap-2 text-[#1a1a1a]">
               <PlusIcon className="h-5 w-5" />
-              <h2 className="m-0 text-base font-medium leading-6">
+              <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6">
                 افزایش اعتبار
-              </h2>
+              </Typography>
             </div>
 
             <label className="mt-4 flex py-3 items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
-              <span className="text-xs font-normal leading-4 text-[#808080]">
+              <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-4 text-[#808080]">
                 تومان
-              </span>
+              </Typography>
 
               <input
                 className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] placeholder:text-sm [direction:rtl]"
@@ -535,14 +536,14 @@ export function AccountWalletPage() {
               />
             </label>
             {Number(amount) > 0 && (
-              <p className="px-4 pt-1 text-xs text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-[#808080]">
                 {formatBigNumber(Number(amount))} تومان
-              </p>
+              </Typography>
             )}
 
-            <h3 className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
+            <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
               مبالغ پیشنهادی
-            </h3>
+            </Typography>
 
             <div className="mt-3 grid grid-cols-3 gap-3 [direction:rtl]">
               {suggestedAmounts.map((amountOption) => {
@@ -569,7 +570,7 @@ export function AccountWalletPage() {
               to="/account/wallet/history"
             >
               <img src="/icons/walletHistory.svg" alt="" />
-              <span className="text-base flex-1">تاریخچه پرداخت</span>
+              <Typography as="span" variant="body" size="large" weight="regular" className="text-base flex-1">تاریخچه پرداخت</Typography>
               <ChevronLeftIcon className="h-4 w-4 text-[#4d4d4d]" />
             </RouteLink>
           </section>
@@ -798,9 +799,9 @@ export function AccountNotesPage() {
         showHeader={false}
         variant="confirm"
       >
-        <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه یادداشت‌ها مطمئن هستید؟
-        </p>
+        </Typography>
         <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
@@ -968,9 +969,9 @@ export function AccountBookmarksPage() {
         showHeader={false}
         variant="confirm"
       >
-        <p className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه نشان‌ها مطمئن هستید؟
-        </p>
+        </Typography>
         <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
@@ -1127,18 +1128,18 @@ export function AccountIdentityPage() {
       >
         <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
           <WarningTriangleIcon className="h-5 w-5 shrink-0" />
-          <h2 className="m-0 text-sm font-semibold leading-6">هشدار</h2>
+          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-6">هشدار</Typography>
         </div>
 
-        <p className="m-0 mt-3 text-right text-xs font-normal leading-6 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-6 text-[#4d4d4d]">
           با اعلام تغییر مالکیت سیم‌کارت، همه آگهی‌های این حساب کاربری
           {" "}
-          <span dir="ltr" className="font-medium text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="medium" weight="medium" dir="ltr" className="font-medium text-[#1a1a1a]">
             ({mobile})
-          </span>
+          </Typography>
           {" "}
           غیرفعال می‌شوند.
-        </p>
+        </Typography>
 
         <div className="mt-5 grid grid-cols-2 gap-3 [direction:ltr]">
           <Button
@@ -1182,15 +1183,15 @@ export function AccountAboutPage() {
               <BuildingClusterIcon className="h-14 w-14" />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="m-0 text-base font-semibold leading-6 text-[#0048c4]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4]">
                 درباره ما
-              </h2>
+              </Typography>
             </div>
           </div>
 
-          <p className="m-0 mt-3 text-right text-sm font-normal leading-7 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-7 text-[#4d4d4d]">
             ما بیش از ۱۰ سال است که در دنیای املاک همراه خریداران، فروشندگان و آژانس‌های املاک هستیم. در این سال‌ها هدف ما همیشه یک چیز بوده: ساده‌تر کردن مسیر معامله ملک و ایجاد بستری مطمئن برای همه کسانی که در بازار املاک فعالیت دارند.
-          </p>
+          </Typography>
         </section>
 
         <AboutSection
@@ -1281,9 +1282,9 @@ function AdFilterTabs({
             type="button"
           >
             {activeFilter.label === filter.label ? (
-              <span className="absolute inset-0 rounded-lg bg-[#0048c414]" />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="absolute inset-0 rounded-lg bg-[#0048c414]" />
             ) : null}
-            <span className="relative z-10">{filter.label}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="relative z-10">{filter.label}</Typography>
           </button>
         ))}
       </div>
@@ -1303,12 +1304,12 @@ function EmptyAccountState({
   return (
     <section className="flex min-h-[560px] flex-col items-center justify-center px-9 text-center">
       <img alt="" aria-hidden="true" className="mb-5 h-[66px] w-[66px]" src={iconSrc} />
-      <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
         {title}
-      </h2>
-      <p className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-[#4d4d4d]">
         {description}
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -1490,17 +1491,17 @@ function NoteCard({
             >
               <EditIcon className="h-4 w-4" />
             </button>
-            <h2 className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
               {noteText}
-            </h2>
+            </Typography>
           </div>
 
-          <p className="m-0 mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
             {mappedAd.title}
-          </p>
-          <p className="m-0 mt-0.5 truncate text-right text-xs font-normal leading-4 text-[#808080]">
+          </Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 truncate text-right text-xs font-normal leading-4 text-[#808080]">
             {dateText}
-          </p>
+          </Typography>
         </div>
       </div>
     </article>
@@ -1519,14 +1520,14 @@ function AboutSection({
   return (
     <section className={`${isLast ? "pb-0" : "border-b border-[#cccccc] pb-6"} pt-6 text-right`}>
       <div className="flex items-center justify-end gap-1.5">
-        <h2 className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#0048c4]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#0048c4]">
           {title}
-        </h2>
-        <span className="h-3 w-3 shrink-0 rounded-full bg-[#11a366]" aria-hidden="true" />
+        </Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 shrink-0 rounded-full bg-[#11a366]" aria-hidden="true" />
       </div>
-      <p className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal leading-7 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal leading-7 text-[#4d4d4d]">
         {text}
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -1550,12 +1551,12 @@ function IdentityPendingState({
       {showRequiredNotice ? (
         <section className="px-2 pt-3">
           <div className="rounded-xl border border-[#ff6d00] bg-[#fff7f0] px-4 py-3 text-right text-[#ff6d00]">
-            <p className="m-0 text-sm font-semibold leading-6">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-6">
               احراز هویت مورد نیاز است!
-            </p>
-            <p className="m-0 mt-1 text-xs font-normal leading-5">
+            </Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs font-normal leading-5">
               برای ادامه استفاده از حساب، ابتدا کد ملی مالک شماره همراه را تایید کنید.
-            </p>
+            </Typography>
           </div>
         </section>
       ) : null}
@@ -1564,40 +1565,40 @@ function IdentityPendingState({
         <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
           <div className="flex items-center justify-start gap-2 text-[#0048C4]">
             <IdentityCheckIcon className="h-6 w-6" />
-            <h2 className="m-0 font-semibold leading-5">
+            <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold leading-5">
               ملاحظات در تایید هویت
-            </h2>
+            </Typography>
           </div>
 
-          <p className="m-0 mt-3 font-normal leading-7 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 font-normal leading-7 text-[#1a1a1a]">
             برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
-          </p>
+          </Typography>
 
-          <p className="m-0 mt-2 font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 font-medium leading-6 text-[#1a1a1a]">
             شماره همراه فعال:{" "}
-            <span dir="ltr" className="font-semibold text-[#11A366]">
+            <Typography as="span" variant="label" size="medium" weight="semibold" dir="ltr" className="font-semibold text-[#11A366]">
               {mobile}
-            </span>
-          </p>
+            </Typography>
+          </Typography>
         </div>
       </section>
 
       <section className="px-2 pt-4 text-center">
-        <h2 className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
           تایید با کد ملی
-        </h2>
+        </Typography>
 
         <div className="mt-1 flex items-center justify-center gap-1 text-[#808080]">
           <InfoCircleIcon className="h-3.5 w-3.5 shrink-0" />
-          <p className="m-0 text-[11px] font-normal leading-5">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-[11px] font-normal leading-5">
             کد ملی باید متعلق به مالک همین شماره همراه باشد.
-          </p>
+          </Typography>
         </div>
 
         <label className="relative mt-4 block">
-          <span className="absolute -top-2 right-4 bg-white px-1.5 text-xs font-normal leading-4 text-[#808080]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-4 bg-white px-1.5 text-xs font-normal leading-4 text-[#808080]">
             کد ملی مالک شماره همراه
-          </span>
+          </Typography>
 
           <input
             className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
@@ -1637,31 +1638,31 @@ function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void })
         <div className="rounded-xl border border-[#11A366] bg-[#11A36614] px-4 pb-5 pt-4 text-center">
           <div className="flex items-center justify-center gap-2 text-[#11A366]">
             <IdentityCheckIcon className="h-4 w-4" />
-            <h2 className="m-0 text-sm font-semibold leading-5">
+            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5">
               هویت شما تایید شده است
-            </h2>
+            </Typography>
           </div>
 
-          <p className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
             احراز هویت شما در بهمن ۱۴۰۱ با موفقیت انجام شده است.
-          </p>
+          </Typography>
         </div>
       </section>
 
       <div className="mt-3 h-0.5 bg-[#f0f0f0]" />
 
       <section className="px-2 pt-4 text-center">
-        <h2 className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5 text-[#1a1a1a]">
           مالکیت سیم‌کارت
-        </h2>
+        </Typography>
 
         <div className="mt-2 flex items-start justify-center gap-1 text-[#808080]">
           <InfoCircleIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <p className="m-0 max-w-[240px] text-[11px] font-normal leading-5">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 max-w-[240px] text-[11px] font-normal leading-5">
             در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
             <br />
             در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
-          </p>
+          </Typography>
         </div>
 
         <button
@@ -1670,7 +1671,7 @@ function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void })
           type="button"
         >
           <ChevronLeftIcon className="absolute left-4 h-4 w-4" />
-          <span>ثبت تغییر مالکیت سیم‌کارت</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">ثبت تغییر مالکیت سیم‌کارت</Typography>
         </button>
       </section>
     </>
@@ -1702,7 +1703,7 @@ function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void }) {
                   value={reason.id}
                 />
 
-                <span
+                <Typography as="span" variant="body" size="medium" weight="regular"
                   aria-hidden="true"
                   className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${
                     isSelected
@@ -1711,13 +1712,13 @@ function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void }) {
                   }`}
                 >
                   {isSelected ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#0048c4]" />
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="h-2.5 w-2.5 rounded-full bg-[#0048c4]" />
                   ) : null}
-                </span>
+                </Typography>
 
-                <span className="text-sm font-normal leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-6 text-[#1a1a1a]">
                   {reason.label}
-                </span>
+                </Typography>
               </label>
             );
           })}
@@ -1739,9 +1740,9 @@ function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void }) {
 
 function EmptyMessage({ text }: { text: string }) {
   return (
-    <p className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
+    <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
       {text}
-    </p>
+    </Typography>
   );
 }
 
@@ -1864,7 +1865,7 @@ function AccountRetryState({
       <div className="fixed inset-0 z-[999] bg-white">
         <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
       </div>
-      <p className="sr-only">{message}</p>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
     </>
   );
 }
@@ -1933,9 +1934,9 @@ function formatPaymentDate(value?: string) {
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
-      <span className="mb-1 block pr-4 text-right text-xs font-normal leading-4 text-[#b3b3b3]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 block pr-4 text-right text-xs font-normal leading-4 text-[#b3b3b3]">
         {label}
-      </span>
+      </Typography>
       <input
         className="h-14 w-full rounded-xl border border-[#e0e0e0] bg-white px-4 text-right text-sm font-normal leading-5 text-[#b3b3b3] outline-none"
         readOnly
@@ -2007,16 +2008,16 @@ function PaymentHistoryRow({
 }) {
   return (
     <div className={`flex items-center justify-between py-2 gap-4`}>
-      <span className="shrink-0 font-medium leading-5 text-[#808080]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 font-medium leading-5 text-[#808080]">
         {label}
-      </span>
+      </Typography>
 
-      <span
+      <Typography as="span" variant="label" size="medium" weight="medium"
         className="flex min-w-0 items-center gap-1 text-left font-medium"
         style={{ color: valueColor }}
       >
         {value}{icon}
-      </span>
+      </Typography>
     </div>
   );
 }

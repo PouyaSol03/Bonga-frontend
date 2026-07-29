@@ -27,6 +27,7 @@ import {
   getAdStatePath,
   getSelectedConsultantAd,
 } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 type ChartMetric = "calls" | "chats" | "searchDisplays" | "views";
 
@@ -227,13 +228,13 @@ function UserAdVisitStatisticsView({
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="flex min-h-[292px] flex-col items-center bg-white px-7 pb-10 pt-10 text-center">
-          <h2 className="m-0 text-[26px] font-extrabold leading-10 tracking-[-0.04em]">
-            <span className="text-[#11a366]">دیده شو، </span>
-            <span className="text-[#0048c4]">سریع‌تر بفروش!</span>
-          </h2>
-          <p className="m-0 mt-3 max-w-[316px] text-base font-medium leading-8 text-[#4d4d4d]">
+          <Typography as="h2" variant="headline" size="small" className="m-0 text-[26px] font-extrabold leading-10 tracking-[-0.04em]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#11a366]">دیده شو، </Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0048c4]">سریع‌تر بفروش!</Typography>
+          </Typography>
+          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 mt-3 max-w-[316px] text-base font-medium leading-8 text-[#4d4d4d]">
             با بسته‌های <strong className="font-semibold text-[#0048c4]">بروزرسانی</strong> و <strong className="font-semibold text-[#0048c4]">ویژه</strong>، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
-          </p>
+          </Typography>
         </section>
       </main>
 
@@ -250,10 +251,10 @@ function UserAdVisitStatisticsView({
           to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
         >
           <ChevronLeftIcon className="h-6 w-6" />
-          <span className="inline-flex items-center gap-2 [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 [direction:rtl]">
             افزایش بازدید
             <TrendArrowIcon className="h-6 w-6" />
-          </span>
+          </Typography>
         </RouteLink>
       </footer>
     </PageFrame>
@@ -311,10 +312,10 @@ function AdSummaryHeader({ summary }: { summary: AdSummary }) {
     <section className="h-[104px] bg-white px-4 py-4" aria-label={summary.title}>
       <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
         <div className="min-w-0 flex-1 text-right [direction:rtl]">
-          <h2 className="m-0 truncate text-sm font-medium leading-5 text-[#1a1a1a]">{summary.title}</h2>
-          <p className="m-0 mt-2 truncate text-xs font-normal leading-4 text-[#808080]">
+          <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5 text-[#1a1a1a]">{summary.title}</Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 truncate text-xs font-normal leading-4 text-[#808080]">
             {summary.timeAndLocation || summary.category}
-          </p>
+          </Typography>
         </div>
         <div
           aria-hidden="true"
@@ -359,7 +360,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
     >
       <div className="flex h-12 items-center justify-between [direction:ltr]">
         <ChartRangeControls offset={offset} setOffset={setOffset} />
-        <h2 className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
           <ChartTitleIcon className="h-6 w-6 text-[#4d4d4d]" metric={chart.metric} />
           {chart.title}
           <button
@@ -370,12 +371,12 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
           >
             <InfoIcon className="h-5 w-5" />
           </button>
-        </h2>
+        </Typography>
       </div>
 
       <div className={`${isUserMode ? "mt-3" : "mt-4"}`}>
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
-          <span className="text-sm font-normal leading-5 text-[#4d4d4d]">{chart.label}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{chart.label}</Typography>
           <strong className="text-base font-semibold leading-6 text-[#002099]">
             {offset === 0 ? chart.total : reduceDisplayedTotal(chart.total, offset)}
           </strong>
@@ -460,9 +461,9 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
         showBackButton={false}
         title={chartInfo.title}
       >
-        <p className="m-0 text-sm font-normal leading-7 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#4d4d4d]">
           {chartInfo.description}
-        </p>
+        </Typography>
       </BottomSheet>
     </section>
   );
@@ -725,7 +726,7 @@ function InlineNotice({ text }: { text: string }) {
 function ErrorNotice({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="mx-4 my-3 rounded-lg bg-[#fff5db] px-3 py-2 text-center text-xs font-medium leading-5 text-[#ff6d00]">
-      <p className="m-0">دریافت آمار آگهی با خطا مواجه شد.</p>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">دریافت آمار آگهی با خطا مواجه شد.</Typography>
       <button className="mt-1 border-0 text-xs font-semibold text-[#0048c4]" onClick={onRetry} type="button">
         تلاش دوباره
       </button>

@@ -17,6 +17,7 @@ import { formatPrice } from "../../../lib/MoneyHandler";
 import { normalizeNumberInput, navigateTo } from "../utils";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
+import { Typography } from "../../../components/ui/Typography";
 
 export function Header({
   title,
@@ -70,15 +71,15 @@ export function Section({
             className="h-6 w-6 shrink-0 object-contain"
           />
 
-          <h2 className="m-0 min-w-0 truncate text-right font-semibold leading-7 text-[#1a1a1a]">
+          <Typography as="h2" variant="headline" size="large" className="m-0 min-w-0 truncate text-right font-semibold leading-7 text-[#1a1a1a]">
             {title}
-          </h2>
+          </Typography>
         </div>
 
         {warning ? (
           <img src="/icons/add_advertisement/warning.svg" alt="" />
         ) : (
-          <span className="h-7 w-7 shrink-0" />
+          <Typography as="span" variant="body" size="medium" weight="regular" className="h-7 w-7 shrink-0" />
         )}
       </div>
 
@@ -136,7 +137,7 @@ export function InputBox({
       error={error}
       inputMode={numeric ? "numeric" : "text"}
       label={floatingLabel}
-      leadingSlot={hasValue ? <ClearFieldButton onClick={() => onChange("")} /> : leftText ? <span className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</span> : undefined}
+      leadingSlot={hasValue ? <ClearFieldButton onClick={() => onChange("")} /> : leftText ? <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</Typography> : undefined}
       onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
       placeholder={hasValue ? "" : placeholder}
       supportingText={supportingText}
@@ -240,9 +241,9 @@ export function Toggle({
     <div className="flex pt-3 items-center justify-between border-t border-[#cccccc] [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
-      <span className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="semibold" className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
         {label}
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -271,7 +272,7 @@ export function Footer({
         onClick={onPrimary}
         trailingIcon={<LinearArrowLeft2 aria-hidden="true" className="h-5 w-5 shrink-0" />}
       >
-        <span>{primary}</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">{primary}</Typography>
       </Button>
 
       <Button
@@ -281,7 +282,7 @@ export function Footer({
         leadingIcon={<LinearArrowRight2 aria-hidden="true" className="h-5 w-5 shrink-0" />}
         variant="secondary"
       >
-        <span>مرحله قبل</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
       </Button>
     </footer>
   );
@@ -303,9 +304,9 @@ export function MoreButton({
       onClick={onClick}
       type="button"
     >
-      <span>
+      <Typography as="span" variant="body" size="medium" weight="regular">
         {expanded ? "نمایش کمتر" : `نمایش ${count} مورد بیشتر`}
-      </span>
+      </Typography>
 
       {expanded ? (
         <LinearArrowUp1 aria-hidden="true" className="h-5 w-5 shrink-0" />
@@ -329,9 +330,9 @@ export function CompactToggle({
     <div className="flex h-14 items-center justify-between [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
-      <span className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="semibold" className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
         {label}
-      </span>
+      </Typography>
     </div>
   );
 }

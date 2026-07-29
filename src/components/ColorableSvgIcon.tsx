@@ -1,3 +1,5 @@
+import { Typography } from "./ui/Typography";
+
 type ColorableSvgIconProps = {
   className?: string;
   src: string;
@@ -5,7 +7,7 @@ type ColorableSvgIconProps = {
 
 export function ColorableSvgIcon({ className = "", src }: ColorableSvgIconProps) {
   return (
-    <span
+    <Typography as="span" variant="body" size="medium" weight="regular"
       aria-hidden="true"
       className={`inline-block shrink-0 ${className}`}
       style={{

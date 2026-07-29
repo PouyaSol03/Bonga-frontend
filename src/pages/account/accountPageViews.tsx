@@ -21,6 +21,7 @@ import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { HorizontalFilterBar } from "../../components/HorizontalFilterBar";
 
+import { Typography } from "../../components/ui/Typography";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -103,13 +104,13 @@ export function AccountProfileForm({
     <>
       <section className="flex flex-col items-center px-4 pt-4">
         <div className="relative grid h-[100px] w-[100px] place-items-center overflow-visible text-[#808080]">
-          <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0]">
             {avatarSrc ? (
               <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
             ) : (
               <UserIcon className="h-10 w-10" />
             )}
-          </span>
+          </Typography>
 
           <label
             aria-label="ویرایش تصویر"
@@ -205,12 +206,12 @@ function AccountMyAdsEmptyState({
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <h2 className="m-0 font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
         {title}
-      </h2>
-      <p className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]">
         {description}
-      </p>
+      </Typography>
       {isAllFilter ? (
         <RouteLink
           className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
@@ -408,12 +409,12 @@ export function EmptyAccountState({
   return (
     <section className="flex min-h-[560px] flex-col items-center justify-center px-9 text-center">
       <img alt="" aria-hidden="true" className="mb-5 h-[66px] w-[66px]" src={iconSrc} />
-      <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
         {title}
-      </h2>
-      <p className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-[#4d4d4d]">
         {description}
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -595,17 +596,17 @@ export function NoteCard({
             >
               <EditIcon className="h-4 w-4" />
             </button>
-            <h2 className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
               {noteText}
-            </h2>
+            </Typography>
           </div>
 
-          <p className="m-0 mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
             {mappedAd.title}
-          </p>
-          <p className="m-0 mt-0.5 truncate text-right text-xs font-normal leading-4 text-[#808080]">
+          </Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 truncate text-right text-xs font-normal leading-4 text-[#808080]">
             {dateText}
-          </p>
+          </Typography>
         </div>
       </div>
     </article>
@@ -624,14 +625,14 @@ export function AboutSection({
   return (
     <section className={`${isLast ? "pb-0" : "border-b border-[#cccccc] pb-6"} pt-6 text-right`}>
       <div className="flex items-center justify-end gap-1.5">
-        <h2 className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#0048c4]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#0048c4]">
           {title}
-        </h2>
-        <span className="h-3 w-3 shrink-0 rounded-full bg-[#11a366]" aria-hidden="true" />
+        </Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 shrink-0 rounded-full bg-[#11a366]" aria-hidden="true" />
       </div>
-      <p className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal leading-7 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal leading-7 text-[#4d4d4d]">
         {text}
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -655,12 +656,12 @@ export function IdentityPendingState({
       {showRequiredNotice ? (
         <section className="px-2 pt-3">
           <div className="rounded-xl border border-[#ff6d00] bg-[#fff7f0] px-4 py-3 text-right text-[#ff6d00]">
-            <p className="m-0 text-sm font-semibold leading-6">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-6">
               احراز هویت مورد نیاز است!
-            </p>
-            <p className="m-0 mt-1 text-xs font-normal leading-5">
+            </Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs font-normal leading-5">
               برای ادامه استفاده از حساب، ابتدا کد ملی مالک شماره همراه را تایید کنید.
-            </p>
+            </Typography>
           </div>
         </section>
       ) : null}
@@ -669,40 +670,40 @@ export function IdentityPendingState({
         <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
           <div className="flex items-center justify-start gap-2.5 text-[#0048C4]">
             <LinearUserAccount className="h-6 w-6" />
-            <h2 className="m-0 font-medium">
+            <Typography as="h2" variant="headline" size="large" className="m-0 font-medium">
               ملاحظات در تایید هویت
-            </h2>
+            </Typography>
           </div>
 
-          <p className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
             برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
-          </p>
+          </Typography>
 
-          <p className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
             شماره همراه فعال:{" "}
-            <span dir="ltr" className="font-semibold text-[#11A366]">
+            <Typography as="span" variant="label" size="medium" weight="semibold" dir="ltr" className="font-semibold text-[#11A366]">
               {mobile}
-            </span>
-          </p>
+            </Typography>
+          </Typography>
         </div>
       </section>
 
       <section className="p-4">
-        <h2 className="m-0 text-sm font-semibold text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold text-[#1a1a1a]">
           تایید با کد ملی
-        </h2>
+        </Typography>
 
         <div className="mt-2 flex gap-1 text-[#808080]">
           <LinearInfoCircle className="h-4.5 w-4.5 shrink-0" />
-          <p className="m-0 text-xs">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs">
             کد ملی باید متعلق به مالک همین شماره همراه باشد.
-          </p>
+          </Typography>
         </div>
 
         <label className="relative mt-4 block">
-          <span className="absolute -top-2 right-4 bg-white px-1.5 text-xs font-normal leading-4 text-[#808080]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-4 bg-white px-1.5 text-xs font-normal leading-4 text-[#808080]">
             کد ملی مالک شماره همراه
-          </span>
+          </Typography>
 
           <input
             className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
@@ -742,33 +743,33 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
         <div className="rounded-xl border border-[#11A366] bg-[#11A36614] p-5">
           <div className="flex gap-2 text-[#11A366]">
             <LinearUserConfirmation className="h-6 w-6" />
-            <h2 className="m-0 font-medium">
+            <Typography as="h2" variant="headline" size="large" className="m-0 font-medium">
               هویت شما تایید شده است
-            </h2>
+            </Typography>
           </div>
 
-          <p className="mt-4 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mt-4 text-[#4d4d4d]">
             احراز هویت شما در
-            {" "}<span className="font-medium">بهمن 1401</span> {" "}
+            {" "}<Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">بهمن 1401</Typography> {" "}
             با موفقیت انجام شده است.
-          </p>
+          </Typography>
         </div>
       </section>
 
       <div className="mt-3 h-0.5 bg-[#f0f0f0]" />
 
       <section className="p-4">
-        <h2 className="m-0 font-medium text-[#1a1a1a]">
+        <Typography as="h2" variant="headline" size="large" className="m-0 font-medium text-[#1a1a1a]">
           مالکیت سیم‌کارت
-        </h2>
+        </Typography>
 
         <div className="mt-2 flex items-start gap-1 text-[#808080]">
           <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-[#4D4D4D]" />
-          <p className="text-xs font-normal">
+          <Typography as="p" variant="body" size="small" weight="regular" className="text-xs font-normal">
             در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
             <br/>
             در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
-          </p>
+          </Typography>
         </div>
 
         <button
@@ -776,7 +777,7 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           onClick={onChangeOwner}
           type="button"
         >
-          <span className="font-medium">ثبت تغییر مالکیت سیم‌کارت</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">ثبت تغییر مالکیت سیم‌کارت</Typography>
           <LinearArrowLeft1 className="h-6 w-6" />
         </button>
       </section>
@@ -813,9 +814,9 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
                   value={reason.id}
                 />
 
-                <span className="text-base font-normal leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a]">
                   {reason.label}
-                </span>
+                </Typography>
 
                 <RadioIndicator checked={isSelected} />
               </label>
@@ -839,9 +840,9 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
 export function EmptyMessage({ text }: { text: string }) {
   return (
-    <p className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
+    <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
       {text}
-    </p>
+    </Typography>
   );
 }
 
@@ -964,7 +965,7 @@ export function AccountRetryState({
       <div className="fixed inset-0 z-[999] bg-white">
         <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
       </div>
-      <p className="sr-only">{message}</p>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
     </>
   );
 }
@@ -1033,9 +1034,9 @@ function formatPaymentDate(value?: string) {
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
-      <span className="mb-1 block pr-4 text-right text-xs font-normal leading-4 text-[#b3b3b3]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 block pr-4 text-right text-xs font-normal leading-4 text-[#b3b3b3]">
         {label}
-      </span>
+      </Typography>
       <input
         className="h-14 w-full rounded-xl border border-[#e0e0e0] bg-white px-4 text-right text-sm font-normal leading-5 text-[#b3b3b3] outline-none"
         readOnly
@@ -1107,16 +1108,16 @@ function PaymentHistoryRow({
 }) {
   return (
     <div className={`flex items-center justify-between py-2 gap-4`}>
-      <span className="shrink-0 font-medium leading-5 text-[#808080]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 font-medium leading-5 text-[#808080]">
         {label}
-      </span>
+      </Typography>
 
-      <span
+      <Typography as="span" variant="label" size="medium" weight="medium"
         className="flex min-w-0 items-center gap-1 text-left font-medium"
         style={{ color: valueColor }}
       >
         {value}{icon}
-      </span>
+      </Typography>
     </div>
   );
 }

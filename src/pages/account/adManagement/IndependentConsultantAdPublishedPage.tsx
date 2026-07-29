@@ -16,6 +16,7 @@ import {
   getAdVisitStatisticsPath,
   getSelectedConsultantAd,
 } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 export function IndependentConsultantAdPublishedPage() {
   const ad = getSelectedConsultantAd();
@@ -40,15 +41,15 @@ export function IndependentConsultantAdPublishedPage() {
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         <section className="shrink-0 bg-white px-4 pb-2 pt-4" aria-label={ad.title}>
           <div className="flex justify-start">
-            <span className="inline-flex h-9 items-center rounded-lg bg-[#11a36614] px-3 text-sm font-medium leading-5 text-[#11a366]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#11a36614] px-3 text-sm font-medium leading-5 text-[#11a366]">
               منتشر شده
-            </span>
+            </Typography>
           </div>
 
           <div className="mt-4 flex h-[68px] items-center justify-between gap-2 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <h2 className="m-0 truncate text-base font-medium leading-6">{ad.title}</h2>
-              <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">{ad.timeAndLocation}</p>
+              <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 truncate text-base font-medium leading-6">{ad.title}</Typography>
+              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">{ad.timeAndLocation}</Typography>
             </div>
             <div
               aria-hidden="true"
@@ -57,8 +58,8 @@ export function IndependentConsultantAdPublishedPage() {
           </div>
 
           <div className="mt-4 flex h-10 items-center justify-between py-2 text-sm font-medium leading-5 [direction:ltr]">
-            <span className="[direction:rtl]">12بهمن (12روز دیگر)</span>
-            <span className="text-[#808080] [direction:rtl]">انقضا</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">12بهمن (12روز دیگر)</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">انقضا</Typography>
           </div>
         </section>
 
@@ -98,12 +99,12 @@ export function IndependentConsultantAdPublishedPage() {
           className="mx-auto h-[104px] w-[104px] object-contain"
           src="/figma/account/consultant-payment-success.png"
         />
-        <h3 className="m-0 mt-3 text-base font-semibold leading-6 text-[#11a366]">
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-[#11a366]">
           پرداخت موفق
-        </h3>
-        <p className="m-0 mt-5 text-sm font-normal leading-5 text-[#4d4d4d]">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 text-sm font-normal leading-5 text-[#4d4d4d]">
           پرداخت موفق و آگهی منتشر شد
-        </p>
+        </Typography>
       </BottomSheet>
     </PageFrame>
   );
@@ -135,10 +136,10 @@ function PublishedAction({
   const content = (
     <>
       <ChevronLeftIcon className="h-6 w-6 text-[#4d4d4d]" />
-      <span className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <PublishedActionIcon className="h-6 w-6 text-[#4d4d4d]" icon={icon} />
         {label}
-      </span>
+      </Typography>
     </>
   );
 

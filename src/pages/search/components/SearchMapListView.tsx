@@ -4,6 +4,7 @@ import type { AdCardData } from "../../../components/AdCard";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 import type { SearchMapListing } from "../searchMapData";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapListViewProps = {
   hasEmptyResults?: boolean;
@@ -88,7 +89,7 @@ export function SearchMapListView({
         onClick={onMapClick}
       >
         <LinearMapsLocation className="h-5 w-5" />
-        <span>نقشه</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
       </button>
     </>
   );

@@ -9,6 +9,7 @@ import LinearRanking from "../components/(icons)/LinearRanking";
 import LinearTag from "../components/(icons)/LinearTag";
 import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { TopBar } from "../components/TopBar";
+import { Typography } from "../components/ui/Typography";
 
 const listingImageSrc = "/figma/agency-preview/listing-kitchen.png";
 
@@ -138,15 +139,15 @@ export function AgentPreviewPage() {
           <div className="mx-auto grid h-22 w-22 place-items-center rounded-3xl bg-gradient-to-br from-[#f6d8bc] to-[#c78a5c] text-4xl font-bold text-white shadow-[0_10px_24px_rgba(26,26,26,0.12)]">
             {name.trim().charAt(0) || "م"}
           </div>
-          <h1 className="m-0 mt-4 text-xl font-bold leading-7 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 mt-4 text-xl font-bold leading-7 text-[#1a1a1a]">
             {name}
-          </h1>
-          <p className="m-0 mt-1 text-sm font-medium leading-5 text-[#808080]">
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-1 text-sm font-medium leading-5 text-[#808080]">
             {agency}
-          </p>
-          <p className="m-0 mt-2 text-xs font-medium leading-5 text-[#0048c4]">
+          </Typography>
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-xs font-medium leading-5 text-[#0048c4]">
             {location}
-          </p>
+          </Typography>
 
           <div className="mt-5 grid grid-cols-3 gap-3">
             <AgentStat icon={<LinearStar className="h-5 w-5" />} label="امتیاز" value="۸۵" />
@@ -156,19 +157,19 @@ export function AgentPreviewPage() {
         </section>
 
         <section className="mt-2 bg-white px-4 py-4">
-          <h2 className="m-0 text-right text-base font-bold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-bold leading-6 text-[#1a1a1a]">
             درباره مشاور
-          </h2>
-          <p className="m-0 mt-3 text-right text-sm font-normal leading-7 text-[#4d4d4d]">
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-7 text-[#4d4d4d]">
             این صفحه پیش‌نمایش عمومی مشاور است. اطلاعات دقیق‌تر بعداً می‌تواند از API مشاور خوانده شود.
-          </p>
+          </Typography>
         </section>
 
         <section className="mt-2 bg-[#f0f0f0]">
           <div className="bg-white px-4 py-4">
-            <h2 className="m-0 text-right text-base font-bold leading-6 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-bold leading-6 text-[#1a1a1a]">
               آگهی‌های مشاور
-            </h2>
+            </Typography>
           </div>
           <div className="space-y-2">
             {agentAds.map((ad) => (
@@ -213,9 +214,9 @@ function AgentStat({ icon, label, value }: { icon: ReactNode; label: string; val
       <strong className="mt-2 block text-sm font-bold leading-5 text-[#1a1a1a]">
         {value}
       </strong>
-      <span className="mt-0.5 block text-xs font-medium leading-4 text-[#808080]">
+      <Typography as="span" variant="label" size="small" weight="medium" className="mt-0.5 block text-xs font-medium leading-4 text-[#808080]">
         {label}
-      </span>
+      </Typography>
     </div>
   );
 }

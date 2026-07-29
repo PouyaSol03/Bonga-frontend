@@ -10,6 +10,7 @@ import {
 import type { NewAdFormValues, ProjectDetailItem } from "../../types";
 import { InputBox, Tag } from "../../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../../NewAdLayoutContext";
+import { Typography } from "../../../../components/ui/Typography";
 
 type MultiProjectKey = "floors" | "rooms" | "positions";
 
@@ -50,9 +51,9 @@ function MultiSelectRow({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium leading-5 text-[#1a1a1a]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#1a1a1a]">
           {title}
-        </span>
+        </Typography>
 
         <button
           className="text-sm font-medium leading-5 text-[#0048c4]"
@@ -166,8 +167,8 @@ function ProjectDetailCard({
         onClick={onRemove}
         type="button"
       >
-        <span>حذف</span>
-        <span>🗑</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">حذف</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular">🗑</Typography>
       </button>
     </div>
   );
@@ -252,8 +253,8 @@ export function ProjectDetailsStep({
           onClick={() => append(createProjectDetailItem())}
           type="button"
         >
-          <span>+</span>
-          <span>اضافه کردن</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">+</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">اضافه کردن</Typography>
         </button>
       </footer>
 
@@ -284,8 +285,8 @@ export function ProjectDetailsStep({
                 onClick={() => toggleSheetValue(option)}
                 type="button"
               >
-                <span>{option}</span>
-                <span
+                <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular"
                   className={`grid h-4 w-4 place-items-center rounded-[3px] border ${
                     checked
                       ? "border-[#0048c4] bg-[#0048c4] text-white"
@@ -295,7 +296,7 @@ export function ProjectDetailsStep({
                   <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 12 12">
                     <path d="M2.4 6.1 4.8 8.5 9.6 3.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
                   </svg>
-                </span>
+                </Typography>
               </button>
             );
           })}

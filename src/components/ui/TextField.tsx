@@ -2,6 +2,7 @@ import type { ChangeEventHandler, InputHTMLAttributes, ReactNode } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
 import LinearCancelCircle from "../(icons)/LinearCancelCircle";
+import { Typography } from "./Typography";
 
 type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> & {
   badge?: string;
@@ -36,7 +37,7 @@ export function TextField({
 
   return (
     <label className={cn("block min-w-0", containerClassName)}>
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
           "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition [direction:ltr]",
           error ? "border-[#ee3623]" : hasValue ? "border-[#0048c4]" : "border-[#cccccc]",
@@ -44,9 +45,9 @@ export function TextField({
         )}
       >
         {hasValue && label ? (
-          <span className={cn("absolute -top-2 right-4 max-w-[calc(100%-4rem)] truncate bg-white px-1 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
+          <Typography as="span" variant="body" size="small" weight="regular" className={cn("absolute -top-2 right-4 max-w-[calc(100%-4rem)] truncate bg-white px-1 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
             {label}
-          </span>
+          </Typography>
         ) : null}
         {leadingSlot}
         <input
@@ -60,7 +61,7 @@ export function TextField({
           value={value}
           {...props}
         />
-        {badge ? <span className="shrink-0 text-sm font-normal leading-5 text-[#a6a6a6]">{badge}</span> : null}
+        {badge ? <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-sm font-normal leading-5 text-[#a6a6a6]">{badge}</Typography> : null}
         {hasValue && onClear ? (
           <button
             aria-label="پاک کردن"
@@ -75,11 +76,11 @@ export function TextField({
           </button>
         ) : null}
         {trailingSlot}
-      </span>
+      </Typography>
       {helperText ? (
-        <span className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
+        <Typography as="span" variant="body" size="small" weight="regular" className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
           {helperText}
-        </span>
+        </Typography>
       ) : null}
     </label>
   );

@@ -1,6 +1,7 @@
 import type { NeighborhoodDto } from "../../../services/neighborhood.service";
 import { RadioIndicator } from "../../../components/RadioIndicator";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
+import { Typography } from "../../../components/ui/Typography";
 
 function BackIcon() {
   return (
@@ -136,14 +137,14 @@ export function AgencyNeighborhoodFilterPage({
                   onClick={() => onSelect(item)}
                   type="button"
                 >
-                  <span className="min-w-0 flex-1">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
                     <strong className="block text-base font-semibold leading-7 text-[#1a1a1a]">{item.name}</strong>
                     {description ? (
-                      <span className="mt-1 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
+                      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-1 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
                         {description}
-                      </span>
+                      </Typography>
                     ) : null}
-                  </span>
+                  </Typography>
                   <RadioIndicator checked={checked} />
                 </button>
               );

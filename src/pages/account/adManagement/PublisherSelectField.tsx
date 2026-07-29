@@ -5,6 +5,7 @@ import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { SearchInputBar } from "../../../components/ui/SearchBar";
 import { adManagementPublisherOptions, type AdManagementPublisherOption } from "./adManagementData";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
+import { Typography } from "../../../components/ui/Typography";
 
 type PublisherSelectFieldProps = {
   buttonLabel?: string;
@@ -80,9 +81,9 @@ export function PublisherSelectField({
             placement="inline"
             centerClassName="px-0"
             centerSlot={
-              <h2 className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
                 منتشر کننده
-              </h2>
+              </Typography>
             }
             className="bg-[#f0f0f0]"
             onBack={closePicker}
@@ -118,7 +119,7 @@ export function PublisherSelectField({
                       }
                       type="button"
                     >
-                      <span
+                      <Typography as="span" variant="body" size="medium" weight="regular"
                         className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border bg-white ${
                           isSelected ? "border-[#0048c4]" : "border-[#cccccc]"
                         }`}
@@ -128,10 +129,10 @@ export function PublisherSelectField({
                           className="h-full w-full object-cover"
                           src={publisherOption.image}
                         />
-                      </span>
-                      <span className="min-w-0 truncate text-base font-normal leading-6">
+                      </Typography>
+                      <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 truncate text-base font-normal leading-6">
                         {publisherOption.name}
-                      </span>
+                      </Typography>
                     </button>
                   );
                 })}
@@ -159,17 +160,17 @@ export function PublisherSelectField({
 export function PublisherCard({ publisher }: { publisher: AdManagementPublisherOption }) {
   return (
     <div className="flex p-3 items-center justify-end gap-4 rounded-xl bg-[#f0f0f0] [direction:ltr]">
-      <span className="py-0.5 text-right [direction:rtl]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="py-0.5 text-right [direction:rtl]">
         <strong className="block text-[#4d4d4d]">
           {publisher.name}
         </strong>
-        <span className="block text-sm font-normal text-[#808080]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-sm font-normal text-[#808080]">
           مالک
-        </span>
-      </span>
-      <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
+        </Typography>
+      </Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-white">
         <img alt="" className="h-full w-full object-cover" src={publisher.image} />
-      </span>
+      </Typography>
     </div>
   );
 }

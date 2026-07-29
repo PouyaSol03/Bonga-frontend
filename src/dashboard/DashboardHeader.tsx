@@ -5,6 +5,7 @@ import { useMyProfileQuery } from "../hooks/account.hooks";
 import { useNotificationUnreadCountQuery } from "../hooks/notification.hooks";
 import { isUserIdentityVerified } from "../services/account.service";
 import { RouteLink } from "../routes/RouteLink";
+import { Typography } from "../components/ui/Typography";
 
 const dashboardStats = [
   { Icon: Sale, label: "فروش", value: "۰" },
@@ -31,7 +32,7 @@ export function DashboardHeader() {
           {dashboardStats.map(({ Icon, label, value }) => (
             <div className="flex items-center gap-1" key={label} aria-label={`${label}: ${value}`}>
               <Icon />
-              <p className="m-0 text-sm font-semibold">{value}</p>
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">{value}</Typography>
             </div>
           ))}
         </div>
@@ -43,7 +44,7 @@ export function DashboardHeader() {
         >
           <Notification />
           {unreadNotificationsCount > 0 ? (
-            <span
+            <Typography as="span" variant="body" size="medium" weight="regular"
               aria-hidden="true"
               className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
             />
@@ -56,7 +57,7 @@ export function DashboardHeader() {
           className="flex items-center gap-4 rounded-xl bg-[#0048c4] px-4 py-2.5 text-sm font-semibold text-white no-underline transition hover:bg-[#003ba1]"
           to="/new-ad"
         >
-          <span aria-hidden="true">+</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true">+</Typography>
           ثبت آگهی
         </RouteLink>
       </div>
@@ -78,11 +79,11 @@ function ProfileBox({ avatarUrl, name }: { avatarUrl: string; name: string }) {
           onError={() => setHasImageError(true)}
         />
       ) : (
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
           <LinearUserSolid className="h-4 w-4" />
-        </span>
+        </Typography>
       )}
-      <p className="m-0 min-w-0 truncate text-sm">{name}</p>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 min-w-0 truncate text-sm">{name}</Typography>
     </div>
   );
 }

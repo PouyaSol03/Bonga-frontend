@@ -17,6 +17,7 @@ import { RouteLink } from "../../routes/RouteLink";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
 import { ChoiceIndicator } from "../../components/ui/Choice";
+import { Typography } from "../../components/ui/Typography";
 
 export type BusinessType = "agency" | "independent-consultant";
 
@@ -269,7 +270,7 @@ export function BusinessCreationPage() {
             onClick={handleNext}
             type="button"
           >
-            <span>مرحله بعد</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">مرحله بعد</Typography>
             <ArrowLeftIcon />
           </button>
         </div>
@@ -278,9 +279,9 @@ export function BusinessCreationPage() {
       <BusinessHero />
 
       <section className="mt-14 px-4">
-        <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
           انتخاب کسب و کار
-        </h2>
+        </Typography>
 
         <div className="mt-6 space-y-6">
           <BusinessTypeCard
@@ -508,7 +509,7 @@ function BusinessFormPage({
             type="button"
           >
             <ArrowRightIcon />
-            <span>مرحله قبل</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
           </button>
           <button
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef]"
@@ -517,7 +518,7 @@ function BusinessFormPage({
             type="button"
           >
             <CheckIcon />
-            <span>{isSubmitting ? "در حال ثبت..." : "ثبت نام"}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">{isSubmitting ? "در حال ثبت..." : "ثبت نام"}</Typography>
           </button>
         </div>
       }
@@ -541,9 +542,9 @@ function BusinessFormPage({
 
           {fields}
 
-          <p className="m-0 text-sm font-normal leading-6 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-6 text-[#4d4d4d]">
             با ثبت‌نام در کسب‌وکار ایران شناسا <RouteLink className="font-semibold text-[#0048c4] underline" to="/account/about">قوانین و مقررات</RouteLink> سایت را قبول کرده‌اید.
-          </p>
+          </Typography>
         </div>
       </form>
 
@@ -629,9 +630,9 @@ function AgencyFields({
           value={agencyName}
         />
         {agencyNameError ? (
-          <p className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
             {agencyNameError}
-          </p>
+          </Typography>
         ) : null}
       </div>
 
@@ -647,9 +648,9 @@ function AgencyFields({
           />
         </div>
         {neighborhoodsError ? (
-          <p className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
             {neighborhoodsError}
-          </p>
+          </Typography>
         ) : null}
       </div>
 
@@ -721,16 +722,16 @@ function AgencyFields({
                     onClick={() => toggleNeighborhood(neighborhood)}
                     type="button"
                   >
-                    <span className="min-w-0 flex-1 truncate">{neighborhood.name}</span>
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{neighborhood.name}</Typography>
                     <ChoiceIndicator checked={isSelected} />
                   </button>
                 );
               })}
             </div>
           ) : (
-            <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
               محله‌ای با این عبارت پیدا نشد.
-            </p>
+            </Typography>
           )}
         </div>
       </BottomSheet>
@@ -786,27 +787,27 @@ function ActivityAreaSelect({
                 }}
                 type="button"
               >
-                <span className="min-w-0 truncate">{neighborhood.name}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{neighborhood.name}</Typography>
                 <LinearCancelSmall className="w-5 h-5 text-[#4D4D4D]" />
               </button>
             );
           })
         ) : (
-          <span className="min-w-0 flex-1 truncate text-right text-[#a6a6a6]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right text-[#a6a6a6]">
             {placeholder}
-          </span>
+          </Typography>
         )}
       </div>
 
       {hasValue ? (
-        <span className="grid w-8 h-8 shrink-0 place-items-center rounded-[8px] bg-[#0048c4] text-base font-semibold leading-6 text-white">
+        <Typography as="span" variant="label" size="large" weight="semibold" className="grid w-8 h-8 shrink-0 place-items-center rounded-[8px] bg-[#0048c4] text-base font-semibold leading-6 text-white">
           {selectedNeighborhoods.length}
-        </span>
+        </Typography>
       ) : null}
 
-      <span className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]">
         <ChevronDownIcon />
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -895,13 +896,13 @@ function BusinessHero({
     <section className="mx-4 rounded-[20px] bg-white p-6 shadow-[0_14px_35px_rgba(26,26,26,0.06)]">
       <div className="relative overflow-hidden pb-1 text-right">
         <div className="absolute bottom-2 left-1 h-8 w-44 opacity-80 [background-image:radial-gradient(#cccccc_1.4px,transparent_1.4px)] [background-size:8px_8px]" />
-        <p className="relative m-0 text-[32px] font-black leading-[1.35] tracking-[-0.04em] text-[#0048c4]">
-          <span className="mx-2 rounded-sm bg-[#e6fff1] px-1 text-[#11a366]">کسب و کار</span>
-          <span className="text-[#0048c4]">خودتو</span>
-        </p>
-        <p className="relative m-0 mt-1 text-[32px] font-black leading-[1.35] tracking-[-0.04em] text-[#0048c4]">
+        <Typography as="p" variant="headline" size="large" className="relative m-0 text-[32px] font-black leading-[1.35] tracking-[-0.04em] text-[#0048c4]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mx-2 rounded-sm bg-[#e6fff1] px-1 text-[#11a366]">کسب و کار</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0048c4]">خودتو</Typography>
+        </Typography>
+        <Typography as="p" variant="headline" size="large" className="relative m-0 mt-1 text-[32px] font-black leading-[1.35] tracking-[-0.04em] text-[#0048c4]">
           راه بنداز!
-        </p>
+        </Typography>
       </div>
 
       {showInfoButton && infoType ? (
@@ -910,7 +911,7 @@ function BusinessHero({
           onClick={() => navigateTo(getBusinessInfoPath(infoType))}
           type="button"
         >
-          <span>اطلاعات بیشتر درباره کسب و کار</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">اطلاعات بیشتر درباره کسب و کار</Typography>
           <ArrowLeftIcon />
         </button>
       ) : null}
@@ -942,15 +943,15 @@ function BusinessTypeCard({
       type="button"
     >
       <ChoiceIndicator checked={isSelected} className="h-[18px] w-[18px]" type="radio" />
-      <span className="mx-4 h-10 w-px shrink-0 bg-[#0048c433]" aria-hidden="true" />
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mx-4 h-10 w-px shrink-0 bg-[#0048c433]" aria-hidden="true" />
       <BusinessSmallIcon type={icon} />
-      <span className="mr-2 min-w-0 flex-1 truncate text-base font-semibold leading-6">
+      <Typography as="span" variant="label" size="large" weight="semibold" className="mr-2 min-w-0 flex-1 truncate text-base font-semibold leading-6">
         {label}
-      </span>
+      </Typography>
       {badge ? (
-        <span className="rounded-md border border-[#11a366] bg-[#eafff3] px-2 py-1 text-xs font-medium leading-4 text-[#11a366]">
+        <Typography as="span" variant="label" size="small" weight="medium" className="rounded-md border border-[#11a366] bg-[#eafff3] px-2 py-1 text-xs font-medium leading-4 text-[#11a366]">
           {badge}
-        </span>
+        </Typography>
       ) : null}
     </button>
   );
@@ -972,9 +973,9 @@ function ActivationNotice({
           <div className="flex items-center justify-between gap-2">
             <div className="flex gap-2.5">
               <GridIcon />
-              <h2 className="m-0 text-base font-semibold leading-6 text-[#00a66a]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#00a66a]">
                 پنل شما آماده فعال‌سازی است!
-              </h2>
+              </Typography>
             </div>
 
             <button
@@ -987,16 +988,16 @@ function ActivationNotice({
             </button>
           </div>
 
-          <p className="m-0 mt-3 text-sm font-normal leading-6 text-[#00784e]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm font-normal leading-6 text-[#00784e]">
             {isAgency
               ? "پس از ورود به پنل آژانس، پرداخت اشتراک پنل آژانس خود را به مدت ۱ سال فعال کنید و از بسته‌های پیش‌فرض حرفه‌ای بهره‌مند شوید."
               : "با ایجاد کسب‌وکار مشاور، پروفایل حرفه‌ای خود را فعال کنید و به ابزارهای تخصصی مدیریت فایل‌ها، مشتریان و فعالیت‌های روزانه دسترسی داشته باشید."}
-          </p>
-          <p className="m-0 mt-4 text-sm font-normal leading-6 text-[#00784e]">
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-[#00784e]">
             {isAgency
               ? "همین حالا ثبت‌نام را انجام دهید و وارد دنیای حرفه‌ای املاک شوید!"
               : "همین حالا کسب‌وکار خود را ایجاد کنید و فعالیت حرفه‌ای خود را در بازار املاک آغاز کنید!"}
-          </p>
+          </Typography>
         </div>
       </div>
     </section>
@@ -1019,16 +1020,16 @@ function BusinessInfoCard({
   return (
     <article className="bg-white px-4 pb-5 pt-4 text-right">
       <div className="flex items-start gap-2">
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#0048c4] text-white">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#0048c4] text-white">
           <InfoCardIcon name={card.icon} />
-        </span>
+        </Typography>
         <div className="min-w-0">
-          <h2 className="m-0 font-semibold leading-5 text-[#0048c4]">
+          <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold leading-5 text-[#0048c4]">
             {card.title}
-          </h2>
-          <p className="m-0 mt-0.5 text-xs font-normal leading-4 text-[#4d4d4d]">
+          </Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 text-xs font-normal leading-4 text-[#4d4d4d]">
             {card.subtitle}
-          </p>
+          </Typography>
         </div>
       </div>
 
@@ -1041,9 +1042,9 @@ function BusinessInfoCard({
         />
       </div>
 
-      <p className="m-0 mt-3 font-normal leading-6 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 font-normal leading-6 text-[#1a1a1a]">
         {card.description}
-      </p>
+      </Typography>
       <ul className="m-0 mt-2 space-y-1 pr-4 font-normal leading-6 text-[#1a1a1a] marker:text-[#11A366]">
         {card.bullets.map((bullet) => (
           <li key={bullet}>{bullet}</li>
@@ -1057,7 +1058,7 @@ function RequiredLabel({ children }: { children: ReactNode }) {
   return (
     <label className="block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
       {children}
-      <span className="mr-1 text-[#c11004]">*</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mr-1 text-[#c11004]">*</Typography>
     </label>
   );
 }

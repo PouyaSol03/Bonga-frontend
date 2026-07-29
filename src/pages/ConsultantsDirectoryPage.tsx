@@ -24,6 +24,7 @@ import {
 import LinearLocation from "../components/(icons)/LinearLocation";
 import LinearArrowDown1 from "../components/(icons)/LinearArrowDown1";
 import LinearCancelSmall from "../components/(icons)/LinearCancelSmall";
+import { Typography } from "../components/ui/Typography";
 
 type DirectoryMode = "agency" | "consultant";
 
@@ -252,9 +253,9 @@ function FilterChip({
   const chipContent = (
     <>
       {icon !== "chevron" && chipIcon}
-      <span className={onRemove ? "max-w-[92px] truncate" : undefined}>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={onRemove ? "max-w-[92px] truncate" : undefined}>
         {label}
-      </span>
+      </Typography>
       {icon === "chevron" && chipIcon}
     </>
   );
@@ -266,7 +267,7 @@ function FilterChip({
 
   if (onRemove) {
     return (
-      <span className={`${chipClassName} overflow-hidden p-2`} dir="rtl">
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`${chipClassName} overflow-hidden p-2`} dir="rtl">
         <button
           className="inline-flex h-full min-w-0 items-center justify-center gap-1 text-inherit"
           onClick={onClick}
@@ -283,7 +284,7 @@ function FilterChip({
         >
           <LinearCancelSmall className="w-5 h-5" />
         </button>
-      </span>
+      </Typography>
     );
   }
 
@@ -317,44 +318,44 @@ function DirectoryCard({
           src={item.image}
         />
       ) : (
-        <span
+        <Typography as="span" variant="headline" size="small"
           aria-hidden="true"
           className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} grid h-[72px] w-[72px] shrink-0 place-items-center bg-[#e9f1ff] text-2xl font-bold text-[#0048c4] shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
         >
           {item.name.trim().charAt(0) || "آ"}
-        </span>
+        </Typography>
       )}
 
       <div className="flex h-full min-w-0 flex-1 flex-col text-right">
-        <h2 className="mt-1 truncate text-base font-semibold leading-6 text-[#4d4d4d]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="mt-1 truncate text-base font-semibold leading-6 text-[#4d4d4d]">
           {item.name}
-        </h2>
+        </Typography>
 
         {item.badge && (
-          <span className="mt-0.5 w-fit rounded-full bg-[#80808014] px-2 text-[9px] font-medium text-[#808080]">
+          <Typography as="span" variant="label" size="small" weight="medium" className="mt-0.5 w-fit rounded-full bg-[#80808014] px-2 text-[9px] font-medium text-[#808080]">
             {item.badge}
-          </span>
+          </Typography>
         )}
 
         <div className="mt-auto flex items-center justify-between [direction:ltr]">
           <div className="flex items-center [direction:rtl]">
             <RankIcon />
-            <span className="mr-1 text-xs font-normal leading-4 text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="small" weight="regular" className="mr-1 text-xs font-normal leading-4 text-[#1a1a1a]">
               رتبه
-            </span>
-            <span className="mr-2 text-sm font-semibold leading-4 text-[#00a66a]">
+            </Typography>
+            <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-2 text-sm font-semibold leading-4 text-[#00a66a]">
               {item.rank}
-            </span>
+            </Typography>
           </div>
 
           <div className="flex items-center [direction:rtl]">
             <StarIcon />
-            <span className="mr-1 text-xs font-normal leading-4 text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="small" weight="regular" className="mr-1 text-xs font-normal leading-4 text-[#1a1a1a]">
               امتیاز
-            </span>
-            <span className="mr-2 text-sm font-semibold leading-6 text-[#00a66a]">
+            </Typography>
+            <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-2 text-sm font-semibold leading-6 text-[#00a66a]">
               {item.score}
-            </span>
+            </Typography>
           </div>
         </div>
       </div>
@@ -599,9 +600,9 @@ export function ConsultantsDirectoryPage() {
               type="search"
               value={search}
             />
-            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#808080]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-5 top-1/2 -translate-y-1/2 text-[#808080]">
               <SearchIcon />
-            </span>
+            </Typography>
           </label>
         </div>
 
@@ -693,7 +694,7 @@ export function ConsultantsDirectoryPage() {
           type="button"
         >
           <LinearMapsLocation className="w-6 h-6 text-white" />
-          <span className="font-medium">نقشه</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">نقشه</Typography>
         </button>
       ) : null}
 
@@ -725,7 +726,7 @@ export function ConsultantsDirectoryPage() {
                 onClick={() => handleModeChange(option.id)}
                 type="button"
               >
-                <span>{option.label}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular">{option.label}</Typography>
                 <RadioIndicator checked={checked} />
               </button>
             );
@@ -761,7 +762,7 @@ export function ConsultantsDirectoryPage() {
                 }}
                 type="button"
               >
-                <span>{option.label}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular">{option.label}</Typography>
                 <RadioIndicator checked={checked} />
               </button>
             );

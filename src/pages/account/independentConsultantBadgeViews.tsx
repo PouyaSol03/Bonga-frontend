@@ -1,6 +1,7 @@
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
 
+import { Typography } from "../../components/ui/Typography";
 
 type BadgeKey = "file" | "magnet" | "response" | "time";
 
@@ -79,9 +80,9 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-6 pt-6">
         <div className="mx-auto flex w-[152px] flex-col items-center">
           <img alt="" className="h-[120px] w-[120px] object-contain" src={badge.image} />
-          <span className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 text-sm font-semibold leading-5 text-[#0048c4]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 text-sm font-semibold leading-5 text-[#0048c4]">
             {badge.name}
-          </span>
+          </Typography>
           <div className="mt-2 flex h-6 items-center justify-center">
             {[0, 1, 2].map((star) => (
               <DetailStarIcon className={`h-6 w-6 ${star === 0 ? "text-[#ffb100]" : "text-[#d8d8d8]"}`} key={star} />
@@ -89,10 +90,10 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
           </div>
         </div>
 
-        <p className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <span className="text-[#4d4d4d]">{badge.metricLabel}</span>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{badge.metricLabel}</Typography>
           <strong className="font-semibold text-[#1a1a1a]">{badge.metricValue}</strong>
-        </p>
+        </Typography>
 
         <div className="mt-4 space-y-4">
           {badge.levels.map((level) => (
@@ -125,8 +126,8 @@ function BadgeLevelCard({
   return (
     <section className="h-[72px] rounded-2xl border border-[#f0f0f0] bg-[#f5f5f5] px-4 py-4">
       <div className="flex h-5 items-center justify-between text-sm font-medium leading-5 [direction:ltr]">
-        <span className={amountClassName}>{amount}</span>
-        <span className="text-[#4d4d4d] [direction:rtl]">{title}</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={amountClassName}>{amount}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d] [direction:rtl]">{title}</Typography>
       </div>
       <div className={`mt-4 h-1 w-full rounded-full ${trackClassName}`}>
         <div className={`h-1 rounded-full ${progressClassName}`} style={{ width: `${progress}%` }} />

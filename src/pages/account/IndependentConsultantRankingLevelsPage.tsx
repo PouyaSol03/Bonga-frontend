@@ -1,5 +1,6 @@
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
+import { Typography } from "../../components/ui/Typography";
 
 const consultantLevels = [
   {
@@ -43,9 +44,9 @@ export function IndependentConsultantRankingLevelsPage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         <div className="grid h-12 grid-cols-3 items-center border-b border-[#e5e5e5] text-base font-normal leading-6 text-[#4d4d4d] [direction:rtl]">
-          <span className="pr-4 text-right">امتیاز</span>
-          <span className="text-center">نماد</span>
-          <span className="pl-4 text-left">عنوان</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4 text-right">امتیاز</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-center">نماد</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4 text-left">عنوان</Typography>
         </div>
         {consultantLevels.map((level) => (
           <LevelTableRow key={level.title} level={level} />
@@ -64,7 +65,7 @@ function LevelTableRow({
     <div className="grid h-[89px] grid-cols-3 items-center border-b border-[#e5e5e5] text-sm leading-5 [direction:rtl] last:border-b-0">
       <strong className="pr-4 text-right text-sm font-semibold text-[#1a1a1a]">{level.points}</strong>
       <img alt="" className="mx-auto h-14 w-14 object-contain" src={level.image} />
-      <span className="pl-4 text-left text-sm font-medium text-[#1a1a1a] [direction:rtl]">{level.title}</span>
+      <Typography as="span" variant="label" size="medium" weight="medium" className="pl-4 text-left text-sm font-medium text-[#1a1a1a] [direction:rtl]">{level.title}</Typography>
     </div>
   );
 }

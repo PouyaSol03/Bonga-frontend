@@ -1,5 +1,6 @@
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
+import { Typography } from "../../components/ui/Typography";
 
 type BadgeGuide = {
   image: string;
@@ -97,16 +98,16 @@ function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
     <section className="bg-white p-4">
       <div className="flex h-16 items-center justify-center gap-4 rounded-2xl border border-[#f5f5f5] bg-white">
         <img alt="" className="h-14 w-14 object-contain" src={badge.image} />
-        <h2 className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">{badge.name}</h2>
+        <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">{badge.name}</Typography>
       </div>
 
       <div className="mt-6">
-        <h3 className="m-0 text-base font-semibold leading-6">سطوح نشان</h3>
-        <p className="mt-3 text-base font-normal leading-6">{badge.intro}</p>
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">سطوح نشان</Typography>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-3 text-base font-normal leading-6">{badge.intro}</Typography>
         <div className="mt-2 space-y-2">
           {badge.levels.map((level, index) => (
             <div className="flex items-center justify-start gap-1 text-sm font-normal leading-5" key={level}>
-              <span>{`سطح ${index + 1}: ${level}`}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">{`سطح ${index + 1}: ${level}`}</Typography>
               <LevelStars count={index + 1} />
             </div>
           ))}
@@ -114,22 +115,22 @@ function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
       </div>
 
       <div className="mt-8">
-        <h3 className="flex items-center gap-1 text-base font-semibold leading-6 text-[#0048c4]">
-          <span className="h-2 w-2 rounded-full bg-[#0048c4]" />
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="flex items-center gap-1 text-base font-semibold leading-6 text-[#0048c4]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 rounded-full bg-[#0048c4]" />
           {badge.indicatorTitle}
-        </h3>
-        <p className="mt-3 text-base font-normal leading-6">{badge.indicatorDescription}</p>
+        </Typography>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-3 text-base font-normal leading-6">{badge.indicatorDescription}</Typography>
 
-        <h4 className="mt-6 text-base font-semibold leading-6">موارد مؤثر در امتیاز:</h4>
+        <Typography as="h4" variant="title" size="medium" weight="semibold" className="mt-6 text-base font-semibold leading-6">موارد مؤثر در امتیاز:</Typography>
         <ul className="mt-2 space-y-2 text-base font-normal leading-6">
           {badge.points.map((point) => (
             <li className="flex items-start gap-2" key={point}>
-              <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
-              <span>{point}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
+              <Typography as="span" variant="body" size="medium" weight="regular">{point}</Typography>
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-base font-normal leading-6">{badge.note}</p>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-base font-normal leading-6">{badge.note}</Typography>
       </div>
     </section>
   );
@@ -137,7 +138,7 @@ function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
 
 function LevelStars({ count }: { count: number }) {
   return (
-    <span className="flex shrink-0 gap-0.5 [direction:ltr]">
+    <Typography as="span" variant="body" size="medium" weight="regular" className="flex shrink-0 gap-0.5 [direction:ltr]">
       {[0, 1, 2].map((star) => (
         <svg
           aria-hidden="true"
@@ -149,6 +150,6 @@ function LevelStars({ count }: { count: number }) {
           <path d="m6 1.3 1.45 2.93 3.23.47-2.34 2.28.55 3.22L6 8.68 3.11 10.2l.55-3.22L1.32 4.7l3.23-.47L6 1.3Z" />
         </svg>
       ))}
-    </span>
+    </Typography>
   );
 }

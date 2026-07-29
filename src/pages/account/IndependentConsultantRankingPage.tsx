@@ -5,6 +5,7 @@ import type { BadgeItem } from "../../services/account.service";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { getRequestErrorState } from "../../components/ErrorState";
+import { Typography } from "../../components/ui/Typography";
 
 type Badge = {
   active: boolean;
@@ -150,11 +151,11 @@ function LevelSummaryCard() {
       <div className="h-12 w-[232px]">
         <div className="flex h-6 items-center justify-between [direction:ltr]">
           <GuidePill />
-          <span className="text-sm font-medium leading-5 text-[#4d4d4d] [direction:rtl]">الماس معامله</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#4d4d4d] [direction:rtl]">الماس معامله</Typography>
         </div>
         <div className="mt-2 flex h-4 items-center justify-end gap-1 text-xs leading-4 [direction:ltr]">
-          <span className="text-[#808080] [direction:rtl]">تا رسیدن به آژانس افسانه‌ای</span>
-          <span className="font-medium text-[#0048c4] [direction:rtl]">6 امتیاز</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">تا رسیدن به آژانس افسانه‌ای</Typography>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#0048c4] [direction:rtl]">6 امتیاز</Typography>
         </div>
       </div>
       <img alt="" className="h-12 w-12 shrink-0 object-contain" src="/figma/account/ranking-diamond.png" />
@@ -184,21 +185,21 @@ function MetricSummaryCard({
       <div className="h-12 w-[232px]">
         <div className="flex h-6 items-center justify-between [direction:ltr]">
           <strong className="text-base font-semibold leading-6">{value}</strong>
-          <span className="text-sm font-medium leading-5 text-[#4d4d4d] [direction:rtl]">{label}</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#4d4d4d] [direction:rtl]">{label}</Typography>
         </div>
         <div className="mt-2 flex h-4 items-center justify-end gap-1 text-xs leading-4 [direction:ltr]">
-          <span className="text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">
             {isUp ? "افزایش نسبت به روز قبل" : "کاهش نسبت به روز قبل"}
-          </span>
-          <span className={`inline-flex items-center font-medium [direction:rtl] ${isUp ? "text-[#11a366]" : "text-[#ee3623]"}`}>
+          </Typography>
+          <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex items-center font-medium [direction:rtl] ${isUp ? "text-[#11a366]" : "text-[#ee3623]"}`}>
             {trendText}
             <TrendIcon className="h-4 w-4" down={!isUp} />
-          </span>
+          </Typography>
         </div>
       </div>
-      <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
         {icon}
-      </span>
+      </Typography>
     </section>
   );
 }
@@ -243,13 +244,13 @@ function BadgeCard({ badge }: { badge: Badge }) {
       to={badge.to}
     >
       <img alt="" className="h-[72px] w-[72px] object-contain" src={badge.image} />
-      <span
+      <Typography as="span" variant="label" size="medium" weight="semibold"
         className={`mt-2 inline-flex h-6 min-w-[92px] items-center justify-center rounded-lg px-2 text-sm font-semibold leading-5 ${
           badge.active ? "bg-[#0048c41f] text-[#0048c4]" : "bg-[#4d4d4d14] text-[#a6a6a6]"
         }`}
       >
         {badge.name}
-      </span>
+      </Typography>
       <div className="mt-0.5 flex h-3 items-center justify-center">
         {[0, 1, 2].map((star) => (
           <SmallStarIcon
@@ -277,9 +278,9 @@ function RankingIndicatorsPanel() {
           type="button"
         >
           <ChevronDownIcon className="h-4 w-4 text-[#4d4d4d]" />
-          <span className="[direction:rtl]">{period}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{period}</Typography>
         </button>
-        <h2 className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</h2>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</Typography>
       </div>
       <div className="mt-6 space-y-4">
         {rankIndicators.map((indicator) => (
@@ -296,12 +297,12 @@ function RankIndicatorRow({ indicator }: { indicator: RankIndicator }) {
       <strong className="shrink-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
         {indicator.value}
       </strong>
-      <span className="min-w-0 flex-1 px-2 text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 flex-1 px-2 text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
         {indicator.label}
-      </span>
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#0048c414] text-[#0048c4]">
+      </Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#0048c414] text-[#0048c4]">
         <IndicatorIcon className="h-6 w-6" icon={indicator.icon} />
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -309,11 +310,11 @@ function RankIndicatorRow({ indicator }: { indicator: RankIndicator }) {
 function TopConsultantsPanel() {
   return (
     <section className="h-[509px] rounded-2xl bg-white p-4" aria-label="10 مشاور برتر">
-      <h2 className="m-0 text-right text-base font-semibold leading-6">10 مشاور برتر</h2>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">10 مشاور برتر</Typography>
       <div className="mt-4">
         <div className="flex h-7 items-center bg-[#edf0fb] text-sm font-normal leading-5 text-[#808080] [direction:ltr]">
-          <span className="w-[41px] text-center">امتیاز</span>
-          <span className="flex-1 px-2 text-right [direction:rtl]">رتبه و نام مشاور</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="w-[41px] text-center">امتیاز</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="flex-1 px-2 text-right [direction:rtl]">رتبه و نام مشاور</Typography>
         </div>
         <div className="h-px bg-[#cccccc]" aria-hidden="true" />
         {leadingConsultants.map((consultant, index) => (
@@ -323,9 +324,9 @@ function TopConsultantsPanel() {
             }`}
             key={consultant.name}
           >
-            <span className="w-[27px] text-center font-medium">{consultant.score}</span>
-            <span className="flex-1 px-2 text-right font-normal [direction:rtl]">{consultant.name}</span>
-            <span className="w-5 text-center font-normal [direction:ltr]">.{index + 1}</span>
+            <Typography as="span" variant="label" size="medium" weight="medium" className="w-[27px] text-center font-medium">{consultant.score}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex-1 px-2 text-right font-normal [direction:rtl]">{consultant.name}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="w-5 text-center font-normal [direction:ltr]">.{index + 1}</Typography>
           </div>
         ))}
       </div>
@@ -337,7 +338,7 @@ function SectionHeader({ title }: { title: string }) {
   return (
     <div className="flex h-6 items-center justify-between [direction:ltr]">
       <GuidePill to="/account/ranking/badges/guide" />
-      <h2 className="m-0 text-base font-semibold leading-6 [direction:rtl]">{title}</h2>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">{title}</Typography>
     </div>
   );
 }
@@ -347,7 +348,7 @@ function GuidePill({ to }: { to?: string } = {}) {
     "inline-flex h-6 items-center gap-1 rounded-full bg-[#0048c414] px-2 text-xs font-medium leading-4 text-[#0048c4] no-underline [direction:ltr]";
   const content = (
     <>
-      <span className="[direction:rtl]">راهنما</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">راهنما</Typography>
       <InfoIcon className="h-4 w-4" />
     </>
   );
@@ -361,9 +362,9 @@ function GuidePill({ to }: { to?: string } = {}) {
   }
 
   return (
-    <span className={className}>
+    <Typography as="span" variant="body" size="medium" weight="regular" className={className}>
       {content}
-    </span>
+    </Typography>
   );
 }
 

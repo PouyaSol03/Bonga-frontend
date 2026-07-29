@@ -1,4 +1,5 @@
 import { ViewAdActionPageTopBar } from "./ViewAdActionPageLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export function ViewAdNotePage({
   isSaving,
@@ -18,9 +19,9 @@ export function ViewAdNotePage({
       <ViewAdActionPageTopBar onBack={onClose} title="یادداشت" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4 pt-8">
-        <p className="m-0 text-right text-sm font-normal leading-5 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-right text-sm font-normal leading-5 text-[#1a1a1a]">
           یادداشت تنها برای شما قابل دیدن است و پس از حذف آگهی، پاک خواهد شد.
-        </p>
+        </Typography>
         <textarea
           aria-label="یادداشت شما"
           autoFocus

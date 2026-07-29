@@ -31,6 +31,7 @@ import ProjectCategoryIcon from "../assets/icons/ProjectCategoryIcon.svg";
 import ConsultantCategoryIcon from "../assets/icons/ConsultantCategoryIcon.svg";
 import LinearNotification from "../components/(icons)/LinearNotification";
 import LinearSearch from "../components/(icons)/LinearSearch";
+import { Typography } from "../components/ui/Typography";
 
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
@@ -356,7 +357,7 @@ export function HomePage() {
             >
               <LinearNotification className="h-6 w-6" />
               {unreadNotificationsCount > 0 ? (
-                <span
+                <Typography as="span" variant="body" size="medium" weight="regular"
                   aria-hidden="true"
                   className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
                 />
@@ -369,7 +370,7 @@ export function HomePage() {
               onClick={() => setIsCityOpen(true)}
             >
               <ArrowDown size={20} />
-              <span>{selectedCity.name}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">{selectedCity.name}</Typography>
             </button>
           </div>
 
@@ -448,7 +449,7 @@ export function HomePage() {
                     aria-hidden="true"
                   />
 
-                  <span>{item.label}</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
                 </button>
               ))}
           </div>
@@ -467,12 +468,12 @@ export function HomePage() {
           aria-labelledby="latest-mashhad-title"
         >
           <div className="flex items-center justify-start px-4">
-            <h2
+            <Typography as="h2" variant="title" size="medium" weight="semibold"
               className="m-0 text-right text-sm font-bold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
               id="latest-mashhad-title"
             >
               آخرین آگهی‌های {selectedCity.name}
-            </h2>
+            </Typography>
           </div>
 
           <div className="flex flex-col gap-3 bg-[#f0f0f0]">
@@ -504,9 +505,9 @@ export function HomePage() {
                   className="min-h-[420px]"
                   onRetry={() => undefined}
                 />
-                <p className="sr-only">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">
                   {getApiErrorMessage(advertisementError, "دریافت آگهی‌ها با خطا مواجه شد.")}
-                </p>
+                </Typography>
               </>
             )}
 

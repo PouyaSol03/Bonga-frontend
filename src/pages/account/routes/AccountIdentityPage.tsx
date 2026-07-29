@@ -9,6 +9,7 @@ import { DemoNotice } from "../../../components/DemoNotice";
 import { Button } from "../../../components/ui/Button";
 import { AccountPageShell, IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function AccountIdentityPage() {
   const [step, setStep] = useState<IdentityPageStep>("pending");
@@ -91,18 +92,18 @@ export function AccountIdentityPage() {
         <div className="min-h-0 flex-1 px-4 pt-4">
           <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
             <WarningTriangleIcon className="h-6 w-6 shrink-0" />
-            <h2 className="m-0 text-base font-semibold leading-6">هشدار</h2>
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">هشدار</Typography>
           </div>
 
-          <p className="m-0 mt-4 text-right text-base font-normal leading-8 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-right text-base font-normal leading-8 text-[#1a1a1a]">
             با اعلام «تغییر مالکیت سیم‌کارت»، همهٔ آگهی‌های این حساب کاربری
             {" "}
-            <span dir="ltr" className="whitespace-nowrap text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr" className="whitespace-nowrap text-[#1a1a1a]">
               ({mobile})
-            </span>
+            </Typography>
             {" "}
             غیرفعال می‌شود.
-          </p>
+          </Typography>
         </div>
 
         <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">

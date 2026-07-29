@@ -34,6 +34,7 @@ import {
   type DashboardMetric,
   type DashboardMetricTone,
 } from "./dashboardHomeData";
+import { Typography } from "../../ui/Typography";
 
 const numberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -370,7 +371,7 @@ function DashboardHomeOverviewSkeleton() {
         </article>
       </section>
 
-      <span className="sr-only">در حال دریافت اطلاعات داشبورد...</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">در حال دریافت اطلاعات داشبورد...</Typography>
     </div>
   );
 }
@@ -417,9 +418,9 @@ function AgencyRankingScoreCard({
 
   return (
     <article className="rounded-2xl bg-white p-4">
-      <h2 className="m-0 text-right font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-semibold text-[#1a1a1a]">
         رتبه و امتیاز آژانس
-      </h2>
+      </Typography>
 
       <div className="mt-5 grid grid-cols-2 gap-4 items-center" dir="rtl">
         <AgencyRankMetric
@@ -436,8 +437,8 @@ function AgencyRankingScoreCard({
 
       <div className="mt-5 grid gap-2">
         <div className="flex justify-between items-center text-[#4D4D4D] px-2">
-          <span className="text-sm font-medium">۱۰ آژانس برتر</span>
-          <span className="text-xs">امتیاز</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">۱۰ آژانس برتر</Typography>
+          <Typography as="span" variant="body" size="small" weight="regular" className="text-xs">امتیاز</Typography>
         </div>
 
         <div className="w-[95%] bg-[#CCCCCC] h-px mx-auto" />
@@ -447,19 +448,19 @@ function AgencyRankingScoreCard({
             className="flex p-2 items-center justify-between rounded-xl bg-transparent odd:bg-[#CCCCCC1F] px-3 text-sm font-semibold leading-6"
             key={agency.entityId || `${agency.rank}-${agency.name}-${index}`}
           >
-            <span className="w-fit text-right text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-right text-[#1a1a1a]">
               {formatOptionalNumber(agency.rank)}. {agency.name}
-            </span>
-            <span className="w-fit text-sm text-[#11a366]">
+            </Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-sm text-[#11a366]">
               {formatNumber(agency.totalScore)}
-            </span>
+            </Typography>
           </div>
         ))}
 
         {useApiData && !isLoading && rankingRows.length === 0 ? (
-          <p className="m-0 py-4 text-center text-sm text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-[#808080]">
             اطلاعاتی برای آژانس‌های برتر ثبت نشده است.
-          </p>
+          </Typography>
         ) : null}
       </div>
     </article>
@@ -477,10 +478,10 @@ function AgencyRankMetric({
 }) {
   return (
     <div className="flex p-4 items-center justify-between gap-2 rounded-2xl bg-[#f7f7f7] px-4">
-      <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-[#1a1a1a]">
-        <span className="text-[#4d4d4d]">{icon}</span>
-        <span className="text-sm font-medium">{label}</span>
-      </span>
+      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-[#1a1a1a]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography>
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{label}</Typography>
+      </Typography>
       <strong className="font-semibold leading-7 text-[#11a366]">
         {value}
       </strong>
@@ -508,18 +509,18 @@ export function ProgressLineChartCard({
     <article className="overflow-hidden rounded-2xl bg-white p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="text-right">
-          <h2 className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
             {title}
-          </h2>
-          <p
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="medium"
             className={`m-0 inline-flex items-center justify-end gap-1 text-sm font-medium leading-6 ${trendClassName}`}
           >
             <LinearChartUp
               className={`h-6 w-6 ${trendTone === "negative" ? "scale-y-[-1]" : ""}`}
             />
             <strong className="font-semibold">{trendValue}</strong>
-            <span className="text-[#808080] text-sm font-normal">{trendLabel}</span>
-          </p>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] text-sm font-normal">{trendLabel}</Typography>
+          </Typography>
         </div>
         <button
           className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
@@ -779,14 +780,14 @@ function PublishedAgencyAdsCard() {
     <article className="rounded-2xl bg-white p-4">
       <div className="mb-7 grid gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             آگهی منتشر شده در آژانس
-          </h2>
+          </Typography>
           <button
             className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
             type="button"
           >
-            <span className="text-xs font-medium text-[#1a1a1a]">در ماه</span>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-[#1a1a1a]">در ماه</Typography>
             <svg
               className="h-4 w-4 text-[#4d4d4d]"
               fill="none"
@@ -804,12 +805,12 @@ function PublishedAgencyAdsCard() {
           </button>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <span className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
             ۱۸۳
-          </span>
-          <span className="text-sm font-normal text-[#4d4d4d]">
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
             آگهی ثبت شده
-          </span>
+          </Typography>
         </div>
       </div>
 
@@ -850,11 +851,11 @@ function PublishedAgencyAdsCard() {
                 width: dashboardPieTooltipWidth,
               }}
             >
-              <span>
+              <Typography as="span" variant="body" size="medium" weight="regular">
                 {selectedEntry.name}
                 <br />
                 {formatNumber(selectedEntry.value)}٪
-              </span>
+              </Typography>
             </div>
           </>
         ) : null}
@@ -1158,14 +1159,14 @@ function ConsultantActivityCard({
     <article className="overflow-hidden rounded-2xl bg-white p-4">
       <div className="mb-7 grid gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             فعالیت مشاورین
-          </h2>
+          </Typography>
           <button
             className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
             type="button"
           >
-            <span className="text-xs font-medium text-[#1a1a1a]">در ماه</span>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-[#1a1a1a]">در ماه</Typography>
             <svg
               className="h-4 w-4 text-[#4d4d4d]"
               fill="none"
@@ -1183,12 +1184,12 @@ function ConsultantActivityCard({
           </button>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <span className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
             {isLoading && useApiData ? "—" : formatNumber(registeredAds)}
-          </span>
-          <span className="text-sm font-normal text-[#4d4d4d]">
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
             آگهی ثبت شده
-          </span>
+          </Typography>
         </div>
       </div>
 
@@ -1333,17 +1334,17 @@ function DashboardMetricCard({ metric }: { metric: DashboardMetric }) {
 
   return (
     <article className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-none">
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1 ${tone.bg} ${tone.icon} ${tone.ring}`}
       >
         <Icon className="h-6 w-6" />
-      </span>
+      </Typography>
 
       <div className="w-full">
         <div className="flex w-full justify-between items-center">
-          <p className="m-0 truncate text-sm font-medium leading-6 text-[#4D4D4D]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-medium leading-6 text-[#4D4D4D]">
             {metric.title}
-          </p>
+          </Typography>
           <strong className="font-semibold leading-none text-[#1A1A1A]">
             {metric.value}
           </strong>
@@ -1355,14 +1356,14 @@ function DashboardMetricCard({ metric }: { metric: DashboardMetric }) {
               <LinearClock className="h-4 w-4 text-[#334466]" />
             ) : null}
             {metric.trend ? (
-              <span
+              <Typography as="span" variant="label" size="medium" weight="semibold"
                 className={`inline-flex items-center gap-0.5 font-bold ${trendClasses[metric.trendTone]}`}
               >
                 <LinearChartUp className="h-4 w-4" />
                 {metric.trend}
-              </span>
+              </Typography>
             ) : null}
-            <span>{metric.description}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">{metric.description}</Typography>
           </div>
         </div>
       </div>
@@ -1383,14 +1384,14 @@ function PublishedAdsLegendItem({
   return (
     <div className="w-[28%] flex flex-col items-center gap-1">
       <div className="flex items-center gap-1.5">
-        <span
+        <Typography as="span" variant="body" size="medium" weight="regular"
           aria-hidden="true"
           className="h-2.5 w-2.5 rounded-full"
           style={{ backgroundColor: color }}
         />
-        <span className="text-xs font-normal text-[#4d4d4d] text-nowrap">
+        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-[#4d4d4d] text-nowrap">
           {label}
-        </span>
+        </Typography>
       </div>
       <strong className="text-base font-semibold text-[#1a1a1a]">
         {value}
@@ -1407,13 +1408,13 @@ function ConsultantActivityLegendItem({
   label: string;
 }) {
   return (
-    <span className="inline-flex items-center justify-center gap-2 text-base font-medium leading-6 text-[#4d4d4d]">
+    <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center justify-center gap-2 text-base font-medium leading-6 text-[#4d4d4d]">
       {label}
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         aria-hidden="true"
         className="h-3.5 w-3.5 rounded-full"
         style={{ backgroundColor: color }}
       />
-    </span>
+    </Typography>
   );
 }

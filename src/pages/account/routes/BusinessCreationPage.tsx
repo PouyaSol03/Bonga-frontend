@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeftIcon, BusinessCreationShell, BusinessHero, BusinessTypeCard, getBusinessTypePath, navigateTo } from "../businessCreationViews";
 import type { BusinessType } from "../businessCreationViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function BusinessCreationPage() {
   const [selectedType, setSelectedType] = useState<BusinessType>("agency");
@@ -18,7 +19,7 @@ export function BusinessCreationPage() {
             onClick={handleNext}
             type="button"
           >
-            <span>مرحله بعد</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">مرحله بعد</Typography>
             <ArrowLeftIcon />
           </button>
         </div>
@@ -27,9 +28,9 @@ export function BusinessCreationPage() {
       <BusinessHero />
 
       <section className="mt-14 px-4">
-        <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
           انتخاب کسب و کار
-        </h2>
+        </Typography>
 
         <div className="mt-6 space-y-6">
           <BusinessTypeCard

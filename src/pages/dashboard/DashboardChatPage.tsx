@@ -11,6 +11,7 @@ import { getRequestErrorState } from "../../components/ErrorState";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { useChatMessagesQuery, useChatsQuery } from "../../hooks/chat.hooks";
 import type { ChatMessage, ChatThread } from "../../services/chat.service";
+import { Typography } from "../../components/ui/Typography";
 
 type DashboardChatFilter = "all" | "support" | "mine";
 
@@ -529,9 +530,9 @@ function UnreadBadge({ count }: { count?: number }) {
   if (!count) return null;
 
   return (
-    <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#0048C4] px-1 text-[10px] font-semibold leading-4 text-white">
+    <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-4 min-w-4 place-items-center rounded-full bg-[#0048C4] px-1 text-[10px] font-semibold leading-4 text-white">
       {new Intl.NumberFormat("fa-IR").format(count)}
-    </span>
+    </Typography>
   );
 }
 
@@ -539,10 +540,10 @@ function ContactBadge({ label }: { label?: string }) {
   if (!label) return null;
 
   return (
-    <span className="inline-flex h-6 max-w-[92px] items-center gap-1 rounded-lg bg-[#E8F1FF] px-2 text-[10px] font-medium leading-4 text-[#0048C4]">
+    <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-6 max-w-[92px] items-center gap-1 rounded-lg bg-[#E8F1FF] px-2 text-[10px] font-medium leading-4 text-[#0048C4]">
       <ContactBadgeIcon className="h-3 w-3 shrink-0" />
-      <span className="truncate">{label}</span>
-    </span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{label}</Typography>
+    </Typography>
   );
 }
 
@@ -568,17 +569,17 @@ function ChatListCard({
         }`}
       >
         <div className="flex items-center justify-between gap-3 [direction:ltr]">
-          <span className="flex shrink-0 items-center gap-2 text-[11px] font-normal leading-4 text-[#808080]">
-            <span>{item.date}</span>
+          <Typography as="span" variant="body" size="small" weight="regular" className="flex shrink-0 items-center gap-2 text-[11px] font-normal leading-4 text-[#808080]">
+            <Typography as="span" variant="body" size="medium" weight="regular">{item.date}</Typography>
             <UnreadBadge count={item.unreadCount} />
-          </span>
+          </Typography>
           <strong className="min-w-0 truncate text-sm font-semibold leading-5 text-[#1A1A1A]">
             {item.title}
           </strong>
         </div>
-        <p className="mt-3 line-clamp-1 text-right text-[11px] font-normal leading-5 text-[#4D4D4D]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="mt-3 line-clamp-1 text-right text-[11px] font-normal leading-5 text-[#4D4D4D]">
           {item.lastMessage}
-        </p>
+        </Typography>
         {item.contactBadge ? (
           <div className="mt-2 flex justify-end">
             <ContactBadge label={item.contactBadge} />
@@ -611,7 +612,7 @@ function DashboardChatSidebar({
       <div className="flex h-[88px] shrink-0 items-center justify-between gap-5 border-b border-[#E6E6E6] px-6 [direction:ltr]">
         <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-full bg-[#F0F0F0] px-5 [direction:ltr]">
           <DashboardSearchIcon className="h-6 w-6 shrink-0 text-[#4D4D4D]" />
-          <span className="sr-only">جستجو در چت‌ها</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">جستجو در چت‌ها</Typography>
           <input
             className="h-full min-w-0 flex-1 border-0 bg-transparent text-right text-xs font-normal leading-5 text-[#1A1A1A] outline-none placeholder:text-[#808080]"
             dir="rtl"
@@ -644,9 +645,9 @@ function DashboardChatSidebar({
               onClick={() => onChangeFilter(filter.id)}
               type="button"
             >
-              <span className="flex h-full items-center">{filter.label}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="flex h-full items-center">{filter.label}</Typography>
               {isActive ? (
-                <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-t bg-[#0048C4]" />
+                <Typography as="span" variant="body" size="medium" weight="regular" className="absolute inset-x-0 bottom-0 h-0.5 rounded-t bg-[#0048C4]" />
               ) : null}
             </button>
           );
@@ -671,7 +672,7 @@ function DashboardChatSidebar({
 function ChatDateChip({ label }: { label: string }) {
   return (
     <div className="flex justify-center py-1">
-      <span className="text-xs font-normal leading-5 text-[#808080]">{label}</span>
+      <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-5 text-[#808080]">{label}</Typography>
     </div>
   );
 }
@@ -687,15 +688,15 @@ function ChatBubble({ message }: { message: DashboardLocalMessage }) {
         }`}
         dir="rtl"
       >
-        <p className="whitespace-pre-line break-words text-base font-normal leading-7 text-[#1A1A1A] [overflow-wrap:anywhere]">
+        <Typography as="p" variant="body" size="large" weight="regular" className="whitespace-pre-line break-words text-base font-normal leading-7 text-[#1A1A1A] [overflow-wrap:anywhere]">
           {message.body}
-        </p>
+        </Typography>
         <div
           className={`mt-1 flex items-center gap-2 text-sm font-normal leading-5 ${
             isOutgoing ? "justify-end text-[#4D4D4D] [direction:ltr]" : "justify-start text-[#808080]"
           }`}
         >
-          <span>{message.time}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{message.time}</Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-5 w-5 ${message.isRead ? "text-[#4D4D4D]" : "text-[#808080]"}`} />
           ) : null}
@@ -717,12 +718,12 @@ function DashboardChatHeader({ conversation }: { conversation?: DashboardChatLis
       </button>
 
       <div className="absolute inset-x-20 top-1/2 -translate-y-1/2 text-center">
-        <h1 className="m-0 truncate text-sm font-semibold leading-5 text-[#1A1A1A]">
+        <Typography as="h1" variant="title" size="small" weight="semibold" className="m-0 truncate text-sm font-semibold leading-5 text-[#1A1A1A]">
           {conversation?.title ?? "ناصر اشرفی"}
-        </h1>
-        <p className="m-0 mt-2 truncate text-xs font-normal leading-5 text-[#1A1A1A]">
+        </Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 truncate text-xs font-normal leading-5 text-[#1A1A1A]">
           {conversation?.subtitle ?? "باغ ویلا با استخر آب گرم"}
-        </p>
+        </Typography>
       </div>
     </header>
   );
@@ -761,7 +762,7 @@ function ChatComposer({
           <LinkIcon className="h-6 w-6" />
         </button>
         <label className="min-w-0 flex-1">
-          <span className="sr-only">پیام خود را بنویسید</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
           <input
             className="h-12 w-full border-0 bg-transparent px-3 text-right text-sm font-normal leading-5 text-[#1A1A1A] outline-none placeholder:text-[#808080]"
             dir="rtl"
@@ -813,7 +814,7 @@ function DashboardConversation({
           ref={scrollRef}
         >
           {isLoading ? (
-            <p className="py-8 text-center text-xs text-[#808080]">در حال دریافت پیام‌ها...</p>
+            <Typography as="p" variant="body" size="small" weight="regular" className="py-8 text-center text-xs text-[#808080]">در حال دریافت پیام‌ها...</Typography>
           ) : null}
 
           <div className="space-y-4">
@@ -1068,7 +1069,7 @@ export default function DashboardChatPage() {
           scrollRef={scrollRef}
         />
       </div>
-      {hasMoreMessagesBelow ? <span className="sr-only">پیام‌های بیشتری پایین صفحه وجود دارد</span> : null}
+      {hasMoreMessagesBelow ? <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام‌های بیشتری پایین صفحه وجود دارد</Typography> : null}
     </section>
   );
 }

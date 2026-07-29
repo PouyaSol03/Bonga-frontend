@@ -11,6 +11,7 @@ import {
   panelCreditPlans,
   type CreditPlan,
 } from "./creditData";
+import { Typography } from "../../../components/ui/Typography";
 
 type CreditView = "packages" | "panel" | "panel-bonus";
 
@@ -176,7 +177,7 @@ function PackageCardContent({ plan }: { plan: CreditPlan }) {
         {(plan.benefits ?? []).map((benefit) => (
           <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
             <CheckSealIcon className="h-5 w-5 shrink-0 text-[#11a366]" />
-            <span>{benefit}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">{benefit}</Typography>
           </li>
         ))}
       </ul>
@@ -188,17 +189,17 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
   return (
     <>
       <div className="flex h-6 items-center justify-end">
-        <h2 className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">{plan.name}</h2>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">{plan.name}</Typography>
       </div>
       <div className="mt-4 flex h-[68px] items-end justify-between [direction:ltr]">
-        <span className="mb-1 rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
+        <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
           ۱۰٪ تخفیف
-        </span>
+        </Typography>
         <div className="text-right [direction:rtl]">
-          <p className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">{plan.originalPrice}</p>
+          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">{plan.originalPrice}</Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
             <strong className="text-[22px] font-semibold leading-7 text-[#1a1a1a]">{plan.currentPrice}</strong>
-            <span className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</span>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</Typography>
           </div>
         </div>
       </div>
@@ -211,16 +212,16 @@ function GiftBenefits({ benefits }: { benefits: string[] }) {
     <div className="h-16 rounded-lg border border-[#11a366] bg-[#11a36614] px-4 py-2 text-[#006038]">
       <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-[#11a366]">
         <GiftIcon className="h-5 w-5" />
-        <span>بسته هدیه</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">بسته هدیه</Typography>
       </div>
       <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
         {benefits.map((benefit, index) => (
-          <span
+          <Typography as="span" variant="body" size="medium" weight="regular"
             className={`${index < benefits.length - 1 ? "border-l border-[#00603829] pl-4" : ""}`}
             key={benefit}
           >
             {benefit}
-          </span>
+          </Typography>
         ))}
       </div>
     </div>

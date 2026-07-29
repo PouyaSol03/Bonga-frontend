@@ -5,6 +5,7 @@ import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { AllocationIcon, ChevronLeftIcon } from "./AdManagementIcons";
 import { adManagementPaths, getAdEditPath, getAdPaymentPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 export function IndependentConsultantAdAllocationPage() {
   const ad = getSelectedConsultantAd();
@@ -24,19 +25,19 @@ export function IndependentConsultantAdAllocationPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-6">
         <div className="px-4">
           <div className="flex justify-start">
-            <span className="inline-flex h-9 items-center rounded-lg bg-[#0048c414] px-2 text-sm font-medium leading-5 text-[#0048c4]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#0048c414] px-2 text-sm font-medium leading-5 text-[#0048c4]">
               در انتظار پرداخت
-            </span>
+            </Typography>
           </div>
 
           <section className="mt-4 flex h-[68px] items-center justify-between gap-2 [direction:ltr]" aria-label={ad.title}>
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <h2 className="m-0 truncate text-base font-medium leading-6 text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 truncate text-base font-medium leading-6 text-[#1a1a1a]">
                 {ad.title}
-              </h2>
-              <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
+              </Typography>
+              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
                 {ad.timeAndLocation}
-              </p>
+              </Typography>
             </div>
             <div
               aria-hidden="true"
@@ -82,10 +83,10 @@ function AllocationAction({
       to={to}
     >
       <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
-      <span className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <AllocationIcon className="h-6 w-6 text-[#4d4d4d]" icon={icon} />
         {label}
-      </span>
+      </Typography>
     </RouteLink>
   );
 }

@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
 import LinearArrowDown1 from "../(icons)/LinearArrowDown1";
+import { Typography } from "./Typography";
 
 type SelectFieldProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   error?: string;
@@ -28,7 +29,7 @@ export function SelectField({
 
   return (
     <div>
-      {label ? <p className="m-0 mb-2 text-right text-base font-medium leading-6 text-[#1a1a1a]">{label}</p> : null}
+      {label ? <Typography as="p" variant="body" size="large" weight="medium" className="m-0 mb-2 text-right text-base font-medium leading-6 text-[#1a1a1a]">{label}</Typography> : null}
       <button
         aria-invalid={Boolean(error)}
         className={cn(
@@ -41,14 +42,14 @@ export function SelectField({
         {...props}
       >
         {leadingSlot ?? <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 text-[#4d4d4d]" />}
-        <span className={cn("min-w-0 flex-1 truncate text-right [direction:rtl]", hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]")}>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={cn("min-w-0 flex-1 truncate text-right [direction:rtl]", hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]")}>
           {value || placeholder}
-        </span>
+        </Typography>
       </button>
       {helperText ? (
-        <span className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
+        <Typography as="span" variant="body" size="small" weight="regular" className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
           {helperText}
-        </span>
+        </Typography>
       ) : null}
     </div>
   );

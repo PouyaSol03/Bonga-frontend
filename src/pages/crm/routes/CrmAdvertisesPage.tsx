@@ -12,6 +12,7 @@ import LinearCancel from "../../../components/(icons)/LinearCancel";
 import LinearDelete from "../../../components/(icons)/LinearDelete";
 import { ConfirmModal, CrmIcon, CrmSelect, FilterField, PrimaryButton, SmallActionButton, advertiseStatusOptions, ghostButtonClassName, inputClassName, mapCrmAdvertiseToCard, readText, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps } from "../CrmLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -94,7 +95,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     type="button"
                   >
                     {option.label}
-                    {isActive ? <span className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" /> : null}
+                    {isActive ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" /> : null}
                   </button>
                 );
               })}
@@ -113,7 +114,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               </button>
 
               <label className="relative block h-10 w-[min(360px,42vw)] min-w-[240px]">
-                <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#4d4d4d]"><CrmIcon name="search" size={19} /></span>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#4d4d4d]"><CrmIcon name="search" size={19} /></Typography>
                 <input
                   className="h-full w-full rounded-xl border border-[#cccccc] bg-white pl-12 pr-4 text-right text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4]"
                   onChange={(event) => setTrackCode(event.target.value)}
@@ -194,7 +195,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
                   <div className="mt-3 border-t border-[#f0f0f0] pt-3">
                     <div className="mb-3 flex items-center px-1 text-xs text-[#808080]">
-                      <span>کد پیگیری: <strong className="font-semibold text-[#4d4d4d]">{readText(ad, ["track_code"])}</strong></span>
+                      <Typography as="span" variant="body" size="medium" weight="regular">کد پیگیری: <strong className="font-semibold text-[#4d4d4d]">{readText(ad, ["track_code"])}</strong></Typography>
                     </div>
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                       <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />

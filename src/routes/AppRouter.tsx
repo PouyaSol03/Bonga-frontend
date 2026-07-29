@@ -7,6 +7,7 @@ import { BottomNavigation } from '../components/BottomNavigation'
 import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../components/ErrorState'
 import LinearNotification from '../components/(icons)/LinearNotification'
 import { TopBar, TopBarLayoutProvider } from '../components/TopBar'
+import { Typography } from '../components/ui/Typography'
 import { CRM_ADVERTISE_ROLES } from '../constants/roles.constants'
 import { isUserIdentityVerified } from "../services/account.service";
 import { useMyProfileQuery } from '../hooks/account.hooks'
@@ -117,15 +118,15 @@ function NotificationTopBarIcon() {
   })
 
   return (
-    <span className="relative grid h-6 w-6 place-items-center">
+    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-6 w-6 place-items-center">
       <LinearNotification className="h-6 w-6" />
       {unreadNotificationsCount > 0 ? (
-        <span
+        <Typography as="span" variant="body" size="medium" weight="regular"
           aria-hidden="true"
           className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
         />
       ) : null}
-    </span>
+    </Typography>
   )
 }
 
@@ -194,19 +195,19 @@ function IdentityRequiredPage({ title }: { title: string }) {
       <TopBar backTo="/account" title={title} />
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center bg-white px-6 pb-20 text-center">
         <IdentityRequiredIcon />
-        <h2 className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
           احراز هویت مورد نیاز است!
-        </h2>
-        <p className="m-0 mt-2 max-w-[310px] text-sm font-normal leading-6 text-[#4d4d4d]">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[310px] text-sm font-normal leading-6 text-[#4d4d4d]">
           برای دسترسی به این بخش، ابتدا باید احراز هویت خود را تکمیل کنید. احراز هویت به افزایش امنیت حساب کاربری و فعال‌سازی امکانات سامانه کمک می‌کند.
-        </p>
+        </Typography>
         <button
           className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
           onClick={() => navigateTo('/account/identity?required=1')}
           type="button"
         >
           <LinearUserAccount className='w-5 h-5'/>
-          <span>تکمیل احراز هویت</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">تکمیل احراز هویت</Typography>
         </button>
       </main>
     </PageFrame>

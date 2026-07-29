@@ -24,6 +24,7 @@ import {
   SUPER_ADMIN,
 } from "../../constants/roles.constants";
 
+import { Typography } from "../../components/ui/Typography";
 
 const CRM_BLUE = "#0048c4";
 export const DEFAULT_COUNTRY_ID = "000000000000000000000001";
@@ -485,12 +486,12 @@ export function CrmLayout({
           </button>
 
           <div className="hidden h-10 max-w-[230px] items-center gap-2 rounded-xl bg-[#f5f5f5] px-3 xl:flex">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#e4e8f4] text-[#0048c4]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#e4e8f4] text-[#0048c4]">
               <CrmIcon name="account" />
-            </span>
+            </Typography>
             <div className="min-w-0">
-              <p className="m-0 truncate text-sm font-semibold text-[#1a1a1a]">{profileName}</p>
-              <p className="m-0 truncate text-xs font-medium text-[#808080]">{roleLabel.title}</p>
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-semibold text-[#1a1a1a]">{profileName}</Typography>
+              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 truncate text-xs font-medium text-[#808080]">{roleLabel.title}</Typography>
             </div>
           </div>
 
@@ -513,8 +514,8 @@ export function CrmLayout({
           <div className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "justify-between"}`}>
             {!isSidebarCollapsed ? (
               <div>
-                <p className="m-0 text-sm font-semibold text-[#1a1a1a]">مرکز مدیریت</p>
-                <p className="m-0 mt-1 text-xs font-medium text-[#808080]">مدیریت کل سامانه</p>
+                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold text-[#1a1a1a]">مرکز مدیریت</Typography>
+                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium text-[#808080]">مدیریت کل سامانه</Typography>
               </div>
             ) : null}
 
@@ -524,18 +525,18 @@ export function CrmLayout({
               onClick={() => setIsSidebarCollapsed((value) => !value)}
               type="button"
             >
-              <span className={isSidebarCollapsed ? "rotate-180" : ""}><ChevronIcon /></span>
+              <Typography as="span" variant="body" size="medium" weight="regular" className={isSidebarCollapsed ? "rotate-180" : ""}><ChevronIcon /></Typography>
             </button>
           </div>
 
           {!isSidebarCollapsed ? (
             <div className="flex min-h-16 items-center gap-3 rounded-xl border border-[#f0f0f0] px-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0048c414] text-[#0048c4]">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0048c414] text-[#0048c4]">
                 <CrmIcon name="home" size={20} />
-              </span>
+              </Typography>
               <div className="min-w-0">
                 <strong className="block truncate text-sm font-semibold text-[#303030]">{roleLabel.title}</strong>
-                <span className="mt-1 block truncate text-xs text-[#808080]">{roleLabel.subtitle}</span>
+                <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-[#808080]">{roleLabel.subtitle}</Typography>
               </div>
             </div>
           ) : null}
@@ -555,11 +556,11 @@ export function CrmLayout({
                   title={isSidebarCollapsed ? itemMeta.title : undefined}
                   to={itemMeta.path}
                 >
-                  <span className="shrink-0"><CrmIcon name={item.icon} /></span>
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0"><CrmIcon name={item.icon} /></Typography>
                   {!isSidebarCollapsed ? (
-                    <span className={isActive ? "font-bold" : "font-medium"}>{itemMeta.title}</span>
+                    <Typography as="span" variant="label" size="medium" weight="semibold" className={isActive ? "font-bold" : "font-medium"}>{itemMeta.title}</Typography>
                   ) : isActive ? (
-                    <span className="absolute mt-8 h-1 w-1 rounded-full bg-[#0048c4]" />
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="absolute mt-8 h-1 w-1 rounded-full bg-[#0048c4]" />
                   ) : null}
                 </RouteLink>
               );
@@ -574,7 +575,7 @@ export function CrmLayout({
             to="/account"
           >
             <CrmIcon name="account" />
-            {!isSidebarCollapsed ? <span className="font-medium">حساب کاربری</span> : null}
+            {!isSidebarCollapsed ? <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">حساب کاربری</Typography> : null}
           </RouteLink>
         </aside>
 
@@ -613,10 +614,10 @@ function DesktopRequiredPage() {
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
           <CrmIcon name="desktop" size={32} />
         </div>
-        <h1 className="m-0 mt-5 text-lg font-bold text-[#1e2633]">نسخه مدیریت برای دسکتاپ طراحی شده است</h1>
-        <p className="m-0 mt-2 text-sm leading-7 text-[#6f7888]">
+        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-lg font-bold text-[#1e2633]">نسخه مدیریت برای دسکتاپ طراحی شده است</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-7 text-[#6f7888]">
           برای استفاده کامل از جدول‌ها، فرم‌ها و نقشه مدیریت، این صفحه را روی لپ‌تاپ یا نمایشگر بزرگ‌تر باز کنید.
-        </p>
+        </Typography>
         <RouteLink
           className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white no-underline"
           to="/account"
@@ -732,7 +733,7 @@ export function AgencyAgentsModal({
     <ModalShell onClose={onClose}>
       <section className="max-h-[calc(100vh-64px)] w-[min(900px,calc(100vw-64px))] overflow-hidden rounded-xl bg-white shadow-[0_24px_70px_rgba(14,34,68,0.18)]" dir="rtl">
         <div className="flex h-16 items-center justify-between border-b border-[#f0f0f0] px-6">
-          <div><h2 className="m-0 text-base font-bold">مشاوران {readText(agency, ["name"], "آژانس")}</h2><p className="m-0 mt-1 text-sm text-[#919aa8]">فهرست مشاوران وابسته به این آژانس</p></div>
+          <div><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold">مشاوران {readText(agency, ["name"], "آژانس")}</Typography><Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#919aa8]">فهرست مشاوران وابسته به این آژانس</Typography></div>
           <button aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button"><CrmIcon name="close" size={18} /></button>
         </div>
         <div className="max-h-[calc(100vh-160px)] overflow-auto p-6">
@@ -743,9 +744,9 @@ export function AgencyAgentsModal({
               return (
                 <tr key={getCrmRecordId(agent)}>
                   <TableCell><strong>{fullName(agent)}</strong></TableCell>
-                  <TableCell><span dir="ltr">{readText(agent, ["mobile", "phone"], "-")}</span></TableCell>
+                  <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(agent, ["mobile", "phone"], "-")}</Typography></TableCell>
                   <TableCell>{agent.type === "independent" ? "مستقل" : "وابسته"}</TableCell>
-                  <TableCell><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === "accept" ? "bg-[#ebfaf3] text-[#0b8b55]" : status === "reject" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{consultantStatusLabel(status)}</span></TableCell>
+                  <TableCell><Typography as="span" variant="label" size="small" weight="semibold" className={`rounded-full px-2.5 py-1 text-xs font-bold ${status === "accept" ? "bg-[#ebfaf3] text-[#0b8b55]" : status === "reject" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#fff7df] text-[#a06a00]"}`}>{consultantStatusLabel(status)}</Typography></TableCell>
                   <TableCell>
                     <SmallActionButton
                       icon={<LinearEdit2 className="h-4 w-4" />}
@@ -778,9 +779,9 @@ export function CategoryTree({ categories, depth = 0, onEdit }: { categories: Cr
               style={{ marginRight: depth * 24 }}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
                   <CrmIcon name="category" size={18} />
-                </span>
+                </Typography>
                 <div className="min-w-0">
                   <strong className="block truncate text-sm text-[#1a1a1a]">{getCategoryLabel(category)}</strong>
                   <small className="mt-1 block truncate text-sm text-[#969eab]">
@@ -805,14 +806,14 @@ export function AdvertiseFormCard({ form }: { form: CrmRecord }) {
     <article className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white">
       <header className="flex items-start justify-between gap-3 border-b border-[#f0f0f0] bg-[#fafafa] p-4">
         <div className="min-w-0">
-          <h3 className="m-0 truncate text-sm font-bold text-[#1a1a1a]">{readText(form, ["title", "code"])}</h3>
-          <p className="m-0 mt-1 text-sm text-[#9098a6]">
+          <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 truncate text-sm font-bold text-[#1a1a1a]">{readText(form, ["title", "code"])}</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#9098a6]">
             {readText(form, ["code"])} · {readText(form, ["group"])}
-          </p>
+          </Typography>
         </div>
-        <span className="shrink-0 rounded-full bg-[#eef4ff] px-2.5 py-1 text-sm font-bold text-[#0048c4]">
+        <Typography as="span" variant="label" size="medium" weight="semibold" className="shrink-0 rounded-full bg-[#eef4ff] px-2.5 py-1 text-sm font-bold text-[#0048c4]">
           {new Intl.NumberFormat("fa-IR").format(fields.length)} فیلد
-        </span>
+        </Typography>
       </header>
       <div className="max-h-[420px] divide-y divide-[#edf0f5] overflow-y-auto px-4">
         {fields.map((field, index) => {
@@ -823,7 +824,7 @@ export function AdvertiseFormCard({ form }: { form: CrmRecord }) {
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <code className="block truncate text-sm font-bold text-[#0048c4]">{readText(field, ["key"])}</code>
-                  <span className="mt-1 block truncate text-sm text-[#596477]">{readText(field, ["label"])}</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="mt-1 block truncate text-sm text-[#596477]">{readText(field, ["label"])}</Typography>
                 </div>
                 <div className="flex shrink-0 flex-wrap justify-end gap-1">
                   <FieldMeta>{readText(field, ["type"])}</FieldMeta>
@@ -833,10 +834,10 @@ export function AdvertiseFormCard({ form }: { form: CrmRecord }) {
                 </div>
               </div>
               {options.length ? (
-                <p className="m-0 mt-2 line-clamp-2 text-sm leading-5 text-[#929aa8]">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 line-clamp-2 text-sm leading-5 text-[#929aa8]">
                   گزینه‌ها: {options.slice(0, 10).map((option) => readText(option, ["label", "value"])).join("، ")}
                   {options.length > 10 ? " ..." : ""}
-                </p>
+                </Typography>
               ) : null}
             </div>
           );
@@ -902,8 +903,8 @@ export function EditorModal({
       >
         <div className="flex h-16 items-center justify-between border-b border-[#f0f0f0] px-6">
           <div>
-            <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{editor.title}</h2>
-            <p className="m-0 mt-1 text-sm text-[#919aa8]">فیلدهای لازم را تکمیل و سپس ذخیره کنید.</p>
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold text-[#1a1a1a]">{editor.title}</Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#919aa8]">فیلدهای لازم را تکمیل و سپس ذخیره کنید.</Typography>
           </div>
           <button
             aria-label="بستن"
@@ -977,9 +978,9 @@ export function EditorModal({
                 return (
                   <fieldset className="col-span-2" key={field.name}>
                     <legend className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</legend>
-                    <p className="m-0 mb-3 text-xs leading-5 text-[#8b94a3]">
+                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-3 text-xs leading-5 text-[#8b94a3]">
                       هر نقش مستقل است و می‌توانید بیش از یک مورد را برای کاربر فعال کنید.
-                    </p>
+                    </Typography>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {(field.options ?? []).map((option) => {
                         const isChecked = selectedValues.includes(option.value);
@@ -1010,7 +1011,7 @@ export function EditorModal({
                               type="checkbox"
                               value={option.value}
                             />
-                            <span className="text-sm font-bold">{option.label}</span>
+                            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-bold">{option.label}</Typography>
                           </label>
                         );
                       })}
@@ -1023,7 +1024,7 @@ export function EditorModal({
 
               return (
                 <label className={isWide ? "col-span-2" : ""} key={field.name}>
-                  <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</span>
+                  <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">{field.label}</Typography>
                   {field.type === "select" ? (
                     <CrmSelect
                       className={modalInputClassName}
@@ -1121,11 +1122,11 @@ export function ConfirmModal({
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#d62f3e]">
           <CrmIcon name="warning" size={24} />
         </div>
-        <h2 className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">{confirm.title}</h2>
-        <p className="m-0 mt-2 text-sm leading-7 text-[#707a8a]">{confirm.body}</p>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">{confirm.title}</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-7 text-[#707a8a]">{confirm.body}</Typography>
         {confirm.prompt ? (
           <label className="mt-4 block">
-            <span className="mb-2 block text-sm font-bold text-[#4f5a6c]">{confirm.prompt.label}</span>
+            <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">{confirm.prompt.label}</Typography>
             <textarea
               className={`${modalInputClassName} min-h-28 resize-y py-3`}
               disabled={isPending}
@@ -1174,9 +1175,9 @@ function CityPointEditor({
   return (
     <div className="overflow-hidden rounded-2xl border border-[#cccccc] bg-white">
       <div className="border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-3">
-        <p className="m-0 text-sm leading-6 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-[#4d4d4d]">
           نقشه را جابه‌جا کنید تا نشانگر روی موقعیت دقیق آژانس قرار بگیرد.
-        </p>
+        </Typography>
       </div>
       <div className="relative h-[340px] w-full overflow-hidden">
         <MapContainer attributionControl={false} center={point} className="h-full w-full" scrollWheelZoom zoom={15} zoomControl={false}>
@@ -1187,10 +1188,10 @@ function CityPointEditor({
           />
           <MapCenterCollector onSelect={selectPoint} />
         </MapContainer>
-        <span className="pointer-events-none absolute left-1/2 top-1/2 z-[500] -translate-x-1/2 -translate-y-full"><MapPickerPinIcon /></span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute left-1/2 top-1/2 z-[500] -translate-x-1/2 -translate-y-full"><MapPickerPinIcon /></Typography>
       </div>
       <div className="flex items-center justify-between gap-4 border-t border-[#e5e5e5] px-4 py-3 text-sm">
-        <span className="font-medium text-[#4d4d4d]">مختصات انتخاب‌شده</span>
+        <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#4d4d4d]">مختصات انتخاب‌شده</Typography>
         <strong className="font-mono text-[#0048c4]" dir="ltr">
           {point[0].toFixed(6)}, {point[1].toFixed(6)}
         </strong>
@@ -1217,7 +1218,7 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
         placeholder="جستجوی محله..."
         value={query}
       />
-      {!cityId ? <p className="m-0 mt-2 text-xs text-[#cc3342]">ابتدا شهر را در سایت انتخاب کنید.</p> : null}
+      {!cityId ? <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs text-[#cc3342]">ابتدا شهر را در سایت انتخاب کنید.</Typography> : null}
       {selectedIds.length ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {selectedIds.map((id) => {
@@ -1227,12 +1228,12 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
         </div>
       ) : null}
       <div className="mt-3 max-h-56 space-y-1 overflow-y-auto">
-        {neighborhoodsQuery.isLoading ? <p className="px-2 text-sm text-[#7b8494]">در حال جستجو...</p> : neighborhoodsQuery.data?.map((neighborhood) => {
+        {neighborhoodsQuery.isLoading ? <Typography as="p" variant="body" size="medium" weight="regular" className="px-2 text-sm text-[#7b8494]">در حال جستجو...</Typography> : neighborhoodsQuery.data?.map((neighborhood) => {
           const id = String(neighborhood.id ?? neighborhood._id ?? "");
           const checked = selectedIds.includes(id);
           return (
             <button aria-pressed={checked} className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-2 text-right text-base transition-colors active:bg-[#0048c40a] ${checked ? "text-[#0048c4]" : "text-[#1a1a1a] hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
-              <span className="min-w-0 flex-1 truncate">{neighborhood.name}</span><SelectionCheckIndicator checked={checked} />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{neighborhood.name}</Typography><SelectionCheckIndicator checked={checked} />
             </button>
           );
         })}
@@ -1313,9 +1314,9 @@ function NeighborhoodPolygonEditor({
   return (
     <div className="overflow-hidden rounded-2xl border border-[#dce3ef] bg-[#f8faff]">
       <div className="flex items-center justify-between gap-3 border-b border-[#dce3ef] px-4 py-3">
-        <p className="m-0 text-sm leading-5 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-5 text-[#4d4d4d]">
           برای ساخت محدوده، روی نقشه کلیک کنید. با حداقل سه نقطه یک چندضلعی ساخته می‌شود.
-        </p>
+        </Typography>
         <div className="flex shrink-0 gap-2">
           <button className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints(points.slice(0, -1))} type="button">حذف آخرین نقطه</button>
           <button className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints([])} type="button">پاک کردن</button>
@@ -1420,8 +1421,8 @@ export function PanelHeader({
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
-        <h2 className="m-0 text-base font-semibold leading-7 text-[#1a1a1a]">{title}</h2>
-        {subtitle ? <p className="m-0 mt-1 text-sm font-normal leading-6 text-[#808080]">{subtitle}</p> : null}
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-7 text-[#1a1a1a]">{title}</Typography>
+        {subtitle ? <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm font-normal leading-6 text-[#808080]">{subtitle}</Typography> : null}
       </div>
       {action}
     </div>
@@ -1431,7 +1432,7 @@ export function PanelHeader({
 export function FilterField({ children, className = "", label }: { children: ReactNode; className?: string; label: string }) {
   return (
     <label className={`min-w-[190px] ${className}`}>
-      <span className="mb-1.5 block text-sm font-medium text-[#4d4d4d]">{label}</span>
+      <Typography as="span" variant="label" size="medium" weight="medium" className="mb-1.5 block text-sm font-medium text-[#4d4d4d]">{label}</Typography>
       {children}
     </label>
   );
@@ -1450,7 +1451,7 @@ export function TableLoadingRows({ columns, rows }: { columns: number; rows: num
     <tr key={rowIndex}>
       {Array.from({ length: columns }).map((__, columnIndex) => (
         <td className="border-b border-[#edf0f5] px-3 py-4" key={columnIndex}>
-          <span className="block h-4 animate-pulse rounded-full bg-[#edf0f4]" style={{ width: `${58 + ((rowIndex + columnIndex) % 4) * 9}%` }} />
+          <Typography as="span" variant="body" size="medium" weight="regular" className="block h-4 animate-pulse rounded-full bg-[#edf0f4]" style={{ width: `${58 + ((rowIndex + columnIndex) % 4) * 9}%` }} />
         </td>
       ))}
     </tr>
@@ -1485,7 +1486,7 @@ export function StatusBadge({ status }: { status: unknown }) {
         ? "bg-[#fff7df] text-[#a06a00]"
         : "bg-[#fff0f0] text-[#cc3342]";
 
-  return <span className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${tone}`}>{advertiseStatusLabel(status)}</span>;
+  return <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${tone}`}>{advertiseStatusLabel(status)}</Typography>;
 }
 
 export function normalizeAgencyStatus(status: unknown): "wait" | "accept" | "reject" {
@@ -1512,9 +1513,9 @@ export function agencyStatusTextTone(status: unknown) {
 export function UserStatusBadge({ status }: { status: unknown }) {
   const isActive = Number(status) === 1;
   return (
-    <span className={`inline-flex min-w-[78px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${isActive ? "bg-[#ebfaf3] text-[#0b8b55]" : "bg-[#fff0f0] text-[#cc3342]"}`}>
+    <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex min-w-[78px] justify-center rounded-full px-2.5 py-1.5 text-sm font-bold ${isActive ? "bg-[#ebfaf3] text-[#0b8b55]" : "bg-[#fff0f0] text-[#cc3342]"}`}>
       {isActive ? "فعال" : "غیرفعال"}
-    </span>
+    </Typography>
   );
 }
 
@@ -1572,16 +1573,16 @@ export function SmallActionButton({
 
 export function CrmSelect({ children, className = "", ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <span className="relative block w-full">
+    <Typography as="span" variant="body" size="medium" weight="regular" className="relative block w-full">
       <select className={`${className} appearance-none pl-10`} {...props}>
         {children}
       </select>
-      <span className="pointer-events-none absolute left-3 top-1/2 grid -translate-y-1/2 place-items-center text-[#687386]" aria-hidden="true">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute left-3 top-1/2 grid -translate-y-1/2 place-items-center text-[#687386]" aria-hidden="true">
         <svg fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="16">
           <path d="m6 9 6 6 6-6" />
         </svg>
-      </span>
-    </span>
+      </Typography>
+    </Typography>
   );
 }
 
@@ -1595,14 +1596,14 @@ export function TextLink({ label, to }: { label: string; to: string }) {
 }
 
 function FieldMeta({ children }: { children: ReactNode }) {
-  return <span className="rounded-full bg-[#f0f2f6] px-2 py-1 text-sm font-medium text-[#6d7788]">{children}</span>;
+  return <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-full bg-[#f0f2f6] px-2 py-1 text-sm font-medium text-[#6d7788]">{children}</Typography>;
 }
 
 export function EmptyState({ compact = false, description }: { compact?: boolean; description: string }) {
   return (
     <div className={`flex flex-col items-center justify-center text-center ${compact ? "py-8" : "py-14"}`}>
-      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="empty" size={24} /></span>
-      <p className="m-0 mt-3 text-sm font-medium text-[#8992a1]">{description}</p>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="empty" size={24} /></Typography>
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-medium text-[#8992a1]">{description}</Typography>
     </div>
   );
 }
@@ -1613,10 +1614,10 @@ export function ListSkeleton({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, index) => (
         <div className="flex items-center justify-between gap-4 py-4" key={index}>
           <div className="flex-1 space-y-2">
-            <span className="block h-4 w-2/5 animate-pulse rounded-full bg-[#edf0f4]" />
-            <span className="block h-3 w-1/4 animate-pulse rounded-full bg-[#f1f3f6]" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="block h-4 w-2/5 animate-pulse rounded-full bg-[#edf0f4]" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="block h-3 w-1/4 animate-pulse rounded-full bg-[#f1f3f6]" />
           </div>
-          <span className="block h-7 w-20 animate-pulse rounded-full bg-[#edf0f4]" />
+          <Typography as="span" variant="body" size="medium" weight="regular" className="block h-7 w-20 animate-pulse rounded-full bg-[#edf0f4]" />
         </div>
       ))}
     </div>
@@ -1638,16 +1639,16 @@ export function FormCardSkeleton() {
 function Toast({ toast }: { toast: ToastState }) {
   return (
     <div className={`fixed bottom-6 left-1/2 z-[100] flex min-w-[320px] -translate-x-1/2 items-center gap-3 rounded-2xl border bg-white px-4 py-3 shadow-[0_18px_60px_rgba(18,38,72,0.2)] ${toast.tone === "error" ? "border-[#f2c8cd]" : "border-[#c6e8d7]"}`} dir="rtl">
-      <span className={`grid h-8 w-8 place-items-center rounded-xl ${toast.tone === "error" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#ebfaf3] text-[#0b8b55]"}`}>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-8 w-8 place-items-center rounded-xl ${toast.tone === "error" ? "bg-[#fff0f0] text-[#cc3342]" : "bg-[#ebfaf3] text-[#0b8b55]"}`}>
         <CrmIcon name={toast.tone === "error" ? "warning" : "check"} size={18} />
-      </span>
-      <span className="text-sm font-semibold text-[#3a4558]">{toast.message}</span>
+      </Typography>
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold text-[#3a4558]">{toast.message}</Typography>
     </div>
   );
 }
 
 function LoadingSpinner() {
-  return <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />;
+  return <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />;
 }
 
 export function useQueryErrorToast(errors: Array<unknown>, notify: CrmRoutePageProps["notify"]) {

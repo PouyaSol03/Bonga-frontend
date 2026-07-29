@@ -1,6 +1,7 @@
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
 import LinearStar from "../../components/(icons)/LinearStar";
+import { Typography } from "../../components/ui/Typography";
 
 type BadgeGuide = {
   id: string;
@@ -128,54 +129,54 @@ function BadgeGuideSection({ badge, sectionIndex }: { badge: BadgeGuide; section
 
       <div className="flex h-[88px] items-center justify-center gap-4 rounded-2xl border border-[#f5f5f5] bg-linear-to-b from-blue-50 to-white px-5">
         <img alt="" className="h-14 w-14 shrink-0 object-contain" src={badge.image} />
-        <h1 className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">
+        <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">
           {badge.title}
-        </h1>
+        </Typography>
       </div>
 
       <div className="mt-6">
-        <h2 className="m-0 font-semibold text-[#1a1a1a]">
+        <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
           سطوح نشان
-        </h2>
-        <p className="m-0 mt-3 font-normal leading-6 text-[#1a1a1a]">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 font-normal leading-6 text-[#1a1a1a]">
           {badge.levelsIntro}
-        </p>
+        </Typography>
 
         <div className="mt-2 space-y-1 text-sm font-normal leading-6 text-[#1A1A1A]">
           {badge.levels.map((level, index) => (
-            <p className="m-0 text-sm flex items-center gap-2" key={level}>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm flex items-center gap-2" key={level}>
               <StarRating count={index + 1} />
-              <span>{`سطح ${index + 1}:`}</span>
-              <span>{level}</span>
-            </p>
+              <Typography as="span" variant="body" size="medium" weight="regular">{`سطح ${index + 1}:`}</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular">{level}</Typography>
+            </Typography>
           ))}
         </div>
 
         <div className="mt-12">
-          <h2 className="m-0 flex items-center gap-2 font-semibold leading-6 text-[#0048c4]">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#0048c4]" />
-            <span>{badge.indicatorTitle}</span>
-          </h2>
-          <p className="mt-2 text-[#1a1a1a]">
+          <Typography as="h2" variant="headline" size="large" className="m-0 flex items-center gap-2 font-semibold leading-6 text-[#0048c4]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#0048c4]" />
+            <Typography as="span" variant="body" size="medium" weight="regular">{badge.indicatorTitle}</Typography>
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mt-2 text-[#1a1a1a]">
             {badge.indicatorDescription}
-          </p>
+          </Typography>
         </div>
 
         <div className="mt-4">
-          <h3 className="m-0 font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h3" variant="title" size="large" weight="semibold" className="m-0 font-semibold leading-6 text-[#1a1a1a]">
             {badge.factorsTitle}
-          </h3>
+          </Typography>
           <ul className="m-0 mt-2 space-y-2 pr-4 text-sm font-normal leading-6 text-[#1A1A1A]">
             {badge.factors.map((factor) => (
               <li className="flex items-start gap-3" key={factor}>
-                <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
-                <span>{factor}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
+                <Typography as="span" variant="body" size="medium" weight="regular">{factor}</Typography>
               </li>
             ))}
           </ul>
-          <p className="m-0 mt-4 font-normal text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 font-normal text-[#1a1a1a]">
             {badge.summary}
-          </p>
+          </Typography>
         </div>
       </div>
     </section>
@@ -184,7 +185,7 @@ function BadgeGuideSection({ badge, sectionIndex }: { badge: BadgeGuide; section
 
 function StarRating({ count }: { count: number }) {
   return (
-    <span className="inline-flex shrink-0 items-center gap-0.5 [direction:ltr]" aria-hidden="true">
+    <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex shrink-0 items-center gap-0.5 [direction:ltr]" aria-hidden="true">
       {[0, 1, 2].map((star) => {
         const isActive = star < count;
 
@@ -196,6 +197,6 @@ function StarRating({ count }: { count: number }) {
           />
         );
       })}
-    </span>
+    </Typography>
   );
 }

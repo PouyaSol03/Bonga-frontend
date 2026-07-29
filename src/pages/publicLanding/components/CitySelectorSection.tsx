@@ -9,6 +9,7 @@ import IsfahanIcon from "../../../assets/icons/IsfahanIcon.svg";
 import ShirazIcon from "../../../assets/icons/ShirazIcon.svg";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import { saveSelectedCity } from "../../../lib/selectedCityStorage";
+import { Typography } from "../../../components/ui/Typography";
 
 type UiCity = {
   id: string;
@@ -102,12 +103,12 @@ export function CitySelectorSection({ onOpenCitySearch }: { onOpenCitySearch: ()
       className="relative z-10 mx-0 -mt-12 rounded-b-3xl rounded-t-3xl bg-white px-3 pb-5 pt-4 shadow-[0_4px_28px_rgba(77,77,77,0.08)] min-[390px]:px-4 min-[390px]:pb-6 min-[390px]:pt-5"
       aria-labelledby="city-title"
     >
-      <h2
+      <Typography as="h2" variant="title" size="medium" weight="semibold"
         className="m-0 text-center text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
         id="city-title"
       >
         شهر مورد نظرت رو انتخاب کن:
-      </h2>
+      </Typography>
 
       <label
         className="relative mt-6 flex h-11 items-center rounded-xl bg-[#f0f0f0] min-[390px]:mt-8 min-[390px]:h-[48px]"
@@ -122,7 +123,7 @@ export function CitySelectorSection({ onOpenCitySearch }: { onOpenCitySearch: ()
           readOnly
         />
 
-        <span className="home-search-icon" aria-hidden="true" />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="home-search-icon" aria-hidden="true" />
       </label>
 
       {isError ? (
@@ -153,18 +154,18 @@ export function CitySelectorSection({ onOpenCitySearch }: { onOpenCitySearch: ()
                 aria-hidden="true"
               />
             ) : (
-              <span className="h-8 w-8 shrink-0 rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="h-8 w-8 shrink-0 rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
             )}
 
-            <span className="text-xs font-medium leading-4">{city.name}</span>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4">{city.name}</Typography>
           </RouteLink>
         ))}
       </div>
 
       {isLoading && (
-        <p className="mt-4 text-center text-xs font-medium text-[#808080]">
+        <Typography as="p" variant="body" size="small" weight="medium" className="mt-4 text-center text-xs font-medium text-[#808080]">
           در حال دریافت شهرها...
-        </p>
+        </Typography>
       )}
     </section>
   );

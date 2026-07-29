@@ -53,6 +53,7 @@ import LinearSetting2 from "../components/(icons)/LinearSetting2";
 import LinearInformation from "../components/(icons)/LinearInformation";
 import LinearLogout from "../components/(icons)/LinearLogout";
 import LinearLock from "../components/(icons)/LinearLock";
+import { Typography } from "../components/ui/Typography";
 
 const MANAGE_ADS_PATH = "/account/manage-ads";
 
@@ -271,15 +272,15 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
                 label={businessHeader.name}
               />
               <div className="min-w-0 flex-1 text-right">
-                <p
+                <Typography as="p" variant="body" size="large" weight="medium"
                   className="m-0 truncate text-base font-semibold leading-6"
                   style={{ color: businessHeader.color }}
                 >
                   {businessHeader.name}
-                </p>
-                <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
+                </Typography>
+                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
                   {businessHeader.subtitle}
-                </p>
+                </Typography>
               </div>
             </button>
 
@@ -534,15 +535,15 @@ function StandardAccountPage({
                 />
 
                 <div className="min-w-0 flex-1 text-right">
-                  <p
+                  <Typography as="p" variant="body" size="medium" weight="medium"
                     className="m-0 truncate text-sm font-semibold leading-5"
                     style={{ color: accountHeader.color }}
                   >
                     {accountHeader.label}
-                  </p>
-                  <p className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
+                  </Typography>
+                  <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
                     {formatMobileForDisplay(displayMobile)}
-                  </p>
+                  </Typography>
                 </div>
               </div>
               <Divider />
@@ -673,18 +674,18 @@ function AccountBusinessSuccessSheet({
         <div className="mx-auto grid h-[132px] w-[132px] place-items-center rounded-full">
           <img src="/vectors/States.svg" alt="" />
         </div>
-        <h2 className="m-0 mt-2 text-sm font-semibold leading-5 text-[#11A366]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-2 text-sm font-semibold leading-5 text-[#11A366]">
           حساب شما با موفقیت ثبت شد
-        </h2>
+        </Typography>
         <div className="flex flex-col gap-2.5 mt-2 space-y-1 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
-          <p className="m-0 flex gap-2">
-            <span className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
-            <span>برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</span>
-          </p>
-          <p className="m-0 flex gap-2">
-            <span className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
-            <span>سپس یکی از بسته‌های اعتباری را خریداری کنید.</span>
-          </p>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex gap-2">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
+            <Typography as="span" variant="body" size="medium" weight="regular">برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</Typography>
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex gap-2">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
+            <Typography as="span" variant="body" size="medium" weight="regular">سپس یکی از بسته‌های اعتباری را خریداری کنید.</Typography>
+          </Typography>
         </div>
         <button
           className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
@@ -692,7 +693,7 @@ function AccountBusinessSuccessSheet({
           type="button"
         >
           <LinearWalletAdd color="white" className="w-5 h-5 text-white" />
-          <span>افزایش اعتبار</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">افزایش اعتبار</Typography>
         </button>
       </div>
     </BottomSheet>
@@ -731,9 +732,9 @@ function AccountLogoutConfirmSheet({
       showHeaderDivider={false}
       zIndexClassName="z-[1001]"
     >
-      <p className="m-0 text-center font-medium leading-5 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-center font-medium leading-5 text-[#1a1a1a]">
         مایل به خروج از حساب خود هستید؟
-      </p>
+      </Typography>
 
       <div className="mt-3 grid grid-cols-2 gap-3 [direction:ltr]">
         <button
@@ -889,15 +890,15 @@ function LoggedOutAccountHeader() {
           to="/login/phone"
         >
           <ChevronLeftIcon className="h-6 w-6 shrink-0" />
-          <span className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
+          <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
             ورود به حساب کاربری
-          </span>
+          </Typography>
           <LinearLock className="w-5 h-5" />
         </RouteLink>
 
-        <p className="m-0 mt-4 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
           برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
-        </p>
+        </Typography>
       </div>
       <Divider />
     </section>
@@ -943,9 +944,9 @@ function AccountMenuRow({
   const content = (
     <>
       <ChevronLeftIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-      <span className="flex-1 text-right text-base font-medium [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="flex-1 text-right text-base font-medium [direction:rtl]">
         {action.label}
-      </span>
+      </Typography>
       <AccountIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" name={action.icon} />
     </>
   );
@@ -990,9 +991,9 @@ function AccountMenuRow({
 function DangerAccountRow({ action }: { action: AccountAction }) {
   const content = (
     <div className="flex justify-center items-center gap-2 w-full">
-      <span className="truncate text-sm font-semibold leading-5 [direction:rtl]">
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-sm font-semibold leading-5 [direction:rtl]">
         {action.label}
-      </span>
+      </Typography>
       <AccountIcon className="h-5 w-5 shrink-0 text-[#C11004]" name={action.icon} />
     </div>
   );
@@ -1044,7 +1045,7 @@ function AccountNotificationButton() {
     >
       <LinearNotification className="h-6 w-6" />
       {unreadNotificationsCount > 0 ? (
-        <span
+        <Typography as="span" variant="body" size="medium" weight="regular"
           aria-hidden="true"
           className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
         />

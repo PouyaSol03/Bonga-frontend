@@ -5,6 +5,7 @@ import LinearArrowRight2 from "./(icons)/LinearArrowRight2";
 import LinearTick from "./(icons)/LinearTick";
 import { IconButton } from "./ui/IconButton";
 import { ListItem } from "./ui/ListItem";
+import { Typography } from "./ui/Typography";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -133,7 +134,7 @@ export function BottomSheet({
             transition={panelTransition}
           >
             {showHandle ? (
-              <span
+              <Typography as="span" variant="body" size="medium" weight="regular"
                 aria-hidden="true"
                 className={`mx-auto block ${handleClassName}`}
               />
@@ -155,15 +156,15 @@ export function BottomSheet({
                     </IconButton>
                   ) : null}
 
-                  <h2
+                  <Typography as="h2" variant="title" size="medium" weight="semibold"
                     className={`m-0 min-w-0 flex-1 text-base font-semibold leading-6 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
                       }`}
                   >
                     {title ?? ariaLabel}
-                  </h2>
+                  </Typography>
 
                   {showBackButton && isCenterTitle ? (
-                    <span className="h-10 w-10 shrink-0" />
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="h-10 w-10 shrink-0" />
                   ) : null}
                 </header>
 

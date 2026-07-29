@@ -7,6 +7,7 @@ import LinearSearch from "../../components/(icons)/LinearSearch";
 import { TopBar } from "../../components/TopBar";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
+import { Typography } from "../../components/ui/Typography";
 
 const SUPPORT_PATH = "/account/support";
 const SUPPORT_CHAT_PATH = "/account/support/chat";
@@ -171,13 +172,13 @@ function FaqAccordionItem({
         onClick={onToggle}
         type="button"
       >
-        <span
+        <Typography as="span" variant="label" size="medium" weight="semibold"
           className={`min-w-0 flex-1 text-sm font-semibold ${
             isOpen ? "text-[#0048c4]" : "text-[#1a1a1a]"
           }`}
         >
           {item.question}
-        </span>
+        </Typography>
 
         <LinearArrowDown1
           className={`h-5 w-5 shrink-0 text-[#4d4d4d] transition-transform duration-300 ease-out motion-reduce:transition-none ${
@@ -195,9 +196,9 @@ function FaqAccordionItem({
         }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <p className="m-0 pt-4 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-4 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
             {item.answer}
-          </p>
+          </Typography>
         </div>
       </div>
     </article>

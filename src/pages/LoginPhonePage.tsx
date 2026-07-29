@@ -6,6 +6,7 @@ import { RouteLink } from "../routes/RouteLink";
 import LoginPhoneBackground from "../assets/images/LoginPhoneBackground.svg";
 import { useRequestOtpMutation } from "../hooks/auth.hooks";
 import { getAuthErrorMessage, normalizeMobile } from "../services/auth.service";
+import { Typography } from "../components/ui/Typography";
 
 function goBackOrNavigate(fallbackPath: string) {
   if (window.history.length > 1) {
@@ -93,15 +94,15 @@ export function LoginPhonePage() {
             className="flex min-h-0 flex-1 basis-0 flex-col items-start gap-4 overflow-hidden px-4 pb-3 min-[390px]:gap-4 min-[390px]:px-6 min-[390px]:pb-4"
             aria-labelledby="login-phone-title"
           >
-            <h2
+            <Typography as="h2" variant="title" size="medium" weight="semibold"
               className="m-0 text-right font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
               id="login-phone-title"
             >
               شماره موبایل خود را وارد کنید
-            </h2>
-            <p className="m-0 w-full text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:text-sm">
+            </Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 w-full text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:text-sm">
               برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
-            </p>
+            </Typography>
 
             <label className="block w-full" htmlFor="mobileNumber">
               <input
@@ -123,16 +124,16 @@ export function LoginPhonePage() {
               />
             </label>
 
-            <p className="flex max-w-full flex-wrap items-center justify-start py-1 text-sm font-normal leading-5 min-[390px]:text-xs">
-              <span className="ml-0.5">با ثبت‌نام،</span>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="flex max-w-full flex-wrap items-center justify-start py-1 text-sm font-normal leading-5 min-[390px]:text-xs">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="ml-0.5">با ثبت‌نام،</Typography>
               <RouteLink
                 className="text-[#0048c4] underline underline-offset-6"
                 to="/"
               >
                 قوانین ایران شناسا
               </RouteLink>
-              <span className="mr-0.5"> را می‌پذیرم!</span>
-            </p>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="mr-0.5"> را می‌پذیرم!</Typography>
+            </Typography>
           </section>
         </main>
 

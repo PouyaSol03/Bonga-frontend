@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { TopBarNavigationLayout } from "../../app/TopBarNavigationLayout";
 import { TopBar } from "../../components/TopBar";
+import { Typography } from "../../components/ui/Typography";
 
 type CreditMetric = {
   accentClassName: string;
@@ -95,13 +96,13 @@ export function IndependentConsultantDashboardPage() {
         actions={[
           {
             icon: (
-              <span className="relative grid h-6 w-6 place-items-center">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-6 w-6 place-items-center">
                 <NotificationIcon className="h-6 w-6" />
-                <span
+                <Typography as="span" variant="body" size="medium" weight="regular"
                   aria-hidden="true"
                   className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
                 />
-              </span>
+              </Typography>
             ),
             id: "notifications",
             label: "اعلان‌ها",
@@ -163,15 +164,15 @@ function CreditCard({ metric }: { metric: CreditMetric }) {
     <article className="flex h-[76px] items-center gap-3 rounded-2xl bg-white p-4 [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
         <div className="flex items-center justify-start gap-2">
-          <p className="m-0 text-sm font-medium leading-5 text-[#808080]">{metric.title}</p>
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-5 text-[#808080]">{metric.title}</Typography>
           <strong className="text-base font-semibold leading-6 text-[#1a1a1a]">{metric.value}</strong>
         </div>
         <div className="mt-1 flex items-center justify-start gap-1 text-xs font-normal leading-4 text-[#808080]">
-          <span>افزایش استفاده در روز قبل</span>
-          <span className="inline-flex items-center gap-0.5 font-medium text-[#11a366]">
+          <Typography as="span" variant="body" size="medium" weight="regular">افزایش استفاده در روز قبل</Typography>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-0.5 font-medium text-[#11a366]">
             {metric.trend}
             <TrendUpIcon className="h-4 w-4" />
-          </span>
+          </Typography>
         </div>
       </div>
       <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${metric.accentClassName}`}>
@@ -198,9 +199,9 @@ function CardHeader({
         type="button"
       >
         <ChevronDownIcon className="h-4 w-4" />
-        <span dir="rtl">در {period}</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">در {period}</Typography>
       </button>
-      <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">{title}</h2>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">{title}</Typography>
     </div>
   );
 }
@@ -215,10 +216,10 @@ function PublishedListingsCard({
   return (
     <article className="rounded-2xl bg-white p-6">
       <CardHeader onTogglePeriod={onTogglePeriod} period={period} title="آگهی منتشر شده" />
-      <p className="m-0 mt-2 text-right text-sm font-normal leading-5 text-[#808080]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-right text-sm font-normal leading-5 text-[#808080]">
         <strong className="ml-1 text-base font-semibold leading-6 text-[#0048c4]">183</strong>
         آگهی ثبت شده
-      </p>
+      </Typography>
 
       <div className="mx-auto mt-5 h-[150px] w-[150px] rounded-full" style={{ background: "conic-gradient(#4166d3 0 48%, #7792ea 48% 88%, #cbd7ff 88% 100%)" }} />
 
@@ -243,7 +244,7 @@ function LegendValue({
   return (
     <div>
       <div className="flex items-center justify-center gap-1.5 text-xs font-normal leading-4 text-[#4d4d4d]">
-        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
         {label}
       </div>
       <strong className="mt-2 block text-base font-semibold leading-6 text-[#1a1a1a]">{value}</strong>
@@ -279,19 +280,19 @@ function ProgressChartCard({
           onClick={onTogglePeriod}
         >
           <ChevronDownIcon className="h-4 w-4" />
-          <span dir="rtl">در {period}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">در {period}</Typography>
         </button>
         <div className="text-right [direction:rtl]">
-          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</h2>
-          <p className={`m-0 mt-2 inline-flex items-center gap-1 text-sm leading-5 ${toneClassName}`}>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-2 inline-flex items-center gap-1 text-sm leading-5 ${toneClassName}`}>
             {changeTone === "positive" ? (
               <TrendUpIcon className="h-4 w-4" />
             ) : (
               <TrendDownIcon className="h-4 w-4" />
             )}
             <strong className="text-base font-semibold leading-6">{change}</strong>
-            <span className="text-[#808080]">{changeLabel}</span>
-          </p>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">{changeLabel}</Typography>
+          </Typography>
         </div>
       </div>
 
@@ -332,7 +333,7 @@ function LineChart({ tooltip }: { tooltip: string }) {
       </svg>
       <div className="mt-1 grid grid-cols-9 gap-0 text-center text-[10px] font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
         {months.map((month) => (
-          <span className="[writing-mode:vertical-rl]" key={month}>{month}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="[writing-mode:vertical-rl]" key={month}>{month}</Typography>
         ))}
       </div>
     </div>
@@ -351,10 +352,10 @@ function DistributionCard({
   return (
     <article className="rounded-2xl bg-white p-6">
       <CardHeader onTogglePeriod={onTogglePeriod} period={period} title={data.title} />
-      <p className="m-0 mt-2 text-right text-sm font-normal leading-5 text-[#808080]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-right text-sm font-normal leading-5 text-[#808080]">
         <strong className="ml-1 text-base font-semibold leading-6 text-[#0048c4]">{data.count}</strong>
         مورد از {data.total} مورد ثبت شده
-      </p>
+      </Typography>
 
       <div className="mx-auto mt-5 h-[150px] w-[150px] rounded-full" style={{ background: `conic-gradient(${data.baseColor} 0 ${data.agencyPercent}%, ${data.wedgeColor} ${data.agencyPercent}% 100%)` }} />
 
@@ -369,7 +370,7 @@ function DistributionCard({
 function RankingCard() {
   return (
     <article className="rounded-2xl bg-white p-4">
-      <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">رتبه و امتیاز آژانس</h2>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">رتبه و امتیاز آژانس</Typography>
 
       <div className="mt-4 grid grid-cols-2 gap-4 [direction:ltr]">
         <RankMetric icon={<StarIcon className="h-6 w-6" />} label="امتیاز" value="85" />
@@ -377,8 +378,8 @@ function RankingCard() {
       </div>
 
       <div className="mt-6 flex items-center justify-between border-b border-[#cccccc] pb-3 text-sm leading-5 [direction:ltr]">
-        <span className="text-[#808080]">امتیاز</span>
-        <span className="font-medium text-[#4d4d4d] [direction:rtl]">۱۰ مشاور برتر</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">امتیاز</Typography>
+        <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#4d4d4d] [direction:rtl]">۱۰ مشاور برتر</Typography>
       </div>
 
       <div>
@@ -387,9 +388,9 @@ function RankingCard() {
             className={`flex h-10 items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${index % 2 ? "bg-[#f5f5f5]" : ""}`}
             key={item.rank}
           >
-            <span className="w-12 text-left font-medium text-[#11a366]">{item.score}</span>
-            <span className="flex-1 text-right text-[#1a1a1a] [direction:rtl]">{item.name}</span>
-            <span className="w-7 text-left text-[#1a1a1a] [direction:rtl]">{item.rank}</span>
+            <Typography as="span" variant="label" size="medium" weight="medium" className="w-12 text-left font-medium text-[#11a366]">{item.score}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex-1 text-right text-[#1a1a1a] [direction:rtl]">{item.name}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="w-7 text-left text-[#1a1a1a] [direction:rtl]">{item.rank}</Typography>
           </div>
         ))}
       </div>
@@ -409,7 +410,7 @@ function RankMetric({
   return (
     <div className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-[#f5f5f5] text-[#4d4d4d] [direction:ltr]">
       <strong className="text-base font-semibold leading-6 text-[#11a366]">{value}</strong>
-      <span className="text-sm font-medium leading-5 [direction:rtl]">{label}</span>
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 [direction:rtl]">{label}</Typography>
       {icon}
     </div>
   );

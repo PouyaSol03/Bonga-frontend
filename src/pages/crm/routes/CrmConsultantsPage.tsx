@@ -8,6 +8,7 @@ import { motion } from "motion/react";
 import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
 import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -223,7 +224,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
           <div className="flex min-h-[66px] items-end">
             <div className="flex h-10 w-full items-center justify-between rounded-xl border border-[#dce3ef] bg-white px-3">
               <div>
-                <span className="block text-sm font-semibold text-[#303030]">فقط مشاوران آژانس</span>
+                <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold text-[#303030]">فقط مشاوران آژانس</Typography>
               </div>
               <SwitchButton
                 ariaLabel="فیلتر مشاوران وابسته به آژانس"
@@ -284,12 +285,12 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                         key={id}
                         transition={{ delay: Math.min(index * 0.035, 0.28), duration: 0.2 }}
                       >
-                        <TableCell><span className="font-bold text-[#1a1a1a]">{fullName(consultant)}</span></TableCell>
-                        <TableCell><span dir="ltr">{readText(consultant, ["mobile", "phone"])}</span></TableCell>
+                        <TableCell><Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{fullName(consultant)}</Typography></TableCell>
+                        <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(consultant, ["mobile", "phone"])}</Typography></TableCell>
                         <TableCell>
-                          <span className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${isIndependent ? "border-[#dce3ef] bg-[#f7f8fa] text-[#596477]" : "border-[#cfe4ff] bg-[#eef4ff] text-[#0048c4]"}`}>
+                          <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${isIndependent ? "border-[#dce3ef] bg-[#f7f8fa] text-[#596477]" : "border-[#cfe4ff] bg-[#eef4ff] text-[#0048c4]"}`}>
                             {agencyName}
-                          </span>
+                          </Typography>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -301,9 +302,9 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                                 status: status === "accept" ? "reject" : "accept",
                               })}
                             />
-                            <span className={`text-xs font-bold ${consultantStatusTone(status)}`}>
+                            <Typography as="span" variant="label" size="small" weight="semibold" className={`text-xs font-bold ${consultantStatusTone(status)}`}>
                               {consultantStatusLabel(status)}
-                            </span>
+                            </Typography>
                           </div>
                         </TableCell>
                         <TableCell>

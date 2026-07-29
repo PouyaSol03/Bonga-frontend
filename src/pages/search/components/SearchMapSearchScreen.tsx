@@ -21,6 +21,7 @@ import type {
   SavedSearchItem,
   SaveSearchInput,
 } from "../../../services/saved-search.service";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapSearchScreenProps = {
   initialQuery?: string;
@@ -186,13 +187,13 @@ export function SearchMapSearchScreen({
           onBack={view === "saved" ? () => setView("search") : closeScreen}
         />
         <div className="flex h-11 items-center justify-start px-4">
-          <h2 className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
             {view === "saved"
               ? "جستجوهای ذخیره شده"
               : normalizedQuery
                 ? "جستجو در آگهی‌های نقشه"
                 : "جستجوهای اخیر"}
-          </h2>
+          </Typography>
         </div>
       </div>
 
@@ -214,9 +215,9 @@ export function SearchMapSearchScreen({
                       : "ذخیره جستجوی فعلی"}
                 </button>
                 {saveMutation.isError ? (
-                  <p className="m-0 pt-2 text-center text-xs text-[#d92d20]">
+                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 pt-2 text-center text-xs text-[#d92d20]">
                     ذخیره جستجو انجام نشد. دوباره تلاش کنید.
-                  </p>
+                  </Typography>
                 ) : null}
               </div>
             ) : null}
@@ -259,17 +260,17 @@ export function SearchMapSearchScreen({
               onClick={() => publishQuery(query, true)}
               type="button"
             >
-              <span className="shrink-0 rounded-full bg-[#0048c414] px-2.5 py-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
+              <Typography as="span" variant="label" size="small" weight="medium" className="shrink-0 rounded-full bg-[#0048c414] px-2.5 py-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
                 جستجو
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
+              </Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
                 <strong className="text-base font-normal leading-6 text-[#1a1a1a]">
                   جستجوی «{normalizedQuery}»
                 </strong>
-                <span className="text-sm font-normal leading-5 text-[#a6a6a6]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#a6a6a6]">
                   عبارت مستقیماً به جستجوی آگهی‌های نقشه ارسال می‌شود
-                </span>
-              </span>
+                </Typography>
+              </Typography>
             </button>
           </div>
         ) : isRecentSearchLoading ? (
@@ -380,16 +381,16 @@ function SavedSearchRow({
           {item.title}
         </strong>
         {item.content.length > 0 ? (
-          <span className="mt-2 flex flex-wrap gap-2">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 flex flex-wrap gap-2">
             {item.content.map((tag) => (
-              <span
+              <Typography as="span" variant="label" size="small" weight="medium"
                 className="rounded-md bg-[#e9eaee] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"
                 key={tag}
               >
                 {tag}
-              </span>
+              </Typography>
             ))}
-          </span>
+          </Typography>
         ) : null}
       </button>
     </article>

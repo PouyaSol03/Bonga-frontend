@@ -18,6 +18,7 @@ import LinearBookmarkSolid from "./(icons)/LinearBookmarkSolid";
 import SearchBarSearchIcon from "./(icons)/SearchBarSearchIcon";
 import { IconButton } from "./ui/IconButton";
 import { SearchBar } from "./ui/SearchBar";
+import { Typography } from "./ui/Typography";
 
 export type TopBarAction = {
   icon: ReactNode;
@@ -183,11 +184,11 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
         >
           <TopBarBookmarkIcon filled={Boolean(search.isSaved)} />
           {search.savedCount && search.savedCount > 0 ? (
-            <span className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-[#0048c4] px-1 text-[10px] font-bold leading-4 text-white">
+            <Typography as="span" variant="label" size="small" weight="semibold" className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-[#0048c4] px-1 text-[10px] font-bold leading-4 text-white">
               {search.savedCount > 99
                 ? "۹۹+"
                 : new Intl.NumberFormat("fa-IR").format(search.savedCount)}
-            </span>
+            </Typography>
           ) : null}
         </button>
       ) : null}
@@ -198,10 +199,10 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
         onClick={search.onClick}
         type="button"
       >
-        <span className="min-w-0 flex-1 truncate text-right">{search.label}</span>
-        <span className="shrink-0 text-[#808080]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right">{search.label}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-[#808080]">
           <SearchBarSearchIcon className="h-5 w-5" />
-        </span>
+        </Typography>
       </button>
     </div>
   );
@@ -251,11 +252,11 @@ function TopBarView({
           ) : search ? (
             <TopBarSearchButton search={search} />
           ) : title ? (
-            <h1
+            <Typography as="h1" variant="display" size="large"
               className={`m-0 truncate text-right text-[#1a1a1a] ${titleClassName}`}
             >
               {title}
-            </h1>
+            </Typography>
           ) : null}
         </div>
 

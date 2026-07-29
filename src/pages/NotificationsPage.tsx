@@ -32,6 +32,7 @@ import type {
 } from "../services/notification.service";
 import LinearArrowRight2 from "../components/(icons)/LinearArrowRight2";
 import LinearArrowLeft1 from "../components/(icons)/LinearArrowLeft1";
+import { Typography } from "../components/ui/Typography";
 
 type FilterOption = {
   id: NotificationCategory;
@@ -301,11 +302,11 @@ function NotificationFilterButton({ count, onClick }: { count: number; onClick: 
       type="button"
     >
       <FilterSlidersIcon className="h-5 w-5" />
-      <span>فیلتر</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">فیلتر</Typography>
       {count > 0 ? (
-        <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#0048c4] px-1 text-xs font-semibold leading-5 text-white">
+        <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 min-w-5 place-items-center rounded-full bg-[#0048c4] px-1 text-xs font-semibold leading-5 text-white">
           {count}
-        </span>
+        </Typography>
       ) : null}
     </button>
   );
@@ -335,7 +336,7 @@ function NotificationFilterBar({
           onClick={() => onRemoveFilter(filter.id)}
           type="button"
         >
-          <span>{filter.label}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{filter.label}</Typography>
           <CloseIcon className="h-4 w-4" />
         </button>
       ))}
@@ -379,8 +380,8 @@ function NotificationFilterSheet({
               onClick={() => onToggle(option.id)}
               type="button"
             >
-              <span>{option.label}</span>
-              <span
+              <Typography as="span" variant="body" size="medium" weight="regular">{option.label}</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular"
                 className={`grid h-[18px] w-[18px] place-items-center rounded border ${
                   isSelected
                     ? "border-[#0048c4] bg-[#0048c4] text-white"
@@ -388,7 +389,7 @@ function NotificationFilterSheet({
                 }`}
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
-              </span>
+              </Typography>
             </button>
           );
         })}
@@ -434,7 +435,7 @@ function NotificationSettingsSheet({
       <div className="px-3">
         <div className="flex h-[72px] items-center gap-2 border-b border-[#f0f0f0] px-1 text-right [direction:rtl]">
           <LinearArrowRight2 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-          <h2 className="m-0 font-medium leading-5 text-[#1a1a1a]">تنظیمات اعلان</h2>
+          <Typography as="h2" variant="headline" size="large" className="m-0 font-medium leading-5 text-[#1a1a1a]">تنظیمات اعلان</Typography>
         </div>
 
         <div className="flex h-[72px] items-center justify-between border-b border-[#f0f0f0] px-1 [direction:ltr]">
@@ -443,9 +444,9 @@ function NotificationSettingsSheet({
             checked={markAllUnread}
             onChange={onMarkAllUnreadChange}
           />
-          <span className="text-right font-normal leading-4 text-[#1a1a1a]" dir="rtl">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-right font-normal leading-4 text-[#1a1a1a]" dir="rtl">
             علامت‌گذاری همه به‌عنوان خوانده‌نشده
-          </span>
+          </Typography>
         </div>
 
         <button
@@ -454,10 +455,10 @@ function NotificationSettingsSheet({
           type="button"
         >
           <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-          <span className="flex items-center gap-2 font-normal leading-4 [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-2 font-normal leading-4 [direction:rtl]">
             <LinearNotification className="h-6 w-6 text-[#4D4D4D]" />
             مدیریت اعلان‌ها
-          </span>
+          </Typography>
         </button>
 
         <button
@@ -467,7 +468,7 @@ function NotificationSettingsSheet({
           type="button"
         >
           <LinearTickDouble className="h-6 w-6 text-[#4D4D4D]" />
-          <span>{isMarkingAllRead ? "در حال ثبت..." : "علامت‌گذاری همه به‌عنوان خوانده شده"}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{isMarkingAllRead ? "در حال ثبت..." : "علامت‌گذاری همه به‌عنوان خوانده شده"}</Typography>
         </button>
 
         <button
@@ -477,7 +478,7 @@ function NotificationSettingsSheet({
           type="button"
         >
           <LinearDelete className="h-6 w-6 text-[#4D4D4D]" />
-          <span>{isClearingRead ? "در حال پاک کردن..." : "پاک کردن اعلان‌های خوانده شده"}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{isClearingRead ? "در حال پاک کردن..." : "پاک کردن اعلان‌های خوانده شده"}</Typography>
         </button>
       </div>
     </BottomSheet>
@@ -494,12 +495,12 @@ function NotificationsEmptyState() {
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoNotification.svg"
       />
-      <h2 className="m-0 font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
         هنوز اعلانی دریافت نکرده‌اید
-      </h2>
-      <p className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
         تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود.
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -517,7 +518,7 @@ function NotificationActionButton({
       onClick={onClick}
       type="button"
     >
-      <span>{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
       <ChevronLeftIcon className="h-4 w-4" />
     </button>
   );
@@ -574,7 +575,7 @@ function SwipeableNotificationCard({
         type="button"
       >
         <LinearDelete className="h-6 w-6" />
-        <span className="text-xs font-semibold leading-4">حذف</span>
+        <Typography as="span" variant="label" size="small" weight="semibold" className="text-xs font-semibold leading-4">حذف</Typography>
       </button>
 
       <article
@@ -670,26 +671,26 @@ function SwipeableNotificationCard({
 
           <div className="min-w-0 flex-1 text-right [direction:rtl]">
             <div className="flex items-center justify-start gap-2">
-              <span
+              <Typography as="span" variant="body" size="medium" weight="regular"
                 className={`h-3 w-3 shrink-0 rotate-45 rounded-[2px] ${
                   categoryColorClassNames[category]
                 }`}
               />
-              <h2
+              <Typography as="h2" variant="title" size="small" weight="semibold"
                 className={`m-0 truncate text-sm leading-6 ${
                   isUnread ? "font-bold text-[#1a1a1a]" : "font-semibold text-[#4D4D4D]"
                 }`}
               >
                 {item.title || "اعلان جدید"}
-              </h2>
+              </Typography>
               {isUnread ? (
-                <span className="h-2 w-2 shrink-0 rounded-full bg-[#ef1f1f]" aria-label="خوانده نشده" />
+                <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 shrink-0 rounded-full bg-[#ef1f1f]" aria-label="خوانده نشده" />
               ) : null}
             </div>
 
-            <p className="mt-2 line-clamp-2 text-xs font-normal leading-5 text-[#4D4D4D]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 line-clamp-2 text-xs font-normal leading-5 text-[#4D4D4D]">
               {item.description || "برای مشاهده جزئیات اعلان را باز کنید."}
-            </p>
+            </Typography>
           </div>
         </div>
 
@@ -1029,9 +1030,9 @@ export function NotificationsPage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
         {notificationsQuery.isLoading ? (
-          <p className="py-16 text-center text-sm text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">
             در حال دریافت اعلان‌ها...
-          </p>
+          </Typography>
         ) : null}
 
         {notificationsQuery.isError ? (
@@ -1074,9 +1075,9 @@ export function NotificationsPage() {
         ) : null}
 
         {notificationsQuery.isFetchingNextPage ? (
-          <p className="py-4 text-center text-xs text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="py-4 text-center text-xs text-[#808080]">
             در حال دریافت اعلان‌های بیشتر...
-          </p>
+          </Typography>
         ) : null}
       </main>
 
@@ -1260,10 +1261,10 @@ export function NotificationManagementPage() {
           <div className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
             <LinearNotification className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
             <div className="min-w-0">
-              <h2 className="m-0 text-[#1a1a1a]">فعال‌سازی اعلان‌ها</h2>
-              <p className="m-0 max-w-[220px] text-sm text-[#a6a6a6]">
+              <Typography as="h2" variant="headline" size="large" className="m-0 text-[#1a1a1a]">فعال‌سازی اعلان‌ها</Typography>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 max-w-[220px] text-sm text-[#a6a6a6]">
                 با غیرفعال کردن این گزینه، همه اعلان‌ها متوقف می‌شوند.
-              </p>
+              </Typography>
             </div>
           </div>
         </section>
@@ -1286,10 +1287,10 @@ export function NotificationManagementPage() {
                   onChange={(nextEnabled) => void updateCategory(option.category, nextEnabled)}
                 />
                 <div className="min-w-0 flex-1 text-right" dir="rtl">
-                  <h2 className="m-0 text-[#1a1a1a]">{option.label}</h2>
-                  <p className="m-0 text-sm font-normal text-[#a6a6a6]">
+                  <Typography as="h2" variant="headline" size="large" className="m-0 text-[#1a1a1a]">{option.label}</Typography>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal text-[#a6a6a6]">
                     {option.description}
-                  </p>
+                  </Typography>
                 </div>
               </div>
             );

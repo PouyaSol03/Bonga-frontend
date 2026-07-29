@@ -7,6 +7,7 @@ import LinearMoreVertical from "../../../components/(icons)/LinearMoreVertical";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ConversationCard, SUPPORT_NEW_CHAT_PATH, SupportChatsEmptyState, WelcomeCard, asChatRecord, formatSupportConversationDate, isOpenSupportThread, readChatPathText, readSupportMessageBody, readSupportThreadId } from "../accountSupportViews";
 import type { Conversation } from "../accountSupportViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function AccountSupportChatPage() {
   const supportChatsQuery = useChatsQuery({
@@ -64,15 +65,15 @@ export function AccountSupportChatPage() {
           aria-labelledby="recent-support-conversations"
           className="mt-6 flex min-h-0 flex-1 flex-col"
         >
-          <h2
+          <Typography as="h2" variant="title" size="medium" weight="semibold"
             className="m-0 text-right text-base font-semibold leading-6 text-[#4d4d4d]"
             id="recent-support-conversations"
           >
             گفتگوهای اخیر
-          </h2>
+          </Typography>
 
           {supportChatsQuery.isLoading ? (
-            <p className="py-12 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</p>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="py-12 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</Typography>
           ) : conversations.length === 0 ? (
             <SupportChatsEmptyState />
           ) : (

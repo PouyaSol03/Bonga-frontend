@@ -1,5 +1,6 @@
 import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
 import { ChoiceIndicator } from "../../../components/ui/Choice";
+import { Typography } from "../../../components/ui/Typography";
 
 export function RadioCard({
   checked,
@@ -25,15 +26,15 @@ export function RadioCard({
       <div className="flex items-center justify-between">
         <ChoiceIndicator checked={checked} className="h-4.5 w-4.5" type="radio" />
 
-        <span className="flex items-center gap-2 font-medium text-[#1a1a1a] [direction:rtl]">
-          <span className={`${checked && 'text-[#0048c4]'}`}>{label}</span>
+        <Typography as="span" variant="label" size="medium" weight="medium" className="flex items-center gap-2 font-medium text-[#1a1a1a] [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className={`${checked && 'text-[#0048c4]'}`}>{label}</Typography>
 
           {badge ? (
-            <span className="rounded-[4px] border border-[#11a366] px-2 py-0.5 text-sm font-medium text-[#11a366]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-[4px] border border-[#11a366] px-2 py-0.5 text-sm font-medium text-[#11a366]">
               {badge}
-            </span>
+            </Typography>
           ) : null}
-        </span>
+        </Typography>
       </div>
 
       <div
@@ -45,9 +46,9 @@ export function RadioCard({
         <div className="overflow-hidden">
           <div className="flex items-start gap-2 [direction:rtl]">
             <LinearInfoCircle className="w-4 h-4 text-[#4D4D4D]"/>
-            <p className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal text-[#4B5070]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal text-[#4B5070]">
               {description}
-            </p>
+            </Typography>
           </div>
         </div>
       </div>
@@ -59,7 +60,7 @@ export function CheckRow({ checked, label, onChange }: { checked: boolean; label
   return (
     <button className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]" onClick={() => onChange(!checked)} type="button">
       <ChoiceIndicator checked={checked} />
-      <span>{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
     </button>
   );
 }

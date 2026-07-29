@@ -19,6 +19,7 @@ import LinearArrowLeft2 from "../../../components/(icons)/LinearArrowLeft2";
 import LinearStar from "../../../components/(icons)/LinearStar";
 import LinearRanking from "../../../components/(icons)/LinearRanking";
 import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
+import { Typography } from "../../../components/ui/Typography";
 
 const pageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -108,18 +109,18 @@ function AgencyCard({
         {image ? (
           <img alt="" className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover" src={image} />
         ) : (
-          <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-[#edf3ff] text-2xl font-bold text-[#0048c4]">
+          <Typography as="span" variant="headline" size="small" className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-[#edf3ff] text-2xl font-bold text-[#0048c4]">
             {agency.name.trim().charAt(0) || "آ"}
-          </span>
+          </Typography>
         )}
 
-        <span className="flex min-w-0 flex-1 flex-col justify-between py-1.5">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col justify-between py-1.5">
           <strong className="truncate text-base font-medium text-[#4d4d4d]">{agency.name}</strong>
-          <span className="flex items-center justify-between text-xs text-[#1a1a1a]">
-            <span className="flex items-center gap-1"><LinearStar  className="w-4 h-4 text-[#4D4D4D]"/><span>امتیاز</span><b className="font-semibold text-[#00a66a] px-2">{agency.score}</b></span>
-            <span className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><span>رتبه</span><b className="font-semibold text-[#00a66a] px-2">{agency.rank}</b></span>
-          </span>
-        </span>
+          <Typography as="span" variant="body" size="small" weight="regular" className="flex items-center justify-between text-xs text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearStar  className="w-4 h-4 text-[#4D4D4D]"/><Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography><b className="font-semibold text-[#00a66a] px-2">{agency.score}</b></Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="font-semibold text-[#00a66a] px-2">{agency.rank}</b></Typography>
+          </Typography>
+        </Typography>
       </button>
 
       <div className="mx-4 h-px bg-[#d9d9d9]" />
@@ -127,14 +128,14 @@ function AgencyCard({
       <div className="flex h-[58px] items-center justify-between gap-3 px-4" dir="rtl">
         <button className="flex items-center gap-3 text-[#4d4d4d]" onClick={onSelect} type="button">
           <RadioIndicator checked={selected} />
-          <span className="text-sm font-medium">انتخاب</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">انتخاب</Typography>
         </button>
         <button
           className={`flex h-10 px-4 py-2.5 items-center justify-center gap-2 rounded-xl border ${selected ? "border-[#0b55d4] text-[#0b55d4]" : "border-[#cccccc] text-[#1a1a1a]"}`}
           onClick={onOpenProfile}
           type="button"
         >
-          <span className="text-sm font-medium">مشاهده پروفایل آژانس</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">مشاهده پروفایل آژانس</Typography>
           <LinearArrowLeft2 className="text-[#4D4D4D] w-5 h-5"/>
         </button>
       </div>
@@ -147,7 +148,7 @@ function Notice({ onClose }: { onClose: () => void }) {
     <aside className="mx-4 rounded-[13px] border border-[#ff6a00] bg-[#fff8ef] px-4 py-4 text-[#4d4d4d]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-[#ff6a00]">
-          <span className="grid h-5 w-5 place-items-center rounded-full border border-current text-xs font-bold">!</span>
+          <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 w-5 place-items-center rounded-full border border-current text-xs font-bold">!</Typography>
           <strong className="text-base">توجه!</strong>
         </div>
         <button aria-label="بستن پیام" className="grid h-8 w-8 place-items-center text-xl" onClick={onClose} type="button">×</button>
@@ -347,10 +348,10 @@ export function AgencySelectionStep({
                 setNeighborhoodSearch("");
                 setIsNeighborhoodOpen(true);
               }} type="button">
-              <LocationIcon /><span className="max-w-28 truncate">{selectedNeighborhood?.name ?? "محله"}</span>
+              <LocationIcon /><Typography as="span" variant="body" size="medium" weight="regular" className="max-w-28 truncate">{selectedNeighborhood?.name ?? "محله"}</Typography>
             </button>
             <button className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => setIsSortOpen(true)} type="button">
-              <SortIcon className="h-5 w-5 text-[#4D4D4D]" /><span>{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</span>
+              <SortIcon className="h-5 w-5 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</Typography>
             </button>
           </div>
         </div>
@@ -386,7 +387,7 @@ export function AgencySelectionStep({
 
       <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t border-[#eeeeee] bg-white px-4" dir="rtl">
         <button className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]" onClick={() => setView("map")} type="button">
-          <LinearMapsLocation className="w-6 h-6 text-[#4D4D4D]" /><span>نقشه</span>
+          <LinearMapsLocation className="w-6 h-6 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
         </button>
         <button
           className="h-12 min-w-0 flex-1 rounded-xl bg-[#0b55d4] px-4 text-base font-semibold text-white disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
@@ -421,7 +422,7 @@ export function AgencySelectionStep({
                 <path d="M4 12h16m-5-5 5 5-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
               </svg>
             </button>
-            <h2 className="m-0 text-lg font-semibold leading-7 text-[#1a1a1a]">مرتب سازی بر اساس:</h2>
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold leading-7 text-[#1a1a1a]">مرتب سازی بر اساس:</Typography>
           </div>
 
           <div className="pt-1">
@@ -437,7 +438,7 @@ export function AgencySelectionStep({
                   }}
                   type="button"
                 >
-                  <span>{item.title}</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">{item.title}</Typography>
                   <RadioIndicator checked={checked} />
                 </button>
               );

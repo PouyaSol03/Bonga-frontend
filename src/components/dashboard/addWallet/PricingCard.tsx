@@ -1,4 +1,5 @@
 import { AdCardTomanIcon } from "../../AdCardIcons";
+import { Typography } from "../../ui/Typography";
 
 type PricingCardItem = {
   value: string | number;
@@ -26,9 +27,9 @@ function DiscountBadge({ value }: { value?: string | number }) {
   if (!value) return null;
 
   return (
-    <span className="rounded-md border border-[#FF4B4B] bg-white px-2 py-1 text-[10px] font-medium text-[#FF4B4B]">
+    <Typography as="span" variant="label" size="small" weight="medium" className="rounded-md border border-[#FF4B4B] bg-white px-2 py-1 text-[10px] font-medium text-[#FF4B4B]">
       {value}٪ تخفیف
-    </span>
+    </Typography>
   );
 }
 
@@ -65,23 +66,23 @@ export default function PricingCard({
         hover:bg-linear-to-t hover:to-[#0048C400] hover:from-[#0048C414]
       "
     >
-      <h3 className="mb-6 text-right text-lg font-bold text-[#0048C4]">
+      <Typography as="h3" variant="title" size="medium" weight="semibold" className="mb-6 text-right text-lg font-bold text-[#0048C4]">
         {title}
-      </h3>
+      </Typography>
 
       <div className="mb-8 flex items-end justify-between gap-3">
         <div className="flex flex-col items-start gap-2">
-          <span className="text-xs font-semibold text-[#C5C5C5] line-through">
+          <Typography as="span" variant="label" size="small" weight="semibold" className="text-xs font-semibold text-[#C5C5C5] line-through">
             {formatPrice(price)}
-          </span>
+          </Typography>
 
           <div className="flex items-center gap-1">
-            <span className="text-2xl font-semibold text-[#1F2937]">
+            <Typography as="span" variant="headline" size="small" className="text-2xl font-semibold text-[#1F2937]">
               {formatPrice(priceAfterDiscount)}
-            </span>
-            <span className="text-[11px] font-medium text-[#1F2937]">
+            </Typography>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-[11px] font-medium text-[#1F2937]">
               <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#4D4D4D]" />
-            </span>
+            </Typography>
           </div>
         </div>
 
@@ -99,9 +100,9 @@ export default function PricingCard({
                 className="flex items-center justify-start gap-2 font-medium text-[#1F2937]"
               >
                 <GreenBadgeIcon />
-                <span>
+                <Typography as="span" variant="body" size="medium" weight="regular">
                   {item.value} اعتبار {item.label}
-                </span>
+                </Typography>
               </div>
             ))}
           </div>

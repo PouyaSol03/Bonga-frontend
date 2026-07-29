@@ -35,6 +35,7 @@ import {
   getAdStatePath,
   getSelectedConsultantAd,
 } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";
@@ -349,63 +350,63 @@ function CheckoutTariffView({
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[76px]">
         <section className="px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
           <div className="flex items-start justify-between gap-5 [direction:ltr]">
-            <span className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
               {hasFreeQuota ? "رایگان" : (
-                <span className="inline-flex items-center gap-1">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
                   {formatTariffToman(price)}
                   <AdCardTomanIcon className="h-5 w-5" />
-                </span>
+                </Typography>
               )}
-            </span>
+            </Typography>
 
-            <span className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
+            <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
               <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
               هزینه ثبت آگهی
-            </span>
+            </Typography>
           </div>
 
           {hasFreeQuota ? (
-            <p className="m-0 mt-4 flex min-h-9 items-center gap-2 rounded-lg bg-[#edf3ff] px-3 py-2 text-right text-xs font-medium leading-5 text-[#0048c4]">
+            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-4 flex min-h-9 items-center gap-2 rounded-lg bg-[#edf3ff] px-3 py-2 text-right text-xs font-medium leading-5 text-[#0048c4]">
               <CircleInfoIcon className="h-5 w-5 shrink-0" />
-              <span>
+              <Typography as="span" variant="body" size="medium" weight="regular">
                 {new Intl.NumberFormat("fa-IR").format(freeQuotaRemaining)} تعرفه رایگان باقی مانده است
-              </span>
-            </p>
+              </Typography>
+            </Typography>
           ) : null}
         </section>
 
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section aria-label="امکانات ارتقای آگهی">
-          <h2 className="m-0 flex items-center gap-2 px-4 pb-2 pt-5 text-right text-base font-semibold leading-6">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center gap-2 px-4 pb-2 pt-5 text-right text-base font-semibold leading-6">
             <UpgradeIcon className="h-5 w-5" />
             امکانات ارتقای آگهی
-          </h2>
+          </Typography>
 
           <div className="divide-y divide-[#e6e6e6] px-4">
             {disabledUpgradeOptions.map((option) => (
               <div className="py-4" key={option.id}>
                 <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                  <span className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 text-[#c2c2c2] [direction:rtl]">
+                  <Typography as="span" variant="label" size="medium" weight="semibold" className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 text-[#c2c2c2] [direction:rtl]">
                     {formatTariffToman(disabledUpgradePrice)}
                     <AdCardTomanIcon className="h-5 w-5" />
-                  </span>
+                  </Typography>
 
                   <div className="min-w-0 flex-1 text-right [direction:rtl]">
                     <div className="flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#808080]">
                       <ChoiceIndicator checked={false} className="h-5 w-5 rounded-[4px]" disabled />
                       {option.title}
                     </div>
-                    <p className="m-0 mt-4 text-sm font-normal leading-6 text-[#808080]">
+                    <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-[#808080]">
                       {option.description}
-                    </p>
+                    </Typography>
                   </div>
                 </div>
 
-                <p className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-[#fff8e8] px-3 py-2 text-right text-xs font-medium leading-5 text-[#ff6d00]">
+                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-[#fff8e8] px-3 py-2 text-right text-xs font-medium leading-5 text-[#ff6d00]">
                   <CircleInfoIcon className="h-5 w-5 shrink-0" />
-                  <span>{unavailableAfterPublishWarning}</span>
-                </p>
+                  <Typography as="span" variant="body" size="medium" weight="regular">{unavailableAfterPublishWarning}</Typography>
+                </Typography>
               </div>
             ))}
           </div>
@@ -478,7 +479,7 @@ export function ApiPaymentCheckoutView({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
         <section className="bg-white px-4 pb-2 pt-6" aria-label="روش پرداخت">
-          <h2 className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</h2>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</Typography>
           <PaymentMethodOption
             active={method === "wallet"}
             disabled={!walletAvailable}
@@ -521,7 +522,7 @@ export function ApiPaymentCheckoutView({
               اعمال
             </button>
             <label className="min-w-0 flex-1">
-              <span className="sr-only">کد تخفیف</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
               <input
                 className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
                 placeholder="کد تخفیف را وارد کنید"
@@ -532,7 +533,7 @@ export function ApiPaymentCheckoutView({
         </section>
 
         <section className="mt-2 bg-white px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">
-          <h2 className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</h2>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</Typography>
           <SummaryRow label="قیمت" value={formatTariffToman(totalPrice)} />
           <SummaryRow label="تخفیف" value={formatTariffToman(discount)} />
           <div className="my-4 border-t border-dashed border-[#cccccc]" aria-hidden="true" />
@@ -580,7 +581,7 @@ function CheckoutStatusPage({
     >
       <TopBar backTo={backTo} title={title} />
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
-        <p className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</p>
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
         {onRetry ? (
           <button
             className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white"
@@ -590,7 +591,7 @@ function CheckoutStatusPage({
             تلاش دوباره
           </button>
         ) : (
-          <span className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />
         )}
       </main>
     </PageFrame>
@@ -726,7 +727,7 @@ export function PaymentCheckoutView({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
         <section className="bg-white px-4 pb-2 pt-6" aria-label="روش پرداخت">
-          <h2 className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</h2>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</Typography>
           <PaymentMethodOption
             active={method === "wallet"}
             icon="wallet"
@@ -756,7 +757,7 @@ export function PaymentCheckoutView({
               اعمال
             </button>
             <label className="min-w-0 flex-1">
-              <span className="sr-only">کد تخفیف</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
               <input
                 className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
                 placeholder="کد تخفیف را وارد کنید"
@@ -767,7 +768,7 @@ export function PaymentCheckoutView({
         </section>
 
         <section className="mt-2 bg-white px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">
-          <h2 className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</h2>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</Typography>
           <SummaryRow label="قیمت" value={formatTariffToman(total)} />
           <SummaryRow label="تخفیف" value={formatTariffToman(0)} />
           <div className="my-4 border-t border-dashed border-[#cccccc]" aria-hidden="true" />
@@ -829,12 +830,12 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
           type="button"
         >
           {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
-          <span className="flex text-base leading-none">+</span>
+          <Typography as="span" variant="body" size="large" weight="regular" className="flex text-base leading-none">+</Typography>
         </button>
 
-        <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
           کسری: {formatTariffToman(deficit)} تومان
-        </span>
+        </Typography>
       </div>
       {errorMessage ? (
         <Snackbar
@@ -878,12 +879,12 @@ function WalletDeficitBox({ deficit }: { deficit: number }) {
           type="button"
         >
           {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
-          <span className="flex text-base leading-none">+</span>
+          <Typography as="span" variant="body" size="large" weight="regular" className="flex text-base leading-none">+</Typography>
         </button>
 
-        <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
           کسری: {formatTariffToman(deficit)} تومان
-        </span>
+        </Typography>
       </div>
       {errorMessage ? <Snackbar className="relative inset-x-auto bottom-auto mt-2" message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در شارژ کیف پول" variant="error" /> : null}
     </div>
@@ -918,17 +919,17 @@ function PaymentMethodOption({
       type="button"
     >
       <ChoiceIndicator checked={active} className="h-5 w-5" disabled={disabled} type="radio" />
-      <span className="inline-flex items-center gap-3 text-right [direction:rtl]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-3 text-right [direction:rtl]">
         <PaymentOptionIcon className="h-7 w-7 shrink-0" icon={icon} />
-        <span className="block">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="block">
           <strong className="block text-base font-normal leading-6 text-[#1a1a1a]">
             {label}
           </strong>
-          <span className={`block text-sm font-normal leading-5 ${subLabelClassName}`}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={`block text-sm font-normal leading-5 ${subLabelClassName}`}>
             {subLabel}
-          </span>
-        </span>
-      </span>
+          </Typography>
+        </Typography>
+      </Typography>
     </button>
   );
 }
@@ -948,11 +949,11 @@ function SummaryRow({
 }) {
   return (
     <div className="flex min-h-8 items-center justify-between gap-4 text-sm leading-5 [direction:ltr]">
-      <span className={`flex items-center text-left [direction:rtl] ${valueClassName}`}>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`flex items-center text-left [direction:rtl] ${valueClassName}`}>
         {value}
         <AdCardTomanIcon className={iconClassName} />
-      </span>
-      <span className={`[direction:rtl] ${labelClassName}`}>{label}</span>
+      </Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`[direction:rtl] ${labelClassName}`}>{label}</Typography>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { PageFrame } from "../../app/PageFrame";
 import LinearStar from "../../components/(icons)/LinearStar";
 import { TopBar } from "../../components/TopBar";
+import { Typography } from "../../components/ui/Typography";
 
 type BadgeKey = "record-holder" | "golden-team" | "popular" | "fast-team";
 
@@ -104,9 +105,9 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
         <div className="mx-auto flex w-[152px] flex-col items-center">
           <img alt="" className="h-[120px] w-[120px] object-contain" src={badge.image} />
 
-          <span className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 font-semibold text-[#0048c4]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 font-semibold text-[#0048c4]">
             {badge.name}
-          </span>
+          </Typography>
 
           <div className="mt-2 flex h-6 items-center justify-center [direction:ltr]">
             {[0, 1, 2].map((star) => (
@@ -119,12 +120,12 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
           </div>
         </div>
 
-        <p className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <span className="text-[#1A1A1A] text-sm">{badge.metricLabel}</span>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1A1A1A] text-sm">{badge.metricLabel}</Typography>
           <strong className="text-2xl font-medium text-[#1a1a1a]">
             {badge.metricValue}
           </strong>
-        </p>
+        </Typography>
 
         <div className="mt-4 space-y-4">
           {badge.levels.map((level) => (
@@ -168,16 +169,16 @@ function BadgeLevelCard({
     <section className="h-[72px] rounded-2xl border border-[#f0f0f0] bg-white px-4 py-4">
       <div className="flex h-5 items-center justify-between text-sm font-medium leading-5 [direction:ltr]">
         {total ? (
-          <span className="flex items-center gap-1 [direction:ltr]">
-            <span className={doneClassName}>{done}</span>
-            <span className="text-[#808080]">/</span>
-            <span className="text-[#808080]">{total}</span>
-          </span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1 [direction:ltr]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className={doneClassName}>{done}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">/</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">{total}</Typography>
+          </Typography>
         ) : (
-          <span className={doneClassName}>{done}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={doneClassName}>{done}</Typography>
         )}
 
-        <span className="text-[#4d4d4d] [direction:rtl]">{title}</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d] [direction:rtl]">{title}</Typography>
       </div>
 
       <div className={`relative mt-4 h-1 w-full overflow-hidden rounded-full ${trackClassName}`}>

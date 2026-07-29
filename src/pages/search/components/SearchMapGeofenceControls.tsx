@@ -3,6 +3,7 @@ import type {
   DrawingState,
   GeofenceResult,
 } from "../geofence/geofenceTypes";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapGeofenceControlsProps = {
   drawingState: DrawingState;
@@ -41,9 +42,9 @@ export function SearchMapGeofenceControls({
           <ArrowRight />
         </button>
 
-        <h1 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
           ترسیم محدوده
-        </h1>
+        </Typography>
       </header>
 
       {isInvalid ? (

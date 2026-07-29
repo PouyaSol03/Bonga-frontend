@@ -17,6 +17,7 @@ import {
   getRouteConsultantId,
   mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
+import { Typography } from "../../ui/Typography";
 
 const consultantPieCards = [
   {
@@ -210,7 +211,7 @@ function ConsultantInfoPageSkeleton() {
         </section>
       </main>
 
-      <span className="sr-only">در حال دریافت اطلاعات مشاور...</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">در حال دریافت اطلاعات مشاور...</Typography>
     </section>
   );
 }
@@ -280,21 +281,21 @@ function ConsultantPieCard({
     <article className="rounded-2xl bg-white p-4">
       <div className="mb-7 grid gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             {card.title}
-          </h2>
+          </Typography>
           <button className="flex h-7 items-center gap-1 rounded-lg bg-transparent px-2 py-1 text-xs font-medium text-[#1a1a1a]" type="button">
             در ماه
             <ChevronDownIcon className="h-4 w-4 text-[#4d4d4d]" />
           </button>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <span className="rounded px-2 py-0.5 text-base font-semibold" style={{ color: card.color, backgroundColor: `${card.color}1a` }}>
+          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold" style={{ color: card.color, backgroundColor: `${card.color}1a` }}>
             {card.badge}
-          </span>
-          <span className="text-sm font-normal text-[#808080]">
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#808080]">
             {card.subtitle}
-          </span>
+          </Typography>
         </div>
       </div>
 
@@ -331,11 +332,11 @@ function ConsultantPieCard({
                 width: pieTooltipWidth,
               }}
             >
-              <span>
+              <Typography as="span" variant="body" size="medium" weight="regular">
                 {selectedEntry.name}
                 <br />
                 {selectedEntry.value}٪
-              </span>
+              </Typography>
             </div>
           </>
         ) : null}
@@ -483,10 +484,10 @@ function PieLegendItem({
 }) {
   return (
     <div className="grid justify-items-center gap-1">
-      <span className="inline-flex items-center gap-1.5 text-sm font-medium leading-5 text-[#4d4d4d]">
-        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
+      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1.5 text-sm font-medium leading-5 text-[#4d4d4d]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
         {label}
-      </span>
+      </Typography>
       <strong className="text-base font-semibold leading-6 text-[#1a1a1a]">
         {value}
       </strong>

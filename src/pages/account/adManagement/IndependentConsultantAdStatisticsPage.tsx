@@ -5,6 +5,7 @@ import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { ChevronLeftIcon, StatisticsIcon } from "./AdManagementIcons";
 import { adManagementPaths, statisticsAds, type StatisticsAd } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 export function IndependentConsultantAdStatisticsPage() {
   return (
@@ -35,10 +36,10 @@ function StatisticsTodayToggle() {
   return (
     <label className="flex h-12 w-[134px] cursor-pointer items-center gap-4 pl-3 [direction:ltr]">
       <input defaultChecked className="peer sr-only" type="checkbox" />
-      <span className="flex h-6 w-11 shrink-0 items-center justify-end rounded-full bg-[#0048c4] px-1 peer-checked:bg-[#0048c4]">
-        <span className="h-4 w-4 rounded-full bg-white" />
-      </span>
-      <span className="whitespace-nowrap text-base font-medium leading-6 [direction:rtl]">آمار امروز</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="flex h-6 w-11 shrink-0 items-center justify-end rounded-full bg-[#0048c4] px-1 peer-checked:bg-[#0048c4]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-4 rounded-full bg-white" />
+      </Typography>
+      <Typography as="span" variant="label" size="large" weight="medium" className="whitespace-nowrap text-base font-medium leading-6 [direction:rtl]">آمار امروز</Typography>
     </label>
   );
 }
@@ -48,8 +49,8 @@ function StatisticsAdCard({ ad }: { ad: StatisticsAd }) {
     <article className="h-[284px] bg-white px-4 py-4">
       <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
         <div className="min-w-0 flex-1 text-right [direction:rtl]">
-          <h2 className="m-0 truncate text-sm font-medium leading-5">{ad.title}</h2>
-          <p className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.timeAndLocation}</p>
+          <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5">{ad.title}</Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.timeAndLocation}</Typography>
         </div>
         <div
           aria-hidden="true"
@@ -70,7 +71,7 @@ function StatisticsAdCard({ ad }: { ad: StatisticsAd }) {
         to={adManagementPaths.statisticsDetails}
       >
         <ChevronLeftIcon className="h-5 w-5" />
-        <span className="[direction:rtl]">جزییات آمار آگهی</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">جزییات آمار آگهی</Typography>
       </RouteLink>
     </article>
   );
@@ -89,7 +90,7 @@ function StatisticsMetric({
     <div className="flex flex-col items-center text-[#4d4d4d]">
       <StatisticsIcon className="h-6 w-6" icon={icon} />
       <strong className="mt-1 text-base font-semibold leading-6 text-[#1a1a1a]">{value}</strong>
-      <span className="mt-1 text-sm font-normal leading-5">{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-1 text-sm font-normal leading-5">{label}</Typography>
     </div>
   );
 }

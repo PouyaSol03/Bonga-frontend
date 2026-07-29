@@ -28,6 +28,7 @@ import {
   type AdManagementTransaction,
 } from "./adManagementData";
 import LinearApartment from "../../../components/(icons)/LinearApartment";
+import { Typography } from "../../../components/ui/Typography";
 
 const neighborhoodSearchDebounceMs = 250;
 
@@ -175,9 +176,9 @@ export function IndependentConsultantAdFilterPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-6 [-webkit-overflow-scrolling:touch]">
         {!isAssignedTab ? (
           <section className="flex items-center justify-between bg-white p-4" aria-label="نمایش آگهی من">
-            <h2 className="m-0 text-base font-medium text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium text-[#1a1a1a]">
               آگهی من
-            </h2>
+            </Typography>
             <SwitchButton
               ariaLabel="نمایش آگهی من"
               checked={onlyMine}
@@ -194,7 +195,7 @@ export function IndependentConsultantAdFilterPage() {
         <section className="mt-2 bg-white px-4 pb-4 pt-4" aria-label="نوع معامله">
           <div className="mb-4 flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
             <LinearApartment className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-            <h2 className="m-0">نوع معامله</h2>
+            <Typography as="h2" variant="headline" size="large" className="m-0">نوع معامله</Typography>
           </div>
 
           <div className="grid grid-cols-3 gap-2" dir="rtl">
@@ -235,26 +236,26 @@ export function IndependentConsultantAdFilterPage() {
                 }}
                 type="button"
               >
-                <span
+                <Typography as="span" variant="label" size="medium" weight="medium"
                   className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${
                     transaction ? "text-[#0048c4]" : "text-[#cccccc]"
                   }`}
                 >
                   <ChevronLeftIcon className="h-5 w-5 shrink-0" />
-                  <span className="truncate [direction:rtl]">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="truncate [direction:rtl]">
                     {propertyTypes.length
                       ? `${propertyTypes.length} انتخاب`
                       : "انتخاب"}
-                  </span>
-                </span>
-                <span
+                  </Typography>
+                </Typography>
+                <Typography as="span" variant="label" size="large" weight="medium"
                   className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${
                     transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
                   }`}
                 >
-                  <span>نوع ملک</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">نوع ملک</Typography>
                   <LinearRealestate className="h-6 w-6" />
-                </span>
+                </Typography>
               </button>
 
               {propertyTypes.length > 0 ? (
@@ -352,9 +353,9 @@ function PropertyTypeSelectionScreen({
       <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-0 pt-4">
         {adManagementPropertyGroupsByTransaction[transaction].map((group) => (
           <section key={group.title} className="mb-6 last:mb-0">
-            <h2 className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
+            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
               {group.title}
-            </h2>
+            </Typography>
 
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
               {group.items.map((item) => (
@@ -436,14 +437,14 @@ function NeighborhoodPickerRow({
         onClick={() => setIsPickerOpen(true)}
         type="button"
       >
-        <span className="flex items-center gap-1 text-sm font-medium text-[#0048c4]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="flex items-center gap-1 text-sm font-medium text-[#0048c4]">
           <ChevronLeftIcon className="h-5 w-5" />
-          <span>{selectionLabel}</span>
-        </span>
-        <span className="flex items-center gap-2 text-base font-medium text-[#1a1a1a]">
-          <span>محله</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{selectionLabel}</Typography>
+        </Typography>
+        <Typography as="span" variant="label" size="large" weight="medium" className="flex items-center gap-2 text-base font-medium text-[#1a1a1a]">
+          <Typography as="span" variant="body" size="medium" weight="regular">محله</Typography>
           <LinearLocation className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-        </span>
+        </Typography>
       </button>
 
       {selectedNeighborhoods.length > 0 ? (
@@ -520,9 +521,9 @@ function NeighborhoodPickerRow({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-2" dir="rtl">
           {!cityId ? (
-            <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
               برای انتخاب محله، ابتدا شهر را انتخاب کنید.
-            </p>
+            </Typography>
           ) : neighborhoodsQuery.isLoading ? (
             <NeighborhoodSkeleton />
           ) : neighborhoods.length > 0 ? (
@@ -540,14 +541,14 @@ function NeighborhoodPickerRow({
                     type="button"
                   >
                     <SelectionCheckIndicator checked={isSelected} />
-                    <span className="min-w-0 flex-1 [direction:rtl]">
-                      <span className="block truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
+                      <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-sm font-medium leading-5 text-[#1a1a1a]">
                         {neighborhood.name}
-                      </span>
-                      <span className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-[#808080]">
+                      </Typography>
+                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-[#808080]">
                         {selectedCity?.name ?? "شهر انتخاب‌شده"}
-                      </span>
-                    </span>
+                      </Typography>
+                    </Typography>
                   </button>
                 );
               })}
@@ -555,9 +556,9 @@ function NeighborhoodPickerRow({
           ) : query.trim() ? (
             <SearchEmptyState compact />
           ) : (
-            <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
               محله‌ای برای این شهر ثبت نشده است.
-            </p>
+            </Typography>
           )}
         </div>
 
@@ -622,9 +623,9 @@ function PublisherSelectField({
     <>
       <div className="relative flex h-14 w-full items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
         {value ? (
-          <span className="absolute -top-2 right-3 bg-white px-1 text-xs font-normal leading-4 text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-3 bg-white px-1 text-xs font-normal leading-4 text-[#808080] [direction:rtl]">
             نشر دهنده
-          </span>
+          </Typography>
         ) : null}
         {value ? (
           <button
@@ -643,9 +644,9 @@ function PublisherSelectField({
           onClick={openPicker}
           type="button"
         >
-          <span className={value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}>
             {selectedPublisher?.name ?? value ?? "نشر دهنده"}
-          </span>
+          </Typography>
         </button>
       </div>
 
@@ -660,9 +661,9 @@ function PublisherSelectField({
             placement="inline"
             centerClassName="px-0"
             centerSlot={
-              <h2 className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
                 نشر دهنده
-              </h2>
+              </Typography>
             }
             className="bg-[#f0f0f0]"
             onBack={closePicker}
@@ -708,7 +709,7 @@ function PublisherSelectField({
                       }
                       type="button"
                     >
-                      <span
+                      <Typography as="span" variant="body" size="medium" weight="regular"
                         className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border bg-white ${
                           isSelected ? "border-[#0048c4]" : "border-[#cccccc]"
                         }`}
@@ -718,10 +719,10 @@ function PublisherSelectField({
                           className="h-full w-full object-cover"
                           src={publisherOption.image}
                         />
-                      </span>
-                      <span className="min-w-0 truncate text-base font-normal leading-6">
+                      </Typography>
+                      <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 truncate text-base font-normal leading-6">
                         {publisherOption.name}
-                      </span>
+                      </Typography>
                     </button>
                   );
                 })}
@@ -765,9 +766,9 @@ function SingleSelectField({
     <>
       <div className="relative flex h-14 w-full items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
         {value ? (
-          <span className="absolute -top-2 right-3 bg-white px-1 text-xs font-normal leading-4 text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-3 bg-white px-1 text-xs font-normal leading-4 text-[#808080] [direction:rtl]">
             {label}
-          </span>
+          </Typography>
         ) : null}
         {value ? (
           <button
@@ -786,9 +787,9 @@ function SingleSelectField({
           onClick={() => setIsOpen(true)}
           type="button"
         >
-          <span className={value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}>
             {value ?? label}
-          </span>
+          </Typography>
         </button>
       </div>
 
@@ -821,9 +822,9 @@ function SingleSelectField({
                 ) : (
                   <SelectionCheckIndicator checked={isSelected} />
                 )}
-                <span className="min-w-0 flex-1 truncate text-right [direction:rtl]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right [direction:rtl]">
                   {option}
-                </span>
+                </Typography>
               </button>
             );
           })}

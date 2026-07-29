@@ -8,6 +8,7 @@ import {
 import ArrowLeft from "../../../assets/icons/ArrowLeft";
 import BannerHomePage from "../../../assets/icons/BannerHomePage.svg";
 import { RouteLink } from "../../../routes/RouteLink";
+import { Typography } from "../../../components/ui/Typography";
 
 export type BusinessBannerSlide = {
   eyebrow: string;
@@ -163,13 +164,13 @@ export function BusinessBanner({ slides }: BusinessBannerProps) {
               />
 
               <div className="flex min-w-0 flex-col items-start gap-0.5 text-right">
-                <p className="m-0 whitespace-nowrap text-xs font-extrabold leading-4 text-[#11a366] min-[390px]:text-sm min-[390px]:leading-5">
+                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 whitespace-nowrap text-xs font-extrabold leading-4 text-[#11a366] min-[390px]:text-sm min-[390px]:leading-5">
                   {slide.eyebrow}
-                </p>
+                </Typography>
 
-                <h2 className="m-0 whitespace-nowrap text-base font-black leading-6 text-[#0048c4] min-[390px]:text-lg">
+                <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 whitespace-nowrap text-base font-black leading-6 text-[#0048c4] min-[390px]:text-lg">
                   {slide.title}
-                </h2>
+                </Typography>
 
                 <RouteLink
                   className="mt-1.5 flex items-center justify-start gap-2 rounded-lg bg-[#0048C4] px-3 py-1.5 text-xs font-medium leading-4 text-white min-[390px]:gap-3 min-[390px]:px-4"

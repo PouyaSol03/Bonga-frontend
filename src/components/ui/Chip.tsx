@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
 import LinearCancelSmall from "../(icons)/LinearCancelSmall";
+import { Typography } from "./Typography";
 
 type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: ReactNode;
@@ -32,7 +33,7 @@ export function Chip({
       {...props}
     >
       {removable && selected ? <LinearCancelSmall aria-hidden="true" className="h-4 w-4" /> : null}
-      <span className="min-w-0 truncate">{children}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{children}</Typography>
       {icon}
     </button>
   );

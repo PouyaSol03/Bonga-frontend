@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn, disabledClasses, focusRing } from "../../design-system/classes";
+import { Typography } from "./Typography";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "text" | "danger" | "neutral";
 type ButtonSize = "sm" | "md" | "lg";
@@ -59,8 +60,8 @@ export function Button({
       type={type}
       {...props}
     >
-      {loading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : leadingIcon}
-      {children ? <span className="min-w-0 truncate">{children}</span> : null}
+      {loading ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : leadingIcon}
+      {children ? <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{children}</Typography> : null}
       {trailingIcon}
     </button>
   );

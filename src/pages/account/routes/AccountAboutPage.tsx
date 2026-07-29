@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AccountPageShell } from "../accountPageViews";
+import { Typography } from "../../../components/ui/Typography";
 
 type AboutSectionProps = {
   children?: ReactNode;
@@ -39,10 +40,10 @@ const sectionItems = {
 function AboutSection({ children, description, items, title }: AboutSectionProps) {
   return (
     <section className="mx-4 border-b border-dashed border-[#d2d2d2] px-1 pb-4 pt-6 last:border-b-0 last:pb-7">
-      <h2 className="m-0 flex items-center justify-start gap-2 text-[16px] font-semibold leading-6 text-[#0052c8]">
-        <span aria-hidden="true" className="h-[13px] w-[13px] shrink-0 rounded-full bg-[#11a366]" />
-        <span>{title}</span>
-      </h2>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center justify-start gap-2 text-[16px] font-semibold leading-6 text-[#0052c8]">
+        <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="h-[13px] w-[13px] shrink-0 rounded-full bg-[#11a366]" />
+        <Typography as="span" variant="body" size="medium" weight="regular">{title}</Typography>
+      </Typography>
 
       {description ? (
         <div className="mt-2 text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
@@ -85,9 +86,9 @@ function AboutIntroCard() {
         </h1> */}
       </div>
 
-      <p className="m-0 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
         ما بیش از ۱۰ سال است که در دنیای املاک همراه خریداران، فروشندگان و آژانس‌های املاک هستیم. در این سال‌ها هدف ما همیشه یک چیز بوده؛ ساده‌تر کردن مسیر معامله ملک و ایجاد بستری مطمئن برای همه کسانی که در بازار املاک فعالیت دارند.
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -101,50 +102,50 @@ export function AccountAboutPage() {
 
           <AboutSection
             description={
-              <p className="m-0 text-justify">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
                 اگر مالک یا مستاجر هستید و می‌خواهید ملک خود را معرفی کنید، کافیست با چند کلیک آگهی‌تان را ثبت کنید.
-              </p>
+              </Typography>
             }
             items={sectionItems.users}
             title="ثبت آگهی سریع و ساده برای کاربران"
           >
-            <p className="m-0 text-justify">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
               ما کاری می‌کنیم که آگهی شما در کوتاه‌ترین زمان در معرض دید هزاران کاربر قرار بگیرد.
-            </p>
+            </Typography>
           </AboutSection>
 
           <AboutSection
             description={
-              <p className="m-0 text-justify">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
                 آژانس‌های املاک همیشه با حجم بالای آگهی‌ها و مشتریان روبه‌رو هستند. سیستم CRM ما دقیقاً برای حل این چالش ساخته شده است.
-              </p>
+              </Typography>
             }
             items={sectionItems.crm}
             title="CRM اختصاصی برای آژانس‌های املاک"
           >
-            <p className="m-0 text-justify">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
               با این CRM، آژانس‌ها می‌توانند وقت کمتری صرف کارهای اداری کرده و تمرکز خود را روی معامله‌های موفق بگذارند.
-            </p>
+            </Typography>
           </AboutSection>
 
           <AboutSection
             description={
-              <p className="m-0 text-justify">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
                 موفقیت یک آژانس به تیم مشاورین آن بستگی دارد. به همین دلیل ما ابزارهایی فراهم کرده‌ایم که مدیران آژانس بتوانند به بهترین شکل فعالیت مشاورین را مدیریت کنند:
-              </p>
+              </Typography>
             }
             items={sectionItems.consultants}
             title="مدیریت حرفه‌ای مشاورین"
           >
-            <p className="m-0 text-justify">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
               این امکانات باعث می‌شود نظم کاری افزایش پیدا کند و مشتریان تجربه‌ای حرفه‌ای‌تر از همکاری با آژانس داشته باشند.
-            </p>
+            </Typography>
           </AboutSection>
 
           <AboutSection items={sectionItems.whyUs} title="چرا ما؟">
-            <p className="m-0 text-justify">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-justify">
               ما اینجاییم تا خرید، فروش و اجاره ملک دیگر کار پیچیده‌ای نباشد.
-            </p>
+            </Typography>
           </AboutSection>
         </div>
       </main>

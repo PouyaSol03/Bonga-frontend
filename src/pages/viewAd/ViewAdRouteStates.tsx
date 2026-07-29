@@ -1,6 +1,7 @@
 import { PageFrame } from "../../app/PageFrame";
 import { getRequestErrorState, NotFoundErrorState } from "../../components/ErrorState";
 import { ViewAdTopBar } from "./viewAdComponents";
+import { Typography } from "../../components/ui/Typography";
 
 export function NotFoundState() {
   return (
@@ -103,7 +104,7 @@ export function ViewAdErrorState({
     <div className="fixed inset-0 z-[999] bg-white">
       <div className="h-full min-h-0 bg-white">
         <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
-        <p className="sr-only">{message}</p>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
       </div>
     </div>
   );

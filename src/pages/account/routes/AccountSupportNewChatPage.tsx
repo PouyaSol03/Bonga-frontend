@@ -32,6 +32,7 @@ import {
   readSupportThreadId,
   type SupportChatMessage,
 } from "../accountSupportViews";
+import { Typography } from "../../../components/ui/Typography";
 
 function readMessageTimestamp(message: ChatMessage) {
   const value = readChatPathText(message, [
@@ -357,11 +358,11 @@ export function AccountSupportNewChatPage() {
         ref={scrollAreaRef}
       >
         {messagesQuery.isFetchingNextPage ? (
-          <p className="pb-3 text-center text-xs text-[#808080]">در حال دریافت پیام‌های قبلی...</p>
+          <Typography as="p" variant="body" size="small" weight="regular" className="pb-3 text-center text-xs text-[#808080]">در حال دریافت پیام‌های قبلی...</Typography>
         ) : null}
 
         {isStarting ? (
-          <p className="py-16 text-center text-sm text-[#808080]">در حال شروع گفتگو...</p>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">در حال شروع گفتگو...</Typography>
         ) : (
           <div className="space-y-2.5">
             {messages.slice(0, 2).map((message) => (
@@ -375,9 +376,9 @@ export function AccountSupportNewChatPage() {
             ))}
 
             {isAgentTyping ? (
-              <p className="px-3 py-1 text-right text-xs text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="px-3 py-1 text-right text-xs text-[#808080]">
                 پشتیبان در حال نوشتن است...
-              </p>
+              </Typography>
             ) : null}
             <div ref={messagesEndRef} />
           </div>
@@ -386,9 +387,9 @@ export function AccountSupportNewChatPage() {
 
       <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-2 pb-3 pt-2">
         {errorMessage ? (
-          <p className="m-0 mb-2 px-2 text-center text-xs leading-5 text-[#d92d20]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-2 px-2 text-center text-xs leading-5 text-[#d92d20]">
             {errorMessage}
-          </p>
+          </Typography>
         ) : null}
         <input
           accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip"

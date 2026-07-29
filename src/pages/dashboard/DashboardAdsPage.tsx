@@ -4,6 +4,7 @@ import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard, type DashboardAd } from "./DashboardAdCard";
+import { Typography } from "../../components/ui/Typography";
 
 type DashboardAdsTab = "active" | "specialty" | "status";
 
@@ -141,7 +142,7 @@ export function DashboardAdsPage() {
                 >
                   {tab.label}
                   {isActive ? (
-                    <span className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" />
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" />
                   ) : null}
                 </button>
               );
@@ -156,7 +157,7 @@ export function DashboardAdsPage() {
               type="button"
             >
               <FilterIcon className="h-5 w-5" />
-              <span>فیلترها</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">فیلترها</Typography>
             </button>
 
             <label className="relative block h-10 w-[360px]">
@@ -177,13 +178,13 @@ export function DashboardAdsPage() {
               to="/account/ad-management/statistics"
             >
               <AnalyticsIcon className="h-5 w-5 text-[#4d4d4d]" />
-              <span dir="rtl">آمار آگهی‌ها</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آمار آگهی‌ها</Typography>
             </RouteLink>
 
-            <span className="h-8 w-px bg-[#cccccc]" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="h-8 w-px bg-[#cccccc]" />
 
             <label className="inline-flex h-10 items-center gap-3 text-sm font-semibold text-[#1a1a1a]">
-              <span dir="rtl">آگهی‌های من</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آگهی‌های من</Typography>
               <SwitchButton
                 ariaLabel="نمایش آگهی های من"
                 checked={showMineOnly}

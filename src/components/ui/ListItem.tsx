@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
+import { Typography } from "./Typography";
 
 type ListItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   align?: "right" | "center";
@@ -35,16 +36,16 @@ export function ListItem({
       type={type}
       {...props}
     >
-      {leading ? <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{leading}</span> : null}
-      <span className={cn("min-w-0 py-3 [direction:rtl]", align === "center" ? "flex-none text-center" : "flex-1")}>
-        <span className="block truncate text-base font-normal leading-6">{title}</span>
+      {leading ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{leading}</Typography> : null}
+      <Typography as="span" variant="body" size="medium" weight="regular" className={cn("min-w-0 py-3 [direction:rtl]", align === "center" ? "flex-none text-center" : "flex-1")}>
+        <Typography as="span" variant="body" size="large" weight="regular" className="block truncate text-base font-normal leading-6">{title}</Typography>
         {description ? (
-          <span className="mt-0.5 block truncate text-sm font-normal leading-5 text-[#808080]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 block truncate text-sm font-normal leading-5 text-[#808080]">
             {description}
-          </span>
+          </Typography>
         ) : null}
-      </span>
-      {trailing ? <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{trailing}</span> : null}
+      </Typography>
+      {trailing ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{trailing}</Typography> : null}
     </button>
   );
 }

@@ -3,6 +3,7 @@ import { getActiveAuthRole, type AuthSession } from "../auth/auth-storage";
 import { getVisibleDashboardItems } from "./dashboardNavigation";
 import { RouteLink } from "../routes/RouteLink";
 import { DashboardHeader } from "./DashboardHeader";
+import { Typography } from "../components/ui/Typography";
 
 type DashboardLayoutProps = {
   activePath: string;
@@ -34,7 +35,7 @@ const MemoSidebar = memo(function Sidebar({
         }`}
       >
         {!isCollapsed && (
-          <p className="text-[#808080] font-medium">مرکز مدیریت</p>
+          <Typography as="p" variant="body" size="medium" weight="medium" className="text-[#808080] font-medium">مرکز مدیریت</Typography>
         )}
 
         <button
@@ -68,9 +69,9 @@ const MemoSidebar = memo(function Sidebar({
             src="/images/gifts/prize1.png"
             alt=""
           />
-          <p className="bg-[#4D4D4D] text-center px-5 text-[#F5F5F5] rounded-md h-[24px]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="bg-[#4D4D4D] text-center px-5 text-[#F5F5F5] rounded-md h-[24px]">
             آژانس برتر منطقه
-          </p>
+          </Typography>
         </div>
       )}
 
@@ -93,14 +94,14 @@ const MemoSidebar = memo(function Sidebar({
                   <Icon />
 
                   {isActive && (
-                    <span className="h-1 w-1 rounded-full bg-[#0048c4]" />
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="h-1 w-1 rounded-full bg-[#0048c4]" />
                   )}
                 </div>
               ) : (
                 <>
                   <Icon />
 
-                  <span
+                  <Typography as="span" variant="label" size="medium" weight="semibold"
                     className={
                       isActive
                         ? "font-bold text-[#0048c4]"
@@ -108,7 +109,7 @@ const MemoSidebar = memo(function Sidebar({
                     }
                   >
                     {item.label}
-                  </span>
+                  </Typography>
                 </>
               )}
             </RouteLink>

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { listCrmCities, getCrmRecordId, listCrmNeighborhoods, type CrmRecord, saveCrmCity, deleteCrmCity, saveCrmNeighborhood, deleteCrmNeighborhood } from "../../../services/crm.service";
 import { ConfirmModal, CrmIcon, DEFAULT_CENTER, DEFAULT_COUNTRY_ID, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, SearchTableEmptyRow, TableHead, TableLoadingRows, cleanEmptyValues, inputClassName, parseJsonValue, parseMapPointValue, readText, stringifyValue, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -180,7 +181,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                           <small className="mt-1 block max-w-[140px] truncate text-sm text-[#9aa2af]">{id}</small>
                         </TableCell>
                         <TableCell>{readText(city, ["code"])}</TableCell>
-                        <TableCell><span className="text-sm" dir="ltr">{readText(city, ["lat"])}, {readText(city, ["lng"])}</span></TableCell>
+                        <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="text-sm" dir="ltr">{readText(city, ["lat"])}, {readText(city, ["lng"])}</Typography></TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <SmallActionButton label="ویرایش" onClick={() => openCityEditor(city)} />
@@ -217,10 +218,10 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
           />
 
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></Typography>
             <div className="min-w-0 flex-1">
-              <p className="m-0 text-sm font-bold text-[#4f5a6c]">شناسه شهر انتخاب‌شده</p>
-              <p className="m-0 mt-1 truncate text-sm text-[#9098a6]" dir="ltr">{cityId || "-"}</p>
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-bold text-[#4f5a6c]">شناسه شهر انتخاب‌شده</Typography>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 truncate text-sm text-[#9098a6]" dir="ltr">{cityId || "-"}</Typography>
             </div>
           </div>
 
@@ -246,11 +247,11 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     return (
                       <tr key={id}>
                         <TableCell>
-                          <span className="font-bold text-[#1a1a1a]">{readText(neighborhood, ["name"])}</span>
+                          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{readText(neighborhood, ["name"])}</Typography>
                           <small className="mt-1 block max-w-[140px] truncate text-sm text-[#9aa2af]">{id}</small>
                         </TableCell>
-                        <TableCell><span className="block max-w-[130px] truncate text-sm" dir="ltr">{readText(neighborhood, ["city_id"], cityId)}</span></TableCell>
-                        <TableCell><span className="text-sm" dir="ltr">{readText(neighborhood, ["lat"])}, {readText(neighborhood, ["lng"])}</span></TableCell>
+                        <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="block max-w-[130px] truncate text-sm" dir="ltr">{readText(neighborhood, ["city_id"], cityId)}</Typography></TableCell>
+                        <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="text-sm" dir="ltr">{readText(neighborhood, ["lat"])}, {readText(neighborhood, ["lng"])}</Typography></TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <SmallActionButton label="ویرایش" onClick={() => openNeighborhoodEditor(neighborhood)} />

@@ -15,6 +15,7 @@ import type {
   NewAdFormValues,
 } from "../../types";
 import { InputBox, SelectBox } from "../../components/NewAdControls";
+import { Typography } from "../../../../components/ui/Typography";
 
 const editorSelectFields: Record<
   Exclude<DailyHotelRoomConfigKey, "id" | "label" | "normalPrice" | "weekendPrice" | "specialPrice">,
@@ -189,9 +190,9 @@ function RoomEditorHeader({
           </svg>
         </button>
 
-        <h2 className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
           {title}
-        </h2>
+        </Typography>
       </div>
     </header>
   );
@@ -288,12 +289,12 @@ export function DailyHotelRoomsSection() {
 
                   <div className="flex flex-wrap justify-start gap-2" dir="rtl">
                     {summary.map((item) => (
-                      <span
+                      <Typography as="span" variant="label" size="medium" weight="medium"
                         className="flex min-h-9 items-center rounded-[7px] border border-[#cccccc] bg-white px-3 py-1 text-sm font-medium leading-5 text-[#4d4d4d]"
                         key={item}
                       >
                         {item}
-                      </span>
+                      </Typography>
                     ))}
                   </div>
                 </div>

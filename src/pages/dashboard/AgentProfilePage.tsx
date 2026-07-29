@@ -34,6 +34,7 @@ import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import type { UserProfile } from "../../services/account.service";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
+import { Typography } from "../../components/ui/Typography";
 
 const profileImageMaxBytes = 1024 * 1024;
 const profileImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
@@ -416,9 +417,9 @@ function AgentProfileForm({
       >
         <DesktopSectionTitle icon={<LinearInfoCircle className="h-5 w-5" />} title="مشخصات" />
         {isLoading ? (
-          <p className="m-0 mt-5 text-right text-sm font-medium text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-5 text-right text-sm font-medium text-[#808080]">
             در حال دریافت اطلاعات مشاور...
-          </p>
+          </Typography>
         ) : null}
 
         <div className="mt-7 flex flex-wrap items-end gap-8">
@@ -440,9 +441,9 @@ function AgentProfileForm({
             <DesktopField label="شماره تماس" onChange={onPhoneChange} placeholder="شماره تماس" value={phone} />
           </div>
 
-          <h3 className="m-0 mt-7 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-7 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
             شبکه‌های اجتماعی
-          </h3>
+          </Typography>
           <div className="mt-4 grid grid-cols-1 gap-7 lg:grid-cols-3">
             <DesktopField icon={<TonalTelegram className="h-6 w-6" />} onChange={onTelegramChange} placeholder="آیدی تلگرام بدون @" value={telegram} />
             <DesktopField icon={<TonalWhatsapp className="h-6 w-6" />} onChange={onWhatsappChange} placeholder="شماره واتساپ بدون صفر" value={whatsapp} />
@@ -502,7 +503,7 @@ function AgentProfileForm({
           </div>
           <Separator />
           <div className="grid gap-3">
-            <h3 className="m-0 text-right text-base font-semibold leading-6">شبکه‌های اجتماعی</h3>
+            <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">شبکه‌های اجتماعی</Typography>
             <Field icon={<TonalTelegram className="h-6 w-6" />} onChange={onTelegramChange} placeholder="آیدی تلگرام بدون @" value={telegram} />
             <Field icon={<TonalWhatsapp className="h-6 w-6" />} onChange={onWhatsappChange} placeholder="شماره واتساپ بدون صفر" value={whatsapp} />
             <Field icon={<TonalInstagram className="h-6 w-6" />} onChange={onInstagramChange} placeholder="آیدی اینستاگرام بدون @" value={instagram} />
@@ -552,25 +553,25 @@ function ProfileImageUploader({
 
   return (
     <div className={desktop ? "w-[122px] shrink-0 text-right" : "mt-4 shrink-0 text-right font-medium"}>
-      <p className={desktop ? "m-0 mb-4 text-base font-semibold leading-6" : "m-0 mb-3 text-sm font-semibold leading-5"}>
+      <Typography as="p" variant="body" size="large" weight="medium" className={desktop ? "m-0 mb-4 text-base font-semibold leading-6" : "m-0 mb-3 text-sm font-semibold leading-5"}>
         تصویر مشاور
-      </p>
+      </Typography>
       <button
         aria-label="بارگذاری تصویر مشاور"
         className={`relative grid place-items-center overflow-visible rounded-full text-[#4d4d4d] ${desktop ? "h-[96px] w-[96px] border border-[#cccccc]" : "mx-auto mr-3 h-22 w-22"}`}
         onClick={() => inputRef.current?.click()}
         type="button"
       >
-        <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#f0f0f0]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#f0f0f0]">
           {imageUrl ? (
             <img alt="تصویر مشاور" className="h-full w-full object-cover" src={imageUrl} />
           ) : (
             <LinearUserSolid className="h-8 w-8" />
           )}
-        </span>
-        <span className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
+        </Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
           <LinearEdit2 className="h-4 w-4" />
-        </span>
+        </Typography>
       </button>
       <input
         ref={inputRef}
@@ -588,9 +589,9 @@ function ProfileImageHelpText() {
     <div className="flex gap-1 text-right text-xs font-normal text-[#808080]">
       <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-[#4d4d4d]" />
       <div>
-        <p className="m-0">حجم عکس کمتر از 1MB باشد</p>
-        <p className="m-0">بهترین ابعاد نمایش 100×100 پیکسل</p>
-        <p className="m-0">فرمت‌های قابل استفاده jpg, png, gif</p>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">حجم عکس کمتر از 1MB باشد</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">بهترین ابعاد نمایش 100×100 پیکسل</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">فرمت‌های قابل استفاده jpg, png, gif</Typography>
       </div>
     </div>
   );
@@ -610,7 +611,7 @@ function ActivityAreaSection({
   return (
     <Section>
       <div className="flex items-center justify-between gap-3">
-        <h2 className="m-0 text-right text-base font-semibold leading-6">محدوده فعالیت</h2>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">محدوده فعالیت</Typography>
         <button
           className="inline-flex h-8 shrink-0 items-center gap-1.5 text-sm font-semibold leading-5 text-[#0048c4]"
           onClick={onOpenPicker}
@@ -634,9 +635,9 @@ function ActivityAreaSection({
           ))}
         </div>
       ) : (
-        <p className="m-0 mt-3 text-right text-sm font-normal leading-6 text-[#808080]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-6 text-[#808080]">
           محله‌های محدوده فعالیت مشاور را انتخاب کنید.
-        </p>
+        </Typography>
       )}
       {error ? <FieldError message={error} /> : null}
     </Section>
@@ -732,11 +733,11 @@ function NeighborhoodSelectionSheet({
         </div>
 
         <div className="mt-3 flex items-center justify-between px-1">
-          <h2 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">محدوده فعالیت</h2>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">محدوده فعالیت</Typography>
           {selectedNeighborhoods.length > 0 ? (
-            <span className="text-sm font-medium leading-5 text-[#0048c4]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#0048c4]">
               {selectedNeighborhoods.length} انتخاب
-            </span>
+            </Typography>
           ) : null}
         </div>
 
@@ -759,9 +760,9 @@ function NeighborhoodSelectionSheet({
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-2" dir="rtl">
         {!cityId ? (
-          <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
             برای انتخاب محله، ابتدا شهر را انتخاب کنید.
-          </p>
+          </Typography>
         ) : neighborhoodsQuery.isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -783,14 +784,14 @@ function NeighborhoodSelectionSheet({
                   type="button"
                 >
                   <SelectionCheckIndicator checked={isSelected} />
-                  <span className="min-w-0 flex-1 [direction:rtl]">
-                    <span className="block truncate text-sm font-medium leading-5">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
+                    <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-sm font-medium leading-5">
                       {neighborhood.name}
-                    </span>
-                    <span className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
+                    </Typography>
+                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
                       {cityName || "شهر انتخاب‌شده"}
-                    </span>
-                  </span>
+                    </Typography>
+                  </Typography>
                 </button>
               );
             })}
@@ -798,9 +799,9 @@ function NeighborhoodSelectionSheet({
         ) : query.trim() ? (
           <SearchEmptyState compact />
         ) : (
-          <p className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
             محله‌ای برای این شهر ثبت نشده است.
-          </p>
+          </Typography>
         )}
       </div>
 
@@ -821,7 +822,7 @@ function Section({ children, title }: { children: ReactNode; title?: string }) {
   return (
     <section className="bg-white px-4 py-4">
       {title ? (
-        <h2 className="m-0 text-right text-base font-semibold text-[#1a1a1a]">{title}</h2>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold text-[#1a1a1a]">{title}</Typography>
       ) : null}
       {children}
     </section>
@@ -841,7 +842,7 @@ function Field({
 }) {
   return (
     <label className="block text-right">
-      <span className="relative flex w-full items-center rounded-xl border border-[#cccccc] bg-white px-3 py-4.5 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="relative flex w-full items-center rounded-xl border border-[#cccccc] bg-white px-3 py-4.5 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
         <input
           className={`h-full min-w-0 flex-1 border-0 bg-transparent py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-sm placeholder:text-[#a6a6a6] ${icon ? "pl-9" : ""}`}
           onChange={(event) => onChange(event.target.value)}
@@ -849,8 +850,8 @@ function Field({
           type="text"
           value={value}
         />
-        {icon ? <span className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</span> : null}
-      </span>
+        {icon ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</Typography> : null}
+      </Typography>
     </label>
   );
 }
@@ -871,11 +872,11 @@ function DesktopField({
   return (
     <label className="block min-w-0">
       {label ? (
-        <span className="mb-3 block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="span" variant="label" size="large" weight="semibold" className="mb-3 block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
           {label}
-        </span>
+        </Typography>
       ) : null}
-      <span className="relative block">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="relative block">
         <input
           className={`h-[60px] w-full rounded-xl border border-[#cccccc] bg-white py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] ${icon ? "pl-12 pr-5" : "px-5"}`}
           onChange={(event) => onChange(event.target.value)}
@@ -883,8 +884,8 @@ function DesktopField({
           type="text"
           value={value}
         />
-        {icon ? <span className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</span> : null}
-      </span>
+        {icon ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</Typography> : null}
+      </Typography>
     </label>
   );
 }
@@ -892,17 +893,17 @@ function DesktopField({
 function DesktopSectionTitle({ icon, title }: { icon?: ReactNode; title: string }) {
   return (
     <div className="flex items-center gap-2 text-[#0048c4]">
-      {icon ? <span className="text-[#4d4d4d]">{icon}</span> : null}
-      <h2 className="m-0 text-[22px] font-bold leading-8">{title}</h2>
+      {icon ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography> : null}
+      <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-bold leading-8">{title}</Typography>
     </div>
   );
 }
 
 function FieldError({ message }: { message: string }) {
   return (
-    <p className="m-0 mt-2 text-right text-xs font-normal leading-5 text-[#c11004]">
+    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-right text-xs font-normal leading-5 text-[#c11004]">
       {message}
-    </p>
+    </Typography>
   );
 }
 

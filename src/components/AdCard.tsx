@@ -1,3 +1,5 @@
+import { Typography } from "./ui/Typography";
+
 import type { ReactNode } from 'react'
 import './AdCard.css'
 
@@ -120,9 +122,9 @@ export function AdCard({
 
         <PropertyRow className="mt-1.5 min-h-6 flex-wrap gap-3 text-[13px]" ad={ad} />
 
-        <h3 className="mt-1.5 truncate text-right text-[15px] font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="h3" variant="title" size="medium" weight="medium" className="mt-1.5 truncate text-right text-[15px] font-medium leading-6 text-[#1a1a1a]">
           {ad.title}
-        </h3>
+        </Typography>
       </RouteLink>
     )
   }
@@ -220,18 +222,18 @@ function AdCardImage({
       {showImageCount ? (
         <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]" aria-label={`${ad.imageCount} تصویر`}>
           <AdCardAlbumIcon className="h-5 w-5 shrink-0" />
-          <span>{ad.imageCount}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{ad.imageCount}</Typography>
         </div>
       ) : null}
       {showStatusBadge && ad.status ? (
-        <span className={`absolute left-2 top-2 z-2 inline-flex h-7 max-w-[calc(100%-92px)] items-center rounded-lg px-2 text-xs font-medium leading-4 ${getStatusBadgeClassName(ad.status)}`}>
-          <span className="truncate">{ad.status}</span>
-        </span>
+        <Typography as="span" variant="label" size="small" weight="medium" className={`absolute left-2 top-2 z-2 inline-flex h-7 max-w-[calc(100%-92px)] items-center rounded-lg px-2 text-xs font-medium leading-4 ${getStatusBadgeClassName(ad.status)}`}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{ad.status}</Typography>
+        </Typography>
       ) : null}
       {showAgency && ad.agency ? (
         <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]">
           <AdCardOwnerIcon className="h-5 w-5 shrink-0" />
-          <span className="truncate">{ad.agency}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{ad.agency}</Typography>
         </div>
       ) : null}
     </div>
@@ -253,7 +255,7 @@ function AdCardBody({
     <div className={`flex flex-col pt-3 ${className}`}>
       <div className="flex h-6 items-center justify-start gap-2">
         <PriceItem label={ad.priceLabelPrimary} price={ad.pricePrimary} />
-        {hasSecondaryPrice ? <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
+        {hasSecondaryPrice ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
         {hasSecondaryPrice ? (
           <PriceItem label={ad.priceLabelSecondary} price={ad.priceSecondary} />
         ) : null}
@@ -261,18 +263,18 @@ function AdCardBody({
 
       <PropertyRow className="mt-3 h-5 gap-[22px] text-sm" ad={ad} />
 
-      <h3 className="m-0 mt-3 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+      <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-3 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
         {ad.title}
-      </h3>
+      </Typography>
 
       <div className="mt-3 flex h-6 items-center justify-start gap-2">
         {showBadges ? ad.badges.map((badge) => (
-          <span className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-[#FF6D00] bg-[#FFF8E1] text-[#FF6D00]' : 'border-[#11A366] bg-[#E6F6ED] text-[#11a366]'}`} key={badge}>
+          <Typography as="span" variant="label" size="small" weight="medium" className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-[#FF6D00] bg-[#FFF8E1] text-[#FF6D00]' : 'border-[#11A366] bg-[#E6F6ED] text-[#11a366]'}`} key={badge}>
             {badge}
-          </span>
+          </Typography>
         )) : null}
-        {showBadges && ad.badges.length > 0 ? <span className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
-        <span className="min-w-0 truncate text-sm font-normal leading-5 text-[#808080]">{ad.timeAndLocation}</span>
+        {showBadges && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
+        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate text-sm font-normal leading-5 text-[#808080]">{ad.timeAndLocation}</Typography>
       </div>
     </div>
   )
@@ -280,11 +282,11 @@ function AdCardBody({
 
 function PriceItem({ label, price }: { label: string; price: string }) {
   return (
-    <span className="inline-flex min-w-0 items-center gap-0.5">
-      {label ? <span className="text-sm font-medium leading-5 text-[#808080]">{label}</span> : null}
+    <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex min-w-0 items-center gap-0.5">
+      {label ? <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#808080]">{label}</Typography> : null}
       <strong className="whitespace-nowrap text-base font-semibold leading-6 text-[#0048c4]">{price}</strong>
       <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
-    </span>
+    </Typography>
   )
 }
 
@@ -300,10 +302,10 @@ function PropertyRow({ ad, className = '' }: { ad: AdCardData; className?: strin
 
 function PropertyItem({ icon, value }: { icon: ReactNode; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#4d4d4d]">
+    <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#4d4d4d]">
       {icon}
-      <span className="text-[#1a1a1a]">{value}</span>
-    </span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a]">{value}</Typography>
+    </Typography>
   )
 }
 

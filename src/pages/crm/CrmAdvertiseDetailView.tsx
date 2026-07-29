@@ -32,6 +32,7 @@ import {
   type CrmRecord,
 } from "../../services/crm.service";
 import { getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
+import { Typography } from "../../components/ui/Typography";
 
 type CrmAdvertiseDetailViewProps = {
   advertiseId: string;
@@ -402,11 +403,11 @@ function statusTone(status: unknown) {
 function InformationRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 border-b border-[#f0f0f0] py-3.5 last:border-b-0">
-      <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5f5f5] text-[#0048c4]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5f5f5] text-[#0048c4]">
         {icon}
-      </span>
+      </Typography>
       <div className="min-w-0 flex-1">
-        <span className="block text-sm font-medium text-[#808080]">{label}</span>
+        <Typography as="span" variant="label" size="medium" weight="medium" className="block text-sm font-medium text-[#808080]">{label}</Typography>
         <strong className="mt-1 block break-words text-sm font-bold leading-6 text-[#333333]">{value}</strong>
       </div>
     </div>
@@ -417,8 +418,8 @@ function DetailSection({ children, icon, title }: { children: ReactNode; icon: R
   return (
     <section className="rounded-xl bg-white p-5">
       <div className="flex items-center gap-2.5">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">{icon}</span>
-        <h2 className="m-0 text-base font-bold text-[#1a1a1a]">{title}</h2>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">{icon}</Typography>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold text-[#1a1a1a]">{title}</Typography>
       </div>
       <div className="mt-4">{children}</div>
     </section>
@@ -488,11 +489,11 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
     return (
       <section className="grid min-h-[420px] place-items-center rounded-xl bg-white p-8 text-center">
         <div>
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
             <LinearInformation className="h-7 w-7" />
-          </span>
-          <h2 className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]">اطلاعات آگهی دریافت نشد</h2>
-          <p className="m-0 mt-2 text-sm text-[#808080]">پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.</p>
+          </Typography>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]">اطلاعات آگهی دریافت نشد</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#808080]">پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.</Typography>
           <RouteLink className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" to="/crm/advertises">
             <LinearArrowRight1 className="h-5 w-5" />
             بازگشت به آگهی‌ها
@@ -565,9 +566,9 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
             <LinearEdit2 className="h-5 w-5" />
             ویرایش آگهی
           </RouteLink>
-          <span className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
             {advertiseStatusLabel(advertise.status)}
-          </span>
+          </Typography>
         </div>
       </div>
 
@@ -582,20 +583,20 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
                   <div className="grid h-full place-items-center text-[#8ea7cf]">
                 <div className="text-center">
                   <LinearImage className="mx-auto h-12 w-12" />
-                  <span className="mt-2 block text-sm font-medium">تصویری ثبت نشده است</span>
+                  <Typography as="span" variant="label" size="medium" weight="medium" className="mt-2 block text-sm font-medium">تصویری ثبت نشده است</Typography>
                 </div>
               </div>
             )}
-                <span className="absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-black/65 px-3 text-sm font-medium text-white backdrop-blur-sm">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-black/65 px-3 text-sm font-medium text-white backdrop-blur-sm">
                 <LinearImage className="h-4 w-4" />
                   {new Intl.NumberFormat("fa-IR").format(images.length)} تصویر
-              </span>
+              </Typography>
               </button>
               <div className="grid grid-rows-3 gap-2">
                 {(images.length > 1 ? images.slice(1, 4) : ["", "", ""]).map((image, index) => (
                   <div className="relative overflow-hidden bg-[#dfe5ec]" key={`${image}-${index}`}>
                     {image ? <img alt="" className="h-full w-full object-cover" src={image} /> : <LinearImage className="absolute inset-0 m-auto h-7 w-7 text-[#9aabc2]" />}
-                    {index === 2 && images.length > 4 ? <span className="absolute inset-0 grid place-items-center bg-black/50 text-lg font-bold text-white">+{new Intl.NumberFormat("fa-IR").format(images.length - 4)}</span> : null}
+                    {index === 2 && images.length > 4 ? <Typography as="span" variant="title" size="large" weight="semibold" className="absolute inset-0 grid place-items-center bg-black/50 text-lg font-bold text-white">+{new Intl.NumberFormat("fa-IR").format(images.length - 4)}</Typography> : null}
                   </div>
                 ))}
               </div>
@@ -603,11 +604,11 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 
             <div className="pt-5">
               <div className="flex items-center justify-between gap-4 text-sm text-[#4d4d4d]">
-                <span className="inline-flex items-center gap-1.5"><LinearClock className="h-4 w-4" />{createdAt}</span>
-                <span>کد آگهی: <strong className="text-[#1a1a1a]">{trackCode}</strong></span>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1.5"><LinearClock className="h-4 w-4" />{createdAt}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">کد آگهی: <strong className="text-[#1a1a1a]">{trackCode}</strong></Typography>
               </div>
-              <p className="m-0 mt-5 flex items-center gap-1.5 text-sm text-[#4d4d4d]"><LinearLocation className="h-5 w-5 text-[#0048c4]" />{locationTitle || "موقعیت ثبت نشده"}</p>
-              <h1 className="m-0 mt-2 text-2xl font-bold leading-10 text-[#1a1a1a]">{title}</h1>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 flex items-center gap-1.5 text-sm text-[#4d4d4d]"><LinearLocation className="h-5 w-5 text-[#0048c4]" />{locationTitle || "موقعیت ثبت نشده"}</Typography>
+              <Typography as="h1" variant="headline" size="small" className="m-0 mt-2 text-2xl font-bold leading-10 text-[#1a1a1a]">{title}</Typography>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <PriceBox label="قیمت کل" value={formatMoney(price)} />
                 <PriceBox label="قیمت هر متر" value={pricePerMeter} />
@@ -622,31 +623,31 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
                   const key = getFeatureKey(feature);
                   return (
                     <article className="flex min-w-0 items-start gap-3" key={`${key}-${index}`}>
-                      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center text-[#808080]">
+                      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center text-[#808080]">
                         {getFeatureIcon(key)}
-                      </span>
+                      </Typography>
                       <div className="min-w-0">
                         <strong className="block break-words text-base font-medium leading-6 text-[#1a1a1a]">{formatDisplayValue(key, feature.value)}</strong>
-                        <span className="mt-0.5 block text-xs font-medium text-[#a6a6a6]">{getFeatureDisplayLabel(feature)}</span>
+                        <Typography as="span" variant="label" size="small" weight="medium" className="mt-0.5 block text-xs font-medium text-[#a6a6a6]">{getFeatureDisplayLabel(feature)}</Typography>
                       </div>
                     </article>
                   );
                 })}
               </div>
             ) : (
-              <p className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-sm text-[#808080]">ویژگی دیگری برای این آگهی ثبت نشده است.</p>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-sm text-[#808080]">ویژگی دیگری برای این آگهی ثبت نشده است.</Typography>
             )}
           </PublicStyleSection>
 
           <PublicStyleSection title="توضیحات">
-            <p className="m-0 whitespace-pre-wrap text-base leading-8 text-[#1a1a1a]">{description}</p>
+            <Typography as="p" variant="body" size="large" weight="regular" className="m-0 whitespace-pre-wrap text-base leading-8 text-[#1a1a1a]">{description}</Typography>
             <div className="mt-6 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4">
-              <div className="flex items-start gap-3"><LinearMapsLocation className="mt-0.5 h-6 w-6 shrink-0 text-[#0048c4]" /><div><span className="text-xs text-[#808080]">آدرس</span><strong className="mt-1 block text-sm leading-6 text-[#1a1a1a]">{address}</strong></div></div>
+              <div className="flex items-start gap-3"><LinearMapsLocation className="mt-0.5 h-6 w-6 shrink-0 text-[#0048c4]" /><div><Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">آدرس</Typography><strong className="mt-1 block text-sm leading-6 text-[#1a1a1a]">{address}</strong></div></div>
             </div>
           </PublicStyleSection>
 
           {adminNote ? (
-            <PublicStyleSection title="یادداشت مدیر"><p className="m-0 whitespace-pre-wrap text-sm leading-8 text-[#4d4d4d]">{adminNote}</p></PublicStyleSection>
+            <PublicStyleSection title="یادداشت مدیر"><Typography as="p" variant="body" size="medium" weight="regular" className="m-0 whitespace-pre-wrap text-sm leading-8 text-[#4d4d4d]">{adminNote}</Typography></PublicStyleSection>
           ) : null}
         </main>
 
@@ -677,9 +678,9 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
                 title="موقعیت آگهی در مدیریت"
               />
             ) : (
-              <p className="m-0 mt-4 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]">
                 موقعیت این آگهی روی نقشه ثبت نشده است.
-              </p>
+              </Typography>
             )}
           </DetailSection>
 
@@ -688,7 +689,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
               <LinearApartment className="h-5 w-5" />
               <strong className="text-sm">شناسه آگهی</strong>
             </div>
-            <span className="mt-2 block break-all font-mono text-sm text-[#333333]" dir="ltr">{getCrmRecordId(advertise)}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 block break-all font-mono text-sm text-[#333333]" dir="ltr">{getCrmRecordId(advertise)}</Typography>
           </div>
         </aside>
       </div>
@@ -697,9 +698,9 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 }
 
 function PriceBox({ label, value }: { label: string; value: string }) {
-  return <div className="flex min-h-14 items-center justify-between rounded-xl bg-[#f7f7f7] px-4"><span className="text-sm font-medium text-[#4d4d4d]">{label}</span><strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong></div>;
+  return <div className="flex min-h-14 items-center justify-between rounded-xl bg-[#f7f7f7] px-4"><Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#4d4d4d]">{label}</Typography><strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong></div>;
 }
 
 function PublicStyleSection({ children, title }: { children: ReactNode; title: string }) {
-  return <section className="rounded-xl bg-white px-6 py-6"><h2 className="m-0 text-lg font-semibold text-[#1a1a1a]">{title}</h2><div className="mt-6">{children}</div></section>;
+  return <section className="rounded-xl bg-white px-6 py-6"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold text-[#1a1a1a]">{title}</Typography><div className="mt-6">{children}</div></section>;
 }

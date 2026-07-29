@@ -1,5 +1,6 @@
 import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchErrorVariant = "no-search" | "not-found" | "no-saved-search";
 
@@ -59,13 +60,13 @@ export default function SearchErrors({
           draggable={false}
         />
 
-        <h3 className="mb-2 font-semibold leading-6 text-[#111827]">
+        <Typography as="p" variant="title" size="medium" weight="semibold" className="mb-2 text-[#1a1a1a]">
           {content.title}
-        </h3>
+        </Typography>
 
-        <p className="text-sm font-normal leading-6 text-[#4D4D4D]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="text-[#4D4D4D]">
           {content.description}
-        </p>
+        </Typography>
       </div>
     </div>
   );

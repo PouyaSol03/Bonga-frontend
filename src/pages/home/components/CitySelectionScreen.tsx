@@ -6,6 +6,7 @@ import { useCitySearchQuery } from "../../../hooks/city.hooks";
 import type { CityDto } from "../../../services/city.service";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import { readStoredSelectedCity, saveSelectedCity } from "../../../lib/selectedCityStorage";
+import { Typography } from "../../../components/ui/Typography";
 
 type CitySelectionScreenProps = {
   currentCity: string;
@@ -213,9 +214,9 @@ export function CitySelectionScreen({
 
             {!isLoading &&
               isError && (
-                <p className="px-2 py-3 text-right text-xs font-medium text-red-600">
+                <Typography as="p" variant="body" size="small" weight="medium" className="px-2 py-3 text-right text-xs font-medium text-red-600">
                   دریافت شهرها با خطا مواجه شد.
-                </p>
+                </Typography>
               )}
 
             {!isLoading && cityList.map((city) => (
@@ -298,14 +299,14 @@ function CityOptionRow({
       type="button"
       onClick={onSelect}
     >
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`home-city-radio ${isSelected ? "home-city-radio--selected" : ""}`}
         aria-hidden="true"
       />
 
-      <span className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">
         {city.name}
-      </span>
+      </Typography>
     </button>
   );
 }

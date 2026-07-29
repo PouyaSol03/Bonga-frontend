@@ -6,6 +6,7 @@ import LinearCity from "../../../components/(icons)/LinearCity";
 import LinearUser from "../../../components/(icons)/LinearUserSolid";
 import LinearArrowRight2 from "../../../components/(icons)/LinearArrowRight2";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
+import { Typography } from "../../../components/ui/Typography";
 
 export type SearchRequestSenderOption = {
   description: string;
@@ -52,12 +53,12 @@ function RequestSuccessContent({
         <img src="/vectors/SavedRequest.svg" alt="" />
       </div>
 
-      <h2 className="m-0 mt-8 text-center font-semibold text-[#00a66b]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 mt-8 text-center font-semibold text-[#00a66b]">
         شما یک قدم به یافتن ملک دلخواه نزدیک‌تر شدید!
-      </h2>
-      <p className="m-0 mt-2 text-center text-sm text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-center text-sm text-[#4d4d4d]">
         یافته‌های جدید به محض ثبت، در بخش نتایج درخواست‌های من در مدیریت درخواست‌های پنل کاربری برایتان نمایش داده خواهد شد.
-      </p>
+      </Typography>
 
       <Button
         className="mt-4"

@@ -59,6 +59,7 @@ import {
   ViewAdViolationReportPage,
   type ViolationReportSubmitPayload,
 } from "./viewAd/pages/ViewAdViolationReportPage";
+import { Typography } from "../components/ui/Typography";
 
 type ActionToast = {
   message: string;
@@ -131,9 +132,9 @@ function PriceRow({ label, value }: { label: string; value: string }) {
           {value}
         </strong>
       </div>
-      <span className="text-right text-sm font-medium text-[#4D4D4D]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium text-[#4D4D4D]">
         {label}
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -212,7 +213,7 @@ function GalleryHero({
             label="album"
             onClick={() => selectGalleryKind("album")}
           />
-          <span>{new Intl.NumberFormat("fa-IR").format(imageCount)}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{new Intl.NumberFormat("fa-IR").format(imageCount)}</Typography>
           {hasVideo ? (
             <GalleryMediaButton
               iconSrc="/icons/iconVideo.svg"
@@ -311,9 +312,9 @@ function InlineMoreButton({
       onClick={onClick}
       type="button"
     >
-      <span className="text-xs font-medium leading-4 text-[#0048c4]">
+      <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-[#0048c4]">
         {children}
-      </span>
+      </Typography>
 
       <ViewAdIcon className="h-3 w-3 shrink-0 text-[#0048c4]" name="arrowDown" />
     </button>
@@ -388,12 +389,12 @@ function SocialIcon({ type }: { type: "instagram" | "telegram" | "whatsapp" }) {
   };
 
   return (
-    <span
+    <Typography as="span" variant="label" size="small" weight="semibold"
       aria-hidden="true"
       className={`grid h-8 w-8 place-items-center rounded-full text-xs font-semibold ${styles[type]}`}
     >
       {label[type]}
-    </span>
+    </Typography>
   );
 }
 
@@ -520,30 +521,30 @@ function ContactInfoBottomSheet({
       {phoneHref ? (
         <>
           <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
               {phoneDisplay}
-            </span>
+            </Typography>
             <a
               className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
               href={`tel:${phoneHref}`}
               tabIndex={isOpen ? 0 : -1}
             >
               <PhoneIcon className="h-6 w-6" />
-              <span>تماس با</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">تماس با</Typography>
             </a>
           </div>
           <div className="h-px bg-[#cccccc]" />
           <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <span className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
               {phoneDisplay}
-            </span>
+            </Typography>
             <a
               className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
               href={`sms:${phoneHref}`}
               tabIndex={isOpen ? 0 : -1}
             >
               <MessageIcon className="h-6 w-6" />
-              <span>ارسال پیامک</span>
+              <Typography as="span" variant="body" size="medium" weight="regular">ارسال پیامک</Typography>
             </a>
           </div>
           {socialLinks.length ? <div className="h-px bg-[#cccccc]" /> : null}
@@ -567,9 +568,9 @@ function ContactInfoBottomSheet({
               </a>
             ))}
           </div>
-          <span className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
             شبکه‌های اجتماعی
-          </span>
+          </Typography>
         </div>
       ) : null}
 
@@ -656,11 +657,11 @@ function ViewAdContent({
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
-              <span dir="rtl">{details.age}</span>
+              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">{details.age}</Typography>
               <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-sm leading-5 [direction:rtl]">
-              <span className="text-[#4d4d4d] font-medium">کد آگهی:</span>
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d] font-medium">کد آگهی:</Typography>
               <strong className="text-sm font-medium leading-5 text-[#1a1a1a]">
                 {details.adCode}
               </strong>
@@ -668,12 +669,12 @@ function ViewAdContent({
           </div>
 
           <div className="mt-4 space-y-2 text-right">
-            <p className="m-0 text-sm font-normal leading-5 text-[#4d4d4d]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-5 text-[#4d4d4d]">
               {details.locationTitle}
-            </p>
-            <h1 className="m-0 text-base font-semibold mt-2 text-[#1a1a1a]">
+            </Typography>
+            <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-2 text-[#1a1a1a]">
               {details.headline}
-            </h1>
+            </Typography>
           </div>
 
           <div className="mt-4 space-y-2">
@@ -715,9 +716,9 @@ function ViewAdContent({
                 : "auto",
           }}
         >
-          <p ref={descriptionRef} className="m-0 whitespace-pre-line">
+          <Typography as="p" variant="body" size="medium" weight="regular" ref={descriptionRef} className="m-0 whitespace-pre-line">
             {details.description}
-          </p>
+          </Typography>
           {shouldShowDescriptionMore && !isDescriptionExpanded ? (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white" />
           ) : null}
@@ -751,9 +752,9 @@ function ViewAdContent({
           >
             <div className="flex min-w-0 items-center gap-3">
               <ViewAdIcon className="text-[#808080]" name={row.icon} />
-              <span className="truncate text-base font-medium text-[#1a1a1a]">
+              <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-base font-medium text-[#1a1a1a]">
                 {row.label}
-              </span>
+              </Typography>
             </div>
             <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
           </button>
@@ -777,30 +778,30 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
             preview.kind === "agency" ? "bg-white" : "bg-gradient-to-br from-[#f6d8bc] to-[#c78a5c]"
           }`}
         >
-          <span
+          <Typography as="span" variant="headline" size="small"
             className={`text-2xl font-bold leading-none ${
               preview.kind === "agency" ? "text-[#b6823a]" : "text-white"
             }`}
           >
             {initial}
-          </span>
+          </Typography>
         </div>
-        <h2 className="mt-4 text-base font-semibold leading-6 text-[#4d4d4d]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="mt-4 text-base font-semibold leading-6 text-[#4d4d4d]">
           {preview.name}
-        </h2>
-        <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
+        </Typography>
+        <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
           {preview.subtitle}
-        </p>
+        </Typography>
         {preview.location ? (
           <div className="mt-2 flex items-center justify-center gap-1 text-xs font-medium leading-4 text-[#0048c4]">
             <ViewAdIcon className="h-4 w-4" name="location" />
-            <span>{preview.location}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">{preview.location}</Typography>
           </div>
         ) : null}
         <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
           <div className="flex items-center gap-1">
-            <span className="text-[#0faf73]">۸۵</span>
-            <span>امتیاز</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">۸۵</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography>
             <img
               alt=""
               aria-hidden="true"
@@ -810,8 +811,8 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
           </div>
           <div className="h-4 w-px bg-[#e0e0e0]" />
           <div className="flex items-center gap-1">
-            <span className="text-[#0faf73]">۱۲</span>
-            <span>رتبه</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">۱۲</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography>
             <img
               alt=""
               aria-hidden="true"
@@ -1251,7 +1252,7 @@ export function ViewAdPage() {
                 onClick={openAdvertiseChat}
                 type="button"
               >
-                <span className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</span>
+                <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
                 <ViewAdIcon className="h-5! w-5!" name="chat" />
               </button>
             ) : null}

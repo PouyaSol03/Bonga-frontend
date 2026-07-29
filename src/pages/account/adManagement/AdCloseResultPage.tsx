@@ -5,6 +5,7 @@ import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
 import { latestMashhadAds } from "../../home/homeData";
 import { getAdManagementRouteState } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 type CloseResultReason = "done" | "not-done" | "expired";
 
@@ -55,14 +56,14 @@ export function AdCloseResultPage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-28 pt-4">
-        <p className="m-0 text-right font-medium leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-right font-medium leading-7 text-[#1a1a1a]">
           این آگهی از لیست آگهی‌های تخصیصی آژانس خارج خواهد شد.
-        </p>
+        </Typography>
 
         <section className="mt-3 rounded-xl border border-[#ff6d00] bg-[#fff7ed] px-4 py-3 text-right" aria-label="هشدار">
           <div className="flex items-center justify-start gap-2 text-[#ff6d00]">
             <AlertIcon className="h-5 w-5 shrink-0" />
-            <h2 className="m-0 text-sm font-semibold leading-5">هشدار</h2>
+            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5">هشدار</Typography>
           </div>
           <ul className="m-0 mt-2 list-disc space-y-1 pr-5 text-sm font-normal text-[#4d4d4d] marker:text-[#808080]">
             <li>
@@ -75,7 +76,7 @@ export function AdCloseResultPage() {
         </section>
 
         <section className="mt-5" aria-label="دلیل بستن آگهی">
-          <h2 className="m-0 text-right font-medium text-[#1a1a1a]">دلیل بستن آگهی</h2>
+          <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium text-[#1a1a1a]">دلیل بستن آگهی</Typography>
           <div className="mt-4 grid gap-4" role="radiogroup" aria-label="دلیل بستن آگهی">
             {closeResultReasons.map((reason) => {
               const selected = selectedReason === reason.value;
@@ -90,9 +91,9 @@ export function AdCloseResultPage() {
                   type="button"
                 >
                   <RadioIndicator checked={selected} />
-                  <span className="min-w-0 flex-1 pr-3 text-right text-[#1a1a1a] [direction:rtl]">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 pr-3 text-right text-[#1a1a1a] [direction:rtl]">
                     {reason.label}
-                  </span>
+                  </Typography>
                 </button>
               );
             })}

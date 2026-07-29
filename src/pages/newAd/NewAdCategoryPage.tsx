@@ -4,6 +4,7 @@ import { PageFrame } from "../../app/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../auth/auth-storage";
 import { TopBar } from "../../components/TopBar";
 import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
+import { Typography } from "../../components/ui/Typography";
 
 type TransactionType = "sale" | "rent" | "project";
 type RegistrantType = "" | "personal" | "agency";
@@ -233,7 +234,7 @@ function CategoryChip({
       type="button"
     >
       {isSelected ? <SelectedCheckIcon /> : null}
-      <span>{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
     </button>
   );
 }
@@ -252,9 +253,9 @@ function CategoryOptionSection({
   return (
     <section className={desktop ? "rounded-xl border border-[#e1e7f0] bg-white p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]" : "bg-white p-4"}>
       <div className="border-b border-[#e0e0e0] pb-2">
-        <h2 className="m-0 text-right font-medium leading-7 text-[#808080]">
+        <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium leading-7 text-[#808080]">
           {section.title}
-        </h2>
+        </Typography>
       </div>
 
       <div className="flex flex-wrap justify-start gap-3 pt-4 [direction:rtl]">

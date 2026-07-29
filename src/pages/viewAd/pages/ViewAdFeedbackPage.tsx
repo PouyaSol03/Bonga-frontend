@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import type { AdvertiseFeedbackPayload } from "../../../services/advertisement.service";
 import { ViewAdActionPageTopBar, ViewAdPageActionBar } from "./ViewAdActionPageLayout";
+import { Typography } from "../../../components/ui/Typography";
 
 type FeedbackValue = "positive" | "negative";
 
@@ -125,9 +126,9 @@ export function ViewAdFeedbackPage({
               className="flex min-h-[73px] items-center justify-between gap-4 text-right [direction:rtl]"
               key={option.key}
             >
-              <span className="text-base font-normal leading-6 text-[#1a1a1a]">
+              <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a]">
                 {option.label}
-              </span>
+              </Typography>
 
               <div className="flex shrink-0 items-center gap-4 [direction:ltr]">
                 <FeedbackIconButton

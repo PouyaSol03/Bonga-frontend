@@ -12,6 +12,7 @@ import {
   getAdManagementRouteState,
   type ConsultantAd,
 } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 type AdPayment = Record<string, unknown> & {
   amount?: number | string;
@@ -159,9 +160,9 @@ function PaymentHistoryLoading() {
 function PaymentHistoryError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex h-full min-h-[360px] flex-col items-center justify-center px-8 text-center">
-      <p className="m-0 text-sm font-medium leading-6 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#1a1a1a]">
         دریافت تاریخچه پرداخت با خطا مواجه شد.
-      </p>
+      </Typography>
       <button
         className="mt-4 h-10 rounded-lg bg-[#0048c4] px-6 text-sm font-medium leading-5 text-white"
         onClick={onRetry}
@@ -187,12 +188,12 @@ function EmptyPaymentHistory({
   return (
     <section className="flex h-full min-h-[430px] flex-col items-center justify-center px-8 pb-12 text-center">
       <img src="/vectors/NoPaymentHistory.svg" alt="" />
-      <h2 className="m-0 mt-3 text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-[#1a1a1a]">
         هیچ تراکنشی برای نمایش وجود ندارد
-      </h2>
-      <p className="m-0 mt-2 max-w-[260px] text-xs font-normal leading-5 text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 max-w-[260px] text-xs font-normal leading-5 text-[#4d4d4d]">
         پس از اولین پرداخت برای این آگهی، سابقه‌ها در این بخش نمایش داده می‌شود
-      </p>
+      </Typography>
 
       <RouteLink
         className="mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white no-underline"
@@ -206,9 +207,9 @@ function EmptyPaymentHistory({
         }}
         to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
       >
-        <span>افزایش بازدید</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">افزایش بازدید</Typography>
         <ArrowLeftIcon className="h-4 w-4" />
-        {adId ? <span className="sr-only">برای آگهی {adId}</span> : null}
+        {adId ? <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">برای آگهی {adId}</Typography> : null}
       </RouteLink>
     </section>
   );
@@ -242,8 +243,8 @@ function PaymentHistoryRow({
 }) {
   return (
     <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
-      <span className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</span>
-      <span className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</Typography>
     </div>
   );
 }

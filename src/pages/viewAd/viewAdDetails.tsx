@@ -10,6 +10,7 @@ import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath, viewAdDemo } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../routes/navigation";
 import type { IconName, ViewAdDetails } from "./viewAdTypes";
+import { Typography } from "../../components/ui/Typography";
 
 export type AlbumMediaItem = {
   src: string;
@@ -1556,7 +1557,7 @@ function DetailInfoIcon({
   }
 
   if (item.hideFallbackIcon) {
-    return <span aria-hidden="true" className={className} />;
+    return <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className={className} />;
   }
 
   return <ViewAdIcon className={className} name={item.icon} />;
@@ -1580,12 +1581,12 @@ function DetailInfoValueView({
     return (
       <div className={`flex flex-wrap gap-2 ${alignClassName}`}>
         {item.value.map((value) => (
-          <span
+          <Typography as="span" variant="label" size="large" weight="semibold"
             className="rounded-md bg-[#edeff3] px-2.5 py-1.5 text-base font-semibold leading-6 text-[#1A1A1A]"
             key={value}
           >
             {value}
-          </span>
+          </Typography>
         ))}
       </div>
     );
@@ -1600,15 +1601,15 @@ function DetailInfoValueView({
           : "bg-[#edeff3] text-[#4d4d4d]";
 
     return (
-      <span
+      <Typography as="span" variant="label" size="medium" weight="semibold"
         className={`inline-flex min-h-8 items-center justify-center rounded-lg px-3 text-sm font-semibold leading-5 ${badgeClassName}`}
       >
         {item.value}
-      </span>
+      </Typography>
     );
   }
 
-  return <span>{item.value}</span>;
+  return <Typography as="span" variant="body" size="medium" weight="regular">{item.value}</Typography>;
 }
 
 function DetailInfoItemCard({
@@ -1648,7 +1649,7 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
     <div className="border-t border-[#e0e0e0] pt-4">
       <div className="flex flex-wrap justify-start gap-2 [direction:rtl]">
         {badges.map((badge) => (
-          <span
+          <Typography as="span" variant="label" size="medium" weight="semibold"
             className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-[#edeff3] p-2 text-sm font-semibold leading-5 text-[#4d4d4d]"
             key={badge.label}
           >
@@ -1656,8 +1657,8 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
               className="h-5 w-5 shrink-0"
               src={badge.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
             />
-            <span>{badge.value}</span>
-          </span>
+            <Typography as="span" variant="body" size="medium" weight="regular">{badge.value}</Typography>
+          </Typography>
         ))}
       </div>
     </div>
@@ -1672,9 +1673,9 @@ function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
           <ColorableSvgIcon className="h-6 w-6 shrink-0 text-[#4D4D4D]" src={item.iconSrc} />
         ) : null}
 
-        <span className="text-base font-medium text-[#808080]">
+        <Typography as="span" variant="label" size="large" weight="medium" className="text-base font-medium text-[#808080]">
           {item.label}
-        </span>
+        </Typography>
 
         <div className="mr-0">
           <DetailInfoValueView align="start" item={item} />
@@ -1688,9 +1689,9 @@ function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
               className="flex items-center justify-start gap-2 text-sm font-medium leading-5 [direction:rtl]"
               key={row.label}
             >
-              <span className="text-sm font-medium leading-5 text-[#808080]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#808080]">
                 {row.label}
-              </span>
+              </Typography>
               <strong className="text-sm font-semibold leading-5 text-[#1A1A1A]">
                 {row.value}
               </strong>

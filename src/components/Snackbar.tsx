@@ -1,4 +1,5 @@
 import LinearCancelSmall from "./(icons)/LinearCancelSmall";
+import { Typography } from "./ui/Typography";
 
 export type SnackbarVariant = "error" | "success" | "info" | "warning";
 
@@ -68,8 +69,8 @@ export function Snackbar({
         </button>
 
         <div className={`min-w-0 flex-1 px-3 py-3 text-right [direction:rtl] ${styles.text}`}>
-          <p className="m-0 text-sm font-semibold leading-5">{title}</p>
-          <p className="m-0 mt-1 text-sm font-normal leading-5">{message}</p>
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-5">{title}</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm font-normal leading-5">{message}</Typography>
           {actionLabel && onAction ? (
             <button
               className={`mt-3 h-9 rounded-[10px] border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-current ${styles.border} ${styles.text}`}

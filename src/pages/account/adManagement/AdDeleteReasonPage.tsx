@@ -4,6 +4,7 @@ import { PageFrame } from "../../../app/PageFrame";
 import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
 import { adManagementPaths } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 const deleteReasons = [
   { id: "sold-elsewhere", label: "از راه دیگر فروختم" },
@@ -70,9 +71,9 @@ export function AdDeleteReasonPage() {
                 key={reason.id}
               >
                 <RadioIndicator checked={selectedReason === reason.id} />
-                <span className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
                   {reason.label}
-                </span>
+                </Typography>
                 <input
                   checked={selectedReason === reason.id}
                   className="sr-only"

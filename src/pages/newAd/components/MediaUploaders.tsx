@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import type { NewAdFormValues, UploadedMediaFile } from "../types";
+import { Typography } from "../../../components/ui/Typography";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png"];
 export const allowedPhotoExtensions = ["jpg", "jpeg", "png"];
@@ -101,7 +102,7 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
   return (
     <div className="overflow-hidden" dir="rtl">
       <div className="mb-3 text-right text-base font-medium leading-6 text-[#1a1a1a]">
-        انتخاب عکس <span className="text-[#ff3b30]">*</span>
+        انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
       </div>
 
       <input
@@ -122,8 +123,8 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
           onClick={() => inputRef.current?.click()}
           type="button"
         >
-          <span className="text-4xl font-light leading-none">+</span>
-          <span className="text-sm font-medium leading-5">افزودن عکس</span>
+          <Typography as="span" variant="display" size="small" className="text-4xl font-light leading-none">+</Typography>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
         </button>
 
         {photos.map((photo, index) => (
@@ -240,7 +241,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
         >
           <div className="flex gap-2">
             <img src="/icons/video.svg" alt="" />
-            <span>انتخاب فیلم</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">انتخاب فیلم</Typography>
           </div>
 
           <svg

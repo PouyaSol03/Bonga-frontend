@@ -11,6 +11,7 @@ import { usePackagesQuery } from "../../hooks/package.hooks";
 import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { RouteLink } from "../../routes/RouteLink";
 import type { PackageItem } from "../../services/package.service";
+import { Typography } from "../../components/ui/Typography";
 
 type PricingCardPlan = {
   discount: number;
@@ -171,9 +172,9 @@ function MobileDiscountBadge({ discount }: { discount: number }) {
   if (!discount) return null;
 
   return (
-    <span className="rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
+    <Typography as="span" variant="body" size="small" weight="regular" className="rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
       {toFaNumber(discount)}٪ تخفیف
-    </span>
+    </Typography>
   );
 }
 
@@ -181,21 +182,21 @@ function MobilePrice({ plan }: { plan: MobileCreditPlan }) {
   return (
     <>
       <div className="flex h-6 items-center justify-end">
-        <h2 className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
           {plan.title}
-        </h2>
+        </Typography>
       </div>
       <div className="mt-4 flex h-[68px] items-end justify-between [direction:ltr]">
         <MobileDiscountBadge discount={plan.discount} />
         <div className="text-right [direction:rtl]">
-          <p className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">
+          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">
             {toFaNumber(plan.originalPrice)}
-          </p>
+          </Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
             <strong className="text-[22px] font-semibold leading-7 text-[#1a1a1a]">
               {toFaNumber(plan.currentPrice)}
             </strong>
-            <span className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</span>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</Typography>
           </div>
         </div>
       </div>
@@ -232,7 +233,7 @@ function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
         {(plan.benefits ?? []).map((benefit) => (
           <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
             <MobileCheckSealIcon className="h-5 w-5 shrink-0 text-[#11a366]" />
-            <span>{benefit}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">{benefit}</Typography>
           </li>
         ))}
       </ul>
@@ -245,16 +246,16 @@ function MobileGiftBenefits({ benefits }: { benefits: string[] }) {
     <div className="h-16 rounded-lg border border-[#11a366] bg-[#11a36614] px-4 py-2 text-[#006038]">
       <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-[#11a366]">
         <MobileGiftIcon className="h-5 w-5" />
-        <span>بسته هدیه</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">بسته هدیه</Typography>
       </div>
       <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
         {benefits.map((benefit, index) => (
-          <span
+          <Typography as="span" variant="body" size="medium" weight="regular"
             className={index < benefits.length - 1 ? "border-l border-[#00603829] pl-4" : ""}
             key={benefit}
           >
             {benefit}
-          </span>
+          </Typography>
         ))}
       </div>
     </div>
@@ -430,13 +431,13 @@ function DashboardPaymentDesktopPage({
     <div dir="rtl" className="rounded-xl bg-white p-6">
       <div className="mb-6 flex items-center justify-between border-b border-dashed border-[#D9DDE7] pb-5">
         <div className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-[#DBE6FF]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-full bg-[#DBE6FF]">
             <img className="h-5 w-5" src="/icons/walletPlus.svg" alt="" />
-          </span>
+          </Typography>
 
-          <h1 className="text-[22px] font-medium text-[#1F2937]">
+          <Typography as="h1" variant="display" size="large" className="text-[22px] font-medium text-[#1F2937]">
             افزایش اعتبار
-          </h1>
+          </Typography>
         </div>
 
         <RouteLink
@@ -454,9 +455,9 @@ function DashboardPaymentDesktopPage({
       {!isError ? (
         <>
           <section>
-            <h2 className="mb-4 text-[22px] font-medium text-[#1F2937]">
+            <Typography as="h2" variant="title" size="large" weight="medium" className="mb-4 text-[22px] font-medium text-[#1F2937]">
               اعتبار پنل
-            </h2>
+            </Typography>
 
             {isLoading ? <PricingCardsSkeleton /> : null}
 
@@ -480,9 +481,9 @@ function DashboardPaymentDesktopPage({
           </section>
 
           <section className="mt-10">
-            <h2 className="mb-4 text-right text-base font-semibold text-[#1F2937]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-4 text-right text-base font-semibold text-[#1F2937]">
               بسته‌ها
-            </h2>
+            </Typography>
 
             {isLoading ? <PricingCardsSkeleton count={2} /> : null}
 

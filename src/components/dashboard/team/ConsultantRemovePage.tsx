@@ -21,6 +21,7 @@ import {
   getRouteConsultantId,
   mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
+import { Typography } from "../../ui/Typography";
 
 type ReplacementTarget =
   | { id: "agency"; kind: "agency"; name: string; subtitle: string }
@@ -75,27 +76,27 @@ export function ConsultantRemovePage() {
         <section className="mt-4 rounded-2xl border border-[#ff6d00] bg-[#fff6ed] p-4">
           <div className="flex items-center gap-2 text-[#ff6d00]">
             <LinearDanger className="h-6 w-6 text-[#ff6d00]" />
-            <h2 className="m-0 text-base font-semibold leading-6">توجه!</h2>
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">توجه!</Typography>
           </div>
-          <p className="m-0 mt-4 text-sm font-medium leading-6 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-4 text-sm font-medium leading-6 text-[#4d4d4d]">
             در صورت حذف تمامی اطلاعات ثبت شده به مشاور جایگزین منتقل می‌گردد.
-          </p>
+          </Typography>
         </section>
 
         <section className="mt-7">
           <label className="block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
-            انتخاب مشاور جایگزین <span className="text-[#ef1f1f]">*</span>
+            انتخاب مشاور جایگزین <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ef1f1f]">*</Typography>
           </label>
           <button
             className="mt-3 flex h-14 w-full items-center justify-between rounded-xl border border-[#808080] bg-white px-4 text-sm font-medium leading-5 text-[#1a1a1a]"
             onClick={() => setIsReplacementPickerOpen(true)}
             type="button"
           >
-            <span>
+            <Typography as="span" variant="body" size="medium" weight="regular">
               {selectedReplacement
                 ? getReplacementLabel(selectedReplacement)
                 : "یکی از مشاورین را انتخاب کن"}
-            </span>
+            </Typography>
             <LinearArrowDown1 className="h-6 w-6" />
           </button>
         </section>
@@ -233,9 +234,9 @@ function ReplacementPicker({
         </div>
 
         <section className="bg-white px-4 py-4">
-          <h2 className="m-0 text-xs font-semibold leading-5 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-[#1a1a1a]">
             نتیجه جستجو
-          </h2>
+          </Typography>
 
           {visibleTargets.length > 0 ? (
             <div className="mt-3 space-y-2">
@@ -255,9 +256,9 @@ function ReplacementPicker({
           ) : normalizedSearch ? (
             <SearchEmptyState compact />
           ) : (
-            <p className="m-0 px-2 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 px-2 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
               مشاور دیگری برای جایگزینی وجود ندارد.
-            </p>
+            </Typography>
           )}
         </section>
       </main>
@@ -300,19 +301,19 @@ function ReplacementOption({
     >
       <div className="flex min-w-0 flex-1 gap-x-2">
         {target.kind === "agency" ? (
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-[#0048c4]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-[#0048c4]">
             <LinearBuilding3 className="h-6 w-6" />
-          </span>
+          </Typography>
         ) : (
           <ConsultantAvatar consultant={target.consultant} sizeClassName="h-11 w-11" />
         )}
         <div className="flex min-w-0 flex-col justify-center">
-          <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-[#1a1a1a]">
             {getReplacementLabel(target)}
-          </span>
-          <span className="block truncate text-xs font-medium text-[#808080]">
+          </Typography>
+          <Typography as="span" variant="label" size="small" weight="medium" className="block truncate text-xs font-medium text-[#808080]">
             {target.kind === "agency" ? target.subtitle : target.consultant.phone}
-          </span>
+          </Typography>
         </div>
       </div>
       <SelectionCheckIndicator

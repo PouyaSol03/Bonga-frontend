@@ -1,4 +1,5 @@
 import LinearCancel from "../../../components/(icons)/LinearCancel";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapResultsSummaryProps = {
   count: number;
@@ -19,11 +20,11 @@ export function SearchMapResultsSummary({
       aria-live="polite"
       dir="rtl"
     >
-      <p className="m-0 min-w-0 rounded-full bg-white/95 px-4 py-1 text-center text-[13px] font-semibold leading-5 text-[#4d4d4d] shadow-[0_4px_14px_rgba(26,26,26,0.13)] backdrop-blur-sm min-[400px]:px-5 min-[400px]:text-sm">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 min-w-0 rounded-full bg-white/95 px-4 py-1 text-center text-[13px] font-semibold leading-5 text-[#4d4d4d] shadow-[0_4px_14px_rgba(26,26,26,0.13)] backdrop-blur-sm min-[400px]:px-5 min-[400px]:text-sm">
         {isLoading
           ? "در حال دریافت تعداد آگهی‌ها..."
           : `${count.toLocaleString("fa-IR")} آگهی در این محدوده`}
-      </p>
+      </Typography>
 
       {hasGeofence ? (
         <button
@@ -32,7 +33,7 @@ export function SearchMapResultsSummary({
           onClick={onRemoveGeofence}
         >
           <LinearCancel className="w-4 h-4" />
-          <span className="text-xs font-medium">حذف محدوده</span>
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium">حذف محدوده</Typography>
         </button>
       ) : null}
     </div>

@@ -8,14 +8,15 @@ import { AdInformationFields } from "../components/AdInformationFields";
 import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
+import { Typography } from "../../../components/ui/Typography";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <p className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
       {message}
-    </p>
+    </Typography>
   );
 }
 

@@ -20,6 +20,7 @@ import {
   getSupportRequests,
   type SupportRequestItem,
 } from "../../services/support-request.service";
+import { Typography } from "../../components/ui/Typography";
 
 const SUPPORT_PATH = "/account/support";
 const REQUESTS_PATH = "/account/support/requests";
@@ -132,11 +133,11 @@ function SupportRequestStatusChip({ status }: { status: SupportRequestStatus }) 
   const presentation = statusPresentation[status];
 
   return (
-    <span
+    <Typography as="span" variant="label" size="small" weight="medium"
       className={`inline-flex h-6 shrink-0 items-center justify-center rounded-md px-2 text-[11px] font-medium leading-4 ${presentation.className}`}
     >
       {presentation.label}
-    </span>
+    </Typography>
   );
 }
 
@@ -145,22 +146,22 @@ function SupportRequestCard({ request }: { request: SupportRequest }) {
     <article className="rounded-2xl border border-[#e1e1e1] bg-white px-4 py-3.5 text-right shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="m-0 text-xs font-normal leading-5 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-5 text-[#4d4d4d]">
             {request.category}
-          </p>
-          <h2 className="m-0 mt-1 text-sm font-semibold leading-6 text-[#1a1a1a]">
+          </Typography>
+          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 text-sm font-semibold leading-6 text-[#1a1a1a]">
             {request.title}
-          </h2>
+          </Typography>
         </div>
 
         <SupportRequestStatusChip status={request.status} />
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-3 text-[10px] font-normal leading-4 text-[#808080]">
-        <span>{request.createdAt}</span>
-        <span className="truncate" dir="rtl">
+        <Typography as="span" variant="body" size="medium" weight="regular">{request.createdAt}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="truncate" dir="rtl">
           شماره درخواست {request.requestNumber}
-        </span>
+        </Typography>
       </div>
     </article>
   );
@@ -186,14 +187,14 @@ function SupportRequestsEmptyState() {
         src="/vectors/NoSupportRequest.svg"
       />
 
-      <h2 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
         درخواستی ثبت نشده است!
-      </h2>
+      </Typography>
 
-      <p className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-[#666666]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-[#666666]">
         اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم
         پشتیبانی ثبت کنید.
-      </p>
+      </Typography>
     </div>
   );
 }
@@ -280,7 +281,7 @@ export function AccountSupportRequestsPage() {
         }`}
       >
         {requestsQuery.isLoading ? (
-          <p className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</p>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</Typography>
         ) : RequestErrorState ? (
           <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
         ) : requests.length === 0 ? (
@@ -308,7 +309,7 @@ export function AccountSupportRequestsPage() {
           to={NEW_REQUEST_PATH}
         >
           <LinearAdd className="h-4.5 w-4.5" />
-          <span>ایجاد درخواست جدید</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">ایجاد درخواست جدید</Typography>
         </RouteLink>
       </div>
     </PageFrame>
@@ -317,12 +318,12 @@ export function AccountSupportRequestsPage() {
 
 function RequiredLabel({ children }: { children: string }) {
   return (
-    <span className="inline-flex items-center gap-1 text-sm font-medium leading-5 text-[#1a1a1a]">
-      <span>{children}</span>
-      <span aria-hidden="true" className="text-[#d92d20]">
+    <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1 text-sm font-medium leading-5 text-[#1a1a1a]">
+      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="text-[#d92d20]">
         *
-      </span>
-    </span>
+      </Typography>
+    </Typography>
   );
 }
 
@@ -348,9 +349,9 @@ function RequestSelectField({
         type="button"
       >
         <LinearArrowDown1 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-        <span className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]">
           {value || placeholder}
-        </span>
+        </Typography>
       </button>
     </label>
   );
@@ -408,16 +409,16 @@ function RequestOptionBottomSheet({
                     />
                   ) : null}
 
-                  <span className="flex min-w-0 flex-col items-center">
-                    <span className="text-base font-normal leading-6">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-col items-center">
+                    <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6">
                       {option.title}
-                    </span>
+                    </Typography>
                     {option.description ? (
-                      <span className="mt-1 max-w-[360px] text-xs font-normal leading-5 text-[#808080]">
+                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 max-w-[360px] text-xs font-normal leading-5 text-[#808080]">
                         {option.description}
-                      </span>
+                      </Typography>
                     ) : null}
-                  </span>
+                  </Typography>
                 </button>
 
                 {index < options.length - 1 ? (
@@ -554,12 +555,12 @@ export function AccountSupportNewRequestPage() {
             </label>
 
             <div>
-              <p className="m-0 text-sm font-medium leading-5 text-[#1a1a1a]">
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-5 text-[#1a1a1a]">
                 افزودن فایل
-                <span className="mr-1 text-xs font-normal text-[#808080]">
+                <Typography as="span" variant="body" size="small" weight="regular" className="mr-1 text-xs font-normal text-[#808080]">
                   (اختیاری)
-                </span>
-              </p>
+                </Typography>
+              </Typography>
 
               <input
                 accept=".jpg,.jpeg,.png,.webp,.pdf"
@@ -588,29 +589,29 @@ export function AccountSupportNewRequestPage() {
               >
                 <LinearAttachment className="h-5 w-5 text-[#4d4d4d]" />
                 {attachment ? (
-                  <span className="mt-2 max-w-full truncate text-xs font-medium leading-5 text-[#1a1a1a]">
+                  <Typography as="span" variant="label" size="small" weight="medium" className="mt-2 max-w-full truncate text-xs font-medium leading-5 text-[#1a1a1a]">
                     {attachment.name}
-                  </span>
+                  </Typography>
                 ) : (
                   <>
-                    <span className="mt-2 text-xs font-normal leading-5 text-[#4d4d4d]">
+                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-2 text-xs font-normal leading-5 text-[#4d4d4d]">
                       برای انتخاب فایل لمس کنید
-                    </span>
-                    <span className="text-[10px] font-normal leading-4 text-[#a6a6a6]">
+                    </Typography>
+                    <Typography as="span" variant="body" size="small" weight="regular" className="text-[10px] font-normal leading-4 text-[#a6a6a6]">
                       حداکثر حجم فایل ۵ مگابایت
-                    </span>
+                    </Typography>
                   </>
                 )}
               </button>
             </div>
 
             {errorMessage ? (
-              <p
+              <Typography as="p" variant="body" size="small" weight="regular"
                 className="m-0 rounded-lg bg-[#fff1f0] px-3 py-2 text-right text-xs font-normal leading-5 text-[#c11004]"
                 role="alert"
               >
                 {errorMessage}
-              </p>
+              </Typography>
             ) : null}
           </div>
         </main>

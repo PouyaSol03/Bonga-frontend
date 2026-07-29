@@ -6,6 +6,7 @@ import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import LinearAttachment from "../../../components/(icons)/LinearAttachment";
 import { REQUESTS_PATH, RequestOptionBottomSheet, RequestSelectField, RequiredLabel, categoryOptions, priorityOptions } from "../accountSupportRequestViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function AccountSupportNewRequestPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,12 +119,12 @@ export function AccountSupportNewRequestPage() {
             </label>
 
             <div>
-              <p className="m-0 text-sm font-medium leading-5 text-[#1a1a1a]">
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-5 text-[#1a1a1a]">
                 افزودن فایل
-                <span className="mr-1 text-xs font-normal text-[#808080]">
+                <Typography as="span" variant="body" size="small" weight="regular" className="mr-1 text-xs font-normal text-[#808080]">
                   (اختیاری)
-                </span>
-              </p>
+                </Typography>
+              </Typography>
 
               <input
                 accept=".jpg,.jpeg,.png,.webp,.pdf"
@@ -152,29 +153,29 @@ export function AccountSupportNewRequestPage() {
               >
                 <LinearAttachment className="h-5 w-5 text-[#4d4d4d]" />
                 {attachment ? (
-                  <span className="mt-2 max-w-full truncate text-xs font-medium leading-5 text-[#1a1a1a]">
+                  <Typography as="span" variant="label" size="small" weight="medium" className="mt-2 max-w-full truncate text-xs font-medium leading-5 text-[#1a1a1a]">
                     {attachment.name}
-                  </span>
+                  </Typography>
                 ) : (
                   <>
-                    <span className="mt-2 text-xs font-normal leading-5 text-[#4d4d4d]">
+                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-2 text-xs font-normal leading-5 text-[#4d4d4d]">
                       برای انتخاب فایل لمس کنید
-                    </span>
-                    <span className="text-[10px] font-normal leading-4 text-[#a6a6a6]">
+                    </Typography>
+                    <Typography as="span" variant="body" size="small" weight="regular" className="text-[10px] font-normal leading-4 text-[#a6a6a6]">
                       حداکثر حجم فایل ۵ مگابایت
-                    </span>
+                    </Typography>
                   </>
                 )}
               </button>
             </div>
 
             {errorMessage ? (
-              <p
+              <Typography as="p" variant="body" size="small" weight="regular"
                 className="m-0 rounded-lg bg-[#fff1f0] px-3 py-2 text-right text-xs font-normal leading-5 text-[#c11004]"
                 role="alert"
               >
                 {errorMessage}
-              </p>
+              </Typography>
             ) : null}
           </div>
         </main>

@@ -24,6 +24,7 @@ import {
   getPendingOtpMobile,
 } from "../auth/auth-storage";
 import LinearArrowRight2 from "../components/(icons)/LinearArrowRight2";
+import { Typography } from "../components/ui/Typography";
 
 function goBackOrNavigate(fallbackPath: string) {
   if (window.history.length > 1) {
@@ -249,14 +250,14 @@ export function LoginVerifyPage() {
             aria-labelledby="login-verify-title"
           >
             <div className="flex w-full flex-col gap-4">
-              <h2
+              <Typography as="h2" variant="title" size="medium" weight="semibold"
                 className="m-0 text-right font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
                 id="login-verify-title"
               >
                 ورود کد ارسالی
-              </h2>
-              <p className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
-                <span>کد ارسال شده به </span>
+              </Typography>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
+                <Typography as="span" variant="body" size="medium" weight="regular">کد ارسال شده به </Typography>
                 <RouteLink
                   dir="ltr"
                   className="font-medium text-[#0048c4] underline underline-offset-3"
@@ -270,8 +271,8 @@ export function LoginVerifyPage() {
                   alt=""
                   aria-hidden="true"
                 />
-                <span> را وارد نمایید.</span>
-              </p>
+                <Typography as="span" variant="body" size="medium" weight="regular"> را وارد نمایید.</Typography>
+              </Typography>
             </div>
 
             <div
@@ -308,7 +309,7 @@ export function LoginVerifyPage() {
                 className="flex py-2 px-6 items-center justify-center gap-2 mt-12 rounded-2xl bg-[#f5f5f5] text-sm font-medium leading-5 text-[#1a1a1a]"
                 aria-live="polite"
               >
-                <span dir="ltr">{formatCountdownSeconds(resendSeconds)}</span>
+                <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{formatCountdownSeconds(resendSeconds)}</Typography>
                 <img
                   className="block h-4 w-4 object-contain"
                   src="/figma/otp/timer.svg"
@@ -323,7 +324,7 @@ export function LoginVerifyPage() {
                 onClick={handleResend}
                 type="button"
               >
-                <span className="text-sm font-medium">{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</span>
+                <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</Typography>
                 <LinearArrowRight2 className="w-5 h-5 text-[#4d4d4d]" />
               </button>
             )}

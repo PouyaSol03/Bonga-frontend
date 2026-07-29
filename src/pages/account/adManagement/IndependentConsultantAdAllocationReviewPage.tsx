@@ -25,6 +25,7 @@ import LinearBuilding2 from "../../../components/(icons)/LinearBuilding2";
 import LinearUserSolid from "../../../components/(icons)/LinearUserSolid";
 import LinearCancel from "../../../components/(icons)/LinearCancel";
 import LinearSearch from "../../../components/(icons)/LinearSearch";
+import { Typography } from "../../../components/ui/Typography";
 
 type PublisherType = "agency" | "consultant";
 
@@ -128,9 +129,9 @@ export function IndependentConsultantAdAllocationReviewPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-4">
         <section className="px-4 pb-4 pt-4" aria-label="خلاصه آگهی">
           <div className="flex justify-start">
-            <span className="inline-flex h-9 items-center rounded-lg bg-[#fff3e8] px-3 text-sm font-medium leading-5 text-[#ff6d00]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#fff3e8] px-3 text-sm font-medium leading-5 text-[#ff6d00]">
               در انتظار پرداخت
-            </span>
+            </Typography>
           </div>
 
           <CompactAdSummary ad={ad} />
@@ -166,9 +167,9 @@ export function IndependentConsultantAdAllocationReviewPage() {
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="px-4 pb-6 pt-5" aria-label="منتشرکننده آگهی">
-          <h2 className="m-0 mb-4 text-right font-medium leading-5 text-[#1a1a1a]">
-            منتشرکننده آگهی <span className="text-[#ee3623] text-sm">*</span>
-          </h2>
+          <Typography as="h2" variant="headline" size="large" className="m-0 mb-4 text-right font-medium leading-5 text-[#1a1a1a]">
+            منتشرکننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ee3623] text-sm">*</Typography>
+          </Typography>
 
           <div className="space-y-3" role="radiogroup" aria-label="انتخاب منتشرکننده آگهی">
             {publisherOptions.map((option) => (
@@ -230,12 +231,12 @@ function CompactAdSummary({ ad }: { ad: ConsultantAd }) {
       className="mt-4 flex h-[68px] items-center justify-between gap-2 rounded-2xl border border-[#e5e5e5] bg-[#fafafa] px-3 py-2 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]"
     >
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <p className="m-0 text-xs font-normal leading-4 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-4 text-[#4d4d4d]">
           فروش مسکونی / فروش آپارتمان
-        </p>
-        <h2 className="m-0 mt-1 truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
+        </Typography>
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
           {ad.title}
-        </h2>
+        </Typography>
       </div>
       <div
         aria-hidden="true"
@@ -268,10 +269,10 @@ function ReviewAction({
       to={to}
     >
       <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
-      <span className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-        <span className="text-[#4d4d4d]">{icon}</span>
+      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography>
         {label}
-      </span>
+      </Typography>
     </RouteLink>
   );
 }
@@ -283,10 +284,10 @@ function RejectAction() {
       type="button"
     >
       <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
-      <span className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <LinearCancel className="h-6 w-6 text-[#4d4d4d]" />
         رد ثبت آگهی
-      </span>
+      </Typography>
     </button>
   );
 }
@@ -329,17 +330,17 @@ function PublisherOptionCard({
         type="button"
       >
         <RadioIndicator className="m-3" checked={selected} />
-        <span className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
           <PublisherIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" icon={option.icon} />
-          <span className="min-w-0 flex-1">
-            <p className="block text-normal text-[#1a1a1a]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="block text-normal text-[#1a1a1a]">
               {option.label}
-            </p>
-            <span className="block text-sm font-normal text-[#a6a6a6]">
+            </Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="block text-sm font-normal text-[#a6a6a6]">
               {option.description}
-            </span>
-          </span>
-        </span>
+            </Typography>
+          </Typography>
+        </Typography>
       </button>
 
       <AnimatePresence initial={false}>
@@ -358,9 +359,9 @@ function PublisherOptionCard({
               {assignedConsultant ? (
                 <div className="mb-2 flex items-center justify-center gap-2 px-1 py-1 text-right [direction:rtl]">
                   <ConsultantAvatar consultant={assignedConsultant} className="h-10 w-10" />
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+                  <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
                     {assignedConsultant.name}
-                  </span>
+                  </Typography>
                 </div>
               ) : null}
             <div className="py-4">
@@ -445,7 +446,7 @@ function ConsultantPickerPage({
 
         <div className="mt-6 grid gap-1">
           {isLoading ? (
-            <p className="py-10 text-center text-sm text-[#808080]">در حال دریافت مشاوران...</p>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="py-10 text-center text-sm text-[#808080]">در حال دریافت مشاوران...</Typography>
           ) : isError ? (
             <div className="py-8 text-center text-sm leading-6 text-[#808080]">
               دریافت فهرست مشاوران با خطا مواجه شد.
@@ -473,12 +474,12 @@ function ConsultantPickerPage({
                   type="button"
                 >
                   <RadioIndicator checked={selected} />
-                  <span className="flex flex-1 items-center gap-3 [direction:rtl]">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="flex flex-1 items-center gap-3 [direction:rtl]">
                     <ConsultantAvatar consultant={consultant} className="h-14 w-14" />
-                    <span className="leading-5 text-[#1a1a1a]">
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="leading-5 text-[#1a1a1a]">
                       {consultant.name}
-                    </span>
-                  </span>
+                    </Typography>
+                  </Typography>
                 </button>
               );
             })
@@ -522,12 +523,12 @@ function ConsultantAvatar({
   }
 
   return (
-    <span
+    <Typography as="span" variant="label" size="small" weight="semibold"
       aria-hidden="true"
       className={`${className} grid shrink-0 place-items-center rounded-full bg-[#edf3ff] text-xs font-semibold text-[#0048c4]`}
     >
       {consultant.name.trim().charAt(0) || "م"}
-    </span>
+    </Typography>
   );
 }
 

@@ -1,5 +1,6 @@
 import { landingAssets } from "../publicLandingData";
 import ShenasaVector from "../../../assets/icons/ShenasaVector";
+import { Typography } from "../../../components/ui/Typography";
 
 export function LandingHero() {
   return (
@@ -19,15 +20,15 @@ export function LandingHero() {
           ایران شناسا
         </strong>
 
-        <h1 className="m-0 mt-1.5 flex max-w-full items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-[#edf0fb] px-3 py-1 text-base font-semibold leading-6 text-[#4d4d4d] min-[390px]:gap-[5px] min-[390px]:px-4 min-[390px]:text-xl min-[390px]:leading-[26px]">
-          <span className="font-black text-[#0048c4]">خونه رویایی</span>
+        <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 mt-1.5 flex max-w-full items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-[#edf0fb] px-3 py-1 text-base font-semibold leading-6 text-[#4d4d4d] min-[390px]:gap-[5px] min-[390px]:px-4 min-[390px]:text-xl min-[390px]:leading-[26px]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-black text-[#0048c4]">خونه رویایی</Typography>
           <em className="font-black not-italic text-[#11a366]">خودتو</em>
           <b className="font-semibold">پیدا کن!</b>
-        </h1>
+        </Typography>
 
-        <p className="m-0 text-sm font-medium leading-5 text-[#edf0fb]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-5 text-[#edf0fb]">
           سایت ملکی ایران برای خرید، فروش و اجاره ملک
-        </p>
+        </Typography>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { Chip } from "../ui/Chip";
 import { SelectField } from "../ui/SelectField";
 import { Switch } from "../ui/Switch";
 import { TextField } from "../ui/TextField";
+import { Typography } from "../ui/Typography";
 
 type SegmentOption<T extends string> = {
   label: string;
@@ -153,9 +154,9 @@ export function FormSwitch({ checked, label, onChange }: FormSwitchProps) {
   return (
     <label className="flex h-14 w-full items-center justify-between [direction:ltr]">
       <Switch checked={checked} onChange={onChange} />
-      <span className="text-right text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="text-right text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
         {label}
-      </span>
+      </Typography>
     </label>
   );
 }

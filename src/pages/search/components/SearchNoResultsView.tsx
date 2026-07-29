@@ -1,6 +1,7 @@
 import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
 import ListIcon from "../../../assets/icons/ListIcon";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchNoResultsViewProps = {
   mode: "map" | "list";
@@ -31,7 +32,7 @@ export function SearchNoResultsView({
         type="button"
       >
         {isMapMode ? <ListIcon className="h-5 w-5" /> : <LinearMapsLocation className="h-5 w-5" />}
-        <span>{isMapMode ? "لیست" : "نقشه"}</span>
+        <Typography as="span" variant="body" size="medium" weight="regular">{isMapMode ? "لیست" : "نقشه"}</Typography>
       </button>
     </>
   );

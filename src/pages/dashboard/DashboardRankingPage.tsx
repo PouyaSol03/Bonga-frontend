@@ -12,6 +12,7 @@ import LinearStartup from "../../components/(icons)/LinearStartup";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import LinearChartUp from "../../components/(icons)/LinearChartUp";
+import { Typography } from "../../components/ui/Typography";
 
 type BadgeTone = "active" | "muted";
 
@@ -171,15 +172,15 @@ function LevelSummaryCard() {
       <div className="min-w-0 flex-1">
         <div className="flex h-6 items-center justify-between gap-2 [direction:ltr]">
           <GuidePill ariaLabel="راهنمای سطح پیشرفت آژانس" to={DASHBOARD_LEVELS_GUIDE_PATH} />
-          <span className="truncate text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
             آژانس برتر منطقه‌ای
-          </span>
+          </Typography>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-end gap-x-1 gap-y-1 text-xs leading-4 [direction:ltr]">
-          <span className="text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">
             تا رسیدن به آژانس افسانه‌ای
-          </span>
-          <span className="font-semibold text-[#0048c4] [direction:rtl]">۶ امتیاز</span>
+          </Typography>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-[#0048c4] [direction:rtl]">۶ امتیاز</Typography>
         </div>
       </div>
       <AgencyPreviewVector />
@@ -191,7 +192,7 @@ function AgencyPreviewVector() {
   const [hasError, setHasError] = useState(false);
 
   return (
-    <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg">
+    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg">
       {!hasError ? (
         <img
           alt=""
@@ -202,7 +203,7 @@ function AgencyPreviewVector() {
       ) : (
         <LinearStartup className="h-9 w-9 text-[#4b5070]" />
       )}
-    </span>
+    </Typography>
   );
 }
 
@@ -232,18 +233,18 @@ function MetricSummaryCard({
         {value}
       </strong>
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <p className="m-0 text-sm font-semibold leading-5 text-[#4d4d4d]">{label}</p>
-        <p className="m-0 mt-2 flex items-center gap-1 text-xs leading-4 text-[#808080]">
-          <span className={`inline-flex items-center font-semibold ${isUp ? "text-[#11a366]" : "text-[#ee3623]"}`}>
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-5 text-[#4d4d4d]">{label}</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 flex items-center gap-1 text-xs leading-4 text-[#808080]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex items-center font-semibold ${isUp ? "text-[#11a366]" : "text-[#ee3623]"}`}>
             <LinearChartUp className="h-4 w-4" />
             {trendText}
-          </span>
-          <span>نسبت به روز قبل</span>
-        </p>
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">نسبت به روز قبل</Typography>
+        </Typography>
       </div>
-      <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
         {icon}
-      </span>
+      </Typography>
     </section>
   );
 }
@@ -268,19 +269,19 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
 
   const content = (
     <>
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-[72px] w-[72px] place-items-center ${isActive ? "text-[#d69832]" : "text-[#d6d6d6]"}`}
       >
         <img src={Icon} className="h-full w-full" alt="" />
-      </span>
+      </Typography>
 
-      <span
+      <Typography as="span" variant="label" size="medium" weight="semibold"
         className={`mt-2 inline-flex h-6 min-w-[92px] items-center justify-center rounded-lg px-2 text-sm font-semibold leading-5 ${
           isActive ? "bg-[#0048c41f] text-[#0048c4]" : "bg-[#4d4d4d14] text-[#b8b8b8]"
         }`}
       >
         {badge.label}
-      </span>
+      </Typography>
 
       <div className="mt-0.5 flex h-3 items-center justify-center [direction:ltr]">
         {[0, 1, 2].map((star) => (
@@ -328,9 +329,9 @@ function RankingIndicatorsPanel() {
           type="button"
         >
           <LinearArrowDown1 className="h-4 w-4 text-[#4d4d4d]" />
-          <span className="[direction:rtl]">{period}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{period}</Typography>
         </button>
-        <h2 className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</h2>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</Typography>
       </div>
       <div className="mt-6 space-y-4">
         {agencyIndicators.map((indicator) => (
@@ -349,12 +350,12 @@ function RankIndicatorRow({ indicator }: { indicator: AgencyIndicator }) {
       <strong className="w-12 shrink-0 text-left text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
         {indicator.value}
       </strong>
-      <span className="min-w-0 flex-1 px-2 text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 flex-1 px-2 text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
         {indicator.label}
-      </span>
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#0048c414] text-[#4b5070]">
+      </Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#0048c414] text-[#4b5070]">
         <Icon className="h-6 w-6" />
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -362,14 +363,14 @@ function RankIndicatorRow({ indicator }: { indicator: AgencyIndicator }) {
 function TopAgenciesPanel() {
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="۱۰ آژانس برتر">
-      <h2 className="m-0 text-right text-base font-semibold leading-6">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">
         ۱۰ آژانس برتر
-      </h2>
+      </Typography>
 
       <div className="mt-4">
         <div className="grid h-7 grid-cols-[56px_1fr] items-center px-2 text-sm font-normal leading-5 text-[#808080] [direction:ltr]">
-          <span className="text-center [direction:rtl]">امتیاز</span>
-          <span className="text-right [direction:rtl]">۱۰ آژانس برتر</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-center [direction:rtl]">امتیاز</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-right [direction:rtl]">۱۰ آژانس برتر</Typography>
         </div>
 
         <div className="h-px bg-[#cccccc]" aria-hidden="true" />
@@ -380,13 +381,13 @@ function TopAgenciesPanel() {
               }`}
             key={`${agency.name}-${index}`}
           >
-            <span className="text-center font-semibold [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-center font-semibold [direction:rtl]">
               {agency.score}
-            </span>
+            </Typography>
 
-            <span className="text-right font-semibold text-[#4d4d4d] [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-[#4d4d4d] [direction:rtl]">
               {index + 1}. {agency.name}
-            </span>
+            </Typography>
           </div>
         ))}
       </div>
@@ -398,7 +399,7 @@ function SectionHeader({ guideTo, title }: { guideTo?: string; title: string }) 
   return (
     <div className="flex h-6 items-center justify-between [direction:ltr]">
       <GuidePill ariaLabel={`راهنمای ${title}`} to={guideTo} />
-      <h2 className="m-0 text-base font-semibold leading-6 [direction:rtl]">{title}</h2>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">{title}</Typography>
     </div>
   );
 }
@@ -408,7 +409,7 @@ function GuidePill({ ariaLabel = "راهنما", to }: { ariaLabel?: string; to?
     "inline-flex h-6 items-center gap-1 rounded-full bg-[#0048c414] px-2 text-xs font-medium leading-4 text-[#0048c4] no-underline transition active:bg-[#0048c424] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr]";
   const content = (
     <>
-      <span className="[direction:rtl]">راهنما</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">راهنما</Typography>
       <LinearInfoCircle className="h-4 w-4" />
     </>
   );
@@ -421,5 +422,5 @@ function GuidePill({ ariaLabel = "راهنما", to }: { ariaLabel?: string; to?
     );
   }
 
-  return <span className={className}>{content}</span>;
+  return <Typography as="span" variant="body" size="medium" weight="regular" className={className}>{content}</Typography>;
 }

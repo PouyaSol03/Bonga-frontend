@@ -33,6 +33,7 @@ import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
 import { ProjectSpecsSection } from "./project/ProjectSpecsSection";
+import { Typography } from "../../../components/ui/Typography";
 
 function toggleArray(current: string[], id: string) {
   return current.includes(id)
@@ -323,7 +324,7 @@ export function DetailsStep({
           {values.exchangeEnabled ? (
             <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
               <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
-                <span className="[direction:rtl]">معاوضه با</span>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
 
                 <button
                   className="flex items-center gap-1 text-[#0048c4]"
@@ -336,8 +337,8 @@ export function DetailsStep({
                   }
                   type="button"
                 >
-                  <span>انتخاب</span>
-                  <span>‹</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
+                  <Typography as="span" variant="body" size="medium" weight="regular">‹</Typography>
                 </button>
               </div>
 
@@ -358,9 +359,9 @@ export function DetailsStep({
                 </div>
               ) : null}
               {errors.exchangeTargets ? (
-                <p className="m-0 mt-3 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-5 text-[#ff3b30]">
                   {errors.exchangeTargets}
-                </p>
+                </Typography>
               ) : null}
             </div>
           ) : null}
@@ -446,11 +447,11 @@ export function DetailsStep({
                       onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
                       type="button"
                     >
-                      <span>
+                      <Typography as="span" variant="body" size="medium" weight="regular">
                         {showRegisteredMoreFeatures
                           ? "نمایش کمتر"
                           : `${formatPersianCount(hiddenMoreFeatureCount)} مشخصات دیگر`}
-                      </span>
+                      </Typography>
                       <svg
                         aria-hidden="true"
                         className="h-4 w-4 shrink-0"
@@ -473,12 +474,12 @@ export function DetailsStep({
                     onClick={onMoreFeatures}
                     type="button"
                   >
-                    <span>ویرایش مشخصات</span>
-                    <span className="text-lg leading-none">
+                    <Typography as="span" variant="body" size="medium" weight="regular">ویرایش مشخصات</Typography>
+                    <Typography as="span" variant="title" size="large" weight="medium" className="text-lg leading-none">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#0048c4" />
                       </svg>
-                    </span>
+                    </Typography>
                   </button>
                 </div>
               ) : !isDailyHotelRent && moreFeatureFields.length ? (
@@ -487,12 +488,12 @@ export function DetailsStep({
                   onClick={onMoreFeatures}
                   type="button"
                 >
-                  <span>ثبت {formatPersianCount(moreFeatureFields.length)} مشخصات دیگر</span>
-                  <span className="text-lg leading-none">
+                  <Typography as="span" variant="body" size="medium" weight="regular">ثبت {formatPersianCount(moreFeatureFields.length)} مشخصات دیگر</Typography>
+                  <Typography as="span" variant="title" size="large" weight="medium" className="text-lg leading-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                       <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#0048c4" />
                     </svg>
-                  </span>
+                  </Typography>
                 </button>
               ) : null}
             </div>
@@ -603,7 +604,7 @@ export function DetailsStep({
                   type="button"
                 >
                   <ExchangeCheckIcon checked={checked} />
-                  <span>{option}</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
                 </button>
               );
             })}

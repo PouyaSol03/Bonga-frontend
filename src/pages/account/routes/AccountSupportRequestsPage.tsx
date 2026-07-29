@@ -9,6 +9,7 @@ import { RouteLink } from "../../../routes/RouteLink";
 import LinearAdd from "../../../components/(icons)/LinearAdd";
 import { NEW_REQUEST_PATH, SUPPORT_PATH, SupportRequestCard, SupportRequestTabs, SupportRequestsEmptyState, mapSupportRequest } from "../accountSupportRequestViews";
 import type { SupportRequestFilter } from "../accountSupportRequestViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function AccountSupportRequestsPage() {
   const [activeFilter, setActiveFilter] = useState<SupportRequestFilter>("all");
@@ -57,7 +58,7 @@ export function AccountSupportRequestsPage() {
         }`}
       >
         {requestsQuery.isLoading ? (
-          <p className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</p>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</Typography>
         ) : RequestErrorState ? (
           <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
         ) : requests.length === 0 ? (
@@ -86,7 +87,7 @@ export function AccountSupportRequestsPage() {
           to={NEW_REQUEST_PATH}
         >
           <LinearAdd className="h-4.5 w-4.5" />
-          <span>ایجاد درخواست جدید</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">ایجاد درخواست جدید</Typography>
         </RouteLink>
       </div>
     </PageFrame>

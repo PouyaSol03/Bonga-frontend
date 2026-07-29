@@ -17,6 +17,7 @@ import {
   neighborhoodIdKey,
 } from "./data";
 import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
+import { Typography } from "../../components/ui/Typography";
 
 type NewAdMapCenter = {
   lat: number;
@@ -285,13 +286,13 @@ export function NewAdLocationPage() {
           onClick={moveToBrowserLocation}
           type="button"
         >
-          <span className="text-[#4d4d4d]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M12.8 8C12.8 10.651 10.651 12.8 8 12.8M12.8 8C12.8 5.34903 10.651 3.2 8 3.2M12.8 8H14M8 12.8C5.34903 12.8 3.2 10.651 3.2 8M8 12.8V14M3.2 8C3.2 5.34903 5.34903 3.2 8 3.2M3.2 8H2M8 3.2V2" stroke="#4D4D4D" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M10 8C10 9.10457 9.10457 10 8 10C6.89543 10 6 9.10457 6 8C6 6.89543 6.89543 6 8 6C9.10457 6 10 6.89543 10 8Z" fill="#4D4D4D" />
             </svg>
-          </span>
-          <span>موقعیت من</span>
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">موقعیت من</Typography>
         </button>
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-full">
@@ -339,10 +340,10 @@ export function NewAdLocationPage() {
                       onClick={() => selectNeighborhood(item)}
                       type="button"
                     >
-                      <span className="block text-sm font-semibold leading-5 text-[#1a1a1a]">{item.name}</span>
-                      <span className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
+                      <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold leading-5 text-[#1a1a1a]">{item.name}</Typography>
+                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
                         {window.localStorage.getItem("bonga-selected-city") ?? "شهر انتخاب‌شده"}
-                      </span>
+                      </Typography>
                     </button>
                   ))}
                 </div>

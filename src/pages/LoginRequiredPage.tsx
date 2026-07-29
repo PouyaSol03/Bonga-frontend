@@ -6,6 +6,7 @@ import {
   getStoredAuthSession,
   storeLoginRedirectPath,
 } from "../auth/auth-storage";
+import { Typography } from "../components/ui/Typography";
 
 const defaultReturnPath = "/home";
 
@@ -76,11 +77,11 @@ export function LoginRequiredPage() {
           <img src="./vectors/LockIcon.svg" alt=""/>
           <div className="flex flex-col gap-y-2 items-center">
 
-          <h2 className="font-semibold ">دسترسی محدود!</h2>
-          <p className="font-normal text-sm text-[#4D4D4D] text-center">
+          <Typography as="h2" variant="headline" size="large" className="font-semibold ">دسترسی محدود!</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="font-normal text-sm text-[#4D4D4D] text-center">
             این قابلیت فقط برای کاربران ثبت‌نام‌شده <br/>
             در دسترس است.
-          </p>
+          </Typography>
           </div>
           <button
             className="text-sm font-medium text-white bg-[#0048C4] py-2.5 px-4 rounded-xl"

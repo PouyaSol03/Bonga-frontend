@@ -25,6 +25,7 @@ import {
   type CrmReportKind,
   type CrmReportListResult,
 } from "../../services/crm.service";
+import { Typography } from "../../components/ui/Typography";
 
 type CrmReportsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -247,9 +248,9 @@ function ReportStatusBadge({ report }: { report: CrmRecord }) {
   const status = reportStatus(report);
 
   return (
-    <span className={`inline-flex h-7 items-center rounded-lg px-2.5 text-xs font-bold ${statusPresentation[status.tone]}`}>
+    <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex h-7 items-center rounded-lg px-2.5 text-xs font-bold ${statusPresentation[status.tone]}`}>
       {status.label}
-    </span>
+    </Typography>
   );
 }
 
@@ -260,7 +261,7 @@ function ReportTableSkeleton() {
         <tr key={index}>
           {Array.from({ length: 7 }, (_, cellIndex) => (
             <td className="border-b border-[#edf0f5] px-4 py-4" key={cellIndex}>
-              <span className="block h-4 animate-pulse rounded bg-[#eef1f5]" />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="block h-4 animate-pulse rounded bg-[#eef1f5]" />
             </td>
           ))}
         </tr>
@@ -274,15 +275,15 @@ function EmptyReports({ isSearch, kind }: { isSearch: boolean; kind: CrmReportKi
 
   return (
     <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
-      <span className="grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
         <LinearFlag className="h-8 w-8" />
-      </span>
+      </Typography>
       <strong className="mt-4 text-base font-black text-[#344054]">گزارشی پیدا نشد</strong>
-      <p className="m-0 mt-2 max-w-md text-sm leading-7 text-[#8a94a3]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-md text-sm leading-7 text-[#8a94a3]">
         {kind === "advertise"
           ? "هنوز گزارشی برای آگهی‌ها ثبت نشده یا نتیجه‌ای با جست‌وجوی فعلی وجود ندارد."
           : "هنوز گزارشی برای کاربران ثبت نشده یا نتیجه‌ای با جست‌وجوی فعلی وجود ندارد."}
-      </p>
+      </Typography>
     </div>
   );
 }
@@ -290,11 +291,11 @@ function EmptyReports({ isSearch, kind }: { isSearch: boolean; kind: CrmReportKi
 function QueryError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
-      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#fff0f1] text-[#c6283a]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-14 w-14 place-items-center rounded-2xl bg-[#fff0f1] text-[#c6283a]">
         <LinearCancel className="h-7 w-7" />
-      </span>
+      </Typography>
       <strong className="mt-4 text-base font-black text-[#344054]">دریافت گزارش‌ها ناموفق بود</strong>
-      <p className="m-0 mt-2 text-sm leading-7 text-[#8a94a3]">اتصال یا دسترسی API گزارش‌ها را بررسی کنید.</p>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-7 text-[#8a94a3]">اتصال یا دسترسی API گزارش‌ها را بررسی کنید.</Typography>
       <button
         className="mt-4 h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white transition hover:bg-[#003ca5]"
         onClick={onRetry}
@@ -386,19 +387,19 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
       <section className="rounded-2xl bg-white p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex items-start gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
               <LinearFlag className="h-6 w-6" />
-            </span>
+            </Typography>
             <div>
-              <h1 className="m-0 text-lg font-black text-[#263042]">گزارش‌های تخلف</h1>
-              <p className="m-0 mt-1 text-sm leading-6 text-[#8a94a3]">
+              <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-black text-[#263042]">گزارش‌های تخلف</Typography>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm leading-6 text-[#8a94a3]">
                 گزارش‌های ثبت‌شده برای آگهی‌ها و کاربران را جداگانه مشاهده و بررسی کنید.
-              </p>
+              </Typography>
             </div>
           </div>
 
           <label className="relative block w-full xl:w-[340px]">
-            <span className="sr-only">جست‌وجو در گزارش‌ها</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">جست‌وجو در گزارش‌ها</Typography>
             <LinearSearch className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#98a2b3]" />
             <input
               className="h-11 w-full rounded-xl border border-[#d7dce5] bg-white pr-10 pl-3 text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#98a2b3] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10"
@@ -431,16 +432,16 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                 role="tab"
                 type="button"
               >
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${isActive ? "bg-[#0048c4] text-white" : "bg-[#f1f4f8] text-[#667085]"}`}>
+                <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${isActive ? "bg-[#0048c4] text-white" : "bg-[#f1f4f8] text-[#667085]"}`}>
                   <Icon className="h-6 w-6" />
-                </span>
-                <span className="min-w-0 flex-1">
+                </Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
                   <strong className={`block text-sm font-black ${isActive ? "text-[#0048c4]" : "text-[#344054]"}`}>{tab.label}</strong>
-                  <span className="mt-1 block truncate text-xs font-medium text-[#8a94a3]">{tab.description}</span>
-                </span>
-                <span className={`inline-flex min-w-9 items-center justify-center rounded-lg px-2 py-1 text-xs font-black ${isActive ? "bg-white text-[#0048c4]" : "bg-[#f1f2f4] text-[#667085]"}`}>
+                  <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 block truncate text-xs font-medium text-[#8a94a3]">{tab.description}</Typography>
+                </Typography>
+                <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex min-w-9 items-center justify-center rounded-lg px-2 py-1 text-xs font-black ${isActive ? "bg-white text-[#0048c4]" : "bg-[#f1f2f4] text-[#667085]"}`}>
                   {tabQuery.isLoading ? "…" : tabQuery.data ? formatCount(reportCounts[tab.id]) : "—"}
-                </span>
+                </Typography>
               </button>
             );
           })}
@@ -459,18 +460,18 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
       >
         <div className="flex flex-col gap-3 border-b border-[#edf0f5] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="m-0 text-base font-black text-[#263042]">{activeTab.label}</h2>
-            <p className="m-0 mt-1 text-sm text-[#8a94a3]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">{activeTab.label}</Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">
               {activeQuery.isLoading
                 ? "در حال دریافت گزارش‌ها..."
                 : `${formatCount(total)} گزارش پیدا شد`}
-            </p>
+            </Typography>
           </div>
           {activeQuery.isFetching && !activeQuery.isLoading ? (
-            <span className="inline-flex items-center gap-2 text-xs font-bold text-[#667085]">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-[#0048c4]" />
+            <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex items-center gap-2 text-xs font-bold text-[#667085]">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 animate-pulse rounded-full bg-[#0048c4]" />
               در حال بروزرسانی
-            </span>
+            </Typography>
           ) : null}
         </div>
 
@@ -506,32 +507,32 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                     transition={{ delay: prefersReducedMotion ? 0 : Math.min(index, 8) * 0.025, duration: 0.16 }}
                   >
                     <TableCell>
-                      <span className="inline-flex max-w-[150px] rounded-lg bg-[#f4f6f9] px-2.5 py-1.5 font-mono text-xs font-bold text-[#4d5b70] [direction:ltr]">
+                      <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex max-w-[150px] rounded-lg bg-[#f4f6f9] px-2.5 py-1.5 font-mono text-xs font-bold text-[#4d5b70] [direction:ltr]">
                         {reportCode(report)}
-                      </span>
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-[250px]">
                         <strong className="block truncate text-sm font-bold text-[#263042]">{targetTitle(report, activeKind)}</strong>
-                        <span className="mt-1 block truncate text-xs font-medium text-[#8a94a3]">{targetSecondary(report, activeKind)}</span>
+                        <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 block truncate text-xs font-medium text-[#8a94a3]">{targetSecondary(report, activeKind)}</Typography>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex max-w-[220px] rounded-lg bg-[#fff7df] px-2.5 py-1.5 text-xs font-bold text-[#805b00]">
-                        <span className="truncate">{reportReason(report)}</span>
-                      </span>
+                      <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex max-w-[220px] rounded-lg bg-[#fff7df] px-2.5 py-1.5 text-xs font-bold text-[#805b00]">
+                        <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{reportReason(report)}</Typography>
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-[200px]">
                         <strong className="block truncate text-sm font-bold text-[#344054]">{reporterName(report)}</strong>
-                        <span className="mt-1 block truncate text-xs font-medium text-[#8a94a3] [direction:ltr] text-right">{reporterMobile(report)}</span>
+                        <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 block truncate text-xs font-medium text-[#8a94a3] [direction:ltr] text-right">{reporterMobile(report)}</Typography>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-[#667085]">
+                      <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-[#667085]">
                         <LinearClock className="h-4 w-4" />
                         {reportDate(report)}
-                      </span>
+                      </Typography>
                     </TableCell>
                     <TableCell><ReportStatusBadge report={report} /></TableCell>
                     <TableCell>
@@ -557,9 +558,9 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
 
         {!activeQuery.isLoading && !activeQuery.isError && total > perPage ? (
           <div className="flex items-center justify-between gap-3 border-t border-[#edf0f5] px-5 py-4">
-            <p className="m-0 text-sm font-semibold text-[#7b8493]">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold text-[#7b8493]">
               صفحه {formatCount(currentPage)} از {formatCount(totalPages)}
-            </p>
+            </Typography>
             <div className="flex items-center gap-2">
               <button
                 aria-label="صفحه قبلی"
@@ -647,12 +648,12 @@ function ReportDetailsModal({
           >
             <header className="flex shrink-0 items-center justify-between border-b border-[#edf0f5] px-5 py-4">
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
                   <LinearFlag className="h-5 w-5" />
-                </span>
+                </Typography>
                 <div>
-                  <h2 className="m-0 text-base font-black text-[#263042]">جزئیات گزارش تخلف</h2>
-                  <p className="m-0 mt-1 text-sm text-[#8a94a3]">کد گزارش: {reportCode(report)}</p>
+                  <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">جزئیات گزارش تخلف</Typography>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">کد گزارش: {reportCode(report)}</Typography>
                 </div>
               </div>
               <button
@@ -729,8 +730,8 @@ function DetailsSection({ children, icon, title }: { children: ReactNode; icon: 
   return (
     <section className="rounded-xl border border-[#edf0f5] bg-[#fbfcfe] p-4">
       <div className="mb-3 flex items-center gap-2 text-[#344054]">
-        <span className="text-[#0048c4]">{icon}</span>
-        <h3 className="m-0 text-sm font-black">{title}</h3>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0048c4]">{icon}</Typography>
+        <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 text-sm font-black">{title}</Typography>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>
     </section>
@@ -740,7 +741,7 @@ function DetailsSection({ children, icon, title }: { children: ReactNode; icon: 
 function DetailItem({ label, ltr = false, value, wide = false }: { label: string; ltr?: boolean; value: string; wide?: boolean }) {
   return (
     <div className={`rounded-lg bg-white px-3 py-2.5 ${wide ? "sm:col-span-2" : ""}`}>
-      <span className="block text-xs font-semibold text-[#8a94a3]">{label}</span>
+      <Typography as="span" variant="label" size="small" weight="semibold" className="block text-xs font-semibold text-[#8a94a3]">{label}</Typography>
       <strong className={`mt-1 block break-words text-sm font-bold leading-7 text-[#303846] ${ltr ? "[direction:ltr] text-left" : ""}`}>{value}</strong>
     </div>
   );

@@ -12,6 +12,7 @@ import {
   type PropertySearchRequest,
 } from "../../services/property-request.service";
 import { RequestResultImageMeta } from "./RequestResultImageMeta";
+import { Typography } from "../../components/ui/Typography";
 
 export type PropertyRequestResultsStatus = {
   isError: boolean;
@@ -101,11 +102,11 @@ export function PropertyRequestResults({
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2 text-[#303030]">
             <LinearAdvertisiment className="h-5 w-5 shrink-0 text-[#0048c4]" />
-            <h2 className="m-0 truncate text-sm font-bold">نتیجه درخواست</h2>
+            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 truncate text-sm font-bold">نتیجه درخواست</Typography>
           </div>
 
           {!query.isLoading && !query.isError ? (
-            <span
+            <Typography as="span" variant="label" size="small" weight="medium"
               className={`inline-flex h-6 shrink-0 items-center rounded-md px-2 text-[11px] font-medium ${
                 visibleAds.length
                   ? "bg-[#e6f8ef] text-[#079455]"
@@ -113,7 +114,7 @@ export function PropertyRequestResults({
               }`}
             >
               {visibleAds.length ? "نتیجه یافت شد" : "بدون نتیجه"}
-            </span>
+            </Typography>
           ) : null}
         </div>
       ) : null}
@@ -127,7 +128,7 @@ export function PropertyRequestResults({
 
       {query.isError ? (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#fff4f3] px-3 py-3 text-sm text-[#b42318]">
-          <span>بررسی نتیجه این درخواست با خطا مواجه شد.</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">بررسی نتیجه این درخواست با خطا مواجه شد.</Typography>
           <button
             className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#f3b8b3] bg-white px-2 text-xs font-semibold transition hover:bg-[#fff8f7]"
             onClick={() => void query.refetch()}
@@ -140,9 +141,9 @@ export function PropertyRequestResults({
       ) : null}
 
       {!query.isLoading && !query.isError && visibleAds.length === 0 ? (
-        <p className="m-0 mt-3 rounded-xl bg-[#f7f7f7] px-4 py-4 text-center text-sm font-medium leading-6 text-[#808080]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 rounded-xl bg-[#f7f7f7] px-4 py-4 text-center text-sm font-medium leading-6 text-[#808080]">
           نتیجه ای برای این درخواست وجود ندارد
-        </p>
+        </Typography>
       ) : null}
 
       {!query.isLoading && !query.isError && visibleAds.length > 0 ? (

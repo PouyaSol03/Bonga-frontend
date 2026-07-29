@@ -11,6 +11,7 @@ import type { MyAgencyProfile } from "../../services/account.service";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { RouteLink } from "../../routes/RouteLink";
 import { searchMapTileConfig } from "../search/searchMapData";
+import { Typography } from "../../components/ui/Typography";
 
 type AgencyMapCenter = {
     lat: number;
@@ -226,12 +227,12 @@ export default function DashboardAgencyEditPage() {
                     />
 
                     <div className="max-w-[430px] text-right text-xs font-normal leading-6 text-[#a6a6a6]">
-                        <p className="m-0 inline-flex items-center gap-2 text-[#808080]">
+                        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 inline-flex items-center gap-2 text-[#808080]">
                             <InfoIcon className="h-5 w-5" />
                             حجم عکس نباید از 1MB بیشتر باشد.
-                        </p>
-                        <p className="m-0">ابعاد نمایش بهتر تصاویر عکس 100x100 پیکسل باشد.</p>
-                        <p className="m-0">فرمت‌های قابل استفاده png، jpg، gif</p>
+                        </Typography>
+                        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">ابعاد نمایش بهتر تصاویر عکس 100x100 پیکسل باشد.</Typography>
+                        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">فرمت‌های قابل استفاده png، jpg، gif</Typography>
                     </div>
                 </div>
 
@@ -250,9 +251,9 @@ export default function DashboardAgencyEditPage() {
                     <TextField onChange={setPhone3} placeholder="شماره همراه (مثال: 0915 111 0000)" value={phone3} />
                 </div>
 
-                <h3 className="m-0 mt-7 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+                <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-7 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
                     شبکه‌های اجتماعی
-                </h3>
+                </Typography>
                 <div className="mt-4 grid grid-cols-1 gap-7 lg:grid-cols-3">
                     <TextField icon={<SocialImageIcon name="telegram" />} placeholder="آیدی تلگرام خود را وارد کنید" />
                     <TextField icon={<SocialImageIcon name="whatsApp" />} placeholder="شماره واتساپ خود را بدون صفر وارد کنید" />
@@ -306,13 +307,13 @@ export default function DashboardAgencyEditPage() {
             </section>
 
             <section className="mt-16">
-                <p className="m-0 mb-4 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+                <Typography as="p" variant="body" size="large" weight="medium" className="m-0 mb-4 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
                     موقعیت دقیق خود را بر روی نقشه مشخص کنید.
-                </p>
+                </Typography>
                 <AgencyLocationMap center={mapCenter} onCenterChange={setMapCenter} />
             </section>
 
-            <span aria-live="polite" className="sr-only">{saveMessage}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular" aria-live="polite" className="sr-only">{saveMessage}</Typography>
             <div className="mt-14 flex justify-start gap-5 [direction:ltr]">
                 <button
                     className="h-14 rounded-xl bg-[#0048c4] px-7 text-base font-semibold leading-6 text-white transition hover:bg-[#003ba1]"
@@ -336,8 +337,8 @@ export default function DashboardAgencyEditPage() {
 function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
     return (
         <div className="flex items-center gap-2 text-[#0048c4]">
-            <span className="text-[#4d4d4d]">{icon}</span>
-            <h2 className="m-0 text-[22px] font-bold leading-8">{title}</h2>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography>
+            <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-bold leading-8">{title}</Typography>
         </div>
     );
 }
@@ -358,7 +359,7 @@ function AgencyLogoUploader({
 
     return (
         <div className="w-[122px] shrink-0 text-right">
-            <p className="m-0 mb-4 text-base font-semibold leading-6 text-[#1a1a1a]">لوگوی آژانس</p>
+            <Typography as="p" variant="body" size="large" weight="medium" className="m-0 mb-4 text-base font-semibold leading-6 text-[#1a1a1a]">لوگوی آژانس</Typography>
             <button
                 aria-label="بارگذاری لوگوی آژانس"
                 className="relative grid h-[96px] w-[96px] place-items-center rounded-full border border-[#cccccc] bg-white"
@@ -374,9 +375,9 @@ function AgencyLogoUploader({
                 ) : (
                     <DefaultAgencyLogo />
                 )}
-                <span className="absolute bottom-1 left-0 grid h-9 w-9 place-items-center rounded-full bg-[#0048c4] text-white shadow-[0_4px_14px_rgba(0,72,196,0.24)]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="absolute bottom-1 left-0 grid h-9 w-9 place-items-center rounded-full bg-[#0048c4] text-white shadow-[0_4px_14px_rgba(0,72,196,0.24)]">
                     <PencilIcon />
-                </span>
+                </Typography>
             </button>
             <input
                 ref={inputRef}
@@ -409,11 +410,11 @@ function TextField({
     return (
         <label className={`block min-w-0 ${className}`}>
             {label ? (
-                <span className="mb-3 block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="label" size="large" weight="semibold" className="mb-3 block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
                     {label}
-                </span>
+                </Typography>
             ) : null}
-            <span className="relative block">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="relative block">
                 <input
                     className={`h-[60px] w-full rounded-xl border border-[#cccccc] bg-white py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] ${icon ? "pl-12 pr-5" : "px-5"}`}
                     onChange={(event) => onChange?.(event.target.value)}
@@ -422,11 +423,11 @@ function TextField({
                     value={value}
                 />
                 {icon ? (
-                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">
                         {icon}
-                    </span>
+                    </Typography>
                 ) : null}
-            </span>
+            </Typography>
         </label>
     );
 }
@@ -449,11 +450,11 @@ function SelectField({
     return (
         <label className={`block min-w-0 ${className}`}>
             {label ? (
-                <span className="mb-3 block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="label" size="large" weight="semibold" className="mb-3 block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
                     {label}
-                </span>
+                </Typography>
             ) : null}
-            <span className="relative block">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="relative block">
                 <select
                     className="h-[60px] w-full appearance-none rounded-xl border border-[#cccccc] bg-white px-5 pl-12 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none transition focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
                     onChange={(event) => onChange?.(event.target.value)}
@@ -471,19 +472,19 @@ function SelectField({
                     ))}
                 </select>
                 <ChevronDownIcon className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#808080]" />
-            </span>
+            </Typography>
         </label>
     );
 }
 
 function ActivityChip({ label, onRemove }: { label: string; onRemove: () => void }) {
     return (
-        <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#0048c4] bg-[#0048c414] px-4 text-sm font-semibold leading-5 text-[#0048c4]">
+        <Typography as="span" variant="label" size="medium" weight="semibold" className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#0048c4] bg-[#0048c414] px-4 text-sm font-semibold leading-5 text-[#0048c4]">
             <button aria-label={`حذف ${label}`} className="grid h-4 w-4 place-items-center" onClick={onRemove} type="button">
                 ×
             </button>
             {label}
-        </span>
+        </Typography>
     );
 }
 

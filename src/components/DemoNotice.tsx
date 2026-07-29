@@ -1,3 +1,5 @@
+import { Typography } from "./ui/Typography";
+
 export function DemoNotice({
   message,
   className = "bottom-20",
@@ -13,9 +15,9 @@ export function DemoNotice({
       } ${className}`}
       role="status"
     >
-      <span className="rounded-xl bg-[#1a1a1a] px-4 py-2.5 text-center text-sm font-medium leading-5 text-white shadow-[0_6px_18px_rgba(26,26,26,0.22)]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-xl bg-[#1a1a1a] px-4 py-2.5 text-center text-sm font-medium leading-5 text-white shadow-[0_6px_18px_rgba(26,26,26,0.22)]">
         {message ?? ""}
-      </span>
+      </Typography>
     </div>
   );
 }

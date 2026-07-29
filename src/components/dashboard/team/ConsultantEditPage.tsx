@@ -17,6 +17,7 @@ import {
   mapAgencyConsultantToTeamConsultant,
   type AccessRole,
 } from "./ConsultantManagementPage";
+import { Typography } from "../../ui/Typography";
 
 function getAgencyConsultantAccessRole(
   consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
@@ -131,9 +132,9 @@ export function ConsultantEditPage() {
         <ConsultantProfilePill consultant={consultant} />
 
         <section className="mt-5">
-          <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
             انتخاب سمت
-          </h2>
+          </Typography>
 
           <div className="mt-4 grid gap-4" role="radiogroup" aria-label="انتخاب سمت">
             <AddConsultantRoleOption
@@ -164,7 +165,7 @@ export function ConsultantEditPage() {
                   type="button"
                 >
                   <SelectionCheckIndicator className="h-[18px] w-[18px] rounded-sm" checked={checked} />
-                  <span>{item.label}</span>
+                  <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
                 </button>
               );
             })}

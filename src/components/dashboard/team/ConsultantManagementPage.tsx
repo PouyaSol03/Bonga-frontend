@@ -28,6 +28,7 @@ import type {
   AgencyConsultantDto,
   AgencyConsultantPermissions,
 } from "../../../services/agency.service";
+import { Typography } from "../../ui/Typography";
 
 type ConsultantStatus = "active" | "pending";
 
@@ -408,20 +409,20 @@ export function AddConsultantPage() {
             <LinearSearch className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
           </label>
 
-          <p className="m-0 mt-3 flex items-start gap-1 text-right text-sm text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 flex items-start gap-1 text-right text-sm text-[#808080]">
             <LinearInfoCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#4d4d4d]" />
-            <span>
+            <Typography as="span" variant="body" size="medium" weight="regular">
               برای یافتن مشاور، لازم است قبلاً به عنوان مشاور مستقل در سایت فعالیت کرده باشد.
-            </span>
-          </p>
+            </Typography>
+          </Typography>
         </div>
 
         <div className="bg-white">
           {hasSearch && visibleResults.length > 0 ? (
             <section className="bg-white px-4 py-4">
-              <h2 className="m-0 text-xs font-semibold leading-5 text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-[#1a1a1a]">
                 نتیجه جستجو
-              </h2>
+              </Typography>
               <div className="mt-3 space-y-2">
                 {visibleResults.map((consultant) => {
                   const isSelected = selectedConsultantId === consultant.id;
@@ -446,17 +447,17 @@ export function AddConsultantPage() {
                             src={consultant.avatar}
                           />
                         ) : (
-                          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
+                          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
                             <LinearUserSolid className="h-6 w-6" />
-                          </span>
+                          </Typography>
                         )}
                         <div className="flex flex-col justify-center">
-                          <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
+                          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-[#1a1a1a]">
                             {consultant.fullName}
-                          </span>
-                          <span className="block text-xs font-medium text-[#808080]">
+                          </Typography>
+                          <Typography as="span" variant="label" size="small" weight="medium" className="block text-xs font-medium text-[#808080]">
                             {consultant.mobile ?? ""}
-                          </span>
+                          </Typography>
                         </div>
                       </div>
                       <SelectionCheckIndicator className="!h-4.5 !w-4.5 rounded-sm" checked={isSelected} />
@@ -472,9 +473,9 @@ export function AddConsultantPage() {
           )}
 
           <section className="border-t border-[#f0f0f0] bg-white px-4 py-5">
-            <h2 className="m-0 text-right font-semibold leading-5 text-[#1a1a1a]">
+            <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-semibold leading-5 text-[#1a1a1a]">
               انتخاب سمت
-            </h2>
+            </Typography>
 
             <div
               aria-label="انتخاب سمت"
@@ -510,7 +511,7 @@ export function AddConsultantPage() {
                     type="button"
                   >
                     <SelectionCheckIndicator className="w-[18px] h-[18px] rounded-sm" checked={isChecked} />
-                    <span className="text-sm ">{item.label}</span>
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm ">{item.label}</Typography>
                   </button>
                 );
               })}
@@ -550,7 +551,7 @@ export function AddConsultantPage() {
           onClick={handleAddConsultant}
           type="button"
         >
-          <span className="text-[13px] leading-none">+</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[13px] leading-none">+</Typography>
           {addConsultantMutation.isPending ? "در حال افزودن..." : "اضافه کن"}
         </button>
       </div>
@@ -562,9 +563,9 @@ function AddConsultantEmptyState() {
   return (
     <div className="flex h-[104px] items-center justify-center gap-3 bg-white px-4 text-center">
       <img src={NoSearchIcon} alt="" className="h-[40px] w-[40px]" />
-      <span className="font-medium text-[#808080]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#808080]">
         مشاوری برای نمایش نیست!
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -587,7 +588,7 @@ export function AddConsultantRoleOption({
       type="button"
     >
       <RadioIndicator checked={checked} />
-      <span>{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
     </button>
   );
 }
@@ -597,12 +598,12 @@ export function ConsultantProfileSummary({ consultant }: { consultant: TeamConsu
     <div className="mt-3 flex items-center gap-3">
       <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
       <div className="grid">
-        <h1 className="m-0 text-base text-[#1a1a1a]">
+        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base text-[#1a1a1a]">
           {consultant.name} (مشاور)
-        </h1>
-        <p className="m-0 mt-1 text-sm font-normal text-[#bdbdbd]">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm font-normal text-[#bdbdbd]">
           {consultant.phone}
-        </p>
+        </Typography>
       </div>
     </div>
   );
@@ -613,12 +614,12 @@ export function ConsultantProfilePill({ consultant }: { consultant: TeamConsulta
     <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[#cccccc] bg-white px-4 py-2">
       <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
       <div className="flex flex-col justify-center">
-        <h1 className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
           {consultant.name}
-        </h1>
-        <p className="text-sm font-medium leading-5 text-[#bdbdbd]">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#bdbdbd]">
           {consultant.phone}
-        </p>
+        </Typography>
       </div>
     </div>
   );
@@ -635,7 +636,7 @@ export function ConsultantAvatar({
   const showAvatar = Boolean(consultant.avatarSrc) && !hasImageError;
 
   return (
-    <span
+    <Typography as="span" variant="body" size="medium" weight="regular"
       className={`${sizeClassName} grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]`}
     >
       {showAvatar ? (
@@ -649,7 +650,7 @@ export function ConsultantAvatar({
       ) : (
         <LinearUserSolid className="h-1/2 w-1/2" />
       )}
-    </span>
+    </Typography>
   );
 }
 
@@ -672,13 +673,13 @@ export function InfoStatRow({
     <div className={`flex items-center justify-between gap-4 ${className}`}>
       <div className="flex items-center gap-4">
         {icon ? (
-          <span className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#808080]"}`}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#808080]"}`}>
             {icon}
-          </span>
+          </Typography>
         ) : null}
-        <span className={`text-[#1a1a1a] ${labelClassName}`}>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={`text-[#1a1a1a] ${labelClassName}`}>
           {label}
-        </span>
+        </Typography>
       </div>
       <strong className="font-semibold text-[#1a1a1a]">
         {value}
@@ -702,9 +703,9 @@ export function QuotaStepper({
 }) {
   return (
     <div>
-      <h2 className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
         {label}
-      </h2>
+      </Typography>
       <div className="mt-3 grid h-14 grid-cols-[80px_1fr_80px] overflow-hidden rounded-xl border border-[#cccccc] bg-white">
         <button
           className="grid place-items-center border-r border-[#cccccc] bg-[#e9eaee] text-2xl font-normal text-[#4d4d4d]"
@@ -713,9 +714,9 @@ export function QuotaStepper({
         >
           -
         </button>
-        <span className="grid place-items-center text-base font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="span" variant="label" size="large" weight="medium" className="grid place-items-center text-base font-medium leading-6 text-[#1a1a1a]">
           {new Intl.NumberFormat("fa-IR").format(value)}
-        </span>
+        </Typography>
         <button
           className="grid place-items-center border-l border-[#cccccc] bg-[#e9eaee] text-2xl font-normal text-[#4d4d4d]"
           onClick={() => setValue((current) => current + 1)}
@@ -724,10 +725,10 @@ export function QuotaStepper({
           +
         </button>
       </div>
-      <p className="m-0 mt-2 pr-3 text-xs font-medium leading-5 text-[#808080]">
-        <span>باقیمانده سهمیه آژانس: </span>
-        <span className={remainingClassName}>{remaining.split(": ")[1]}</span>
-      </p>
+      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 pr-3 text-xs font-medium leading-5 text-[#808080]">
+        <Typography as="span" variant="body" size="medium" weight="regular">باقیمانده سهمیه آژانس: </Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={remainingClassName}>{remaining.split(": ")[1]}</Typography>
+      </Typography>
     </div>
   );
 }
@@ -769,9 +770,9 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
     <article className="bg-white px-4 pb-4 pt-5">
       {isPending && (
         <div className="mb-4 flex items-center justify-between">
-          <span className="rounded-lg bg-[#fff5ed] px-3 py-2 text-sm font-medium leading-4 text-[#FF6D00]">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-3 py-2 text-sm font-medium leading-4 text-[#FF6D00]">
             در انتظار تایید انتشار
-          </span>
+          </Typography>
           <button
             className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-[#ef1f1f]"
             type="button"
@@ -783,12 +784,12 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
       )}
 
       <div className="flex items-center gap-2">
-        <h2 className="m-0 font-semibold text-[#1a1a1a]">
+        <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
           {consultant.name}
-        </h2>
-        <span className="rounded-lg px-2 py-0.5 text-xs text-[#808080] bg-[#80808014] font-medium">
+        </Typography>
+        <Typography as="span" variant="label" size="small" weight="medium" className="rounded-lg px-2 py-0.5 text-xs text-[#808080] bg-[#80808014] font-medium">
           {consultant.roleLabel || "مشاور"}
-        </span>
+        </Typography>
       </div>
 
       {!isPending && (
@@ -854,14 +855,14 @@ function ConsultantStat({
 
   return (
     <div className="grid justify-items-center gap-2">
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-10 w-10 place-items-center rounded-xl ${toneClassNames[tone]}`}
       >
         {icon}
-      </span>
-      <span className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+      </Typography>
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold leading-5 text-[#1a1a1a]">
         {value}
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -894,14 +895,14 @@ function ConsultantEmptyState() {
     <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-8 py-8 text-center">
       <div className="grid max-w-[260px] justify-items-center">
         <img src="/vectors/NoAgent.svg" alt="" className="h-[66px] w-[66px]" />
-        <h2 className="mt-4 text-sm font-semibold leading-5 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="mt-4 text-sm font-semibold leading-5 text-[#1a1a1a]">
           هیچ مشاوری برای مدیریت وجود ندارد!
-        </h2>
-        <p className="mt-2 text-sm text-[#4d4d4d]">
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="mt-2 text-sm text-[#4d4d4d]">
           برای افزودن مشاورین جدید،<br />
           از گزینه «افزودن مشاور»<br />
           استفاده کنید.
-        </p>
+        </Typography>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { cn, focusRing } from "../../design-system/classes";
 import LinearBookmarkSolid from "../(icons)/LinearBookmarkSolid";
 import LinearCancelCircle from "../(icons)/LinearCancelCircle";
 import SearchBarSearchIcon from "../(icons)/SearchBarSearchIcon";
+import { Typography } from "./Typography";
 
 type SearchBarProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   compact?: boolean;
@@ -33,7 +34,7 @@ export function SearchBar({
       {...props}
     >
       {leadingIcon ?? <SearchBarSearchIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-[#4d4d4d]" />}
-      <span className="min-w-0 flex-1 truncate">{text}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{text}</Typography>
       {saved ? <LinearBookmarkSolid aria-hidden="true" className="h-5 w-5 shrink-0 text-[#0048c4]" /> : null}
     </button>
   );

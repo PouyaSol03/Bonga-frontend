@@ -7,6 +7,7 @@ import {
 } from "../../data";
 import { getParams } from "../../utils";
 import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
+import { Typography } from "../../../../components/ui/Typography";
 
 type ProjectSpecsSectionProps = {
   values: NewAdFormValues;
@@ -103,12 +104,12 @@ export function ProjectSpecsSection({
         {values.projectDetails.length ? (
           <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
             {values.projectDetails.map((item, index) => (
-              <span
+              <Typography as="span" variant="label" size="medium" weight="medium"
                 key={item.id}
                 className="flex h-9 items-center rounded-[7px] border border-[#0048c4] bg-[#0048c41f] px-3 text-sm font-medium leading-5 text-[#0048c4]"
               >
                 {`جزئیات ${index + 1}: ${item.meterage || item.minMeterage || "-"} متر`}
-              </span>
+              </Typography>
             ))}
           </div>
         ) : null}
@@ -118,8 +119,8 @@ export function ProjectSpecsSection({
           onClick={onOpenProjectDetails}
           type="button"
         >
-          <span>ثبت جزئیات پروژه</span>
-          <span>‹</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">ثبت جزئیات پروژه</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">‹</Typography>
         </button>
       </div>
     </Section>

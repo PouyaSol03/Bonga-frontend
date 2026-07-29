@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
+import { Typography } from "../../components/ui/Typography";
 
 type AgencyLevel = {
   image: string;
@@ -52,9 +53,9 @@ export function DashboardRankingLevelsGuidePage() {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         <div className="grid h-12 grid-cols-3 items-center border-b border-[#e5e5e5] text-base font-normal leading-6 text-[#4d4d4d] [direction:rtl]">
-          <span className="pr-4">امتیاز</span>
-          <span className="">نماد</span>
-          <span className="pl-4">عنوان</span>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4">امتیاز</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="">نماد</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4">عنوان</Typography>
         </div>
 
         {agencyLevels.map((level) => (
@@ -74,9 +75,9 @@ function AgencyLevelRow({ level }: { level: AgencyLevel }) {
 
       <LevelImage src={level.image} />
 
-      <span className="text-sm font-medium text-[#1a1a1a]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#1a1a1a]">
         {level.title}
-      </span>
+      </Typography>
     </div>
   );
 }

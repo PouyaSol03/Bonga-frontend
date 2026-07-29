@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 
 import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
+import { Typography } from "../../../components/ui/Typography";
 
 type SearchNoResultsRequestCardProps = {
   className?: string;
@@ -38,9 +39,9 @@ export function SearchNoResultsRequestCard({
               />
             </div>
 
-            <h2 className="m-0 mt-4 text-center text-base font-bold leading-6 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-center text-base font-bold leading-6 text-[#1a1a1a]">
               ملک مورد علاقه‌م یافت نشد!
-            </h2>
+            </Typography>
           </>
         ) : null}
 
@@ -57,9 +58,9 @@ export function SearchNoResultsRequestCard({
 
       <div className="mt-auto pt-7">
         <label className="block">
-          <span className="mb-2 block text-sm font-semibold leading-5 text-[#1a1a1a]">
-            عنوان درخواست <span className="text-xs font-normal text-[#808080]">(اختیاری)</span>
-          </span>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-semibold leading-5 text-[#1a1a1a]">
+            عنوان درخواست <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-[#808080]">(اختیاری)</Typography>
+          </Typography>
           <input
             className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-right text-sm text-[#1a1a1a] outline-none transition placeholder:text-sm placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10"
             onChange={(event) => setTitle(event.target.value)}

@@ -13,6 +13,7 @@ import {
   readConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
 } from "./consultantsNeighborhoodSelection";
+import { Typography } from "../../components/ui/Typography";
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? "");
@@ -176,16 +177,16 @@ export function ConsultantsNeighborhoodPage() {
                   onClick={() => setSelectedNeighborhood(neighborhood)}
                   type="button"
                 >
-                  <span className="min-w-0 flex-1">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
                     <strong className="block text-base font-normal text-[#1a1a1a]">
                       {neighborhood.name}
                     </strong>
                     {description ? (
-                      <span className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
+                      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
                         {description}
-                      </span>
+                      </Typography>
                     ) : null}
-                  </span>
+                  </Typography>
                   <RadioIndicator checked={checked} />
                 </button>
               );

@@ -12,6 +12,7 @@ import type {
   PropertyInfoRow,
 } from "./viewAdTypes";
 import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
+import { Typography } from "../../components/ui/Typography";
 
 function DetailItemIcon({
   className = "h-6 w-6 shrink-0",
@@ -37,7 +38,7 @@ function DetailItemIcon({
   }
 
   if (item.hideFallbackIcon) {
-    return <span aria-hidden="true" className={`block ${className}`} />;
+    return <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className={`block ${className}`} />;
   }
 
   return <ViewAdIcon className={className} name={item.icon} />;
@@ -128,13 +129,13 @@ export function DetailSection({
   return (
     <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
       <div className="flex h-6 items-center justify-end [direction:ltr]">
-        <h2
+        <Typography as="h2" variant="title" size="medium" weight="semibold"
           className={`m-0 text-right text-lg font-semibold leading-6 ${
             mutedTitle ? "text-[#808080]" : "text-[#1a1a1a]"
           }`}
         >
           {title}
-        </h2>
+        </Typography>
       </div>
       {children}
     </section>
@@ -153,7 +154,7 @@ export function MoreLink({
       className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-1 px-4 text-xs font-medium leading-4 text-[#0048c4] no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
       to={to}
     >
-      <span>{children}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
       <LinearArrowLeft1 className="h-4 w-4" name="arrowLeft" />
     </RouteLink>
   );
@@ -174,7 +175,7 @@ export function MoreButton({
       onClick={onClick}
       type="button"
     >
-      <span>{children}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
       <ViewAdIcon className="h-4 w-4" name={icon} />
     </button>
   );
@@ -224,9 +225,9 @@ export function EquipmentSections({
           key={section.title}
         >
           <div className="flex h-6 items-center justify-end [direction:ltr]">
-            <h2 className="m-0 text-right text-lg font-semibold leading-6 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-lg font-semibold leading-6 text-[#1a1a1a]">
               {section.title}
-            </h2>
+            </Typography>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">
@@ -239,9 +240,9 @@ export function EquipmentSections({
                   className="h-6 w-6 shrink-0 text-[#808080]"
                   item={item}
                 />
-                <span className="min-w-0 truncate text-base font-medium leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 truncate text-base font-medium leading-6 text-[#1a1a1a]">
                   {item.value}
-                </span>
+                </Typography>
               </div>
             ))}
           </div>
@@ -259,17 +260,17 @@ export function PropertyInfoList({ rows }: { rows: PropertyInfoRow[] }) {
           className="mb-0.5 flex h-14 items-center justify-between bg-white px-4 last:mb-0 [direction:ltr]"
           key={`${row.label}-${row.value}`}
         >
-          <span className="min-w-0 flex-1 truncate text-left text-base font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 truncate text-left text-base font-medium leading-6 text-[#1a1a1a]">
             {row.value}
-          </span>
+          </Typography>
           <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-[#4d4d4d] [direction:rtl]">
             <DetailItemIcon
               className="h-6 w-6 shrink-0 text-[#808080]"
               item={row}
             />
-            <span className="truncate text-base font-medium leading-6">
+            <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-base font-medium leading-6">
               {row.label}
-            </span>
+            </Typography>
           </div>
         </div>
       ))}
@@ -286,7 +287,7 @@ export function BottomBackAction({ to }: { to: string }) {
           to={to}
         >
           <ViewAdIcon className="h-5 w-5" name="back" />
-          <span>بازگشت</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">بازگشت</Typography>
         </RouteLink>
       </div>
     </div>

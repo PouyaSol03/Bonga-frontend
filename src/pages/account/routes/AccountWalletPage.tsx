@@ -7,6 +7,7 @@ import { RouteLink } from "../../../routes/RouteLink";
 import { storePaymentReturnTarget } from "../../../utils/payment-return";
 import { Snackbar } from "../../../components/Snackbar";
 import { AccountLoadingState, AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, formatMoney, normalizeWalletAmount } from "../accountPageViews";
+import { Typography } from "../../../components/ui/Typography";
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
@@ -42,9 +43,9 @@ export function AccountWalletPage() {
           <section className="px-3 pt-4 text-right">
             <div className="flex items-center justify-between rounded-xl border border-[#d6e1ff] bg-[#0048c414] p-4 [direction:rtl]">
               <div>
-                <p className="m-0 text-xs font-medium leading-5 text-[#4D4D4D]">
+                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-xs font-medium leading-5 text-[#4D4D4D]">
                   اعتبار قابل استفاده:
-                </p>
+                </Typography>
 
                 <div className="mt-2 flex items-end gap-1 text-[#0048c4]">
                   <strong className="text-2xl font-bold leading-7">
@@ -61,15 +62,15 @@ export function AccountWalletPage() {
 
             <div className="mt-5 pt-5 flex items-center gap-2 text-[#1a1a1a]">
               <PlusIcon className="h-5 w-5" />
-              <h2 className="m-0 text-base font-medium leading-6">
+              <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6">
                 افزایش اعتبار
-              </h2>
+              </Typography>
             </div>
 
             <label className="mt-4 flex py-3 items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
-              <span className="text-xs font-normal leading-4 text-[#808080]">
+              <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-4 text-[#808080]">
                 تومان
-              </span>
+              </Typography>
 
               <input
                 className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] placeholder:text-sm [direction:rtl]"
@@ -82,14 +83,14 @@ export function AccountWalletPage() {
               />
             </label>
             {Number(amount) > 0 && (
-              <p className="px-4 pt-1 text-xs text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-[#808080]">
                 {formatBigNumber(Number(amount))} تومان
-              </p>
+              </Typography>
             )}
 
-            <h3 className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
+            <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
               مبالغ پیشنهادی
-            </h3>
+            </Typography>
 
             <div className="mt-3 grid grid-cols-3 gap-3 [direction:rtl]">
               {suggestedAmounts.map((amountOption) => {
@@ -116,7 +117,7 @@ export function AccountWalletPage() {
               to="/account/wallet/history"
             >
               <img src="/icons/walletHistory.svg" alt="" />
-              <span className="text-base flex-1">تاریخچه پرداخت</span>
+              <Typography as="span" variant="body" size="large" weight="regular" className="text-base flex-1">تاریخچه پرداخت</Typography>
               <ChevronLeftIcon className="h-4 w-4 text-[#4d4d4d]" />
             </RouteLink>
           </section>

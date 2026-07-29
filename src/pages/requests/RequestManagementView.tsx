@@ -29,6 +29,7 @@ import {
   PropertyRequestResults,
   type PropertyRequestResultsStatus,
 } from "./PropertyRequestResults";
+import { Typography } from "../../components/ui/Typography";
 
 type RequestManagementTab = "received" | "requests" | "results";
 type RequestFilterId = "all" | string;
@@ -681,15 +682,15 @@ function RequestTabs({
               onClick={() => onChange(tab.id)}
               type="button"
             >
-              <span className="inline-flex min-w-0 items-center justify-center gap-1 [direction:ltr]">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex min-w-0 items-center justify-center gap-1 [direction:ltr]">
                 {tab.id === "received" && hasReceivedIndicator ? (
-                  <span
+                  <Typography as="span" variant="body" size="medium" weight="regular"
                     aria-hidden="true"
                     className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ef3326]"
                   />
                 ) : null}
-                <span className="truncate [direction:rtl]">{tab.label}</span>
-              </span>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="truncate [direction:rtl]">{tab.label}</Typography>
+              </Typography>
             </button>
           );
         })}
@@ -712,9 +713,9 @@ function RequestFilterButton({
       type="button"
     >
       <LinearArrowDown1 className="h-4 w-4 shrink-0 text-[#a6a6a6]" />
-      <span className="min-w-0 flex-1 truncate pr-3 text-right [direction:rtl]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-3 text-right [direction:rtl]">
         {label}
-      </span>
+      </Typography>
     </button>
   );
 }
@@ -823,9 +824,9 @@ function RequestFilterBottomSheet({
               type="button"
             >
               <RadioIndicator checked={isSelected} />
-              <span className="min-w-0 flex-1 truncate text-right [direction:rtl]">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right [direction:rtl]">
                 {option.label}
-              </span>
+              </Typography>
             </button>
           );
         })}
@@ -856,7 +857,7 @@ function CriteriaRequestCard({
           onClick={onCancel}
           type="button"
         >
-          <span className="text-sm font-medium">لغو</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">لغو</Typography>
           <LinearCancel className="h-4 w-4 text-[#4d4d4d]" />
         </button>
 
@@ -867,27 +868,27 @@ function CriteriaRequestCard({
           type="button"
         >
           <LinearEdit2 className="h-4 w-4 shrink-0 text-[#4d4d4d]" />
-          <span className="min-w-0 truncate text-right font-semibold leading-5 text-[#1a1a1a] [direction:rtl]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 truncate text-right font-semibold leading-5 text-[#1a1a1a] [direction:rtl]">
             {request.title}
-          </span>
+          </Typography>
         </button>
       </div>
 
       {visibleDetails.length ? (
         <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
           {visibleDetails.map((detail) => (
-            <span
+            <Typography as="span" variant="label" size="medium" weight="semibold"
               className="inline-flex max-w-full items-center rounded-lg border border-[#CCCCCC] bg-white text-sm font-semibold leading-4 text-[#4D4D4D]"
               title={detail}
               key={detail}
             >
-              <span className="max-w-full py-1.5 px-2">{detail}</span>
-            </span>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="max-w-full py-1.5 px-2">{detail}</Typography>
+            </Typography>
           ))}
           {hiddenCount > 0 ? (
-            <span className="inline-flex h-[25px] items-center rounded-[7px] border border-[#d4d4d4] bg-[#f7f7f7] px-2 text-[11px] font-medium leading-4 text-[#4d4d4d]">
+            <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-[25px] items-center rounded-[7px] border border-[#d4d4d4] bg-[#f7f7f7] px-2 text-[11px] font-medium leading-4 text-[#4d4d4d]">
               و {toPersianDigits(hiddenCount)} مورد بیشتر
-            </span>
+            </Typography>
           ) : null}
         </div>
       ) : null}
@@ -911,16 +912,16 @@ function ReceivedRequestsGuide({ onClose }: { onClose: () => void }) {
 
           <div className="flex items-center gap-2 text-[#0054c8] [direction:rtl]">
             <LinearInfoCircle className="h-6 w-6 shrink-0" />
-            <h2 className="m-0 text-base font-semibold leading-6">راهنما</h2>
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">راهنما</Typography>
           </div>
         </div>
 
-        <p className="m-0 mt-3 text-right text-[15px] font-normal leading-7 [direction:rtl]">
+        <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-3 text-right text-[15px] font-normal leading-7 [direction:rtl]">
           در این بخش، درخواست‌های ملکی کاربران نمایش داده می‌شود. شما می‌توانید
           براساس نیازهای اعلام‌شده، ملک مناسب را پیدا کرده و فایل مرتبط را برای
           مشتری منتشر کنید. این بخش به شما کمک می‌کند سریع‌تر و دقیق‌تر نیاز
           مشتری را برطرف کنید.
-        </p>
+        </Typography>
       </div>
     </section>
   );
@@ -941,9 +942,9 @@ function ReceivedRequestCard({
   return (
     <article className="relative border-b-8 border-[#f0f0f0] bg-white px-4 pb-6 pt-7 text-right">
       {isNew ? (
-        <span className="absolute left-4 top-2 inline-flex h-6 items-center rounded-full bg-[#ef3326] px-2.5 text-xs font-medium leading-6 text-white">
+        <Typography as="span" variant="label" size="small" weight="medium" className="absolute left-4 top-2 inline-flex h-6 items-center rounded-full bg-[#ef3326] px-2.5 text-xs font-medium leading-6 text-white">
           جدید
-        </span>
+        </Typography>
       ) : null}
 
       <div className="flex items-start justify-between gap-4 [direction:ltr]">
@@ -959,9 +960,9 @@ function ReceivedRequestCard({
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex min-h-10 flex-wrap items-center gap-2">
             <LinearCity className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-            <h2 className="m-0 min-w-0 text-[17px] font-bold leading-7 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 text-[17px] font-bold leading-7 text-[#1a1a1a]">
               {request.title}
-            </h2>
+            </Typography>
             {requestDate ? (
               <time
                 className="inline-flex h-8 shrink-0 items-center rounded-[10px] bg-[#f5f5f5] px-3 text-xs font-normal leading-5 text-[#1a1a1a]"
@@ -975,18 +976,18 @@ function ReceivedRequestCard({
           {visibleDetails.length ? (
             <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
               {visibleDetails.map((detail) => (
-                <span
+                <Typography as="span" variant="label" size="medium" weight="semibold"
                   className="inline-flex max-w-full items-center rounded-[9px] border border-[#cccccc] bg-white px-2.5 py-1.5 text-sm font-semibold leading-5 text-[#4d4d4d]"
                   key={detail}
                   title={detail}
                 >
                   {detail}
-                </span>
+                </Typography>
               ))}
               {hiddenCount > 0 ? (
-                <span className="inline-flex items-center rounded-[9px] border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-xs font-medium leading-5 text-[#4d4d4d]">
+                <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex items-center rounded-[9px] border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-xs font-medium leading-5 text-[#4d4d4d]">
                   و {toPersianDigits(hiddenCount)} مورد بیشتر
-                </span>
+                </Typography>
               ) : null}
             </div>
           ) : null}
@@ -1048,19 +1049,19 @@ function EmptyRequestState({
       {isAccount ? (
         <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
       ) : (
-        <span
+        <Typography as="span" variant="body" size="medium" weight="regular"
           aria-hidden="true"
           className="mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-[#f0f1f5] text-[#cfd3dd]"
         >
           <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
-        </span>
+        </Typography>
       )}
-      <h2 className="m-0 text-base font-semibold mt-4 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-4 text-[#1a1a1a]">
         {title}
-      </h2>
-      <p className="m-0 mt-2 max-w-[320px] text-sm font-normal text-[#4d4d4d]">
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[320px] text-sm font-normal text-[#4d4d4d]">
         {description}
-      </p>
+      </Typography>
     </section>
   );
 }

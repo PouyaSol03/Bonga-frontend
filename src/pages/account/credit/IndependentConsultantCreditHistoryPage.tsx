@@ -10,6 +10,7 @@ import { TopBar } from "../../../components/TopBar";
 import { useAccountCreditHistoryInfiniteQuery } from "../../../hooks/account.hooks";
 import type { PaymentHistoryItem } from "../../../services/account.service";
 import type { CreditPayment } from "./creditData";
+import { Typography } from "../../../components/ui/Typography";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -173,8 +174,8 @@ function PaymentHistoryRow({
 }) {
   return (
     <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
-      <span className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</span>
-      <span className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</Typography>
     </div>
   );
 }

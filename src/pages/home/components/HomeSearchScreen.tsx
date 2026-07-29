@@ -15,6 +15,8 @@ import type { SearchHistoryItem } from "../../../services/search-history.service
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import type { SavedSearchItem } from "../../../services/saved-search.service";
 import type { QuickAdvertisementSearchItem } from "../../../services/quick-advertisement-search.service";
+import { Typography } from "../../../components/ui/Typography";
+import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
 
 type HomeSearchScreenProps = {
   initialQuery?: string;
@@ -249,17 +251,17 @@ export function HomeSearchScreen({
           onBack={closeSearch}
         />
         <div className="flex h-11 items-center justify-between gap-4 px-4">
-          <h2 className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="p" variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
             {isResultsView ? "نتایج جستجو" : "جستجوهای اخیر"}
-          </h2>
+          </Typography>
 
           <button
             className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4] [direction:ltr]"
             onClick={() => setIsSavedView(true)}
             type="button"
           >
-            <SavedSearchChevronIcon />
-            <span className="[direction:rtl]">ذخیره شده‌ها</span>
+            <LinearArrowLeft1 className="w-4 h-4" />
+            <Typography as="span" variant="label" size="small" weight="medium" className="[direction:rtl]">ذخیره شده‌ها</Typography>
           </button>
         </div>
       </div>
@@ -268,9 +270,9 @@ export function HomeSearchScreen({
         {isResultsView ? (
           !hasEnoughSearchQueryLength ? (
             <div className="flex flex-col">
-              <p className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
                 برای دریافت نتایج، حداقل {toPersianDigits(String(minSearchQueryLength))} کاراکتر وارد کنید.
-              </p>
+              </Typography>
             </div>
           ) : isWaitingForDebounce || isQuickSearchFetching ? (
             <SearchRowsSkeleton />
@@ -516,7 +518,7 @@ function SearchRecordRow({
         type="button"
       >
         <LinearDelete className="h-6 w-6" />
-        <span className="text-xs font-medium!">حذف</span>
+        <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium!">حذف</Typography>
       </button>
 
       <button
@@ -528,26 +530,26 @@ function SearchRecordRow({
         style={{ transform: `translateX(${dragOffset}px)` }}
         type="button"
       >
-        <span className="flex w-full items-center justify-start gap-2">
-          <span className="shrink-0">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="flex w-full items-center justify-start gap-2">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0">
             <ApartmentIcon />
-          </span>
+          </Typography>
           <strong className="min-w-0 flex-1 whitespace-normal break-words text-base font-medium leading-6 text-[#1a1a1a]">
             {item.title}
           </strong>
-        </span>
+        </Typography>
 
         {tags.length > 0 ? (
-          <span className="mt-2 flex w-full flex-wrap justify-start gap-2 pr-8">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 flex w-full flex-wrap justify-start gap-2 pr-8">
             {tags.map((tag) => (
-              <span
+              <Typography as="span" variant="label" size="small" weight="medium"
                 className="max-w-full whitespace-normal break-words rounded-md bg-[#f0f0f0] px-2 py-1 text-right text-xs font-medium leading-4 text-[#4d4d4d]"
                 key={tag}
               >
                 {tag}
-              </span>
+              </Typography>
             ))}
-          </span>
+          </Typography>
         ) : null}
       </button>
     </article>
@@ -572,35 +574,21 @@ function QuickSearchResultRow({
       onClick={onSelect}
       type="button"
     >
-      <span className="inline-flex shrink-0 text-xs font-normal leading-5 text-[#a6a6a6] [direction:rtl]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="inline-flex shrink-0 text-xs font-normal leading-5 text-[#a6a6a6] [direction:rtl]">
         {formattedCount}
-      </span>
+      </Typography>
 
-      <span className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
         <strong className="max-w-full truncate text-base font-normal leading-6 text-[#1a1a1a]">
           {item.title}
         </strong>
         {item.category ? (
-          <span className="max-w-full truncate text-sm font-normal leading-5 text-[#a6a6a6]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="max-w-full truncate text-sm font-normal leading-5 text-[#a6a6a6]">
             {item.category}
-          </span>
+          </Typography>
         ) : null}
-      </span>
+      </Typography>
     </button>
-  );
-}
-
-function SavedSearchChevronIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="16" viewBox="0 0 16 16" width="16">
-      <path
-        d="M9.5 4.5L6 8L9.5 11.5"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
   );
 }
 

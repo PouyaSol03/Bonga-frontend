@@ -1,12 +1,13 @@
 import { socialLinks } from "../publicLandingData";
+import { Typography } from "../../../components/ui/Typography";
 
 export function PublicFooter() {
   return (
     <footer className="flex flex-col items-center bg-white px-4 pb-4 pt-8 min-[390px]:pt-10">
 
-      <p className="m-0 mt-6 text-center text-xs font-normal leading-4 text-[#4d4d4d] min-[390px]:mt-8">
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-6 text-center text-xs font-normal leading-4 text-[#4d4d4d] min-[390px]:mt-8">
         تمام حقوق این وب سایت نیز برای شرکت ایران شناسا است.
-      </p>
+      </Typography>
 
       <div
         className="mt-2 flex items-center justify-center [direction:ltr]"

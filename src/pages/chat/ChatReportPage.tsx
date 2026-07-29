@@ -3,6 +3,7 @@ import { PageFrame } from "../../app/PageFrame";
 import { RadioIndicator } from "../../components/RadioIndicator";
 import { TopBar } from "../../components/TopBar";
 import { useReportChatMutation } from "../../hooks/chat.hooks";
+import { Typography } from "../../components/ui/Typography";
 
 type ReportReasonId =
   | "spam"
@@ -139,9 +140,9 @@ export function ChatReportPage() {
                 role="radio"
                 type="button"
               >
-                <span className="text-base font-normal leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a]">
                   {reason.title}
-                </span>
+                </Typography>
                 <RadioIndicator checked={checked} className="h-[18px] w-[18px]" />
               </button>
             );
@@ -162,15 +163,15 @@ export function ChatReportPage() {
         />
 
         {validationMessage ? (
-          <p className="m-0 mt-3 rounded-lg bg-[#fff1f0] px-3 py-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 rounded-lg bg-[#fff1f0] px-3 py-2 text-right text-xs font-medium leading-5 text-[#c11004]">
             {validationMessage}
-          </p>
+          </Typography>
         ) : null}
 
         {successMessage ? (
-          <p className="m-0 mt-3 rounded-lg bg-[#edf9f1] px-3 py-2 text-right text-xs font-medium leading-5 text-[#18753b]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 rounded-lg bg-[#edf9f1] px-3 py-2 text-right text-xs font-medium leading-5 text-[#18753b]">
             {successMessage}
-          </p>
+          </Typography>
         ) : null}
       </main>
 

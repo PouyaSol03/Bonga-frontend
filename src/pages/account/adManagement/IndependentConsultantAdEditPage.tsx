@@ -5,6 +5,7 @@ import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { adManagementPaths, getSelectedConsultantAd } from "./adManagementData";
+import { Typography } from "../../../components/ui/Typography";
 
 const galleryImageClassNames = [
   "ad-card__image--one",
@@ -67,9 +68,9 @@ function MediaFields() {
     <section className="bg-white px-4 pb-4 pt-4">
       <SectionHeading icon={<ImageIcon className="h-6 w-6" />} title="عکس آگهی" />
 
-      <h2 className="m-0 mt-5 text-right text-base font-medium leading-6">
-        انتخاب عکس <span className="text-[#ee3623]">*</span>
-      </h2>
+      <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 mt-5 text-right text-base font-medium leading-6">
+        انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ee3623]">*</Typography>
+      </Typography>
 
       <div className="mt-4 flex gap-3 overflow-hidden [direction:rtl]">
         <button
@@ -83,7 +84,7 @@ function MediaFields() {
           }
         >
           <PlusIcon className="h-7 w-7" />
-          <span className="text-sm font-medium leading-5">افزودن عکس</span>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
         </button>
         {images.map((image, index) => (
           <div
@@ -98,7 +99,7 @@ function MediaFields() {
 
       <div className="mt-6 flex items-center justify-between [direction:ltr]">
         <Toggle active={hasVideo} onClick={() => setHasVideo((current) => !current)} />
-        <h2 className="m-0 text-base font-medium leading-6 [direction:rtl]">فیلم</h2>
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6 [direction:rtl]">فیلم</Typography>
       </div>
 
       {hasVideo ? <div className="mt-6 flex h-[86px] items-center justify-between rounded-2xl border border-[#cccccc] px-4 [direction:ltr]">
@@ -111,8 +112,8 @@ function MediaFields() {
           <CloseCircleIcon className="h-6 w-6" />
         </button>
         <div className="text-right [direction:ltr]">
-          <p className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">my video.mp4</p>
-          <p className="m-0 text-sm font-normal leading-5 text-[#808080]">5.3MB</p>
+          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">my video.mp4</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-5 text-[#808080]">5.3MB</Typography>
         </div>
         <button
           aria-label={isPlaying ? "توقف فیلم" : "پخش فیلم"}
@@ -128,7 +129,7 @@ function MediaFields() {
 
       <div className="mt-6 flex items-center justify-between [direction:ltr]">
         <Toggle active={hasVirtualTour} onClick={() => setHasVirtualTour((current) => !current)} />
-        <h2 className="m-0 text-base font-medium leading-6 [direction:rtl]">تور مجازی</h2>
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6 [direction:rtl]">تور مجازی</Typography>
       </div>
 
       {hasVirtualTour ? <div className="mt-6 flex items-center justify-between gap-4 [direction:ltr]">
@@ -151,7 +152,7 @@ function AdInformationFields() {
     <section className="bg-white px-4 pb-6 pt-4">
       <SectionHeading icon={<DocumentInfoIcon className="h-6 w-6" />} title="اطلاعات آگهی" />
 
-      <h2 className="m-0 mt-7 text-right text-base font-medium leading-6">ثبت کننده آگهی</h2>
+      <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 mt-7 text-right text-base font-medium leading-6">ثبت کننده آگهی</Typography>
       <div className="mt-4 flex h-[88px] items-center gap-4 rounded-2xl bg-[#0048c414] px-4 [direction:rtl]">
         <img
           alt=""
@@ -159,8 +160,8 @@ function AdInformationFields() {
           src="/figma/account/consultant-profile.png"
         />
         <div className="min-w-0 text-right">
-          <p className="m-0 text-[22px] font-medium leading-7 text-[#4d4d4d]">ناصر اشرفی</p>
-          <p className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">مشاور مستقل</p>
+          <Typography as="p" variant="title" size="large" weight="medium" className="m-0 text-[22px] font-medium leading-7 text-[#4d4d4d]">ناصر اشرفی</Typography>
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">مشاور مستقل</Typography>
         </div>
       </div>
 
@@ -187,10 +188,10 @@ function SectionHeading({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="flex h-10 items-center justify-between [direction:ltr]">
       <InfoCircleIcon className="h-6 w-6 text-[#808080]" />
-      <h2 className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
+      <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         {icon}
         {title}
-      </h2>
+      </Typography>
     </div>
   );
 }
@@ -210,9 +211,9 @@ function FormField({
 }) {
   return (
     <label className={`block ${className}`}>
-      <span className="block text-right text-base font-medium leading-6">
-        {label} {required ? <span className="text-[#ee3623]">*</span> : null}
-      </span>
+      <Typography as="span" variant="label" size="large" weight="medium" className="block text-right text-base font-medium leading-6">
+        {label} {required ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ee3623]">*</Typography> : null}
+      </Typography>
       {multiline ? (
         <textarea
           className="mt-4 h-[98px] w-full resize-none rounded-xl border border-[#cccccc] bg-white px-4 py-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
@@ -239,7 +240,7 @@ function Toggle({ active, onClick }: { active: boolean; onClick: () => void }) {
       onClick={onClick}
       type="button"
     >
-      <span className="h-4 w-4 rounded-full bg-white" />
+      <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-4 rounded-full bg-white" />
     </button>
   );
 }

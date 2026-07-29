@@ -36,6 +36,7 @@ import {
 } from "../../hooks/chat.hooks";
 import type { ChatMessage, ChatThread } from "../../services/chat.service";
 import { RouteLink } from "../../routes/RouteLink";
+import { Typography } from "../../components/ui/Typography";
 
 const SUPPORT_CHAT_PATH = "/account/support/chat";
 const SUPPORT_NEW_CHAT_PATH = "/account/support/chat/new";
@@ -59,22 +60,22 @@ function SupportMenuItem({
 }: SupportMenuItemProps) {
   const content = (
     <>
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#eef3fd] text-[#5f6673]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#eef3fd] text-[#5f6673]">
         <Icon className="h-6 w-6 text-[#4D4D4D]" />
-      </span>
+      </Typography>
 
-      <span className="min-w-0 flex-1 text-right">
-        <span className="block text-[#1a1a1a]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 text-right">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-[#1a1a1a]">
           {title}
-        </span>
-        <span className="block text-sm font-normal leading-none text-[#a6a6a6]">
+        </Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-sm font-normal leading-none text-[#a6a6a6]">
           {description}
-        </span>
-      </span>
+        </Typography>
+      </Typography>
 
       <LinearArrowLeft1 className="ml-5 h-6 w-6 shrink-0 text-[#4D4D4D]" />
       {showDivider ? (
-        <span className="pointer-events-none absolute inset-x-4 bottom-0 h-px bg-[#d6d6d6]" />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute inset-x-4 bottom-0 h-px bg-[#d6d6d6]" />
       ) : null}
     </>
   );
@@ -189,27 +190,27 @@ function WelcomeCard() {
     <section className="rounded-2xl bg-[#edf9f4] px-4 py-4" aria-labelledby="support-welcome-title">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#d7eee6] text-[#4d6660]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#d7eee6] text-[#4d6660]">
             <LinearWavingHand className="h-6 w-6" />
-          </span>
-          <h2
+          </Typography>
+          <Typography as="h2" variant="title" size="medium" weight="semibold"
             className="m-0 text-base font-semibold leading-none text-[#006038]"
             id="support-welcome-title"
           >
             خوش آمدید
-          </h2>
+          </Typography>
         </div>
 
         <SupportAgents />
       </div>
 
-      <p className="m-0 mt-2.5 text-right text-sm font-normal text-[#1A1A1A]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2.5 text-right text-sm font-normal text-[#1A1A1A]">
         تیم پشتیبانی آماده پاسخگویی به شماست.
         <br />
         پیام خود را ارسال کنید، در کوتاه‌ترین زمان پاسخ
         <br />
         خواهیم داد.
-      </p>
+      </Typography>
     </section>
   );
 }
@@ -224,13 +225,13 @@ function SupportChatsEmptyState() {
         src="/vectors/NoSupportChat.svg"
       />
 
-      <h3 className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
         هنوز گفتگویی ندارید!
-      </h3>
+      </Typography>
 
-      <p className="m-0 mt-2 max-w-[270px] text-sm font-normal leading-6 text-[#666666]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[270px] text-sm font-normal leading-6 text-[#666666]">
         اگر سوال یا مشکلی دارید، پیام خود را برای پشتیبان ارسال کنید.
-      </p>
+      </Typography>
     </div>
   );
 }
@@ -242,11 +243,11 @@ function ConversationCard({ conversation }: { conversation: Conversation }) {
       state={{ thread: conversation.thread, threadId: conversation.id }}
       to={`${SUPPORT_NEW_CHAT_PATH}?thread_id=${encodeURIComponent(conversation.id)}`}
     >
-      <span className="flex items-center justify-between gap-3">
-        <span className="text-xs font-normal leading-none text-[#808080]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center justify-between gap-3">
+        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-none text-[#808080]">
           {conversation.date}
-        </span>
-        <span
+        </Typography>
+        <Typography as="span" variant="label" size="small" weight="medium"
           className={`inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium leading-none ${
             conversation.isOpen
               ? "bg-[#e5f7ef] text-[#11a366]"
@@ -254,12 +255,12 @@ function ConversationCard({ conversation }: { conversation: Conversation }) {
           }`}
         >
           {conversation.isOpen ? "باز" : "بسته شده"}
-        </span>
-      </span>
+        </Typography>
+      </Typography>
 
-      <span className="mt-3 block truncate text-sm font-normal leading-4 text-[#4d4d4d]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-3 block truncate text-sm font-normal leading-4 text-[#4d4d4d]">
         {conversation.message}
-      </span>
+      </Typography>
     </RouteLink>
   );
 }
@@ -320,15 +321,15 @@ export function AccountSupportChatPage() {
           aria-labelledby="recent-support-conversations"
           className="mt-6 flex min-h-0 flex-1 flex-col"
         >
-          <h2
+          <Typography as="h2" variant="title" size="medium" weight="semibold"
             className="m-0 text-right text-base font-semibold leading-6 text-[#4d4d4d]"
             id="recent-support-conversations"
           >
             گفتگوهای اخیر
-          </h2>
+          </Typography>
 
           {supportChatsQuery.isLoading ? (
-            <p className="py-12 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</p>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="py-12 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</Typography>
           ) : conversations.length === 0 ? (
             <SupportChatsEmptyState />
           ) : (
@@ -595,14 +596,14 @@ function SupportMessageBubble({ message }: { message: SupportChatMessage }) {
         dir="rtl"
       >
         {message.sender ? (
-          <p className="mb-1 text-[11px] font-medium leading-4 text-[#0048c4]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="mb-1 text-[11px] font-medium leading-4 text-[#0048c4]">
             {message.sender}
-          </p>
+          </Typography>
         ) : null}
 
-        <p className="whitespace-pre-line text-[12px] font-normal leading-[19px] text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="whitespace-pre-line text-[12px] font-normal leading-[19px] text-[#1a1a1a]">
           {message.text}
-        </p>
+        </Typography>
 
         <div
           className={`mt-1 flex items-center gap-1 text-[10px] leading-4 ${
@@ -611,7 +612,7 @@ function SupportMessageBubble({ message }: { message: SupportChatMessage }) {
               : "justify-end text-[#a6a6a6]"
           }`}
         >
-          <span>{message.time}</span>
+          <Typography as="span" variant="body" size="medium" weight="regular">{message.time}</Typography>
           {isOutgoing ? <LinearTickDouble className="h-3.5 w-3.5" /> : null}
         </div>
       </article>
@@ -622,9 +623,9 @@ function SupportMessageBubble({ message }: { message: SupportChatMessage }) {
 function SupportChatDateChip() {
   return (
     <div className="flex justify-center py-0.5">
-      <span className="rounded-md bg-[#f5f5f5] px-2.5 py-1 text-[10px] font-normal leading-4 text-[#808080]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="rounded-md bg-[#f5f5f5] px-2.5 py-1 text-[10px] font-normal leading-4 text-[#808080]">
         امروز
-      </span>
+      </Typography>
     </div>
   );
 }
@@ -660,7 +661,7 @@ function SupportChatComposer({
       </button>
 
       <label className="min-w-0 flex-1">
-        <span className="sr-only">پیام خود را بنویسید</span>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
         <input
           ref={inputRef}
           className="h-10 w-full border-0 bg-transparent px-2 text-right text-xs leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:ring-0"

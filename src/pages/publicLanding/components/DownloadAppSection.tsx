@@ -1,6 +1,7 @@
 // src/pages/publicLanding/components/DownloadAppSection.tsx
 
 import { downloadOptions } from "../publicLandingData";
+import { Typography } from "../../../components/ui/Typography";
 
 export function DownloadAppSection() {
   return (
@@ -8,12 +9,12 @@ export function DownloadAppSection() {
       className="mx-4 flex flex-col gap-4 rounded-3xl bg-[#f5f5f5] px-4 py-5 min-[390px]:gap-6 min-[390px]:px-5 min-[390px]:py-6"
       aria-labelledby="download-title"
     >
-      <h2
+      <Typography as="h2" variant="title" size="medium" weight="semibold"
         className="m-0 text-center text-sm font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
         id="download-title"
       >
         اپلیکیشن ایران شناسا را دانلود کنید!
-      </h2>
+      </Typography>
 
       <div className="grid grid-cols-3 gap-2 min-[390px]:gap-4">
         {downloadOptions.map((option) => (
@@ -32,7 +33,7 @@ export function DownloadAppSection() {
               aria-hidden="true"
             />
 
-            <p className="text-sm font-extrabold leading-6">{option.typo}</p>
+            <Typography as="p" variant="body" size="medium" weight="medium" className="text-sm font-extrabold leading-6">{option.typo}</Typography>
           </a>
         ))}
       </div>

@@ -53,6 +53,7 @@ import {
   type SupportChatMessage,
 } from "../account/accountSupportViews";
 import type { CrmRoutePageProps } from "./CrmLayout";
+import { Typography } from "../../components/ui/Typography";
 
 type StatusFilter = "all" | PanelSupportRequestStatus;
 
@@ -226,9 +227,9 @@ function messageTimestamp(message: ChatMessage) {
 function StatusChip({ status }: { status: PanelSupportRequestStatus }) {
   const presentation = statusPresentation[status];
   return (
-    <span className={`inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium ${presentation.className}`}>
+    <Typography as="span" variant="label" size="small" weight="medium" className={`inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium ${presentation.className}`}>
       {presentation.label}
-    </span>
+    </Typography>
   );
 }
 
@@ -241,17 +242,17 @@ function PriorityChip({ priority }: { priority: string }) {
         ? "bg-[#fff6e5] text-[#b54708]"
         : "bg-[#f1f1f1] text-[#666666]";
 
-  return <span className={`inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium ${className}`}>{label}</span>;
+  return <Typography as="span" variant="label" size="small" weight="medium" className={`inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium ${className}`}>{label}</Typography>;
 }
 
 function SummaryCard({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
     <div className="flex min-w-[155px] items-center gap-3 rounded-xl border border-[#eeeeee] bg-[#fafafa] px-4 py-3">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-white text-[#0048c4]">{icon}</span>
-      <span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-xl bg-white text-[#0048c4]">{icon}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular">
         <strong className="block text-base font-bold text-[#1a1a1a]">{formatCount(value)}</strong>
-        <span className="mt-0.5 block text-xs text-[#808080]">{label}</span>
-      </span>
+        <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block text-xs text-[#808080]">{label}</Typography>
+      </Typography>
     </div>
   );
 }
@@ -259,11 +260,11 @@ function SummaryCard({ icon, label, value }: { icon: ReactNode; label: string; v
 function RequestMetaItem({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) {
   return (
     <div className="flex min-w-0 items-center gap-2 rounded-xl bg-[#fafafa] px-3 py-2.5">
-      <span className="shrink-0 text-[#808080]">{icon}</span>
-      <span className="min-w-0">
-        <span className="block text-[10px] text-[#999999]">{label}</span>
-        <span className="mt-1 block truncate text-xs font-semibold text-[#303030]">{value}</span>
-      </span>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-[#808080]">{icon}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0">
+        <Typography as="span" variant="body" size="small" weight="regular" className="block text-[10px] text-[#999999]">{label}</Typography>
+        <Typography as="span" variant="label" size="small" weight="semibold" className="mt-1 block truncate text-xs font-semibold text-[#303030]">{value}</Typography>
+      </Typography>
     </div>
   );
 }
@@ -288,17 +289,17 @@ function RequestListCard({
       onClick={onClick}
       type="button"
     >
-      <span className="flex items-start justify-between gap-2">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-start justify-between gap-2">
         <strong className="min-w-0 flex-1 truncate text-sm text-[#1a1a1a]">{request.title}</strong>
         <StatusChip status={request.status} />
-      </span>
-      <span className="mt-2 block truncate text-xs text-[#666666]">
+      </Typography>
+      <Typography as="span" variant="body" size="small" weight="regular" className="mt-2 block truncate text-xs text-[#666666]">
         {request.customerName} · {request.category}
-      </span>
-      <span className="mt-2 flex items-center justify-between gap-2 text-[10px] text-[#999999]">
-        <span className="truncate">{request.createdAt}</span>
+      </Typography>
+      <Typography as="span" variant="body" size="small" weight="regular" className="mt-2 flex items-center justify-between gap-2 text-[10px] text-[#999999]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{request.createdAt}</Typography>
         <PriorityChip priority={request.priority} />
-      </span>
+      </Typography>
     </motion.button>
   );
 }
@@ -558,14 +559,14 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
       <header className="shrink-0 rounded-2xl bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eaf1ff] text-[#0048c4]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eaf1ff] text-[#0048c4]">
               <LinearRequestList className="h-6 w-6" />
-            </span>
+            </Typography>
             <div>
-              <h1 className="m-0 text-lg font-bold text-[#1a1a1a]">درخواست‌های پشتیبانی</h1>
-              <p className="m-0 mt-1 text-sm text-[#808080]">
+              <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold text-[#1a1a1a]">درخواست‌های پشتیبانی</Typography>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#808080]">
                 مشاهده، تخصیص، پاسخگویی و پیگیری درخواست‌های کاربران
-              </p>
+              </Typography>
             </div>
           </div>
           <button
@@ -649,10 +650,10 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
 
           <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3">
             {requestsQuery.isLoading ? (
-              <p className="py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</p>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</Typography>
             ) : requestsQuery.isError ? (
               <div className="py-16 text-center">
-                <p className="text-sm text-[#d92d20]">دریافت درخواست‌ها با خطا مواجه شد.</p>
+                <Typography as="p" variant="body" size="medium" weight="regular" className="text-sm text-[#d92d20]">دریافت درخواست‌ها با خطا مواجه شد.</Typography>
                 <button className="mt-3 h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white" onClick={() => void requestsQuery.refetch()} type="button">تلاش دوباره</button>
               </div>
             ) : filteredRequests.length === 0 ? (
@@ -673,7 +674,7 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
 
           <div className="flex shrink-0 items-center justify-between border-t border-[#eeeeee] p-3 text-xs text-[#666666]">
             <button className="h-8 rounded-lg border border-[#d9d9d9] px-3 disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))} type="button">قبلی</button>
-            <span>صفحه {formatCount(page)}</span>
+            <Typography as="span" variant="body" size="medium" weight="regular">صفحه {formatCount(page)}</Typography>
             <button className="h-8 rounded-lg border border-[#d9d9d9] px-3 disabled:opacity-40" disabled={!hasNextPage} onClick={() => setPage((current) => current + 1)} type="button">بعدی</button>
           </div>
         </aside>
@@ -685,10 +686,10 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
             <motion.div className="flex min-h-0 flex-1 flex-col" key={selectedRequest.id} initial={prefersReducedMotion ? undefined : { opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
               <div className="flex shrink-0 flex-wrap items-start justify-between gap-4 border-b border-[#eeeeee] px-5 py-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><LinearUserAccount className="h-6 w-6" /></span>
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><LinearUserAccount className="h-6 w-6" /></Typography>
                   <div className="min-w-0">
                     <strong className="block truncate text-sm font-bold text-[#1a1a1a]">{selectedRequest.customerName}</strong>
-                    <span className="mt-1 flex items-center gap-1.5 truncate text-xs text-[#808080]"><LinearPhone2 className="h-4 w-4" />{selectedRequest.customerMobile}</span>
+                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 flex items-center gap-1.5 truncate text-xs text-[#808080]"><LinearPhone2 className="h-4 w-4" />{selectedRequest.customerMobile}</Typography>
                   </div>
                 </div>
 
@@ -730,30 +731,30 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
                   value={assignUserId}
                 />
                 <button className="h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white disabled:opacity-50" disabled={assignMutation.isPending} onClick={assignRequest} type="button">تخصیص درخواست</button>
-                <span className="text-xs text-[#808080]">{selectedRequest.assignedSupportId ? `کارشناس فعلی: ${selectedRequest.assignedSupportId}` : "هنوز تخصیص داده نشده"}</span>
+                <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">{selectedRequest.assignedSupportId ? `کارشناس فعلی: ${selectedRequest.assignedSupportId}` : "هنوز تخصیص داده نشده"}</Typography>
               </div>
 
               <main className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f7f8fa] px-5 py-5" onScroll={handleMessagesScroll}>
                 <article className="rounded-2xl border border-[#e8e8e8] bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-xs text-[#808080]">شرح درخواست کاربر</span>
-                      <h2 className="m-0 mt-1 text-base font-bold text-[#1a1a1a]">{selectedRequest.title}</h2>
+                      <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">شرح درخواست کاربر</Typography>
+                      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-1 text-base font-bold text-[#1a1a1a]">{selectedRequest.title}</Typography>
                     </div>
                     <PriorityChip priority={selectedRequest.priority} />
                   </div>
-                  <p className="m-0 mt-3 whitespace-pre-wrap text-sm leading-7 text-[#4d4d4d]">{selectedRequest.description}</p>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 whitespace-pre-wrap text-sm leading-7 text-[#4d4d4d]">{selectedRequest.description}</Typography>
                   {selectedRequest.attachmentName ? (
-                    <span className="mt-4 inline-flex h-9 max-w-full items-center gap-2 rounded-lg border border-[#dce3ef] bg-[#f8faff] px-3 text-xs font-semibold text-[#0048c4]"><LinearAttachment className="h-4 w-4" /><span className="truncate">{selectedRequest.attachmentName}</span></span>
+                    <Typography as="span" variant="label" size="small" weight="semibold" className="mt-4 inline-flex h-9 max-w-full items-center gap-2 rounded-lg border border-[#dce3ef] bg-[#f8faff] px-3 text-xs font-semibold text-[#0048c4]"><LinearAttachment className="h-4 w-4" /><Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{selectedRequest.attachmentName}</Typography></Typography>
                   ) : null}
                 </article>
 
                 {!selectedRequest.threadId ? (
-                  <p className="py-8 text-center text-sm text-[#808080]">این درخواست هنوز گفتگوی متصل ندارد؛ پاسخ از API درخواست ارسال می‌شود.</p>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="py-8 text-center text-sm text-[#808080]">این درخواست هنوز گفتگوی متصل ندارد؛ پاسخ از API درخواست ارسال می‌شود.</Typography>
                 ) : messagesQuery.isLoading ? (
-                  <p className="py-8 text-center text-sm text-[#808080]">در حال دریافت پیام‌ها...</p>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="py-8 text-center text-sm text-[#808080]">در حال دریافت پیام‌ها...</Typography>
                 ) : messages.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-[#808080]">هنوز پاسخی ثبت نشده است.</p>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="py-8 text-center text-sm text-[#808080]">هنوز پاسخی ثبت نشده است.</Typography>
                 ) : (
                   messages.map((message) => <SupportMessageBubble key={message.id} message={message} />)
                 )}

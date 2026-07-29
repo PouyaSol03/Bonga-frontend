@@ -2,6 +2,7 @@ import type { HTMLAttributes } from "react";
 
 import { cn } from "../../design-system/classes";
 import LinearTick from "../(icons)/LinearTick";
+import { Typography } from "./Typography";
 
 type ChoiceIndicatorProps = HTMLAttributes<HTMLSpanElement> & {
   checked: boolean;
@@ -18,7 +19,7 @@ export function ChoiceIndicator({
 }: ChoiceIndicatorProps) {
   if (type === "radio") {
     return (
-      <span
+      <Typography as="span" variant="body" size="medium" weight="regular"
         aria-hidden="true"
         className={cn(
           "grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border",
@@ -31,13 +32,13 @@ export function ChoiceIndicator({
         )}
         {...props}
       >
-        {checked && !disabled ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-      </span>
+        {checked && !disabled ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 rounded-full bg-white" /> : null}
+      </Typography>
     );
   }
 
   return (
-    <span
+    <Typography as="span" variant="body" size="medium" weight="regular"
         aria-hidden="true"
         className={cn(
           "grid h-6 w-6 shrink-0 place-items-center rounded-lg border",
@@ -53,6 +54,6 @@ export function ChoiceIndicator({
         {...props}
       >
       {checked ? <LinearTick aria-hidden="true" className="h-4 w-4" /> : null}
-    </span>
+    </Typography>
   );
 }

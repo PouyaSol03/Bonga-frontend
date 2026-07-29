@@ -19,6 +19,7 @@ import type {
   SearchMapListingId,
   SearchMapTileConfig,
 } from "../searchMapData";
+import { Typography } from "../../../components/ui/Typography";
 
 type InvalidGeofenceResult = Exclude<
   GeofenceValidationResult,
@@ -63,7 +64,7 @@ function getMapBounds(map: ReturnType<typeof useMap>): SearchMapBounds {
 function createUserLocationIcon() {
   return new DivIcon({
     className: "search-map-marker-wrapper",
-    html: '<div class="search-map-user-marker"><span></span></div>',
+    html: '<div class="search-map-user-marker"><Typography as="span" variant="body" size="medium" weight="regular"></Typography></div>',
     iconSize: [28, 28],
     iconAnchor: [14, 14],
   });

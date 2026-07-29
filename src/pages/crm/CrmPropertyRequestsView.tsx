@@ -17,6 +17,7 @@ import {
   type PropertySearchRequest,
 } from "../../services/property-request.service";
 import { PropertyRequestResults } from "../requests/PropertyRequestResults";
+import { Typography } from "../../components/ui/Typography";
 
 type CrmPropertyRequestsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -76,51 +77,51 @@ function PropertyRequestCard({
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
               <LinearRequestList className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-              <h2 className="m-0 truncate text-base font-bold leading-7 text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 truncate text-base font-bold leading-7 text-[#1a1a1a]">
                 {request.title}
-              </h2>
+              </Typography>
             </div>
-            <p className="m-0 mt-1 text-xs font-medium text-[#808080]">
+            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium text-[#808080]">
               ثبت‌شده توسط {request.senderLabel}
-            </p>
+            </Typography>
           </div>
 
-          <span className="inline-flex h-7 shrink-0 items-center rounded-lg bg-[#eef4ff] px-2.5 text-[11px] font-semibold text-[#0048c4]">
+          <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex h-7 shrink-0 items-center rounded-lg bg-[#eef4ff] px-2.5 text-[11px] font-semibold text-[#0048c4]">
             {formatCount(Object.keys(request.filters).length)} معیار
-          </span>
+          </Typography>
         </div>
 
         {visibleDetails.length ? (
           <div className="mt-4 grid min-h-[108px] grid-cols-2 content-start gap-2">
             {visibleDetails.map((detail) => (
-              <span
+              <Typography as="span" variant="label" size="small" weight="medium"
                 className="min-w-0 truncate whitespace-nowrap rounded-lg border border-[#cccccc] bg-white px-2.5 py-1.5 text-xs font-medium leading-5 text-[#303030]"
                 key={detail}
                 title={detail}
               >
                 {detail}
-              </span>
+              </Typography>
             ))}
             {hiddenCount > 0 ? (
-              <span className="min-w-0 truncate whitespace-nowrap rounded-lg border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-xs font-semibold leading-5 text-[#4d4d4d]">
+              <Typography as="span" variant="label" size="small" weight="semibold" className="min-w-0 truncate whitespace-nowrap rounded-lg border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-xs font-semibold leading-5 text-[#4d4d4d]">
                 و {toPersianDigits(hiddenCount)} مورد بیشتر
-              </span>
+              </Typography>
             ) : null}
           </div>
         ) : (
-          <p className="m-0 mt-4 min-h-[108px] rounded-xl bg-[#f7f7f7] px-3 py-3 text-xs font-medium leading-6 text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-4 min-h-[108px] rounded-xl bg-[#f7f7f7] px-3 py-3 text-xs font-medium leading-6 text-[#808080]">
             اطلاعاتی برای این درخواست ثبت نشده است.
-          </p>
+          </Typography>
         )}
 
         <div className="mt-auto flex items-center justify-between gap-3 pt-4 text-[11px] font-medium text-[#808080]">
-          <span className="flex min-w-0 items-center gap-1.5 truncate">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 items-center gap-1.5 truncate">
             <LinearCalendar className="h-4 w-4 shrink-0" />
-            <span className="truncate">{formatPersianDate(request.createdAt)}</span>
-          </span>
-          <span className="shrink-0 rounded-md bg-[#f3f4f6] px-2 py-1">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{formatPersianDate(request.createdAt)}</Typography>
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 rounded-md bg-[#f3f4f6] px-2 py-1">
             {request.id.replace("search-request-", "#")}
-          </span>
+          </Typography>
         </div>
       </div>
 
@@ -145,17 +146,17 @@ function EmptyState({ searchQuery }: { searchQuery: string }) {
   return (
     <div className="grid min-h-[380px] place-items-center rounded-2xl border border-dashed border-[#d7dde7] bg-white px-7 text-center">
       <div>
-        <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
           <LinearPropertySearch className="h-8 w-8" />
-        </span>
+        </Typography>
         <strong className="mt-4 block text-base font-bold text-[#303030]">
           {searchQuery ? "درخواستی پیدا نشد" : "هنوز درخواستی ثبت نشده است"}
         </strong>
-        <p className="m-0 mt-2 text-sm font-medium leading-7 text-[#8a919c]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-7 text-[#8a919c]">
           {searchQuery
             ? "عبارت جستجو را تغییر دهید."
             : "درخواست‌های ثبت‌شده کاربران برای یافتن آگهی، اینجا نمایش داده می‌شوند."}
-        </p>
+        </Typography>
       </div>
     </div>
   );
@@ -211,21 +212,21 @@ export function CrmPropertyRequestsView({
       <header className="rounded-2xl border border-[#e5e9f0] bg-white p-5 shadow-[0_2px_12px_rgba(31,48,74,0.04)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#eaf1ff] text-[#0048c4]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#eaf1ff] text-[#0048c4]">
               <LinearRequestList className="h-6 w-6" />
-            </span>
+            </Typography>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="m-0 text-lg font-bold text-[#1a1a1a]">
+                <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold text-[#1a1a1a]">
                   درخواست‌های یافتن آگهی
-                </h1>
-                <span className="inline-flex h-6 items-center rounded-lg bg-[#f0f3f7] px-2 text-[11px] font-semibold text-[#687180]">
+                </Typography>
+                <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex h-6 items-center rounded-lg bg-[#f0f3f7] px-2 text-[11px] font-semibold text-[#687180]">
                   {formatCount(filteredRequests.length)} درخواست
-                </span>
+                </Typography>
               </div>
-              <p className="m-0 mt-1 text-sm font-medium text-[#808895]">
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-1 text-sm font-medium text-[#808895]">
                 هر درخواست همراه با آگهی منطبق یا وضعیت بدون نتیجه نمایش داده می‌شود.
-              </p>
+              </Typography>
             </div>
           </div>
 
@@ -240,9 +241,9 @@ export function CrmPropertyRequestsView({
         </div>
 
         <label className="relative mt-4 block max-w-xl">
-          <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#838b97]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#838b97]">
             <LinearSearch className="h-5 w-5" />
-          </span>
+          </Typography>
           <input
             className="h-11 w-full rounded-xl border border-[#d9dfe8] bg-[#fafbfc] pr-11 pl-4 text-sm font-medium text-[#303640] outline-none transition placeholder:text-[#959ca6] focus:border-[#0048c4] focus:bg-white focus:ring-3 focus:ring-[#0048c4]/10"
             onChange={(event) => setSearchQuery(event.target.value)}

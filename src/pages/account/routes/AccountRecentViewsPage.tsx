@@ -41,7 +41,7 @@ export function AccountRecentViewsPage() {
           />
         ) : null}
         {!recentViewsQuery.isLoading && !recentViewsQuery.isError ? (
-          <div className="space-y-2 bg-[#f0f0f0] pt-2">
+          <div className="space-y-2 bg-[#f0f0f0]">
             {recentAdvertises.map((advertise, index) => {
               const ad = mapAdvertisementToAdCard(advertise, index);
 

@@ -110,7 +110,7 @@ function BottomNavigationComponent({
         className="sticky bottom-0 z-10 h-16 shrink-0 bg-white shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
         aria-label="ناوبری اصلی"
       >
-        <div className="grid h-full w-full grid-cols-5 px-1 [direction:rtl] min-[390px]:px-2">
+        <div className="grid h-full w-full grid-cols-5 px-1 [direction:rtl]">
           {navigationItems.map((item) => {
             const isActive = item.key === resolvedActiveKey;
             const isNewAd = item.key === "new-ad";
@@ -136,11 +136,10 @@ function BottomNavigationComponent({
 
                   setIsCreateAdOpen(true);
                 }}
-                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]
-        gap-1 py-2 text-xs font-medium
-        ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
+                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] gap-1 py-2 text-xs
+                  ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
               >
-                <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-6 w-6 shrink-0 place-items-center">
+                <Typography as="p" variant="body" size="small" weight="medium" className="relative grid h-6 w-6 shrink-0 place-items-center">
                   <Icon
                     active={isActive}
                     aria-hidden="true"
@@ -156,7 +155,7 @@ function BottomNavigationComponent({
                   />
 
                   {item.key === "chat" && hasUnreadChats ? (
-                    <Typography as="span" variant="body" size="medium" weight="regular"
+                    <Typography as="span" variant="body" size="small" weight="medium"
                       aria-hidden="true"
                       className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
                     />

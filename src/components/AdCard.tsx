@@ -263,7 +263,7 @@ function AdCardBody({
 
       <PropertyRow className="mt-3 h-5 gap-[22px] text-sm" ad={ad} />
 
-      <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-3 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="mt-3 text-[#1a1a1a]">
         {ad.title}
       </Typography>
 
@@ -274,7 +274,7 @@ function AdCardBody({
           </Typography>
         )) : null}
         {showBadges && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate text-sm font-normal leading-5 text-[#808080]">{ad.timeAndLocation}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">{ad.timeAndLocation}</Typography>
       </div>
     </div>
   )
@@ -302,9 +302,9 @@ function PropertyRow({ ad, className = '' }: { ad: AdCardData; className?: strin
 
 function PropertyItem({ icon, value }: { icon: ReactNode; value: string }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#4d4d4d]">
+    <Typography as="span" variant="body" size="medium" weight="medium" className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#4d4d4d]">
       {icon}
-      <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a]">{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#1a1a1a]">{value}</Typography>
     </Typography>
   )
 }

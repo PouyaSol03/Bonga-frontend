@@ -32,6 +32,7 @@ import { AgencySelectionStep } from "./steps/AgencySelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
 import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
+import { getNewAdFlowSession, saveNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
 type AdvertisementFeature = {
@@ -891,12 +892,30 @@ export function NewAdFlowPage() {
   const editAdState = getEditAdRouteState();
   const isEditMode = editAdState.isEditMode === true;
   const editAdId = getEditAdId(editAdState);
+  const restoredSessionRef = useRef(!isEditMode ? getNewAdFlowSession() : null);
+  const [initialValues] = useState<NewAdFormValues>(() => {
+    const restoredValues = restoredSessionRef.current?.values;
+
+    if (!restoredValues) return getDefaultValues(editAdState);
+
+    const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
+
+    return {
+      ...restoredValues,
+      location: confirmedLocation || restoredValues.location,
+    };
+  });
   const editDataAppliedRef = useRef<string | null>(null);
   const submitLockRef = useRef(false);
-  const [step, setStep] = useState<FlowStep>("details");
+  const [step, setStep] = useState<FlowStep>(
+    () => restoredSessionRef.current?.step ?? "details",
+  );
   const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
   const [submitError, setSubmitError] = useState("");
-  const methods = useForm<NewAdFormValues>({ defaultValues: getDefaultValues(editAdState), mode: "onChange" });
+  const methods = useForm<NewAdFormValues>({
+    defaultValues: initialValues,
+    mode: "onChange",
+  });
   const queryClient = useQueryClient();
   const createAdvertisement = useCreateAdvertisementMutation();
   const isCrmSource = isCrmAdvertiseSource();
@@ -971,7 +990,8 @@ export function NewAdFlowPage() {
   useEffect(() => {
     if (isEditMode) return undefined;
 
-    const subscription = methods.watch((values) => {
+    const persistDraft = () => {
+      const values = methods.getValues();
       const safeDraft = {
         ...values,
         hasVideo: false,
@@ -979,11 +999,15 @@ export function NewAdFlowPage() {
         video: null,
       };
 
+      saveNewAdFlowSession(values, step);
       window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
-    });
+    };
+
+    persistDraft();
+    const subscription = methods.watch(persistDraft);
 
     return () => subscription.unsubscribe();
-  }, [isEditMode, methods]);
+  }, [isEditMode, methods, step]);
 
 
   const clearFieldError = (key: NewAdFieldErrorKey) => {
@@ -999,6 +1023,7 @@ export function NewAdFlowPage() {
   useEffect(() => {
     const clearOnExit = () => {
       if (window.location.pathname.startsWith("/new-ad")) return;
+      if (shouldPreserveNewAdDraft(window.history.state)) return;
 
       clearNewAdDraftStorage();
     };

@@ -4,6 +4,7 @@ import { useFormContext } from "react-hook-form";
 import type { NewAdFormValues, UploadedMediaFile } from "../types";
 import { Typography } from "../../../components/ui/Typography";
 import { Button } from "../../../components/ui/Button";
+import { shouldPreserveNewAdDraft } from "../session";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png"];
 export const allowedPhotoExtensions = ["jpg", "jpeg", "png"];
@@ -56,6 +57,8 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
   useEffect(() => {
     return () => {
+      if (shouldPreserveNewAdDraft(window.history.state)) return;
+
       createdPreviewUrls.current.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);

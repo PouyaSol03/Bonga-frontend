@@ -17,6 +17,7 @@ import {
   neighborhoodIdKey,
 } from "./data";
 import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
+import { updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../components/ui/Typography";
 import { Button } from "../../components/ui/Button";
 
@@ -181,13 +182,16 @@ export function NewAdLocationPage() {
   const label = searchParams.get("label") ?? "آگهی ملک";
   const isCrmSource = searchParams.get("editSource") === "crm";
   const cityId = getStoredCityId();
-  const [query, setQuery] = useState("");
-  const [mapCenter, setMapCenter] = useState<NewAdMapCenter>(getStoredMapCenter);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<NeighborhoodDto | null>(
     createStoredNeighborhood,
   );
+  const [query, setQuery] = useState(() => createStoredNeighborhood()?.name ?? "");
+  const [isManualSearch, setIsManualSearch] = useState(false);
+  const [isResolvingLocation, setIsResolvingLocation] = useState(false);
+  const [mapCenter, setMapCenter] = useState<NewAdMapCenter>(getStoredMapCenter);
   const normalizedQuery = query.trim();
-  const canSearchNeighborhoods = normalizedQuery.length >= minNeighborhoodSearchLength;
+  const canSearchNeighborhoods =
+    isManualSearch && normalizedQuery.length >= minNeighborhoodSearchLength;
 
   const neighborhoodsQuery = useNeighborhoodListQuery({
     cityId,
@@ -227,27 +231,64 @@ export function NewAdLocationPage() {
   }, []);
 
   useEffect(() => {
-    if (!neighborhoodByLocationQuery.data) return;
+    if (neighborhoodByLocationQuery.isFetching || isManualSearch) return;
 
-    setSelectedNeighborhood(neighborhoodByLocationQuery.data);
-  }, [neighborhoodByLocationQuery.data]);
+    const neighborhood = neighborhoodByLocationQuery.data;
 
-  const selectNeighborhood = (neighborhood: NeighborhoodDto) => {
+    if (!neighborhood || !getNeighborhoodId(neighborhood) || !neighborhood.name.trim()) {
+      setSelectedNeighborhood(null);
+      setQuery("");
+      setIsResolvingLocation(false);
+      return;
+    }
+
     setSelectedNeighborhood(neighborhood);
     setQuery(neighborhood.name);
+    setIsResolvingLocation(false);
+  }, [
+    isManualSearch,
+    neighborhoodByLocationQuery.data,
+    neighborhoodByLocationQuery.isError,
+    neighborhoodByLocationQuery.isFetching,
+  ]);
+
+  const updateMapCenter = (center: NewAdMapCenter) => {
+    const hasLocationChanged =
+      Number(center.lat.toFixed(7)) !== Number(mapCenter.lat.toFixed(7)) ||
+      Number(center.lng.toFixed(7)) !== Number(mapCenter.lng.toFixed(7));
+
+    if (hasLocationChanged) {
+      setSelectedNeighborhood(null);
+      setQuery("");
+      setIsManualSearch(false);
+      setIsResolvingLocation(true);
+    }
+
+    setMapCenter(center);
+  };
+
+  const selectNeighborhood = (neighborhood: NeighborhoodDto) => {
+    setQuery(neighborhood.name);
+    setIsManualSearch(false);
 
     if (Number.isFinite(neighborhood.lat) && Number.isFinite(neighborhood.lng)) {
+      setSelectedNeighborhood(null);
+      setIsResolvingLocation(true);
       setMapCenter({
         lat: Number(neighborhood.lat),
         lng: Number(neighborhood.lng),
         zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
       });
+      return;
     }
+
+    setSelectedNeighborhood(neighborhood);
+    setIsResolvingLocation(false);
   };
 
   const moveToBrowserLocation = () => {
     void getBrowserLocation().then((location) => {
-      setMapCenter({
+      updateMapCenter({
         lat: location.latitude,
         lng: location.longitude,
         zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
@@ -277,7 +318,7 @@ export function NewAdLocationPage() {
           />
           <NewAdLocationMap
             center={mapCenter}
-            onCenterChange={setMapCenter}
+            onCenterChange={updateMapCenter}
           />
         </MapContainer>
 
@@ -308,7 +349,11 @@ export function NewAdLocationPage() {
           <label className="flex h-12 items-center gap-3 rounded-[10px] border border-[#cccccc] bg-white px-3 text-right focus-within:border-[#0048c4]" dir="rtl">
             <input
               className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSelectedNeighborhood(null);
+                setIsManualSearch(true);
+              }}
               placeholder="جستجوی محله، خیابان..."
               type="search"
               value={query}
@@ -316,7 +361,11 @@ export function NewAdLocationPage() {
             {query ? (
               <Button unstyled
                 aria-label="پاک کردن"
-                onClick={() => setQuery("")}
+                onClick={() => {
+                  setQuery("");
+                  setSelectedNeighborhood(null);
+                  setIsManualSearch(true);
+                }}
                 type="button"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -356,14 +405,22 @@ export function NewAdLocationPage() {
 
           <Button unstyled
             className="mt-4 h-12 w-full rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6]"
-            disabled={!selectedLocation || !getNeighborhoodId(selectedNeighborhood)}
+            disabled={
+              isResolvingLocation ||
+              neighborhoodByLocationQuery.isFetching ||
+              !selectedLocation ||
+              !getNeighborhoodId(selectedNeighborhood)
+            }
             onClick={() => {
               if (!selectedNeighborhood) return;
 
-              window.localStorage.setItem(locationKey, selectedNeighborhood.name);
+              const confirmedLocation = selectedNeighborhood.name.trim();
+
+              window.localStorage.setItem(locationKey, confirmedLocation);
               window.localStorage.setItem(neighborhoodIdKey, getNeighborhoodId(selectedNeighborhood));
               window.localStorage.setItem(locationLatKey, String(mapCenter.lat));
               window.localStorage.setItem(locationLngKey, String(mapCenter.lng));
+              updateNewAdFlowSessionLocation(confirmedLocation);
               navigateTo(`/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`);
             }}
             type="button"

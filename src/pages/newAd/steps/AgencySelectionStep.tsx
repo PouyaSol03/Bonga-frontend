@@ -21,6 +21,8 @@ import LinearRanking from "../../../components/(icons)/LinearRanking";
 import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
 import { Typography } from "../../../components/ui/Typography";
 import { Button } from "../../../components/ui/Button";
+import { pushRoute } from "../../../routes/navigation";
+import { preserveNewAdDraftStateKey } from "../session";
 
 const pageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -270,7 +272,10 @@ export function AgencySelectionStep({
   };
 
   const openProfile = (agency: PublicAgencyDto) => {
-    window.open(`/agencies/${encodeURIComponent(agency.id)}`, "_blank", "noopener,noreferrer");
+    pushRoute(
+      `/agencies/${encodeURIComponent(agency.id)}`,
+      { [preserveNewAdDraftStateKey]: true },
+    );
   };
 
   if (isNeighborhoodOpen) {

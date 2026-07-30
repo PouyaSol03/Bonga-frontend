@@ -1516,6 +1516,7 @@ export function SearchMapPage() {
         initialView={searchInitialView}
         isOpen={isSearchOpen}
         minSearchQueryLength={searchMapMinQueryLength}
+        onBack={handleBack}
         onClose={closeSearch}
         onQueryChange={handleLiveSearchQueryChange}
         onSavedSelect={handleSavedSearchSelect}

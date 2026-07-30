@@ -18,6 +18,7 @@ import {
   propertySpecs,
 } from "./data";
 import type { ChipItem, MoreFeatureField, MoreFeaturesFormValues, NewAdFormValues } from "./types";
+import { clearNewAdFlowSession } from "./session";
 
 export function getBasicPropertyFields() {
   const { transaction, category } = getParams();
@@ -100,6 +101,7 @@ function getLoginRequiredPath(returnTo: string) {
 }
 
 export function clearNewAdDraftStorage() {
+  clearNewAdFlowSession();
   window.localStorage.removeItem(draftKey);
   window.localStorage.removeItem(locationKey);
   window.localStorage.removeItem(locationLatKey);

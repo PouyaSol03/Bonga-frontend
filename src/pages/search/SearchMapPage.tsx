@@ -55,7 +55,7 @@ import {
 import { getIpDefaultMapCenter } from "./searchMapLocation";
 import type { SavedSearchItem, SaveSearchInput } from "../../services/saved-search.service";
 import { getPropertyRequestScope } from "../../services/property-request.service";
-import { getStoredBackTarget, pushRoute } from "../../routes/navigation";
+import { getStoredBackTarget, replaceRoute } from "../../routes/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
@@ -199,10 +199,12 @@ function writeSearchParams(params: URLSearchParams, options: { replace?: boolean
   const queryString = params.toString();
   const nextUrl = queryString ? `/search?${queryString}` : "/search";
 
+  const currentHistoryState = window.history.state ?? {};
+
   if (options.replace) {
-    window.history.replaceState({}, "", nextUrl);
+    window.history.replaceState(currentHistoryState, "", nextUrl);
   } else {
-    window.history.pushState({}, "", nextUrl);
+    window.history.pushState(currentHistoryState, "", nextUrl);
   }
 
   window.dispatchEvent(new PopStateEvent("popstate"));
@@ -1023,7 +1025,11 @@ export function SearchMapPage() {
   }, []);
 
   const toggleChip = useCallback((chip: SearchFilterChip) => {
-    window.history.pushState({}, "", buildFilterPageUrl(chip));
+    window.history.pushState(
+      window.history.state ?? {},
+      "",
+      buildFilterPageUrl(chip),
+    );
     window.dispatchEvent(new PopStateEvent("popstate"));
   }, []);
 
@@ -1330,7 +1336,7 @@ export function SearchMapPage() {
     const storedBackTarget = getStoredBackTarget();
 
     if (storedBackTarget && !storedBackTarget.backTo.startsWith("/search")) {
-      pushRoute(
+      replaceRoute(
         storedBackTarget.backTo,
         storedBackTarget.backState,
         { rememberCurrent: false },
@@ -1338,7 +1344,12 @@ export function SearchMapPage() {
       return;
     }
 
-    pushRoute("/home", undefined, { rememberCurrent: false });
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    replaceRoute("/home", undefined, { rememberCurrent: false });
   }, []);
 
   const closeSearch = useCallback(() => {
@@ -1356,7 +1367,11 @@ export function SearchMapPage() {
     }
 
     const queryString = params.toString();
-    window.history.replaceState({}, "", queryString ? `/search?${queryString}` : "/search");
+    window.history.replaceState(
+      window.history.state ?? {},
+      "",
+      queryString ? `/search?${queryString}` : "/search",
+    );
     setSearchSnapshot(window.location.search);
     setSelectedListingId(null);
     setMode(nextMode);

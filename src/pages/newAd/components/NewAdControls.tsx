@@ -238,7 +238,7 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex pt-3 items-center justify-between border-t border-[#cccccc] [direction:ltr]">
+    <div className="flex items-center justify-between border-t border-[#cccccc] py-2 [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
       <Typography as="span" variant="label" size="large" weight="semibold" className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">

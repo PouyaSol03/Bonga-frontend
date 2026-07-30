@@ -92,8 +92,8 @@ export function SearchMapSearchScreen({
   const deleteHistoryMutation = useDeleteSearchHistoryMutation();
   const isCurrentSearchSaved = Boolean(
     saveInput &&
-      (savedSearchUrl === saveInput.url ||
-        savedSearches.some((item) => item.url === saveInput.url)),
+    (savedSearchUrl === saveInput.url ||
+      savedSearches.some((item) => item.url === saveInput.url)),
   );
 
   const saveCurrentSearch = () => {
@@ -165,9 +165,8 @@ export function SearchMapSearchScreen({
   return (
     <section
       aria-hidden={!isOpen}
-      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${
-        isOpen ? "visible" : "invisible pointer-events-none"
-      }`}
+      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen ? "visible" : "invisible pointer-events-none"
+        }`}
     >
       <div className="shrink-0 bg-[#f0f0f0] py-2.5">
         <TopBar
@@ -184,8 +183,15 @@ export function SearchMapSearchScreen({
               query={query}
             />
           }
-          contentClassName="px-2"
-          onBack={view === "saved" ? () => setView("search") : closeScreen}
+          contentClassName="pt-2"
+          onBack={() => {
+            if (view === "saved") {
+              setView("search");
+              return;
+            }
+
+            window.history.back();
+          }}
         />
         <div className="flex h-11 items-center justify-start px-4">
           <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
@@ -419,9 +425,8 @@ function SearchMapField({
 }) {
   return (
     <form
-      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-white text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440] ${
-        query ? "border-[#0048c4]" : "border-[#808080]"
-      }`}
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-white text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440] ${query ? "border-[#0048c4]" : "border-[#808080]"
+        }`}
       dir="rtl"
       onSubmit={(event) => {
         event.preventDefault();
@@ -431,11 +436,10 @@ function SearchMapField({
       <Button unstyled
         aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
         aria-pressed={isSaved}
-        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
-          isSaved || isSaving
-            ? "text-[#1a1a1a]"
-            : "text-[#4d4d4d] active:bg-[#0048c414]"
-        }`}
+        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${isSaved || isSaving
+          ? "text-[#1a1a1a]"
+          : "text-[#4d4d4d] active:bg-[#0048c414]"
+          }`}
         disabled={isSaveDisabled || isSaving || isSaved}
         onClick={onSavedClick}
         tabIndex={isOpen ? 0 : -1}

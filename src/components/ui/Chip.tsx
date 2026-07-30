@@ -24,7 +24,7 @@ export function Chip({
     <Button unstyled
       aria-pressed={selected}
       className={cn(
-        "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium leading-5 transition [direction:rtl]",
+        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border p-2 text-sm font-medium leading-5 transition [direction:rtl]",
         selected ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]",
         focusRing,
         "disabled:cursor-not-allowed disabled:border-[#e5e5e5] disabled:bg-[#f2f2f2] disabled:text-[#b3b3b3]",
@@ -33,8 +33,8 @@ export function Chip({
       type={type}
       {...props}
     >
-      {removable && selected ? <LinearCancelSmall aria-hidden="true" className="h-4 w-4" /> : null}
-      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{children}</Typography>
+      <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 truncate">{children}</Typography>
+      {removable && selected ? <LinearCancelSmall aria-hidden="true" className="h-5 w-5" /> : null}
       {icon}
     </Button>
   );

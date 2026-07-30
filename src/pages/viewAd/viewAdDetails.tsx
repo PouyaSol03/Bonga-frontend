@@ -972,17 +972,9 @@ function goBackOrNavigate(fallbackPath: string, legacyBackTarget?: string | null
   const targetPath = storedBackTarget?.backTo ?? legacyBackTarget ?? safeFallbackPath;
   const targetState = storedBackTarget?.backState;
 
-  // Routes opened inside the app are pushed with a stored back target. In that
-  // case the previous browser entry is the correct page and preserves its own
-  // filters, query string and scroll-related state.
-  if ((storedBackTarget || legacyBackTarget) && window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
-  // A directly opened or refreshed ad may have browser history that belongs to
-  // another website. Replace the ad entry with a safe app route instead of
-  // relying on history.length or leaving the back button with no visible result.
+  // Navigate directly to the resolved in-app return target. Browser history can
+  // contain duplicate ad entries or entries from another site, which made the
+  // back action appear to need multiple clicks.
   replaceRoute(targetPath, targetState, { rememberCurrent: false });
 }
 
@@ -1644,8 +1636,9 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
   }
 
   return (
-    <div className="border-t border-[#e5e5e5] pb-4 pt-4">
-      <div className="flex flex-wrap justify-start gap-2 [direction:rtl]">
+    <div>
+      <div aria-hidden="true" className="h-px w-full bg-[#e5e5e5]" />
+      <div className="flex flex-wrap justify-start gap-2 pb-4 pt-4 [direction:rtl]">
         {badges.map((badge) => (
           <Typography as="span" variant="label" size="medium" weight="semibold"
             className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-[#E9EAEE] p-2 text-sm font-semibold leading-5 text-[#4d4d4d]"
@@ -1663,19 +1656,25 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
   );
 }
 
-function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
+function DetailInfoRowCard({
+  item,
+  showDivider,
+}: {
+  item: DetailInfoItem;
+  showDivider: boolean;
+}) {
   return (
-    <div className="border-b border-[#e0e0e0] last:border-b-0">
-      <div className="flex items-center justify-start gap-2 py-4 text-right [direction:rtl]">
+    <div>
+      <div className="flex items-center justify-start h-9 my-4 text-right [direction:rtl]">
         {item.iconSrc ? (
           <ColorableSvgIcon className="h-6 w-6 shrink-0 text-[#4D4D4D]" src={item.iconSrc} />
         ) : null}
 
-        <Typography as="span" variant="label" size="large" weight="medium" className="text-base font-medium text-[#808080]">
+        <Typography as="span" variant="label" size="large" weight="medium" className="text-base mr-1 font-medium text-[#808080]">
           {item.label}
         </Typography>
 
-        <div className="mr-0">
+        <div className="mr-2">
           <DetailInfoValueView align="start" item={item} />
         </div>
       </div>
@@ -1697,30 +1696,44 @@ function DetailInfoRowCard({ item }: { item: DetailInfoItem }) {
           ))}
         </div>
       ) : null}
+
+      {showDivider ? (
+        <div aria-hidden="true" className="h-px w-full bg-[#e5e5e5]" />
+      ) : null}
     </div>
   );
 }
 
-function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
+function DetailInfoSectionBlock({
+  section,
+  separated = false,
+}: {
+  section: DetailInfoSection;
+  separated?: boolean;
+}) {
   const columns = section.columns ?? 3;
   const gridClassName =
     columns === 2 ? "grid-cols-2 gap-x-12" : "grid-cols-3 gap-x-4";
   const isRowsLayout = section.layout === "rows";
 
   return (
-    <section className="bg-white px-4">
-      <div className="border-b border-[#e5e5e5] py-4">
+    <section
+      className={`bg-white px-4 ${separated ? "border-t-8 border-[#f0f0f0]" : ""}`}
+    >
+      <div className="py-4">
         <Typography variant="label" size="medium" weight="medium" className="text-[#808080]">
           {section.title}
         </Typography>
       </div>
+      <div aria-hidden="true" className="h-px w-full bg-[#e5e5e5]" />
 
       {isRowsLayout ? (
         <div>
-          {section.items.map((item) => (
+          {section.items.map((item, index) => (
             <DetailInfoRowCard
               item={item}
               key={`${section.title}-${item.label}`}
+              showDivider={index < section.items.length - 1}
             />
           ))}
         </div>
@@ -1763,8 +1776,12 @@ export function DetailInfoFullPage({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {sections.length > 0 ? (
-          sections.map((section) => (
-            <DetailInfoSectionBlock key={section.title} section={section} />
+          sections.map((section, index) => (
+            <DetailInfoSectionBlock
+              key={section.title}
+              section={section}
+              separated={index > 0}
+            />
           ))
         ) : (
           <div className="bg-white px-4 py-10 text-center text-sm font-medium leading-5 text-[#808080]">

@@ -7,6 +7,7 @@ import {
 } from "../../components/form/FormControls";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Button } from "../../components/ui/Button";
+import { Chip } from "../../components/ui/Chip";
 import { ChoiceIndicator } from "../../components/ui/Choice";
 import { TopBar } from "../../components/TopBar";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
@@ -253,7 +254,7 @@ function goBackOrNavigate(fallbackPath: string) {
     return;
   }
 
-  window.history.pushState({}, "", fallbackPath);
+  window.history.replaceState(window.history.state ?? {}, "", fallbackPath);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -1148,7 +1149,11 @@ export function AdvertisementFilterPage({
           <Button unstyled
             className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
             onClick={() => {
-              window.history.pushState({}, "", buildSearchUrl(filters, applyBasePath));
+              window.history.pushState(
+                window.history.state ?? {},
+                "",
+                buildSearchUrl(filters, applyBasePath),
+              );
               window.dispatchEvent(new PopStateEvent("popstate"));
             }}
             type="button"
@@ -1170,7 +1175,7 @@ type FilterSectionProps = {
 
 function FilterSection({ children, icon, sectionId, title }: FilterSectionProps) {
   return (
-    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 pb-4 pt-4" data-filter-section={sectionId} dir="rtl">
+    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4" data-filter-section={sectionId} dir="rtl">
       <div className="mb-2 flex h-8 items-center justify-start gap-2 text-[#4d4d4d]">
         {icon}
         <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
@@ -1234,6 +1239,92 @@ function ChipSection({
         />
       ) : null}
     </FilterSection>
+  );
+}
+
+type ExchangeFilterSectionProps = {
+  icon: ReactNode;
+  onToggle: (value: string) => void;
+  options: readonly ChipItem[];
+  sectionId?: string;
+  selected: string[];
+  title: string;
+};
+
+const exchangePreviewLabels = ["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"];
+
+function ExchangeFilterSection({
+  icon,
+  onToggle,
+  options,
+  sectionId,
+  selected,
+  title,
+}: ExchangeFilterSectionProps) {
+  const [expanded, setExpanded] = useState(false);
+  const orderedOptions = useMemo(() => {
+    const optionByLabel = new Map(options.map((option) => [option.label, option]));
+    const previewOptions = exchangePreviewLabels
+      .map((label) => optionByLabel.get(label))
+      .filter((option): option is ChipItem => Boolean(option));
+    const previewIds = new Set(previewOptions.map((option) => option.id));
+
+    return [
+      ...previewOptions,
+      ...options.filter((option) => !previewIds.has(option.id)),
+    ];
+  }, [options]);
+  const visibleOptions = expanded ? orderedOptions : orderedOptions.slice(0, exchangePreviewLabels.length);
+  const canExpand = orderedOptions.length > exchangePreviewLabels.length;
+
+  return (
+    <section
+      className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 pb-2 pt-4"
+      data-filter-section={sectionId}
+      dir="rtl"
+    >
+      <div className="flex h-6 items-center justify-start gap-2 text-[#4d4d4d]">
+        {icon}
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="medium"
+          className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]"
+        >
+          {title}
+        </Typography>
+      </div>
+
+      <div className="mt-4 flex flex-wrap justify-start gap-2" dir="rtl">
+        {visibleOptions.map((option) => (
+          <Chip
+            className="h-9"
+            key={option.id}
+            onClick={() => onToggle(option.id)}
+            selected={selected.some(
+              (item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
+            )}
+          >
+            {option.label}
+          </Chip>
+        ))}
+      </div>
+
+      {canExpand ? (
+        <Button
+          unstyled
+          className="mx-auto mt-4 flex items-center justify-center gap-1 py-2.5 text-sm font-medium leading-5 text-[#0048c4]"
+          onClick={() => setExpanded((current) => !current)}
+          type="button"
+        >
+          <Typography as="span" variant="label" size="medium" weight="medium">
+            {expanded ? "نمایش کمتر" : "مشاهده همه معاوضه‌ها"}
+          </Typography>
+          <ChevronDownIcon isOpen={expanded} />
+        </Button>
+      ) : null}
+    </section>
   );
 }
 
@@ -1312,11 +1403,11 @@ function MoreButton({
 }) {
   return (
     <Button unstyled
-      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 px-3 text-sm font-medium leading-5 text-[#0048c4]"
+      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 pt-2.5 pb-0.5 px-3 text-sm font-medium leading-5 text-[#0048c4]"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular">{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</Typography>
+      <Typography as="span" variant="label" size="medium" weight="medium">{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</Typography>
       <ChevronDownIcon isOpen={expanded} />
     </Button>
   );
@@ -1569,6 +1660,19 @@ function FilterBlockRenderer({
       );
 
     case "multi":
+      if (block.id === "exchangeWith") {
+        return (
+          <ExchangeFilterSection
+            icon={getIcon(block.icon)}
+            sectionId={getFilterSectionAnchor(block)}
+            onToggle={(value) => toggleMultiValue(block.id, value)}
+            options={block.options}
+            selected={filters.multis[block.id] ?? []}
+            title={block.title}
+          />
+        );
+      }
+
       return (
         <ChipSection
           icon={getIcon(block.icon)}
@@ -1606,6 +1710,7 @@ function FilterBlockRenderer({
           label="آگهی دهنده"
           options={advertiserOptions}
           sectionId={getFilterSectionAnchor(block)}
+          topPadding
           value={filters.advertiser}
           onChange={(advertiser) =>
             setFilters((current) => ({
@@ -1634,9 +1739,11 @@ function FilterBlockRenderer({
 
     case "adFlags":
       return (
-        <section className="bg-white px-4 pb-4 pt-0" dir="rtl">
+        <section className="bg-white px-4 pb-2" dir="rtl">
           <CheckboxRow
+            bottomFilter
             checked={filters.featured}
+            divider
             label="آگهی ویژه"
             onChange={(featured) =>
               setFilters((current) => ({ ...current, featured }))
@@ -1644,7 +1751,9 @@ function FilterBlockRenderer({
           />
 
           <CheckboxRow
+            bottomFilter
             checked={filters.hasPhoto}
+            divider
             label="آگهی با عکس"
             onChange={(hasPhoto) =>
               setFilters((current) => ({ ...current, hasPhoto }))
@@ -1652,6 +1761,7 @@ function FilterBlockRenderer({
           />
 
           <CheckboxRow
+            bottomFilter
             checked={filters.hasVideo}
             label="آگهی با ویدیو"
             onChange={(hasVideo) =>
@@ -2172,22 +2282,30 @@ function LoanFilterSection({
 }
 
 function CheckboxRow({
+  bottomFilter = false,
   checked,
+  divider = false,
   label,
   onChange,
 }: {
+  bottomFilter?: boolean;
   checked: boolean;
+  divider?: boolean;
   label: string;
   onChange: (checked: boolean) => void;
 }) {
   return (
     <Button unstyled
       aria-pressed={checked}
-      className="flex h-14 w-full items-center justify-between gap-3 bg-white text-right"
+      className={`flex w-full items-center justify-between gap-3 bg-white text-right ${
+        bottomFilter ? "h-[59px]" : "py-2.25"
+      } ${
+        divider ? "border-b border-[#f0f0f0]" : ""
+      }`}
       onClick={() => onChange(!checked)}
       type="button"
     >
-      <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+      <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-[#1a1a1a]">
         {label}
       </Typography>
       <ChoiceIndicator checked={checked} className="h-5 w-5 rounded" />
@@ -2200,43 +2318,60 @@ function SelectOnlySection({
   onChange,
   options,
   sectionId,
+  topPadding = false,
   value,
 }: {
   label: string;
   onChange: (value: string | undefined) => void;
   options: readonly string[];
   sectionId?: string;
+  topPadding?: boolean;
   value?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section className="bg-white px-4 py-4" data-filter-section={sectionId} dir="rtl">
-      <Button unstyled
-        className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
-        onClick={() => setIsOpen(true)}
-        type="button"
-      >
-        <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
-          <SettingsIcon />
-          <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
-        </div>
-        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
-          <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
-          <ChevronLeftIcon />
-        </div>
-      </Button>
+    <section
+      className={`bg-white px-4 ${topPadding ? "pt-2" : ""}`}
+      data-filter-section={sectionId}
+      dir="rtl"
+    >
+      <div className="flex h-[59px] w-full items-center justify-between gap-3 border-b border-[#f0f0f0] text-right">
+        <Button
+          unstyled
+          className="flex h-full min-w-0 flex-1 items-center text-right"
+          onClick={() => setIsOpen(true)}
+          type="button"
+        >
+          <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-[#1a1a1a]">
+            {label}
+          </Typography>
+        </Button>
 
-      {value ? (
-        <div className="mt-3 flex flex-wrap justify-start gap-2">
-          <FormChoiceChip
-            label={value}
+        {value ? (
+          <Chip
+            aria-label={`حذف ${value}`}
+            className="h-9 max-w-[55%] bg-[#edf0fb] px-2 py-2 [&_svg]:h-4 [&_svg]:w-4"
             onClick={() => onChange(undefined)}
             removable
             selected
-          />
-        </div>
-      ) : null}
+          >
+            {value}
+          </Chip>
+        ) : (
+          <Button
+            unstyled
+            className="flex h-full shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]"
+            onClick={() => setIsOpen(true)}
+            type="button"
+          >
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              انتخاب
+            </Typography>
+            <ChevronLeftIcon />
+          </Button>
+        )}
+      </div>
 
       <BottomSheet
         ariaLabel={label}

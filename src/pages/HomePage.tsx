@@ -32,6 +32,7 @@ import LinearNotification from "../components/(icons)/LinearNotification";
 import LinearSearch from "../components/(icons)/LinearSearch";
 import { Typography } from "../components/ui/Typography";
 import { Button } from "../components/ui/Button";
+import { pushRoute } from "../routes/navigation";
 
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
@@ -306,8 +307,7 @@ export function HomePage() {
 
     setIsSearchOpen(false);
     setSelectedCategory(null);
-    window.history.pushState({}, "", queryString ? `/search?${queryString}` : "/search");
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    pushRoute(queryString ? `/search?${queryString}` : "/search");
   };
 
   const navigateToNotifications = () => {

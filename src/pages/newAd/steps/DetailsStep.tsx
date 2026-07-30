@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../components/BottomSheet";
+import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
 import { ChoiceIndicator } from "../../../components/ui/Choice";
 import { formatBigNumber } from "../../../lib/MoneyHandler";
 import {
@@ -25,6 +26,7 @@ import {
   MoreButton,
   Section,
   SelectBox,
+  SwitchButton,
   Tag,
   Toggle,
 } from "../components/NewAdControls";
@@ -42,12 +44,14 @@ function toggleArray(current: string[], id: string) {
     : [...current, id];
 }
 
-function moneySupportingText(value: string) {
+function moneySupportingText(value: string, includeCurrency = true) {
   const number = Number(value.replace(/,/g, ""));
 
-  return Number.isFinite(number) && number > 0
-    ? `${formatBigNumber(number)} تومان`
-    : "";
+  if (!Number.isFinite(number) || number <= 0) return "";
+
+  const formattedValue = formatBigNumber(number);
+
+  return includeCurrency ? `${formattedValue} تومان` : formattedValue;
 }
 
 function formatPersianCount(value: number) {
@@ -56,6 +60,32 @@ function formatPersianCount(value: number) {
 
 function ExchangeCheckIcon({ checked }: { checked: boolean }) {
   return <ChoiceIndicator checked={checked} />;
+}
+
+function PriceToggleRow({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <div className="flex h-16 items-center justify-between [direction:ltr]">
+      <SwitchButton checked={checked} onChange={onChange} />
+
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="semibold"
+        className="text-right text-[#1a1a1a] [direction:rtl]"
+      >
+        {label}
+      </Typography>
+    </div>
+  );
 }
 
 export function DetailsStep({
@@ -266,107 +296,258 @@ export function DetailsStep({
       );
     }
 
-    return (
-      <Section icon="money.svg" title="اطلاعات قیمت">
-        <div className="space-y-2">
-          <InputBox
-            error={errors.price}
-            formatNumeric
-            numeric
-            leftText="تومان"
-            onChange={(value) => setField("price", value)}
-            placeholder="قیمت *"
-            supportingText={moneySupportingText(values.price)}
-            value={values.price}
-          />
+    const priceSupportingText = moneySupportingText(values.price, false);
+    const priceHasSupportingText = Boolean(errors.price || priceSupportingText);
 
-          {!isSaleGardenVilla ? (
-            <>
-              <Toggle
+    if (desktop) {
+      return (
+        <Section icon="money.svg" title="اطلاعات قیمت">
+          <div className="space-y-2">
+            <InputBox
+              error={errors.price}
+              formatNumeric
+              numeric
+              leftText="تومان"
+              onChange={(value) => setField("price", value)}
+              placeholder="قیمت *"
+              supportingText={moneySupportingText(values.price)}
+              value={values.price}
+            />
+
+            {!isSaleGardenVilla ? (
+              <>
+                <Toggle
+                  checked={values.loanEnabled}
+                  label="وام دارد"
+                  onChange={(checked) => setField("loanEnabled", checked)}
+                />
+
+                {values.loanEnabled ? (
+                  <div className="space-y-3">
+                    <InputBox
+                      error={errors.loanAmount}
+                      formatNumeric
+                      numeric
+                      leftText="تومان"
+                      onChange={(value) => setField("loanAmount", value)}
+                      placeholder="مبلغ وام"
+                      supportingText={moneySupportingText(values.loanAmount)}
+                      value={values.loanAmount}
+                    />
+
+                    <InputBox
+                      error={errors.loanInstallment}
+                      formatNumeric
+                      numeric
+                      leftText="تومان"
+                      onChange={(value) => setField("loanInstallment", value)}
+                      placeholder="قسط وام"
+                      supportingText={moneySupportingText(values.loanInstallment)}
+                      value={values.loanInstallment}
+                    />
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+
+            <Toggle
+              checked={values.exchangeEnabled}
+              label="معاوضه می‌شود"
+              onChange={(checked) => setField("exchangeEnabled", checked)}
+            />
+
+            {values.exchangeEnabled ? (
+              <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
+                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
+
+                  <Button
+                    unstyled
+                    className="flex items-center gap-1 text-[#0048c4]"
+                    onClick={() =>
+                      setSheet({
+                        kind: "exchange",
+                        title: "معاوضه با",
+                        options: exchangeTargets,
+                      })
+                    }
+                    type="button"
+                  >
+                    <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
+                    <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                {values.exchangeTargets.length ? (
+                  <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+                    {values.exchangeTargets.map((target) => (
+                      <Tag
+                        key={target}
+                        label={target}
+                        onRemove={() =>
+                          setField(
+                            "exchangeTargets",
+                            values.exchangeTargets.filter((item) => item !== target),
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : null}
+                {errors.exchangeTargets ? (
+                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+                    {errors.exchangeTargets}
+                  </Typography>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </Section>
+      );
+    }
+
+    return (
+      <Section
+        contentClassName={values.exchangeEnabled ? "pt-3 pb-6" : "pt-3 pb-1"}
+        icon="money.svg"
+        title="اطلاعات قیمت"
+      >
+        <InputBox
+          error={errors.price}
+          floatingLabel="قیمت *"
+          formatNumeric
+          highlightWhenFilled={false}
+          numeric
+          leftText="تومان"
+          onChange={(value) => setField("price", value)}
+          placeholder="قیمت *"
+          supportingText={priceSupportingText}
+          value={values.price}
+        />
+
+        {!isSaleGardenVilla ? (
+          <>
+            <div
+              className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-[#cccccc]`}
+            >
+              <PriceToggleRow
                 checked={values.loanEnabled}
                 label="وام دارد"
                 onChange={(checked) => setField("loanEnabled", checked)}
               />
+            </div>
 
-              {values.loanEnabled ? (
-                <div className="space-y-3">
-                  <InputBox
-                    error={errors.loanAmount}
-                    formatNumeric
-                    numeric
-                    leftText="تومان"
-                    onChange={(value) => setField("loanAmount", value)}
-                    placeholder="مبلغ وام"
-                    supportingText={moneySupportingText(values.loanAmount)}
-                    value={values.loanAmount}
-                  />
+            {values.loanEnabled ? (
+              <div className="mt-3 space-y-4">
+                <InputBox
+                  error={errors.loanAmount}
+                  floatingLabel="مبلغ وام"
+                  formatNumeric
+                  highlightWhenFilled={false}
+                  numeric
+                  leftText="تومان"
+                  onChange={(value) => setField("loanAmount", value)}
+                  placeholder="مبلغ وام"
+                  value={values.loanAmount}
+                />
 
-                  <InputBox
-                    error={errors.loanInstallment}
-                    formatNumeric
-                    numeric
-                    leftText="تومان"
-                    onChange={(value) => setField("loanInstallment", value)}
-                    placeholder="قسط وام"
-                    supportingText={moneySupportingText(values.loanInstallment)}
-                    value={values.loanInstallment}
-                  />
-                </div>
-              ) : null}
-            </>
-          ) : null}
+                <InputBox
+                  error={errors.loanInstallment}
+                  floatingLabel="قسط وام"
+                  formatNumeric
+                  highlightWhenFilled={false}
+                  numeric
+                  leftText="تومان"
+                  onChange={(value) => setField("loanInstallment", value)}
+                  placeholder="قسط وام"
+                  value={values.loanInstallment}
+                />
+              </div>
+            ) : null}
+          </>
+        ) : null}
 
-          <Toggle
+        <div
+          className={`${
+            isSaleGardenVilla
+              ? priceHasSupportingText
+                ? "mt-4"
+                : "mt-5"
+              : values.loanEnabled
+                ? "mt-4"
+                : ""
+          } border-t border-[#cccccc]`}
+        >
+          <PriceToggleRow
             checked={values.exchangeEnabled}
             label="معاوضه می‌شود"
             onChange={(checked) => setField("exchangeEnabled", checked)}
           />
-
-          {values.exchangeEnabled ? (
-            <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
-              <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
-                <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
-
-                <Button unstyled
-                  className="flex items-center gap-1 text-[#0048c4]"
-                  onClick={() =>
-                    setSheet({
-                      kind: "exchange",
-                      title: "معاوضه با",
-                      options: exchangeTargets,
-                    })
-                  }
-                  type="button"
-                >
-                  <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
-                  <Typography as="span" variant="body" size="medium" weight="regular">‹</Typography>
-                </Button>
-              </div>
-
-              {values.exchangeTargets.length ? (
-                <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-                  {values.exchangeTargets.map((target) => (
-                    <Tag
-                      key={target}
-                      label={target}
-                      onRemove={() =>
-                        setField(
-                          "exchangeTargets",
-                          values.exchangeTargets.filter((item) => item !== target),
-                        )
-                      }
-                    />
-                  ))}
-                </div>
-              ) : null}
-              {errors.exchangeTargets ? (
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-5 text-[#ff3b30]">
-                  {errors.exchangeTargets}
-                </Typography>
-              ) : null}
-            </div>
-          ) : null}
         </div>
+
+        {values.exchangeEnabled ? (
+          <div className="mt-3 rounded-2xl border border-[#f0f0f0] px-4 py-6">
+            <div className="mb-4 flex items-center justify-between [direction:rtl]">
+              <Typography
+                as="span"
+                variant="label"
+                size="large"
+                weight="medium"
+                className="text-[#1a1a1a] [direction:rtl]"
+              >
+                معاوضه با
+              </Typography>
+
+              <Button
+                unstyled
+                className="flex items-center gap-1 text-[#0048c4]"
+                onClick={() =>
+                  setSheet({
+                    kind: "exchange",
+                    title: "معاوضه با",
+                    options: exchangeTargets,
+                  })
+                }
+                type="button"
+              >
+                <Typography as="span" variant="label" size="medium" weight="medium">
+                  انتخاب
+                </Typography>
+                <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {values.exchangeTargets.length ? (
+              <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+                {values.exchangeTargets.map((target) => (
+                  <Tag
+                    className="h-9 px-2 py-0"
+                    key={target}
+                    label={target}
+                    onRemove={() =>
+                      setField(
+                        "exchangeTargets",
+                        values.exchangeTargets.filter((item) => item !== target),
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            {errors.exchangeTargets ? (
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="m-0 mt-3 text-right text-[#ff3b30]"
+              >
+                {errors.exchangeTargets}
+              </Typography>
+            ) : null}
+          </div>
+        ) : null}
       </Section>
     );
   };

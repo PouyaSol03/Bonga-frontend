@@ -49,11 +49,13 @@ export function Section({
   icon,
   warning,
   children,
+  contentClassName = "",
 }: {
   title: string;
   icon: string;
   warning?: boolean;
   children: ReactNode;
+  contentClassName?: string;
 }) {
   const desktop = useNewAdDesktopLayout();
 
@@ -83,7 +85,7 @@ export function Section({
         )}
       </div>
 
-      {children}
+      {contentClassName ? <div className={contentClassName}>{children}</div> : children}
     </section>
   );
 }
@@ -107,7 +109,9 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
 
 export function InputBox({
   error,
+  floatingLabel,
   formatNumeric,
+  highlightWhenFilled,
   leftText,
   numeric,
   onChange,
@@ -116,7 +120,9 @@ export function InputBox({
   value,
 }: {
   error?: string;
+  floatingLabel?: string;
   formatNumeric?: boolean;
+  highlightWhenFilled?: boolean;
   leftText?: string;
   numeric?: boolean;
   onChange: (value: string) => void;
@@ -128,15 +134,16 @@ export function InputBox({
   const displayValue = numeric && formatNumeric && value
     ? formatPrice(Number(normalizeNumberInput(value).replace(/,/g, "")))
     : value;
-  const floatingLabel = leftText
+  const resolvedFloatingLabel = floatingLabel ?? (leftText
     ? placeholder.replace(/\s\*$/, ` (${leftText}) *`)
-    : placeholder;
+    : placeholder);
 
   return (
     <TextField
       error={error}
       inputMode={numeric ? "numeric" : "text"}
-      label={floatingLabel}
+      label={resolvedFloatingLabel}
+      highlightWhenFilled={highlightWhenFilled}
       leadingSlot={hasValue ? <ClearFieldButton onClick={() => onChange("")} /> : leftText ? <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</Typography> : undefined}
       onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
       placeholder={hasValue ? "" : placeholder}
@@ -186,8 +193,16 @@ export function LocationBox({ value, label }: { value: string; label: string }) 
   );
 }
 
-export function Tag({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return <UiChip onClick={onRemove} removable selected>{label}</UiChip>;
+export function Tag({
+  className = "",
+  label,
+  onRemove,
+}: {
+  className?: string;
+  label: string;
+  onRemove: () => void;
+}) {
+  return <UiChip className={className} onClick={onRemove} removable selected>{label}</UiChip>;
 }
 
 export function Chip({

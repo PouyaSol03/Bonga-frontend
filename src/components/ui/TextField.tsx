@@ -10,6 +10,7 @@ type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "
   containerClassName?: string;
   error?: string;
   label?: string;
+  highlightWhenFilled?: boolean;
   leadingSlot?: ReactNode;
   onChange?: ChangeEventHandler<HTMLInputElement>;
   onClear?: () => void;
@@ -23,6 +24,7 @@ export function TextField({
   containerClassName = "",
   error,
   label,
+  highlightWhenFilled = true,
   leadingSlot,
   onChange,
   onClear,
@@ -41,7 +43,11 @@ export function TextField({
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
           "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition [direction:ltr]",
-          error ? "border-[#ee3623]" : hasValue ? "border-[#0048c4]" : "border-[#cccccc]",
+          error
+            ? "border-[#ee3623]"
+            : hasValue && highlightWhenFilled
+              ? "border-[#0048c4]"
+              : "border-[#cccccc]",
           focusRing,
         )}
       >

@@ -254,7 +254,7 @@ function CategoryOptionSection({
   return (
     <section className={desktop ? "rounded-xl border border-[#e1e7f0] bg-white p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]" : "bg-white p-4"}>
       <div className="border-b border-[#e0e0e0] pb-2">
-        <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium leading-7 text-[#808080]">
+        <Typography as="p" variant="label" size="large" weight="medium" className="text-[#808080]">
           {section.title}
         </Typography>
       </div>

@@ -231,7 +231,16 @@ export const landFacilityItems: ChipItem[] = [
   { id: "water-well", label: "چاه آب" },
 ];
 
-export const exchangeTargets = ["خودرو", "زمین", "واحد مسکونی"];
+export const exchangeTargets = [
+  "خودرو",
+  "آپارتمان",
+  "خانه ویلایی",
+  "زمین",
+  "ویلا",
+  "واحد اداری",
+  "واحد تجاری",
+  "هتل",
+];
 
 export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "floor",

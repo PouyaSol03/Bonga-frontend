@@ -28,6 +28,7 @@ type BottomSheetProps = {
   className?: string;
   contentClassName?: string;
   handleClassName?: string;
+  headerClassName?: string;
   heightClassName?: string;
   isOpen: boolean;
   onBack?: () => void;
@@ -78,6 +79,7 @@ export function BottomSheet({
   className = "",
   contentClassName = "",
   handleClassName = "h-1 w-[56px] rounded-full bg-[#e0e0e0]",
+  headerClassName = "",
   heightClassName,
   isOpen,
   onBack,
@@ -144,7 +146,7 @@ export function BottomSheet({
             {showHeader ? (
               <>
                 <header
-                  className={`flex h-12 items-center gap-4 px-4 `}
+                  className={`flex h-12 items-center gap-4 px-4 ${headerClassName}`}
                 >
                   {showBackButton ? (
                     <IconButton

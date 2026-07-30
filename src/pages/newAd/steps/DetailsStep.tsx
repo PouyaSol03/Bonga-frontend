@@ -573,28 +573,42 @@ export function DetailsStep({
 
       <BottomSheet
         ariaLabel={sheet?.title ?? "انتخاب"}
-        className="rounded-t-[14px]"
-        contentClassName="pt-0 pb-6"
-        handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
-        heightClassName="h-auto max-h-[calc(100dvh-102px)]"
+        className={sheet?.kind === "exchange" ? "!rounded-t-[24px]" : "rounded-t-[14px]"}
+        contentClassName={
+          sheet?.kind === "exchange"
+            ? "min-h-0 flex-1 overflow-y-auto pt-1"
+            : "pb-6 pt-0"
+        }
+        handleClassName={
+          sheet?.kind === "exchange"
+            ? "h-1 w-[56px] rounded-full bg-[#cccccc]"
+            : "h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+        }
+        headerClassName={sheet?.kind === "exchange" ? "!gap-0 !px-2" : ""}
+        heightClassName={
+          sheet?.kind === "exchange"
+            ? "h-[min(660px,calc(100svh-24px))]"
+            : "h-auto"
+        }
         isOpen={Boolean(sheet)}
+        onBack={() => setSheet(null)}
         onClose={() => setSheet(null)}
-        panelPaddingClassName="pt-3"
-        showBackButton={false}
+        panelPaddingClassName={sheet?.kind === "exchange" ? "flex flex-col pt-3" : "pt-3"}
+        showBackButton={sheet?.kind === "exchange"}
         showHandle
         showHeader
-        showHeaderDivider
+        showHeaderDivider={sheet?.kind !== "exchange"}
         title={sheet?.title ?? "انتخاب"}
-        titleAlign="center"
+        titleAlign={sheet?.kind === "exchange" ? "right" : "center"}
       >
         {sheet?.kind === "exchange" ? (
-          <div className="px-4 pb-2" dir="rtl">
+          <div className="px-4" dir="rtl">
             {sheet.options.map((option) => {
               const checked = values.exchangeTargets.includes(option);
 
               return (
                 <Button unstyled
-                  className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]"
+                  className="flex h-[72px] w-full items-center justify-between gap-3 pl-5 pr-4 text-right text-[#1a1a1a]"
                   key={option}
                   onClick={() =>
                     setField(
@@ -604,8 +618,10 @@ export function DetailsStep({
                   }
                   type="button"
                 >
+                  <Typography as="span" variant="body" size="large" weight="regular">
+                    {option}
+                  </Typography>
                   <ExchangeCheckIcon checked={checked} />
-                  <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
                 </Button>
               );
             })}

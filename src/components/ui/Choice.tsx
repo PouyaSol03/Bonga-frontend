@@ -41,7 +41,7 @@ export function ChoiceIndicator({
     <Typography as="span" variant="body" size="medium" weight="regular"
         aria-hidden="true"
         className={cn(
-          "grid h-6 w-6 shrink-0 place-items-center rounded-lg border",
+          "grid h-4.5 w-4.5 shrink-0 place-items-center rounded-sm border",
           disabled
             ? checked
               ? "border-[#b8b8b8] bg-[#b8b8b8] text-white"

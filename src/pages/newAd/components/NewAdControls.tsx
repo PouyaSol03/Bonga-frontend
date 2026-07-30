@@ -61,9 +61,9 @@ export function Section({
     <section
       className={desktop
         ? "rounded-xl border border-[#e1e7f0] bg-white px-6 py-6 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
-        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 pt-7 pb-5 text-right last:border-b-0 [direction:rtl]"}
+        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 pt-4 pb-2 text-right last:border-b-0 [direction:rtl]"}
     >
-      <div className="mb-6 flex items-center justify-between gap-3">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <img
             src={`/icons/add_advertisement/${icon}`}
@@ -71,7 +71,7 @@ export function Section({
             className="h-6 w-6 shrink-0 object-contain"
           />
 
-          <Typography as="h2" variant="headline" size="large" className="m-0 min-w-0 truncate text-right font-semibold leading-7 text-[#1a1a1a]">
+          <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
             {title}
           </Typography>
         </div>
@@ -300,11 +300,11 @@ export function MoreButton({
 }) {
   return (
     <Button unstyled
-      className="mx-auto mt-5 flex h-9 items-center justify-center gap-1.5 rounded-full px-4 !text-sm !font-medium leading-5 text-[#0048C4] active:bg-[#0048c40f]"
+      className="mx-auto mt-4 flex items-center justify-center gap-1.5 rounded-full py-2.5 !text-sm !font-medium leading-5 text-[#0048C4] active:bg-[#0048c40f]"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular">
+      <Typography as="span" variant="label" size="medium">
         {expanded ? "نمایش کمتر" : `نمایش ${count} مورد بیشتر`}
       </Typography>
 

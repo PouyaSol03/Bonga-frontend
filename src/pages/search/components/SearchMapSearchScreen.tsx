@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import BoldBookmarkSolid from "../../../components/(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
-import SearchBarSearchIcon from "../../../components/(icons)/SearchBarSearchIcon";
+import LinearCancelCircle from "../../../components/(icons)/LinearCancelCircle";
 import { TopBar } from "../../../components/TopBar";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import SearchErrors from "../../home/components/SearchErrors";
@@ -419,7 +419,7 @@ function SearchMapField({
 }) {
   return (
     <form
-      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-white px-3 text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440] ${
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-white text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440] ${
         query ? "border-[#0048c4]" : "border-[#808080]"
       }`}
       dir="rtl"
@@ -428,29 +428,6 @@ function SearchMapField({
         onSubmit();
       }}
     >
-      <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-      <div aria-hidden="true" className="mx-3 h-6 w-px shrink-0 bg-[#cccccc]" />
-      <input
-        aria-label="جستجو در آگهی‌های نقشه"
-        autoFocus={isOpen}
-        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6]"
-        onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="جستجو"
-        tabIndex={isOpen ? 0 : -1}
-        type="search"
-        value={query}
-      />
-      {query ? (
-        <Button unstyled
-          aria-label="پاک کردن جستجو"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#808080] transition active:bg-[#f0f0f0]"
-          onClick={() => onQueryChange("")}
-          tabIndex={isOpen ? 0 : -1}
-          type="button"
-        >
-          ×
-        </Button>
-      ) : null}
       <Button unstyled
         aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
         aria-pressed={isSaved}
@@ -470,6 +447,28 @@ function SearchMapField({
           <LinearBookmarkSolid className="h-6 w-6" />
         )}
       </Button>
+      <div aria-hidden="true" className="me-3 h-6 w-px shrink-0 bg-[#cccccc]" />
+      <input
+        aria-label="جستجو در آگهی‌های نقشه"
+        autoFocus={isOpen}
+        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6]"
+        onChange={(event) => onQueryChange(event.target.value)}
+        placeholder="جستجو در آگهی‌ها"
+        tabIndex={isOpen ? 0 : -1}
+        type="search"
+        value={query}
+      />
+      {query ? (
+        <Button unstyled
+          aria-label="پاک کردن جستجو"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#808080] transition active:bg-[#f0f0f0]"
+          onClick={() => onQueryChange("")}
+          tabIndex={isOpen ? 0 : -1}
+          type="button"
+        >
+          <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
+        </Button>
+      ) : null}
     </form>
   );
 }

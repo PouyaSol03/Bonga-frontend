@@ -2,6 +2,7 @@ import { BottomSheet } from "../../../components/BottomSheet";
 import { Button } from "../../../components/ui/Button";
 import { IconButton } from "../../../components/ui/IconButton";
 import { ListItem } from "../../../components/ui/ListItem";
+import LinearBuilding2 from "../../../components/(icons)/LinearBuilding2";
 import LinearCity from "../../../components/(icons)/LinearCity";
 import LinearUser from "../../../components/(icons)/LinearUserSolid";
 import LinearArrowRight2 from "../../../components/(icons)/LinearArrowRight2";
@@ -26,11 +27,17 @@ type SearchRequestSenderBottomSheetProps = {
 };
 
 function RequestSenderIcon({ type }: { type: SearchRequestSenderOption["icon"] }) {
+  const iconClassName = "h-6 w-6";
+
   if (type === "user") {
-    return <LinearUser aria-hidden="true" className="h-6 w-6" />;
+    return <LinearUser aria-hidden="true" className={iconClassName} />;
   }
 
-  return <LinearCity aria-hidden="true" className="h-6 w-6" />;
+  if (type === "building") {
+    return <LinearBuilding2 aria-hidden="true" className={iconClassName} />;
+  }
+
+  return <LinearCity aria-hidden="true" className={iconClassName} />;
 }
 
 function RequestSuccessContent({

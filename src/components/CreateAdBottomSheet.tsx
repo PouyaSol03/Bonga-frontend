@@ -4,8 +4,9 @@ import {
 } from "../hooks/publisher-options.hooks";
 import { BottomSheet } from "./BottomSheet";
 import LinearArrowLeft1 from "./(icons)/LinearArrowLeft1";
-import CreateAdBuildingIcon from "./(icons)/CreateAdBuildingIcon";
-import CreateAdUserIcon from "./(icons)/CreateAdUserIcon";
+import LinearBuilding2 from "./(icons)/LinearBuilding2";
+import LinearCity from "./(icons)/LinearCity";
+import LinearUser from "./(icons)/LinearUserSolid";
 import { ListItem } from "./ui/ListItem";
 
 type CreateAdOption = PublisherOption;
@@ -17,11 +18,17 @@ type CreateAdBottomSheetProps = {
 };
 
 function CreateAdIcon({ type }: { type: CreateAdOption["icon"] }) {
+  const iconClassName = "h-6 w-6";
+
   if (type === "user") {
-    return <CreateAdUserIcon aria-hidden="true" />;
+    return <LinearUser aria-hidden="true" className={iconClassName} />;
   }
 
-  return <CreateAdBuildingIcon agency={type === "agency"} aria-hidden="true" />;
+  if (type === "building") {
+    return <LinearBuilding2 aria-hidden="true" className={iconClassName} />;
+  }
+
+  return <LinearCity aria-hidden="true" className={iconClassName} />;
 }
 
 export function CreateAdBottomSheet({
@@ -34,7 +41,7 @@ export function CreateAdBottomSheet({
   return (
     <BottomSheet
       ariaLabel="ثبت آگهی"
-      contentClassName="mt-5 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
+      contentClassName="mt-4 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
       isOpen={isOpen}
       onClose={onClose}
       title="ثبت آگهی"

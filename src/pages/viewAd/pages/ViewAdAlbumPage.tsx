@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
 
 import "swiper/css";
+import { Button } from "../../../components/ui/Button";
 
 export type ViewAdAlbumMediaItem = {
   src: string;
@@ -54,14 +55,14 @@ export function ViewAdAlbumPage({
       <header className="flex h-14 shrink-0 items-center justify-between bg-[#1a1a1a] px-1 [direction:ltr]">
         <div className="h-12 w-40 shrink-0" />
         <div className="min-w-0 flex-1" />
-        <button
+        <Button unstyled
           aria-label="بستن آلبوم"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#fafafa] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff66]"
           onClick={onClose}
           type="button"
         >
           <AlbumCloseIcon />
-        </button>
+        </Button>
       </header>
 
       <main className="relative min-h-0 flex-1 overflow-hidden bg-[#1a1a1a]">
@@ -93,7 +94,7 @@ export function ViewAdAlbumPage({
           >
             <div className="flex h-2 items-center gap-2">
               {mediaItems.map((item, index) => (
-                <button
+                <Button unstyled
                   aria-label={`نمایش رسانه ${index + 1}`}
                   className={`block h-2 rounded-full ${index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"}`}
                   key={`${item.type}-${index}`}

@@ -27,6 +27,7 @@ import {
   type ConsultantAd,
 } from "./adManagement/adManagementData";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const adStatusLabels = ["در انتظار انتشار", "منتشر شده", "در انتظار انتشار", "منتشر شده"];
 const assignmentPageSize = 20;
@@ -289,19 +290,19 @@ export function IndependentConsultantAdManagementPage() {
         }
         className="bg-[#f0f0f0]"
         startSlot={
-          <button
+          <Button unstyled
             aria-label="جستجو"
             className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
             type="button"
           >
             <SearchIcon className="h-6 w-6" />
-          </button>
+          </Button>
         }
       />
 
       <section className="shrink-0 bg-[#f0f0f0] px-4 py-2" aria-label="بخش‌های مدیریت آگهی">
         <div className="grid h-10 grid-cols-2 overflow-hidden rounded-xl border border-[#808080] bg-white [direction:rtl]">
-          <button
+          <Button unstyled
             aria-current={activeTab === "active" ? "page" : undefined}
             className={`text-base font-medium leading-6 [direction:rtl] ${
               activeTab === "active" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
@@ -310,8 +311,8 @@ export function IndependentConsultantAdManagementPage() {
             type="button"
           >
             آگهی‌ها
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             aria-current={activeTab === "status" ? "page" : undefined}
             className={`text-base font-medium leading-6 [direction:rtl] ${
               activeTab === "status" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
@@ -320,7 +321,7 @@ export function IndependentConsultantAdManagementPage() {
             type="button"
           >
             تخصیصی‌ها
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -384,13 +385,13 @@ export function IndependentConsultantAdManagementPage() {
             ) : assignmentsQuery.isError ? (
               <AssignmentStatusMessage>
                 دریافت آگهی‌های تخصیصی با خطا مواجه شد.
-                <button
+                <Button unstyled
                   className="mt-3 block w-full font-semibold text-[#0048c4]"
                   onClick={() => void assignmentsQuery.refetch()}
                   type="button"
                 >
                   تلاش دوباره
-                </button>
+                </Button>
               </AssignmentStatusMessage>
             ) : assignedAdvertisements.length > 0 ? (
               assignedAdvertisements.map(({ ad, assignment }, index) => (

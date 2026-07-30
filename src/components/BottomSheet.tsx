@@ -6,6 +6,7 @@ import LinearTick from "./(icons)/LinearTick";
 import { IconButton } from "./ui/IconButton";
 import { ListItem } from "./ui/ListItem";
 import { Typography } from "./ui/Typography";
+import { Button } from "./ui/Button";
 
 type SheetIconProps = SVGProps<SVGSVGElement> & {
   className?: string;
@@ -116,7 +117,7 @@ export function BottomSheet({
           initial={{ opacity: 0 }}
           transition={scrimTransition}
         >
-          <button
+          <Button unstyled
             aria-label={ariaLabel}
             className={`absolute inset-0 z-0 cursor-default ${scrimClassName}`}
             onClick={onClose}

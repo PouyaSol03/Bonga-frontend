@@ -30,6 +30,7 @@ import {
   type PropertyRequestResultsStatus,
 } from "./PropertyRequestResults";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type RequestManagementTab = "received" | "requests" | "results";
 type RequestFilterId = "all" | string;
@@ -663,7 +664,7 @@ function RequestTabs({
           const isActive = activeTab === tab.id;
 
           return (
-            <button
+            <Button unstyled
               aria-current={isActive ? "page" : undefined}
               className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
                 variant === "account"
@@ -691,7 +692,7 @@ function RequestTabs({
                 ) : null}
                 <Typography as="span" variant="body" size="medium" weight="regular" className="truncate [direction:rtl]">{tab.label}</Typography>
               </Typography>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -707,7 +708,7 @@ function RequestFilterButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="flex h-[34px] w-full items-center justify-between rounded-[10px] border border-[#cccccc] bg-white px-3 text-right text-xs font-normal leading-5 text-[#1a1a1a] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f8f8f8] [direction:ltr]"
       onClick={onClick}
       type="button"
@@ -716,7 +717,7 @@ function RequestFilterButton({
       <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-3 text-right [direction:rtl]">
         {label}
       </Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -762,19 +763,19 @@ function RequestEditBottomSheet({
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <button
+          <Button unstyled
             className="h-10 rounded-xl border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
             onClick={onClose}
             type="button"
           >
             انصراف
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             className="h-10 rounded-xl bg-[#0048c4] text-sm font-semibold leading-5 text-white transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003ca3]"
             type="submit"
           >
             تایید
-          </button>
+          </Button>
         </div>
       </form>
     </BottomSheet>
@@ -815,7 +816,7 @@ function RequestFilterBottomSheet({
           const isSelected = activeFilterId === option.id;
 
           return (
-            <button
+            <Button unstyled
               aria-checked={isSelected}
               className="flex h-12 w-full items-center justify-between rounded-[10px] px-1 text-sm font-normal leading-5 text-[#1a1a1a] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5] [direction:ltr]"
               key={option.id}
@@ -827,7 +828,7 @@ function RequestFilterBottomSheet({
               <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right [direction:rtl]">
                 {option.label}
               </Typography>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -852,16 +853,16 @@ function CriteriaRequestCard({
   return (
     <article className="min-h-[148px] overflow-hidden bg-white p-4 text-right">
       <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
-        <button
+        <Button unstyled
           className="inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-lg px-0.5 font-medium leading-4 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440] active:bg-[#fff0f0]"
           onClick={onCancel}
           type="button"
         >
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">لغو</Typography>
           <LinearCancel className="h-4 w-4 text-[#4d4d4d]" />
-        </button>
+        </Button>
 
-        <button
+        <Button unstyled
           aria-label={`ویرایش ${request.title}`}
           className="flex min-w-0 flex-1 items-center justify-end gap-1.5 rounded-lg text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#0048c440] [direction:ltr]"
           onClick={onEdit}
@@ -871,7 +872,7 @@ function CriteriaRequestCard({
           <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 truncate text-right font-semibold leading-5 text-[#1a1a1a] [direction:rtl]">
             {request.title}
           </Typography>
-        </button>
+        </Button>
       </div>
 
       {visibleDetails.length ? (
@@ -901,14 +902,14 @@ function ReceivedRequestsGuide({ onClose }: { onClose: () => void }) {
     <section className="border-b-8 border-[#f0f0f0] bg-white px-4 py-4">
       <div className="rounded-2xl bg-[#eaf1ff] px-4 pb-4 pt-5 text-[#0054c8]">
         <div className="flex items-center justify-between [direction:ltr]">
-          <button
+          <Button unstyled
             aria-label="بستن راهنما"
             className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-white/60"
             onClick={onClose}
             type="button"
           >
             <LinearCancel className="h-5 w-5" />
-          </button>
+          </Button>
 
           <div className="flex items-center gap-2 text-[#0054c8] [direction:rtl]">
             <LinearInfoCircle className="h-6 w-6 shrink-0" />
@@ -948,14 +949,14 @@ function ReceivedRequestCard({
       ) : null}
 
       <div className="flex items-start justify-between gap-4 [direction:ltr]">
-        <button
+        <Button unstyled
           aria-label={`حذف ${request.title}`}
           className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
           onClick={onDelete}
           type="button"
         >
           <LinearDelete className="h-6 w-6" />
-        </button>
+        </Button>
 
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex min-h-10 flex-wrap items-center gap-2">

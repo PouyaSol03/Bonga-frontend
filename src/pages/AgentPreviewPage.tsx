@@ -10,6 +10,7 @@ import LinearTag from "../components/(icons)/LinearTag";
 import { Snackbar, type SnackbarVariant } from "../components/Snackbar";
 import { TopBar } from "../components/TopBar";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 const listingImageSrc = "/figma/agency-preview/listing-kitchen.png";
 
@@ -181,14 +182,14 @@ export function AgentPreviewPage() {
 
       <footer className="absolute inset-x-0 bottom-0 z-10 bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(26,26,26,0.12)]">
         <div className="grid grid-cols-2 gap-3">
-          <button className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white" type="button">
+          <Button unstyled className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white" type="button">
             <LinearPhone2 className="h-5 w-5" />
             تماس
-          </button>
-          <button className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]" type="button">
+          </Button>
+          <Button unstyled className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]" type="button">
             <LinearChat className="h-5 w-5" />
             چت
-          </button>
+          </Button>
         </div>
       </footer>
 

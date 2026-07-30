@@ -13,6 +13,7 @@ import type {
 } from "./viewAdTypes";
 import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 function DetailItemIcon({
   className = "h-6 w-6 shrink-0",
@@ -54,14 +55,14 @@ export function ViewAdIconButton({
   onClick?: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-label={label}
       className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]"
       onClick={onClick}
       type="button"
     >
       <ViewAdIcon name={icon} />
-    </button>
+    </Button>
   );
 }
 
@@ -170,14 +171,14 @@ export function MoreButton({
   onClick?: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
       onClick={onClick}
       type="button"
     >
       <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
       <ViewAdIcon className="h-4 w-4" name={icon} />
-    </button>
+    </Button>
   );
 }
 
@@ -191,19 +192,19 @@ export function PropertyGrid({
   return (
     <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">
       {items.map((item) => (
-        <div className="flex min-w-0 items-start gap-3" key={`${item.icon}-${item.value}`}>
+        <div className="flex min-w-0 items-start gap-2" key={`${item.icon}-${item.value}`}>
           <DetailItemIcon
             className="h-6 w-6 shrink-0 text-[#4D4D4D]"
             item={item}
           />
           <div className="min-w-0 text-right">
-            <div className="truncate text-base font-medium leading-6 text-[#1a1a1a]">
+            <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
               {item.value}
-            </div>
+            </Typography>
             {withLabels ? (
-              <div className="truncate text-xs font-medium leading-4 text-[#a6a6a6]">
+              <Typography variant="label" size="small" weight="medium" className="text-[#808080]">
                 {item.label}
-              </div>
+              </Typography>
             ) : null}
           </div>
         </div>

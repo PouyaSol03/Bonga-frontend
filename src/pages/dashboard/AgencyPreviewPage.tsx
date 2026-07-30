@@ -45,6 +45,7 @@ import type {
 } from "../../services/agency.service";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
@@ -836,14 +837,14 @@ export function AgencyQrCodePage() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4] transition active:bg-[#0048c414]"
           onClick={() => void handleShareClick()}
           type="button"
         >
           <LinearShare className="h-5 w-5" />
           اشتراک‌گذاری
-        </button>
+        </Button>
       </footer>
       {toast ? (
         <Snackbar
@@ -925,13 +926,13 @@ function PublicPreviewErrorState({
       <div className="grid h-14 w-14 place-items-center rounded-full bg-[#fff0ef] text-2xl text-[#d93645]">!</div>
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">دریافت اطلاعات ناموفق بود</Typography>
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-sm text-sm leading-6 text-[#808080]">{message}</Typography>
-      <button
+      <Button unstyled
         className="mt-5 h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-semibold text-white"
         onClick={onRetry}
         type="button"
       >
         تلاش دوباره
-      </button>
+      </Button>
     </div>
   );
 }
@@ -1011,7 +1012,7 @@ function AgencySegmentedTabs({
           const isActive = activeTab === tab.id;
 
           return (
-            <button
+            <Button unstyled
               aria-pressed={isActive}
               className={`h-full transition-colors ${isActive ? "bg-[#dfe8fa] text-[#0048c4]" : "bg-white text-[#4d4d4d]"}`}
               key={tab.id}
@@ -1019,7 +1020,7 @@ function AgencySegmentedTabs({
               type="button"
             >
               {tab.label}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -1068,7 +1069,7 @@ function AgencyInfoTab({
       </section>
 
       {agentAgency?.name ? (
-        <button
+        <Button unstyled
           className="flex w-full items-center gap-3 bg-white p-4 text-right"
           onClick={() => {
             if (agentAgency.id) {
@@ -1095,7 +1096,7 @@ function AgencyInfoTab({
             ) : null}
           </Typography>
           {agentAgency.id ? <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" /> : null}
-        </button>
+        </Button>
       ) : null}
 
       {workingHours ? (
@@ -1115,7 +1116,7 @@ function AgencyInfoTab({
           {aboutText}
         </Typography>
         {aboutText.length > 220 ? (
-          <button
+          <Button unstyled
             aria-expanded={isAboutExpanded}
             className="mx-auto mt-2 inline-flex items-center gap-1 text-xs font-semibold leading-4 text-[#0048c4]"
             onClick={() => setIsAboutExpanded((prev) => !prev)}
@@ -1123,7 +1124,7 @@ function AgencyInfoTab({
           >
             <LinearArrowDown1 className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""}`} />
             {isAboutExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
-          </button>
+          </Button>
         ) : null}
       </section>
 
@@ -1134,7 +1135,7 @@ function AgencyInfoTab({
 
 function BadgeCard({ badge, onClick }: { badge: BadgeInfo; onClick: () => void }) {
   return (
-    <button
+    <Button unstyled
       aria-label={badge.title}
       className="grid h-[62px] w-[70px] shrink-0 place-items-center rounded-lg border border-[#EBEBEB] bg-white shadow-[0_1px_0_rgba(26,26,26,0.03)] focus-visible:outline-3 focus-visible:outline-[#0048c440]"
       onClick={onClick}
@@ -1148,7 +1149,7 @@ function BadgeCard({ badge, onClick }: { badge: BadgeInfo; onClick: () => void }
           <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
         </Typography>
       </Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -1187,11 +1188,11 @@ function AgencyBadgeBottomSheet({ badge, onClose }: { badge: BadgeInfo | null; o
 
 function AgencyActionRow({ icon, title }: { icon: ReactNode; title: string }) {
   return (
-    <button className="flex w-full items-center gap-3 bg-white p-4 text-right" type="button">
+    <Button unstyled className="flex w-full items-center gap-3 bg-white p-4 text-right" type="button">
       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-7 w-7 place-items-center text-[#4d4d4d]">{icon}</Typography>
       <Typography as="span" variant="label" size="large" weight="semibold" className="min-w-0 flex-1 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</Typography>
       <LinearArrowLeft1 className="h-6 w-6 text-[#4d4d4d]" />
-    </button>
+    </Button>
   );
 }
 
@@ -1224,14 +1225,14 @@ function AgencyAdsTab({
     <div className="space-y-2 bg-[#f0f0f0] px-0 pb-3 pt-5">
       <div className="flex items-center gap-2 px-4 [direction:ltr]">
         {showFilter ? (
-          <button
+          <Button unstyled
             aria-label="فیلتر آگهی‌ها"
             className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[#0062ff] bg-[#eaf2ff] text-[#0062ff]"
             onClick={() => navigateTo(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
             type="button"
           >
             <LinearFilterHorizontal className="h-6 w-6" />
-          </button>
+          </Button>
         ) : null}
         <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-[#a6a6a6] bg-white px-3 [direction:rtl]">
           <LinearSearch className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
@@ -1264,7 +1265,7 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
   return (
     <section className="flex flex-col gap-y-2">
       {consultants.map((consultant, index) => (
-        <button
+        <Button unstyled
           className={`flex w-full items-center justify-center gap-4 bg-white px-4 py-4 text-center transition active:bg-[#fafafa] ${index < consultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
           key={consultant.agentId ?? consultant.userId}
           onClick={() => {
@@ -1295,7 +1296,7 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
               </Typography>
             </div>
           </div>
-        </button>
+        </Button>
       ))}
     </section>
   );
@@ -1464,17 +1465,17 @@ function AgencyPreviewFooter({
   return (
     <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
       <div className="grid h-10 grid-cols-2 gap-4 [direction:ltr]">
-        <button
+        <Button unstyled
           className="cursor-pointer rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white"
           onClick={onContactClick}
           type="button"
         >
           تماس با {entityLabel}
-        </button>
-        <button className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]" type="button">
+        </Button>
+        <Button unstyled className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]" type="button">
           چت با {entityLabel}
           <LinearChat className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
     </footer>
   );

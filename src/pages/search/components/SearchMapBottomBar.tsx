@@ -2,6 +2,7 @@ import "../../../components/AdCard.css";
 
 import type { SearchMapListing } from "../searchMapData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type SearchMapBottomBarProps = {
   listing: SearchMapListing | null;
@@ -57,12 +58,12 @@ export function SearchMapBottomBar({
             </Typography>
           </div>
 
-          <button
+          <Button unstyled
             className="h-10 shrink-0 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             type="button"
           >
             مشاهده لیست
-          </button>
+          </Button>
         </div>
       )}
     </aside>

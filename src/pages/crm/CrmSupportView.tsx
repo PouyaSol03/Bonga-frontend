@@ -32,6 +32,7 @@ import {
 } from "../account/accountSupportViews";
 import type { CrmRoutePageProps } from "./CrmLayout";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 function readParticipant(thread: ChatThread) {
   const participant = thread.participant ?? thread.user ?? {};
@@ -237,7 +238,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
             پاسخگویی زنده به گفتگوهای فعال کاربران
           </Typography>
         </div>
-        <button
+        <Button unstyled
           className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-semibold text-[#4d4d4d] hover:border-[#0048c4] hover:text-[#0048c4]"
           onClick={() => {
             void chatsQuery.refetch().then(() => notify?.("فهرست گفتگوها بروزرسانی شد."));
@@ -246,7 +247,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
         >
           <LinearRefresh className="h-5 w-5" />
           بروزرسانی
-        </button>
+        </Button>
       </header>
 
       <div className="flex min-h-0 flex-1 gap-4">
@@ -268,13 +269,13 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
             ) : chatsQuery.isError ? (
               <div className="px-4 py-16 text-center">
                 <Typography as="p" variant="body" size="medium" weight="regular" className="text-sm text-[#d92d20]">دریافت گفتگوها با خطا مواجه شد.</Typography>
-                <button
+                <Button unstyled
                   className="mt-3 h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white"
                   onClick={() => void chatsQuery.refetch()}
                   type="button"
                 >
                   تلاش دوباره
-                </button>
+                </Button>
               </div>
             ) : filteredThreads.length === 0 ? (
               <SearchEmptyState className="min-h-[300px] px-4" />
@@ -290,7 +291,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                   const unreadCount = Number(thread.unread_count ?? 0) || 0;
 
                   return (
-                    <button
+                    <Button unstyled
                       className={`w-full rounded-xl border px-3 py-3 text-right transition ${
                         isActive
                           ? "border-[#0048c4] bg-[#f3f7ff]"
@@ -331,7 +332,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                           </Typography>
                         </Typography>
                       </Typography>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -399,14 +400,14 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                   placeholder="پیام خود را بنویسید..."
                   value={draft}
                 />
-                <button
+                <Button unstyled
                   aria-label="ارسال پیام"
                   className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#0048c4] text-white disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={!draft.trim()}
                   type="submit"
                 >
                   <LinearSent className="h-5 w-5" />
-                </button>
+                </Button>
               </form>
             </>
           )}

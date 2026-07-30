@@ -765,15 +765,15 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
   const ownerType = String((ad as { owner_type?: unknown }).owner_type ?? "").toLowerCase();
   const agencyName = toText(
     ad.agency ??
-      (ad as { agency_name?: unknown }).agency_name ??
-      (ad as { real_estate_name?: unknown }).real_estate_name,
+    (ad as { agency_name?: unknown }).agency_name ??
+    (ad as { real_estate_name?: unknown }).real_estate_name,
   );
   const agentName = toText(
     (ad as { agent_name?: unknown }).agent_name ??
-      (ad as { consultant_name?: unknown }).consultant_name ??
-      (ad as { adviser_name?: unknown }).adviser_name ??
-      (ad as { advertiser_name?: unknown }).advertiser_name ??
-      (ad as { owner_name?: unknown }).owner_name,
+    (ad as { consultant_name?: unknown }).consultant_name ??
+    (ad as { adviser_name?: unknown }).adviser_name ??
+    (ad as { advertiser_name?: unknown }).advertiser_name ??
+    (ad as { owner_name?: unknown }).owner_name,
   );
   const isAgent =
     advertiserType.includes("مشاور") ||
@@ -819,19 +819,19 @@ function getAdvertiserPreviewId(ad: AdvertisementItem, kind: "agency" | "agent")
   const candidates =
     kind === "agent"
       ? [
-          (ad as { agent_id?: unknown }).agent_id,
-          (ad as { consultant_id?: unknown }).consultant_id,
-          (ad as { adviser_id?: unknown }).adviser_id,
-          agent.id,
-          agent._id,
-        ]
+        (ad as { agent_id?: unknown }).agent_id,
+        (ad as { consultant_id?: unknown }).consultant_id,
+        (ad as { adviser_id?: unknown }).adviser_id,
+        agent.id,
+        agent._id,
+      ]
       : [
-          (ad as { agency_id?: unknown }).agency_id,
-          (ad as { real_estate_id?: unknown }).real_estate_id,
-          (ad as { office_id?: unknown }).office_id,
-          agency.id,
-          agency._id,
-        ];
+        (ad as { agency_id?: unknown }).agency_id,
+        (ad as { real_estate_id?: unknown }).real_estate_id,
+        (ad as { office_id?: unknown }).office_id,
+        agency.id,
+        agency._id,
+      ];
 
   const found = candidates.find((value) => value !== undefined && value !== null && String(value).trim());
 
@@ -1278,18 +1278,18 @@ function createLoanRow(
   ]);
 
   const loanAmountRaw = ad.loan?.amount ?? getFirstExistingFeatureValue(features, [
-      "loan_amount",
-      "mortgage_amount",
-      "loan_price",
-      "loan_value",
-    ]);
+    "loan_amount",
+    "mortgage_amount",
+    "loan_price",
+    "loan_value",
+  ]);
 
   const installmentRaw = ad.loan?.installment ?? getFirstExistingFeatureValue(features, [
-      "loan_installment",
-      "installment_amount",
-      "loan_payment",
-      "monthly_installment",
-    ]);
+    "loan_installment",
+    "installment_amount",
+    "loan_payment",
+    "monthly_installment",
+  ]);
 
   const statusFromBoolean = toBooleanLike(loanStatusRaw);
   const hasTopLevelLoan = isFilledValue(ad.loan?.amount) || isFilledValue(ad.loan?.installment);
@@ -1597,19 +1597,19 @@ function DetailInfoValueView({
       item.tone === "success"
         ? "bg-[#0FAF7314] text-[#0FAF73]"
         : item.tone === "warning"
-          ? "bg-[#FF8D0014] text-[#FF8D00]"
+          ? "bg-[#FF8D0014] text-[#FF6D00] border border-[#FF6D00]"
           : "bg-[#edeff3] text-[#4d4d4d]";
 
     return (
       <Typography as="span" variant="label" size="medium" weight="semibold"
-        className={`inline-flex min-h-8 items-center justify-center rounded-lg px-3 text-sm font-semibold leading-5 ${badgeClassName}`}
+        className={`p-2 rounded-lg ${badgeClassName}`}
       >
         {item.value}
       </Typography>
     );
   }
 
-  return <Typography as="span" variant="body" size="medium" weight="regular">{item.value}</Typography>;
+  return <Typography as="p" variant="label" size="large" weight="semibold">{item.value}</Typography>;
 }
 
 function DetailInfoItemCard({
@@ -1619,10 +1619,10 @@ function DetailInfoItemCard({
   item: DetailInfoItem;
   showIcon?: boolean;
 }) {
-  const labelPaddingClassName = showIcon ? "pr-[26px]" : "pr-0";
+  const labelPaddingClassName = showIcon ? "pr-[32px]" : "pr-0";
 
   return (
-    <div className="flex w-full flex-col items-start justify-start gap-1 text-right [direction:rtl]">
+    <div className="flex w-full flex-col items-start justify-start text-right [direction:rtl]">
       <div className="flex min-h-7 w-full items-center justify-start gap-2 text-right text-base font-semibold [direction:rtl]">
         {showIcon ? <DetailInfoIcon item={item} /> : null}
 
@@ -1631,11 +1631,9 @@ function DetailInfoItemCard({
         </div>
       </div>
 
-      <div
-        className={`w-full text-right text-sm font-medium leading-5 text-[#808080] ${labelPaddingClassName}`}
-      >
+      <Typography variant="label" size="small" weight="medium" className={`text-[#808080] ${labelPaddingClassName}`}>
         {item.label}
-      </div>
+      </Typography>
     </div>
   );
 }
@@ -1646,18 +1644,18 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
   }
 
   return (
-    <div className="border-t border-[#e0e0e0] pt-4">
+    <div className="border-t border-[#e5e5e5] pb-4 pt-4">
       <div className="flex flex-wrap justify-start gap-2 [direction:rtl]">
         {badges.map((badge) => (
           <Typography as="span" variant="label" size="medium" weight="semibold"
-            className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-[#edeff3] p-2 text-sm font-semibold leading-5 text-[#4d4d4d]"
+            className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-[#E9EAEE] p-2 text-sm font-semibold leading-5 text-[#4d4d4d]"
             key={badge.label}
           >
             <ColorableSvgIcon
               className="h-5 w-5 shrink-0"
               src={badge.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
             />
-            <Typography as="span" variant="body" size="medium" weight="regular">{badge.value}</Typography>
+            <Typography as="span" variant="label" size="medium" weight="semibold">{badge.value}</Typography>
           </Typography>
         ))}
       </div>
@@ -1710,9 +1708,11 @@ function DetailInfoSectionBlock({ section }: { section: DetailInfoSection }) {
   const isRowsLayout = section.layout === "rows";
 
   return (
-    <section className="border-b-8 border-[#f0f0f0] bg-white px-4 pt-4 last:border-b-0">
-      <div className="border-b border-[#e0e0e0] pb-4 text-right text-[15px] font-medium leading-5 text-[#808080]">
-        {section.title}
+    <section className="bg-white px-4">
+      <div className="border-b border-[#e5e5e5] py-4">
+        <Typography variant="label" size="medium" weight="medium" className="text-[#808080]">
+          {section.title}
+        </Typography>
       </div>
 
       {isRowsLayout ? (
@@ -1756,12 +1756,12 @@ export function DetailInfoFullPage({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
       <TopBar onBack={() => goBackToAd(adId)} title={title} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {sections.length > 0 ? (
           sections.map((section) => (
             <DetailInfoSectionBlock key={section.title} section={section} />

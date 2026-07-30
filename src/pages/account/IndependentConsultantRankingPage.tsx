@@ -6,6 +6,7 @@ import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
 import { getRequestErrorState } from "../../components/ErrorState";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type Badge = {
   active: boolean;
@@ -272,14 +273,14 @@ function RankingIndicatorsPanel() {
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="شاخص‌های رتبه‌بندی">
       <div className="flex h-7 items-center justify-between [direction:ltr]">
-        <button
+        <Button unstyled
           className="inline-flex h-7 items-center gap-2 text-xs font-medium leading-4 text-[#1a1a1a]"
           onClick={() => setPeriod((current) => (current === "هفته" ? "ماه" : "هفته"))}
           type="button"
         >
           <ChevronDownIcon className="h-4 w-4 text-[#4d4d4d]" />
           <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{period}</Typography>
-        </button>
+        </Button>
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</Typography>
       </div>
       <div className="mt-6 space-y-4">

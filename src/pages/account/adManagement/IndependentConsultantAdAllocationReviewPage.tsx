@@ -26,6 +26,7 @@ import LinearUserSolid from "../../../components/(icons)/LinearUserSolid";
 import LinearCancel from "../../../components/(icons)/LinearCancel";
 import LinearSearch from "../../../components/(icons)/LinearSearch";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type PublisherType = "agency" | "consultant";
 
@@ -206,7 +207,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
       ) : null}
 
       <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${canContinue ? "bg-[#0048c4] text-white active:bg-[#003aa0]" : "bg-[#e5e5e5] text-[#b8b8b8]"
             }`}
           disabled={!canContinue}
@@ -214,7 +215,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
           type="button"
         >
           ادامه و پرداخت
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -279,7 +280,7 @@ function ReviewAction({
 
 function RejectAction() {
   return (
-    <button
+    <Button unstyled
       className="flex h-[52px] w-full items-center justify-between border-0 bg-white p-0 text-[#1a1a1a] [direction:ltr] active:bg-[#1a1a1a0a]"
       type="button"
     >
@@ -288,7 +289,7 @@ function RejectAction() {
         <LinearCancel className="h-6 w-6 text-[#4d4d4d]" />
         رد ثبت آگهی
       </Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -322,7 +323,7 @@ function PublisherOptionCard({
       className={`w-full rounded-xl border p-4 text-right ${selected ? "border-[#0048c4]" : "border-[#cccccc]"
         }`}
     >
-      <button
+      <Button unstyled
         aria-checked={selected}
         className="flex min-h-[48px] w-full justify-between gap-3 border-0 bg-transparent text-right [direction:ltr]"
         onClick={onSelect}
@@ -341,7 +342,7 @@ function PublisherOptionCard({
             </Typography>
           </Typography>
         </Typography>
-      </button>
+      </Button>
 
       <AnimatePresence initial={false}>
         {selected && isConsultant ? (
@@ -365,14 +366,14 @@ function PublisherOptionCard({
                 </div>
               ) : null}
             <div className="py-4">
-              <button
+              <Button unstyled
                 className="inline-flex items-center justify-center w-full gap-1 rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4]"
                 onClick={onAssignConsultant}
                 type="button"
               >
                 {assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}
                 <ChevronLeftIcon className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
           </motion.div>
         ) : null
@@ -450,13 +451,13 @@ function ConsultantPickerPage({
           ) : isError ? (
             <div className="py-8 text-center text-sm leading-6 text-[#808080]">
               دریافت فهرست مشاوران با خطا مواجه شد.
-              <button
+              <Button unstyled
                 className="mt-3 block w-full font-semibold text-[#0048c4]"
                 onClick={onRetry}
                 type="button"
               >
                 تلاش دوباره
-              </button>
+              </Button>
             </div>
           ) : visibleConsultants.length === 0 ? (
             <SearchEmptyState />
@@ -465,7 +466,7 @@ function ConsultantPickerPage({
               const selected = draftConsultantId === consultant.id;
 
               return (
-                <button
+                <Button unstyled
                   aria-checked={selected}
                   className="flex w-full items-center justify-between gap-3 rounded-lg bg-white px-6 text-right [direction:ltr] active:bg-[#f7f7f7]"
                   key={consultant.id}
@@ -480,7 +481,7 @@ function ConsultantPickerPage({
                       {consultant.name}
                     </Typography>
                   </Typography>
-                </button>
+                </Button>
               );
             })
           )}
@@ -488,7 +489,7 @@ function ConsultantPickerPage({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 ${draftConsultant ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
             }`}
           disabled={!draftConsultant}
@@ -498,7 +499,7 @@ function ConsultantPickerPage({
           type="button"
         >
           انتخاب
-        </button>
+        </Button>
       </footer>
     </section>
   );

@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
 import { Typography } from "./Typography";
+import { Button } from "./Button";
 
 type ListItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   align?: "right" | "center";
@@ -24,7 +25,7 @@ export function ListItem({
   ...props
 }: ListItemProps) {
   return (
-    <button
+    <Button unstyled
       className={cn(
         "relative flex min-h-12 w-full items-center gap-3 bg-white px-4 text-right transition [direction:ltr]",
         align === "center" && "justify-center text-center",
@@ -46,6 +47,6 @@ export function ListItem({
         ) : null}
       </Typography>
       {trailing ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{trailing}</Typography> : null}
-    </button>
+    </Button>
   );
 }

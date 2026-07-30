@@ -35,6 +35,7 @@ import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import type { UserProfile } from "../../services/account.service";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const profileImageMaxBytes = 1024 * 1024;
 const profileImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
@@ -461,13 +462,13 @@ function AgentProfileForm({
         </section>
 
         <div className="mt-14 flex justify-start">
-          <button
+          <Button unstyled
             className="h-14 rounded-xl bg-[#0048c4] px-7 text-base font-semibold leading-6 text-white disabled:opacity-60"
             disabled={isSaving}
             type="submit"
           >
             {isSaving ? "در حال ذخیره..." : "ذخیره اطلاعات"}
-          </button>
+          </Button>
         </div>
       </form>
     );
@@ -519,14 +520,14 @@ function AgentProfileForm({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-10 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:opacity-60"
           disabled={isSaving}
           onClick={() => void onSave()}
           type="button"
         >
           {isSaving ? "در حال ذخیره..." : "ذخیره اطلاعات"}
-        </button>
+        </Button>
       </footer>
     </>
   );
@@ -556,7 +557,7 @@ function ProfileImageUploader({
       <Typography as="p" variant="body" size="large" weight="medium" className={desktop ? "m-0 mb-4 text-base font-semibold leading-6" : "m-0 mb-3 text-sm font-semibold leading-5"}>
         تصویر مشاور
       </Typography>
-      <button
+      <Button unstyled
         aria-label="بارگذاری تصویر مشاور"
         className={`relative grid place-items-center overflow-visible rounded-full text-[#4d4d4d] ${desktop ? "h-[96px] w-[96px] border border-[#cccccc]" : "mx-auto mr-3 h-22 w-22"}`}
         onClick={() => inputRef.current?.click()}
@@ -572,7 +573,7 @@ function ProfileImageUploader({
         <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
           <LinearEdit2 className="h-4 w-4" />
         </Typography>
-      </button>
+      </Button>
       <input
         ref={inputRef}
         accept="image/png,image/jpeg,image/jpg,image/gif"
@@ -612,14 +613,14 @@ function ActivityAreaSection({
     <Section>
       <div className="flex items-center justify-between gap-3">
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">محدوده فعالیت</Typography>
-        <button
+        <Button unstyled
           className="inline-flex h-8 shrink-0 items-center gap-1.5 text-sm font-semibold leading-5 text-[#0048c4]"
           onClick={onOpenPicker}
           type="button"
         >
           {activityAreas.length ? `${activityAreas.length} انتخاب` : "انتخاب"}
           <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
-        </button>
+        </Button>
       </div>
 
       {activityAreas.length > 0 ? (
@@ -712,24 +713,24 @@ function NeighborhoodSelectionSheet({
               value={query}
             />
             {query ? (
-              <button
+              <Button unstyled
                 aria-label="پاک کردن جستجو"
                 className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
                 onClick={() => setQuery("")}
                 type="button"
               >
                 <LinearX />
-              </button>
+              </Button>
             ) : null}
           </label>
-          <button
+          <Button unstyled
             aria-label="بازگشت"
             className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
             onClick={onClose}
             type="button"
           >
             <LinearArrowLeft2 className="h-6 w-6 rotate-180" />
-          </button>
+          </Button>
         </div>
 
         <div className="mt-3 flex items-center justify-between px-1">
@@ -776,7 +777,7 @@ function NeighborhoodSelectionSheet({
               const isSelected = selectedIds.has(neighborhoodId);
 
               return (
-                <button
+                <Button unstyled
                   aria-pressed={isSelected}
                   className={`flex min-h-[64px] w-full items-center justify-between gap-4 rounded-[10px] bg-white py-2 pl-3 pr-0 text-right transition-colors active:bg-[#0048c40a] [direction:ltr] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}
                   key={neighborhoodId}
@@ -792,7 +793,7 @@ function NeighborhoodSelectionSheet({
                       {cityName || "شهر انتخاب‌شده"}
                     </Typography>
                   </Typography>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -806,13 +807,13 @@ function NeighborhoodSelectionSheet({
       </div>
 
       <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
-        <button
+        <Button unstyled
           className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
           onClick={onClose}
           type="button"
         >
           تایید
-        </button>
+        </Button>
       </footer>
     </BottomSheet>
   );

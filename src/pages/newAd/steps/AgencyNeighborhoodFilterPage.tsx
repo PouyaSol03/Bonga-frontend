@@ -2,6 +2,7 @@ import type { NeighborhoodDto } from "../../../services/neighborhood.service";
 import { RadioIndicator } from "../../../components/RadioIndicator";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 function BackIcon() {
   return (
@@ -76,14 +77,14 @@ export function AgencyNeighborhoodFilterPage({
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-white text-[#1a1a1a]" dir="rtl">
       <header className="flex h-[88px] shrink-0 items-center gap-3 bg-[#f0f0f0] px-4">
-        <button
+        <Button unstyled
           aria-label="بازگشت"
           className="grid h-11 w-9 shrink-0 place-items-center text-[#4d4d4d] active:bg-[#1a1a1a0a]"
           onClick={onBack}
           type="button"
         >
           <BackIcon />
-        </button>
+        </Button>
 
         <label className="flex h-12 min-w-0 flex-1 items-center rounded-xl border border-[#808080] bg-white px-4 focus-within:border-[#0048c4] focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c426]">
           <input
@@ -117,9 +118,9 @@ export function AgencyNeighborhoodFilterPage({
         ) : isError ? (
           <div className="flex min-h-[320px] flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
             دریافت محله‌ها با خطا مواجه شد.
-            <button className="mt-3 font-semibold text-[#0048c4]" onClick={onRetry} type="button">
+            <Button unstyled className="mt-3 font-semibold text-[#0048c4]" onClick={onRetry} type="button">
               تلاش دوباره
-            </button>
+            </Button>
           </div>
         ) : items.length === 0 ? (
           <SearchEmptyState />
@@ -131,7 +132,7 @@ export function AgencyNeighborhoodFilterPage({
               const checked = id === selectedId;
 
               return (
-                <button
+                <Button unstyled
                   className="flex min-h-[104px] w-full items-center justify-between gap-5 border-b border-[#f0f0f0] py-4 text-right active:bg-[#fafafa]"
                   key={id}
                   onClick={() => onSelect(item)}
@@ -146,7 +147,7 @@ export function AgencyNeighborhoodFilterPage({
                     ) : null}
                   </Typography>
                   <RadioIndicator checked={checked} />
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -154,14 +155,14 @@ export function AgencyNeighborhoodFilterPage({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-20 flex h-[76px] items-center border-t border-[#eeeeee] bg-white px-4">
-        <button
+        <Button unstyled
           className="h-12 w-full rounded-xl bg-[#0048c4] text-base font-semibold text-white active:bg-[#003fae] disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
           disabled={!selectedId}
           onClick={onConfirm}
           type="button"
         >
           تایید
-        </button>
+        </Button>
       </footer>
     </div>
   );

@@ -17,6 +17,7 @@ import type { SavedSearchItem } from "../../../services/saved-search.service";
 import type { QuickAdvertisementSearchItem } from "../../../services/quick-advertisement-search.service";
 import { Typography } from "../../../components/ui/Typography";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
+import { Button } from "../../../components/ui/Button";
 
 type HomeSearchScreenProps = {
   initialQuery?: string;
@@ -255,14 +256,14 @@ export function HomeSearchScreen({
             {isResultsView ? "نتایج جستجو" : "جستجوهای اخیر"}
           </Typography>
 
-          <button
+          <Button unstyled
             className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4] [direction:ltr]"
             onClick={() => setIsSavedView(true)}
             type="button"
           >
             <LinearArrowLeft1 className="w-4 h-4" />
             <Typography as="span" variant="label" size="small" weight="medium" className="[direction:rtl]">ذخیره شده‌ها</Typography>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -374,13 +375,13 @@ function SavedSearchesView({
         {isLoading ? (
           <SearchRowsSkeleton />
         ) : isError ? (
-          <button
+          <Button unstyled
             className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
             onClick={onRetry}
             type="button"
           >
             دریافت جستجوهای ذخیره‌شده ناموفق بود؛ تلاش دوباره
-          </button>
+          </Button>
         ) : savedSearches.length > 0 ? (
           <div className="flex flex-col bg-white">
             {savedSearches.map((item) => (
@@ -510,7 +511,7 @@ function SearchRecordRow({
       onPointerUp={finishSwipe}
       style={{ touchAction: "pan-y" }}
     >
-      <button
+      <Button unstyled
         aria-label={`حذف ${item.title}`}
         className="absolute inset-y-0 left-0 flex w-20 flex-col items-center justify-center gap-1 bg-[#fdecec] text-[#d92d20]"
         disabled={isDeleting}
@@ -519,9 +520,9 @@ function SearchRecordRow({
       >
         <LinearDelete className="h-6 w-6" />
         <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium!">حذف</Typography>
-      </button>
+      </Button>
 
-      <button
+      <Button unstyled
         className="relative flex min-h-[118px] w-full flex-col bg-white px-3 py-4 text-right transition-transform duration-150 ease-out"
         disabled={isDeleting}
         onClick={() => {
@@ -551,7 +552,7 @@ function SearchRecordRow({
             ))}
           </Typography>
         ) : null}
-      </button>
+      </Button>
     </article>
   );
 }
@@ -569,7 +570,7 @@ function QuickSearchResultRow({
       : `${toPersianDigits(item.count)} آگهی`;
 
   return (
-    <button
+    <Button unstyled
       className="flex min-h-[73px] w-full cursor-pointer justify-between gap-4 border-b border-[#f0f0f0] bg-white px-4 py-3 text-right [direction:ltr] last:border-b-0 active:bg-[#fafafa]"
       onClick={onSelect}
       type="button"
@@ -588,7 +589,7 @@ function QuickSearchResultRow({
           </Typography>
         ) : null}
       </Typography>
-    </button>
+    </Button>
   );
 }
 

@@ -7,6 +7,7 @@ import {
   storeLoginRedirectPath,
 } from "../auth/auth-storage";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 const defaultReturnPath = "/home";
 
@@ -83,13 +84,13 @@ export function LoginRequiredPage() {
             در دسترس است.
           </Typography>
           </div>
-          <button
+          <Button unstyled
             className="text-sm font-medium text-white bg-[#0048C4] py-2.5 px-4 rounded-xl"
             onClick={handleLogin}
             type="button"
           >
             ثبت نام
-          </button>
+          </Button>
         </section>
       </main>
     </PageFrame>

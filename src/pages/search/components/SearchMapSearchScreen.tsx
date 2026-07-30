@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 import BoldBookmarkSolid from "../../../components/(icons)/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
+import SearchBarSearchIcon from "../../../components/(icons)/SearchBarSearchIcon";
 import { TopBar } from "../../../components/TopBar";
 import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
-import { SearchInputBar } from "../../../components/ui/SearchBar";
 import SearchErrors from "../../home/components/SearchErrors";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import {
@@ -22,6 +22,7 @@ import type {
   SaveSearchInput,
 } from "../../../services/saved-search.service";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type SearchMapSearchScreenProps = {
   initialQuery?: string;
@@ -202,7 +203,7 @@ export function SearchMapSearchScreen({
           <div className="flex flex-col">
             {saveInput ? (
               <div className="border-b border-[#e6e6e6] px-4 pb-4">
-                <button
+                <Button unstyled
                   className="flex h-11 w-full items-center justify-center rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white disabled:bg-[#a6b8d8]"
                   disabled={saveMutation.isPending || isCurrentSearchSaved}
                   onClick={() => saveMutation.mutate(saveInput)}
@@ -213,7 +214,7 @@ export function SearchMapSearchScreen({
                     : isCurrentSearchSaved
                       ? "این جستجو ذخیره شده است"
                       : "ذخیره جستجوی فعلی"}
-                </button>
+                </Button>
                 {saveMutation.isError ? (
                   <Typography as="p" variant="body" size="small" weight="regular" className="m-0 pt-2 text-center text-xs text-[#d92d20]">
                     ذخیره جستجو انجام نشد. دوباره تلاش کنید.
@@ -229,13 +230,13 @@ export function SearchMapSearchScreen({
                 ))}
               </div>
             ) : isSavedSearchError ? (
-              <button
+              <Button unstyled
                 className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
                 onClick={() => void refetchSavedSearches()}
                 type="button"
               >
                 دریافت جستجوهای ذخیره‌شده ناموفق بود؛ تلاش دوباره
-              </button>
+              </Button>
             ) : savedSearches.length > 0 ? (
               savedSearches.map((item) => (
                 <SavedSearchRow
@@ -255,7 +256,7 @@ export function SearchMapSearchScreen({
           </div>
         ) : normalizedQuery ? (
           <div className="flex flex-col">
-            <button
+            <Button unstyled
               className="flex min-h-[72px] w-full items-center justify-between gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right [direction:ltr]"
               onClick={() => publishQuery(query, true)}
               type="button"
@@ -271,7 +272,7 @@ export function SearchMapSearchScreen({
                   عبارت مستقیماً به جستجوی آگهی‌های نقشه ارسال می‌شود
                 </Typography>
               </Typography>
-            </button>
+            </Button>
           </div>
         ) : isRecentSearchLoading ? (
           <div className="flex flex-col bg-[#f0f0f0]" aria-hidden="true">
@@ -280,13 +281,13 @@ export function SearchMapSearchScreen({
             ))}
           </div>
         ) : isRecentSearchError ? (
-          <button
+          <Button unstyled
             className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
             onClick={() => void refetchRecentSearches()}
             type="button"
           >
             دریافت جستجوهای اخیر ناموفق بود؛ تلاش دوباره
-          </button>
+          </Button>
         ) : recentSearches.length > 0 ? (
           <div className="flex flex-col">
             {recentSearches.map((item) => (
@@ -359,7 +360,7 @@ function SavedSearchRow({
       onPointerUp={finishSwipe}
       style={{ touchAction: "pan-y" }}
     >
-      <button
+      <Button unstyled
         aria-label={`حذف ${item.title}`}
         className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-sm font-medium text-[#d92d20]"
         disabled={isDeleting}
@@ -367,8 +368,8 @@ function SavedSearchRow({
         type="button"
       >
         حذف
-      </button>
-      <button
+      </Button>
+      <Button unstyled
         className="relative flex min-h-[92px] w-full flex-col justify-center bg-white px-4 py-4 text-right transition-transform duration-150 ease-out"
         disabled={isDeleting}
         onClick={() => {
@@ -392,7 +393,7 @@ function SavedSearchRow({
             ))}
           </Typography>
         ) : null}
-      </button>
+      </Button>
     </article>
   );
 }
@@ -416,44 +417,59 @@ function SearchMapField({
   onSubmit: () => void;
   query: string;
 }) {
-  const savedSlot = (
-        <button
-      aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
-      aria-pressed={isSaved}
-      className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
-        isSaved || isSaving
-          ? "text-[#1a1a1a]"
-          : "text-[#4d4d4d] active:bg-[#0048c414]"
-      }`}
-      disabled={isSaveDisabled || isSaving || isSaved}
-      onClick={onSavedClick}
-      tabIndex={isOpen ? 0 : -1}
-      type="button"
-    >
-      {isSaved || isSaving ? (
-        <BoldBookmarkSolid className="h-6 w-6" />
-      ) : (
-        <LinearBookmarkSolid className="h-6 w-6" />
-      )}
-    </button>
-  );
-
   return (
-    <SearchInputBar
-      aria-label="جستجو در آگهی‌های نقشه"
-      autoFocus={isOpen}
-      compact
-      containerClassName="border-[#808080]"
-      inputClassName="home-search-input"
-      onClear={() => onQueryChange("")}
-      onSubmit={onSubmit}
-      onValueChange={onQueryChange}
-      placeholder="جستجو"
-      savedSlot={savedSlot}
-      showSearchIcon={false}
+    <form
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-white px-3 text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440] ${
+        query ? "border-[#0048c4]" : "border-[#808080]"
+      }`}
+      dir="rtl"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+    >
+      <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+      <div aria-hidden="true" className="mx-3 h-6 w-px shrink-0 bg-[#cccccc]" />
+      <input
+        aria-label="جستجو در آگهی‌های نقشه"
+        autoFocus={isOpen}
+        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6]"
+        onChange={(event) => onQueryChange(event.target.value)}
+        placeholder="جستجو"
+        tabIndex={isOpen ? 0 : -1}
+        type="search"
+        value={query}
+      />
+      {query ? (
+        <Button unstyled
+          aria-label="پاک کردن جستجو"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#808080] transition active:bg-[#f0f0f0]"
+          onClick={() => onQueryChange("")}
           tabIndex={isOpen ? 0 : -1}
-      type="search"
-      value={query}
-    />
+          type="button"
+        >
+          ×
+        </Button>
+      ) : null}
+      <Button unstyled
+        aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
+        aria-pressed={isSaved}
+        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
+          isSaved || isSaving
+            ? "text-[#1a1a1a]"
+            : "text-[#4d4d4d] active:bg-[#0048c414]"
+        }`}
+        disabled={isSaveDisabled || isSaving || isSaved}
+        onClick={onSavedClick}
+        tabIndex={isOpen ? 0 : -1}
+        type="button"
+      >
+        {isSaved || isSaving ? (
+          <BoldBookmarkSolid className="h-6 w-6" />
+        ) : (
+          <LinearBookmarkSolid className="h-6 w-6" />
+        )}
+      </Button>
+    </form>
   );
 }

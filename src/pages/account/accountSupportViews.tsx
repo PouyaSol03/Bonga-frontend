@@ -13,6 +13,7 @@ import type { ChatMessage, ChatThread } from "../../services/chat.service";
 import { RouteLink } from "../../routes/RouteLink";
 
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 export const SUPPORT_CHAT_PATH = "/account/support/chat";
 export const SUPPORT_NEW_CHAT_PATH = "/account/support/chat/new";
@@ -68,9 +69,9 @@ export function SupportMenuItem({
   }
 
   return (
-    <button className={className} type="button">
+    <Button unstyled className={className} type="button">
       {content}
-    </button>
+    </Button>
   );
 }
 
@@ -557,7 +558,7 @@ export function SupportChatComposer({
       className="flex items-center gap-1.5 rounded-full bg-[#f7f7f7] p-1.5 shadow-[0_1px_5px_rgba(0,0,0,0.08)] [direction:ltr]"
       onSubmit={submitMessage}
     >
-      <button
+      <Button unstyled
         aria-label="افزودن فایل"
         className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#666] outline-none active:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#0048c440] disabled:cursor-not-allowed disabled:opacity-50"
         disabled={isSending}
@@ -565,7 +566,7 @@ export function SupportChatComposer({
         type="button"
       >
         <LinearAttachment className="h-5 w-5" />
-      </button>
+      </Button>
 
       <label className="min-w-0 flex-1">
         <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
@@ -580,14 +581,14 @@ export function SupportChatComposer({
         />
       </label>
 
-      <button
+      <Button unstyled
         aria-label="ارسال پیام"
         className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1268d8] text-white outline-none active:bg-[#0758bd] focus-visible:ring-3 focus-visible:ring-[#1268d840] disabled:cursor-not-allowed disabled:opacity-50"
         disabled={isSending || !message.trim()}
         type="submit"
       >
         <LinearSent className="h-5 w-5" />
-      </button>
+      </Button>
     </form>
   );
 }

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 
 import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type SearchNoResultsRequestCardProps = {
   className?: string;
@@ -70,12 +71,12 @@ export function SearchNoResultsRequestCard({
           />
         </label>
 
-        <button
+        <Button unstyled
           className="mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border border-[#0066ff] bg-[#edf4ff] text-sm font-semibold text-[#0048c4] transition hover:bg-[#e3eeff] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           type="submit"
         >
           ثبت درخواست
-        </button>
+        </Button>
       </div>
     </form>
   );

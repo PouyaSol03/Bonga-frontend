@@ -26,6 +26,7 @@ import {
   type CrmReportListResult,
 } from "../../services/crm.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type CrmReportsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -296,13 +297,13 @@ function QueryError({ onRetry }: { onRetry: () => void }) {
       </Typography>
       <strong className="mt-4 text-base font-black text-[#344054]">دریافت گزارش‌ها ناموفق بود</strong>
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-7 text-[#8a94a3]">اتصال یا دسترسی API گزارش‌ها را بررسی کنید.</Typography>
-      <button
+      <Button unstyled
         className="mt-4 h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white transition hover:bg-[#003ca5]"
         onClick={onRetry}
         type="button"
       >
         تلاش مجدد
-      </button>
+      </Button>
     </div>
   );
 }
@@ -418,7 +419,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
             const tabQuery = tab.id === "advertise" ? advertiseQuery : userQuery;
 
             return (
-              <button
+              <Button unstyled
                 aria-controls="crm-reports-panel"
                 aria-selected={isActive}
                 className={`flex min-h-[78px] items-center gap-3 rounded-xl border px-4 text-right transition ${
@@ -442,7 +443,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                 <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex min-w-9 items-center justify-center rounded-lg px-2 py-1 text-xs font-black ${isActive ? "bg-white text-[#0048c4]" : "bg-[#f1f2f4] text-[#667085]"}`}>
                   {tabQuery.isLoading ? "…" : tabQuery.data ? formatCount(reportCounts[tab.id]) : "—"}
                 </Typography>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -536,14 +537,14 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                     </TableCell>
                     <TableCell><ReportStatusBadge report={report} /></TableCell>
                     <TableCell>
-                      <button
+                      <Button unstyled
                         className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#c9daf8] bg-[#eef4ff] px-3 text-sm font-bold text-[#0048c4] transition hover:border-[#0048c4] hover:bg-[#e3edff]"
                         onClick={() => setSelectedReport(report)}
                         type="button"
                       >
                         <LinearInformation className="h-4 w-4" />
                         جزئیات
-                      </button>
+                      </Button>
                     </TableCell>
                   </motion.tr>
                 ))
@@ -562,7 +563,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
               صفحه {formatCount(currentPage)} از {formatCount(totalPages)}
             </Typography>
             <div className="flex items-center gap-2">
-              <button
+              <Button unstyled
                 aria-label="صفحه قبلی"
                 className="grid h-9 w-9 place-items-center rounded-lg border border-[#dce3ef] bg-white text-[#596477] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage <= 1}
@@ -570,8 +571,8 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                 type="button"
               >
                 <LinearArrowRight1 className="h-4 w-4" />
-              </button>
-              <button
+              </Button>
+              <Button unstyled
                 aria-label="صفحه بعدی"
                 className="grid h-9 w-9 place-items-center rounded-lg border border-[#dce3ef] bg-white text-[#596477] transition hover:bg-[#f4f6fa] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage >= totalPages}
@@ -579,7 +580,7 @@ export function CrmReportsView({ notify, refreshNonce }: CrmReportsViewProps) {
                 type="button"
               >
                 <LinearArrowLeft1 className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </div>
         ) : null}
@@ -656,14 +657,14 @@ function ReportDetailsModal({
                   <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">کد گزارش: {reportCode(report)}</Typography>
                 </div>
               </div>
-              <button
+              <Button unstyled
                 aria-label="بستن"
                 className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477] transition hover:bg-[#e9edf3]"
                 onClick={onClose}
                 type="button"
               >
                 <LinearCancel className="h-5 w-5" />
-              </button>
+              </Button>
             </header>
 
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
@@ -715,9 +716,9 @@ function ReportDetailsModal({
             </div>
 
             <footer className="flex shrink-0 justify-end border-t border-[#edf0f5] px-5 py-4">
-              <button className="h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white" onClick={onClose} type="button">
+              <Button unstyled className="h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white" onClick={onClose} type="button">
                 بستن
-              </button>
+              </Button>
             </footer>
           </motion.section>
         </motion.div>

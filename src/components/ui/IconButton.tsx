@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
+import { Button } from "./Button";
 
 type IconButtonVariant = "standard" | "filled" | "outlined" | "tonal";
 type IconButtonSize = "dense" | "default";
@@ -28,7 +29,7 @@ export function IconButton({
   ...props
 }: IconButtonProps) {
   return (
-    <button
+    <Button unstyled
       className={cn(
         "grid shrink-0 place-items-center disabled:cursor-not-allowed disabled:opacity-50",
         size === "dense" ? "h-10 w-10 rounded-xl" : "h-12 w-12 rounded-[12px]",
@@ -40,6 +41,6 @@ export function IconButton({
       {...props}
     >
       {children}
-    </button>
+    </Button>
   );
 }

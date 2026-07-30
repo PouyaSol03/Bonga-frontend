@@ -12,6 +12,7 @@ import {
   type CreditPlan,
 } from "./creditData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type CreditView = "packages" | "panel" | "panel-bonus";
 
@@ -136,13 +137,13 @@ function CreditPlanCard({
         <PanelCardContent plan={plan} />
       )}
 
-      <button
+      <Button unstyled
         className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
         onClick={onPay}
         type="button"
       >
         پرداخت
-      </button>
+      </Button>
     </article>
   );
 }

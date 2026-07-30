@@ -5,6 +5,7 @@ import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButt
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -209,7 +210,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="نام یا نام خانوادگی" value={name} />
           </FilterField>
           {(mobile || name) ? (
-            <button
+            <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setMobile("");
@@ -218,7 +219,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
               type="button"
             >
               پاک کردن فیلتر
-            </button>
+            </Button>
           ) : null}
         </form>
 

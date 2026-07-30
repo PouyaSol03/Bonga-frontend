@@ -18,6 +18,7 @@ import {
   type AccessRole,
 } from "./ConsultantManagementPage";
 import { Typography } from "../../ui/Typography";
+import { Button } from "../../ui/Button";
 
 function getAgencyConsultantAccessRole(
   consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
@@ -154,7 +155,7 @@ export function ConsultantEditPage() {
               const checked = managerAccess.includes(item.id) && isManager;
 
               return (
-                <button
+                <Button unstyled
                   aria-pressed={checked}
                   className={`flex items-center gap-2 text-right text-sm font-medium leading-5 ${
                     isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"
@@ -166,7 +167,7 @@ export function ConsultantEditPage() {
                 >
                   <SelectionCheckIndicator className="h-[18px] w-[18px] rounded-sm" checked={checked} />
                   <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -198,7 +199,7 @@ export function ConsultantEditPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="flex h-12 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white"
           disabled={
             updateConsultantMutation.isPending || consultantQuery.isPending
@@ -224,7 +225,7 @@ export function ConsultantEditPage() {
           type="button"
         >
           اعمال تغییرات
-        </button>
+        </Button>
       </div>
     </section>
   );

@@ -22,6 +22,7 @@ import { RadioIndicator } from "../../components/RadioIndicator";
 import { HorizontalFilterBar } from "../../components/HorizontalFilterBar";
 
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -156,7 +157,7 @@ export function AccountProfileForm({
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={isSubmitting}
           type="button"
@@ -175,7 +176,7 @@ export function AccountProfileForm({
           }}
         >
           {isSubmitting ? "در حال ثبت..." : "ثبت"}
-        </button>
+        </Button>
       </div>
     </>
   );
@@ -378,7 +379,7 @@ function AdFilterTabs({
         const isActive = activeFilter.label === filter.label;
 
         return (
-          <button
+          <Button unstyled
             aria-pressed={isActive}
             className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
               isActive
@@ -390,7 +391,7 @@ function AdFilterTabs({
             type="button"
           >
             {filter.label}
-          </button>
+          </Button>
         );
       })}
     </HorizontalFilterBar>
@@ -461,7 +462,7 @@ export function BookmarkAdCard({
     <div className="relative bg-white">
       <AdCard ad={card} />
 
-      <button
+      <Button unstyled
         aria-label="حذف نشان"
         className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-[#1a1a1a] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
         disabled={disabled || !advertiseId}
@@ -475,7 +476,7 @@ export function BookmarkAdCard({
         type="button"
       >
         <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -556,7 +557,7 @@ export function NoteCard({
 
   return (
     <article className="relative overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
-      <button
+      <Button unstyled
         aria-label="حذف یادداشت"
         className="absolute inset-y-0 left-0 flex w-[88px] flex-col items-center justify-center gap-1 bg-[#fff1f1] text-xs font-medium leading-4 text-[#e5231a] disabled:opacity-50"
         disabled={disabled || !noteId}
@@ -565,7 +566,7 @@ export function NoteCard({
       >
         <TrashIcon className="h-5 w-5" />
         حذف
-      </button>
+      </Button>
 
       <div
         className="relative z-10 flex min-h-[92px] touch-pan-y items-center gap-3 bg-white px-4 py-3 transition-transform duration-150 ease-out"
@@ -587,7 +588,7 @@ export function NoteCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-end gap-2">
-            <button
+            <Button unstyled
               aria-label="ویرایش یادداشت"
               className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#4d4d4d] disabled:opacity-50"
               disabled={!advertiseId || disabled}
@@ -595,7 +596,7 @@ export function NoteCard({
               type="button"
             >
               <EditIcon className="h-4 w-4" />
-            </button>
+            </Button>
             <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
               {noteText}
             </Typography>
@@ -716,14 +717,14 @@ export function IdentityPendingState({
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={!isNationalnumberComplete || isPending}
           onClick={() => onVerify(normalizedNationalnumber)}
           type="button"
         >
           {isPending ? "در حال بررسی..." : "بررسی و تایید هویت"}
-        </button>
+        </Button>
       </div>
     </>
   );
@@ -772,14 +773,14 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           </Typography>
         </div>
 
-        <button
+        <Button unstyled
           className="flex justify-between mt-6 w-full rounded-xl border border-[#0048c4] bg-white p-4 font-medium text-[#0048c4]"
           onClick={onChangeOwner}
           type="button"
         >
           <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">ثبت تغییر مالکیت سیم‌کارت</Typography>
           <LinearArrowLeft1 className="h-6 w-6" />
-        </button>
+        </Button>
       </section>
     </>
   );
@@ -826,13 +827,13 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white active:bg-[#003da6] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           onClick={onSubmit}
           type="button"
         >
           ثبت
-        </button>
+        </Button>
       </div>
     </>
   );

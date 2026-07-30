@@ -875,7 +875,7 @@ const FilterTabs = memo(function FilterTabs({
       contentClassName="h-9"
     >
       {filters.map((filter) => (
-        <button
+        <Button unstyled
           aria-pressed={activeFilter === filter.value}
           className={`flex shrink-0 items-center justify-center rounded-lg border p-2 text-sm! font-medium! focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter.value
             ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
@@ -886,7 +886,7 @@ const FilterTabs = memo(function FilterTabs({
           type="button"
         >
           {filter.label}
-        </button>
+        </Button>
       ))}
     </HorizontalFilterBar>
   );
@@ -900,7 +900,7 @@ function ToggleSwitch({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={checked}
       className={`relative h-6 w-11 rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${checked ? "bg-[#0048c4]" : "bg-[#cccccc]"
         }`}
@@ -911,7 +911,7 @@ function ToggleSwitch({
         className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "right-[22px]" : "right-0.5"
           }`}
       />
-    </button>
+    </Button>
   );
 }
 
@@ -949,9 +949,9 @@ function ChatMenuRow({
   }
 
   return (
-    <button className={className} onClick={onClick} type="button">
+    <Button unstyled className={className} onClick={onClick} type="button">
       {content}
-    </button>
+    </Button>
   );
 }
 
@@ -1079,7 +1079,7 @@ function SelectionCheckbox({
   onToggle: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={isSelected}
       aria-label={isSelected ? "برداشتن انتخاب گفتگو" : "انتخاب گفتگو"}
       className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
@@ -1097,7 +1097,7 @@ function SelectionCheckbox({
       >
         <CheckIcon className="h-[14px] w-[14px]" />
       </Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -1597,14 +1597,14 @@ function ChatComposer({
   return (
     <footer className="shrink-0 bg-transparent px-2 pb-4 pt-1 bg">
       <div className="flex items-center gap-2 rounded-full border border-transparent p-1.5 [direction:ltr] shadow-[0_1px_0px_0px_#1A1A1A14] bg-gray-100">
-        <button
+        <Button unstyled
           aria-label="ارسال فایل"
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#808080] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           onClick={onOpenAttach}
           type="button"
         >
           <LinkChainIcon className="h-6 w-6" />
-        </button>
+        </Button>
 
         <label className="min-w-0 flex-1">
           <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
@@ -1625,7 +1625,7 @@ function ChatComposer({
           />
         </label>
 
-        <button
+        <Button unstyled
           aria-label="ارسال پیام"
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#0048c4] text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
           onPointerDown={(event) => {
@@ -1646,7 +1646,7 @@ function ChatComposer({
           type="button"
         >
           <SendMessageIcon className="h-6 w-6" />
-        </button>
+        </Button>
       </div>
     </footer>
   );
@@ -1830,14 +1830,14 @@ function ChatBlockedFooter({
           </Typography>
         ) : (
           <>
-            <button
+            <Button unstyled
               className="h-11 min-w-[132px] shrink-0 rounded-full bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
               disabled={isPending}
               onClick={onUnblock}
               type="button"
             >
               {isPending ? "در حال انجام..." : "رفع مسدودیت"}
-            </button>
+            </Button>
             <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 px-2 text-right text-sm font-normal leading-5 text-[#808080]" dir="rtl">
               این کاربر را مسدود کرده اید
             </Typography>
@@ -2017,7 +2017,7 @@ function ResponseTimeSelectBox({
 
   return (
     <div className="flex h-14 min-w-0 flex-1 items-center rounded-lg border border-[#cccccc] bg-white px-2">
-      <button
+      <Button unstyled
         className="flex h-full min-w-0 flex-1 items-center gap-2 px-1 text-right focus-visible:outline-3 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0048c440]"
         onClick={onClick}
         type="button"
@@ -2040,10 +2040,10 @@ function ResponseTimeSelectBox({
         </Typography>
 
         {!hasValue ? <ArrowDownIcon className="h-4 w-4 shrink-0 text-[#4d4d4d]" /> : null}
-      </button>
+      </Button>
 
       {hasValue && onClear ? (
-        <button
+        <Button unstyled
           aria-label={`پاک کردن ${label}`}
           className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#a6a6a6] focus-visible:outline-2 focus-visible:outline-[#0048c4]"
           onClick={onClear}
@@ -2052,7 +2052,7 @@ function ResponseTimeSelectBox({
           <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-5 w-5 place-items-center rounded-full border border-[#cccccc]">
             <CloseIcon className="h-3 w-3" />
           </Typography>
-        </button>
+        </Button>
       ) : null}
     </div>
   );
@@ -2087,7 +2087,7 @@ function ResponseTimeDaysSheet({
           const isSelected = selectedDays.includes(day.value);
 
           return (
-            <button
+            <Button unstyled
               className="flex h-[54px] w-full items-center justify-between text-right text-sm leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
               key={day.value}
               onClick={() => onToggleDay(day.value)}
@@ -2102,7 +2102,7 @@ function ResponseTimeDaysSheet({
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
               </Typography>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -2138,7 +2138,7 @@ function ResponseTimeHourSheet({
     >
       <div className="px-4 py-2">
         {responseHourOptions.map((hour) => (
-          <button
+          <Button unstyled
             className="flex h-[70px] w-full items-center justify-center text-center text-base leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             key={hour}
             onClick={() => {
@@ -2148,7 +2148,7 @@ function ResponseTimeHourSheet({
             type="button"
           >
             {formatResponseTime(hour)}
-          </button>
+          </Button>
         ))}
       </div>
     </BottomSheet>
@@ -2263,17 +2263,17 @@ export function UserChatResponseTimePage() {
         {availabilityQuery.isError ? (
           <div className="mx-4 mb-3 rounded-lg bg-[#fff1f0] px-3 py-2 text-xs leading-5 text-[#b42318]">
             دریافت ساعت پاسخگویی با خطا مواجه شد.
-            <button
+            <Button unstyled
               className="mr-2 font-semibold text-[#0048c4]"
               onClick={() => void availabilityQuery.refetch()}
               type="button"
             >
               تلاش دوباره
-            </button>
+            </Button>
           </div>
         ) : null}
 
-        <button
+        <Button unstyled
           className="flex h-14 w-full items-center gap-3 px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
           disabled={availabilityQuery.isLoading}
           onClick={() => setOpenSheet("days")}
@@ -2283,12 +2283,12 @@ export function UserChatResponseTimePage() {
             روزهای هفته
           </Typography>
           <ChevronLeftIcon className="h-4 w-4 shrink-0 text-[#4d4d4d]" />
-        </button>
+        </Button>
 
         {selectedDays.length ? (
           <div className="flex flex-wrap justify-start gap-2 px-4 pb-4 pt-1 [direction:rtl]">
             {selectedDays.map((day) => (
-              <button
+              <Button unstyled
                 className="flex h-8 items-center gap-1.5 rounded-md border border-[#0048c4] bg-[#0048c414] px-2.5 text-[11px] font-medium leading-4 text-[#0048c4]"
                 key={day}
                 onClick={() => toggleDay(day)}
@@ -2296,7 +2296,7 @@ export function UserChatResponseTimePage() {
               >
                 <Typography as="span" variant="body" size="medium" weight="regular">{getResponseDayLabel(day)}</Typography>
                 <CloseIcon className="h-3 w-3" />
-              </button>
+              </Button>
             ))}
           </div>
         ) : (
@@ -2327,7 +2327,7 @@ export function UserChatResponseTimePage() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
-        <button
+        <Button unstyled
           className="h-11 w-full rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8] disabled:cursor-wait disabled:opacity-60"
           disabled={isBusy}
           onClick={() => void saveAvailability()}
@@ -2338,7 +2338,7 @@ export function UserChatResponseTimePage() {
             : availabilityQuery.isLoading
               ? "در حال دریافت..."
               : "ثبت"}
-        </button>
+        </Button>
       </footer>
 
       <ResponseTimeDaysSheet
@@ -2456,21 +2456,21 @@ export function UserChatRenamePage() {
 
       <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
         <div className="flex gap-3 [direction:rtl]">
-          <button
+          <Button unstyled
             className="h-11 min-w-0 flex-1 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003da8]"
             disabled={showingNameQuery.isLoading || updateShowingNameMutation.isPending}
             onClick={() => void saveChatName()}
             type="button"
           >
             {updateShowingNameMutation.isPending ? "در حال ذخیره..." : "ذخیره نام"}
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             className="h-11 min-w-0 flex-1 rounded-lg border border-[#0048c4] bg-white text-xs font-semibold leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#0048c40a]"
             onClick={() => navigateFromChatSettings("/chat", true)}
             type="button"
           >
             انصراف
-          </button>
+          </Button>
         </div>
       </footer>
 
@@ -3259,7 +3259,7 @@ function BulkSelectAllControl({
   onToggle: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={checked}
       className="flex h-11 items-center gap-3 text-sm font-semibold leading-5 text-[#1a1a1a] disabled:opacity-50"
       disabled={disabled}
@@ -3275,7 +3275,7 @@ function BulkSelectAllControl({
         <CheckIcon className="h-[14px] w-[14px]" />
       </Typography>
       <Typography as="span" variant="body" size="medium" weight="regular">انتخاب همه</Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -3397,14 +3397,14 @@ export function UserChatBulkDeletePage() {
   return (
     <ChatPageShell
       action={
-        <button
+        <Button unstyled
           aria-label="گزینه‌های بیشتر"
           className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]"
           onClick={() => setIsMenuOpen(true)}
           type="button"
         >
           <MoreVerticalIcon className="h-6 w-6" />
-        </button>
+        </Button>
       }
       title="حذف گروهی چت‌ها"
     >
@@ -3440,14 +3440,14 @@ export function UserChatBulkDeletePage() {
           </Typography>
         ) : null}
         <div className="flex h-full items-center justify-between gap-4 [direction:ltr]">
-          <button
+          <Button unstyled
             className="h-[42px] w-[191px] shrink-0 rounded-lg bg-[#0048c4] px-6 text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-40"
             disabled={selectedChatIds.size === 0 || deleteChatsMutation.isPending}
             onClick={deleteSelectedChats}
             type="button"
           >
             {deleteChatsMutation.isPending ? "در حال حذف..." : "حذف"}
-          </button>
+          </Button>
           <BulkSelectAllControl
             checked={areAllSelected}
             disabled={selectableChatIds.length === 0 || deleteChatsMutation.isPending}

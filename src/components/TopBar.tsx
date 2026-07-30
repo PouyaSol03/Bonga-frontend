@@ -19,6 +19,7 @@ import SearchBarSearchIcon from "./(icons)/SearchBarSearchIcon";
 import { IconButton } from "./ui/IconButton";
 import { SearchBar } from "./ui/SearchBar";
 import { Typography } from "./ui/Typography";
+import { Button } from "./ui/Button";
 
 export type TopBarAction = {
   icon: ReactNode;
@@ -89,7 +90,7 @@ function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" 
 
 function TopBarIconButton({ action }: { action: TopBarAction }) {
   const className =
-    "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]";
+    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]";
 
   if (action.to) {
     return (
@@ -102,7 +103,7 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
   return (
     <IconButton
       aria-label={action.label}
-      className="text-[#1a1a1a]"
+      className="rounded-full text-[#1a1a1a]"
       onClick={action.onClick}
       size="dense"
     >
@@ -121,7 +122,7 @@ function TopBarBackButton({
   return (
     <IconButton
       aria-label={backLabel}
-      className="text-[#4d4d4d]"
+      className="rounded-full text-[#1a1a1a]"
       onClick={() => {
         if (onBack) {
           onBack();
@@ -170,8 +171,21 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
       className="relative flex h-12 w-full min-w-0 items-center overflow-hidden rounded-xl border border-[#808080] bg-white text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440]"
       dir="rtl"
     >
+      <Button unstyled
+        aria-label={search.label}
+        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 bg-transparent py-0 pe-3 ps-0 text-right text-sm font-normal leading-5 text-[#a6a6a6]"
+        onClick={search.onClick}
+        type="button"
+      >
+        <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#808080]" />
+        <span aria-hidden="true" className="h-6 w-px shrink-0 bg-[#cccccc]" />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right">
+          {search.label}
+        </Typography>
+      </Button>
+
       {hasSavedAction ? (
-        <button
+        <Button unstyled
           aria-label={search.savedLabel ?? "جستجوی ذخیره شده"}
           aria-pressed={search.isSaved}
           className="relative grid h-12 w-12 shrink-0 place-items-center bg-transparent text-[#1a1a1a] transition-colors [-webkit-tap-highlight-color:transparent] active:bg-transparent focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
@@ -190,20 +204,8 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
                 : new Intl.NumberFormat("fa-IR").format(search.savedCount)}
             </Typography>
           ) : null}
-        </button>
+        </Button>
       ) : null}
-
-      <button
-        aria-label={search.label}
-        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2 bg-transparent py-0 pl-3 pr-0 text-right text-sm font-normal leading-5 text-[#a6a6a6]"
-        onClick={search.onClick}
-        type="button"
-      >
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right">{search.label}</Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-[#808080]">
-          <SearchBarSearchIcon className="h-5 w-5" />
-        </Typography>
-      </button>
     </div>
   );
 }
@@ -233,12 +235,12 @@ function TopBarView({
 
   return (
     <header
-      className={`shrink-0 bg-[#f0f0f0] ${heightClassName} ${className}`}
+      className={`shrink-0 bg-[#fafafa] ${heightClassName} ${className}`}
       dir="rtl"
     >
       <div className={`flex h-full min-w-0 items-center [direction:ltr] ${contentClassName}`}>
         {hasStartSlot || reserveStartSpace ? (
-          <div className="flex h-12 min-w-12 shrink-0 items-center">
+          <div className="flex h-10 min-w-10 shrink-0 items-center gap-4">
             {startSlot ??
               actions.map((action) => (
                 <TopBarIconButton action={action} key={action.id} />
@@ -252,7 +254,7 @@ function TopBarView({
           ) : search ? (
             <TopBarSearchButton search={search} />
           ) : title ? (
-            <Typography as="h1" variant="display" size="large"
+            <Typography as="h1" variant="title" size="large" weight="semibold"
               className={`m-0 truncate text-right text-[#1a1a1a] ${titleClassName}`}
             >
               {title}
@@ -269,7 +271,7 @@ function TopBarView({
             onBack={onBack}
           />
         ) : reserveEndSpace ? (
-          <div className="h-12 w-12 shrink-0" />
+          <div className="h-10 w-10 shrink-0" />
         ) : null}
       </div>
     </header>

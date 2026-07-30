@@ -5,6 +5,7 @@ import { RouteLink } from "../../routes/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard, type DashboardAd } from "./DashboardAdCard";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type DashboardAdsTab = "active" | "specialty" | "status";
 
@@ -132,7 +133,7 @@ export function DashboardAdsPage() {
               const isActive = activeTab === tab.id;
 
               return (
-                <button
+                <Button unstyled
                   aria-current={isActive ? "page" : undefined}
                   className={`relative h-10 whitespace-nowrap border-0 bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"
                     }`}
@@ -144,7 +145,7 @@ export function DashboardAdsPage() {
                   {isActive ? (
                     <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" />
                   ) : null}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -152,13 +153,13 @@ export function DashboardAdsPage() {
 
         <div className="mt-9 flex items-center justify-between gap-6">
           <div className="flex items-center gap-6">
-            <button
+            <Button unstyled
               className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] transition hover:border-[#0048c4] hover:text-[#0048c4]"
               type="button"
             >
               <FilterIcon className="h-5 w-5" />
               <Typography as="span" variant="body" size="medium" weight="regular">فیلترها</Typography>
-            </button>
+            </Button>
 
             <label className="relative block h-10 w-[360px]">
               <SearchIcon className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#4d4d4d]" />

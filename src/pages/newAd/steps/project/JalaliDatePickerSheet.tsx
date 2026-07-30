@@ -6,6 +6,7 @@ import persianFa from "react-date-object/locales/persian_fa";
 import { BottomSheet } from "../../../../components/BottomSheet";
 
 import "./JalaliDatePickerSheet.css";
+import { Button } from "../../../../components/ui/Button";
 
 type JalaliDatePickerSheetProps = {
   isOpen: boolean;
@@ -81,15 +82,15 @@ export function JalaliDatePickerSheet({
         </div>
 
         <div className="jalali-date-actions">
-          <button
+          <Button unstyled
             className="jalali-date-action jalali-date-cancel"
             type="button"
             onClick={onClose}
           >
             لغو
-          </button>
+          </Button>
 
-          <button
+          <Button unstyled
             className="jalali-date-action jalali-date-confirm"
             type="button"
             disabled={!draftDate}
@@ -99,7 +100,7 @@ export function JalaliDatePickerSheet({
             }}
           >
             تایید
-          </button>
+          </Button>
         </div>
       </div>
     </BottomSheet>

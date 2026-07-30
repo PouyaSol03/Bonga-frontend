@@ -34,6 +34,7 @@ import { ViewAdIcon } from "./viewAd/ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAd/viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import { getStoredAuthSession } from "../auth/auth-storage";
+import { readStoredSelectedCity } from "../lib/selectedCityStorage";
 import { pushRoute } from "../routes/navigation";
 import type { ChatThread } from "../services/chat.service";
 import {
@@ -60,6 +61,11 @@ import {
   type ViolationReportSubmitPayload,
 } from "./viewAd/pages/ViewAdViolationReportPage";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
+import {
+  clearConsultantsSelectedNeighborhood,
+  saveConsultantsSelectedNeighborhood,
+} from "./consultants/consultantsNeighborhoodSelection";
 
 type ActionToast = {
   message: string;
@@ -128,11 +134,11 @@ function PriceRow({ label, value }: { label: string; value: string }) {
     <div className="flex items-center justify-between rounded-lg bg-[#f5f5f5] p-4 [direction:ltr]">
       <div className="flex items-center gap-1">
         <AdCardTomanIcon className="h-6 w-6 text-[#4D4D4D]" />
-        <strong className="text-base font-semibold text-[#1A1A1A] [direction:rtl] [unicode-bidi:isolate]">
+        <Typography as="p" variant="label" size="large" weight="semibold" className="text-[#1A1A1A] [direction:rtl]">
           {value}
-        </strong>
+        </Typography>
       </div>
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium text-[#4D4D4D]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4D4D4D]">
         {label}
       </Typography>
     </div>
@@ -190,7 +196,7 @@ function GalleryHero({
         >
           {galleryItems.map((item, index) => (
             <SwiperSlide key={`${item.src}-${item.type}-${index}`}>
-              <button
+              <Button unstyled
                 aria-label="باز کردن آلبوم تصاویر"
                 className="block w-full"
                 onClick={() => onOpenAlbum(index)}
@@ -201,7 +207,7 @@ function GalleryHero({
                   className="aspect-[328/219] w-full object-cover"
                   src={item.src}
                 />
-              </button>
+              </Button>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -236,7 +242,7 @@ function GalleryHero({
         <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
           <div className="flex h-2 items-center gap-1.5">
             {galleryItems.slice(0, 4).map((item, index) => (
-              <button
+              <Button unstyled
                 aria-label={`نمایش تصویر ${index + 1}`}
                 className={
                   index === activeIndex
@@ -266,7 +272,7 @@ function GalleryMediaButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-label={label}
       className={`grid h-7 w-7 place-items-center rounded-md`}
       onClick={(event) => {
@@ -276,7 +282,7 @@ function GalleryMediaButton({
       type="button"
     >
       <ColorableSvgIcon className="h-5 w-5" src={iconSrc} />
-    </button>
+    </Button>
   );
 }
 
@@ -307,7 +313,7 @@ function InlineMoreButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="mx-auto mt-3 flex w-fit items-center justify-center gap-1 p-0 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
       onClick={onClick}
       type="button"
@@ -317,7 +323,7 @@ function InlineMoreButton({
       </Typography>
 
       <ViewAdIcon className="h-3 w-3 shrink-0 text-[#0048c4]" name="arrowDown" />
-    </button>
+    </Button>
   );
 }
 
@@ -584,6 +590,79 @@ function ContactInfoBottomSheet({
 }
 
 
+type AdvertisementNeighborhoodSelection = {
+  cityId?: string;
+  id: string;
+  name: string;
+};
+
+function toNonEmptyText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.map(toNonEmptyText).find(Boolean) ?? "";
+  }
+
+  if (typeof value !== "string" && typeof value !== "number") return "";
+
+  return String(value).trim();
+}
+
+function extractNeighborhoodName(value: unknown, allowPlainText = false) {
+  const text = toNonEmptyText(value);
+
+  if (!text) return "";
+
+  const neighborhoodMatch = text.match(/(?:محله|منطقه)\s+(.+)$/);
+
+  return neighborhoodMatch?.[1]?.trim() ?? (allowPlainText ? text : "");
+}
+
+function getAdvertisementNeighborhood(
+  ad: AdvertisementItem,
+  details: ViewAdDetails,
+): AdvertisementNeighborhoodSelection | null {
+  const neighborhood =
+    ad.neighborhood && typeof ad.neighborhood === "object"
+      ? ad.neighborhood
+      : undefined;
+  const city =
+    ad.city && typeof ad.city === "object"
+      ? (ad.city as { id?: unknown; _id?: unknown })
+      : undefined;
+  const neighborhoodFeature = ad.features?.find(
+    (feature) => feature.label === "neighborhood_id",
+  )?.value;
+  const idCandidates = [
+    neighborhood?.id,
+    (neighborhood as { _id?: unknown } | undefined)?._id,
+    (ad as { neighborhood_id?: unknown }).neighborhood_id,
+    neighborhoodFeature,
+  ];
+  const nameCandidates = [
+    neighborhood?.name,
+    ad.neighborhood_name,
+    ad.form_neighborhood_title,
+  ];
+  const id = idCandidates.map(toNonEmptyText).find(Boolean) ?? "";
+  const directName = nameCandidates.map(toNonEmptyText).find(Boolean) ?? "";
+  const name =
+    extractNeighborhoodName(directName, true) ||
+    extractNeighborhoodName(details.locationTitle) ||
+    extractNeighborhoodName(details.title);
+
+  if (!id || !name) return null;
+
+  const selectedCity = readStoredSelectedCity();
+  const cityIdCandidates = [
+    city?.id,
+    city?._id,
+    (ad as { city_id?: unknown }).city_id,
+    selectedCity?.id,
+  ];
+  const cityId = cityIdCandidates.map(toNonEmptyText).find(Boolean);
+
+  return { cityId, id, name };
+}
+
 function ViewAdContent({
   adId,
   ad,
@@ -619,9 +698,17 @@ function ViewAdContent({
   const hasMoreFacilities = details.features.length > 6;
   const advertiserPreview = getAdvertiserPreview(ad, details);
   const shouldShowDescriptionMore = isDescriptionOverflowing;
+  const selectedNeighborhood = getAdvertisementNeighborhood(ad, details);
+  const actionRows = details.rows.map((row) =>
+    row.icon === "apartment" && selectedNeighborhood
+      ? { ...row, label: `آژانس‌های محله ${selectedNeighborhood.name}` }
+      : row,
+  );
   const visibleRows = hideRestrictedActions
-    ? details.rows.filter((row) => row.icon !== "checklist" && row.icon !== "info")
-    : details.rows;
+    ? actionRows.filter(
+      (row) => !row.label.includes("بازخورد") && !row.label.includes("تخلف"),
+    )
+    : actionRows;
 
   useEffect(() => {
     const updateDescriptionOverflow = () => {
@@ -657,22 +744,22 @@ function ViewAdContent({
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
-              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">{details.age}</Typography>
+              <Typography as="span" variant="label" size="small" weight="medium" dir="rtl">{details.age}</Typography>
               <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-sm leading-5 [direction:rtl]">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d] font-medium">کد آگهی:</Typography>
-              <strong className="text-sm font-medium leading-5 text-[#1a1a1a]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d]">کد آگهی:</Typography>
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1a1a1a]">
                 {details.adCode}
-              </strong>
+              </Typography>
             </div>
           </div>
 
           <div className="mt-4 space-y-2 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-5 text-[#4d4d4d]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">
               {details.locationTitle}
             </Typography>
-            <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-2 text-[#1a1a1a]">
+            <Typography as="p" variant="title" size="medium" weight="semibold" className="mt-2 text-[#1a1a1a]">
               {details.headline}
             </Typography>
           </div>
@@ -744,20 +831,20 @@ function ViewAdContent({
 
       <section className="border-t-8 border-[#f0f0f0] bg-white">
         {visibleRows.map((row) => (
-          <button
-            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-16 last:border-white focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          <Button unstyled
+            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-[16px] last:border-white focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
             key={row.label}
             onClick={() => onRowAction(row.label)}
             type="button"
           >
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2">
               <ViewAdIcon className="text-[#808080]" name={row.icon} />
-              <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-base font-medium text-[#1a1a1a]">
+              <Typography as="span" variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
                 {row.label}
               </Typography>
             </div>
             <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
-          </button>
+          </Button>
         ))}
       </section>
     </>
@@ -939,11 +1026,12 @@ export function ViewAdPage() {
 
   const details = mapAdToDetails(resolvedAd);
   const isOwnAd = isOwnAdvertisement(resolvedAd);
+  const usesPublicAdPresentation = isPreview || !isOwnAd;
   const contactInfo = readContactInfo(resolvedAd);
   const hasContactSheetData = Boolean(
     contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
   );
-  const hasChatContact = !isOwnAd && contactInfo.chat;
+  const hasChatContact = usesPublicAdPresentation && contactInfo.chat;
   const contactActionCount = Number(hasContactSheetData) + Number(hasChatContact);
   const contactActionsGridClassName = contactActionCount === 1 ? "grid-cols-1" : "grid-cols-2";
   const mediaItems = buildGalleryMediaItems(resolvedAd);
@@ -999,6 +1087,26 @@ export function ViewAdPage() {
   };
 
   const handleRowAction = (label: string) => {
+    if (label.includes("آژانس") && label.includes("محله")) {
+      const neighborhood = getAdvertisementNeighborhood(resolvedAd, details);
+
+      if (neighborhood) {
+        saveConsultantsSelectedNeighborhood(
+          {
+            city_id: neighborhood.cityId,
+            id: neighborhood.id,
+            name: neighborhood.name,
+          },
+          neighborhood.cityId,
+        );
+      } else {
+        clearConsultantsSelectedNeighborhood();
+      }
+
+      pushRoute("/consultants");
+      return;
+    }
+
     if (label.includes("بازخورد")) {
       if (!requireAuthorization("ثبت بازخورد")) return;
 
@@ -1199,7 +1307,7 @@ export function ViewAdPage() {
       variant="flush"
     >
       <ViewAdTopBar
-        actionIcons={isOwnAd ? ["share"] : undefined}
+        actionIcons={usesPublicAdPresentation ? undefined : ["share"]}
         backTo="/home"
         bookmarked={isBookmarked}
         onBack={() => goBackFromAd("/home")}
@@ -1222,7 +1330,7 @@ export function ViewAdPage() {
           ad={resolvedAd}
           details={details}
           hasTour3d={resolvedHasTour3d}
-          hideRestrictedActions={isOwnAd}
+          hideRestrictedActions={!usesPublicAdPresentation}
           mediaItems={mediaItems}
           mapPosition={getMapPosition(resolvedAd)}
           onOpenAlbum={(initialIndex = 0) => {
@@ -1237,16 +1345,16 @@ export function ViewAdPage() {
         {contactActionCount > 0 ? (
           <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
             {hasContactSheetData ? (
-              <button
+              <Button unstyled
                 className=" rounded-[10px] bg-[#0048c4] py-2.5 flex-1 text-sm! font-medium! text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                 onClick={() => setIsContactSheetOpen(true)}
                 type="button"
               >
                 {contactInfo.phone ? "تماس با مشاور" : "راه‌های تماس"}
-              </button>
+              </Button>
             ) : null}
             {hasChatContact ? (
-              <button
+              <Button unstyled
                 className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-[#0048c4] bg-white text-sm font-medium text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
                 disabled={createAdvertiseChat.isPending}
                 onClick={openAdvertiseChat}
@@ -1254,12 +1362,14 @@ export function ViewAdPage() {
               >
                 <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
                 <ViewAdIcon className="h-5! w-5!" name="chat" />
-              </button>
+              </Button>
             ) : null}
           </div>
         ) : (
           <div className="rounded-[10px] bg-[#f5f5f5] px-4 py-3 text-center text-sm font-medium leading-5 text-[#808080]">
-            {isOwnAd ? "این آگهی برای شماست" : "راه ارتباطی برای این آگهی ثبت نشده است."}
+            {usesPublicAdPresentation
+              ? "راه ارتباطی برای این آگهی ثبت نشده است."
+              : "این آگهی برای شماست"}
           </div>
         )}
       </div>

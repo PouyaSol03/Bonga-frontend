@@ -9,6 +9,7 @@ import {
   getSelectedStatisticsAd,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 const chartSections = [
   { label: "بازدید امروز:", title: "بازدید از آگهی" },
@@ -75,15 +76,15 @@ function StatisticsChart({ label, title }: { label: string; title: string }) {
     <section className="h-[283px] bg-[#fafafa] px-4 py-4" aria-label={title}>
       <div className="flex h-12 items-center justify-between [direction:ltr]">
         <div className="flex items-center">
-          <button
+          <Button unstyled
             aria-label="بازه قبلی"
             className="grid h-12 w-12 place-items-center text-[#4d4d4d]"
             onClick={() => setOffset((current) => Math.min(current + 1, 2))}
             type="button"
           >
             <ChevronLeftIcon className="h-5 w-5" />
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             aria-label="بازه بعدی"
             className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-[#c7c7c7]" : "text-[#4d4d4d]"}`}
             disabled={offset === 0}
@@ -91,7 +92,7 @@ function StatisticsChart({ label, title }: { label: string; title: string }) {
             type="button"
           >
             <ChevronRightIcon className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
         <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
           <TrendIcon className="h-6 w-6 text-[#4d4d4d]" />

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CrmSupportRequestsView } from "../CrmSupportRequestsView";
 import { CrmSupportView } from "../CrmSupportView";
 import type { CrmRoutePageProps } from "../CrmLayout";
+import { Button } from "../../../components/ui/Button";
 
 type SupportTab = "chats" | "requests";
 
@@ -21,7 +22,7 @@ export function CrmSupportPage(props: CrmRoutePageProps) {
           const isActive = activeTab === tab.value;
 
           return (
-            <button
+            <Button unstyled
               className={`min-h-10 flex-1 rounded-lg px-4 text-sm font-semibold transition-colors ${
                 isActive
                   ? "bg-[#0048c4] text-white"
@@ -32,7 +33,7 @@ export function CrmSupportPage(props: CrmRoutePageProps) {
               type="button"
             >
               {tab.label}
-            </button>
+            </Button>
           );
         })}
       </div>

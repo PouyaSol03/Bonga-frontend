@@ -12,6 +12,7 @@ import type { NeighborhoodDto } from "../../services/neighborhood.service";
 import { RouteLink } from "../../routes/RouteLink";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type AgencyMapCenter = {
     lat: number;
@@ -289,13 +290,13 @@ export default function DashboardAgencyEditPage() {
             <section className="mt-20">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <SectionTitle icon={<InfoIcon />} title="درباره ما" />
-                    <button
+                    <Button unstyled
                         className="inline-flex h-8 items-center gap-2 rounded-lg border border-[#cccccc] bg-white px-3 text-xs font-semibold leading-4 text-[#1a1a1a] transition hover:border-[#0048c4] hover:text-[#0048c4]"
                         type="button"
                     >
                         <AiTextIcon />
                         تولید متن با هوش مصنوعی
-                    </button>
+                    </Button>
                 </div>
 
                 <textarea
@@ -315,13 +316,13 @@ export default function DashboardAgencyEditPage() {
 
             <Typography as="span" variant="body" size="medium" weight="regular" aria-live="polite" className="sr-only">{saveMessage}</Typography>
             <div className="mt-14 flex justify-start gap-5 [direction:ltr]">
-                <button
+                <Button unstyled
                     className="h-14 rounded-xl bg-[#0048c4] px-7 text-base font-semibold leading-6 text-white transition hover:bg-[#003ba1]"
                     disabled={updateAgencyProfileMutation.isPending}
                     type="submit"
                 >
                     ذخیره اطلاعات
-                </button>
+                </Button>
                 <RouteLink
                     className="inline-flex h-14 items-center gap-3 rounded-xl border border-[#0048c4] bg-white px-7 text-base font-semibold leading-[56px] text-[#0048c4] no-underline transition hover:bg-[#0048c40a]"
                     to="/account/dashboard/agency/preview"
@@ -360,7 +361,7 @@ function AgencyLogoUploader({
     return (
         <div className="w-[122px] shrink-0 text-right">
             <Typography as="p" variant="body" size="large" weight="medium" className="m-0 mb-4 text-base font-semibold leading-6 text-[#1a1a1a]">لوگوی آژانس</Typography>
-            <button
+            <Button unstyled
                 aria-label="بارگذاری لوگوی آژانس"
                 className="relative grid h-[96px] w-[96px] place-items-center rounded-full border border-[#cccccc] bg-white"
                 onClick={() => inputRef.current?.click()}
@@ -378,7 +379,7 @@ function AgencyLogoUploader({
                 <Typography as="span" variant="body" size="medium" weight="regular" className="absolute bottom-1 left-0 grid h-9 w-9 place-items-center rounded-full bg-[#0048c4] text-white shadow-[0_4px_14px_rgba(0,72,196,0.24)]">
                     <PencilIcon />
                 </Typography>
-            </button>
+            </Button>
             <input
                 ref={inputRef}
                 accept="image/png,image/jpeg,image/jpg,image/gif"
@@ -480,9 +481,9 @@ function SelectField({
 function ActivityChip({ label, onRemove }: { label: string; onRemove: () => void }) {
     return (
         <Typography as="span" variant="label" size="medium" weight="semibold" className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#0048c4] bg-[#0048c414] px-4 text-sm font-semibold leading-5 text-[#0048c4]">
-            <button aria-label={`حذف ${label}`} className="grid h-4 w-4 place-items-center" onClick={onRemove} type="button">
+            <Button unstyled aria-label={`حذف ${label}`} className="grid h-4 w-4 place-items-center" onClick={onRemove} type="button">
                 ×
-            </button>
+            </Button>
             {label}
         </Typography>
     );
@@ -576,42 +577,42 @@ function AgencyMapControls() {
 
     return (
         <div className="absolute left-4 top-1/2 z-[500] flex -translate-y-1/2 flex-col items-center gap-3">
-            <button
+            <Button unstyled
                 aria-label="نمایش تمام صفحه"
                 className="grid h-10 w-10 place-items-center rounded-lg bg-white text-[#4d4d4d] shadow-[0_4px_14px_rgba(26,26,26,0.12)]"
                 onClick={() => void map.getContainer().requestFullscreen?.()}
                 type="button"
             >
                 <FullscreenIcon />
-            </button>
+            </Button>
 
             <div className="overflow-hidden rounded-lg bg-white shadow-[0_4px_14px_rgba(26,26,26,0.12)]">
-                <button
+                <Button unstyled
                     aria-label="بزرگنمایی"
                     className="grid h-10 w-10 place-items-center border-b border-[#e6e6e6] text-xl font-semibold leading-none text-[#4d4d4d]"
                     onClick={() => map.zoomIn()}
                     type="button"
                 >
                     +
-                </button>
-                <button
+                </Button>
+                <Button unstyled
                     aria-label="کوچک‌نمایی"
                     className="grid h-10 w-10 place-items-center text-xl font-semibold leading-none text-[#4d4d4d]"
                     onClick={() => map.zoomOut()}
                     type="button"
                 >
                     −
-                </button>
+                </Button>
             </div>
 
-            <button
+            <Button unstyled
                 aria-label="موقعیت فعلی"
                 className="grid h-10 w-10 place-items-center rounded-lg bg-white text-[#4d4d4d] shadow-[0_4px_14px_rgba(26,26,26,0.12)]"
                 onClick={() => map.locate({ maxZoom: 16, setView: true })}
                 type="button"
             >
                 <LocateIcon />
-            </button>
+            </Button>
         </div>
     );
 }

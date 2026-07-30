@@ -14,6 +14,7 @@ import {
 } from "../../services/crm.service";
 import { JalaliDatePickerSheet } from "../newAd/steps/project/JalaliDatePickerSheet";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type CrmPaymentsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -166,16 +167,16 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
           <DateFilterButton label="تا تاریخ" onClick={() => setOpenPicker("to")} value={draft.toDate} />
 
           <div className="flex items-end gap-2 md:col-span-2 xl:col-span-5">
-            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white transition hover:bg-[#003ca5]" type="submit">
+            <Button unstyled className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white transition hover:bg-[#003ca5]" type="submit">
               <FilterIcon /> اعمال فیلترها
-            </button>
-            <button
+            </Button>
+            <Button unstyled
               className="inline-flex h-10 items-center justify-center rounded-xl border border-[#dce3ef] bg-white px-3 text-sm font-semibold text-[#657184] transition hover:bg-[#f5f7fa]"
               onClick={clearFilters}
               type="button"
             >
               حذف فیلترها
-            </button>
+            </Button>
           </div>
         </form>
       </section>
@@ -226,7 +227,7 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                         <CloseIcon />
                       </Typography>
                       <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">دریافت تاریخچه پرداخت‌ها ناموفق بود.</Typography>
-                      <button className="mt-3 text-sm font-bold text-[#0048c4]" onClick={() => void query.refetch()} type="button">تلاش مجدد</button>
+                      <Button unstyled className="mt-3 text-sm font-bold text-[#0048c4]" onClick={() => void query.refetch()} type="button">تلاش مجدد</Button>
                     </div>
                   </td>
                 </tr>
@@ -250,13 +251,13 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                     <TableCell><PaymentMethodBadge payment={payment} /></TableCell>
                     <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="whitespace-nowrap text-[#5f6b7c]">{readPaymentDate(payment)}</Typography></TableCell>
                     <TableCell>
-                      <button
+                      <Button unstyled
                         className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#c9daf8] bg-[#eef4ff] px-3 text-sm font-bold text-[#0048c4] transition hover:border-[#0048c4] hover:bg-[#e3edff]"
                         onClick={() => setSelectedPayment(payment)}
                         type="button"
                       >
                         <InfoIcon /> جزئیات
-                      </button>
+                      </Button>
                     </TableCell>
                   </motion.tr>
                 ))
@@ -268,7 +269,7 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                         <ReceiptIcon />
                       </Typography>
                       <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">پرداختی مطابق فیلترها پیدا نشد.</Typography>
-                      <button className="mt-3 text-sm font-bold text-[#0048c4]" onClick={clearFilters} type="button">حذف فیلترها</button>
+                      <Button unstyled className="mt-3 text-sm font-bold text-[#0048c4]" onClick={clearFilters} type="button">حذف فیلترها</Button>
                     </div>
                   </td>
                 </tr>
@@ -283,23 +284,23 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
               صفحه {formatNumber(currentPage)} از {formatNumber(totalPages)}
             </Typography>
             <div className="flex items-center gap-2">
-              <button
+              <Button unstyled
                 className="h-9 rounded-lg border border-[#dce3ef] bg-white px-3 text-sm font-bold text-[#526174] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage <= 1 || query.isFetching}
                 onClick={() => changePage(currentPage - 1)}
                 type="button"
               >
                 قبلی
-              </button>
+              </Button>
               <Typography as="span" variant="label" size="medium" weight="semibold" className="grid h-9 min-w-9 place-items-center rounded-lg bg-[#0048c4] px-2 text-sm font-bold text-white">{formatNumber(currentPage)}</Typography>
-              <button
+              <Button unstyled
                 className="h-9 rounded-lg border border-[#dce3ef] bg-white px-3 text-sm font-bold text-[#526174] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage >= totalPages || query.isFetching}
                 onClick={() => changePage(currentPage + 1)}
                 type="button"
               >
                 بعدی
-              </button>
+              </Button>
             </div>
           </div>
         ) : null}
@@ -374,9 +375,9 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
                 <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">جزئیات پرداخت</Typography>
                 <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">اطلاعات کامل تراکنش و موارد متصل به آن</Typography>
               </div>
-              <button aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button">
+              <Button unstyled aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button">
                 <ClosePlainIcon />
-              </button>
+              </Button>
             </header>
 
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
@@ -421,7 +422,7 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
             </div>
 
             <footer className="flex shrink-0 justify-end border-t border-[#edf0f5] px-5 py-4">
-              <button className="h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white" onClick={onClose} type="button">بستن</button>
+              <Button unstyled className="h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white" onClick={onClose} type="button">بستن</Button>
             </footer>
           </motion.section>
         </motion.div>
@@ -451,10 +452,10 @@ function DetailItem({ label, ltr = false, value, wide = false }: { label: string
 function DateFilterButton({ label, onClick, value }: { label: string; onClick: () => void; value: string }) {
   return (
     <FilterField label={label}>
-      <button className={`${inputClassName} flex items-center justify-between text-right`} onClick={onClick} type="button">
+      <Button unstyled className={`${inputClassName} flex items-center justify-between text-right`} onClick={onClick} type="button">
         <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#303030]" : "text-[#999999]"}>{value || "انتخاب تاریخ شمسی"}</Typography>
         <CalendarIcon />
-      </button>
+      </Button>
     </FilterField>
   );
 }

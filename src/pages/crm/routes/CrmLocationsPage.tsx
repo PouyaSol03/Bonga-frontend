@@ -4,6 +4,7 @@ import { listCrmCities, getCrmRecordId, listCrmNeighborhoods, type CrmRecord, sa
 import { ConfirmModal, CrmIcon, DEFAULT_CENTER, DEFAULT_COUNTRY_ID, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, SearchTableEmptyRow, TableHead, TableLoadingRows, cleanEmptyValues, inputClassName, parseJsonValue, parseMapPointValue, readText, stringifyValue, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -175,9 +176,9 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     return (
                       <tr className={selected ? "bg-[#f6f9ff]" : ""} key={id}>
                         <TableCell>
-                          <button className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`} onClick={() => setCityId(id)} type="button">
+                          <Button unstyled className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`} onClick={() => setCityId(id)} type="button">
                             {readText(city, ["name"])}
-                          </button>
+                          </Button>
                           <small className="mt-1 block max-w-[140px] truncate text-sm text-[#9aa2af]">{id}</small>
                         </TableCell>
                         <TableCell>{readText(city, ["code"])}</TableCell>

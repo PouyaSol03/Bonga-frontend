@@ -65,6 +65,7 @@ import {
   type CrmRecord,
 } from "../../services/crm.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const CRM_BLUE = "#0048c4";
 const DEFAULT_COUNTRY_ID = "000000000000000000000001";
@@ -458,14 +459,14 @@ export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {
         <img className="h-[32px] w-[146px] object-contain" src="/images/logo/logo-dashboard.png" alt="بنگاه" />
 
         <div className="flex items-center gap-3">
-          <button
+          <Button unstyled
             className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#e4e4e4] bg-white px-4 text-sm font-semibold text-[#4d4d4d] transition hover:border-[#0048c4] hover:text-[#0048c4]"
             onClick={() => setRefreshNonce((value) => value + 1)}
             type="button"
           >
             <CrmIcon name="refresh" />
             تازه‌سازی
-          </button>
+          </Button>
 
           <div className="hidden h-10 max-w-[230px] items-center gap-2 rounded-xl bg-[#f5f5f5] px-3 xl:flex">
             <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#e4e8f4] text-[#0048c4]">
@@ -501,14 +502,14 @@ export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {
               </div>
             ) : null}
 
-            <button
+            <Button unstyled
               aria-label={isSidebarCollapsed ? "باز کردن منو" : "جمع کردن منو"}
               className="grid h-10 w-10 place-items-center rounded-lg bg-[#e9eaee] text-[#4d4d4d] transition hover:bg-[#dfe1e6]"
               onClick={() => setIsSidebarCollapsed((value) => !value)}
               type="button"
             >
               <Typography as="span" variant="body" size="medium" weight="regular" className={isSidebarCollapsed ? "rotate-180" : ""}><ChevronIcon /></Typography>
-            </button>
+            </Button>
           </div>
 
           {!isSidebarCollapsed ? (
@@ -847,7 +848,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                 const isActive = status === option.value;
 
                 return (
-                  <button
+                  <Button unstyled
                     aria-current={isActive ? "page" : undefined}
                     className={`relative h-10 whitespace-nowrap bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
                     key={option.value || "all"}
@@ -856,7 +857,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
                   >
                     {option.label}
                     {isActive ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" /> : null}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -864,14 +865,14 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
 
           <div className="mt-9 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4">
-              <button
+              <Button unstyled
                 className={`inline-flex h-10 items-center gap-2 rounded-xl border bg-white px-4 text-sm font-semibold transition ${showFilters ? "border-[#0048c4] text-[#0048c4]" : "border-[#cccccc] text-[#1a1a1a] hover:border-[#0048c4] hover:text-[#0048c4]"}`}
                 onClick={() => setShowFilters((value) => !value)}
                 type="button"
               >
                 <CrmIcon name="filter" size={19} />
                 فیلترها
-              </button>
+              </Button>
 
               <label className="relative block h-10 w-[min(360px,42vw)] min-w-[240px]">
                 <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#4d4d4d]"><CrmIcon name="search" size={19} /></Typography>
@@ -910,7 +911,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
             </CrmSelect>
           </FilterField>
           {(status || trackCode) ? (
-            <button
+            <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setStatus("");
@@ -919,7 +920,7 @@ function AdvertisesView({ notify, refreshNonce }: ViewProps) {
               type="button"
             >
               پاک کردن فیلتر
-            </button>
+            </Button>
           ) : null}
         </form> : null}
 
@@ -1194,7 +1195,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="نام یا نام خانوادگی" value={name} />
           </FilterField>
           {(mobile || name) ? (
-            <button
+            <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setMobile("");
@@ -1203,7 +1204,7 @@ function UsersView({ notify, refreshNonce }: ViewProps) {
               type="button"
             >
               پاک کردن فیلتر
-            </button>
+            </Button>
           ) : null}
         </form>
 
@@ -1549,7 +1550,7 @@ function ConsultantsView({ notify, refreshNonce }: ViewProps) {
             </CrmSelect>
           </FilterField>
           <div className="flex items-end gap-2">
-            {(search || statusFilter || agencyOnly) ? <button className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); }} type="button">پاک کردن</button> : null}
+            {(search || statusFilter || agencyOnly) ? <Button unstyled className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); }} type="button">پاک کردن</Button> : null}
           </div>
         </form>
 
@@ -1737,7 +1738,7 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="جستجوی نام" value={name} />
           </FilterField>
           {name ? (
-            <button
+            <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setName("");
@@ -1745,7 +1746,7 @@ function AgenciesView({ notify, refreshNonce }: ViewProps) {
               type="button"
             >
               پاک کردن فیلتر
-            </button>
+            </Button>
           ) : null}
         </form>
 
@@ -1856,7 +1857,7 @@ function AgencyAgentsModal({
       <section className="max-h-[calc(100vh-64px)] w-[min(900px,calc(100vw-64px))] overflow-hidden rounded-xl bg-white shadow-[0_24px_70px_rgba(14,34,68,0.18)]" dir="rtl">
         <div className="flex h-16 items-center justify-between border-b border-[#f0f0f0] px-6">
           <div><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold">مشاوران {readText(agency, ["name"], "آژانس")}</Typography><Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#919aa8]">فهرست مشاوران وابسته به این آژانس</Typography></div>
-          <button aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button"><CrmIcon name="close" size={18} /></button>
+          <Button unstyled aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button"><CrmIcon name="close" size={18} /></Button>
         </div>
         <div className="max-h-[calc(100vh-160px)] overflow-auto p-6">
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-right">
@@ -2156,9 +2157,9 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
                     return (
                       <tr className={selected ? "bg-[#f6f9ff]" : ""} key={id}>
                         <TableCell>
-                          <button className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`} onClick={() => setCityId(id)} type="button">
+                          <Button unstyled className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`} onClick={() => setCityId(id)} type="button">
                             {readText(city, ["name"])}
-                          </button>
+                          </Button>
                           <small className="mt-1 block max-w-[140px] truncate text-sm text-[#9aa2af]">{id}</small>
                         </TableCell>
                         <TableCell>{readText(city, ["code"])}</TableCell>
@@ -2424,7 +2425,7 @@ function EditorModal({
             <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold text-[#1a1a1a]">{editor.title}</Typography>
             <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#919aa8]">فیلدهای لازم را تکمیل و سپس ذخیره کنید.</Typography>
           </div>
-          <button
+          <Button unstyled
             aria-label="بستن"
             className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477] transition hover:bg-[#e9edf3]"
             disabled={isPending}
@@ -2432,7 +2433,7 @@ function EditorModal({
             type="button"
           >
             <CrmIcon name="close" size={18} />
-          </button>
+          </Button>
         </div>
 
         <div className="max-h-[calc(100vh-208px)] overflow-y-auto px-6 py-5">
@@ -2581,11 +2582,11 @@ function EditorModal({
         </div>
 
         <div className="flex h-20 items-center justify-end gap-3 border-t border-[#f0f0f0] px-6">
-          <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
-          <button className={primaryButtonClassName} disabled={isPending} type="submit">
+          <Button unstyled className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</Button>
+          <Button unstyled className={primaryButtonClassName} disabled={isPending} type="submit">
             {isPending ? <LoadingSpinner /> : <CrmIcon name="save" size={18} />}
             {isPending ? "در حال ذخیره..." : "ذخیره تغییرات"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>
@@ -2655,11 +2656,11 @@ function ConfirmModal({
           </label>
         ) : null}
         <div className="mt-6 flex justify-end gap-3">
-          <button className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</button>
-          <button className={dangerButtonClassName} disabled={isPending || isPromptInvalid} onClick={handleConfirm} type="button">
+          <Button unstyled className={ghostButtonClassName} disabled={isPending} onClick={onClose} type="button">انصراف</Button>
+          <Button unstyled className={dangerButtonClassName} disabled={isPending || isPromptInvalid} onClick={handleConfirm} type="button">
             {isPending ? <LoadingSpinner /> : null}
             {isPending ? "در حال انجام..." : confirm.confirmLabel ?? "تأیید"}
-          </button>
+          </Button>
         </div>
       </section>
     </ModalShell>
@@ -2741,7 +2742,7 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
         <div className="mt-3 flex flex-wrap gap-2">
           {selectedIds.map((id) => {
             const neighborhood = neighborhoodsQuery.data?.find((item) => String(item.id ?? item._id) === id);
-            return <button className="rounded-lg bg-[#eef4ff] px-2.5 py-1.5 text-xs font-bold text-[#0048c4]" key={id} onClick={() => toggle(id)} type="button">{neighborhood?.name ?? id} ×</button>;
+            return <Button unstyled className="rounded-lg bg-[#eef4ff] px-2.5 py-1.5 text-xs font-bold text-[#0048c4]" key={id} onClick={() => toggle(id)} type="button">{neighborhood?.name ?? id} ×</Button>;
           })}
         </div>
       ) : null}
@@ -2750,9 +2751,9 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
           const id = String(neighborhood.id ?? neighborhood._id ?? "");
           const checked = selectedIds.includes(id);
           return (
-            <button aria-pressed={checked} className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-2 text-right text-base transition-colors active:bg-[#0048c40a] ${checked ? "text-[#0048c4]" : "text-[#1a1a1a] hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
+            <Button unstyled aria-pressed={checked} className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-2 text-right text-base transition-colors active:bg-[#0048c40a] ${checked ? "text-[#0048c4]" : "text-[#1a1a1a] hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
               <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{neighborhood.name}</Typography><SelectionCheckIndicator checked={checked} />
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -2836,8 +2837,8 @@ function NeighborhoodPolygonEditor({
           برای ساخت محدوده، روی نقشه کلیک کنید. با حداقل سه نقطه یک چندضلعی ساخته می‌شود.
         </Typography>
         <div className="flex shrink-0 gap-2">
-          <button className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints(points.slice(0, -1))} type="button">حذف آخرین نقطه</button>
-          <button className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints([])} type="button">پاک کردن</button>
+          <Button unstyled className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints(points.slice(0, -1))} type="button">حذف آخرین نقطه</Button>
+          <Button unstyled className={miniGhostButtonClassName} disabled={!points.length} onClick={() => updatePoints([])} type="button">پاک کردن</Button>
         </div>
       </div>
       <div className="h-[320px] w-full overflow-hidden">
@@ -3037,10 +3038,10 @@ function PrimaryButton({
   onClick: () => void;
 }) {
   return (
-    <button className={primaryButtonClassName} disabled={disabled} onClick={onClick} type="button">
+    <Button unstyled className={primaryButtonClassName} disabled={disabled} onClick={onClick} type="button">
       <CrmIcon name={icon} size={18} />
       {label}
-    </button>
+    </Button>
   );
 }
 
@@ -3066,14 +3067,14 @@ function SmallActionButton({
   }[tone];
 
   return (
-    <button
+    <Button unstyled
       className={`inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${classes}`}
       disabled={disabled}
       onClick={onClick}
       type="button"
     >
       {icon}{label}
-    </button>
+    </Button>
   );
 }
 

@@ -8,6 +8,7 @@ import { storePaymentReturnTarget } from "../../../utils/payment-return";
 import { Snackbar } from "../../../components/Snackbar";
 import { AccountLoadingState, AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, formatMoney, normalizeWalletAmount } from "../accountPageViews";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
@@ -97,7 +98,7 @@ export function AccountWalletPage() {
                 const isActive = amount === amountOption.value;
 
                 return (
-                  <button
+                  <Button unstyled
                     className={`rounded-xl border py-1.5 !text-xs !font-medium leading-4 ${isActive
                       ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
                       : "border-[#cccccc] bg-white text-[#1a1a1a]"
@@ -107,7 +108,7 @@ export function AccountWalletPage() {
                     type="button"
                   >
                     {amountOption.label}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -125,7 +126,7 @@ export function AccountWalletPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={!canCharge || chargeWalletMutation.isPending}
           onClick={() => {
@@ -156,7 +157,7 @@ export function AccountWalletPage() {
           type="button"
         >
           {chargeWalletMutation.isPending ? "در حال اتصال به درگاه..." : "شارژ کیف پول"}
-        </button>
+        </Button>
       </div>
 
       {chargeError ? (

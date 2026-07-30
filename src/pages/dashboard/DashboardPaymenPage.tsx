@@ -12,6 +12,7 @@ import { useDemoNotice } from "../../hooks/useDemoNotice";
 import { RouteLink } from "../../routes/RouteLink";
 import type { PackageItem } from "../../services/package.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type PricingCardPlan = {
   discount: number;
@@ -145,7 +146,7 @@ function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab
   return (
     <nav className="shrink-0 bg-white px-4 py-4" aria-label="نوع افزایش اعتبار">
       <div className="flex h-11 overflow-hidden rounded-xl border border-[#0048c4] [direction:ltr]">
-        <button
+        <Button unstyled
           className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
             activeTab === "panel" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
           }`}
@@ -153,8 +154,8 @@ function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab
           type="button"
         >
           اعتبار پنل
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className={`flex flex-1 items-center justify-center border-l border-[#0048c4] text-base font-medium leading-6 [direction:rtl] ${
             activeTab === "packages" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
           }`}
@@ -162,7 +163,7 @@ function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab
           type="button"
         >
           بسته‌ها
-        </button>
+        </Button>
       </div>
     </nav>
   );
@@ -298,13 +299,13 @@ function MobilePlanCard({
         <MobilePanelContent plan={plan} showGift={showGift} />
       )}
 
-      <button
+      <Button unstyled
         className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
         onClick={onPay}
         type="button"
       >
         پرداخت
-      </button>
+      </Button>
     </article>
   );
 }

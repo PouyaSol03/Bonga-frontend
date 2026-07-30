@@ -5,6 +5,7 @@ import { SelectField } from "../ui/SelectField";
 import { Switch } from "../ui/Switch";
 import { TextField } from "../ui/TextField";
 import { Typography } from "../ui/Typography";
+import { Button } from "../ui/Button";
 
 type SegmentOption<T extends string> = {
   label: string;
@@ -35,7 +36,7 @@ export function FormSegmentedControl<T extends string>({
         const selected = option.value === value;
 
         return (
-          <button
+          <Button unstyled
             aria-checked={selected}
             className={`flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
               index < options.length - 1 ? "border-l" : ""
@@ -48,7 +49,7 @@ export function FormSegmentedControl<T extends string>({
             type="button"
           >
             {option.label}
-          </button>
+          </Button>
         );
       })}
     </div>

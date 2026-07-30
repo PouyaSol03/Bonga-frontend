@@ -5,6 +5,7 @@ import LinearBookmarkSolid from "../(icons)/LinearBookmarkSolid";
 import LinearCancelCircle from "../(icons)/LinearCancelCircle";
 import SearchBarSearchIcon from "../(icons)/SearchBarSearchIcon";
 import { Typography } from "./Typography";
+import { Button } from "./Button";
 
 type SearchBarProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   compact?: boolean;
@@ -23,9 +24,9 @@ export function SearchBar({
   ...props
 }: SearchBarProps) {
   return (
-    <button
+    <Button unstyled
       className={cn(
-        "flex w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] transition [direction:rtl]",
+        "flex w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] transition",
         compact ? "h-12" : "h-14",
         focusRing,
         className,
@@ -36,7 +37,7 @@ export function SearchBar({
       {leadingIcon ?? <SearchBarSearchIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-[#4d4d4d]" />}
       <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{text}</Typography>
       {saved ? <LinearBookmarkSolid aria-hidden="true" className="h-5 w-5 shrink-0 text-[#0048c4]" /> : null}
-    </button>
+    </Button>
   );
 }
 
@@ -117,7 +118,7 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
       />
 
       {hasValue && onClear ? (
-        <button
+        <Button unstyled
           aria-label="پاک کردن جستجو"
           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#808080] transition active:bg-[#f0f0f0]"
           onClick={onClear}
@@ -125,7 +126,7 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
           type="button"
         >
           <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
-        </button>
+        </Button>
       ) : null}
     </form>
   );

@@ -9,6 +9,7 @@ import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
 import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -252,7 +253,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
             </CrmSelect>
           </FilterField>
           <div className="flex items-end gap-2">
-            {(search || statusFilter || agencyOnly) ? <button className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); }} type="button">پاک کردن</button> : null}
+            {(search || statusFilter || agencyOnly) ? <Button unstyled className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); }} type="button">پاک کردن</Button> : null}
           </div>
         </form>
 

@@ -7,6 +7,7 @@ import { TopBar } from "../../../components/TopBar";
 import LinearAttachment from "../../../components/(icons)/LinearAttachment";
 import { REQUESTS_PATH, RequestOptionBottomSheet, RequestSelectField, RequiredLabel, categoryOptions, priorityOptions } from "../accountSupportRequestViews";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function AccountSupportNewRequestPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -146,7 +147,7 @@ export function AccountSupportNewRequestPage() {
                 type="file"
               />
 
-              <button
+              <Button unstyled
                 className="mt-2 flex min-h-[92px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-[#b6b6b6] bg-white px-4 py-4 text-center outline-none transition active:bg-[#fafafa] focus-visible:border-[#0048c4] focus-visible:ring-3 focus-visible:ring-[#0048c420]"
                 onClick={() => fileInputRef.current?.click()}
                 type="button"
@@ -166,7 +167,7 @@ export function AccountSupportNewRequestPage() {
                     </Typography>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
 
             {errorMessage ? (
@@ -181,13 +182,13 @@ export function AccountSupportNewRequestPage() {
         </main>
 
         <div className="absolute inset-x-0 bottom-0 z-20 bg-white px-3 pb-2.5 pt-2">
-          <button
+          <Button unstyled
             className="h-10 w-full rounded-lg bg-[#0759cf] px-4 text-sm font-semibold leading-5 text-white outline-none active:bg-[#0048b5] focus-visible:ring-3 focus-visible:ring-[#0759cf40]"
             disabled={createRequestMutation.isPending}
             type="submit"
           >
             {createRequestMutation.isPending ? "در حال ثبت..." : "ثبت درخواست"}
-          </button>
+          </Button>
         </div>
       </form>
 

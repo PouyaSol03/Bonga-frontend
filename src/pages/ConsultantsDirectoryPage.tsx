@@ -25,6 +25,7 @@ import LinearLocation from "../components/(icons)/LinearLocation";
 import LinearArrowDown1 from "../components/(icons)/LinearArrowDown1";
 import LinearCancelSmall from "../components/(icons)/LinearCancelSmall";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 type DirectoryMode = "agency" | "consultant";
 
@@ -268,35 +269,35 @@ function FilterChip({
   if (onRemove) {
     return (
       <Typography as="span" variant="body" size="medium" weight="regular" className={`${chipClassName} overflow-hidden p-2`} dir="rtl">
-        <button
+        <Button unstyled
           className="inline-flex h-full min-w-0 items-center justify-center gap-1 text-inherit"
           onClick={onClick}
           type="button"
         >
           {chipContent}
-        </button>
+        </Button>
 
-        <button
+        <Button unstyled
           aria-label={`حذف ${label}`}
           className="grid h-full shrink-0 place-items-center text-inherit active:bg-[#0048c414]"
           onClick={onRemove}
           type="button"
         >
           <LinearCancelSmall className="w-5 h-5" />
-        </button>
+        </Button>
       </Typography>
     );
   }
 
   return (
-    <button
+    <Button unstyled
       className={chipClassName}
       dir="rtl"
       onClick={onClick}
       type="button"
     >
       {chipContent}
-    </button>
+    </Button>
   );
 }
 
@@ -365,9 +366,9 @@ function DirectoryCard({
     "mx-4 flex h-[104px] w-[calc(100%_-_2rem)] items-center gap-4 rounded-xl border border-[#d1d1d1] bg-white p-4 text-right shadow-[0_0_6px_rgba(26,26,26,0.04)]";
 
   return onClick ? (
-    <button className={`${className} active:bg-[#fafafa]`} onClick={onClick} type="button">
+    <Button unstyled className={`${className} active:bg-[#fafafa]`} onClick={onClick} type="button">
       {content}
-    </button>
+    </Button>
   ) : (
     <article className={className}>{content}</article>
   );
@@ -685,7 +686,7 @@ export function ConsultantsDirectoryPage() {
       </main>
 
       {mode === "agency" ? (
-        <button
+        <Button unstyled
           className="absolute bottom-[16px] left-1/2 z-10 inline-flex -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 py-2 leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           onClick={() => {
             setSelectedMapAgencyId(null);
@@ -695,7 +696,7 @@ export function ConsultantsDirectoryPage() {
         >
           <LinearMapsLocation className="w-6 h-6 text-white" />
           <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">نقشه</Typography>
-        </button>
+        </Button>
       ) : null}
 
 
@@ -716,7 +717,7 @@ export function ConsultantsDirectoryPage() {
             const checked = mode === option.id;
 
             return (
-              <button
+              <Button unstyled
                 aria-pressed={checked}
                 className={`flex w-full px-4 py-6 items-center justify-between text-right font-medium leading-5 ${checked
                     ? "text-[#0048c4]"
@@ -728,7 +729,7 @@ export function ConsultantsDirectoryPage() {
               >
                 <Typography as="span" variant="body" size="medium" weight="regular">{option.label}</Typography>
                 <RadioIndicator checked={checked} />
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -749,7 +750,7 @@ export function ConsultantsDirectoryPage() {
             const checked = selectedSort === option.id;
 
             return (
-              <button
+              <Button unstyled
                 aria-pressed={checked}
                 className={`flex w-full items-center justify-between py-6 px-4 text-right text-sm font-medium leading-5 ${checked
                     ? "text-[#0048c4]"
@@ -764,7 +765,7 @@ export function ConsultantsDirectoryPage() {
               >
                 <Typography as="span" variant="body" size="medium" weight="regular">{option.label}</Typography>
                 <RadioIndicator checked={checked} />
-              </button>
+              </Button>
             );
           })}
         </div>

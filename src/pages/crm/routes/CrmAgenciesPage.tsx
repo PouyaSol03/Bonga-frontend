@@ -5,6 +5,7 @@ import { getApiErrorMessage } from "../../../api/api";
 import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, consultantApiIdentifier, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -112,7 +113,7 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="جستجوی نام" value={name} />
           </FilterField>
           {name ? (
-            <button
+            <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setName("");
@@ -120,7 +121,7 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               type="button"
             >
               پاک کردن فیلتر
-            </button>
+            </Button>
           ) : null}
         </form>
 

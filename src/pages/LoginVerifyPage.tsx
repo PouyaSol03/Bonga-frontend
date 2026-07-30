@@ -25,6 +25,7 @@ import {
 } from "../auth/auth-storage";
 import LinearArrowRight2 from "../components/(icons)/LinearArrowRight2";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 function goBackOrNavigate(fallbackPath: string) {
   if (window.history.length > 1) {
@@ -318,7 +319,7 @@ export function LoginVerifyPage() {
                 />
               </div>
             ) : (
-              <button
+              <Button unstyled
                 className="flex py-2 px-6 cursor-pointer flex-row-reverse items-center mt-12 justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isResending || isSubmitting}
                 onClick={handleResend}
@@ -326,19 +327,19 @@ export function LoginVerifyPage() {
               >
                 <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</Typography>
                 <LinearArrowRight2 className="w-5 h-5 text-[#4d4d4d]" />
-              </button>
+              </Button>
             )}
           </section>
         </main>
 
         <footer className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-          <button
+          <Button unstyled
             className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-[#0048c4] px-4 py-2.5 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting || isResending}
             type="submit"
           >
             {isSubmitting ? "در حال تایید..." : "تایید"}
-          </button>
+          </Button>
         </footer>
       </form>
     </PageFrame>

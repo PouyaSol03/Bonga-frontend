@@ -13,6 +13,7 @@ import {
 } from "../../services/property-request.service";
 import { RequestResultImageMeta } from "./RequestResultImageMeta";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 export type PropertyRequestResultsStatus = {
   isError: boolean;
@@ -129,14 +130,14 @@ export function PropertyRequestResults({
       {query.isError ? (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#fff4f3] px-3 py-3 text-sm text-[#b42318]">
           <Typography as="span" variant="body" size="medium" weight="regular">بررسی نتیجه این درخواست با خطا مواجه شد.</Typography>
-          <button
+          <Button unstyled
             className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#f3b8b3] bg-white px-2 text-xs font-semibold transition hover:bg-[#fff8f7]"
             onClick={() => void query.refetch()}
             type="button"
           >
             <LinearRefresh className="h-4 w-4" />
             تلاش دوباره
-          </button>
+          </Button>
         </div>
       ) : null}
 
@@ -160,7 +161,7 @@ export function PropertyRequestResults({
               className="overflow-hidden bg-white"
               imageAction={
                 showDismissAction ? (
-                  <button
+                  <Button unstyled
                     aria-label={`حذف ${ad.title} از نتایج`}
                     className="absolute left-2 top-2 z-3 grid h-9 w-9 place-items-center rounded-lg bg-white text-[#4d4d4d] shadow-[0_4px_14px_rgba(0,0,0,0.14)] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
                     onClick={() =>
@@ -173,7 +174,7 @@ export function PropertyRequestResults({
                     type="button"
                   >
                     <LinearDelete className="h-5 w-5" />
-                  </button>
+                  </Button>
                 ) : undefined
               }
               imageMeta={<RequestResultImageMeta imageCount={ad.imageCount} />}

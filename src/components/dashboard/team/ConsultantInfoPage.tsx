@@ -18,6 +18,7 @@ import {
   mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
 import { Typography } from "../../ui/Typography";
+import { Button } from "../../ui/Button";
 
 const consultantPieCards = [
   {
@@ -284,10 +285,10 @@ function ConsultantPieCard({
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             {card.title}
           </Typography>
-          <button className="flex h-7 items-center gap-1 rounded-lg bg-transparent px-2 py-1 text-xs font-medium text-[#1a1a1a]" type="button">
+          <Button unstyled className="flex h-7 items-center gap-1 rounded-lg bg-transparent px-2 py-1 text-xs font-medium text-[#1a1a1a]" type="button">
             در ماه
             <ChevronDownIcon className="h-4 w-4 text-[#4d4d4d]" />
-          </button>
+          </Button>
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold" style={{ color: card.color, backgroundColor: `${card.color}1a` }}>

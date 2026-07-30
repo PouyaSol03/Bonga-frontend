@@ -4,6 +4,7 @@ import { RadioIndicator } from "../../components/RadioIndicator";
 import { TopBar } from "../../components/TopBar";
 import { useReportChatMutation } from "../../hooks/chat.hooks";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type ReportReasonId =
   | "spam"
@@ -128,7 +129,7 @@ export function ChatReportPage() {
             const checked = reason.id === selectedReasonId;
 
             return (
-              <button
+              <Button unstyled
                 aria-checked={checked}
                 className="flex h-16 w-full items-center justify-between gap-4 bg-white px-5 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
                 key={reason.id}
@@ -144,7 +145,7 @@ export function ChatReportPage() {
                   {reason.title}
                 </Typography>
                 <RadioIndicator checked={checked} className="h-[18px] w-[18px]" />
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -176,22 +177,22 @@ export function ChatReportPage() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 flex h-16 items-center gap-4 bg-white px-4 shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:ltr]">
-        <button
+        <Button unstyled
           className="h-10 min-w-0 flex-1 rounded-[10px] bg-[#0048c4] text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-50"
           disabled={reportMutation.isPending || Boolean(successMessage)}
           onClick={submitReport}
           type="button"
         >
           {reportMutation.isPending ? "در حال ارسال..." : "تایید"}
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className="h-10 min-w-0 flex-1 rounded-[10px] border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4] disabled:cursor-not-allowed disabled:opacity-50"
           disabled={reportMutation.isPending}
           onClick={() => navigateTo(returnPath, true)}
           type="button"
         >
           انصراف
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );

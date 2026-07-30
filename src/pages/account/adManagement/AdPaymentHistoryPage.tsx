@@ -13,6 +13,7 @@ import {
   type ConsultantAd,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type AdPayment = Record<string, unknown> & {
   amount?: number | string;
@@ -163,13 +164,13 @@ function PaymentHistoryError({ onRetry }: { onRetry: () => void }) {
       <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#1a1a1a]">
         دریافت تاریخچه پرداخت با خطا مواجه شد.
       </Typography>
-      <button
+      <Button unstyled
         className="mt-4 h-10 rounded-lg bg-[#0048c4] px-6 text-sm font-medium leading-5 text-white"
         onClick={onRetry}
         type="button"
       >
         تلاش مجدد
-      </button>
+      </Button>
     </div>
   );
 }

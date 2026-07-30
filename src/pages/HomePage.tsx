@@ -7,7 +7,6 @@ import { CategoryBottomSheet } from "./home/components/CategoryBottomSheet";
 import { CitySelectionScreen } from "./home/components/CitySelectionScreen";
 import { HomeSearchScreen } from "./home/components/HomeSearchScreen";
 import type { CategoryOption, QuickAction } from "./home/homeTypes";
-import NotificationIcon from "../assets/icons/NotificationIcon";
 import ArrowDown from "../assets/icons/ArrowDown";
 import ShenasaVector from "../assets/icons/ShenasaVector";
 import IranShenasaTypo from "../assets/icons/IranShenasaTypo";
@@ -32,6 +31,7 @@ import ConsultantCategoryIcon from "../assets/icons/ConsultantCategoryIcon.svg";
 import LinearNotification from "../components/(icons)/LinearNotification";
 import LinearSearch from "../components/(icons)/LinearSearch";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
@@ -349,7 +349,7 @@ export function HomePage() {
           aria-label="سربرگ"
         >
           <div className="flex items-center justify-center gap-2">
-            <button
+            <Button unstyled
               aria-label="اعلان‌ها"
               className="relative grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
               onClick={navigateToNotifications}
@@ -359,19 +359,19 @@ export function HomePage() {
               {unreadNotificationsCount > 0 ? (
                 <Typography as="span" variant="body" size="medium" weight="regular"
                   aria-hidden="true"
-                  className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+                  className="absolute right-3.5 top-3 h-2 w-2 rounded-full bg-[#ef1f1f] ring-2 ring-white"
                 />
               ) : null}
-            </button>
+            </Button>
 
-            <button
+            <Button unstyled
               className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4]"
               type="button"
               onClick={() => setIsCityOpen(true)}
             >
               <ArrowDown size={20} />
               <Typography as="span" variant="body" size="medium" weight="regular">{selectedCity.name}</Typography>
-            </button>
+            </Button>
           </div>
 
           <div
@@ -425,7 +425,7 @@ export function HomePage() {
 
             {!isCategoryLoading &&
               quickActions.map((item) => (
-                <button
+                <Button unstyled
                   className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-0.5 bg-white p-0 text-xs! font-medium! leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                   key={item.label}
                   type="button"
@@ -450,7 +450,7 @@ export function HomePage() {
                   />
 
                   <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
-                </button>
+                </Button>
               ))}
           </div>
 

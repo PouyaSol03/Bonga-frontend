@@ -25,6 +25,7 @@ import LinearUserAccount from '../components/(icons)/LinearUserAccount'
 import type { CrmRoutePageProps } from '../pages/crm/CrmLayout'
 import { replaceRoute } from './navigation'
 import { getAppChromeConfig } from './routeChrome'
+import { Button } from "../components/ui/Button";
 
 
 function RouteNotFoundPage() {
@@ -201,14 +202,14 @@ function IdentityRequiredPage({ title }: { title: string }) {
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[310px] text-sm font-normal leading-6 text-[#4d4d4d]">
           برای دسترسی به این بخش، ابتدا باید احراز هویت خود را تکمیل کنید. احراز هویت به افزایش امنیت حساب کاربری و فعال‌سازی امکانات سامانه کمک می‌کند.
         </Typography>
-        <button
+        <Button unstyled
           className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
           onClick={() => navigateTo('/account/identity?required=1')}
           type="button"
         >
           <LinearUserAccount className='w-5 h-5'/>
           <Typography as="span" variant="body" size="medium" weight="regular">تکمیل احراز هویت</Typography>
-        </button>
+        </Button>
       </main>
     </PageFrame>
   )

@@ -4,6 +4,7 @@ import { getVisibleDashboardItems } from "./dashboardNavigation";
 import { RouteLink } from "../routes/RouteLink";
 import { DashboardHeader } from "./DashboardHeader";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 type DashboardLayoutProps = {
   activePath: string;
@@ -38,7 +39,7 @@ const MemoSidebar = memo(function Sidebar({
           <Typography as="p" variant="body" size="medium" weight="medium" className="text-[#808080] font-medium">مرکز مدیریت</Typography>
         )}
 
-        <button
+        <Button unstyled
           type="button"
           onClick={onToggleCollapse}
           className="w-10 h-10 flex items-center justify-center bg-[#E9EAEE] rounded-lg transition"
@@ -59,7 +60,7 @@ const MemoSidebar = memo(function Sidebar({
               fill="#4D4D4D"
             />
           </svg>
-        </button>
+        </Button>
       </div>
 
       {!isCollapsed && (

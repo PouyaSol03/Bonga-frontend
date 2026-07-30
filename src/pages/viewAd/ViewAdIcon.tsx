@@ -1,6 +1,7 @@
 import type { ComponentType, SVGProps } from "react";
 
 import LinearAdd from "../../components/(icons)/LinearAdd";
+import LinearAddToList from "../../components/(icons)/LinearAddToList";
 import LinearAlbum from "../../components/(icons)/LinearAlbum";
 import LinearApartment from "../../components/(icons)/LinearApartment";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
@@ -23,6 +24,7 @@ import LinearEvalator from "../../components/(icons)/LinearEvalator";
 import LinearExchange from "../../components/(icons)/LinearExchange";
 import LinearFloor from "../../components/(icons)/LinearFloor";
 import LinearInformation from "../../components/(icons)/LinearInformation";
+import LinearInformationDiamond from "../../components/(icons)/LinearInformationDiamond";
 import LinearLocation from "../../components/(icons)/LinearLocation";
 import LinearMoney from "../../components/(icons)/LinearMoney";
 import LinearMoreVertical from "../../components/(icons)/LinearMoreVertical";
@@ -51,6 +53,7 @@ type SvgIconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
 const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = {
   add: LinearAdd,
+  addToList: LinearAddToList,
   album: LinearAlbum,
   apartment: LinearApartment,
   area: LinearDimensions,
@@ -72,6 +75,7 @@ const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = 
   exchange: LinearExchange,
   floor: LinearFloor,
   info: LinearInformation,
+  informationDiamond: LinearInformationDiamond,
   loan: LinearSaveMoney,
   location: LinearLocation,
   money: LinearMoney,

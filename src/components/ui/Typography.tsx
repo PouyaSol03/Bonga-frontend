@@ -103,13 +103,14 @@ export function Typography<T extends TypographyElement = "p">({
   ...props
 }: TypographyProps<T>) {
   const Component: TypographyElement = as ?? "p";
+  const elementProps = {
+    ...(props as Record<string, unknown>),
+    className: cn(getTypographyClasses(className, variant, size, weight), className),
+  };
 
   return createElement(
     Component,
-    {
-      ...props,
-      className: cn(getTypographyClasses(className, variant, size, weight), className),
-    },
+    elementProps,
     children,
   );
 }

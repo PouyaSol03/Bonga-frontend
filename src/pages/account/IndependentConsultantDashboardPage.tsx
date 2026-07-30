@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { TopBarNavigationLayout } from "../../app/TopBarNavigationLayout";
 import { TopBar } from "../../components/TopBar";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type CreditMetric = {
   accentClassName: string;
@@ -193,14 +194,14 @@ function CardHeader({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 [direction:ltr]">
-      <button
+      <Button unstyled
         className="inline-flex h-7 items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d]"
         onClick={onTogglePeriod}
         type="button"
       >
         <ChevronDownIcon className="h-4 w-4" />
         <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">در {period}</Typography>
-      </button>
+      </Button>
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">{title}</Typography>
     </div>
   );
@@ -274,14 +275,14 @@ function ProgressChartCard({
   return (
     <article className="rounded-2xl bg-white p-6">
       <div className="flex items-start justify-between gap-3 [direction:ltr]">
-        <button
+        <Button unstyled
           className="inline-flex h-7 items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d]"
           type="button"
           onClick={onTogglePeriod}
         >
           <ChevronDownIcon className="h-4 w-4" />
           <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">در {period}</Typography>
-        </button>
+        </Button>
         <div className="text-right [direction:rtl]">
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-2 inline-flex items-center gap-1 text-sm leading-5 ${toneClassName}`}>

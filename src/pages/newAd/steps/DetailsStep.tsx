@@ -34,6 +34,7 @@ import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
 import { ProjectSpecsSection } from "./project/ProjectSpecsSection";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 function toggleArray(current: string[], id: string) {
   return current.includes(id)
@@ -326,7 +327,7 @@ export function DetailsStep({
               <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
                 <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
 
-                <button
+                <Button unstyled
                   className="flex items-center gap-1 text-[#0048c4]"
                   onClick={() =>
                     setSheet({
@@ -339,7 +340,7 @@ export function DetailsStep({
                 >
                   <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
                   <Typography as="span" variant="body" size="medium" weight="regular">‹</Typography>
-                </button>
+                </Button>
               </div>
 
               {values.exchangeTargets.length ? (
@@ -442,7 +443,7 @@ export function DetailsStep({
                   </div>
 
                   {hiddenMoreFeatureCount > 0 ? (
-                    <button
+                    <Button unstyled
                       className="flex h-8 items-start justify-start gap-1.5 text-sm font-normal leading-5 text-[#808080] active:text-[#0048c4]"
                       onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
                       type="button"
@@ -466,10 +467,10 @@ export function DetailsStep({
                           strokeWidth="2"
                         />
                       </svg>
-                    </button>
+                    </Button>
                   ) : null}
 
-                  <button
+                  <Button unstyled
                     className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
                     onClick={onMoreFeatures}
                     type="button"
@@ -480,10 +481,10 @@ export function DetailsStep({
                         <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#0048c4" />
                       </svg>
                     </Typography>
-                  </button>
+                  </Button>
                 </div>
               ) : !isDailyHotelRent && moreFeatureFields.length ? (
-                <button
+                <Button unstyled
                   className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
                   onClick={onMoreFeatures}
                   type="button"
@@ -494,7 +495,7 @@ export function DetailsStep({
                       <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#0048c4" />
                     </svg>
                   </Typography>
-                </button>
+                </Button>
               ) : null}
             </div>
           </Section>
@@ -592,7 +593,7 @@ export function DetailsStep({
               const checked = values.exchangeTargets.includes(option);
 
               return (
-                <button
+                <Button unstyled
                   className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]"
                   key={option}
                   onClick={() =>
@@ -605,7 +606,7 @@ export function DetailsStep({
                 >
                   <ExchangeCheckIcon checked={checked} />
                   <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
-                </button>
+                </Button>
               );
             })}
           </div>

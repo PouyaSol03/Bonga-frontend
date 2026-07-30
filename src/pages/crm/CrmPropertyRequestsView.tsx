@@ -18,6 +18,7 @@ import {
 } from "../../services/property-request.service";
 import { PropertyRequestResults } from "../requests/PropertyRequestResults";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type CrmPropertyRequestsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -230,14 +231,14 @@ export function CrmPropertyRequestsView({
             </div>
           </div>
 
-          <button
+          <Button unstyled
             className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#d9e0ea] bg-white px-4 text-sm font-semibold text-[#4d5560] transition hover:border-[#0048c4] hover:text-[#0048c4]"
             onClick={refreshRequests}
             type="button"
           >
             <LinearRefresh className="h-5 w-5" />
             بروزرسانی
-          </button>
+          </Button>
         </div>
 
         <label className="relative mt-4 block max-w-xl">

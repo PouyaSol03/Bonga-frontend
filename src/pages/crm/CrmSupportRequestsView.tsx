@@ -54,6 +54,7 @@ import {
 } from "../account/accountSupportViews";
 import type { CrmRoutePageProps } from "./CrmLayout";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type StatusFilter = "all" | PanelSupportRequestStatus;
 
@@ -569,14 +570,14 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
               </Typography>
             </div>
           </div>
-          <button
+          <Button unstyled
             className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#dce3ef] px-4 text-sm font-semibold text-[#4d4d4d] hover:border-[#0048c4] hover:text-[#0048c4]"
             onClick={() => void requestsQuery.refetch().then(() => notify("فهرست درخواست‌ها بروزرسانی شد."))}
             type="button"
           >
             <LinearRefresh className="h-5 w-5" />
             بروزرسانی
-          </button>
+          </Button>
         </div>
 
         <div className="mt-4 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -629,7 +630,7 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
             {filterOptions.map((filter) => {
               const isActive = activeFilter === filter.id;
               return (
-                <button
+                <Button unstyled
                   className={`h-9 shrink-0 rounded-lg border px-3 text-xs font-semibold ${
                     isActive
                       ? "border-[#1268d8] bg-[#eaf1ff] text-[#0048c4]"
@@ -643,7 +644,7 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
                   type="button"
                 >
                   {filter.label}
-                </button>
+                </Button>
               );
             })}
           </nav>
@@ -654,7 +655,7 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
             ) : requestsQuery.isError ? (
               <div className="py-16 text-center">
                 <Typography as="p" variant="body" size="medium" weight="regular" className="text-sm text-[#d92d20]">دریافت درخواست‌ها با خطا مواجه شد.</Typography>
-                <button className="mt-3 h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white" onClick={() => void requestsQuery.refetch()} type="button">تلاش دوباره</button>
+                <Button unstyled className="mt-3 h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white" onClick={() => void requestsQuery.refetch()} type="button">تلاش دوباره</Button>
               </div>
             ) : filteredRequests.length === 0 ? (
               <SearchEmptyState className="min-h-[300px] px-4" />
@@ -673,9 +674,9 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
           </div>
 
           <div className="flex shrink-0 items-center justify-between border-t border-[#eeeeee] p-3 text-xs text-[#666666]">
-            <button className="h-8 rounded-lg border border-[#d9d9d9] px-3 disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))} type="button">قبلی</button>
+            <Button unstyled className="h-8 rounded-lg border border-[#d9d9d9] px-3 disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))} type="button">قبلی</Button>
             <Typography as="span" variant="body" size="medium" weight="regular">صفحه {formatCount(page)}</Typography>
-            <button className="h-8 rounded-lg border border-[#d9d9d9] px-3 disabled:opacity-40" disabled={!hasNextPage} onClick={() => setPage((current) => current + 1)} type="button">بعدی</button>
+            <Button unstyled className="h-8 rounded-lg border border-[#d9d9d9] px-3 disabled:opacity-40" disabled={!hasNextPage} onClick={() => setPage((current) => current + 1)} type="button">بعدی</Button>
           </div>
         </aside>
 
@@ -704,14 +705,14 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
                     <option value="reviewing">در حال بررسی</option>
                     <option value="closed">بسته شده</option>
                   </select>
-                  <button
+                  <Button unstyled
                     className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#e3a2a2] px-3 text-xs font-semibold text-[#c32929] disabled:opacity-40"
                     disabled={selectedRequest.status === "closed" || statusMutation.isPending}
                     onClick={() => changeStatus("closed")}
                     type="button"
                   >
                     <LinearCancel className="h-4 w-4" />بستن درخواست
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -730,7 +731,7 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
                   placeholder="شناسه کارشناس پشتیبانی"
                   value={assignUserId}
                 />
-                <button className="h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white disabled:opacity-50" disabled={assignMutation.isPending} onClick={assignRequest} type="button">تخصیص درخواست</button>
+                <Button unstyled className="h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white disabled:opacity-50" disabled={assignMutation.isPending} onClick={assignRequest} type="button">تخصیص درخواست</Button>
                 <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">{selectedRequest.assignedSupportId ? `کارشناس فعلی: ${selectedRequest.assignedSupportId}` : "هنوز تخصیص داده نشده"}</Typography>
               </div>
 
@@ -770,9 +771,9 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
                   ref={composerRef}
                   value={draft}
                 />
-                <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#0048c4] px-5 text-sm font-semibold text-white disabled:opacity-50" disabled={!draft.trim() || selectedRequest.status === "closed" || sendMessageMutation.isPending} type="submit">
+                <Button unstyled className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#0048c4] px-5 text-sm font-semibold text-white disabled:opacity-50" disabled={!draft.trim() || selectedRequest.status === "closed" || sendMessageMutation.isPending} type="submit">
                   ارسال پاسخ<LinearSendComment className="h-5 w-5" />
-                </button>
+                </Button>
               </form>
             </motion.div>
           )}

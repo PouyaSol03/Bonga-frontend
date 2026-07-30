@@ -28,6 +28,7 @@ import {
   getSelectedConsultantAd,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type ChartMetric = "calls" | "chats" | "searchDisplays" | "views";
 
@@ -363,14 +364,14 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
           <ChartTitleIcon className="h-6 w-6 text-[#4d4d4d]" metric={chart.metric} />
           {chart.title}
-          <button
+          <Button unstyled
             aria-label={`توضیحات ${chart.title}`}
             className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition-colors hover:bg-[#f5f5f5] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             onClick={() => setIsInfoSheetOpen(true)}
             type="button"
           >
             <InfoIcon className="h-5 w-5" />
-          </button>
+          </Button>
         </Typography>
       </div>
 
@@ -478,15 +479,15 @@ function ChartRangeControls({
 }) {
   return (
     <div className="flex items-center">
-      <button
+      <Button unstyled
         aria-label="بازه قبلی"
         className="grid h-12 w-12 place-items-center text-[#4d4d4d]"
         onClick={() => setOffset((current) => Math.min(current + 1, 2))}
         type="button"
       >
         <ChevronLeftIcon className="h-5 w-5" />
-      </button>
-      <button
+      </Button>
+      <Button unstyled
         aria-label="بازه بعدی"
         className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-[#cccccc]" : "text-[#4d4d4d]"}`}
         disabled={offset === 0}
@@ -494,7 +495,7 @@ function ChartRangeControls({
         type="button"
       >
         <ChevronRightIcon className="h-5 w-5" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -727,9 +728,9 @@ function ErrorNotice({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="mx-4 my-3 rounded-lg bg-[#fff5db] px-3 py-2 text-center text-xs font-medium leading-5 text-[#ff6d00]">
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">دریافت آمار آگهی با خطا مواجه شد.</Typography>
-      <button className="mt-1 border-0 text-xs font-semibold text-[#0048c4]" onClick={onRetry} type="button">
+      <Button unstyled className="mt-1 border-0 text-xs font-semibold text-[#0048c4]" onClick={onRetry} type="button">
         تلاش دوباره
-      </button>
+      </Button>
     </div>
   );
 }

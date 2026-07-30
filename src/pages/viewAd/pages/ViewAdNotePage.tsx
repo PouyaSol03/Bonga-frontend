@@ -1,5 +1,6 @@
 import { ViewAdActionPageTopBar } from "./ViewAdActionPageLayout";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function ViewAdNotePage({
   isSaving,
@@ -34,21 +35,21 @@ export function ViewAdNotePage({
 
       <div className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_4px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
-          <button
+          <Button unstyled
             className="h-10 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             disabled={isSaving || noteText.trim().length === 0}
             onClick={onSave}
             type="button"
           >
             {isSaving ? "در حال ذخیره..." : "ذخیره"}
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             onClick={onClose}
             type="button"
           >
             انصراف
-          </button>
+          </Button>
         </div>
       </div>
     </div>

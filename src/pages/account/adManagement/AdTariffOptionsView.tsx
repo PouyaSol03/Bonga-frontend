@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export type AdTariffOptionId = "refresh" | "special" | "renew" | "refreshSpecial";
 
@@ -107,7 +108,7 @@ function AdTariffOptionRow({
   const descriptionClassName = isDisabled ? "text-[#b8b8b8]" : "text-[#4d4d4d]";
 
   return (
-    <button
+    <Button unstyled
       aria-disabled={isDisabled}
       aria-pressed={checked}
       className={`block w-full border-0 px-4 py-4 text-inherit ${rowClassName}`}
@@ -138,7 +139,7 @@ function AdTariffOptionRow({
           {option.warning}
         </TariffNotice>
       ) : null}
-    </button>
+    </Button>
   );
 }
 

@@ -20,6 +20,7 @@ import {
   type CrmRecord,
 } from "../../services/crm.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type Notify = (message: string, tone?: "error" | "success") => void;
 type ViewProps = { notify: Notify; refreshNonce: number };
@@ -279,7 +280,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
         </div>
 
         <div className="mt-5 grid h-11 max-w-md grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نمایش نوع بسته">
-          <button
+          <Button unstyled
             aria-selected={viewKind === "panel_subscription"}
             className={`text-sm font-bold transition ${
               viewKind === "panel_subscription"
@@ -291,8 +292,8 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
             type="button"
           >
             اعتبار پنل
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             aria-selected={viewKind === "credit_bundle"}
             className={`border-r border-[#0048c4] text-sm font-bold transition ${
               viewKind === "credit_bundle"
@@ -304,7 +305,7 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
             type="button"
           >
             بسته‌ها
-          </button>
+          </Button>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-3">
@@ -602,15 +603,15 @@ function PackageModal({
               مبلغ نهایی بر اساس قیمت اصلی و درصد تخفیف توسط سرور محاسبه می‌شود.
             </Typography>
           </div>
-          <button className="text-2xl text-[#596477]" onClick={onClose} type="button">
+          <Button unstyled className="text-2xl text-[#596477]" onClick={onClose} type="button">
             ×
-          </button>
+          </Button>
         </div>
 
         <div className="mt-5">
           <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">نوع بسته</Typography>
           <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نوع بسته">
-            <button
+            <Button unstyled
               aria-selected={isPanelSubscription}
               className={`text-sm font-bold transition ${
                 isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
@@ -620,8 +621,8 @@ function PackageModal({
               type="button"
             >
               اعتبار پنل
-            </button>
-            <button
+            </Button>
+            <Button unstyled
               aria-selected={!isPanelSubscription}
               className={`border-r border-[#0048c4] text-sm font-bold transition ${
                 !isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
@@ -631,7 +632,7 @@ function PackageModal({
               type="button"
             >
               بسته‌ها
-            </button>
+            </Button>
           </div>
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs text-[#7b8494]">
             {isPanelSubscription
@@ -752,20 +753,20 @@ function PackageModal({
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <button
+          <Button unstyled
             className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold"
             onClick={onClose}
             type="button"
           >
             انصراف
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60"
             disabled={isPending}
             type="submit"
           >
             {isPending ? "در حال ذخیره..." : "ذخیره"}
-          </button>
+          </Button>
         </div>
       </motion.form>
     </motion.div>
@@ -814,7 +815,7 @@ export function CrmCostsView({ notify, refreshNonce }: ViewProps) {
                 <td className="border-t border-[#edf0f5] px-4 py-4">{Number(product.credit_cost ?? 0).toLocaleString("fa-IR")}</td>
                 <td className="border-t border-[#edf0f5] px-4 py-4">{months ? `${months.toLocaleString("fa-IR")} ماه` : days ? `${days.toLocaleString("fa-IR")} روز` : "-"}</td>
                 <td className="border-t border-[#edf0f5] px-4 py-4"><SwitchButton ariaLabel={`وضعیت ${text(product, ["title"])}`} checked={active} onChange={(next) => statusMutation.mutate({ slug, active: next })} /></td>
-                <td className="border-t border-[#edf0f5] px-4 py-4"><button className="h-9 rounded-lg border border-[#0048c4] px-4 font-bold text-[#0048c4]" onClick={() => setEditing(product)} type="button">ویرایش</button></td>
+                <td className="border-t border-[#edf0f5] px-4 py-4"><Button unstyled className="h-9 rounded-lg border border-[#0048c4] px-4 font-bold text-[#0048c4]" onClick={() => setEditing(product)} type="button">ویرایش</Button></td>
               </tr>;
             }) : <tr><td className="px-4 py-10 text-center text-[#7b8494]" colSpan={7}>محصولی برای نمایش وجود ندارد.</td></tr>}
           </tbody>
@@ -840,9 +841,9 @@ function CheckoutProductModal({ isPending, item, onClose, onSubmit }: { isPendin
       duration_days: draft.durationDays ? numberValue(draft.durationDays, "مدت روز") : null, duration_months: draft.durationMonths ? numberValue(draft.durationMonths, "مدت ماه") : null,
       is_active: Boolean(item.is_active), sort_order: numberValue(draft.sortOrder || "0", "ترتیب"), metadata: item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata) ? item.metadata as Record<string, unknown> : {},
     }); }}>
-      <div className="flex items-center justify-between"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">ویرایش {draft.title}</Typography><button className="text-2xl text-[#596477]" onClick={onClose} type="button">×</button></div>
+      <div className="flex items-center justify-between"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">ویرایش {draft.title}</Typography><Button unstyled className="text-2xl text-[#596477]" onClick={onClose} type="button">×</Button></div>
       <div className="mt-5 grid grid-cols-2 gap-4"><Field label="عنوان"><input className={inputClass} onChange={(e) => set("title", e.target.value)} value={draft.title} /></Field><Field label="قیمت (تومان)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("price", e.target.value)} value={draft.price} /></Field><Field label="هزینه اعتباری"><input className={inputClass} inputMode="numeric" onChange={(e) => set("creditCost", e.target.value)} value={draft.creditCost} /></Field><Field label="ترتیب نمایش"><input className={inputClass} inputMode="numeric" onChange={(e) => set("sortOrder", e.target.value)} value={draft.sortOrder} /></Field><Field label="مدت (روز)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationDays", e.target.value)} value={draft.durationDays} /></Field><Field label="مدت (ماه)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationMonths", e.target.value)} value={draft.durationMonths} /></Field><label className="col-span-2"><Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">توضیحات</Typography><textarea className={`${inputClass} min-h-24 py-3`} onChange={(e) => set("description", e.target.value)} value={draft.description} /></label></div>
-      <div className="mt-6 flex justify-end gap-3"><button className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</button><button className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</button></div>
+      <div className="mt-6 flex justify-end gap-3"><Button unstyled className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</Button><Button unstyled className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</Button></div>
     </form>
   </motion.div>;
 }

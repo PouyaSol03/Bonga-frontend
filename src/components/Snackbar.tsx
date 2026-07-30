@@ -1,5 +1,6 @@
 import LinearCancelSmall from "./(icons)/LinearCancelSmall";
 import { Typography } from "./ui/Typography";
+import { Button } from "./ui/Button";
 
 export type SnackbarVariant = "error" | "success" | "info" | "warning";
 
@@ -59,26 +60,26 @@ export function Snackbar({
       <div
         className={`flex min-h-[84px] items-start overflow-hidden rounded-lg border [direction:ltr] ${styles.background} ${styles.border}`}
       >
-        <button
+        <Button unstyled
           aria-label="بستن پیام"
           className={`mt-1 grid h-12 w-12 shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-current ${styles.text}`}
           onClick={onDismiss}
           type="button"
         >
           <LinearCancelSmall aria-hidden="true" className="h-6 w-6" />
-        </button>
+        </Button>
 
         <div className={`min-w-0 flex-1 px-3 py-3 text-right [direction:rtl] ${styles.text}`}>
           <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-5">{title}</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm font-normal leading-5">{message}</Typography>
           {actionLabel && onAction ? (
-            <button
+            <Button unstyled
               className={`mt-3 h-9 rounded-[10px] border px-4 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-current ${styles.border} ${styles.text}`}
               onClick={onAction}
               type="button"
             >
               {actionLabel}
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>

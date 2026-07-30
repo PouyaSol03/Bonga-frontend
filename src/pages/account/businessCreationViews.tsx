@@ -15,6 +15,7 @@ import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
 import { ChoiceIndicator } from "../../components/ui/Choice";
 
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 export type BusinessType = "agency" | "independent-consultant";
 
@@ -284,15 +285,15 @@ export function BusinessFormPage({
     <BusinessCreationShell
       bottomBar={
         <div className="grid grid-cols-2 gap-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
-          <button
+          <Button unstyled
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-semibold leading-5 text-[#0048c4]"
             onClick={() => navigateTo("/account/business/create")}
             type="button"
           >
             <ArrowRightIcon />
             <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef]"
             disabled={isSubmitting}
             onClick={handleSubmit}
@@ -300,7 +301,7 @@ export function BusinessFormPage({
           >
             <CheckIcon />
             <Typography as="span" variant="body" size="medium" weight="regular">{isSubmitting ? "در حال ثبت..." : "ثبت نام"}</Typography>
-          </button>
+          </Button>
         </div>
       }
     >
@@ -460,25 +461,25 @@ export function AgencyFields({
             value={neighborhoodQuery}
           />
           {neighborhoodQuery ? (
-            <button
+            <Button unstyled
               aria-label="پاک کردن جستجو"
               className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
               onClick={() => setNeighborhoodQuery("")}
               type="button"
             >
               <LinearCancelSmall className="h-5 w-5" />
-            </button>
+            </Button>
           ) : null}
         </label>
 
         {selectedNeighborhoods.length > 0 ? (
-          <button
+          <Button unstyled
             className="mt-3 h-10 shrink-0 self-start rounded-lg px-2 text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
             onClick={clearNeighborhoods}
             type="button"
           >
             پاک کردن انتخاب
-          </button>
+          </Button>
         ) : null}
 
         <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain" dir="rtl">
@@ -495,7 +496,7 @@ export function AgencyFields({
                 const isSelected = selectedNeighborhoodIds.has(neighborhoodId);
 
                 return (
-                  <button
+                  <Button unstyled
                     aria-pressed={isSelected}
                     className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-1 text-right text-base font-normal leading-6 transition-colors active:bg-[#0048c40a] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
                       }`}
@@ -505,7 +506,7 @@ export function AgencyFields({
                   >
                     <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{neighborhood.name}</Typography>
                     <ChoiceIndicator checked={isSelected} />
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -559,7 +560,7 @@ function ActivityAreaSelect({
             const neighborhoodId = getNeighborhoodId(neighborhood);
 
             return (
-              <button
+              <Button unstyled
                 aria-label={`حذف ${neighborhood.name}`}
                 className="inline-flex h-9 max-w-[132px] shrink-0 items-center gap-2 rounded-[8px] bg-[#f2f4fa] px-3 text-sm font-semibold leading-5 text-[#0048c4] active:bg-[#e8edf8]"
                 key={neighborhoodId}
@@ -572,7 +573,7 @@ function ActivityAreaSelect({
               >
                 <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{neighborhood.name}</Typography>
                 <LinearCancelSmall className="w-5 h-5 text-[#4D4D4D]" />
-              </button>
+              </Button>
             );
           })
         ) : (
@@ -639,14 +640,14 @@ export function BusinessHero({
       </div>
 
       {showInfoButton && infoType ? (
-        <button
+        <Button unstyled
           className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-[#0048c4] bg-white px-3 text-sm font-medium leading-5 text-[#0048c4]"
           onClick={() => navigateTo(getBusinessInfoPath(infoType))}
           type="button"
         >
           <Typography as="span" variant="body" size="medium" weight="regular">اطلاعات بیشتر درباره کسب و کار</Typography>
           <ArrowLeftIcon />
-        </button>
+        </Button>
       ) : null}
     </section>
   );
@@ -666,7 +667,7 @@ export function BusinessTypeCard({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={isSelected}
       className={`flex h-[74px] w-full items-center rounded-2xl border px-4 text-right transition-colors ${isSelected
         ? "border-[#0048c4] bg-[#eaf1ff] text-[#0048c4]"
@@ -686,7 +687,7 @@ export function BusinessTypeCard({
           {badge}
         </Typography>
       ) : null}
-    </button>
+    </Button>
   );
 }
 
@@ -711,14 +712,14 @@ function ActivationNotice({
               </Typography>
             </div>
 
-            <button
+            <Button unstyled
               aria-label="بستن پیام"
               className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
               onClick={onClose}
               type="button"
             >
               <LinearCancelSmall className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
 
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm font-normal leading-6 text-[#00784e]">

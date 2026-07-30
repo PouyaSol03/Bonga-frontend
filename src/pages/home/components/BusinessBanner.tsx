@@ -9,6 +9,7 @@ import ArrowLeft from "../../../assets/icons/ArrowLeft";
 import BannerHomePage from "../../../assets/icons/BannerHomePage.svg";
 import { RouteLink } from "../../../routes/RouteLink";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export type BusinessBannerSlide = {
   eyebrow: string;
@@ -191,7 +192,7 @@ export function BusinessBanner({ slides }: BusinessBannerProps) {
         aria-label="اسلایدهای بنر"
       >
         {Array.from({ length: totalItems }, (_, index) => (
-          <button
+          <Button unstyled
             key={index}
             className={`h-3 cursor-pointer rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[390px]:h-4 ${
               index === activeIndex

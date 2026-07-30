@@ -8,6 +8,7 @@ import {
 import { getParams } from "../../utils";
 import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
 import { Typography } from "../../../../components/ui/Typography";
+import { Button } from "../../../../components/ui/Button";
 
 type ProjectSpecsSectionProps = {
   values: NewAdFormValues;
@@ -114,14 +115,14 @@ export function ProjectSpecsSection({
           </div>
         ) : null}
 
-        <button
+        <Button unstyled
           className="mx-auto flex h-9 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4]"
           onClick={onOpenProjectDetails}
           type="button"
         >
           <Typography as="span" variant="body" size="medium" weight="regular">ثبت جزئیات پروژه</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular">‹</Typography>
-        </button>
+        </Button>
       </div>
     </Section>
   );

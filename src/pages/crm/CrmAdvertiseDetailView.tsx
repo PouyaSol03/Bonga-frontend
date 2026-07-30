@@ -33,6 +33,7 @@ import {
 } from "../../services/crm.service";
 import { getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type CrmAdvertiseDetailViewProps = {
   advertiseId: string;
@@ -576,7 +577,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
         <main className="min-w-0 space-y-4">
           <section className="rounded-xl bg-white p-6">
             <div className="grid h-[420px] grid-cols-[minmax(0,1fr)_140px] gap-2 overflow-hidden rounded-2xl bg-[#eef2f7]">
-              <button className="relative min-w-0 overflow-hidden bg-[#e7ebf0]" type="button">
+              <Button unstyled className="relative min-w-0 overflow-hidden bg-[#e7ebf0]" type="button">
             {coverImage ? (
                   <img alt={title} className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" src={coverImage} />
             ) : (
@@ -591,7 +592,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
                 <LinearImage className="h-4 w-4" />
                   {new Intl.NumberFormat("fa-IR").format(images.length)} تصویر
               </Typography>
-              </button>
+              </Button>
               <div className="grid grid-rows-3 gap-2">
                 {(images.length > 1 ? images.slice(1, 4) : ["", "", ""]).map((image, index) => (
                   <div className="relative overflow-hidden bg-[#dfe5ec]" key={`${image}-${index}`}>

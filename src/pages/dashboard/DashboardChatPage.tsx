@@ -12,6 +12,7 @@ import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { useChatMessagesQuery, useChatsQuery } from "../../hooks/chat.hooks";
 import type { ChatMessage, ChatThread } from "../../services/chat.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type DashboardChatFilter = "all" | "support" | "mine";
 
@@ -557,7 +558,7 @@ function ChatListCard({
   onSelect: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-current={isActive ? "true" : undefined}
       className="group w-full border-b border-[#F0F0F0] px-4 py-2 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048C440]"
       onClick={onSelect}
@@ -586,7 +587,7 @@ function ChatListCard({
           </div>
         ) : null}
       </article>
-    </button>
+    </Button>
   );
 }
 
@@ -622,13 +623,13 @@ function DashboardChatSidebar({
             value={query}
           />
         </label>
-        <button
+        <Button unstyled
           aria-label="منوی پیام‌ها"
           className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#4D4D4D] transition-colors hover:bg-[#F5F5F5] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048C440]"
           type="button"
         >
           <DashboardMenuIcon className="h-6 w-6" />
-        </button>
+        </Button>
       </div>
 
       <nav className="flex h-[72px] shrink-0 items-end gap-9 overflow-hidden border-b border-[#E6E6E6] px-6 [direction:rtl]">
@@ -636,7 +637,7 @@ function DashboardChatSidebar({
           const isActive = activeFilter === filter.id;
 
           return (
-            <button
+            <Button unstyled
               aria-pressed={isActive}
               className={`relative h-full shrink-0 px-1 text-sm font-semibold leading-5 transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048C440] ${
                 isActive ? "text-[#0048C4]" : "text-[#4D4D4D] hover:text-[#1A1A1A]"
@@ -649,7 +650,7 @@ function DashboardChatSidebar({
               {isActive ? (
                 <Typography as="span" variant="body" size="medium" weight="regular" className="absolute inset-x-0 bottom-0 h-0.5 rounded-t bg-[#0048C4]" />
               ) : null}
-            </button>
+            </Button>
           );
         })}
       </nav>
@@ -709,13 +710,13 @@ function ChatBubble({ message }: { message: DashboardLocalMessage }) {
 function DashboardChatHeader({ conversation }: { conversation?: DashboardChatListItem }) {
   return (
     <header className="relative h-[88px] shrink-0 border-b border-[#CCCCCC] bg-white">
-      <button
+      <Button unstyled
         aria-label="گزینه‌های گفتگو"
         className="absolute left-6 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-[#1A1A1A] transition-colors hover:bg-[#F5F5F5] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048C440]"
         type="button"
       >
         <MoreVerticalIcon className="h-6 w-6" />
-      </button>
+      </Button>
 
       <div className="absolute inset-x-20 top-1/2 -translate-y-1/2 text-center">
         <Typography as="h1" variant="title" size="small" weight="semibold" className="m-0 truncate text-sm font-semibold leading-5 text-[#1A1A1A]">
@@ -754,13 +755,13 @@ function ChatComposer({
           sendDraft();
         }}
       >
-        <button
+        <Button unstyled
           aria-label="پیوست"
           className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-[#4D4D4D] hover:bg-[#F5F5F5] focus-visible:outline-3 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0048C440]"
           type="button"
         >
           <LinkIcon className="h-6 w-6" />
-        </button>
+        </Button>
         <label className="min-w-0 flex-1">
           <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
           <input
@@ -773,13 +774,13 @@ function ChatComposer({
             value={draft}
           />
         </label>
-        <button
+        <Button unstyled
           aria-label="ارسال پیام"
           className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-[#4D4D4D] hover:bg-[#F5F5F5] focus-visible:outline-3 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0048C440]"
           type="submit"
         >
           <SendIcon className="h-6 w-6" />
-        </button>
+        </Button>
       </form>
     </footer>
   );

@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 
 import type { NewAdFormValues, UploadedMediaFile } from "../types";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png"];
 export const allowedPhotoExtensions = ["jpg", "jpeg", "png"];
@@ -118,14 +119,14 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
       />
 
       <div className="flex gap-3 overflow-x-auto pb-2" dir="rtl">
-        <button
+        <Button unstyled
           className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border border-[#0048c4] bg-white text-[#0048c4]"
           onClick={() => inputRef.current?.click()}
           type="button"
         >
           <Typography as="span" variant="display" size="small" className="text-4xl font-light leading-none">+</Typography>
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
-        </button>
+        </Button>
 
         {photos.map((photo, index) => (
           <div
@@ -138,14 +139,14 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
               src={photo.previewUrl}
             />
 
-            <button
+            <Button unstyled
               aria-label="حذف عکس"
               className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white text-sm leading-none text-[#ff3b30] shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
               onClick={() => removePhoto(photo.id)}
               type="button"
             >
               ×
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -234,7 +235,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
       />
 
       {!video ? (
-        <button
+        <Button unstyled
           className="flex p-4 mb-4 w-full items-center justify-between rounded-[10px] border border-[#0048c4] bg-white px-4 font-medium leading-5 text-[#0048c4]"
           onClick={() => inputRef.current?.click()}
           type="button"
@@ -258,11 +259,11 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
               strokeWidth="2"
             />
           </svg>
-        </button>
+        </Button>
       ) : (
         <div className="rounded-[10px] border border-[#CCCCCC] bg-white px-4 py-6">
           <div className="flex items-center justify-between gap-3 [direction:ltr]">
-            <button
+            <Button unstyled
               aria-label="حذف فیلم"
               className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[#ff3b30]"
               onClick={removeVideo}
@@ -282,7 +283,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
                   stroke-linecap="round"
                 />
               </svg>
-            </button>
+            </Button>
 
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
               <div className="truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
@@ -304,7 +305,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
             </div>
 
             {!isUploading ? (
-              <button
+              <Button unstyled
                 aria-label="نمایش فیلم"
                 className="grid p-2 shrink-0 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]"
                 onClick={() => window.open(video.previewUrl, "_blank")}
@@ -313,7 +314,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M6 6.54075C6 5.33729 7.32537 4.59989 8.35477 5.23063L17.2647 10.6899C18.2451 11.2906 18.2451 12.7095 17.2647 13.3101L8.35477 18.7693C7.32537 19.4001 6 18.6627 6 17.4592V6.54075Z" fill="#0048C4" />
                 </svg>
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>

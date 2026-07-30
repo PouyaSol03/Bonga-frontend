@@ -20,6 +20,7 @@ import LinearStar from "../../../components/(icons)/LinearStar";
 import LinearRanking from "../../../components/(icons)/LinearRanking";
 import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 const pageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -105,7 +106,7 @@ function AgencyCard({
       className={`mx-4 overflow-hidden rounded-[13px] border transition-colors ${selected ? "border-[#0b55d4] bg-[#eef4ff]" : "border-[#d0d0d0] bg-white"}`}
       ref={loadMoreRef}
     >
-      <button className="flex w-full gap-4 px-4 pb-4 pt-4 text-right" onClick={onSelect} type="button">
+      <Button unstyled className="flex w-full gap-4 px-4 pb-4 pt-4 text-right" onClick={onSelect} type="button">
         {image ? (
           <img alt="" className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover" src={image} />
         ) : (
@@ -121,23 +122,23 @@ function AgencyCard({
             <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="font-semibold text-[#00a66a] px-2">{agency.rank}</b></Typography>
           </Typography>
         </Typography>
-      </button>
+      </Button>
 
       <div className="mx-4 h-px bg-[#d9d9d9]" />
 
       <div className="flex h-[58px] items-center justify-between gap-3 px-4" dir="rtl">
-        <button className="flex items-center gap-3 text-[#4d4d4d]" onClick={onSelect} type="button">
+        <Button unstyled className="flex items-center gap-3 text-[#4d4d4d]" onClick={onSelect} type="button">
           <RadioIndicator checked={selected} />
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">انتخاب</Typography>
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className={`flex h-10 px-4 py-2.5 items-center justify-center gap-2 rounded-xl border ${selected ? "border-[#0b55d4] text-[#0b55d4]" : "border-[#cccccc] text-[#1a1a1a]"}`}
           onClick={onOpenProfile}
           type="button"
         >
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">مشاهده پروفایل آژانس</Typography>
           <LinearArrowLeft2 className="text-[#4D4D4D] w-5 h-5"/>
-        </button>
+        </Button>
       </div>
     </article>
   );
@@ -151,7 +152,7 @@ function Notice({ onClose }: { onClose: () => void }) {
           <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 w-5 place-items-center rounded-full border border-current text-xs font-bold">!</Typography>
           <strong className="text-base">توجه!</strong>
         </div>
-        <button aria-label="بستن پیام" className="grid h-8 w-8 place-items-center text-xl" onClick={onClose} type="button">×</button>
+        <Button unstyled aria-label="بستن پیام" className="grid h-8 w-8 place-items-center text-xl" onClick={onClose} type="button">×</Button>
       </div>
       <ul className="m-0 mt-3 list-disc space-y-2 pr-5 text-sm leading-7">
         <li>پس از انتخاب آژانس، امکان ویرایش آگهی وجود نخواهد داشت.</li>
@@ -343,16 +344,16 @@ export function AgencySelectionStep({
             />
           </label>
           <div className="mt-2 flex items-center justify-start gap-2">
-            <button className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${selectedNeighborhood ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => {
+            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${selectedNeighborhood ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => {
                 setPendingNeighborhood(selectedNeighborhood);
                 setNeighborhoodSearch("");
                 setIsNeighborhoodOpen(true);
               }} type="button">
               <LocationIcon /><Typography as="span" variant="body" size="medium" weight="regular" className="max-w-28 truncate">{selectedNeighborhood?.name ?? "محله"}</Typography>
-            </button>
-            <button className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => setIsSortOpen(true)} type="button">
+            </Button>
+            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => setIsSortOpen(true)} type="button">
               <SortIcon className="h-5 w-5 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</Typography>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -364,7 +365,7 @@ export function AgencySelectionStep({
           ) : agenciesQuery.isError ? (
             <div className="mx-4 rounded-xl border border-[#ffd1d1] bg-[#fff7f7] px-4 py-6 text-center text-sm leading-6 text-[#a43232]">
               دریافت فهرست آژانس‌ها با خطا مواجه شد.
-              <button className="mt-3 block w-full font-semibold text-[#0048c4]" onClick={() => void agenciesQuery.refetch()} type="button">تلاش دوباره</button>
+              <Button unstyled className="mt-3 block w-full font-semibold text-[#0048c4]" onClick={() => void agenciesQuery.refetch()} type="button">تلاش دوباره</Button>
             </div>
           ) : agencies.length === 0 ? (
             <SearchEmptyState />
@@ -386,10 +387,10 @@ export function AgencySelectionStep({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t border-[#eeeeee] bg-white px-4" dir="rtl">
-        <button className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]" onClick={() => setView("map")} type="button">
+        <Button unstyled className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]" onClick={() => setView("map")} type="button">
           <LinearMapsLocation className="w-6 h-6 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className="h-12 min-w-0 flex-1 rounded-xl bg-[#0b55d4] px-4 text-base font-semibold text-white disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
           disabled={!selectedAgency || submitDisabled}
           onClick={() => {
@@ -398,7 +399,7 @@ export function AgencySelectionStep({
           type="button"
         >
           {submitDisabled ? "در حال ارسال..." : "ارسال به آژانس"}
-        </button>
+        </Button>
       </footer>
 
       <BottomSheet
@@ -412,7 +413,7 @@ export function AgencySelectionStep({
       >
         <div className="px-4" dir="rtl">
           <div className="flex h-14 items-center gap-2">
-            <button
+            <Button unstyled
               aria-label="بستن مرتب سازی"
               className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
               onClick={() => setIsSortOpen(false)}
@@ -421,7 +422,7 @@ export function AgencySelectionStep({
               <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
                 <path d="M4 12h16m-5-5 5 5-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
               </svg>
-            </button>
+            </Button>
             <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold leading-7 text-[#1a1a1a]">مرتب سازی بر اساس:</Typography>
           </div>
 
@@ -429,7 +430,7 @@ export function AgencySelectionStep({
             {sortOptions.map((item) => {
               const checked = sort === item.id;
               return (
-                <button
+                <Button unstyled
                   className="flex h-[64px] w-full items-center justify-between text-right text-base font-normal text-[#1a1a1a] active:bg-[#fafafa]"
                   key={item.id}
                   onClick={() => {
@@ -440,7 +441,7 @@ export function AgencySelectionStep({
                 >
                   <Typography as="span" variant="body" size="medium" weight="regular">{item.title}</Typography>
                   <RadioIndicator checked={checked} />
-                </button>
+                </Button>
               );
             })}
           </div>

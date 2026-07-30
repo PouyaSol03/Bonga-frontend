@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn, focusRing } from "../../design-system/classes";
 import LinearCancelSmall from "../(icons)/LinearCancelSmall";
 import { Typography } from "./Typography";
+import { Button } from "./Button";
 
 type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: ReactNode;
@@ -20,7 +21,7 @@ export function Chip({
   ...props
 }: ChipProps) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={selected}
       className={cn(
         "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium leading-5 transition [direction:rtl]",
@@ -35,6 +36,6 @@ export function Chip({
       {removable && selected ? <LinearCancelSmall aria-hidden="true" className="h-4 w-4" /> : null}
       <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{children}</Typography>
       {icon}
-    </button>
+    </Button>
   );
 }

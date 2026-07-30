@@ -29,6 +29,7 @@ import type {
   AgencyConsultantPermissions,
 } from "../../../services/agency.service";
 import { Typography } from "../../ui/Typography";
+import { Button } from "../../ui/Button";
 
 type ConsultantStatus = "active" | "pending";
 
@@ -428,7 +429,7 @@ export function AddConsultantPage() {
                   const isSelected = selectedConsultantId === consultant.id;
 
                   return (
-                    <button
+                    <Button unstyled
                       aria-pressed={isSelected}
                       className={`flex h-[76px] w-full items-center gap-3 rounded-xl border px-3 text-right transition ${isSelected
                         ? "border-[#0048c4] bg-[#eaf1ff]"
@@ -461,7 +462,7 @@ export function AddConsultantPage() {
                         </div>
                       </div>
                       <SelectionCheckIndicator className="!h-4.5 !w-4.5 rounded-sm" checked={isSelected} />
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -501,7 +502,7 @@ export function AddConsultantPage() {
                 const isChecked = checked && isManager;
 
                 return (
-                  <button
+                  <Button unstyled
                     aria-pressed={isChecked}
                     className={`flex items-center gap-2 text-right leading-4 ${isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"
                       }`}
@@ -512,7 +513,7 @@ export function AddConsultantPage() {
                   >
                     <SelectionCheckIndicator className="w-[18px] h-[18px] rounded-sm" checked={isChecked} />
                     <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm ">{item.label}</Typography>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -545,7 +546,7 @@ export function AddConsultantPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white transition disabled:bg-[#b3c8ef]"
           disabled={addConsultantMutation.isPending}
           onClick={handleAddConsultant}
@@ -553,7 +554,7 @@ export function AddConsultantPage() {
         >
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-[13px] leading-none">+</Typography>
           {addConsultantMutation.isPending ? "در حال افزودن..." : "اضافه کن"}
-        </button>
+        </Button>
       </div>
     </section>
   );
@@ -580,7 +581,7 @@ export function AddConsultantRoleOption({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-checked={checked}
       className="flex w-full items-center gap-2 text-right text-xs font-semibold pt-3 text-[#1a1a1a]"
       onClick={onClick}
@@ -589,7 +590,7 @@ export function AddConsultantRoleOption({
     >
       <RadioIndicator checked={checked} />
       <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -707,23 +708,23 @@ export function QuotaStepper({
         {label}
       </Typography>
       <div className="mt-3 grid h-14 grid-cols-[80px_1fr_80px] overflow-hidden rounded-xl border border-[#cccccc] bg-white">
-        <button
+        <Button unstyled
           className="grid place-items-center border-r border-[#cccccc] bg-[#e9eaee] text-2xl font-normal text-[#4d4d4d]"
           onClick={() => setValue((current) => Math.max(0, current - 1))}
           type="button"
         >
           -
-        </button>
+        </Button>
         <Typography as="span" variant="label" size="large" weight="medium" className="grid place-items-center text-base font-medium leading-6 text-[#1a1a1a]">
           {new Intl.NumberFormat("fa-IR").format(value)}
         </Typography>
-        <button
+        <Button unstyled
           className="grid place-items-center border-l border-[#cccccc] bg-[#e9eaee] text-2xl font-normal text-[#4d4d4d]"
           onClick={() => setValue((current) => current + 1)}
           type="button"
         >
           +
-        </button>
+        </Button>
       </div>
       <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 pr-3 text-xs font-medium leading-5 text-[#808080]">
         <Typography as="span" variant="body" size="medium" weight="regular">باقیمانده سهمیه آژانس: </Typography>
@@ -773,13 +774,13 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
           <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-3 py-2 text-sm font-medium leading-4 text-[#FF6D00]">
             در انتظار تایید انتشار
           </Typography>
-          <button
+          <Button unstyled
             className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-[#ef1f1f]"
             type="button"
           >
             <LinearCancel className="h-5 w-5" />
             لغو
-          </button>
+          </Button>
         </div>
       )}
 

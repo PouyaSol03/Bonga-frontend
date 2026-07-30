@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { AdvertiseReportReason } from "../../../services/advertisement.service";
 import { ViewAdActionPageTopBar, ViewAdPageActionBar } from "./ViewAdActionPageLayout";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export type ViolationReportSubmitPayload = {
   description: string;
@@ -98,13 +99,13 @@ export function ViewAdViolationReportPage({
         ) : errorMessage ? (
           <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-center">
             <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{errorMessage}</Typography>
-            <button
+            <Button unstyled
               className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-5 text-sm font-medium leading-5 text-[#0048c4]"
               onClick={onRetry}
               type="button"
             >
               تلاش دوباره
-            </button>
+            </Button>
           </div>
         ) : reasons.length === 0 ? (
           <div className="flex min-h-[240px] items-center justify-center text-center">

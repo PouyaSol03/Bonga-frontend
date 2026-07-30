@@ -5,6 +5,7 @@ import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../..
 import { TopBar } from "../../components/TopBar";
 import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);
@@ -86,34 +87,34 @@ export function AccountDeleteUserPage() {
             </Typography>
           </div>
 
-          <button
+          <Button unstyled
             className="mt-4 flex w-full items-center gap-3 text-right !text-sm font-medium leading-6 text-[#1a1a1a]"
             onClick={() => setIsConfirmed((value) => !value)}
             type="button"
           >
             <ConfirmCheckIcon checked={isConfirmed} />
             <Typography as="span" variant="body" size="medium" weight="regular">تمامی موارد فوق را تایید میکنم</Typography>
-          </button>
+          </Button>
         </section>
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4" dir="ltr">
-          <button
+          <Button unstyled
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#C11004] bg-white px-4 text-sm font-semibold leading-5 text-[#C11004] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!isConfirmed}
             onClick={downgradeBusinessToUser}
             type="button"
           >
             تایید حذف
-          </button>
-          <button
+          </Button>
+          <Button unstyled
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#CCCCCC] bg-white px-4 text-sm font-semibold leading-5 text-[#1a1a1a]"
             onClick={() => navigateTo("/account")}
             type="button"
           >
             انصراف
-          </button>
+          </Button>
         </div>
       </footer>
     </PageFrame>

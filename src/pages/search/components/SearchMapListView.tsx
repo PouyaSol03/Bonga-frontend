@@ -5,6 +5,7 @@ import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 import type { SearchMapListing } from "../searchMapData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type SearchMapListViewProps = {
   hasEmptyResults?: boolean;
@@ -83,14 +84,14 @@ export function SearchMapListView({
         </div>
       </main>
 
-      <button
-        className="absolute bottom-4 left-1/2 z-[520] flex min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 py-2 text-sm font-bold leading-5 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      <Button unstyled
+        className="absolute bottom-4 left-1/2 z-[520] flex -translate-x-1/2 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 py-2 text-sm font-bold leading-5 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
         type="button"
         onClick={onMapClick}
       >
-        <LinearMapsLocation className="h-5 w-5" />
-        <Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
-      </button>
+        <LinearMapsLocation className="h-6 w-6" />
+        <Typography as="span" variant="label" size="large" weight="medium">نقشه</Typography>
+      </Button>
     </>
   );
 }

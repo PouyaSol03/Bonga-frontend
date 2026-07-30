@@ -1,5 +1,6 @@
 export type IconName =
   | "add"
+  | "addToList"
   | "album"
   | "apartment"
   | "area"
@@ -22,6 +23,7 @@ export type IconName =
   | "exchange"
   | "floor"
   | "info"
+  | "informationDiamond"
   | "loan"
   | "location"
   | "money"

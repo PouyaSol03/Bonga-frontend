@@ -6,6 +6,7 @@ import { TopBar } from "../../../components/TopBar";
 import { latestMashhadAds } from "../../home/homeData";
 import { getAdManagementRouteState } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type CloseResultReason = "done" | "not-done" | "expired";
 
@@ -82,7 +83,7 @@ export function AdCloseResultPage() {
               const selected = selectedReason === reason.value;
 
               return (
-                <button
+                <Button unstyled
                   aria-checked={selected}
                   className="flex h-9 w-full items-center justify-between rounded-lg bg-white p-0 text-right [direction:ltr] active:bg-[#f7f7f7]"
                   key={reason.value}
@@ -94,7 +95,7 @@ export function AdCloseResultPage() {
                   <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 pr-3 text-right text-[#1a1a1a] [direction:rtl]">
                     {reason.label}
                   </Typography>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -102,7 +103,7 @@ export function AdCloseResultPage() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-3 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
-        <button
+        <Button unstyled
           className={`inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${selectedReason
             ? "bg-[#0048c4] text-white active:bg-[#003aa0]"
             : "bg-[#e5e5e5] text-[#b8b8b8]"
@@ -112,14 +113,14 @@ export function AdCloseResultPage() {
           type="button"
         >
           ثبت نتیجه
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className="inline-flex h-10 items-center justify-center rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4] active:bg-[#e6efff]"
           onClick={goBack}
           type="button"
         >
           انصراف
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );

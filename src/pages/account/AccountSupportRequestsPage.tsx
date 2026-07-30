@@ -21,6 +21,7 @@ import {
   type SupportRequestItem,
 } from "../../services/support-request.service";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const SUPPORT_PATH = "/account/support";
 const REQUESTS_PATH = "/account/support/requests";
@@ -215,7 +216,7 @@ function SupportRequestTabs({
         const isActive = activeFilter === filter.id;
 
         return (
-          <button
+          <Button unstyled
             aria-pressed={isActive}
             className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-[#0048c440] ${
               isActive
@@ -227,7 +228,7 @@ function SupportRequestTabs({
             type="button"
           >
             {filter.label}
-          </button>
+          </Button>
         );
       })}
     </nav>
@@ -341,7 +342,7 @@ function RequestSelectField({
   return (
     <label className="block">
       <RequiredLabel>{label}</RequiredLabel>
-      <button
+      <Button unstyled
         className={`mt-2 flex h-12 w-full items-center justify-between rounded-xl border border-[#d0d0d0] bg-white px-3 text-right text-sm font-normal leading-5 outline-none transition focus-visible:border-[#0048c4] focus-visible:ring-3 focus-visible:ring-[#0048c420] [direction:ltr] ${
           value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
         }`}
@@ -352,7 +353,7 @@ function RequestSelectField({
         <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]">
           {value || placeholder}
         </Typography>
-      </button>
+      </Button>
     </label>
   );
 }
@@ -393,7 +394,7 @@ function RequestOptionBottomSheet({
 
             return (
               <div key={option.id}>
-                <button
+                <Button unstyled
                   aria-pressed={isSelected}
                   className={`relative flex min-h-12 w-full items-center justify-center bg-white px-10 py-2.5 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440] ${
                     isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
@@ -419,7 +420,7 @@ function RequestOptionBottomSheet({
                       </Typography>
                     ) : null}
                   </Typography>
-                </button>
+                </Button>
 
                 {index < options.length - 1 ? (
                   <div className="px-4 py-2">
@@ -582,7 +583,7 @@ export function AccountSupportNewRequestPage() {
                 type="file"
               />
 
-              <button
+              <Button unstyled
                 className="mt-2 flex min-h-[92px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-[#b6b6b6] bg-white px-4 py-4 text-center outline-none transition active:bg-[#fafafa] focus-visible:border-[#0048c4] focus-visible:ring-3 focus-visible:ring-[#0048c420]"
                 onClick={() => fileInputRef.current?.click()}
                 type="button"
@@ -602,7 +603,7 @@ export function AccountSupportNewRequestPage() {
                     </Typography>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
 
             {errorMessage ? (
@@ -617,13 +618,13 @@ export function AccountSupportNewRequestPage() {
         </main>
 
         <div className="absolute inset-x-0 bottom-0 z-20 bg-white px-3 pb-2.5 pt-2">
-          <button
+          <Button unstyled
             className="h-10 w-full rounded-lg bg-[#0759cf] px-4 text-sm font-semibold leading-5 text-white outline-none active:bg-[#0048b5] focus-visible:ring-3 focus-visible:ring-[#0759cf40]"
             disabled={createRequestMutation.isPending}
             type="submit"
           >
             {createRequestMutation.isPending ? "در حال ثبت..." : "ثبت درخواست"}
-          </button>
+          </Button>
         </div>
       </form>
 

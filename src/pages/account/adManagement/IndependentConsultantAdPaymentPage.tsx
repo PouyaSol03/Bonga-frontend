@@ -36,6 +36,7 @@ import {
   getSelectedConsultantAd,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";
@@ -414,14 +415,14 @@ function CheckoutTariffView({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={pending}
           onClick={onComplete}
           type="button"
         >
           {pending ? "در حال انتشار آگهی..." : "تکمیل خرید"}
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -514,13 +515,13 @@ export function ApiPaymentCheckoutView({
 
         <section className="mt-2 bg-white px-4 py-4" aria-label="کد تخفیف">
           <div className="flex items-center gap-2 [direction:ltr]">
-            <button
+            <Button unstyled
               className="h-12 shrink-0 rounded-xl bg-[#e5e5e5] px-4 text-sm font-medium leading-5 text-[#a6a6a6]"
               disabled
               type="button"
             >
               اعمال
-            </button>
+            </Button>
             <label className="min-w-0 flex-1">
               <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
               <input
@@ -548,7 +549,7 @@ export function ApiPaymentCheckoutView({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!selectedMethodAvailable || pending}
           onClick={onSubmit}
@@ -557,7 +558,7 @@ export function ApiPaymentCheckoutView({
           {pending
             ? "در حال پردازش پرداخت..."
             : `${submitLabelPrefix} - ${formatShortPayment(payableAmount)}`}
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -583,13 +584,13 @@ function CheckoutStatusPage({
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
         <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
         {onRetry ? (
-          <button
+          <Button unstyled
             className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white"
             onClick={onRetry}
             type="button"
           >
             تلاش دوباره
-          </button>
+          </Button>
         ) : (
           <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />
         )}
@@ -682,13 +683,13 @@ function LegacyAdvertisementPaymentFlow() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           onClick={handleCompleteOptions}
           type="button"
         >
           تکمیل خرید
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -749,13 +750,13 @@ export function PaymentCheckoutView({
 
         <section className="mt-2 bg-white px-4 py-4" aria-label="کد تخفیف">
           <div className="flex items-center gap-2 [direction:ltr]">
-            <button
+            <Button unstyled
               className="h-12 shrink-0 rounded-xl bg-[#e5e5e5] px-4 text-sm font-medium leading-5 text-[#a6a6a6]"
               disabled
               type="button"
             >
               اعمال
-            </button>
+            </Button>
             <label className="min-w-0 flex-1">
               <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
               <input
@@ -783,13 +784,13 @@ export function PaymentCheckoutView({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)]"
           onClick={() => navigateTo(completeTo, finalState, true)}
           type="button"
         >
           {`${completeLabelPrefix} - ${formatShortPayment(total)}`}
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -823,7 +824,7 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
   return (
     <div>
       <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-3 py-3 [direction:ltr]">
-        <button
+        <Button unstyled
           className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#11a366] px-4 py-1.5 text-xs font-semibold leading-5 text-white disabled:opacity-60"
           disabled={chargeWalletMutation.isPending}
           onClick={chargeWallet}
@@ -831,7 +832,7 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
         >
           {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
           <Typography as="span" variant="body" size="large" weight="regular" className="flex text-base leading-none">+</Typography>
-        </button>
+        </Button>
 
         <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
           کسری: {formatTariffToman(deficit)} تومان
@@ -872,7 +873,7 @@ function WalletDeficitBox({ deficit }: { deficit: number }) {
   return (
     <div>
       <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-4 py-3 [direction:ltr]">
-        <button
+        <Button unstyled
           className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#ff6a00] px-4 py-1.5 text-xs font-semibold leading-5 text-white disabled:opacity-60"
           disabled={chargeWalletMutation.isPending}
           onClick={chargeWallet}
@@ -880,7 +881,7 @@ function WalletDeficitBox({ deficit }: { deficit: number }) {
         >
           {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
           <Typography as="span" variant="body" size="large" weight="regular" className="flex text-base leading-none">+</Typography>
-        </button>
+        </Button>
 
         <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
           کسری: {formatTariffToman(deficit)} تومان
@@ -909,7 +910,7 @@ function PaymentMethodOption({
   subLabelClassName?: string;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={active}
       className={`flex h-[72px] w-full items-center justify-between border-0 bg-white px-0 text-inherit [direction:ltr] ${
         disabled ? "cursor-not-allowed opacity-50" : ""
@@ -930,7 +931,7 @@ function PaymentMethodOption({
           </Typography>
         </Typography>
       </Typography>
-    </button>
+    </Button>
   );
 }
 

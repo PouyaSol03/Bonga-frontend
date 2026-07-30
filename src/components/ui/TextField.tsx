@@ -3,6 +3,7 @@ import type { ChangeEventHandler, InputHTMLAttributes, ReactNode } from "react";
 import { cn, focusRing } from "../../design-system/classes";
 import LinearCancelCircle from "../(icons)/LinearCancelCircle";
 import { Typography } from "./Typography";
+import { Button } from "./Button";
 
 type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> & {
   badge?: string;
@@ -63,7 +64,7 @@ export function TextField({
         />
         {badge ? <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-sm font-normal leading-5 text-[#a6a6a6]">{badge}</Typography> : null}
         {hasValue && onClear ? (
-          <button
+          <Button unstyled
             aria-label="پاک کردن"
             className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[#a6a6a6] transition hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
             onClick={(event) => {
@@ -73,7 +74,7 @@ export function TextField({
             type="button"
           >
             <LinearCancelCircle aria-hidden="true" className="h-5 w-5" />
-          </button>
+          </Button>
         ) : null}
         {trailingSlot}
       </Typography>

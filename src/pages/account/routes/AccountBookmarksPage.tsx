@@ -60,7 +60,7 @@ export function AccountBookmarksPage() {
   return (
     <AccountPageShell
       action={
-        <button
+        <Button unstyled
           aria-label="حذف همه نشان‌ها"
           className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
           disabled={bookmarks.length === 0 || deleteBadge.isPending}
@@ -68,7 +68,7 @@ export function AccountBookmarksPage() {
           type="button"
         >
           <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
-        </button>
+        </Button>
       }
       title="نشان‌ها"
     >

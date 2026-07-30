@@ -2,7 +2,6 @@ import { DivIcon } from "leaflet";
 import { Marker } from "react-leaflet";
 
 import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
-import { Typography } from "../../../components/ui/Typography";
 
 type SearchMapListingMarkerProps = {
   listing: SearchMapListing;

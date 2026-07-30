@@ -22,6 +22,7 @@ import {
   mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
 import { Typography } from "../../ui/Typography";
+import { Button } from "../../ui/Button";
 
 type ReplacementTarget =
   | { id: "agency"; kind: "agency"; name: string; subtitle: string }
@@ -87,7 +88,7 @@ export function ConsultantRemovePage() {
           <label className="block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
             انتخاب مشاور جایگزین <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ef1f1f]">*</Typography>
           </label>
-          <button
+          <Button unstyled
             className="mt-3 flex h-14 w-full items-center justify-between rounded-xl border border-[#808080] bg-white px-4 text-sm font-medium leading-5 text-[#1a1a1a]"
             onClick={() => setIsReplacementPickerOpen(true)}
             type="button"
@@ -98,19 +99,19 @@ export function ConsultantRemovePage() {
                 : "یکی از مشاورین را انتخاب کن"}
             </Typography>
             <LinearArrowDown1 className="h-6 w-6" />
-          </button>
+          </Button>
         </section>
       </main>
 
       <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="flex h-10 items-center justify-center rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]"
           onClick={() => window.history.back()}
           type="button"
         >
           انصراف
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className={`flex h-10 items-center justify-center rounded-lg text-sm font-semibold leading-5 ${
             selectedReplacement
               ? "bg-[#0048c4] text-white"
@@ -142,7 +143,7 @@ export function ConsultantRemovePage() {
           type="button"
         >
           حذف مشاور
-        </button>
+        </Button>
       </div>
 
       {isReplacementPickerOpen ? (
@@ -264,7 +265,7 @@ function ReplacementPicker({
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className={`flex h-10 w-full items-center justify-center rounded-lg text-xs font-semibold leading-5 transition ${
             draftTarget ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
           }`}
@@ -275,7 +276,7 @@ function ReplacementPicker({
           type="button"
         >
           تایید
-        </button>
+        </Button>
       </div>
     </section>
   );
@@ -291,7 +292,7 @@ function ReplacementOption({
   target: ReplacementTarget;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={isSelected}
       className={`flex h-[76px] w-full items-center gap-3 rounded-xl border px-3 text-right transition ${
         isSelected ? "border-[#0048c4] bg-[#eaf1ff]" : "border-[#e6e6e6] bg-white"
@@ -320,7 +321,7 @@ function ReplacementOption({
         checked={isSelected}
         className="!h-4.5 !w-4.5 rounded-sm"
       />
-    </button>
+    </Button>
   );
 }
 

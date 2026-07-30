@@ -258,7 +258,7 @@ function AccountProfileForm({
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={isSubmitting}
           type="button"
@@ -277,7 +277,7 @@ function AccountProfileForm({
           }}
         >
           {isSubmitting ? "در حال ثبت..." : "ثبت"}
-        </button>
+        </Button>
       </div>
     </>
   );
@@ -550,7 +550,7 @@ export function AccountWalletPage() {
                 const isActive = amount === amountOption.value;
 
                 return (
-                  <button
+                  <Button unstyled
                     className={`rounded-xl border py-1.5 !text-xs !font-medium leading-4 ${isActive
                       ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
                       : "border-[#cccccc] bg-white text-[#1a1a1a]"
@@ -560,7 +560,7 @@ export function AccountWalletPage() {
                     type="button"
                   >
                     {amountOption.label}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -578,7 +578,7 @@ export function AccountWalletPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={!canCharge || chargeWalletMutation.isPending}
           onClick={() => {
@@ -609,7 +609,7 @@ export function AccountWalletPage() {
           type="button"
         >
           {chargeWalletMutation.isPending ? "در حال اتصال به درگاه..." : "شارژ کیف پول"}
-        </button>
+        </Button>
       </div>
 
       {chargeError ? (
@@ -740,7 +740,7 @@ export function AccountNotesPage() {
   return (
     <AccountPageShell
       action={
-        <button
+        <Button unstyled
           aria-label="حذف همه یادداشت‌ها"
           className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
           disabled={notes.length === 0 || deleteNote.isPending}
@@ -748,7 +748,7 @@ export function AccountNotesPage() {
           type="button"
         >
           <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
-        </button>
+        </Button>
       }
       title="یادداشت ها"
     >
@@ -916,7 +916,7 @@ export function AccountBookmarksPage() {
   return (
     <AccountPageShell
       action={
-        <button
+        <Button unstyled
           aria-label="حذف همه نشان‌ها"
           className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
           disabled={bookmarks.length === 0 || deleteBadge.isPending}
@@ -924,7 +924,7 @@ export function AccountBookmarksPage() {
           type="button"
         >
           <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
-        </button>
+        </Button>
       }
       title="نشان‌ها"
     >
@@ -1272,7 +1272,7 @@ function AdFilterTabs({
     <section className="h-[52px] overflow-hidden bg-[#f0f0f0] px-4 py-2">
       <div className="flex h-9 gap-2 overflow-x-auto [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {adFilters.map((filter) => (
-          <button
+          <Button unstyled
             className={`relative h-9 shrink-0 overflow-hidden rounded-lg border px-3 text-sm font-medium leading-5 ${activeFilter.label === filter.label
               ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
               : "border-[#cccccc] bg-white text-[#1a1a1a]"
@@ -1285,7 +1285,7 @@ function AdFilterTabs({
               <Typography as="span" variant="body" size="medium" weight="regular" className="absolute inset-0 rounded-lg bg-[#0048c414]" />
             ) : null}
             <Typography as="span" variant="body" size="medium" weight="regular" className="relative z-10">{filter.label}</Typography>
-          </button>
+          </Button>
         ))}
       </div>
     </section>
@@ -1356,7 +1356,7 @@ function BookmarkAdCard({
     <div className="relative bg-white">
       <AdCard ad={card} />
 
-      <button
+      <Button unstyled
         aria-label="حذف نشان"
         className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-[#1a1a1a] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
         disabled={disabled || !advertiseId}
@@ -1370,7 +1370,7 @@ function BookmarkAdCard({
         type="button"
       >
         <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -1451,7 +1451,7 @@ function NoteCard({
 
   return (
     <article className="relative overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
-      <button
+      <Button unstyled
         aria-label="حذف یادداشت"
         className="absolute inset-y-0 left-0 flex w-[88px] flex-col items-center justify-center gap-1 bg-[#fff1f1] text-xs font-medium leading-4 text-[#e5231a] disabled:opacity-50"
         disabled={disabled || !noteId}
@@ -1460,7 +1460,7 @@ function NoteCard({
       >
         <TrashIcon className="h-5 w-5" />
         حذف
-      </button>
+      </Button>
 
       <div
         className="relative z-10 flex min-h-[92px] touch-pan-y items-center gap-3 bg-white px-4 py-3 transition-transform duration-150 ease-out"
@@ -1482,7 +1482,7 @@ function NoteCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-end gap-2">
-            <button
+            <Button unstyled
               aria-label="ویرایش یادداشت"
               className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#4d4d4d] disabled:opacity-50"
               disabled={!advertiseId || disabled}
@@ -1490,7 +1490,7 @@ function NoteCard({
               type="button"
             >
               <EditIcon className="h-4 w-4" />
-            </button>
+            </Button>
             <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
               {noteText}
             </Typography>
@@ -1611,14 +1611,14 @@ function IdentityPendingState({
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           disabled={!isNationalnumberComplete || isPending}
           onClick={() => onVerify(normalizedNationalnumber)}
           type="button"
         >
           {isPending ? "در حال بررسی..." : "بررسی و تایید هویت"}
-        </button>
+        </Button>
       </div>
     </>
   );
@@ -1665,14 +1665,14 @@ function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void })
           </Typography>
         </div>
 
-        <button
+        <Button unstyled
           className="relative mt-6 flex h-12 w-full items-center justify-center rounded-xl border border-[#0048c4] bg-white px-4 text-sm font-semibold leading-5 text-[#0048c4]"
           onClick={onChangeOwner}
           type="button"
         >
           <ChevronLeftIcon className="absolute left-4 h-4 w-4" />
           <Typography as="span" variant="body" size="medium" weight="regular">ثبت تغییر مالکیت سیم‌کارت</Typography>
-        </button>
+        </Button>
       </section>
     </>
   );
@@ -1726,13 +1726,13 @@ function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void }) {
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
           onClick={onSubmit}
           type="button"
         >
           ثبت
-        </button>
+        </Button>
       </div>
     </>
   );

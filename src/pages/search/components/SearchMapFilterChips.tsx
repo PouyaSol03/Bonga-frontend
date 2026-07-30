@@ -3,6 +3,7 @@ import LinearFilterHorizontal from "../../../components/(icons)/LinearFilterHori
 import { HorizontalFilterBar } from "../../../components/HorizontalFilterBar";
 import type { SearchFilterChip } from "../searchMapData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type SearchMapFilterChipsProps = {
   chips: SearchFilterChip[];
@@ -18,7 +19,7 @@ export function SearchMapFilterChips({
   return (
     <HorizontalFilterBar ariaLabel="فیلترهای جستجو">
       {[...chips].map((chip) => (
-        <button
+        <Button unstyled
           key={chip.id}
           dir="rtl"
           className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
@@ -54,7 +55,7 @@ export function SearchMapFilterChips({
               <LinearCancelSmall className="w-5 h-5"/>
             </Typography>
           ) : null}
-        </button>
+        </Button>
       ))}
     </HorizontalFilterBar>
   );

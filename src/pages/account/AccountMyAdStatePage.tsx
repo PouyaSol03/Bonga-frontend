@@ -32,6 +32,7 @@ import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearPreview from "../../components/(icons)/LinearPreview";
 import LinearAnalytics from "../../components/(icons)/LinearAnalytics";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
@@ -216,14 +217,14 @@ function RealEstateManagerAdStatePage({
               </div>
             </div>
 
-            <button
+            <Button unstyled
               className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-[#0048c4] bg-white text-sm font-medium text-[#0048c4] active:bg-[#e6efff]"
               onClick={() => setIsPublisherPickerOpen(true)}
               type="button"
             >
               تغییر مشاور
               <ChevronLeftIcon className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
         </section>
 
@@ -333,7 +334,7 @@ function ManagerPublisherPickerPage({
             const selected = draftPublisherId === publisher.id;
 
             return (
-              <button
+              <Button unstyled
                 aria-checked={selected}
                 className="flex w-full py-2 px-4 items-center justify-between gap-3 rounded-lg bg-white text-right [direction:ltr] active:bg-[#f7f7f7]"
                 key={publisher.id}
@@ -351,20 +352,20 @@ function ManagerPublisherPickerPage({
                   />
                   <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a]">{publisher.name}</Typography>
                 </Typography>
-              </button>
+              </Button>
             );
           })}
         </div>
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button
+        <Button unstyled
           className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white active:bg-[#003aa0]"
           onClick={() => onConfirm(draftPublisher)}
           type="button"
         >
           انتخاب
-        </button>
+        </Button>
       </footer>
     </section>
   );
@@ -592,12 +593,12 @@ function StateAdAction({
   }
 
   return (
-    <button
+    <Button unstyled
       className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] [direction:ltr]"
       type="button"
     >
       {content}
-    </button>
+    </Button>
   );
 }
 

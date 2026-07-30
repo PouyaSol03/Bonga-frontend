@@ -90,7 +90,7 @@ export function Section({
 
 function ClearFieldButton({ onClick }: { onClick: () => void }) {
   return (
-    <button
+    <Button unstyled
       aria-label="پاک کردن"
       className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border border-[#cccccc] text-[#a6a6a6] transition active:bg-[#f0f0f0]"
       onClick={(event) => {
@@ -101,7 +101,7 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
       type="button"
     >
       <LinearCancelSmall aria-hidden="true" className="h-3 w-3" />
-    </button>
+    </Button>
   );
 }
 
@@ -299,7 +299,7 @@ export function MoreButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="mx-auto mt-5 flex h-9 items-center justify-center gap-1.5 rounded-full px-4 !text-sm !font-medium leading-5 text-[#0048C4] active:bg-[#0048c40f]"
       onClick={onClick}
       type="button"
@@ -313,7 +313,7 @@ export function MoreButton({
       ) : (
         <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0" />
       )}
-    </button>
+    </Button>
   );
 }
 

@@ -7,6 +7,7 @@ import type { CityDto } from "../../../services/city.service";
 import { getRequestErrorState } from "../../../components/ErrorState";
 import { readStoredSelectedCity, saveSelectedCity } from "../../../lib/selectedCityStorage";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type CitySelectionScreenProps = {
   currentCity: string;
@@ -232,14 +233,14 @@ export function CitySelectionScreen({
       </main>
 
       <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-12px_24px_rgba(26,26,26,0.06)] min-[390px]:py-3.5">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           type="button"
           tabIndex={isOpen ? 0 : -1}
           onClick={confirmCity}
         >
           تایید
-        </button>
+        </Button>
       </footer>
     </section>
   );
@@ -293,7 +294,7 @@ function CityOptionRow({
   onSelect: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr] ${isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
         }`}
       type="button"
@@ -307,6 +308,6 @@ function CityOptionRow({
       <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">
         {city.name}
       </Typography>
-    </button>
+    </Button>
   );
 }

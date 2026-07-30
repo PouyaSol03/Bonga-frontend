@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
 import { Typography } from "./Typography";
+import { Button } from "./Button";
 
 type SwitchProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> & {
   checked: boolean;
@@ -17,7 +18,7 @@ export function Switch({
   ...props
 }: SwitchProps) {
   return (
-    <button
+    <Button unstyled
       aria-checked={checked}
       className={cn(
         "relative h-6 w-11 shrink-0 rounded-full transition [direction:ltr]",
@@ -38,6 +39,6 @@ export function Switch({
           checked ? "left-1 translate-x-5 bg-white" : "left-1 translate-x-0 bg-[#808080]",
         )}
       />
-    </button>
+    </Button>
   );
 }

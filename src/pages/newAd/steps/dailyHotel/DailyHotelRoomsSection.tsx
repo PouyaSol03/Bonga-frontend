@@ -16,6 +16,7 @@ import type {
 } from "../../types";
 import { InputBox, SelectBox } from "../../components/NewAdControls";
 import { Typography } from "../../../../components/ui/Typography";
+import { Button } from "../../../../components/ui/Button";
 
 const editorSelectFields: Record<
   Exclude<DailyHotelRoomConfigKey, "id" | "label" | "normalPrice" | "weekendPrice" | "specialPrice">,
@@ -168,7 +169,7 @@ function RoomEditorHeader({
   return (
     <header className="shrink-0 border-b border-[#f0f0f0] bg-[#f0f0f0] pt-2 [direction:rtl]">
       <div className="flex h-20 items-center gap-2 px-4">
-        <button
+        <Button unstyled
           aria-label="بازگشت"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
           onClick={onBack}
@@ -188,7 +189,7 @@ function RoomEditorHeader({
               strokeWidth="1.8"
             />
           </svg>
-        </button>
+        </Button>
 
         <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-[#1a1a1a]">
           {title}
@@ -259,33 +260,33 @@ export function DailyHotelRoomsSection() {
           return (
             <div className="border-b border-[#e0e0e0] py-4 last:border-b-0" key={room.id}>
               <div className="flex items-center justify-between gap-3">
-                <button
+                <Button unstyled
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
                   onClick={() => openEditor(room.id)}
                   type="button"
                 >
                   {configured ? <EditIcon /> : <ChevronLeftIcon />}
-                </button>
+                </Button>
 
-                <button
+                <Button unstyled
                   className="min-w-0 flex-1 text-right text-base font-semibold leading-7 text-[#1a1a1a]"
                   onClick={() => openEditor(room.id)}
                   type="button"
                 >
                   {room.label}
-                </button>
+                </Button>
               </div>
 
               {configured ? (
                 <div className="mt-4 flex items-start gap-3">
-                  <button
+                  <Button unstyled
                     aria-label={`حذف اطلاعات ${room.label}`}
                     className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#ff3b30] text-[#ff3b30]"
                     onClick={() => resetRoom(room.id)}
                     type="button"
                   >
                     <CloseIcon />
-                  </button>
+                  </Button>
 
                   <div className="flex flex-wrap justify-start gap-2" dir="rtl">
                     {summary.map((item) => (
@@ -379,21 +380,21 @@ export function DailyHotelRoomsSection() {
           </main>
 
           <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]">
-            <button
+            <Button unstyled
               className="h-12 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white"
               onClick={saveRoom}
               type="button"
             >
               ثبت
-            </button>
+            </Button>
 
-            <button
+            <Button unstyled
               className="h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4]"
               onClick={closeEditor}
               type="button"
             >
               انصراف
-            </button>
+            </Button>
           </footer>
 
           <BottomSheet

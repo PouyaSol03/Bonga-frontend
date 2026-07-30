@@ -32,6 +32,7 @@ import {
   getAdStatePath,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 const fallbackPrice = 40_000;
 
@@ -132,9 +133,9 @@ export function AdIncreaseVisitsPage() {
         <AdTariffOptionsList onToggle={toggleTariff} options={tariffOptions} selectedIds={selectedTariffs} />
       </main>
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <button className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-60" disabled={selectedProducts.length === 0} onClick={() => setStep("checkout")} type="button">
+        <Button unstyled className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-60" disabled={selectedProducts.length === 0} onClick={() => setStep("checkout")} type="button">
           تکمیل خرید
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -190,7 +191,7 @@ function StatusPage({ backTo, message, onRetry }: { backTo: string; message: str
       <TopBar backTo={backTo} title="افزایش بازدید" />
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
         <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
-        {onRetry ? <button className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white" onClick={onRetry} type="button">تلاش دوباره</button> : <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />}
+        {onRetry ? <Button unstyled className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white" onClick={onRetry} type="button">تلاش دوباره</Button> : <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />}
       </main>
     </PageFrame>
   );

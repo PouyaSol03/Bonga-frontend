@@ -6,6 +6,7 @@ import { useVerifyPaymentCallbackMutation } from "../hooks/account.hooks";
 import { replaceRoute } from "../routes/navigation";
 import { clearPaymentReturnTarget, readPaymentReturnTarget } from "../utils/payment-return";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 type VerifyState = "checking" | "failed" | "success";
 
@@ -93,7 +94,7 @@ export function PaymentVerifyPage() {
         </Typography>
 
         {!isChecking ? (
-          <button
+          <Button unstyled
             className="mt-8 h-11 w-full max-w-[340px] rounded-xl bg-[#0048c4] px-5 text-sm font-semibold leading-5 text-white"
             onClick={() => {
               clearPaymentReturnTarget();
@@ -102,7 +103,7 @@ export function PaymentVerifyPage() {
             type="button"
           >
             {returnTarget.label}
-          </button>
+          </Button>
         ) : null}
       </main>
     </PageFrame>

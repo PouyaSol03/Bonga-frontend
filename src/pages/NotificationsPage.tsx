@@ -33,6 +33,7 @@ import type {
 import LinearArrowRight2 from "../components/(icons)/LinearArrowRight2";
 import LinearArrowLeft1 from "../components/(icons)/LinearArrowLeft1";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 type FilterOption = {
   id: NotificationCategory;
@@ -296,7 +297,7 @@ function NotificationHeader({
 
 function NotificationFilterButton({ count, onClick }: { count: number; onClick: () => void }) {
   return (
-    <button
+    <Button unstyled
       className="relative flex shrink-0 items-center gap-1 rounded-xl border border-[#2E2D3E29] bg-white px-2.5 py-2 text-sm font-medium leading-5 text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
       onClick={onClick}
       type="button"
@@ -308,7 +309,7 @@ function NotificationFilterButton({ count, onClick }: { count: number; onClick: 
           {count}
         </Typography>
       ) : null}
-    </button>
+    </Button>
   );
 }
 
@@ -329,7 +330,7 @@ function NotificationFilterBar({
     >
       <NotificationFilterButton count={selectedFilters.length} onClick={onOpenFilters} />
       {selectedFilters.map((filter) => (
-        <button
+        <Button unstyled
           aria-label={`حذف فیلتر ${filter.label}`}
           className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#0048C4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           key={filter.id}
@@ -338,7 +339,7 @@ function NotificationFilterBar({
         >
           <Typography as="span" variant="body" size="medium" weight="regular">{filter.label}</Typography>
           <CloseIcon className="h-4 w-4" />
-        </button>
+        </Button>
       ))}
     </HorizontalFilterBar>
   );
@@ -373,7 +374,7 @@ function NotificationFilterSheet({
           const isSelected = selectedFilterIds.has(option.id);
 
           return (
-            <button
+            <Button unstyled
               aria-pressed={isSelected}
               className="flex h-[64px] w-full items-center justify-between text-right text-base font-medium leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
               key={option.id}
@@ -390,7 +391,7 @@ function NotificationFilterSheet({
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
               </Typography>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -449,7 +450,7 @@ function NotificationSettingsSheet({
           </Typography>
         </div>
 
-        <button
+        <Button unstyled
           className="flex h-[72px] w-full items-center justify-between border-b border-[#f0f0f0] px-1 text-[#1a1a1a] [direction:ltr]"
           onClick={onManage}
           type="button"
@@ -459,9 +460,9 @@ function NotificationSettingsSheet({
             <LinearNotification className="h-6 w-6 text-[#4D4D4D]" />
             مدیریت اعلان‌ها
           </Typography>
-        </button>
+        </Button>
 
-        <button
+        <Button unstyled
           className="flex h-[72px] w-full items-center gap-2 border-b border-[#f0f0f0] px-1 text-[11px] font-normal leading-4 text-[#1a1a1a] disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
           disabled={isMarkingAllRead}
           onClick={onMarkAllRead}
@@ -469,9 +470,9 @@ function NotificationSettingsSheet({
         >
           <LinearTickDouble className="h-6 w-6 text-[#4D4D4D]" />
           <Typography as="span" variant="body" size="medium" weight="regular">{isMarkingAllRead ? "در حال ثبت..." : "علامت‌گذاری همه به‌عنوان خوانده شده"}</Typography>
-        </button>
+        </Button>
 
-        <button
+        <Button unstyled
           className="flex h-[72px] w-full items-center gap-2 px-1 text-[11px] font-normal leading-4 text-[#1a1a1a] disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
           disabled={isClearingRead}
           onClick={onClearRead}
@@ -479,7 +480,7 @@ function NotificationSettingsSheet({
         >
           <LinearDelete className="h-6 w-6 text-[#4D4D4D]" />
           <Typography as="span" variant="body" size="medium" weight="regular">{isClearingRead ? "در حال پاک کردن..." : "پاک کردن اعلان‌های خوانده شده"}</Typography>
-        </button>
+        </Button>
       </div>
     </BottomSheet>
   );
@@ -513,14 +514,14 @@ function NotificationActionButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="flex items-center gap-1 rounded-lg border border-[#d9d9d9] bg-white px-4 py-1.5 !text-xs !font-medium leading-4 text-[#333333] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
       onClick={onClick}
       type="button"
     >
       <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
       <ChevronLeftIcon className="h-4 w-4" />
-    </button>
+    </Button>
   );
 }
 
@@ -567,7 +568,7 @@ function SwipeableNotificationCard({
       }`}
       style={{ touchAction: "pan-y" }}
     >
-      <button
+      <Button unstyled
         aria-label={`حذف اعلان ${item.title || ""}`.trim()}
         className="absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f] disabled:cursor-not-allowed"
         disabled={isDeleting}
@@ -576,7 +577,7 @@ function SwipeableNotificationCard({
       >
         <LinearDelete className="h-6 w-6" />
         <Typography as="span" variant="label" size="small" weight="semibold" className="text-xs font-semibold leading-4">حذف</Typography>
-      </button>
+      </Button>
 
       <article
         className={`relative z-10 flex h-full w-full max-w-full touch-pan-y select-none flex-col gap-y-4 overflow-hidden px-4 py-4 text-right will-change-transform ${

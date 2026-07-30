@@ -33,6 +33,7 @@ import LinearPreview from "../../components/(icons)/LinearPreview";
 import LinearX from "../../components/(icons)/LinearX";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const neighborhoodSearchDebounceMs = 250;
 const agencyImageMaxBytes = 1024 * 1024;
@@ -533,7 +534,7 @@ function AgencyLogoUpload({
   return (
     <div className="mt-4 shrink-0 text-right font-medium">
       <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mb-3 text-sm font-semibold leading-5">لوگوی آژانس</Typography>
-      <button
+      <Button unstyled
         aria-label="بارگذاری لوگوی آژانس"
         className="relative mx-auto mr-3 grid h-22 w-22 place-items-center overflow-visible rounded-full text-[#4d4d4d]"
         onClick={() => inputRef.current?.click()}
@@ -550,7 +551,7 @@ function AgencyLogoUpload({
         <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
           <LinearEdit2 className="h-4 w-4" />
         </Typography>
-      </button>
+      </Button>
       <input
         ref={inputRef}
         accept="image/png,image/jpeg,image/jpg,image/gif"
@@ -630,14 +631,14 @@ function ActivityAreaSection({
     <Section>
       <div className="flex items-center justify-between gap-3">
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">محدوده فعالیت</Typography>
-        <button
+        <Button unstyled
           className="inline-flex h-8 shrink-0 items-center gap-1.5 text-sm font-semibold leading-5 text-[#0048c4]"
           onClick={onOpenPicker}
           type="button"
         >
           {activityAreas.length ? `${activityAreas.length} انتخاب` : "انتخاب"}
           <LinearArrowLeft1 className="h-5 w-5 text-[#4D4D4D]" />
-        </button>
+        </Button>
       </div>
 
       {activityAreas.length > 0 ? (
@@ -675,13 +676,13 @@ function AboutSection({
 }) {
   return (
     <Section title="درباره ما">
-      <button
+      <Button unstyled
         className="mr-auto mt-3 inline-flex px-4 py-1.5 items-center gap-2 rounded-lg bg-[#e7e8ed] text-xs! font-medium! leading-5 text-[#2E2D3E]"
         type="button"
       >
         <LinearAiContent className="h-4 w-4 text-[#4D4D4D]" />
         تولید با هوش مصنوعی
-      </button>
+      </Button>
       <textarea
         className="mt-3 h-24 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-3 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41a]"
         onChange={(event) => onAboutUsChange(event.target.value)}
@@ -847,7 +848,7 @@ function SelectField({
   value?: string;
 }) {
   return (
-    <button
+    <Button unstyled
       className={`relative flex w-full items-center rounded-xl border bg-white px-3 py-4.5 text-right focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${value ? "border-[#0048c4]" : "border-[#cccccc]"
         }`}
       onClick={onClick}
@@ -860,7 +861,7 @@ function SelectField({
         {value ?? placeholder}
       </Typography>
       <LinearArrowDown1 className="h-5 w-5 text-[#4d4d4d]" />
-    </button>
+    </Button>
   );
 }
 
@@ -960,25 +961,25 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
               value={query}
             />
             {query ? (
-              <button
+              <Button unstyled
                 aria-label="پاک کردن جستجو"
                 className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
                 onClick={() => setQuery("")}
                 type="button"
               >
                 <LinearX />
-              </button>
+              </Button>
             ) : null}
           </label>
 
-          <button
+          <Button unstyled
             aria-label="بازگشت"
             className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
             onClick={onClose}
             type="button"
           >
             <LinearArrowLeft2 className="h-6 w-6 rotate-180" />
-          </button>
+          </Button>
         </div>
 
         <div className="mt-3 flex items-center justify-between px-1">
@@ -1019,7 +1020,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
               const isSelected = selectedIds.has(neighborhoodId);
 
               return (
-                <button
+                <Button unstyled
                   aria-pressed={isSelected}
                   className={`flex min-h-[64px] w-full items-center justify-between gap-4 rounded-[10px] bg-white py-2 pl-3 pr-0 text-right transition-colors active:bg-[#0048c40a] [direction:ltr] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
                     }`}
@@ -1040,7 +1041,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
                       {selectedCity?.name ?? "شهر انتخاب‌شده"}
                     </Typography>
                   </Typography>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -1055,13 +1056,13 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
 
       {mode === "multiple" ? (
         <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
-          <button
+          <Button unstyled
             className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
             onClick={onClose}
             type="button"
           >
             تایید
-          </button>
+          </Button>
         </footer>
       ) : null}
     </BottomSheet>
@@ -1121,14 +1122,14 @@ function AgencyFooterActions({
         </Typography>
       ) : null}
       <div className="grid h-10 grid-cols-2 gap-3 [direction:ltr]">
-        <button
+        <Button unstyled
           className="rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isSaving}
           onClick={onSave}
           type="button"
         >
           {isSaving ? "در حال ذخیره..." : "ذخیره اطلاعات"}
-        </button>
+        </Button>
         <RouteLink
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-xs font-semibold leading-5 text-[#0048c4] no-underline"
           to="/account/dashboard/agency/preview"

@@ -54,6 +54,7 @@ import LinearInformation from "../components/(icons)/LinearInformation";
 import LinearLogout from "../components/(icons)/LinearLogout";
 import LinearLock from "../components/(icons)/LinearLock";
 import { Typography } from "../components/ui/Typography";
+import { Button } from "../components/ui/Button";
 
 const MANAGE_ADS_PATH = "/account/manage-ads";
 
@@ -257,7 +258,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
       ) : (
         <>
           <section className="shrink-0 bg-white pt-4" aria-label={businessHeader.ariaLabel}>
-            <button
+            <Button unstyled
               className="flex w-full items-center gap-4 px-4 text-right"
               onClick={() => {
                 setStoredActiveRole(USER);
@@ -282,7 +283,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
                   {businessHeader.subtitle}
                 </Typography>
               </div>
-            </button>
+            </Button>
 
             <DangerAccountRow
               action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
@@ -687,14 +688,14 @@ function AccountBusinessSuccessSheet({
             <Typography as="span" variant="body" size="medium" weight="regular">سپس یکی از بسته‌های اعتباری را خریداری کنید.</Typography>
           </Typography>
         </div>
-        <button
+        <Button unstyled
           className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
           onClick={() => navigateTo("/account/credit/panel")}
           type="button"
         >
           <LinearWalletAdd color="white" className="w-5 h-5 text-white" />
           <Typography as="span" variant="body" size="medium" weight="regular">افزایش اعتبار</Typography>
-        </button>
+        </Button>
       </div>
     </BottomSheet>
   );
@@ -737,22 +738,22 @@ function AccountLogoutConfirmSheet({
       </Typography>
 
       <div className="mt-3 grid grid-cols-2 gap-3 [direction:ltr]">
-        <button
+        <Button unstyled
           className="inline-flex py-2.5 items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
           disabled={isPending}
           onClick={onConfirm}
           type="button"
         >
           {isPending ? "..." : "بله"}
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           className="inline-flex py-2.5 items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
           disabled={isPending}
           onClick={handleClose}
           type="button"
         >
           خیر
-        </button>
+        </Button>
       </div>
     </BottomSheet>
   );
@@ -975,13 +976,13 @@ function AccountMenuRow({
           {content}
         </RouteLink>
       ) : (
-        <button
+        <Button unstyled
           className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
           onClick={action.onClick}
           type="button"
         >
           {content}
-        </button>
+        </Button>
       )}
       {hasDivider ? <Divider spaced={spacedDivider} /> : null}
     </>
@@ -1010,13 +1011,13 @@ function DangerAccountRow({ action }: { action: AccountAction }) {
   }
 
   return (
-    <button
+    <Button unstyled
       className="mx-4 mb-3 mt-2 flex h-10 w-[calc(100%-2rem)] cursor-pointer items-center gap-2 rounded-[10px] border border-[#C11004] bg-white px-4 text-[#C11004] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
       onClick={action.onClick}
       type="button"
     >
       {content}
-    </button>
+    </Button>
   );
 }
 

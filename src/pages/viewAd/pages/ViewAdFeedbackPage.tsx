@@ -3,6 +3,9 @@ import { useState } from "react";
 import type { AdvertiseFeedbackPayload } from "../../../services/advertisement.service";
 import { ViewAdActionPageTopBar, ViewAdPageActionBar } from "./ViewAdActionPageLayout";
 import { Typography } from "../../../components/ui/Typography";
+import LinearLike from "../../../components/(icons)/LinearLike";
+import LinearDislike from "../../../components/(icons)/LinearDislike";
+import { Button } from "../../../components/ui/Button";
 
 type FeedbackValue = "positive" | "negative";
 
@@ -28,24 +31,8 @@ function FeedbackThumbIcon({
   className?: string;
   direction: FeedbackValue;
 }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <g transform={direction === "negative" ? "rotate(180 12 12)" : undefined}>
-        <path d="M7.5 10.5v9" />
-        <path d="M4.5 11.5v6.5c0 .8.7 1.5 1.5 1.5h1.5v-9H6c-.8 0-1.5.7-1.5 1.5Z" />
-        <path d="M7.5 11.5 11.8 4c.4-.7 1.4-.7 1.8 0 .4.7.5 1.5.2 2.2l-1 2.6h4.6c1.4 0 2.4 1.3 2.1 2.7l-1.1 5.4c-.3 1.5-1.7 2.6-3.2 2.6H7.5" />
-      </g>
-    </svg>
-  );
+  if (direction == "positive") return <LinearLike className={className} />
+  return <LinearDislike className={className} />
 }
 
 function FeedbackIconButton({
@@ -59,18 +46,18 @@ function FeedbackIconButton({
 }) {
   const activeClassName =
     type === "positive"
-      ? "bg-[#0FAF731A] text-[#0FAF73]"
-      : "bg-[#FF4D4F1A] text-[#FF4D4F]";
+      ? "bg-[#11A36629] text-[#11A366]"
+      : "bg-[#DD2B1E29] text-[#EE3623]";
 
   return (
-    <button
+    <Button unstyled
       aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
-      className={`grid h-9 w-9 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${active ? activeClassName : "bg-transparent text-[#cccccc]"}`}
+      className={`grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${active ? activeClassName : "bg-transparent text-[#cccccc]"}`}
       onClick={onClick}
       type="button"
     >
-      <FeedbackThumbIcon className="h-5 w-5" direction={type} />
-    </button>
+      <FeedbackThumbIcon className="h-6 w-6" direction={type} />
+    </Button>
   );
 }
 
@@ -123,10 +110,10 @@ export function ViewAdFeedbackPage({
         <div className="divide-y divide-[#e0e0e0]">
           {feedbackOptions.map((option) => (
             <div
-              className="flex min-h-[73px] items-center justify-between gap-4 text-right [direction:rtl]"
+              className="flex min-h-[60px] items-center justify-between gap-4 text-right [direction:rtl]"
               key={option.key}
             >
-              <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a]">
+              <Typography as="span" variant="body" size="large" weight="regular" className="text-[#1a1a1a]">
                 {option.label}
               </Typography>
 

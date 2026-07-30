@@ -18,6 +18,7 @@ import {
 } from "./data";
 import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type NewAdMapCenter = {
   lat: number;
@@ -280,7 +281,7 @@ export function NewAdLocationPage() {
           />
         </MapContainer>
 
-        <button
+        <Button unstyled
           aria-label="موقعیت من"
           className={`absolute z-20 flex h-9 items-center gap-1 rounded-[10px] bg-white px-3 text-xs font-medium leading-4 text-[#1a1a1a] shadow-[0_4px_14px_rgba(26,26,26,0.14)] ${isCrmSource ? "bottom-6 left-6" : "bottom-[200px] right-4"}`}
           onClick={moveToBrowserLocation}
@@ -293,7 +294,7 @@ export function NewAdLocationPage() {
             </svg>
           </Typography>
           <Typography as="span" variant="body" size="medium" weight="regular">موقعیت من</Typography>
-        </button>
+        </Button>
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-full">
           <MapPickerPinIcon />
@@ -313,7 +314,7 @@ export function NewAdLocationPage() {
               value={query}
             />
             {query ? (
-              <button
+              <Button unstyled
                 aria-label="پاک کردن"
                 onClick={() => setQuery("")}
                 type="button"
@@ -321,7 +322,7 @@ export function NewAdLocationPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M20.25 12C20.25 7.44365 16.5563 3.75 12 3.75C7.44365 3.75 3.75 7.44365 3.75 12C3.75 16.5563 7.44365 20.25 12 20.25C16.5563 20.25 20.25 16.5563 20.25 12ZM14.6201 8.31934C14.9129 8.0266 15.3877 8.02681 15.6807 8.31934C15.9736 8.61221 15.9735 9.08697 15.6807 9.37988L13.0605 12L15.6807 14.6201C15.9732 14.913 15.9734 15.3879 15.6807 15.6807C15.3879 15.9734 14.913 15.9732 14.6201 15.6807L12 13.0605L9.38184 15.6807C9.08904 15.9734 8.61418 15.9732 8.32129 15.6807C8.0284 15.3878 8.02848 14.913 8.32129 14.6201L10.9395 12L8.32031 9.37988C8.02765 9.08696 8.02748 8.61214 8.32031 8.31934C8.61314 8.02667 9.088 8.02674 9.38086 8.31934L12 10.9395L14.6201 8.31934ZM21.75 12C21.75 17.3847 17.3847 21.75 12 21.75C6.61522 21.75 2.25 17.3847 2.25 12C2.25 6.61522 6.61522 2.25 12 2.25C17.3847 2.25 21.75 6.61522 21.75 12Z" fill="#4D4D4D" />
                 </svg>
-              </button>
+              </Button>
             ) : <SearchIcon />}
           </label>
 
@@ -334,7 +335,7 @@ export function NewAdLocationPage() {
               ) : locations.length ? (
                 <div className="space-y-1">
                   {locations.map((item) => (
-                    <button
+                    <Button unstyled
                       className={`w-full rounded-[10px] px-3 py-2 text-right ${getNeighborhoodId(selectedNeighborhood) === getNeighborhoodId(item) ? "bg-[#0048c414]" : "bg-white"}`}
                       key={getNeighborhoodId(item)}
                       onClick={() => selectNeighborhood(item)}
@@ -344,7 +345,7 @@ export function NewAdLocationPage() {
                       <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
                         {window.localStorage.getItem("bonga-selected-city") ?? "شهر انتخاب‌شده"}
                       </Typography>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               ) : (
@@ -353,7 +354,7 @@ export function NewAdLocationPage() {
             </div>
           ) : null}
 
-          <button
+          <Button unstyled
             className="mt-4 h-12 w-full rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6]"
             disabled={!selectedLocation || !getNeighborhoodId(selectedNeighborhood)}
             onClick={() => {
@@ -368,7 +369,7 @@ export function NewAdLocationPage() {
             type="button"
           >
             تایید موقعیت
-          </button>
+          </Button>
         </section>
       </main>
     </PageFrame>

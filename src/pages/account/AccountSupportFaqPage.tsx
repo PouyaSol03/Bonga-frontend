@@ -8,6 +8,7 @@ import { TopBar } from "../../components/TopBar";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 const SUPPORT_PATH = "/account/support";
 const SUPPORT_CHAT_PATH = "/account/support/chat";
@@ -136,7 +137,7 @@ function FaqCategoryTabs({
         const isActive = activeCategory === category.id;
 
         return (
-          <button
+          <Button unstyled
             aria-pressed={isActive}
             className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-[#0048c440] ${
               isActive
@@ -148,7 +149,7 @@ function FaqCategoryTabs({
             type="button"
           >
             {category.label}
-          </button>
+          </Button>
         );
       })}
     </nav>
@@ -166,7 +167,7 @@ function FaqAccordionItem({
 }) {
   return (
     <article className="overflow-hidden rounded-xl border border-[#e1e1e1] bg-white p-4">
-      <button
+      <Button unstyled
         aria-expanded={isOpen}
         className="flex w-full items-center justify-between gap-3 text-right outline-none transition-colors active:bg-[#fafafa] focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440]"
         onClick={onToggle}
@@ -185,7 +186,7 @@ function FaqAccordionItem({
             isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
-      </button>
+      </Button>
 
       <div
         aria-hidden={!isOpen}

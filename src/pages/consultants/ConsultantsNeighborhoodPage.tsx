@@ -14,6 +14,7 @@ import {
   saveConsultantsSelectedNeighborhood,
 } from "./consultantsNeighborhoodSelection";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? "");
@@ -149,13 +150,13 @@ export function ConsultantsNeighborhoodPage() {
         ) : neighborhoodsQuery.isError ? (
           <div className="flex min-h-[320px] flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
             دریافت محله‌ها با خطا مواجه شد.
-            <button
+            <Button unstyled
               className="mt-3 font-semibold text-[#0048c4]"
               onClick={() => void neighborhoodsQuery.refetch()}
               type="button"
             >
               تلاش دوباره
-            </button>
+            </Button>
           </div>
         ) : neighborhoods.length === 0 ? (
           <SearchEmptyState
@@ -170,7 +171,7 @@ export function ConsultantsNeighborhoodPage() {
               const checked = neighborhoodId === selectedId;
 
               return (
-                <button
+                <Button unstyled
                   aria-pressed={checked}
                   className="flex w-full items-center justify-between gap-5 py-3.5 text-right active:bg-[#fafafa]"
                   key={neighborhoodId}
@@ -188,7 +189,7 @@ export function ConsultantsNeighborhoodPage() {
                     ) : null}
                   </Typography>
                   <RadioIndicator checked={checked} />
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -196,14 +197,14 @@ export function ConsultantsNeighborhoodPage() {
       </main>
 
       <footer className="shrink-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom,0px))] pt-3">
-        <button
+        <Button unstyled
           className="h-12 w-full rounded-xl bg-[#0048c4] text-base font-semibold text-white active:bg-[#003fae] disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
           disabled={!selectedNeighborhood}
           onClick={confirmSelection}
           type="button"
         >
           تایید
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );

@@ -5,6 +5,7 @@ import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
 import { adManagementPaths } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 const deleteReasons = [
   { id: "sold-elsewhere", label: "از راه دیگر فروختم" },
@@ -89,13 +90,13 @@ export function AdDeleteReasonPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <button
+        <Button unstyled
           className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
           onClick={handleConfirm}
           type="button"
         >
           تایید
-        </button>
+        </Button>
       </div>
     </PageFrame>
   );

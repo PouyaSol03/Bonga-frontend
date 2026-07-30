@@ -19,7 +19,6 @@ import type {
   SearchMapListingId,
   SearchMapTileConfig,
 } from "../searchMapData";
-import { Typography } from "../../../components/ui/Typography";
 
 type InvalidGeofenceResult = Exclude<
   GeofenceValidationResult,

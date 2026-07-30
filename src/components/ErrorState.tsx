@@ -7,6 +7,7 @@ import RefreshIcon from "../assets/icons/RefreshIcon.svg";
 import NotFoundIcon from "../assets/icons/404Error.svg";
 import LinearArrowRight1 from "./(icons)/LinearArrowRight1";
 import { Typography } from "./ui/Typography";
+import { Button } from "./ui/Button";
 
 type RetryHandler = () => void | Promise<void>;
 
@@ -51,18 +52,18 @@ function BaseErrorState({
                 <img
                     src={icon}
                     alt=""
-                    className={`mb-6 object-contain ${iconClassName}`}
+                    className={`mb-4 object-contain ${iconClassName}`}
                 />
 
-                <Typography as="h2" variant="headline" size="large" className="mb-2 font-semibold text-[#1A1A1A]">
+                <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-2 text-[#1A1A1A]">
                     {title}
                 </Typography>
 
-                <Typography as="p" variant="body" size="medium" weight="regular" className="mb-6 text-sm leading-6 text-[#4D4D4D]">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="mb-6 text-[#4D4D4D]">
                     {description}
                 </Typography>
 
-                {onRetry ? <button
+                {onRetry ? <Button unstyled
                     type="button"
                     onClick={handleRetry}
                     disabled={isRetrying}
@@ -82,7 +83,7 @@ function BaseErrorState({
                     )}
 
                     <Typography as="span" variant="body" size="medium" weight="regular">{isRetrying ? "در حال تلاش..." : retryLabel}</Typography>
-                </button> : null}
+                </Button> : null}
             </div>
         </div>
     );
@@ -215,14 +216,14 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
                     در صورت نیاز، با حساب کاربری دارای دسترسی مناسب وارد شوید یا از مدیر سامانه درخواست دسترسی کنید.
                 </Typography>
 
-                <button
+                <Button unstyled
                     className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium text-white transition hover:bg-[#003fae]"
                     onClick={onBack}
                     type="button"
                 >
                     <LinearArrowRight1 className="h-5 w-5" />
                     <Typography as="span" variant="body" size="medium" weight="regular">بازگشت</Typography>
-                </button>
+                </Button>
             </div>
         </div>
     );

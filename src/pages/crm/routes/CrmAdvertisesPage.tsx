@@ -13,6 +13,7 @@ import LinearDelete from "../../../components/(icons)/LinearDelete";
 import { ConfirmModal, CrmIcon, CrmSelect, FilterField, PrimaryButton, SmallActionButton, advertiseStatusOptions, ghostButtonClassName, inputClassName, mapCrmAdvertiseToCard, readText, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps } from "../CrmLayout";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -87,7 +88,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 const isActive = status === option.value;
 
                 return (
-                  <button
+                  <Button unstyled
                     aria-current={isActive ? "page" : undefined}
                     className={`relative h-10 whitespace-nowrap bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
                     key={option.value || "all"}
@@ -96,7 +97,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   >
                     {option.label}
                     {isActive ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" /> : null}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -104,14 +105,14 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
           <div className="mt-9 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4">
-              <button
+              <Button unstyled
                 className={`inline-flex h-10 items-center gap-2 rounded-xl border bg-white px-4 text-sm font-semibold transition ${showFilters ? "border-[#0048c4] text-[#0048c4]" : "border-[#cccccc] text-[#1a1a1a] hover:border-[#0048c4] hover:text-[#0048c4]"}`}
                 onClick={() => setShowFilters((value) => !value)}
                 type="button"
               >
                 <CrmIcon name="filter" size={19} />
                 فیلترها
-              </button>
+              </Button>
 
               <label className="relative block h-10 w-[min(360px,42vw)] min-w-[240px]">
                 <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#4d4d4d]"><CrmIcon name="search" size={19} /></Typography>
@@ -150,7 +151,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             </CrmSelect>
           </FilterField>
           {(status || trackCode) ? (
-            <button
+            <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setStatus("");
@@ -159,7 +160,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               type="button"
             >
               پاک کردن فیلتر
-            </button>
+            </Button>
           ) : null}
         </form> : null}
 

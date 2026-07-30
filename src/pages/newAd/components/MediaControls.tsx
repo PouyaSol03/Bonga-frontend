@@ -1,6 +1,7 @@
 import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
 import { ChoiceIndicator } from "../../../components/ui/Choice";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function RadioCard({
   checked,
@@ -16,7 +17,7 @@ export function RadioCard({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={checked}
       className={`w-full rounded-[12px] border px-4 py-3.5 text-right [direction:ltr] ${checked ? "border-[#0048c4] bg-[#0048C414]" : "border-[#cccccc]"
         }`}
@@ -52,16 +53,16 @@ export function RadioCard({
           </div>
         </div>
       </div>
-    </button>
+    </Button>
   );
 }
 
 export function CheckRow({ checked, label, onChange }: { checked: boolean; label: string; onChange: (checked: boolean) => void }) {
   return (
-    <button className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]" onClick={() => onChange(!checked)} type="button">
+    <Button unstyled className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]" onClick={() => onChange(!checked)} type="button">
       <ChoiceIndicator checked={checked} />
       <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
-    </button>
+    </Button>
   );
 }
 

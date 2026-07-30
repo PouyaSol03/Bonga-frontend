@@ -1,5 +1,6 @@
 import LinearCancel from "../../../components/(icons)/LinearCancel";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type SearchMapResultsSummaryProps = {
   count: number;
@@ -27,14 +28,14 @@ export function SearchMapResultsSummary({
       </Typography>
 
       {hasGeofence ? (
-        <button
+        <Button unstyled
           className="pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#0048c4] px-4 py-2 leading-5 text-white shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors hover:bg-[#003da8] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
           type="button"
           onClick={onRemoveGeofence}
         >
           <LinearCancel className="w-4 h-4" />
           <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium">حذف محدوده</Typography>
-        </button>
+        </Button>
       ) : null}
     </div>
   );

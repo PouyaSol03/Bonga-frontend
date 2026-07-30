@@ -6,6 +6,7 @@ import { SearchInputBar } from "../../../components/ui/SearchBar";
 import { adManagementPublisherOptions, type AdManagementPublisherOption } from "./adManagementData";
 import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 type PublisherSelectFieldProps = {
   buttonLabel?: string;
@@ -61,14 +62,14 @@ export function PublisherSelectField({
     <>
       <PublisherCard publisher={selectedPublisher} />
 
-      <button
+      <Button unstyled
         className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4]"
         onClick={openPicker}
         type="button"
       >
         {buttonLabel}
         <LinearArrowLeft1 className="h-5 w-5"/>
-      </button>
+      </Button>
 
       {isOpen ? (
         <section
@@ -108,7 +109,7 @@ export function PublisherSelectField({
                   const isSelected = draftValue === publisherOption.name;
 
                   return (
-                    <button
+                    <Button unstyled
                       aria-pressed={isSelected}
                       className={`flex min-h-16 w-full items-center gap-5 rounded-xl py-1 pl-4 pr-10 text-right transition-colors active:bg-[#0048c40a] ${
                         isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
@@ -133,7 +134,7 @@ export function PublisherSelectField({
                       <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 truncate text-base font-normal leading-6">
                         {publisherOption.name}
                       </Typography>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -143,13 +144,13 @@ export function PublisherSelectField({
           </main>
 
           <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-            <button
+            <Button unstyled
               className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
               onClick={confirmSelection}
               type="button"
             >
               تایید
-            </button>
+            </Button>
           </footer>
         </section>
       ) : null}

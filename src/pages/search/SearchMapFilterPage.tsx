@@ -1107,7 +1107,7 @@ export function AdvertisementFilterPage({
         />
 
         <div className="border-b-8 border-[#f0f0f0] bg-white px-4 py-3">
-          <button
+          <Button unstyled
             className="flex w-full items-center justify-between gap-3 text-right"
             dir="rtl"
             onClick={openCategoryPicker}
@@ -1123,7 +1123,7 @@ export function AdvertisementFilterPage({
               selected
               onClick={openCategoryPicker}
             />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -1145,7 +1145,7 @@ export function AdvertisementFilterPage({
 
       <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
         <div dir="rtl">
-          <button
+          <Button unstyled
             className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
             onClick={() => {
               window.history.pushState({}, "", buildSearchUrl(filters, applyBasePath));
@@ -1154,7 +1154,7 @@ export function AdvertisementFilterPage({
             type="button"
           >
             {applyButtonLabel}
-          </button>
+          </Button>
         </div>
       </footer>
     </PageFrame>
@@ -1311,14 +1311,14 @@ function MoreButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 px-3 text-sm font-medium leading-5 text-[#0048c4]"
       onClick={onClick}
       type="button"
     >
       <Typography as="span" variant="body" size="medium" weight="regular">{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</Typography>
       <ChevronDownIcon isOpen={expanded} />
-    </button>
+    </Button>
   );
 }
 
@@ -1449,7 +1449,7 @@ function CategorySelectionScreen({
       </main>
 
       <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
-        <button
+        <Button unstyled
           className="flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!draftCategory}
           onClick={() => {
@@ -1459,7 +1459,7 @@ function CategorySelectionScreen({
           type="button"
         >
           تایید
-        </button>
+        </Button>
       </footer>
     </PageFrame>
   );
@@ -1718,7 +1718,7 @@ function NeighborhoodFilterSection({
 
   return (
     <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 py-4" data-filter-section={sectionId} dir="rtl">
-      <button
+      <Button unstyled
         className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
         onClick={() => setIsPickerOpen(true)}
         type="button"
@@ -1731,7 +1731,7 @@ function NeighborhoodFilterSection({
           <Typography as="span" variant="body" size="medium" weight="regular">انتخاب کنید</Typography>
           <ChevronLeftIcon />
         </div>
-      </button>
+      </Button>
 
       {selectedNeighborhoods.length > 0 ? (
         <div className="mt-3 flex flex-wrap justify-start gap-2">
@@ -1774,14 +1774,14 @@ function NeighborhoodFilterSection({
               value={query}
             />
             {query ? (
-              <button
+              <Button unstyled
                 aria-label="پاک کردن جستجوی محله"
                 className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]"
                 onClick={() => setQuery("")}
                 type="button"
               >
                 <ClearCircleIcon />
-              </button>
+              </Button>
             ) : null}
           </label>
         </div>
@@ -1817,7 +1817,7 @@ function NeighborhoodFilterSection({
                 const isSelected = selectedIds.has(neighborhoodId);
 
                 return (
-                  <button
+                  <Button unstyled
                     aria-pressed={isSelected}
                     className={`flex w-full items-center justify-center gap-3 rounded-[10px] px-2 py-3 text-right transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]`}
                     key={neighborhoodId}
@@ -1833,7 +1833,7 @@ function NeighborhoodFilterSection({
                       </Typography>
                     </Typography>
                     <ChoiceIndicator checked={isSelected} />
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -2011,7 +2011,7 @@ function RangeSelectField({
 
   return (
     <div className="min-w-0 flex-1">
-      <button
+      <Button unstyled
         className="flex h-12 w-full items-center justify-between rounded-xl border border-[#d9d9d9] bg-white px-3 text-sm font-normal leading-5 [direction:ltr]"
         onClick={() => setIsOpen(true)}
         type="button"
@@ -2020,7 +2020,7 @@ function RangeSelectField({
         <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
           {displayValue || label}
         </Typography>
-      </button>
+      </Button>
 
       <BottomSheet
         ariaLabel={isCustomInputVisible ? customRangeOptionLabel : label}
@@ -2061,7 +2061,7 @@ function RangeSelectField({
         ) : (
           <div className="space-y-1" dir="rtl">
             {value ? (
-              <button
+              <Button unstyled
                 className="flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
                 onClick={() => {
                   onChange("");
@@ -2070,7 +2070,7 @@ function RangeSelectField({
                 type="button"
               >
                 <Typography as="span" variant="body" size="medium" weight="regular">پاک کردن انتخاب</Typography>
-              </button>
+              </Button>
             ) : null}
 
             {areaRangeOptions.map((option) => {
@@ -2078,7 +2078,7 @@ function RangeSelectField({
               const selected = Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
 
               return (
-                <button
+                <Button unstyled
                   aria-pressed={selected}
                   className={`flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 ${
                     selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
@@ -2096,7 +2096,7 @@ function RangeSelectField({
                   type="button"
                 >
                   <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -2181,7 +2181,7 @@ function CheckboxRow({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={checked}
       className="flex h-14 w-full items-center justify-between gap-3 bg-white text-right"
       onClick={() => onChange(!checked)}
@@ -2191,7 +2191,7 @@ function CheckboxRow({
         {label}
       </Typography>
       <ChoiceIndicator checked={checked} className="h-5 w-5 rounded" />
-    </button>
+    </Button>
   );
 }
 
@@ -2212,7 +2212,7 @@ function SelectOnlySection({
 
   return (
     <section className="bg-white px-4 py-4" data-filter-section={sectionId} dir="rtl">
-      <button
+      <Button unstyled
         className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
         onClick={() => setIsOpen(true)}
         type="button"
@@ -2225,7 +2225,7 @@ function SelectOnlySection({
           <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
           <ChevronLeftIcon />
         </div>
-      </button>
+      </Button>
 
       {value ? (
         <div className="mt-3 flex flex-wrap justify-start gap-2">
@@ -2249,7 +2249,7 @@ function SelectOnlySection({
       >
         <div className="space-y-1" dir="rtl">
           {value ? (
-            <button
+            <Button unstyled
               className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
               onClick={() => {
                 onChange(undefined);
@@ -2259,14 +2259,14 @@ function SelectOnlySection({
             >
               <Typography as="span" variant="body" size="medium" weight="regular">پاک کردن انتخاب</Typography>
               <ClearCircleIcon />
-            </button>
+            </Button>
           ) : null}
 
           {options.map((option) => {
             const selected = value === option;
 
             return (
-              <button
+              <Button unstyled
                 aria-pressed={selected}
                 className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
                   selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
@@ -2280,7 +2280,7 @@ function SelectOnlySection({
               >
                 <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
                 <ChoiceIndicator checked={selected} />
-              </button>
+              </Button>
             );
           })}
         </div>

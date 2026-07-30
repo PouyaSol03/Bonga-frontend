@@ -35,6 +35,7 @@ import {
   type DashboardMetricTone,
 } from "./dashboardHomeData";
 import { Typography } from "../../ui/Typography";
+import { Button } from "../../ui/Button";
 
 const numberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -522,7 +523,7 @@ export function ProgressLineChartCard({
             <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] text-sm font-normal">{trendLabel}</Typography>
           </Typography>
         </div>
-        <button
+        <Button unstyled
           className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
           type="button"
         >
@@ -541,7 +542,7 @@ export function ProgressLineChartCard({
               strokeWidth="1.5"
             />
           </svg>
-        </button>
+        </Button>
       </div>
 
       <ScrollableProgressLineChart tooltip={tooltip} />
@@ -783,7 +784,7 @@ function PublishedAgencyAdsCard() {
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             آگهی منتشر شده در آژانس
           </Typography>
-          <button
+          <Button unstyled
             className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
             type="button"
           >
@@ -802,7 +803,7 @@ function PublishedAgencyAdsCard() {
                 strokeWidth="1.5"
               />
             </svg>
-          </button>
+          </Button>
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
@@ -1162,7 +1163,7 @@ function ConsultantActivityCard({
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             فعالیت مشاورین
           </Typography>
-          <button
+          <Button unstyled
             className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
             type="button"
           >
@@ -1181,7 +1182,7 @@ function ConsultantActivityCard({
                 strokeWidth="1.5"
               />
             </svg>
-          </button>
+          </Button>
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
@@ -1194,7 +1195,7 @@ function ConsultantActivityCard({
       </div>
 
       <div className="mb-4 flex items-center justify-between px-1">
-        <button
+        <Button unstyled
           aria-label="قبلی"
           className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition hover:bg-[#f5f7fb]"
           onClick={() => scrollConsultantChart("previous")}
@@ -1203,8 +1204,8 @@ function ConsultantActivityCard({
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
           </svg>
-        </button>
-        <button
+        </Button>
+        <Button unstyled
           aria-label="بعدی"
           className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition hover:bg-[#f5f7fb]"
           onClick={() => scrollConsultantChart("next")}
@@ -1213,7 +1214,7 @@ function ConsultantActivityCard({
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 5l7 7-7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
           </svg>
-        </button>
+        </Button>
       </div>
 
       {useApiData && !isLoading && chartData.length === 0 ? (

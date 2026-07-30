@@ -11,6 +11,7 @@ import type { NewAdFormValues, ProjectDetailItem } from "../../types";
 import { InputBox, Tag } from "../../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../../NewAdLayoutContext";
 import { Typography } from "../../../../components/ui/Typography";
+import { Button } from "../../../../components/ui/Button";
 
 type MultiProjectKey = "floors" | "rooms" | "positions";
 
@@ -55,13 +56,13 @@ function MultiSelectRow({
           {title}
         </Typography>
 
-        <button
+        <Button unstyled
           className="text-sm font-medium leading-5 text-[#0048c4]"
           onClick={onOpen}
           type="button"
         >
           انتخاب
-        </button>
+        </Button>
       </div>
 
       {values.length ? (
@@ -71,13 +72,13 @@ function MultiSelectRow({
           ))}
         </div>
       ) : (
-        <button
+        <Button unstyled
           className="flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cccccc] bg-white text-sm font-normal leading-5 text-[#808080]"
           onClick={onOpen}
           type="button"
         >
           برای انتخاب ضربه بزنید
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -162,14 +163,14 @@ function ProjectDetailCard({
         onRemove={(value) => removeMultiValue("positions", value)}
       />
 
-      <button
+      <Button unstyled
         className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-[#cccccc] bg-white text-sm font-medium leading-5 text-[#1a1a1a]"
         onClick={onRemove}
         type="button"
       >
         <Typography as="span" variant="body" size="medium" weight="regular">حذف</Typography>
         <Typography as="span" variant="body" size="medium" weight="regular">🗑</Typography>
-      </button>
+      </Button>
     </div>
   );
 }
@@ -240,22 +241,22 @@ export function ProjectDetailsStep({
       <footer className={desktop
         ? "flex justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
         : "grid grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.94)]"}>
-        <button
+        <Button unstyled
           className={`h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] ${desktop ? "w-40" : ""}`}
           onClick={onBack}
           type="button"
         >
           بازگشت
-        </button>
+        </Button>
 
-        <button
+        <Button unstyled
           className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white active:bg-[#003ba1] ${desktop ? "w-48" : ""}`}
           onClick={() => append(createProjectDetailItem())}
           type="button"
         >
           <Typography as="span" variant="body" size="medium" weight="regular">+</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular">اضافه کردن</Typography>
-        </button>
+        </Button>
       </footer>
 
       <BottomSheet
@@ -279,7 +280,7 @@ export function ProjectDetailsStep({
             const checked = selectedSheetValues.includes(option);
 
             return (
-              <button
+              <Button unstyled
                 className="flex h-12 w-full items-center justify-between bg-white px-5 text-sm font-normal leading-5 text-[#1a1a1a]"
                 key={option}
                 onClick={() => toggleSheetValue(option)}
@@ -297,7 +298,7 @@ export function ProjectDetailsStep({
                     <path d="M2.4 6.1 4.8 8.5 9.6 3.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
                   </svg>
                 </Typography>
-              </button>
+              </Button>
             );
           })}
         </div>

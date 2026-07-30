@@ -17,6 +17,7 @@ import {
   getSelectedConsultantAd,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 export function IndependentConsultantAdPublishedPage() {
   const ad = getSelectedConsultantAd();
@@ -168,13 +169,13 @@ function PublishedAction({
   }
 
   return (
-    <button
+    <Button unstyled
       className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] [direction:ltr]"
       onClick={onClick}
       type="button"
     >
       {content}
-    </button>
+    </Button>
   );
 }
 

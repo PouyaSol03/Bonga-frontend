@@ -6,6 +6,7 @@ import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
 import { adManagementPaths, getSelectedConsultantAd } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { Button } from "../../../components/ui/Button";
 
 const galleryImageClassNames = [
   "ad-card__image--one",
@@ -73,7 +74,7 @@ function MediaFields() {
       </Typography>
 
       <div className="mt-4 flex gap-3 overflow-hidden [direction:rtl]">
-        <button
+        <Button unstyled
           className="flex h-[98px] w-[98px] shrink-0 flex-col items-center justify-center gap-3 rounded-xl border-2 border-[#0048c4] bg-white text-[#0048c4]"
           type="button"
           onClick={() =>
@@ -85,7 +86,7 @@ function MediaFields() {
         >
           <PlusIcon className="h-7 w-7" />
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
-        </button>
+        </Button>
         {images.map((image, index) => (
           <div
             aria-hidden="true"
@@ -103,26 +104,26 @@ function MediaFields() {
       </div>
 
       {hasVideo ? <div className="mt-6 flex h-[86px] items-center justify-between rounded-2xl border border-[#cccccc] px-4 [direction:ltr]">
-        <button
+        <Button unstyled
           aria-label="حذف فیلم"
           className="grid h-8 w-8 place-items-center text-[#ee3623]"
           onClick={() => setHasVideo(false)}
           type="button"
         >
           <CloseCircleIcon className="h-6 w-6" />
-        </button>
+        </Button>
         <div className="text-right [direction:ltr]">
           <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">my video.mp4</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-5 text-[#808080]">5.3MB</Typography>
         </div>
-        <button
+        <Button unstyled
           aria-label={isPlaying ? "توقف فیلم" : "پخش فیلم"}
           className="grid h-12 w-12 place-items-center rounded-full bg-[#e7eefc] text-[#0048c4]"
           onClick={() => setIsPlaying((current) => !current)}
           type="button"
         >
           <PlayIcon className="h-6 w-6" />
-        </button>
+        </Button>
       </div> : null}
 
       <DashedDivider className="mt-6" />
@@ -232,7 +233,7 @@ function FormField({
 
 function Toggle({ active, onClick }: { active: boolean; onClick: () => void }) {
   return (
-    <button
+    <Button unstyled
       aria-pressed={active}
       className={`flex h-6 w-11 items-center rounded-full px-1 ${
         active ? "justify-end bg-[#0048c4]" : "justify-start bg-[#cccccc]"
@@ -241,7 +242,7 @@ function Toggle({ active, onClick }: { active: boolean; onClick: () => void }) {
       type="button"
     >
       <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-4 rounded-full bg-white" />
-    </button>
+    </Button>
   );
 }
 

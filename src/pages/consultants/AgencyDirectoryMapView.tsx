@@ -19,6 +19,7 @@ import LinearStar from "../../components/(icons)/LinearStar";
 import LinearRanking from "../../components/(icons)/LinearRanking";
 import LinearSearch from "../../components/(icons)/LinearSearch";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 export type AgencyDirectoryMapItem = {
   address?: string;
@@ -136,7 +137,7 @@ function AgencyDirectoryCard({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className="absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border border-[#e6e6e6] bg-white p-4 text-right shadow-[0_-4px_16px_rgba(26,26,26,0.08)] active:bg-[#fafafa]"
       dir="rtl"
       onClick={onClick}
@@ -144,7 +145,7 @@ function AgencyDirectoryCard({
     >
       <AgencyImage item={item} />
       <AgencySummary item={item} />
-    </button>
+    </Button>
   );
 }
 
@@ -205,14 +206,14 @@ function AgencySelectionCard({
             <RadioIndicator checked />
             <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
           </Typography>
-          <button
+          <Button unstyled
             className="flex items-center justify-center gap-2 rounded-xl border border-[#0b55d4] bg-white/35 px-4 py-2.5 text-[#0b55d4] active:bg-white"
             onClick={onOpen}
             type="button"
           >
             <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{profileLabel}</Typography>
             <LinearArrowLeft2 className="w-5 h-5 text-[#0048C4]"/>
-          </button>
+          </Button>
         </div>
       </article>
     </div>
@@ -234,22 +235,22 @@ function SelectionFooter({
 }) {
   return (
     <footer className="absolute inset-x-0 bottom-0 z-[550] flex h-[76px] items-center gap-3 border-t border-[#eeeeee] bg-white px-4" dir="rtl">
-      <button
+      <Button unstyled
         className="flex h-12 w-[104px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]"
         onClick={onOpenList}
         type="button"
       >
         <LinearList className="w-6 h-6" />
         <Typography as="span" variant="body" size="medium" weight="regular">{listLabel}</Typography>
-      </button>
-      <button
+      </Button>
+      <Button unstyled
         className="h-12 min-w-0 flex-1 rounded-xl bg-[#0048c4] px-4 text-base font-semibold text-white active:bg-[#003fae] disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
         disabled={confirmDisabled}
         onClick={onConfirm}
         type="button"
       >
         {confirmLabel}
-      </button>
+      </Button>
     </footer>
   );
 }
@@ -385,14 +386,14 @@ export function AgencyDirectoryMapView({
           )
         ) : !isSelection ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[500] flex justify-center">
-            <button
+            <Button unstyled
               className="pointer-events-auto flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
               onClick={onOpenList}
               type="button"
             >
               <ListIcon />
               <Typography as="span" variant="body" size="medium" weight="regular">{listLabel}</Typography>
-            </button>
+            </Button>
           </div>
         ) : null}
 

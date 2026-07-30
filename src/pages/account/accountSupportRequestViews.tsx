@@ -5,6 +5,7 @@ import { RouteLink } from "../../routes/RouteLink";
 import type { SupportRequestItem } from "../../services/support-request.service";
 
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 export const SUPPORT_PATH = "/account/support";
 export const REQUESTS_PATH = "/account/support/requests";
@@ -199,7 +200,7 @@ export function SupportRequestTabs({
         const isActive = activeFilter === filter.id;
 
         return (
-          <button
+          <Button unstyled
             aria-pressed={isActive}
             className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-[#0048c440] ${
               isActive
@@ -211,7 +212,7 @@ export function SupportRequestTabs({
             type="button"
           >
             {filter.label}
-          </button>
+          </Button>
         );
       })}
     </nav>
@@ -243,7 +244,7 @@ export function RequestSelectField({
   return (
     <label className="block">
       <RequiredLabel>{label}</RequiredLabel>
-      <button
+      <Button unstyled
         className={`mt-2 flex h-12 w-full items-center justify-between rounded-xl border border-[#d0d0d0] bg-white px-3 text-right text-sm font-normal leading-5 outline-none transition focus-visible:border-[#0048c4] focus-visible:ring-3 focus-visible:ring-[#0048c420] [direction:ltr] ${
           value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
         }`}
@@ -254,7 +255,7 @@ export function RequestSelectField({
         <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]">
           {value || placeholder}
         </Typography>
-      </button>
+      </Button>
     </label>
   );
 }
@@ -295,7 +296,7 @@ export function RequestOptionBottomSheet({
 
             return (
               <div key={option.id}>
-                <button
+                <Button unstyled
                   aria-pressed={isSelected}
                   className={`relative flex min-h-12 w-full items-center justify-center bg-white px-10 py-2.5 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440] ${
                     isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
@@ -321,7 +322,7 @@ export function RequestOptionBottomSheet({
                       </Typography>
                     ) : null}
                   </Typography>
-                </button>
+                </Button>
 
                 {index < options.length - 1 ? (
                   <div className="px-4 py-2">

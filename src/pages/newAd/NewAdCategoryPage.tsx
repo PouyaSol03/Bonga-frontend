@@ -5,6 +5,7 @@ import { getStoredAuthSession, storeLoginRedirectPath } from "../../auth/auth-st
 import { TopBar } from "../../components/TopBar";
 import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
 import { Typography } from "../../components/ui/Typography";
+import { Button } from "../../components/ui/Button";
 
 type TransactionType = "sale" | "rent" | "project";
 type RegistrantType = "" | "personal" | "agency";
@@ -183,7 +184,7 @@ function TransactionSegmentedControl({
           const isActive = type === activeType;
 
           return (
-            <button
+            <Button unstyled
               aria-selected={isActive}
               className={`min-w-0 py-2 text-center text-base font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
                 } ${isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"}`}
@@ -193,7 +194,7 @@ function TransactionSegmentedControl({
               type="button"
             >
               {config.label}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -225,7 +226,7 @@ function CategoryChip({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button unstyled
       className={`flex items-center justify-center gap-1 rounded-[10px] border p-2 max-h-9 !text-sm !font-medium leading-7 [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
         ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
         : "border-[#cccccc] bg-white text-[#1a1a1a]"
@@ -235,7 +236,7 @@ function CategoryChip({
     >
       {isSelected ? <SelectedCheckIcon /> : null}
       <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
-    </button>
+    </Button>
   );
 }
 
@@ -285,7 +286,7 @@ function NextActionBar({
     <footer className={desktop
       ? "relative z-20 flex shrink-0 justify-end border-t border-[#e1e7f0] bg-white px-6 py-4"
       : "relative z-20 shrink-0 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_28px_rgba(0,0,0,0.10)] before:pointer-events-none before:absolute before:inset-x-0 before:-top-8 before:h-8 before:bg-gradient-to-t before:from-white before:to-transparent"}>
-      <button
+      <Button unstyled
         className={`${desktop ? "h-12 w-48" : "w-full py-2"} rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled
             ? "bg-[#e0e0e0] text-[#a6a6a6]"
             : "bg-[#0048c4] text-white active:bg-[#003ba1]"
@@ -295,7 +296,7 @@ function NextActionBar({
         type="button"
       >
         ادامه
-      </button>
+      </Button>
     </footer>
   );
 }

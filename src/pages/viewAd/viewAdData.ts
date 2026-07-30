@@ -84,9 +84,9 @@ export const viewAdDemo: ViewAdDetails = {
     },
   ],
   rows: [
-    { icon: "checklist", label: "ثبت بازخورد" },
-    { icon: "building", label: "آژانس‌های محله صیاد شیرازی" },
-    { icon: "info", label: "گزارش تخلف آگهی" },
+    { icon: "addToList", label: "ثبت بازخورد" },
+    { icon: "apartment", label: "آژانس‌های محله صیاد شیرازی" },
+    { icon: "informationDiamond", label: "گزارش تخلف آگهی" },
   ],
 };
 

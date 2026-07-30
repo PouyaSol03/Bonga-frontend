@@ -1,5 +1,6 @@
 import { AdCardTomanIcon } from "../../AdCardIcons";
 import { Typography } from "../../ui/Typography";
+import { Button } from "../../ui/Button";
 
 type PricingCardItem = {
   value: string | number;
@@ -109,7 +110,7 @@ export default function PricingCard({
         </>
       )}
 
-      <button
+      <Button unstyled
         type="button"
         onClick={onPay}
         className="
@@ -120,7 +121,7 @@ export default function PricingCard({
         "
       >
         پرداخت
-      </button>
+      </Button>
     </div>
   );
 }

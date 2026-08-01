@@ -31,7 +31,8 @@ type HomeSearchScreenProps = {
 
 const DEFAULT_MIN_SEARCH_QUERY_LENGTH = 1;
 const REMOVE_TRANSITION_MS = 180;
-const SWIPE_DELETE_THRESHOLD = 72;
+const SWIPE_REVEAL_WIDTH = 59;
+const SWIPE_REVEAL_THRESHOLD = 28;
 
 function useDelayedSearchDelete(
   onDelete: (id: string | number) => void,
@@ -240,7 +241,7 @@ export function HomeSearchScreen({
     >
       <div className="shrink-0 bg-[#f0f0f0]">
         <TopBar
-          centerClassName="px-2"
+          centerClassName="pr-1"
           centerSlot={
             <SearchField
               isOpen={isOpen}
@@ -248,11 +249,11 @@ export function HomeSearchScreen({
               onQueryChange={updateQuery}
             />
           }
-          contentClassName="px-2"
+          contentClassName="pl-4 pr-1"
           onBack={closeSearch}
         />
         <div className="flex h-11 items-center justify-between gap-4 px-4">
-          <Typography as="p" variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
+          <Typography as="p" variant="title" size="medium" weight="semibold" className="text-[#1a1a1a]">
             {isResultsView ? "نتایج جستجو" : "جستجوهای اخیر"}
           </Typography>
 
@@ -267,7 +268,7 @@ export function HomeSearchScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#fafafa]">
         {isResultsView ? (
           !hasEnoughSearchQueryLength ? (
             <div className="flex flex-col">
@@ -276,14 +277,14 @@ export function HomeSearchScreen({
               </Typography>
             </div>
           ) : isWaitingForDebounce || isQuickSearchFetching ? (
-            <SearchRowsSkeleton />
+            <SearchRowsSkeleton variant="results" />
           ) : isQuickSearchError ? (
             <QuickSearchErrorState
               className="min-h-full"
               onRetry={() => void refetchQuickSearch()}
             />
           ) : quickSearchResults.length > 0 ? (
-            <div className="flex flex-col">
+            <div className="flex flex-col bg-[#fafafa] pt-4">
               {quickSearchResults.map((item) => (
                 <QuickSearchResultRow
                   item={item}
@@ -301,14 +302,14 @@ export function HomeSearchScreen({
             <SearchErrors variant="no-search" />
           )
         ) : savedSearchesQuery.isLoading ? (
-          <SearchRowsSkeleton />
+          <SearchRowsSkeleton variant="records" />
         ) : savedSearchesQuery.isError ? (
           <RecentSearchErrorState
             className="min-h-full"
             onRetry={() => void savedSearchesQuery.refetch()}
           />
         ) : visibleRecentSearches.length > 0 ? (
-          <div className="flex flex-col">
+          <div className="flex flex-col bg-[#fafafa]">
             {visibleRecentSearches.map((item) => (
               <SearchRecordRow
                 item={item}
@@ -371,9 +372,9 @@ function SavedSearchesView({
     >
       <TopBar onBack={onBack} title="جستجوی ذخیره شده" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#fafafa]">
         {isLoading ? (
-          <SearchRowsSkeleton />
+          <SearchRowsSkeleton variant="records" />
         ) : isError ? (
           <Button unstyled
             className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
@@ -383,7 +384,7 @@ function SavedSearchesView({
             دریافت جستجوهای ذخیره‌شده ناموفق بود؛ تلاش دوباره
           </Button>
         ) : savedSearches.length > 0 ? (
-          <div className="flex flex-col bg-white">
+          <div className="flex flex-col bg-[#fafafa]">
             {savedSearches.map((item) => (
               <SearchRecordRow
                 item={item}
@@ -402,19 +403,42 @@ function SavedSearchesView({
   );
 }
 
-function SearchRowsSkeleton() {
+function SearchRowsSkeleton({ variant }: { variant: "records" | "results" }) {
+  const isRecords = variant === "records";
+
   return (
-    <div className="flex flex-col bg-white" aria-hidden="true">
+    <div
+      className={`flex flex-col bg-[#fafafa] ${isRecords ? "" : "pt-4"}`}
+      aria-hidden="true"
+    >
       {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          className="flex min-h-[73px] items-center justify-between gap-4 border-b border-[#f0f0f0] px-4 py-3"
-          key={index}
-        >
-          <div className="h-4 w-16 animate-pulse rounded-full bg-[#f0f0f0]" />
-          <div className="flex flex-1 flex-col items-end gap-2">
-            <div className="h-5 w-24 animate-pulse rounded-full bg-[#f0f0f0]" />
-            <div className="h-4 w-40 max-w-full animate-pulse rounded-full bg-[#f0f0f0]" />
-          </div>
+        <div className="bg-[#fafafa]" key={index}>
+          {isRecords ? (
+            <div className="flex h-[118px] flex-col justify-center px-4 py-4">
+              <div className="flex items-center justify-end gap-2">
+                <div className="h-6 w-6 animate-pulse rounded bg-[#f0f0f0]" />
+                <div className="h-5 w-32 animate-pulse rounded-full bg-[#f0f0f0]" />
+              </div>
+              <div className="mt-2 flex flex-wrap justify-end gap-2 pr-8">
+                <div className="h-6 w-24 animate-pulse rounded-md bg-[#f0f0f0]" />
+                <div className="h-6 w-28 animate-pulse rounded-md bg-[#f0f0f0]" />
+                <div className="h-6 w-20 animate-pulse rounded-md bg-[#f0f0f0]" />
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-[72px] items-center justify-between gap-4 px-4">
+              <div className="h-4 w-16 animate-pulse rounded-full bg-[#f0f0f0]" />
+              <div className="flex flex-1 flex-col items-end gap-2">
+                <div className="h-4 w-16 animate-pulse rounded-full bg-[#f0f0f0]" />
+                <div className="h-4 w-28 animate-pulse rounded-full bg-[#f0f0f0]" />
+              </div>
+            </div>
+          )}
+          {index < 5 ? (
+            <div
+              className={isRecords ? "h-px bg-[#f0f0f0]" : "mx-4 h-px bg-[#f0f0f0]"}
+            />
+          ) : null}
         </div>
       ))}
     </div>
@@ -444,17 +468,19 @@ function SearchField({
 
   return (
     <SearchInputBar
-        aria-label="جستجو"
-        containerClassName="border-2 border-[#0048c4]"
-        inputClassName="home-search-input"
-        onClear={() => onQueryChange("")}
-        onValueChange={onQueryChange}
-        placeholder="جستجو"
-        ref={inputRef}
-        tabIndex={isOpen ? 0 : -1}
-        type="search"
-        value={query}
-      />
+      aria-label="جستجو"
+      containerClassName="[direction:rtl]"
+      inputClassName="home-search-input"
+      onClear={() => onQueryChange("")}
+      onValueChange={onQueryChange}
+      placeholder="جستجو"
+      ref={inputRef}
+      showSearchIcon={false}
+      size="compact"
+      tabIndex={isOpen ? 0 : -1}
+      type="search"
+      value={query}
+    />
   );
 }
 
@@ -470,6 +496,7 @@ function SearchRecordRow({
   onSelect: () => void;
 }) {
   const pointerStartXRef = useRef<number | null>(null);
+  const pointerStartOffsetRef = useRef(0);
   const didSwipeRef = useRef(false);
   const [dragOffset, setDragOffset] = useState(0);
   const tags =
@@ -480,10 +507,12 @@ function SearchRecordRow({
         : [];
 
   const finishSwipe = () => {
-    if (dragOffset >= SWIPE_DELETE_THRESHOLD && !isDeleting) onDelete();
     const shouldSuppressClick = didSwipeRef.current;
-    setDragOffset(0);
+    setDragOffset((currentOffset) =>
+      currentOffset >= SWIPE_REVEAL_THRESHOLD ? SWIPE_REVEAL_WIDTH : 0,
+    );
     pointerStartXRef.current = null;
+    pointerStartOffsetRef.current = 0;
 
     if (shouldSuppressClick) {
       window.setTimeout(() => {
@@ -494,65 +523,91 @@ function SearchRecordRow({
 
   return (
     <article
-      className={`relative min-h-[118px] overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
+      className={`relative h-[119px] overflow-hidden bg-[#fafafa] ${isDeleting ? "opacity-60" : ""}`}
       onPointerCancel={finishSwipe}
       onPointerDown={(event) => {
         if (isDeleting) return;
         pointerStartXRef.current = event.clientX;
+        pointerStartOffsetRef.current = dragOffset;
         didSwipeRef.current = false;
         event.currentTarget.setPointerCapture(event.pointerId);
       }}
       onPointerMove={(event) => {
         if (pointerStartXRef.current === null || isDeleting) return;
-        const offset = Math.min(80, Math.max(0, event.clientX - pointerStartXRef.current));
-        if (offset > 5) didSwipeRef.current = true;
+        const delta = event.clientX - pointerStartXRef.current;
+        const offset = Math.min(
+          SWIPE_REVEAL_WIDTH,
+          Math.max(0, pointerStartOffsetRef.current + delta),
+        );
+        if (Math.abs(delta) > 5) didSwipeRef.current = true;
         setDragOffset(offset);
       }}
       onPointerUp={finishSwipe}
       style={{ touchAction: "pan-y" }}
     >
-      <Button unstyled
-        aria-label={`حذف ${item.title}`}
-        className="absolute inset-y-0 left-0 flex w-20 flex-col items-center justify-center gap-1 bg-[#fdecec] text-[#d92d20]"
-        disabled={isDeleting}
-        onClick={onDelete}
-        type="button"
-      >
-        <LinearDelete className="h-6 w-6" />
-        <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium!">حذف</Typography>
-      </Button>
-
-      <Button unstyled
-        className="relative flex min-h-[118px] w-full flex-col bg-white px-3 py-4 text-right transition-transform duration-150 ease-out"
-        disabled={isDeleting}
-        onClick={() => {
-          if (!didSwipeRef.current) onSelect();
-        }}
-        style={{ transform: `translateX(${dragOffset}px)` }}
-        type="button"
-      >
-        <Typography as="span" variant="body" size="medium" weight="regular" className="flex w-full items-center justify-start gap-2">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0">
-            <ApartmentIcon />
+      <div className="relative h-[118px] overflow-hidden bg-[#fdecec]">
+        <Button unstyled
+          aria-label={`حذف ${item.title}`}
+          className="absolute inset-y-0 left-0 flex w-[59px] flex-col items-center justify-center gap-1 bg-[#fdecec] text-[#d92d20]"
+          disabled={isDeleting}
+          onClick={onDelete}
+          type="button"
+        >
+          <LinearDelete className="h-6 w-6" />
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#d92d20]">
+            حذف
           </Typography>
-          <strong className="min-w-0 flex-1 whitespace-normal break-words text-base font-medium leading-6 text-[#1a1a1a]">
-            {item.title}
-          </strong>
-        </Typography>
+        </Button>
 
-        {tags.length > 0 ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 flex w-full flex-wrap justify-start gap-2 pr-8">
-            {tags.map((tag) => (
-              <Typography as="span" variant="label" size="small" weight="medium"
-                className="max-w-full whitespace-normal break-words rounded-md bg-[#f0f0f0] px-2 py-1 text-right text-xs font-medium leading-4 text-[#4d4d4d]"
-                key={tag}
-              >
-                {tag}
-              </Typography>
-            ))}
-          </Typography>
-        ) : null}
-      </Button>
+        <Button unstyled
+          className="relative flex h-[118px] w-full flex-col bg-[#fafafa] px-4 py-4 text-right transition-transform duration-150 ease-out"
+          disabled={isDeleting}
+          onClick={() => {
+            if (didSwipeRef.current) return;
+            if (dragOffset > 0) {
+              setDragOffset(0);
+              return;
+            }
+            onSelect();
+          }}
+          style={{ transform: `translateX(${dragOffset}px)` }}
+          type="button"
+        >
+          <span className="flex w-full items-center gap-2 [direction:rtl]">
+            <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">
+              <ApartmentIcon />
+            </span>
+            <Typography
+              as="span"
+              variant="body"
+              size="large"
+              weight="medium"
+              className="min-w-0 flex-1 whitespace-normal break-words text-right leading-6 text-[#1a1a1a]"
+            >
+              {item.title}
+            </Typography>
+          </span>
+
+          {tags.length > 0 ? (
+            <span className="mt-2 flex w-full flex-wrap justify-start gap-2 pr-8 [direction:rtl]">
+              {tags.map((tag) => (
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="inline-flex h-6 max-w-full items-center rounded-[6px] bg-[#f0f0f0] px-2 text-right text-[#4d4d4d]"
+                  key={tag}
+                >
+                  {tag}
+                </Typography>
+              ))}
+            </span>
+          ) : null}
+        </Button>
+      </div>
+
+      <div aria-hidden="true" className="h-px bg-[#f0f0f0]" />
     </article>
   );
 }
@@ -570,26 +625,47 @@ function QuickSearchResultRow({
       : `${toPersianDigits(item.count)} آگهی`;
 
   return (
-    <Button unstyled
-      className="flex min-h-[73px] w-full cursor-pointer justify-between gap-4 border-b border-[#f0f0f0] bg-white px-4 py-3 text-right [direction:ltr] last:border-b-0 active:bg-[#fafafa]"
-      onClick={onSelect}
-      type="button"
-    >
-      <Typography as="span" variant="body" size="small" weight="regular" className="inline-flex shrink-0 text-xs font-normal leading-5 text-[#a6a6a6] [direction:rtl]">
-        {formattedCount}
-      </Typography>
+    <div className="bg-[#fafafa]">
+      <Button unstyled
+        className="flex h-[72px] w-full cursor-pointer items-center justify-between gap-4 bg-[#fafafa] px-4 text-right [direction:ltr]"
+        onClick={onSelect}
+        type="button"
+      >
+        <Typography
+          as="span"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="inline-flex shrink-0 text-[#a6a6a6] [direction:rtl]"
+        >
+          {formattedCount}
+        </Typography>
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
-        <strong className="max-w-full truncate text-base font-normal leading-6 text-[#1a1a1a]">
-          {item.title}
-        </strong>
-        {item.category ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="max-w-full truncate text-sm font-normal leading-5 text-[#a6a6a6]">
-            {item.category}
+        <span className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="semibold"
+            className="max-w-full truncate text-[#1a1a1a]"
+          >
+            {item.title}
           </Typography>
-        ) : null}
-      </Typography>
-    </Button>
+          {item.category ? (
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="max-w-full truncate text-[#a6a6a6]"
+            >
+              {item.category}
+            </Typography>
+          ) : null}
+        </span>
+      </Button>
+      <div aria-hidden="true" className="mx-4 h-px bg-[#f0f0f0]" />
+    </div>
   );
 }
 

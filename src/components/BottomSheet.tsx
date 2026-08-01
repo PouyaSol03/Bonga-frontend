@@ -173,7 +173,7 @@ export function BottomSheet({
 
                 {showHeaderDivider ? (
                   <div className="px-4 pt-3">
-                    <div className="h-px bg-[#e6e6e6]" />
+                    <div className="h-px bg-[#f0f0f0]" />
                   </div>
                 ) : null}
               </>

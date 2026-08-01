@@ -34,6 +34,12 @@ import {
 } from "../newAd/data";
 import type { BasicPropertyField, ChipItem, MoreFeatureField } from "../newAd/types";
 import { Typography } from "../../components/ui/Typography";
+import LinearAgreement from "../../components/(icons)/LinearAgreement";
+import LinearBed from "../../components/(icons)/LinearBed";
+import LinearCategory from "../../components/(icons)/LinearCategory";
+import LinearLocation from "../../components/(icons)/LinearLocation";
+import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
+import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 
 type TransactionType = "sale" | "rent" | "project";
 
@@ -65,7 +71,9 @@ type IconName =
   | "settings"
   | "temperature"
   | "year"
-  | "exchange";
+  | "exchange"
+  | "agreement"
+  | "unitBed";
 
 type RangeBlock = {
   id: string;
@@ -689,8 +697,10 @@ function isProjectCategory(category: CategoryKey) {
 function getFieldIcon(key: string): IconName {
   if (key === "floor" || key === "totalFloors" || key === "projectTotalFloors") return "floor";
   if (key === "rooms" || key === "singleRoomCount" || key === "doubleRoomCount" || key === "suiteCount") return "bed";
+  if (key === "documentType") return "agreement";
+  if (key === "unitType") return "unitBed";
   if (key === "age") return "year";
-  if (key === "landPosition" || key === "unitPosition" || key === "unitType") return "orientation";
+  if (key === "landPosition" || key === "unitPosition") return "orientation";
 
   return "settings";
 }
@@ -981,6 +991,10 @@ function getIcon(icon: IconName) {
       return <YearIcon />;
     case "exchange":
       return <ExchangeIcon />;
+    case "agreement":
+      return <AgreementIcon />;
+    case "unitBed":
+      return <UnitBedIcon />;
     default:
       return <SettingsIcon />;
   }
@@ -1152,8 +1166,8 @@ export function AdvertisementFilterPage({
             type="button"
           >
             <div className="flex items-center gap-2 text-sm font-medium text-[#1a1a1a]">
-              <BuildingIcon />
-              <Typography as="span" variant="body" size="medium" weight="regular">انتخاب دسته</Typography>
+              <LinearCategory className="w-6 h-6" />
+              <Typography as="span" variant="label" size="large" weight="medium">انتخاب دسته</Typography>
             </div>
 
             <FormChoiceChip
@@ -1166,13 +1180,15 @@ export function AdvertisementFilterPage({
       </div>
 
       <main ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-0">
-        {filterBlocks.map((block) => (
+        {filterBlocks.map((block, index) => (
           <FilterBlockRenderer
             key={"id" in block ? `${block.kind}-${block.id}` : block.kind}
             applyButtonLabel={applyButtonLabel}
             block={block}
             filters={filters}
+            nextBlock={filterBlocks[index + 1]}
             onApply={applyFilters}
+            previousBlock={filterBlocks[index - 1]}
             setFilters={setFilters}
             setRangeValue={setRangeValue}
             setSingleValue={setSingleValue}
@@ -1451,10 +1467,6 @@ function FilterAssetIcon({ src }: { src: string }) {
   );
 }
 
-function BuildingIcon() {
-  return <FilterAssetIcon src="/icons/add_advertisement/features.svg" />;
-}
-
 function LocationIcon() {
   return <FilterAssetIcon src="/icons/add_advertisement/location.svg" />;
 }
@@ -1500,6 +1512,14 @@ function SettingsIcon() {
 
 function ExchangeIcon() {
   return <FilterAssetIcon src="/icons/exchange.svg" />;
+}
+
+function AgreementIcon() {
+  return <LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />;
+}
+
+function UnitBedIcon() {
+  return <LinearBed aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 
@@ -1606,7 +1626,9 @@ type FilterBlockRendererProps = {
   block: FilterBlock;
   filters: FilterState;
   focusTarget?: string | null;
+  nextBlock?: FilterBlock;
   onApply: () => void;
+  previousBlock?: FilterBlock;
   setFilters: Dispatch<SetStateAction<FilterState>>;
   setRangeValue: (id: string, key: keyof RangeValue, value: string) => void;
   setSingleValue: (id: string, value: string) => void;
@@ -1619,7 +1641,9 @@ function FilterBlockRenderer({
   block,
   filters,
   focusTarget,
+  nextBlock,
   onApply,
+  previousBlock,
   setFilters,
   setRangeValue,
   setSingleValue,
@@ -1725,19 +1749,26 @@ function FilterBlockRenderer({
         />
       );
 
-    case "toggle":
+    case "toggle": {
+      const startsBooleanGroup = previousBlock?.kind !== "toggle";
+      const endsBooleanGroup = nextBlock?.kind !== "toggle" && nextBlock?.kind !== "loan";
+
       return (
         <SwitchOnlySection
           checked={Boolean(filters.toggles[block.id])}
+          groupEnd={endsBooleanGroup}
+          groupStart={startsBooleanGroup}
           label={block.title}
           onChange={(checked) => setToggleValue(block.id, checked)}
         />
       );
+    }
 
     case "loan":
       return (
         <LoanFilterSection
           checked={Boolean(filters.toggles.hasLoan)}
+          groupStart={previousBlock?.kind !== "toggle"}
           onChange={(checked) => setToggleValue("hasLoan", checked)}
         />
       );
@@ -1876,12 +1907,12 @@ function NeighborhoodFilterSection({
         type="button"
       >
         <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
-          <LocationIcon />
-          <Typography as="span" variant="body" size="medium" weight="regular">محله</Typography>
+          <LinearLocation className="w-6 h-6" />
+          <Typography as="span" variant="label" size="large" weight="medium">محله</Typography>
         </div>
         <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
-          <Typography as="span" variant="body" size="medium" weight="regular">انتخاب کنید</Typography>
-          <ChevronLeftIcon />
+          <Typography as="span" variant="label" size="medium" weight="medium">انتخاب</Typography>
+          <LinearArrowLeft1 className="w-5 h-5" />
         </div>
       </Button>
 
@@ -2293,36 +2324,57 @@ function MoneyRangeSection({
 
 function SwitchOnlySection({
   checked,
+  groupEnd,
+  groupStart,
   label,
   onChange,
 }: {
   checked: boolean;
+  groupEnd: boolean;
+  groupStart: boolean;
   label: string;
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <section className="border-b border-[#f0f0f0] bg-white px-4" dir="rtl">
-      <CheckboxRow checked={checked} label={label} onChange={onChange} />
+    <section
+      className={`bg-white px-4 ${groupStart ? "pt-[7.5px]" : ""} ${
+        groupEnd ? "border-b-8 border-[#f0f0f0] pb-[7.5px]" : ""
+      }`}
+      dir="rtl"
+    >
+      <CheckboxRow
+        checked={checked}
+        divider={!groupEnd}
+        label={label}
+        onChange={onChange}
+      />
     </section>
   );
 }
 
 function LoanFilterSection({
   checked,
+  groupStart,
   onChange,
 }: {
   checked: boolean;
+  groupStart: boolean;
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <section className="border-b-8 border-[#f0f0f0] bg-white px-4" data-filter-section="hasLoan" dir="rtl">
+    <section
+      className={`border-b-8 border-[#f0f0f0] bg-white px-4 pb-[7.5px] ${
+        groupStart ? "pt-[7.5px]" : ""
+      }`}
+      data-filter-section="hasLoan"
+      dir="rtl"
+    >
       <CheckboxRow checked={checked} label="با وام" onChange={onChange} />
     </section>
   );
 }
 
 function CheckboxRow({
-  bottomFilter = false,
   checked,
   divider = false,
   label,
@@ -2337,9 +2389,7 @@ function CheckboxRow({
   return (
     <Button unstyled
       aria-pressed={checked}
-      className={`flex w-full items-center justify-between gap-3 bg-white text-right ${
-        bottomFilter ? "h-[59px]" : "py-2.25"
-      } ${
+      className={`flex h-[59px] w-full items-center justify-between gap-3 bg-white pl-3 text-right ${
         divider ? "border-b border-[#f0f0f0]" : ""
       }`}
       onClick={() => onChange(!checked)}
@@ -2348,7 +2398,7 @@ function CheckboxRow({
       <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-[#1a1a1a]">
         {label}
       </Typography>
-      <ChoiceIndicator checked={checked} className="h-5 w-5 rounded" />
+      <ChoiceIndicator checked={checked} className="rounded" />
     </Button>
   );
 }

@@ -24,7 +24,7 @@ export function Chip({
     <Button unstyled
       aria-pressed={selected}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border p-2 text-sm font-medium leading-5 transition [direction:rtl]",
+        "inline-flex shrink-0 items-center justify-center min-w-9 gap-1.5 rounded-lg border p-2 text-sm font-medium leading-5 transition [direction:rtl]",
         selected ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]",
         focusRing,
         "disabled:cursor-not-allowed disabled:border-[#e5e5e5] disabled:bg-[#f2f2f2] disabled:text-[#b3b3b3]",

@@ -100,7 +100,7 @@ export function SearchRequestSenderBottomSheet({
       >
         {options.map((option) => (
           <ListItem
-            className="border-b border-[#cccccc] last:border-b-0"
+            className="border-b border-[#f0f0f0] last:border-b-0"
             description={option.description}
             key={option.id}
             leading={<RequestSenderIcon type={option.icon} />}

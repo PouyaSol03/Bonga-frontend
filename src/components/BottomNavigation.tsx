@@ -136,7 +136,7 @@ function BottomNavigationComponent({
 
                   setIsCreateAdOpen(true);
                 }}
-                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] gap-1 py-2 text-xs
+                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] gap-1 py-2
                   ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
               >
                 <Typography as="p" variant="body" size="small" weight="medium" className="relative grid h-6 w-6 shrink-0 place-items-center">
@@ -162,7 +162,7 @@ function BottomNavigationComponent({
                   ) : null}
                 </Typography>
 
-                <Typography as="span" variant="body" size="medium" weight="regular" className="max-w-full overflow-hidden text-ellipsis">
+                <Typography as="span" variant="body" size="small" weight="medium" className="max-w-full overflow-hidden text-ellipsis">
                   {item.label}
                 </Typography>
               </RouteLink>

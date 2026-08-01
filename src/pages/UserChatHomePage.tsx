@@ -860,6 +860,35 @@ const ChatHeader = memo(function ChatHeader({
   );
 });
 
+const ChatSearchHeader = memo(function ChatSearchHeader({
+  onClose,
+  onQueryChange,
+  query,
+}: {
+  onClose: () => void;
+  onQueryChange: (value: string) => void;
+  query: string;
+}) {
+  return (
+    <TopBar
+      centerSlot={
+        <input
+          aria-label="جستجو در گفتگوها"
+          autoFocus
+          className="h-10 w-full appearance-none border-0 bg-transparent p-0 text-right text-base font-medium leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#808080]"
+          inputMode="search"
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder="جستجو"
+          type="search"
+          value={query}
+        />
+      }
+      className="bg-[#f0f0f0]"
+      onBack={onClose}
+    />
+  );
+});
+
 const FilterTabs = memo(function FilterTabs({
   activeFilter,
   onSelect,
@@ -3141,8 +3170,13 @@ export function UserChatHomePage() {
 
   const visibleChats = chats;
 
-  const toggleSearch = useCallback(() => {
-    setIsSearchOpen((current) => !current);
+  const openSearch = useCallback(() => {
+    setIsSearchOpen(true);
+    setQuery("");
+  }, []);
+
+  const closeSearch = useCallback(() => {
+    setIsSearchOpen(false);
     setQuery("");
   }, []);
 
@@ -3155,24 +3189,10 @@ export function UserChatHomePage() {
       activeKey="chat"
       contentClassName="bg-white"
       fixedAfterTopBar={
-        <>
-          {isSearchOpen ? (
-            <div className="shrink-0 bg-[#f0f0f0] px-4 pb-2">
-              <input
-                autoFocus
-                className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm text-[#1a1a1a] outline-none focus:border-[#0048c4]"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="جستجو در گفتگوها"
-                type="search"
-                value={query}
-              />
-            </div>
-          ) : null}
-          <FilterTabs
-            activeFilter={activeFilter}
-            onSelect={selectFilter}
-          />
-        </>
+        <FilterTabs
+          activeFilter={activeFilter}
+          onSelect={selectFilter}
+        />
       }
       frameClassName="relative bg-[#cccccc] text-[#1a1a1a] [direction:rtl]"
       overlay={
@@ -3189,10 +3209,18 @@ export function UserChatHomePage() {
         />
       }
       topBar={
-        <ChatHeader
-          onOpenMenu={() => setIsMenuOpen(true)}
-          onOpenSearch={toggleSearch}
-        />
+        isSearchOpen ? (
+          <ChatSearchHeader
+            onClose={closeSearch}
+            onQueryChange={setQuery}
+            query={query}
+          />
+        ) : (
+          <ChatHeader
+            onOpenMenu={() => setIsMenuOpen(true)}
+            onOpenSearch={openSearch}
+          />
+        )
       }
     >
       {isChatsLoading && chats.length === 0 ? <ChatListSkeleton /> : null}

@@ -58,7 +58,7 @@ type BottomSheetActionListProps<TItem extends BottomSheetAction> = {
 };
 
 const variantHeightClassName: Record<BottomSheetVariant, string> = {
-  actions: "h-auto max-h-[calc(100svh-56px)] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]",
+  actions: "h-auto max-h-[calc(100svh-56px)]",
   confirm: "h-auto max-h-[calc(100svh-56px)] pb-[max(1rem,env(safe-area-inset-bottom,0px))]",
   form: "h-auto max-h-[calc(100svh-56px)] pb-[max(1rem,env(safe-area-inset-bottom,0px))]",
   "full-height": "h-[min(100svh,640px)]",
@@ -146,7 +146,7 @@ export function BottomSheet({
             {showHeader ? (
               <>
                 <header
-                  className={`flex h-12 items-center gap-4 px-4 ${headerClassName}`}
+                  className={`flex items-center gap-4 px-4 ${headerClassName}`}
                 >
                   {showBackButton ? (
                     <IconButton

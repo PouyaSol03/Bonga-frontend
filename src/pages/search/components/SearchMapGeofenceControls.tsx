@@ -1,9 +1,8 @@
-import ArrowRight from "../../../assets/icons/ArrowRight";
 import type {
   DrawingState,
   GeofenceResult,
 } from "../geofence/geofenceTypes";
-import { Typography } from "../../../components/ui/Typography";
+import { TopBar } from "../../../components/TopBar";
 import { Button } from "../../../components/ui/Button";
 
 type SearchMapGeofenceControlsProps = {
@@ -33,20 +32,12 @@ export function SearchMapGeofenceControls({
       aria-label="کنترل ترسیم محدوده"
       dir="rtl"
     >
-      <header className="pointer-events-auto absolute inset-x-0 top-0 flex h-14 items-center gap-3 border-b border-[#e6e6e6] bg-[#f0f0f0] px-4">
-        <Button unstyled
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#1a1a1a] transition-colors hover:bg-black/5 focus-visible:outline-[3px] focus-visible:outline-offset-1 focus-visible:outline-[#0048c440]"
-          type="button"
-          aria-label="بازگشت"
-          onClick={onBack}
-        >
-          <ArrowRight />
-        </Button>
-
-        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
-          ترسیم محدوده
-        </Typography>
-      </header>
+      <TopBar
+        className="pointer-events-auto"
+        onBack={onBack}
+        placement="inline"
+        title="ترسیم محدوده"
+      />
 
       {isInvalid ? (
         <div className="pointer-events-none absolute inset-x-4 top-[68px] rounded-xl border border-[#fecdca] bg-[#fffbfa]/95 px-3 py-2 text-right text-xs font-medium leading-5 text-[#b42318] shadow-sm backdrop-blur">

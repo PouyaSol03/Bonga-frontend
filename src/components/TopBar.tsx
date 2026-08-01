@@ -120,9 +120,9 @@ function TopBarBackButton({
   onBack,
 }: Pick<TopBarProps, "backIconDirection" | "backLabel" | "backState" | "backTo" | "onBack">) {
   return (
-    <IconButton
+    <Button unstyled
       aria-label={backLabel}
-      className="rounded-full text-[#1a1a1a]"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-transparent text-[#1a1a1a] outline-none [-webkit-tap-highlight-color:transparent] hover:bg-transparent active:bg-transparent focus:bg-transparent focus:outline-none focus-visible:bg-transparent focus-visible:outline-none"
       onClick={() => {
         if (onBack) {
           onBack();
@@ -145,10 +145,10 @@ function TopBarBackButton({
           window.history.back();
         }
       }}
-      size="dense"
+      type="button"
     >
       <TopBarBackIcon direction={backIconDirection} />
-    </IconButton>
+    </Button>
   );
 }
 
@@ -235,12 +235,12 @@ function TopBarView({
 
   return (
     <header
-      className={`shrink-0 bg-[#fafafa] ${heightClassName} ${className}`}
+      className={`shrink-0 bg-[#f0f0f0] ${heightClassName} ${className}`}
       dir="rtl"
     >
       <div className={`flex h-full min-w-0 items-center [direction:ltr] ${contentClassName}`}>
         {hasStartSlot || reserveStartSpace ? (
-          <div className="flex h-10 min-w-10 shrink-0 items-center gap-4">
+          <div className="flex h-10 min-w-10 shrink-0 items-center gap-2">
             {startSlot ??
               actions.map((action) => (
                 <TopBarIconButton action={action} key={action.id} />

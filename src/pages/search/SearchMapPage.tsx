@@ -1484,7 +1484,7 @@ export function SearchMapPage() {
       <SearchMapFloatingActions
         isDrawing={isDrawMode}
         isEditorMode={isGeofenceEditorOpen}
-        isHidden={mode !== "map" || showCurrentEmptyState}
+        isHidden={mode !== "map" || showCurrentEmptyState || isGeofenceEditorOpen}
         isLocated={isLocated}
         isLocating={isLocating}
         onLocateClick={locateUser}

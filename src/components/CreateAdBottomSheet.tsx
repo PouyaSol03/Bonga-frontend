@@ -41,7 +41,9 @@ export function CreateAdBottomSheet({
   return (
     <BottomSheet
       ariaLabel="ثبت آگهی"
-      contentClassName="mt-4 min-h-0 overflow-y-auto overscroll-contain pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
+      className="rounded-t-[24px]!"
+      contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(0.875rem,env(safe-area-inset-bottom,0px))]"
+      headerClassName="h-10! gap-1! px-2!"
       isOpen={isOpen}
       onClose={onClose}
       title="ثبت آگهی"
@@ -50,16 +52,15 @@ export function CreateAdBottomSheet({
     >
       {options.map((option) => (
         <ListItem
-          className="border-b border-[#cccccc] last:border-b-0"
+          className="after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-[#cccccc] last:after:hidden"
           description={option.description}
           key={option.id}
           leading={<CreateAdIcon type={option.icon} />}
           onClick={() => onSelect?.(option)}
           tabIndex={isOpen ? 0 : -1}
           title={option.title}
-          trailing={<LinearArrowLeft1 aria-hidden="true" />}
-        >
-        </ListItem>
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6" />}
+        />
       ))}
     </BottomSheet>
   );

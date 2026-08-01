@@ -612,6 +612,34 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
   };
 }
 
+function getNeighborhoodChildName(value: unknown) {
+  if (typeof value === "string") return value.trim();
+  if (!value || typeof value !== "object") return "";
+
+  const record = value as Record<string, unknown>;
+  const name = record.name ?? record.title ?? record.label;
+
+  return typeof name === "string" ? name.trim() : "";
+}
+
+function getNeighborhoodDescription(neighborhood: NeighborhoodDto) {
+  const value = neighborhood.sub_neighbors;
+
+  if (Array.isArray(value)) {
+    return value.map(getNeighborhoodChildName).filter(Boolean).join("، ");
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/[،,|]/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join("، ");
+  }
+
+  return "";
+}
+
 function getListingKey(transaction: TransactionType, category: CategoryKey) {
   return `${transaction}:${category}`;
 }
@@ -1082,6 +1110,15 @@ export function AdvertisementFilterPage({
     }));
   };
 
+  const applyFilters = () => {
+    window.history.pushState(
+      window.history.state ?? {},
+      "",
+      buildSearchUrl(filters, applyBasePath),
+    );
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
   if (!filters.category) {
     return (
       <CategorySelectionScreen
@@ -1132,8 +1169,10 @@ export function AdvertisementFilterPage({
         {filterBlocks.map((block) => (
           <FilterBlockRenderer
             key={"id" in block ? `${block.kind}-${block.id}` : block.kind}
+            applyButtonLabel={applyButtonLabel}
             block={block}
             filters={filters}
+            onApply={applyFilters}
             setFilters={setFilters}
             setRangeValue={setRangeValue}
             setSingleValue={setSingleValue}
@@ -1148,14 +1187,7 @@ export function AdvertisementFilterPage({
         <div dir="rtl">
           <Button unstyled
             className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
-            onClick={() => {
-              window.history.pushState(
-                window.history.state ?? {},
-                "",
-                buildSearchUrl(filters, applyBasePath),
-              );
-              window.dispatchEvent(new PopStateEvent("popstate"));
-            }}
+            onClick={applyFilters}
             type="button"
           >
             {applyButtonLabel}
@@ -1570,9 +1602,11 @@ function getFilterSectionAnchor(block: FilterBlock) {
 }
 
 type FilterBlockRendererProps = {
+  applyButtonLabel: string;
   block: FilterBlock;
   filters: FilterState;
   focusTarget?: string | null;
+  onApply: () => void;
   setFilters: Dispatch<SetStateAction<FilterState>>;
   setRangeValue: (id: string, key: keyof RangeValue, value: string) => void;
   setSingleValue: (id: string, value: string) => void;
@@ -1581,9 +1615,11 @@ type FilterBlockRendererProps = {
 };
 
 function FilterBlockRenderer({
+  applyButtonLabel,
   block,
   filters,
   focusTarget,
+  onApply,
   setFilters,
   setRangeValue,
   setSingleValue,
@@ -1594,8 +1630,10 @@ function FilterBlockRenderer({
     case "neighborhood":
       return (
         <NeighborhoodFilterSection
+          applyButtonLabel={applyButtonLabel}
           sectionId={getFilterSectionAnchor(block)}
           focusTarget={focusTarget}
+          onApply={onApply}
           selectedNeighborhoods={filters.neighborhoods}
           onChange={(neighborhoods) =>
             setFilters((current) => ({ ...current, neighborhoods }))
@@ -1777,14 +1815,18 @@ function FilterBlockRenderer({
 }
 
 type NeighborhoodFilterSectionProps = {
+  applyButtonLabel: string;
   focusTarget?: string | null;
+  onApply: () => void;
   onChange: (neighborhoods: SelectedNeighborhood[]) => void;
   sectionId?: string;
   selectedNeighborhoods: SelectedNeighborhood[];
 };
 
 function NeighborhoodFilterSection({
+  applyButtonLabel,
   focusTarget,
+  onApply,
   onChange,
   sectionId,
   selectedNeighborhoods,
@@ -1866,105 +1908,114 @@ function NeighborhoodFilterSection({
             <div className="shrink-0 bg-[#f0f0f0]">
               <TopBar
                 centerClassName="px-0"
+                centerSlot={
+                  <label className="flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white px-4 focus-within:border-[#0048c4]" dir="rtl">
+                    <input
+                      autoFocus
+                      className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [&::-webkit-search-cancel-button]:hidden"
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="جستجو محله"
+                      type="search"
+                      value={query}
+                    />
+                  </label>
+                }
                 className="bg-[#f0f0f0]"
+                contentClassName="pl-4 pr-2"
                 onBack={() => setIsPickerOpen(false)}
-                title="محله"
+                placement="inline"
               />
+
+              {selectedNeighborhoods.length > 0 ? (
+                <div
+                  className="flex min-h-12 shrink-0 items-center justify-start gap-2 overflow-x-auto bg-[#f0f0f0] px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  dir="rtl"
+                >
+                  {selectedNeighborhoods.map((item) => (
+                    <FormChoiceChip
+                      key={item.id}
+                      label={item.name}
+                      onClick={() => removeNeighborhood(item.id)}
+                      removable
+                      selected
+                    />
+                  ))}
+                </div>
+              ) : null}
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col bg-[#f0f0f0]">
-        <div className="shrink-0 bg-[#f0f0f0] px-4 py-3">
-          <label className="flex h-12 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3 focus-within:border-[#0048c4]" dir="rtl">
-            <SearchIcon />
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080]"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="جستجوی محله"
-              type="search"
-              value={query}
-            />
-            {query ? (
+            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-4" dir="rtl">
+              {!cityId ? (
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-4 text-right text-sm font-normal leading-6 text-[#808080]">
+                  برای انتخاب محله، ابتدا شهر را انتخاب کنید.
+                </Typography>
+              ) : neighborhoodsQuery.isLoading ? (
+                <div>
+                  {Array.from({ length: 7 }, (_, index) => (
+                    <div className="flex min-h-[88px] animate-pulse items-center justify-between gap-5 py-3" key={index}>
+                      <div className="min-w-0 flex-1 space-y-3">
+                        <div className="mr-auto h-5 w-28 rounded bg-[#f0f0f0]" />
+                        <div className="mr-auto h-4 w-4/5 rounded bg-[#f4f4f4]" />
+                      </div>
+                      <div className="h-[18px] w-[18px] rounded-sm bg-[#eeeeee]" />
+                    </div>
+                  ))}
+                </div>
+              ) : neighborhoodsQuery.isError ? (
+                <div className="flex min-h-[320px] flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
+                  دریافت محله‌ها با خطا مواجه شد.
+                  <Button unstyled className="mt-3 font-semibold text-[#0048c4]" onClick={() => void neighborhoodsQuery.refetch()} type="button">
+                    تلاش دوباره
+                  </Button>
+                </div>
+              ) : neighborhoods.length > 0 ? (
+                <div>
+                  {neighborhoods.map((neighborhood) => {
+                    const neighborhoodId = getNeighborhoodOptionId(neighborhood);
+                    const description = getNeighborhoodDescription(neighborhood);
+                    const isSelected = selectedIds.has(neighborhoodId);
+
+                    return (
+                      <Button unstyled
+                        aria-pressed={isSelected}
+                        className="flex min-h-[88px] w-full items-center justify-between gap-5 bg-white py-3 text-right text-[#1a1a1a] outline-none [-webkit-tap-highlight-color:transparent] hover:bg-white active:bg-white focus:bg-white focus:outline-none focus-visible:bg-white focus-visible:outline-none"
+                        key={neighborhoodId}
+                        onClick={() => toggleNeighborhood(neighborhood)}
+                        type="button"
+                      >
+                        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
+                          <Typography as="span" variant="body" size="medium" weight="regular" className="block text-base font-normal leading-6 text-[#1a1a1a]">
+                            {neighborhood.name}
+                          </Typography>
+                          {description ? (
+                            <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
+                              {description}
+                            </Typography>
+                          ) : null}
+                        </Typography>
+                        <ChoiceIndicator checked={isSelected} />
+                      </Button>
+                    );
+                  })}
+                </div>
+              ) : query.trim() ? (
+                <SearchEmptyState compact />
+              ) : (
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-4 text-right text-sm font-normal leading-6 text-[#808080]">
+                  محله‌ای برای این شهر ثبت نشده است.
+                </Typography>
+              )}
+            </main>
+
+            <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
               <Button unstyled
-                aria-label="پاک کردن جستجوی محله"
-                className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]"
-                onClick={() => setQuery("")}
+                className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
+                onClick={onApply}
                 type="button"
               >
-                <ClearCircleIcon />
+                {applyButtonLabel}
               </Button>
-            ) : null}
-          </label>
-        </div>
-
-        {selectedNeighborhoods.length > 0 ? (
-          <div className="flex shrink-0 justify-start gap-2 overflow-y-auto bg-[#f0f0f0] px-4 pb-3" dir="rtl">
-            {selectedNeighborhoods.map((item) => (
-              <FormChoiceChip
-                key={item.id}
-                label={item.name}
-                onClick={() => removeNeighborhood(item.id)}
-                removable
-                selected
-              />
-            ))}
-          </div>
-        ) : null}
-
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-4 py-3" dir="rtl">
-          {!cityId ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-              برای انتخاب محله، ابتدا شهر را انتخاب کنید.
-            </Typography>
-          ) : neighborhoodsQuery.isLoading ? (
-            <div className="space-y-2">
-              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-            </div>
-          ) : neighborhoods.length > 0 ? (
-            <div className="space-y-1">
-              {neighborhoods.map((neighborhood) => {
-                const neighborhoodId = getNeighborhoodOptionId(neighborhood);
-                const isSelected = selectedIds.has(neighborhoodId);
-
-                return (
-                  <Button unstyled
-                    aria-pressed={isSelected}
-                    className={`flex w-full items-center justify-center gap-3 rounded-[10px] px-2 py-3 text-right transition-colors focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]`}
-                    key={neighborhoodId}
-                    onClick={() => toggleNeighborhood(neighborhood)}
-                    type="button"
-                  >
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-                      <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold leading-5 text-[#1a1a1a]">
-                        {neighborhood.name}
-                      </Typography>
-                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
-                        {selectedCity?.name ?? "شهر انتخاب‌شده"}
-                      </Typography>
-                    </Typography>
-                    <ChoiceIndicator checked={isSelected} />
-                  </Button>
-                );
-              })}
-            </div>
-          ) : query.trim() ? (
-            <SearchEmptyState compact />
-          ) : (
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
-              محله‌ای برای این شهر ثبت نشده است.
-            </Typography>
-          )}
-        </div>
-        <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-          <Button
-            fullWidth
-            onClick={() => setIsPickerOpen(false)}
-            size="sm"
-          >
-            تایید
-          </Button>
-        </div>
-            </div>
+            </footer>
           </PageFrame>
         </div>
       ) : null}
@@ -2004,17 +2055,6 @@ function ClearCircleIcon() {
     <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
       <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.4" />
       <path d="m7.5 7.5 5 5m0-5-5 5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.3" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" fill="none" viewBox="0 0 20 20">
-      <path
-        d="M9 4a5 5 0 1 0 3.2 8.85l3.47 3.47a.75.75 0 0 0 1.06-1.06l-3.47-3.47A5 5 0 0 0 9 4Zm-3.5 5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0Z"
-        fill="currentColor"
-      />
     </svg>
   );
 }

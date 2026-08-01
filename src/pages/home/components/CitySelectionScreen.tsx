@@ -295,8 +295,8 @@ function CityOptionRow({
 }) {
   return (
     <Button unstyled
-      className={`flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr] ${isSelected ? "h-[58px] bg-[#e6ebf6]" : "bg-white"
-        }`}
+      aria-pressed={isSelected}
+      className="flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl bg-white pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr]"
       type="button"
       onClick={onSelect}
     >

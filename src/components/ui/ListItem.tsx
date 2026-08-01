@@ -24,11 +24,15 @@ export function ListItem({
   type = "button",
   ...props
 }: ListItemProps) {
+  const isCenter = align === "center";
+
   return (
-    <Button unstyled
+    <Button
+      unstyled
       className={cn(
-        "relative flex min-h-12 w-full items-center gap-3 bg-white px-4 text-right transition",
-        align === "center" && "justify-center text-center",
+        "relative flex w-full items-center gap-2 bg-white px-4 py-4 first:pt-0 last:pb-0 text-right transition [direction:rtl]",
+        // description ? "min-h-[72px]" : "min-h-[72px]",
+        isCenter && "justify-center text-center",
         selected ? "text-[#0048c4]" : "text-[#1a1a1a]",
         "hover:bg-[#f8f9fd] active:bg-[#edf0fb]",
         focusRing,
@@ -37,16 +41,69 @@ export function ListItem({
       type={type}
       {...props}
     >
-      {leading ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{leading}</Typography> : null}
-      <Typography as="span" variant="body" size="medium" weight="regular" className={cn("min-w-0 py-3 [direction:rtl]", align === "center" ? "flex-none text-center" : "flex-1")}>
-        <Typography as="span" variant="body" size="large" weight="regular" className="text-[#1a1a1a]">{title}</Typography>
+      {leading ? (
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+        >
+          {leading}
+        </Typography>
+      ) : null}
+
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className={cn(
+          "min-w-0 [direction:rtl]",
+          isCenter ? "flex-none text-center" : "flex-1 text-right",
+        )}
+      >
+        <Typography
+          as="span"
+          variant="body"
+          size="large"
+          weight="regular"
+          className={cn(
+            "block pt-1.5",
+            selected ? "text-[#0048c4]" : "text-[#1a1a1a]",
+            isCenter ? "text-center" : "text-right",
+          )}
+        >
+          {title}
+        </Typography>
+
         {description ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 block truncate text-sm font-normal leading-5 text-[#808080]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className={cn(
+              "mt-0 block pb-1.5 truncate text-[#b3b3b3]",
+              isCenter ? "text-center" : "text-right",
+            )}
+          >
             {description}
           </Typography>
         ) : null}
       </Typography>
-      {trailing ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">{trailing}</Typography> : null}
+
+      {trailing ? (
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+        >
+          {trailing}
+        </Typography>
+      ) : null}
     </Button>
   );
 }

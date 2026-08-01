@@ -134,18 +134,23 @@ export function InputBox({
   const displayValue = numeric && formatNumeric && value
     ? formatPrice(Number(normalizeNumberInput(value).replace(/,/g, "")))
     : value;
+  const unitMovesToFloatingLabel = Boolean(leftText) && floatingLabel === undefined;
   const resolvedFloatingLabel = floatingLabel ?? (leftText
-    ? placeholder.replace(/\s\*$/, ` (${leftText}) *`)
+    ? /\s\*$/.test(placeholder)
+      ? placeholder.replace(/\s\*$/, ` (${leftText}) *`)
+      : `${placeholder} (${leftText})`
     : placeholder);
 
   return (
     <TextField
+      badge={leftText}
       error={error}
+      hideBadgeWhenFloatingLabel={unitMovesToFloatingLabel}
+      highlightWhenFilled={highlightWhenFilled ?? false}
       inputMode={numeric ? "numeric" : "text"}
       label={resolvedFloatingLabel}
-      highlightWhenFilled={highlightWhenFilled}
-      leadingSlot={hasValue ? <ClearFieldButton onClick={() => onChange("")} /> : leftText ? <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-sm text-[#a6a6a6]">{leftText}</Typography> : undefined}
       onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
+      onClear={() => onChange("")}
       placeholder={hasValue ? "" : placeholder}
       supportingText={supportingText}
       value={displayValue}

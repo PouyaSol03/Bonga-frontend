@@ -246,6 +246,7 @@ export type AdvertisementPage = {
   data: AdvertisementItem[];
   hasNextPage: boolean;
   page: number;
+  total: number;
 };
 
 export type AdvertisementCardData = {
@@ -506,6 +507,7 @@ export async function getAdvertisementList({
           ? currentPage * resolvedPerPage < total
           : data.length >= perPage,
     page: currentPage,
+    total: typeof total === "number" ? total : data.length,
   } satisfies AdvertisementPage;
 }
 

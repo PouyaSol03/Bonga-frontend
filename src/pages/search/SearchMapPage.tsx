@@ -32,6 +32,10 @@ import { SearchMapHeader } from "./components/SearchMapHeader";
 import { SearchMapListingSlider } from "./components/SearchMapListingSlider";
 import { SearchRequestSenderBottomSheet } from "./components/SearchRequestBottomSheets";
 import { SearchMapListView } from "./components/SearchMapListView";
+import {
+  SearchMapQuickFilterBottomSheet,
+  type SearchMapQuickFilterId,
+} from "./components/SearchMapQuickFilterBottomSheet";
 import { SearchNoResultsView } from "./components/SearchNoResultsView";
 import { SearchMapView } from "./components/SearchMapView";
 import { SearchMapGeofenceControls } from "./components/SearchMapGeofenceControls";
@@ -819,6 +823,7 @@ export function SearchMapPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState<BrowserLocation | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [quickFilterId, setQuickFilterId] = useState<SearchMapQuickFilterId | null>(null);
   const [searchInitialView, setSearchInitialView] = useState<"search" | "saved">("search");
   const [mapCenter, setMapCenter] = useState<SearchMapCenter>(getInitialMapCenter);
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
@@ -1025,12 +1030,34 @@ export function SearchMapPage() {
   }, []);
 
   const toggleChip = useCallback((chip: SearchFilterChip) => {
+    if (chip.id !== "filters") {
+      const quickFilterIds: SearchMapQuickFilterId[] = [
+        "category",
+        "neighborhood",
+        "area",
+        "price",
+        "rooms",
+        "floor",
+        "building_age",
+      ];
+
+      if (quickFilterIds.includes(chip.id as SearchMapQuickFilterId)) {
+        setQuickFilterId(chip.id as SearchMapQuickFilterId);
+        return;
+      }
+    }
+
     window.history.pushState(
       window.history.state ?? {},
       "",
       buildFilterPageUrl(chip),
     );
     window.dispatchEvent(new PopStateEvent("popstate"));
+  }, []);
+
+  const handleQuickFilterApply = useCallback((params: URLSearchParams) => {
+    setSelectedListingId(null);
+    writeSearchParams(params);
   }, []);
 
   const handleRemoveChip = useCallback((chip: SearchFilterChip) => {
@@ -1522,6 +1549,14 @@ export function SearchMapPage() {
         onSavedSelect={handleSavedSearchSelect}
         onSubmit={(query) => handleSearchResult({ title: query })}
         saveInput={saveSearchInput}
+      />
+      <SearchMapQuickFilterBottomSheet
+        filterId={quickFilterId}
+        isOpen={quickFilterId !== null}
+        onApply={handleQuickFilterApply}
+        onClose={() => setQuickFilterId(null)}
+        resultCount={listQuery.data?.total ?? listQuery.data?.data.length ?? mapQuery.data?.length ?? 0}
+        search={currentSearch}
       />
       <SearchRequestSenderBottomSheet
         isOpen={pendingSearchRequest !== null || isRequestSuccessOpen}

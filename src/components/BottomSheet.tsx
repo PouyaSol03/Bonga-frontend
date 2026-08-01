@@ -40,6 +40,7 @@ type BottomSheetProps = {
   showHeader?: boolean;
   showHeaderDivider?: boolean;
   title?: string;
+  titleIcon?: ReactNode;
   titleAlign?: SheetAlign;
   variant?: BottomSheetVariant;
   zIndexClassName?: string;
@@ -91,6 +92,7 @@ export function BottomSheet({
   showHeader = true,
   showHeaderDivider = false,
   title,
+  titleIcon,
   titleAlign = "right",
   variant = "actions",
   zIndexClassName = "z-[1000]",
@@ -146,7 +148,7 @@ export function BottomSheet({
             {showHeader ? (
               <>
                 <header
-                  className={`flex items-center gap-4 px-4 ${headerClassName}`}
+                  className={`flex items-center gap-2 px-4 ${headerClassName}`}
                 >
                   {showBackButton ? (
                     <IconButton
@@ -157,6 +159,12 @@ export function BottomSheet({
                     >
                         <LinearArrowRight2  className="h-6 w-6 text-[#4D4D4D]"/>
                     </IconButton>
+                  ) : null}
+
+                  {titleIcon ? (
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center text-[#4d4d4d]">
+                      {titleIcon}
+                    </span>
                   ) : null}
 
                   <Typography as="h2" variant="title" size="medium" weight="semibold"

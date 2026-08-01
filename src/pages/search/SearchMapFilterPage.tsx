@@ -51,9 +51,9 @@ import LinearRuler from "../../components/(icons)/LinearRuler";
 import LinearSettingBuilding from "../../components/(icons)/LinearSettingBuilding";
 import LinearTemperature from "../../components/(icons)/LinearTemperature";
 
-type TransactionType = "sale" | "rent" | "project";
+export type TransactionType = "sale" | "rent" | "project";
 
-type CategoryKey =
+export type CategoryKey =
   | "apartment"
   | "villa-house"
   | "garden-villa"
@@ -218,11 +218,11 @@ const formCodeByListingKey: Record<string, string> = {
   "sale:warehouse": "sale-warehouse",
 };
 
-function getAdvertiseFormCode(transaction: TransactionType, category: CategoryKey) {
+export function getAdvertiseFormCode(transaction: TransactionType, category: CategoryKey) {
   return formCodeByListingKey[`${transaction}:${category}`] ?? `${transaction}-${category}`;
 }
 
-function getListingFromFormCode(formCode: string): { transaction: TransactionType; category: CategoryKey } | null {
+export function getListingFromFormCode(formCode: string): { transaction: TransactionType; category: CategoryKey } | null {
   if (!formCode) return null;
 
   const mappedEntry = Object.entries(formCodeByListingKey).find(([, value]) => value === formCode);
@@ -351,9 +351,10 @@ function getMoneySupportingText(value: string | number | undefined) {
   return normalized && numericValue > 0 ? `${formatBigNumber(numericValue)} تومان` : "";
 }
 
-const customRangeOptionLabel = "افزودن مقدار دلخواه";
+export const customRangeOptionLabel = "مقدار دلخواه";
 
-const areaRangeOptions = [
+export const areaRangeOptions = [
+  customRangeOptionLabel,
   "۳۰",
   "۴۰",
   "۵۰",
@@ -369,7 +370,6 @@ const areaRangeOptions = [
   "۳۰۰",
   "۴۰۰",
   "۵۰۰",
-  customRangeOptionLabel,
 ];
 
 function getRange(filters: FilterState, ids: string[]) {
@@ -526,7 +526,7 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
   return queryString ? `${pathname}?${queryString}` : pathname;
 }
 
-const categoryLabels: Record<CategoryKey, string> = {
+export const categoryLabels: Record<CategoryKey, string> = {
   apartment: "آپارتمان",
   "villa-house": "خانه ویلایی",
   "garden-villa": "باغ، ویلا",
@@ -544,7 +544,7 @@ const categoryLabels: Record<CategoryKey, string> = {
   "project-partnership": "مشارکت",
 };
 
-const categoryGroupsByTransaction: Record<
+export const categoryGroupsByTransaction: Record<
   TransactionType,
   { title: string; items: CategoryKey[] }[]
 > = {
@@ -582,7 +582,7 @@ const categoryGroupsByTransaction: Record<
   ],
 };
 
-const transactionTabs: { label: string; value: TransactionType }[] = [
+export const transactionTabs: { label: string; value: TransactionType }[] = [
   { label: "فروش", value: "sale" },
   { label: "اجاره", value: "rent" },
   { label: "پروژه", value: "project" },
@@ -2150,7 +2150,7 @@ function NumberRangeSection({
   );
 }
 
-function RangeSelectField({
+export function RangeSelectField({
   label,
   onChange,
   value,

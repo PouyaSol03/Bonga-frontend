@@ -1,4 +1,4 @@
-import type { ChangeEventHandler, ReactNode } from "react";
+import type { ChangeEventHandler, FocusEventHandler, ReactNode, Ref } from "react";
 import LinearCancelCircle from "../(icons)/LinearCancelCircle";
 import { Chip } from "../ui/Chip";
 import { SelectField } from "../ui/SelectField";
@@ -87,22 +87,34 @@ export function FormChoiceChip({
 type FormTextFieldProps = {
   badge?: string;
   className?: string;
+  forceHighlight?: boolean;
+  forceLabel?: boolean;
+  inputRef?: Ref<HTMLInputElement>;
   label?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
+  onFocus?: FocusEventHandler<HTMLInputElement>;
   onClear?: () => void;
   placeholder: string;
+  readOnly?: boolean;
   supportingText?: string;
+  trailingSlot?: ReactNode;
   value: string;
 };
 
 export function FormTextField({
   badge,
   className = "",
+  forceHighlight = false,
+  forceLabel = false,
+  inputRef,
   label,
   onChange,
   onClear,
+  onFocus,
   placeholder,
+  readOnly = false,
   supportingText,
+  trailingSlot,
   value,
 }: FormTextFieldProps) {
   return (
@@ -110,12 +122,18 @@ export function FormTextField({
       badge={badge}
       className="text-sm leading-5"
       containerClassName={className}
+      forceHighlight={forceHighlight}
+      forceLabel={forceLabel}
       inputMode="numeric"
+      inputRef={inputRef}
       label={label}
       onChange={onChange}
       onClear={onClear}
+      onFocus={onFocus}
       placeholder={placeholder}
+      readOnly={readOnly}
       supportingText={supportingText}
+      trailingSlot={trailingSlot}
       value={value}
     />
   );

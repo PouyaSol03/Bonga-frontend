@@ -30,7 +30,7 @@ export function ListItem({
     <Button
       unstyled
       className={cn(
-        "relative flex w-full items-center gap-2 bg-white px-4 py-4 first:pt-0 last:pb-0 text-right transition [direction:rtl]",
+        "relative flex w-full items-center gap-2 bg-white px-4 py-4 first:pt-4 last:pb-0 text-right transition [direction:rtl]",
         // description ? "min-h-[72px]" : "min-h-[72px]",
         isCenter && "justify-center text-center",
         selected ? "text-[#0048c4]" : "text-[#1a1a1a]",

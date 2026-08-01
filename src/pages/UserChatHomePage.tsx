@@ -104,7 +104,6 @@ function getChatRouteStateThread() {
 }
 
 const filters: Array<{ label: string; value: ChatFilter }> = [
-  { label: "پشتیبانی", value: "support" },
   { label: "خوانده نشده", value: "not_read" },
   { label: "آگهی‌های من", value: "my_ads" },
   { label: "آگهی‌های دیگران", value: "others_ads" },
@@ -3107,6 +3106,7 @@ export function UserChatHomePage() {
     refetch: refetchChats,
   } = useChatsQuery({
     blocked: showBlocked ? true : undefined,
+    category: "advertise",
     filter: activeFilter ?? undefined,
     page: 1,
     perPage: 10,
@@ -3324,6 +3324,7 @@ export function UserChatBulkDeletePage() {
     refetch,
   } = useChatsQuery({
     blocked: showBlocked ? true : undefined,
+    category: "advertise",
     filter: showMyAds ? "my_ads" : undefined,
     page: 1,
     perPage: 50,

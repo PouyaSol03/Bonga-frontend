@@ -47,7 +47,7 @@ function readStoredCoordinate(key: string) {
 }
 
 function getStoredCityId() {
-  return window.localStorage.getItem("bonga-selected-city-id") ?? "";
+  return readStoredSelectedCity()?.id ?? "";
 }
 
 function getStoredSelectedCityCenter() {
@@ -392,7 +392,7 @@ export function NewAdLocationPage() {
                     >
                       <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold leading-5 text-[#1a1a1a]">{item.name}</Typography>
                       <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
-                        {window.localStorage.getItem("bonga-selected-city") ?? "شهر انتخاب‌شده"}
+                        {readStoredSelectedCity()?.name ?? "مشهد"}
                       </Typography>
                     </Button>
                   ))}

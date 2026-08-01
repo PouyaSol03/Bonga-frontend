@@ -26,6 +26,7 @@ import type { CrmRoutePageProps } from '../pages/crm/CrmLayout'
 import { replaceRoute } from './navigation'
 import { getAppChromeConfig } from './routeChrome'
 import { Button } from "../components/ui/Button";
+import { readStoredSelectedCity } from '../lib/selectedCityStorage'
 
 
 function RouteNotFoundPage() {
@@ -107,10 +108,7 @@ function getCurrentPath() {
 }
 
 function hasStoredCity() {
-  return Boolean(
-    window.localStorage.getItem('bonga-selected-city-id') ||
-      window.localStorage.getItem('bonga-selected-city'),
-  )
+  return Boolean(readStoredSelectedCity()?.id)
 }
 
 function NotificationTopBarIcon() {

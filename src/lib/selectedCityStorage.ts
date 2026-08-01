@@ -12,6 +12,13 @@ export const selectedCityStorageKeys = {
   name: "bonga-selected-city",
 } as const;
 
+export const defaultSelectedCity: Readonly<Required<StoredSelectedCity>> = {
+  id: "000000000000000000000101",
+  latitude: 36.2605,
+  longitude: 59.5986,
+  name: "مشهد",
+};
+
 function toFiniteNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
 
@@ -38,21 +45,31 @@ export function readStoredSelectedCity(): StoredSelectedCity | null {
     window.sessionStorage.getItem(selectedCityStorageKeys.name) ??
     "";
 
-  if (!name) return null;
+  if (!name) return { ...defaultSelectedCity };
 
+  const storedId = window.localStorage.getItem(selectedCityStorageKeys.id) ?? undefined;
   const latitude = toFiniteNumber(
     window.localStorage.getItem(selectedCityStorageKeys.latitude),
   );
   const longitude = toFiniteNumber(
     window.localStorage.getItem(selectedCityStorageKeys.longitude),
   );
+  const isDefaultCity = name.trim() === defaultSelectedCity.name;
 
   return {
-    id: window.localStorage.getItem(selectedCityStorageKeys.id) ?? undefined,
+    id: storedId ?? (isDefaultCity ? defaultSelectedCity.id : undefined),
     latitude:
-      latitude !== undefined && isValidLatitude(latitude) ? latitude : undefined,
+      latitude !== undefined && isValidLatitude(latitude)
+        ? latitude
+        : isDefaultCity
+          ? defaultSelectedCity.latitude
+          : undefined,
     longitude:
-      longitude !== undefined && isValidLongitude(longitude) ? longitude : undefined,
+      longitude !== undefined && isValidLongitude(longitude)
+        ? longitude
+        : isDefaultCity
+          ? defaultSelectedCity.longitude
+          : undefined,
     name,
   };
 }

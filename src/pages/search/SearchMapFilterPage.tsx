@@ -11,8 +11,8 @@ import { Chip } from "../../components/ui/Chip";
 import { ChoiceIndicator } from "../../components/ui/Choice";
 import { TopBar } from "../../components/TopBar";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
+import { FeatureIcon } from "../../components/FeatureIcon";
 import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { getFeatureIconSrc } from "../../lib/handleFeaturesIcons";
 import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
 import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
 import type { NeighborhoodDto } from "../../services/neighborhood.service";
@@ -35,11 +35,21 @@ import {
 import type { BasicPropertyField, ChipItem, MoreFeatureField } from "../newAd/types";
 import { Typography } from "../../components/ui/Typography";
 import LinearAgreement from "../../components/(icons)/LinearAgreement";
-import LinearBed from "../../components/(icons)/LinearBed";
-import LinearCategory from "../../components/(icons)/LinearCategory";
-import LinearLocation from "../../components/(icons)/LinearLocation";
-import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
+import LinearApartmentAge from "../../components/(icons)/LinearApartmentAge";
+import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
 import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
+import LinearArrowLeftRight from "../../components/(icons)/LinearArrowLeftRight";
+import LinearBed from "../../components/(icons)/LinearBed";
+import LinearBuilding from "../../components/(icons)/LinearBuilding";
+import LinearCancelCircle from "../../components/(icons)/LinearCancelCircle";
+import LinearCategory from "../../components/(icons)/LinearCategory";
+import LinearFloor from "../../components/(icons)/LinearFloor";
+import LinearLocation from "../../components/(icons)/LinearLocation";
+import LinearMoney from "../../components/(icons)/LinearMoney";
+import LinearNavigation from "../../components/(icons)/LinearNavigation";
+import LinearRuler from "../../components/(icons)/LinearRuler";
+import LinearSettingBuilding from "../../components/(icons)/LinearSettingBuilding";
+import LinearTemperature from "../../components/(icons)/LinearTemperature";
 
 type TransactionType = "sale" | "rent" | "project";
 
@@ -1218,7 +1228,7 @@ type FilterSectionProps = {
   children: ReactNode;
   icon: ReactNode;
   sectionId?: string;
-  title: string;
+  title: ReactNode;
 };
 
 function FilterSection({ children, icon, sectionId, title }: FilterSectionProps) {
@@ -1377,18 +1387,7 @@ function ExchangeFilterSection({
 }
 
 function FeatureChipIcon({ label }: { label: string }) {
-  const iconSrc = getFeatureIconSrc(label);
-
-  if (!iconSrc) return null;
-
-  return (
-    <img
-      alt=""
-      aria-hidden="true"
-      className="h-5 w-5 shrink-0 object-contain"
-      src={iconSrc}
-    />
-  );
+  return <FeatureIcon feature={label} className="h-5 w-5 shrink-0 text-[#4d4d4d]" />;
 }
 
 type SingleChoiceSectionProps = {
@@ -1461,57 +1460,48 @@ function MoreButton({
   );
 }
 
-function FilterAssetIcon({ src }: { src: string }) {
-  return (
-    <img alt="" aria-hidden="true" className="h-6 w-6 shrink-0 object-contain" src={src} />
-  );
-}
-
 function LocationIcon() {
-  return <FilterAssetIcon src="/icons/add_advertisement/location.svg" />;
+  return <LinearLocation aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function RulerIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M8.75 18V20.25H11.25V18H12.75V20.25H15.25V18H16.75V20.25H20C20.1381 20.25 20.25 20.1381 20.25 20V15C20.25 14.8619 20.1381 14.75 20 14.75H9.25V4C9.25 3.86193 9.13807 3.75 9 3.75H4C3.86193 3.75 3.75 3.86193 3.75 4V7.25H6V8.75H3.75V11.25H6V12.75H3.75V15.25H6V16.75H3.75V20C3.75 20.1381 3.86193 20.25 4 20.25H7.25V18H8.75ZM10.75 13.25H20C20.9665 13.25 21.75 14.0335 21.75 15V20C21.75 20.9665 20.9665 21.75 20 21.75H4C3.0335 21.75 2.25 20.9665 2.25 20V4C2.25 3.0335 3.0335 2.25 4 2.25H9C9.9665 2.25 10.75 3.0335 10.75 4V13.25Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
+  return <LinearRuler aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function MoneyIcon() {
-  return <FilterAssetIcon src="/icons/add_advertisement/money.svg" />;
+  return <LinearMoney aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function BedIcon() {
-  return <FilterAssetIcon src="/icons/infos/bed.svg" />;
+  return <LinearBed aria-hidden="true" className="h-6 w-6 shrink-0" />;
+}
+
+function BuildingIcon() {
+  return <LinearBuilding aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function FloorIcon() {
-  return <FilterAssetIcon src="/icons/infos/floor.svg" />;
+  return <LinearFloor aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function YearIcon() {
-  return <FilterAssetIcon src="/icons/infos/apartment-age.svg" />;
+  return <LinearApartmentAge aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function OrientationIcon() {
-  return <FilterAssetIcon src="/icons/infos/position.svg" />;
+  return <LinearNavigation aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function TemperatureIcon() {
-  return <FilterAssetIcon src="/icons/add_advertisement/tempreture.svg" />;
+  return <LinearTemperature aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function SettingsIcon() {
-  return <FilterAssetIcon src="/icons/add_advertisement/features.svg" />;
+  return <LinearSettingBuilding aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function ExchangeIcon() {
-  return <FilterAssetIcon src="/icons/exchange.svg" />;
+  return <LinearArrowLeftRight aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function AgreementIcon() {
@@ -1900,7 +1890,7 @@ function NeighborhoodFilterSection({
   };
 
   return (
-    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 py-4" data-filter-section={sectionId} dir="rtl">
+    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 py-2" data-filter-section={sectionId} dir="rtl">
       <Button unstyled
         className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
         onClick={() => setIsPickerOpen(true)}
@@ -2056,38 +2046,19 @@ function NeighborhoodFilterSection({
 
 function ChevronDownIcon({ isOpen }: { isOpen: boolean }) {
   return (
-    <svg
+    <LinearArrowDown1
       aria-hidden="true"
       className={`h-5 w-5 shrink-0 text-[#4d4d4d] transition-transform ${isOpen ? "rotate-180" : ""}`}
-      fill="none"
-      viewBox="0 0 20 20"
-    >
-      <path
-        d="m6 8 4 4 4-4"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
+    />
   );
 }
 
 function ChevronLeftIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
-      <path d="m11.5 5.5-4 4 4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
+  return <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5 shrink-0" />;
 }
 
 function ClearCircleIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.4" />
-      <path d="m7.5 7.5 5 5m0-5-5 5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.3" />
-    </svg>
-  );
+  return <LinearCancelCircle aria-hidden="true" className="h-5 w-5" />;
 }
 
 type RangeSectionProps = {
@@ -2108,7 +2079,21 @@ function AreaRangeSection({
   onMinimumChange,
   onMaximumChange,
 }: RangeSectionProps) {
-  const normalizedTitle = title.includes("متراژ") ? "متراژ (متر)" : title;
+  const normalizedTitle = title.includes("متراژ") ? (
+    <>
+      متراژ
+      {" "}
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-[#4d4d4d]"
+      >
+        (متر)
+      </Typography>
+    </>
+  ) : title;
 
   return (
     <FilterSection icon={<RulerIcon />} sectionId={sectionId} title={normalizedTitle}>

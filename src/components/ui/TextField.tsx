@@ -42,7 +42,7 @@ export function TextField({
     <label className={cn("block min-w-0", containerClassName)}>
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
-          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition [direction:ltr]",
+          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition ",
           error
             ? "border-[#ee3623]"
             : hasValue && highlightWhenFilled

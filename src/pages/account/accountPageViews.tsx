@@ -26,6 +26,7 @@ import { TextField } from "../../shared/ui/TextField";
 import { Button } from "../../shared/ui/Button";
 import { Chip } from "../../shared/ui/Chip";
 import LinearDelete from "../../shared/icons/LinearDelete";
+import LinearEdit from "../../shared/icons/LinearEdit";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -535,82 +536,85 @@ export function NoteCard({
 }) {
   const [dragOffset, setDragOffset] = useState(0);
   const dragStartX = useRef<number | null>(null);
+  const dragStartOffset = useRef(0);
   const noteId = getNoteId(note);
   const advertiseId = getNoteAdvertiseId(note);
   const mappedAd = mapAdvertisementToAdCard(getNoteAdvertiseSource(note), 0);
   const noteText = readNoteText(note) || "یادداشت";
-  const dateText = readNoteDate(note, mappedAd.timeAndLocation);
+  const dateText = mappedAd.timeAndLocation || readNoteDate(note, "");
+  const maxDragOffset = 59;
 
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
     if (dragStartX.current === null || disabled || !noteId) return;
 
-    const deltaX = Math.max(0, event.clientX - dragStartX.current);
-    setDragOffset(Math.min(deltaX, 88));
+    const deltaX = event.clientX - dragStartX.current;
+    setDragOffset(Math.min(maxDragOffset, Math.max(0, dragStartOffset.current + deltaX)));
   };
 
   const handlePointerEnd = () => {
-    const shouldDelete = dragOffset > 64;
-    setDragOffset(0);
+    setDragOffset((current) => current >= maxDragOffset / 2 ? maxDragOffset : 0);
     dragStartX.current = null;
-
-    if (shouldDelete && noteId) {
-      onDelete(noteId);
-    }
+    dragStartOffset.current = 0;
   };
 
   return (
-    <article className="relative overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
+    <article className="relative h-[137px] overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
       <Button unstyled
         aria-label="حذف یادداشت"
-        className="absolute inset-y-0 left-0 flex w-[88px] flex-col items-center justify-center gap-1 bg-[#fff1f1] text-xs font-medium leading-4 text-[#e5231a] disabled:opacity-50"
+        className="absolute left-0 top-0 flex h-[136px] w-[59px] flex-col items-center justify-center gap-2 bg-[#ecdddd] text-[#c11004] disabled:opacity-50"
         disabled={disabled || !noteId}
         onClick={() => noteId && onDelete(noteId)}
         type="button"
       >
-        <TrashIcon className="h-5 w-5" />
-        حذف
+        <LinearDelete className="h-6 w-6" />
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#c11004]">
+          حذف
+        </Typography>
       </Button>
 
       <div
-        className="relative z-10 flex min-h-[92px] touch-pan-y items-center gap-3 bg-white px-4 py-3 transition-transform duration-150 ease-out"
+        className="relative z-10 h-[136px] touch-pan-y bg-white px-4 py-4 transition-transform duration-150 ease-out"
         onPointerCancel={handlePointerEnd}
         onPointerDown={(event) => {
           dragStartX.current = event.clientX;
+          dragStartOffset.current = dragOffset;
+          event.currentTarget.setPointerCapture?.(event.pointerId);
         }}
-        onPointerLeave={handlePointerEnd}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         style={{ transform: `translateX(${dragOffset}px)` }}
       >
-        <RouteLink
-          aria-label={`مشاهده آگهی ${mappedAd.title}`}
-          className={`relative h-14 w-16 shrink-0 overflow-hidden rounded-lg bg-[#ebebeb] bg-cover ${mappedAd.imageClassName}`}
-          style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}
-          to={advertiseId ? `/ads/${advertiseId}` : "/search"}
-        />
+        <div className="flex items-center justify-end gap-4 py-2 [direction:ltr]">
+          <Button unstyled
+            aria-label="ویرایش یادداشت"
+            className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d] disabled:opacity-50"
+            disabled={!advertiseId || disabled}
+            onClick={() => onEdit(note)}
+            type="button"
+          >
+            <LinearEdit className="h-5 w-5" />
+          </Button>
+          <Typography as="h2" variant="body" size="large" weight="regular" className="m-0 min-w-0 text-right text-[#1a1a1a] [direction:rtl]">
+            {noteText}
+          </Typography>
+        </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-end gap-2">
-            <Button unstyled
-              aria-label="ویرایش یادداشت"
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#4d4d4d] disabled:opacity-50"
-              disabled={!advertiseId || disabled}
-              onClick={() => onEdit(note)}
-              type="button"
-            >
-              <EditIcon className="h-4 w-4" />
-            </Button>
-            <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 min-w-0 flex-1 truncate text-right text-sm font-medium leading-5 text-[#1a1a1a]">
-              {noteText}
+        <div className="mt-2 py-2 gap-x-2 flex min-w-0 items-center [direction:rtl]">
+          <RouteLink
+            aria-label={`مشاهده آگهی ${mappedAd.title}`}
+            className={`relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-[#ebebeb] bg-cover bg-center ${mappedAd.imageClassName}`}
+            style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}
+            to={advertiseId ? `/ads/${advertiseId}` : "/search"}
+          />
+
+          <div className="min-w-0 flex-1 text-right">
+            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-[#1a1a1a]">
+              {mappedAd.title}
+            </Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-[#808080]">
+              {dateText}
             </Typography>
           </div>
-
-          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 truncate text-right text-xs font-medium leading-5 text-[#1a1a1a]">
-            {mappedAd.title}
-          </Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 truncate text-right text-xs font-normal leading-4 text-[#808080]">
-            {dateText}
-          </Typography>
         </div>
       </div>
     </article>
@@ -917,15 +921,18 @@ export function AccountNotesSkeleton({ count = 3 }: { count?: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <article className="bg-white px-4 py-4" key={index}>
-          <div className="flex gap-3 [direction:rtl]">
-            <AccountSkeletonBlock className="h-[104px] w-[136px] shrink-0 rounded-xl" />
-            <div className="min-w-0 flex-1 space-y-3">
-              <AccountSkeletonBlock className="ml-auto h-5 w-3/4" />
-              <AccountSkeletonBlock className="ml-auto h-4 w-1/2" />
+        <article className="h-[137px] border-b border-[#f0f0f0] bg-white px-4 py-4" key={index}>
+          <div className="flex h-10 items-center justify-end gap-3">
+            <AccountSkeletonBlock className="h-5 w-5 shrink-0" />
+            <AccountSkeletonBlock className="h-5 w-36" />
+          </div>
+          <div className="mt-4 flex h-10 items-center gap-3 [direction:rtl]">
+            <AccountSkeletonBlock className="h-10 w-[60px] shrink-0 rounded-lg" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <AccountSkeletonBlock className="ml-auto h-3 w-3/4" />
+              <AccountSkeletonBlock className="ml-auto h-3 w-1/2" />
             </div>
           </div>
-          <AccountSkeletonBlock className="mt-4 h-20 w-full rounded-xl" />
         </article>
       ))}
     </>

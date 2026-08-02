@@ -31,7 +31,7 @@ export function AccountRecentViewsPage() {
       }
       title="بازدیدهای اخیر"
     >
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!recentViewsQuery.isLoading && !recentViewsQuery.isError && recentAdvertises.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
         {recentViewsQuery.isLoading ? <AccountAdCardsSkeleton /> : null}
         {recentViewsQuery.isError ? (
           <AccountRetryState
@@ -49,9 +49,9 @@ export function AccountRecentViewsPage() {
             })}
             {recentAdvertises.length === 0 ? (
               <EmptyAccountState
-                description="آگهی‌هایی که مشاهده می‌کنید در این بخش نمایش داده می‌شوند."
-                iconSrc="/vectors/NoSearch.svg"
-                title="هنوز آگهی‌ای مشاهده نکرده‌اید!"
+                description="پس از اولین بازدید، آگهی‌های مشاهده‌شده در این بخش نمایش داده خواهند شد."
+                iconSrc="/vectors/NoViews.svg"
+                title="هیچ بازدید اخیری برای نمایش وجود ندارد!"
               />
             ) : null}
           </div>

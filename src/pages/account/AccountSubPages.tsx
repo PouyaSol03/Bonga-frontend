@@ -944,15 +944,15 @@ export function AccountBookmarksPage() {
             />
           ) : null}
           {!isLoading && !isError && bookmarks.map((bookmark, index) => (
-            <div className="contents" key={getBadgeAdvertiseId(bookmark) || index}>
+            <div
+              key={getBadgeAdvertiseId(bookmark) || index}
+              ref={hasNextPage && index === prefetchIndex ? loadMoreRef : undefined}
+            >
               <BookmarkAdCard
                 badge={bookmark}
                 disabled={deleteBadge.isPending}
                 onDelete={deleteBookmark}
               />
-              {hasNextPage && index === prefetchIndex ? (
-                <div aria-hidden="true" className="h-px" ref={loadMoreRef} />
-              ) : null}
             </div>
           ))}
           {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} /> : null}

@@ -25,6 +25,7 @@ import { Typography } from "../../shared/ui/Typography";
 import { TextField } from "../../shared/ui/TextField";
 import { Button } from "../../shared/ui/Button";
 import { Chip } from "../../shared/ui/Chip";
+import LinearDelete from "../../shared/icons/LinearDelete";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -466,7 +467,7 @@ export function BookmarkAdCard({
 
       <Button unstyled
         aria-label="حذف نشان"
-        className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-white/90 text-[#1a1a1a] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
+        className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-white text-[#1a1a1a] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
         disabled={disabled || !advertiseId}
         onClick={(event) => {
           event.preventDefault();
@@ -477,7 +478,7 @@ export function BookmarkAdCard({
         }}
         type="button"
       >
-        <img alt="" aria-hidden="true" className="h-6 w-6" src="/icons/trash.svg" />
+        <LinearDelete className="text-on-surface-var w-6 h-6"/>
       </Button>
     </div>
   );

@@ -73,7 +73,7 @@ export function AccountBookmarksPage() {
       title="نشان‌ها"
     >
       <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
-        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
+        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "flex min-h-0 flex-1 mt- flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
           {isLoading ? <AccountAdCardsSkeleton /> : null}
           {isError ? (
             <AccountRetryState
@@ -83,15 +83,15 @@ export function AccountBookmarksPage() {
             />
           ) : null}
           {!isLoading && !isError && bookmarks.map((bookmark, index) => (
-            <div className="contents" key={getBadgeAdvertiseId(bookmark) || index}>
+            <div
+              key={getBadgeAdvertiseId(bookmark) || index}
+              ref={hasNextPage && index === prefetchIndex ? loadMoreRef : undefined}
+            >
               <BookmarkAdCard
                 badge={bookmark}
                 disabled={deleteBadge.isPending}
                 onDelete={deleteBookmark}
               />
-              {hasNextPage && index === prefetchIndex ? (
-                <div aria-hidden="true" className="h-px" ref={loadMoreRef} />
-              ) : null}
             </div>
           ))}
           {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} /> : null}
@@ -107,7 +107,8 @@ export function AccountBookmarksPage() {
 
       <BottomSheet
         ariaLabel="حذف همه نشان‌ها"
-        contentClassName="px-4 pt-7"
+        contentClassName="px-4 pt-4 pb-9"
+        heightClassName=""
         isOpen={isConfirmDeleteAllOpen}
         onClose={() => setIsConfirmDeleteAllOpen(false)}
         showHeader={false}
@@ -116,7 +117,7 @@ export function AccountBookmarksPage() {
         <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه نشان‌ها مطمئن هستید؟
         </Typography>
-        <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
+        <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
             disabled={deleteBadge.isPending}

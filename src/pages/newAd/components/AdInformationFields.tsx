@@ -1,8 +1,8 @@
 import type { NewAdFieldErrors, NewAdFormValues } from "../types";
 import { InputBox } from "./NewAdControls";
 import { CheckRow, RadioCard, SocialInput } from "./MediaControls";
-import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
-import { Typography } from "../../../components/ui/Typography";
+import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
+import { Typography } from "../../../shared/ui/Typography";
 
 type SetNewAdField = <T extends keyof NewAdFormValues>(
   key: T,

@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { DivIcon } from "leaflet";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import type { BrowserLocation } from "../../../lib/browserLocation";
+import type { BrowserLocation } from "../../../shared/lib/browserLocation";
 import { SearchMapMarker } from "./SearchMapMarker";
 import { SearchMapGeofenceConfirmedLayer } from "../geofence/SearchMapGeofenceConfirmedLayer";
 import { SearchMapGeofenceLayer } from "../geofence/SearchMapGeofenceLayer";

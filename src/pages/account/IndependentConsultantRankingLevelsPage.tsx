@@ -1,6 +1,6 @@
-import { PageFrame } from "../../app/PageFrame";
-import { TopBar } from "../../components/TopBar";
-import { Typography } from "../../components/ui/Typography";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { TopBar } from "../../shared/components/TopBar";
+import { Typography } from "../../shared/ui/Typography";
 
 const consultantLevels = [
   {

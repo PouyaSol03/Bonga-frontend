@@ -6,16 +6,16 @@ import {
   markChatRead,
   sendChatTextMessage,
   sendChatTyping,
-} from "../../api/chat-socket";
-import LinearRefresh from "../../components/(icons)/LinearRefresh";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import LinearSent from "../../components/(icons)/LinearSent";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
+} from "../../core/api/chat-socket";
+import LinearRefresh from "../../shared/icons/LinearRefresh";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import LinearSent from "../../shared/icons/LinearSent";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
   useInfiniteChatMessagesQuery,
-} from "../../hooks/chat.hooks";
-import { usePanelSupportChatsQuery } from "../../hooks/support.hooks";
-import type { ChatMessage, ChatThread } from "../../services/chat.service";
+} from "../../core/hooks/chat.hooks";
+import { usePanelSupportChatsQuery } from "../../core/hooks/support.hooks";
+import type { ChatMessage, ChatThread } from "../../core/services/chat.service";
 import {
   formatSupportConversationDate,
   formatSupportMessageTime,
@@ -31,8 +31,8 @@ import {
   type SupportChatMessage,
 } from "../account/accountSupportViews";
 import type { CrmRoutePageProps } from "./CrmLayout";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 function readParticipant(thread: ChatThread) {
   const participant = thread.participant ?? thread.user ?? {};

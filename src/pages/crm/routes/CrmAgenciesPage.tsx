@@ -1,11 +1,11 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, updateCrmAgencyStatus, updateCrmConsultant } from "../../../services/crm.service";
-import { getApiErrorMessage } from "../../../api/api";
+import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, updateCrmAgencyStatus, updateCrmConsultant } from "../../../core/services/crm.service";
+import { getApiErrorMessage } from "../../../core/api/api";
 import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, consultantApiIdentifier, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();

@@ -1,10 +1,10 @@
 import { useState, useRef, useMemo, useEffect } from "react";
-import { useAdvertiseBadgesQuery, useDeleteAdvertiseBadgeMutation } from "../../../hooks/account.hooks";
-import { getApiErrorMessage } from "../../../api/api";
-import { BottomSheet } from "../../../components/BottomSheet";
-import { Button } from "../../../components/ui/Button";
+import { useAdvertiseBadgesQuery, useDeleteAdvertiseBadgeMutation } from "../../../core/hooks/account.hooks";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { Button } from "../../../shared/ui/Button";
 import { AccountAdCardsSkeleton, AccountPageShell, AccountRetryState, BookmarkAdCard, EmptyAccountState, getBadgeAdvertiseId } from "../accountPageViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountBookmarksPage() {
   const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState(false);

@@ -1,5 +1,5 @@
-import { useWalletPaymentsQuery } from "../../../hooks/account.hooks";
-import { getApiErrorMessage } from "../../../api/api";
+import { useWalletPaymentsQuery } from "../../../core/hooks/account.hooks";
+import { getApiErrorMessage } from "../../../core/api/api";
 import { AccountLoadingState, AccountPageShell, AccountRetryState, EmptyMessage, PaymentHistoryCard } from "../accountPageViews";
 
 export function AccountWalletHistoryPage() {

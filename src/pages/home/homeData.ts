@@ -6,11 +6,11 @@ import type {
   SearchSuggestion,
 } from './homeTypes'
 
-import type { AdCardData } from '../../components/AdCard'
-import SaleCategoryIcon from '../../assets/icons/SaleCategoryIcon.svg'
-import RentCategoryIcon from '../../assets/icons/RentCategoryIcon.svg'
-import ProjectCategoryIcon from '../../assets/icons/ProjectCategoryIcon.svg'
-import ConsultantCategoryIcon from '../../assets/icons/ConsultantCategoryIcon.svg'
+import type { AdCardData } from '../../shared/components/AdCard'
+import SaleCategoryIcon from '../../shared/assets/icons/SaleCategoryIcon.svg'
+import RentCategoryIcon from '../../shared/assets/icons/RentCategoryIcon.svg'
+import ProjectCategoryIcon from '../../shared/assets/icons/ProjectCategoryIcon.svg'
+import ConsultantCategoryIcon from '../../shared/assets/icons/ConsultantCategoryIcon.svg'
 
 export function getLatestMashhadAdById(id: number): AdCardData | undefined {
   return latestMashhadAds.find((ad) => ad.id === id)

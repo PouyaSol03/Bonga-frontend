@@ -1,19 +1,19 @@
 import { useRef, type ComponentType, type FormEvent, type SVGProps } from "react";
-import { getStoredAuthSession } from "../../auth/auth-storage";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import LinearCall from "../../components/(icons)/LinearCall";
-import LinearQuestion from "../../components/(icons)/LinearQuestion";
-import LinearRequestList from "../../components/(icons)/LinearRequestList";
-import LinearSent from "../../components/(icons)/LinearSent";
-import LinearSupport from "../../components/(icons)/LinearSupport";
-import LinearAttachment from "../../components/(icons)/LinearAttachment";
-import LinearTickDouble from "../../components/(icons)/LinearTickDouble";
-import LinearWavingHand from "../../components/(icons)/LinearWavingHand";
-import type { ChatMessage, ChatThread } from "../../services/chat.service";
-import { RouteLink } from "../../routes/RouteLink";
+import { getStoredAuthSession } from "../../core/auth/auth-storage";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearCall from "../../shared/icons/LinearCall";
+import LinearQuestion from "../../shared/icons/LinearQuestion";
+import LinearRequestList from "../../shared/icons/LinearRequestList";
+import LinearSent from "../../shared/icons/LinearSent";
+import LinearSupport from "../../shared/icons/LinearSupport";
+import LinearAttachment from "../../shared/icons/LinearAttachment";
+import LinearTickDouble from "../../shared/icons/LinearTickDouble";
+import LinearWavingHand from "../../shared/icons/LinearWavingHand";
+import type { ChatMessage, ChatThread } from "../../core/services/chat.service";
+import { RouteLink } from "../../app/router/RouteLink";
 
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 export const SUPPORT_CHAT_PATH = "/account/support/chat";
 export const SUPPORT_NEW_CHAT_PATH = "/account/support/chat/new";

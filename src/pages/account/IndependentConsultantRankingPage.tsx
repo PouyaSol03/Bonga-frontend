@@ -1,14 +1,14 @@
 import { useState, type ReactNode } from "react";
-import { PageFrame } from "../../app/PageFrame";
-import { useMyBadgesQuery } from "../../hooks/account.hooks";
-import { useAgentDashboardQuery } from "../../hooks/dashboard.hooks";
-import { usePublicAgentsQuery } from "../../hooks/agency.hooks";
-import type { BadgeItem } from "../../services/account.service";
-import { TopBar } from "../../components/TopBar";
-import { RouteLink } from "../../routes/RouteLink";
-import { getRequestErrorState } from "../../components/ErrorState";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { useMyBadgesQuery } from "../../core/hooks/account.hooks";
+import { useAgentDashboardQuery } from "../../core/hooks/dashboard.hooks";
+import { usePublicAgentsQuery } from "../../core/hooks/agency.hooks";
+import type { BadgeItem } from "../../core/services/account.service";
+import { TopBar } from "../../shared/components/TopBar";
+import { RouteLink } from "../../app/router/RouteLink";
+import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type Badge = {
   active: boolean;

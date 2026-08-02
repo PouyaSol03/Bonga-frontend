@@ -1,20 +1,20 @@
 import { useMemo, useState } from "react";
 
-import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { useAdvertisementPreviewQuery } from "../../hooks/advertisement.hooks";
-import { useAgencyConsultantsQuery } from "../../hooks/agency.hooks";
-import { useMyAgencyProfileQuery } from "../../hooks/account.hooks";
-import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
-import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
-import "../../components/AdCard.css";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
+import { useAdvertisementPreviewQuery } from "../../core/hooks/advertisement.hooks";
+import { useAgencyConsultantsQuery } from "../../core/hooks/agency.hooks";
+import { useMyAgencyProfileQuery } from "../../core/hooks/account.hooks";
+import { mapAdvertisementToAdCard } from "../../core/services/advertisement.service";
+import { REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
+import "../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../app/PageFrame";
-import { TopBar } from "../../components/TopBar";
-import { RadioIndicator } from "../../components/RadioIndicator";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { SearchInputBar } from "../../components/ui/SearchBar";
-import type { AdCardData } from "../../components/AdCard";
-import { RouteLink } from "../../routes/RouteLink";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { TopBar } from "../../shared/components/TopBar";
+import { RadioIndicator } from "../../shared/components/RadioIndicator";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
+import type { AdCardData } from "../../shared/components/AdCard";
+import { RouteLink } from "../../app/router/RouteLink";
 import {
   adManagementPaths,
   getAdCloseResultPath,
@@ -25,16 +25,16 @@ import {
   getAdVisitStatisticsPath,
 } from "./adManagement/adManagementData";
 import { getMyAdStatusInfo, type MyAdStatusKey } from "./myAdsStatus";
-import LinearFlag from "../../components/(icons)/LinearFlag";
-import LinearChartUp from "../../components/(icons)/LinearChartUp";
-import LinearDelete from "../../components/(icons)/LinearDelete";
-import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearPreview from "../../components/(icons)/LinearPreview";
-import LinearAnalytics from "../../components/(icons)/LinearAnalytics";
-import LinearBuilding2 from "../../components/(icons)/LinearBuilding2";
-import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import LinearFlag from "../../shared/icons/LinearFlag";
+import LinearChartUp from "../../shared/icons/LinearChartUp";
+import LinearDelete from "../../shared/icons/LinearDelete";
+import LinearEdit2 from "../../shared/icons/LinearEdit2";
+import LinearPreview from "../../shared/icons/LinearPreview";
+import LinearAnalytics from "../../shared/icons/LinearAnalytics";
+import LinearBuilding2 from "../../shared/icons/LinearBuilding2";
+import LinearUserSolid from "../../shared/icons/LinearUserSolid";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;

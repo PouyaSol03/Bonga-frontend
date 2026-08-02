@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AccountPageShell } from "../accountPageViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 type AboutSectionProps = {
   children?: ReactNode;

@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
-import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
-import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
-import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../../hooks/account.hooks";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
-import type { MyAgencyProfile } from "../../services/account.service";
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
-import { RouteLink } from "../../routes/RouteLink";
+import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
+import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../../core/hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import type { MyAgencyProfile } from "../../core/services/account.service";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { RouteLink } from "../../app/router/RouteLink";
 import { searchMapTileConfig } from "../search/searchMapData";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type AgencyMapCenter = {
     lat: number;

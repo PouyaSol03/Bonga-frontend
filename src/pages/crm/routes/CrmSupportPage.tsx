@@ -3,7 +3,7 @@ import { useState } from "react";
 import { CrmSupportRequestsView } from "../CrmSupportRequestsView";
 import { CrmSupportView } from "../CrmSupportView";
 import type { CrmRoutePageProps } from "../CrmLayout";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../shared/ui/Button";
 
 type SupportTab = "chats" | "requests";
 

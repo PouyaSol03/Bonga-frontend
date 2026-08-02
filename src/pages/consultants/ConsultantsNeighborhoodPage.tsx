@@ -1,20 +1,20 @@
 import { useState } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import { RadioIndicator } from "../../components/RadioIndicator";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { TopBar } from "../../components/TopBar";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { useDebouncedValue } from "../../hooks/useDebouncedValue";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
-import { getStoredBackTarget, pushRoute } from "../../routes/navigation";
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { RadioIndicator } from "../../shared/components/RadioIndicator";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { TopBar } from "../../shared/components/TopBar";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { getStoredBackTarget, pushRoute } from "../../app/router/navigation";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import {
   readConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
 } from "./consultantsNeighborhoodSelection";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? "");

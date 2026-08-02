@@ -1,4 +1,4 @@
-import { RouteLink } from "../../../routes/RouteLink";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { AccountMyAdsContent, AccountPageShell } from "../accountPageViews";
 
 export function AccountMyAdsEmptyPage() {

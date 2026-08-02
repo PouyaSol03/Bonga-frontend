@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
 
 import "swiper/css";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../shared/ui/Button";
 
 export type ViewAdAlbumMediaItem = {
   src: string;

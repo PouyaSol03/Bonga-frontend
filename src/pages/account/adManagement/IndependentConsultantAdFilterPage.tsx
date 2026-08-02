@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { PageFrame } from "../../../app/PageFrame";
-import LinearLocation from "../../../components/(icons)/LinearLocation";
-import LinearRealestate from "../../../components/(icons)/LinearRealestate";
-import { BottomSheet } from "../../../components/BottomSheet";
-import { FormChoiceChip } from "../../../components/form/FormControls";
-import { RadioIndicator } from "../../../components/RadioIndicator";
-import { SelectionCheckIndicator } from "../../../components/SelectionCheckIndicator";
-import { SwitchButton } from "../../../components/SwitchButton";
-import { TopBar } from "../../../components/TopBar";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
-import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
-import { useMyAgencyProfileQuery } from "../../../hooks/account.hooks";
-import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
-import { RouteLink } from "../../../routes/RouteLink";
-import type { NeighborhoodDto } from "../../../services/neighborhood.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import LinearLocation from "../../../shared/icons/LinearLocation";
+import LinearRealestate from "../../../shared/icons/LinearRealestate";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { FormChoiceChip } from "../../../shared/form/FormControls";
+import { RadioIndicator } from "../../../shared/components/RadioIndicator";
+import { SelectionCheckIndicator } from "../../../shared/components/SelectionCheckIndicator";
+import { SwitchButton } from "../../../shared/components/SwitchButton";
+import { TopBar } from "../../../shared/components/TopBar";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { useNeighborhoodListQuery } from "../../../core/hooks/neighborhood.hooks";
+import { useAgencyConsultantsQuery } from "../../../core/hooks/agency.hooks";
+import { useMyAgencyProfileQuery } from "../../../core/hooks/account.hooks";
+import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
+import { RouteLink } from "../../../app/router/RouteLink";
+import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
 import { ChevronDownIcon, ChevronLeftIcon, SearchIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
@@ -28,9 +28,9 @@ import {
   type AdManagementSelectedNeighborhood,
   type AdManagementTransaction,
 } from "./adManagementData";
-import LinearApartment from "../../../components/(icons)/LinearApartment";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import LinearApartment from "../../../shared/icons/LinearApartment";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 const neighborhoodSearchDebounceMs = 250;
 

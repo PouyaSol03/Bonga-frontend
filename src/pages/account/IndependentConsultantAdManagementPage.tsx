@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import "../../components/AdCard.css";
+import "../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../app/PageFrame";
-import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
-import LinearFilterHorizontal from "../../components/(icons)/LinearFilterHorizontal";
-import LinearTimeQuarter from "../../components/(icons)/LinearTimeQuarter";
-import { SwitchButton } from "../../components/SwitchButton";
-import { TopBar } from "../../components/TopBar";
-import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../../hooks/agency-advertise-assignment.hooks";
-import { useMyAdsInfiniteQuery } from "../../hooks/account.hooks";
-import { RouteLink } from "../../routes/RouteLink";
-import type { AgencyAdvertiseAssignmentDto } from "../../services/agency-advertise-assignment.service";
-import type { AdvertisementItem } from "../../services/advertisement.service";
-import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
+import { PageFrame } from "../../app/layout/PageFrame";
+import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
+import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
+import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
+import { SwitchButton } from "../../shared/components/SwitchButton";
+import { TopBar } from "../../shared/components/TopBar";
+import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../../core/hooks/agency-advertise-assignment.hooks";
+import { useMyAdsInfiniteQuery } from "../../core/hooks/account.hooks";
+import { RouteLink } from "../../app/router/RouteLink";
+import type { AgencyAdvertiseAssignmentDto } from "../../core/services/agency-advertise-assignment.service";
+import type { AdvertisementItem } from "../../core/services/advertisement.service";
+import { mapAdvertisementToAdCard } from "../../core/services/advertisement.service";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";
 import {
@@ -26,8 +26,8 @@ import {
   type AdsTab,
   type ConsultantAd,
 } from "./adManagement/adManagementData";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 
 const assignmentPageSize = 20;

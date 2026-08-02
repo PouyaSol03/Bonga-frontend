@@ -1,9 +1,9 @@
 import { memo } from "react";
-import ListIcon from "../../../assets/icons/ListIcon";
-import LinearHandDraw from "../../../components/(icons)/LinearHandDraw";
-import LinearGps from "../../../components/(icons)/LinearGps";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import ListIcon from "../../../shared/assets/icons/ListIcon";
+import LinearHandDraw from "../../../shared/icons/LinearHandDraw";
+import LinearGps from "../../../shared/icons/LinearGps";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchMapFloatingActionsProps = {
   isDrawing?: boolean;

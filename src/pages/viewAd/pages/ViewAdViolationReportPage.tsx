@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-import type { AdvertiseReportReason } from "../../../services/advertisement.service";
+import type { AdvertiseReportReason } from "../../../core/services/advertisement.service";
 import { ViewAdActionPageTopBar, ViewAdPageActionBar } from "./ViewAdActionPageLayout";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export type ViolationReportSubmitPayload = {
   description: string;

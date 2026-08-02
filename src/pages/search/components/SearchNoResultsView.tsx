@@ -1,8 +1,8 @@
-import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
-import ListIcon from "../../../assets/icons/ListIcon";
+import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
+import ListIcon from "../../../shared/assets/icons/ListIcon";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchNoResultsViewProps = {
   mode: "map" | "list";

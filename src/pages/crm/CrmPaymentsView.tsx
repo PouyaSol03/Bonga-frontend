@@ -5,16 +5,16 @@ import { DateObject } from "react-multi-date-picker";
 import gregorian from "react-date-object/calendars/gregorian";
 import persian from "react-date-object/calendars/persian";
 
-import { getApiErrorMessage } from "../../api/api";
+import { getApiErrorMessage } from "../../core/api/api";
 import {
   getCrmRecordId,
   listCrmPayments,
   type CrmPaymentFilters,
   type CrmRecord,
-} from "../../services/crm.service";
+} from "../../core/services/crm.service";
 import { JalaliDatePickerSheet } from "../newAd/steps/project/JalaliDatePickerSheet";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type CrmPaymentsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;

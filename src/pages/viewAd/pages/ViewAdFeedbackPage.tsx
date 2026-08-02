@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-import type { AdvertiseFeedbackPayload } from "../../../services/advertisement.service";
+import type { AdvertiseFeedbackPayload } from "../../../core/services/advertisement.service";
 import { ViewAdActionPageTopBar, ViewAdPageActionBar } from "./ViewAdActionPageLayout";
-import { Typography } from "../../../components/ui/Typography";
-import LinearLike from "../../../components/(icons)/LinearLike";
-import LinearDislike from "../../../components/(icons)/LinearDislike";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import LinearLike from "../../../shared/icons/LinearLike";
+import LinearDislike from "../../../shared/icons/LinearDislike";
+import { Button } from "../../../shared/ui/Button";
 
 type FeedbackValue = "positive" | "negative";
 

@@ -7,8 +7,8 @@ import {
 } from "../../data";
 import { getParams } from "../../utils";
 import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
-import { Typography } from "../../../../components/ui/Typography";
-import { Button } from "../../../../components/ui/Button";
+import { Typography } from "../../../../shared/ui/Typography";
+import { Button } from "../../../../shared/ui/Button";
 
 type ProjectSpecsSectionProps = {
   values: NewAdFormValues;

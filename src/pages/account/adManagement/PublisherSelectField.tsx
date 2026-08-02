@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 
-import { TopBar } from "../../../components/TopBar";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { SearchInputBar } from "../../../components/ui/SearchBar";
+import { TopBar } from "../../../shared/components/TopBar";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { adManagementPublisherOptions, type AdManagementPublisherOption } from "./adManagementData";
-import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type PublisherSelectFieldProps = {
   buttonLabel?: string;

@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
-import type { NeighborhoodDto } from "../../../services/neighborhood.service";
-import { useCreateMyAgencyMutation } from "../../../hooks/account.hooks";
-import type { SnackbarVariant } from "../../../components/Snackbar";
-import { getApiErrorMessage } from "../../../api/api";
+import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
+import { useCreateMyAgencyMutation } from "../../../core/hooks/account.hooks";
+import type { SnackbarVariant } from "../../../shared/components/Snackbar";
+import { getApiErrorMessage } from "../../../core/api/api";
 import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationViews";
 import type { BusinessToast } from "../businessCreationViews";
 

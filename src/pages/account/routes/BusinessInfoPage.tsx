@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
 import { BusinessInfoCard, businessInfoCards, getBusinessTypeFromSearch, getBusinessTypePath } from "../businessCreationViews";
 import type { BusinessType } from "../businessCreationViews";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../shared/ui/Button";
 
 export function BusinessInfoPage() {
   const initialType = getBusinessTypeFromSearch();

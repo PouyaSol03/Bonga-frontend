@@ -1,36 +1,36 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getApiErrorMessage } from "../../api/api";
-import { PageFrame } from "../../app/PageFrame";
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearCancel from "../../components/(icons)/LinearCancel";
-import LinearCity from "../../components/(icons)/LinearCity";
-import LinearDelete from "../../components/(icons)/LinearDelete";
-import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearInfoCircle from "../../components/(icons)/LinearInfoCircle";
-import LinearRefresh from "../../components/(icons)/LinearRefresh";
-import { BottomSheet } from "../../components/BottomSheet";
-import { RadioIndicator } from "../../components/RadioIndicator";
-import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
-import { TopBar } from "../../components/TopBar";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
+import { getApiErrorMessage } from "../../core/api/api";
+import { PageFrame } from "../../app/layout/PageFrame";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearCancel from "../../shared/icons/LinearCancel";
+import LinearCity from "../../shared/icons/LinearCity";
+import LinearDelete from "../../shared/icons/LinearDelete";
+import LinearEdit2 from "../../shared/icons/LinearEdit2";
+import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
+import LinearRefresh from "../../shared/icons/LinearRefresh";
+import { BottomSheet } from "../../shared/components/BottomSheet";
+import { RadioIndicator } from "../../shared/components/RadioIndicator";
+import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
+import { TopBar } from "../../shared/components/TopBar";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
   useDeletePropertyRequestMutation,
   usePropertyRequestsQuery,
   useRenamePropertyRequestMutation,
-} from "../../hooks/property-request.hooks";
+} from "../../core/hooks/property-request.hooks";
 import {
   getCollapsedPropertyRequestDetails,
   getPropertyRequestDetails,
   toPersianDigits,
   type PropertySearchRequest,
-} from "../../services/property-request.service";
+} from "../../core/services/property-request.service";
 import {
   PropertyRequestResults,
   type PropertyRequestResultsStatus,
 } from "./PropertyRequestResults";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type RequestManagementTab = "received" | "requests" | "results";
 type RequestFilterId = "all" | string;

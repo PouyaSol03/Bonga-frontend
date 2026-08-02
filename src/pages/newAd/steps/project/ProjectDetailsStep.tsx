@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
-import { BottomSheet } from "../../../../components/BottomSheet";
+import { BottomSheet } from "../../../../shared/components/BottomSheet";
 import {
   projectFloorOptions,
   projectPositionOptions,
@@ -10,8 +10,8 @@ import {
 import type { NewAdFormValues, ProjectDetailItem } from "../../types";
 import { InputBox, Tag } from "../../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../../NewAdLayoutContext";
-import { Typography } from "../../../../components/ui/Typography";
-import { Button } from "../../../../components/ui/Button";
+import { Typography } from "../../../../shared/ui/Typography";
+import { Button } from "../../../../shared/ui/Button";
 
 type MultiProjectKey = "floors" | "rooms" | "positions";
 

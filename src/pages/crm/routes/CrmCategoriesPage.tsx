@@ -1,6 +1,6 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { listCrmCategories, type CrmRecord, saveCrmCategory, getCrmRecordId } from "../../../services/crm.service";
+import { listCrmCategories, type CrmRecord, saveCrmCategory, getCrmRecordId } from "../../../core/services/crm.service";
 import { CategoryTree, EditorModal, EmptyState, ListSkeleton, Panel, PanelHeader, cleanEmptyValues, stringifyValue, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 

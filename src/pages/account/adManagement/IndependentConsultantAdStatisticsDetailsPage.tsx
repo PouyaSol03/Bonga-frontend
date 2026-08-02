@@ -1,8 +1,8 @@
-import "../../../components/AdCard.css";
+import "../../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { Typography } from "../../../components/ui/Typography";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { Typography } from "../../../shared/ui/Typography";
 import { adManagementPaths, getAdManagementRouteState, type StatisticsAd } from "./adManagementData";
 
 const chartSections = [

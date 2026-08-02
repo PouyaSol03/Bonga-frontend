@@ -1,11 +1,11 @@
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearTick from "../../components/(icons)/LinearTick";
-import { BottomSheet, BottomSheetActionList, type BottomSheetAction } from "../../components/BottomSheet";
-import { RouteLink } from "../../routes/RouteLink";
-import type { SupportRequestItem } from "../../services/support-request.service";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearTick from "../../shared/icons/LinearTick";
+import { BottomSheet, BottomSheetActionList, type BottomSheetAction } from "../../shared/components/BottomSheet";
+import { RouteLink } from "../../app/router/RouteLink";
+import type { SupportRequestItem } from "../../core/services/support-request.service";
 
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 export const SUPPORT_PATH = "/account/support";
 export const REQUESTS_PATH = "/account/support/requests";

@@ -1,18 +1,18 @@
 import { useMemo, useState } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import { getRequestErrorState } from "../../components/ErrorState";
-import { TransientNotice } from "../../components/TransientNotice";
-import { TopBar } from "../../components/TopBar";
-import PricingCard from "../../components/dashboard/addWallet/PricingCard";
-import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
-import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { usePackagesQuery } from "../../hooks/package.hooks";
-import { useTransientNotice } from "../../hooks/useTransientNotice";
-import { RouteLink } from "../../routes/RouteLink";
-import type { PackageItem } from "../../services/package.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { TransientNotice } from "../../shared/components/TransientNotice";
+import { TopBar } from "../../shared/components/TopBar";
+import PricingCard from "./components/addWallet/PricingCard";
+import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
+import { usePackagesQuery } from "../../core/hooks/package.hooks";
+import { useTransientNotice } from "../../core/hooks/useTransientNotice";
+import { RouteLink } from "../../app/router/RouteLink";
+import type { PackageItem } from "../../core/services/package.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type PricingCardPlan = {
   discount: number;

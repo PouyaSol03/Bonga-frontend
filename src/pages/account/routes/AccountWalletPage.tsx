@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useChargeWalletMutation, useWalletQuery } from "../../../hooks/account.hooks";
-import { getApiErrorMessage } from "../../../api/api";
-import { AdCardTomanIcon } from "../../../components/AdCardIcons";
-import { formatPrice, formatBigNumber } from "../../../lib/MoneyHandler";
-import { RouteLink } from "../../../routes/RouteLink";
-import { storePaymentReturnTarget } from "../../../utils/payment-return";
-import { Snackbar } from "../../../components/Snackbar";
+import { useChargeWalletMutation, useWalletQuery } from "../../../core/hooks/account.hooks";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { AdCardTomanIcon } from "../../../shared/components/AdCardIcons";
+import { formatPrice, formatBigNumber } from "../../../shared/lib/MoneyHandler";
+import { RouteLink } from "../../../app/router/RouteLink";
+import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
+import { Snackbar } from "../../../shared/components/Snackbar";
 import { AccountLoadingState, AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, formatMoney, normalizeWalletAmount } from "../accountPageViews";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");

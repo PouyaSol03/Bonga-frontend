@@ -1,6 +1,6 @@
 import { landingAssets } from "../publicLandingData";
-import ShenasaVector from "../../../assets/icons/ShenasaVector";
-import { Typography } from "../../../components/ui/Typography";
+import ShenasaVector from "../../../shared/assets/icons/ShenasaVector";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function LandingHero() {
   return (

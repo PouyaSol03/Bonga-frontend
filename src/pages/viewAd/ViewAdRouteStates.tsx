@@ -1,7 +1,7 @@
-import { PageFrame } from "../../app/PageFrame";
-import { getRequestErrorState, NotFoundErrorState } from "../../components/ErrorState";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getRequestErrorState, NotFoundErrorState } from "../../shared/components/ErrorState";
 import { ViewAdTopBar } from "./viewAdComponents";
-import { Typography } from "../../components/ui/Typography";
+import { Typography } from "../../shared/ui/Typography";
 
 export function NotFoundState() {
   return (

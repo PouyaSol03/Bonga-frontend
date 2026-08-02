@@ -1,4 +1,4 @@
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 
 const selectedNeighborhoodStorageKey =
   "bonga-consultants-selected-neighborhood";

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { getStoredAuthSession, storeLoginRedirectPath } from "../../auth/auth-storage";
+import { getStoredAuthSession, storeLoginRedirectPath } from "../../core/auth/auth-storage";
 import {
   basicPropertyFieldsByListingType,
   blankValues,

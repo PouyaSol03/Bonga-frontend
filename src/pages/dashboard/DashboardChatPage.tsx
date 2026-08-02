@@ -6,13 +6,13 @@ import {
   markChatRead,
   sendChatTextMessage,
   sendChatTyping,
-} from "../../api/chat-socket";
-import { getRequestErrorState } from "../../components/ErrorState";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { useChatMessagesQuery, useChatsQuery } from "../../hooks/chat.hooks";
-import type { ChatMessage, ChatThread } from "../../services/chat.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/api/chat-socket";
+import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { useChatMessagesQuery, useChatsQuery } from "../../core/hooks/chat.hooks";
+import type { ChatMessage, ChatThread } from "../../core/services/chat.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type DashboardChatFilter = "all" | "support" | "mine";
 

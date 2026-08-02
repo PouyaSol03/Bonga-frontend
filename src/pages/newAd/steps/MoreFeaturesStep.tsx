@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { BottomSheet, BottomSheetActionList } from "../../../components/BottomSheet";
+import { BottomSheet, BottomSheetActionList } from "../../../shared/components/BottomSheet";
 import { moreFeatureKeys, moreFeatureOptions } from "../data";
 import type { MoreFeatureFormKey, MoreFeatureSelectKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
 import { getMoreFeatureFields, pickMoreFeatures } from "../utils";

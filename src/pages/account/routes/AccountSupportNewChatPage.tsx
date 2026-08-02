@@ -7,16 +7,16 @@ import {
   sendChatAttachmentMessage,
   sendChatTextMessage,
   sendChatTyping,
-} from "../../../api/chat-socket";
-import { PageFrame } from "../../../app/PageFrame";
-import LinearMoreVertical from "../../../components/(icons)/LinearMoreVertical";
-import { TopBar } from "../../../components/TopBar";
+} from "../../../core/api/chat-socket";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import LinearMoreVertical from "../../../shared/icons/LinearMoreVertical";
+import { TopBar } from "../../../shared/components/TopBar";
 import {
   useCreateSupportChatMutation,
   useInfiniteChatMessagesQuery,
   useUploadChatAttachmentMutation,
-} from "../../../hooks/chat.hooks";
-import type { ChatMessage } from "../../../services/chat.service";
+} from "../../../core/hooks/chat.hooks";
+import type { ChatMessage } from "../../../core/services/chat.service";
 import {
   SUPPORT_CHAT_PATH,
   SupportChatComposer,
@@ -32,7 +32,7 @@ import {
   readSupportThreadId,
   type SupportChatMessage,
 } from "../accountSupportViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 function readMessageTimestamp(message: ChatMessage) {
   const value = readChatPathText(message, [

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { PageFrame } from "../../app/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
-import { getStoredAuthSession } from "../../auth/auth-storage";
-import { storePaymentReturnTarget } from "../../utils/payment-return";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
+import { getStoredAuthSession } from "../../core/auth/auth-storage";
+import { storePaymentReturnTarget } from "../../shared/utils/payment-return";
 import {
   useAdvertiseBadgesQuery,
   useAuthorizeMeMutation,
@@ -17,36 +17,36 @@ import {
   useUpdateMyProfileMutation,
   useWalletQuery,
   useWalletPaymentsQuery,
-} from "../../hooks/account.hooks";
+} from "../../core/hooks/account.hooks";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementItem,
-} from "../../services/advertisement.service";
+} from "../../core/services/advertisement.service";
 import {
   isUserIdentityVerified,
   type BadgeItem,
   type MyAdsType,
   type NoteItem,
   type WalletPayment,
-} from "../../services/account.service";
-import { AdCard } from "../../components/AdCard";
-import type { AdCardData } from "../../components/AdCard";
-import { AdCardSkeleton } from "../../components/AdCardSkeleton";
-import { BottomSheet } from "../../components/BottomSheet";
-import { DemoNotice } from "../../components/DemoNotice";
-import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
-import { Button } from "../../components/ui/Button";
-import { getRequestErrorState } from "../../components/ErrorState";
-import { useDemoNotice } from "../../hooks/useDemoNotice";
-import { TopBar } from "../../components/TopBar";
-import { RouteLink } from "../../routes/RouteLink";
-import { AdCardTomanIcon } from "../../components/AdCardIcons";
-import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
+} from "../../core/services/account.service";
+import { AdCard } from "../../shared/components/AdCard";
+import type { AdCardData } from "../../shared/components/AdCard";
+import { AdCardSkeleton } from "../../shared/components/AdCardSkeleton";
+import { BottomSheet } from "../../shared/components/BottomSheet";
+import { DemoNotice } from "../../shared/components/DemoNotice";
+import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
+import { Button } from "../../shared/ui/Button";
+import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { useDemoNotice } from "../../core/hooks/useDemoNotice";
+import { TopBar } from "../../shared/components/TopBar";
+import { RouteLink } from "../../app/router/RouteLink";
+import { AdCardTomanIcon } from "../../shared/components/AdCardIcons";
+import { formatBigNumber, formatPrice } from "../../shared/lib/MoneyHandler";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { RequestManagementView } from "../requests/RequestManagementView";
-import { getRecentViews } from "../../services/recent-views.service";
-import { Typography } from "../../components/ui/Typography";
-import { TextField } from "../../components/ui/TextField";
+import { getRecentViews } from "../../core/services/recent-views.service";
+import { Typography } from "../../shared/ui/Typography";
+import { TextField } from "../../shared/ui/TextField";
 
 type TopBarProps = {
   action?: React.ReactNode;

@@ -1,15 +1,15 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getSupportRequests } from "../../../services/support-request.service";
-import { getRequestErrorState } from "../../../components/ErrorState";
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { RouteLink } from "../../../routes/RouteLink";
-import LinearAdd from "../../../components/(icons)/LinearAdd";
+import { getSupportRequests } from "../../../core/services/support-request.service";
+import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { RouteLink } from "../../../app/router/RouteLink";
+import LinearAdd from "../../../shared/icons/LinearAdd";
 import { NEW_REQUEST_PATH, SUPPORT_PATH, SupportRequestCard, SupportRequestTabs, SupportRequestsEmptyState, mapSupportRequest } from "../accountSupportRequestViews";
 import type { SupportRequestFilter } from "../accountSupportRequestViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountSupportRequestsPage() {
   const [activeFilter, setActiveFilter] = useState<SupportRequestFilter>("all");

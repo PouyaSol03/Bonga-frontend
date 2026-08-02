@@ -1,11 +1,11 @@
-import "../../../components/AdCard.css";
+import "../../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { AllocationIcon, ChevronLeftIcon } from "./AdManagementIcons";
 import { adManagementPaths, getAdEditPath, getAdPaymentPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function IndependentConsultantAdAllocationPage() {
   const ad = getSelectedConsultantAd();

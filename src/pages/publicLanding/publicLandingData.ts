@@ -1,17 +1,17 @@
 import type { City, DownloadOption, SocialLink } from "./publicLandingTypes";
-import TehranIcon from "../../assets/icons/TehranIcon.svg";
-import MashhadIcon from "../../assets/icons/MashhadIcon.svg";
-import IsfahanIcon from "../../assets/icons/IsfahanIcon.svg";
-import ShirazIcon from "../../assets/icons/ShirazIcon.svg";
-import BazarIcon from "../../assets/Vectors/BazarIcon.svg";
+import TehranIcon from "../../shared/assets/icons/TehranIcon.svg";
+import MashhadIcon from "../../shared/assets/icons/MashhadIcon.svg";
+import IsfahanIcon from "../../shared/assets/icons/IsfahanIcon.svg";
+import ShirazIcon from "../../shared/assets/icons/ShirazIcon.svg";
+import BazarIcon from "../../shared/assets/Vectors/BazarIcon.svg";
 
-import MyketIcon from "../../assets/Vectors/MyketIcon.svg";
+import MyketIcon from "../../shared/assets/Vectors/MyketIcon.svg";
 
-import SibappIcon from "../../assets/Vectors/SibappIcon.svg";
-import InstagramIcon from "../../assets/Vectors/InstagramIcon.svg";
-import FaceIcon from "../../assets/Vectors/FaceIcon.svg";
-import TelegramIcon from "../../assets/Vectors/TelegramIcon.svg";
-import LinkedingIcon from "../../assets/Vectors/LinkedingIcon.svg";
+import SibappIcon from "../../shared/assets/Vectors/SibappIcon.svg";
+import InstagramIcon from "../../shared/assets/Vectors/InstagramIcon.svg";
+import FaceIcon from "../../shared/assets/Vectors/FaceIcon.svg";
+import TelegramIcon from "../../shared/assets/Vectors/TelegramIcon.svg";
+import LinkedingIcon from "../../shared/assets/Vectors/LinkedingIcon.svg";
 
 export const landingAssets = {
   hero: "/landing-hero.png",

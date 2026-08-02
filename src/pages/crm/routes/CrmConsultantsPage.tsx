@@ -1,15 +1,15 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
-import { createCrmConsultant, listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, getCrmRecordId } from "../../../services/crm.service";
-import { getApiErrorMessage } from "../../../api/api";
-import { SwitchButton } from "../../../components/SwitchButton";
+import { useDebouncedValue } from "../../../core/hooks/useDebouncedValue";
+import { createCrmConsultant, listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, getCrmRecordId } from "../../../core/services/crm.service";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { SwitchButton } from "../../../shared/components/SwitchButton";
 import { motion } from "motion/react";
-import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
+import LinearEdit2 from "../../../shared/icons/LinearEdit2";
 import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();

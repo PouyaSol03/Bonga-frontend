@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { PageFrame } from "../../app/PageFrame";
-import { RadioIndicator } from "../../components/RadioIndicator";
-import { TopBar } from "../../components/TopBar";
-import { useReportChatMutation } from "../../hooks/chat.hooks";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { RadioIndicator } from "../../shared/components/RadioIndicator";
+import { TopBar } from "../../shared/components/TopBar";
+import { useReportChatMutation } from "../../core/hooks/chat.hooks";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type ReportReasonId =
   | "spam"

@@ -2,31 +2,31 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import { getApiErrorMessage } from "../../api/api";
-import LinearAdvertisiment from "../../components/(icons)/LinearAdvertisiment";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import LinearArrowRight1 from "../../components/(icons)/LinearArrowRight1";
-import LinearCancel from "../../components/(icons)/LinearCancel";
-import LinearClock from "../../components/(icons)/LinearClock";
-import LinearDocument from "../../components/(icons)/LinearDocument";
-import LinearFlag from "../../components/(icons)/LinearFlag";
-import LinearInformation from "../../components/(icons)/LinearInformation";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
-import { useDebouncedValue } from "../../hooks/useDebouncedValue";
-import { RouteLink } from "../../routes/RouteLink";
-import { SUPPORT, SUPER_ADMIN } from "../../constants/roles.constants";
+import { getApiErrorMessage } from "../../core/api/api";
+import LinearAdvertisiment from "../../shared/icons/LinearAdvertisiment";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearArrowRight1 from "../../shared/icons/LinearArrowRight1";
+import LinearCancel from "../../shared/icons/LinearCancel";
+import LinearClock from "../../shared/icons/LinearClock";
+import LinearDocument from "../../shared/icons/LinearDocument";
+import LinearFlag from "../../shared/icons/LinearFlag";
+import LinearInformation from "../../shared/icons/LinearInformation";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import LinearUserAccount from "../../shared/icons/LinearUserAccount";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../core/auth/auth-storage";
+import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
+import { RouteLink } from "../../app/router/RouteLink";
+import { SUPPORT, SUPER_ADMIN } from "../../shared/constants/roles.constants";
 import {
   getCrmRecordId,
   listCrmReports,
   type CrmRecord,
   type CrmReportKind,
   type CrmReportListResult,
-} from "../../services/crm.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/services/crm.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type CrmReportsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;

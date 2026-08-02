@@ -1,17 +1,17 @@
 import type { ReactNode } from "react";
 
-import { ColorableSvgIcon } from "../../components/ColorableSvgIcon";
-import { FeaturesIcons } from "../../components/FeaturesIcons";
-import { TopBar } from "../../components/TopBar";
-import { RouteLink } from "../../routes/RouteLink";
+import { ColorableSvgIcon } from "../../shared/components/ColorableSvgIcon";
+import { FeaturesIcons } from "../../shared/components/FeaturesIcons";
+import { TopBar } from "../../shared/components/TopBar";
+import { RouteLink } from "../../app/router/RouteLink";
 import { ViewAdIcon } from "./ViewAdIcon";
 import type {
   DetailItem,
   IconName,
 } from "./viewAdTypes";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 function DetailItemIcon({
   className = "h-6 w-6 shrink-0",

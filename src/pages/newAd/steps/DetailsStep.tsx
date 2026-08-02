@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { BottomSheet, BottomSheetActionList } from "../../../components/BottomSheet";
-import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
-import { ChoiceIndicator } from "../../../components/ui/Choice";
-import { formatBigNumber } from "../../../lib/MoneyHandler";
+import { BottomSheet, BottomSheetActionList } from "../../../shared/components/BottomSheet";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import { ChoiceIndicator } from "../../../shared/ui/Choice";
+import { formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import {
   exchangeTargets,
   facilityItems,
@@ -35,8 +35,8 @@ import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
 import { ProjectSpecsSection } from "./project/ProjectSpecsSection";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 function toggleArray(current: string[], id: string) {
   return current.includes(id)

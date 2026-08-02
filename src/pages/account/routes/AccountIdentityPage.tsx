@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { useTransientNotice } from "../../../hooks/useTransientNotice";
-import { useAuthorizeMeMutation, useMyProfileQuery } from "../../../hooks/account.hooks";
-import { getStoredAuthSession } from "../../../auth/auth-storage";
-import { isUserIdentityVerified } from "../../../services/account.service";
-import { getApiErrorMessage } from "../../../api/api";
-import { BottomSheet } from "../../../components/BottomSheet";
-import { TransientNotice } from "../../../components/TransientNotice";
-import { Button } from "../../../components/ui/Button";
+import { useTransientNotice } from "../../../core/hooks/useTransientNotice";
+import { useAuthorizeMeMutation, useMyProfileQuery } from "../../../core/hooks/account.hooks";
+import { getStoredAuthSession } from "../../../core/auth/auth-storage";
+import { isUserIdentityVerified } from "../../../core/services/account.service";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { TransientNotice } from "../../../shared/components/TransientNotice";
+import { Button } from "../../../shared/ui/Button";
 import { AccountPageShell, IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountIdentityPage() {
   const [step, setStep] = useState<IdentityPageStep>("pending");

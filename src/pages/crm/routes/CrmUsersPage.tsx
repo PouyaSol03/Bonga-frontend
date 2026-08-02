@@ -1,11 +1,11 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleCrmUserAuthorization, getCrmRecordId } from "../../../services/crm.service";
+import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleCrmUserAuthorization, getCrmRecordId } from "../../../core/services/crm.service";
 import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, UserStatusBadge, formatMoney, fullName, ghostButtonClassName, inputClassName, normalizeCrmUserRoleSlug, readText, useQueryErrorToast, userRoleOptions, userRoleSlugs } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();

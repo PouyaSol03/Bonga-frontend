@@ -1,4 +1,4 @@
-import type { AdvertisementItem } from "../../services/advertisement.service";
+import type { AdvertisementItem } from "../../core/services/advertisement.service";
 
 export const singleAdMockData: AdvertisementItem = {
   id: "000000000000000000000601",

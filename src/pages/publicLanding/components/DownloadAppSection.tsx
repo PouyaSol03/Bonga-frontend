@@ -1,7 +1,7 @@
 // src/pages/publicLanding/components/DownloadAppSection.tsx
 
 import { downloadOptions } from "../publicLandingData";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function DownloadAppSection() {
   return (

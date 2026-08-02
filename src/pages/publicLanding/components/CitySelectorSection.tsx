@@ -1,15 +1,15 @@
 import { useMemo } from "react";
 import "../../home/homeArtwork.css";
-import { useMostVisitedCityListQuery } from "../../../hooks/city.hooks";
-import type { CityDto } from "../../../services/city.service";
-import { RouteLink } from "../../../routes/RouteLink";
-import TehranIcon from "../../../assets/icons/TehranIcon.svg";
-import MashhadIcon from "../../../assets/icons/MashhadIcon.svg";
-import IsfahanIcon from "../../../assets/icons/IsfahanIcon.svg";
-import ShirazIcon from "../../../assets/icons/ShirazIcon.svg";
-import { getRequestErrorState } from "../../../components/ErrorState";
-import { saveSelectedCity } from "../../../lib/selectedCityStorage";
-import { Typography } from "../../../components/ui/Typography";
+import { useMostVisitedCityListQuery } from "../../../core/hooks/city.hooks";
+import type { CityDto } from "../../../core/services/city.service";
+import { RouteLink } from "../../../app/router/RouteLink";
+import TehranIcon from "../../../shared/assets/icons/TehranIcon.svg";
+import MashhadIcon from "../../../shared/assets/icons/MashhadIcon.svg";
+import IsfahanIcon from "../../../shared/assets/icons/IsfahanIcon.svg";
+import ShirazIcon from "../../../shared/assets/icons/ShirazIcon.svg";
+import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { saveSelectedCity } from "../../../shared/lib/selectedCityStorage";
+import { Typography } from "../../../shared/ui/Typography";
 
 type UiCity = {
   id: string;

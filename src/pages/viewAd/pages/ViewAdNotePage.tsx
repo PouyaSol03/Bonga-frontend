@@ -1,6 +1,6 @@
 import { ViewAdActionPageTopBar } from "./ViewAdActionPageLayout";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function ViewAdNotePage({
   isSaving,

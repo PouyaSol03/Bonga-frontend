@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
-import { BottomSheet, BottomSheetActionList } from "../../../../components/BottomSheet";
-import { formatBigNumber } from "../../../../lib/MoneyHandler";
+import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
+import { formatBigNumber } from "../../../../shared/lib/MoneyHandler";
 import {
   dailyHotelMealPlanOptions,
   dailyHotelRoomTypes,
@@ -15,8 +15,8 @@ import type {
   NewAdFormValues,
 } from "../../types";
 import { InputBox, SelectBox } from "../../components/NewAdControls";
-import { Typography } from "../../../../components/ui/Typography";
-import { Button } from "../../../../components/ui/Button";
+import { Typography } from "../../../../shared/ui/Typography";
+import { Button } from "../../../../shared/ui/Button";
 
 const editorSelectFields: Record<
   Exclude<DailyHotelRoomConfigKey, "id" | "label" | "normalPrice" | "weekendPrice" | "specialPrice">,

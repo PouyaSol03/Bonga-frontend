@@ -1,5 +1,5 @@
-import { getApiErrorMessage } from "../../../api/api";
-import { useAdvertisementDetailQuery, useAdvertisementPreviewQuery } from "../../../hooks/advertisement.hooks";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { useAdvertisementDetailQuery, useAdvertisementPreviewQuery } from "../../../core/hooks/advertisement.hooks";
 import {
   DetailInfoFullPage,
   buildPropertyDetailSections,

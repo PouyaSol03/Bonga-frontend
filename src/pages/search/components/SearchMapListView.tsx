@@ -1,11 +1,11 @@
-import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
-import { AdCard } from "../../../components/AdCard";
-import type { AdCardData } from "../../../components/AdCard";
-import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
+import { AdCard } from "../../../shared/components/AdCard";
+import type { AdCardData } from "../../../shared/components/AdCard";
+import { AdCardSkeleton } from "../../../shared/components/AdCardSkeleton";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 import type { SearchMapListing } from "../searchMapData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchMapListViewProps = {
   hasEmptyResults?: boolean;

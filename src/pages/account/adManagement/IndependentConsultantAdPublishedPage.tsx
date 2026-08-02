@@ -1,10 +1,10 @@
 import { useState } from "react";
-import "../../../components/AdCard.css";
+import "../../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { BottomSheet } from "../../../components/BottomSheet";
-import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { ChevronLeftIcon, PublishedActionIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
@@ -16,8 +16,8 @@ import {
   getAdVisitStatisticsPath,
   getSelectedConsultantAd,
 } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function IndependentConsultantAdPublishedPage() {
   const ad = getSelectedConsultantAd();

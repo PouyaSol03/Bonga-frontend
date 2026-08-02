@@ -14,33 +14,33 @@ import {
   leaveChatThread,
   markChatRead,
   sendChatTextMessage,
-} from "../../api/chat-socket";
-import LinearAttachment from "../../components/(icons)/LinearAttachment";
-import LinearBubbleChat from "../../components/(icons)/LinearBubbleChat";
-import LinearCalendar from "../../components/(icons)/LinearCalendar";
-import LinearCancel from "../../components/(icons)/LinearCancel";
-import LinearCategory from "../../components/(icons)/LinearCategory";
-import LinearCheckmark from "../../components/(icons)/LinearCheckmark";
-import LinearClock from "../../components/(icons)/LinearClock";
-import LinearDocument from "../../components/(icons)/LinearDocument";
-import LinearFlag from "../../components/(icons)/LinearFlag";
-import LinearPhone2 from "../../components/(icons)/LinearPhone2";
-import LinearRefresh from "../../components/(icons)/LinearRefresh";
-import LinearRequestList from "../../components/(icons)/LinearRequestList";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import LinearSendComment from "../../components/(icons)/LinearSendComment";
-import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { useInfiniteChatMessagesQuery } from "../../hooks/chat.hooks";
+} from "../../core/api/chat-socket";
+import LinearAttachment from "../../shared/icons/LinearAttachment";
+import LinearBubbleChat from "../../shared/icons/LinearBubbleChat";
+import LinearCalendar from "../../shared/icons/LinearCalendar";
+import LinearCancel from "../../shared/icons/LinearCancel";
+import LinearCategory from "../../shared/icons/LinearCategory";
+import LinearCheckmark from "../../shared/icons/LinearCheckmark";
+import LinearClock from "../../shared/icons/LinearClock";
+import LinearDocument from "../../shared/icons/LinearDocument";
+import LinearFlag from "../../shared/icons/LinearFlag";
+import LinearPhone2 from "../../shared/icons/LinearPhone2";
+import LinearRefresh from "../../shared/icons/LinearRefresh";
+import LinearRequestList from "../../shared/icons/LinearRequestList";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import LinearSendComment from "../../shared/icons/LinearSendComment";
+import LinearUserAccount from "../../shared/icons/LinearUserAccount";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { useInfiniteChatMessagesQuery } from "../../core/hooks/chat.hooks";
 import {
   useAssignPanelSupportRequestMutation,
   usePanelSupportRequestsQuery,
   useSendPanelSupportRequestMessageMutation,
   useUpdatePanelSupportRequestStatusMutation,
-} from "../../hooks/support.hooks";
-import type { ChatMessage } from "../../services/chat.service";
-import type { PanelSupportRequestStatus } from "../../services/panel-support.service";
-import type { SupportRequestItem } from "../../services/support-request.service";
+} from "../../core/hooks/support.hooks";
+import type { ChatMessage } from "../../core/services/chat.service";
+import type { PanelSupportRequestStatus } from "../../core/services/panel-support.service";
+import type { SupportRequestItem } from "../../core/services/support-request.service";
 import {
   formatSupportMessageTime,
   mapAccountSupportMessage,
@@ -53,8 +53,8 @@ import {
   type SupportChatMessage,
 } from "../account/accountSupportViews";
 import type { CrmRoutePageProps } from "./CrmLayout";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type StatusFilter = "all" | PanelSupportRequestStatus;
 

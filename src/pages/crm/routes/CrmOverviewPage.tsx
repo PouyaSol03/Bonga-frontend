@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { listCrmAdvertises, listCrmUsers, listCrmAgencies, listCrmAdvertiseForms, getCrmRecordId } from "../../../services/crm.service";
-import { RouteLink } from "../../../routes/RouteLink";
+import { listCrmAdvertises, listCrmUsers, listCrmAgencies, listCrmAdvertiseForms, getCrmRecordId } from "../../../core/services/crm.service";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { CrmIcon, EmptyState, ListSkeleton, Panel, PanelHeader, StatusBadge, TextLink, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps } from "../CrmLayout";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const adsQuery = useQuery({

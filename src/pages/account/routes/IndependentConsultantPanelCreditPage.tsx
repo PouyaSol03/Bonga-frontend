@@ -1,5 +1,5 @@
-import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../../constants/roles.constants";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../core/auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { IndependentConsultantCreditPage } from "../credit/independentConsultantCreditViews";
 
 export function IndependentConsultantPanelCreditPage() {

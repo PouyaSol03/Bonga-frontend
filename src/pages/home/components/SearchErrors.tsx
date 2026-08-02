@@ -1,6 +1,6 @@
-import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { Typography } from "../../../components/ui/Typography";
+import NoSearchIcon from "../../../shared/assets/icons/NoSearch.svg";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { Typography } from "../../../shared/ui/Typography";
 
 type SearchErrorVariant = "no-search" | "not-found" | "no-saved-search";
 

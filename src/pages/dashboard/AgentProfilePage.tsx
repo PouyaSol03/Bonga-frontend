@@ -7,35 +7,35 @@ import {
   type ReactNode,
 } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
-import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearInfoCircle from "../../components/(icons)/LinearInfoCircle";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
-import LinearX from "../../components/(icons)/LinearX";
-import TonalInstagram from "../../components/(icons)/TonalInstagram";
-import TonalTelegram from "../../components/(icons)/TonalTelegram";
-import TonalWhatsapp from "../../components/(icons)/TonalWhatsapp";
-import { BottomSheet } from "../../components/BottomSheet";
-import { FormChoiceChip } from "../../components/form/FormControls";
-import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
-import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
-import { TopBar } from "../../components/TopBar";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
+import LinearEdit2 from "../../shared/icons/LinearEdit2";
+import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import LinearUserSolid from "../../shared/icons/LinearUserSolid";
+import LinearX from "../../shared/icons/LinearX";
+import TonalInstagram from "../../shared/icons/TonalInstagram";
+import TonalTelegram from "../../shared/icons/TonalTelegram";
+import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
+import { BottomSheet } from "../../shared/components/BottomSheet";
+import { FormChoiceChip } from "../../shared/form/FormControls";
+import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
+import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
+import { TopBar } from "../../shared/components/TopBar";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
   useMyProfileQuery,
   useUpdateMyProfileMutation,
-} from "../../hooks/account.hooks";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { useDebouncedValue } from "../../hooks/useDebouncedValue";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
-import type { UserProfile } from "../../services/account.service";
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import type { UserProfile } from "../../core/services/account.service";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const profileImageMaxBytes = 1024 * 1024;
 const profileImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);

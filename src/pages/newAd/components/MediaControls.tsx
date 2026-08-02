@@ -1,7 +1,7 @@
-import LinearInfoCircle from "../../../components/(icons)/LinearInfoCircle";
-import { ChoiceIndicator } from "../../../components/ui/Choice";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
+import { ChoiceIndicator } from "../../../shared/ui/Choice";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function RadioCard({
   checked,

@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { TopBarNavigationLayout } from "../../app/TopBarNavigationLayout";
-import { TopBar } from "../../components/TopBar";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { TopBarNavigationLayout } from "../../app/layout/TopBarNavigationLayout";
+import { TopBar } from "../../shared/components/TopBar";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type CreditMetric = {
   accentClassName: string;

@@ -1,18 +1,18 @@
-import { PageFrame } from "../../../app/PageFrame";
-import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
-import { DemoNotice } from "../../../components/DemoNotice";
-import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
-import { useDemoNotice } from "../../../hooks/useDemoNotice";
-import { REAL_ESTATE_MANAGER } from "../../../constants/roles.constants";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../core/auth/auth-storage";
+import { DemoNotice } from "../../../shared/components/DemoNotice";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RouteLink } from "../../../app/router/RouteLink";
+import { useDemoNotice } from "../../../core/hooks/useDemoNotice";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import {
   creditPackages,
   panelCreditBonusPlans,
   panelCreditPlans,
   type CreditPlan,
 } from "./creditData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type CreditView = "packages" | "panel" | "panel-bonus";
 

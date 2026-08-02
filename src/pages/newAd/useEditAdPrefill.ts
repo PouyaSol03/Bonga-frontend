@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 
-import { getApiErrorMessage } from "../../api/api";
-import { useAdvertisementDetailQuery } from "../../hooks/advertisement.hooks";
-import type { AdvertisementItem } from "../../services/advertisement.service";
+import { getApiErrorMessage } from "../../core/api/api";
+import { useAdvertisementDetailQuery } from "../../core/hooks/advertisement.hooks";
+import type { AdvertisementItem } from "../../core/services/advertisement.service";
 import {
   blankValues,
   dailyHotelRoomTypes,

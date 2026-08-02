@@ -1,6 +1,6 @@
-import type { AdCardData } from "../../../components/AdCard";
-import type { AgencyAdvertiseAssignmentDto } from "../../../services/agency-advertise-assignment.service";
-import { mapAdvertisementToAdCard } from "../../../services/advertisement.service";
+import type { AdCardData } from "../../../shared/components/AdCard";
+import type { AgencyAdvertiseAssignmentDto } from "../../../core/services/agency-advertise-assignment.service";
+import { mapAdvertisementToAdCard } from "../../../core/services/advertisement.service";
 
 export type ConsultantAd = AdCardData;
 

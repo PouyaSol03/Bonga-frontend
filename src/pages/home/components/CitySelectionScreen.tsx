@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
-import { TopBar } from "../../../components/TopBar";
+import { TopBar } from "../../../shared/components/TopBar";
 import SearchErrors from "./SearchErrors";
-import { useCitySearchQuery } from "../../../hooks/city.hooks";
-import type { CityDto } from "../../../services/city.service";
-import { getRequestErrorState } from "../../../components/ErrorState";
-import { readStoredSelectedCity, saveSelectedCity } from "../../../lib/selectedCityStorage";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { useCitySearchQuery } from "../../../core/hooks/city.hooks";
+import type { CityDto } from "../../../core/services/city.service";
+import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { readStoredSelectedCity, saveSelectedCity } from "../../../shared/lib/selectedCityStorage";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type CitySelectionScreenProps = {
   currentCity: string;

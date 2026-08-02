@@ -8,7 +8,7 @@ import {
   type SVGProps,
 } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
+import { PageFrame } from "../../app/layout/PageFrame";
 
 import {
   joinChatThread,
@@ -16,28 +16,28 @@ import {
   markChatRead,
   sendChatTextMessage,
   sendChatTyping,
-} from "../../api/chat-socket";
-import { getStoredAuthSession } from "../../auth/auth-storage";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import LinearCall from "../../components/(icons)/LinearCall";
-import LinearChat from "../../components/(icons)/LinearChat";
-import LinearMoreVertical from "../../components/(icons)/LinearMoreVertical";
-import LinearQuestion from "../../components/(icons)/LinearQuestion";
-import LinearRequestList from "../../components/(icons)/LinearRequestList";
-import LinearSent from "../../components/(icons)/LinearSent";
-import LinearSupport from "../../components/(icons)/LinearSupport";
-import LinearAttachment from "../../components/(icons)/LinearAttachment";
-import LinearTickDouble from "../../components/(icons)/LinearTickDouble";
-import LinearWavingHand from "../../components/(icons)/LinearWavingHand";
-import { TopBar } from "../../components/TopBar";
+} from "../../core/api/chat-socket";
+import { getStoredAuthSession } from "../../core/auth/auth-storage";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearCall from "../../shared/icons/LinearCall";
+import LinearChat from "../../shared/icons/LinearChat";
+import LinearMoreVertical from "../../shared/icons/LinearMoreVertical";
+import LinearQuestion from "../../shared/icons/LinearQuestion";
+import LinearRequestList from "../../shared/icons/LinearRequestList";
+import LinearSent from "../../shared/icons/LinearSent";
+import LinearSupport from "../../shared/icons/LinearSupport";
+import LinearAttachment from "../../shared/icons/LinearAttachment";
+import LinearTickDouble from "../../shared/icons/LinearTickDouble";
+import LinearWavingHand from "../../shared/icons/LinearWavingHand";
+import { TopBar } from "../../shared/components/TopBar";
 import {
   useChatMessagesQuery,
   useChatsQuery,
-} from "../../hooks/chat.hooks";
-import type { ChatMessage, ChatThread } from "../../services/chat.service";
-import { RouteLink } from "../../routes/RouteLink";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/hooks/chat.hooks";
+import type { ChatMessage, ChatThread } from "../../core/services/chat.service";
+import { RouteLink } from "../../app/router/RouteLink";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const SUPPORT_CHAT_PATH = "/account/support/chat";
 const SUPPORT_NEW_CHAT_PATH = "/account/support/chat/new";

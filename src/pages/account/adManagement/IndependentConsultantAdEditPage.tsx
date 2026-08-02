@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from "react";
-import "../../../components/AdCard.css";
+import "../../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { adManagementPaths, getSelectedConsultantAd } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 const galleryImageClassNames = [
   "ad-card__image--one",

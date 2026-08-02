@@ -1,12 +1,12 @@
-import "../../../components/AdCard.css";
+import "../../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { TopBar } from "../../../components/TopBar";
-import { Typography } from "../../../components/ui/Typography";
-import { useMyAdsInfiniteQuery } from "../../../hooks/account.hooks";
-import { RouteLink } from "../../../routes/RouteLink";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../../services/advertisement.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { TopBar } from "../../../shared/components/TopBar";
+import { Typography } from "../../../shared/ui/Typography";
+import { useMyAdsInfiniteQuery } from "../../../core/hooks/account.hooks";
+import { RouteLink } from "../../../app/router/RouteLink";
+import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../../core/services/advertisement.service";
 import { ChevronLeftIcon, StatisticsIcon } from "./AdManagementIcons";
 import { adManagementPaths, type StatisticsAd } from "./adManagementData";
 

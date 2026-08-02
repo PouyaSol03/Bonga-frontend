@@ -1,4 +1,4 @@
-import { AdCard, type AdCardData } from "../../../components/AdCard";
+import { AdCard, type AdCardData } from "../../../shared/components/AdCard";
 import type { SearchMapListing } from "../searchMapData";
 import { SEARCH_MAP_FALLBACK_IMAGE } from "../searchMapData";
 

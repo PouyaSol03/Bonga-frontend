@@ -1,13 +1,13 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { createSupportRequest } from "../../../services/support-request.service";
-import { replaceRoute } from "../../../routes/navigation";
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import LinearAttachment from "../../../components/(icons)/LinearAttachment";
+import { createSupportRequest } from "../../../core/services/support-request.service";
+import { replaceRoute } from "../../../app/router/navigation";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import LinearAttachment from "../../../shared/icons/LinearAttachment";
 import { REQUESTS_PATH, RequestOptionBottomSheet, RequestSelectField, RequiredLabel, categoryOptions, priorityOptions } from "../accountSupportRequestViews";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function AccountSupportNewRequestPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);

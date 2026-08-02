@@ -1,24 +1,24 @@
 import { useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import { getApiErrorMessage } from "../../api/api";
-import { BottomSheet } from "../../components/BottomSheet";
-import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
-import { TopBar } from "../../components/TopBar";
-import { setStoredActiveRole } from "../../auth/auth-storage";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getApiErrorMessage } from "../../core/api/api";
+import { BottomSheet } from "../../shared/components/BottomSheet";
+import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
+import { TopBar } from "../../shared/components/TopBar";
+import { setStoredActiveRole } from "../../core/auth/auth-storage";
 import {
   USER,
-} from "../../constants/roles.constants";
-import { getMyProfile } from "../../services/account.service";
-import { useCreateMyAgencyMutation, useCreateMyAgentMutation } from "../../hooks/account.hooks";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
-import { RouteLink } from "../../routes/RouteLink";
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
-import LinearCancelSmall from "../../components/(icons)/LinearCancelSmall";
-import { ChoiceIndicator } from "../../components/ui/Choice";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../shared/constants/roles.constants";
+import { getMyProfile } from "../../core/services/account.service";
+import { useCreateMyAgencyMutation, useCreateMyAgentMutation } from "../../core/hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { RouteLink } from "../../app/router/RouteLink";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
+import { ChoiceIndicator } from "../../shared/ui/Choice";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 export type BusinessType = "agency" | "independent-consultant";
 

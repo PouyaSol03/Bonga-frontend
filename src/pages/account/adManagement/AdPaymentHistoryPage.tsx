@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { useAdvertisementDetailQuery } from "../../../hooks/advertisement.hooks";
-import { RouteLink } from "../../../routes/RouteLink";
-import type { AdvertisementItem } from "../../../services/advertisement.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { useAdvertisementDetailQuery } from "../../../core/hooks/advertisement.hooks";
+import { RouteLink } from "../../../app/router/RouteLink";
+import type { AdvertisementItem } from "../../../core/services/advertisement.service";
 import {
   adManagementPaths,
   getAdIncreaseVisitsPath,
@@ -12,8 +12,8 @@ import {
   getAdManagementRouteState,
   type ConsultantAd,
 } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type AdPayment = Record<string, unknown> & {
   amount?: number | string;

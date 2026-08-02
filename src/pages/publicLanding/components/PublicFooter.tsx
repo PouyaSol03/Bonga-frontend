@@ -1,5 +1,5 @@
 import { socialLinks } from "../publicLandingData";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function PublicFooter() {
   return (

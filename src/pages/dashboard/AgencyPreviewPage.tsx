@@ -1,51 +1,51 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { AdCard } from "../../components/AdCard";
-import type { AdCardData } from "../../components/AdCard";
-import { BottomSheet } from "../../components/BottomSheet";
+import { AdCard } from "../../shared/components/AdCard";
+import type { AdCardData } from "../../shared/components/AdCard";
+import { BottomSheet } from "../../shared/components/BottomSheet";
 import { QRCodeSVG } from "qrcode.react";
 import { CircleMarker, MapContainer, TileLayer } from "react-leaflet";
 
-import LinearAdd from "../../components/(icons)/LinearAdd";
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import LinearCalendar from "../../components/(icons)/LinearCalendar";
-import LinearChat from "../../components/(icons)/LinearChat";
-import LinearFilterHorizontal from "../../components/(icons)/LinearFilterHorizontal";
-import LinearInstagram from "../../components/(icons)/LinearInstagram";
-import LinearLocation from "../../components/(icons)/LinearLocation";
-import LinearPhone2 from "../../components/(icons)/LinearPhone2";
-import LinearQrCode from "../../components/(icons)/LinearQrCode";
-import LinearRanking from "../../components/(icons)/LinearRanking";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import LinearShare from "../../components/(icons)/LinearShare";
-import LinearStar from "../../components/(icons)/LinearStar";
-import LinearTag from "../../components/(icons)/LinearTag";
-import LinearTelegram from "../../components/(icons)/LinearTelegram";
-import LinearWhatsapp from "../../components/(icons)/LinearWhatsapp";
-import { TopBar } from "../../components/TopBar";
-import { Snackbar, type SnackbarVariant } from "../../components/Snackbar";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
-import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
-import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
-import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../../hooks/account.hooks";
+import LinearAdd from "../../shared/icons/LinearAdd";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearCalendar from "../../shared/icons/LinearCalendar";
+import LinearChat from "../../shared/icons/LinearChat";
+import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
+import LinearInstagram from "../../shared/icons/LinearInstagram";
+import LinearLocation from "../../shared/icons/LinearLocation";
+import LinearPhone2 from "../../shared/icons/LinearPhone2";
+import LinearQrCode from "../../shared/icons/LinearQrCode";
+import LinearRanking from "../../shared/icons/LinearRanking";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import LinearShare from "../../shared/icons/LinearShare";
+import LinearStar from "../../shared/icons/LinearStar";
+import LinearTag from "../../shared/icons/LinearTag";
+import LinearTelegram from "../../shared/icons/LinearTelegram";
+import LinearWhatsapp from "../../shared/icons/LinearWhatsapp";
+import { TopBar } from "../../shared/components/TopBar";
+import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import LinearUserSolid from "../../shared/icons/LinearUserSolid";
+import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
+import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../../core/hooks/account.hooks";
 import {
   useAgencyConsultantsQuery,
   usePublicAgencyDetailQuery,
   usePublicAgentDetailQuery,
-} from "../../hooks/agency.hooks";
-import { useAgencyDashboardQuery } from "../../hooks/dashboard.hooks";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
-import type { MyAgencyProfile } from "../../services/account.service";
+} from "../../core/hooks/agency.hooks";
+import { useAgencyDashboardQuery } from "../../core/hooks/dashboard.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import type { MyAgencyProfile } from "../../core/services/account.service";
 import type {
   AgencyConsultantDto,
   PublicAgentAgencySummary,
-} from "../../services/agency.service";
-import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/services/agency.service";
+import { mapAdvertisementToAdCard } from "../../core/services/advertisement.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";

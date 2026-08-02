@@ -1,23 +1,23 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { getApiErrorMessage } from "../../../api/api";
-import { PageFrame } from "../../../app/PageFrame";
-import { Snackbar } from "../../../components/Snackbar";
-import { TopBar } from "../../../components/TopBar";
-import { ChoiceIndicator } from "../../../components/ui/Choice";
-import { storePaymentReturnTarget } from "../../../utils/payment-return";
-import { useChargeWalletMutation } from "../../../hooks/account.hooks";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { Snackbar } from "../../../shared/components/Snackbar";
+import { TopBar } from "../../../shared/components/TopBar";
+import { ChoiceIndicator } from "../../../shared/ui/Choice";
+import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
+import { useChargeWalletMutation } from "../../../core/hooks/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
   useSubmitAdvertisementCheckoutMutation,
-} from "../../../hooks/advertisement.hooks";
+} from "../../../core/hooks/advertisement.hooks";
 import type {
   AdvertisementCheckout,
   AdvertisementCheckoutItem,
   AdvertisementCheckoutPaymentMethod,
   AdvertisementCheckoutPaymentMethodCode,
   SubmitAdvertisementCheckoutResult,
-} from "../../../services/advertisement.service";
+} from "../../../core/services/advertisement.service";
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import {
   AdCardTomanIcon,
@@ -27,8 +27,8 @@ import {
   getAdManagementRouteState,
   getAdStatePath,
 } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";

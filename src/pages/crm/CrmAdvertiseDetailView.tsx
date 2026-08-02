@@ -1,28 +1,28 @@
 import { useEffect, useMemo, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
-import LinearApartment from "../../components/(icons)/LinearApartment";
-import LinearArrowRight1 from "../../components/(icons)/LinearArrowRight1";
-import LinearBuilding from "../../components/(icons)/LinearBuilding";
-import LinearCalendar from "../../components/(icons)/LinearCalendar";
-import LinearCall from "../../components/(icons)/LinearCall";
-import LinearCategory from "../../components/(icons)/LinearCategory";
-import LinearClock from "../../components/(icons)/LinearClock";
-import LinearDocument from "../../components/(icons)/LinearDocument";
-import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearGps from "../../components/(icons)/LinearGps";
-import LinearHome2 from "../../components/(icons)/LinearHome2";
-import LinearHouseDimensions from "../../components/(icons)/LinearHouseDimensions";
-import LinearImage from "../../components/(icons)/LinearImage";
-import LinearInformation from "../../components/(icons)/LinearInformation";
-import LinearLocation from "../../components/(icons)/LinearLocation";
-import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
-import LinearMoney from "../../components/(icons)/LinearMoney";
-import LinearOwner from "../../components/(icons)/LinearOwner";
-import LinearUserAccount from "../../components/(icons)/LinearUserAccount";
-import { AdLocationMap } from "../../components/AdLocationMap";
-import { RouteLink } from "../../routes/RouteLink";
+import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
+import LinearApartment from "../../shared/icons/LinearApartment";
+import LinearArrowRight1 from "../../shared/icons/LinearArrowRight1";
+import LinearBuilding from "../../shared/icons/LinearBuilding";
+import LinearCalendar from "../../shared/icons/LinearCalendar";
+import LinearCall from "../../shared/icons/LinearCall";
+import LinearCategory from "../../shared/icons/LinearCategory";
+import LinearClock from "../../shared/icons/LinearClock";
+import LinearDocument from "../../shared/icons/LinearDocument";
+import LinearEdit2 from "../../shared/icons/LinearEdit2";
+import LinearGps from "../../shared/icons/LinearGps";
+import LinearHome2 from "../../shared/icons/LinearHome2";
+import LinearHouseDimensions from "../../shared/icons/LinearHouseDimensions";
+import LinearImage from "../../shared/icons/LinearImage";
+import LinearInformation from "../../shared/icons/LinearInformation";
+import LinearLocation from "../../shared/icons/LinearLocation";
+import LinearMapsLocation from "../../shared/icons/LinearMapsLocation";
+import LinearMoney from "../../shared/icons/LinearMoney";
+import LinearOwner from "../../shared/icons/LinearOwner";
+import LinearUserAccount from "../../shared/icons/LinearUserAccount";
+import { AdLocationMap } from "../../shared/components/AdLocationMap";
+import { RouteLink } from "../../app/router/RouteLink";
 import {
   getCrmAdvertise,
   getCrmRecordId,
@@ -30,10 +30,10 @@ import {
   listCrmCities,
   listCrmNeighborhoods,
   type CrmRecord,
-} from "../../services/crm.service";
+} from "../../core/services/crm.service";
 import { getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type CrmAdvertiseDetailViewProps = {
   advertiseId: string;

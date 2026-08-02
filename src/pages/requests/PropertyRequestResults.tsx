@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 
-import LinearAdvertisiment from "../../components/(icons)/LinearAdvertisiment";
-import LinearDelete from "../../components/(icons)/LinearDelete";
-import LinearRefresh from "../../components/(icons)/LinearRefresh";
-import { AdCard } from "../../components/AdCard";
-import { useAdvertisementListQuery } from "../../hooks/advertisement.hooks";
-import { usePropertyRequestMatchesQuery } from "../../hooks/property-request.hooks";
-import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
+import LinearAdvertisiment from "../../shared/icons/LinearAdvertisiment";
+import LinearDelete from "../../shared/icons/LinearDelete";
+import LinearRefresh from "../../shared/icons/LinearRefresh";
+import { AdCard } from "../../shared/components/AdCard";
+import { useAdvertisementListQuery } from "../../core/hooks/advertisement.hooks";
+import { usePropertyRequestMatchesQuery } from "../../core/hooks/property-request.hooks";
+import { mapAdvertisementToAdCard } from "../../core/services/advertisement.service";
 import {
   createPropertyRequestAdvertisementParams,
   type PropertySearchRequest,
-} from "../../services/property-request.service";
+} from "../../core/services/property-request.service";
 import { RequestResultImageMeta } from "./RequestResultImageMeta";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 export type PropertyRequestResultsStatus = {
   isError: boolean;

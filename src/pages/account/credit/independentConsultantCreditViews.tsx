@@ -1,13 +1,13 @@
-import { PageFrame } from "../../../app/PageFrame";
-import { TransientNotice } from "../../../components/TransientNotice";
-import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
-import { useTransientNotice } from "../../../hooks/useTransientNotice";
-import { usePackagesQuery } from "../../../hooks/package.hooks";
-import type { PackageItem } from "../../../services/package.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TransientNotice } from "../../../shared/components/TransientNotice";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RouteLink } from "../../../app/router/RouteLink";
+import { useTransientNotice } from "../../../core/hooks/useTransientNotice";
+import { usePackagesQuery } from "../../../core/hooks/package.hooks";
+import type { PackageItem } from "../../../core/services/package.service";
 
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type CreditView = "packages" | "panel" | "panel-bonus";
 type CreditPlan = {

@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
-import { SwitchButton } from "../../components/SwitchButton";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { RouteLink } from "../../routes/RouteLink";
+import { SwitchButton } from "../../shared/components/SwitchButton";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { RouteLink } from "../../app/router/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard } from "./DashboardAdCard";
-import { useMyAdsInfiniteQuery } from "../../hooks/account.hooks";
-import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
+import { useMyAdsInfiniteQuery } from "../../core/hooks/account.hooks";
+import { mapAdvertisementToAdCard } from "../../core/services/advertisement.service";
 import { getMyAdStatusInfo } from "../account/myAdsStatus";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type DashboardAdsTab = "active" | "specialty" | "status";
 

@@ -2,8 +2,8 @@ import type {
   DrawingState,
   GeofenceResult,
 } from "../geofence/geofenceTypes";
-import { TopBar } from "../../../components/TopBar";
-import { Button } from "../../../components/ui/Button";
+import { TopBar } from "../../../shared/components/TopBar";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchMapGeofenceControlsProps = {
   drawingState: DrawingState;

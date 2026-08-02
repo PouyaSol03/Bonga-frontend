@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
 
-import NoSearchIcon from "../../../assets/icons/NoSearch.svg";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import NoSearchIcon from "../../../shared/assets/icons/NoSearch.svg";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchNoResultsRequestCardProps = {
   className?: string;

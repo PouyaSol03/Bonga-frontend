@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import type { NoteItem } from "../../../services/account.service";
-import { useMyNotesQuery, useDeleteAdvertiseNoteMutation, useSaveAdvertiseNoteMutation } from "../../../hooks/account.hooks";
-import { type SnackbarVariant, Snackbar } from "../../../components/Snackbar";
-import { getApiErrorMessage } from "../../../api/api";
-import { BottomSheet } from "../../../components/BottomSheet";
-import { Button } from "../../../components/ui/Button";
+import type { NoteItem } from "../../../core/services/account.service";
+import { useMyNotesQuery, useDeleteAdvertiseNoteMutation, useSaveAdvertiseNoteMutation } from "../../../core/hooks/account.hooks";
+import { type SnackbarVariant, Snackbar } from "../../../shared/components/Snackbar";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { Button } from "../../../shared/ui/Button";
 import { AccountNotesSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState, NoteCard, getNoteAdvertiseId, getNoteId, readNoteText } from "../accountPageViews";
 import type { AccountToast } from "../accountPageViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountNotesPage() {
   const [editingNote, setEditingNote] = useState<NoteItem | null>(null);

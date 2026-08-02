@@ -1,7 +1,7 @@
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
-import LinearChat from "../../../components/(icons)/LinearChat";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RouteLink } from "../../../app/router/RouteLink";
+import LinearChat from "../../../shared/icons/LinearChat";
 import { SUPPORT_CHAT_PATH, SupportMenuItem, supportItems } from "../accountSupportViews";
 
 export function AccountSupportPage() {

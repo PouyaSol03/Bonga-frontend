@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useMyProfileQuery, useUpdateMyProfileMutation } from "../../../hooks/account.hooks";
-import { getStoredAuthSession } from "../../../auth/auth-storage";
-import { type SnackbarVariant, Snackbar } from "../../../components/Snackbar";
-import { getApiErrorMessage } from "../../../api/api";
+import { useMyProfileQuery, useUpdateMyProfileMutation } from "../../../core/hooks/account.hooks";
+import { getStoredAuthSession } from "../../../core/auth/auth-storage";
+import { type SnackbarVariant, Snackbar } from "../../../shared/components/Snackbar";
+import { getApiErrorMessage } from "../../../core/api/api";
 import { AccountPageShell, AccountProfileForm, AccountProfileSkeleton, AccountRetryState } from "../accountPageViews";
 import type { AccountToast } from "../accountPageViews";
 

@@ -1,22 +1,22 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import LinearCalendar from "../../components/(icons)/LinearCalendar";
-import LinearPropertySearch from "../../components/(icons)/LinearPropertySearch";
-import LinearRefresh from "../../components/(icons)/LinearRefresh";
-import LinearRequestList from "../../components/(icons)/LinearRequestList";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
+import LinearCalendar from "../../shared/icons/LinearCalendar";
+import LinearPropertySearch from "../../shared/icons/LinearPropertySearch";
+import LinearRefresh from "../../shared/icons/LinearRefresh";
+import LinearRequestList from "../../shared/icons/LinearRequestList";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
   formatPropertyRequestValue,
   getCollapsedPropertyRequestDetails,
   propertyRequestFilterLabels,
   toPersianDigits,
   type PropertySearchRequest,
-} from "../../services/property-request.service";
+} from "../../core/services/property-request.service";
 import { PropertyRequestResults } from "../requests/PropertyRequestResults";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type CrmPropertyRequestsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;

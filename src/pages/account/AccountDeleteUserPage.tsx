@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../auth/auth-storage";
-import { TopBar } from "../../components/TopBar";
-import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../core/auth/auth-storage";
+import { TopBar } from "../../shared/components/TopBar";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);

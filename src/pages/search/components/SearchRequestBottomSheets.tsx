@@ -1,13 +1,13 @@
-import { BottomSheet } from "../../../components/BottomSheet";
-import { Button } from "../../../components/ui/Button";
-import { IconButton } from "../../../components/ui/IconButton";
-import { ListItem } from "../../../components/ui/ListItem";
-import LinearBuilding2 from "../../../components/(icons)/LinearBuilding2";
-import LinearCity from "../../../components/(icons)/LinearCity";
-import LinearUser from "../../../components/(icons)/LinearUserSolid";
-import LinearArrowRight2 from "../../../components/(icons)/LinearArrowRight2";
-import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
-import { Typography } from "../../../components/ui/Typography";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { Button } from "../../../shared/ui/Button";
+import { IconButton } from "../../../shared/ui/IconButton";
+import { ListItem } from "../../../shared/ui/ListItem";
+import LinearBuilding2 from "../../../shared/icons/LinearBuilding2";
+import LinearCity from "../../../shared/icons/LinearCity";
+import LinearUser from "../../../shared/icons/LinearUserSolid";
+import LinearArrowRight2 from "../../../shared/icons/LinearArrowRight2";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import { Typography } from "../../../shared/ui/Typography";
 
 export type SearchRequestSenderOption = {
   description: string;

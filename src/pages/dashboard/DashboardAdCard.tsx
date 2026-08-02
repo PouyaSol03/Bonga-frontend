@@ -1,4 +1,4 @@
-import { AdCard, type AdCardData } from "../../components/AdCard";
+import { AdCard, type AdCardData } from "../../shared/components/AdCard";
 import { getAdStatePath } from "../account/adManagement/adManagementData";
 
 export function DashboardAdCard({ ad }: { ad: AdCardData }) {

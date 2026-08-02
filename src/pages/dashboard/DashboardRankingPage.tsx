@@ -1,22 +1,22 @@
 import { useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearClockAlarm from "../../components/(icons)/LinearClockAlarm";
-import LinearInfoCircle from "../../components/(icons)/LinearInfoCircle";
-import LinearLike from "../../components/(icons)/LinearLike";
-import LinearPercenTeam from "../../components/(icons)/LinearPercenTeam";
-import LinearRanking from "../../components/(icons)/LinearRanking";
-import LinearStar from "../../components/(icons)/LinearStar";
-import LinearStartup from "../../components/(icons)/LinearStartup";
-import { TopBar } from "../../components/TopBar";
-import { RouteLink } from "../../routes/RouteLink";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
-import { useMyBadgesQuery } from "../../hooks/account.hooks";
-import { useAgencyDashboardQuery } from "../../hooks/dashboard.hooks";
-import type { BadgeItem } from "../../services/account.service";
-import type { DashboardRankingEntity } from "../../services/dashboard.service";
+import { PageFrame } from "../../app/layout/PageFrame";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearClockAlarm from "../../shared/icons/LinearClockAlarm";
+import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
+import LinearLike from "../../shared/icons/LinearLike";
+import LinearPercenTeam from "../../shared/icons/LinearPercenTeam";
+import LinearRanking from "../../shared/icons/LinearRanking";
+import LinearStar from "../../shared/icons/LinearStar";
+import LinearStartup from "../../shared/icons/LinearStartup";
+import { TopBar } from "../../shared/components/TopBar";
+import { RouteLink } from "../../app/router/RouteLink";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
+import { useMyBadgesQuery } from "../../core/hooks/account.hooks";
+import { useAgencyDashboardQuery } from "../../core/hooks/dashboard.hooks";
+import type { BadgeItem } from "../../core/services/account.service";
+import type { DashboardRankingEntity } from "../../core/services/dashboard.service";
 
 type BadgeTone = "active" | "muted";
 

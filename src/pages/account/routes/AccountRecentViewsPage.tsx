@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getRecentViews } from "../../../services/recent-views.service";
+import { getRecentViews } from "../../../core/services/recent-views.service";
 import { useMemo } from "react";
-import { type AdvertisementItem, mapAdvertisementToAdCard } from "../../../services/advertisement.service";
-import { RouteLink } from "../../../routes/RouteLink";
-import { getApiErrorMessage } from "../../../api/api";
-import { AdCard } from "../../../components/AdCard";
+import { type AdvertisementItem, mapAdvertisementToAdCard } from "../../../core/services/advertisement.service";
+import { RouteLink } from "../../../app/router/RouteLink";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { AdCard } from "../../../shared/components/AdCard";
 import { AccountAdCardsSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState } from "../accountPageViews";
 
 export function AccountRecentViewsPage() {

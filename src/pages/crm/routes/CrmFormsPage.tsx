@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { listCrmAdvertiseForms, getCrmRecordId } from "../../../services/crm.service";
+import { listCrmAdvertiseForms, getCrmRecordId } from "../../../core/services/crm.service";
 import { AdvertiseFormCard, EmptyState, FormCardSkeleton, Panel, PanelHeader, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps } from "../CrmLayout";
 

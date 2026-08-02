@@ -8,18 +8,18 @@ import {
   useMapEvents,
 } from "react-leaflet";
 
-import ListIcon from "../../assets/icons/ListIcon";
-import { RadioIndicator } from "../../components/RadioIndicator";
-import { TopBar } from "../../components/TopBar";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
+import ListIcon from "../../shared/assets/icons/ListIcon";
+import { RadioIndicator } from "../../shared/components/RadioIndicator";
+import { TopBar } from "../../shared/components/TopBar";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { searchMapCenter, searchMapTileConfig } from "../search/searchMapData";
-import LinearList from "../../components/(icons)/LinearList";
-import LinearArrowLeft2 from "../../components/(icons)/LinearArrowLeft2";
-import LinearStar from "../../components/(icons)/LinearStar";
-import LinearRanking from "../../components/(icons)/LinearRanking";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import LinearList from "../../shared/icons/LinearList";
+import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
+import LinearStar from "../../shared/icons/LinearStar";
+import LinearRanking from "../../shared/icons/LinearRanking";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 export type AgencyDirectoryMapItem = {
   address?: string;

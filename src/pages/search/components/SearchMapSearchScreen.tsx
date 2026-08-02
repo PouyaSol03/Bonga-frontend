@@ -1,28 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 
-import BoldBookmarkSolid from "../../../components/(icons)/BoldBookmarkSolid";
-import LinearBookmarkSolid from "../../../components/(icons)/LinearBookmarkSolid";
-import LinearCancelCircle from "../../../components/(icons)/LinearCancelCircle";
-import { TopBar } from "../../../components/TopBar";
-import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import BoldBookmarkSolid from "../../../shared/icons/BoldBookmarkSolid";
+import LinearBookmarkSolid from "../../../shared/icons/LinearBookmarkSolid";
+import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
+import { TopBar } from "../../../shared/components/TopBar";
+import { AdCardSkeleton } from "../../../shared/components/AdCardSkeleton";
 import SearchErrors from "../../home/components/SearchErrors";
-import { getStoredAuthSession } from "../../../auth/auth-storage";
+import { getStoredAuthSession } from "../../../core/auth/auth-storage";
 import {
   useDeleteSearchHistoryMutation,
   useSearchHistoryQuery,
-} from "../../../hooks/search-history.hooks";
+} from "../../../core/hooks/search-history.hooks";
 import {
   useDeleteSavedSearchMutation,
   useSavedSearchesQuery,
   useSaveSearchMutation,
-} from "../../../hooks/saved-search.hooks";
-import type { SearchHistoryItem } from "../../../services/search-history.service";
+} from "../../../core/hooks/saved-search.hooks";
+import type { SearchHistoryItem } from "../../../core/services/search-history.service";
 import type {
   SavedSearchItem,
   SaveSearchInput,
-} from "../../../services/saved-search.service";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+} from "../../../core/services/saved-search.service";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchMapSearchScreenProps = {
   initialQuery?: string;

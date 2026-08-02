@@ -1,14 +1,14 @@
-import { PageFrame } from "../../app/PageFrame";
-import { TopBar } from "../../components/TopBar";
-import { Typography } from "../../components/ui/Typography";
-import { useMyBadgesQuery } from "../../hooks/account.hooks";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { TopBar } from "../../shared/components/TopBar";
+import { Typography } from "../../shared/ui/Typography";
+import { useMyBadgesQuery } from "../../core/hooks/account.hooks";
 import {
   badgeProgressNumber,
   formatBadgeProgressNumber,
   readBadgeLevelCount,
   readBadgeProgressLevels,
   type BadgeProgressLevel,
-} from "../../utils/badgeProgress";
+} from "../../shared/utils/badgeProgress";
 
 type BadgeKey = "file" | "magnet" | "response" | "time";
 

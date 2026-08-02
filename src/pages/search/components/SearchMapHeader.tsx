@@ -1,7 +1,7 @@
 import { memo } from "react";
 import type { SearchFilterChip } from "../searchMapData";
 
-import { TopBar } from "../../../components/TopBar";
+import { TopBar } from "../../../shared/components/TopBar";
 import { SearchMapFilterChips } from "./SearchMapFilterChips";
 
 type SearchMapHeaderProps = {

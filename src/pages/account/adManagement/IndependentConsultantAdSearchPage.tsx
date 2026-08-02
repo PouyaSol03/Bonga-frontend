@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { TopBar } from "../../../components/TopBar";
-import { SearchInputBar } from "../../../components/ui/SearchBar";
-import { useMyAdsInfiniteQuery } from "../../../hooks/account.hooks";
-import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../../../hooks/agency-advertise-assignment.hooks";
-import { mapAdvertisementToAdCard } from "../../../services/advertisement.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { TopBar } from "../../../shared/components/TopBar";
+import { SearchInputBar } from "../../../shared/ui/SearchBar";
+import { useMyAdsInfiniteQuery } from "../../../core/hooks/account.hooks";
+import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../../../core/hooks/agency-advertise-assignment.hooks";
+import { mapAdvertisementToAdCard } from "../../../core/services/advertisement.service";
 import { ConsultantAdCard } from "./ConsultantAdCard";
 import { adManagementPaths, getAdManagementRouteState } from "./adManagementData";
 

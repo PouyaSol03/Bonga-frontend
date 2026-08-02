@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-import "../../../components/AdCard.css";
+import "../../../shared/components/AdCard.css";
 
-import { PageFrame } from "../../../app/PageFrame";
-import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
-import LinearPreview from "../../../components/(icons)/LinearPreview";
-import { RadioIndicator } from "../../../components/RadioIndicator";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { TopBar } from "../../../components/TopBar";
-import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
-import { RouteLink } from "../../../routes/RouteLink";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import LinearEdit2 from "../../../shared/icons/LinearEdit2";
+import LinearPreview from "../../../shared/icons/LinearPreview";
+import { RadioIndicator } from "../../../shared/components/RadioIndicator";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { TopBar } from "../../../shared/components/TopBar";
+import { useAgencyConsultantsQuery } from "../../../core/hooks/agency.hooks";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { ChevronLeftIcon } from "./AdManagementIcons";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -21,12 +21,12 @@ import {
   getSelectedConsultantAd,
   type ConsultantAd,
 } from "./adManagementData";
-import LinearBuilding2 from "../../../components/(icons)/LinearBuilding2";
-import LinearUserSolid from "../../../components/(icons)/LinearUserSolid";
-import LinearCancel from "../../../components/(icons)/LinearCancel";
-import LinearSearch from "../../../components/(icons)/LinearSearch";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import LinearBuilding2 from "../../../shared/icons/LinearBuilding2";
+import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
+import LinearCancel from "../../../shared/icons/LinearCancel";
+import LinearSearch from "../../../shared/icons/LinearSearch";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type PublisherType = "agency" | "consultant";
 

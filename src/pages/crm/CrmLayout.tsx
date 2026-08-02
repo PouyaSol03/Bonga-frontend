@@ -2,30 +2,30 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNo
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { LatLngTuple } from "leaflet";
 import { CircleMarker, MapContainer, Polygon, TileLayer, useMapEvents } from "react-leaflet";
-import { getApiErrorMessage } from "../../api/api";
-import type { AdCardData } from "../../components/AdCard";
-import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearFlag from "../../components/(icons)/LinearFlag";
-import LinearRequestList from "../../components/(icons)/LinearRequestList";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
-import { useMyProfileQuery } from "../../hooks/account.hooks";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+import { getApiErrorMessage } from "../../core/api/api";
+import type { AdCardData } from "../../shared/components/AdCard";
+import LinearEdit2 from "../../shared/icons/LinearEdit2";
+import LinearFlag from "../../shared/icons/LinearFlag";
+import LinearRequestList from "../../shared/icons/LinearRequestList";
+import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/services/advertisement.service";
+import { useMyProfileQuery } from "../../core/hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
-import { RouteLink } from "../../routes/RouteLink";
-import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { getCrmRecordId, type CrmConsultantStatus, type CrmRecord } from "../../services/crm.service";
-import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
+import { RouteLink } from "../../app/router/RouteLink";
+import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { getCrmRecordId, type CrmConsultantStatus, type CrmRecord } from "../../core/services/crm.service";
+import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../core/auth/auth-storage";
 import {
   CRM_ADVERTISE_MANAGER,
   CRM_FINANCE_MANAGER,
   SUPPORT,
   SUPER_ADMIN,
-} from "../../constants/roles.constants";
+} from "../../shared/constants/roles.constants";
 
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const CRM_BLUE = "#0048c4";
 export const DEFAULT_COUNTRY_ID = "000000000000000000000001";

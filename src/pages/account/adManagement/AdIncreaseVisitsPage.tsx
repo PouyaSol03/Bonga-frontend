@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { getApiErrorMessage } from "../../../api/api";
-import { PageFrame } from "../../../app/PageFrame";
-import { Snackbar } from "../../../components/Snackbar";
-import { TopBar } from "../../../components/TopBar";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { Snackbar } from "../../../shared/components/Snackbar";
+import { TopBar } from "../../../shared/components/TopBar";
 import {
   useAdvertisementCheckoutQuery,
   useAdvertisementDetailQuery,
   useSubmitAdvertisementCheckoutMutation,
-} from "../../../hooks/advertisement.hooks";
-import { storePaymentReturnTarget } from "../../../utils/payment-return";
+} from "../../../core/hooks/advertisement.hooks";
+import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 import type {
   AdvertisementCheckout,
   AdvertisementCheckoutItem,
   AdvertisementCheckoutPaymentMethod,
   AdvertisementCheckoutPaymentMethodCode,
-} from "../../../services/advertisement.service";
+} from "../../../core/services/advertisement.service";
 import {
   ApiPaymentCheckoutView,
   type PaymentMethod,
@@ -31,8 +31,8 @@ import {
   getAdManagementRouteState,
   getAdStatePath,
 } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function AdIncreaseVisitsPage() {
   const routeState = getAdManagementRouteState();

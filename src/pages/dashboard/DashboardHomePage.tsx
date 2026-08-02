@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
 
-import { DashboardHomeOverview } from "../../components/dashboard/home/DashboardHomeOverview";
+import { DashboardHomeOverview } from "./components/home/DashboardHomeOverview";
 import {
   AddConsultantPage,
   ConsultantManagementPage,
-} from "../../components/dashboard/team/ConsultantManagementPage";
-import { ConsultantEditPage } from "../../components/dashboard/team/ConsultantEditPage";
-import { ConsultantInfoPage } from "../../components/dashboard/team/ConsultantInfoPage";
-import { ConsultantRemovePage } from "../../components/dashboard/team/ConsultantRemovePage";
+} from "./components/team/ConsultantManagementPage";
+import { ConsultantEditPage } from "./components/team/ConsultantEditPage";
+import { ConsultantInfoPage } from "./components/team/ConsultantInfoPage";
+import { ConsultantRemovePage } from "./components/team/ConsultantRemovePage";
 import { AgencyProfilePage } from "./AgencyProfilePage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
 import {
   authSessionChangedEventName,
   getActiveAuthRole,
   getStoredAuthSession,
-} from "../../auth/auth-storage";
+} from "../../core/auth/auth-storage";
 import {
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
-} from "../../constants/roles.constants";
-import { getApiErrorMessage } from "../../api/api";
+} from "../../shared/constants/roles.constants";
+import { getApiErrorMessage } from "../../core/api/api";
 import {
   useAgencyDashboardQuery,
   useAgentDashboardQuery,
-} from "../../hooks/dashboard.hooks";
+} from "../../core/hooks/dashboard.hooks";
 import { RequestManagementView } from "../requests/RequestManagementView";
 
 export function DashboardHomePage() {

@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { getStoredAuthSession } from "../../../auth/auth-storage";
-import { useMyProfileQuery } from "../../../hooks/account.hooks";
+import { getStoredAuthSession } from "../../../core/auth/auth-storage";
+import { useMyProfileQuery } from "../../../core/hooks/account.hooks";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
 import { AdInformationFields } from "../components/AdInformationFields";
 import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;

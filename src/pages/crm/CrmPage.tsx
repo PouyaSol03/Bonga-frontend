@@ -10,24 +10,24 @@ import {
   useMapEvents,
 } from "react-leaflet";
 
-import { getApiErrorMessage } from "../../api/api";
-import { AdCard, type AdCardData } from "../../components/AdCard";
-import LinearCheckmark from "../../components/(icons)/LinearCheckmark";
-import LinearCancel from "../../components/(icons)/LinearCancel";
-import LinearDelete from "../../components/(icons)/LinearDelete";
-import LinearEdit2 from "../../components/(icons)/LinearEdit2";
-import LinearFlag from "../../components/(icons)/LinearFlag";
-import LinearRequestList from "../../components/(icons)/LinearRequestList";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../services/advertisement.service";
-import { useMyProfileQuery } from "../../hooks/account.hooks";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { useDebouncedValue } from "../../hooks/useDebouncedValue";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+import { getApiErrorMessage } from "../../core/api/api";
+import { AdCard, type AdCardData } from "../../shared/components/AdCard";
+import LinearCheckmark from "../../shared/icons/LinearCheckmark";
+import LinearCancel from "../../shared/icons/LinearCancel";
+import LinearDelete from "../../shared/icons/LinearDelete";
+import LinearEdit2 from "../../shared/icons/LinearEdit2";
+import LinearFlag from "../../shared/icons/LinearFlag";
+import LinearRequestList from "../../shared/icons/LinearRequestList";
+import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/services/advertisement.service";
+import { useMyProfileQuery } from "../../core/hooks/account.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
-import { RouteLink } from "../../routes/RouteLink";
-import { pushRoute } from "../../routes/navigation";
-import { SwitchButton } from "../../components/SwitchButton";
-import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
+import { RouteLink } from "../../app/router/RouteLink";
+import { pushRoute } from "../../app/router/navigation";
+import { SwitchButton } from "../../shared/components/SwitchButton";
+import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
 import { CrmAdvertiseDetailView } from "./CrmAdvertiseDetailView";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "./crmAdvertiseNavigation";
 import { CrmCostsView, CrmPackagesView } from "./CrmBillingViews";
@@ -63,9 +63,9 @@ import {
   type CrmConsultantPayload,
   type CrmConsultantStatus,
   type CrmRecord,
-} from "../../services/crm.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/services/crm.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const CRM_BLUE = "#0048c4";
 const DEFAULT_COUNTRY_ID = "000000000000000000000001";

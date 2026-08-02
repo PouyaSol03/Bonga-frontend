@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
-import Linear3d from "../../components/(icons)/Linear3d";
-import LinearImage from "../../components/(icons)/LinearImage";
-import LinearVideo from "../../components/(icons)/LinearVideo";
-import { AdCardAlbumIcon } from "../../components/AdCardIcons";
-import { Typography } from "../../components/ui/Typography";
+import Linear3d from "../../shared/icons/Linear3d";
+import LinearImage from "../../shared/icons/LinearImage";
+import LinearVideo from "../../shared/icons/LinearVideo";
+import { AdCardAlbumIcon } from "../../shared/components/AdCardIcons";
+import { Typography } from "../../shared/ui/Typography";
 
 export function RequestResultImageMeta({ imageCount }: { imageCount: string }) {
   return (

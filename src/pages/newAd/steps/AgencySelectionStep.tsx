@@ -1,27 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { BottomSheet } from "../../../components/BottomSheet";
-import { TopBar } from "../../../components/TopBar";
-import { RadioIndicator } from "../../../components/RadioIndicator";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { SortIcon } from "../../../components/SortIcon";
-import { useAgencyInfiniteQuery } from "../../../hooks/agency.hooks";
-import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
-import type { AgencySort, PublicAgencyDto } from "../../../services/agency.service";
-import type { NeighborhoodDto } from "../../../services/neighborhood.service";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { TopBar } from "../../../shared/components/TopBar";
+import { RadioIndicator } from "../../../shared/components/RadioIndicator";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { SortIcon } from "../../../shared/components/SortIcon";
+import { useAgencyInfiniteQuery } from "../../../core/hooks/agency.hooks";
+import { useNeighborhoodListQuery } from "../../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
+import type { AgencySort, PublicAgencyDto } from "../../../core/services/agency.service";
+import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
 import { AgencyNeighborhoodFilterPage } from "./AgencyNeighborhoodFilterPage";
 import {
   AgencyDirectoryMapView,
   type AgencyDirectoryMapItem,
 } from "../../consultants/AgencyDirectoryMapView";
-import LinearArrowLeft2 from "../../../components/(icons)/LinearArrowLeft2";
-import LinearStar from "../../../components/(icons)/LinearStar";
-import LinearRanking from "../../../components/(icons)/LinearRanking";
-import LinearMapsLocation from "../../../components/(icons)/LinearMapsLocation";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
-import { pushRoute } from "../../../routes/navigation";
+import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
+import LinearStar from "../../../shared/icons/LinearStar";
+import LinearRanking from "../../../shared/icons/LinearRanking";
+import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
+import { pushRoute } from "../../../app/router/navigation";
 import { preserveNewAdDraftStateKey } from "../session";
 
 type SelectedAgency = Pick<PublicAgencyDto, "id" | "name">;

@@ -1,6 +1,6 @@
-import { RouteLink } from "../../../routes/RouteLink";
-import CallCTABackground from "../../../assets/icons/CallCTABackground.svg";
-import UserSolid from "../../../assets/icons/UserSolid";
+import { RouteLink } from "../../../app/router/RouteLink";
+import CallCTABackground from "../../../shared/assets/icons/CallCTABackground.svg";
+import UserSolid from "../../../shared/assets/icons/UserSolid";
 
 export function LoginCallToAction() {
   return (

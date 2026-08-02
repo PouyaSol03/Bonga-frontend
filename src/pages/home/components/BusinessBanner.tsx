@@ -5,11 +5,11 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
-import ArrowLeft from "../../../assets/icons/ArrowLeft";
-import BannerHomePage from "../../../assets/icons/BannerHomePage.svg";
-import { RouteLink } from "../../../routes/RouteLink";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import ArrowLeft from "../../../shared/assets/icons/ArrowLeft";
+import BannerHomePage from "../../../shared/assets/icons/BannerHomePage.svg";
+import { RouteLink } from "../../../app/router/RouteLink";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export type BusinessBannerSlide = {
   eyebrow: string;

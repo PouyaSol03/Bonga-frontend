@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearChat from "../../components/(icons)/LinearChat";
-import LinearSearch from "../../components/(icons)/LinearSearch";
-import { TopBar } from "../../components/TopBar";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { RouteLink } from "../../routes/RouteLink";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { PageFrame } from "../../app/layout/PageFrame";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearChat from "../../shared/icons/LinearChat";
+import LinearSearch from "../../shared/icons/LinearSearch";
+import { TopBar } from "../../shared/components/TopBar";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { RouteLink } from "../../app/router/RouteLink";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const SUPPORT_PATH = "/account/support";
 const SUPPORT_CHAT_PATH = "/account/support/chat";

@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
-import { BottomSheet } from '../../../components/BottomSheet'
-import { Button } from '../../../components/ui/Button'
-import { Typography } from '../../../components/ui/Typography'
+import { BottomSheet } from '../../../shared/components/BottomSheet'
+import { Button } from '../../../shared/ui/Button'
+import { Typography } from '../../../shared/ui/Typography'
 import type { CategoryOption, QuickAction } from '../homeTypes'
-import LinearArrowLeft1 from '../../../components/(icons)/LinearArrowLeft1'
-import LinearArrowRight2 from '../../../components/(icons)/LinearArrowRight2'
+import LinearArrowLeft1 from '../../../shared/icons/LinearArrowLeft1'
+import LinearArrowRight2 from '../../../shared/icons/LinearArrowRight2'
 
 type CategoryBottomSheetProps = {
   isOpen: boolean

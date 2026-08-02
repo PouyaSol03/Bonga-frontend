@@ -1,4 +1,4 @@
-import { AdCard } from "../../../components/AdCard";
+import { AdCard } from "../../../shared/components/AdCard";
 import type { AdManagementRouteState, ConsultantAd } from "./adManagementData";
 
 type ConsultantAdCardProps = {

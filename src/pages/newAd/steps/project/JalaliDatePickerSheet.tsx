@@ -3,10 +3,10 @@ import { Calendar, DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persianFa from "react-date-object/locales/persian_fa";
 
-import { BottomSheet } from "../../../../components/BottomSheet";
+import { BottomSheet } from "../../../../shared/components/BottomSheet";
 
 import "./JalaliDatePickerSheet.css";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../shared/ui/Button";
 
 type JalaliDatePickerSheetProps = {
   isOpen: boolean;

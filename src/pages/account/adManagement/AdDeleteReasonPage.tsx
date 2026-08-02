@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { RadioIndicator } from "../../../components/RadioIndicator";
-import { TopBar } from "../../../components/TopBar";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { RadioIndicator } from "../../../shared/components/RadioIndicator";
+import { TopBar } from "../../../shared/components/TopBar";
 import { adManagementPaths } from "./adManagementData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 const deleteReasons = [
   { id: "sold-elsewhere", label: "از راه دیگر فروختم" },

@@ -1,5 +1,5 @@
-import { getApiAssetUrl } from "../../api/api";
-import type { AdvertisementItem, AdvertisementMapParams, AdvertisementSearchFilters } from "../../services/advertisement.service";
+import { getApiAssetUrl } from "../../core/api/api";
+import type { AdvertisementItem, AdvertisementMapParams, AdvertisementSearchFilters } from "../../core/services/advertisement.service";
 import {
   SEARCH_MAP_DEMO_PHOTO,
   type SearchMapBounds,

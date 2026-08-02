@@ -1,27 +1,27 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { PageFrame } from "../../app/PageFrame";
-import LinearAdd from "../../components/(icons)/LinearAdd";
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearAttachment from "../../components/(icons)/LinearAttachment";
-import LinearTick from "../../components/(icons)/LinearTick";
+import { PageFrame } from "../../app/layout/PageFrame";
+import LinearAdd from "../../shared/icons/LinearAdd";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearAttachment from "../../shared/icons/LinearAttachment";
+import LinearTick from "../../shared/icons/LinearTick";
 import {
   BottomSheet,
   BottomSheetActionList,
   type BottomSheetAction,
-} from "../../components/BottomSheet";
-import { TopBar } from "../../components/TopBar";
-import { getRequestErrorState } from "../../components/ErrorState";
-import { RouteLink } from "../../routes/RouteLink";
-import { replaceRoute } from "../../routes/navigation";
+} from "../../shared/components/BottomSheet";
+import { TopBar } from "../../shared/components/TopBar";
+import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { RouteLink } from "../../app/router/RouteLink";
+import { replaceRoute } from "../../app/router/navigation";
 import {
   createSupportRequest,
   getSupportRequests,
   type SupportRequestItem,
-} from "../../services/support-request.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/services/support-request.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 const SUPPORT_PATH = "/account/support";
 const REQUESTS_PATH = "/account/support/requests";

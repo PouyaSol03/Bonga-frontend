@@ -1,9 +1,9 @@
-import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
-import LinearFilterHorizontal from "../../../components/(icons)/LinearFilterHorizontal";
-import { HorizontalFilterBar } from "../../../components/HorizontalFilterBar";
+import LinearCancelSmall from "../../../shared/icons/LinearCancelSmall";
+import LinearFilterHorizontal from "../../../shared/icons/LinearFilterHorizontal";
+import { HorizontalFilterBar } from "../../../shared/components/HorizontalFilterBar";
 import type { SearchFilterChip } from "../searchMapData";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchMapFilterChipsProps = {
   chips: SearchFilterChip[];

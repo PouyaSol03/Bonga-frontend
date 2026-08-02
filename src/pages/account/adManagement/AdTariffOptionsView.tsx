@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export type AdTariffOptionId = "refresh" | "special" | "renew" | "refreshSpecial";
 

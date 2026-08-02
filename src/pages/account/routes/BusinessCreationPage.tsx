@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ArrowLeftIcon, BusinessCreationShell, BusinessHero, BusinessTypeCard, getBusinessTypePath, navigateTo } from "../businessCreationViews";
 import type { BusinessType } from "../businessCreationViews";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function BusinessCreationPage() {
   const [selectedType, setSelectedType] = useState<BusinessType>("agency");

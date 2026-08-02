@@ -5,12 +5,12 @@ import {
   type ReactNode,
 } from "react";
 
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import { useAccountCreditHistoryInfiniteQuery } from "../../../hooks/account.hooks";
-import type { PaymentHistoryItem } from "../../../services/account.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import { useAccountCreditHistoryInfiniteQuery } from "../../../core/hooks/account.hooks";
+import type { PaymentHistoryItem } from "../../../core/services/account.service";
 import type { CreditPayment } from "./creditData";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 

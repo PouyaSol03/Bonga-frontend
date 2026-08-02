@@ -1,13 +1,13 @@
-import { useChatsQuery } from "../../../hooks/chat.hooks";
+import { useChatsQuery } from "../../../core/hooks/chat.hooks";
 import { useMemo } from "react";
-import type { ChatMessage } from "../../../services/chat.service";
-import { PageFrame } from "../../../app/PageFrame";
-import { TopBar } from "../../../components/TopBar";
-import LinearMoreVertical from "../../../components/(icons)/LinearMoreVertical";
-import { RouteLink } from "../../../routes/RouteLink";
+import type { ChatMessage } from "../../../core/services/chat.service";
+import { PageFrame } from "../../../app/layout/PageFrame";
+import { TopBar } from "../../../shared/components/TopBar";
+import LinearMoreVertical from "../../../shared/icons/LinearMoreVertical";
+import { RouteLink } from "../../../app/router/RouteLink";
 import { ConversationCard, SUPPORT_NEW_CHAT_PATH, SupportChatsEmptyState, WelcomeCard, asChatRecord, formatSupportConversationDate, isOpenSupportThread, readChatPathText, readSupportMessageBody, readSupportThreadId } from "../accountSupportViews";
 import type { Conversation } from "../accountSupportViews";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountSupportChatPage() {
   const supportChatsQuery = useChatsQuery({

@@ -4,28 +4,28 @@ import {
   getApiAssetUrl,
   getApiErrorMessage,
   isUnauthorizedApiError,
-} from "../../api/api";
-import { getStoredAuthSession } from "../../auth/auth-storage";
-import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../hooks/advertisement.hooks";
-import { usePublisherOptions } from "../../hooks/publisher-options.hooks";
-import { useCreatePropertyRequestMutation } from "../../hooks/property-request.hooks";
+} from "../../core/api/api";
+import { getStoredAuthSession } from "../../core/auth/auth-storage";
+import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../core/hooks/advertisement.hooks";
+import { usePublisherOptions } from "../../core/hooks/publisher-options.hooks";
+import { useCreatePropertyRequestMutation } from "../../core/hooks/property-request.hooks";
 import {
   useSavedSearchesQuery,
   useSaveSearchMutation,
-} from "../../hooks/saved-search.hooks";
-import { TransientNotice } from "../../components/TransientNotice";
-import { useTransientNotice } from "../../hooks/useTransientNotice";
+} from "../../core/hooks/saved-search.hooks";
+import { TransientNotice } from "../../shared/components/TransientNotice";
+import { useTransientNotice } from "../../core/hooks/useTransientNotice";
 import {
   getBrowserLocation,
   getBrowserLocationNotice,
   type BrowserLocation,
-} from "../../lib/browserLocation";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
+} from "../../shared/lib/browserLocation";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type {
   AdvertisementItem,
   AdvertisementListParams,
   AdvertisementSearchFilters,
-} from "../../services/advertisement.service";
+} from "../../core/services/advertisement.service";
 import { SearchMapSearchScreen } from "./components/SearchMapSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
 import { SearchMapHeader } from "./components/SearchMapHeader";
@@ -57,9 +57,9 @@ import {
   type SearchMapListingId,
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
-import type { SavedSearchItem, SaveSearchInput } from "../../services/saved-search.service";
-import { getPropertyRequestScope } from "../../services/property-request.service";
-import { getStoredBackTarget, replaceRoute } from "../../routes/navigation";
+import type { SavedSearchItem, SaveSearchInput } from "../../core/services/saved-search.service";
+import { getPropertyRequestScope } from "../../core/services/property-request.service";
+import { getStoredBackTarget, replaceRoute } from "../../app/router/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";

@@ -9,7 +9,7 @@ import {
   useRef,
 } from "react";
 
-import { AdCardSkeleton } from "../../../components/AdCardSkeleton";
+import { AdCardSkeleton } from "../../../shared/components/AdCardSkeleton";
 import type { SearchMapListing, SearchMapListingId } from "../searchMapData";
 import { SearchMapPreviewCard } from "./SearchMapPreviewCard";
 

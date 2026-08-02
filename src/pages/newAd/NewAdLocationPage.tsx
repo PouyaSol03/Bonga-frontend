@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
-import { PageFrame } from "../../app/PageFrame";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { getBrowserLocation } from "../../lib/browserLocation";
-import { readStoredSelectedCity, selectedCityStorageKeys } from "../../lib/selectedCityStorage";
-import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { getBrowserLocation } from "../../shared/lib/browserLocation";
+import { readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
+import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
@@ -18,8 +18,8 @@ import {
 } from "./data";
 import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
 import { updateNewAdFlowSessionLocation } from "./session";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type NewAdMapCenter = {
   lat: number;

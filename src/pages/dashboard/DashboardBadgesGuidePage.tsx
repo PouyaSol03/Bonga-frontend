@@ -1,7 +1,7 @@
-import { PageFrame } from "../../app/PageFrame";
-import { TopBar } from "../../components/TopBar";
-import LinearStar from "../../components/(icons)/LinearStar";
-import { Typography } from "../../components/ui/Typography";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { TopBar } from "../../shared/components/TopBar";
+import LinearStar from "../../shared/icons/LinearStar";
+import { Typography } from "../../shared/ui/Typography";
 
 type BadgeGuide = {
   id: string;

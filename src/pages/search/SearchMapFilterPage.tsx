@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
-import { PageFrame } from "../../app/PageFrame";
+import { PageFrame } from "../../app/layout/PageFrame";
 import {
   FormChoiceChip,
   FormSegmentedControl,
   FormTextField,
-} from "../../components/form/FormControls";
-import { BottomSheet } from "../../components/BottomSheet";
-import { Button } from "../../components/ui/Button";
-import { Chip } from "../../components/ui/Chip";
-import { ChoiceIndicator } from "../../components/ui/Choice";
-import { TopBar } from "../../components/TopBar";
-import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { FeatureIcon } from "../../components/FeatureIcon";
-import { useNeighborhoodListQuery } from "../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../lib/selectedCityStorage";
-import { formatBigNumber, formatPrice } from "../../lib/MoneyHandler";
-import type { NeighborhoodDto } from "../../services/neighborhood.service";
+} from "../../shared/form/FormControls";
+import { BottomSheet } from "../../shared/components/BottomSheet";
+import { Button } from "../../shared/ui/Button";
+import { Chip } from "../../shared/ui/Chip";
+import { ChoiceIndicator } from "../../shared/ui/Choice";
+import { TopBar } from "../../shared/components/TopBar";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { FeatureIcon } from "../../shared/components/FeatureIcon";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { formatBigNumber, formatPrice } from "../../shared/lib/MoneyHandler";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import {
   basicPropertyFieldsByListingType,
   defaultBasicPropertyFields,
@@ -33,23 +33,23 @@ import {
   projectStatusOptions,
 } from "../newAd/data";
 import type { BasicPropertyField, ChipItem, MoreFeatureField } from "../newAd/types";
-import { Typography } from "../../components/ui/Typography";
-import LinearAgreement from "../../components/(icons)/LinearAgreement";
-import LinearApartmentAge from "../../components/(icons)/LinearApartmentAge";
-import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
-import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
-import LinearArrowLeftRight from "../../components/(icons)/LinearArrowLeftRight";
-import LinearBed from "../../components/(icons)/LinearBed";
-import LinearBuilding from "../../components/(icons)/LinearBuilding";
-import LinearCancelCircle from "../../components/(icons)/LinearCancelCircle";
-import LinearCategory from "../../components/(icons)/LinearCategory";
-import LinearFloor from "../../components/(icons)/LinearFloor";
-import LinearLocation from "../../components/(icons)/LinearLocation";
-import LinearMoney from "../../components/(icons)/LinearMoney";
-import LinearNavigation from "../../components/(icons)/LinearNavigation";
-import LinearRuler from "../../components/(icons)/LinearRuler";
-import LinearSettingBuilding from "../../components/(icons)/LinearSettingBuilding";
-import LinearTemperature from "../../components/(icons)/LinearTemperature";
+import { Typography } from "../../shared/ui/Typography";
+import LinearAgreement from "../../shared/icons/LinearAgreement";
+import LinearApartmentAge from "../../shared/icons/LinearApartmentAge";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearArrowLeftRight from "../../shared/icons/LinearArrowLeftRight";
+import LinearBed from "../../shared/icons/LinearBed";
+import LinearBuilding from "../../shared/icons/LinearBuilding";
+import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
+import LinearCategory from "../../shared/icons/LinearCategory";
+import LinearFloor from "../../shared/icons/LinearFloor";
+import LinearLocation from "../../shared/icons/LinearLocation";
+import LinearMoney from "../../shared/icons/LinearMoney";
+import LinearNavigation from "../../shared/icons/LinearNavigation";
+import LinearRuler from "../../shared/icons/LinearRuler";
+import LinearSettingBuilding from "../../shared/icons/LinearSettingBuilding";
+import LinearTemperature from "../../shared/icons/LinearTemperature";
 
 export type TransactionType = "sale" | "rent" | "project";
 

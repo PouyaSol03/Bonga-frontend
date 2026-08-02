@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import type { NewAdFormValues, UploadedMediaFile } from "../types";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 import { shouldPreserveNewAdDraft } from "../session";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png"];

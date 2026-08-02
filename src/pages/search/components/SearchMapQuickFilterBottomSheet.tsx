@@ -1,24 +1,24 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import { BottomSheet } from "../../../components/BottomSheet";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
 import {
   FormChoiceChip,
   FormSegmentedControl,
   FormTextField,
-} from "../../../components/form/FormControls";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { ChoiceIndicator } from "../../../components/ui/Choice";
-import { Button } from "../../../components/ui/Button";
-import { Typography } from "../../../components/ui/Typography";
-import LinearArrowDown1 from "../../../components/(icons)/LinearArrowDown1";
-import LinearRuler from "../../../components/(icons)/LinearRuler";
-import LinearMoney from "../../../components/(icons)/LinearMoney";
-import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
-import { formatBigNumber } from "../../../lib/MoneyHandler";
+} from "../../../shared/form/FormControls";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { ChoiceIndicator } from "../../../shared/ui/Choice";
+import { Button } from "../../../shared/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import LinearArrowDown1 from "../../../shared/icons/LinearArrowDown1";
+import LinearRuler from "../../../shared/icons/LinearRuler";
+import LinearMoney from "../../../shared/icons/LinearMoney";
+import { useNeighborhoodListQuery } from "../../../core/hooks/neighborhood.hooks";
+import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
+import { formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import { ageOptions, floorOptions, roomOptions } from "../../newAd/data";
-import type { NeighborhoodDto } from "../../../services/neighborhood.service";
+import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
 import {
   categoryGroupsByTransaction,
   categoryLabels,

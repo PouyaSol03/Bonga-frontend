@@ -3,21 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import {
   useDeleteSavedSearchMutation,
   useSavedSearchesQuery,
-} from "../../../hooks/saved-search.hooks";
-import { useQuickAdvertisementSearchQuery } from "../../../hooks/quick-advertisement-search.hooks";
-import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
-import { TopBar } from "../../../components/TopBar";
-import LinearDelete from "../../../components/(icons)/LinearDelete";
-import { getRequestErrorState } from "../../../components/ErrorState";
-import { SearchInputBar } from "../../../components/ui/SearchBar";
+} from "../../../core/hooks/saved-search.hooks";
+import { useQuickAdvertisementSearchQuery } from "../../../core/hooks/quick-advertisement-search.hooks";
+import { useDebouncedValue } from "../../../core/hooks/useDebouncedValue";
+import { TopBar } from "../../../shared/components/TopBar";
+import LinearDelete from "../../../shared/icons/LinearDelete";
+import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import SearchErrors from "./SearchErrors";
-import type { SearchHistoryItem } from "../../../services/search-history.service";
-import { getStoredAuthSession } from "../../../auth/auth-storage";
-import type { SavedSearchItem } from "../../../services/saved-search.service";
-import type { QuickAdvertisementSearchItem } from "../../../services/quick-advertisement-search.service";
-import { Typography } from "../../../components/ui/Typography";
-import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
-import { Button } from "../../../components/ui/Button";
+import type { SearchHistoryItem } from "../../../core/services/search-history.service";
+import { getStoredAuthSession } from "../../../core/auth/auth-storage";
+import type { SavedSearchItem } from "../../../core/services/saved-search.service";
+import type { QuickAdvertisementSearchItem } from "../../../core/services/quick-advertisement-search.service";
+import { Typography } from "../../../shared/ui/Typography";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import { Button } from "../../../shared/ui/Button";
 
 type HomeSearchScreenProps = {
   initialQuery?: string;

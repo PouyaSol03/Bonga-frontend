@@ -1,19 +1,19 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmAdvertises, updateCrmAdvertiseStatus, getCrmRecordId, type AdvertiseStatus } from "../../../services/crm.service";
-import { getApiErrorMessage } from "../../../api/api";
-import { pushRoute } from "../../../routes/navigation";
+import { listCrmAdvertises, updateCrmAdvertiseStatus, getCrmRecordId, type AdvertiseStatus } from "../../../core/services/crm.service";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { pushRoute } from "../../../app/router/navigation";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "../crmAdvertiseNavigation";
-import { AdCard } from "../../../components/AdCard";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import LinearEdit2 from "../../../components/(icons)/LinearEdit2";
-import LinearCheckmark from "../../../components/(icons)/LinearCheckmark";
-import LinearCancel from "../../../components/(icons)/LinearCancel";
-import LinearDelete from "../../../components/(icons)/LinearDelete";
+import { AdCard } from "../../../shared/components/AdCard";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import LinearEdit2 from "../../../shared/icons/LinearEdit2";
+import LinearCheckmark from "../../../shared/icons/LinearCheckmark";
+import LinearCancel from "../../../shared/icons/LinearCancel";
+import LinearDelete from "../../../shared/icons/LinearDelete";
 import { ConfirmModal, CrmIcon, CrmSelect, FilterField, PrimaryButton, SmallActionButton, advertiseStatusOptions, ghostButtonClassName, inputClassName, mapCrmAdvertiseToCard, readText, useQueryErrorToast } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps } from "../CrmLayout";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();

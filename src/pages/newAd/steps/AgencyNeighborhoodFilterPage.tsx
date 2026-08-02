@@ -1,8 +1,8 @@
-import type { NeighborhoodDto } from "../../../services/neighborhood.service";
-import { RadioIndicator } from "../../../components/RadioIndicator";
-import { SearchEmptyState } from "../../../components/SearchEmptyState";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
+import { RadioIndicator } from "../../../shared/components/RadioIndicator";
+import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 function BackIcon() {
   return (

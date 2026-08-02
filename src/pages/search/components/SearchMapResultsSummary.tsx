@@ -1,6 +1,6 @@
-import LinearCancel from "../../../components/(icons)/LinearCancel";
-import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import LinearCancel from "../../../shared/icons/LinearCancel";
+import { Typography } from "../../../shared/ui/Typography";
+import { Button } from "../../../shared/ui/Button";
 
 type SearchMapResultsSummaryProps = {
   count: number;

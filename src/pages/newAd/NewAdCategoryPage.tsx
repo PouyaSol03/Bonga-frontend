@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { PageFrame } from "../../app/PageFrame";
-import { getStoredAuthSession, storeLoginRedirectPath } from "../../auth/auth-storage";
-import { TopBar } from "../../components/TopBar";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { getStoredAuthSession, storeLoginRedirectPath } from "../../core/auth/auth-storage";
+import { TopBar } from "../../shared/components/TopBar";
 import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type TransactionType = "sale" | "rent" | "project";
 type RegistrantType = "" | "personal" | "agency";

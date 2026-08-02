@@ -1,23 +1,23 @@
 import type { ReactNode } from "react";
 
-import LinearArrowDown1 from "../../../components/(icons)/LinearArrowDown1";
-import LinearArrowLeft1 from "../../../components/(icons)/LinearArrowLeft1";
-import LinearArrowLeft2 from "../../../components/(icons)/LinearArrowLeft2";
-import LinearArrowRight2 from "../../../components/(icons)/LinearArrowRight2";
-import LinearArrowUp1 from "../../../components/(icons)/LinearArrowUp1";
-import LinearCancelSmall from "../../../components/(icons)/LinearCancelSmall";
-import { Button } from "../../../components/ui/Button";
-import { Chip as UiChip } from "../../../components/ui/Chip";
-import { SelectField } from "../../../components/ui/SelectField";
-import { Switch } from "../../../components/ui/Switch";
-import { TextField } from "../../../components/ui/TextField";
-import { FeaturesIcons } from "../../../components/FeaturesIcons";
-import { TopBar } from "../../../components/TopBar";
-import { formatPrice } from "../../../lib/MoneyHandler";
+import LinearArrowDown1 from "../../../shared/icons/LinearArrowDown1";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
+import LinearArrowRight2 from "../../../shared/icons/LinearArrowRight2";
+import LinearArrowUp1 from "../../../shared/icons/LinearArrowUp1";
+import LinearCancelSmall from "../../../shared/icons/LinearCancelSmall";
+import { Button } from "../../../shared/ui/Button";
+import { Chip as UiChip } from "../../../shared/ui/Chip";
+import { SelectField } from "../../../shared/ui/SelectField";
+import { Switch } from "../../../shared/ui/Switch";
+import { TextField } from "../../../shared/ui/TextField";
+import { FeaturesIcons } from "../../../shared/components/FeaturesIcons";
+import { TopBar } from "../../../shared/components/TopBar";
+import { formatPrice } from "../../../shared/lib/MoneyHandler";
 import { normalizeNumberInput, navigateTo } from "../utils";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
-import { Typography } from "../../../components/ui/Typography";
+import { Typography } from "../../../shared/ui/Typography";
 
 export function Header({
   title,

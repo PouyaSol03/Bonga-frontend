@@ -2,8 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 
-import { getApiErrorMessage } from "../../api/api";
-import { SwitchButton } from "../../components/SwitchButton";
+import { getApiErrorMessage } from "../../core/api/api";
+import { SwitchButton } from "../../shared/components/SwitchButton";
 import {
   deleteCrmPackage,
   getCrmPackage,
@@ -18,9 +18,9 @@ import {
   type CrmPackageKind,
   type CrmPackagePayload,
   type CrmRecord,
-} from "../../services/crm.service";
-import { Typography } from "../../components/ui/Typography";
-import { Button } from "../../components/ui/Button";
+} from "../../core/services/crm.service";
+import { Typography } from "../../shared/ui/Typography";
+import { Button } from "../../shared/ui/Button";
 
 type Notify = (message: string, tone?: "error" | "success") => void;
 type ViewProps = { notify: Notify; refreshNonce: number };

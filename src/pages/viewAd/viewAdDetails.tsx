@@ -1,16 +1,16 @@
-import { PageFrame } from "../../app/PageFrame";
-import { ColorableSvgIcon } from "../../components/ColorableSvgIcon";
-import { FeaturesIcons } from "../../components/FeaturesIcons";
-import { TopBar } from "../../components/TopBar";
-import { getApiAssetUrl } from "../../api/api";
-import { getBuildingInfo } from "../../lib/handleBuildingInfo";
-import { getFeatureIconSrc } from "../../lib/handleFeaturesIcons";
-import type { AdvertisementItem } from "../../services/advertisement.service";
+import { PageFrame } from "../../app/layout/PageFrame";
+import { ColorableSvgIcon } from "../../shared/components/ColorableSvgIcon";
+import { FeaturesIcons } from "../../shared/components/FeaturesIcons";
+import { TopBar } from "../../shared/components/TopBar";
+import { getApiAssetUrl } from "../../core/api/api";
+import { getBuildingInfo } from "../../shared/lib/handleBuildingInfo";
+import { getFeatureIconSrc } from "../../shared/lib/handleFeaturesIcons";
+import type { AdvertisementItem } from "../../core/services/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
-import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../routes/navigation";
+import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../app/router/navigation";
 import type { IconName, ViewAdDetails } from "./viewAdTypes";
-import { Typography } from "../../components/ui/Typography";
+import { Typography } from "../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
   src: string;

@@ -3,11 +3,13 @@ import { useMemo, useState } from "react";
 import { PageFrame } from "../../app/layout/PageFrame";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TransientNotice } from "../../shared/components/TransientNotice";
+import { getApiErrorMessage } from "../../core/api/api";
+import { storePaymentReturnTarget } from "../../shared/utils/payment-return";
 import { TopBar } from "../../shared/components/TopBar";
 import PricingCard from "./components/addWallet/PricingCard";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
-import { usePackagesQuery } from "../../core/hooks/package.hooks";
+import { useAgencyPackagePaymentMutation, usePackagesQuery } from "../../core/hooks/package.hooks";
 import { useTransientNotice } from "../../core/hooks/useTransientNotice";
 import { RouteLink } from "../../app/router/RouteLink";
 import type { PackageItem } from "../../core/services/package.service";
@@ -275,11 +277,13 @@ function MobilePanelContent({ plan, showGift }: { plan: MobileCreditPlan; showGi
 function MobilePlanCard({
   isPackage,
   onPay,
+  paymentPending,
   plan,
   showGift,
 }: {
   isPackage: boolean;
   onPay: () => void;
+  paymentPending: boolean;
   plan: MobileCreditPlan;
   showGift: boolean;
 }) {
@@ -296,7 +300,8 @@ function MobilePlanCard({
       )}
 
       <Button unstyled
-        className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+        className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={paymentPending}
         onClick={onPay}
         type="button"
       >
@@ -337,7 +342,9 @@ function DashboardPaymentMobilePage({
   refetch: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>("panel");
+  const [payingPackageId, setPayingPackageId] = useState<string | null>(null);
   const { message, showNotice } = useTransientNotice();
+  const packagePaymentMutation = useAgencyPackagePaymentMutation();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isManager = activeRole === REAL_ESTATE_MANAGER;
   const panelPlans = useMemo(
@@ -355,6 +362,30 @@ function DashboardPaymentMobilePage({
   const ErrorState = getRequestErrorState(error);
   const shownPlans = activeTab === "packages" ? packagePlans : panelPlans;
   const showGift = activeTab === "panel" && isManager;
+
+  function handlePay(packageId: string) {
+    if (packagePaymentMutation.isPending) return;
+
+    setPayingPackageId(packageId);
+    packagePaymentMutation.mutate(packageId, {
+      onError: (paymentError) => {
+        setPayingPackageId(null);
+        showNotice(
+          getApiErrorMessage(
+            paymentError,
+            "اتصال به درگاه پرداخت با خطا مواجه شد.",
+          ),
+        );
+      },
+      onSuccess: ({ paymentUrl }) => {
+        storePaymentReturnTarget({
+          label: "بازگشت به افزایش اعتبار",
+          path: "/account/dashboard/payments",
+        });
+        window.location.assign(paymentUrl);
+      },
+    });
+  }
 
   return (
     <PageFrame
@@ -386,7 +417,8 @@ function DashboardPaymentMobilePage({
               <MobilePlanCard
                 isPackage={activeTab === "packages"}
                 key={plan.id}
-                onPay={() => showNotice("خرید این بسته هنوز به سرویس پرداخت متصل نشده است.")}
+                onPay={() => handlePay(plan.id)}
+                paymentPending={packagePaymentMutation.isPending && payingPackageId === plan.id}
                 plan={plan}
                 showGift={showGift}
               />
@@ -416,6 +448,8 @@ function DashboardPaymentDesktopPage({
   packages: PackageItem[];
   refetch: () => void;
 }) {
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const packagePaymentMutation = useAgencyPackagePaymentMutation();
   const panelCreditPlans = packages
     .filter((plan) => plan.kind === "panel_subscription")
     .map(mapPanelPlan);
@@ -424,8 +458,33 @@ function DashboardPaymentDesktopPage({
     .map(mapBundlePlan);
   const ErrorState = getRequestErrorState(error);
 
+  function handlePay(packageId: string) {
+    if (packagePaymentMutation.isPending) return;
+
+    setPaymentError(null);
+    packagePaymentMutation.mutate(packageId, {
+      onError: (requestError) => {
+        setPaymentError(
+          getApiErrorMessage(
+            requestError,
+            "اتصال به درگاه پرداخت با خطا مواجه شد.",
+          ),
+        );
+      },
+      onSuccess: ({ paymentUrl }) => {
+        storePaymentReturnTarget({
+          label: "بازگشت به افزایش اعتبار",
+          path: "/account/dashboard/payments",
+        });
+        window.location.assign(paymentUrl);
+      },
+    });
+  }
+
   return (
     <div dir="rtl" className="rounded-xl bg-white p-6">
+      {paymentError ? <TransientNotice message={paymentError} /> : null}
+
       <div className="mb-6 flex items-center justify-between border-b border-dashed border-[#D9DDE7] pb-5">
         <div className="flex items-center gap-2">
           <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-full bg-[#DBE6FF]">
@@ -467,6 +526,7 @@ function DashboardPaymentDesktopPage({
                     price={plan.price}
                     discount={plan.discount}
                     priceAfterDiscount={plan.priceAfterDiscount}
+                    onPay={() => handlePay(plan.id)}
                   />
                 ))}
               </div>
@@ -494,6 +554,7 @@ function DashboardPaymentDesktopPage({
                     discount={plan.discount}
                     priceAfterDiscount={plan.priceAfterDiscount}
                     items={plan.items}
+                    onPay={() => handlePay(plan.id)}
                   />
                 ))}
               </div>

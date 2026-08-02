@@ -62,7 +62,9 @@ export function AccountWalletPage() {
               </div>
             </div>
 
-            <div className="mt-5 pt-5 flex items-center gap-2 text-[#1a1a1a]">
+            <div className="-mx-3 mt-5 border-t border-[#f0f0f0]" />
+
+            <div className="mt-5 flex items-center gap-2 text-[#1a1a1a]">
               <PlusIcon className="h-5 w-5" />
               <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6">
                 افزایش اعتبار

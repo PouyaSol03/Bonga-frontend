@@ -23,6 +23,7 @@ export function PaymentVerifyPage() {
   const callback = useVerifyPaymentCallbackMutation();
   const parameters = useMemo(readCallbackParameters, []);
   const returnTarget = useMemo(readPaymentReturnTarget, []);
+  const isAgencyPackagePayment = returnTarget.path === "/account/dashboard/payments";
   const [detail, setDetail] = useState("");
   const [verifyState, setVerifyState] = useState<VerifyState>("checking");
 
@@ -43,24 +44,34 @@ export function PaymentVerifyPage() {
           setDetail(
             getApiErrorMessage(
               error,
-              "بررسی نتیجه پرداخت با خطا مواجه شد. دوباره به کیف پول برگردید.",
+              isAgencyPackagePayment
+                ? "بررسی نتیجه پرداخت بسته با خطا مواجه شد."
+                : "بررسی نتیجه پرداخت با خطا مواجه شد. دوباره به کیف پول برگردید.",
             ),
           );
           setVerifyState("failed");
         },
         onSuccess: ({ success }) => {
           if (success) {
-            setDetail("مبلغ پرداخت‌شده با موفقیت به اعتبار کیف پول شما اضافه شد.");
+            setDetail(
+              isAgencyPackagePayment
+                ? "پرداخت بسته با موفقیت انجام شد."
+                : "مبلغ پرداخت‌شده با موفقیت به اعتبار کیف پول شما اضافه شد.",
+            );
             setVerifyState("success");
             return;
           }
 
-          setDetail("پرداخت تکمیل نشد و مبلغی به کیف پول شما اضافه نشده است.");
+          setDetail(
+            isAgencyPackagePayment
+              ? "پرداخت بسته تکمیل نشد."
+              : "پرداخت تکمیل نشد و مبلغی به کیف پول شما اضافه نشده است.",
+          );
           setVerifyState("failed");
         },
       },
     );
-  }, [parameters.authority, parameters.status]);
+  }, [isAgencyPackagePayment, parameters.authority, parameters.status]);
 
   const isChecking = verifyState === "checking";
   const isSuccess = verifyState === "success";

@@ -523,7 +523,7 @@ export function AddConsultantPage() {
 
 function AddConsultantEmptyState() {
   return (
-    <div className="flex h-[104px] items-center justify-center gap-3 bg-white px-4 text-center">
+    <div className="mx-auto flex h-[104px] w-full items-center justify-center gap-3 bg-white px-4 text-center">
       <img src={NoSearchIcon} alt="" className="h-[40px] w-[40px]" />
       <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#808080]">
         مشاوری برای نمایش نیست!
@@ -846,8 +846,8 @@ function ConsultantAction({
 
 function ConsultantEmptyState() {
   return (
-    <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-8 py-8 text-center">
-      <div className="grid max-w-[260px] justify-items-center">
+    <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center bg-white px-8 py-8 text-center">
+      <div className="mx-auto grid w-full max-w-[260px] justify-items-center">
         <img src="/vectors/NoAgent.svg" alt="" className="h-[66px] w-[66px]" />
         <Typography as="h2" variant="title" size="small" weight="semibold" className="mt-4 text-sm font-semibold leading-5 text-[#1a1a1a]">
           هیچ مشاوری برای مدیریت وجود ندارد!

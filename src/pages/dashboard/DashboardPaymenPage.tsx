@@ -92,7 +92,7 @@ function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
 
 function EmptyPackagesState({ className = "" }: { className?: string }) {
   return (
-    <div className={`rounded-xl border border-dashed border-[#D9DDE7] bg-[#F8FAFF] px-4 py-10 text-center text-sm font-medium text-[#666666] ${className}`}>
+    <div className={`mx-auto w-full rounded-xl border border-dashed border-[#D9DDE7] bg-[#F8FAFF] px-4 py-10 text-center text-sm font-medium text-[#666666] ${className}`}>
       بسته‌ای برای نمایش وجود ندارد.
     </div>
   );

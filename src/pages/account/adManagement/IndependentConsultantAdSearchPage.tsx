@@ -78,14 +78,14 @@ export function IndependentConsultantAdSearchPage() {
         }
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         {normalizedQuery.length > 0 ? (
           isLoading ? (
-            <div className="px-4 py-8 text-center text-sm text-[#808080]">
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-[#808080]">
               در حال دریافت آگهی‌ها...
             </div>
           ) : isError ? (
-            <div className="px-4 py-8 text-center text-sm text-[#808080]">
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-[#808080]">
               دریافت آگهی‌ها با خطا مواجه شد.
             </div>
           ) : matchedAds.length > 0 ? (

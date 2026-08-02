@@ -275,7 +275,7 @@ function EmptyReports({ isSearch, kind }: { isSearch: boolean; kind: CrmReportKi
   if (isSearch) return <SearchEmptyState className="min-h-64" />;
 
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
+    <div className="mx-auto flex min-h-64 w-full flex-col items-center justify-center px-5 text-center">
       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
         <LinearFlag className="h-8 w-8" />
       </Typography>
@@ -291,7 +291,7 @@ function EmptyReports({ isSearch, kind }: { isSearch: boolean; kind: CrmReportKi
 
 function QueryError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
+    <div className="mx-auto flex min-h-64 w-full flex-col items-center justify-center px-5 text-center">
       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-14 w-14 place-items-center rounded-2xl bg-[#fff0f1] text-[#c6283a]">
         <LinearCancel className="h-7 w-7" />
       </Typography>

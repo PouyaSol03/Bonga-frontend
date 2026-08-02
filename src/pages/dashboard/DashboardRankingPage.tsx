@@ -235,7 +235,7 @@ function AgencyBadgesPanel() {
         <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">در حال دریافت نشان‌ها...</Typography>
       ) : null}
       {!badgesQuery.isLoading && badges.length === 0 ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">نشانی از سرور دریافت نشده است.</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-[#808080]">نشانی از سرور دریافت نشده است.</Typography>
       ) : null}
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">
         {badges.map((badge) => (
@@ -383,7 +383,7 @@ function TopAgenciesPanel({ agencies, isLoading }: { agencies: DashboardRankingE
           </div>
         ))}
         {!isLoading && agencies.length === 0 ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-6 text-center text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-[#808080]">
             اطلاعات آژانس‌های برتر از سرور دریافت نشده است.
           </Typography>
         ) : null}

@@ -5,9 +5,10 @@ import { getStoredAuthSession } from "../../../core/auth/auth-storage";
 import { isUserIdentityVerified } from "../../../core/services/account.service";
 import { getApiErrorMessage } from "../../../core/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { TopBar } from "../../../shared/components/TopBar";
 import { TransientNotice } from "../../../shared/components/TransientNotice";
 import { Button } from "../../../shared/ui/Button";
-import { AccountPageShell, IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
+import { IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -34,17 +35,19 @@ export function AccountIdentityPage() {
         : "ثبت تغییر مالکیت سیم‌کارت";
 
   return (
-    <AccountPageShell
-      onBack={
-        step === "ownership"
-          ? () => {
-              setIsOwnershipWarningOpen(false);
-              setStep("verified");
-            }
-          : undefined
-      }
-      title={title}
-    >
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
+      <TopBar
+        backTo="/account"
+        onBack={
+          step === "ownership"
+            ? () => {
+                setIsOwnershipWarningOpen(false);
+                setStep("verified");
+              }
+            : undefined
+        }
+        title={title}
+      />
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
         {step === "pending" ? (
           <IdentityPendingState
@@ -122,6 +125,6 @@ export function AccountIdentityPage() {
       </BottomSheet>
 
       <TransientNotice message={message} className="bottom-20" />
-    </AccountPageShell>
+    </div>
   );
 }

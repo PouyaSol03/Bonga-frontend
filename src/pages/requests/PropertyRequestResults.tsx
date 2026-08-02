@@ -142,7 +142,7 @@ export function PropertyRequestResults({
       ) : null}
 
       {!query.isLoading && !query.isError && visibleAds.length === 0 ? (
-        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 rounded-xl bg-[#f7f7f7] px-4 py-4 text-center text-sm font-medium leading-6 text-[#808080]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 mt-3 w-full rounded-xl bg-[#f7f7f7] px-4 py-4 text-center text-sm font-medium leading-6 text-[#808080]">
           نتیجه ای برای این درخواست وجود ندارد
         </Typography>
       ) : null}

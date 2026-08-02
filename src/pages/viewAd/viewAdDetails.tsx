@@ -1771,7 +1771,7 @@ export function DetailInfoFullPage({
             />
           ))
         ) : (
-          <div className="bg-white px-4 py-10 text-center text-sm font-medium leading-5 text-[#808080]">
+          <div className="mx-auto w-full bg-white px-4 py-10 text-center text-sm font-medium leading-5 text-[#808080]">
             اطلاعاتی برای نمایش وجود ندارد.
           </div>
         )}

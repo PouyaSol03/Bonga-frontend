@@ -295,7 +295,7 @@ function CreditPlansStatus({
   onAction?: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#d9d9d9] px-4 py-10 text-center">
+    <div className="mx-auto w-full rounded-2xl border border-dashed border-[#d9d9d9] px-4 py-10 text-center">
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-[#808080]">
         {message}
       </Typography>

@@ -142,8 +142,8 @@ function EmptyState({ searchQuery }: { searchQuery: string }) {
   if (searchQuery.trim()) return <SearchEmptyState />;
 
   return (
-    <div className="grid min-h-[380px] place-items-center rounded-2xl border border-dashed border-[#d7dde7] bg-white px-7 text-center">
-      <div>
+    <div className="mx-auto grid min-h-[380px] w-full place-items-center rounded-2xl border border-dashed border-[#d7dde7] bg-white px-7 text-center">
+      <div className="mx-auto w-full max-w-[520px]">
         <Typography as="span" variant="body" size="medium" weight="regular" className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
           <LinearPropertySearch className="h-8 w-8" />
         </Typography>

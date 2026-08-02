@@ -494,7 +494,7 @@ export function SearchMapQuickFilterBottomSheet({
             ) : null}
 
             {!cityId ? (
-              <Typography as="p" variant="body" size="small" weight="regular" className="py-4 text-right text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-4 text-center text-[#808080]">
                 برای انتخاب محله، ابتدا شهر را انتخاب کنید.
               </Typography>
             ) : neighborhoodsQuery.isLoading ? (
@@ -510,7 +510,7 @@ export function SearchMapQuickFilterBottomSheet({
                 ))}
               </div>
             ) : neighborhoodsQuery.isError ? (
-              <div className="flex min-h-52 flex-col items-center justify-center text-center text-sm leading-7 text-[#a43232]">
+              <div className="mx-auto flex min-h-52 w-full flex-col items-center justify-center text-center text-sm leading-7 text-[#a43232]">
                 دریافت محله‌ها با خطا مواجه شد.
                 <Button unstyled className="mt-2 font-semibold text-[#0048c4]" onClick={() => void neighborhoodsQuery.refetch()} type="button">
                   تلاش دوباره
@@ -556,7 +556,7 @@ export function SearchMapQuickFilterBottomSheet({
             ) : neighborhoodQuery.trim() ? (
               <SearchEmptyState compact />
             ) : (
-              <Typography as="p" variant="body" size="small" weight="regular" className="py-4 text-right text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-4 text-center text-[#808080]">
                 محله‌ای برای این شهر ثبت نشده است.
               </Typography>
             )}

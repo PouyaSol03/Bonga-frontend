@@ -378,7 +378,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                 {messagesQuery.isLoading ? (
                   <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">در حال دریافت پیام‌ها...</Typography>
                 ) : messages.length === 0 ? (
-                  <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">هنوز پیامی در این گفتگو وجود ندارد.</Typography>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto w-full py-16 text-center text-sm text-[#808080]">هنوز پیامی در این گفتگو وجود ندارد.</Typography>
                 ) : (
                   messages.map((message) => (
                     <SupportMessageBubble key={message.id} message={message} />

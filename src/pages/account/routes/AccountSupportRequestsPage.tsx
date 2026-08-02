@@ -53,8 +53,8 @@ export function AccountSupportRequestsPage() {
       />
 
       <main
-        className={`min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-[76px] ${
-          requests.length === 0 ? "flex pt-0" : "pt-3"
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-3 pb-[76px] ${
+          requests.length === 0 ? "pt-0" : "pt-3"
         }`}
       >
         {requestsQuery.isLoading ? (
@@ -72,10 +72,7 @@ export function AccountSupportRequestsPage() {
             </div>
 
             {filteredRequests.length === 0 ? (
-              <SearchEmptyState
-                className="min-h-[320px]"
-                description="فیلتر وضعیت را تغییر دهید و دوباره تلاش کنید."
-              />
+              <SearchEmptyState description="فیلتر وضعیت را تغییر دهید و دوباره تلاش کنید." />
             ) : null}
           </>
         )}

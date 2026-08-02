@@ -97,7 +97,7 @@ export function ViewAdViolationReportPage({
             ))}
           </div>
         ) : errorMessage ? (
-          <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-center">
+          <div className="mx-auto flex min-h-[240px] w-full flex-col items-center justify-center gap-4 text-center">
             <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{errorMessage}</Typography>
             <Button unstyled
               className="h-10 rounded-[10px] border border-[#0048c4] bg-white px-5 text-sm font-medium leading-5 text-[#0048c4]"
@@ -108,7 +108,7 @@ export function ViewAdViolationReportPage({
             </Button>
           </div>
         ) : reasons.length === 0 ? (
-          <div className="flex min-h-[240px] items-center justify-center text-center">
+          <div className="mx-auto flex min-h-[240px] w-full items-center justify-center text-center">
             <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">
               دلیلی برای گزارش تخلف دریافت نشد.
             </Typography>

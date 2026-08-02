@@ -34,9 +34,9 @@ export function EmptyState({
 
   return (
     <section
-      className={`flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-hidden bg-white px-6 text-center ${className}`}
+      className={`mx-auto flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-hidden bg-white px-6 text-center ${className}`}
     >
-      <div className={`flex w-full max-w-[320px] flex-col items-center ${contentClassName}`}>
+      <div className={`mx-auto flex w-full max-w-[320px] flex-col items-center ${contentClassName}`}>
         {iconSrc ? (
           <img
             alt=""

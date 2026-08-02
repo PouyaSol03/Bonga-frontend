@@ -164,7 +164,7 @@ export function SupportRequestCard({ request }: { request: SupportRequest }) {
 
 export function SupportRequestsEmptyState() {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 pb-8 text-center">
+    <div className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
       <img
         alt=""
         aria-hidden="true"

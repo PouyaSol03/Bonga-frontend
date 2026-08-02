@@ -16,7 +16,7 @@ export function SearchEmptyState({
 }: SearchEmptyStateProps) {
   return (
     <div
-      className={`flex ${compact ? "min-h-[240px]" : "min-h-[360px]"} w-full flex-col items-center justify-center px-6 text-center ${className}`}
+      className={`mx-auto flex ${compact ? "min-h-[240px]" : "h-full min-h-0 flex-1"} w-full flex-col items-center justify-center px-6 text-center ${className}`}
     >
       <img
         alt=""

@@ -70,7 +70,7 @@ export function PaymentVerifyPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f6f8fc] px-5 text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-5 py-8 text-center">
+      <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-5 py-8 text-center">
         <div
           className={`grid h-24 w-24 place-items-center rounded-full ${
             isChecking

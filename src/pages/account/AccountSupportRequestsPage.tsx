@@ -180,7 +180,7 @@ function SupportRequestCard({ request }: { request: SupportRequest }) {
 
 function SupportRequestsEmptyState() {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 pb-8 text-center">
+    <div className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
       <img
         alt=""
         aria-hidden="true"
@@ -277,8 +277,8 @@ export function AccountSupportRequestsPage() {
       />
 
       <main
-        className={`min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-[76px] ${
-          requests.length === 0 ? "flex pt-0" : "pt-3"
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-3 pb-[76px] ${
+          requests.length === 0 ? "pt-0" : "pt-3"
         }`}
       >
         {requestsQuery.isLoading ? (
@@ -296,7 +296,7 @@ export function AccountSupportRequestsPage() {
             </div>
 
             {filteredRequests.length === 0 ? (
-              <div className="flex min-h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[#808080]">
+              <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm leading-6 text-[#808080]">
                 درخواستی با این وضعیت وجود ندارد.
               </div>
             ) : null}

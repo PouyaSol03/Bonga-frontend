@@ -3024,7 +3024,7 @@ export function UserChatDetailPage() {
             {!messagesQuery.isLoading && apiMessages.length === 0 ? (
               <>
                 <ChatDateChip />
-                <Typography as="p" variant="body" size="small" weight="regular" className="py-6 text-center text-xs text-[#808080]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-6 text-center text-xs text-[#808080]">
                   هنوز پیامی در این گفتگو ثبت نشده است.
                 </Typography>
               </>
@@ -3187,7 +3187,7 @@ export function UserChatHomePage() {
   return (
     <TopBarNavigationLayout
       activeKey="chat"
-      contentClassName="bg-white"
+      contentClassName="flex flex-col bg-white"
       fixedAfterTopBar={
         <FilterTabs
           activeFilter={activeFilter}
@@ -3225,7 +3225,7 @@ export function UserChatHomePage() {
     >
       {isChatsLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
       {RequestErrorState && chats.length === 0 ? (
-        <RequestErrorState className="min-h-[420px]" onRetry={() => void refetchChats()} />
+        <RequestErrorState className="h-full min-h-0 flex-1" onRetry={() => void refetchChats()} />
       ) : null}
       {visibleChats.map((item, index) => {
         const chatId = item.id ?? String(index);
@@ -3246,7 +3246,7 @@ export function UserChatHomePage() {
         query.trim() || activeFilter ? (
           <SearchEmptyState />
         ) : (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">هنوز گفتگویی ندارید.</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm text-[#808080]">هنوز گفتگویی ندارید.</Typography>
         )
       ) : null}
       <TransientNotice message={message} />
@@ -3437,10 +3437,10 @@ export function UserChatBulkDeletePage() {
       }
       title="حذف گروهی چت‌ها"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white pb-[72px]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-white pb-[72px]">
         {isLoading && chats.length === 0 ? <ChatListSkeleton count={5} /> : null}
         {RequestErrorState && chats.length === 0 ? (
-          <RequestErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
+          <RequestErrorState className="h-full min-h-0 flex-1" onRetry={() => void refetch()} />
         ) : null}
         {chats.map((item, index) => {
           const chatId = item.id ?? "";
@@ -3458,7 +3458,7 @@ export function UserChatBulkDeletePage() {
           );
         })}
         {!isLoading && !isError && chats.length === 0 ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">گفتگویی برای حذف وجود ندارد</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm text-[#808080]">گفتگویی برای حذف وجود ندارد</Typography>
         ) : null}
       </main>
 

@@ -196,7 +196,7 @@ function StatusPage({ backTo, message, onRetry }: { backTo: string; message: str
   return (
     <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
       <TopBar backTo={backTo} title="افزایش بازدید" />
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
+      <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
         <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
         {onRetry ? <Button unstyled className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white" onClick={onRetry} type="button">تلاش دوباره</Button> : <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />}
       </main>

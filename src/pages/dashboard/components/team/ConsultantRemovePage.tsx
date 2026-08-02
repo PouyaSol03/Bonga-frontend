@@ -257,7 +257,7 @@ function ReplacementPicker({
           ) : normalizedSearch ? (
             <SearchEmptyState compact />
           ) : (
-            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 px-2 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 w-full px-2 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
               مشاور دیگری برای جایگزینی وجود ندارد.
             </Typography>
           )}

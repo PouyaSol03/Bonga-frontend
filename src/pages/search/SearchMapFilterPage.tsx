@@ -1967,7 +1967,7 @@ function NeighborhoodFilterSection({
 
             <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-4" dir="rtl">
               {!cityId ? (
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-4 text-right text-sm font-normal leading-6 text-[#808080]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-[#808080]">
                   برای انتخاب محله، ابتدا شهر را انتخاب کنید.
                 </Typography>
               ) : neighborhoodsQuery.isLoading ? (
@@ -1983,7 +1983,7 @@ function NeighborhoodFilterSection({
                   ))}
                 </div>
               ) : neighborhoodsQuery.isError ? (
-                <div className="flex min-h-[320px] flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
+                <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
                   دریافت محله‌ها با خطا مواجه شد.
                   <Button unstyled className="mt-3 font-semibold text-[#0048c4]" onClick={() => void neighborhoodsQuery.refetch()} type="button">
                     تلاش دوباره
@@ -2022,7 +2022,7 @@ function NeighborhoodFilterSection({
               ) : query.trim() ? (
                 <SearchEmptyState compact />
               ) : (
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-2 py-4 text-right text-sm font-normal leading-6 text-[#808080]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-[#808080]">
                   محله‌ای برای این شهر ثبت نشده است.
                 </Typography>
               )}

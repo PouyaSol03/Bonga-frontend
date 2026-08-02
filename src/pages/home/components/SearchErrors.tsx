@@ -51,8 +51,8 @@ export default function SearchErrors({
   const content = searchErrorContent[variant];
 
   return (
-    <div className={`flex h-full w-full items-center justify-center px-6 ${className}`}>
-      <div className="flex max-w-[280px] flex-col items-center text-center">
+    <div className={`mx-auto flex h-full w-full items-center justify-center px-6 ${className}`}>
+      <div className="mx-auto flex w-full max-w-[280px] flex-col items-center text-center">
         <img
           src={content.icon}
           alt=""

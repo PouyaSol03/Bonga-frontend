@@ -99,7 +99,7 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
             ))}
           </div>
         ) : (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-6 rounded-2xl border border-[#f0f0f0] px-4 py-6 text-center text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 mt-6 w-full rounded-2xl border border-[#f0f0f0] px-4 py-6 text-center text-[#808080]">
             جزئیات پیشرفت این نشان از سرور دریافت نشده است.
           </Typography>
         )}

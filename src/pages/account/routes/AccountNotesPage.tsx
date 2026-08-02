@@ -108,8 +108,8 @@ export function AccountNotesPage() {
         />
       ) : null}
 
-      <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
-        <div className={`${!isLoading && !isError && notes.length === 0 ? "bg-white" : "space-y-0 bg-white"}`}>
+      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
+        <div className={`${!isLoading && !isError && notes.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-0 bg-white"}`}>
           {isLoading ? <AccountNotesSkeleton count={6} /> : null}
           {isError ? (
             <AccountRetryState

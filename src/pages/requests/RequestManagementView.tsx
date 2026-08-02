@@ -1041,7 +1041,7 @@ function EmptyRequestState({
 
   return (
     <section
-      className={`flex flex-col items-center justify-center bg-white text-center ${
+      className={`mx-auto flex w-full flex-col items-center justify-center bg-white text-center ${
         isAccount
           ? "min-h-[calc(100dvh-112px)] px-5 pb-10"
           : "min-h-[calc(100dvh-183px)] px-8 pb-16"

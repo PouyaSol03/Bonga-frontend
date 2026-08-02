@@ -100,7 +100,7 @@ export function AgencyNeighborhoodFilterPage({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-24 [-webkit-overflow-scrolling:touch]">
         {!citySelected ? (
-          <div className="flex min-h-[320px] items-center justify-center px-8 text-center text-sm leading-7 text-[#808080]">
+          <div className="mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center text-sm leading-7 text-[#808080]">
             ابتدا شهر خود را از صفحه خانه انتخاب کنید.
           </div>
         ) : isLoading ? (
@@ -116,7 +116,7 @@ export function AgencyNeighborhoodFilterPage({
             ))}
           </div>
         ) : isError ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
+          <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
             دریافت محله‌ها با خطا مواجه شد.
             <Button unstyled className="mt-3 font-semibold text-[#0048c4]" onClick={onRetry} type="button">
               تلاش دوباره

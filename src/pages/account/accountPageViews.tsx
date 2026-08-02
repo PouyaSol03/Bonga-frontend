@@ -24,6 +24,7 @@ import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar
 import { Typography } from "../../shared/ui/Typography";
 import { TextField } from "../../shared/ui/TextField";
 import { Button } from "../../shared/ui/Button";
+import { Chip } from "../../shared/ui/Chip";
 
 type TopBarProps = {
   action?: React.ReactNode;
@@ -204,10 +205,10 @@ function AccountMyAdsEmptyState({
   const description = isAllFilter
     ? "می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید."
     : "وقتی آگهی‌ای در این وضعیت داشته باشید، همین‌جا نمایش داده می‌شود.";
-  const heightClass = mode === "full" ? "h-[calc(100dvh-204px)]" : "min-h-[360px]";
+  const heightClass = mode === "full" ? "h-full min-h-0 flex-1" : "h-full min-h-0 flex-1";
 
   return (
-    <section className={`flex ${heightClass} flex-col items-center justify-center px-10 text-center`}>
+    <section className={`mx-auto flex ${heightClass} w-full flex-col items-center justify-center px-10 text-center`}>
       <img
         alt=""
         aria-hidden="true"
@@ -286,9 +287,9 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
   const showEmptyState = !isLoading && !isError && !hasAds;
 
   return (
-    <main className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-white" : "bg-[#f0f0f0]"}`}>
+    <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-white" : "bg-[#f0f0f0]"}`}>
       <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
-      <div className={`${showEmptyState ? "bg-white" : "space-y-2 bg-[#f0f0f0] pt-4"}`}>
+      <div className={`${showEmptyState ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
         {isLoading ? <MyAdsAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
@@ -386,19 +387,13 @@ function AdFilterTabs({
         const isActive = activeFilter.label === filter.label;
 
         return (
-          <Button unstyled
-            aria-pressed={isActive}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-sm font-medium leading-5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
-              isActive
-                ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-                : "border-[#cccccc] bg-white text-[#1a1a1a]"
-            }`}
+          <Chip
             key={filter.label}
             onClick={() => onSelect(filter)}
-            type="button"
+            selected={isActive}
           >
             {filter.label}
-          </Button>
+          </Chip>
         );
       })}
     </HorizontalFilterBar>
@@ -415,7 +410,7 @@ export function EmptyAccountState({
   title: string;
 }) {
   return (
-    <section className="flex min-h-[560px] flex-col items-center justify-center px-9 text-center">
+    <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-9 text-center">
       <img alt="" aria-hidden="true" className="mb-5 h-[66px] w-[66px]" src={iconSrc} />
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
         {title}
@@ -697,11 +692,15 @@ export function IdentityPendingState({
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
-          disabled={!isNationalnumberComplete || isPending}
+        <Button
+          disabled={!isNationalnumberComplete}
+          fullWidth
+          loading={isPending}
           onClick={() => onVerify(normalizedNationalnumber)}
+          radius="small"
+          size="x-medium"
           type="button"
+          variant="primary"
         >
           {isPending ? "در حال بررسی..." : "بررسی و تایید هویت"}
         </Button>
@@ -753,12 +752,15 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           </Typography>
         </div>
 
-        <Button unstyled
-          className="flex justify-between mt-6 w-full rounded-xl border border-[#0048c4] bg-white p-4 font-medium text-[#0048c4]"
+        <Button
+          className="mt-6 justify-between"
+          fullWidth
           onClick={onChangeOwner}
+          size="medium"
           type="button"
+          variant="secondary"
         >
-          <Typography as="span" variant="label" size="large" weight="medium" className="">ثبت تغییر مالکیت سیم‌کارت</Typography>
+          <Typography as="span" variant="label" size="large" weight="medium">ثبت تغییر مالکیت سیم‌کارت</Typography>
           <LinearArrowLeft1 className="h-6 w-6" />
         </Button>
       </section>
@@ -807,10 +809,12 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
-        <Button unstyled
-          className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white active:bg-[#003da6] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        <Button
+          fullWidth
           onClick={onSubmit}
+          size="x-medium"
           type="button"
+          variant="primary"
         >
           ثبت
         </Button>
@@ -821,7 +825,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
 export function EmptyMessage({ text }: { text: string }) {
   return (
-    <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 bg-white px-4 py-16 text-center text-sm font-medium text-[#808080]">
+    <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 flex min-h-0 w-full flex-1 items-center justify-center bg-white px-4 text-center text-sm font-medium text-[#808080]">
       {text}
     </Typography>
   );

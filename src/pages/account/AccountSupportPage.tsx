@@ -218,7 +218,7 @@ function WelcomeCard() {
 
 function SupportChatsEmptyState() {
   return (
-    <div className="flex min-h-[300px] flex-1 flex-col items-center justify-center px-6 pb-6 text-center">
+    <div className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
       <img
         alt=""
         aria-hidden="true"

@@ -27,7 +27,7 @@ export function IndependentConsultantAdStatisticsPage() {
         title="آمار آگهی‌ها"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         {adsQuery.isLoading ? <StatisticsNotice text="در حال دریافت آگهی‌ها..." /> : null}
         {adsQuery.isError ? <StatisticsNotice text="دریافت آگهی‌ها با خطا مواجه شد." /> : null}
         {!adsQuery.isLoading && !adsQuery.isError && ads.length === 0 ? <SearchEmptyState /> : null}
@@ -135,5 +135,5 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function StatisticsNotice({ text }: { text: string }) {
-  return <div className="bg-white px-4 py-3 text-center text-xs font-medium text-[#808080]">{text}</div>;
+  return <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-4 text-center text-xs font-medium text-[#808080]">{text}</div>;
 }

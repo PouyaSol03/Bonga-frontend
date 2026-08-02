@@ -263,7 +263,7 @@ export function AccountSupportFaqPage() {
         />
       </section>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-3 pb-24 pt-3">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-3 pb-24 pt-3">
         <div className="space-y-2.5">
           {visibleItems.map((item) => (
             <FaqAccordionItem
@@ -280,10 +280,7 @@ export function AccountSupportFaqPage() {
         </div>
 
         {visibleItems.length === 0 ? (
-          <SearchEmptyState
-            className="min-h-[320px]"
-            description="دسته‌بندی یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید."
-          />
+          <SearchEmptyState description="دسته‌بندی یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید." />
         ) : null}
       </main>
 

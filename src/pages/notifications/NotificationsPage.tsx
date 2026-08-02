@@ -489,7 +489,7 @@ function NotificationSettingsSheet({
 
 function NotificationsEmptyState() {
   return (
-    <section className="flex h-[calc(100dvh-134px)] flex-col items-center justify-center px-10 text-center">
+    <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-10 text-center">
       <img
         alt=""
         aria-hidden="true"
@@ -1029,7 +1029,7 @@ export function NotificationsPage() {
         selectedFilters={selectedFilters}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
         {notificationsQuery.isLoading ? (
           <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">
             در حال دریافت اعلان‌ها...
@@ -1038,7 +1038,7 @@ export function NotificationsPage() {
 
         {notificationsQuery.isError ? (
           <ErrorState
-            className="min-h-[420px]"
+            className="h-full min-h-0 flex-1"
             onRetry={() => void refreshNotifications()}
           />
         ) : null}

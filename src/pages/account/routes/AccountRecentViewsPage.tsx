@@ -31,7 +31,7 @@ export function AccountRecentViewsPage() {
       }
       title="بازدیدهای اخیر"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
         {recentViewsQuery.isLoading ? <AccountAdCardsSkeleton /> : null}
         {recentViewsQuery.isError ? (
           <AccountRetryState
@@ -41,7 +41,7 @@ export function AccountRecentViewsPage() {
           />
         ) : null}
         {!recentViewsQuery.isLoading && !recentViewsQuery.isError ? (
-          <div className="space-y-2 bg-[#f0f0f0]">
+          <div className={`min-h-0 flex-1 ${recentAdvertises.length === 0 ? "flex flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
             {recentAdvertises.map((advertise, index) => {
               const ad = mapAdvertisementToAdCard(advertise, index);
 

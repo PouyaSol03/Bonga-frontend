@@ -46,9 +46,9 @@ function BaseErrorState({
     return (
         <div
             dir="rtl"
-            className={`flex h-full min-h-0 w-full items-center justify-center bg-white px-6 ${className}`}
+            className={`mx-auto flex h-full min-h-0 w-full items-center justify-center bg-white px-6 ${className}`}
         >
-            <div className="flex w-full max-w-[320px] -translate-y-10 flex-col items-center text-center">
+            <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
                 <img
                     src={icon}
                     alt=""
@@ -198,10 +198,10 @@ function AccessDeniedIcon() {
 export function AccessDeniedState({ onBack }: { onBack: () => void }) {
     return (
         <div
-            className="flex h-full min-h-0 w-full items-center justify-center bg-white px-6"
+            className="mx-auto flex h-full min-h-0 w-full items-center justify-center bg-white px-6"
             dir="rtl"
         >
-            <div className="flex w-full max-w-[320px] -translate-y-8 flex-col items-center text-center">
+            <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
                 <div className="mb-6">
                     <AccessDeniedIcon />
                 </div>

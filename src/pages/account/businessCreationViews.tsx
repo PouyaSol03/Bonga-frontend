@@ -499,7 +499,7 @@ export function AgencyFields({
           ) : neighborhoodQuery.trim() ? (
             <SearchEmptyState compact />
           ) : (
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 px-2 py-3 text-right text-sm font-normal leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-[#808080]">
               محله‌ای برای این شهر ثبت نشده است.
             </Typography>
           )}

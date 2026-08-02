@@ -76,16 +76,24 @@ export function TextField({
           {showFloatingLabel && label ? (
             <motion.span
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className={cn(
-                "pointer-events-none absolute -top-[10px] right-4 max-w-[calc(100%-4rem)] origin-right truncate bg-white px-1 text-right text-xs font-normal leading-5",
-                error ? "text-[#ee3623]" : hasFocusedStyle ? "text-[#0048c4]" : "text-[#808080]",
-              )}
+              className="pointer-events-none absolute -top-[10px] right-4 max-w-[calc(100%-4rem)] origin-right text-right"
               exit={{ opacity: 0, scale: 0.96, y: 4 }}
               initial={{ opacity: 0, scale: 0.96, y: 4 }}
               key="floating-label"
               transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
             >
-              {label}
+              <Typography
+                as="span"
+                variant="body"
+                size="small"
+                weight="regular"
+                className={cn(
+                  "block truncate bg-white px-1",
+                  error ? "text-[#ee3623]" : hasFocusedStyle ? "text-[#0048c4]" : "text-[#808080]",
+                )}
+              >
+                {label}
+              </Typography>
             </motion.span>
           ) : null}
         </AnimatePresence>
@@ -94,7 +102,7 @@ export function TextField({
           ref={inputRef}
           aria-invalid={Boolean(error)}
           className={cn(
-            "min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6] placeholder:transition-colors placeholder:duration-150 [direction:rtl]",
+            "min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6] placeholder:transition-colors placeholder:duration-150 [direction:rtl]",
             label && "focus:placeholder:text-transparent",
             className,
           )}

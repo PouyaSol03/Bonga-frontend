@@ -65,7 +65,7 @@ export function AdPaymentHistoryPage() {
         title="تاریخچه پرداخت"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white">
         {query.isLoading ? <PaymentHistoryLoading /> : null}
 
         {query.isError && payments.length === 0 ? (
@@ -152,7 +152,7 @@ function firstArray<T>(values: unknown[]) {
 
 function PaymentHistoryLoading() {
   return (
-    <div className="flex h-full min-h-[360px] items-center justify-center px-4 text-sm font-medium leading-5 text-[#808080]">
+    <div className="flex h-full min-h-0 flex-1 items-center justify-center px-4 text-sm font-medium leading-5 text-[#808080]">
       در حال دریافت تاریخچه پرداخت...
     </div>
   );
@@ -160,7 +160,7 @@ function PaymentHistoryLoading() {
 
 function PaymentHistoryError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex h-full min-h-[360px] flex-col items-center justify-center px-8 text-center">
+    <div className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-8 text-center">
       <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#1a1a1a]">
         دریافت تاریخچه پرداخت با خطا مواجه شد.
       </Typography>
@@ -187,7 +187,7 @@ function EmptyPaymentHistory({
   returnTo?: string;
 }) {
   return (
-    <section className="flex h-full min-h-[430px] flex-col items-center justify-center px-8 pb-12 text-center">
+    <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-8 text-center">
       <img src="/vectors/NoPaymentHistory.svg" alt="" />
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-[#1a1a1a]">
         هیچ تراکنشی برای نمایش وجود ندارد

@@ -222,7 +222,7 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
               ) : query.isError ? (
                 <tr>
                   <td colSpan={7}>
-                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                    <div className="mx-auto flex w-full flex-col items-center justify-center py-14 text-center">
                       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#cc3342]">
                         <CloseIcon />
                       </Typography>
@@ -264,7 +264,7 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
               ) : (
                 <tr>
                   <td colSpan={7}>
-                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                    <div className="mx-auto flex w-full flex-col items-center justify-center py-14 text-center">
                       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
                         <ReceiptIcon />
                       </Typography>

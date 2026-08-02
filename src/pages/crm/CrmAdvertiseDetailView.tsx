@@ -488,8 +488,8 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 
   if (!advertise) {
     return (
-      <section className="grid min-h-[420px] place-items-center rounded-xl bg-white p-8 text-center">
-        <div>
+      <section className="mx-auto grid min-h-[420px] w-full place-items-center rounded-xl bg-white p-8 text-center">
+        <div className="mx-auto w-full max-w-[520px]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
             <LinearInformation className="h-7 w-7" />
           </Typography>

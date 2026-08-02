@@ -73,7 +73,7 @@ function StatisticsChart({ label, title, value }: { label: string; title: string
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{label}</Typography>
           <strong className="rounded bg-[#edf0fb] px-2 text-base font-medium leading-6 text-[#002099]">{value}</strong>
         </div>
-        <div className="mt-2 flex h-[155px] items-center justify-center border-b border-[#cccccc] text-center">
+        <div className="mx-auto mt-2 flex h-[155px] w-full items-center justify-center border-b border-[#cccccc] text-center">
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
             داده نموداری از سرور دریافت نشده است.
           </Typography>

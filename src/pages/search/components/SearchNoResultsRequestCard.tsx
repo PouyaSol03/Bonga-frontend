@@ -24,7 +24,7 @@ export function SearchNoResultsRequestCard({
 
   return (
     <form
-      className={`flex ${showEmptyHeader ? "min-h-[444px]" : ""} flex-col rounded-2xl border border-[#cccccc] bg-white px-4 pb-4 pt-8 text-right [direction:rtl] ${className}`}
+      className={`mx-auto flex ${showEmptyHeader ? "min-h-[444px]" : ""} w-full flex-col rounded-2xl border border-[#cccccc] bg-white px-4 pb-4 pt-8 text-right [direction:rtl] ${className}`}
       onSubmit={submit}
     >
       <div>

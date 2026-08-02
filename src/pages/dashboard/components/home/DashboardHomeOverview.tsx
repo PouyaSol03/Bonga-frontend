@@ -480,7 +480,7 @@ function ScrollableProgressLineChart({ data, valueSuffix }: { data: Array<{ mont
 
   if (data.length === 0) {
     return (
-      <div className="mt-7 flex h-[252px] items-center justify-center border-b border-[#e6e6e6] px-6 text-center">
+      <div className="mx-auto mt-7 flex h-[252px] w-full items-center justify-center border-b border-[#e6e6e6] px-6 text-center">
         <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
           داده نموداری از سرور دریافت نشده است.
         </Typography>

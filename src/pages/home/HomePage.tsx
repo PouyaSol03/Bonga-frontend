@@ -512,7 +512,7 @@ export function HomePage() {
             )}
 
             {!isAdvertisementLoading && !isAdvertisementError && advertisements.length === 0 && (
-              <div className="bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
+              <div className="mx-auto w-full bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
                 آگهی‌ای برای این شهر یافت نشد.
               </div>
             )}

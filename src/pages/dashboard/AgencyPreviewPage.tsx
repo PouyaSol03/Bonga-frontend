@@ -841,7 +841,7 @@ function PublicPreviewErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="flex min-h-[420px] flex-col items-center justify-center px-6 text-center">
+    <div className="mx-auto flex min-h-[420px] w-full flex-col items-center justify-center px-6 text-center">
       <div className="grid h-14 w-14 place-items-center rounded-full bg-[#fff0ef] text-2xl text-[#d93645]">!</div>
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">دریافت اطلاعات ناموفق بود</Typography>
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-sm text-sm leading-6 text-[#808080]">{message}</Typography>

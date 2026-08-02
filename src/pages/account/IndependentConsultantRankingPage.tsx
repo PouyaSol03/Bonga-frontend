@@ -217,7 +217,7 @@ function BadgesPanel() {
         </div>
       ) : null}
       {!isLoading && !isError && visibleBadges.length === 0 ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-[#808080]">
           نشانی از سرور دریافت نشده است.
         </Typography>
       ) : null}
@@ -339,7 +339,7 @@ function TopConsultantsPanel() {
           </div>
         ))}
         {!consultantsQuery.isPending && consultants.length === 0 ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-6 text-center text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-[#808080]">
             اطلاعات مشاوران برتر از سرور دریافت نشده است.
           </Typography>
         ) : null}

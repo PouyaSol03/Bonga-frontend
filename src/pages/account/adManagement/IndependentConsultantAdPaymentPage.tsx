@@ -578,7 +578,7 @@ function CheckoutStatusPage({
       variant="flush"
     >
       <TopBar backTo={backTo} title={title} />
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
+      <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
         <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
         {onRetry ? (
           <Button unstyled

@@ -139,16 +139,17 @@ export function AccountNotesPage() {
 
       <BottomSheet
         ariaLabel="حذف همه یادداشت‌ها"
-        contentClassName="px-4 pt-7"
+        contentClassName="px-4 pt-4 pb-9"
+        heightClassName=""
         isOpen={isConfirmDeleteAllOpen}
         onClose={() => setIsConfirmDeleteAllOpen(false)}
         showHeader={false}
         variant="confirm"
       >
-        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="label" size="large" weight="medium" className="m-0 text-center text-[#1a1a1a]">
           آیا از حذف همه یادداشت‌ها مطمئن هستید؟
         </Typography>
-        <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
+        <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
             disabled={deleteNote.isPending}
@@ -156,7 +157,9 @@ export function AccountNotesPage() {
             size="sm"
             variant="secondary"
           >
-            بله
+            <Typography variant="label" size="medium" weight="medium">
+              بله
+            </Typography>
           </Button>
           <Button
             className="h-10"
@@ -164,7 +167,9 @@ export function AccountNotesPage() {
             size="sm"
             variant="secondary"
           >
-            خیر
+            <Typography variant="label" size="medium" weight="medium">
+              خیر
+            </Typography>
           </Button>
         </div>
       </BottomSheet>

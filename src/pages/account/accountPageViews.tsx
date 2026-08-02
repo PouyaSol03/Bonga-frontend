@@ -552,9 +552,15 @@ export function NoteCard({
   };
 
   const handlePointerEnd = () => {
-    setDragOffset((current) => current >= maxDragOffset / 2 ? maxDragOffset : 0);
+    const shouldDelete = dragOffset >= maxDragOffset / 2;
+
+    setDragOffset(0);
     dragStartX.current = null;
     dragStartOffset.current = 0;
+
+    if (shouldDelete && noteId && !disabled) {
+      onDelete(noteId);
+    }
   };
 
   return (

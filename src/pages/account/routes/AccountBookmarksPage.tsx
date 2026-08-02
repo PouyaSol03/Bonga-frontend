@@ -107,7 +107,8 @@ export function AccountBookmarksPage() {
 
       <BottomSheet
         ariaLabel="حذف همه نشان‌ها"
-        contentClassName="px-4 pt-7"
+        contentClassName="px-4 pt-4 pb-9"
+        heightClassName=""
         isOpen={isConfirmDeleteAllOpen}
         onClose={() => setIsConfirmDeleteAllOpen(false)}
         showHeader={false}
@@ -116,7 +117,7 @@ export function AccountBookmarksPage() {
         <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
           آیا از حذف همه نشان‌ها مطمئن هستید؟
         </Typography>
-        <div className="mt-7 grid grid-cols-2 gap-4 [direction:ltr]">
+        <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
             disabled={deleteBadge.isPending}
@@ -124,7 +125,9 @@ export function AccountBookmarksPage() {
             size="sm"
             variant="secondary"
           >
-            بله
+            <Typography variant="label" size="medium" weight="medium">
+              بله
+            </Typography>
           </Button>
           <Button
             className="h-10"
@@ -132,7 +135,9 @@ export function AccountBookmarksPage() {
             size="sm"
             variant="secondary"
           >
-            خیر
+            <Typography variant="label" size="medium" weight="medium">
+              خیر
+            </Typography>
           </Button>
         </div>
       </BottomSheet>

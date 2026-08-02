@@ -77,7 +77,7 @@ export function TextField({
             <motion.span
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className={cn(
-                "pointer-events-none absolute -top-2 right-4 max-w-[calc(100%-4rem)] origin-right truncate bg-white px-1 text-right text-xs font-normal leading-5",
+                "pointer-events-none absolute -top-[10px] right-4 max-w-[calc(100%-4rem)] origin-right truncate bg-white px-1 text-right text-xs font-normal leading-5",
                 error ? "text-[#ee3623]" : hasFocusedStyle ? "text-[#0048c4]" : "text-[#808080]",
               )}
               exit={{ opacity: 0, scale: 0.96, y: 4 }}

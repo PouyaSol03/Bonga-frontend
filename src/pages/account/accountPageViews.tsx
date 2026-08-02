@@ -684,19 +684,16 @@ export function IdentityPendingState({
           </Typography>
         </div>
 
-        <label className="relative mt-4 block">
-          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-4 bg-white px-1.5 text-xs font-normal leading-4 text-[#808080]">
-            کد ملی مالک شماره همراه
-          </Typography>
-
-          <input
-            className="h-11 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
-            inputMode="numeric"
-            maxLength={10}
-            value={nationalnumber}
-            onChange={(event) => setNationalnumber(normalizeNumericInput(event.target.value).slice(0, 10))}
-          />
-        </label>
+        <TextField
+          className="text-sm text-[#1a1a1a]"
+          containerClassName="mt-4"
+          inputMode="numeric"
+          label="کد ملی مالک شماره همراه"
+          maxLength={10}
+          placeholder="کد ملی مالک شماره همراه"
+          value={nationalnumber}
+          onChange={(event) => setNationalnumber(normalizeNumericInput(event.target.value).slice(0, 10))}
+        />
       </section>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
@@ -1017,17 +1014,14 @@ function formatPaymentDate(value?: string) {
 
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="block">
-      <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 block pr-4 text-right text-xs font-normal text-[#b3b3b3]">
-        {label}
-      </Typography>
-      <TextField
-        className="text-sm text-[#b3b3b3]"
-        disabled
-        highlightWhenFilled={false}
-        value={value}
-      />
-    </div>
+    <TextField
+      className="text-sm text-[#b3b3b3] disabled:cursor-default"
+      disabled
+      forceLabel
+      highlightWhenFilled={false}
+      label={label}
+      value={value}
+    />
   );
 }
 

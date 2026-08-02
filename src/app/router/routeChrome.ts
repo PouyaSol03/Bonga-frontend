@@ -11,6 +11,8 @@ export type AppChromeConfig = {
 };
 
 export function getBottomNavigationKey(path: string) {
+  if (path === "/account") return "account";
+  if (path.startsWith("/account/")) return undefined;
   if (path.startsWith("/account/support")) return undefined;
   if (path === "/home") return "home";
   if (path.startsWith("/search")) return "search";
@@ -41,7 +43,7 @@ export function getBottomNavigationKey(path: string) {
   ) {
     return undefined;
   }
-  if (path === "/login" || path.startsWith("/account")) return "account";
+  if (path === "/login") return "account";
 
   return undefined;
 }

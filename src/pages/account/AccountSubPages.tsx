@@ -1642,7 +1642,7 @@ function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void })
         <div className="rounded-xl border border-[#11A366] bg-[#11A36614] px-4 pb-5 pt-4 text-center">
           <div className="flex items-center justify-center gap-2 text-[#11A366]">
             <IdentityCheckIcon className="h-4 w-4" />
-            <Typography as="h2" variant="body" size="large" weight="medium" className="">
+            <Typography as="p" variant="body" size="large" weight="medium" className="">
               هویت شما تایید شده است
             </Typography>
           </div>

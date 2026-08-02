@@ -9,6 +9,7 @@ import { Snackbar } from "../../../shared/components/Snackbar";
 import { AccountLoadingState, AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, formatMoney, normalizeWalletAmount } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { TextField } from "../../../shared/ui/TextField";
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
@@ -42,21 +43,21 @@ export function AccountWalletPage() {
 
         {!isLoading && !isError ? (
           <section className="px-3 pt-4 text-right">
-            <div className="flex items-center justify-between rounded-xl border border-[#d6e1ff] bg-[#0048c414] p-4 [direction:rtl]">
+            <div className="flex items-center justify-between rounded-xl border border-primary/8 bg-primary-container p-4 [direction:rtl]">
               <div>
-                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-xs font-medium leading-5 text-[#4D4D4D]">
+                <Typography as="p" variant="label" size="small" weight="medium" className="m-0 text-xs font-medium leading-5 text-on-surface-var">
                   اعتبار قابل استفاده:
                 </Typography>
 
-                <div className="mt-2 flex items-end gap-1 text-[#0048c4]">
+                <div className="mt-2 flex items-center gap-1 text-on-primary-container">
                   <strong className="text-2xl font-bold leading-7">
                     {formatMoney(wallet?.credit ?? 0)}
                   </strong>
-                  <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
+                  <AdCardTomanIcon className="h-6 w-6 shrink-0 text-on-primary-container" />
                 </div>
               </div>
 
-              <div className="grid p-4 shrink-0 place-items-center rounded-full bg-[#dbe6ff] text-[#002099]">
+              <div className="grid p-4 shrink-0 place-items-center rounded-full bg-primary/8 text-[#002099]">
                 <img src="/icons/walletPlus.svg" alt="" />
               </div>
             </div>
@@ -68,21 +69,18 @@ export function AccountWalletPage() {
               </Typography>
             </div>
 
-            <label className="mt-4 flex py-3 items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
-              <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-4 text-[#808080]">
-                تومان
-              </Typography>
-
-              <input
-                className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] placeholder:text-sm [direction:rtl]"
-                inputMode="numeric"
-                placeholder="مبلغ اعتبار دلخواه"
-                value={amount && amount !== "0" ? formatPrice(Number(amount.replace(/,/g, ""))) : ""}
-                onChange={(event) => {
-                  setAmount(normalizeWalletAmount(event.target.value));
-                }}
-              />
-            </label>
+            <TextField
+              badge="تومان"
+              className="text-sm font-normal leading-5"
+              containerClassName="mt-4"
+              inputMode="numeric"
+              label="مبلغ اعتبار دلخواه"
+              placeholder="مبلغ اعتبار دلخواه"
+              value={amount && amount !== "0" ? formatPrice(Number(amount.replace(/,/g, ""))) : ""}
+              onChange={(event) => {
+                setAmount(normalizeWalletAmount(event.target.value));
+              }}
+            />
             {Number(amount) > 0 && (
               <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-[#808080]">
                 {formatBigNumber(Number(amount))} تومان
@@ -98,16 +96,18 @@ export function AccountWalletPage() {
                 const isActive = amount === amountOption.value;
 
                 return (
-                  <Button unstyled
-                    className={`rounded-xl border py-1.5 !text-xs !font-medium leading-4 ${isActive
-                      ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-                      : "border-[#cccccc] bg-white text-[#1a1a1a]"
-                      }`}
+                  <Button
+                    className={isActive ? "text-primary" : "text-on-surface"}
                     key={amountOption.value}
                     onClick={() => setAmount(amountOption.value)}
+                    radius="small"
+                    size="small"
                     type="button"
+                    variant={isActive ? "secondary" : "neutral-outline"}
                   >
-                    {amountOption.label}
+                    <Typography variant="label" size="small" weight="medium">
+                      {amountOption.label}
+                    </Typography>
                   </Button>
                 );
               })}
@@ -126,9 +126,10 @@ export function AccountWalletPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
+        <Button
           disabled={!canCharge || chargeWalletMutation.isPending}
+          fullWidth
+          loading={chargeWalletMutation.isPending}
           onClick={() => {
             if (!canCharge) return;
 
@@ -154,7 +155,10 @@ export function AccountWalletPage() {
               },
             );
           }}
+          radius="small"
+          size="x-medium"
           type="button"
+          variant="primary"
         >
           {chargeWalletMutation.isPending ? "در حال اتصال به درگاه..." : "شارژ کیف پول"}
         </Button>

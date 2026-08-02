@@ -600,7 +600,7 @@ export function CrmPage({ embeddedContent }: { embeddedContent?: ReactNode } = {
                     <CrmSupportRequestsView notify={notify} refreshNonce={refreshNonce} />
                   ) : null}
                   {section === "propertyRequests" ? (
-                    <CrmPropertyRequestsView notify={notify} refreshNonce={refreshNonce} />
+                    <CrmPropertyRequestsView notify={notify} />
                   ) : null}
                   {section === "support" ? <CrmSupportView /> : null}
                 </>

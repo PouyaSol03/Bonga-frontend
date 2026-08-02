@@ -1,7 +1,6 @@
 import type { ChangeEventHandler, FocusEventHandler, ReactNode, Ref } from "react";
 import { Chip } from "../ui/Chip";
 import { TextField } from "../ui/TextField";
-import { Typography } from "../ui/Typography";
 import { Button } from "../ui/Button";
 
 type SegmentOption<T extends string> = {

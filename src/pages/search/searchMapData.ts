@@ -58,6 +58,7 @@ export type SearchMapTileConfig = {
 };
 
 export const SEARCH_MAP_FALLBACK_IMAGE = "/figma/view-ad-album.png";
+export const SEARCH_MAP_DEMO_PHOTO = SEARCH_MAP_FALLBACK_IMAGE;
 
 export const searchMapTileConfig: SearchMapTileConfig = {
   urlTemplate: "https://map.exirfirm.com/tile/{z}/{x}/{y}.png",

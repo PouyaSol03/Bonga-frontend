@@ -1,10 +1,10 @@
 import { AdCard } from "../../../shared/components/AdCard";
-import type { AdManagementRouteState, ConsultantAd } from "./adManagementData";
+import type { ConsultantAd } from "./adManagementData";
 
 type ConsultantAdCardProps = {
   ad: ConsultantAd;
   showStatusBadge?: boolean;
-  state?: AdManagementRouteState;
+  state?: unknown;
   to?: string;
 };
 

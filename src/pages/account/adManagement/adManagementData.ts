@@ -4,6 +4,16 @@ import { mapAdvertisementToAdCard } from "../../../core/services/advertisement.s
 
 export type ConsultantAd = AdCardData;
 
+export type AdManagementPublisherOption = {
+  id: string;
+  image: string;
+  name: string;
+};
+
+export const adManagementPublisherOptions: AdManagementPublisherOption[] = [
+  { id: "owner", image: "", name: "مالک" },
+];
+
 export type AdsTab = "active" | "status";
 
 export type AdManagementSelectedNeighborhood = {

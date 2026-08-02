@@ -428,7 +428,7 @@ function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
             index === loadMoreTriggerIndex &&
             hasNextPage &&
             !isFetchingNextPage;
-          const statusInfo = getMyAdStatusInfo(ad, index, { useDemoFallback: true });
+          const statusInfo = getMyAdStatusInfo(ad);
           const adId = String(ad.id ?? ad._id ?? card.id);
           const cardWithStatus: AdCardData = {
             ...card,

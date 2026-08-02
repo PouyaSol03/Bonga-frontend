@@ -2,13 +2,13 @@ import { useMemo, useState } from "react";
 
 import { PageFrame } from "../../app/PageFrame";
 import { getRequestErrorState } from "../../components/ErrorState";
-import { DemoNotice } from "../../components/DemoNotice";
+import { TransientNotice } from "../../components/TransientNotice";
 import { TopBar } from "../../components/TopBar";
 import PricingCard from "../../components/dashboard/addWallet/PricingCard";
 import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
 import { usePackagesQuery } from "../../hooks/package.hooks";
-import { useDemoNotice } from "../../hooks/useDemoNotice";
+import { useTransientNotice } from "../../hooks/useTransientNotice";
 import { RouteLink } from "../../routes/RouteLink";
 import type { PackageItem } from "../../services/package.service";
 import { Typography } from "../../components/ui/Typography";
@@ -38,8 +38,6 @@ type MobileCreditPlan = {
   selected?: boolean;
   title: string;
 };
-
-const defaultManagerGiftBenefits = ["۵۰ آگهی", "۲۰ ویژه", "۲۵ بروزرسانی"];
 
 function getCreditItems(plan: PackageItem) {
   return [
@@ -108,16 +106,14 @@ function toFaNumber(value: number | string) {
   return String(value);
 }
 
-function getGiftBenefits(plan: PackageItem, forceDefaultGift: boolean) {
+function getGiftBenefits(plan: PackageItem) {
   const benefits = getCreditItems(plan).map((item) => `${item.value.toLocaleString("fa-IR")} ${item.label}`);
 
-  if (benefits.length > 0) return benefits;
-
-  return forceDefaultGift ? defaultManagerGiftBenefits : [];
+  return benefits;
 }
 
 function mapMobilePanelPlan(plan: PackageItem, index: number, hasManagerGift: boolean): MobileCreditPlan {
-  const giftBenefits = hasManagerGift ? getGiftBenefits(plan, true) : [];
+  const giftBenefits = hasManagerGift ? getGiftBenefits(plan) : [];
 
   return {
     currentPrice: plan.final_price,
@@ -341,7 +337,7 @@ function DashboardPaymentMobilePage({
   refetch: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>("panel");
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isManager = activeRole === REAL_ESTATE_MANAGER;
   const panelPlans = useMemo(
@@ -390,7 +386,7 @@ function DashboardPaymentMobilePage({
               <MobilePlanCard
                 isPackage={activeTab === "packages"}
                 key={plan.id}
-                onPay={() => showNotice(`پرداخت ${plan.title} در نسخه نمایشی ثبت شد`)}
+                onPay={() => showNotice("خرید این بسته هنوز به سرویس پرداخت متصل نشده است.")}
                 plan={plan}
                 showGift={showGift}
               />
@@ -402,7 +398,7 @@ function DashboardPaymentMobilePage({
           <EmptyPackagesState className="mt-2" />
         ) : null}
       </main>
-      <DemoNotice message={message} />
+      <TransientNotice message={message} />
     </PageFrame>
   );
 }

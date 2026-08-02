@@ -108,15 +108,6 @@ export function AllocationIcon({
   );
 }
 
-export function TagIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="M3.5 12.5 12 4h7.5v7.5L11 20 3.5 12.5Z" />
-      <circle cx="16" cy="8" r="1.5" />
-    </svg>
-  );
-}
-
 export function PaymentOptionIcon({
   className = "",
   icon,

@@ -19,6 +19,7 @@ import {
 } from "./ConsultantManagementPage";
 import { Typography } from "../../ui/Typography";
 import { Button } from "../../ui/Button";
+import { useAgencyDashboardQuery } from "../../../hooks/dashboard.hooks";
 
 function getAgencyConsultantAccessRole(
   consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
@@ -75,6 +76,10 @@ export function ConsultantEditPage() {
   const consultantId = getRouteConsultantId() ?? routeConsultant.id;
   const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
   const updateConsultantMutation = useUpdateAgencyConsultantMutation();
+  const agencyDashboardQuery = useAgencyDashboardQuery();
+  const agencyBalances = agencyDashboardQuery.data?.balances;
+  const formatRemaining = (value: number | undefined) =>
+    value === undefined ? "—" : new Intl.NumberFormat("fa-IR").format(value);
   const consultant = consultantQuery.data
     ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
     : routeConsultant;
@@ -176,21 +181,21 @@ export function ConsultantEditPage() {
         <section className="mt-4 grid gap-4">
           <QuotaStepper
             label="سهمیه آگهی"
-            remaining="باقیمانده سهمیه آژانس: ۱۹۵"
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
             remainingClassName="text-[#0048c4]"
             setValue={setAdQuota}
             value={adQuota}
           />
           <QuotaStepper
             label="سهمیه بروزرسانی"
-            remaining="باقیمانده سهمیه آژانس: ۹۳"
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`} 
             remainingClassName="text-[#11a366]"
             setValue={setUpdateQuota}
             value={updateQuota}
           />
           <QuotaStepper
             label="سهمیه ویژه"
-            remaining="باقیمانده سهمیه آژانس: ۱۹۵"
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`} 
             remainingClassName="text-[#ff6d00]"
             setValue={setSpecialQuota}
             value={specialQuota}

@@ -1,74 +1,64 @@
 import { PageFrame } from "../../app/PageFrame";
 import { TopBar } from "../../components/TopBar";
-
 import { Typography } from "../../components/ui/Typography";
+import { useMyBadgesQuery } from "../../hooks/account.hooks";
+import {
+  badgeProgressNumber,
+  formatBadgeProgressNumber,
+  readBadgeLevelCount,
+  readBadgeProgressLevels,
+  type BadgeProgressLevel,
+} from "../../utils/badgeProgress";
 
 type BadgeKey = "file" | "magnet" | "response" | "time";
 
-type ProgressVariant = "complete" | "current" | "locked";
-
-type BadgeDetail = {
+type BadgeDefinition = {
   image: string;
-  metricLabel: string;
-  metricValue: string;
   name: string;
-  levels: {
-    amount: string;
-    progress: number;
-    title: string;
-    variant: ProgressVariant;
-  }[];
 };
 
-const badgeDetails: Record<BadgeKey, BadgeDetail> = {
+const badgeDefinitions: Record<BadgeKey, BadgeDefinition> = {
   file: {
     image: "/figma/account/ranking-badge-detail-file.png",
-    metricLabel: "تعامل موثر:",
-    metricValue: "186",
     name: "فایل ساز",
-    levels: [
-      { amount: "تکمیل شده", progress: 100, title: "سطح 1", variant: "complete" },
-      { amount: "186 / 300", progress: 42.5, title: "سطح 2", variant: "current" },
-      { amount: "0 / 600", progress: 1.5, title: "سطح 3", variant: "locked" },
-    ],
   },
   magnet: {
     image: "/figma/account/ranking-badge-detail-magnet.png",
-    metricLabel: "تعامل موثر:",
-    metricValue: "67",
     name: "مغناطیس بازار",
-    levels: [
-      { amount: "تکمیل شده", progress: 100, title: "سطح 1", variant: "complete" },
-      { amount: "67 / 100", progress: 42.5, title: "سطح 2", variant: "current" },
-      { amount: "0 / 200", progress: 1.5, title: "سطح 3", variant: "locked" },
-    ],
   },
   response: {
     image: "/figma/account/ranking-badge-detail-response.png",
-    metricLabel: "تعداد پاسخ سریع:",
-    metricValue: "128",
     name: "ساعقه پاسخ",
-    levels: [
-      { amount: "تکمیل شده", progress: 100, title: "سطح 1", variant: "complete" },
-      { amount: "128 / 200", progress: 42.5, title: "سطح 2", variant: "current" },
-      { amount: "0 / 300", progress: 1.5, title: "سطح 3", variant: "locked" },
-    ],
   },
   time: {
     image: "/figma/account/ranking-badge-detail-time.png",
-    metricLabel: "فعالیت روزانه:",
-    metricValue: "5.1 ساعت",
     name: "همیشگی",
-    levels: [
-      { amount: "تکمیل شده", progress: 100, title: "سطح 1", variant: "complete" },
-      { amount: "5.1 / 6", progress: 42.5, title: "سطح 2", variant: "current" },
-      { amount: "0 / 8", progress: 1.5, title: "سطح 3", variant: "locked" },
-    ],
   },
 };
 
 export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
-  const badge = badgeDetails[badgeKey];
+  const badgesQuery = useMyBadgesQuery();
+  const definition = badgeDefinitions[badgeKey];
+  const badge = (badgesQuery.data ?? []).find(
+    (item) => typeof item.slug === "string" && item.slug.trim().toLowerCase() === badgeKey,
+  );
+  const badgeName =
+    typeof badge?.name === "string" && badge.name.trim()
+      ? badge.name.trim()
+      : definition.name;
+  const badgeImage =
+    typeof badge?.image === "string" && badge.image.trim()
+      ? badge.image
+      : typeof badge?.logo === "string" && badge.logo.trim()
+        ? badge.logo
+        : definition.image;
+  const progress = badgeProgressNumber(badge?.progress);
+  const metricValue =
+    progress === null
+      ? "—"
+      : `${formatBadgeProgressNumber(Math.max(0, Math.min(100, progress)))}٪`;
+  const levels = readBadgeProgressLevels(badge);
+  const starCount = readBadgeLevelCount(badge);
 
   return (
     <PageFrame
@@ -79,54 +69,83 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-6 pt-6">
         <div className="mx-auto flex w-[152px] flex-col items-center">
-          <img alt="" className="h-[120px] w-[120px] object-contain" src={badge.image} />
+          <img alt="" className="h-[120px] w-[120px] object-contain" src={badgeImage} />
           <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 text-sm font-semibold leading-5 text-[#0048c4]">
-            {badge.name}
+            {badgeName}
           </Typography>
           <div className="mt-2 flex h-6 items-center justify-center">
             {[0, 1, 2].map((star) => (
-              <DetailStarIcon className={`h-6 w-6 ${star === 0 ? "text-[#ffb100]" : "text-[#d8d8d8]"}`} key={star} />
+              <DetailStarIcon
+                className={`h-6 w-6 ${star < starCount ? "text-[#ffb100]" : "text-[#d8d8d8]"}`}
+                key={star}
+              />
             ))}
           </div>
         </div>
 
         <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{badge.metricLabel}</Typography>
-          <strong className="font-semibold text-[#1a1a1a]">{badge.metricValue}</strong>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">پیشرفت نشان:</Typography>
+          <strong className="font-semibold text-[#1a1a1a]">{metricValue}</strong>
         </Typography>
 
-        <div className="mt-4 space-y-4">
-          {badge.levels.map((level) => (
-            <BadgeLevelCard key={level.title} {...level} />
-          ))}
-        </div>
+        {badgesQuery.isLoading ? (
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">
+            در حال دریافت جزئیات نشان...
+          </Typography>
+        ) : levels.length > 0 ? (
+          <div className="mt-4 space-y-4">
+            {levels.map((level) => (
+              <BadgeLevelCard key={level.title} {...level} />
+            ))}
+          </div>
+        ) : (
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-6 rounded-2xl border border-[#f0f0f0] px-4 py-6 text-center text-[#808080]">
+            جزئیات پیشرفت این نشان از سرور دریافت نشده است.
+          </Typography>
+        )}
       </main>
     </PageFrame>
   );
 }
 
 function BadgeLevelCard({
-  amount,
+  done,
+  total,
   progress,
   title,
   variant,
-}: {
-  amount: string;
-  progress: number;
-  title: string;
-  variant: ProgressVariant;
-}) {
+}: BadgeProgressLevel) {
   const progressClassName =
-    variant === "complete" ? "bg-[#11a366]" : variant === "current" ? "bg-[#ffb100]" : "bg-[#a6a6a6]";
+    variant === "complete"
+      ? "bg-[#11a366]"
+      : variant === "current"
+        ? "bg-[#ffb100]"
+        : "bg-[#a6a6a6]";
   const trackClassName =
-    variant === "complete" ? "bg-[#11a36629]" : variant === "current" ? "bg-[#ff8d0029]" : "bg-[#e5e5e5]";
+    variant === "complete"
+      ? "bg-[#11a36629]"
+      : variant === "current"
+        ? "bg-[#ff8d0029]"
+        : "bg-[#e5e5e5]";
   const amountClassName =
-    variant === "complete" ? "text-[#11a366]" : variant === "locked" ? "text-[#a6a6a6]" : "text-[#4d4d4d]";
+    variant === "complete"
+      ? "text-[#11a366]"
+      : variant === "locked"
+        ? "text-[#a6a6a6]"
+        : "text-[#4d4d4d]";
 
   return (
     <section className="h-[72px] rounded-2xl border border-[#f0f0f0] bg-[#f5f5f5] px-4 py-4">
       <div className="flex h-5 items-center justify-between text-sm font-medium leading-5 [direction:ltr]">
-        <Typography as="span" variant="body" size="medium" weight="regular" className={amountClassName}>{amount}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={`flex items-center gap-1 ${amountClassName}`}>
+          {done}
+          {total ? (
+            <>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">/</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">{total}</Typography>
+            </>
+          ) : null}
+        </Typography>
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d] [direction:rtl]">{title}</Typography>
       </div>
       <div className={`mt-4 h-1 w-full rounded-full ${trackClassName}`}>

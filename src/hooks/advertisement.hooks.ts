@@ -121,8 +121,7 @@ export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) 
   return useQuery({
     enabled: Boolean(params),
     // Previous map-result caching is temporarily disabled.
-    // gcTime: 2 * 60_000,
-    // placeholderData: (previousData) => previousData,
+    // gcTime: 2 * 60_000,
     queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
     queryKey: queryKeys.advertisements.map(params ?? {}),
     refetchOnMount: "always",

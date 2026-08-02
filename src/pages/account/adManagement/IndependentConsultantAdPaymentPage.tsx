@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { getApiErrorMessage } from "../../../api/api";
 import { PageFrame } from "../../../app/PageFrame";
-import { getActiveAuthRole, getStoredAuthSession } from "../../../auth/auth-storage";
 import { Snackbar } from "../../../components/Snackbar";
 import { TopBar } from "../../../components/TopBar";
 import { ChoiceIndicator } from "../../../components/ui/Choice";
-import { USER } from "../../../constants/roles.constants";
 import { storePaymentReturnTarget } from "../../../utils/payment-return";
-import { useChargeWalletMutation, useWalletQuery } from "../../../hooks/account.hooks";
+import { useChargeWalletMutation } from "../../../hooks/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
   useSubmitAdvertisementCheckoutMutation,
@@ -23,17 +21,11 @@ import type {
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import {
   AdCardTomanIcon,
-  AdTariffOptionsList,
-  createAdTariffOptions,
   formatTariffToman,
-  getTariffTotal,
-  type AdTariffOptionId,
 } from "./AdTariffOptionsView";
 import {
-  adManagementPaths,
   getAdManagementRouteState,
   getAdStatePath,
-  getSelectedConsultantAd,
 } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
 import { Button } from "../../../components/ui/Button";
@@ -41,10 +33,7 @@ import { Button } from "../../../components/ui/Button";
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";
 
-const upgradePrice = 40_000;
-const disabledUpgradePrice = 30_000;
 const checkoutItems = ["advertise_publish"];
-const unavailableRenewWarning = "۹ روز و ۱۲ ساعت تا فعال شدن امکان تمدید آگهی مانده است.";
 const unavailableAfterPublishWarning = "این قابلیت پس از انتشار آگهی فعال می‌شود.";
 
 const disabledUpgradeOptions = [
@@ -137,7 +126,13 @@ export function IndependentConsultantAdPaymentPage() {
     return <AdvertisementCheckoutFlow advertiseId={advertiseId} />;
   }
 
-  return <LegacyAdvertisementPaymentFlow />;
+  return (
+    <CheckoutStatusPage
+      backTo="/account/my-ads"
+      message="شناسه آگهی برای دریافت تعرفه از سرور موجود نیست."
+      title="هزینه ثبت آگهی"
+    />
+  );
 }
 
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
@@ -257,6 +252,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     return (
       <CheckoutStatusPage
         backTo="/new-ad"
+        isLoading
         message="در حال دریافت هزینه و روش‌های پرداخت آگهی..."
         title="هزینه ثبت آگهی"
       />
@@ -389,8 +385,7 @@ function CheckoutTariffView({
               <div className="py-4" key={option.id}>
                 <div className="flex items-start justify-between gap-5 [direction:ltr]">
                   <Typography as="span" variant="label" size="medium" weight="semibold" className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 text-[#c2c2c2] [direction:rtl]">
-                    {formatTariffToman(disabledUpgradePrice)}
-                    <AdCardTomanIcon className="h-5 w-5" />
+                    —
                   </Typography>
 
                   <div className="min-w-0 flex-1 text-right [direction:rtl]">
@@ -566,11 +561,13 @@ export function ApiPaymentCheckoutView({
 
 function CheckoutStatusPage({
   backTo,
+  isLoading = false,
   message,
   onRetry,
   title,
 }: {
   backTo: string;
+  isLoading?: boolean;
   message: string;
   onRetry?: () => void;
   title: string;
@@ -591,207 +588,10 @@ function CheckoutStatusPage({
           >
             تلاش دوباره
           </Button>
-        ) : (
+        ) : isLoading ? (
           <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />
-        )}
+        ) : null}
       </main>
-    </PageFrame>
-  );
-}
-
-function LegacyAdvertisementPaymentFlow() {
-  const routeState = getAdManagementRouteState();
-  const ad = getSelectedConsultantAd();
-  const isNewAdFlow = routeState.paymentFlow === "new-ad";
-  const isUserRole = getActiveAuthRole(getStoredAuthSession()) === USER;
-  const userStateAdPath = getAdStatePath(ad.id);
-  const completeTo = isNewAdFlow || isUserRole ? userStateAdPath : adManagementPaths.published;
-  const backTo = routeState.paymentHistoryReturnTo ?? (isNewAdFlow ? "/new-ad" : isUserRole ? userStateAdPath : adManagementPaths.allocation);
-  const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
-  const [method, setMethod] = useState<PaymentMethod>("online");
-  const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["renew"]);
-  const tariffOptions = useMemo(
-    () =>
-      createAdTariffOptions({
-        disabledIds: ["refresh", "special", "refreshSpecial"],
-        price: upgradePrice,
-        warning: unavailableRenewWarning,
-      }),
-    [],
-  );
-  const payableAmount = getTariffTotal(tariffOptions, selectedTariffs);
-  const publishState = useMemo(
-    () => ({
-      ad,
-      card: ad,
-      returnTo: isNewAdFlow ? "/account" : isUserRole ? "/account/my-ads" : routeState.returnTo,
-      showPaymentSuccess: true,
-      status: "published",
-      tab: isNewAdFlow || isUserRole ? undefined : ("status" as const),
-    }),
-    [ad, isNewAdFlow, isUserRole, routeState.returnTo],
-  );
-
-  function toggleTariff(optionId: AdTariffOptionId) {
-    setSelectedTariffs((selected) =>
-      selected.includes(optionId)
-        ? selected.filter((item) => item !== optionId)
-        : [...selected, optionId],
-    );
-  }
-
-  function handleCompleteOptions() {
-    if (payableAmount > 0) {
-      setStep("checkout");
-      return;
-    }
-
-    navigateTo(completeTo, publishState, true);
-  }
-
-  if (step === "checkout") {
-    return (
-      <PaymentCheckoutView
-        completeTo={completeTo}
-        method={method}
-        onBack={() => setStep("options")}
-        onMethodChange={setMethod}
-        publishState={publishState}
-        total={payableAmount}
-      />
-    );
-  }
-
-  return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar
-        backState={{ ad, card: routeState.card, tab: routeState.tab }}
-        backTo={backTo}
-        className="bg-[#f0f0f0] [&_a]:text-[#1a1a1a]"
-        title="هزینه ثبت آگهی"
-      />
-
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[76px]">
-        <AdTariffOptionsList
-          onToggle={toggleTariff}
-          options={tariffOptions}
-          selectedIds={selectedTariffs}
-        />
-      </main>
-
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          onClick={handleCompleteOptions}
-          type="button"
-        >
-          تکمیل خرید
-        </Button>
-      </footer>
-    </PageFrame>
-  );
-}
-
-export function PaymentCheckoutView({
-  completeLabelPrefix = "پرداخت و انتشار",
-  completeState,
-  completeTo = adManagementPaths.published,
-  method,
-  onBack,
-  onMethodChange,
-  publishState,
-  total,
-}: {
-  completeLabelPrefix?: string;
-  completeState?: unknown;
-  completeTo?: string;
-  method: PaymentMethod;
-  onBack: () => void;
-  onMethodChange: (method: PaymentMethod) => void;
-  publishState: unknown;
-  total: number;
-}) {
-  const { data: wallet } = useWalletQuery();
-  const walletBalance = toSafeNumber(wallet?.credit);
-  const walletDeficit = Math.max(total - walletBalance, 0);
-  const finalState = completeState ?? publishState;
-
-  return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar className="[&_button]:text-[#1a1a1a]" onBack={onBack} title="پرداخت" />
-
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
-        <section className="bg-white px-4 pb-2 pt-6" aria-label="روش پرداخت">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</Typography>
-          <PaymentMethodOption
-            active={method === "wallet"}
-            icon="wallet"
-            label="کیف پول"
-            onClick={() => onMethodChange("wallet")}
-            subLabel={`مانده: ${formatTariffToman(walletBalance)} تومان`}
-            subLabelClassName={walletDeficit > 0 ? "text-[#e11900]" : "text-[#11a366]"}
-          />
-
-          {walletDeficit > 0 ? <WalletDeficitBox deficit={walletDeficit} /> : null}
-          <PaymentMethodOption
-            active={method === "online"}
-            icon="online"
-            label="پرداخت آنلاین"
-            onClick={() => onMethodChange("online")}
-            subLabel="بانک ملت"
-          />
-        </section>
-
-        <section className="mt-2 bg-white px-4 py-4" aria-label="کد تخفیف">
-          <div className="flex items-center gap-2 [direction:ltr]">
-            <Button unstyled
-              className="h-12 shrink-0 rounded-xl bg-[#e5e5e5] px-4 text-sm font-medium leading-5 text-[#a6a6a6]"
-              disabled
-              type="button"
-            >
-              اعمال
-            </Button>
-            <label className="min-w-0 flex-1">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
-              <input
-                className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
-                placeholder="کد تخفیف را وارد کنید"
-                type="text"
-              />
-            </label>
-          </div>
-        </section>
-
-        <section className="mt-2 bg-white px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</Typography>
-          <SummaryRow label="قیمت" value={formatTariffToman(total)} />
-          <SummaryRow label="تخفیف" value={formatTariffToman(0)} />
-          <div className="my-4 border-t border-dashed border-[#cccccc]" aria-hidden="true" />
-          <SummaryRow
-            iconClassName="h-7 w-7"
-            label="جمع پرداختی"
-            labelClassName="text-right text-base font-semibold text-[#4d4d4d]"
-            value={formatTariffToman(total)}
-            valueClassName="text-base font-semibold text-[#0048c4]"
-          />
-        </section>
-      </main>
-
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)]"
-          onClick={() => navigateTo(completeTo, finalState, true)}
-          type="button"
-        >
-          {`${completeLabelPrefix} - ${formatShortPayment(total)}`}
-        </Button>
-      </footer>
     </PageFrame>
   );
 }
@@ -847,47 +647,6 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
           variant="error"
         />
       ) : null}
-    </div>
-  );
-}
-
-function WalletDeficitBox({ deficit }: { deficit: number }) {
-  const chargeWalletMutation = useChargeWalletMutation();
-  const [errorMessage, setErrorMessage] = useState("");
-
-  function chargeWallet() {
-    if (chargeWalletMutation.isPending || deficit <= 0) return;
-    setErrorMessage("");
-    chargeWalletMutation.mutate(
-      { price: Math.ceil(deficit) },
-      {
-        onError: (error: unknown) => setErrorMessage(getApiErrorMessage(error, "شارژ کیف پول با خطا مواجه شد.")),
-        onSuccess: ({ paymentUrl }) => {
-          storePaymentReturnTarget({ label: "بازگشت به پرداخت آگهی", path: window.location.pathname });
-          window.location.assign(paymentUrl);
-        },
-      },
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between rounded-lg border border-[#ffd7ad] bg-[#fff7ed] px-4 py-3 [direction:ltr]">
-        <Button unstyled
-          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#ff6a00] px-4 py-1.5 text-xs font-semibold leading-5 text-white disabled:opacity-60"
-          disabled={chargeWalletMutation.isPending}
-          onClick={chargeWallet}
-          type="button"
-        >
-          {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
-          <Typography as="span" variant="body" size="large" weight="regular" className="flex text-base leading-none">+</Typography>
-        </Button>
-
-        <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
-          کسری: {formatTariffToman(deficit)} تومان
-        </Typography>
-      </div>
-      {errorMessage ? <Snackbar className="relative inset-x-auto bottom-auto mt-2" message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در شارژ کیف پول" variant="error" /> : null}
     </div>
   );
 }

@@ -89,9 +89,3 @@ export function replaceRoute(
   window.history.replaceState(createNavigationState(state, options), "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
-
-export function stripRouteStateMeta<TState = unknown>(state: TState): TState {
-  if (!isRecord(state)) return state;
-
-  return stripNavigationMeta(state) as TState;
-}

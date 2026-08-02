@@ -33,19 +33,7 @@ type InfoCard = {
   title: string;
 };
 
-const fallbackNeighborhoods: NeighborhoodDto[] = [
-  { id: "sayad-shirazi", name: "صیاد شیرازی" },
-  { id: "hashemiyeh", name: "هاشمیه" },
-  { id: "vakilabad", name: "وکیل آباد" },
-  { id: "sajjad", name: "سجاد" },
-  { id: "ahmadabad", name: "احمدآباد" },
-  { id: "azadshahr", name: "آزادشهر" },
-  { id: "malekabad", name: "ملک آباد" },
-  { id: "sanabad", name: "سناباد" },
-  { id: "koohsangi", name: "کوهسنگی" },
-  { id: "farhad", name: "فرهاد" },
-  { id: "emam-reza", name: "امام رضا" },
-];
+
 
 export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
   agency: [
@@ -375,9 +363,7 @@ export function AgencyFields({
     q: neighborhoodQuery,
   });
   const neighborhoodsFromApi = neighborhoodsQuery.data ?? [];
-  const neighborhoods = cityId
-    ? neighborhoodsFromApi
-    : fallbackNeighborhoods.filter((item) => item.name.includes(neighborhoodQuery.trim()));
+  const neighborhoods = cityId ? neighborhoodsFromApi : [];
 
   const toggleNeighborhood = (neighborhood: NeighborhoodDto) => {
     const neighborhoodId = getNeighborhoodId(neighborhood);

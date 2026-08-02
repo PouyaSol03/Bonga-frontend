@@ -109,7 +109,3 @@ export function FeatureIcon({ feature, className = "h-6 w-6" }: { feature: strin
 
   return <IconComponent aria-hidden="true" className={className} />;
 }
-
-export function hasFeatureIcon(feature: string) {
-  return Boolean(featureIconComponents[normalizeFeatureLabel(feature)]);
-}

@@ -29,6 +29,7 @@ import type {
   AgencyConsultantPermissions,
 } from "../../../services/agency.service";
 import { Typography } from "../../ui/Typography";
+import { useAgencyDashboardQuery } from "../../../hooks/dashboard.hooks";
 import { Button } from "../../ui/Button";
 
 type ConsultantStatus = "active" | "pending";
@@ -96,45 +97,6 @@ export function mapAgencyConsultantToTeamConsultant(
 type TeamFilter = "consultants" | "pending";
 export type AccessRole = "consultant" | "manager";
 
-export const teamConsultants: TeamConsultant[] = [
-  {
-    id: 1,
-    avatarSrc: "/figma/consultants/consultant-naser.png",
-    name: "مجتبی مطلبی",
-    phone: "09154884578",
-    status: "pending",
-    scores: {
-      ads: 35,
-      rocket: 18,
-      steps: 12,
-    },
-  },
-  {
-    id: 2,
-    avatarSrc: "/figma/consultants/consultant-mohammad.png",
-    name: "آدرین رنگز",
-    phone: "09154884578",
-    status: "active",
-    scores: {
-      ads: 25,
-      rocket: 18,
-      steps: 12,
-    },
-  },
-  {
-    id: 3,
-    avatarSrc: "/figma/consultants/consultant-naser.png",
-    name: "ناصر اشرفی",
-    phone: "09154884578",
-    status: "active",
-    scores: {
-      ads: 25,
-      rocket: 18,
-      steps: 12,
-    },
-  },
-];
-
 
 export const managerAccessItems = [
   { id: "ads", label: "مدیریت آگهی‌ها" },
@@ -163,24 +125,17 @@ export function getRouteConsultantId() {
   return Number.isFinite(parsedId) ? parsedId : undefined;
 }
 
-export function getRouteConsultant() {
+export function getRouteConsultant(): TeamConsultant {
   const routeState = window.history.state as ConsultantRouteState | null;
   const routeConsultantId = getRouteConsultantId();
 
-  return (
-    routeState?.consultant ??
-    (routeConsultantId !== undefined
-      ? {
-        id: routeConsultantId,
-        name: "مشاور",
-        phone: "",
-        scores: { ads: 0, rocket: 0, steps: 0 },
-        status: "active" as const,
-      }
-      : undefined) ??
-    teamConsultants.find((consultant) => consultant.status === "active") ??
-    teamConsultants[0]
-  );
+  return routeState?.consultant ?? {
+    id: routeConsultantId ?? 0,
+    name: "—",
+    phone: "",
+    scores: { ads: 0, rocket: 0, steps: 0 },
+    status: "active",
+  };
 }
 
 export function ConsultantManagementPage() {
@@ -297,6 +252,12 @@ export function AddConsultantPage() {
   const [specialQuota, setSpecialQuota] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const addConsultantMutation = useAddAgencyConsultantMutation();
+  const agencyDashboardQuery = useAgencyDashboardQuery();
+  const agencyBalances = agencyDashboardQuery.data?.balances;
+  const formatRemaining = (value: number | undefined) =>
+    value === undefined
+      ? "—"
+      : new Intl.NumberFormat("fa-IR").format(value);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -522,21 +483,21 @@ export function AddConsultantPage() {
           <section className="grid gap-4 border-t border-[#f0f0f0] bg-white px-4 py-5">
             <QuotaStepper
               label="سهمیه آگهی"
-              remaining="باقیمانده سهمیه آژانس: ۱۹۵"
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
               remainingClassName="text-[#0048c4]"
               setValue={setAdQuota}
               value={adQuota}
             />
             <QuotaStepper
               label="سهمیه بروزرسانی"
-              remaining="باقیمانده سهمیه آژانس: ۹۳"
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`} 
               remainingClassName="text-[#11a366]"
               setValue={setUpdateQuota}
               value={updateQuota}
             />
             <QuotaStepper
               label="سهمیه ویژه"
-              remaining="باقیمانده سهمیه آژانس: ۱۹۵"
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`} 
               remainingClassName="text-[#ff6d00]"
               setValue={setSpecialQuota}
               value={specialQuota}
@@ -738,14 +699,6 @@ export function ChevronDownIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M19 9l-7 7-7-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-export function WarningIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 8v5M12 16.5v.1M10.3 4.5 2.8 17.2A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.7-2.8L13.7 4.5a2 2 0 0 0-3.4 0Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
     </svg>
   );
 }

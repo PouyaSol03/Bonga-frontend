@@ -3,6 +3,7 @@ import { AdCard } from "../../components/AdCard";
 import type { AdCardData } from "../../components/AdCard";
 import { BottomSheet } from "../../components/BottomSheet";
 import { QRCodeSVG } from "qrcode.react";
+import { CircleMarker, MapContainer, TileLayer } from "react-leaflet";
 
 import LinearAdd from "../../components/(icons)/LinearAdd";
 import LinearArrowDown1 from "../../components/(icons)/LinearArrowDown1";
@@ -12,7 +13,6 @@ import LinearChat from "../../components/(icons)/LinearChat";
 import LinearFilterHorizontal from "../../components/(icons)/LinearFilterHorizontal";
 import LinearInstagram from "../../components/(icons)/LinearInstagram";
 import LinearLocation from "../../components/(icons)/LinearLocation";
-import LinearMapsLocation from "../../components/(icons)/LinearMapsLocation";
 import LinearPhone2 from "../../components/(icons)/LinearPhone2";
 import LinearQrCode from "../../components/(icons)/LinearQrCode";
 import LinearRanking from "../../components/(icons)/LinearRanking";
@@ -29,7 +29,7 @@ import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../constants/roles.constants";
-import { useMyAgencyProfileQuery } from "../../hooks/account.hooks";
+import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../../hooks/account.hooks";
 import {
   useAgencyConsultantsQuery,
   usePublicAgencyDetailQuery,
@@ -50,11 +50,6 @@ import { Button } from "../../components/ui/Button";
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
 const agencyQrCodePath = `${agencyPreviewPath}/qr-code`;
-const agencyShareTitle = "املاک جلیلیان";
-const agencyQrLabel = "Agency58945";
-const agencyLogoSrc = "/figma/agency-preview/agency-logo.png";
-const listingImageSrc = "/figma/agency-preview/listing-kitchen.png";
-
 type AgencyPreviewContactInfo = {
   phone: string;
   secondPhone: string;
@@ -62,119 +57,11 @@ type AgencyPreviewContactInfo = {
   whatsapp: string;
   telegram: string;
   instagram: string;
+  lat?: number;
+  lng?: number;
 };
-
-const agencyAds: AdCardData[] = [
-  {
-    id: 1,
-    agency: "دفتر املاک شریعت زاده",
-    status: "",
-    imageCount: "۵",
-    priceLabelPrimary: "",
-    pricePrimary: "۳/۸۵۰ میلیارد",
-    priceLabelSecondary: "",
-    priceSecondary: "",
-    area: "۱۱۰ متر",
-    rooms: "۲ اتاق",
-    year: "۱۴۰۰",
-    title: "آپارتمان ۱۱۰متری شمال تک واحدی سنددار رحیمی",
-    timeAndLocation: "۱ ساعت پیش در الهیه",
-    imageClassName: "",
-    imageUrl: listingImageSrc,
-    badges: ["فوری"],
-  },
-  {
-    id: 2,
-    agency: "دفتر املاک شریعت زاده",
-    status: "",
-    imageCount: "۵",
-    priceLabelPrimary: "",
-    pricePrimary: "۳/۸۵۰ میلیارد",
-    priceLabelSecondary: "",
-    priceSecondary: "",
-    area: "۱۱۰ متر",
-    rooms: "۲ اتاق",
-    year: "۱۴۰۰",
-    title: "آپارتمان ۱۱۰متری شمال تک واحدی سنددار رحیمی",
-    timeAndLocation: "۱ ساعت پیش در الهیه",
-    imageClassName: "",
-    imageUrl: listingImageSrc,
-    badges: ["فوری"],
-  },
-  {
-    id: 3,
-    agency: "دفتر املاک شریعت زاده",
-    status: "",
-    imageCount: "۵",
-    priceLabelPrimary: "",
-    pricePrimary: "۳/۸۵۰ میلیارد",
-    priceLabelSecondary: "",
-    priceSecondary: "",
-    area: "۱۱۰ متر",
-    rooms: "۲ اتاق",
-    year: "۱۴۰۰",
-    title: "آپارتمان ۱۱۰متری شمال تک واحدی سنددار رحیمی",
-    timeAndLocation: "۱ ساعت پیش در الهیه",
-    imageClassName: "",
-    imageUrl: listingImageSrc,
-    badges: ["فوری"],
-  },
-];
 
 type AgencyPreviewTab = "info" | "ads" | "consultants";
-
-type BadgeInfo = {
-  alt: string;
-  countLabel: string;
-  description: string;
-  id: string;
-  pillLabel: string;
-  src: string;
-  title: string;
-};
-
-const badgeCards: BadgeInfo[] = [
-  {
-    alt: "نشان تیم طلایی",
-    countLabel: "میانگین امتیاز مشاوران ۷۶",
-    description:
-      "این نشان برای مشاورین و همکارانی اعطا می‌شود که میانگین امتیاز بالایی از کاربران گرفته‌اند و کیفیت پاسخگویی، پیگیری و رضایت مشتریان در آژانس را بالا نگه داشته‌اند.",
-    id: "golden-team",
-    pillLabel: "تیم طلایی",
-    src: "/figma/agency-preview/badge-cup.png",
-    title: "نشان تیم طلایی",
-  },
-  {
-    alt: "نشان تیم پرسرعت",
-    countLabel: "پاسخگویی کمتر از ۱ ساعت ۳۷۱",
-    description:
-      "این نشان به آژانس‌هایی داده می‌شود که میانگین زمان پاسخگویی آن‌ها کمتر از ۱ ساعت باشد. املاک بنگاه بر اساس سرعت و دقت پاسخگویی مشاوران خود این نشان را دریافت می‌کند.",
-    id: "fast-team",
-    pillLabel: "تیم پرسرعت",
-    src: "/figma/agency-preview/badge-chat.png",
-    title: "نشان تیم پرسرعت",
-  },
-  {
-    alt: "نشان رکورد دار",
-    countLabel: "معامله موفق ۱۷۶",
-    description:
-      "این نشان بر اساس تعداد قراردادها و معاملات ثبت شده برای آژانس صادر می‌شود. هر چه تعداد معاملات موفق، پیگیری‌های حرفه‌ای و ثبت بازخوردهای مثبت بیشتر باشد، این نشان ارزش بیشتری دارد.",
-    id: "record-holder",
-    pillLabel: "رکورد دار",
-    src: "/figma/agency-preview/badge-first.png",
-    title: "نشان رکورد دار",
-  },
-  {
-    alt: "نشان محبوب ترین",
-    countLabel: "رضایت کاربران بالای ۴ امتیاز ۸۹۲",
-    description:
-      "این نشان براساس امتیازها و بازخوردهای کاربران از آگهی‌های منتشر شده توسط آژانس محاسبه می‌شود. هرچه میانگین رضایت کاربران بیشتر باشد، اعتبار این نشان برای آژانس بالاتر می‌رود.",
-    id: "popular",
-    pillLabel: "محبوبترین",
-    src: "/figma/agency-preview/badge-bookmark.png",
-    title: "نشان محبوب ترین",
-  },
-];
 
 const consultantAvatarClasses = [
   "from-[#f7c59f] to-[#e6a078]",
@@ -223,6 +110,14 @@ function toPersianDigits(value: number | string | null | undefined) {
   return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit);
 }
 
+function toOptionalCoordinate(value: number | string | null | undefined) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value !== "string" || !value.trim()) return undefined;
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 function getAgencyConsultantRoleLabel(role: string) {
   switch (role.trim().toLowerCase()) {
     case "owner":
@@ -249,6 +144,8 @@ function resolvePreviewContactInfo(
       whatsapp: "",
       telegram: "",
       instagram: "",
+      lat: undefined,
+      lng: undefined,
     };
   }
 
@@ -259,6 +156,8 @@ function resolvePreviewContactInfo(
     whatsapp: "",
     telegram: "",
     instagram: "",
+    lat: toOptionalCoordinate(profile.lat),
+    lng: toOptionalCoordinate(profile.lng),
   };
 }
 
@@ -305,15 +204,15 @@ function getCurrentAgencyPreviewPath() {
 }
 
 function getAgencyDisplayName() {
-  if (typeof window === "undefined") return agencyShareTitle;
+  if (typeof window === "undefined") return "";
 
-  return new URLSearchParams(window.location.search).get("name")?.trim() || agencyShareTitle;
+  return new URLSearchParams(window.location.search).get("name")?.trim() || "";
 }
 
 function getAgencyLocationLabel() {
-  if (typeof window === "undefined") return "صیاد شیرازی";
+  if (typeof window === "undefined") return "";
 
-  return new URLSearchParams(window.location.search).get("location")?.trim() || "صیاد شیرازی";
+  return new URLSearchParams(window.location.search).get("location")?.trim() || "";
 }
 
 function getAbsoluteAgencyPreviewUrl(
@@ -336,8 +235,8 @@ function getAbsoluteAgencyPreviewUrl(
 ) {
   if (typeof window === "undefined") return agencyPreviewPath;
 
-  const path = !isPublicAgencyPreviewPath()
-    ? `/agencies/${encodeURIComponent(agencyId || "preview")}`
+  const path = !isPublicAgencyPreviewPath() && agencyId
+    ? `/agencies/${encodeURIComponent(agencyId)}`
     : getCurrentAgencyPreviewPath();
   const url = new URL(path, window.location.origin);
 
@@ -442,6 +341,11 @@ export function AgencyPreviewPage() {
     enabled: !isPublicPreview && isRealEstateManager,
     period: "30d",
   });
+  const ownAdsQuery = useMyAdsInfiniteQuery({
+    enabled: !isPublicPreview && isRealEstateManager && activeTab === "ads",
+    perPage: 100,
+    type: "active",
+  });
   const agencyConsultantsQuery = useAgencyConsultantsQuery({
     enabled:
       !isPublicPreview && isRealEstateManager && activeTab === "consultants",
@@ -455,8 +359,8 @@ export function AgencyPreviewPage() {
     ? publicAgent?.id ?? publicPreviewId
     : publicAgency?.id ?? String(profile?.id ?? profile?._id ?? "").trim();
   const entityName = isAgentPreview
-    ? publicAgent?.name || getAgencyDisplayName()
-    : publicAgency?.name || profile?.name?.trim() || getAgencyDisplayName();
+    ? publicAgent?.name || getAgencyDisplayName() || "مشاور املاک"
+    : publicAgency?.name || profile?.name?.trim() || getAgencyDisplayName() || "آژانس املاک";
   const cityId = String(
     profile?.city_id || getPreviewSearchParam("city_id") || selectedCity?.id || "",
   ).trim();
@@ -510,6 +414,8 @@ export function AgencyPreviewPage() {
         whatsapp: publicAgent?.whatsapp ?? "",
         telegram: publicAgent?.telegram ?? "",
         instagram: publicAgent?.instagram ?? "",
+        lat: undefined,
+        lng: undefined,
       }
     : publicAgency
       ? {
@@ -519,6 +425,8 @@ export function AgencyPreviewPage() {
           whatsapp: "",
           telegram: "",
           instagram: "",
+          lat: publicAgency.lat,
+          lng: publicAgency.lng,
         }
       : resolvePreviewContactInfo(profile, isPublicPreview);
   const dashboard = agencyDashboardQuery.data;
@@ -568,7 +476,12 @@ export function AgencyPreviewPage() {
         ...mapAdvertisementToAdCard(advertise, index),
         agency: entityName,
       }))
-    : agencyAds;
+    : (ownAdsQuery.data?.pages ?? [])
+        .flatMap((page) => page.data)
+        .map((advertise, index) => ({
+          ...mapAdvertisementToAdCard(advertise, index),
+          agency: entityName,
+        }));
   const consultants = isPublicPreview
     ? publicAgency?.consultants ?? []
     : agencyConsultantsQuery.data?.data ?? [];
@@ -577,7 +490,7 @@ export function AgencyPreviewPage() {
     : agencyTabs;
   const entityLabel = isAgentPreview ? "مشاور" : "آژانس";
   const pageTitle = `صفحه ${entityLabel}`;
-  const shareTitle = entityName || (isAgentPreview ? "مشاور املاک" : agencyShareTitle);
+  const shareTitle = entityName;
   const shareText = `${pageTitle} ${shareTitle}`;
   const shareUrl = isPublicPreview
     ? getCurrentPageUrl()
@@ -779,8 +692,8 @@ export function AgencyQrCodePage() {
   const profile = agencyProfileQuery.data;
   const selectedCity = readStoredSelectedCity();
   const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
-  const agencyName = profile?.name?.trim() || agencyShareTitle;
-  const agencyLogo = profile?.logo ? getApiAssetUrl(profile.logo) : agencyLogoSrc;
+  const agencyName = profile?.name?.trim() || "آژانس املاک";
+  const agencyLogo = profile?.logo ? getApiAssetUrl(profile.logo) : "";
   const agencyUrl = getAbsoluteAgencyPreviewUrl(agencyId, {
     cityId: String(profile?.city_id ?? selectedCity?.id ?? "").trim() || undefined,
     cityName: profile?.city_name?.trim() || selectedCity?.name || undefined,
@@ -788,7 +701,7 @@ export function AgencyQrCodePage() {
     name: agencyName,
     neighborhoodIds: getProfileNeighborhoodIds(profile),
   });
-  const qrLabel = agencyId ? `Agency${agencyId}` : agencyQrLabel;
+  const qrLabel = agencyId ? `Agency${agencyId}` : "—";
   const shareText = `صفحه آژانس ${agencyName}`;
 
   useEffect(() => {
@@ -872,7 +785,13 @@ function AgencyQrCard({
 }) {
   return (
     <section className="w-full max-w-[328px] rounded-3xl bg-white px-6 pb-6 pt-7 text-center shadow-[0_8px_24px_rgba(26,26,26,0.06)]">
-      <img alt={`لوگوی ${agencyName}`} className="mx-auto h-16 w-16 object-contain" src={agencyLogo} />
+      {agencyLogo ? (
+        <img alt={`لوگوی ${agencyName}`} className="mx-auto h-16 w-16 object-contain" src={agencyLogo} />
+      ) : (
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#eef0f4] text-[#808080]">
+          <LinearUserSolid className="h-8 w-8" />
+        </div>
+      )}
       <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 mt-2 text-lg font-bold leading-7 text-[#4d4d4d]">{agencyName}</Typography>
       <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">اسکن کنید و صفحه آژانس را ببینید</Typography>
 
@@ -967,10 +886,12 @@ function AgencyHero({
       )}
       <Typography as="h2" variant="headline" size="small" className="m-0 mt-1 text-2xl font-bold leading-9 text-[#4d4d4d]">{agencyName}</Typography>
       <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-        <div className="inline-flex min-h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 py-1 text-xs font-medium text-[#4B5070]">
-          <LinearLocation className="h-4 w-4 text-[#4B5070]" />
-          {agencyLocation}
-        </div>
+        {agencyLocation ? (
+          <div className="inline-flex min-h-7 items-center gap-1 rounded-full bg-[#e7e8ed] px-2.5 py-1 text-xs font-medium text-[#4B5070]">
+            <LinearLocation className="h-4 w-4 text-[#4B5070]" />
+            {agencyLocation}
+          </div>
+        ) : null}
         {levelSlug ? (
           <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex min-h-7 items-center rounded-full bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#0048c4]">
             سطح {levelSlug.replace(/[-_]/g, " ")}
@@ -1044,7 +965,6 @@ function AgencyInfoTab({
   workingHours?: string;
 }) {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
-  const [selectedBadge, setSelectedBadge] = useState<BadgeInfo | null>(null);
   const activityAreaText = activityAreas.length
     ? activityAreas.join("، ")
     : "محدوده فعالیت ثبت نشده است.";
@@ -1054,11 +974,9 @@ function AgencyInfoTab({
     <div className="space-y-2 bg-[#f0f0f0]">
       <section className="bg-white px-4 py-4">
         <Typography as="h3" variant="title" size="large" weight="semibold" className="m-0 text-right font-semibold leading-6">نشان‌ها</Typography>
-        <div className="mt-4 flex gap-3 overflow-x-auto px-4 pb-1 [direction:rtl]">
-          {badgeCards.map((badge) => (
-            <BadgeCard badge={badge} key={badge.id} onClick={() => setSelectedBadge(badge)} />
-          ))}
-        </div>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-[#808080]">
+          اطلاعات نشان‌ها از سرور دریافت نشده است.
+        </Typography>
       </section>
 
       <section className="bg-white p-4">
@@ -1128,61 +1046,7 @@ function AgencyInfoTab({
         ) : null}
       </section>
 
-      <AgencyBadgeBottomSheet badge={selectedBadge} onClose={() => setSelectedBadge(null)} />
     </div>
-  );
-}
-
-function BadgeCard({ badge, onClick }: { badge: BadgeInfo; onClick: () => void }) {
-  return (
-    <Button unstyled
-      aria-label={badge.title}
-      className="grid h-[62px] w-[70px] shrink-0 place-items-center rounded-lg border border-[#EBEBEB] bg-white shadow-[0_1px_0_rgba(26,26,26,0.03)] focus-visible:outline-3 focus-visible:outline-[#0048c440]"
-      onClick={onClick}
-      type="button"
-    >
-      <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-full w-full justify-items-center overflow-hidden rounded-lg">
-        <img alt={badge.alt} className="mt-1 h-8 w-8 object-contain" src={badge.src} />
-        <Typography as="span" variant="body" size="small" weight="regular" className="absolute bottom-1.5 right-2 left-2 flex justify-center gap-0.5 text-[10px] text-[#d9d9d9] [direction:ltr]">
-          <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
-          <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
-          <LinearStar innerColor="#FFB100" className="h-2.5 w-2.5 text-[#FFB100]" />
-        </Typography>
-      </Typography>
-    </Button>
-  );
-}
-
-function AgencyBadgeBottomSheet({ badge, onClose }: { badge: BadgeInfo | null; onClose: () => void }) {
-  return (
-    <BottomSheet
-      ariaLabel={badge?.title ?? "جزئیات نشان"}
-      contentClassName="px-4 pb-5 pt-1"
-      heightClassName="h-auto max-h-[calc(100dvh-70px)]"
-      isOpen={Boolean(badge)}
-      onClose={onClose}
-      title={badge?.title ?? "جزئیات نشان"}
-    >
-      {badge ? (
-        <div className="text-center">
-          <div className="mx-auto mt-1 grid place-items-center rounded-2xl text-5xl">
-            <img alt={badge.alt} className="h-18 w-18 object-contain" src={badge.src} />
-          </div>
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="px-2 py-0.5 mt-2 items-center rounded-lg bg-[#0048c41c] text-sm font-semibold text-[#0048c4]">
-            {badge.pillLabel}
-          </Typography>
-          <div className="mt-1 flex justify-center gap-0.5 text-[#FFB100] [direction:ltr]" aria-label="سه ستاره">
-            <LinearStar innerColor="#FFB100" className="h-3 w-3" />
-            <LinearStar innerColor="#FFB100" className="h-3 w-3" />
-            <LinearStar innerColor="#FFB100" className="h-3 w-3" />
-          </div>
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-6 text-center text-sm font-medium text-[#1a1a1a]">{badge.countLabel}</Typography>
-          <div className="mt-6 rounded-xl border border-[#11A366] bg-[#EAF8F1] px-4 py-3 text-right text-sm font-normal leading-7 text-[#0c7d4f]">
-            {badge.description}
-          </div>
-        </div>
-      ) : null}
-    </BottomSheet>
   );
 }
 
@@ -1373,7 +1237,13 @@ function AgencyContactBottomSheet({
       ) : null}
 
       <div className="mt-3 overflow-hidden rounded-2xl border border-[#eeeeee] bg-[#f6f2eb]">
-        <AgencyMiniMap />
+        {contactInfo.lat !== undefined && contactInfo.lng !== undefined ? (
+          <AgencyMiniMap lat={contactInfo.lat} lng={contactInfo.lng} />
+        ) : (
+          <div className="grid h-[178px] w-full place-items-center px-4 text-center text-sm text-[#808080]">
+            موقعیت نقشه‌ای ثبت نشده است.
+          </div>
+        )}
       </div>
 
       {socialLinks.length ? (
@@ -1411,19 +1281,26 @@ function ContactRow({ href, label, value }: { href: string; label: string; value
   );
 }
 
-function AgencyMiniMap() {
+function AgencyMiniMap({ lat, lng }: { lat: number; lng: number }) {
   return (
-    <div className="relative h-[178px] w-full overflow-hidden bg-[#f4efe8]">
-      <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(90deg,rgba(204,194,180,.65)_1px,transparent_1px),linear-gradient(0deg,rgba(204,194,180,.65)_1px,transparent_1px)] [background-size:54px_54px]" />
-      <div className="absolute -left-8 top-9 h-10 w-[120%] rotate-[-18deg] bg-white/70" />
-      <div className="absolute -right-8 bottom-10 h-9 w-[120%] rotate-[17deg] bg-white/70" />
-      <div className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#11A366] text-white shadow-[0_4px_12px_rgba(17,163,102,.35)]">
-        <LinearMapsLocation className="h-7 w-7" />
-      </div>
-      <Typography as="span" variant="body" size="small" weight="regular" className="absolute right-5 top-4 text-xs text-[#808080]">عسکریه</Typography>
-      <Typography as="span" variant="body" size="small" weight="regular" className="absolute bottom-5 left-6 text-xs text-[#808080]">سجاد</Typography>
-      <Typography as="span" variant="body" size="small" weight="regular" className="absolute bottom-16 right-6 text-xs text-[#808080]">احمدآباد</Typography>
-    </div>
+    <MapContainer
+      attributionControl={false}
+      center={[lat, lng]}
+      className="h-[178px] w-full"
+      dragging={false}
+      doubleClickZoom={false}
+      scrollWheelZoom={false}
+      touchZoom={false}
+      zoom={15}
+      zoomControl={false}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <CircleMarker
+        center={[lat, lng]}
+        pathOptions={{ color: "#11A366", fillColor: "#11A366", fillOpacity: 1 }}
+        radius={8}
+      />
+    </MapContainer>
   );
 }
 

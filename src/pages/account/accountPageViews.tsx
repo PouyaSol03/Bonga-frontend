@@ -302,7 +302,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             index === loadMoreTriggerIndex &&
             hasNextPage &&
             !isFetchingNextPage;
-          const statusInfo = getMyAdStatusInfo(ad, index, { useDemoFallback: true });
+          const statusInfo = getMyAdStatusInfo(ad);
           const adId = String(ad.id ?? ad._id ?? card.id);
           const cardWithStatus: AdCardData = {
             ...card,
@@ -618,30 +618,6 @@ export function NoteCard({
         </div>
       </div>
     </article>
-  );
-}
-
-export function AboutSection({
-  isLast = false,
-  text,
-  title,
-}: {
-  isLast?: boolean;
-  text: string;
-  title: string;
-}) {
-  return (
-    <section className={`${isLast ? "pb-0" : "border-b border-[#cccccc] pb-6"} pt-6 text-right`}>
-      <div className="flex items-center justify-end gap-1.5">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 flex-1 text-right text-base font-semibold leading-6 text-[#0048c4]">
-          {title}
-        </Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 shrink-0 rounded-full bg-[#11a366]" aria-hidden="true" />
-      </div>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal text-[#4d4d4d]">
-        {text}
-      </Typography>
-    </section>
   );
 }
 
@@ -1142,16 +1118,6 @@ function UserIcon({ className = "" }: { className?: string }) {
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
       <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
       <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-    </svg>
-  );
-}
-
-export function BuildingClusterIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-      <path d="M3 21V8l6-3 6 3v13" />
-      <path d="M15 12h6v9" />
-      <path d="M7 10h2M7 14h2M7 18h2M13 10h.01M13 14h.01M18 15h.01M18 18h.01" />
     </svg>
   );
 }

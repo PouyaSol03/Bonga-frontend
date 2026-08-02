@@ -3,8 +3,7 @@ import { useState } from "react";
 import { PageFrame } from "../../../app/PageFrame";
 import { RadioIndicator } from "../../../components/RadioIndicator";
 import { TopBar } from "../../../components/TopBar";
-import { latestMashhadAds } from "../../home/homeData";
-import { getAdManagementRouteState } from "./adManagementData";
+import { adManagementPaths, getAdManagementRouteState } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
 import { Button } from "../../../components/ui/Button";
 
@@ -18,8 +17,12 @@ const closeResultReasons: { label: string; value: CloseResultReason }[] = [
 
 export function AdCloseResultPage() {
   const routeState = getAdManagementRouteState();
-  const adId = readAdIdFromCloseResultPath() ?? String(routeState.card?.id ?? routeState.ad?.id ?? latestMashhadAds[0].id);
-  const returnTo = normalizeLocalPath(routeState.returnTo) ?? `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
+  const adId = readAdIdFromCloseResultPath() ?? readEntityId(routeState.card) ?? readEntityId(routeState.ad);
+  const returnTo =
+    normalizeLocalPath(routeState.returnTo) ??
+    (adId
+      ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad`
+      : adManagementPaths.root);
   const [selectedReason, setSelectedReason] = useState<CloseResultReason | null>(null);
 
   function goBack() {
@@ -130,6 +133,16 @@ function readAdIdFromCloseResultPath() {
   const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/close-result\/?$/);
 
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
+}
+
+function readEntityId(value: unknown) {
+  if (!value || typeof value !== "object") return undefined;
+  const record = value as Record<string, unknown>;
+  const candidate = record.id ?? record._id ?? record.advertise_id ?? record.advertiseId;
+
+  if (candidate === null || candidate === undefined) return undefined;
+  const text = String(candidate).trim();
+  return text || undefined;
 }
 
 function normalizeLocalPath(path?: string) {

@@ -146,10 +146,6 @@ export async function resendOtp({ mobile }: AuthRequestPayload) {
   return response;
 }
 
-export function getAuthenticatedUser<T = unknown>() {
-  return api.get("me/auth/me").json<T>();
-}
-
 export async function logout() {
   try {
     return await api.get("me/auth/logout").json<StatusResponse>();

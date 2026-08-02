@@ -81,10 +81,6 @@ export type DashboardOverview = {
   } | null;
 };
 
-// Kept for compatibility with existing imports outside this dashboard flow.
-export type AgentDashboardPeriod = DashboardPeriod;
-export type AgentDashboard = DashboardOverview;
-
 type RawRecord = Record<string, unknown>;
 
 type AgencyDashboardApiResponse = {
@@ -157,7 +153,6 @@ function normalizeUsage(value: unknown): DashboardUsage {
 function normalizeRankingEntity(
   value: unknown,
   fallbackRank: number | null = null,
-  fallbackName = "آژانس",
 ): DashboardRankingEntity {
   const entity = asRecord(value);
   const entityId = String(
@@ -173,7 +168,7 @@ function normalizeRankingEntity(
       toText(entity.agent_name) ||
       toText(entity.name) ||
       toText(entity.title) ||
-      (entityId ? `${fallbackName} ${entityId}` : fallbackName),
+      "—",
     rank: toNullableNumber(entity.rank ?? entity.position) ?? fallbackRank,
     totalScore: toNumber(entity.total_score ?? entity.score),
   };
@@ -243,17 +238,17 @@ function normalizeAgencyDashboard(
     advertiseRegistrationProgress: [],
     balanceDeltas: normalizeBalanceDeltas(response.balance_deltas),
     balances: normalizeBalances(response.balances),
-    consultantActivity: rawConsultantActivity.map((item, index) => {
+    consultantActivity: rawConsultantActivity.map((item) => {
       const activity = asRecord(item);
 
       return {
         advertiseCount: Math.max(0, toNumber(activity.advertise_count)),
-        name: toText(activity.name) || `مشاور ${index + 1}`,
+        name: toText(activity.name) || "—",
         period: toText(activity.period) || String(requestedPeriod),
         renewCount: Math.max(0, toNumber(activity.renew_count)),
         specialCount: Math.max(0, toNumber(activity.special_count)),
         total: Math.max(0, toNumber(activity.total)),
-        userId: String(activity.user_id ?? index + 1),
+        userId: String(activity.user_id ?? ""),
       };
     }),
     kind: "agency",
@@ -286,7 +281,6 @@ function normalizeAgentDashboard(
   const currentRanking = normalizeRankingEntity(
     ranking.current,
     toNullableNumber(ranking.rank),
-    "مشاور",
   );
   const rawProgress = Array.isArray(response.advertise_registration_progress)
     ? response.advertise_registration_progress
@@ -322,23 +316,26 @@ function normalizeAgentDashboard(
     renewUsage: normalizeUsage(response.renew_usage),
     specialUsage: normalizeUsage(response.special_usage),
     walletCredit: Math.max(0, toNumber(wallet.credit)),
-    workSummary: {
-      createdAdvertises: Math.max(
-        0,
-        toNumber(workSummary.created_advertises),
-      ),
-      expired: Math.max(0, toNumber(workSummary.expired)),
-      pendingAssignments: Math.max(
-        0,
-        toNumber(workSummary.pending_assignments),
-      ),
-      pendingReview: Math.max(0, toNumber(workSummary.pending_review)),
-      publishedAdvertises: Math.max(
-        0,
-        toNumber(workSummary.published_advertises),
-      ),
-      rejected: Math.max(0, toNumber(workSummary.rejected)),
-    },
+    workSummary:
+      Object.keys(workSummary).length === 0
+        ? null
+        : {
+            createdAdvertises: Math.max(
+              0,
+              toNumber(workSummary.created_advertises),
+            ),
+            expired: Math.max(0, toNumber(workSummary.expired)),
+            pendingAssignments: Math.max(
+              0,
+              toNumber(workSummary.pending_assignments),
+            ),
+            pendingReview: Math.max(0, toNumber(workSummary.pending_review)),
+            publishedAdvertises: Math.max(
+              0,
+              toNumber(workSummary.published_advertises),
+            ),
+            rejected: Math.max(0, toNumber(workSummary.rejected)),
+          },
   };
 }
 

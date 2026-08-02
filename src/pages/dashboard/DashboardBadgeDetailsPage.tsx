@@ -2,71 +2,38 @@ import { PageFrame } from "../../app/PageFrame";
 import LinearStar from "../../components/(icons)/LinearStar";
 import { TopBar } from "../../components/TopBar";
 import { Typography } from "../../components/ui/Typography";
+import { useMyBadgesQuery } from "../../hooks/account.hooks";
+import {
+  badgeProgressNumber,
+  formatBadgeProgressNumber,
+  readBadgeLevelCount,
+  readBadgeProgressLevels,
+  type BadgeProgressLevel,
+} from "../../utils/badgeProgress";
 
 type BadgeKey = "record-holder" | "golden-team" | "popular" | "fast-team";
 
-type ProgressVariant = "complete" | "current" | "locked";
-
-type BadgeLevel = {
-  done: string;
-  total?: string;
-  progress: number;
-  title: string;
-  variant: ProgressVariant;
-};
-
-type BadgeDetail = {
+type BadgeDefinition = {
   image: string;
-  metricLabel: string;
-  metricValue: string;
   name: string;
-  levels: BadgeLevel[];
 };
 
-const badgeDetails: Record<BadgeKey, BadgeDetail> = {
+const badgeDefinitions: Record<BadgeKey, BadgeDefinition> = {
   "record-holder": {
     image: "/vectors/badges/badge-bookmark.png",
-    metricLabel: "معاملات موفق",
-    metricValue: "۱۵",
     name: "رکورددار",
-    levels: [
-      { done: "تکمیل شده", progress: 100, title: "سطح ۱", variant: "complete" },
-      { done: "۱۵", total: "۳۰", progress: 50, title: "سطح ۲", variant: "current" },
-      { done: "۳۱", total: "۶۰", progress: 1, title: "سطح ۳", variant: "locked" },
-    ],
   },
   "golden-team": {
     image: "/vectors/badges/badge-cup.png",
-    metricLabel: "امتیاز تیم",
-    metricValue: "۶۹۰",
     name: "تیم طلایی",
-    levels: [
-      { done: "تکمیل شده", progress: 100, title: "سطح ۱", variant: "complete" },
-      { done: "۶۹۰", total: "۱۰۰۰", progress: 69, title: "سطح ۲", variant: "current" },
-      { done: "۱۰۰۱", total: "۲۰۰۰", progress: 1, title: "سطح ۳", variant: "locked" },
-    ],
   },
   popular: {
     image: "/vectors/badges/badge-first.png",
-    metricLabel: "امتیاز کاربر",
-    metricValue: "۶۵۰",
     name: "محبوب‌ترین",
-    levels: [
-      { done: "تکمیل شده", progress: 100, title: "سطح ۱", variant: "complete" },
-      { done: "۶۵۰", total: "۱۵۰۰", progress: 42.5, title: "سطح ۲", variant: "current" },
-      { done: "۱۵۰۱", total: "۳۰۰۰", progress: 1, title: "سطح ۳", variant: "locked" },
-    ],
   },
   "fast-team": {
     image: "/vectors/badges/badge-chat.png",
-    metricLabel: "پاسخ سریع",
-    metricValue: "۱۰۰٪",
     name: "تیم پرسرعت",
-    levels: [
-      { done: "تکمیل شده", progress: 100, title: "سطح ۱", variant: "complete" },
-      { done: "۱۰۰", total: "۱۵۰", progress: 66, title: "سطح ۲", variant: "current" },
-      { done: "۱۵۱", total: "۳۰۰", progress: 1, title: "سطح ۳", variant: "locked" },
-    ],
   },
 };
 
@@ -87,7 +54,22 @@ export function DashboardFastTeamBadgePage() {
 }
 
 function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
-  const badge = badgeDetails[badgeKey];
+  const badgesQuery = useMyBadgesQuery();
+  const definition = badgeDefinitions[badgeKey];
+  const badge = (badgesQuery.data ?? []).find(
+    (item) => typeof item.slug === "string" && item.slug.trim().toLowerCase() === badgeKey,
+  );
+  const badgeName = typeof badge?.name === "string" && badge.name.trim() ? badge.name.trim() : definition.name;
+  const badgeImage =
+    typeof badge?.image === "string" && badge.image.trim()
+      ? badge.image
+      : typeof badge?.logo === "string" && badge.logo.trim()
+        ? badge.logo
+        : definition.image;
+  const progress = badgeProgressNumber(badge?.progress);
+  const metricValue = progress === null ? "—" : `${formatBadgeProgressNumber(Math.max(0, Math.min(100, progress)))}٪`;
+  const levels = readBadgeProgressLevels(badge);
+  const starCount = readBadgeLevelCount(badge);
 
   return (
     <PageFrame
@@ -103,16 +85,16 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-6 pt-8">
         <div className="mx-auto flex w-[152px] flex-col items-center">
-          <img alt="" className="h-[120px] w-[120px] object-contain" src={badge.image} />
+          <img alt="" className="h-[120px] w-[120px] object-contain" src={badgeImage} />
 
           <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 font-semibold text-[#0048c4]">
-            {badge.name}
+            {badgeName}
           </Typography>
 
           <div className="mt-2 flex h-6 items-center justify-center [direction:ltr]">
             {[0, 1, 2].map((star) => (
               <LinearStar
-                className={`h-6 w-6 ${star === 0 ? "text-[#ffb100]" : "text-[#d8d8d8]"}`}
+                className={`h-6 w-6 ${star < starCount ? "text-[#ffb100]" : "text-[#d8d8d8]"}`}
                 innerColor="currentColor"
                 key={star}
               />
@@ -121,17 +103,25 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
         </div>
 
         <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1A1A1A] text-sm">{badge.metricLabel}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1A1A1A] text-sm">پیشرفت نشان</Typography>
           <strong className="text-2xl font-medium text-[#1a1a1a]">
-            {badge.metricValue}
+            {metricValue}
           </strong>
         </Typography>
 
-        <div className="mt-4 space-y-4">
-          {badge.levels.map((level) => (
-            <BadgeLevelCard key={level.title} {...level} />
-          ))}
-        </div>
+        {badgesQuery.isLoading ? (
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">در حال دریافت جزئیات نشان...</Typography>
+        ) : levels.length > 0 ? (
+          <div className="mt-4 space-y-4">
+            {levels.map((level) => (
+              <BadgeLevelCard key={level.title} {...level} />
+            ))}
+          </div>
+        ) : (
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-6 rounded-2xl border border-[#f0f0f0] px-4 py-6 text-center text-[#808080]">
+            جزئیات پیشرفت این نشان از سرور دریافت نشده است.
+          </Typography>
+        )}
       </main>
     </PageFrame>
   );
@@ -143,7 +133,7 @@ function BadgeLevelCard({
   progress,
   title,
   variant,
-}: BadgeLevel) {
+}: BadgeProgressLevel) {
   const progressClassName =
     variant === "complete"
       ? "bg-[#11a366]"

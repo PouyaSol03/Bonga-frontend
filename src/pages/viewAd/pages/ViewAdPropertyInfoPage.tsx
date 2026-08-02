@@ -6,7 +6,6 @@ import {
   getDetailPageTitle,
   parseViewAdIdFromPath,
 } from "../viewAdDetails";
-import { mockAdIds, singleAdMockData } from "../viewAdMockData";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
 
 export function ViewAdPropertyInfoPage() {
@@ -18,10 +17,9 @@ export function ViewAdPropertyInfoPage() {
 
   if (adId == null) return <NotFoundState />;
 
-  const isMockAdRequest = mockAdIds.has(adId);
-  if (isLoading && !isMockAdRequest) return <LoadingState />;
+  if (isLoading) return <LoadingState />;
 
-  if (isError && !isMockAdRequest) {
+  if (isError) {
     return (
       <ViewAdErrorState
         error={error}
@@ -31,7 +29,7 @@ export function ViewAdPropertyInfoPage() {
     );
   }
 
-  const resolvedAd = isMockAdRequest ? singleAdMockData : ad;
+  const resolvedAd = ad;
   if (!resolvedAd) return <NotFoundState />;
 
   const features = Array.isArray(resolvedAd.features) ? resolvedAd.features : [];

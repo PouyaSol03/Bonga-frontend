@@ -11,6 +11,8 @@ import { SwitchButton } from "../../../components/SwitchButton";
 import { TopBar } from "../../../components/TopBar";
 import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { useNeighborhoodListQuery } from "../../../hooks/neighborhood.hooks";
+import { useAgencyConsultantsQuery } from "../../../hooks/agency.hooks";
+import { useMyAgencyProfileQuery } from "../../../hooks/account.hooks";
 import { readStoredSelectedCity } from "../../../lib/selectedCityStorage";
 import { RouteLink } from "../../../routes/RouteLink";
 import type { NeighborhoodDto } from "../../../services/neighborhood.service";
@@ -19,7 +21,6 @@ import {
   adManagementPaths,
   adManagementPropertyGroupsByTransaction,
   adManagementPropertyTypeLabels,
-  adManagementPublisherOptions,
   adManagementTransactionOptions,
   getAdManagementRouteState,
   type AdManagementFilters,
@@ -578,6 +579,13 @@ function NeighborhoodPickerRow({
 }
 
 
+type PublisherFilterOption = {
+  id: string;
+  image?: string;
+  name: string;
+  type: "agency" | "consultant";
+};
+
 function PublisherSelectField({
   onChange,
   value,
@@ -588,18 +596,50 @@ function PublisherSelectField({
   const [isOpen, setIsOpen] = useState(false);
   const [draftValue, setDraftValue] = useState<string | undefined>(value);
   const [query, setQuery] = useState("");
-  const selectedPublisher = adManagementPublisherOptions.find(
+  const agencyQuery = useMyAgencyProfileQuery({ enabled: isOpen });
+  const consultantsQuery = useAgencyConsultantsQuery({
+    enabled: isOpen,
+    page: 1,
+    perPage: 100,
+  });
+  const publisherOptions = useMemo<PublisherFilterOption[]>(() => {
+    const options: PublisherFilterOption[] = [];
+    const agencyName = agencyQuery.data?.name?.trim();
+
+    if (agencyName) {
+      options.push({
+        id: String(agencyQuery.data?.id ?? agencyQuery.data?._id ?? "agency"),
+        image: agencyQuery.data?.logo ?? agencyQuery.data?.img ?? undefined,
+        name: agencyName,
+        type: "agency",
+      });
+    }
+
+    (consultantsQuery.data?.data ?? []).forEach((consultant) => {
+      if (!consultant.name?.trim()) return;
+
+      options.push({
+        id: String(consultant.userId),
+        image: consultant.avatar,
+        name: consultant.name.trim(),
+        type: "consultant",
+      });
+    });
+
+    return options;
+  }, [agencyQuery.data, consultantsQuery.data]);
+  const selectedPublisher = publisherOptions.find(
     (publisherOption) => publisherOption.name === value,
   );
   const normalizedQuery = query.trim().toLowerCase();
   const filteredPublishers = useMemo(
     () =>
       normalizedQuery
-        ? adManagementPublisherOptions.filter((publisherOption) =>
+        ? publisherOptions.filter((publisherOption) =>
             publisherOption.name.toLowerCase().includes(normalizedQuery),
           )
-        : adManagementPublisherOptions,
-    [normalizedQuery],
+        : publisherOptions,
+    [normalizedQuery, publisherOptions],
   );
 
   const openPicker = () => {
@@ -715,11 +755,15 @@ function PublisherSelectField({
                           isSelected ? "border-[#0048c4]" : "border-[#cccccc]"
                         }`}
                       >
-                        <img
-                          alt=""
-                          className="h-full w-full object-cover"
-                          src={publisherOption.image}
-                        />
+                        {publisherOption.image ? (
+                          <img
+                            alt=""
+                            className="h-full w-full object-cover"
+                            src={publisherOption.image}
+                          />
+                        ) : (
+                          <LinearRealestate className="h-7 w-7 text-[#808080]" />
+                        )}
                       </Typography>
                       <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 truncate text-base font-normal leading-6">
                         {publisherOption.name}
@@ -728,6 +772,10 @@ function PublisherSelectField({
                   );
                 })}
               </div>
+            ) : agencyQuery.isLoading || consultantsQuery.isLoading ? (
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-8 text-center text-[#808080]">
+                در حال دریافت نشر دهنده‌ها...
+              </Typography>
             ) : (
               <SearchEmptyState compact />
             )}

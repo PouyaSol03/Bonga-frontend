@@ -15,7 +15,7 @@ import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../routes/RouteLink";
 import { SelectionCheckIndicator } from "../../components/SelectionCheckIndicator";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
-import { getCrmRecordId, type CrmConsultantPayload, type CrmConsultantStatus, type CrmRecord } from "../../services/crm.service";
+import { getCrmRecordId, type CrmConsultantStatus, type CrmRecord } from "../../services/crm.service";
 import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../auth/auth-storage";
 import {
   CRM_ADVERTISE_MANAGER,
@@ -693,26 +693,6 @@ export function consultantStatusTone(status: CrmConsultantStatus) {
 export function consultantApiIdentifier(value: string) {
   const normalized = value.trim();
   return /^\d+$/.test(normalized) ? Number(normalized) : normalized;
-}
-
-export function buildCrmConsultantPayload(
-  consultant: CrmRecord,
-  overrides: Partial<CrmConsultantPayload> = {},
-): CrmConsultantPayload {
-  const agencyId = consultantAgencyId(consultant);
-  const type = readText(consultant, ["type"], "") === "dependent" || agencyId
-    ? "dependent"
-    : "independent";
-
-  return {
-    name: readText(consultant, ["name"], ""),
-    family: readText(consultant, ["family"], ""),
-    mobile: readText(consultant, ["mobile", "phone"], ""),
-    status: consultantStatusValue(consultant),
-    type,
-    agency_id: type === "dependent" && agencyId ? consultantApiIdentifier(agencyId) : null,
-    ...overrides,
-  };
 }
 
 export function AgencyAgentsModal({

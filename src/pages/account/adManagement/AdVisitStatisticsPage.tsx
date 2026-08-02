@@ -57,90 +57,11 @@ type AdSummary = {
   title: string;
 };
 
-const userChartColumns: ChartColumn[] = [
-  { date: "۱۰/۲۰", height: 12, tooltip: "۳۲۰" },
-  { date: "۱۰/۲۱", height: 43, tooltip: "۸۱۵" },
-  { date: "۱۰/۲۲", height: 18, tooltip: "۴۲۶" },
-  { date: "۱۰/۲۳", height: 82, tooltip: "۱٬۹۴۰" },
-  { date: "۱۰/۲۴", height: 58, tooltip: "۱٬۱۶۴" },
-  { date: "۱۰/۲۵", height: 35, selected: true, tooltip: "۱۲۸۵" },
-  { date: "امروز", height: 68, tooltip: "۱٬۴۹۶" },
-];
-
-const managerChartColumns: ChartColumn[] = [
-  { date: "۱۰/۲۰", height: 76, tooltip: "۱٬۸۵۰" },
-  { date: "۱۰/۲۱", height: 42, tooltip: "۹۶۰" },
-  { date: "۱۰/۲۲", height: 86, tooltip: "۲٬۴۱۰" },
-  { date: "۱۰/۲۳", height: 25, tooltip: "۵۹۰" },
-  { date: "۱۰/۲۴", height: 4, tooltip: "۸۶" },
-  { date: "۱۰/۲۵", height: 70, selected: true, tooltip: "۱۲۸۵" },
-  { date: "امروز", height: 92, tooltip: "۲٬۸۷۰" },
-];
-
-const chartDefaults: Record<ChartMetric, { total: string; yAxisLabels: string[] }> = {
-  calls: {
-    total: "۱۶",
-    yAxisLabels: ["۱۸", "۱۵", "۱۲", "۹", "۶", "۳", "۰"],
-  },
-  chats: {
-    total: "۳۰",
-    yAxisLabels: ["۱۵", "۱۲", "۹", "۶", "۳", "۰"],
-  },
-  searchDisplays: {
-    total: "۲۵۴۷",
-    yAxisLabels: ["۶۰۰", "۵۰۰", "۴۰۰", "۳۰۰", "۲۰۰", "۱۰۰", "۰"],
-  },
-  views: {
-    total: "۲۰٬۳۷۶",
-    yAxisLabels: ["۵k", "۴k", "۳k", "۲k", "۱k", "۰"],
-  },
-};
-
-const managerChartSections: Omit<ChartConfig, "total">[] = [
-  {
-    columns: managerChartColumns,
-    label: "بازدید کل:",
-    metric: "views",
-    selectedTooltip: "۱۲۸۵",
-    title: "بازدید از آگهی",
-    yAxisLabels: chartDefaults.views.yAxisLabels,
-  },
-  {
-    columns: managerChartColumns.map((column, index) => ({
-      ...column,
-      height: [74, 44, 80, 28, 5, 68, 88][index] ?? column.height,
-      tooltip: ["۴۲۰", "۲۴۰", "۴۹۰", "۱۶۸", "۲۰", "۳۹۰", "۵۱۰"][index] ?? column.tooltip,
-    })),
-    label: "بازدید کل:",
-    metric: "searchDisplays",
-    selectedTooltip: "۳۹۰",
-    title: "نمایش در صفحه جستجو",
-    yAxisLabels: chartDefaults.searchDisplays.yAxisLabels,
-  },
-  {
-    columns: managerChartColumns.map((column, index) => ({
-      ...column,
-      height: [72, 38, 78, 24, 3, 66, 86][index] ?? column.height,
-      tooltip: ["۱۰", "۶", "۱۲", "۴", "۰", "۸", "۱۳"][index] ?? column.tooltip,
-    })),
-    label: "بازدید کل:",
-    metric: "chats",
-    selectedTooltip: "۸",
-    title: "گفتگوها (چت‌ها)",
-    yAxisLabels: chartDefaults.chats.yAxisLabels,
-  },
-  {
-    columns: managerChartColumns.map((column, index) => ({
-      ...column,
-      height: [70, 42, 76, 24, 3, 64, 84][index] ?? column.height,
-      tooltip: ["۱۲", "۷", "۱۳", "۴", "۰", "۱۰", "۱۴"][index] ?? column.tooltip,
-    })),
-    label: "بازدید کل:",
-    metric: "calls",
-    selectedTooltip: "۱۰",
-    title: "اقدام به تماس",
-    yAxisLabels: chartDefaults.calls.yAxisLabels,
-  },
+const managerChartSections: Array<Pick<ChartConfig, "label" | "metric" | "title">> = [
+  { label: "بازدید کل:", metric: "views", title: "بازدید از آگهی" },
+  { label: "بازدید کل:", metric: "searchDisplays", title: "نمایش در صفحه جستجو" },
+  { label: "بازدید کل:", metric: "chats", title: "گفتگوها (چت‌ها)" },
+  { label: "بازدید کل:", metric: "calls", title: "اقدام به تماس" },
 ];
 
 export function AdVisitStatisticsPage() {
@@ -360,7 +281,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
       aria-label={chart.title}
     >
       <div className="flex h-12 items-center justify-between [direction:ltr]">
-        <ChartRangeControls offset={offset} setOffset={setOffset} />
+        {chart.columns.length > 0 ? <ChartRangeControls offset={offset} setOffset={setOffset} /> : <div className="h-12 w-24" aria-hidden="true" />}
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
           <ChartTitleIcon className="h-6 w-6 text-[#4d4d4d]" metric={chart.metric} />
           {chart.title}
@@ -379,76 +300,42 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{chart.label}</Typography>
           <strong className="text-base font-semibold leading-6 text-[#002099]">
-            {offset === 0 ? chart.total : reduceDisplayedTotal(chart.total, offset)}
+            {chart.total}
           </strong>
         </div>
 
         <div className={`${isUserMode ? "mt-3 h-[190px]" : "mt-2 h-[155px]"} [direction:ltr]`}>
-          <ResponsiveContainer height="100%" width="100%">
-            <BarChart
-              barCategoryGap={isUserMode ? 26 : 20}
-              data={chartData}
-              margin={{ bottom: 0, left: 0, right: 0, top: 38 }}
-            >
-              <CartesianGrid
-                stroke="#e6e6e6"
-                strokeDasharray="4 4"
-                vertical={false}
-              />
-              <XAxis
-                axisLine={{ stroke: "#cccccc" }}
-                dataKey="date"
-                height={24}
-                interval={0}
-                tick={{ fill: "#4d4d4d", fontSize: 12 }}
-                tickLine={false}
-              />
-              <YAxis
-                axisLine={false}
-                domain={[0, 100]}
-                tick={{ fill: "#808080", fontSize: 12 }}
-                tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)}
-                tickLine={false}
-                ticks={createYAxisTicks(chart.yAxisLabels)}
-                width={34}
-              />
-              <Bar
-                dataKey="value"
-                fill="#12a36a"
-                isAnimationActive={false}
-                maxBarSize={6}
-                minPointSize={2}
-                onClick={(_, index) => setSelectedIndex(index)}
-                radius={[999, 999, 0, 0]}
+          {chartData.length === 0 ? (
+            <div className="flex h-full items-center justify-center border-b border-[#cccccc] px-6 text-center [direction:rtl]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+                داده نموداری از سرور دریافت نشده است.
+              </Typography>
+            </div>
+          ) : (
+            <ResponsiveContainer height="100%" width="100%">
+              <BarChart
+                barCategoryGap={isUserMode ? 26 : 20}
+                data={chartData}
+                margin={{ bottom: 0, left: 0, right: 0, top: 38 }}
               >
-                {chartData.map((column, index) => (
-                  <Cell
-                    cursor="pointer"
-                    fill={index === selectedIndex ? "#0f9464" : "#12a36a"}
-                    key={column.date}
-                    onClick={() => setSelectedIndex(index)}
+                <CartesianGrid stroke="#e6e6e6" strokeDasharray="4 4" vertical={false} />
+                <XAxis axisLine={{ stroke: "#cccccc" }} dataKey="date" height={24} interval={0} tick={{ fill: "#4d4d4d", fontSize: 12 }} tickLine={false} />
+                <YAxis axisLine={false} domain={[0, 100]} tick={{ fill: "#808080", fontSize: 12 }} tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)} tickLine={false} ticks={createYAxisTicks(chart.yAxisLabels)} width={34} />
+                <Bar dataKey="value" fill="#12a36a" isAnimationActive={false} maxBarSize={6} minPointSize={2} onClick={(_, index) => setSelectedIndex(index)} radius={[999, 999, 0, 0]}>
+                  {chartData.map((column, index) => (
+                    <Cell cursor="pointer" fill={index === selectedIndex ? "#0f9464" : "#12a36a"} key={column.date} onClick={() => setSelectedIndex(index)} />
+                  ))}
+                  <LabelList
+                    content={(props) => {
+                      const labelProps = props as Record<string, unknown>;
+                      return <SelectedVisitBarLabel index={typeof labelProps.index === "number" ? labelProps.index : -1} selectedIndex={selectedIndex} tooltipText={tooltipText} width={toChartNumber(labelProps.width)} x={toChartNumber(labelProps.x)} y={toChartNumber(labelProps.y)} />;
+                    }}
+                    dataKey="value"
                   />
-                ))}
-                <LabelList
-                  content={(props) => {
-                    const labelProps = props as Record<string, unknown>;
-
-                    return (
-                      <SelectedVisitBarLabel
-                        index={typeof labelProps.index === "number" ? labelProps.index : -1}
-                        selectedIndex={selectedIndex}
-                        tooltipText={tooltipText}
-                        width={toChartNumber(labelProps.width)}
-                        x={toChartNumber(labelProps.x)}
-                        y={toChartNumber(labelProps.y)}
-                      />
-                    );
-                  }}
-                  dataKey="value"
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -594,20 +481,23 @@ function toChartNumber(value: unknown) {
 
 function createUserChartConfig(ad: unknown): ChartConfig {
   return {
-    columns: userChartColumns,
+    columns: [],
     label: "بازدید کل:",
     metric: "views",
-    selectedTooltip: "۱۲۸۵",
+    selectedTooltip: "",
     title: "آمار بازدید",
-    total: readStatistic(ad, ["total_views", "views_count", "views", "visit_count", "view_count"], "۳۵۸۴"),
-    yAxisLabels: ["۱۰۰", "۸۰", "۶۰", "۴۰", "۲۰", "۰"],
+    total: readStatistic(ad, ["total_views", "views_count", "views", "visit_count", "view_count"]),
+    yAxisLabels: [],
   };
 }
 
 function createManagerChartConfigs(ad: unknown): ChartConfig[] {
   return managerChartSections.map((section) => ({
     ...section,
-    total: readStatistic(ad, statisticKeysByMetric[section.metric], chartDefaults[section.metric].total),
+    columns: [],
+    selectedTooltip: "",
+    total: readStatistic(ad, statisticKeysByMetric[section.metric]),
+    yAxisLabels: [],
   }));
 }
 
@@ -623,7 +513,7 @@ function createAdSummary(ad: unknown, card: ReturnType<typeof getSelectedConsult
   const title = readText(record.title ?? record.ad_title ?? card.title, card.title);
   const category = readText(
     record.category_title ?? record.categoryTitle ?? record.category_name ?? record.categoryName,
-    "فروش مسکونی / فروش آپارتمان",
+    "—",
   );
   const timeAndLocation = readText(record.timeAndLocation ?? record.time_and_location, card.timeAndLocation);
 
@@ -636,8 +526,8 @@ function createAdSummary(ad: unknown, card: ReturnType<typeof getSelectedConsult
   };
 }
 
-function readStatistic(ad: unknown, keys: string[], fallback: string) {
-  if (!isRecord(ad)) return fallback;
+function readStatistic(ad: unknown, keys: string[]) {
+  if (!isRecord(ad)) return "—";
 
   const statisticsContainers = [ad, ad.statistics, ad.stats, ad.report, ad.analytics].filter(isRecord);
 
@@ -650,15 +540,7 @@ function readStatistic(ad: unknown, keys: string[], fallback: string) {
     }
   }
 
-  return fallback;
-}
-
-function reduceDisplayedTotal(total: string, offset: number) {
-  const numericValue = Number(total.replace(/[۰-۹]/g, (char) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(char))).replace(/[^\d]/g, ""));
-
-  if (!Number.isFinite(numericValue) || numericValue <= 0) return total;
-
-  return formatFaNumber(Math.max(1, Math.round(numericValue * (1 - offset * 0.12))));
+  return "—";
 }
 
 function formatFaNumber(value: number) {

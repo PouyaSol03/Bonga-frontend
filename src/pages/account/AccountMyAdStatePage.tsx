@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../auth/auth-storage";
 import { useAdvertisementPreviewQuery } from "../../hooks/advertisement.hooks";
+import { useAgencyConsultantsQuery } from "../../hooks/agency.hooks";
+import { useMyAgencyProfileQuery } from "../../hooks/account.hooks";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../constants/roles.constants";
 import "../../components/AdCard.css";
@@ -13,10 +15,8 @@ import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { SearchInputBar } from "../../components/ui/SearchBar";
 import type { AdCardData } from "../../components/AdCard";
 import { RouteLink } from "../../routes/RouteLink";
-import { latestMashhadAds } from "../home/homeData";
 import {
   adManagementPaths,
-  adManagementPublisherOptions,
   getAdCloseResultPath,
   getAdEditPath,
   getAdIncreaseVisitsPath,
@@ -31,6 +31,8 @@ import LinearDelete from "../../components/(icons)/LinearDelete";
 import LinearEdit2 from "../../components/(icons)/LinearEdit2";
 import LinearPreview from "../../components/(icons)/LinearPreview";
 import LinearAnalytics from "../../components/(icons)/LinearAnalytics";
+import LinearBuilding2 from "../../components/(icons)/LinearBuilding2";
+import LinearUserSolid from "../../components/(icons)/LinearUserSolid";
 import { Typography } from "../../components/ui/Typography";
 import { Button } from "../../components/ui/Button";
 
@@ -52,22 +54,17 @@ type StateAction = {
   to?: string;
 };
 
-const fallbackCard = latestMashhadAds[0];
-
 export function AccountMyAdStatePage() {
   const routeState = readRouteState();
-  const adId = readAdIdFromPath() ?? String(routeState.card?.id ?? fallbackCard.id);
-  const fallbackIndex = Math.max(Number(adId.replace(/\D/g, "")) - 1, 0) || 0;
-  const detailQuery = useAdvertisementPreviewQuery(adId);
+  const adId = readAdIdFromPath() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
+  const detailQuery = useAdvertisementPreviewQuery(adId ?? null);
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
   const sourceAd = detailQuery.data ?? routeState.ad;
   const card = detailQuery.data
-    ? mapAdvertisementToAdCard(detailQuery.data, fallbackIndex)
-    : routeState.card ?? fallbackCard;
+    ? mapAdvertisementToAdCard(detailQuery.data, 0)
+    : routeState.card ?? createUnavailableAdCard(adId, sourceAd);
   const statusInfo = getMyAdStatusInfo(
     detailQuery.data ?? statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
-    fallbackIndex,
-    { useDemoFallback: !detailQuery.data },
   );
   const cameFromAdManagement = Boolean(routeState.tab || routeState.returnTo);
   const backTo = getStateAdBackPath(routeState);
@@ -78,15 +75,16 @@ export function AccountMyAdStatePage() {
     return (
       <RealEstateManagerAdStatePage
         ad={sourceAd}
-        adId={adId}
+        adId={adId ?? String(card.id)}
         backState={backState}
         backTo={backTo}
         card={card}
+        statusInfo={statusInfo}
       />
     );
   }
 
-  const actions = getStateActions(statusInfo.key, adId);
+  const actions = getStateActions(statusInfo.key, adId ?? String(card.id));
 
   return (
     <PageFrame
@@ -110,7 +108,7 @@ export function AccountMyAdStatePage() {
 
           <StateAdSummary ad={sourceAd} card={card} />
 
-          {statusInfo.key === "published" ? <PublishedMeta /> : null}
+          {statusInfo.key === "published" ? <PublishedMeta ad={sourceAd} /> : null}
           {statusInfo.key === "pending" ? <PendingReviewNotice /> : null}
           {statusInfo.key === "needs_edit" ? (
             <NeedsEditNotice ad={sourceAd} card={card} returnTo={backTo} />
@@ -140,17 +138,10 @@ export function AccountMyAdStatePage() {
 
 type ManagerPublisher = {
   id: string;
-  image: string;
+  image?: string;
   name: string;
   type: "agency" | "consultant";
 };
-
-const managerPublisherOptions: ManagerPublisher[] = adManagementPublisherOptions.map((publisher, index) => ({
-  id: publisher.id,
-  image: publisher.image,
-  name: publisher.name,
-  type: index === 0 ? "agency" : "consultant",
-}));
 
 function RealEstateManagerAdStatePage({
   ad,
@@ -158,14 +149,45 @@ function RealEstateManagerAdStatePage({
   backState,
   backTo,
   card,
+  statusInfo,
 }: {
   ad?: Record<string, unknown>;
   adId: string;
   backState?: unknown;
   backTo: string;
   card: AdCardData;
+  statusInfo: ReturnType<typeof getMyAdStatusInfo>;
 }) {
-  const [publisher, setPublisher] = useState<ManagerPublisher>(managerPublisherOptions[0]);
+  const agencyQuery = useMyAgencyProfileQuery();
+  const consultantsQuery = useAgencyConsultantsQuery({ page: 1, perPage: 100 });
+  const publisherOptions = useMemo<ManagerPublisher[]>(() => {
+    const options: ManagerPublisher[] = [];
+    const agency = agencyQuery.data;
+    const agencyId = readEntityId(agency);
+    const agencyName = readText(agency?.name);
+
+    if (agencyId && agencyName) {
+      options.push({
+        id: `agency:${agencyId}`,
+        image: readText(agency?.logo ?? agency?.img) || undefined,
+        name: agencyName,
+        type: "agency",
+      });
+    }
+
+    for (const consultant of consultantsQuery.data?.data ?? []) {
+      options.push({
+        id: `consultant:${consultant.userId}`,
+        image: consultant.avatar,
+        name: consultant.name || `مشاور شماره ${consultant.userId}`,
+        type: "consultant",
+      });
+    }
+
+    return options;
+  }, [agencyQuery.data, consultantsQuery.data]);
+  const [publisherId, setPublisherId] = useState("");
+  const publisher = publisherOptions.find((option) => option.id === publisherId) ?? publisherOptions[0];
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
 
   return (
@@ -183,18 +205,14 @@ function RealEstateManagerAdStatePage({
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
         <section className="bg-white px-4 pb-4 pt-4" aria-label={card.title}>
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#11a36614] px-3 text-sm font-medium leading-5 text-[#11a366]">
-              منتشر شده
+            <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
+              {statusInfo.label}
             </Typography>
           </div>
 
           <ManagerAdSummary ad={ad} card={card} />
 
-          <div className="mt-4 text-sm font-medium leading-5">
-            <MetaRow label="انتشار" value="۳ روز پیش" />
-            <div className="border-t border-dashed border-[#cccccc]" aria-hidden="true" />
-            <MetaRow label="انقضا" value="۱۲بهمن (۱۲روز دیگر)" />
-          </div>
+          <PublishedMeta ad={ad} />
         </section>
 
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
@@ -203,16 +221,11 @@ function RealEstateManagerAdStatePage({
           <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium text-[#1a1a1a]">مسئول انتشار آگهی</Typography>
           <div className="mt-3">
             <div className="flex items-center bg-[#fafafa] rounded-xl p-3 justify-end gap-3 [direction:rtl]">
-              <img
-                alt=""
-                className={`h-12 w-12 shrink-0  object-cover rounded-full`}
-                draggable={false}
-                src={publisher.image}
-              />
+              {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#f0f0f0] text-[#808080]"><LinearUserSolid className="h-6 w-6" /></div>}
               <div className="flex-1 flex flex-col justify-center text-right">
-                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 font-medium text-[#4D4D4D]">{publisher.name}</Typography>
+                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 font-medium text-[#4D4D4D]">{publisher?.name ?? "منتشرکننده مشخص نیست"}</Typography>
                 <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-4 text-[#808080]">
-                  {publisher.type === "agency" ? "آژانس" : "مشاور"}
+                  {publisher ? (publisher.type === "agency" ? "آژانس" : "مشاور") : "—"}
                 </Typography>
               </div>
             </div>
@@ -247,9 +260,10 @@ function RealEstateManagerAdStatePage({
         <ManagerPublisherPickerPage
           onClose={() => setIsPublisherPickerOpen(false)}
           onConfirm={(nextPublisher) => {
-            setPublisher(nextPublisher);
+            setPublisherId(nextPublisher.id);
             setIsPublisherPickerOpen(false);
           }}
+          options={publisherOptions}
           selectedPublisher={publisher}
         />
       ) : null}
@@ -264,8 +278,7 @@ function ManagerAdSummary({
   ad?: Record<string, unknown>;
   card: AdCardData;
 }) {
-  const subtitle = readText(ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) ||
-    "فروش مسکونی / فروش آپارتمان";
+  const subtitle = readText(ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
     <div className="mt-4 flex h-[68px] items-center rounded-2xl bg-[#fafafa] px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
@@ -285,19 +298,21 @@ function ManagerAdSummary({
 function ManagerPublisherPickerPage({
   onClose,
   onConfirm,
+  options,
   selectedPublisher,
 }: {
   onClose: () => void;
   onConfirm: (publisher: ManagerPublisher) => void;
-  selectedPublisher: ManagerPublisher;
+  options: ManagerPublisher[];
+  selectedPublisher?: ManagerPublisher;
 }) {
   const [searchValue, setSearchValue] = useState("");
-  const [draftPublisherId, setDraftPublisherId] = useState(selectedPublisher.id);
+  const [draftPublisherId, setDraftPublisherId] = useState(selectedPublisher?.id ?? "");
   const normalizedSearch = searchValue.trim();
   const visiblePublishers = normalizedSearch
-    ? managerPublisherOptions.filter((publisher) => publisher.name.includes(normalizedSearch))
-    : managerPublisherOptions;
-  const draftPublisher = managerPublisherOptions.find((publisher) => publisher.id === draftPublisherId) ?? selectedPublisher;
+    ? options.filter((publisher) => publisher.name.includes(normalizedSearch))
+    : options;
+  const draftPublisher = options.find((publisher) => publisher.id === draftPublisherId) ?? selectedPublisher;
 
   return (
     <section
@@ -344,12 +359,7 @@ function ManagerPublisherPickerPage({
               >
                 <RadioIndicator checked={selected} />
                 <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]">
-                  <img
-                    alt=""
-                    className={`h-14 w-14 shrink-0 object-cover ${publisher.type === "agency" ? "rounded-lg" : "rounded-full"}`}
-                    draggable={false}
-                    src={publisher.image}
-                  />
+                  <PublisherAvatar publisher={publisher} size="large" />
                   <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a]">{publisher.name}</Typography>
                 </Typography>
               </Button>
@@ -361,7 +371,8 @@ function ManagerPublisherPickerPage({
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <Button unstyled
           className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white active:bg-[#003aa0]"
-          onClick={() => onConfirm(draftPublisher)}
+          disabled={!draftPublisher}
+          onClick={() => { if (draftPublisher) onConfirm(draftPublisher); }}
           type="button"
         >
           انتخاب
@@ -419,8 +430,7 @@ function StateAdSummary({
   ad?: Record<string, unknown>;
   card: AdCardData;
 }) {
-  const subtitle = readText(ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) ||
-    "فروش مسکونی / فروش آپارتمان";
+  const subtitle = readText(ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
     <div className="mt-4 flex h-[80px] items-center rounded-2xl border border-[#e6e6e6] bg-[#fafafa] px-3 [direction:ltr]">
@@ -442,12 +452,15 @@ function StateAdSummary({
   );
 }
 
-function PublishedMeta() {
+function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
+  const published = readDateLike(ad?.published_time_ago ?? ad?.published_at ?? ad?.created_at);
+  const expires = readDateLike(ad?.expires_time_ago ?? ad?.expires_at ?? ad?.expiration_date ?? ad?.expired_at);
+
   return (
     <div className="mt-4 text-sm font-medium leading-5">
-      <MetaRow label="انتشار" value="۳ روز پیش" />
+      <MetaRow label="انتشار" value={published} />
       <div className="border-t border-dashed border-[#cccccc]" aria-hidden="true" />
-      <MetaRow label="انقضا" value="۱۲بهمن (۱۲روز دیگر)" />
+      <MetaRow label="انقضا" value={expires} />
     </div>
   );
 }
@@ -472,7 +485,7 @@ function PendingReviewNotice() {
 
       <div className="mt-3 border-t border-dashed border-[#cccccc] pt-3">
         <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">بین ۱ تا ۲ ساعت</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">—</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-[#4d4d4d] [direction:rtl]">
             <ClockIcon className="h-5 w-5" />
             زمان تقریبی بررسی:
@@ -505,8 +518,7 @@ function NeedsEditNotice({
         </div>
 
         <ul className="m-0 mt-2 list-disc space-y-2 pr-5 text-xs font-normal leading-6 text-[#1a1a1a] marker:text-[#808080]">
-          <li>تصویر آگهی شامل شماره تلفن یا آدرس سایت است.</li>
-          <li>این موارد مطابق قوانین انتشار مجاز نیستند.</li>
+          {readModerationReasons(ad).map((reason) => <li key={reason}>{reason}</li>)}
         </ul>
       </div>
 
@@ -679,6 +691,75 @@ function AlertIcon({ className = "" }: { className?: string }) {
       <path d="M12 9v4M12 17h.01" />
     </svg>
   );
+}
+
+function PublisherAvatar({ publisher, size }: { publisher: ManagerPublisher; size: "large" | "small" }) {
+  const sizeClass = size === "large" ? "h-14 w-14" : "h-12 w-12";
+  const radiusClass = publisher.type === "agency" ? "rounded-lg" : "rounded-full";
+
+  if (publisher.image) {
+    return <img alt="" className={`${sizeClass} shrink-0 object-cover ${radiusClass}`} draggable={false} src={publisher.image} />;
+  }
+
+  return (
+    <div className={`grid ${sizeClass} shrink-0 place-items-center bg-[#f0f0f0] text-[#808080] ${radiusClass}`}>
+      {publisher.type === "agency" ? <LinearBuilding2 className="h-6 w-6" /> : <LinearUserSolid className="h-6 w-6" />}
+    </div>
+  );
+}
+
+function createUnavailableAdCard(adId: string | undefined, ad?: Record<string, unknown>): AdCardData {
+  return {
+    id: adId ?? readEntityId(ad) ?? "",
+    title: readText(ad?.title ?? ad?.ad_title) || "آگهی",
+    agency: readText(ad?.agency),
+    status: readText(ad?.status),
+    imageCount: "0",
+    priceLabelPrimary: "",
+    pricePrimary: "—",
+    priceLabelSecondary: "",
+    priceSecondary: "",
+    area: "—",
+    rooms: "—",
+    year: "—",
+    timeAndLocation: readText(ad?.timeAndLocation ?? ad?.time_and_location),
+    imageClassName: "",
+    badges: [],
+  };
+}
+
+function readEntityId(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const record = value as Record<string, unknown>;
+  const id = record.id ?? record._id ?? record.advertise_id ?? record.advertiseId;
+  if (typeof id === "string" && id.trim()) return id;
+  if (typeof id === "number" && Number.isFinite(id)) return String(id);
+  return undefined;
+}
+
+function readDateLike(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "—";
+  const raw = value.trim();
+  const timestamp = Date.parse(raw);
+  if (!Number.isFinite(timestamp)) return raw;
+  return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long", day: "numeric" }).format(new Date(timestamp));
+}
+
+function readModerationReasons(ad?: Record<string, unknown>) {
+  if (!ad) return ["جزئیات اصلاح از سرور دریافت نشده است."];
+  const values = [
+    ad.rejection_reasons,
+    ad.rejection_reason,
+    ad.reject_reason,
+    ad.edit_reason,
+    ad.status_reason,
+    ad.moderation_note,
+  ];
+  const reasons = values
+    .flatMap((value) => Array.isArray(value) ? value : [value])
+    .map((value) => readText(value))
+    .filter(Boolean);
+  return reasons.length > 0 ? Array.from(new Set(reasons)) : ["جزئیات اصلاح از سرور دریافت نشده است."];
 }
 
 function readText(value: unknown) {

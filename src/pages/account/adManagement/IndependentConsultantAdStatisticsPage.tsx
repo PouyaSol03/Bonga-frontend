@@ -1,13 +1,19 @@
 import "../../../components/AdCard.css";
 
 import { PageFrame } from "../../../app/PageFrame";
+import { SearchEmptyState } from "../../../components/SearchEmptyState";
 import { TopBar } from "../../../components/TopBar";
-import { RouteLink } from "../../../routes/RouteLink";
-import { ChevronLeftIcon, StatisticsIcon } from "./AdManagementIcons";
-import { adManagementPaths, statisticsAds, type StatisticsAd } from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
+import { useMyAdsInfiniteQuery } from "../../../hooks/account.hooks";
+import { RouteLink } from "../../../routes/RouteLink";
+import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../../services/advertisement.service";
+import { ChevronLeftIcon, StatisticsIcon } from "./AdManagementIcons";
+import { adManagementPaths, type StatisticsAd } from "./adManagementData";
 
 export function IndependentConsultantAdStatisticsPage() {
+  const adsQuery = useMyAdsInfiniteQuery({ perPage: 100, type: "active" });
+  const ads = (adsQuery.data?.pages ?? []).flatMap((page) => page.data);
+
   return (
     <PageFrame
       className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -22,10 +28,22 @@ export function IndependentConsultantAdStatisticsPage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        {adsQuery.isLoading ? <StatisticsNotice text="در حال دریافت آگهی‌ها..." /> : null}
+        {adsQuery.isError ? <StatisticsNotice text="دریافت آگهی‌ها با خطا مواجه شد." /> : null}
+        {!adsQuery.isLoading && !adsQuery.isError && ads.length === 0 ? <SearchEmptyState /> : null}
         <div className="space-y-2">
-          {statisticsAds.map((ad) => (
-            <StatisticsAdCard ad={ad} key={ad.title} />
-          ))}
+          {ads.map((sourceAd, index) => {
+            const card = mapAdvertisementToAdCard(sourceAd, index);
+            const ad: StatisticsAd = {
+              id: card.id,
+              imageClassName: card.imageClassName,
+              imageUrl: card.imageUrl,
+              timeAndLocation: card.timeAndLocation,
+              title: card.title,
+            };
+
+            return <StatisticsAdCard ad={ad} key={String(card.id)} sourceAd={sourceAd} />;
+          })}
         </div>
       </main>
     </PageFrame>
@@ -44,7 +62,7 @@ function StatisticsTodayToggle() {
   );
 }
 
-function StatisticsAdCard({ ad }: { ad: StatisticsAd }) {
+function StatisticsAdCard({ ad, sourceAd }: { ad: StatisticsAd; sourceAd: AdvertisementItem }) {
   return (
     <article className="h-[284px] bg-white px-4 py-4">
       <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
@@ -55,19 +73,20 @@ function StatisticsAdCard({ ad }: { ad: StatisticsAd }) {
         <div
           aria-hidden="true"
           className={`ad-card__image ${ad.imageClassName} h-[72px] w-[108px] shrink-0 rounded-xl bg-cover`}
+          style={ad.imageUrl ? { backgroundImage: `url(${ad.imageUrl})` } : undefined}
         />
       </div>
 
       <div className="mt-4 grid h-[108px] grid-cols-4 [direction:ltr]">
-        <StatisticsMetric icon="chat" label="چت" value="۶" />
-        <StatisticsMetric icon="call" label="تماس" value="۵" />
-        <StatisticsMetric icon="display" label="نمایش" value="۲۶۵" />
-        <StatisticsMetric icon="view" label="بازدید" value="۱۸۵۶" />
+        <StatisticsMetric icon="chat" label="چت" value={readStatistic(sourceAd, ["chat_count", "chats_count", "chats", "conversation_count", "message_count"])} />
+        <StatisticsMetric icon="call" label="تماس" value={readStatistic(sourceAd, ["call_count", "calls_count", "calls", "phone_clicks", "contact_count"])} />
+        <StatisticsMetric icon="display" label="نمایش" value={readStatistic(sourceAd, ["search_display_count", "impressions", "impression_count", "display_count", "shown_count"])} />
+        <StatisticsMetric icon="view" label="بازدید" value={readStatistic(sourceAd, ["total_views", "views_count", "views", "visit_count", "view_count"])} />
       </div>
 
       <RouteLink
         className="mr-auto mt-4 inline-flex h-10 w-[156px] items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] text-sm font-medium leading-5 text-[#0048c4] no-underline [direction:ltr]"
-        state={{ statisticsAd: ad }}
+        state={{ ad: sourceAd, statisticsAd: ad }}
         to={adManagementPaths.statisticsDetails}
       >
         <ChevronLeftIcon className="h-5 w-5" />
@@ -93,4 +112,28 @@ function StatisticsMetric({
       <Typography as="span" variant="body" size="medium" weight="regular" className="mt-1 text-sm font-normal leading-5">{label}</Typography>
     </div>
   );
+}
+
+function readStatistic(ad: unknown, keys: string[]) {
+  if (!isRecord(ad)) return "—";
+
+  const containers = [ad, ad.statistics, ad.stats, ad.report, ad.analytics].filter(isRecord);
+
+  for (const container of containers) {
+    for (const key of keys) {
+      const value = container[key];
+      if (typeof value === "number" && Number.isFinite(value)) return new Intl.NumberFormat("fa-IR").format(value);
+      if (typeof value === "string" && value.trim()) return value;
+    }
+  }
+
+  return "—";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function StatisticsNotice({ text }: { text: string }) {
+  return <div className="bg-white px-4 py-3 text-center text-xs font-medium text-[#808080]">{text}</div>;
 }

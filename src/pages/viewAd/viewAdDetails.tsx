@@ -7,7 +7,7 @@ import { getBuildingInfo } from "../../lib/handleBuildingInfo";
 import { getFeatureIconSrc } from "../../lib/handleFeaturesIcons";
 import type { AdvertisementItem } from "../../services/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
-import { parseAdIdFromPath, viewAdDemo } from "./viewAdData";
+import { parseAdIdFromPath } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../routes/navigation";
 import type { IconName, ViewAdDetails } from "./viewAdTypes";
 import { Typography } from "../../components/ui/Typography";
@@ -32,15 +32,7 @@ export type AdvertiserPreview = {
   subtitle: string;
 };
 
-const albumMediaItems: AlbumMediaItem[] = [
-  { src: "/figma/view-ad-album.png", type: "image" },
-  { src: "/figma/view-ad-album.png", type: "image" },
-  { src: "/figma/view-ad-album.png", type: "image" },
-  { src: "/figma/view-ad-album.png", type: "video" },
-  { src: "/figma/view-ad-album.png", type: "image" },
-  { src: "/figma/view-ad-album.png", type: "image" },
-  { src: "/figma/view-ad-album.png", type: "image" },
-];
+
 
 
 const persianDigitMap: Record<string, string> = {
@@ -168,7 +160,7 @@ function formatPublishedAge(
     return `${publishedDaysText} روز پیش`;
   }
 
-  return toText(getFeatureValue(features, "published_at"), viewAdDemo.age);
+  return toText(getFeatureValue(features, "published_at"));
 }
 
 function formatPrice(value: unknown) {
@@ -302,10 +294,9 @@ export function hasTour3d(ad: AdvertisementItem) {
 export function buildGalleryMediaItems(ad: AdvertisementItem) {
   const images = readImages(ad);
   const videoUrl = readVideoUrl(ad);
-  const imageItems =
-    images.length > 0
-      ? images.map((src): AlbumMediaItem => ({ src, type: "image" }))
-      : albumMediaItems.filter((item) => item.type === "image");
+  const imageItems = images.map(
+    (src): AlbumMediaItem => ({ src, type: "image" }),
+  );
 
   if (!videoUrl) {
     return imageItems;
@@ -716,16 +707,6 @@ function buildFacilityItems(
     }));
 }
 
-function withFeatureIconAssets(items: ViewAdDetails["features"]) {
-  return items.map((item) => ({
-    ...item,
-    featureIconLabel: item.featureIconLabel ?? item.value,
-    hideFallbackIcon: true,
-    iconSrc:
-      item.iconSrc ?? getFeatureIconSrc(item.featureIconLabel ?? item.value),
-  }));
-}
-
 function formatPricePerMeter(totalPrice: unknown, area: unknown) {
   const numericPrice = toNumber(totalPrice);
   const numericArea = toNumber(area);
@@ -735,7 +716,7 @@ function formatPricePerMeter(totalPrice: unknown, area: unknown) {
     numericArea === undefined ||
     numericArea <= 0
   ) {
-    return viewAdDemo.pricePerMeter;
+    return "—";
   }
 
   return formatPrice(numericPrice / numericArea);
@@ -848,17 +829,11 @@ function iconForFeature(label: string): IconName {
 export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const propertyInfoRows =
-    features.length > 0
-      ? buildPropertyInfoItems(features)
-      : viewAdDemo.propertyInfoRows;
+    features.length > 0 ? buildPropertyInfoItems(features) : [];
   const propertyInfoPreview =
-    features.length > 0
-      ? buildPropertyInfoPreviewItems(features)
-      : viewAdDemo.propertyInfoPreview;
+    features.length > 0 ? buildPropertyInfoPreviewItems(features) : [];
   const facilities =
-    features.length > 0
-      ? buildFacilityItems(features)
-      : withFeatureIconAssets(viewAdDemo.features);
+    features.length > 0 ? buildFacilityItems(features) : [];
   const age = formatPublishedAge(ad, features);
   const totalPrice = ad.price ?? getFeatureValue(features, "price");
   const meterArea =
@@ -867,31 +842,43 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const description =
     (ad as { description?: unknown }).description ??
     (ad as { short_description?: unknown }).short_description;
+  const title = toText(ad.title ?? ad.label);
+  const locationTitle = toText(
+    (ad as { form_neighborhood_title?: unknown }).form_neighborhood_title,
+    toText(ad.label ?? ad.title),
+  );
 
   return {
-    ...viewAdDemo,
     adCode: toPersianDigits(
       (ad as { track_code?: unknown }).track_code ??
       ad.id ??
       ad._id ??
-      viewAdDemo.adCode,
+      "",
+    ),
+    agency: toText(getFeatureValue(features, "advertiser_type")),
+    agencyLocation: toText(
+      (ad as { agency_location?: unknown }).agency_location ??
+      (ad as { neighborhood_name?: unknown }).neighborhood_name,
     ),
     age,
-    agency: toText(
-      getFeatureValue(features, "advertiser_type"),
-      viewAdDemo.agency,
-    ),
-    description: toText(description, viewAdDemo.description),
+    description: toText(description),
+    equipmentSections: [],
     features: facilities,
-    headline: toText(ad.title ?? ad.label, viewAdDemo.headline),
-    locationTitle: toText(
-      (ad as { form_neighborhood_title?: unknown }).form_neighborhood_title,
-      toText(ad.label ?? ad.title, viewAdDemo.locationTitle),
-    ),
+    headline: title,
+    locationTitle,
     pricePerMeter: formatPricePerMeter(totalPrice, meterArea),
     propertyInfoPreview,
     propertyInfoRows,
-    title: toText(ad.title ?? ad.label, viewAdDemo.title),
+    rows: [
+      { icon: "addToList", label: "ثبت بازخورد" },
+      { icon: "apartment", label: "آژانس‌های محله" },
+      { icon: "informationDiamond", label: "گزارش تخلف آگهی" },
+    ],
+    status: toText(
+      (ad as { status_label?: unknown }).status_label ??
+      (ad as { status?: unknown }).status,
+    ),
+    title,
     totalPrice: formatPrice(totalPrice),
   };
 }

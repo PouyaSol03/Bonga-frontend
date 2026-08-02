@@ -5,7 +5,6 @@ import {
   buildFacilitiesDetailSections,
   parseViewAdIdFromPath,
 } from "../viewAdDetails";
-import { mockAdIds, singleAdMockData } from "../viewAdMockData";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
 
 export function ViewAdEquipmentFacilitiesPage() {
@@ -17,10 +16,9 @@ export function ViewAdEquipmentFacilitiesPage() {
 
   if (adId == null) return <NotFoundState />;
 
-  const isMockAdRequest = mockAdIds.has(adId);
-  if (isLoading && !isMockAdRequest) return <LoadingState />;
+  if (isLoading) return <LoadingState />;
 
-  if (isError && !isMockAdRequest) {
+  if (isError) {
     return (
       <ViewAdErrorState
         error={error}
@@ -30,7 +28,7 @@ export function ViewAdEquipmentFacilitiesPage() {
     );
   }
 
-  const resolvedAd = isMockAdRequest ? singleAdMockData : ad;
+  const resolvedAd = ad;
   if (!resolvedAd) return <NotFoundState />;
 
   return (

@@ -3,7 +3,10 @@ import { SwitchButton } from "../../components/SwitchButton";
 import { SearchEmptyState } from "../../components/SearchEmptyState";
 import { RouteLink } from "../../routes/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
-import { DashboardAdCard, type DashboardAd } from "./DashboardAdCard";
+import { DashboardAdCard } from "./DashboardAdCard";
+import { useMyAdsInfiniteQuery } from "../../hooks/account.hooks";
+import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
+import { getMyAdStatusInfo } from "../account/myAdsStatus";
 import { Typography } from "../../components/ui/Typography";
 import { Button } from "../../components/ui/Button";
 
@@ -15,114 +18,46 @@ const dashboardAdsTabs: { id: DashboardAdsTab; label: string }[] = [
   { id: "status", label: "وضعیت آگهی‌ها" },
 ];
 
-const dashboardAds: DashboardAd[] = [
-  {
-    id: 101,
-    area: "۸۰ متر",
-    badges: ["ویژه"],
-    imageCount: "۵",
-    imageUrl: "/figma/dashboard/dashboard-kitchen.png",
-    isMine: true,
-    owner: "حسین عبادی",
-    price: "۴/۵۰۰ میلیارد",
-    rooms: "۱ اتاق",
-    timeAndLocation: "۳ ساعت پیش در صیاد شیرازی",
-    title: "صیاد ۲۳ فول ۸۰ متر دو خواب لوکس",
-    year: "۱۳۹۰",
-  },
-  {
-    id: 102,
-    area: "۷۴ متر",
-    badges: ["ویژه"],
-    imageCount: "۲",
-    imageUrl: "/figma/dashboard/dashboard-patio.png",
-    isMine: true,
-    owner: "آژانس",
-    price: "۳/۰۹۷ میلیارد",
-    rooms: "۲ اتاق",
-    timeAndLocation: "۲ ساعت پیش در صیاد شیرازی",
-    title: "فروش آپارتمان ۷۴متری ابتدای صیادشیرازی/اقدسیه مترو",
-    year: "۱۳۸۸",
-  },
-  {
-    id: 103,
-    area: "۱۴۰ متر",
-    badges: [],
-    imageCount: "۴",
-    imageUrl: "/figma/dashboard/dashboard-living-fireplace.png",
-    isMine: true,
-    owner: "ناصر اشرفی",
-    price: "۷/۶۵۰ میلیارد",
-    rooms: "۳ اتاق",
-    timeAndLocation: "۱ ساعت پیش در صیاد شیرازی",
-    title: "۱۴۰متر تک‌واحدی ابتدای صیاد*فول امکانات",
-    year: "۱۳۹۵",
-  },
-  {
-    id: 104,
-    area: "۱۰۹ متر",
-    badges: [],
-    imageCount: "۳",
-    imageUrl: "/figma/dashboard/dashboard-living.png",
-    isMine: true,
-    owner: "محمد دارایی",
-    price: "۵ میلیارد",
-    rooms: "۲ اتاق",
-    timeAndLocation: "۱ ساعت پیش در صیاد شیرازی",
-    title: "آپارتمان ۱۰۹ متری خوش‌نقشه نزدیک مترو",
-    year: "۱۳۹۸",
-  },
-  {
-    id: 105,
-    area: "۱۶۷ متر",
-    badges: [],
-    imageCount: "۲",
-    imageUrl: "/figma/dashboard/dashboard-patio.png",
-    isMine: true,
-    owner: "رسول قاسمیان",
-    price: "۳/۸۵۰ میلیارد",
-    rooms: "۳ اتاق",
-    timeAndLocation: "۲ ساعت پیش در صیاد شیرازی",
-    title: "واحد ۱۶۷ متری تراس بزرگ و نورگیر عالی",
-    year: "۱۴۰۲",
-  },
-  {
-    id: 106,
-    area: "۱۴۰ متر",
-    badges: [],
-    imageCount: "۱",
-    imageUrl: "/figma/dashboard/dashboard-patio.png",
-    isMine: true,
-    owner: "ادریس زیرک",
-    price: "۵/۵۰۰ میلیارد",
-    rooms: "۲ اتاق",
-    timeAndLocation: "۱ ساعت پیش در صیاد شیرازی",
-    title: "ویلای ۱۴۰ متری مدرن با دسترسی عالی",
-    year: "۱۳۸۵",
-  },
-];
-
 export function DashboardAdsPage() {
   const [activeTab, setActiveTab] = useState<DashboardAdsTab>("active");
   const [showMineOnly, setShowMineOnly] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const adsQuery = useMyAdsInfiniteQuery({
+    perPage: 100,
+    type: activeTab === "status" ? "all" : "active",
+  });
 
   const visibleAds = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
+    const sourceAds = adsQuery.data?.pages.flatMap((page) => page.data) ?? [];
 
-    return dashboardAds.filter((ad, index) => {
-      if (showMineOnly && !ad.isMine) return false;
-      if (activeTab === "specialty" && index % 2 !== 0) return false;
-      if (activeTab === "status" && !ad.badges.length) return false;
+    return sourceAds
+      .filter((sourceAd) => {
+        if (showMineOnly && sourceAd.is_mine === false) return false;
 
-      if (!normalizedSearch) return true;
+        const card = mapAdvertisementToAdCard(sourceAd, 0);
+        if (activeTab === "specialty" && card.badges.length === 0) return false;
 
-      return [ad.title, ad.owner, ad.price, ad.area, ad.rooms, ad.year, ad.timeAndLocation]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedSearch);
-    });
-  }, [activeTab, searchTerm, showMineOnly]);
+        if (!normalizedSearch) return true;
+
+        return [
+          card.title,
+          card.agency,
+          card.pricePrimary,
+          card.area,
+          card.rooms,
+          card.year,
+          card.timeAndLocation,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedSearch);
+      })
+      .map((sourceAd, index) => ({
+        ...mapAdvertisementToAdCard(sourceAd, index),
+        status: getMyAdStatusInfo(sourceAd).label,
+      }));
+  }, [activeTab, adsQuery.data, searchTerm, showMineOnly]);
 
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-white px-6 pb-6 pt-3 text-[#1a1a1a] [direction:rtl]">
@@ -197,7 +132,11 @@ export function DashboardAdsPage() {
       </div>
 
       <div className="mt-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pl-1">
-        {visibleAds.length > 0 ? (
+        {adsQuery.isPending ? (
+          <div className="grid h-full place-items-center text-sm text-[#808080]">
+            در حال دریافت آگهی‌ها...
+          </div>
+        ) : visibleAds.length > 0 ? (
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
             {visibleAds.map((ad) => (
               <DashboardAdCard ad={ad} key={ad.id} />

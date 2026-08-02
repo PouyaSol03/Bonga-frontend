@@ -8,17 +8,17 @@ import LinearTimeQuarter from "../../components/(icons)/LinearTimeQuarter";
 import { SwitchButton } from "../../components/SwitchButton";
 import { TopBar } from "../../components/TopBar";
 import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../../hooks/agency-advertise-assignment.hooks";
+import { useMyAdsInfiniteQuery } from "../../hooks/account.hooks";
 import { RouteLink } from "../../routes/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../../services/agency-advertise-assignment.service";
+import type { AdvertisementItem } from "../../services/advertisement.service";
 import { mapAdvertisementToAdCard } from "../../services/advertisement.service";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";
 import {
   adManagementPaths,
   adManagementPropertyTypeLabels,
-  adManagementPublisherOptions,
   getAdManagementRouteState,
-  getAdsForTab,
   getAllocationReviewPath,
   getAdStatePath,
   type AdManagementFilters,
@@ -28,8 +28,8 @@ import {
 } from "./adManagement/adManagementData";
 import { Typography } from "../../components/ui/Typography";
 import { Button } from "../../components/ui/Button";
+import { getMyAdStatusInfo } from "./myAdsStatus";
 
-const adStatusLabels = ["در انتظار انتشار", "منتشر شده", "در انتظار انتشار", "منتشر شده"];
 const assignmentPageSize = 20;
 const loadMoreRemainingCount = 10;
 
@@ -212,6 +212,28 @@ function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto): Assig
   };
 }
 
+function readAdvertisementPublisher(ad: AdvertisementItem) {
+  if (typeof ad.agency === "string" && ad.agency.trim()) return ad.agency.trim();
+  if (ad.agency && typeof ad.agency === "object" && ad.agency.name?.trim()) {
+    return ad.agency.name.trim();
+  }
+
+  const record = ad as Record<string, unknown>;
+  const candidates = [
+    record.agency_name,
+    record.agent_name,
+    record.consultant_name,
+    record.advertiser_name,
+    record.owner_name,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  }
+
+  return "";
+}
+
 export function IndependentConsultantAdManagementPage() {
   const routeState = getAdManagementRouteState();
   const [activeTab, setActiveTab] = useState<AdsTab>(routeState.tab ?? "active");
@@ -225,6 +247,10 @@ export function IndependentConsultantAdManagementPage() {
     enabled: assignedTab,
     perPage: assignmentPageSize,
     status: "pending",
+  });
+  const activeAdsQuery = useMyAdsInfiniteQuery({
+    perPage: assignmentPageSize,
+    type: "active",
   });
   const assignmentItems = useMemo(
     () => assignmentsQuery.data?.pages.flatMap((page) => page.data) ?? [],
@@ -240,32 +266,39 @@ export function IndependentConsultantAdManagementPage() {
         .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true)),
     [assignmentItems, scopedFilters],
   );
-  const ads = useMemo(
+  const activeAdvertisements = useMemo(
     () =>
-      getAdsForTab("active")
-        .map((ad, index) => ({
-          ...ad,
-          publisher:
-            adManagementPublisherOptions[index % adManagementPublisherOptions.length].name,
-          status: adStatusLabels[index % adStatusLabels.length],
-        }))
-        .filter((ad) => matchesAdFilters(ad, scopedFilters, false)),
-    [scopedFilters],
+      (activeAdsQuery.data?.pages ?? [])
+        .flatMap((page) => page.data)
+        .map((sourceAd, index) => {
+          const statusInfo = getMyAdStatusInfo(sourceAd);
+          const card = {
+            ...mapAdvertisementToAdCard(sourceAd, index),
+            publisher: readAdvertisementPublisher(sourceAd),
+            status: statusInfo.label,
+          };
+
+          return { card, sourceAd };
+        })
+        .filter(({ card }) => matchesAdFilters(card, scopedFilters, false)),
+    [activeAdsQuery.data, scopedFilters],
   );
-  const preloadIndex = Math.max(assignedAdvertisements.length - loadMoreRemainingCount - 1, 0);
+  const visibleCount = assignedTab ? assignedAdvertisements.length : activeAdvertisements.length;
+  const preloadIndex = Math.max(visibleCount - loadMoreRemainingCount - 1, 0);
   const filterLabel = hasFilters ? "فیلترها" : "فیلتر";
 
   const loadMoreRef = (node: HTMLElement | null) => {
     observerRef.current?.disconnect();
     observerRef.current = null;
 
-    if (!node || !assignmentsQuery.hasNextPage || assignmentsQuery.isFetchingNextPage) return;
+    const targetQuery = assignedTab ? assignmentsQuery : activeAdsQuery;
+    if (!node || !targetQuery.hasNextPage || targetQuery.isFetchingNextPage) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
         observer.disconnect();
-        void assignmentsQuery.fetchNextPage();
+        void targetQuery.fetchNextPage();
       },
       { rootMargin: "160px 0px" },
     );
@@ -406,21 +439,39 @@ export function IndependentConsultantAdManagementPage() {
             ) : (
               <AssignmentStatusMessage>آگهی تخصیصی در انتظار بررسی وجود ندارد.</AssignmentStatusMessage>
             )
-          ) : ads.length > 0 ? (
-            ads.map((ad, index) => (
-              <ConsultantAdCard
-                ad={ad}
-                key={`${ad.title}-${index}`}
-                showStatusBadge
-                state={{ card: ad, ad, returnTo: adManagementPaths.root, tab: "active" }}
-                to={getAdStatePath(ad.id)}
-              />
+          ) : activeAdsQuery.isLoading ? (
+            <AssignmentStatusMessage>در حال دریافت آگهی‌ها...</AssignmentStatusMessage>
+          ) : activeAdsQuery.isError ? (
+            <AssignmentStatusMessage>
+              دریافت آگهی‌ها با خطا مواجه شد.
+              <Button
+                unstyled
+                className="mt-3 block w-full font-semibold text-[#0048c4]"
+                onClick={() => void activeAdsQuery.refetch()}
+                type="button"
+              >
+                تلاش دوباره
+              </Button>
+            </AssignmentStatusMessage>
+          ) : activeAdvertisements.length > 0 ? (
+            activeAdvertisements.map(({ card, sourceAd }, index) => (
+              <div
+                key={String(sourceAd.id ?? sourceAd._id ?? card.id)}
+                ref={index === preloadIndex ? loadMoreRef : undefined}
+              >
+                <ConsultantAdCard
+                  ad={card}
+                  showStatusBadge
+                  state={{ card, ad: sourceAd, returnTo: adManagementPaths.root, tab: "active" }}
+                  to={getAdStatePath(card.id)}
+                />
+              </div>
             ))
           ) : (
             <AssignmentStatusMessage>آگهی‌ای با این فیلترها پیدا نشد.</AssignmentStatusMessage>
           )}
 
-          {assignedTab && assignmentsQuery.isFetchingNextPage ? (
+          {(assignedTab ? assignmentsQuery.isFetchingNextPage : activeAdsQuery.isFetchingNextPage) ? (
             <AssignmentStatusMessage>در حال دریافت موارد بیشتر...</AssignmentStatusMessage>
           ) : null}
         </div>

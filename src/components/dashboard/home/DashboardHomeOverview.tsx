@@ -27,9 +27,7 @@ import type {
   DashboardOverview,
 } from "../../../services/dashboard.service";
 import {
-  adTypeData,
-  consultantActivityData,
-  dashboardMetrics,
+  type DashboardAdTypeDatum,
   type DashboardConsultantDatum,
   type DashboardMetric,
   type DashboardMetricTone,
@@ -101,36 +99,13 @@ const consultantVisibleItems = 4;
 const consultantChartViewportWidth =
   consultantVisibleItems * consultantChartItemWidth + consultantChartAxisWidth;
 
-const progressChartMonths = [
-  "فروردین",
-  "اردیبهشت",
-  "خرداد",
-  "تیر",
-  "مرداد",
-  "شهریور",
-  "مهر",
-  "آبان",
-  "آذر",
-  "دی",
-  "بهمن",
-  "اسفند",
-];
-
 const progressChartMonthWidth = 34;
 const progressChartAxisWidth = 28;
 const progressChartVisibleMonths = 9;
 const progressChartViewportWidth =
   progressChartAxisWidth + progressChartVisibleMonths * progressChartMonthWidth;
-const progressChartWidth =
-  progressChartAxisWidth + progressChartMonths.length * progressChartMonthWidth;
 
-const agencyRankingRows = [
-  { name: "املاک محسنیان", rank: 1, score: 90 },
-  { name: "املاک ایوان", rank: 2, score: 89 },
-  { name: "املاک تمدن", rank: 3, score: 86 },
-  { name: "املاک کوشش", rank: 4, score: 85 },
-  { name: "املاک محسنیان", rank: 5, score: 82 },
-];
+
 
 function formatNumber(value: number | string) {
   return numberFormatter.format(Number(value));
@@ -263,9 +238,7 @@ export function DashboardHomeOverview({
     return <DashboardHomeOverviewSkeleton />;
   }
 
-  const metrics = useDashboardApi
-    ? getManagerDashboardMetrics(dashboard, isDashboardLoading)
-    : dashboardMetrics;
+  const metrics = getManagerDashboardMetrics(dashboard, isDashboardLoading);
 
   return (
     <div className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4">
@@ -290,24 +263,19 @@ export function DashboardHomeOverview({
           isLoading={isDashboardLoading}
           useApiData={useDashboardApi}
         />
-        <PublishedAgencyAdsCard />
+        <PublishedAgencyAdsCard dashboard={dashboard} isLoading={isDashboardLoading} />
       </section>
 
       <section className="grid gap-4">
         <div className="grid gap-4">
           <ProgressLineChartCard
+            data={(dashboard?.advertiseRegistrationProgress ?? []).map((item) => ({ month: item.month, value: item.count }))}
             title="نمودار پیشرفت ثبت آگهی"
-            tooltip="۸۰ آگهی"
-            trendLabel="افزایش ثبت"
-            trendTone="positive"
-            trendValue="۵۸٪"
+            valueSuffix=" آگهی"
           />
           <ProgressLineChartCard
+            data={[]}
             title="نمودار پیشرفت رتبه"
-            tooltip="۱۲"
-            trendLabel="کاهش پیشرفت"
-            trendTone="negative"
-            trendValue="۲۳٪"
           />
           <AgencyRankingScoreCard
             dashboard={dashboard}
@@ -396,26 +364,15 @@ function DashboardChartSkeleton({ chartClassName }: { chartClassName: string }) 
 function AgencyRankingScoreCard({
   dashboard,
   isLoading,
-  useApiData,
+  useApiData: _useApiData,
 }: {
   dashboard?: DashboardOverview;
   isLoading: boolean;
   useApiData: boolean;
 }) {
-  const rank = useApiData
-    ? dashboard?.ranking.rank ?? dashboard?.ranking.current.rank
-    : 67;
-  const score = useApiData ? dashboard?.ranking.current.totalScore : 85;
-  const rankingRows = useApiData
-    ? dashboard?.ranking.topEntities ?? []
-    : agencyRankingRows.map((agency) => ({
-        entityId: String(agency.rank),
-        levelSlug: "",
-        levelTitle: "",
-        name: agency.name,
-        rank: agency.rank,
-        totalScore: agency.score,
-      }));
+  const rank = dashboard?.ranking.rank ?? dashboard?.ranking.current.rank;
+  const score = dashboard?.ranking.current.totalScore;
+  const rankingRows = dashboard?.ranking.topEntities ?? [];
 
   return (
     <article className="rounded-2xl bg-white p-4">
@@ -427,12 +384,12 @@ function AgencyRankingScoreCard({
         <AgencyRankMetric
           icon={<LinearRanking className="h-5 w-5" />}
           label="رتبه"
-          value={isLoading && useApiData ? "—" : formatOptionalNumber(rank)}
+          value={isLoading ? "—" : formatOptionalNumber(rank)}
         />
         <AgencyRankMetric
           icon={<LinearStar className="h-5 w-5" />}
           label="امتیاز"
-          value={isLoading && useApiData ? "—" : formatOptionalNumber(score)}
+          value={isLoading ? "—" : formatOptionalNumber(score)}
         />
       </div>
 
@@ -458,7 +415,7 @@ function AgencyRankingScoreCard({
           </div>
         ))}
 
-        {useApiData && !isLoading && rankingRows.length === 0 ? (
+        {!isLoading && rankingRows.length === 0 ? (
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-[#808080]">
             اطلاعاتی برای آژانس‌های برتر ثبت نشده است.
           </Typography>
@@ -491,61 +448,24 @@ function AgencyRankMetric({
 }
 
 export function ProgressLineChartCard({
+  data,
   title,
-  tooltip,
-  trendLabel,
-  trendTone,
-  trendValue,
+  valueSuffix = "",
 }: {
+  data: Array<{ month: string; value: number }>;
   title: string;
-  tooltip: string;
-  trendLabel: string;
-  trendTone: "negative" | "positive";
-  trendValue: string;
+  valueSuffix?: string;
 }) {
-  const trendClassName =
-    trendTone === "positive" ? "text-[#11a366]" : "text-[#ee3623]";
-
   return (
     <article className="overflow-hidden rounded-2xl bg-white p-6">
       <div className="flex items-start justify-between gap-4">
-        <div className="text-right">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
-            {title}
-          </Typography>
-          <Typography as="p" variant="body" size="medium" weight="medium"
-            className={`m-0 inline-flex items-center justify-end gap-1 text-sm font-medium leading-6 ${trendClassName}`}
-          >
-            <LinearChartUp
-              className={`h-6 w-6 ${trendTone === "negative" ? "scale-y-[-1]" : ""}`}
-            />
-            <strong className="font-semibold">{trendValue}</strong>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] text-sm font-normal">{trendLabel}</Typography>
-          </Typography>
-        </div>
-        <Button unstyled
-          className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
-          type="button"
-        >
-          در سال
-          <svg
-            className="h-4 w-4 text-[#4d4d4d]"
-            fill="none"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 9l-7 7-7-7"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </Button>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
+          {title}
+        </Typography>
+        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">در سال</Typography>
       </div>
 
-      <ScrollableProgressLineChart tooltip={tooltip} />
+      <ScrollableProgressLineChart data={data} valueSuffix={valueSuffix} />
     </article>
   );
 }
@@ -553,23 +473,22 @@ export function ProgressLineChartCard({
 const progressChartHeight = 252;
 const progressChartMonthGuideY = 187;
 
-const progressData = [
-  { month: "فروردین", value: 35 },
-  { month: "اردیبهشت", value: 54 },
-  { month: "خرداد", value: 43 },
-  { month: "تیر", value: 76 },
-  { month: "مرداد", value: 58 },
-  { month: "شهریور", value: 60 },
-  { month: "مهر", value: 45 },
-  { month: "آبان", value: 80 },
-  { month: "آذر", value: 78 },
-  { month: "دی", value: 81 },
-  { month: "بهمن", value: 68 },
-  { month: "اسفند", value: 82 },
-];
 
-function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
+
+function ScrollableProgressLineChart({ data, valueSuffix }: { data: Array<{ month: string; value: number }>; valueSuffix: string }) {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+
+  if (data.length === 0) {
+    return (
+      <div className="mt-7 flex h-[252px] items-center justify-center border-b border-[#e6e6e6] px-6 text-center">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+          داده نموداری از سرور دریافت نشده است.
+        </Typography>
+      </div>
+    );
+  }
+
+  const chartWidth = progressChartAxisWidth + Math.max(data.length, progressChartVisibleMonths) * progressChartMonthWidth;
 
   return (
     <div
@@ -577,11 +496,11 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
       dir="ltr"
       style={{ width: progressChartViewportWidth }}
     >
-      <div style={{ width: progressChartWidth }}>
+      <div style={{ width: chartWidth }}>
         <LineChart
-          width={progressChartWidth}
+          width={chartWidth}
           height={progressChartHeight}
-          data={progressData}
+          data={data}
           margin={{ top: 58, right: 10, bottom: 10, left: -20 }}
           tabIndex={-1}
         >
@@ -602,8 +521,7 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
           />
 
           <YAxis
-            domain={[20, 100]}
-            ticks={[20, 40, 60, 80, 100]}
+            domain={[0, "auto"]}
             axisLine={false}
             tickLine={false}
             tick={{
@@ -623,7 +541,7 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
               <ProgressChartDot
                 {...props}
                 selectedMonth={selectedMonth}
-                tooltip={tooltip}
+                valueSuffix={valueSuffix}
                 onSelect={setSelectedMonth}
               />
             )}
@@ -638,7 +556,7 @@ function ScrollableProgressLineChart({ tooltip }: { tooltip: string }) {
   );
 }
 function ProgressChartDot(props: any) {
-  const { cx, cy, payload, selectedMonth, tooltip, onSelect } = props;
+  const { cx, cy, payload, selectedMonth, valueSuffix, onSelect } = props;
 
   const isSelected = selectedMonth === payload.month;
 
@@ -690,7 +608,7 @@ function ProgressChartDot(props: any) {
             fontSize="11"
             textAnchor="middle"
           >
-            {tooltip}
+            {`${formatNumber(payload.value)}${valueSuffix}`}
           </text>
         </>
       )}
@@ -735,14 +653,19 @@ function ProgressMonthTick(props: any) {
   );
 }
 
-function PublishedAgencyAdsCard() {
+function PublishedAgencyAdsCard({ dashboard, isLoading }: { dashboard?: DashboardOverview; isLoading: boolean }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const pieContainerRef = useRef<HTMLDivElement | null>(null);
-  const selectedEntry = selectedIndex === null ? null : adTypeData[selectedIndex];
-  const selectedGeometry =
-    selectedIndex === null
-      ? null
-      : getDashboardPieSelectionGeometry(adTypeData, selectedIndex);
+  const palette = ["#4C6BD8", "#7F98E6", "#B2C0F4", "#D7DDF8", "#5C79D7"];
+  const pieData: DashboardAdTypeDatum[] = (dashboard?.publishedAdvertises.breakdown ?? []).map((item, index) => ({
+    color: palette[index % palette.length],
+    name: item.categoryId ? `دسته ${item.categoryId}` : "بدون دسته‌بندی",
+    value: item.percent,
+  }));
+  const selectedEntry = selectedIndex === null ? null : pieData[selectedIndex];
+  const selectedGeometry = selectedIndex === null || !pieData[selectedIndex]
+    ? null
+    : getDashboardPieSelectionGeometry(pieData, selectedIndex);
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -807,7 +730,7 @@ function PublishedAgencyAdsCard() {
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
-            ۱۸۳
+            {isLoading ? "—" : dashboard ? formatNumber(dashboard.publishedAdvertises.total) : "—"}
           </Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
             آگهی ثبت شده
@@ -820,7 +743,12 @@ function PublishedAgencyAdsCard() {
         dir="ltr"
         ref={pieContainerRef}
       >
-        {selectedEntry && selectedGeometry ? (
+        {pieData.length === 0 ? (
+          <div className="flex h-full items-center justify-center rounded-full border border-[#e6e6e6] px-5 text-center [direction:rtl]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">داده‌ای دریافت نشده است.</Typography>
+          </div>
+        ) : null}
+        {pieData.length > 0 && selectedEntry && selectedGeometry ? (
           <>
             <svg
               aria-hidden="true"
@@ -861,10 +789,11 @@ function PublishedAgencyAdsCard() {
           </>
         ) : null}
 
+        {pieData.length > 0 ? (
         <ResponsiveContainer height="100%" width="100%">
           <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
             <Pie
-              data={adTypeData}
+              data={pieData}
               dataKey="value"
               endAngle={dashboardPieEndAngle}
               isAnimationActive={false}
@@ -873,7 +802,7 @@ function PublishedAgencyAdsCard() {
               startAngle={dashboardPieStartAngle}
               stroke="none"
             >
-              {adTypeData.map((entry, index) => (
+              {pieData.map((entry, index) => (
                 <Cell
                   className="cursor-pointer outline-none"
                   fill={selectedIndex === index ? "transparent" : entry.color}
@@ -884,17 +813,18 @@ function PublishedAgencyAdsCard() {
             </Pie>
             {selectedIndex !== null ? (
               <DashboardPulledPieSlice
-                color={adTypeData[selectedIndex].color}
-                data={adTypeData}
+                color={pieData[selectedIndex].color}
+                data={pieData}
                 selectedIndex={selectedIndex}
               />
             ) : null}
           </PieChart>
         </ResponsiveContainer>
+        ) : null}
       </div>
 
       <div className="mt-8 flex justify-center px-1">
-        {adTypeData.map((item) => (
+        {pieData.map((item) => (
           <PublishedAdsLegendItem
             color={item.color}
             key={item.name}
@@ -1119,7 +1049,7 @@ function ConsultantBarShape(props: any) {
 function ConsultantActivityCard({
   dashboard,
   isLoading,
-  useApiData,
+  useApiData: _useApiData,
 }: {
   dashboard?: DashboardOverview;
   isLoading: boolean;
@@ -1127,20 +1057,16 @@ function ConsultantActivityCard({
 }) {
   const chartScrollRef = useRef<HTMLDivElement>(null);
   const [selectedBar, setSelectedBar] = useState<SelectedConsultantBar>(null);
-  const chartData: DashboardConsultantDatum[] = useApiData
-    ? (dashboard?.consultantActivity ?? []).map((consultant) => ({
-        ads: consultant.advertiseCount,
-        name: consultant.name,
-        renewals: consultant.renewCount,
-        specials: consultant.specialCount,
-      }))
-    : consultantActivityData;
-  const registeredAds = useApiData
-    ? (dashboard?.consultantActivity ?? []).reduce(
-        (total, consultant) => total + consultant.advertiseCount,
-        0,
-      )
-    : 325;
+  const chartData: DashboardConsultantDatum[] = (dashboard?.consultantActivity ?? []).map((consultant) => ({
+    ads: consultant.advertiseCount,
+    name: consultant.name,
+    renewals: consultant.renewCount,
+    specials: consultant.specialCount,
+  }));
+  const registeredAds = (dashboard?.consultantActivity ?? []).reduce(
+    (total, consultant) => total + consultant.advertiseCount,
+    0,
+  );
   const consultantChartWidth =
     Math.max(chartData.length, consultantVisibleItems) *
       consultantChartItemWidth +
@@ -1186,7 +1112,7 @@ function ConsultantActivityCard({
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
-            {isLoading && useApiData ? "—" : formatNumber(registeredAds)}
+            {isLoading ? "—" : dashboard ? formatNumber(registeredAds) : "—"}
           </Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
             آگهی ثبت شده
@@ -1217,7 +1143,7 @@ function ConsultantActivityCard({
         </Button>
       </div>
 
-      {useApiData && !isLoading && chartData.length === 0 ? (
+      {!isLoading && chartData.length === 0 ? (
         <div className="grid h-[240px] place-items-center text-sm text-[#808080]">
           فعالیتی برای مشاوران در این دوره ثبت نشده است.
         </div>

@@ -11,7 +11,7 @@ import {
 } from "../api/chat-socket";
 import { BottomSheet, BottomSheetActionList } from "../components/BottomSheet";
 import { Button } from "../components/ui/Button";
-import { DemoNotice } from "../components/DemoNotice";
+import { TransientNotice } from "../components/TransientNotice";
 import { getRequestErrorState } from "../components/ErrorState";
 import { HorizontalFilterBar } from "../components/HorizontalFilterBar";
 import { SearchEmptyState } from "../components/SearchEmptyState";
@@ -28,7 +28,7 @@ import {
   useUpdateChatAvailabilityMutation,
   useUpdateChatShowingNameMutation,
 } from "../hooks/chat.hooks";
-import { useDemoNotice } from "../hooks/useDemoNotice";
+import { useTransientNotice } from "../hooks/useTransientNotice";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { TopBar } from "../components/TopBar";
 import { PageFrame } from "../app/PageFrame";
@@ -2190,7 +2190,7 @@ export function UserChatResponseTimePage() {
   const [startHour, setStartHour] = useState<string | undefined>();
   const [endHour, setEndHour] = useState<string | undefined>();
   const [openSheet, setOpenSheet] = useState<ResponseTimeSheet>(null);
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
 
   useEffect(() => {
     if (!availabilityQuery.data) return;
@@ -2387,7 +2387,7 @@ export function UserChatResponseTimePage() {
         onSelect={setEndHour}
         title="تا ساعت"
       />
-      <DemoNotice className="bottom-20" message={message} />
+      <TransientNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -2407,7 +2407,7 @@ export function UserChatRenamePage() {
   const [chatName, setChatName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const didHydrateShowingNameRef = useRef(false);
-  const { message } = useDemoNotice();
+  const { message } = useTransientNotice();
 
   useEffect(() => {
     if (showingNameQuery.data === undefined || didHydrateShowingNameRef.current) return;
@@ -2502,7 +2502,7 @@ export function UserChatRenamePage() {
         </div>
       </footer>
 
-      <DemoNotice className="bottom-20" message={message} />
+      <TransientNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -2530,7 +2530,7 @@ export function UserChatDetailPage() {
   const [sentMessages, setSentMessages] = useState<SentChatMessage[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [isSendingLocation, setIsSendingLocation] = useState(false);
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
   const chatScrollRef = useRef<HTMLElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
@@ -3107,7 +3107,7 @@ export function UserChatDetailPage() {
         }}
         onConfirm={confirmBlockChat}
       />
-      <DemoNotice className="bottom-20" message={message} />
+      <TransientNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -3119,7 +3119,7 @@ export function UserChatHomePage() {
   const [showBlocked, setShowBlocked] = useState(false);
   const [query, setQuery] = useState("");
   const deferredSearch = useDebouncedValue(query.trim(), 300);
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
   useEffect(() => {
     const notice = window.sessionStorage.getItem(CHAT_RENAME_NOTICE_STORAGE_KEY);
     if (!notice) return;
@@ -3249,7 +3249,7 @@ export function UserChatHomePage() {
           <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">هنوز گفتگویی ندارید.</Typography>
         )
       ) : null}
-      <DemoNotice message={message} />
+      <TransientNotice message={message} />
     </TopBarNavigationLayout>
   );
 }
@@ -3343,7 +3343,7 @@ export function UserChatBulkDeletePage() {
   const [showMyAds, setShowMyAds] = useState(false);
   const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(() => new Set());
   const [deleteError, setDeleteError] = useState("");
-  const { message } = useDemoNotice();
+  const { message } = useTransientNotice();
   const {
     data: chatsPage,
     error,
@@ -3500,7 +3500,7 @@ export function UserChatBulkDeletePage() {
         showBlocked={showBlocked}
         showMyAds={showMyAds}
       />
-      <DemoNotice className="bottom-20" message={message} />
+      <TransientNotice className="bottom-20" message={message} />
     </ChatPageShell>
   );
 }

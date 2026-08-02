@@ -24,6 +24,8 @@ import { Button } from "../../../components/ui/Button";
 import { pushRoute } from "../../../routes/navigation";
 import { preserveNewAdDraftStateKey } from "../session";
 
+type SelectedAgency = Pick<PublicAgencyDto, "id" | "name">;
+
 const pageSize = 20;
 const loadMoreRemainingCount = 10;
 const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
@@ -182,7 +184,7 @@ export function AgencySelectionStep({
   submitDisabled = false,
 }: {
   onBack: () => void;
-  onConfirm: (agency: PublicAgencyDto) => void;
+  onConfirm: (agency: SelectedAgency) => void;
   onSelect: (agency: PublicAgencyDto | null) => void;
   selectedAgencyName?: string;
   selectedAgencyId: string;
@@ -236,10 +238,7 @@ export function AgencySelectionStep({
       return {
         id: selectedAgencyId,
         name: selectedAgencyName.trim(),
-        neighborhood_ids: [],
-        rank: 0,
-        score: 0,
-      } satisfies PublicAgencyDto;
+      } satisfies SelectedAgency;
     },
     [agencies, selectedAgencyCache, selectedAgencyId, selectedAgencyName],
   );

@@ -13,8 +13,8 @@ import {
   useSavedSearchesQuery,
   useSaveSearchMutation,
 } from "../../hooks/saved-search.hooks";
-import { DemoNotice } from "../../components/DemoNotice";
-import { useDemoNotice } from "../../hooks/useDemoNotice";
+import { TransientNotice } from "../../components/TransientNotice";
+import { useTransientNotice } from "../../hooks/useTransientNotice";
 import {
   getBrowserLocation,
   getBrowserLocationNotice,
@@ -47,7 +47,7 @@ import type {
 } from "./geofence/geofenceTypes";
 import { serializeGeofenceForApi } from "./geofence/geofenceApi";
 import {
-  SEARCH_MAP_DEMO_PHOTO,
+  SEARCH_MAP_FALLBACK_IMAGE,
   searchMapCenter,
   searchMapTileConfig,
   type SearchFilterChip,
@@ -508,7 +508,7 @@ function readImageSources(item: AdvertisementItem) {
 
   return uniqueSources.length > 0
     ? uniqueSources.map((image) => getApiAssetUrl(image))
-    : [SEARCH_MAP_DEMO_PHOTO];
+    : [SEARCH_MAP_FALLBACK_IMAGE];
 }
 
 type PositionContainer = Record<string, unknown> & {
@@ -660,8 +660,8 @@ function mapAdvertisementToSearchListing(
     area: readFeature(item, ["area", "meterage", "building_area", "متراژ"], item.area ? `${toText(item.area)} متر` : "-"),
     badges: readBadges(item),
     dotId: `dot-${id}`,
-    imageClassName: images[0] === SEARCH_MAP_DEMO_PHOTO ? `ad-card__image--${(index % 4) + 1}` : "",
-    imageSrc: images[0] ?? SEARCH_MAP_DEMO_PHOTO,
+    imageClassName: images[0] === SEARCH_MAP_FALLBACK_IMAGE ? `ad-card__image--${(index % 4) + 1}` : "",
+    imageSrc: images[0] ?? SEARCH_MAP_FALLBACK_IMAGE,
     images,
     latitude: position.latitude,
     locationLabel,
@@ -834,7 +834,7 @@ export function SearchMapPage() {
   const [savedSearchUrl, setSavedSearchUrl] = useState<string | null>(null);
   const didResolveIpLocationRef = useRef(false);
   const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
   const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
   const createPropertyRequestMutation = useCreatePropertyRequestMutation();
   const requestResultsPath =
@@ -1573,7 +1573,7 @@ export function SearchMapPage() {
         onSelect={handleConfirmSearchRequest}
         options={requestSenderOptions}
       />
-      <DemoNotice message={message} />
+      <TransientNotice message={message} />
     </div>
   );
 }

@@ -1,8 +1,5 @@
 import type { ChangeEventHandler, FocusEventHandler, ReactNode, Ref } from "react";
-import LinearCancelCircle from "../(icons)/LinearCancelCircle";
 import { Chip } from "../ui/Chip";
-import { SelectField } from "../ui/SelectField";
-import { Switch } from "../ui/Switch";
 import { TextField } from "../ui/TextField";
 import { Typography } from "../ui/Typography";
 import { Button } from "../ui/Button";
@@ -139,43 +136,3 @@ export function FormTextField({
   );
 }
 
-type FormSelectFieldProps = {
-  label: string;
-  onClick?: () => void;
-  placeholder: string;
-  value?: string;
-};
-
-export function FormSelectField({
-  label,
-  onClick,
-  placeholder,
-  value,
-}: FormSelectFieldProps) {
-  return (
-    <SelectField
-      label={label}
-      leadingSlot={value ? <LinearCancelCircle aria-hidden="true" className="h-5 w-5" /> : undefined}
-      onClick={onClick}
-      placeholder={placeholder}
-      value={value}
-    />
-  );
-}
-
-type FormSwitchProps = {
-  checked: boolean;
-  label: string;
-  onChange: (checked: boolean) => void;
-};
-
-export function FormSwitch({ checked, label, onChange }: FormSwitchProps) {
-  return (
-    <label className="flex h-14 w-full items-center justify-between [direction:ltr]">
-      <Switch checked={checked} onChange={onChange} />
-      <Typography as="span" variant="label" size="large" weight="medium" className="text-right text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
-        {label}
-      </Typography>
-    </label>
-  );
-}

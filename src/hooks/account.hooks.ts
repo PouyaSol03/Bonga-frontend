@@ -159,9 +159,11 @@ export function useVerifyPaymentCallbackMutation() {
 }
 
 export function useMyAdsInfiniteQuery({
+  enabled = true,
   perPage = 20,
   type,
 }: {
+  enabled?: boolean;
   perPage?: number;
   type: MyAdsType;
 }) {
@@ -172,6 +174,7 @@ export function useMyAdsInfiniteQuery({
     ReturnType<typeof queryKeys.account.myAds>,
     number
   >({
+    enabled,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined,
     initialPageParam: 1,

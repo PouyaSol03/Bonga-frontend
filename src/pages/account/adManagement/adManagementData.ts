@@ -1,6 +1,6 @@
 import type { AdCardData } from "../../../components/AdCard";
 import type { AgencyAdvertiseAssignmentDto } from "../../../services/agency-advertise-assignment.service";
-import { latestMashhadAds } from "../../home/homeData";
+import { mapAdvertisementToAdCard } from "../../../services/advertisement.service";
 
 export type ConsultantAd = AdCardData;
 
@@ -47,14 +47,6 @@ export const adManagementTransactionOptions: {
   { id: "rent", label: "اجاره" },
   { id: "project", label: "پروژه" },
 ];
-
-export const adManagementTransactionTabs: {
-  label: string;
-  value: AdManagementTransaction;
-}[] = adManagementTransactionOptions.map((option) => ({
-  label: option.label,
-  value: option.id,
-}));
 
 export const adManagementPropertyTypeLabels: Record<AdManagementPropertyType, string> = {
   apartment: "آپارتمان",
@@ -113,43 +105,9 @@ export const adManagementPropertyGroupsByTransaction: Record<
 };
 
 
-export type AdManagementPublisherOption = {
-  id: string;
-  image: string;
-  name: string;
-};
-
-export const adManagementPublisherOptions: AdManagementPublisherOption[] = [
-  {
-    id: "jalilian-real-estate",
-    image: "/figma/ad-management/publisher-0.png",
-    name: "املاک جلیلیان",
-  },
-  {
-    id: "hossein-rafiei",
-    image: "/figma/ad-management/publisher-1.jpg",
-    name: "حسین رفیعی",
-  },
-  {
-    id: "hossein-abedi",
-    image: "/figma/ad-management/publisher-2.jpg",
-    name: "حسین عابدی",
-  },
-  {
-    id: "hossein-ali-abadi",
-    image: "/figma/ad-management/publisher-3.jpg",
-    name: "حسین علی آبادی",
-  },
-  {
-    id: "hossein-mohammadi",
-    image: "/figma/ad-management/publisher-4.jpg",
-    name: "حسین محمدی",
-  },
-];
-
 export type StatisticsAd = Pick<
   AdCardData,
-  "imageClassName" | "timeAndLocation" | "title"
+  "id" | "imageClassName" | "imageUrl" | "timeAndLocation" | "title"
 >;
 
 export type AdManagementRouteState = {
@@ -236,27 +194,6 @@ export function getAllocationReviewPath(adId: ConsultantAd["id"]) {
   return `${adManagementPaths.allocationReview}/${adId}`;
 }
 
-export const consultantAds: ConsultantAd[] = latestMashhadAds;
-
-export const consultantStatusAds: ConsultantAd[] = latestMashhadAds
-  .slice(0, 3)
-  .map((ad) => ({
-    ...ad,
-    badges: ["فوری", "بروزرسانی"],
-  }));
-
-export const statisticsAds: StatisticsAd[] = latestMashhadAds
-  .slice(0, 3)
-  .map(({ imageClassName, timeAndLocation, title }) => ({
-    imageClassName,
-    timeAndLocation,
-    title,
-  }));
-
-export function getAdsForTab(tab: AdsTab) {
-  return tab === "active" ? consultantAds : consultantStatusAds;
-}
-
 export function getAdManagementRouteState(): AdManagementRouteState {
   return (window.history.state as AdManagementRouteState | null) ?? {};
 }
@@ -267,27 +204,39 @@ function getAdIdFromPath() {
   return match?.[1];
 }
 
-export function getConsultantAdById(adId?: ConsultantAd["id"] | string) {
-  if (adId === undefined || adId === null || adId === "") return undefined;
-
-  const normalizedAdId = String(adId);
-
-  return consultantAds.find((ad) => String(ad.id) === normalizedAdId);
+function createUnavailableConsultantAd(adId?: ConsultantAd["id"] | string): ConsultantAd {
+  return {
+    id: adId ?? "",
+    title: "آگهی",
+    agency: "",
+    status: "",
+    imageCount: "0",
+    priceLabelPrimary: "",
+    pricePrimary: "—",
+    priceLabelSecondary: "",
+    priceSecondary: "",
+    area: "—",
+    rooms: "—",
+    year: "—",
+    timeAndLocation: "",
+    imageClassName: "",
+    badges: [],
+  };
 }
 
 export function getSelectedConsultantAd(adId?: ConsultantAd["id"] | string) {
   const routeState = getAdManagementRouteState();
-  const selectedAdId = adId ?? getAdIdFromPath();
+  const selectedAdId = adId ?? getAdIdFromPath() ?? routeState.assignment?.advertiseId;
   const routeAdMatchesPath =
     routeState.ad && selectedAdId !== undefined
       ? String(routeState.ad.id) === String(selectedAdId)
       : Boolean(routeState.ad);
 
   if (routeState.ad && routeAdMatchesPath) return routeState.ad;
+  if (routeState.card) return routeState.card;
+  if (routeState.assignment?.advertise) {
+    return mapAdvertisementToAdCard(routeState.assignment.advertise, 0);
+  }
 
-  return getConsultantAdById(selectedAdId) ?? routeState.ad ?? consultantStatusAds[0];
-}
-
-export function getSelectedStatisticsAd() {
-  return getAdManagementRouteState().statisticsAd ?? statisticsAds[0];
+  return createUnavailableConsultantAd(selectedAdId);
 }

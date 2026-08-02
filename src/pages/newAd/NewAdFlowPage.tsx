@@ -1203,7 +1203,7 @@ export function NewAdFlowPage() {
     void submit();
   };
 
-  const selectAgency = (agency: PublicAgencyDto | null) => {
+  const selectAgency = (agency: Pick<PublicAgencyDto, "id" | "name"> | null) => {
     methods.setValue("agencyId", agency?.id ?? "", { shouldDirty: true });
     methods.setValue("publisherName", agency?.name ?? "", { shouldDirty: true });
 
@@ -1213,7 +1213,7 @@ export function NewAdFlowPage() {
     }
   };
 
-  const confirmAgency = (agency: PublicAgencyDto) => {
+  const confirmAgency = (agency: Pick<PublicAgencyDto, "id" | "name">) => {
     if (submitLockRef.current || createAdvertisement.isPending) return;
 
     selectAgency(agency);

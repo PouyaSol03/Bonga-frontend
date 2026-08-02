@@ -17,7 +17,7 @@ import {
   neighborhoodIdKey,
   propertySpecs,
 } from "./data";
-import type { ChipItem, MoreFeatureField, MoreFeaturesFormValues, NewAdFormValues } from "./types";
+import type { ChipItem, MoreFeaturesFormValues, NewAdFormValues } from "./types";
 import { clearNewAdFlowSession } from "./session";
 
 export function getBasicPropertyFields() {
@@ -67,26 +67,6 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     doubleRoomCount: values.doubleRoomCount,
     suiteCount: values.suiteCount,
   };
-}
-
-export function getMoreFeatureTags(
-  values: NewAdFormValues,
-  fields: MoreFeatureField[] = getMoreFeatureFields(),
-) {
-  return fields.reduce<string[]>((tags, field) => {
-    const value = values[field.key];
-
-    if (field.control === "toggle") {
-      if (value === true) tags.push(field.label);
-      return tags;
-    }
-
-    if (typeof value === "string" && value.trim()) {
-      tags.push(`${field.label}: ${value}`);
-    }
-
-    return tags;
-  }, []);
 }
 
 export function navigateTo(path: string, state?: unknown) {

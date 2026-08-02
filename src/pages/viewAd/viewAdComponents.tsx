@@ -7,9 +7,7 @@ import { RouteLink } from "../../routes/RouteLink";
 import { ViewAdIcon } from "./ViewAdIcon";
 import type {
   DetailItem,
-  EquipmentSection,
   IconName,
-  PropertyInfoRow,
 } from "./viewAdTypes";
 import LinearArrowLeft1 from "../../components/(icons)/LinearArrowLeft1";
 import { Typography } from "../../components/ui/Typography";
@@ -43,27 +41,6 @@ function DetailItemIcon({
   }
 
   return <ViewAdIcon className={className} name={item.icon} />;
-}
-
-export function ViewAdIconButton({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: IconName;
-  label: string;
-  onClick?: () => void;
-}) {
-  return (
-    <Button unstyled
-      aria-label={label}
-      className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#1a1a1a0a]"
-      onClick={onClick}
-      type="button"
-    >
-      <ViewAdIcon name={icon} />
-    </Button>
-  );
 }
 
 export function ViewAdTopBar({
@@ -209,88 +186,6 @@ export function PropertyGrid({
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-export function EquipmentSections({
-  sections,
-}: {
-  sections: EquipmentSection[];
-}) {
-  return (
-    <div className="flex min-h-full flex-col bg-[#f0f0f0]">
-      {sections.map((section) => (
-        <section
-          className="mb-2 bg-white px-4 py-4 last:mb-0 last:flex-1"
-          key={section.title}
-        >
-          <div className="flex h-6 items-center justify-end [direction:ltr]">
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-lg font-semibold leading-6 text-[#1a1a1a]">
-              {section.title}
-            </Typography>
-          </div>
-
-          <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">
-            {section.items.map((item, index) => (
-              <div
-                className="flex min-w-0 items-center gap-3"
-                key={`${section.title}-${item.value}-${index}`}
-              >
-                <DetailItemIcon
-                  className="h-6 w-6 shrink-0 text-[#808080]"
-                  item={item}
-                />
-                <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 truncate text-base font-medium leading-6 text-[#1a1a1a]">
-                  {item.value}
-                </Typography>
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
-  );
-}
-
-export function PropertyInfoList({ rows }: { rows: PropertyInfoRow[] }) {
-  return (
-    <div className="bg-[#f0f0f0]">
-      {rows.map((row) => (
-        <div
-          className="mb-0.5 flex h-14 items-center justify-between bg-white px-4 last:mb-0 [direction:ltr]"
-          key={`${row.label}-${row.value}`}
-        >
-          <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 truncate text-left text-base font-medium leading-6 text-[#1a1a1a]">
-            {row.value}
-          </Typography>
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-[#4d4d4d] [direction:rtl]">
-            <DetailItemIcon
-              className="h-6 w-6 shrink-0 text-[#808080]"
-              item={row}
-            />
-            <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-base font-medium leading-6">
-              {row.label}
-            </Typography>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export function BottomBackAction({ to }: { to: string }) {
-  return (
-    <div className="shrink-0 bg-white px-4 py-3.5">
-      <div className="flex justify-end [direction:ltr]">
-        <RouteLink
-          className="flex h-10 w-[156px] items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-medium leading-5 text-[#0048c4] no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-          to={to}
-        >
-          <ViewAdIcon className="h-5 w-5" name="back" />
-          <Typography as="span" variant="body" size="medium" weight="regular">بازگشت</Typography>
-        </RouteLink>
-      </div>
     </div>
   );
 }

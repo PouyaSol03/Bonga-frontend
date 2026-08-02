@@ -451,14 +451,6 @@ export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
   );
 }
 
-export function saveCrmAgency(id: string | null, payload: CrmRecord) {
-  return api
-    .post(id ? `panel/agency/update/${id}` : "panel/agency/create", {
-      json: payload,
-    })
-    .json<unknown>();
-}
-
 export type CrmAgencyReviewStatus = "accept" | "reject";
 
 export function updateCrmAgencyStatus(id: string, status: CrmAgencyReviewStatus) {
@@ -467,10 +459,6 @@ export function updateCrmAgencyStatus(id: string, status: CrmAgencyReviewStatus)
       json: { status },
     })
     .json<unknown>();
-}
-
-export function deleteCrmAgency(id: string) {
-  return api.delete(`panel/agency/delete/${id}`).json<unknown>();
 }
 
 export async function listCrmPackages() {

@@ -51,7 +51,6 @@ import {
   type AdvertiserPreview,
   type AlbumMediaItem,
 } from "./viewAd/viewAdDetails";
-import { mockAdIds, singleAdMockData } from "./viewAd/viewAdMockData";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "./viewAd/ViewAdRouteStates";
 import { ViewAdAlbumPage } from "./viewAd/pages/ViewAdAlbumPage";
 import { ViewAdFeedbackPage } from "./viewAd/pages/ViewAdFeedbackPage";
@@ -1002,13 +1001,11 @@ export function ViewAdPage() {
     return <NotFoundState />;
   }
 
-  const isMockAdRequest = mockAdIds.has(adId);
-
-  if (isLoading && !isMockAdRequest) {
+  if (isLoading) {
     return <LoadingState />;
   }
 
-  if (isError && !isMockAdRequest) {
+  if (isError) {
     return (
       <ViewAdErrorState
         error={error}
@@ -1018,7 +1015,7 @@ export function ViewAdPage() {
     );
   }
 
-  const resolvedAd = isMockAdRequest ? singleAdMockData : ad;
+  const resolvedAd = ad;
 
   if (!resolvedAd) {
     return <NotFoundState />;
@@ -1128,7 +1125,7 @@ export function ViewAdPage() {
       return;
     }
 
-    showToast(`${label} برای نسخه نمایشی انتخاب شد`, "اطلاع", "info");
+    showToast(`${label} هنوز به سرویس مربوطه متصل نشده است.`, "اطلاع", "info");
   };
 
   const handleTopBarAction = async (icon: IconName) => {

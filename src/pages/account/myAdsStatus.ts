@@ -1,4 +1,4 @@
-export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published";
+export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published" | "unknown";
 
 export type MyAdStatusInfo = {
   badgeClassName: string;
@@ -7,6 +7,11 @@ export type MyAdStatusInfo = {
 };
 
 export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
+  unknown: {
+    badgeClassName: "bg-[#f0f0f0] text-[#808080]",
+    key: "unknown",
+    label: "وضعیت نامشخص",
+  },
   published: {
     badgeClassName: "bg-[#11a36614] text-[#11a366]",
     key: "published",
@@ -34,13 +39,7 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
   },
 };
 
-const demoStatusCycle: MyAdStatusKey[] = [
-  "published",
-  "pending",
-  "needs_edit",
-  "expired",
-  "deleted",
-];
+
 
 function normalizeStatusText(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
@@ -78,11 +77,7 @@ function readCandidateStatus(source: unknown) {
   return directCandidate;
 }
 
-export function getMyAdStatusInfo(
-  source?: unknown,
-  fallbackIndex = 0,
-  options: { useDemoFallback?: boolean } = {},
-): MyAdStatusInfo {
+export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
   const rawStatus = readCandidateStatus(source);
   const status = normalizeStatusText(rawStatus);
 
@@ -148,9 +143,5 @@ export function getMyAdStatusInfo(
     return myAdStatusConfig.published;
   }
 
-  if (options.useDemoFallback) {
-    return myAdStatusConfig[demoStatusCycle[fallbackIndex % demoStatusCycle.length]];
-  }
-
-  return myAdStatusConfig.published;
+  return myAdStatusConfig.unknown;
 }

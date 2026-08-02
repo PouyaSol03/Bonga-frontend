@@ -34,8 +34,6 @@ import {
 import { Typography } from "../../../components/ui/Typography";
 import { Button } from "../../../components/ui/Button";
 
-const fallbackPrice = 40_000;
-
 export function AdIncreaseVisitsPage() {
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
@@ -50,7 +48,7 @@ export function AdIncreaseVisitsPage() {
   const checkout = checkoutQuery.data;
   const products = useMemo(() => resolveUpgradeProducts(checkout), [checkout]);
   const tariffOptions = useMemo(
-    () => createAdTariffOptions({ price: products[0]?.price ?? fallbackPrice }),
+    () => createAdTariffOptions({ price: products[0]?.price ?? 0 }),
     [products],
   );
   const selectedProducts = useMemo(
@@ -106,6 +104,15 @@ export function AdIncreaseVisitsPage() {
   if (checkoutQuery.isError || !checkout) {
     return <StatusPage backTo={backTo} message={getApiErrorMessage(checkoutQuery.error, "دریافت اطلاعات پرداخت با خطا مواجه شد.")} onRetry={() => void checkoutQuery.refetch()} />;
   }
+  if (products.length === 0) {
+    return (
+      <StatusPage
+        backTo={backTo}
+        message="تعرفه افزایش بازدید از سرور دریافت نشد."
+        onRetry={() => void checkoutQuery.refetch()}
+      />
+    );
+  }
   if (step === "checkout") {
     return (
       <ApiPaymentCheckoutView
@@ -144,7 +151,7 @@ export function AdIncreaseVisitsPage() {
 function resolveUpgradeProducts(checkout?: AdvertisementCheckout): AdvertisementCheckoutItem[] {
   const items = checkout?.items ?? [];
   const upgradeItems = items.filter((item) => !/publish|ثبت|انتشار/i.test(item.product));
-  return upgradeItems.length > 0 ? upgradeItems : [{ product: "advertise_upgrade", price: fallbackPrice }];
+  return upgradeItems;
 }
 
 function resolveProductForOption(id: AdTariffOptionId, products: AdvertisementCheckoutItem[]) {

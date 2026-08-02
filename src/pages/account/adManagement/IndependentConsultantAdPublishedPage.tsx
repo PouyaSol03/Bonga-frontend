@@ -22,6 +22,7 @@ import { Button } from "../../../components/ui/Button";
 export function IndependentConsultantAdPublishedPage() {
   const ad = getSelectedConsultantAd();
   const routeState = getAdManagementRouteState();
+  const expirationLabel = readExpirationLabel(routeState.assignment?.advertise);
   const backTo = normalizeLocalPath(routeState.returnTo) ?? adManagementPaths.root;
   const [isSuccessOpen, setIsSuccessOpen] = useState(
     routeState.showPaymentSuccess ?? false,
@@ -59,7 +60,7 @@ export function IndependentConsultantAdPublishedPage() {
           </div>
 
           <div className="mt-4 flex h-10 items-center justify-between py-2 text-sm font-medium leading-5 [direction:ltr]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">12بهمن (12روز دیگر)</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{expirationLabel}</Typography>
             <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">انقضا</Typography>
           </div>
         </section>
@@ -109,6 +110,26 @@ export function IndependentConsultantAdPublishedPage() {
       </BottomSheet>
     </PageFrame>
   );
+}
+
+function readExpirationLabel(advertise?: Record<string, unknown>) {
+  if (!advertise) return "—";
+
+  const candidates = [
+    advertise.expires_at,
+    advertise.expire_at,
+    advertise.expired_at,
+    advertise.expiration_date,
+    advertise.expires_in,
+    advertise.remaining_days,
+  ];
+
+  for (const value of candidates) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  }
+
+  return "—";
 }
 
 

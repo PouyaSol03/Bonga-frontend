@@ -9,6 +9,7 @@ import LinearTag from "../../(icons)/LinearTag";
 import { TopBar } from "../../TopBar";
 import { ProgressLineChartCard } from "../home/DashboardHomeOverview";
 import { useAgencyConsultantQuery } from "../../../hooks/agency.hooks";
+import { useAgencyDashboardQuery } from "../../../hooks/dashboard.hooks";
 import {
   ChevronDownIcon,
   ConsultantProfileSummary,
@@ -20,43 +21,54 @@ import {
 import { Typography } from "../../ui/Typography";
 import { Button } from "../../ui/Button";
 
-const consultantPieCards = [
-  {
-    agencyPercent: 75,
-    badge: "۳۰",
-    color: "#0048c4",
-    lightColor: "#d7ddf7",
-    subtitle: "مورد از ۱۳۶ مورد ثبت شده",
-    title: "آگهی منتشر شده در آژانس",
-    total: "۱۳۶",
-    value: 25,
-  },
-  {
-    agencyPercent: 81,
-    badge: "۱۲۵",
-    color: "#11a366",
-    lightColor: "#bfe8d2",
-    subtitle: "مورد از ۶۷۲ مورد ثبت شده",
-    title: "بروزرسانی منتشر شده در آژانس",
-    total: "۶۷۲",
-    value: 19,
-  },
-  {
-    agencyPercent: 68,
-    badge: "۹۸",
-    color: "#ffb100",
-    lightColor: "#ffe9aa",
-    subtitle: "مورد از ۴۹۳ مورد ثبت شده",
-    title: "ویژه منتشر شده در آژانس",
-    total: "۴۹۳",
-    value: 32,
-  },
-];
+type ConsultantPieDatum = {
+  agencyPercent: number;
+  badge: string;
+  color: string;
+  lightColor: string;
+  subtitle: string;
+  title: string;
+  value: number;
+};
 
+function createConsultantPieDatum({
+  color,
+  consultantValue,
+  lightColor,
+  title,
+  total,
+}: {
+  color: string;
+  consultantValue: number;
+  lightColor: string;
+  title: string;
+  total: number | undefined;
+}): ConsultantPieDatum {
+  const hasTotal = typeof total === "number";
+  const safeTotal = hasTotal ? Math.max(0, total) : 0;
+  const safeValue = Math.max(0, consultantValue);
+  const consultantPercent = safeTotal > 0
+    ? Math.min(100, Math.round((safeValue / safeTotal) * 100))
+    : 0;
+  const formatter = new Intl.NumberFormat("fa-IR");
+
+  return {
+    agencyPercent: safeTotal > 0 ? 100 - consultantPercent : 0,
+    badge: hasTotal ? formatter.format(safeValue) : "—",
+    color,
+    lightColor,
+    subtitle: hasTotal
+      ? `مورد از ${formatter.format(safeTotal)} مورد ثبت شده`
+      : "داده‌ای از سرور دریافت نشده است",
+    title,
+    value: consultantPercent,
+  };
+}
 export function ConsultantInfoPage() {
   const routeConsultant = getRouteConsultant();
   const consultantId = getRouteConsultantId() ?? routeConsultant.id;
   const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const agencyDashboardQuery = useAgencyDashboardQuery();
 
   if (consultantQuery.isLoading) {
     return <ConsultantInfoPageSkeleton />;
@@ -69,6 +81,39 @@ export function ConsultantInfoPage() {
     value === undefined
       ? "—"
       : new Intl.NumberFormat("fa-IR").format(value);
+  const agencyDashboard = agencyDashboardQuery.data;
+  const consultantActivity = agencyDashboard?.consultantActivity.find(
+    (activity) => String(activity.userId) === String(consultantId),
+  );
+  const totalRenewals = agencyDashboard
+    ? agencyDashboard.consultantActivity.reduce((sum, activity) => sum + activity.renewCount, 0)
+    : undefined;
+  const totalSpecials = agencyDashboard
+    ? agencyDashboard.consultantActivity.reduce((sum, activity) => sum + activity.specialCount, 0)
+    : undefined;
+  const consultantPieCards: ConsultantPieDatum[] = [
+    createConsultantPieDatum({
+      color: "#0048c4",
+      consultantValue: consultantActivity?.advertiseCount ?? consultant.scores.ads,
+      lightColor: "#d7ddf7",
+      title: "آگهی منتشر شده در آژانس",
+      total: agencyDashboard?.publishedAdvertises.total,
+    }),
+    createConsultantPieDatum({
+      color: "#11a366",
+      consultantValue: consultantActivity?.renewCount ?? consultant.scores.steps,
+      lightColor: "#bfe8d2",
+      title: "بروزرسانی منتشر شده در آژانس",
+      total: totalRenewals,
+    }),
+    createConsultantPieDatum({
+      color: "#ffb100",
+      consultantValue: consultantActivity?.specialCount ?? consultant.scores.rocket,
+      lightColor: "#ffe9aa",
+      title: "ویژه منتشر شده در آژانس",
+      total: totalSpecials,
+    }),
+  ];
 
   return (
     <section
@@ -111,21 +156,21 @@ export function ConsultantInfoPage() {
               iconClassName="bg-[#dfe8ff] text-[#0048c4] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده اعتبار آگهی"
-              value={formatValue(consultant.scores.ads)}
+              value={formatValue(consultant.adQuota)}
             />
             <InfoStatRow
               icon={<LinearStairs className="h-5 w-5" />}
               iconClassName="bg-[#d9f7ea] text-[#11a366] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده بروزرسانی"
-              value={formatValue(consultant.scores.steps)}
+              value={formatValue(consultant.renewQuota)}
             />
             <InfoStatRow
               icon={<LinearStartup className="h-5 w-5" />}
               iconClassName="bg-[#fff0dc] text-[#ff7a00] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
-              label="مانده بروزرسانی"
-              value={formatValue(consultant.scores.rocket)}
+              label="مانده ویژه"
+              value={formatValue(consultant.specialQuota)}
             />
           </article>
 
@@ -134,11 +179,9 @@ export function ConsultantInfoPage() {
           ))}
 
           <ProgressLineChartCard
+            data={[]}
             title="نمودار پیشرفت ثبت آگهی"
-            tooltip="۸۰ آگهی"
-            trendLabel="افزایش ثبت"
-            trendTone="positive"
-            trendValue="58%"
+            valueSuffix=" آگهی"
           />
         </section>
       </main>
@@ -239,17 +282,23 @@ function ConsultantPieCard({
   card,
   showTooltip,
 }: {
-  card: (typeof consultantPieCards)[number];
+  card: ConsultantPieDatum;
   showTooltip?: boolean;
 }) {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(showTooltip ? 1 : null);
+  const hasChartData = card.value + card.agencyPercent > 0;
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(
+    showTooltip && hasChartData ? 1 : null,
+  );
   const pieContainerRef = useRef<HTMLDivElement | null>(null);
   const data = [
     { color: card.lightColor, name: "آژانس", value: card.agencyPercent },
     { color: card.color, name: "مشاور", value: card.value },
   ];
   const selectedEntry = selectedIndex === null ? null : data[selectedIndex];
-  const selectedGeometry = selectedIndex === null ? null : getPieSelectionGeometry(data, selectedIndex);
+  const selectedGeometry =
+    selectedIndex === null || !hasChartData
+      ? null
+      : getPieSelectionGeometry(data, selectedIndex);
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -362,7 +411,7 @@ function ConsultantPieCard({
                 />
               ))}
             </Pie>
-            {selectedIndex !== null ? (
+            {selectedIndex !== null && data[selectedIndex] && hasChartData ? (
               <PulledPieSlice
                 color={data[selectedIndex].color}
                 data={data}
@@ -396,6 +445,7 @@ const pieTooltipLineOverlap = 6;
 
 function getPieSelectionGeometry(data: PieSelectionDatum[], selectedIndex: number) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
+  if (total <= 0) return null;
   const precedingValue = data
     .slice(0, selectedIndex)
     .reduce((sum, item) => sum + item.value, 0);
@@ -456,6 +506,7 @@ function PulledPieSlice({
   selectedIndex: number;
 }) {
   const geometry = getPieSelectionGeometry(data, selectedIndex);
+  if (!geometry) return null;
   const radians = (Math.PI / 180) * geometry.midAngle;
   const cx = pieCenter + pieSelectedOffset * Math.cos(radians);
   const cy = pieCenter - pieSelectedOffset * Math.sin(radians);

@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { BottomSheet } from '../../../components/BottomSheet'
 import { Button } from '../../../components/ui/Button'
 import { Typography } from '../../../components/ui/Typography'
-import { quickActions } from '../homeData'
 import type { CategoryOption, QuickAction } from '../homeTypes'
 import LinearArrowLeft1 from '../../../components/(icons)/LinearArrowLeft1'
 import LinearArrowRight2 from '../../../components/(icons)/LinearArrowRight2'
@@ -62,7 +61,7 @@ export function CategoryBottomSheet({
 
   const options = selectedOption
     ? selectedOption.children?.map(normalizeCategoryOption) ?? []
-    : selectedCategory?.options ?? quickActions[0].options
+    : selectedCategory?.options ?? []
 
   const closeSheet = () => {
     setSelectedOption(null)

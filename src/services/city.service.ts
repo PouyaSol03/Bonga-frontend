@@ -23,14 +23,6 @@ function normalizeCityLogo(city: CityDto): CityDto {
   };
 }
 
-export async function getCityList() {
-  const response = await publicApi
-    .get("public/city/list")
-    .json<CityListResponse>();
-
-  return response.data.map(normalizeCityLogo);
-}
-
 export async function searchCities(q = "") {
   const response = await publicApi
     .get("public/city/search", { searchParams: { q } })

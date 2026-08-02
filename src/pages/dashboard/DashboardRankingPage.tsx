@@ -11,14 +11,17 @@ import LinearStar from "../../components/(icons)/LinearStar";
 import LinearStartup from "../../components/(icons)/LinearStartup";
 import { TopBar } from "../../components/TopBar";
 import { RouteLink } from "../../routes/RouteLink";
-import LinearChartUp from "../../components/(icons)/LinearChartUp";
 import { Typography } from "../../components/ui/Typography";
 import { Button } from "../../components/ui/Button";
+import { useMyBadgesQuery } from "../../hooks/account.hooks";
+import { useAgencyDashboardQuery } from "../../hooks/dashboard.hooks";
+import type { BadgeItem } from "../../services/account.service";
+import type { DashboardRankingEntity } from "../../services/dashboard.service";
 
 type BadgeTone = "active" | "muted";
 
 type AgencyBadge = {
-  src: string;
+  src?: string;
   ariaLabel: string;
   detailPath: string;
   id: string;
@@ -34,90 +37,83 @@ type AgencyIndicator = {
   value: string;
 };
 
+type RankingPeriod = "هفته" | "ماه";
+
 const DASHBOARD_BADGES_PATH = "/account/dashboard/ranking/badges";
 const DASHBOARD_BADGES_GUIDE_PATH = `${DASHBOARD_BADGES_PATH}/guide`;
 const DASHBOARD_LEVELS_GUIDE_PATH = "/account/dashboard/ranking/levels/guide";
 
-const agencyBadges: AgencyBadge[] = [
-  {
-    src: '/vectors/badges/badge-bookmark.png',
-    ariaLabel: "نشان رکورددار",
-    detailPath: `${DASHBOARD_BADGES_PATH}/record-holder`,
-    id: "record-holder",
-    label: "رکورددار",
-    progress: 78,
-    tone: "muted",
-  },
-  {
-    src: '/vectors/badges/badge-cup.png',
-    ariaLabel: "نشان تیم طلایی",
-    detailPath: `${DASHBOARD_BADGES_PATH}/golden-team`,
-    id: "golden-team",
-    label: "تیم طلایی",
-    progress: 69,
-    tone: "active",
-  },
-  {
-    src: '/vectors/badges/badge-first.png',
-    ariaLabel: "نشان محبوب‌ترین",
-    detailPath: `${DASHBOARD_BADGES_PATH}/popular`,
-    id: "popular",
-    label: "محبوب‌ترین",
-    progress: 65,
-    tone: "muted",
-  },
-  {
-    src: '/vectors/badges/badge-chat.png',
-    ariaLabel: "نشان تیم پرسرعت",
-    detailPath: `${DASHBOARD_BADGES_PATH}/fast-team`,
-    id: "fast-team",
-    label: "تیم پرسرعت",
-    progress: 100,
-    tone: "muted",
-  },
-];
+const badgePathBySlug: Record<string, string> = {
+  "record-holder": `${DASHBOARD_BADGES_PATH}/record-holder`,
+  "golden-team": `${DASHBOARD_BADGES_PATH}/golden-team`,
+  popular: `${DASHBOARD_BADGES_PATH}/popular`,
+  "fast-team": `${DASHBOARD_BADGES_PATH}/fast-team`,
+};
 
-const agencyIndicators: AgencyIndicator[] = [
-  {
-    Icon: LinearClockAlarm,
-    id: "active-days",
-    label: "روزهای فعال در سامانه",
-    value: "۸۵٪",
-  },
-  {
-    Icon: LinearPercenTeam,
-    id: "active-consultants",
-    label: "درصد مشاوران فعال",
-    value: "۵",
-  },
-  {
-    Icon: LinearLike,
-    id: "successful-deals",
-    label: "تعداد معاملات موفق",
-    value: "۱۵",
-  },
-  {
-    Icon: LinearPercenTeam,
-    id: "consultant-average-score",
-    label: "میانگین امتیازات مشاوران",
-    value: "۴.۶",
-  },
-];
+function formatOptionalNumber(value: number | null | undefined) {
+  return value === null || value === undefined
+    ? "—"
+    : new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 2 }).format(value);
+}
 
-const topAgencies = [
-  { name: "املاک محسنیان", score: "۵" },
-  { name: "املاک ایوان", score: "۴.۹" },
-  { name: "املاک تمدن", score: "۴.۸" },
-  { name: "املاک کوشش", score: "۴.۵" },
-  { name: "املاک محسنیان", score: "۴.۴" },
-  { name: "املاک محسنیان", score: "۵" },
-  { name: "املاک ایوان", score: "۴.۹" },
-  { name: "املاک تمدن", score: "۴.۸" },
-  { name: "املاک کوشش", score: "۴.۵" },
-  { name: "املاک محسنیان", score: "۴.۴" },
-];
+function mapBadgeItemToBadge(item: BadgeItem, index: number): AgencyBadge {
+  const progress = Number(item.progress);
+  const slug = typeof item.slug === "string" ? item.slug.trim().toLowerCase() : "";
+  const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : "نشان";
+
+  return {
+    ariaLabel: `نشان ${name}`,
+    detailPath: badgePathBySlug[slug] ?? DASHBOARD_BADGES_GUIDE_PATH,
+    id: slug || String(item.id ?? index),
+    label: name,
+    progress: Number.isFinite(progress) ? Math.max(0, Math.min(100, progress)) : 0,
+    src:
+      typeof item.image === "string" && item.image.trim()
+        ? item.image
+        : typeof item.logo === "string" && item.logo.trim()
+          ? item.logo
+          : undefined,
+    tone: item.active === true ? "active" : "muted",
+  };
+}
 
 export function DashboardRankingPage() {
+  const [period, setPeriod] = useState<RankingPeriod>("ماه");
+  const dashboardQuery = useAgencyDashboardQuery({ period: period === "هفته" ? "7d" : "30d" });
+  const dashboard = dashboardQuery.data;
+  const ranking = dashboard?.ranking;
+  const consultantActivity = dashboard?.consultantActivity ?? [];
+  const indicators: AgencyIndicator[] = [
+    {
+      Icon: LinearClockAlarm,
+      id: "published-ads",
+      label: "آگهی‌های منتشرشده",
+      value: formatOptionalNumber(dashboard?.publishedAdvertises.total),
+    },
+    {
+      Icon: LinearPercenTeam,
+      id: "active-consultants",
+      label: "مشاوران دارای فعالیت",
+      value: dashboard ? formatOptionalNumber(consultantActivity.length) : "—",
+    },
+    {
+      Icon: LinearLike,
+      id: "renewed-ads",
+      label: "بروزرسانی آگهی‌ها",
+      value: dashboard
+        ? formatOptionalNumber(consultantActivity.reduce((sum, item) => sum + item.renewCount, 0))
+        : "—",
+    },
+    {
+      Icon: LinearPercenTeam,
+      id: "special-ads",
+      label: "آگهی‌های ویژه",
+      value: dashboard
+        ? formatOptionalNumber(consultantActivity.reduce((sum, item) => sum + item.specialCount, 0))
+        : "—",
+    },
+  ];
+
   return (
     <PageFrame
       className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
@@ -139,32 +135,31 @@ export function DashboardRankingPage() {
       />
 
       <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] px-4 pb-6 pt-4">
-        <LevelSummaryCard />
+        <LevelSummaryCard
+          levelTitle={ranking?.current.levelTitle || ranking?.current.levelSlug || "—"}
+          score={formatOptionalNumber(ranking?.current.totalScore)}
+        />
         <MetricSummaryCard
           icon={<LinearRanking className="h-6 w-6 text-[#11a366]" />}
           iconClassName="bg-[#11a3661f]"
           label="رتبه آژانس"
-          trend="up"
-          trendText="۳ رتبه"
-          value="۵"
+          value={formatOptionalNumber(ranking?.rank ?? ranking?.current.rank)}
         />
         <MetricSummaryCard
           icon={<LinearStar className="h-6 w-6 text-[#ff6d00]" />}
           iconClassName="bg-[#ff8d0029]"
           label="امتیاز آژانس"
-          trend="down"
-          trendText="۱۵ امتیاز"
-          value="۸۵"
+          value={formatOptionalNumber(ranking?.current.totalScore)}
         />
         <AgencyBadgesPanel />
-        <RankingIndicatorsPanel />
-        <TopAgenciesPanel />
+        <RankingIndicatorsPanel indicators={indicators} period={period} setPeriod={setPeriod} />
+        <TopAgenciesPanel agencies={ranking?.topEntities ?? []} isLoading={dashboardQuery.isLoading} />
       </main>
     </PageFrame>
   );
 }
 
-function LevelSummaryCard() {
+function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: string }) {
   return (
     <section
       aria-label="سطح پیشرفت آژانس"
@@ -174,14 +169,14 @@ function LevelSummaryCard() {
         <div className="flex h-6 items-center justify-between gap-2 [direction:ltr]">
           <GuidePill ariaLabel="راهنمای سطح پیشرفت آژانس" to={DASHBOARD_LEVELS_GUIDE_PATH} />
           <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
-            آژانس برتر منطقه‌ای
+            {levelTitle}
           </Typography>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-end gap-x-1 gap-y-1 text-xs leading-4 [direction:ltr]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">
-            تا رسیدن به آژانس افسانه‌ای
+            امتیاز فعلی
           </Typography>
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-[#0048c4] [direction:rtl]">۶ امتیاز</Typography>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-[#0048c4] [direction:rtl]">{score}</Typography>
         </div>
       </div>
       <AgencyPreviewVector />
@@ -190,20 +185,9 @@ function LevelSummaryCard() {
 }
 
 function AgencyPreviewVector() {
-  const [hasError, setHasError] = useState(false);
-
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg">
-      {!hasError ? (
-        <img
-          alt=""
-          className="h-full w-full object-cover"
-          onError={() => setHasError(true)}
-          src="/vectors/agencyLevel/newbie.svg"
-        />
-      ) : (
-        <LinearStartup className="h-9 w-9 text-[#4b5070]" />
-      )}
+    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#f3f4f6]">
+      <LinearStartup className="h-9 w-9 text-[#4b5070]" />
     </Typography>
   );
 }
@@ -212,19 +196,13 @@ function MetricSummaryCard({
   icon,
   iconClassName,
   label,
-  trend,
-  trendText,
   value,
 }: {
   icon: ReactNode;
   iconClassName: string;
   label: string;
-  trend: "down" | "up";
-  trendText: string;
   value: string;
 }) {
-  const isUp = trend === "up";
-
   return (
     <section
       aria-label={label}
@@ -235,12 +213,8 @@ function MetricSummaryCard({
       </strong>
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
         <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-5 text-[#4d4d4d]">{label}</Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 flex items-center gap-1 text-xs leading-4 text-[#808080]">
-          <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex items-center font-semibold ${isUp ? "text-[#11a366]" : "text-[#ee3623]"}`}>
-            <LinearChartUp className="h-4 w-4" />
-            {trendText}
-          </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular">نسبت به روز قبل</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-4 text-[#808080]">
+          مقایسه روزانه از سرور دریافت نشده است
         </Typography>
       </div>
       <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
@@ -251,11 +225,20 @@ function MetricSummaryCard({
 }
 
 function AgencyBadgesPanel() {
+  const badgesQuery = useMyBadgesQuery();
+  const badges = (badgesQuery.data ?? []).map(mapBadgeItemToBadge);
+
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="نشان‌ها">
       <SectionHeader guideTo={DASHBOARD_BADGES_GUIDE_PATH} title="نشان‌ها" />
+      {badgesQuery.isLoading ? (
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">در حال دریافت نشان‌ها...</Typography>
+      ) : null}
+      {!badgesQuery.isLoading && badges.length === 0 ? (
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">نشانی از سرور دریافت نشده است.</Typography>
+      ) : null}
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">
-        {agencyBadges.map((badge) => (
+        {badges.map((badge) => (
           <BadgeCard badge={badge} key={badge.id} />
         ))}
       </div>
@@ -265,7 +248,6 @@ function AgencyBadgesPanel() {
 
 function BadgeCard({ badge }: { badge: AgencyBadge }) {
   const isActive = badge.tone === "active";
-  const Icon = badge.src;
   const className = `flex h-[186px] flex-col items-center rounded-lg border border-[#f5f5f5] bg-white pt-6 text-inherit no-underline transition active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-[#0048c440] ${!isActive ? "grayscale" : ""}`;
 
   const content = (
@@ -273,7 +255,11 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-[72px] w-[72px] place-items-center ${isActive ? "text-[#d69832]" : "text-[#d6d6d6]"}`}
       >
-        <img src={Icon} className="h-full w-full" alt="" />
+        {badge.src ? (
+          <img src={badge.src} className="h-full w-full object-contain" alt="" />
+        ) : (
+          <LinearStar className="h-10 w-10" innerColor="currentColor" />
+        )}
       </Typography>
 
       <Typography as="span" variant="label" size="medium" weight="semibold"
@@ -318,15 +304,21 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
   );
 }
 
-function RankingIndicatorsPanel() {
-  const [period, setPeriod] = useState<"هفته" | "ماه">("هفته");
-
+function RankingIndicatorsPanel({
+  indicators,
+  period,
+  setPeriod,
+}: {
+  indicators: AgencyIndicator[];
+  period: RankingPeriod;
+  setPeriod: (period: RankingPeriod) => void;
+}) {
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="شاخص‌های رتبه‌بندی">
       <div className="flex h-7 items-center justify-between [direction:ltr]">
         <Button unstyled
           className="inline-flex h-7 items-center gap-2 rounded-lg px-1 text-xs font-medium leading-4 text-[#1a1a1a] transition active:bg-[#1a1a1a0a]"
-          onClick={() => setPeriod((current) => (current === "هفته" ? "ماه" : "هفته"))}
+          onClick={() => setPeriod(period === "هفته" ? "ماه" : "هفته")}
           type="button"
         >
           <LinearArrowDown1 className="h-4 w-4 text-[#4d4d4d]" />
@@ -335,7 +327,7 @@ function RankingIndicatorsPanel() {
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</Typography>
       </div>
       <div className="mt-6 space-y-4">
-        {agencyIndicators.map((indicator) => (
+        {indicators.map((indicator) => (
           <RankIndicatorRow indicator={indicator} key={indicator.id} />
         ))}
       </div>
@@ -361,7 +353,7 @@ function RankIndicatorRow({ indicator }: { indicator: AgencyIndicator }) {
   );
 }
 
-function TopAgenciesPanel() {
+function TopAgenciesPanel({ agencies, isLoading }: { agencies: DashboardRankingEntity[]; isLoading: boolean }) {
   return (
     <section className="rounded-2xl bg-white p-4" aria-label="۱۰ آژانس برتر">
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">
@@ -376,21 +368,25 @@ function TopAgenciesPanel() {
 
         <div className="h-px bg-[#cccccc]" aria-hidden="true" />
 
-        {topAgencies.map((agency, index) => (
+        {agencies.map((agency, index) => (
           <div
-            className={`grid h-10 grid-cols-[56px_1fr] items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${index % 2 === 1 ? "bg-[#cccccc1f]" : ""
-              }`}
-            key={`${agency.name}-${index}`}
+            className={`grid h-10 grid-cols-[56px_1fr] items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${index % 2 === 1 ? "bg-[#cccccc1f]" : ""}`}
+            key={agency.entityId || `${agency.name}-${index}`}
           >
             <Typography as="span" variant="label" size="medium" weight="semibold" className="text-center font-semibold [direction:rtl]">
-              {agency.score}
+              {formatOptionalNumber(agency.totalScore)}
             </Typography>
 
             <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-[#4d4d4d] [direction:rtl]">
-              {index + 1}. {agency.name}
+              {formatOptionalNumber(agency.rank)}. {agency.name}
             </Typography>
           </div>
         ))}
+        {!isLoading && agencies.length === 0 ? (
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-6 text-center text-[#808080]">
+            اطلاعات آژانس‌های برتر از سرور دریافت نشده است.
+          </Typography>
+        ) : null}
       </div>
     </section>
   );

@@ -1,6 +1,6 @@
 import { AdCard, type AdCardData } from "../../../components/AdCard";
 import type { SearchMapListing } from "../searchMapData";
-import { SEARCH_MAP_DEMO_PHOTO } from "../searchMapData";
+import { SEARCH_MAP_FALLBACK_IMAGE } from "../searchMapData";
 
 type SearchMapPreviewCardProps = {
   isSelected: boolean;
@@ -23,7 +23,7 @@ export function SearchMapPreviewCard({
     <AdCard
       ad={searchMapListingToPreviewAdCardData(listing)}
       isSelected={isSelected}
-      mapPreviewFallbackImage={SEARCH_MAP_DEMO_PHOTO}
+      mapPreviewFallbackImage={SEARCH_MAP_FALLBACK_IMAGE}
       mapPreviewImages={normalizePreviewImages(listing.images)}
       mapSliderCardId={listing.id}
       state={getAdNavigationState()}
@@ -55,7 +55,7 @@ function searchMapListingToPreviewAdCardData(listing: SearchMapListing): AdCardD
 }
 
 function normalizePreviewImages(images: string[]) {
-  const safeImages = images.length > 0 ? images : [SEARCH_MAP_DEMO_PHOTO];
+  const safeImages = images.length > 0 ? images : [SEARCH_MAP_FALLBACK_IMAGE];
 
   return safeImages.slice(0, previewImageCount);
 }

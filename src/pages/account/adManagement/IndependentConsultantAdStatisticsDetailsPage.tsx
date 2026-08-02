@@ -1,35 +1,20 @@
-import { useState } from "react";
 import "../../../components/AdCard.css";
 
 import { PageFrame } from "../../../app/PageFrame";
 import { TopBar } from "../../../components/TopBar";
-import { ChevronLeftIcon } from "./AdManagementIcons";
-import {
-  adManagementPaths,
-  getSelectedStatisticsAd,
-} from "./adManagementData";
 import { Typography } from "../../../components/ui/Typography";
-import { Button } from "../../../components/ui/Button";
+import { adManagementPaths, getAdManagementRouteState, type StatisticsAd } from "./adManagementData";
 
 const chartSections = [
-  { label: "بازدید امروز:", title: "بازدید از آگهی" },
-  { label: "کل نمایش‌ها:", title: "نمایش در صفحه جستجو" },
-  { label: "کل گفتگوها:", title: "گفتگوها (چت‌ها)" },
-  { label: "کل تماس‌ها:", title: "اقدام به تماس" },
-] as const;
-
-const chartColumns = [
-  { date: "۱۰/۲۰", height: 80, selected: false },
-  { date: "۱۰/۲۱", height: 40, selected: false },
-  { date: "۱۰/۲۲", height: 90, selected: false },
-  { date: "۱۰/۲۳", height: 20, selected: false },
-  { date: "۱۰/۲۴", height: 4, selected: false },
-  { date: "۱۰/۲۵", height: 70, selected: true },
-  { date: "امروز", height: 100, selected: false },
+  { keys: ["total_views", "views_count", "views", "visit_count", "view_count"], label: "بازدید امروز:", title: "بازدید از آگهی" },
+  { keys: ["search_display_count", "impressions", "impression_count", "display_count", "shown_count"], label: "کل نمایش‌ها:", title: "نمایش در صفحه جستجو" },
+  { keys: ["chat_count", "chats_count", "chats", "conversation_count", "message_count"], label: "کل گفتگوها:", title: "گفتگوها (چت‌ها)" },
+  { keys: ["call_count", "calls_count", "calls", "phone_clicks", "contact_count"], label: "کل تماس‌ها:", title: "اقدام به تماس" },
 ] as const;
 
 export function IndependentConsultantAdStatisticsDetailsPage() {
-  const ad = getSelectedStatisticsAd();
+  const routeState = getAdManagementRouteState();
+  const ad = routeState.statisticsAd ?? createUnavailableStatisticsAd(routeState.ad);
 
   return (
     <PageFrame
@@ -52,6 +37,7 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
             <div
               aria-hidden="true"
               className={`ad-card__image ${ad.imageClassName} h-[72px] w-[108px] shrink-0 rounded-lg bg-cover`}
+              style={ad.imageUrl ? { backgroundImage: `url(${ad.imageUrl})` } : undefined}
             />
           </div>
         </section>
@@ -60,7 +46,11 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
         {chartSections.map((section, index) => (
           <div key={section.title}>
             {index > 0 ? <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" /> : null}
-            <StatisticsChart label={section.label} title={section.title} />
+            <StatisticsChart
+              label={section.label}
+              title={section.title}
+              value={readStatistic(routeState.ad, [...section.keys])}
+            />
           </div>
         ))}
       </main>
@@ -68,32 +58,10 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
   );
 }
 
-function StatisticsChart({ label, title }: { label: string; title: string }) {
-  const [offset, setOffset] = useState(0);
-  const displayValue = offset === 0 ? "۲۴۵" : offset === 1 ? "۲۱۲" : "۱۸۷";
-
+function StatisticsChart({ label, title, value }: { label: string; title: string; value: string }) {
   return (
     <section className="h-[283px] bg-[#fafafa] px-4 py-4" aria-label={title}>
-      <div className="flex h-12 items-center justify-between [direction:ltr]">
-        <div className="flex items-center">
-          <Button unstyled
-            aria-label="بازه قبلی"
-            className="grid h-12 w-12 place-items-center text-[#4d4d4d]"
-            onClick={() => setOffset((current) => Math.min(current + 1, 2))}
-            type="button"
-          >
-            <ChevronLeftIcon className="h-5 w-5" />
-          </Button>
-          <Button unstyled
-            aria-label="بازه بعدی"
-            className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-[#c7c7c7]" : "text-[#4d4d4d]"}`}
-            disabled={offset === 0}
-            onClick={() => setOffset((current) => Math.max(current - 1, 0))}
-            type="button"
-          >
-            <ChevronRightIcon className="h-5 w-5" />
-          </Button>
-        </div>
+      <div className="flex h-12 items-center justify-end [direction:ltr]">
         <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
           <TrendIcon className="h-6 w-6 text-[#4d4d4d]" />
           {title}
@@ -103,37 +71,57 @@ function StatisticsChart({ label, title }: { label: string; title: string }) {
       <div className="mt-4 h-[187px]">
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{label}</Typography>
-          <strong className="rounded bg-[#edf0fb] px-2 text-base font-medium leading-6 text-[#002099]">
-            {displayValue}
-          </strong>
+          <strong className="rounded bg-[#edf0fb] px-2 text-base font-medium leading-6 text-[#002099]">{value}</strong>
         </div>
-        <div className="relative mt-2 grid h-[155px] grid-cols-7 [direction:ltr]">
-          <div className="absolute inset-x-0 bottom-[22px] h-px bg-[#cccccc]" aria-hidden="true" />
-          {chartColumns.map((column) => (
-            <div className="relative h-full text-center" key={column.date}>
-              {column.selected ? (
-                <Typography as="span" variant="body" size="small" weight="regular"
-                  className="absolute left-1/2 z-10 -translate-x-1/2 rounded-md bg-white px-3 py-1 text-xs font-normal leading-4 text-[#1a1a1a] shadow-[0_2px_10px_rgba(0,0,0,0.09)]"
-                  style={{ bottom: column.height + 38 }}
-                >
-                  ۱۲۸۵
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-white" />
-                </Typography>
-              ) : null}
-              <Typography as="span" variant="body" size="medium" weight="regular"
-                aria-hidden="true"
-                className="absolute bottom-[23px] left-1/2 w-[6px] -translate-x-1/2 rounded-t-full bg-gradient-to-t from-[#cccccc] via-[#45b58f] to-[#12a36a]"
-                style={{ height: column.height }}
-              />
-              <Typography as="span" variant="body" size="small" weight="regular" className="absolute inset-x-0 bottom-0 text-xs font-normal leading-4 text-[#4d4d4d]">
-                {column.date}
-              </Typography>
-            </div>
-          ))}
+        <div className="mt-2 flex h-[155px] items-center justify-center border-b border-[#cccccc] text-center">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+            داده نموداری از سرور دریافت نشده است.
+          </Typography>
         </div>
       </div>
     </section>
   );
+}
+
+function createUnavailableStatisticsAd(source: unknown): StatisticsAd {
+  const record = isRecord(source) ? source : {};
+  const id = readText(record.id ?? record._id ?? record.advertise_id) || "";
+
+  return {
+    id,
+    imageClassName: "",
+    imageUrl: readImageUrl(record),
+    timeAndLocation: readText(record.timeAndLocation ?? record.time_and_location),
+    title: readText(record.title ?? record.ad_title) || "آگهی",
+  };
+}
+
+function readStatistic(ad: unknown, keys: string[]) {
+  if (!isRecord(ad)) return "—";
+  const containers = [ad, ad.statistics, ad.stats, ad.report, ad.analytics].filter(isRecord);
+  for (const container of containers) {
+    for (const key of keys) {
+      const value = container[key];
+      if (typeof value === "number" && Number.isFinite(value)) return new Intl.NumberFormat("fa-IR").format(value);
+      if (typeof value === "string" && value.trim()) return value;
+    }
+  }
+  return "—";
+}
+
+function readImageUrl(record: Record<string, unknown>) {
+  const value = record.imageUrl ?? record.image_url ?? record.image;
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function readText(value: unknown) {
+  if (typeof value === "string" && value.trim()) return value;
+  if (typeof value === "number") return String(value);
+  return "";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function TrendIcon({ className = "" }: { className?: string }) {
@@ -141,14 +129,6 @@ function TrendIcon({ className = "" }: { className?: string }) {
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
       <rect height="17" rx="2" width="16" x="4" y="3.5" />
       <path d="m7.5 15.5 3.25-3.25 2.5 2.25 3.5-5M15 9.5h1.75v1.75" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="m10 7 5 5-5 5" />
     </svg>
   );
 }

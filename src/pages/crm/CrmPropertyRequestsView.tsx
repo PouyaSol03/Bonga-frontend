@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import LinearCalendar from "../../components/(icons)/LinearCalendar";
@@ -10,9 +10,7 @@ import { SearchEmptyState } from "../../components/SearchEmptyState";
 import {
   formatPropertyRequestValue,
   getCollapsedPropertyRequestDetails,
-  loadPropertyRequests,
   propertyRequestFilterLabels,
-  subscribePropertyRequests,
   toPersianDigits,
   type PropertySearchRequest,
 } from "../../services/property-request.service";
@@ -22,7 +20,6 @@ import { Button } from "../../components/ui/Button";
 
 type CrmPropertyRequestsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
-  refreshNonce: number;
 };
 
 function formatPersianDate(value: string) {
@@ -151,12 +148,12 @@ function EmptyState({ searchQuery }: { searchQuery: string }) {
           <LinearPropertySearch className="h-8 w-8" />
         </Typography>
         <strong className="mt-4 block text-base font-bold text-[#303030]">
-          {searchQuery ? "درخواستی پیدا نشد" : "هنوز درخواستی ثبت نشده است"}
+          {searchQuery ? "درخواستی پیدا نشد" : "سرویس درخواست‌های CRM متصل نیست"}
         </strong>
         <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-7 text-[#8a919c]">
           {searchQuery
             ? "عبارت جستجو را تغییر دهید."
-            : "درخواست‌های ثبت‌شده کاربران برای یافتن آگهی، اینجا نمایش داده می‌شوند."}
+            : "در این پروژه API پنل CRM برای درخواست‌های یافتن آگهی پیاده‌سازی نشده است."}
         </Typography>
       </div>
     </div>
@@ -165,22 +162,10 @@ function EmptyState({ searchQuery }: { searchQuery: string }) {
 
 export function CrmPropertyRequestsView({
   notify,
-  refreshNonce,
 }: CrmPropertyRequestsViewProps) {
   const prefersReducedMotion = Boolean(useReducedMotion());
-  const [requests, setRequests] = useState<PropertySearchRequest[]>(
-    loadPropertyRequests,
-  );
+  const requests: PropertySearchRequest[] = [];
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(
-    () => subscribePropertyRequests(() => setRequests(loadPropertyRequests())),
-    [],
-  );
-
-  useEffect(() => {
-    setRequests(loadPropertyRequests());
-  }, [refreshNonce]);
 
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase("fa-IR");
   const filteredRequests = useMemo(
@@ -204,8 +189,7 @@ export function CrmPropertyRequestsView({
   );
 
   const refreshRequests = () => {
-    setRequests(loadPropertyRequests());
-    notify("فهرست درخواست‌های یافتن آگهی بروزرسانی شد.", "success");
+    notify("API درخواست‌های یافتن آگهی برای پنل CRM در این پروژه متصل نیست.", "error");
   };
 
   return (
@@ -226,7 +210,7 @@ export function CrmPropertyRequestsView({
                 </Typography>
               </div>
               <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-1 text-sm font-medium text-[#808895]">
-                هر درخواست همراه با آگهی منطبق یا وضعیت بدون نتیجه نمایش داده می‌شود.
+                اتصال API درخواست‌های یافتن آگهی برای پنل CRM در این پروژه در دسترس نیست.
               </Typography>
             </div>
           </div>

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useDemoNotice } from "../../../hooks/useDemoNotice";
+import { useTransientNotice } from "../../../hooks/useTransientNotice";
 import { useAuthorizeMeMutation, useMyProfileQuery } from "../../../hooks/account.hooks";
 import { getStoredAuthSession } from "../../../auth/auth-storage";
 import { isUserIdentityVerified } from "../../../services/account.service";
 import { getApiErrorMessage } from "../../../api/api";
 import { BottomSheet } from "../../../components/BottomSheet";
-import { DemoNotice } from "../../../components/DemoNotice";
+import { TransientNotice } from "../../../components/TransientNotice";
 import { Button } from "../../../components/ui/Button";
 import { AccountPageShell, IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
@@ -14,7 +14,7 @@ import { Typography } from "../../../components/ui/Typography";
 export function AccountIdentityPage() {
   const [step, setStep] = useState<IdentityPageStep>("pending");
   const [isOwnershipWarningOpen, setIsOwnershipWarningOpen] = useState(false);
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
   const authorize = useAuthorizeMeMutation();
   const { data: profile } = useMyProfileQuery();
   const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
@@ -112,8 +112,7 @@ export function AccountIdentityPage() {
             fullWidth
             onClick={() => {
               setIsOwnershipWarningOpen(false);
-              setStep("verified");
-              showNotice("درخواست تغییر مالکیت سیم‌کارت ثبت شد");
+              showNotice("تغییر مالکیت سیم‌کارت هنوز به سرویس مربوطه متصل نشده است");
             }}
             size="sm"
           >
@@ -122,7 +121,7 @@ export function AccountIdentityPage() {
         </div>
       </BottomSheet>
 
-      <DemoNotice message={message} className="bottom-20" />
+      <TransientNotice message={message} className="bottom-20" />
     </AccountPageShell>
   );
 }

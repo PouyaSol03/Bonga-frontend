@@ -75,72 +75,8 @@ export type PropertyRequestMatchesPage = {
   total: number;
 };
 
-type PropertyRequestsListener = () => void;
 
 type PropertyRequestApiRecord = Record<string, unknown>;
-
-const propertyRequestsListeners = new Set<PropertyRequestsListener>();
-
-// Kept only for the CRM preview screen until a CRM-wide property-request API
-// is available. The user and agency request screens no longer use this store.
-const mockPropertyRequests: PropertySearchRequest[] = [
-  {
-    createdAt: "2026-07-20T08:30:00.000Z",
-    filters: {
-      area_max: "۱۴۰",
-      area_min: "۹۰",
-      city_id: "mashhad",
-      form_code: "sale-apartment",
-      neighborhood_id: "الهیه",
-      price_max: "۶۰۰۰۰۰۰۰۰۰",
-      rooms: "۲_۳",
-    },
-    id: "mock-property-request-1",
-    senderLabel: "آگهی شخصی",
-    senderRole: "user",
-    title: "آپارتمان دو خوابه در الهیه",
-  },
-  {
-    createdAt: "2026-07-19T15:10:00.000Z",
-    filters: {
-      area_min: "۱۲۰",
-      city_id: "mashhad",
-      form_code: "rent-apartment",
-      neighborhood_id: "هاشمیه",
-      price_max: "۳۰۰۰۰۰۰۰",
-      price_min: "۱۵۰۰۰۰۰۰",
-      rooms: "۳",
-    },
-    id: "mock-property-request-2",
-    senderLabel: "مشاور مستقل",
-    senderRole: "independent_consultant",
-    title: "اجاره آپارتمان سه خوابه هاشمیه",
-  },
-  {
-    createdAt: "2026-07-18T11:45:00.000Z",
-    filters: {
-      area_min: "۲۵۰",
-      city_id: "mashhad",
-      form_code: "sale-garden-villa",
-      has_image: "true",
-      query: "باغ ویلا سنددار",
-    },
-    id: "mock-property-request-3",
-    senderLabel: "آگهی شخصی",
-    senderRole: "user",
-    title: "باغ ویلای سنددار اطراف مشهد",
-  },
-];
-
-let propertyRequestsStore: PropertySearchRequest[] = [...mockPropertyRequests];
-
-if (typeof window !== "undefined") {
-  try {
-    window.localStorage.removeItem("bonga-property-search-requests");
-  } catch {
-    // Legacy browser storage cleanup must not block the requests flow.
-  }
-}
 
 export const propertyRequestFilterLabels: Record<string, string> = {
   area_max: "حداکثر متراژ",
@@ -418,7 +354,7 @@ export function buildPropertyRequestFilters(
 
 function normalizeQuota(value: unknown, fallback: Partial<PropertyRequestQuota> = {}) {
   const record = asRecord(value);
-  const limit = readNumber(record?.limit, fallback.limit ?? 3);
+  const limit = readNumber(record?.limit, fallback.limit ?? 0);
   const used = readNumber(record?.used, fallback.used ?? 0);
   const remaining = readNumber(
     record?.remaining,
@@ -508,7 +444,7 @@ export async function getPropertyRequests(
   );
   const requestLimit = readNumber(
     record?.request_limit ?? payload?.request_limit,
-    3,
+    0,
   );
   const remaining = readNumber(
     record?.remaining ?? payload?.remaining,
@@ -678,42 +614,6 @@ export async function getPropertyRequestMatches(
 }
 
 // CRM preview-only in-memory helpers.
-export function loadPropertyRequests(): PropertySearchRequest[] {
-  return propertyRequestsStore;
-}
-
-export function subscribePropertyRequests(listener: PropertyRequestsListener) {
-  propertyRequestsListeners.add(listener);
-  return () => {
-    propertyRequestsListeners.delete(listener);
-  };
-}
-
-function publishPropertyRequests(nextRequests: PropertySearchRequest[]) {
-  propertyRequestsStore = nextRequests;
-  propertyRequestsListeners.forEach((listener) => listener());
-}
-
-export function savePropertyRequest(request: PropertySearchRequest) {
-  publishPropertyRequests([
-    request,
-    ...propertyRequestsStore.filter((item) => item.id !== request.id),
-  ]);
-}
-
-export function removePropertyRequest(requestId: string) {
-  publishPropertyRequests(
-    propertyRequestsStore.filter((request) => request.id !== requestId),
-  );
-}
-
-export function updatePropertyRequestTitle(requestId: string, title: string) {
-  publishPropertyRequests(
-    propertyRequestsStore.map((request) =>
-      request.id === requestId ? { ...request, title } : request,
-    ),
-  );
-}
 
 function normalizeBooleanFilter(value: string | undefined) {
   if (!value) return undefined;
@@ -760,20 +660,6 @@ export function createPropertyRequestAdvertisementParams(
     page: 1,
     perPage,
   };
-}
-
-export function createPropertyRequestSearchUrl(
-  filters: Record<string, string>,
-) {
-  const params = new URLSearchParams();
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (key === "focus" || key === "view") return;
-    params.set(key, value);
-  });
-
-  const query = params.toString();
-  return query ? `/search?${query}` : "/search";
 }
 
 export function toPersianDigits(value: number | string) {

@@ -1,24 +1,73 @@
 import { PageFrame } from "../../../app/PageFrame";
-import { DemoNotice } from "../../../components/DemoNotice";
+import { TransientNotice } from "../../../components/TransientNotice";
 import { TopBar } from "../../../components/TopBar";
 import { RouteLink } from "../../../routes/RouteLink";
-import { useDemoNotice } from "../../../hooks/useDemoNotice";
-import { creditPackages, panelCreditBonusPlans, panelCreditPlans, type CreditPlan } from "./creditData";
+import { useTransientNotice } from "../../../hooks/useTransientNotice";
+import { usePackagesQuery } from "../../../hooks/package.hooks";
+import type { PackageItem } from "../../../services/package.service";
 
 import { Typography } from "../../../components/ui/Typography";
 import { Button } from "../../../components/ui/Button";
 
 type CreditView = "packages" | "panel" | "panel-bonus";
+type CreditPlan = {
+  benefits?: string[];
+  currentPrice: string;
+  discountPercent: number;
+  giftBenefits?: string[];
+  id: string;
+  name: string;
+  originalPrice: string;
+  selected?: boolean;
+};
+
+function formatCreditNumber(value: number) {
+  return new Intl.NumberFormat("fa-IR").format(value);
+}
+
+function getCreditBenefits(plan: PackageItem, withCreditLabel = false) {
+  return [
+    { label: "آگهی", value: plan.ad_credit },
+    { label: "ویژه", value: plan.special_credit },
+    { label: "بروزرسانی", value: plan.renew_credit },
+  ]
+    .filter((item) => item.value > 0)
+    .map((item) =>
+      `${formatCreditNumber(item.value)} ${withCreditLabel ? "اعتبار " : ""}${item.label}`,
+    );
+}
+
+function mapPackageToCreditPlan(
+  plan: PackageItem,
+  index: number,
+  view: CreditView,
+): CreditPlan {
+  const isBundle = view === "packages";
+  const showGiftBenefits = view === "panel-bonus";
+
+  return {
+    benefits: isBundle ? getCreditBenefits(plan, true) : undefined,
+    currentPrice: formatCreditNumber(plan.final_price),
+    discountPercent: plan.discount_percent,
+    giftBenefits: showGiftBenefits ? getCreditBenefits(plan) : undefined,
+    id: plan.id,
+    name: plan.title,
+    originalPrice: formatCreditNumber(plan.real_price),
+    selected: index === 0,
+  };
+}
+
 
 export function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
-  const { message, showNotice } = useDemoNotice();
+  const { message, showNotice } = useTransientNotice();
+  const packagesQuery = usePackagesQuery();
   const isPackages = view === "packages";
   const hasGiftBenefits = view === "panel-bonus";
-  const plans = isPackages
-    ? creditPackages
-    : hasGiftBenefits
-      ? panelCreditBonusPlans
-      : panelCreditPlans;
+  const plans = (packagesQuery.data ?? [])
+    .filter((plan) =>
+      isPackages ? plan.kind === "credit_bundle" : plan.kind === "panel_subscription",
+    )
+    .map((plan, index) => mapPackageToCreditPlan(plan, index, view));
 
   return (
     <PageFrame
@@ -29,19 +78,33 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
       <CreditTabs activeTab={isPackages ? "packages" : "panel"} />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4">
-        <div className="space-y-4">
-          {plans.map((plan) => (
-            <CreditPlanCard
-              hasGiftBenefits={hasGiftBenefits}
-              isPackage={isPackages}
-              key={plan.name}
-              onPay={() => showNotice(`پرداخت ${plan.name} در نسخه نمایشی ثبت شد`)}
-              plan={plan}
-            />
-          ))}
-        </div>
+        {packagesQuery.isLoading ? (
+          <CreditPlansSkeleton count={3} />
+        ) : packagesQuery.isError ? (
+          <CreditPlansStatus
+            actionLabel="تلاش دوباره"
+            message="دریافت بسته‌های اعتبار با خطا مواجه شد."
+            onAction={() => void packagesQuery.refetch()}
+          />
+        ) : plans.length > 0 ? (
+          <div className="space-y-4">
+            {plans.map((plan) => (
+              <CreditPlanCard
+                hasGiftBenefits={hasGiftBenefits}
+                isPackage={isPackages}
+                key={plan.id}
+                onPay={() =>
+                  showNotice("خرید این بسته هنوز به سرویس پرداخت متصل نشده است.")
+                }
+                plan={plan}
+              />
+            ))}
+          </div>
+        ) : (
+          <CreditPlansStatus message="بسته‌ای برای نمایش وجود ندارد." />
+        )}
       </main>
-      <DemoNotice message={message} />
+      <TransientNotice message={message} />
     </PageFrame>
   );
 }
@@ -169,9 +232,13 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">{plan.name}</Typography>
       </div>
       <div className="mt-4 flex h-[68px] items-end justify-between [direction:ltr]">
-        <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
-          ۱۰٪ تخفیف
-        </Typography>
+        {plan.discountPercent > 0 ? (
+          <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
+            {formatCreditNumber(plan.discountPercent)}٪ تخفیف
+          </Typography>
+        ) : (
+          <span />
+        )}
         <div className="text-right [direction:rtl]">
           <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">{plan.originalPrice}</Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
@@ -201,6 +268,47 @@ function GiftBenefits({ benefits }: { benefits: string[] }) {
           </Typography>
         ))}
       </div>
+    </div>
+  );
+}
+
+function CreditPlansSkeleton({ count }: { count: number }) {
+  return (
+    <div className="space-y-4" aria-label="در حال دریافت بسته‌های اعتبار" role="status">
+      {Array.from({ length: count }, (_, index) => (
+        <div
+          className="h-[204px] animate-pulse rounded-2xl border border-[#e0e0e0] bg-[#f7f9fe]"
+          key={index}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CreditPlansStatus({
+  actionLabel,
+  message,
+  onAction,
+}: {
+  actionLabel?: string;
+  message: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[#d9d9d9] px-4 py-10 text-center">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-[#808080]">
+        {message}
+      </Typography>
+      {actionLabel && onAction ? (
+        <Button
+          unstyled
+          className="mt-4 h-10 rounded-lg border border-[#0048c4] px-5 text-sm font-medium text-[#0048c4]"
+          onClick={onAction}
+          type="button"
+        >
+          {actionLabel}
+        </Button>
+      ) : null}
     </div>
   );
 }

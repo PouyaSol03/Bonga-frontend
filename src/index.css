@@ -1,4 +1,54 @@
 @import "tailwindcss";
+@import "./tokens.css";
+@import "./theme.css";
+
+@theme inline {
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+
+  /* Secondary */
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+
+  /* Tertiary */
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+
+  /* Error */
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+
+  /* Warning */
+  --color-warning: var(--warning);
+  --color-on-warning: var(--on-warning);
+  --color-warning-container: var(--warning-container);
+  --color-on-warning-container: var(--on-warning-container);
+
+  /* Surface */
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-var: var(--on-surface-var);
+
+  /* Outline */
+  --color-outline: var(--outline);
+  --color-outline-var: var(--outline-var);
+
+  /* Surface containers */
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+}
 
 @font-face {
   font-family: "DanaFaNum";

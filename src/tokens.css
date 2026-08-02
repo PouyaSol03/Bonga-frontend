@@ -64,17 +64,17 @@
     --warning-900: #FFEBB2;
     --warning-950: #FFF8E1;
     --warning-990: #FFFDF8;
-    /* Neutral */
-    --neutral-0: #000000;
-    --neutral-100: #1A1A1A;
-    --neutral-200: #333333;
-    --neutral-300: #4D4D4D;
-    --neutral-400: #666666;
-    --neutral-500: #808080;
-    --neutral-600: #999999;
-    --neutral-700: #B3B3B3;
-    --neutral-800: #CCCCCC;
-    --neutral-900: #E5E5E5;
-    --neutral-950: #F2F2F2;
-    --neutral-990: #FCFCFC;
+    /* Netural */
+    --netural-0: #000000;
+    --netural-100: #1A1A1A;
+    --netural-200: #333333;
+    --netural-300: #4D4D4D;
+    --netural-400: #666666;
+    --netural-500: #808080;
+    --netural-600: #999999;
+    --netural-700: #B3B3B3;
+    --netural-800: #CCCCCC;
+    --netural-900: #E5E5E5;
+    --netural-950: #F2F2F2;
+    --netural-990: #FCFCFC;
 }

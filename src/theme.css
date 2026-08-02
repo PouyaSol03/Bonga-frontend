@@ -1,4 +1,4 @@
-:root{
+:root {
     --primary: var(--primary-400);
     --on-primary: var(--primary-0);
     --primary-container: var(--primary-950);
@@ -29,4 +29,47 @@
     --on-surface-var: var(--netural-300);
     --outline: var(--netural-500);
     --outline-var: var(--netural-800);
-    }
+    --surface-container-lowest: #FFFFFF;
+    --surface-container-low: #F5F5F5;
+    --surface-container: #F0F0F0;
+    --surface-container-high: #EBEBEB;
+    --surface-container-highest: #E5E5E5;
+}
+
+.dark{
+    --primary: var(--primary-900);
+    --on-primary: var(--primary-200);
+    --primary-container: var(--primary-300);
+    --on-primary-container: var(--primary-950);
+
+    --secondary: var(--secondary-900);
+    --on-secondary: var(--secondary-200);
+    --secondary-container: var(--secondary-300);
+    --on-secondary-container: var(--secondary-950);
+
+    --tertiary: var(--tertiary-900);
+    --on-tertiary: var(--tertiary-200);
+    --tertiary-container: var(--tertiary-300);
+    --on-tertiary-container: var(--tertiary-950);
+
+    --error: var(--error-900);
+    --on-error: var(--error-200);
+    --error-container: var(--error-300);
+    --on-error-container: var(--error-950);
+
+    --warning: var(--warning-900);
+    --on-warning: var(--warning-200);
+    --warning-container: var(--warning-200);
+    --on-warning-container: var(--warning-950);
+
+    --surface: #050505;
+    --on-surface: var(--neutral-900);
+    --on-surface-var: var(--netural-800);
+    --outline: var(--netural-600);
+    --outline-var: var(--netural-300);
+    --surface-container-lowest: #1A1A1A;
+    --surface-container-low: #242424;
+    --surface-container: #292929;
+    --surface-container-high: #2E2E2E;
+    --surface-container-highest: #333333;
+}

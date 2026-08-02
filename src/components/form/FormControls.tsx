@@ -120,7 +120,7 @@ export function FormTextField({
   return (
     <TextField
       badge={badge}
-      className="text-sm leading-5"
+      className="text-sm"
       containerClassName={className}
       forceHighlight={forceHighlight}
       forceLabel={forceLabel}

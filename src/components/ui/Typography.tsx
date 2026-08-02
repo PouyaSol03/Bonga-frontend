@@ -60,7 +60,7 @@ const weightClasses: Record<TypographyWeight, string> = {
 };
 
 const textSizePattern = /(?:^|\s)(?:[^\s:]+:)*(?:text-(?:xs|sm|base|lg|xl|[2-9]xl)|text-\[\s*-?\d+(?:\.\d+)?(?:px|rem)\s*\])(?=\s|$)/;
-const lineHeightPattern = /(?:^|\s)(?:[^\s:]+:)*leading-(?:none|tight|snug|normal|relaxed|loose|[3-9]|10|\[[^\]]+\])(?=\s|$)/;
+const lineHeightClassPattern = /^(?:[^\s:]+:)*!?leading-(?:none|tight|snug|normal|relaxed|loose|\d+|\[[^\]]+\])!?$/;
 const fontWeightPattern = /(?:^|\s)(?:[^\s:]+:)*font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?=\s|$)/;
 
 function resolveWeight(variant: TypographyVariant, weight?: TypographyWeight): TypographyWeight {
@@ -73,6 +73,13 @@ function resolveWeight(variant: TypographyVariant, weight?: TypographyWeight): T
   }
 
   return weight === "medium" ? "medium" : "regular";
+}
+
+function removeLineHeightClasses(className: string) {
+  return className
+    .split(/\s+/)
+    .filter((token) => token && !lineHeightClassPattern.test(token))
+    .join(" ");
 }
 
 function getTypographyClasses(
@@ -88,7 +95,7 @@ function getTypographyClasses(
 
   return cn(
     !textSizePattern.test(className) && textSizeClass,
-    !lineHeightPattern.test(className) && lineHeightClass,
+    lineHeightClass,
     !fontWeightPattern.test(className) && weightClasses[resolvedWeight],
   );
 }
@@ -103,9 +110,13 @@ export function Typography<T extends TypographyElement = "p">({
   ...props
 }: TypographyProps<T>) {
   const Component: TypographyElement = as ?? "p";
+  const resolvedClassName = removeLineHeightClasses(className);
   const elementProps = {
     ...(props as Record<string, unknown>),
-    className: cn(getTypographyClasses(className, variant, size, weight), className),
+    className: cn(
+      getTypographyClasses(resolvedClassName, variant, size, weight),
+      resolvedClassName,
+    ),
   };
 
   return createElement(

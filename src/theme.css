@@ -1,0 +1,32 @@
+:root{
+    --primary: var(--primary-400);
+    --on-primary: var(--primary-0);
+    --primary-container: var(--primary-950);
+    --on-primary-container: var(--primary-100);
+
+    --secondary: var(--secondary-400);
+    --on-secondary: var(--secondary-0);
+    --secondary-container: var(--secondary-950);
+    --on-secondary-container: var(--secondary-100);
+
+    --tertiary: var(--tertiary-400);
+    --on-tertiary: var(--tertiary-0);
+    --tertiary-container: var(--tertiary-950);
+    --on-tertiary-container: var(--tertiary-100);
+
+    --error: var(--error-400);
+    --on-error: var(--error-0);
+    --error-container: var(--error-950);
+    --on-error-container: var(--error-100);
+
+    --warning: var(--warning-400);
+    --on-warning: var(--warning-0);
+    --warning-container: var(--warning-950);
+    --on-warning-container: var(--warning-100);
+
+    --surface: #FAFAFA;
+    --on-surface: var(--neutral-100);
+    --on-surface-var: var(--netural-300);
+    --outline: var(--netural-500);
+    --outline-var: var(--netural-800);
+    }

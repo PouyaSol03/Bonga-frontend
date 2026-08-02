@@ -22,6 +22,7 @@ import { RadioIndicator } from "../../components/RadioIndicator";
 import { HorizontalFilterBar } from "../../components/HorizontalFilterBar";
 
 import { Typography } from "../../components/ui/Typography";
+import { TextField } from "../../components/ui/TextField";
 import { Button } from "../../components/ui/Button";
 
 type TopBarProps = {
@@ -140,19 +141,25 @@ export function AccountProfileForm({
 
       <section className="space-y-6 px-4 pt-4">
         <TextField
+          className="text-sm text-[#808080] placeholder:text-[#808080]"
+          label="نام خود را وارد کنید"
           placeholder="نام خود را وارد کنید"
           value={form.name}
-          onChange={(value) => setForm((current) => ({ ...current, name: value }))}
+          onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
         />
         <TextField
+          className="text-sm text-[#808080] placeholder:text-[#808080]"
+          label="نام خانوادگی خود را وارد کنید"
           placeholder="نام خانوادگی خود را وارد کنید"
           value={form.family}
-          onChange={(value) => setForm((current) => ({ ...current, family: value }))}
+          onChange={(event) => setForm((current) => ({ ...current, family: event.target.value }))}
         />
         <TextField
+          className="text-sm text-[#808080] placeholder:text-[#808080]"
+          label="پست الکترونیکی"
           placeholder="پست الکترونیکی"
           value={form.email}
-          onChange={(value) => setForm((current) => ({ ...current, email: value }))}
+          onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
         />
       </section>
 
@@ -631,7 +638,7 @@ export function AboutSection({
         </Typography>
         <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 shrink-0 rounded-full bg-[#11a366]" aria-hidden="true" />
       </div>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal leading-7 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 whitespace-pre-line text-right text-sm font-normal text-[#4d4d4d]">
         {text}
       </Typography>
     </section>
@@ -671,18 +678,18 @@ export function IdentityPendingState({
         <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
           <div className="flex items-center justify-start gap-2.5 text-[#0048C4]">
             <LinearUserAccount className="h-6 w-6" />
-            <Typography as="h2" variant="headline" size="large" className="m-0 font-medium">
+            <Typography as="p" variant="body" size="large" className="m-0 font-medium">
               ملاحظات در تایید هویت
             </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
             برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
           </Typography>
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
             شماره همراه فعال:{" "}
-            <Typography as="span" variant="label" size="medium" weight="semibold" dir="ltr" className="font-semibold text-[#11A366]">
+            <Typography as="span" variant="body" size="large" weight="medium" dir="ltr" className="text-[#11A366]">
               {mobile}
             </Typography>
           </Typography>
@@ -690,7 +697,7 @@ export function IdentityPendingState({
       </section>
 
       <section className="p-4">
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-[#1a1a1a]">
           تایید با کد ملی
         </Typography>
 
@@ -744,14 +751,14 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
         <div className="rounded-xl border border-[#11A366] bg-[#11A36614] p-5">
           <div className="flex gap-2 text-[#11A366]">
             <LinearUserConfirmation className="h-6 w-6" />
-            <Typography as="h2" variant="headline" size="large" className="m-0 font-medium">
+            <Typography as="p" variant="body" size="large" className="m-0">
               هویت شما تایید شده است
             </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mt-4 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-[#4d4d4d]">
             احراز هویت شما در
-            {" "}<Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">بهمن 1401</Typography> {" "}
+            {" "}<Typography as="span" variant="body" size="large" weight="medium" className="">بهمن 1401</Typography> {" "}
             با موفقیت انجام شده است.
           </Typography>
         </div>
@@ -760,13 +767,13 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
       <div className="mt-3 h-0.5 bg-[#f0f0f0]" />
 
       <section className="p-4">
-        <Typography as="h2" variant="headline" size="large" className="m-0 font-medium text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" className="m-0 text-[#1a1a1a]">
           مالکیت سیم‌کارت
         </Typography>
 
         <div className="mt-2 flex items-start gap-1 text-[#808080]">
           <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-[#4D4D4D]" />
-          <Typography as="p" variant="body" size="small" weight="regular" className="text-xs font-normal">
+          <Typography as="p" variant="body" size="small" weight="regular" className="">
             در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
             <br/>
             در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
@@ -778,7 +785,7 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           onClick={onChangeOwner}
           type="button"
         >
-          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">ثبت تغییر مالکیت سیم‌کارت</Typography>
+          <Typography as="span" variant="label" size="large" weight="medium" className="">ثبت تغییر مالکیت سیم‌کارت</Typography>
           <LinearArrowLeft1 className="h-6 w-6" />
         </Button>
       </section>
@@ -815,7 +822,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
                   value={reason.id}
                 />
 
-                <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a]">
+                <Typography as="span" variant="body" size="large" weight="regular" className="text-[#1a1a1a]">
                   {reason.label}
                 </Typography>
 
@@ -1034,35 +1041,17 @@ function formatPaymentDate(value?: string) {
 
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
-    <label className="block">
-      <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 block pr-4 text-right text-xs font-normal leading-4 text-[#b3b3b3]">
+    <div className="block">
+      <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 block pr-4 text-right text-xs font-normal text-[#b3b3b3]">
         {label}
       </Typography>
-      <input
-        className="h-14 w-full rounded-xl border border-[#e0e0e0] bg-white px-4 text-right text-sm font-normal leading-5 text-[#b3b3b3] outline-none"
-        readOnly
+      <TextField
+        className="text-sm text-[#b3b3b3]"
+        disabled
+        highlightWhenFilled={false}
         value={value}
       />
-    </label>
-  );
-}
-
-function TextField({
-  onChange,
-  placeholder,
-  value,
-}: {
-  onChange: (value: string) => void;
-  placeholder: string;
-  value: string;
-}) {
-  return (
-    <input
-      className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#808080] outline-none placeholder:text-[#808080]"
-      placeholder={placeholder}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-    />
+    </div>
   );
 }
 

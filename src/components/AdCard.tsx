@@ -122,7 +122,7 @@ export function AdCard({
 
         <PropertyRow className="mt-1.5 min-h-6 flex-wrap gap-3 text-[13px]" ad={ad} />
 
-        <Typography as="h3" variant="title" size="medium" weight="medium" className="mt-1.5 truncate text-right text-[15px] font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-[#1a1a1a]">
           {ad.title}
         </Typography>
       </RouteLink>
@@ -226,8 +226,8 @@ function AdCardImage({
         </div>
       ) : null}
       {showStatusBadge && ad.status ? (
-        <Typography as="span" variant="label" size="small" weight="medium" className={`absolute left-2 top-2 z-2 inline-flex h-7 max-w-[calc(100%-92px)] items-center rounded-lg px-2 text-xs font-medium leading-4 ${getStatusBadgeClassName(ad.status)}`}>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{ad.status}</Typography>
+        <Typography as="span" variant="label" size="small" weight="medium" className={`absolute left-2 top-2 z-2 inline-flex h-7 items-center rounded-lg py-1.5 px-4 text-xs font-medium ${getStatusBadgeClassName(ad.status)}`}>
+          <Typography as="span" variant="label" size="small" weight="medium" className="">{ad.status}</Typography>
         </Typography>
       ) : null}
       {showAgency && ad.agency ? (
@@ -284,7 +284,7 @@ function PriceItem({ label, price }: { label: string; price: string }) {
   return (
     <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex min-w-0 items-center gap-0.5">
       {label ? <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#808080]">{label}</Typography> : null}
-      <strong className="whitespace-nowrap text-base font-semibold leading-6 text-[#0048c4]">{price}</strong>
+      <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-[#0048c4]">{price}</Typography>
       <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
     </Typography>
   )

@@ -467,8 +467,8 @@ export function RequestManagementView({
         title="درخواست‌ها"
         titleClassName={
           variant === "account"
-            ? "text-base font-bold leading-6"
-            : "text-[20px] font-bold leading-7"
+            ? "text-base font-semibold leading-6"
+            : "text-[20px] font-semibold leading-7"
         }
       />
 
@@ -690,7 +690,7 @@ function RequestTabs({
                     className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ef3326]"
                   />
                 ) : null}
-                <Typography as="span" variant="body" size="medium" weight="regular" className="truncate [direction:rtl]">{tab.label}</Typography>
+                <Typography as="span" variant="label" size="large" weight="medium" className="[direction:rtl]">{tab.label}</Typography>
               </Typography>
             </Button>
           );
@@ -858,8 +858,8 @@ function CriteriaRequestCard({
           onClick={onCancel}
           type="button"
         >
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">لغو</Typography>
-          <LinearCancel className="h-4 w-4 text-[#4d4d4d]" />
+          <Typography as="span" variant="label" size="medium" weight="medium">لغو</Typography>
+          <LinearCancel className="h-5 w-5 text-[#4d4d4d]" />
         </Button>
 
         <Button unstyled
@@ -868,8 +868,8 @@ function CriteriaRequestCard({
           onClick={onEdit}
           type="button"
         >
-          <LinearEdit2 className="h-4 w-4 shrink-0 text-[#4d4d4d]" />
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 truncate text-right font-semibold leading-5 text-[#1a1a1a] [direction:rtl]">
+          <LinearEdit2 className="h-4 w-4 text-[#4d4d4d]" />
+          <Typography as="span" variant="title" size="medium" weight="semibold" className="text-right text-[#1a1a1a] [direction:rtl]">
             {request.title}
           </Typography>
         </Button>
@@ -883,7 +883,7 @@ function CriteriaRequestCard({
               title={detail}
               key={detail}
             >
-              <Typography as="span" variant="body" size="medium" weight="regular" className="max-w-full py-1.5 px-2">{detail}</Typography>
+              <Typography as="span" variant="label" size="medium" weight="semibold" className="py-1.5 px-2">{detail}</Typography>
             </Typography>
           ))}
           {hiddenCount > 0 ? (

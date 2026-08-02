@@ -29,7 +29,7 @@ export function TextField({
   containerClassName = "",
   error,
   label,
-  highlightWhenFilled = true,
+  highlightWhenFilled = false,
   hideBadgeWhenFloatingLabel = false,
   forceHighlight = false,
   forceLabel = false,
@@ -52,14 +52,14 @@ export function TextField({
   const hasFocusedStyle = forceHighlight || isFocused;
   const hasHighlightedBorder = hasFocusedStyle || (hasValue && highlightWhenFilled);
   const showFloatingLabel = Boolean(label) && (hasValue || forceLabel || isFocused);
-  const showClear = Boolean(onClear) && (hasValue || isFocused);
+  const showClear = Boolean(onClear) && hasValue;
   const showBadge = Boolean(badge) && !(hideBadgeWhenFloatingLabel && showFloatingLabel);
 
   return (
     <label className={cn("block min-w-0", containerClassName)}>
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
-          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition-[border-color,box-shadow] duration-200 ease-out",
+          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition-[border-color,box-shadow] duration-200 ease-out [direction:rtl]",
           error
             ? "border-[#ee3623]"
             : hasHighlightedBorder

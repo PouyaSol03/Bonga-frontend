@@ -1,0 +1,80 @@
+:root {
+    /* primary */
+    --primary-0: #000000;
+    --primary-100: #002099;
+    --primary-200: #0033AC;
+    --primary-300: #003EB7;
+    --primary-400: #0048C4;
+    --primary-500: #0D50CE;
+    --primary-600: #476AD6;
+    --primary-700: #7F97EA;
+    --primary-800: #B1BDF0;
+    --primary-900: #D7DDF8;
+    --primary-950: #EDF0FB;
+    --primary-990: #F8F9FD;
+    /* Secondary */
+    --secondary-0: #000000;
+    --secondary-100: #2E2D3E;
+    --secondary-200: #3B3D58;
+    --secondary-300: #424665;
+    --secondary-400: #4B5070;
+    --secondary-500: #525779;
+    --secondary-600: #696F8A;
+    --secondary-700: #83899D;
+    --secondary-800: #A4AABA;
+    --secondary-900: #C7CBD6;
+    --secondary-950: #E9EAEE;
+    --secondary-990: #F6F7FA;
+    /* Tertiary */
+    --tertiary-0: #000000;
+    --tertiary-100: #006038;
+    --tertiary-200: #01804E;
+    --tertiary-300: #069159;
+    --tertiary-400: #11A366;
+    --tertiary-500: #1AB371;
+    --tertiary-600: #4ABE86;
+    --tertiary-700: #6ECA9B;
+    --tertiary-800: #9AD8B7;
+    --tertiary-900: #C1E7D3;
+    --tertiary-950: #E6F6ED;
+    --tertiary-990: #FAFDFB;
+    /* Error */
+    --error-0: #000000;
+    --error-100: #C11004;
+    --error-200: #D02216;
+    --error-300: #DD2B1E;
+    --error-400: #EE3623;
+    --error-500: #FC4122;
+    --error-600: #F85143;
+    --error-700: #EF726A;
+    --error-800: #F79A94;
+    --error-900: #FFCDCF;
+    --error-950: #FFEBED;
+    --error-990: #FFFAF9;
+    /* Warning */
+    --warning-0: #000000;
+    --warning-100: #FF6D00;
+    --warning-200: #FF8D00;
+    --warning-300: #FF9E00;
+    --warning-400: #FFB100;
+    --warning-500: #FFBF00;
+    --warning-600: #FFC825;
+    --warning-700: #FFD44D;
+    --warning-800: #FFDF81;
+    --warning-900: #FFEBB2;
+    --warning-950: #FFF8E1;
+    --warning-990: #FFFDF8;
+    /* Neutral */
+    --neutral-0: #000000;
+    --neutral-100: #1A1A1A;
+    --neutral-200: #333333;
+    --neutral-300: #4D4D4D;
+    --neutral-400: #666666;
+    --neutral-500: #808080;
+    --neutral-600: #999999;
+    --neutral-700: #B3B3B3;
+    --neutral-800: #CCCCCC;
+    --neutral-900: #E5E5E5;
+    --neutral-950: #F2F2F2;
+    --neutral-990: #FCFCFC;
+}

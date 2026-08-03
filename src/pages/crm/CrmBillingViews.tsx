@@ -29,7 +29,6 @@ type PackageDraft = {
   adCredit: string;
   discountPercent: string;
   durationDays: string;
-  id: string;
   isActive: boolean;
   kind: CrmPackageKind;
   realPrice: string;
@@ -44,7 +43,6 @@ const emptyDraft: PackageDraft = {
   adCredit: "",
   discountPercent: "",
   durationDays: "",
-  id: "",
   isActive: true,
   kind: "panel_subscription",
   realPrice: "",
@@ -138,7 +136,6 @@ function draftFromPackage(item: CrmRecord): PackageDraft {
     adCredit: visibleNumberText(item, "ad_credit"),
     discountPercent: visibleNumberText(item, "discount_percent"),
     durationDays: visibleNumberText(item, "duration_days"),
-    id: text(item, ["id", "_id"]),
     isActive: item.is_active !== false,
     kind: item.kind === "credit_bundle" ? "credit_bundle" : "panel_subscription",
     realPrice: visibleNumberText(item, "real_price"),
@@ -151,18 +148,15 @@ function draftFromPackage(item: CrmRecord): PackageDraft {
 }
 
 function packagePayload(draft: PackageDraft): CrmPackagePayload {
-  const id = draft.id.trim();
   const slug = draft.slug.trim();
   const title = draft.title.trim();
 
-  if (!id) throw new Error("شناسه بسته الزامی است.");
   if (!slug) throw new Error("اسلاگ بسته الزامی است.");
   if (!title) throw new Error("عنوان بسته الزامی است.");
 
   const isPanelSubscription = draft.kind === "panel_subscription";
 
   return {
-    id,
     slug,
     kind: draft.kind,
     title,
@@ -282,11 +276,10 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
         <div className="mt-5 grid h-11 max-w-md grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نمایش نوع بسته">
           <Button unstyled
             aria-selected={viewKind === "panel_subscription"}
-            className={`text-sm font-bold transition ${
-              viewKind === "panel_subscription"
-                ? "bg-[#0048c4] text-white"
-                : "bg-white text-[#0048c4]"
-            }`}
+            className={`text-sm font-bold transition ${viewKind === "panel_subscription"
+              ? "bg-[#0048c4] text-white"
+              : "bg-white text-[#0048c4]"
+              }`}
             onClick={() => setViewKind("panel_subscription")}
             role="tab"
             type="button"
@@ -295,11 +288,10 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
           </Button>
           <Button unstyled
             aria-selected={viewKind === "credit_bundle"}
-            className={`border-r border-[#0048c4] text-sm font-bold transition ${
-              viewKind === "credit_bundle"
-                ? "bg-[#0048c4] text-white"
-                : "bg-white text-[#0048c4]"
-            }`}
+            className={`border-r border-[#0048c4] text-sm font-bold transition ${viewKind === "credit_bundle"
+              ? "bg-[#0048c4] text-white"
+              : "bg-white text-[#0048c4]"
+              }`}
             onClick={() => setViewKind("credit_bundle")}
             role="tab"
             type="button"
@@ -348,11 +340,10 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
               return (
                 <motion.article
                   animate={{ opacity: 1, y: 0 }}
-                  className={`group flex min-h-[405px] flex-col rounded-2xl border p-5 transition-shadow ${
-                    isActive
-                      ? "border-[#d9dde7] bg-gradient-to-b from-white to-[#f5f7fb] hover:border-[#0048c4] hover:shadow-[0_14px_36px_rgba(0,72,196,0.10)]"
-                      : "border-[#e2e2e2] bg-[#f7f7f7] opacity-80"
-                  }`}
+                  className={`group flex min-h-[405px] flex-col rounded-2xl border p-5 transition-shadow ${isActive
+                    ? "border-[#d9dde7] bg-gradient-to-b from-white to-[#f5f7fb] hover:border-[#0048c4] hover:shadow-[0_14px_36px_rgba(0,72,196,0.10)]"
+                    : "border-[#e2e2e2] bg-[#f7f7f7] opacity-80"
+                    }`}
                   initial={{ opacity: 0, y: 16 }}
                   key={id || `${text(item, ["slug"], "package")}-${index}`}
                   transition={{ delay: Math.min(index * 0.06, 0.3), duration: 0.28, ease: "easeOut" }}
@@ -364,9 +355,8 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                         {kind}
                       </Typography>
                       <Typography as="span" variant="label" size="small" weight="semibold"
-                        className={`rounded-lg px-2 py-1 text-xs font-bold ${
-                          isActive ? "bg-[#e9f8f1] text-[#0b8555]" : "bg-[#eeeeee] text-[#777777]"
-                        }`}
+                        className={`rounded-lg px-2 py-1 text-xs font-bold ${isActive ? "bg-[#e9f8f1] text-[#0b8555]" : "bg-[#eeeeee] text-[#777777]"
+                          }`}
                       >
                         {isActive ? "فعال" : "غیرفعال"}
                       </Typography>
@@ -391,12 +381,12 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
                   <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-lg font-bold text-[#0048c4]">
                     {text(item, ["title"], "بدون عنوان")}
                   </Typography>
-                  <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 break-all font-mono text-xs text-[#8a94a3]" dir="ltr">
+                  {/* <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 break-all font-mono text-xs text-[#8a94a3]" dir="ltr">
                     {text(item, ["slug"], id || "-")}
-                  </Typography>
+                  </Typography> */}
 
                   {hasPrice ? (
-                    <div className="mt-5 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
+                    <div className="mt-2 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
                       {discount > 0 && realPrice > 0 ? (
                         <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">
                           {realPrice.toLocaleString("fa-IR")}
@@ -613,9 +603,8 @@ function PackageModal({
           <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نوع بسته">
             <Button unstyled
               aria-selected={isPanelSubscription}
-              className={`text-sm font-bold transition ${
-                isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
-              }`}
+              className={`text-sm font-bold transition ${isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
+                }`}
               onClick={() => selectKind("panel_subscription")}
               role="tab"
               type="button"
@@ -624,9 +613,8 @@ function PackageModal({
             </Button>
             <Button unstyled
               aria-selected={!isPanelSubscription}
-              className={`border-r border-[#0048c4] text-sm font-bold transition ${
-                !isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
-              }`}
+              className={`border-r border-[#0048c4] text-sm font-bold transition ${!isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
+                }`}
               onClick={() => selectKind("credit_bundle")}
               role="tab"
               type="button"
@@ -642,15 +630,6 @@ function PackageModal({
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="شناسه بسته">
-            <input
-              className={inputClass}
-              dir="ltr"
-              onChange={(event) => field("id", event.target.value)}
-              placeholder="panel-basic"
-              value={draft.id}
-            />
-          </Field>
           <Field label="اسلاگ">
             <input
               className={inputClass}
@@ -836,11 +815,13 @@ function CheckoutProductModal({ isPending, item, onClose, onSubmit }: { isPendin
   }));
   const set = (key: keyof typeof draft, value: string) => setDraft((current) => ({ ...current, [key]: value }));
   return <motion.div animate={{ opacity: 1 }} className="fixed inset-0 z-50 grid place-items-center bg-[#172033]/45 p-8" exit={{ opacity: 0 }} initial={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
-    <form className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl" onSubmit={(event) => { event.preventDefault(); void onSubmit({
-      title: draft.title.trim(), description: draft.description.trim(), price: numberValue(draft.price, "قیمت"), credit_cost: numberValue(draft.creditCost, "اعتبار"),
-      duration_days: draft.durationDays ? numberValue(draft.durationDays, "مدت روز") : null, duration_months: draft.durationMonths ? numberValue(draft.durationMonths, "مدت ماه") : null,
-      is_active: Boolean(item.is_active), sort_order: numberValue(draft.sortOrder || "0", "ترتیب"), metadata: item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata) ? item.metadata as Record<string, unknown> : {},
-    }); }}>
+    <form className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl" onSubmit={(event) => {
+      event.preventDefault(); void onSubmit({
+        title: draft.title.trim(), description: draft.description.trim(), price: numberValue(draft.price, "قیمت"), credit_cost: numberValue(draft.creditCost, "اعتبار"),
+        duration_days: draft.durationDays ? numberValue(draft.durationDays, "مدت روز") : null, duration_months: draft.durationMonths ? numberValue(draft.durationMonths, "مدت ماه") : null,
+        is_active: Boolean(item.is_active), sort_order: numberValue(draft.sortOrder || "0", "ترتیب"), metadata: item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata) ? item.metadata as Record<string, unknown> : {},
+      });
+    }}>
       <div className="flex items-center justify-between"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">ویرایش {draft.title}</Typography><Button unstyled className="text-2xl text-[#596477]" onClick={onClose} type="button">×</Button></div>
       <div className="mt-5 grid grid-cols-2 gap-4"><Field label="عنوان"><input className={inputClass} onChange={(e) => set("title", e.target.value)} value={draft.title} /></Field><Field label="قیمت (تومان)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("price", e.target.value)} value={draft.price} /></Field><Field label="هزینه اعتباری"><input className={inputClass} inputMode="numeric" onChange={(e) => set("creditCost", e.target.value)} value={draft.creditCost} /></Field><Field label="ترتیب نمایش"><input className={inputClass} inputMode="numeric" onChange={(e) => set("sortOrder", e.target.value)} value={draft.sortOrder} /></Field><Field label="مدت (روز)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationDays", e.target.value)} value={draft.durationDays} /></Field><Field label="مدت (ماه)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationMonths", e.target.value)} value={draft.durationMonths} /></Field><label className="col-span-2"><Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">توضیحات</Typography><textarea className={`${inputClass} min-h-24 py-3`} onChange={(e) => set("description", e.target.value)} value={draft.description} /></label></div>
       <div className="mt-6 flex justify-end gap-3"><Button unstyled className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</Button><Button unstyled className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</Button></div>

@@ -142,7 +142,6 @@ const rowContainerKeys = [
 export type CrmPackageKind = "panel_subscription" | "credit_bundle";
 
 export type CrmPackagePayload = {
-  id: string;
   slug: string;
   kind: CrmPackageKind;
   title: string;

@@ -2027,14 +2027,6 @@ function PlusIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function TrashIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="M4 6h16M9 6V4h6v2M7 6l.8 13a2 2 0 0 0 2 2h4.4a2 2 0 0 0 2-2L17 6M10 11v5M14 11v5" />
-    </svg>
-  );
-}
-
 function UserIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">

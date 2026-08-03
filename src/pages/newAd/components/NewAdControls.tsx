@@ -47,7 +47,6 @@ export function Header({
 
 export function Section({
   title,
-  icon,
   warning,
   children,
   contentClassName = "",

@@ -4,7 +4,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../app/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../core/api/api";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/services/advertisement.service";
+import {
+  mapAdvertisementToAdCard,
+  type AdvertisementFeature,
+  type AdvertisementItem,
+} from "../../core/services/advertisement.service";
 import { getCategoryList, type CategoryItem } from "../../core/services/category.service";
 import type { PublicAgencyDto } from "../../core/services/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../core/services/crm.service";
@@ -35,10 +39,8 @@ import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getAdvertiseF
 import { getNewAdFlowSession, saveNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
-type AdvertisementFeature = {
+type EditableAdvertisementFeature = AdvertisementFeature & {
   key?: string;
-  label?: string;
-  value?: unknown;
 };
 
 type EditRouteParams = {
@@ -85,8 +87,10 @@ function getAdvertisementFeatures(ad: AdvertisementItem | Record<string, unknown
   if (!ad || !Array.isArray(ad.features)) return [];
 
   return ad.features.filter(
-    (feature): feature is AdvertisementFeature =>
-      Boolean(feature) && typeof feature === "object",
+    (feature): feature is EditableAdvertisementFeature =>
+      Boolean(feature) &&
+      typeof feature === "object" &&
+      typeof feature.label === "string",
   );
 }
 
@@ -94,22 +98,25 @@ function isCrmAdvertiseSource() {
   return new URLSearchParams(window.location.search).get("editSource") === "crm";
 }
 
-function normalizeCrmDynamicFields(value: unknown): AdvertisementFeature[] {
+function normalizeCrmDynamicFields(value: unknown): EditableAdvertisementFeature[] {
   if (Array.isArray(value)) {
     return value
       .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
-      .map((item) => ({
-        key: typeof item.key === "string" ? item.key : undefined,
-        label:
-          typeof item.label === "string"
-            ? item.label
-            : typeof item.name === "string"
-              ? item.name
-              : typeof item.code === "string"
-                ? item.code
-                : undefined,
-        value: item.value,
-      }));
+      .flatMap((item) => {
+        const label = [item.label, item.name, item.code, item.key]
+          .find((candidate): candidate is string =>
+            typeof candidate === "string" && Boolean(candidate.trim()),
+          )
+          ?.trim();
+
+        if (!label) return [];
+
+        return [{
+          key: typeof item.key === "string" ? item.key : undefined,
+          label,
+          value: item.value,
+        } satisfies EditableAdvertisementFeature];
+      });
   }
 
   if (value && typeof value === "object") {

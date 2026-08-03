@@ -56,7 +56,11 @@ export function saveConsultantsSelectedNeighborhood(
     window.sessionStorage.setItem(
       selectedNeighborhoodStorageKey,
       JSON.stringify({
-        cityId: selectedCityId ?? neighborhood.city_id,
+        cityId:
+          selectedCityId ??
+          (neighborhood.city_id === undefined || neighborhood.city_id === null
+            ? undefined
+            : String(neighborhood.city_id)),
         id,
         name: neighborhood.name,
       } satisfies StoredConsultantsNeighborhood),

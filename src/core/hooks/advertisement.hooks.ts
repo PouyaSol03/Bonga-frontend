@@ -15,6 +15,7 @@ import {
   submitAdvertisementCheckout,
   submitAdvertiseFeedback,
   submitAdvertiseReport,
+  type AdvertisementItem,
   type AdvertisementListParams,
   type AdvertisementMapParams,
   type AdvertisementPage,
@@ -72,7 +73,7 @@ export function useAdvertiseFormDefinitionQuery(formCode: string | null) {
 }
 
 export function useMyAdvertisementDetailQuery(id: string | null) {
-  return useQuery({
+  return useQuery<AdvertisementItem, Error>({
     enabled: Boolean(id),
     queryFn: () => getMyAdvertisementDetail(id ?? ""),
     queryKey: [...queryKeys.advertisements.all, "my-detail", id ?? ""],

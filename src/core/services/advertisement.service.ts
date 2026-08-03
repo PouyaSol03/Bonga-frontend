@@ -12,6 +12,7 @@ export type AdvertisementStatus =
   | "expired";
 
 export type AdvertisementFeature = {
+  key?: string;
   label: string;
   value: unknown;
 };
@@ -757,12 +758,14 @@ export async function getAdvertiseFormDefinition(formCode: string) {
   return unwrapAdvertiseFormDefinition(response, normalizedCode);
 }
 
-export async function getMyAdvertisementDetail(id: string) {
+export async function getMyAdvertisementDetail(id: string): Promise<AdvertisementItem> {
   const response = await api
     .get(`me/advertise/get/${encodeURIComponent(id)}`)
     .json<AdvertisementAccountShowResponse>();
 
-  const advertise = "advertise" in response ? asRecord(response.advertise) : null;
+  const advertise = "advertise" in response
+    ? asRecord(response.advertise) as AdvertisementItem | null
+    : null;
   if (advertise) {
     const category = typeof response.category === "string" ? response.category.trim() : "";
 
@@ -775,7 +778,7 @@ export async function getMyAdvertisementDetail(id: string) {
       : advertise;
   }
 
-  if ("data" in response && response.data) return response.data;
+  if ("data" in response && response.data) return response.data as AdvertisementItem;
   return response as AdvertisementItem;
 }
 

@@ -12,9 +12,29 @@ export type ApiQueryParams = Record<
 
 type ErrorPayload = Record<string, unknown> | null;
 
-export const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(
-  /\/$/,
-  "",
+function trimTrailingSlashes(value: string) {
+  return value.trim().replace(/\/+$/, "");
+}
+
+function normalizeApiBaseUrl(value: string) {
+  const normalizedValue = trimTrailingSlashes(value);
+
+  if (!normalizedValue) return "";
+  if (/\/api$/i.test(normalizedValue)) return normalizedValue;
+
+  return `${normalizedValue}/api`;
+}
+
+function normalizeWebSocketBaseUrl(value: string) {
+  return trimTrailingSlashes(value).replace(/\/api$/i, "");
+}
+
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "";
+
+export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
+
+export const websocketBaseUrl = normalizeWebSocketBaseUrl(
+  import.meta.env.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
 );
 
 function normalizeSearchParams(params?: ApiQueryParams) {
@@ -26,11 +46,6 @@ function normalizeSearchParams(params?: ApiQueryParams) {
     }),
   ) as Record<string, string | number | boolean>;
 }
-
-function resolveAssetPath(path: string) {
-  return path.replace(/^\/+/, "");
-}
-
 
 function redirectForAuthError(status: number) {
   if (typeof window === "undefined") return;
@@ -225,7 +240,5 @@ export function getApiFieldError(error: unknown, field: string) {
 }
 
 export function getApiAssetUrl(path: string) {
-  if (/^https?:\/\//i.test(path)) return path;
-
-  return `${baseUrl}/${resolveAssetPath(path)}`;
+  return path;
 }

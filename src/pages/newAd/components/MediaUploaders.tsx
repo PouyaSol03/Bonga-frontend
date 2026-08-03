@@ -5,6 +5,7 @@ import type { NewAdFormValues, UploadedMediaFile } from "../types";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import { shouldPreserveNewAdDraft } from "../session";
+import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
 export const allowedPhotoExtensions = ["jpg", "jpeg", "png", "webp"];
@@ -144,11 +145,11 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
             <Button unstyled
               aria-label="حذف عکس"
-              className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white text-sm leading-none text-[#ff3b30] shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
+              className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white text-[#4d4d4d] shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
               onClick={() => removePhoto(photo.id)}
               type="button"
             >
-              ×
+              <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
             </Button>
           </div>
         ))}
@@ -272,20 +273,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
               onClick={removeVideo}
               type="button"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 21.75C17.3847 21.75 21.75 17.3847 21.75 12C21.75 6.61522 17.3847 2.25 12 2.25C6.61522 2.25 2.25 6.61522 2.25 12C2.25 17.3847 6.61522 21.75 12 21.75Z"
-                  stroke="#4D4D4D"
-                  stroke-width="1.2"
-                />
-
-                <path
-                  d="M9.5 9.5L14.5 14.5M14.5 9.5L9.5 14.5"
-                  stroke="#4D4D4D"
-                  stroke-width="1.2"
-                  stroke-linecap="round"
-                />
-              </svg>
+              <LinearCancelCircle aria-hidden="true" className="h-6 w-6 text-[#4d4d4d]" />
             </Button>
 
             <div className="min-w-0 flex-1 text-right [direction:rtl]">

@@ -43,8 +43,10 @@ export function CreateAdBottomSheet({
       ariaLabel="ثبت آگهی"
       className="rounded-t-[24px]!"
       contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(0.875rem,env(safe-area-inset-bottom,0px))]"
+      headerButtonAriaLabel="بازگشت"
       headerClassName="h-10! gap-1! px-2!"
       isOpen={isOpen}
+      onBack={onClose}
       onClose={onClose}
       title="ثبت آگهی"
       variant="actions"

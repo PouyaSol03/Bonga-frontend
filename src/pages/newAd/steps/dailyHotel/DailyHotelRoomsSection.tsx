@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
+import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
 import { formatBigNumber } from "../../../../shared/lib/MoneyHandler";
 import {
   dailyHotelMealPlanOptions,
@@ -71,20 +72,6 @@ function ChevronLeftIcon() {
     <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
       <path
         d="M15 6l-6 6 6 6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M18 6L6 18M6 6l12 12"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -281,11 +268,11 @@ export function DailyHotelRoomsSection() {
                 <div className="mt-4 flex items-start gap-3">
                   <Button unstyled
                     aria-label={`حذف اطلاعات ${room.label}`}
-                    className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#ff3b30] text-[#ff3b30]"
+                    className="mt-1 grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
                     onClick={() => resetRoom(room.id)}
                     type="button"
                   >
-                    <CloseIcon />
+                    <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
                   </Button>
 
                   <div className="flex flex-wrap justify-start gap-2" dir="rtl">
@@ -404,9 +391,11 @@ export function DailyHotelRoomsSection() {
             handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
             heightClassName="h-auto max-h-[calc(100dvh-102px)]"
             isOpen={Boolean(sheet)}
+            headerButtonAriaLabel="بازگشت"
+            onBack={() => setSheet(null)}
             onClose={() => setSheet(null)}
             panelPaddingClassName="pt-3"
-            showBackButton={false}
+            showBackButton
             showHandle
             showHeader
             showHeaderDivider

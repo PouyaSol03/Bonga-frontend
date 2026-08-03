@@ -8,6 +8,7 @@ import { Button } from "./Button";
 type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: ReactNode;
   removable?: boolean;
+  removeIcon?: ReactNode;
   selected?: boolean;
 };
 
@@ -16,6 +17,7 @@ export function Chip({
   className = "",
   icon,
   removable = false,
+  removeIcon,
   selected = false,
   type = "button",
   ...props
@@ -34,7 +36,9 @@ export function Chip({
       {...props}
     >
       <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 truncate">{children}</Typography>
-      {removable && selected ? <LinearCancelSmall aria-hidden="true" className="h-5 w-5" /> : null}
+      {removable && selected
+        ? removeIcon ?? <LinearCancelSmall aria-hidden="true" className="h-5 w-5" />
+        : null}
       {icon}
     </Button>
   );

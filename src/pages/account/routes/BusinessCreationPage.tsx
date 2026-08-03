@@ -20,13 +20,13 @@ export function BusinessCreationPage() {
             onClick={handleNext}
             type="button"
           >
-            <Typography as="span" variant="body" size="medium" weight="regular">مرحله بعد</Typography>
+            <Typography as="span" variant="label" size="medium" weight="medium">مرحله بعد</Typography>
             <ArrowLeftIcon />
           </Button>
         </div>
       }
     >
-      <BusinessHero />
+      <BusinessHero infoType={selectedType} showInfoButton />
 
       <section className="mt-14 px-4">
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">

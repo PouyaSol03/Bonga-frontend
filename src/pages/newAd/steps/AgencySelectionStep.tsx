@@ -16,7 +16,7 @@ import {
   type AgencyDirectoryMapItem,
 } from "../../consultants/AgencyDirectoryMapView";
 import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
-import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
+import LinearArrowRight2 from "../../../shared/icons/LinearArrowRight2";
 import LinearStar from "../../../shared/icons/LinearStar";
 import LinearRanking from "../../../shared/icons/LinearRanking";
 import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
@@ -419,12 +419,12 @@ export function AgencySelectionStep({
         <div className="px-4 pt-4" dir="rtl">
           <div className="flex h-14 items-center gap-2">
             <Button unstyled
-              aria-label="بستن مرتب سازی"
+              aria-label="بازگشت"
               className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
               onClick={() => setIsSortOpen(false)}
               type="button"
             >
-              <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
+              <LinearArrowRight2 aria-hidden="true" className="h-6 w-6" />
             </Button>
             <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold leading-7 text-[#1a1a1a]">مرتب سازی بر اساس:</Typography>
           </div>

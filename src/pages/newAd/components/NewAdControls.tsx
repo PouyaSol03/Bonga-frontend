@@ -5,7 +5,7 @@ import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../../../shared/icons/LinearArrowRight2";
 import LinearArrowUp1 from "../../../shared/icons/LinearArrowUp1";
-import LinearCancelSmall from "../../../shared/icons/LinearCancelSmall";
+import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 import { Button } from "../../../shared/ui/Button";
 import { Chip as UiChip } from "../../../shared/ui/Chip";
 import { SelectField } from "../../../shared/ui/SelectField";
@@ -62,8 +62,8 @@ export function Section({
   return (
     <section
       className={desktop
-        ? "rounded-xl border border-[#e1e7f0] bg-white p-4 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
-        : "border-b-[10px] border-[#f0f0f0] bg-white p-4 text-right last:border-b-0 [direction:rtl]"}
+        ? "rounded-xl border border-[#e1e7f0] bg-white px-6 py-6 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
+        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 pt-4 pb-2 text-right last:border-b-0 [direction:rtl]"}
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
@@ -90,7 +90,7 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
   return (
     <Button unstyled
       aria-label="پاک کردن"
-      className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border border-[#cccccc] text-[#a6a6a6] transition active:bg-[#f0f0f0]"
+      className="grid h-6 w-6 shrink-0 place-items-center text-[#808080] transition active:opacity-70"
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -98,7 +98,7 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
       }}
       type="button"
     >
-      <LinearCancelSmall aria-hidden="true" className="h-3 w-3" />
+      <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
     </Button>
   );
 }
@@ -203,7 +203,17 @@ export function Tag({
   label: string;
   onRemove: () => void;
 }) {
-  return <UiChip className={className} onClick={onRemove} removable selected>{label}</UiChip>;
+  return (
+    <UiChip
+      className={className}
+      onClick={onRemove}
+      removable
+      removeIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
+      selected
+    >
+      {label}
+    </UiChip>
+  );
 }
 
 export function Chip({

@@ -12,6 +12,8 @@ import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { RouteLink } from "../../app/router/RouteLink";
 import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
+import LinearBuilding from "../../shared/icons/LinearBuilding";
+import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { ChoiceIndicator } from "../../shared/ui/Choice";
 
 import { Typography } from "../../shared/ui/Typography";
@@ -613,25 +615,54 @@ export function BusinessHero({
   showInfoButton?: boolean;
 }) {
   return (
-    <section className="mx-4 rounded-[20px] bg-white p-6 shadow-[0_14px_35px_rgba(26,26,26,0.06)]">
+    <section className="mx-4 rounded-[24px] bg-white px-6 pb-6 pt-7 shadow-[0_14px_35px_rgba(26,26,26,0.06)]">
       <div className="relative overflow-hidden pb-1 text-right">
-        <div className="absolute bottom-2 left-1 h-8 w-44 opacity-80 [background-image:radial-gradient(#cccccc_1.4px,transparent_1.4px)] [background-size:8px_8px]" />
-        <Typography as="p" variant="headline" size="large" className="relative m-0 text-[32px] font-black leading-[1.35] tracking-[-0.04em] text-[#0048c4]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="mx-2 rounded-sm bg-[#e6fff1] px-1 text-[#11a366]">کسب و کار</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0048c4]">خودتو</Typography>
+        <div
+          aria-hidden="true"
+          className="absolute bottom-2 left-1 h-8 w-44 opacity-80 [background-image:radial-gradient(#cccccc_1.4px,transparent_1.4px)] [background-size:8px_8px]"
+        />
+        <Typography
+          as="p"
+          variant="headline"
+          size="large"
+          className="relative m-0 flex items-baseline justify-start gap-2 text-[32px] font-black tracking-[-0.04em] text-[#0048c4]"
+        >
+          <Typography
+            as="span"
+            variant="headline"
+            size="large"
+            className="rounded-sm bg-[#e6fff1] px-1 text-[32px] font-black text-[#11a366]"
+          >
+            کسب و کار
+          </Typography>
+          <Typography
+            as="span"
+            variant="headline"
+            size="large"
+            className="text-[32px] font-black text-[#0048c4]"
+          >
+            خودتو
+          </Typography>
         </Typography>
-        <Typography as="p" variant="headline" size="large" className="relative m-0 mt-1 text-[32px] font-black leading-[1.35] tracking-[-0.04em] text-[#0048c4]">
+        <Typography
+          as="p"
+          variant="headline"
+          size="large"
+          className="relative m-0 mt-1 text-[32px] font-black tracking-[-0.04em] text-[#0048c4]"
+        >
           راه بنداز!
         </Typography>
       </div>
 
       {showInfoButton && infoType ? (
         <Button unstyled
-          className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-[#0048c4] bg-white px-3 text-sm font-medium leading-5 text-[#0048c4]"
+          className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-[#0048c4] bg-white px-3 text-[#0048c4]"
           onClick={() => navigateTo(getBusinessInfoPath(infoType))}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular">اطلاعات بیشتر درباره کسب و کار</Typography>
+          <Typography as="span" variant="label" size="medium" weight="medium">
+            اطلاعات بیشتر درباره کسب و کار
+          </Typography>
           <ArrowLeftIcon />
         </Button>
       ) : null}
@@ -655,24 +686,41 @@ export function BusinessTypeCard({
   return (
     <Button unstyled
       aria-pressed={isSelected}
-      className={`flex h-[74px] w-full items-center rounded-2xl border px-4 text-right transition-colors ${isSelected
-        ? "border-[#0048c4] bg-[#eaf1ff] text-[#0048c4]"
-        : "border-[#cccccc] bg-white text-[#1a1a1a]"
+      className={`flex h-[76px] w-full items-center rounded-2xl border px-4 text-right transition-colors ${isSelected
+        ? "border-[#0048c4] bg-[#eef3ff] text-[#0048c4]"
+        : "border-[#cccccc] bg-white text-[#4d4d4d]"
         }`}
       onClick={onClick}
       type="button"
     >
       <ChoiceIndicator checked={isSelected} className="h-[18px] w-[18px]" type="radio" />
-      <Typography as="span" variant="body" size="medium" weight="regular" className="mx-4 h-10 w-px shrink-0 bg-[#0048c433]" aria-hidden="true" />
-      <BusinessSmallIcon type={icon} />
-      <Typography as="span" variant="label" size="large" weight="semibold" className="mr-2 min-w-0 flex-1 truncate text-base font-semibold leading-6">
-        {label}
-      </Typography>
-      {badge ? (
-        <Typography as="span" variant="label" size="small" weight="medium" className="rounded-md border border-[#11a366] bg-[#eafff3] px-2 py-1 text-xs font-medium leading-4 text-[#11a366]">
-          {badge}
+      <span
+        aria-hidden="true"
+        className={`mx-4 h-10 w-px shrink-0 ${isSelected ? "bg-[#b7c9ec]" : "bg-[#dedede]"}`}
+      />
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        <BusinessSmallIcon type={icon} />
+        <Typography
+          as="span"
+          variant="label"
+          size="large"
+          weight="medium"
+          className={`min-w-0 truncate ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}
+        >
+          {label}
         </Typography>
-      ) : null}
+        {badge ? (
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="shrink-0 rounded-md border border-[#11a366] bg-[#eafff3] px-2 py-1 text-[#11a366]"
+          >
+            {badge}
+          </Typography>
+        ) : null}
+      </span>
     </Button>
   );
 }
@@ -785,20 +833,10 @@ export function RequiredLabel({ children }: { children: ReactNode }) {
 
 function BusinessSmallIcon({ type }: { type: "agency" | "consultant" }) {
   if (type === "consultant") {
-    return (
-      <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-        <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.7" />
-        <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7" />
-      </svg>
-    );
+    return <LinearUserSolid aria-hidden="true" className="h-6 w-6 shrink-0" />;
   }
 
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path d="M4 21h16M6 21V7l6-3 6 3v14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
-      <path d="M10 21v-6h4v6M9 9h.01M12 9h.01M15 9h.01M9 12h.01M15 12h.01" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-    </svg>
-  );
+  return <LinearBuilding aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function InfoCardIcon({ name }: { name: InfoCard["icon"] }) {

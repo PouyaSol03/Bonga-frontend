@@ -10,7 +10,7 @@ import LinearRequestList from "../../shared/icons/LinearRequestList";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/services/advertisement.service";
 import { useMyProfileQuery } from "../../core/hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../app/router/RouteLink";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
@@ -29,7 +29,7 @@ import { Button } from "../../shared/ui/Button";
 
 const CRM_BLUE = "#0048c4";
 export const DEFAULT_COUNTRY_ID = 2;
-export const DEFAULT_CENTER: LatLngTuple = [36.2972, 59.6067];
+export const DEFAULT_CENTER: LatLngTuple = [defaultSelectedCity.latitude, defaultSelectedCity.longitude];
 
 export type CrmSection =
   | "overview"

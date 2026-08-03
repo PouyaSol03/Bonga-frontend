@@ -78,8 +78,8 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
           name: "location",
           type: "map-point",
           value: stringifyValue({
-            lat: Number(city.lat) || 36.2605,
-            lng: Number(city.lng) || 59.6168,
+            lat: Number(city.lat) || DEFAULT_CENTER[0],
+            lng: Number(city.lng) || DEFAULT_CENTER[1],
           }),
         },
       ],

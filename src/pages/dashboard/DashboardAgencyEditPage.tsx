@@ -6,7 +6,7 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-st
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../../core/hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../../core/services/account.service";
 import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import { RouteLink } from "../../app/router/RouteLink";
@@ -26,8 +26,8 @@ type SelectOption = {
 };
 
 const defaultAgencyCenter: AgencyMapCenter = {
-    lat: 29.6179,
-    lng: 52.5313,
+    lat: defaultSelectedCity.latitude,
+    lng: defaultSelectedCity.longitude,
     zoom: 15,
 };
 const agencyImageMaxBytes = 1024 * 1024;
@@ -96,7 +96,11 @@ export default function DashboardAgencyEditPage() {
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
-    const [mapCenter, setMapCenter] = useState(defaultAgencyCenter);
+    const [mapCenter, setMapCenter] = useState<AgencyMapCenter>(() => ({
+        lat: selectedCity?.latitude ?? defaultAgencyCenter.lat,
+        lng: selectedCity?.longitude ?? defaultAgencyCenter.lng,
+        zoom: defaultAgencyCenter.zoom,
+    }));
     const [saveMessage, setSaveMessage] = useState("");
 
     const neighborhoodOptions = useMemo<SelectOption[]>(() => {

@@ -119,9 +119,11 @@ export function MoreFeaturesStep({
         handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
         heightClassName="h-auto max-h-[calc(100dvh-102px)]"
         isOpen={Boolean(sheet)}
+        headerButtonAriaLabel="بازگشت"
+        onBack={() => setSheet(null)}
         onClose={() => setSheet(null)}
         panelPaddingClassName="pt-3"
-        showBackButton={false}
+        showBackButton
         showHandle
         showHeader
         showHeaderDivider

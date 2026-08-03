@@ -1,3 +1,5 @@
+import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
+
 export type SearchFilterChip = {
   id: string;
   label: string;
@@ -69,7 +71,7 @@ export const searchMapTileConfig: SearchMapTileConfig = {
 };
 
 export const searchMapCenter: SearchMapCenter = {
-  latitude: 36.2605,
-  longitude: 59.5986,
+  latitude: defaultSelectedCity.latitude,
+  longitude: defaultSelectedCity.longitude,
   zoom: 15,
 };

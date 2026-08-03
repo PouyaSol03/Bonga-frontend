@@ -4,7 +4,7 @@ import { MapContainer, Polygon, TileLayer, useMap, useMapEvents } from "react-le
 import { PageFrame } from "../../app/layout/PageFrame";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { getBrowserLocation } from "../../shared/lib/browserLocation";
-import { readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
+import { defaultSelectedCity, readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
 import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery, useSubNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { getNeighborhoodPolygonPoints, type NeighborhoodDto, type SubNeighborhoodDto } from "../../core/services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
@@ -21,6 +21,7 @@ import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
 import { updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
 
 type NewAdMapCenter = {
   lat: number;
@@ -29,8 +30,8 @@ type NewAdMapCenter = {
 };
 
 const defaultMapCenter: NewAdMapCenter = {
-  lat: 36.2605,
-  lng: 59.5986,
+  lat: defaultSelectedCity.latitude,
+  lng: defaultSelectedCity.longitude,
   zoom: 15,
 };
 const selectedCityMapZoom = 12;
@@ -439,9 +440,7 @@ export function NewAdLocationPage() {
                 }}
                 type="button"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M20.25 12C20.25 7.44365 16.5563 3.75 12 3.75C7.44365 3.75 3.75 7.44365 3.75 12C3.75 16.5563 7.44365 20.25 12 20.25C16.5563 20.25 20.25 16.5563 20.25 12ZM14.6201 8.31934C14.9129 8.0266 15.3877 8.02681 15.6807 8.31934C15.9736 8.61221 15.9735 9.08697 15.6807 9.37988L13.0605 12L15.6807 14.6201C15.9732 14.913 15.9734 15.3879 15.6807 15.6807C15.3879 15.9734 14.913 15.9732 14.6201 15.6807L12 13.0605L9.38184 15.6807C9.08904 15.9734 8.61418 15.9732 8.32129 15.6807C8.0284 15.3878 8.02848 14.913 8.32129 14.6201L10.9395 12L8.32031 9.37988C8.02765 9.08696 8.02748 8.61214 8.32031 8.31934C8.61314 8.02667 9.088 8.02674 9.38086 8.31934L12 10.9395L14.6201 8.31934ZM21.75 12C21.75 17.3847 17.3847 21.75 12 21.75C6.61522 21.75 2.25 17.3847 2.25 12C2.25 6.61522 6.61522 2.25 12 2.25C17.3847 2.25 21.75 6.61522 21.75 12Z" fill="#4D4D4D" />
-                </svg>
+                <LinearCancelCircle aria-hidden="true" className="h-6 w-6 text-[#4d4d4d]" />
               </Button>
             ) : <SearchIcon />}
           </label>

@@ -5,7 +5,7 @@ import type {
   NotificationCategory,
   NotificationItem,
 } from "../services/notification.service";
-import { baseUrl } from "./api";
+import { websocketBaseUrl } from "./api";
 
 export type NotificationNewPayload = {
   notification?: NotificationItem;
@@ -57,7 +57,8 @@ let notificationSocket: NotificationSocket | null = null;
 
 function getNotificationSocketUrl() {
   const socketBaseUrl =
-    baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
+    websocketBaseUrl ||
+    (typeof window !== "undefined" ? window.location.origin : "");
 
   return `${socketBaseUrl.replace(/\/$/, "")}/notifications`;
 }

@@ -22,7 +22,7 @@ import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/ser
 import { useMyProfileQuery } from "../../core/hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
-import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../app/router/RouteLink";
 import { pushRoute } from "../../app/router/navigation";
@@ -69,7 +69,7 @@ import { Button } from "../../shared/ui/Button";
 
 const CRM_BLUE = "#0048c4";
 const DEFAULT_COUNTRY_ID = 2;
-const DEFAULT_CENTER: LatLngTuple = [36.2972, 59.6067];
+const DEFAULT_CENTER: LatLngTuple = [defaultSelectedCity.latitude, defaultSelectedCity.longitude];
 
 type CrmSection =
   | "overview"
@@ -2059,8 +2059,8 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
           name: "location",
           type: "map-point",
           value: stringifyValue({
-            lat: Number(city.lat) || 36.2605,
-            lng: Number(city.lng) || 59.6168,
+            lat: Number(city.lat) || DEFAULT_CENTER[0],
+            lng: Number(city.lng) || DEFAULT_CENTER[1],
           }),
         },
       ],

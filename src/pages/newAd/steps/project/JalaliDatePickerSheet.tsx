@@ -4,7 +4,6 @@ import persian from "react-date-object/calendars/persian";
 import persianFa from "react-date-object/locales/persian_fa";
 
 import { BottomSheet } from "../../../../shared/components/BottomSheet";
-import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
 
 import "./JalaliDatePickerSheet.css";
 import { Button } from "../../../../shared/ui/Button";
@@ -51,8 +50,7 @@ export function JalaliDatePickerSheet({
       ariaLabel={title}
       className="rounded-t-[14px]"
       contentClassName="p-0"
-      headerButtonAriaLabel="بستن"
-      headerButtonIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
+      headerButtonAriaLabel="بازگشت"
       heightClassName="h-auto max-h-[calc(100dvh-48px)]"
       isOpen={isOpen}
       onClose={onClose}

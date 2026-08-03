@@ -1,7 +1,7 @@
 import { io, type Socket } from "socket.io-client";
 
 import { getStoredAccessToken } from "../auth/auth-storage";
-import { baseUrl } from "./api";
+import { websocketBaseUrl } from "./api";
 import {
   markChatMessagesRead,
   sendChatMessage,
@@ -83,7 +83,8 @@ const chatSockets = new Map<ChatCategory, ChatSocket>();
 
 function getChatSocketUrl() {
   const socketBaseUrl =
-    baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
+    websocketBaseUrl ||
+    (typeof window !== "undefined" ? window.location.origin : "");
 
   return `${socketBaseUrl.replace(/\/$/, "")}/chat`;
 }

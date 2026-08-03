@@ -3,7 +3,6 @@ import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../shared/components/BottomSheet";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
-import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import {
@@ -774,8 +773,7 @@ export function DetailsStep({
             ? "h-1 w-[56px] rounded-full bg-[#cccccc]"
             : "h-1 w-[42px] rounded-full bg-[#e0e0e0]"
         }
-        headerButtonAriaLabel="بستن"
-        headerButtonIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
+        headerButtonAriaLabel="بازگشت"
         headerClassName={sheet?.kind === "exchange" ? "!gap-0 !px-2" : ""}
         heightClassName={
           sheet?.kind === "exchange"
@@ -786,7 +784,7 @@ export function DetailsStep({
         onBack={() => setSheet(null)}
         onClose={() => setSheet(null)}
         panelPaddingClassName={sheet?.kind === "exchange" ? "flex flex-col pt-3" : "pt-3"}
-        showBackButton={sheet?.kind === "exchange"}
+        showBackButton
         showHandle
         showHeader
         showHeaderDivider={sheet?.kind !== "exchange"}

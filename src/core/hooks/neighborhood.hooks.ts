@@ -4,6 +4,7 @@ import { queryKeys } from "../api/query-keys";
 import {
   getNeighborhoodInfoWithLoc,
   getNeighborhoodList,
+  getSubNeighborhoodList,
   type NeighborhoodInfoWithLocParams,
   type NeighborhoodListParams,
 } from "../services/neighborhood.service";
@@ -32,5 +33,16 @@ export function useNeighborhoodInfoWithLocQuery({
     enabled: enabled && Boolean(cityId) && Number.isFinite(lat) && Number.isFinite(lng),
     queryFn: () => getNeighborhoodInfoWithLoc({ cityId, lat, lng }),
     queryKey: queryKeys.neighborhoods.infoWithLoc({ cityId, lat, lng }),
+  });
+}
+
+export function useSubNeighborhoodListQuery(
+  neighborhoodId: string | number | null | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    enabled: enabled && Boolean(neighborhoodId),
+    queryFn: () => getSubNeighborhoodList(neighborhoodId ?? ""),
+    queryKey: queryKeys.neighborhoods.subNeighborhoods(neighborhoodId ?? ""),
   });
 }

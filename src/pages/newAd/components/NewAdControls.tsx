@@ -18,6 +18,7 @@ import { normalizeNumberInput, navigateTo } from "../utils";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../shared/ui/Typography";
+import LinearInformation from "../../../shared/icons/LinearInformation";
 
 export function Header({
   title,
@@ -67,11 +68,7 @@ export function Section({
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <img
-            src={`/icons/add_advertisement/${icon}`}
-            alt=""
-            className="h-6 w-6 shrink-0 object-contain"
-          />
+          <LinearInformation className="h-6 w-6 text-on-surface-var"/>
 
           <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
             {title}
@@ -258,10 +255,10 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between border-t border-[#cccccc] py-2 [direction:ltr]">
+    <div className="flex items-center justify-between border-t border-[#cccccc] py-3 [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
-      <Typography as="span" variant="label" size="large" weight="semibold" className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="title" size="medium" weight="medium" className="text-[#1a1a1a] [direction:rtl]">
         {label}
       </Typography>
     </div>

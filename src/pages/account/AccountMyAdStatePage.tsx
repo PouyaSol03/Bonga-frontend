@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
-import { useAdvertisementPreviewQuery } from "../../core/hooks/advertisement.hooks";
+import { useMyAdvertisementDetailQuery } from "../../core/hooks/advertisement.hooks";
 import { useAgencyConsultantsQuery } from "../../core/hooks/agency.hooks";
 import { useMyAgencyProfileQuery } from "../../core/hooks/account.hooks";
 import { mapAdvertisementToAdCard } from "../../core/services/advertisement.service";
@@ -57,7 +57,7 @@ type StateAction = {
 export function AccountMyAdStatePage() {
   const routeState = readRouteState();
   const adId = readAdIdFromPath() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
-  const detailQuery = useAdvertisementPreviewQuery(adId ?? null);
+  const detailQuery = useMyAdvertisementDetailQuery(adId ?? null);
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
   const sourceAd = detailQuery.data ?? routeState.ad;
   const card = detailQuery.data
@@ -278,7 +278,7 @@ function ManagerAdSummary({
   ad?: Record<string, unknown>;
   card: AdCardData;
 }) {
-  const subtitle = readText(ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
+  const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
     <div className="mt-4 flex h-[68px] items-center rounded-2xl bg-[#fafafa] px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
@@ -430,7 +430,7 @@ function StateAdSummary({
   ad?: Record<string, unknown>;
   card: AdCardData;
 }) {
-  const subtitle = readText(ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
+  const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
     <div className="mt-4 flex h-[80px] items-center rounded-2xl border border-[#e6e6e6] bg-[#fafafa] px-3 [direction:ltr]">
@@ -454,7 +454,9 @@ function StateAdSummary({
 
 function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
   const published = readDateLike(ad?.published_time_ago ?? ad?.published_at ?? ad?.created_at);
-  const expires = readDateLike(ad?.expires_time_ago ?? ad?.expires_at ?? ad?.expiration_date ?? ad?.expired_at);
+  const expires = readExpirationRemaining(
+    ad?.expire_date ?? ad?.expires_at ?? ad?.expiration_date ?? ad?.expired_at ?? ad?.expires_time_ago,
+  );
 
   return (
     <div className="mt-4 text-sm font-medium leading-5">
@@ -743,6 +745,34 @@ function readDateLike(value: unknown) {
   const timestamp = Date.parse(raw);
   if (!Number.isFinite(timestamp)) return raw;
   return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long", day: "numeric" }).format(new Date(timestamp));
+}
+
+function readExpirationRemaining(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "—";
+
+  const raw = value.trim();
+  const timestamp = Date.parse(raw);
+  if (!Number.isFinite(timestamp)) return raw;
+
+  const expirationDate = new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(new Date(timestamp));
+  const remainingMilliseconds = timestamp - Date.now();
+
+  if (remainingMilliseconds < 0) return `${expirationDate} (منقضی شده)`;
+
+  const remainingDays = Math.ceil(remainingMilliseconds / 86_400_000);
+  const remainingLabel = remainingDays === 0
+    ? "امروز"
+    : `${toPersianDigits(remainingDays)} روز دیگر`;
+
+  return `${expirationDate} (${remainingLabel})`;
+}
+
+function toPersianDigits(value: number | string) {
+  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
 function readModerationReasons(ad?: Record<string, unknown>) {

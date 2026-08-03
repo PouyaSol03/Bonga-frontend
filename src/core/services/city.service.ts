@@ -3,7 +3,7 @@ import { getApiAssetUrl, publicApi } from "../api/api";
 export type CityDto = {
   _id?: string;
   code?: string;
-  country_id?: string;
+  country_id?: number;
   id?: string;
   lat?: number;
   lng?: number;

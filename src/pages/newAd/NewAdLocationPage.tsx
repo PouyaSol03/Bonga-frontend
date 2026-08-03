@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { PageFrame } from "../../app/layout/PageFrame";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { getBrowserLocation } from "../../shared/lib/browserLocation";
 import { readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
-import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
-import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery, useSubNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { getNeighborhoodPolygonPoints, type NeighborhoodDto, type SubNeighborhoodDto } from "../../core/services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
@@ -15,6 +15,7 @@ import {
   locationLatKey,
   locationLngKey,
   neighborhoodIdKey,
+  subNeighborhoodIdKey,
 } from "./data";
 import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
 import { updateNewAdFlowSessionLocation } from "./session";
@@ -112,6 +113,42 @@ function getNeighborhoodId(neighborhood: NeighborhoodDto | null) {
   return String(neighborhood?.id ?? neighborhood?._id ?? "");
 }
 
+function getSubNeighborhoodId(subNeighborhood: SubNeighborhoodDto | null) {
+  return String(subNeighborhood?.id ?? "");
+}
+
+function isPointInsidePolygon(
+  latitude: number,
+  longitude: number,
+  points: Array<[number, number]>,
+) {
+  if (points.length < 3) return false;
+
+  let inside = false;
+  for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
+    const [latA, lngA] = points[index];
+    const [latB, lngB] = points[previous];
+    const intersects =
+      (latA > latitude) !== (latB > latitude) &&
+      longitude < ((lngB - lngA) * (latitude - latA)) / (latB - latA || Number.EPSILON) + lngA;
+
+    if (intersects) inside = !inside;
+  }
+
+  return inside;
+}
+
+function resolveSubNeighborhoodAtPoint(
+  subNeighborhoods: SubNeighborhoodDto[],
+  latitude: number,
+  longitude: number,
+) {
+  return subNeighborhoods.find((item) => {
+    const points = getNeighborhoodPolygonPoints(item.geofence ?? item.polygon);
+    return isPointInsidePolygon(latitude, longitude, points);
+  }) ?? null;
+}
+
 function createStoredNeighborhood(): NeighborhoodDto | null {
   const id = window.localStorage.getItem(neighborhoodIdKey) ?? "";
   const name = window.localStorage.getItem(locationKey) ?? "";
@@ -204,12 +241,32 @@ export function NewAdLocationPage() {
     lat: Number(mapCenter.lat.toFixed(7)),
     lng: Number(mapCenter.lng.toFixed(7)),
   });
+  const selectedNeighborhoodId = getNeighborhoodId(selectedNeighborhood);
+  const subNeighborhoodsQuery = useSubNeighborhoodListQuery(
+    selectedNeighborhoodId,
+    Boolean(selectedNeighborhoodId),
+  );
+  const selectedSubNeighborhood = useMemo(
+    () => resolveSubNeighborhoodAtPoint(
+      subNeighborhoodsQuery.data ?? [],
+      mapCenter.lat,
+      mapCenter.lng,
+    ),
+    [mapCenter.lat, mapCenter.lng, subNeighborhoodsQuery.data],
+  );
 
   const locations = useMemo(
     () => (canSearchNeighborhoods ? neighborhoodsQuery.data ?? [] : []),
     [canSearchNeighborhoods, neighborhoodsQuery.data],
   );
   const selectedLocation = selectedNeighborhood?.name ?? "";
+  const selectedNeighborhoodGeofence = useMemo(
+    () =>
+      getNeighborhoodPolygonPoints(
+        selectedNeighborhood?.geofence ?? selectedNeighborhood?.polygon,
+      ),
+    [selectedNeighborhood],
+  );
 
   useRequireAuth();
 
@@ -262,6 +319,7 @@ export function NewAdLocationPage() {
       setQuery("");
       setIsManualSearch(false);
       setIsResolvingLocation(true);
+      window.localStorage.removeItem(subNeighborhoodIdKey);
     }
 
     setMapCenter(center);
@@ -320,6 +378,19 @@ export function NewAdLocationPage() {
             center={mapCenter}
             onCenterChange={updateMapCenter}
           />
+          {selectedNeighborhoodGeofence.length >= 3 ? (
+            <Polygon
+              interactive={false}
+              pathOptions={{
+                color: "#0048c4",
+                fillColor: "#0048c4",
+                fillOpacity: 0.18,
+                opacity: 0.9,
+                weight: 2,
+              }}
+              positions={selectedNeighborhoodGeofence}
+            />
+          ) : null}
         </MapContainer>
 
         <Button unstyled
@@ -408,6 +479,7 @@ export function NewAdLocationPage() {
             disabled={
               isResolvingLocation ||
               neighborhoodByLocationQuery.isFetching ||
+              subNeighborhoodsQuery.isFetching ||
               !selectedLocation ||
               !getNeighborhoodId(selectedNeighborhood)
             }
@@ -418,6 +490,12 @@ export function NewAdLocationPage() {
 
               window.localStorage.setItem(locationKey, confirmedLocation);
               window.localStorage.setItem(neighborhoodIdKey, getNeighborhoodId(selectedNeighborhood));
+              const subNeighborhoodId = getSubNeighborhoodId(selectedSubNeighborhood);
+              if (subNeighborhoodId) {
+                window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);
+              } else {
+                window.localStorage.removeItem(subNeighborhoodIdKey);
+              }
               window.localStorage.setItem(locationLatKey, String(mapCenter.lat));
               window.localStorage.setItem(locationLngKey, String(mapCenter.lng));
               updateNewAdFlowSessionLocation(confirmedLocation);

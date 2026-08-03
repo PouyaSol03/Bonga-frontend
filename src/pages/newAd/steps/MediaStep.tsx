@@ -132,7 +132,7 @@ export function MediaStep({
           <div className="mt-5">
             <Toggle
               checked={values.hasVideo}
-              label="ویدیو"
+              label="فیلم"
               onChange={(checked) => {
                 setField("hasVideo", checked);
                 onClearError?.("video");
@@ -144,7 +144,7 @@ export function MediaStep({
             <VideoUploader onChange={() => onClearError?.("video")} />
           ) : null}
           <FieldError message={values.hasVideo ? errors.video : undefined} />
-          <div className="mt-5">
+          <div>
             <Toggle
               checked={values.hasVirtualTour}
               label="تور مجازی"

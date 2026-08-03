@@ -374,7 +374,7 @@ function advertiseStatusLabel(status: unknown) {
     {
       wait_for_payment: "ثبت‌شده",
       wait_for_admin: "در انتظار بررسی",
-      wait_for_agency: "در انتظار مشاور",
+      wait_for_agency: "در انتظار آژانس",
       accepted: "منتشرشده",
       needs_edit: "نیازمند ویرایش",
       rejected: "ردشده",
@@ -386,7 +386,7 @@ function advertiseStatusLabel(status: unknown) {
       "-1": "ردشده",
       "0": "ثبت‌شده",
       "1": "در انتظار بررسی",
-      "2": "در انتظار مشاور",
+      "2": "در انتظار آژانس",
       "3": "منتشرشده",
     }[value] ?? "نامشخص"
   );

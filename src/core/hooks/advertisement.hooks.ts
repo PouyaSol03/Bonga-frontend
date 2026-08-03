@@ -8,6 +8,8 @@ import {
   getAdvertisementDetail,
   getAdvertisementList,
   getAdvertisementMap,
+  getAdvertiseFormDefinition,
+  getMyAdvertisementDetail,
   getAdvertisementPreview,
   getAdvertiseReportReasons,
   submitAdvertisementCheckout,
@@ -57,6 +59,23 @@ export function useAdvertisementListQuery(params: AdvertisementListParams | null
     }),
     // Cache disabled globally in src/api/query-client.ts.
     // staleTime: 0,
+  });
+}
+
+
+export function useAdvertiseFormDefinitionQuery(formCode: string | null) {
+  return useQuery({
+    enabled: Boolean(formCode),
+    queryFn: () => getAdvertiseFormDefinition(formCode ?? ""),
+    queryKey: [...queryKeys.advertisements.all, "form", formCode ?? ""],
+  });
+}
+
+export function useMyAdvertisementDetailQuery(id: string | null) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: () => getMyAdvertisementDetail(id ?? ""),
+    queryKey: [...queryKeys.advertisements.all, "my-detail", id ?? ""],
   });
 }
 
@@ -121,7 +140,8 @@ export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) 
   return useQuery({
     enabled: Boolean(params),
     // Previous map-result caching is temporarily disabled.
-    // gcTime: 2 * 60_000,
+    // gcTime: 2 * 60_000,
+
     queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
     queryKey: queryKeys.advertisements.map(params ?? {}),
     refetchOnMount: "always",

@@ -1,7 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { DivIcon } from "leaflet";
-import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { Circle, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { BrowserLocation } from "../../../shared/lib/browserLocation";
+import type { NeighborhoodGeoPoint } from "../../../core/services/neighborhood.service";
 import { SearchMapMarker } from "./SearchMapMarker";
 import { SearchMapGeofenceConfirmedLayer } from "../geofence/SearchMapGeofenceConfirmedLayer";
 import { SearchMapGeofenceLayer } from "../geofence/SearchMapGeofenceLayer";
@@ -30,6 +31,7 @@ type SearchMapViewProps = {
   centerSignal?: number;
   resizeSignal?: number;
   listings: SearchMapListing[];
+  neighborhoodGeofences?: NeighborhoodGeoPoint[][];
   dotMarkers?: SearchMapDotMarker[];
   priceMarkerListingIds: Set<SearchMapListingId>;
   seenListingIds: Set<SearchMapListingId>;
@@ -119,6 +121,7 @@ function SearchMapViewComponent({
   centerSignal = 0,
   resizeSignal = 0,
   listings,
+  neighborhoodGeofences = [],
   dotMarkers = [],
   priceMarkerListingIds,
   seenListingIds,
@@ -192,6 +195,21 @@ function SearchMapViewComponent({
         onBoundsChange={onBoundsChange}
         onMapClick={onMapClick}
       />
+
+      {neighborhoodGeofences.map((points, index) => (
+        <Polygon
+          key={`selected-neighborhood-${index}`}
+          interactive={false}
+          pathOptions={{
+            color: "#0048c4",
+            fillColor: "#0048c4",
+            fillOpacity: 0.18,
+            opacity: 0.9,
+            weight: 2,
+          }}
+          positions={points}
+        />
+      ))}
 
       <SearchMapGeofenceLayer
         enabled={freehandGeofenceEnabled}

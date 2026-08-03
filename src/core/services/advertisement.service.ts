@@ -11,41 +11,114 @@ export type AdvertisementStatus =
   | "deleted"
   | "expired";
 
+export type AdvertisementFeature = {
+  label: string;
+  value: unknown;
+};
+
+export type AdvertisementImage = {
+  // Detail endpoints normalize to url/is_main. Legacy list serializers may still
+  // expose path/src, so keep those aliases typed without using them in ViewAd.
+  is_main?: boolean;
+  path?: string;
+  src?: string;
+  url?: string;
+};
+
+export type AdvertisementLocationEntity = {
+  id?: number | string;
+  name?: string;
+};
+
+export type AdvertisementAgency = {
+  _id?: number | string;
+  id?: number | string;
+  location?: string;
+  logo?: string | null;
+  name?: string;
+  rank?: number | string | null;
+  rating_score?: number | string | null;
+};
+
+export type AdvertisementAgent = {
+  _id?: number | string;
+  agency_id?: number | string | null;
+  agency_name?: string;
+  id?: number | string;
+  name?: string;
+  rank?: number | string | null;
+  rating_score?: number | string | null;
+};
+
+export type AdvertisementContacts = {
+  chat?: boolean;
+  instagram?: string;
+  phone?: string;
+  telegram?: string;
+  whatsapp?: string;
+};
+
+export type AdvertisementSocial = {
+  instagram?: string;
+  telegram?: string;
+  whatsapp?: string;
+};
+
 export type AdvertisementItem = Record<string, unknown> & {
   _id?: string;
-  agency?: string | { id?: string | number; _id?: string | number; name?: string };
+  agency?: AdvertisementAgency | string | null;
+  agency_id?: number | string | null;
+  agent?: AdvertisementAgent | null;
+  agent_id?: number | string | null;
   area?: string | number;
   badges?: string[];
-  city?: { name?: string };
+  city?: AdvertisementLocationEntity | null;
+  city_id?: number | string | null;
   city_name?: string;
+  category_neighborhood?: string | null;
+  contact_type?: string[];
+  contacts?: AdvertisementContacts | null;
   created_at?: string;
-  district?: { name?: string };
-  district_name?: string;
   description?: string;
+  district?: AdvertisementLocationEntity | null;
+  district_name?: string;
+  features?: AdvertisementFeature[];
+  form_code?: string;
+  form_neighborhood_title?: string | null;
   id?: string | number;
   image?: string;
-  images?: Array<string | { path?: string; url?: string }>;
-  features?: Array<{ label?: string; value?: unknown }>;
+  images?: AdvertisementImage[];
+  is_bookmarked?: boolean;
+  is_mine?: boolean;
   label?: string;
+  lat?: number | string | null;
+  lng?: number | string | null;
   loan?: {
     amount?: string | number | null;
     installment?: string | number | null;
   } | null;
-  neighborhood?: { id?: string | number; name?: string };
+  location_label?: string | null;
+  neighborhood?: AdvertisementLocationEntity | null;
+  neighborhood_id?: number | string | null;
   neighborhood_name?: string;
-  form_neighborhood_title?: string | null;
-  is_mine?: boolean;
+  owner_type?: string;
+  price?: string | number;
+  price_label?: string;
   published_days?: string | number | null;
   published_date?: string | number | null;
   published_time_ago?: string | number;
-  short_description?: string;
-  price?: string | number;
-  price_label?: string;
   rooms?: string | number;
+  short_description?: string;
+  social?: AdvertisementSocial | null;
   status?: AdvertisementStatus | string;
   status_code?: number;
+  status_label?: string;
+  sub_neighborhood?: AdvertisementLocationEntity | null;
+  sub_neighborhood_id?: number | string | null;
   title?: string;
   updated_at?: string;
+  video?: string | null;
+  virtual_tour_link?: string | null;
   year?: string | number;
 };
 
@@ -67,9 +140,15 @@ type AdvertisementListResponse =
   }
   | AdvertisementItem[];
 
-type AdvertisementShowResponse =
+type AdvertisementShowResponse = {
+  data: AdvertisementItem;
+  status: boolean;
+};
+
+type AdvertisementAccountShowResponse =
   | {
     advertise?: AdvertisementItem;
+    category?: string;
     data?: AdvertisementItem;
     status?: boolean;
   }
@@ -83,6 +162,28 @@ type AdvertisementCreateResponse =
     status?: boolean;
   }
   | AdvertisementItem;
+
+export type AdvertiseFormOption = {
+  label: string;
+  value: boolean | number | string;
+};
+
+export type AdvertiseFormField = {
+  dependsOn?: string;
+  key: string;
+  label: string;
+  options: AdvertiseFormOption[];
+  optionsEndpoint?: string;
+  required: boolean;
+  type: string;
+  unit: string;
+};
+
+export type AdvertiseFormDefinition = {
+  code: string;
+  fields: AdvertiseFormField[];
+  title?: string;
+};
 
 export type AdvertisementCheckoutItem = {
   credit_cost?: number;
@@ -511,14 +612,25 @@ export async function getAdvertisementList({
   } satisfies AdvertisementPage;
 }
 
-export async function getAdvertisementDetail(id: string) {
-  const response = await publicApi
-    .get(`public/advertise/${id}`)
+function unwrapAdvertisementShowResponse(
+  response: AdvertisementShowResponse,
+): AdvertisementItem {
+  if (response?.data && typeof response.data === "object") {
+    return response.data;
+  }
+
+  throw new ApiError(500, "ساختار اطلاعات آگهی از سرور قابل استفاده نیست.");
+}
+
+export async function getAdvertisementDetail(id: string): Promise<AdvertisementItem> {
+  // Use the authenticated client even for the public endpoint. When a token is
+  // present it is sent so backend can calculate is_mine/is_bookmarked; without
+  // a token this still behaves as a normal public request.
+  const response = await api
+    .get(`public/advertise/${encodeURIComponent(id)}`)
     .json<AdvertisementShowResponse>();
 
-  return "data" in response && response.data
-    ? (response.data as AdvertisementItem)
-    : (response as AdvertisementItem);
+  return unwrapAdvertisementShowResponse(response);
 }
 
 export async function getAdvertisementPreview(id: string): Promise<AdvertisementItem> {
@@ -526,8 +638,144 @@ export async function getAdvertisementPreview(id: string): Promise<Advertisement
     .get(`me/advertise/preview/${encodeURIComponent(id)}`)
     .json<AdvertisementShowResponse>();
 
-  if ("advertise" in response && response.advertise) return response.advertise as AdvertisementItem;
-  if ("data" in response && response.data) return response.data as AdvertisementItem;
+  // Preview and public detail now share the exact { status, data } model.
+  return unwrapAdvertisementShowResponse(response);
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function normalizeAdvertiseFormOption(value: unknown): AdvertiseFormOption | null {
+  const record = asRecord(value);
+  if (!record) return null;
+
+  const optionValue = record.value;
+  if (typeof optionValue !== "string" && typeof optionValue !== "number" && typeof optionValue !== "boolean") {
+    return null;
+  }
+
+  const label = typeof record.label === "string" && record.label.trim()
+    ? record.label.trim()
+    : String(optionValue);
+
+  return { label, value: optionValue };
+}
+
+function normalizeAdvertiseFormField(value: unknown): AdvertiseFormField | null {
+  const record = asRecord(value);
+  if (!record) return null;
+
+  const key = typeof record.key === "string" ? record.key.trim() : "";
+  if (!key) return null;
+
+  const options = Array.isArray(record.options)
+    ? record.options
+        .map(normalizeAdvertiseFormOption)
+        .filter((item): item is AdvertiseFormOption => item !== null)
+    : [];
+
+  return {
+    dependsOn: typeof record.dependsOn === "string" ? record.dependsOn : undefined,
+    key,
+    label: typeof record.label === "string" ? record.label : key,
+    options,
+    optionsEndpoint: typeof record.optionsEndpoint === "string" ? record.optionsEndpoint : undefined,
+    required: record.required === true,
+    type: typeof record.type === "string" ? record.type : "",
+    unit: typeof record.unit === "string" ? record.unit : "",
+  };
+}
+
+function normalizeAdvertiseFormDefinition(value: unknown, requestedCode = ""): AdvertiseFormDefinition | null {
+  const record = asRecord(value);
+  if (!record) return null;
+
+  const fieldsValue = record.fields ?? record.inputs ?? record.dynamic_fields ?? record.dynamicFields;
+  if (!Array.isArray(fieldsValue)) return null;
+
+  const fields = fieldsValue
+    .map(normalizeAdvertiseFormField)
+    .filter((item): item is AdvertiseFormField => item !== null);
+  const codeCandidates = [record.code, record.form_code, record.formCode, record.slug];
+  const code = codeCandidates.find((item): item is string => typeof item === "string" && item.trim().length > 0)?.trim() ?? requestedCode;
+
+  return {
+    code,
+    fields,
+    title: typeof record.title === "string" ? record.title : undefined,
+  };
+}
+
+function unwrapAdvertiseFormDefinition(response: unknown, requestedCode: string): AdvertiseFormDefinition {
+  const direct = normalizeAdvertiseFormDefinition(response, requestedCode);
+  if (direct) return direct;
+
+  if (Array.isArray(response)) {
+    const fields = response
+      .map(normalizeAdvertiseFormField)
+      .filter((item): item is AdvertiseFormField => item !== null);
+
+    if (fields.length === response.length && fields.length > 0) {
+      return { code: requestedCode, fields };
+    }
+
+    for (const item of response) {
+      const form = normalizeAdvertiseFormDefinition(item, requestedCode);
+      if (form && (!requestedCode || form.code === requestedCode)) return form;
+    }
+  }
+
+  const record = asRecord(response);
+  const candidates = record ? [record.data, record.result, record.form, record.advertise_form] : [];
+
+  for (const candidate of candidates) {
+    const normalized = normalizeAdvertiseFormDefinition(candidate, requestedCode);
+    if (normalized) return normalized;
+
+    if (Array.isArray(candidate)) {
+      for (const item of candidate) {
+        const form = normalizeAdvertiseFormDefinition(item, requestedCode);
+        if (form && (!requestedCode || form.code === requestedCode)) return form;
+      }
+    }
+  }
+
+  throw new ApiError(500, "ساختار فرم ثبت آگهی از سرور قابل استفاده نیست.");
+}
+
+export async function getAdvertiseFormDefinition(formCode: string) {
+  const normalizedCode = formCode.trim();
+  if (!normalizedCode) throw new ApiError(400, "کد فرم آگهی مشخص نیست.");
+
+  const response = await publicApi
+    .get(`public/advertise-form/${encodeURIComponent(normalizedCode)}`)
+    .json<unknown>();
+
+  return unwrapAdvertiseFormDefinition(response, normalizedCode);
+}
+
+export async function getMyAdvertisementDetail(id: string) {
+  const response = await api
+    .get(`me/advertise/get/${encodeURIComponent(id)}`)
+    .json<AdvertisementAccountShowResponse>();
+
+  const advertise = "advertise" in response ? asRecord(response.advertise) : null;
+  if (advertise) {
+    const category = typeof response.category === "string" ? response.category.trim() : "";
+
+    return category
+      ? {
+          ...advertise,
+          category,
+          category_title: advertise.category_title ?? category,
+        }
+      : advertise;
+  }
+
+  if ("data" in response && response.data) return response.data;
   return response as AdvertisementItem;
 }
 
@@ -546,11 +794,7 @@ export async function createAdvertisement(payload: FormData) {
         ? response.advertise as AdvertisementItem
         : response as AdvertisementItem;
 
-  return {
-    ...createdAdvertise,
-    status: "wait_for_payment",
-    status_code: 0,
-  } satisfies AdvertisementItem;
+  return createdAdvertise;
 }
 
 function unwrapAdvertisementCheckoutResponse(
@@ -634,6 +878,20 @@ export async function getAdvertisementCheckout(advertiseId: string) {
     .get(`me/advertise/checkout/${encodeURIComponent(advertiseId)}`)
     .json<AdvertisementCheckoutResponse>();
 
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "دریافت اطلاعات پرداخت آگهی با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
+  }
+
   return unwrapAdvertisementCheckoutResponse(response);
 }
 
@@ -651,12 +909,19 @@ export async function submitAdvertisementCheckout({
     })
     .json<unknown>();
 
-  if (
-    response &&
-    typeof response === "object" &&
-    (response as Record<string, unknown>).status === false
-  ) {
-    throw new ApiError(400, "پرداخت آگهی با خطا مواجه شد.");
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "پرداخت آگهی با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
   }
 
   return {

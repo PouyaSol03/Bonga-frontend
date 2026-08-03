@@ -71,12 +71,21 @@ function readErrorMessage(payload: ErrorPayload) {
 }
 
 export class ApiError extends Error {
+  code?: string;
+  errors?: Record<string, unknown>;
   response?: Response;
   status: number;
 
-  constructor(status: number, message: string, response?: Response) {
+  constructor(
+    status: number,
+    message: string,
+    response?: Response,
+    details?: { code?: string; errors?: Record<string, unknown> },
+  ) {
     super(message);
     this.name = "ApiError";
+    this.code = details?.code;
+    this.errors = details?.errors;
     this.response = response;
     this.status = status;
   }
@@ -145,10 +154,16 @@ const apiOptions: Options = {
               ? (error.data as ErrorPayload)
               : null;
 
+          const code = typeof payload?.code === "string" ? payload.code : undefined;
+          const errors = payload?.errors && typeof payload.errors === "object" && !Array.isArray(payload.errors)
+            ? payload.errors as Record<string, unknown>
+            : undefined;
+
           return new ApiError(
             error.response.status,
             readErrorMessage(payload) ?? "درخواست با خطا مواجه شد.",
             error.response,
+            { code, errors },
           );
         }
 
@@ -188,6 +203,25 @@ export function isUnauthorizedApiError(error: unknown) {
   if (error instanceof HTTPError) return error.response.status === 401;
 
   return false;
+}
+
+
+export function getApiErrorCode(error: unknown) {
+  return error instanceof ApiError ? error.code : undefined;
+}
+
+export function getApiFieldError(error: unknown, field: string) {
+  if (!(error instanceof ApiError) || !error.errors) return null;
+
+  const value = error.errors[field];
+  if (typeof value === "string" && value.trim()) return value.trim();
+
+  if (Array.isArray(value)) {
+    const message = value.find((item): item is string => typeof item === "string" && item.trim().length > 0);
+    return message?.trim() ?? null;
+  }
+
+  return null;
 }
 
 export function getApiAssetUrl(path: string) {

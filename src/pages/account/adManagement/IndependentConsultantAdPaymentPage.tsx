@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { getApiErrorMessage } from "../../../core/api/api";
+import { getApiErrorCode, getApiErrorMessage } from "../../../core/api/api";
 import { PageFrame } from "../../../app/layout/PageFrame";
 import { Snackbar } from "../../../shared/components/Snackbar";
 import { TopBar } from "../../../shared/components/TopBar";
@@ -192,6 +192,16 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const totalPrice = toSafeNumber(checkout?.summary.total_price, publishPrice);
 
   useEffect(() => {
+    if (getApiErrorCode(checkoutQuery.error) !== "AD_WAITING_FOR_AGENCY") return;
+
+    navigateTo(stateAdPath, {
+      returnTo: "/account/my-ads",
+      status: "wait_for_agency",
+      tab: "status",
+    }, true);
+  }, [checkoutQuery.error, stateAdPath]);
+
+  useEffect(() => {
     if (!checkout) return;
 
     const gatewayAvailable = gatewayMethod?.available !== false;
@@ -214,6 +224,15 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       },
       {
         onError: (error: unknown) => {
+          if (getApiErrorCode(error) === "AD_WAITING_FOR_AGENCY") {
+            navigateTo(stateAdPath, {
+              returnTo: "/account/my-ads",
+              status: "wait_for_agency",
+              tab: "status",
+            }, true);
+            return;
+          }
+
           setErrorMessage(
             getApiErrorMessage(error, "پرداخت و انتشار آگهی با خطا مواجه شد."),
           );

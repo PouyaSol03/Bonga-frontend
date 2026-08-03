@@ -99,6 +99,12 @@ export const queryKeys = {
         filters.page ?? "",
         filters.perPage ?? "",
       ] as const,
+    subNeighborhoods: (neighborhoodId?: string | number) =>
+      [
+        ...queryKeys.neighborhoods.all,
+        "sub-neighborhoods",
+        String(neighborhoodId ?? ""),
+      ] as const,
   },
 
   agencyAdvertiseAssignments: {

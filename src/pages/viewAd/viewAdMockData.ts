@@ -5,10 +5,10 @@ export const singleAdMockData: AdvertisementItem = {
   title: "فروش کامل واحد اداری در مشهد",
   price: 11800000000,
   image: "/public/demo/real-estate-placeholder.jpg",
-  images: ["/public/demo/real-estate-placeholder.jpg"],
+  images: [{ url: "/public/demo/real-estate-placeholder.jpg", is_main: true }],
   features: [
     { label: "form_code", value: "sale-office" },
-    { label: "neighborhood_id", value: "000000000000000000000301" },
+    { label: "neighborhood_id", value: 301 },
     { label: "area", value: 110 },
     { label: "price", value: 11800000000 },
     { label: "building_age", value: "نوساز" },
@@ -72,7 +72,7 @@ export const singleAdMockData: AdvertisementItem = {
   lng: 59.6067,
   _id: "000000000000000000000601",
   category_id: "000000000000000000000235",
-  neighborhood_id: "000000000000000000000301",
+  neighborhood_id: 301,
   user_id: null,
   status: "wait_for_admin",
   description:

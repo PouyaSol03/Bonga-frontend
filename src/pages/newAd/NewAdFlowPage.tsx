@@ -3,16 +3,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../app/layout/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
+import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../core/api/api";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/services/advertisement.service";
 import { getCategoryList, type CategoryItem } from "../../core/services/category.service";
 import type { PublicAgencyDto } from "../../core/services/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../core/services/crm.service";
 import { Snackbar } from "../../shared/components/Snackbar";
-import { useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../core/hooks/advertisement.hooks";
+import { useAdvertiseFormDefinitionQuery, useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../core/hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
-import { adManagementPaths, getAdPaymentPath } from "../account/adManagement/adManagementData";
+import { adManagementPaths, getAdPaymentPath, getAdStatePath } from "../account/adManagement/adManagementData";
 import {
   blankValues,
   dailyHotelRoomTypes,
@@ -31,7 +31,7 @@ import { MediaStep } from "./steps/MediaStep";
 import { AgencySelectionStep } from "./steps/AgencySelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
-import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
+import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getAdvertiseFormCode, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
 import { getNewAdFlowSession, saveNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
@@ -217,15 +217,19 @@ function flattenCategories(categories: CategoryItem[]): CategoryItem[] {
   return categories.flatMap((category) => [category, ...flattenCategories(category.children ?? [])]);
 }
 
-function resolveCrmCategoryId(categories: CategoryItem[], fallback: string) {
-  const target = normalizeLookupText(fallback).replace(/_/g, "-");
+function findCategoryId(categories: CategoryItem[], value: string) {
+  const target = normalizeLookupText(value).replace(/_/g, "-");
   const match = flattenCategories(categories).find((category) =>
     [category.id, category.code, category.slug]
-      .map((value) => normalizeLookupText(value).replace(/_/g, "-"))
+      .map((candidate) => normalizeLookupText(candidate).replace(/_/g, "-"))
       .includes(target),
   );
 
-  return match?.id ? String(match.id) : fallback;
+  return match?.id ? String(match.id) : null;
+}
+
+function resolveCrmCategoryId(categories: CategoryItem[], fallback: string) {
+  return findCategoryId(categories, fallback) ?? fallback;
 }
 
 function fileToDataUrl(file: File) {
@@ -638,6 +642,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   if (isPartnership) {
     if (!hasRequiredText(values.builderSharePercent)) {
       errors.builderSharePercent = "لطفا سهم سازنده را وارد کنید.";
+    } else if (Number(values.builderSharePercent.replace(/,/g, "")) > 100) {
+      errors.builderSharePercent = "سهم سازنده نمی‌تواند بیشتر از ۱۰۰ درصد باشد.";
     }
   } else if (isProject || isDailyRent) {
     if (!hasRequiredText(values.minPrice)) errors.minPrice = "لطفا حداقل قیمت را وارد کنید.";
@@ -699,10 +705,6 @@ function getMediaValidationErrors(
 
   if (shouldRequirePersonalContactFields && !values.chatEnabled && !values.phoneEnabled) {
     errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
-  }
-
-  if (shouldRequirePersonalContactFields && values.phoneEnabled && !hasRequiredText(values.phoneNumber)) {
-    errors.phoneNumber = "لطفا شماره تماس را وارد کنید.";
   }
 
   if (isAgencyFlow && !hasRequiredText(values.ownerFullName)) {
@@ -921,10 +923,15 @@ export function NewAdFlowPage() {
   const isCrmSource = isCrmAdvertiseSource();
   const isCrmEditMode = isEditMode && isCrmSource;
   const categoriesQuery = useQuery({
-    enabled: isCrmSource,
+    enabled: isCrmSource || !isEditMode,
     queryFn: getCategoryList,
     queryKey: ["categories", "list"],
   });
+  const routeParams = getParams();
+  const currentFormCode = getAdvertiseFormCode(routeParams.transaction, routeParams.category);
+  const advertiseFormQuery = useAdvertiseFormDefinitionQuery(
+    !isEditMode && !isCrmSource ? currentFormCode : null,
+  );
   const editAdQuery = useAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
   const crmEditAdQuery = useQuery({
     enabled: Boolean(isCrmEditMode && editAdId),
@@ -1138,14 +1145,52 @@ export function NewAdFlowPage() {
       return;
     }
 
-    const formData = buildNewAdFormData(values);
+    if (!advertiseFormQuery.data) {
+      setSubmitError(
+        advertiseFormQuery.isError
+          ? getApiErrorMessage(advertiseFormQuery.error, "دریافت ساختار فرم ثبت آگهی با خطا مواجه شد.")
+          : "در حال دریافت ساختار فرم ثبت آگهی هستیم. لطفا دوباره تلاش کنید.",
+      );
+      return;
+    }
+
+    const categoryId = findCategoryId(categoriesQuery.data ?? [], routeParams.category);
+    const resolvedFormCode = advertiseFormQuery.data.code?.trim() || currentFormCode;
+
+    if (!resolvedFormCode) {
+      setSubmitError("کد فرم آگهی مشخص نیست. لطفا دسته‌بندی را دوباره انتخاب کنید.");
+      return;
+    }
+
+    const formData = buildNewAdFormData(values, {
+      categoryId,
+      dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
+      formCode: resolvedFormCode,
+    });
+
+    if (formData.getAll("images").length === 0) {
+      setFieldErrors((current) => ({
+        ...current,
+        photos: "لطفا حداقل یک عکس معتبر برای آگهی انتخاب کنید.",
+      }));
+      setSubmitError("");
+      setStep("media");
+      return;
+    }
 
     setFieldErrors({});
     setSubmitError("");
     submitLockRef.current = true;
     createAdvertisement.mutate(formData, {
       onError: (error) => {
-        setSubmitError(getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
+        const agencyError = getApiFieldError(error, "agency_id");
+
+        if (agencyError) {
+          setFieldErrors((current) => ({ ...current, agencyId: agencyError }));
+          setStep("agencySelection");
+        }
+
+        setSubmitError(agencyError ?? getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
       },
       onSuccess: (createdAd) => {
         const createdAdId = createdAd.id ?? createdAd._id;
@@ -1156,8 +1201,26 @@ export function NewAdFlowPage() {
         }
 
         const ad = mapAdvertisementToAdCard(createdAd, 0);
+        const returnedAgencyId = createdAd.agency_id;
+        const hasAgencyId =
+          returnedAgencyId !== undefined &&
+          returnedAgencyId !== null &&
+          String(returnedAgencyId).trim() !== "";
+        const isWaitingForAgency = createdAd.status === "wait_for_agency";
 
         clearNewAdDraftStorage();
+
+        if (hasAgencyId || isWaitingForAgency) {
+          navigateTo(getAdStatePath(createdAdId), {
+            ad: createdAd,
+            card: ad,
+            returnTo: adManagementPaths.root,
+            status: "wait_for_agency",
+            tab: "status",
+          });
+          return;
+        }
+
         navigateTo(getAdPaymentPath(createdAdId), {
           ad,
           paymentFlow: "new-ad",

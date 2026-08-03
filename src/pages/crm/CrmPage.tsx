@@ -68,7 +68,7 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
 const CRM_BLUE = "#0048c4";
-const DEFAULT_COUNTRY_ID = "000000000000000000000001";
+const DEFAULT_COUNTRY_ID = 2;
 const DEFAULT_CENTER: LatLngTuple = [36.2972, 59.6067];
 
 type CrmSection =
@@ -191,7 +191,7 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
 const advertiseStatusOptions: Array<{ label: string; value: AdvertiseStatus }> = [
   { label: "ثبت شده", value: "wait_for_payment" },
   { label: "در انتظار مدیر", value: "wait_for_admin" },
-  { label: "در انتظار مشاور", value: "wait_for_agency" },
+  { label: "در انتظار آژانس", value: "wait_for_agency" },
   { label: "تأیید شده", value: "accepted" },
   { label: "رد شده", value: "rejected" },
   { label: "نیازمند ویرایش", value: "needs_edit" },
@@ -290,7 +290,7 @@ function advertiseStatusLabel(status: unknown) {
     {
       wait_for_payment: "ثبت شده",
       wait_for_admin: "در انتظار بررسی",
-      wait_for_agency: "در انتظار مشاور",
+      wait_for_agency: "در انتظار آژانس",
       accepted: "منتشر شده",
       needs_edit: "نیازمند ویرایش",
       rejected: "رد شده",
@@ -302,7 +302,7 @@ function advertiseStatusLabel(status: unknown) {
       "-4": "نیازمند ویرایش",
       "0": "ثبت شده",
       "1": "در انتظار بررسی",
-      "2": "در انتظار مشاور",
+      "2": "در انتظار آژانس",
       "3": "منتشر شده",
     }[key] ?? key ?? "-"
   );
@@ -2053,7 +2053,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
     setEditor({
       fields: [
         { label: "نام شهر", name: "name", value: city.name },
-        { label: "شناسه کشور", name: "country_id", value: city.country_id ?? DEFAULT_COUNTRY_ID },
+        { label: "شناسه کشور", name: "country_id", type: "number", value: city.country_id ?? DEFAULT_COUNTRY_ID },
         {
           label: "موقعیت شهر روی نقشه",
           name: "location",
@@ -2072,6 +2072,7 @@ function LocationsView({ notify, refreshNonce }: ViewProps) {
           id,
           payload: cleanEmptyValues({
             ...cityValues,
+            country_id: Number(cityValues.country_id ?? DEFAULT_COUNTRY_ID),
             lat: point.lat,
             lng: point.lng,
           }),

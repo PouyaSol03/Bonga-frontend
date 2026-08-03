@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useDragControls, useReducedMotion } from "motion/react";
 import LinearArrowRight2 from "../icons/LinearArrowRight2";
 import LinearTick from "../icons/LinearTick";
 import { IconButton } from "../ui/IconButton";
@@ -29,6 +29,8 @@ type BottomSheetProps = {
   contentClassName?: string;
   handleClassName?: string;
   headerClassName?: string;
+  headerButtonAriaLabel?: string;
+  headerButtonIcon?: ReactNode;
   heightClassName?: string;
   isOpen: boolean;
   onBack?: () => void;
@@ -81,6 +83,8 @@ export function BottomSheet({
   contentClassName = "",
   handleClassName = "h-1 w-[56px] rounded-full bg-[#e0e0e0]",
   headerClassName = "",
+  headerButtonAriaLabel = "بازگشت",
+  headerButtonIcon,
   heightClassName,
   isOpen,
   onBack,
@@ -98,6 +102,7 @@ export function BottomSheet({
   zIndexClassName = "z-[1000]",
 }: BottomSheetProps) {
   const isCenterTitle = titleAlign === "center";
+  const dragControls = useDragControls();
   const resolvedHeightClassName = heightClassName ?? variantHeightClassName[variant];
   const resolvedPanelPaddingClassName = panelPaddingClassName ?? variantPaddingClassName[variant];
   const shouldReduceMotion = useReducedMotion();
@@ -132,32 +137,50 @@ export function BottomSheet({
             animate={{ y: 0 }}
             aria-label={ariaLabel}
             aria-modal="true"
-            className={`relative z-10 w-full max-w-[500px] overflow-hidden rounded-t-[20px] bg-white ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
+            className={`relative z-10 flex w-full max-w-[500px] flex-col overflow-hidden rounded-t-[20px] bg-white ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
+            style={{ maxHeight: "calc(100dvh - 56px)" }}
             exit={{ y: "100%" }}
             initial={{ y: "100%" }}
             role="dialog"
             transition={panelTransition}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragControls={dragControls}
+            dragElastic={{ top: 0, bottom: 0.82 }}
+            dragListener={false}
+            onDragEnd={(_, info) => {
+              const shouldClose = info.offset.y > 110 || info.velocity.y > 720;
+              if (shouldClose) onClose();
+            }}
           >
             {showHandle ? (
-              <Typography as="span" variant="body" size="medium" weight="regular"
-                aria-hidden="true"
-                className={`mx-auto block ${handleClassName}`}
-              />
+              <div aria-hidden="true" className="relative h-1 w-full shrink-0">
+                <div
+                  className="absolute inset-x-0 -inset-y-3 z-20 flex cursor-grab touch-none items-center justify-center active:cursor-grabbing"
+                  onPointerDown={(event) => dragControls.start(event)}
+                >
+                  <Typography as="span" variant="body" size="medium" weight="regular"
+                    className={`mx-auto block ${handleClassName}`}
+                  />
+                </div>
+              </div>
             ) : null}
 
             {showHeader ? (
               <>
                 <header
-                  className={`flex items-center gap-2 px-4 ${headerClassName}`}
+                  className={`flex shrink-0 items-center gap-2 px-4 ${showHandle ? "mt-4" : ""} ${headerClassName}`}
                 >
                   {showBackButton ? (
                     <IconButton
-                      aria-label="بازگشت"
+                      aria-label={headerButtonAriaLabel}
                       className="text-[#4d4d4d]"
                       onClick={onBack ?? onClose}
                       size="dense"
                     >
-                        <LinearArrowRight2  className="h-6 w-6 text-[#4D4D4D]"/>
+                      {headerButtonIcon ?? (
+                        <LinearArrowRight2 className="h-6 w-6 text-[#4D4D4D]" />
+                      )}
                     </IconButton>
                   ) : null}
 
@@ -167,8 +190,8 @@ export function BottomSheet({
                     </span>
                   ) : null}
 
-                  <Typography as="h2" variant="title" size="medium" weight="semibold"
-                    className={`m-0 min-w-0 flex-1 text-base font-semibold leading-6 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
+                  <Typography as="h2" variant="label" size="large" weight="medium"
+                    className={`m-0 min-w-0 flex-1 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
                       }`}
                   >
                     {title ?? ariaLabel}
@@ -180,14 +203,18 @@ export function BottomSheet({
                 </header>
 
                 {showHeaderDivider ? (
-                  <div className="px-4 pt-3">
+                  <div className="shrink-0 px-4 pt-3">
                     <div className="h-px bg-[#f0f0f0]" />
                   </div>
                 ) : null}
               </>
             ) : null}
 
-            <div className={contentClassName}>{children}</div>
+            <div
+              className={`min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain ${contentClassName}`}
+            >
+              {children}
+            </div>
           </motion.section>
         </motion.div>
       ) : null}

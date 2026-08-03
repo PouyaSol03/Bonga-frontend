@@ -17,18 +17,15 @@ export type AlbumMediaItem = {
   type: "image" | "video";
 };
 
-type AdvertisementImageItem = {
-  path?: string;
-  url?: string;
-  src?: string;
-  is_main?: boolean;
-};
-
 export type AdvertiserPreview = {
   href: string;
+  id: string;
   kind: "agency" | "agent";
   location: string;
+  logoUrl?: string;
   name: string;
+  rank?: string;
+  ratingScore?: string;
   subtitle: string;
 };
 
@@ -186,109 +183,35 @@ function formatPrice(value: unknown) {
 }
 
 function readImages(ad: AdvertisementItem) {
-  const apiImages = Array.isArray(ad.images) ? ad.images : [];
+  const images = Array.isArray(ad.images) ? ad.images : [];
+  const sortedImages = [...images].sort((a, b) => {
+    if (a.is_main && !b.is_main) return -1;
+    if (!a.is_main && b.is_main) return 1;
+    return 0;
+  });
 
-  const normalizedImages = apiImages
-    .map((image, index) => {
-      if (typeof image === "string") {
-        return {
-          src: image,
-          isMain: false,
-          index,
-        };
-      }
-
-      const imageItem = image as AdvertisementImageItem;
-
-      return {
-        src: imageItem.url ?? imageItem.src ?? imageItem.path ?? "",
-        isMain: imageItem.is_main === true,
-        index,
-      };
-    })
-    .filter((image) => Boolean(image.src))
-    .sort((a, b) => {
-      if (a.isMain && !b.isMain) return -1;
-      if (!a.isMain && b.isMain) return 1;
-      return a.index - b.index;
-    });
-
-  const imageSources =
-    normalizedImages.length > 0
-      ? normalizedImages.map((image) => image.src)
-      : typeof ad.image === "string" && ad.image
-        ? [ad.image]
-        : [];
-
-  return Array.from(new Set(imageSources)).map((image) =>
-    getApiAssetUrl(image),
-  );
+  return sortedImages
+    .map((image) => image.url)
+    .filter((url): url is string => typeof url === "string" && url.trim().length > 0)
+    .map((url) => getApiAssetUrl(url));
 }
 
-function readAssetField(ad: AdvertisementItem, keys: string[]) {
-  for (const key of keys) {
-    const value = ad[key];
 
-    if (typeof value === "string" && value.trim()) {
-      return getApiAssetUrl(value);
-    }
-
-    if (value && typeof value === "object") {
-      const asset = value as { path?: unknown; src?: unknown; url?: unknown };
-      const src = asset.url ?? asset.path ?? asset.src;
-
-      if (typeof src === "string" && src.trim()) {
-        return getApiAssetUrl(src);
-      }
-    }
-  }
-
-  return "";
-}
-
-function readBooleanFeature(ad: AdvertisementItem, labels: string[]) {
-  const features = Array.isArray(ad.features) ? ad.features : [];
-
-  for (const label of labels) {
-    const value = getFeatureValue(features, label);
-
-    if (typeof value === "boolean") return value;
-    if (typeof value === "number") return value > 0;
-    if (typeof value === "string") {
-      const normalizedValue = value.trim().toLowerCase();
-
-      if (["1", "true", "yes"].includes(normalizedValue)) return true;
-      if (["0", "false", "no"].includes(normalizedValue)) return false;
-    }
-  }
-
-  return false;
-}
 
 function readVideoUrl(ad: AdvertisementItem) {
-  return readAssetField(ad, [
-    "video",
-    "video_url",
-    "videoUrl",
-    "video_path",
-    "videoPath",
-  ]);
+  return typeof ad.video === "string" && ad.video.trim()
+    ? getApiAssetUrl(ad.video)
+    : "";
+}
+
+export function getVirtualTourUrl(ad: AdvertisementItem) {
+  return typeof ad.virtual_tour_link === "string" && ad.virtual_tour_link.trim()
+    ? ad.virtual_tour_link.trim()
+    : "";
 }
 
 export function hasTour3d(ad: AdvertisementItem) {
-  return Boolean(
-    readAssetField(ad, [
-      "model_3d",
-      "model3d",
-      "model_3d_url",
-      "model3d_url",
-      "virtual_tour_link",
-      "virtualTourLink",
-      "virtual_tour",
-      "tour_3d",
-      "tour3d",
-    ]) || readBooleanFeature(ad, ["has_virtual_tour", "has_3d_model", "has_model_3d"]),
-  );
+  return Boolean(getVirtualTourUrl(ad));
 }
 
 export function buildGalleryMediaItems(ad: AdvertisementItem) {
@@ -305,7 +228,7 @@ export function buildGalleryMediaItems(ad: AdvertisementItem) {
   return [
     ...imageItems,
     {
-      src: images[0] ?? "/figma/view-ad-gallery.png",
+      src: videoUrl,
       type: "video" as const,
     },
   ];
@@ -351,6 +274,26 @@ const propertyInfoLabelMap: Record<string, string> = {
   heating_cooling: "سرمایش و گرمایش",
   exchange_with: "قابل معاوضه با",
   advertiser_type: "نوع آگهی‌دهنده",
+  meter_price: "قیمت متری",
+  daily_price: "قیمت روزانه",
+  capacity: "ظرفیت",
+  unit_type: "تیپ واحد",
+  unit_position: "موقعیت واحد",
+  density: "تراکم",
+  total_floors: "تعداد طبقات",
+  facade_material: "جنس نما",
+  floor_material: "جنس کف",
+  cabinet_material: "جنس کابینت",
+  land_width: "عرض زمین",
+  street_width: "عرض خیابان",
+  single_room_count: "تعداد اتاق یک تخته",
+  double_room_count: "تعداد اتاق دو تخته",
+  suite_count: "تعداد سوییت‌ها",
+  sale_terms_percent: "درصد شرایط فروش",
+  sale_terms_installment_months: "تعداد ماه اقساط",
+  extra_specs: "مشخصات بیشتر",
+  project_details: "جزئیات واحدهای پروژه",
+  daily_hotel_rooms: "جزئیات اتاق‌های هتل",
 };
 
 const propertyInfoOrder = [
@@ -392,6 +335,26 @@ const propertyInfoOrder = [
   "house_type",
   "heating_cooling",
   "exchange_with",
+  "meter_price",
+  "daily_price",
+  "capacity",
+  "unit_type",
+  "unit_position",
+  "density",
+  "total_floors",
+  "facade_material",
+  "floor_material",
+  "cabinet_material",
+  "land_width",
+  "street_width",
+  "single_room_count",
+  "double_room_count",
+  "suite_count",
+  "sale_terms_percent",
+  "sale_terms_installment_months",
+  "extra_specs",
+  "project_details",
+  "daily_hotel_rooms",
   "advertiser_type",
 ];
 
@@ -406,26 +369,21 @@ const ignoredFeatureLabels = new Set([
   "facilities",
 ]);
 
+export type AdvertisementFeatureMap = Record<string, unknown>;
+
+export function buildAdvertisementFeatureMap(ad: AdvertisementItem): AdvertisementFeatureMap {
+  return Object.fromEntries(
+    (ad.features ?? [])
+      .filter((item) => typeof item.label === "string" && item.label.trim().length > 0)
+      .map((item) => [item.label, item.value]),
+  );
+}
+
 function getFeatureValue(
   features: NonNullable<AdvertisementItem["features"]>,
   label: string,
 ) {
   return features.find((feature) => feature.label === label)?.value;
-}
-
-function getFirstFeatureValue(
-  features: NonNullable<AdvertisementItem["features"]>,
-  labels: string[],
-) {
-  for (const label of labels) {
-    const value = getFeatureValue(features, label);
-
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
-    }
-  }
-
-  return undefined;
 }
 
 type PropertyPreviewField = {
@@ -637,7 +595,53 @@ type PropertyInfoItem = {
   value: string;
 };
 
+function formatStructuredFeatureRows(label: string, value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null;
+
+  if (label === "project_details") {
+    return value
+      .map((item, index) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return "";
+        const record = item as Record<string, unknown>;
+        const parts = [
+          record.meterage !== undefined ? `متراژ: ${formatAreaDetailValue(record.meterage)}` : "",
+          isFilledValue(record.floors) ? `طبقات: ${toText(record.floors)}` : "",
+          isFilledValue(record.rooms) ? `اتاق: ${toText(record.rooms)}` : "",
+          isFilledValue(record.positions) ? `موقعیت: ${toText(record.positions)}` : "",
+        ].filter(Boolean);
+
+        return parts.length ? `واحد ${toPersianDigits(index + 1)} — ${parts.join("، ")}` : "";
+      })
+      .filter(Boolean);
+  }
+
+  if (label === "daily_hotel_rooms") {
+    return value
+      .map((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return "";
+        const record = item as Record<string, unknown>;
+        const roomLabel = toText(record.room_label ?? record.room_type, "اتاق");
+        const parts = [
+          isFilledValue(record.guest_count) ? `ظرفیت: ${toText(record.guest_count)} نفر` : "",
+          isFilledValue(record.extra_guest_count) ? `نفر اضافه: ${toText(record.extra_guest_count)}` : "",
+          isFilledValue(record.meal_plan) ? `پذیرایی: ${toText(record.meal_plan)}` : "",
+          isFilledValue(record.normal_price) ? `عادی: ${formatPrice(record.normal_price)}` : "",
+          isFilledValue(record.weekend_price) ? `آخر هفته: ${formatPrice(record.weekend_price)}` : "",
+          isFilledValue(record.special_price) ? `ویژه: ${formatPrice(record.special_price)}` : "",
+        ].filter(Boolean);
+
+        return parts.length ? `${roomLabel} — ${parts.join("، ")}` : roomLabel;
+      })
+      .filter(Boolean);
+  }
+
+  return null;
+}
+
 function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
+  const structuredRows = formatStructuredFeatureRows(label, value);
+  if (structuredRows) return structuredRows;
+
   if (Array.isArray(value)) {
     return value.map((item) => toText(item)).filter(Boolean);
   }
@@ -654,13 +658,22 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
     return value ? "دارد" : "ندارد";
   }
 
-  if (label === "area" || label === "land_area" || label === "building_area") {
+  if (["area", "land_area", "building_area", "land_width", "street_width", "height"].includes(label)) {
     const text = toText(value);
     return text ? `${text} متر` : "-";
   }
 
-  if (label === "price") {
+  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price"].includes(label)) {
     return `${formatPrice(value)} تومان`;
+  }
+
+  if (["sale_terms_percent", "builder_share"].includes(label)) {
+    return formatPercentDetailValue(value);
+  }
+
+  if (label === "sale_terms_installment_months") {
+    const text = toText(value);
+    return text ? `${text} ماه` : "-";
   }
 
   return toText(value, "-");
@@ -722,16 +735,58 @@ function formatPricePerMeter(totalPrice: unknown, area: unknown) {
   return formatPrice(numericPrice / numericArea);
 }
 
-export function getMapPosition(ad: AdvertisementItem) {
-  const position = ad as {
-    lat?: unknown;
-    latitude?: unknown;
-    lng?: unknown;
-    long?: unknown;
-    longitude?: unknown;
+function resolvePricePresentation(
+  formCode: string,
+  featureMap: AdvertisementFeatureMap,
+  rootPrice: unknown,
+  area: unknown,
+) {
+  if (formCode.startsWith("rent-")) {
+    return {
+      primaryLabel: "رهن",
+      primaryValue: formatPrice(featureMap.mortgage_price),
+      secondaryLabel: "اجاره",
+      secondaryValue: formatPrice(featureMap.rent_price),
+    };
+  }
+
+  if (formCode.startsWith("daily-")) {
+    const minPrice = featureMap.min_price ?? featureMap.daily_price;
+    const maxPrice = featureMap.max_price;
+
+    return {
+      primaryLabel: maxPrice === undefined ? "قیمت روزانه" : "حداقل قیمت",
+      primaryValue: formatPrice(minPrice),
+      secondaryLabel: "حداکثر قیمت",
+      secondaryValue: maxPrice === undefined ? "—" : formatPrice(maxPrice),
+    };
+  }
+
+  if (formCode === "presale-special") {
+    const minPrice = featureMap.min_price ?? featureMap.meter_price;
+    const maxPrice = featureMap.max_price;
+
+    return {
+      primaryLabel: maxPrice === undefined ? "قیمت متری" : "حداقل قیمت",
+      primaryValue: formatPrice(minPrice),
+      secondaryLabel: maxPrice === undefined ? "قیمت هر متر" : "حداکثر قیمت",
+      secondaryValue: maxPrice === undefined ? formatPrice(featureMap.meter_price) : formatPrice(maxPrice),
+    };
+  }
+
+  const totalPrice = rootPrice ?? featureMap.price;
+
+  return {
+    primaryLabel: "قیمت کل",
+    primaryValue: formatPrice(totalPrice),
+    secondaryLabel: "قیمت هر متر",
+    secondaryValue: formatPricePerMeter(totalPrice, area),
   };
-  const lat = toNumber(position.lat ?? position.latitude);
-  const lng = toNumber(position.lng ?? position.long ?? position.longitude);
+}
+
+export function getMapPosition(ad: AdvertisementItem) {
+  const lat = toNumber(ad.lat);
+  const lng = toNumber(ad.lng);
 
   if (lat === undefined || lng === undefined) {
     return null;
@@ -740,83 +795,76 @@ export function getMapPosition(ad: AdvertisementItem) {
   return { latitude: lat, longitude: lng };
 }
 
-export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetails): AdvertiserPreview | null {
-  const features = Array.isArray(ad.features) ? ad.features : [];
-  const advertiserType = toText(getFeatureValue(features, "advertiser_type"));
-  const ownerType = String((ad as { owner_type?: unknown }).owner_type ?? "").toLowerCase();
-  const agencyName = toText(
-    ad.agency ??
-    (ad as { agency_name?: unknown }).agency_name ??
-    (ad as { real_estate_name?: unknown }).real_estate_name,
-  );
-  const agentName = toText(
-    (ad as { agent_name?: unknown }).agent_name ??
-    (ad as { consultant_name?: unknown }).consultant_name ??
-    (ad as { adviser_name?: unknown }).adviser_name ??
-    (ad as { advertiser_name?: unknown }).advertiser_name ??
-    (ad as { owner_name?: unknown }).owner_name,
-  );
-  const isAgent =
-    advertiserType.includes("مشاور") ||
-    ownerType.includes("consultant") ||
-    ownerType.includes("agent");
-  const isAgency =
-    advertiserType.includes("آژانس") ||
-    ownerType.includes("agency") ||
-    Boolean(agencyName) ||
-    (advertiserType.includes("املاک") && !advertiserType.includes("مشاور"));
-
-  if (!isAgent && !isAgency) return null;
-
-  const kind = isAgent && !isAgency ? "agent" : "agency";
-  const name = (kind === "agent" ? agentName : agencyName) || details.agency || (kind === "agent" ? "مشاور املاک" : "آژانس املاک");
-  const id = getAdvertiserPreviewId(ad, kind);
-  if (!id) return null;
-  const params = new URLSearchParams({
-    location: details.agencyLocation || details.locationTitle || "",
-    name,
-  });
-
-  if (kind === "agent" && agencyName) {
-    params.set("agency", agencyName);
+function readMetric(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return toPersianDigits(value);
   }
 
-  return {
-    href: `/${kind === "agent" ? "agents" : "agencies"}/${encodeURIComponent(id)}?${params.toString()}`,
-    kind,
-    location: details.agencyLocation || details.locationTitle || "",
-    name,
-    subtitle: kind === "agent" ? agencyName || "مشاور املاک" : "آژانس املاک",
-  };
+  if (typeof value === "string" && value.trim()) {
+    return toPersianDigits(value.trim());
+  }
+
+  return undefined;
 }
 
-function getAdvertiserPreviewId(ad: AdvertisementItem, kind: "agency" | "agent") {
-  const agent = ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent)
-    ? ad.agent as Record<string, unknown>
-    : {};
-  const agency = ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency)
-    ? ad.agency as Record<string, unknown>
-    : {};
-  const candidates =
-    kind === "agent"
-      ? [
-        (ad as { agent_id?: unknown }).agent_id,
-        (ad as { consultant_id?: unknown }).consultant_id,
-        (ad as { adviser_id?: unknown }).adviser_id,
-        agent.id,
-        agent._id,
-      ]
-      : [
-        (ad as { agency_id?: unknown }).agency_id,
-        (ad as { real_estate_id?: unknown }).real_estate_id,
-        (ad as { office_id?: unknown }).office_id,
-        agency.id,
-        agency._id,
-      ];
+export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetails): AdvertiserPreview | null {
+  const ownerType = String(ad.owner_type ?? "").toLowerCase();
 
-  const found = candidates.find((value) => value !== undefined && value !== null && String(value).trim());
+  if (ownerType === "agency") {
+    const agency = ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency)
+      ? ad.agency
+      : null;
+    const id = agency?.id;
 
-  return found === undefined || found === null ? null : String(found);
+    if (id === undefined || id === null) return null;
+
+    const name = toText(agency?.name, details.agency || "آژانس املاک");
+    const location = toText(agency?.location, details.agencyLocation || details.locationTitle);
+    const params = new URLSearchParams({ location, name });
+
+    return {
+      href: `/agencies/${encodeURIComponent(String(id))}?${params.toString()}`,
+      id: String(id),
+      kind: "agency",
+      location,
+      logoUrl: typeof agency?.logo === "string" && agency.logo.trim()
+        ? getApiAssetUrl(agency.logo.trim())
+        : undefined,
+      name,
+      rank: readMetric(agency?.rank),
+      ratingScore: readMetric(agency?.rating_score),
+      subtitle: "آژانس املاک",
+    };
+  }
+
+  if (ownerType === "agent") {
+    const agent = ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent)
+      ? ad.agent
+      : null;
+    const id = agent?.id;
+
+    if (id === undefined || id === null) return null;
+
+    const name = toText(agent?.name, "مشاور املاک");
+    const agencyName = toText(agent?.agency_name);
+    const location = details.agencyLocation || details.locationTitle || "";
+    const params = new URLSearchParams({ location, name });
+
+    if (agencyName) params.set("agency", agencyName);
+
+    return {
+      href: `/agents/${encodeURIComponent(String(id))}?${params.toString()}`,
+      id: String(id),
+      kind: "agent",
+      location,
+      name,
+      rank: readMetric(agent?.rank),
+      ratingScore: readMetric(agent?.rating_score),
+      subtitle: agencyName || "مشاور املاک",
+    };
+  }
+
+  return null;
 }
 
 function iconForFeature(label: string): IconName {
@@ -828,45 +876,51 @@ function iconForFeature(label: string): IconName {
 
 export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = Array.isArray(ad.features) ? ad.features : [];
-  const propertyInfoRows =
-    features.length > 0 ? buildPropertyInfoItems(features) : [];
-  const propertyInfoPreview =
-    features.length > 0 ? buildPropertyInfoPreviewItems(features) : [];
-  const facilities =
-    features.length > 0 ? buildFacilityItems(features) : [];
+  const featureMap = buildAdvertisementFeatureMap(ad);
+  const formCode = toText(ad.form_code ?? featureMap.form_code);
+  const propertyInfoRows = features.length > 0 ? buildPropertyInfoItems(features) : [];
+  const propertyInfoPreview = features.length > 0 ? buildPropertyInfoPreviewItems(features) : [];
+  const facilities = features.length > 0 ? buildFacilityItems(features) : [];
   const age = formatPublishedAge(ad, features);
-  const totalPrice = ad.price ?? getFeatureValue(features, "price");
-  const meterArea =
-    getFirstFeatureValue(features, ["area", "land_area", "building_area"]) ??
-    (ad as { area?: unknown }).area;
-  const description =
-    (ad as { description?: unknown }).description ??
-    (ad as { short_description?: unknown }).short_description;
+  const meterArea = featureMap.area ?? featureMap.land_area ?? featureMap.building_area ?? ad.area;
+  const pricePresentation = resolvePricePresentation(formCode, featureMap, ad.price, meterArea);
+  const description = ad.description ?? ad.short_description;
   const title = toText(ad.title ?? ad.label);
+  const cityName = toText(ad.city?.name ?? ad.city_name);
+  const neighborhoodName = toText(ad.neighborhood?.name ?? ad.neighborhood_name);
+  const subNeighborhoodName = toText(ad.sub_neighborhood?.name);
+  const normalizedLocation = [cityName, neighborhoodName, subNeighborhoodName]
+    .filter(Boolean)
+    .join("، ");
   const locationTitle = toText(
-    (ad as { form_neighborhood_title?: unknown }).form_neighborhood_title,
-    toText(ad.label ?? ad.title),
+    ad.location_label,
+    normalizedLocation || toText(ad.form_neighborhood_title, neighborhoodName || title),
   );
+  const agencyLocation = ad.owner_type === "agency" && ad.agency && typeof ad.agency === "object"
+    ? toText(ad.agency.location, locationTitle)
+    : ad.owner_type === "agent" && ad.agent && typeof ad.agent === "object"
+      ? toText(ad.agent.agency_name, locationTitle)
+      : locationTitle;
 
   return {
-    adCode: toPersianDigits(
-      (ad as { track_code?: unknown }).track_code ??
-      ad.id ??
-      ad._id ??
-      "",
-    ),
-    agency: toText(getFeatureValue(features, "advertiser_type")),
-    agencyLocation: toText(
-      (ad as { agency_location?: unknown }).agency_location ??
-      (ad as { neighborhood_name?: unknown }).neighborhood_name,
-    ),
+    adCode: toPersianDigits(ad.track_code ?? ad.id ?? ad._id ?? ""),
+    agency: ad.owner_type === "agency" && ad.agency && typeof ad.agency === "object"
+      ? toText(ad.agency.name)
+      : ad.owner_type === "agent" && ad.agent && typeof ad.agent === "object"
+        ? toText(ad.agent.agency_name)
+        : toText(featureMap.advertiser_type),
+    agencyLocation,
     age,
+    categoryNeighborhood: toText(ad.category_neighborhood, locationTitle),
     description: toText(description),
     equipmentSections: [],
     features: facilities,
+    formCode,
     headline: title,
     locationTitle,
-    pricePerMeter: formatPricePerMeter(totalPrice, meterArea),
+    pricePerMeter: pricePresentation.secondaryValue,
+    pricePrimaryLabel: pricePresentation.primaryLabel,
+    priceSecondaryLabel: pricePresentation.secondaryLabel,
     propertyInfoPreview,
     propertyInfoRows,
     rows: [
@@ -874,12 +928,9 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
       { icon: "apartment", label: "آژانس‌های محله" },
       { icon: "informationDiamond", label: "گزارش تخلف آگهی" },
     ],
-    status: toText(
-      (ad as { status_label?: unknown }).status_label ??
-      (ad as { status?: unknown }).status,
-    ),
+    status: toText(ad.status_label ?? ad.status),
     title,
-    totalPrice: formatPrice(totalPrice),
+    totalPrice: pricePresentation.primaryValue,
   };
 }
 
@@ -1005,20 +1056,9 @@ function getFirstExistingFeatureValue(
 }
 
 function toValueArray(value: unknown) {
-  if (Array.isArray(value)) {
-    return value.map((item) => toText(item)).filter(Boolean);
-  }
-
-  const text = toText(value);
-
-  if (!text) {
-    return [];
-  }
-
-  return text
-    .split(/[،,]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+  return Array.isArray(value)
+    ? value.map((item) => toText(item)).filter(Boolean)
+    : [];
 }
 
 export function toBooleanLike(value: unknown): boolean | undefined {

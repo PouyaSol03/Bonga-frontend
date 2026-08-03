@@ -73,10 +73,14 @@ export type ViewAdDetails = {
   agency: string;
   agencyLocation: string;
   age: string;
+  categoryNeighborhood: string;
   description: string;
+  formCode: string;
   headline: string;
   locationTitle: string;
   pricePerMeter: string;
+  pricePrimaryLabel: string;
+  priceSecondaryLabel: string;
   status: string;
   title: string;
   totalPrice: string;

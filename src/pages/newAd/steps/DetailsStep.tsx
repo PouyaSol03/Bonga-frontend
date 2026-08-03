@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../shared/components/BottomSheet";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import {
@@ -200,7 +201,13 @@ export function DetailsStep({
             error={errors.builderSharePercent}
             numeric
             leftText="درصد"
-            onChange={(value) => setField("builderSharePercent", value)}
+            onChange={(value) => {
+              const normalizedPercent = value.replace(/,/g, "");
+
+              if (normalizedPercent === "" || Number(normalizedPercent) <= 100) {
+                setField("builderSharePercent", normalizedPercent);
+              }
+            }}
             placeholder="سهم سازنده به درصد *"
             value={values.builderSharePercent}
           />
@@ -296,7 +303,7 @@ export function DetailsStep({
       );
     }
 
-    const priceSupportingText = moneySupportingText(values.price, false);
+    const priceSupportingText = moneySupportingText(values.price);
     const priceHasSupportingText = Boolean(errors.price || priceSupportingText);
 
     if (desktop) {
@@ -448,6 +455,7 @@ export function DetailsStep({
                   leftText="تومان"
                   onChange={(value) => setField("loanAmount", value)}
                   placeholder="مبلغ وام"
+                  supportingText={moneySupportingText(values.loanAmount)}
                   value={values.loanAmount}
                 />
 
@@ -460,6 +468,7 @@ export function DetailsStep({
                   leftText="تومان"
                   onChange={(value) => setField("loanInstallment", value)}
                   placeholder="قسط وام"
+                  supportingText={moneySupportingText(values.loanInstallment)}
                   value={values.loanInstallment}
                 />
               </div>
@@ -765,6 +774,8 @@ export function DetailsStep({
             ? "h-1 w-[56px] rounded-full bg-[#cccccc]"
             : "h-1 w-[42px] rounded-full bg-[#e0e0e0]"
         }
+        headerButtonAriaLabel="بستن"
+        headerButtonIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
         headerClassName={sheet?.kind === "exchange" ? "!gap-0 !px-2" : ""}
         heightClassName={
           sheet?.kind === "exchange"

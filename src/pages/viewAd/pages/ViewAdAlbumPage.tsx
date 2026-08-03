@@ -79,7 +79,17 @@ export function ViewAdAlbumPage({
           {mediaItems.map((item, index) => (
             <SwiperSlide key={`${item.src}-${item.type}-${index}`}>
               <div className="pt-[202px]">
-                <img alt="" className="aspect-[3/2] w-full object-cover" src={item.src} />
+                {item.type === "video" ? (
+                  <video
+                    className="aspect-[3/2] w-full bg-black object-contain"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    src={item.src}
+                  />
+                ) : (
+                  <img alt="" className="aspect-[3/2] w-full object-cover" src={item.src} />
+                )}
               </div>
             </SwiperSlide>
           ))}

@@ -59,9 +59,9 @@ export function RadioCard({
 
 export function CheckRow({ checked, label, onChange }: { checked: boolean; label: string; onChange: (checked: boolean) => void }) {
   return (
-    <Button unstyled className="flex h-12 w-full items-center justify-start gap-3 text-right text-base font-medium leading-6 text-[#1a1a1a]" onClick={() => onChange(!checked)} type="button">
+    <Button unstyled className="flex w-full last:mt-1 items-center justify-start gap-3 py-2.5 text-right text-base font-medium leading-6 text-[#1a1a1a]" onClick={() => onChange(!checked)} type="button">
       <ChoiceIndicator checked={checked} />
-      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
+      <Typography as="span" variant="label" size="medium" weight="medium">{label}</Typography>
     </Button>
   );
 }

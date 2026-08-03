@@ -72,7 +72,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
     setEditor({
       fields: [
         { label: "نام شهر", name: "name", value: city.name },
-        { label: "شناسه کشور", name: "country_id", value: city.country_id ?? DEFAULT_COUNTRY_ID },
+        { label: "شناسه کشور", name: "country_id", type: "number", value: city.country_id ?? DEFAULT_COUNTRY_ID },
         {
           label: "موقعیت شهر روی نقشه",
           name: "location",
@@ -91,6 +91,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
           id,
           payload: cleanEmptyValues({
             ...cityValues,
+            country_id: Number(cityValues.country_id ?? DEFAULT_COUNTRY_ID),
             lat: point.lat,
             lng: point.lng,
           }),
@@ -110,11 +111,35 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
         { label: "عرض جغرافیایی", name: "lat", type: "number", value: neighborhood.lat ?? DEFAULT_CENTER[0] },
         { label: "طول جغرافیایی", name: "lng", type: "number", value: neighborhood.lng ?? DEFAULT_CENTER[1] },
         { label: "محدوده جغرافیایی", name: "polygon", type: "geofence", value: stringifyValue(neighborhood.polygon) },
+        { label: "زیرمحله‌ها", name: "sub_neighbors", type: "sub-neighborhoods", value: neighborhood.sub_neighbors },
       ],
       onSubmit: async (values) => {
         const polygon = values.polygon
           ? parseJsonValue(values.polygon, "محدوده جغرافیایی", undefined)
           : undefined;
+        const subNeighborhoods = values.sub_neighbors
+          ? parseJsonValue(values.sub_neighbors, "زیرمحله‌ها", [])
+          : [];
+
+        if (!Array.isArray(subNeighborhoods)) {
+          throw new Error("زیرمحله‌ها باید به صورت فهرست معتبر باشند.");
+        }
+
+        const hasInvalidSubNeighborhood = subNeighborhoods.some((item) => {
+          if (!item || typeof item !== "object" || Array.isArray(item)) return true;
+
+          const record = item as CrmRecord;
+          const id = String(record.id ?? "").trim();
+          const name = String(record.name ?? "").trim();
+          const geofence = record.geofence;
+
+          return !id || !name || !geofence;
+        });
+
+        if (hasInvalidSubNeighborhood) {
+          throw new Error("برای هر زیرمحله نام، شناسه و محدوده جغرافیایی را کامل کنید.");
+        }
+
         await neighborhoodSaveMutation.mutateAsync({
           id,
           payload: cleanEmptyValues({
@@ -122,6 +147,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
             lat: values.lat ? Number(values.lat) : undefined,
             lng: values.lng ? Number(values.lng) : undefined,
             polygon,
+            sub_neighbors: subNeighborhoods,
           }),
         });
       },

@@ -1,8 +1,9 @@
 import type { NewAdFieldErrors, NewAdFormValues } from "../types";
 import { InputBox } from "./NewAdControls";
-import { CheckRow, RadioCard, SocialInput } from "./MediaControls";
+import { CheckRow, RadioCard } from "./MediaControls";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 import { Typography } from "../../../shared/ui/Typography";
+import { TextField } from "../../../shared/ui/TextField";
 
 type SetNewAdField = <T extends keyof NewAdFormValues>(
   key: T,
@@ -23,9 +24,9 @@ function FieldError({ message }: { message?: string }) {
 function SectionHeading({ required = false, title }: { required?: boolean; title: string }) {
   return (
     <div className="mb-2 flex items-center justify-between gap-3">
-      <div className="text-right text-base font-semibold leading-7 text-[#1a1a1a]">
+      <Typography variant="label" size="large" className="text-[#1a1a1a]">
         {title} {required ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography> : null}
-      </div>
+      </Typography>
       <LinearInfoCircle className="w-6 h-6 text-[#4D4D4D]!" />
     </div>
   );
@@ -79,15 +80,11 @@ function PersonalContactFields({
   contactError,
   onSetField,
   phoneEnabled,
-  phoneError,
-  phoneNumber,
 }: {
   chatEnabled: boolean;
   contactError?: string;
   onSetField: SetNewAdField;
   phoneEnabled: boolean;
-  phoneError?: string;
-  phoneNumber: string;
 }) {
   return (
     <div className="border-t border-dashed border-[#cccccc] pt-5">
@@ -103,23 +100,11 @@ function PersonalContactFields({
         label="شماره تماس"
         onChange={(checked) => {
           onSetField("phoneEnabled", checked);
-          if (!checked) onSetField("phoneNumber", "");
+          onSetField("phoneNumber", "");
         }}
       />
 
       <FieldError message={contactError} />
-
-      {phoneEnabled ? (
-        <div className="mt-3">
-          <InputBox
-            error={phoneError}
-            numeric
-            onChange={(value) => onSetField("phoneNumber", value)}
-            placeholder="شماره تماس را وارد کنید *"
-            value={phoneNumber}
-          />
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -204,16 +189,19 @@ function SocialFields({
         شبکه‌های اجتماعی
       </div>
       <div className="space-y-3">
-        <SocialInput
-          icon="telegram"
-          onChange={(value) => onSetField("telegram", value)}
+        <TextField
+          label="آیدی تلگرام خود را وارد کنید"
+          onChange={(event) => onSetField("telegram", event.target.value)}
           placeholder="آیدی تلگرام خود را وارد کنید"
+          trailingSlot={<img src="/icons/socials/telegram.svg" alt="" />}
           value={telegram}
         />
-        <SocialInput
-          icon="whatsapp"
-          onChange={(value) => onSetField("whatsapp", value)}
+        <TextField
+          inputMode="numeric"
+          label="شماره واتساپ خود را بدون صفر وارد کنید"
+          onChange={(event) => onSetField("whatsapp", event.target.value)}
           placeholder="شماره واتساپ خود را بدون صفر وارد کنید"
+          trailingSlot={<img src="/icons/socials/whatsApp.svg" alt="" />}
           value={whatsapp}
         />
       </div>
@@ -242,7 +230,7 @@ export function AdInformationFields({
   const isPersonal = values.registrantType === "personal";
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <RegistrantTypeFields
         error={errors.registrantType}
         onSelectAgency={onSelectAgency}
@@ -256,8 +244,6 @@ export function AdInformationFields({
           contactError={errors.contactMethods}
           onSetField={onSetField}
           phoneEnabled={values.phoneEnabled}
-          phoneError={errors.phoneNumber}
-          phoneNumber={values.phoneNumber}
         />
       ) : null}
 

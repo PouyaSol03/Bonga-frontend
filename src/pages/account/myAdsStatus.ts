@@ -1,4 +1,4 @@
-export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published" | "unknown";
+export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published" | "unknown" | "wait_for_agency";
 
 export type MyAdStatusInfo = {
   badgeClassName: string;
@@ -32,6 +32,11 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     key: "pending",
     label: "در انتظار تایید انتشار",
   },
+  wait_for_agency: {
+    badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
+    key: "wait_for_agency",
+    label: "در انتظار آژانس",
+  },
   needs_edit: {
     badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
     key: "needs_edit",
@@ -63,16 +68,17 @@ function readCandidateStatus(source: unknown) {
 
   const record = source as Record<string, unknown>;
   const directCandidate =
-    record.status_label ??
-    record.statusLabel ??
-    record.status_text ??
-    record.statusText ??
+    record.status ??
     record.ad_status ??
     record.adStatus ??
     record.advertise_status ??
     record.advertiseStatus ??
     record.state ??
-    record.status;
+    record.status_code ??
+    record.status_label ??
+    record.statusLabel ??
+    record.status_text ??
+    record.statusText;
 
   return directCandidate;
 }
@@ -111,17 +117,23 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.needs_edit;
   }
 
+  if (["2", "wait-for-agency"].includes(status)) {
+    return myAdStatusConfig.wait_for_agency;
+  }
+
+  if (status.includes("انتظار آژانس")) {
+    return myAdStatusConfig.wait_for_agency;
+  }
+
   if ([
     "0",
     "1",
-    "2",
     "pending",
     "review",
     "waiting",
     "in-review",
     "wait-for-payment",
     "wait-for-admin",
-    "wait-for-agency",
   ].includes(status)) {
     return myAdStatusConfig.pending;
   }

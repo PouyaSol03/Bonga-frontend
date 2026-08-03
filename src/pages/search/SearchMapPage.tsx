@@ -7,6 +7,7 @@ import {
 } from "../../core/api/api";
 import { getStoredAuthSession } from "../../core/auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../../core/hooks/advertisement.hooks";
+import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { usePublisherOptions } from "../../core/hooks/publisher-options.hooks";
 import { useCreatePropertyRequestMutation } from "../../core/hooks/property-request.hooks";
 import {
@@ -58,6 +59,7 @@ import {
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
 import type { SavedSearchItem, SaveSearchInput } from "../../core/services/saved-search.service";
+import { getNeighborhoodPolygonPoints } from "../../core/services/neighborhood.service";
 import { getPropertyRequestScope } from "../../core/services/property-request.service";
 import { getStoredBackTarget, replaceRoute } from "../../app/router/navigation";
 
@@ -845,6 +847,36 @@ export function SearchMapPage() {
   const savedSearchesQuery = useSavedSearchesQuery(isAuthenticated);
   const saveSearchMutation = useSaveSearchMutation();
   const currentSearch = searchSnapshot;
+  const selectedNeighborhoodIds = useMemo(() => {
+    const params = getSearchParamsFromSnapshot(currentSearch);
+
+    return new Set(
+      (params.get("neighborhood_id") || params.get("neighborhoods") || "")
+        .split(/[_،,]/)
+        .map((id) => id.trim())
+        .filter(Boolean),
+    );
+  }, [currentSearch]);
+  const neighborhoodCityId = useMemo(() => {
+    const params = getSearchParamsFromSnapshot(currentSearch);
+    return params.get("city_id") || readStoredSelectedCity()?.id || "";
+  }, [currentSearch]);
+  const selectedNeighborhoodsQuery = useNeighborhoodListQuery({
+    cityId: neighborhoodCityId,
+    enabled: selectedNeighborhoodIds.size > 0 && Boolean(neighborhoodCityId),
+    page: 1,
+    perPage: 100,
+  });
+  const selectedNeighborhoodGeofences = useMemo(
+    () =>
+      (selectedNeighborhoodsQuery.data ?? [])
+        .filter((neighborhood) =>
+          selectedNeighborhoodIds.has(String(neighborhood.id ?? neighborhood._id ?? neighborhood.name)),
+        )
+        .map((neighborhood) => getNeighborhoodPolygonPoints(neighborhood.geofence ?? neighborhood.polygon))
+        .filter((points) => points.length >= 3),
+    [selectedNeighborhoodIds, selectedNeighborhoodsQuery.data],
+  );
   const chips = useMemo(() => getDynamicFilterChips(currentSearch), [currentSearch]);
   const currentSearchQuery = useMemo(() => {
     const params = getSearchParamsFromSnapshot(currentSearch);
@@ -1459,6 +1491,7 @@ export function SearchMapPage() {
             seenListingIds={seenListingIds}
             selectedListingId={isGeofenceEditorOpen ? null : selectedListingId}
             tileConfig={searchMapTileConfig}
+            neighborhoodGeofences={selectedNeighborhoodGeofences}
             userLocation={userLocation}
             freehandGeofenceEnabled={isDrawMode}
             geofenceResetSignal={geofenceResetSignal}

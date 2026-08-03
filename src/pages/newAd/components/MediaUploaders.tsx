@@ -6,9 +6,9 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import { shouldPreserveNewAdDraft } from "../session";
 
-export const allowedPhotoTypes = ["image/jpeg", "image/png"];
-export const allowedPhotoExtensions = ["jpg", "jpeg", "png"];
-export const allowedPhotoAccept = ".jpg,.jpeg,.png,image/jpeg,image/png";
+export const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
+export const allowedPhotoExtensions = ["jpg", "jpeg", "png", "webp"];
+export const allowedPhotoAccept = ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
 
 export const allowedVideoTypes = ["video/mp4"];
 export const allowedVideoExtensions = ["mp4"];
@@ -245,7 +245,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
         >
           <div className="flex gap-2">
             <img src="/icons/video.svg" alt="" />
-            <Typography as="span" variant="body" size="medium" weight="regular">انتخاب فیلم</Typography>
+            <Typography as="span" variant="label" size="large" weight="medium">انتخاب فیلم</Typography>
           </div>
 
           <svg

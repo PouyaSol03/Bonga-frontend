@@ -20,6 +20,7 @@ import {
 } from "../../core/hooks/advertisement.hooks";
 import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../../core/hooks/account.hooks";
 import { useCreateAdvertiseChatMutation } from "../../core/hooks/chat.hooks";
+import { usePublicAgencyDetailQuery } from "../../core/hooks/agency.hooks";
 import type {
   AdvertiseFeedbackPayload,
   AdvertisementItem,
@@ -34,7 +35,6 @@ import { ViewAdIcon } from "./ViewAdIcon";
 import type { IconName, ViewAdDetails } from "./viewAdTypes";
 import { AdCardTomanIcon } from "../../shared/components/AdCardIcons";
 import { getStoredAuthSession } from "../../core/auth/auth-storage";
-import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { pushRoute } from "../../app/router/navigation";
 import type { ChatThread } from "../../core/services/chat.service";
 import {
@@ -42,6 +42,7 @@ import {
   getAdvertiserPreview,
   getCurrentViewAdBasePath,
   getMapPosition,
+  getVirtualTourUrl,
   goBackFromAd,
   hasTour3d,
   isOwnAdvertisement,
@@ -148,10 +149,12 @@ function GalleryHero({
   hasTour3d = false,
   mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
+  tour3dUrl = "",
 }: {
   hasTour3d?: boolean;
   mediaItems?: AlbumMediaItem[];
   onOpenAlbum: (initialIndex?: number) => void;
+  tour3dUrl?: string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef<SwiperInstance | null>(null);
@@ -178,7 +181,9 @@ function GalleryHero({
       return;
     }
 
-    onOpenAlbum(activeIndex);
+    if (tour3dUrl) {
+      window.open(tour3dUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -195,18 +200,28 @@ function GalleryHero({
         >
           {galleryItems.map((item, index) => (
             <SwiperSlide key={`${item.src}-${item.type}-${index}`}>
-              <Button unstyled
-                aria-label="باز کردن آلبوم تصاویر"
-                className="block w-full"
-                onClick={() => onOpenAlbum(index)}
-                type="button"
-              >
-                <img
-                  alt=""
-                  className="aspect-[328/219] w-full object-cover"
+              {item.type === "video" ? (
+                <video
+                  className="aspect-[328/219] w-full bg-black object-cover"
+                  controls
+                  playsInline
+                  preload="metadata"
                   src={item.src}
                 />
-              </Button>
+              ) : (
+                <Button unstyled
+                  aria-label="باز کردن آلبوم تصاویر"
+                  className="block w-full"
+                  onClick={() => onOpenAlbum(index)}
+                  type="button"
+                >
+                  <img
+                    alt=""
+                    className="aspect-[328/219] w-full object-cover"
+                    src={item.src}
+                  />
+                </Button>
+              )}
             </SwiperSlide>
           ))}
         </Swiper>
@@ -418,43 +433,20 @@ function readRawContactText(value: unknown) {
   return "";
 }
 
-function readNestedContactValue(source: unknown, key: string) {
-  if (!source || typeof source !== "object") return "";
-
-  return readRawContactText((source as Record<string, unknown>)[key]);
-}
 
 function readContactInfo(ad: AdvertisementItem): SingleAdContactInfo {
-  const contacts = (ad as { contacts?: unknown }).contacts;
-  const contactSocial = (ad as { contact_social?: unknown }).contact_social;
-  const social = (ad as { social?: unknown }).social;
-  const contactType = Array.isArray((ad as { contact_type?: unknown }).contact_type)
-    ? ((ad as { contact_type?: unknown[] }).contact_type ?? [])
-      .map((item) => readRawContactText(item).toLowerCase())
+  const contacts = ad.contacts ?? {};
+  const social = ad.social ?? {};
+  const contactType = Array.isArray(ad.contact_type)
+    ? ad.contact_type.map((item) => readRawContactText(item).toLowerCase())
     : [];
-  const contactsChat = toBooleanLike(
-    contacts && typeof contacts === "object"
-      ? (contacts as Record<string, unknown>).chat
-      : undefined,
-  );
 
   return {
-    chat: contactsChat ?? contactType.includes("chat"),
-    instagram:
-      readNestedContactValue(contacts, "instagram") ||
-      readNestedContactValue(contactSocial, "instagram") ||
-      readNestedContactValue(social, "instagram"),
-    phone:
-      readNestedContactValue(contacts, "phone") ||
-      readRawContactText((ad as { owner_phone?: unknown }).owner_phone),
-    telegram:
-      readNestedContactValue(contacts, "telegram") ||
-      readNestedContactValue(contactSocial, "telegram") ||
-      readNestedContactValue(social, "telegram"),
-    whatsapp:
-      readNestedContactValue(contacts, "whatsapp") ||
-      readNestedContactValue(contactSocial, "whatsapp") ||
-      readNestedContactValue(social, "whatsapp"),
+    chat: toBooleanLike(contacts.chat) ?? contactType.includes("chat"),
+    instagram: readRawContactText(contacts.instagram) || readRawContactText(social.instagram),
+    phone: readRawContactText(contacts.phone),
+    telegram: readRawContactText(contacts.telegram) || readRawContactText(social.telegram),
+    whatsapp: readRawContactText(contacts.whatsapp) || readRawContactText(social.whatsapp),
   };
 }
 
@@ -619,45 +611,14 @@ function getAdvertisementNeighborhood(
   ad: AdvertisementItem,
   details: ViewAdDetails,
 ): AdvertisementNeighborhoodSelection | null {
-  const neighborhood =
-    ad.neighborhood && typeof ad.neighborhood === "object"
-      ? ad.neighborhood
-      : undefined;
-  const city =
-    ad.city && typeof ad.city === "object"
-      ? (ad.city as { id?: unknown; _id?: unknown })
-      : undefined;
-  const neighborhoodFeature = ad.features?.find(
-    (feature) => feature.label === "neighborhood_id",
-  )?.value;
-  const idCandidates = [
-    neighborhood?.id,
-    (neighborhood as { _id?: unknown } | undefined)?._id,
-    (ad as { neighborhood_id?: unknown }).neighborhood_id,
-    neighborhoodFeature,
-  ];
-  const nameCandidates = [
-    neighborhood?.name,
-    ad.neighborhood_name,
-    ad.form_neighborhood_title,
-  ];
-  const id = idCandidates.map(toNonEmptyText).find(Boolean) ?? "";
-  const directName = nameCandidates.map(toNonEmptyText).find(Boolean) ?? "";
-  const name =
-    extractNeighborhoodName(directName, true) ||
-    extractNeighborhoodName(details.locationTitle) ||
-    extractNeighborhoodName(details.title);
+  const neighborhoodId = ad.neighborhood?.id ?? ad.neighborhood_id;
+  const neighborhoodName = toNonEmptyText(ad.neighborhood?.name ?? ad.neighborhood_name);
+  const id = toNonEmptyText(neighborhoodId);
+  const name = neighborhoodName || extractNeighborhoodName(details.locationTitle, true);
 
   if (!id || !name) return null;
 
-  const selectedCity = readStoredSelectedCity();
-  const cityIdCandidates = [
-    city?.id,
-    city?._id,
-    (ad as { city_id?: unknown }).city_id,
-    selectedCity?.id,
-  ];
-  const cityId = cityIdCandidates.map(toNonEmptyText).find(Boolean);
+  const cityId = toNonEmptyText(ad.city?.id ?? ad.city_id) || undefined;
 
   return { cityId, id, name };
 }
@@ -672,6 +633,7 @@ function ViewAdContent({
   mapPosition,
   onOpenAlbum,
   onRowAction,
+  tour3dUrl,
 }: {
   adId: string;
   ad: AdvertisementItem;
@@ -682,6 +644,7 @@ function ViewAdContent({
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: (initialIndex?: number) => void;
   onRowAction: (label: string) => void;
+  tour3dUrl: string;
 }) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isDescriptionOverflowing, setIsDescriptionOverflowing] =
@@ -738,6 +701,7 @@ function ViewAdContent({
           hasTour3d={hasTour3d}
           mediaItems={mediaItems}
           onOpenAlbum={onOpenAlbum}
+          tour3dUrl={tour3dUrl}
         />
 
         <div className="px-4 pt-4">
@@ -756,7 +720,7 @@ function ViewAdContent({
 
           <div className="mt-4 space-y-2 text-right">
             <Typography as="p" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">
-              {details.locationTitle}
+              {details.categoryNeighborhood}
             </Typography>
             <Typography as="p" variant="title" size="medium" weight="semibold" className="mt-2 text-[#1a1a1a]">
               {details.headline}
@@ -764,8 +728,8 @@ function ViewAdContent({
           </div>
 
           <div className="mt-4 space-y-2">
-            <PriceRow label="قیمت کل" value={details.totalPrice} />
-            <PriceRow label="قیمت هر متر" value={details.pricePerMeter} />
+            <PriceRow label={details.pricePrimaryLabel} value={details.totalPrice} />
+            <PriceRow label={details.priceSecondaryLabel} value={details.pricePerMeter} />
           </div>
         </div>
       </section>
@@ -851,7 +815,11 @@ function ViewAdContent({
 }
 
 function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
-  const initial = preview.kind === "agency" ? "ب" : preview.name.trim().charAt(0) || "م";
+  if (preview.kind === "agency") {
+    return <AgencyAdvertiserCard preview={preview} />;
+  }
+
+  const initial = preview.name.trim().charAt(0) || "م";
 
   return (
     <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-6 text-center">
@@ -859,16 +827,8 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
         className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-[#f7f7f7] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
         to={preview.href}
       >
-        <div
-          className={`mx-auto grid h-16 w-16 place-items-center rounded-lg border border-[#cccccc] ${
-            preview.kind === "agency" ? "bg-white" : "bg-gradient-to-br from-[#f6d8bc] to-[#c78a5c]"
-          }`}
-        >
-          <Typography as="span" variant="headline" size="small"
-            className={`text-2xl font-bold leading-none ${
-              preview.kind === "agency" ? "text-[#b6823a]" : "text-white"
-            }`}
-          >
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-lg border border-[#cccccc] bg-gradient-to-br from-[#f6d8bc] to-[#c78a5c]">
+          <Typography as="span" variant="headline" size="small" className="text-2xl font-bold leading-none text-white">
             {initial}
           </Typography>
         </div>
@@ -879,36 +839,137 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
           {preview.subtitle}
         </Typography>
         {preview.location ? (
-          <div className="mt-2 flex items-center justify-center gap-1 text-xs font-medium leading-4 text-[#0048c4]">
+          <div className="mt-2 flex items-center justify-center gap-1 text-[#0048c4]">
             <ViewAdIcon className="h-4 w-4" name="location" />
             <Typography as="span" variant="body" size="medium" weight="regular">{preview.location}</Typography>
           </div>
         ) : null}
-        <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
-          <div className="flex items-center gap-1">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">۸۵</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography>
-            <img
-              alt=""
-              aria-hidden="true"
-              className="h-4 w-4 shrink-0 object-contain"
-              src="/icons/star.svg"
-            />
-          </div>
-          <div className="h-4 w-px bg-[#e0e0e0]" />
-          <div className="flex items-center gap-1">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">۱۲</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography>
-            <img
-              alt=""
-              aria-hidden="true"
-              className="h-4 w-4 shrink-0 object-contain"
-              src="/icons/ranking.svg"
-            />
-          </div>
-        </div>
+        <AdvertiserMetrics preview={preview} />
       </RouteLink>
     </section>
+  );
+}
+
+function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
+  const agencyQuery = usePublicAgencyDetailQuery({
+    enabled: !preview.logoUrl || !preview.ratingScore || !preview.rank,
+    id: preview.id,
+  });
+  const agency = agencyQuery.data;
+  const logoUrl = preview.logoUrl ?? agency?.logo;
+  const location = preview.location || agency?.address || "";
+  const ratingScore = preview.ratingScore ?? (agency ? toPersianDigits(agency.score) : undefined);
+  const rank = preview.rank ?? (agency ? toPersianDigits(agency.rank) : undefined);
+  const initial = preview.name.trim().charAt(0) || "آ";
+  const resolvedPreview = {
+    ...preview,
+    location,
+    rank,
+    ratingScore,
+  };
+
+  return (
+    <section className="border-t-8 border-[#f0f0f0] bg-white text-center">
+      <RouteLink
+        className="block px-4 pb-3 pt-4 text-inherit no-underline transition active:bg-[#f7f7f7] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+        to={preview.href}
+      >
+        <div className="mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-lg bg-white">
+          {logoUrl ? (
+            <img
+              alt={preview.name}
+              className="h-full w-full object-contain"
+              src={logoUrl}
+            />
+          ) : (
+            <div className="grid h-full w-full place-items-center rounded-lg border border-[#e0e0e0] bg-white">
+              <Typography as="span" variant="headline" size="small" className="text-[#b6823a]">
+                {initial}
+              </Typography>
+            </div>
+          )}
+        </div>
+
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="mt-2 text-[#4d4d4d]"
+        >
+          {preview.name}
+        </Typography>
+
+        {location ? (
+          <div className="mt-1 flex items-center justify-center gap-1 [direction:rtl]">
+            <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="location" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base text-[#0048c4]">
+              {location}
+            </Typography>
+          </div>
+        ) : null}
+
+        <AdvertiserMetrics preview={resolvedPreview} agencyStyle />
+      </RouteLink>
+    </section>
+  );
+}
+
+function AdvertiserMetrics({
+  agencyStyle = false,
+  preview,
+}: {
+  agencyStyle?: boolean;
+  preview: AdvertiserPreview;
+}) {
+  if (!preview.ratingScore && !preview.rank) return null;
+
+  if (agencyStyle) {
+    return (
+      <div className="mx-auto mt-3 flex items-center justify-center gap-4 text-[#4d4d4d] [direction:rtl]">
+        {preview.ratingScore ? (
+          <div className="flex items-center gap-1 [direction:rtl]">
+            <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="star" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base">امتیاز</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base text-[#11a366]">
+              {preview.ratingScore}
+            </Typography>
+          </div>
+        ) : null}
+
+        {preview.ratingScore && preview.rank ? <div className="h-5 w-px rounded-full bg-[#cccccc]" /> : null}
+
+        {preview.rank ? (
+          <div className="flex items-center gap-1 [direction:rtl]">
+            <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="ranking" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base">رتبه</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base text-[#11a366]">
+              {preview.rank}
+            </Typography>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
+      {preview.ratingScore ? (
+        <div className="flex items-center gap-1">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">{preview.ratingScore}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography>
+          <img alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" src="/icons/star.svg" />
+        </div>
+      ) : <span />}
+      {preview.ratingScore && preview.rank ? <div className="h-4 w-px bg-[#e0e0e0]" /> : null}
+      {preview.rank ? (
+        <div className="flex items-center gap-1">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">{preview.rank}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography>
+          <img alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" src="/icons/ranking.svg" />
+        </div>
+      ) : <span />}
+    </div>
   );
 }
 
@@ -937,17 +998,9 @@ function isLoggedIn() {
 }
 
 function readAdvertisementBookmarkState(advertisement: AdvertisementItem | undefined) {
-  if (!advertisement) return undefined;
-
-  for (const key of ["is_bookmarked", "bookmarked", "is_badged", "has_badge"] as const) {
-    const value = advertisement[key];
-
-    if (typeof value === "boolean") return value;
-    if (value === 1 || value === "1" || value === "true") return true;
-    if (value === 0 || value === "0" || value === "false") return false;
-  }
-
-  return undefined;
+  return typeof advertisement?.is_bookmarked === "boolean"
+    ? advertisement.is_bookmarked
+    : undefined;
 }
 
 export function ViewAdPage() {
@@ -1032,6 +1085,7 @@ export function ViewAdPage() {
   const contactActionCount = Number(hasContactSheetData) + Number(hasChatContact);
   const contactActionsGridClassName = contactActionCount === 1 ? "grid-cols-1" : "grid-cols-2";
   const mediaItems = buildGalleryMediaItems(resolvedAd);
+  const resolvedTour3dUrl = getVirtualTourUrl(resolvedAd);
   const resolvedHasTour3d = hasTour3d(resolvedAd);
 
   const showToast = (
@@ -1335,6 +1389,7 @@ export function ViewAdPage() {
             setIsAlbumOpen(true);
           }}
           onRowAction={handleRowAction}
+          tour3dUrl={resolvedTour3dUrl}
         />
       </main>
 

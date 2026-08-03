@@ -16,6 +16,7 @@ import {
   moreFeatureFieldsByListingType,
   neighborhoodIdKey,
   propertySpecs,
+  subNeighborhoodIdKey,
 } from "./data";
 import type { ChipItem, MoreFeaturesFormValues, NewAdFormValues } from "./types";
 import { clearNewAdFlowSession } from "./session";
@@ -87,6 +88,7 @@ export function clearNewAdDraftStorage() {
   window.localStorage.removeItem(locationLatKey);
   window.localStorage.removeItem(locationLngKey);
   window.localStorage.removeItem(neighborhoodIdKey);
+  window.localStorage.removeItem(subNeighborhoodIdKey);
 }
 
 export function getParams(): {
@@ -510,11 +512,21 @@ export function buildPayload(values: NewAdFormValues) {
   };
 }
 
-export function buildNewAdFormData(values: NewAdFormValues) {
+export function buildNewAdFormData(
+  values: NewAdFormValues,
+  options: {
+    categoryId?: string | null;
+    dynamicFieldKeys?: Iterable<string>;
+    formCode?: string | null;
+  } = {},
+) {
   const params = getParams();
-  const formCode = getAdvertiseFormCode(params.transaction, params.category);
+  const formCode =
+    options.formCode?.trim() ||
+    getAdvertiseFormCode(params.transaction, params.category);
   const heatingCooling = labels(heatingItems, values.heatingCooling);
   const facilities = labels(getFacilityItemsForCategory(params.category), values.facilities);
+  const extraSpecs = labels(propertySpecs, values.selectedSpecs);
   const contactTypes = [
     values.chatEnabled ? "chat" : null,
     values.phoneEnabled ? "phone" : null,
@@ -526,62 +538,9 @@ export function buildNewAdFormData(values: NewAdFormValues) {
         ? "مشاور املاک"
         : "";
   const formData = new FormData();
-  const baseCreateFields = new Set([
-    "form_code",
-    "title",
-    "description",
-    "category_id",
-    "neighborhood_id",
-    "lat",
-    "lng",
-    "contact_type",
-    "owner_phone",
-    "owner_type",
-    "agency_id",
-    "owner_name",
-    "owner_address",
-    "telegram",
-    "whatsapp",
-  ]);
-  const searchFlagFields = [
-    "advertiser_type",
-    "published_at",
-    "is_special",
-    "has_image",
-    "has_video",
-  ];
-  const formFields: Record<string, string[]> = {
-    "daily-apartment-suite": ["area", "rooms", "capacity", "daily_price", "heating_cooling", "facilities", ...searchFlagFields],
-    "daily-garden-villa": ["area", "rooms", "capacity", "daily_price", "heating_cooling", "facilities", ...searchFlagFields],
-    "daily-hotel": ["daily_price", "hotel_stars", "heating_cooling", "facilities", ...searchFlagFields],
-    "daily-office-booth": ["daily_price", "rooms", "capacity", "heating_cooling", "facilities", ...searchFlagFields],
-    partnership: ["area", "land_area", "builder_share", "partnership_type", "document_type", "build_permit", ...searchFlagFields],
-    "presale-special": ["area", "meter_price", "min_price", "max_price", "project_total_floors", "project_total_units", "project_status", "delivery_date", "rooms", "floor", "heating_cooling", "facilities", "exchange_with", "installment_sale", ...searchFlagFields],
-    "rent-commercial": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "furnished", "suitable_for", "commercial_permit", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-factory-workshop": ["land_area", "building_area", "rent_price", "mortgage_price", "facilities", ...searchFlagFields],
-    "rent-garden-villa": ["area", "land_area", "building_area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "villa_type", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-hotel": ["area", "land_area", "building_area", "land_position", "rent_price", "mortgage_price", "suitable_for", "building_age", "hotel_stars", "floor", "renovated", "furnished", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-office": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "furnished", "suitable_for", "commercial_permit", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-apartment": ["area", "rent_price", "mortgage_price", "building_age", "rooms", "floor", "renovated", "suitable_for", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-villa-house": ["area", "land_area", "building_area", "rent_price", "mortgage_price", "building_age", "rooms", "furnished", "renovated", "house_type", "heating_cooling", "facilities", ...searchFlagFields],
-    "rent-warehouse": ["area", "land_area", "building_area", "land_position", "height", "rent_price", "mortgage_price", "suitable_for", "commercial_permit", "facilities", ...searchFlagFields],
-    "sale-apartment": ["area", "price", "building_age", "rooms", "floor", "renovated", "furnished", "loan_amount", "loan_installment", "document_type", "unit_type", "unit_position", "heating_cooling", "facilities", ...searchFlagFields],
-    "sale-commercial": ["area", "price", "building_age", "rooms", "renovated", "furnished", "loan_amount", "loan_installment", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-factory": ["area", "land_area", "building_area", "price", "document_type", "loan_amount", "loan_installment", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-garden-villa": ["land_area", "building_area", "price", "building_age", "rooms", "furnished", "document_type", "villa_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-hotel": ["area", "land_position", "price", "building_age", "rooms", "hotel_stars", "floor", "renovated", "furnished", "loan_amount", "loan_installment", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-land": ["land_area", "price", "land_use", "build_permit", "document_type", "density", "land_position", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-office": ["area", "price", "building_age", "rooms", "floor", "has_document", "renovated", "furnished", "loan_amount", "loan_installment", "suitable_for", "document_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-villa-house": ["land_area", "building_area", "price", "building_age", "rooms", "renovated", "furnished", "loan_amount", "loan_installment", "document_type", "land_position", "house_type", "heating_cooling", "facilities", "exchange_with", ...searchFlagFields],
-    "sale-warehouse": ["area", "land_area", "building_area", "land_position", "price", "height", "commercial_permit", "suitable_for", "document_type", "loan_amount", "loan_installment", "facilities", "exchange_with", "building_age", ...searchFlagFields],
-  };
-  const allowedFields = new Set([
-    ...baseCreateFields,
-    ...(formFields[formCode] ?? []),
-  ]);
+  const dynamicFieldKeys = new Set(options.dynamicFieldKeys ?? []);
 
-  const appendValue = (key: string, value: unknown) => {
-    if (!allowedFields.has(key)) return;
+  const appendBaseValue = (key: string, value: unknown) => {
     if (!hasFeatureValue(value)) return;
 
     const serializedValue =
@@ -590,86 +549,149 @@ export function buildNewAdFormData(values: NewAdFormValues) {
     formData.append(key, serializedValue);
   };
 
-  const appendArray = (key: string, value: string[]) => {
-    if (!allowedFields.has(key)) return;
+  const appendDynamicValue = (key: string, value: unknown) => {
+    if (!dynamicFieldKeys.has(key) || !hasFeatureValue(value)) return;
+
+    const serializedValue =
+      typeof value === "boolean" ? (value ? "1" : "0") : String(value);
+
+    formData.append(key, serializedValue);
+  };
+
+  const appendDynamicArray = (key: string, value: string[]) => {
+    if (!dynamicFieldKeys.has(key)) return;
 
     value.filter(Boolean).forEach((item) => {
       formData.append(key, item);
     });
   };
 
-  appendValue("form_code", formCode);
-  appendValue("title", values.title);
-  appendValue("description", values.description);
-  appendValue("neighborhood_id", window.localStorage.getItem(neighborhoodIdKey));
-  appendValue("lat", getStoredNewAdLocationNumber(locationLatKey));
-  appendValue("lng", getStoredNewAdLocationNumber(locationLngKey));
+  const appendDynamicJson = (key: string, value: unknown) => {
+    if (!dynamicFieldKeys.has(key)) return;
+    if (!hasFeatureValue(value)) return;
+
+    if (Array.isArray(value) && value.length === 0) return;
+    if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value as Record<string, unknown>).length === 0) return;
+
+    formData.append(key, JSON.stringify(value));
+  };
+
+  appendBaseValue("form_code", formCode);
+  appendBaseValue("category_id", options.categoryId);
+  appendBaseValue("title", values.title);
+  appendBaseValue("description", values.description);
+  appendBaseValue("neighborhood_id", window.localStorage.getItem(neighborhoodIdKey));
+  appendBaseValue("sub_neighborhood_id", window.localStorage.getItem(subNeighborhoodIdKey));
+  appendBaseValue("lat", getStoredNewAdLocationNumber(locationLatKey));
+  appendBaseValue("lng", getStoredNewAdLocationNumber(locationLngKey));
+  appendBaseValue("location_label", values.location);
+  appendBaseValue(
+    "virtual_tour_link",
+    values.hasVirtualTour ? values.virtualTourLink.trim() : "",
+  );
+  appendBaseValue("owner_type", values.registrantType);
+  appendBaseValue(
+    "agency_id",
+    values.registrantType === "agency" ? values.agencyId.trim() : "",
+  );
+  appendBaseValue("owner_phone", values.phoneNumber);
+  appendBaseValue("owner_name", values.ownerFullName);
+  appendBaseValue("owner_address", values.ownerExactAddress);
+  appendBaseValue("telegram", values.telegram);
+  appendBaseValue("whatsapp", values.whatsapp);
+
+  contactTypes.forEach((contactType) => {
+    formData.append("contact_type[]", contactType);
+  });
+
   const meterageValue = toNumber(values.meterage);
   const landAreaValue = toNumber(values.landArea);
   const buildingAreaValue = toNumber(values.buildingArea);
   const areaValue = meterageValue ?? buildingAreaValue ?? landAreaValue;
   const apiLandAreaValue = formCode === "sale-land" ? (landAreaValue ?? meterageValue) : landAreaValue;
 
-  appendValue("area", areaValue);
-  appendValue("land_area", apiLandAreaValue);
-  appendValue("building_area", toNumber(values.buildingArea));
-  appendValue("price", getPriceValue(values, params.transaction, params.category));
-  appendValue("rent_price", toNumber(values.rentPrice));
-  appendValue("mortgage_price", toNumber(values.mortgagePrice));
-  appendValue("daily_price", toNumber(values.minPrice));
-  appendValue("meter_price", toNumber(values.minPrice));
-  appendValue("min_price", toNumber(values.minPrice));
-  appendValue("max_price", toNumber(values.maxPrice));
-  appendValue("project_total_floors", toNumber(values.projectTotalFloors));
-  appendValue("project_total_units", toNumber(values.projectTotalUnits));
-  appendValue("delivery_date", values.projectDeliveryDate);
-  appendValue("building_age", values.age);
-  appendValue("rooms", values.rooms);
-  appendValue("floor", values.floor);
-  appendValue("hotel_stars", values.hotelStars);
-  appendValue("capacity", values.standardCapacity);
-  appendValue("renovated", values.renovated);
-  appendValue("furnished", values.furnished);
-  appendValue("loan_amount", values.loanEnabled ? toNumber(values.loanAmount) : null);
-  appendValue("loan_installment", values.loanEnabled ? toNumber(values.loanInstallment) : null);
-  appendValue("has_document", Boolean(values.documentType));
-  appendValue("document_type", values.documentType);
-  appendValue("unit_type", values.unitType);
-  appendValue("unit_position", values.unitPosition);
-  appendValue("density", toNumber(values.density));
-  appendValue("land_use", values.usageType);
-  appendValue("land_position", values.landPosition);
-  appendValue("house_type", values.villaType);
-  appendValue("villa_type", values.villaType);
-  appendValue("height", toNumber(values.ceilingHeight));
-  appendValue("commercial_permit", values.commercialLicense || (values.commercialPermit ? "دارد" : ""));
-  appendValue("project_status", values.projectStatus);
-  appendValue("installment_sale", values.saleTermsEnabled);
-  appendValue("builder_share", toNumber(values.builderSharePercent));
-  appendValue("partnership_type", values.participationType);
-  appendValue("build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
-  appendValue("advertiser_type", advertiserType);
-  appendValue("owner_type", values.registrantType);
-  appendValue(
-    "agency_id",
-    values.registrantType === "agency" ? values.agencyId.trim() : "",
+  appendDynamicValue("area", areaValue);
+  appendDynamicValue("land_area", apiLandAreaValue);
+  appendDynamicValue("building_area", buildingAreaValue);
+  appendDynamicValue("price", getPriceValue(values, params.transaction, params.category));
+  appendDynamicValue("rent_price", toNumber(values.rentPrice));
+  appendDynamicValue("mortgage_price", toNumber(values.mortgagePrice));
+  // Updated daily forms use min/max. Keep daily_price only when the server form still exposes it.
+  appendDynamicValue("daily_price", toNumber(values.minPrice));
+  appendDynamicValue("meter_price", toNumber(values.minPrice));
+  appendDynamicValue("min_price", toNumber(values.minPrice));
+  appendDynamicValue("max_price", toNumber(values.maxPrice));
+  appendDynamicValue("project_total_floors", toNumber(values.projectTotalFloors));
+  appendDynamicValue("project_total_units", toNumber(values.projectTotalUnits));
+  appendDynamicValue("delivery_date", values.projectDeliveryDate);
+  appendDynamicValue("building_age", values.age);
+  appendDynamicValue("rooms", values.rooms);
+  appendDynamicValue("floor", values.floor);
+  appendDynamicValue("hotel_stars", values.hotelStars);
+  appendDynamicValue("capacity", toNumber(pickFirstNumber(values.standardCapacity)));
+  appendDynamicValue("extra_people_capacity", toNumber(pickFirstNumber(values.extraPeopleCapacity)));
+  appendDynamicValue("renovated", values.renovated);
+  appendDynamicValue("furnished", values.furnished);
+  appendDynamicValue("loan_amount", values.loanEnabled ? toNumber(values.loanAmount) : null);
+  appendDynamicValue("loan_installment", values.loanEnabled ? toNumber(values.loanInstallment) : null);
+  appendDynamicValue("has_document", Boolean(values.documentType));
+  appendDynamicValue("document_type", values.documentType);
+  appendDynamicValue("total_floors", values.totalFloors);
+  appendDynamicValue("unit_type", values.unitType);
+  appendDynamicValue("unit_position", values.unitPosition);
+  appendDynamicValue("density", toNumber(values.density));
+  appendDynamicValue("land_use", values.usageType);
+  appendDynamicValue("land_position", values.landPosition);
+  appendDynamicValue("house_type", values.villaType);
+  appendDynamicValue("villa_type", values.villaType);
+  appendDynamicValue("height", toNumber(values.ceilingHeight));
+  appendDynamicValue("facade_material", values.facadeMaterial);
+  appendDynamicValue("floor_material", values.floorMaterial);
+  appendDynamicValue("cabinet_material", values.cabinetMaterial);
+  appendDynamicValue("land_width", toNumber(values.landWidth));
+  appendDynamicValue("street_width", toNumber(values.streetWidth));
+  appendDynamicValue("single_room_count", toNumber(values.singleRoomCount));
+  appendDynamicValue("double_room_count", toNumber(values.doubleRoomCount));
+  appendDynamicValue("suite_count", toNumber(values.suiteCount));
+  appendDynamicValue(
+    "commercial_permit",
+    values.commercialLicense || (values.commercialPermit ? "دارد" : ""),
   );
-  appendValue("owner_phone", values.phoneNumber);
-  appendValue("owner_name", values.ownerFullName);
-  appendValue("owner_address", values.ownerExactAddress);
-  appendValue("telegram", values.telegram);
-  appendValue("whatsapp", values.whatsapp);
-  appendValue("has_image", values.photos.length > 0);
-  appendValue("has_video", Boolean(values.video));
+  appendDynamicValue("project_status", values.projectStatus);
+  appendDynamicValue("installment_sale", values.saleTermsEnabled);
+  appendDynamicValue(
+    "sale_terms_percent",
+    values.saleTermsEnabled ? toNumber(values.saleTermsPercent) : null,
+  );
+  appendDynamicValue(
+    "sale_terms_installment_months",
+    values.saleTermsEnabled ? toNumber(values.saleTermsInstallmentMonths) : null,
+  );
+  appendDynamicValue("builder_share", toNumber(values.builderSharePercent));
+  appendDynamicValue("partnership_type", values.participationType);
+  appendDynamicValue(
+    "build_permit",
+    values.constructionLicense
+      ? values.constructionLicense === "دارد"
+      : values.constructionPermit,
+  );
+  appendDynamicValue("advertiser_type", advertiserType);
+  appendDynamicValue("has_image", values.photos.length > 0);
+  appendDynamicValue("has_video", Boolean(values.video));
 
-  appendArray("contact_type", contactTypes);
-  appendArray("suitable_for", values.suitableFor ? [values.suitableFor] : []);
-  appendArray("heating_cooling", heatingCooling);
-  appendArray("facilities", facilities);
-  appendArray("exchange_with", values.exchangeEnabled ? values.exchangeTargets : []);
+  appendDynamicArray("suitable_for", values.suitableFor ? [values.suitableFor] : []);
+  appendDynamicArray("heating_cooling", heatingCooling);
+  appendDynamicArray("facilities", facilities);
+  appendDynamicArray("exchange_with", values.exchangeEnabled ? values.exchangeTargets : []);
+
+  appendDynamicJson("project_details", buildProjectDetailFeatures(values));
+  appendDynamicJson("extra_specs", extraSpecs);
+  appendDynamicJson("daily_hotel_rooms", buildDailyHotelRoomFeatures(values));
 
   values.photos.forEach((photo) => {
-    if (photo.file) formData.append("images[]", photo.file);
+    if (photo.file) {
+      formData.append("images", photo.file, photo.file.name);
+    }
   });
 
   if (values.video?.file) {

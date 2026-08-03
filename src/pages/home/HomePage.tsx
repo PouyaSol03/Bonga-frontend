@@ -240,10 +240,13 @@ export function HomePage() {
     enabled: hasAuthSession,
   });
 
-  const quickActions = useMemo(
-    () => categories.map(mapCategoryToQuickAction),
-    [categories],
-  );
+  const quickActions = useMemo(() => {
+    const apiCategories = categories
+      .map(mapCategoryToQuickAction)
+      .filter((item) => !isConsultantsCategory(item));
+
+    return [...apiCategories, consultantCategory];
+  }, [categories]);
   const advertisements = useMemo(
     () =>
       advertisementPages?.pages.flatMap((page, pageIndex) =>

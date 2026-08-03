@@ -62,8 +62,8 @@ export function Section({
   return (
     <section
       className={desktop
-        ? "rounded-xl border border-[#e1e7f0] bg-white px-6 py-6 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
-        : "border-b-[10px] border-[#f0f0f0] bg-white px-4 pt-4 pb-2 text-right last:border-b-0 [direction:rtl]"}
+        ? "rounded-xl border border-[#e1e7f0] bg-white p-4 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
+        : "border-b-[10px] border-[#f0f0f0] bg-white p-4 text-right last:border-b-0 [direction:rtl]"}
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">

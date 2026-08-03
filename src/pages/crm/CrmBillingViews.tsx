@@ -495,9 +495,29 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
             onClose={() => setEditing(undefined)}
             onSubmit={async () => {
               try {
+                let finalPayload: Partial<CrmPackagePayload> = packagePayload(draft);
+
+                if (editing) {
+                  const originalPayload = packagePayload(draftFromPackage(editing));
+                  const patchPayload: Partial<CrmPackagePayload> = {};
+
+                  for (const key of Object.keys(finalPayload) as Array<keyof CrmPackagePayload>) {
+                    if (finalPayload[key] !== originalPayload[key]) {
+                      (patchPayload as any)[key] = finalPayload[key];
+                    }
+                  }
+
+                  if (Object.keys(patchPayload).length === 0) {
+                    setEditing(undefined);
+                    return;
+                  }
+
+                  finalPayload = patchPayload;
+                }
+
                 await saveMutation.mutateAsync({
                   id: editing ? packageRecordId(editing) : null,
-                  payload: packagePayload(draft),
+                  payload: finalPayload as CrmPackagePayload,
                 });
               } catch (error) {
                 notify(

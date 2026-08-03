@@ -120,7 +120,6 @@ const featureLabelMap: Record<string, string> = {
   villa_type: "نوع ویلا",
   house_type: "نوع خانه",
   capacity: "ظرفیت",
-  unit_type: "تیپ واحد",
   density: "تراکم",
   total_floors: "تعداد کل طبقات",
   facade_material: "جنس نما",

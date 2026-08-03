@@ -168,7 +168,7 @@ function PublishedAction({
   if (to) {
     return (
       <RouteLink
-        className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] no-underline [direction:ltr]"
+        className="flex h-14 w-full items-center justify-between px-4 text-[#4d4d4d] no-underline [direction:ltr]"
         state={{
           ad,
           card: ad,

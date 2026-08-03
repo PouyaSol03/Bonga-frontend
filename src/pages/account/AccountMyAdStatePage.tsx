@@ -35,6 +35,7 @@ import LinearBuilding2 from "../../shared/icons/LinearBuilding2";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import LinearFactor from "../../shared/icons/LinearFactor";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
@@ -218,13 +219,13 @@ function RealEstateManagerAdStatePage({
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="bg-white px-4 pb-4 pt-4" aria-label="مسئول انتشار آگهی">
-          <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium text-[#1a1a1a]">مسئول انتشار آگهی</Typography>
+          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-[#1a1a1a]">مسئول انتشار آگهی</Typography>
           <div className="mt-3">
             <div className="flex items-center bg-[#fafafa] rounded-xl p-3 justify-end gap-3 [direction:rtl]">
               {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#f0f0f0] text-[#808080]"><LinearUserSolid className="h-6 w-6" /></div>}
-              <div className="flex-1 flex flex-col justify-center text-right">
-                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 font-medium text-[#4D4D4D]">{publisher?.name ?? "منتشرکننده مشخص نیست"}</Typography>
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-4 text-[#808080]">
+              <div className="flex-1 flex gap-1 flex-col justify-center text-right">
+                <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-[#4D4D4D]">{publisher?.name ?? "منتشرکننده مشخص نیست"}</Typography>
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-[#808080]">
                   {publisher ? (publisher.type === "agency" ? "آژانس" : "مشاور") : "—"}
                 </Typography>
               </div>
@@ -576,7 +577,7 @@ function StateAdAction({
   const content = (
     <>
       <ChevronLeftIcon className="h-6 w-6 text-[#4d4d4d]" />
-      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex gap-2 [direction:rtl]">
         <StateIcon className="h-6 w-6 text-[#4d4d4d]" icon={action.icon} />
         {action.label}
       </Typography>
@@ -586,7 +587,7 @@ function StateAdAction({
   if (action.to) {
     return (
       <RouteLink
-        className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] no-underline [direction:ltr]"
+        className="flex h-14 w-full items-center justify-between px-4 text-[#4d4d4d] no-underline [direction:ltr]"
         state={{
           ad: action.icon === "upgrade" && !ad ? card : ad,
           card,
@@ -662,10 +663,7 @@ function StateIcon({ className = "", icon }: { className?: string; icon: StateAc
   }
 
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-      <path d="M7 3h10v18l-5-2.5L7 21V3Z" />
-      <path d="M13.8 9.2c-.4-.5-1-.7-1.8-.7-.9 0-1.6.5-1.6 1.2 0 1.8 3.5.8 3.5 2.8 0 .7-.7 1.2-1.7 1.2-.8 0-1.5-.3-2-.8M12.1 7.4v7.4" />
-    </svg>
+    <LinearFactor className="h-6 w-6"/>
   );
 }
 

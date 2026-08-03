@@ -6,6 +6,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { adManagementPaths, getAdManagementRouteState } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearDanger from "../../../shared/icons/LinearDanger";
 
 type CloseResultReason = "done" | "not-done" | "expired";
 
@@ -60,14 +61,14 @@ export function AdCloseResultPage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-28 pt-4">
-        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-right font-medium leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-[#1a1a1a]">
           این آگهی از لیست آگهی‌های تخصیصی آژانس خارج خواهد شد.
         </Typography>
 
         <section className="mt-3 rounded-xl border border-[#ff6d00] bg-[#fff7ed] px-4 py-3 text-right" aria-label="هشدار">
           <div className="flex items-center justify-start gap-2 text-[#ff6d00]">
-            <AlertIcon className="h-5 w-5 shrink-0" />
-            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5">هشدار</Typography>
+            <LinearDanger className="h-5 w-5 shrink-0" />
+            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5">توجه!</Typography>
           </div>
           <ul className="m-0 mt-2 list-disc space-y-1 pr-5 text-sm font-normal text-[#4d4d4d] marker:text-[#808080]">
             <li>
@@ -80,7 +81,7 @@ export function AdCloseResultPage() {
         </section>
 
         <section className="mt-5" aria-label="دلیل بستن آگهی">
-          <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-medium text-[#1a1a1a]">دلیل بستن آگهی</Typography>
+          <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-[#1a1a1a]">دلیل بستن آگهی</Typography>
           <div className="mt-4 grid gap-4" role="radiogroup" aria-label="دلیل بستن آگهی">
             {closeResultReasons.map((reason) => {
               const selected = selectedReason === reason.value;
@@ -95,7 +96,7 @@ export function AdCloseResultPage() {
                   type="button"
                 >
                   <RadioIndicator checked={selected} />
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 pr-3 text-right text-[#1a1a1a] [direction:rtl]">
+                  <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 flex-1 pr-3 text-right text-[#1a1a1a] [direction:rtl]">
                     {reason.label}
                   </Typography>
                 </Button>
@@ -150,13 +151,4 @@ function normalizeLocalPath(path?: string) {
   if (path.startsWith("//")) return undefined;
 
   return path;
-}
-
-function AlertIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-      <path d="M10.35 4.4 2.8 17.5A2 2 0 0 0 4.55 20.5h14.9a2 2 0 0 0 1.75-3L13.65 4.4a1.9 1.9 0 0 0-3.3 0Z" />
-      <path d="M12 9v4M12 17h.01" />
-    </svg>
-  );
 }

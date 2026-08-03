@@ -82,7 +82,8 @@ export function IndependentConsultantAdAllocationReviewPage() {
   const initialConsultantId = String(
     routeState.consultantId ?? assignment?.consultantId ?? "",
   );
-  const canContinue = publisher === "agency" || Boolean(assignedConsultant);
+  const primaryActionLabel =
+    publisher === "consultant" && !assignedConsultant ? "انتخاب مشاور" : "پرداخت";
 
   useEffect(() => {
     if (assignedConsultant || !initialConsultantId) return;
@@ -97,15 +98,13 @@ export function IndependentConsultantAdAllocationReviewPage() {
     }
   }, [assignedConsultant, initialConsultantId, selectableConsultants]);
 
-  function handleContinue() {
-    if (!canContinue) return;
-
+  function navigateToPayment(consultant = assignedConsultant) {
     window.history.pushState(
       {
         ad,
         assignment,
         assignmentId: assignment?.id,
-        consultantId: publisher === "consultant" ? assignedConsultant?.id : undefined,
+        consultantId: publisher === "consultant" ? consultant?.id : undefined,
         publisherType: publisher,
         tab: "status",
       },
@@ -113,6 +112,15 @@ export function IndependentConsultantAdAllocationReviewPage() {
       getAdPaymentPath(ad.id),
     );
     window.dispatchEvent(new PopStateEvent("popstate"));
+  }
+
+  function handlePrimaryAction() {
+    if (publisher === "consultant" && !assignedConsultant) {
+      setIsConsultantPickerOpen(true);
+      return;
+    }
+
+    navigateToPayment();
   }
 
   return (
@@ -168,7 +176,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
         <section className="px-4 pb-6 pt-5" aria-label="منتشرکننده آگهی">
-          <Typography as="h2" variant="headline" size="large" className="m-0 mb-4 text-right font-medium leading-5 text-[#1a1a1a]">
+          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 mb-4 text-[#1a1a1a]">
             منتشرکننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ee3623] text-sm">*</Typography>
           </Typography>
 
@@ -200,6 +208,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
             setAssignedConsultant(consultant);
             setPublisher("consultant");
             setIsConsultantPickerOpen(false);
+            navigateToPayment(consultant);
           }}
           onRetry={() => void consultantsQuery.refetch()}
           selectedConsultant={assignedConsultant}
@@ -208,13 +217,11 @@ export function IndependentConsultantAdAllocationReviewPage() {
 
       <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <Button unstyled
-          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${canContinue ? "bg-[#0048c4] text-white active:bg-[#003aa0]" : "bg-[#e5e5e5] text-[#b8b8b8]"
-            }`}
-          disabled={!canContinue}
-          onClick={handleContinue}
+          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white transition-colors active:bg-[#003aa0]"
+          onClick={handlePrimaryAction}
           type="button"
         >
-          ادامه و پرداخت
+          {primaryActionLabel}
         </Button>
       </footer>
     </PageFrame>
@@ -498,7 +505,7 @@ function ConsultantPickerPage({
           }}
           type="button"
         >
-          انتخاب
+          انتخاب و پرداخت
         </Button>
       </footer>
     </section>

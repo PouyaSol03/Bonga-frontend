@@ -32,7 +32,6 @@ export const DEFAULT_COUNTRY_ID = 2;
 export const DEFAULT_CENTER: LatLngTuple = [defaultSelectedCity.latitude, defaultSelectedCity.longitude];
 
 export type CrmSection =
-  | "overview"
   | "advertises"
   | "users"
   | "consultants"
@@ -86,11 +85,6 @@ export type ConfirmState = {
 };
 
 const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: string }> = {
-  overview: {
-    path: "/crm",
-    subtitle: "نمای کلی عملیات و دسترسی سریع به بخش‌های مدیریتی",
-    title: "داشبورد مدیریت",
-  },
   advertises: {
     path: "/crm/advertises",
     subtitle: "بررسی، ویرایش، تأیید و مدیریت وضعیت آگهی‌ها",
@@ -136,7 +130,6 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
 };
 
 const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
-  { icon: "home", section: "overview" },
   { icon: "ads", section: "advertises" },
   { icon: "users", section: "users" },
   { icon: "users", section: "consultants" },
@@ -399,7 +392,7 @@ export function CrmLayout({
   contentKey,
   embeddedContent,
   renderContent,
-  section = "overview",
+  section = "advertises",
 }: {
   contentKey?: string;
   embeddedContent?: ReactNode;

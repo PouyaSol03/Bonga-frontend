@@ -54,7 +54,7 @@ export type CrmConsultantPayload = {
 };
 
 export type CrmAdvertisePayload = {
-  category_id: string;
+  category_id?: string;
   form_code: string;
   title: string;
   neighborhood_id: string;
@@ -66,6 +66,9 @@ export type CrmAdvertisePayload = {
   owner_type: string;
   virtual_tour_link: string;
   images: string[];
+  target_owner_type?: "user" | "agency";
+  target_owner_id?: string | number;
+  features?: { key: string; value: unknown }[];
 };
 
 export type CrmUserFilters = {

@@ -30,6 +30,7 @@ import {
   Tag,
   Toggle,
 } from "../components/NewAdControls";
+import { CrmTargetOwnerSelect } from "../components/CrmTargetOwnerSelect";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
@@ -112,6 +113,7 @@ export function DetailsStep({
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [showRegisteredMoreFeatures, setShowRegisteredMoreFeatures] = useState(false);
   const [isDeliveryDateOpen, setIsDeliveryDateOpen] = useState(false);
+  const isCrm = new URLSearchParams(window.location.search).get("editSource") === "crm";
 
   const { transaction, category } = getParams();
   const isProject = transaction === "project";
@@ -740,6 +742,37 @@ export function DetailsStep({
             ) : null}
           </Section>
         ) : null}
+
+        {isCrm && (
+          <Section icon="personal-card.svg" title="انتخاب مالک آگهی (پنل مدیریت)">
+            <div className="flex flex-col gap-4">
+              <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#cccccc]" dir="ltr">
+                <Button unstyled
+                  className={`text-sm font-bold transition ${values.targetOwnerType === "agency" ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"}`}
+                  onClick={() => setValue("targetOwnerType", "agency")}
+                  type="button"
+                >
+                  آژانس املاک
+                </Button>
+                <Button unstyled
+                  className={`border-r border-[#cccccc] text-sm font-bold transition ${values.targetOwnerType === "user" ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"}`}
+                  onClick={() => setValue("targetOwnerType", "user")}
+                  type="button"
+                >
+                  کاربر عادی
+                </Button>
+              </div>
+
+              {values.targetOwnerType && (
+                <CrmTargetOwnerSelect
+                  type={values.targetOwnerType}
+                  value={values.targetOwnerId}
+                  onChange={(id) => setValue("targetOwnerId", id)}
+                />
+              )}
+            </div>
+          </Section>
+        )}
 
         {renderPriceSection()}
       </main>

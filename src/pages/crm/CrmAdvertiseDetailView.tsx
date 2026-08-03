@@ -118,6 +118,24 @@ const featureLabelMap: Record<string, string> = {
   unit_position: "موقعیت واحد",
   unit_type: "نوع واحد",
   villa_type: "نوع ویلا",
+  house_type: "نوع خانه",
+  capacity: "ظرفیت",
+  unit_type: "تیپ واحد",
+  density: "تراکم",
+  total_floors: "تعداد کل طبقات",
+  facade_material: "جنس نما",
+  floor_material: "جنس کف",
+  cabinet_material: "جنس کابینت",
+  land_width: "عرض زمین",
+  street_width: "عرض خیابان",
+  single_room_count: "تعداد اتاق یک تخته",
+  double_room_count: "تعداد اتاق دو تخته",
+  suite_count: "تعداد سوییت‌ها",
+  sale_terms_percent: "درصد شرایط فروش",
+  sale_terms_installment_months: "تعداد ماه اقساط",
+  extra_specs: "مشخصات بیشتر",
+  project_details: "جزئیات واحدهای پروژه",
+  daily_hotel_rooms: "جزئیات اتاق‌های هتل",
 };
 
 const technicalFeatureKeys = new Set([
@@ -261,6 +279,60 @@ function formatNumber(value: unknown) {
 function formatMoney(value: unknown) {
   const formatted = formatNumber(value);
   return formatted === "-" ? formatted : `${formatted} تومان`;
+}
+
+function resolvePricePresentation(
+  formCode: string,
+  featureMap: Record<string, unknown>,
+  rootPrice: unknown,
+  area: unknown,
+) {
+  if (formCode.startsWith("rent-")) {
+    return {
+      primaryLabel: "رهن",
+      primaryValue: formatMoney(featureMap.mortgage_price),
+      secondaryLabel: "اجاره",
+      secondaryValue: formatMoney(featureMap.rent_price),
+    };
+  }
+
+  if (formCode.startsWith("daily-")) {
+    const minPrice = featureMap.min_price ?? featureMap.daily_price;
+    const maxPrice = featureMap.max_price;
+
+    return {
+      primaryLabel: maxPrice === undefined ? "قیمت روزانه" : "حداقل قیمت",
+      primaryValue: formatMoney(minPrice),
+      secondaryLabel: "حداکثر قیمت",
+      secondaryValue: maxPrice === undefined ? "-" : formatMoney(maxPrice),
+    };
+  }
+
+  if (formCode === "presale-special") {
+    const minPrice = featureMap.min_price ?? featureMap.meter_price;
+    const maxPrice = featureMap.max_price;
+
+    return {
+      primaryLabel: maxPrice === undefined ? "قیمت متری" : "حداقل قیمت",
+      primaryValue: formatMoney(minPrice),
+      secondaryLabel: maxPrice === undefined ? "قیمت هر متر" : "حداکثر قیمت",
+      secondaryValue: maxPrice === undefined ? formatMoney(featureMap.meter_price) : formatMoney(maxPrice),
+    };
+  }
+
+  const totalPrice = rootPrice ?? featureMap.price;
+  const numericPrice = toNumericValue(totalPrice);
+  const numericArea = toNumericValue(area);
+  const pricePerMeter = numericPrice !== null && numericArea !== null && numericArea > 0
+    ? formatMoney(Math.round(numericPrice / numericArea))
+    : "محاسبه نشده";
+
+  return {
+    primaryLabel: "قیمت کل",
+    primaryValue: formatMoney(totalPrice),
+    secondaryLabel: "قیمت هر متر",
+    secondaryValue: pricePerMeter,
+  };
 }
 
 function formatArea(value: unknown) {
@@ -450,6 +522,17 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
 
   const advertise = advertiseQuery.data;
   const features = useMemo(() => normalizeFeatures(advertise), [advertise]);
+
+  const featureMap = useMemo(() => {
+    const map: Record<string, unknown> = {};
+    for (const feature of features) {
+      const key = getFeatureKey(feature);
+      if (key && feature.value !== undefined && feature.value !== null) {
+        map[key] = feature.value;
+      }
+    }
+    return map;
+  }, [features]);
   const formCode = readText(advertise, ["form_code"]) || String(getFeatureValue(features, ["form_code"]) ?? "");
   const neighborhoodId = readText(advertise, ["neighborhood_id"]) || readNestedId(advertise, ["neighborhood", "district"]) || String(getFeatureValue(features, ["neighborhood_id"]) ?? "");
   const cityId = readText(advertise, ["city_id"]) || readNestedId(advertise, ["city"]) || String(getFeatureValue(features, ["city_id"]) ?? "");
@@ -522,13 +605,11 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
   const images = getImageUrls(advertise);
   const coverImage = images[0];
   const title = readText(advertise, ["title", "label"], "آگهی بدون عنوان");
-  const price = advertise.price ?? getFeatureValue(features, ["price"]);
-  const area = advertise.area ?? getFeatureValue(features, ["area", "land_area", "building_area"]);
-  const numericPrice = toNumericValue(price);
-  const numericArea = toNumericValue(area);
-  const pricePerMeter = numericPrice !== null && numericArea !== null && numericArea > 0
-    ? formatMoney(Math.round(numericPrice / numericArea))
-    : "محاسبه نشده";
+
+  const rootPrice = advertise.price || undefined;
+  const area = advertise.area || featureMap.area || featureMap.land_area || featureMap.building_area;
+  const pricePresentation = resolvePricePresentation(formCode, featureMap, rootPrice, area);
+
   const ownerPhone = readText(advertise, ["owner_phone", "phone", "mobile"], "-");
   const ownerName =
     readText(advertise, ["owner_name", "publisher_name", "advertiser_name"]) ||
@@ -611,8 +692,8 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
               <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 flex items-center gap-1.5 text-sm text-[#4d4d4d]"><LinearLocation className="h-5 w-5 text-[#0048c4]" />{locationTitle || "موقعیت ثبت نشده"}</Typography>
               <Typography as="h1" variant="headline" size="small" className="m-0 mt-2 text-2xl font-bold leading-10 text-[#1a1a1a]">{title}</Typography>
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <PriceBox label="قیمت کل" value={formatMoney(price)} />
-                <PriceBox label="قیمت هر متر" value={pricePerMeter} />
+                <PriceBox label={pricePresentation.primaryLabel} value={pricePresentation.primaryValue} />
+                <PriceBox label={pricePresentation.secondaryLabel} value={pricePresentation.secondaryValue} />
               </div>
             </div>
           </section>
@@ -658,7 +739,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
             <InformationRow icon={<LinearCategory className="h-5 w-5" />} label="فرم آگهی" value={getFormName(formCode)} />
             <InformationRow icon={<LinearMapsLocation className="h-5 w-5" />} label="محله" value={neighborhoodName} />
             <InformationRow icon={<LinearLocation className="h-5 w-5" />} label="شهر" value={cityName} />
-            <InformationRow icon={<LinearMoney className="h-5 w-5" />} label="قیمت" value={formatMoney(price)} />
+            <InformationRow icon={<LinearMoney className="h-5 w-5" />} label={pricePresentation.primaryLabel} value={pricePresentation.primaryValue} />
             <InformationRow icon={<LinearHouseDimensions className="h-5 w-5" />} label="متراژ" value={formatArea(area)} />
           </DetailSection>
 

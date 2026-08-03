@@ -263,6 +263,9 @@ export type NewAdFormValues = {
 
   title: string;
   description: string;
+
+  targetOwnerType: "" | "user" | "agency";
+  targetOwnerId: string;
 };
 
 export type MoreFeaturesFormValues = Pick<

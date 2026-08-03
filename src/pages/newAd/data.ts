@@ -123,6 +123,9 @@ export const blankValues: NewAdFormValues = {
   title: "",
   description: "",
 
+  targetOwnerType: "",
+  targetOwnerId: "",
+
   totalFloors: "",
   unitType: "",
   unitPosition: "",

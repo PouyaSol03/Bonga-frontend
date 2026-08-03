@@ -267,11 +267,9 @@ async function buildCrmAdvertisePayload(
   }));
 
   return {
-    category_id:
-      nestedRecordId(original, "category_id", ["category"]) ||
-      resolveCrmCategoryId(categories, params.category),
     contact_type: structuredPayload.contact_type.map(String),
     description: values.description,
+    features: structuredPayload.features,
     form_code: typeof formCode === "string" ? formCode : String(formCode ?? ""),
     images: images.filter(Boolean),
     lat,
@@ -282,6 +280,10 @@ async function buildCrmAdvertisePayload(
     owner_type: values.registrantType || String(original.owner_type ?? ""),
     title: values.title,
     virtual_tour_link: values.virtualTourLink,
+    ...(isCrmAdvertiseSource() && values.targetOwnerType && values.targetOwnerId ? {
+      target_owner_type: values.targetOwnerType,
+      target_owner_id: values.targetOwnerId,
+    } : {}),
   };
 }
 

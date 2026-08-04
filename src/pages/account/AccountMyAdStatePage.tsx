@@ -537,7 +537,7 @@ function NeedsEditNotice({
         to={getAdEditPath(card.id)}
       >
         ویرایش آگهی
-        <StateIcon className="h-5 w-5" icon="edit" />
+        <StateIcon icon="edit" />
       </RouteLink>
     </div>
   );
@@ -578,7 +578,7 @@ function StateAdAction({
     <>
       <ChevronLeftIcon className="h-6 w-6 text-[#4d4d4d]" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex gap-2 [direction:rtl]">
-        <StateIcon className="h-6 w-6 text-[#4d4d4d]" icon={action.icon} />
+        <StateIcon icon={action.icon} />
         {action.label}
       </Typography>
     </>
@@ -625,7 +625,7 @@ function ActionDivider() {
   );
 }
 
-function StateIcon({ className = "", icon }: { className?: string; icon: StateActionKey }) {
+function StateIcon({ icon }: { icon: StateActionKey }) {
   if (icon === "preview") {
     return (
       <LinearPreview className="h-6 w-6"/>

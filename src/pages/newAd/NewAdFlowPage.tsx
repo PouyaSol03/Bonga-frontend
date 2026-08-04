@@ -235,10 +235,6 @@ function findCategoryId(categories: CategoryItem[], value: string) {
   return match?.id ? String(match.id) : null;
 }
 
-function resolveCrmCategoryId(categories: CategoryItem[], fallback: string) {
-  return findCategoryId(categories, fallback) ?? fallback;
-}
-
 function fileToDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -250,10 +246,8 @@ function fileToDataUrl(file: File) {
 
 async function buildCrmAdvertisePayload(
   values: NewAdFormValues,
-  categories: CategoryItem[],
   original: CrmRecord = {},
 ): Promise<CrmAdvertisePayload> {
-  const params = getParams();
   const structuredPayload = buildPayload(values);
   const formCode = structuredPayload.features.find((feature) => feature.key === "form_code")?.value;
   const storedLat = window.localStorage.getItem(locationLatKey);
@@ -949,7 +943,7 @@ export function NewAdFlowPage() {
   });
   const crmSaveMutation = useMutation({
     mutationFn: ({ id, original, values }: { id: string | null; original?: CrmRecord; values: NewAdFormValues }) =>
-      buildCrmAdvertisePayload(values, categoriesQuery.data ?? [], original).then((payload) =>
+      buildCrmAdvertisePayload(values, original).then((payload) =>
         saveCrmAdvertise(id, payload),
       ),
     onSuccess: async (_result, variables) => {

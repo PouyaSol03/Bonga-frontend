@@ -49,7 +49,7 @@ export function CrmTargetOwnerSelect({
   return (
     <div className="relative">
       <label className="flex h-14 flex-col rounded-xl border border-[#cccccc] bg-white px-4 py-2 transition-colors focus-within:border-[#0048c4]">
-        <Typography as="span" variant="label" size="small" weight="regular" className="text-[#8a94a3]">
+        <Typography as="span" variant="label" size="small" weight="medium" className="text-[#8a94a3]">
           {type === "user" ? "جستجوی کاربر (با شماره موبایل)" : "جستجوی آژانس (با نام)"}
         </Typography>
         <input

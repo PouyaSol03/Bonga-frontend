@@ -40,21 +40,21 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
  */
 const variantClasses: Record<ButtonVariant, string> = {
   danger:
-    "border border-[#ee3623] bg-[#ee3623] text-white hover:bg-[#dd2b1e] focus:bg-[#c11004] active:bg-[#c11004] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d4d]",
+    "border border-[#ee3623] bg-[#ee3623] text-white hover:bg-[#dd2b1e] focus:bg-[#c11004] active:bg-[#c11004] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d]",
   ghost:
-    "border border-transparent bg-transparent text-[#0048c4] hover:bg-[#0048c414] focus:bg-[#0048c429] active:bg-[#0048c429] disabled:border-transparent disabled:bg-transparent disabled:text-[#4d4d4d4d]",
+    "border border-transparent bg-transparent text-[#0048c4] hover:bg-[#0048c414] focus:bg-[#0048c429] active:bg-[#0048c429] disabled:border-transparent disabled:bg-transparent disabled:text-[#4d4d4d]",
   neutral:
-    "border border-transparent bg-[#e9eaee] text-[#2e2d3e] hover:bg-[#ecedf1] focus:bg-[#ebecf0] active:bg-[#ebecf0] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d4d]",
+    "border border-transparent bg-[#e9eaee] text-[#2e2d3e] hover:bg-[#ecedf1] focus:bg-[#ebecf0] active:bg-[#ebecf0] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d]",
   "neutral-outline":
-    "border border-[#cccccc] bg-transparent text-[#1a1a1a] hover:border-[#0048c4] hover:bg-[#0048c414] hover:text-[#0048c4] focus:border-[#0048c4] focus:bg-[#0048c429] focus:text-[#0048c4] active:border-[#0048c4] active:bg-[#0048c429] active:text-[#0048c4] disabled:border-[#1a1a1a1f] disabled:bg-transparent disabled:text-[#4d4d4d4d]",
+    "border border-[#cccccc] bg-transparent text-[#1a1a1a] hover:border-[#0048c4] hover:bg-[#0048c414] hover:text-[#0048c4] focus:border-[#0048c4] focus:bg-[#0048c429] focus:text-[#0048c4] active:border-[#0048c4] active:bg-[#0048c429] active:text-[#0048c4] disabled:border-[#1a1a1a1f] disabled:bg-transparent disabled:text-[#4d4d4d]",
   "neutral-text":
-    "border border-transparent bg-transparent text-[#4d4d4d] hover:text-[#0048c4] focus:text-[#0048c4] active:text-[#0048c4] disabled:bg-transparent disabled:text-[#4d4d4d4d]",
+    "border border-transparent bg-transparent text-[#4d4d4d] hover:text-[#0048c4] focus:text-[#0048c4] active:text-[#0048c4] disabled:bg-transparent disabled:text-[#4d4d4d]",
   primary:
-    "border border-[#0048c4] bg-[#0048c4] text-white hover:border-[#2865cd] hover:bg-[#2865cd] focus:border-[#1456c9] focus:bg-[#1456c9] active:border-[#1456c9] active:bg-[#1456c9] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d4d]",
+    "border border-[#0048c4] bg-[#0048c4] text-white hover:border-[#2865cd] hover:bg-[#2865cd] focus:border-[#1456c9] focus:bg-[#1456c9] active:border-[#1456c9] active:bg-[#1456c9] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d]",
   secondary:
-    "border border-[#0048c4] bg-transparent text-[#0048c4] hover:bg-[#0048c414] focus:bg-[#0048c429] active:bg-[#0048c429] disabled:border-[#1a1a1a1f] disabled:bg-transparent disabled:text-[#4d4d4d4d]",
+    "border border-[#0048c4] bg-transparent text-[#0048c4] hover:bg-[#0048c414] focus:bg-[#0048c429] active:bg-[#0048c429] disabled:border-[#1a1a1a1f] disabled:bg-transparent disabled:text-[#4d4d4d]",
   text:
-    "border border-transparent bg-transparent text-[#0048c4] hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-[#4d4d4d4d]",
+    "border border-transparent bg-transparent text-[#0048c4] hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-[#4d4d4d]",
 };
 
 /* Keep the old sizing contract unchanged for existing screens. */

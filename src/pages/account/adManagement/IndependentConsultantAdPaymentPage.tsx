@@ -13,13 +13,16 @@ import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 import { useChargeWalletMutation } from "../../../core/hooks/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
+  useAgencyAdvertisementCheckoutQuery,
   useSubmitAdvertisementCheckoutMutation,
+  useSubmitAgencyAdvertisementCheckoutMutation,
 } from "../../../core/hooks/advertisement.hooks";
 import type {
   AdvertisementCheckout,
   AdvertisementCheckoutItem,
   AdvertisementCheckoutPaymentMethod,
   AdvertisementCheckoutPaymentMethodCode,
+  AgencyAdvertisementCheckoutPaymentMethodCode,
   SubmitAdvertisementCheckoutResult,
 } from "../../../core/services/advertisement.service";
 import { PaymentOptionIcon } from "./AdManagementIcons";
@@ -28,8 +31,10 @@ import {
   formatTariffToman,
 } from "./AdTariffOptionsView";
 import {
+  clearAgencyAllocationCheckout,
   getAdManagementRouteState,
   getAdStatePath,
+  hasAgencyAllocationCheckoutMarker,
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -37,7 +42,7 @@ import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";
-type AgencyPaymentMethod = "free_quota" | "gateway" | "package_credit" | "wallet";
+type AgencyPaymentMethod = "ad_credit" | "free_quota" | "gateway" | "package_credit" | "wallet";
 
 const checkoutItems = ["advertise_publish"];
 const unavailableAfterPublishWarning = "این قابلیت پس از انتشار آگهی فعال می‌شود.";
@@ -144,11 +149,30 @@ export function IndependentConsultantAdPaymentPage() {
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const routeState = getAdManagementRouteState();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
-  const isAgencyCheckout =
+  const isAgencyAllocationCheckout =
+    routeState.paymentFlow === "agency-allocation" ||
+    hasAgencyAllocationCheckoutMarker(advertiseId);
+  const usesAgencyCheckoutOptions =
+    isAgencyAllocationCheckout ||
     routeState.publisherType === "agency" ||
     (activeRole === REAL_ESTATE_MANAGER && routeState.publisherType !== "consultant");
-  const checkoutQuery = useAdvertisementCheckoutQuery(advertiseId);
-  const checkoutMutation = useSubmitAdvertisementCheckoutMutation();
+  const combineCheckoutSteps = activeRole === REAL_ESTATE_MANAGER;
+  const personalCheckoutQuery = useAdvertisementCheckoutQuery(
+    advertiseId,
+    !isAgencyAllocationCheckout,
+  );
+  const agencyCheckoutQuery = useAgencyAdvertisementCheckoutQuery(
+    advertiseId,
+    isAgencyAllocationCheckout,
+  );
+  const personalCheckoutMutation = useSubmitAdvertisementCheckoutMutation();
+  const agencyCheckoutMutation = useSubmitAgencyAdvertisementCheckoutMutation();
+  const checkoutQuery = isAgencyAllocationCheckout
+    ? agencyCheckoutQuery
+    : personalCheckoutQuery;
+  const checkoutPending = isAgencyAllocationCheckout
+    ? agencyCheckoutMutation.isPending
+    : personalCheckoutMutation.isPending;
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("free_quota");
@@ -193,7 +217,10 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const walletMethod = checkout ? getCheckoutMethod(checkout, "wallet") : undefined;
   const gatewayMethod = checkout ? getCheckoutMethod(checkout, "gateway") : undefined;
   const packageCreditMethod = checkout
-    ? getCheckoutMethod(checkout, "package_credit")
+    ? getCheckoutMethod(
+        checkout,
+        isAgencyAllocationCheckout ? "ad_credit" : "package_credit",
+      )
     : undefined;
   const publishPrice = toSafeNumber(
     publishItem?.price,
@@ -230,16 +257,20 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   );
   const agencyCreditCost = packageCreditMethod ? packageCreditRequired : creditCost;
   const agencyCreditMethod: AgencyPaymentMethod | null = packageCreditAvailable
-    ? "package_credit"
+    ? isAgencyAllocationCheckout
+      ? "ad_credit"
+      : "package_credit"
     : hasFreeQuota
       ? "free_quota"
       : packageCreditMethod
-        ? "package_credit"
+        ? isAgencyAllocationCheckout
+          ? "ad_credit"
+          : "package_credit"
         : null;
   const agencyCreditAvailable =
-    agencyCreditMethod === "package_credit" ? packageCreditAvailable : hasFreeQuota;
+    agencyCreditMethod === "free_quota" ? hasFreeQuota : packageCreditAvailable;
   const agencyCreditRemaining =
-    agencyCreditMethod === "package_credit" ? packageCreditRemaining : freeQuotaRemaining;
+    agencyCreditMethod === "free_quota" ? freeQuotaRemaining : packageCreditRemaining;
 
   useEffect(() => {
     if (getApiErrorCode(checkoutQuery.error) !== "AD_WAITING_FOR_AGENCY") return;
@@ -255,11 +286,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     if (!checkout) return;
 
     const gatewayAvailable = gatewayMethod?.available !== false;
-    const walletAvailable = walletMethod?.available !== false;
+    const walletAvailable = Boolean(walletMethod && walletMethod.available !== false);
 
-    if (isAgencyCheckout) {
+    if (usesAgencyCheckoutOptions) {
       const currentMethodAvailable =
-        ((agencyMethod === "free_quota" || agencyMethod === "package_credit") &&
+        ((agencyMethod === "free_quota" ||
+          agencyMethod === "package_credit" ||
+          agencyMethod === "ad_credit") &&
           agencyMethod === agencyCreditMethod &&
           agencyCreditAvailable) ||
         (agencyMethod === "wallet" && Boolean(walletMethod)) ||
@@ -288,53 +321,75 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     checkout,
     gatewayMethod,
     hasFreeQuota,
-    isAgencyCheckout,
+    usesAgencyCheckoutOptions,
     walletMethod,
   ]);
 
-  function finishCheckout(paymentMethod: AdvertisementCheckoutPaymentMethodCode) {
-    if (checkoutMutation.isPending) return;
+  function finishCheckout(
+    paymentMethod:
+      | AdvertisementCheckoutPaymentMethodCode
+      | AgencyAdvertisementCheckoutPaymentMethodCode,
+  ) {
+    if (checkoutPending) return;
 
     setErrorMessage("");
-    checkoutMutation.mutate(
+    const mutationOptions = {
+      onError: (error: unknown) => {
+        if (getApiErrorCode(error) === "AD_WAITING_FOR_AGENCY") {
+          navigateTo(stateAdPath, {
+            returnTo: "/account/my-ads",
+            status: "wait_for_agency",
+            tab: "status",
+          }, true);
+          return;
+        }
+
+        setErrorMessage(
+          getApiErrorMessage(error, "پرداخت و انتشار آگهی با خطا مواجه شد."),
+        );
+      },
+      onSuccess: ({ paymentUrl }: SubmitAdvertisementCheckoutResult) => {
+        if (isAgencyAllocationCheckout) {
+          clearAgencyAllocationCheckout(advertiseId);
+        }
+
+        if (paymentMethod === "gateway") {
+          if (!paymentUrl) {
+            setErrorMessage("آدرس درگاه پرداخت از سرور دریافت نشد.");
+            return;
+          }
+
+          storePaymentReturnTarget({
+            label: "بازگشت به وضعیت آگهی",
+            path: stateAdPath,
+          });
+          window.location.assign(paymentUrl);
+          return;
+        }
+
+        navigateTo(stateAdPath, publishState, true);
+      },
+    };
+
+    if (isAgencyAllocationCheckout) {
+      agencyCheckoutMutation.mutate(
+        {
+          advertiseId,
+          items: checkoutItems,
+          paymentMethod: paymentMethod as AgencyAdvertisementCheckoutPaymentMethodCode,
+        },
+        mutationOptions,
+      );
+      return;
+    }
+
+    personalCheckoutMutation.mutate(
       {
         advertiseId,
         items: checkoutItems,
-        paymentMethod,
+        paymentMethod: paymentMethod as AdvertisementCheckoutPaymentMethodCode,
       },
-      {
-        onError: (error: unknown) => {
-          if (getApiErrorCode(error) === "AD_WAITING_FOR_AGENCY") {
-            navigateTo(stateAdPath, {
-              returnTo: "/account/my-ads",
-              status: "wait_for_agency",
-              tab: "status",
-            }, true);
-            return;
-          }
-
-          setErrorMessage(
-            getApiErrorMessage(error, "پرداخت و انتشار آگهی با خطا مواجه شد."),
-          );
-        },
-        onSuccess: ({ paymentUrl }: SubmitAdvertisementCheckoutResult) => {
-          if (paymentMethod === "gateway") {
-            if (!paymentUrl) {
-              setErrorMessage("آدرس درگاه پرداخت از سرور دریافت نشد.");
-              return;
-            }
-
-            storePaymentReturnTarget({
-              label: "بازگشت به وضعیت آگهی",
-              path: stateAdPath,
-            });
-            window.location.assign(paymentUrl);
-            return;
-          }
-
-          navigateTo(stateAdPath, publishState, true);
-        },
-      },
+      mutationOptions,
     );
   }
 
@@ -347,10 +402,14 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     setStep("checkout");
   }
 
+  const checkoutBackTo = isAgencyAllocationCheckout
+    ? `/account/ad-management/allocation-review/${encodeURIComponent(advertiseId)}`
+    : "/new-ad";
+
   if (checkoutQuery.isLoading) {
     return (
       <CheckoutStatusPage
-        backTo="/new-ad"
+        backTo={checkoutBackTo}
         isLoading
         message="در حال دریافت هزینه و روش‌های پرداخت آگهی..."
         title="هزینه ثبت آگهی"
@@ -361,7 +420,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   if (checkoutQuery.isError || !checkout) {
     return (
       <CheckoutStatusPage
-        backTo="/new-ad"
+        backTo={checkoutBackTo}
         message={getApiErrorMessage(
           checkoutQuery.error,
           "دریافت اطلاعات پرداخت آگهی با خطا مواجه شد.",
@@ -372,7 +431,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     );
   }
 
-  if (isAgencyCheckout) {
+  if (combineCheckoutSteps) {
     return (
       <AgencyCombinedCheckoutView
         creditCost={agencyCreditCost}
@@ -384,8 +443,9 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         onMethodChange={setAgencyMethod}
         onSubmit={() => finishCheckout(agencyMethod)}
         payableAmount={payableAmount}
-        pending={checkoutMutation.isPending}
+        pending={checkoutPending}
         price={publishPrice}
+        title={isAgencyAllocationCheckout ? "تخصیص و انتشار" : "پرداخت"}
         walletMethod={walletMethod}
       >
         {errorMessage ? (
@@ -400,6 +460,36 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   }
 
   if (step === "checkout") {
+    if (usesAgencyCheckoutOptions) {
+      return (
+        <AgencyCombinedCheckoutView
+          creditCost={agencyCreditCost}
+          creditAvailable={agencyCreditAvailable}
+          creditMethod={agencyCreditMethod}
+          creditRemaining={agencyCreditRemaining}
+          gatewayMethod={gatewayMethod}
+          method={agencyMethod}
+          onBack={() => setStep("options")}
+          onMethodChange={setAgencyMethod}
+          onSubmit={() => finishCheckout(agencyMethod)}
+          payableAmount={payableAmount}
+          pending={checkoutPending}
+          price={publishPrice}
+          showPurchaseDetails={false}
+          title="پرداخت"
+          walletMethod={walletMethod}
+        >
+          {errorMessage ? (
+            <Snackbar
+              message={errorMessage}
+              onDismiss={() => setErrorMessage("")}
+              title="خطا در پرداخت"
+            />
+          ) : null}
+        </AgencyCombinedCheckoutView>
+      );
+    }
+
     return (
       <ApiPaymentCheckoutView
         gatewayMethod={gatewayMethod}
@@ -408,7 +498,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         onMethodChange={setMethod}
         onSubmit={() => finishCheckout(method === "wallet" ? "wallet" : "gateway")}
         payableAmount={payableAmount}
-        pending={checkoutMutation.isPending}
+        pending={checkoutPending}
         totalPrice={totalPrice}
         walletMethod={walletMethod}
       >
@@ -428,7 +518,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       freeQuotaRemaining={freeQuotaRemaining}
       hasFreeQuota={hasFreeQuota}
       onComplete={handleCompleteOptions}
-      pending={checkoutMutation.isPending}
+      pending={checkoutPending}
       price={publishPrice}
     >
       {errorMessage ? (
@@ -450,11 +540,14 @@ function AgencyCombinedCheckoutView({
   creditRemaining,
   gatewayMethod,
   method,
+  onBack,
   onMethodChange,
   onSubmit,
   payableAmount,
   pending,
   price,
+  showPurchaseDetails = true,
+  title = "پرداخت",
   walletMethod,
 }: {
   children?: ReactNode;
@@ -464,11 +557,14 @@ function AgencyCombinedCheckoutView({
   creditRemaining: number;
   gatewayMethod?: AdvertisementCheckoutPaymentMethod;
   method: AgencyPaymentMethod;
+  onBack?: () => void;
   onMethodChange: (method: AgencyPaymentMethod) => void;
   onSubmit: () => void;
   payableAmount: number;
   pending: boolean;
   price: number;
+  showPurchaseDetails?: boolean;
+  title?: string;
   walletMethod?: AdvertisementCheckoutPaymentMethod;
 }) {
   const walletBalance = toSafeNumber(walletMethod?.balance);
@@ -477,10 +573,10 @@ function AgencyCombinedCheckoutView({
     toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
     0,
   );
-  const walletAvailable = Boolean(walletMethod);
+  const walletAvailable = Boolean(walletMethod && walletMethod.available !== false);
   const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
   const selectedMethodAvailable =
-    method === "free_quota" || method === "package_credit"
+    method === "free_quota" || method === "package_credit" || method === "ad_credit"
       ? Boolean(creditMethod && method === creditMethod && creditAvailable)
       : method === "wallet"
         ? walletAvailable && walletDeficit <= 0
@@ -492,7 +588,7 @@ function AgencyCombinedCheckoutView({
         ? "رایگان"
         : `${formatTariffToman(price)} تومان`;
   const submitLabel =
-    method === "free_quota" || method === "package_credit"
+    method === "free_quota" || method === "package_credit" || method === "ad_credit"
       ? creditCost > 0
         ? `انتشار آگهی - ${new Intl.NumberFormat("fa-IR").format(creditCost)} اعتبار`
         : "انتشار آگهی"
@@ -505,31 +601,35 @@ function AgencyCombinedCheckoutView({
     >
       <TopBar
         className="bg-[#f0f0f0] [&_button]:text-[#1a1a1a]"
-        onBack={() => window.history.back()}
-        title="پرداخت"
+        onBack={onBack ?? (() => window.history.back())}
+        title={title}
       />
 
       {children}
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
-        <section className="bg-white px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
-          <div className="flex items-start justify-between gap-5 [direction:ltr]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
-              {publishCostLabel}
-            </Typography>
+        {showPurchaseDetails ? (
+          <>
+            <section className="bg-white px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
+              <div className="flex items-start justify-between gap-5 [direction:ltr]">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+                  {publishCostLabel}
+                </Typography>
 
-            <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
-              <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
-              هزینه ثبت آگهی
-            </Typography>
-          </div>
+                <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
+                  <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
+                  هزینه ثبت آگهی
+                </Typography>
+              </div>
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-6 text-[#666666]">
-            برای ثبت آگهی، باید هزینه انتشار را پرداخت کنید.
-          </Typography>
-        </section>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-6 text-[#666666]">
+                برای ثبت آگهی، باید هزینه انتشار را پرداخت کنید.
+              </Typography>
+            </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+            <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+          </>
+        ) : null}
 
         <section className="bg-white px-4 pb-2 pt-5" aria-label="روش پرداخت">
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-3 text-right text-base font-semibold leading-6">
@@ -583,9 +683,12 @@ function AgencyCombinedCheckoutView({
           </div>
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
-
-        <DisabledUpgradeOptionsSection />
+        {showPurchaseDetails ? (
+          <>
+            <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+            <DisabledUpgradeOptionsSection />
+          </>
+        ) : null}
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
@@ -748,7 +851,7 @@ export function ApiPaymentCheckoutView({
   );
   // A wallet with insufficient credit is still a valid payment choice: keep it
   // selectable so the shortage and the wallet-charge action are visible.
-  const walletAvailable = Boolean(walletMethod);
+  const walletAvailable = Boolean(walletMethod && walletMethod.available !== false);
   const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
   const selectedMethodAvailable =
     method === "wallet"

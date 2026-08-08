@@ -17,6 +17,7 @@ import {
   getAdManagementRouteState,
   getAdPaymentPath,
   getAdPreviewPath,
+  markAgencyAllocationCheckout,
   getSelectedConsultantAd,
   type ConsultantAd,
 } from "./adManagementData";
@@ -51,7 +52,7 @@ const publisherOptions: {
     {
       description: "انتشار و مدیریت آگهی توسط یکی از مشاوران انجام می‌شود.",
       icon: "consultant",
-      label: "مشاور",
+      label: "توسط مشاور",
       value: "consultant",
     },
   ];
@@ -103,12 +104,14 @@ export function IndependentConsultantAdAllocationReviewPage() {
   }, [assignedConsultant, initialConsultantId, selectableConsultants]);
 
   function navigateToPayment(consultant = assignedConsultant) {
+    markAgencyAllocationCheckout(ad.id);
     window.history.pushState(
       {
         ad,
         assignment,
         assignmentId: assignment?.id,
         consultantId: publisher === "consultant" ? consultant?.id : undefined,
+        paymentFlow: "agency-allocation",
         publisherType: publisher,
         tab: "status",
       },
@@ -156,6 +159,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
           <ReviewAction
             icon={<LinearPreview className="h-6 w-6" />}
             label="پیش نمایش"
+            state={{ previewFlow: "agency-allocation" }}
             to={getAdPreviewPath(ad.id)}
           />
           <ActionDivider />

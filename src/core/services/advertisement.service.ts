@@ -242,6 +242,12 @@ export type AdvertisementCheckoutPaymentMethodCode =
   | "package_credit"
   | "wallet";
 
+export type AgencyAdvertisementCheckoutPaymentMethodCode =
+  | "ad_credit"
+  | "free_quota"
+  | "gateway"
+  | "wallet";
+
 export type SubmitAdvertisementCheckoutPayload = {
   advertiseId: string;
   items: string[];
@@ -251,6 +257,12 @@ export type SubmitAdvertisementCheckoutPayload = {
 export type SubmitAdvertisementCheckoutResult = {
   paymentUrl: string | null;
   response: unknown;
+};
+
+export type SubmitAgencyAdvertisementCheckoutPayload = {
+  advertiseId: string;
+  items: string[];
+  paymentMethod: AgencyAdvertisementCheckoutPaymentMethodCode;
 };
 
 type ApiMutationResponse<T = unknown> = {
@@ -643,6 +655,14 @@ export async function getAdvertisementPreview(id: string): Promise<Advertisement
   return unwrapAdvertisementShowResponse(response);
 }
 
+export async function getAgencyAdvertisementPreview(id: string): Promise<AdvertisementItem> {
+  const response = await api
+    .get(`me/agency/preview/${encodeURIComponent(id)}`)
+    .json<AdvertisementShowResponse>();
+
+  return unwrapAdvertisementShowResponse(response);
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -898,6 +918,28 @@ export async function getAdvertisementCheckout(advertiseId: string) {
   return unwrapAdvertisementCheckoutResponse(response);
 }
 
+export async function getAgencyAdvertisementCheckout(advertiseId: string) {
+  const response = await api
+    .get(`me/agency/advertise/checkout/${encodeURIComponent(advertiseId)}`)
+    .json<AdvertisementCheckoutResponse>();
+
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "دریافت اطلاعات پرداخت آگهی تخصیصی با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
+  }
+
+  return unwrapAdvertisementCheckoutResponse(response);
+}
+
 export async function submitAdvertisementCheckout({
   advertiseId,
   items,
@@ -921,6 +963,41 @@ export async function submitAdvertisementCheckout({
         typeof record.message === "string" && record.message.trim()
           ? record.message
           : "پرداخت آگهی با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
+  }
+
+  return {
+    paymentUrl: findCheckoutPaymentUrl(response),
+    response,
+  };
+}
+
+export async function submitAgencyAdvertisementCheckout({
+  advertiseId,
+  items,
+  paymentMethod,
+}: SubmitAgencyAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
+  const response = await api
+    .post(`me/agency/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
+      json: {
+        items,
+        payment_method: paymentMethod,
+      },
+    })
+    .json<unknown>();
+
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "پرداخت آگهی تخصیصی با خطا مواجه شد.",
         undefined,
         { code: typeof record.code === "string" ? record.code : undefined },
       );

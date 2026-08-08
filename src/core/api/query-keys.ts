@@ -132,6 +132,8 @@ export const queryKeys = {
   advertisements: {
     all: ["advertisements"] as const,
     checkout: (id: string) => [...queryKeys.advertisements.all, "checkout", id] as const,
+    agencyCheckout: (id: string) => [...queryKeys.advertisements.all, "agency-checkout", id] as const,
+    agencyPreview: (id: string) => [...queryKeys.advertisements.all, "agency-preview", id] as const,
     detail: (id: string) => [...queryKeys.advertisements.all, "detail", id] as const,
     quickSearch: (query: string) =>
       [...queryKeys.advertisements.all, "quick-search", query] as const,

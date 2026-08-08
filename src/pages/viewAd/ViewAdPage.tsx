@@ -12,6 +12,7 @@ import { RouteLink } from "../../app/router/RouteLink";
 import { PageFrame } from "../../app/layout/PageFrame";
 import { getApiErrorMessage, isUnauthorizedApiError } from "../../core/api/api";
 import {
+  useAgencyAdvertisementPreviewQuery,
   useAdvertisementDetailQuery,
   useAdvertisementPreviewQuery,
   useAdvertiseReportReasonsQuery,
@@ -52,6 +53,7 @@ import {
   type AdvertiserPreview,
   type AlbumMediaItem,
 } from "./viewAdDetails";
+import { shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "./ViewAdRouteStates";
 import { ViewAdAlbumPage } from "./pages/ViewAdAlbumPage";
 import { ViewAdFeedbackPage } from "./pages/ViewAdFeedbackPage";
@@ -1015,6 +1017,7 @@ export function ViewAdPage() {
   const [toast, setToast] = useState<ActionToast | null>(null);
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
+  const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
   const createAdvertiseChat = useCreateAdvertiseChatMutation();
@@ -1022,9 +1025,16 @@ export function ViewAdPage() {
   const submitReport = useSubmitAdvertiseReportMutation();
   const reportReasonsQuery = useAdvertiseReportReasonsQuery(isViolationReportOpen);
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
-  const previewQuery = useAdvertisementPreviewQuery(isPreview ? adId : null);
+  const previewQuery = useAdvertisementPreviewQuery(
+    isPreview && !useAgencyAllocationPreview ? adId : null,
+  );
+  const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
+    useAgencyAllocationPreview ? adId : null,
+  );
   const { data: ad, error, isError, isLoading, refetch } = isPreview
-    ? previewQuery
+    ? useAgencyAllocationPreview
+      ? agencyPreviewQuery
+      : previewQuery
     : detailQuery;
 
   useEffect(() => {

@@ -5,6 +5,8 @@ import { queryKeys } from "../api/query-keys";
 import {
   createAdvertisement,
   getAdvertisementCheckout,
+  getAgencyAdvertisementCheckout,
+  getAgencyAdvertisementPreview,
   getAdvertisementDetail,
   getAdvertisementList,
   getAdvertisementMap,
@@ -13,6 +15,7 @@ import {
   getAdvertisementPreview,
   getAdvertiseReportReasons,
   submitAdvertisementCheckout,
+  submitAgencyAdvertisementCheckout,
   submitAdvertiseFeedback,
   submitAdvertiseReport,
   type AdvertisementItem,
@@ -20,6 +23,7 @@ import {
   type AdvertisementMapParams,
   type AdvertisementPage,
   type SubmitAdvertisementCheckoutPayload,
+  type SubmitAgencyAdvertisementCheckoutPayload,
   type SubmitAdvertisementCheckoutResult,
 } from "../services/advertisement.service";
 
@@ -96,6 +100,14 @@ export function useAdvertisementPreviewQuery(id: string | null) {
   });
 }
 
+export function useAgencyAdvertisementPreviewQuery(id: string | null) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: () => getAgencyAdvertisementPreview(id ?? ""),
+    queryKey: queryKeys.advertisements.agencyPreview(id ?? ""),
+  });
+}
+
 export function useCreateAdvertisementMutation() {
   return useMutation({
     mutationFn: createAdvertisement,
@@ -110,9 +122,9 @@ export function useCreateAdvertisementMutation() {
   });
 }
 
-export function useAdvertisementCheckoutQuery(advertiseId: string | null) {
+export function useAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
   return useQuery({
-    enabled: Boolean(advertiseId),
+    enabled: Boolean(advertiseId) && enabled,
     queryFn: () => getAdvertisementCheckout(advertiseId ?? ""),
     queryKey: queryKeys.advertisements.checkout(advertiseId ?? ""),
     // Cache disabled globally in src/api/query-client.ts.
@@ -129,6 +141,31 @@ export function useSubmitAdvertisementCheckoutMutation() {
     ) => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.advertisements.checkout(variables.advertiseId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
+  });
+}
+
+export function useAgencyAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
+  return useQuery({
+    enabled: Boolean(advertiseId) && enabled,
+    queryFn: () => getAgencyAdvertisementCheckout(advertiseId ?? ""),
+    queryKey: queryKeys.advertisements.agencyCheckout(advertiseId ?? ""),
+  });
+}
+
+export function useSubmitAgencyAdvertisementCheckoutMutation() {
+  return useMutation({
+    mutationFn: submitAgencyAdvertisementCheckout,
+    onSuccess: (
+      _result: SubmitAdvertisementCheckoutResult,
+      variables: SubmitAgencyAdvertisementCheckoutPayload,
+    ) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.agencyCheckout(variables.advertiseId),
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.myAdsRoot(),

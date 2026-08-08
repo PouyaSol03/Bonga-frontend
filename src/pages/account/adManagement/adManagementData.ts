@@ -127,9 +127,10 @@ export type AdManagementRouteState = {
   consultantId?: number | string;
   publisherType?: "agency" | "consultant";
   hasFreeAdTariff?: boolean;
-  paymentFlow?: "new-ad" | "upgrade";
+  paymentFlow?: "agency-allocation" | "new-ad" | "upgrade";
   paymentStep?: "options" | "checkout";
   paymentHistoryReturnTo?: string;
+  previewFlow?: "agency-allocation";
   returnTo?: string;
   visitStatisticsReturnTo?: string;
   showPaymentSuccess?: boolean;
@@ -178,6 +179,32 @@ export function getAdEditPath(adId?: ConsultantAd["id"] | string) {
 
 export function getAdPaymentPath(adId: ConsultantAd["id"] | string) {
   return `${adManagementPaths.payment}/${encodeURIComponent(String(adId))}`;
+}
+
+const agencyAllocationCheckoutStoragePrefix = "bonga:agency-allocation-checkout:";
+
+export function markAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(
+    `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
+    "1",
+  );
+}
+
+export function clearAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(
+    `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
+  );
+}
+
+export function hasAgencyAllocationCheckoutMarker(adId: ConsultantAd["id"] | string) {
+  if (typeof window === "undefined") return false;
+  return (
+    window.sessionStorage.getItem(
+      `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
+    ) === "1"
+  );
 }
 
 export function getAdStatePath(adId: ConsultantAd["id"] | string) {

@@ -1,18 +1,33 @@
 import { getApiErrorMessage } from "../../../core/api/api";
-import { useAdvertisementDetailQuery, useAdvertisementPreviewQuery } from "../../../core/hooks/advertisement.hooks";
+import {
+  useAgencyAdvertisementPreviewQuery,
+  useAdvertisementDetailQuery,
+  useAdvertisementPreviewQuery,
+} from "../../../core/hooks/advertisement.hooks";
 import {
   DetailInfoFullPage,
   buildFacilitiesDetailSections,
   parseViewAdIdFromPath,
 } from "../viewAdDetails";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
+import { shouldUseAgencyAllocationPreview } from "../viewAdPreviewContext";
 
 export function ViewAdEquipmentFacilitiesPage() {
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
+  const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
-  const previewQuery = useAdvertisementPreviewQuery(isPreview ? adId : null);
-  const { data: ad, error, isError, isLoading, refetch } = isPreview ? previewQuery : detailQuery;
+  const previewQuery = useAdvertisementPreviewQuery(
+    isPreview && !useAgencyAllocationPreview ? adId : null,
+  );
+  const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
+    useAgencyAllocationPreview ? adId : null,
+  );
+  const { data: ad, error, isError, isLoading, refetch } = isPreview
+    ? useAgencyAllocationPreview
+      ? agencyPreviewQuery
+      : previewQuery
+    : detailQuery;
 
   if (adId == null) return <NotFoundState />;
 

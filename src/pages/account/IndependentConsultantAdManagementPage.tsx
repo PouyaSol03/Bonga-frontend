@@ -29,6 +29,7 @@ import {
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
+import { AccountMyAdsEmptyState } from "./accountPageViews";
 
 const assignmentPageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -410,8 +411,28 @@ export function IndependentConsultantAdManagementPage() {
         </section>
       ) : null}
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pt-4">
-        <div className={assignedTab ? "space-y-3 pb-4" : "space-y-2"}>
+      <main
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${
+          !assignedTab &&
+          !activeAdsQuery.isLoading &&
+          !activeAdsQuery.isError &&
+          activeAdvertisements.length === 0
+            ? "bg-white"
+            : "bg-[#f0f0f0] pt-4"
+        }`}
+      >
+        <div
+          className={
+            !assignedTab &&
+            !activeAdsQuery.isLoading &&
+            !activeAdsQuery.isError &&
+            activeAdvertisements.length === 0
+              ? "flex min-h-0 flex-1 flex-col bg-white"
+              : assignedTab
+                ? "space-y-3 pb-4"
+                : "space-y-2"
+          }
+        >
           {assignedTab ? (
             assignmentsQuery.isLoading ? (
               <AssignmentStatusMessage>در حال دریافت آگهی‌های تخصیصی...</AssignmentStatusMessage>
@@ -468,7 +489,7 @@ export function IndependentConsultantAdManagementPage() {
               </div>
             ))
           ) : (
-            <AssignmentStatusMessage>آگهی‌ای با این فیلترها پیدا نشد.</AssignmentStatusMessage>
+            <AccountMyAdsEmptyState filterLabel="همه" mode="compact" />
           )}
 
           {(assignedTab ? assignmentsQuery.isFetchingNextPage : activeAdsQuery.isFetchingNextPage) ? (

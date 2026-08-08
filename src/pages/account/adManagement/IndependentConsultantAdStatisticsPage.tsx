@@ -7,8 +7,9 @@ import { Typography } from "../../../shared/ui/Typography";
 import { useMyAdsInfiniteQuery } from "../../../core/hooks/account.hooks";
 import { RouteLink } from "../../../app/router/RouteLink";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../../core/services/advertisement.service";
-import { ChevronLeftIcon, StatisticsIcon } from "./AdManagementIcons";
+import { StatisticsIcon } from "./AdManagementIcons";
 import { adManagementPaths, type StatisticsAd } from "./adManagementData";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 export function IndependentConsultantAdStatisticsPage() {
   const adsQuery = useMyAdsInfiniteQuery({ perPage: 100, type: "active" });
@@ -89,7 +90,7 @@ function StatisticsAdCard({ ad, sourceAd }: { ad: StatisticsAd; sourceAd: Advert
         state={{ ad: sourceAd, statisticsAd: ad }}
         to={adManagementPaths.statisticsDetails}
       >
-        <ChevronLeftIcon className="h-5 w-5" />
+        <LinearArrowLeft1 className="h-5 w-5" />
         <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">جزییات آمار آگهی</Typography>
       </RouteLink>
     </article>

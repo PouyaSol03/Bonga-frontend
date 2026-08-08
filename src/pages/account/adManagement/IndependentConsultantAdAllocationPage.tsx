@@ -3,9 +3,10 @@ import "../../../shared/components/AdCard.css";
 import { PageFrame } from "../../../app/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { RouteLink } from "../../../app/router/RouteLink";
-import { AllocationIcon, ChevronLeftIcon } from "./AdManagementIcons";
+import { AllocationIcon } from "./AdManagementIcons";
 import { adManagementPaths, getAdEditPath, getAdPaymentPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 export function IndependentConsultantAdAllocationPage() {
   const ad = getSelectedConsultantAd();
@@ -82,7 +83,7 @@ function AllocationAction({
       state={state}
       to={to}
     >
-      <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <AllocationIcon className="h-6 w-6 text-[#4d4d4d]" icon={icon} />
         {label}

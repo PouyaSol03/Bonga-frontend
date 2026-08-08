@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { getApiErrorCode, getApiErrorMessage } from "../../../core/api/api";
+import {
+  getActiveAuthRole,
+  getStoredAuthSession,
+} from "../../../core/auth/auth-storage";
 import { PageFrame } from "../../../app/layout/PageFrame";
 import { Snackbar } from "../../../shared/components/Snackbar";
 import { TopBar } from "../../../shared/components/TopBar";
@@ -29,9 +33,11 @@ import {
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";
+type AgencyPaymentMethod = "free_quota" | "gateway" | "package_credit" | "wallet";
 
 const checkoutItems = ["advertise_publish"];
 const unavailableAfterPublishWarning = "این قابلیت پس از انتشار آگهی فعال می‌شود.";
@@ -137,10 +143,15 @@ export function IndependentConsultantAdPaymentPage() {
 
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const routeState = getAdManagementRouteState();
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isAgencyCheckout =
+    routeState.publisherType === "agency" ||
+    (activeRole === REAL_ESTATE_MANAGER && routeState.publisherType !== "consultant");
   const checkoutQuery = useAdvertisementCheckoutQuery(advertiseId);
   const checkoutMutation = useSubmitAdvertisementCheckoutMutation();
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
+  const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("free_quota");
   const [errorMessage, setErrorMessage] = useState("");
   const stateAdPath = getAdStatePath(advertiseId);
   const publishState = useMemo(
@@ -181,6 +192,9 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   );
   const walletMethod = checkout ? getCheckoutMethod(checkout, "wallet") : undefined;
   const gatewayMethod = checkout ? getCheckoutMethod(checkout, "gateway") : undefined;
+  const packageCreditMethod = checkout
+    ? getCheckoutMethod(checkout, "package_credit")
+    : undefined;
   const publishPrice = toSafeNumber(
     publishItem?.price,
     toSafeNumber(checkout?.summary.total_price, toSafeNumber(gatewayMethod?.required)),
@@ -190,6 +204,42 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     toSafeNumber(gatewayMethod?.required, publishPrice),
   );
   const totalPrice = toSafeNumber(checkout?.summary.total_price, publishPrice);
+  const creditCost = Math.max(
+    toSafeNumber(publishItem?.credit_cost, toSafeNumber(checkout?.summary.credit_cost)),
+    0,
+  );
+  const packageCreditRemaining = Math.max(
+    toSafeNumber(packageCreditMethod?.remaining, toSafeNumber(packageCreditMethod?.balance)),
+    0,
+  );
+  const packageCreditRequired = Math.max(
+    toSafeNumber(packageCreditMethod?.required, creditCost),
+    creditCost,
+  );
+  const packageCreditShortage = Math.max(
+    toSafeNumber(
+      packageCreditMethod?.shortage,
+      packageCreditRequired - packageCreditRemaining,
+    ),
+    0,
+  );
+  const packageCreditAvailable = Boolean(
+    packageCreditMethod &&
+      packageCreditMethod.available !== false &&
+      packageCreditShortage <= 0,
+  );
+  const agencyCreditCost = packageCreditMethod ? packageCreditRequired : creditCost;
+  const agencyCreditMethod: AgencyPaymentMethod | null = packageCreditAvailable
+    ? "package_credit"
+    : hasFreeQuota
+      ? "free_quota"
+      : packageCreditMethod
+        ? "package_credit"
+        : null;
+  const agencyCreditAvailable =
+    agencyCreditMethod === "package_credit" ? packageCreditAvailable : hasFreeQuota;
+  const agencyCreditRemaining =
+    agencyCreditMethod === "package_credit" ? packageCreditRemaining : freeQuotaRemaining;
 
   useEffect(() => {
     if (getApiErrorCode(checkoutQuery.error) !== "AD_WAITING_FOR_AGENCY") return;
@@ -207,10 +257,40 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     const gatewayAvailable = gatewayMethod?.available !== false;
     const walletAvailable = walletMethod?.available !== false;
 
+    if (isAgencyCheckout) {
+      const currentMethodAvailable =
+        ((agencyMethod === "free_quota" || agencyMethod === "package_credit") &&
+          agencyMethod === agencyCreditMethod &&
+          agencyCreditAvailable) ||
+        (agencyMethod === "wallet" && Boolean(walletMethod)) ||
+        (agencyMethod === "gateway" && gatewayAvailable && Boolean(gatewayMethod));
+
+      if (currentMethodAvailable) return;
+
+      if (agencyCreditMethod && agencyCreditAvailable) {
+        setAgencyMethod(agencyCreditMethod);
+      } else if (walletMethod) {
+        setAgencyMethod("wallet");
+      } else if (gatewayAvailable && gatewayMethod) {
+        setAgencyMethod("gateway");
+      }
+
+      return;
+    }
+
     if (!gatewayAvailable && walletAvailable) {
       setMethod("wallet");
     }
-  }, [checkout, gatewayMethod?.available, walletMethod?.available]);
+  }, [
+    agencyMethod,
+    agencyCreditAvailable,
+    agencyCreditMethod,
+    checkout,
+    gatewayMethod,
+    hasFreeQuota,
+    isAgencyCheckout,
+    walletMethod,
+  ]);
 
   function finishCheckout(paymentMethod: AdvertisementCheckoutPaymentMethodCode) {
     if (checkoutMutation.isPending) return;
@@ -292,6 +372,33 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     );
   }
 
+  if (isAgencyCheckout) {
+    return (
+      <AgencyCombinedCheckoutView
+        creditCost={agencyCreditCost}
+        creditAvailable={agencyCreditAvailable}
+        creditMethod={agencyCreditMethod}
+        creditRemaining={agencyCreditRemaining}
+        gatewayMethod={gatewayMethod}
+        method={agencyMethod}
+        onMethodChange={setAgencyMethod}
+        onSubmit={() => finishCheckout(agencyMethod)}
+        payableAmount={payableAmount}
+        pending={checkoutMutation.isPending}
+        price={publishPrice}
+        walletMethod={walletMethod}
+      >
+        {errorMessage ? (
+          <Snackbar
+            message={errorMessage}
+            onDismiss={() => setErrorMessage("")}
+            title="خطا در پرداخت"
+          />
+        ) : null}
+      </AgencyCombinedCheckoutView>
+    );
+  }
+
   if (step === "checkout") {
     return (
       <ApiPaymentCheckoutView
@@ -332,6 +439,166 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         />
       ) : null}
     </CheckoutTariffView>
+  );
+}
+
+function AgencyCombinedCheckoutView({
+  children,
+  creditCost,
+  creditAvailable,
+  creditMethod,
+  creditRemaining,
+  gatewayMethod,
+  method,
+  onMethodChange,
+  onSubmit,
+  payableAmount,
+  pending,
+  price,
+  walletMethod,
+}: {
+  children?: ReactNode;
+  creditCost: number;
+  creditAvailable: boolean;
+  creditMethod: AgencyPaymentMethod | null;
+  creditRemaining: number;
+  gatewayMethod?: AdvertisementCheckoutPaymentMethod;
+  method: AgencyPaymentMethod;
+  onMethodChange: (method: AgencyPaymentMethod) => void;
+  onSubmit: () => void;
+  payableAmount: number;
+  pending: boolean;
+  price: number;
+  walletMethod?: AdvertisementCheckoutPaymentMethod;
+}) {
+  const walletBalance = toSafeNumber(walletMethod?.balance);
+  const walletRequired = toSafeNumber(walletMethod?.required, payableAmount);
+  const walletDeficit = Math.max(
+    toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
+    0,
+  );
+  const walletAvailable = Boolean(walletMethod);
+  const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
+  const selectedMethodAvailable =
+    method === "free_quota" || method === "package_credit"
+      ? Boolean(creditMethod && method === creditMethod && creditAvailable)
+      : method === "wallet"
+        ? walletAvailable && walletDeficit <= 0
+        : gatewayAvailable;
+  const publishCostLabel =
+    creditCost > 0
+      ? `${new Intl.NumberFormat("fa-IR").format(creditCost)} اعتبار`
+      : creditAvailable
+        ? "رایگان"
+        : `${formatTariffToman(price)} تومان`;
+  const submitLabel =
+    method === "free_quota" || method === "package_credit"
+      ? creditCost > 0
+        ? `انتشار آگهی - ${new Intl.NumberFormat("fa-IR").format(creditCost)} اعتبار`
+        : "انتشار آگهی"
+      : `پرداخت و انتشار - ${formatShortPayment(payableAmount)}`;
+
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        className="bg-[#f0f0f0] [&_button]:text-[#1a1a1a]"
+        onBack={() => window.history.back()}
+        title="پرداخت"
+      />
+
+      {children}
+
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
+        <section className="bg-white px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
+          <div className="flex items-start justify-between gap-5 [direction:ltr]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+              {publishCostLabel}
+            </Typography>
+
+            <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
+              <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
+              هزینه ثبت آگهی
+            </Typography>
+          </div>
+
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-6 text-[#666666]">
+            برای ثبت آگهی، باید هزینه انتشار را پرداخت کنید.
+          </Typography>
+        </section>
+
+        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+
+        <section className="bg-white px-4 pb-2 pt-5" aria-label="روش پرداخت">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-3 text-right text-base font-semibold leading-6">
+            روش پرداخت
+          </Typography>
+
+          {creditMethod ? (
+            <>
+              <PaymentMethodOption
+                active={method === creditMethod}
+                disabled={!creditAvailable}
+                icon="credit"
+                label="اعتبار آگهی"
+                onClick={() => onMethodChange(creditMethod)}
+                subLabel={`مانده: ${new Intl.NumberFormat("fa-IR").format(creditRemaining)} اعتبار`}
+                subLabelClassName={creditAvailable ? "text-[#11a366]" : "text-[#e11900]"}
+              />
+              <div className="border-t border-[#e6e6e6]" />
+            </>
+          ) : null}
+
+          <PaymentMethodOption
+            active={method === "wallet"}
+            disabled={!walletAvailable}
+            icon="wallet"
+            label="کیف پول"
+            onClick={() => onMethodChange("wallet")}
+            subLabel={
+              walletAvailable
+                ? `مانده: ${formatTariffToman(walletBalance)} تومان`
+                : "این روش پرداخت در دسترس نیست"
+            }
+            subLabelClassName={
+              !walletAvailable || walletDeficit > 0 ? "text-[#e11900]" : "text-[#11a366]"
+            }
+          />
+
+          {method === "wallet" && walletDeficit > 0 ? (
+            <ApiWalletDeficitBox deficit={walletDeficit} />
+          ) : null}
+
+          <div className="border-t border-[#e6e6e6]">
+            <PaymentMethodOption
+              active={method === "gateway"}
+              disabled={!gatewayAvailable}
+              icon="online"
+              label="پرداخت آنلاین"
+              onClick={() => onMethodChange("gateway")}
+              subLabel={gatewayAvailable ? "بانک ملت" : "درگاه پرداخت در دسترس نیست"}
+            />
+          </div>
+        </section>
+
+        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+
+        <DisabledUpgradeOptionsSection />
+      </main>
+
+      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <Button unstyled
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!selectedMethodAvailable || pending}
+          onClick={onSubmit}
+          type="button"
+        >
+          {pending ? "در حال پردازش پرداخت..." : submitLabel}
+        </Button>
+      </footer>
+    </PageFrame>
   );
 }
 
@@ -393,39 +660,7 @@ function CheckoutTariffView({
 
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
-        <section aria-label="امکانات ارتقای آگهی">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center gap-2 px-4 pb-2 pt-5 text-right text-base font-semibold leading-6">
-            <UpgradeIcon className="h-5 w-5" />
-            امکانات ارتقای آگهی
-          </Typography>
-
-          <div className="divide-y divide-[#e6e6e6] px-4">
-            {disabledUpgradeOptions.map((option) => (
-              <div className="py-4" key={option.id}>
-                <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                  <Typography as="span" variant="label" size="medium" weight="semibold" className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 text-[#c2c2c2] [direction:rtl]">
-                    —
-                  </Typography>
-
-                  <div className="min-w-0 flex-1 text-right [direction:rtl]">
-                    <div className="flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#808080]">
-                      <ChoiceIndicator checked={false} className="h-5 w-5 rounded-[4px]" disabled />
-                      {option.title}
-                    </div>
-                    <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-[#808080]">
-                      {option.description}
-                    </Typography>
-                  </div>
-                </div>
-
-                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-[#fff8e8] px-3 py-2 text-right text-xs font-medium leading-5 text-[#ff6d00]">
-                  <CircleInfoIcon className="h-5 w-5 shrink-0" />
-                  <Typography as="span" variant="body" size="medium" weight="regular">{unavailableAfterPublishWarning}</Typography>
-                </Typography>
-              </div>
-            ))}
-          </div>
-        </section>
+        <DisabledUpgradeOptionsSection />
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
@@ -439,6 +674,44 @@ function CheckoutTariffView({
         </Button>
       </footer>
     </PageFrame>
+  );
+}
+
+function DisabledUpgradeOptionsSection() {
+  return (
+    <section className="bg-white" aria-label="امکانات ارتقای آگهی">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center gap-2 px-4 pb-2 pt-5 text-right text-base font-semibold leading-6">
+        <UpgradeIcon className="h-5 w-5" />
+        امکانات ارتقای آگهی
+      </Typography>
+
+      <div className="divide-y divide-[#e6e6e6] px-4">
+        {disabledUpgradeOptions.map((option) => (
+          <div className="py-4" key={option.id}>
+            <div className="flex items-start justify-between gap-5 [direction:ltr]">
+              <Typography as="span" variant="label" size="medium" weight="semibold" className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 text-[#c2c2c2] [direction:rtl]">
+                —
+              </Typography>
+
+              <div className="min-w-0 flex-1 text-right [direction:rtl]">
+                <div className="flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#808080]">
+                  <ChoiceIndicator checked={false} className="h-5 w-5 rounded-[4px]" disabled />
+                  {option.title}
+                </div>
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-[#808080]">
+                  {option.description}
+                </Typography>
+              </div>
+            </div>
+
+            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-[#fff8e8] px-3 py-2 text-right text-xs font-medium leading-5 text-[#ff6d00]">
+              <CircleInfoIcon className="h-5 w-5 shrink-0" />
+              <Typography as="span" variant="body" size="medium" weight="regular">{unavailableAfterPublishWarning}</Typography>
+            </Typography>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -681,7 +954,7 @@ function PaymentMethodOption({
 }: {
   active: boolean;
   disabled?: boolean;
-  icon: "online" | "wallet";
+  icon: "credit" | "online" | "wallet";
   label: string;
   onClick: () => void;
   subLabel: string;

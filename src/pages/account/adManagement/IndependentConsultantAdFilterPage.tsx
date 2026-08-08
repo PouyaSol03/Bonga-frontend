@@ -16,7 +16,7 @@ import { useMyAgencyProfileQuery } from "../../../core/hooks/account.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import { RouteLink } from "../../../app/router/RouteLink";
 import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../../core/services/neighborhood.service";
-import { ChevronDownIcon, ChevronLeftIcon, SearchIcon } from "./AdManagementIcons";
+import { SearchIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
   adManagementPropertyGroupsByTransaction,
@@ -31,6 +31,8 @@ import {
 import LinearApartment from "../../../shared/icons/LinearApartment";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearArrowDown1 from "../../../shared/icons/LinearArrowDown1";
 
 const neighborhoodSearchDebounceMs = 250;
 
@@ -178,7 +180,7 @@ export function IndependentConsultantAdFilterPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-6 [-webkit-overflow-scrolling:touch]">
         {!isAssignedTab ? (
           <section className="flex items-center justify-between bg-white p-4" aria-label="نمایش آگهی من">
-            <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium text-[#1a1a1a]">
+            <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-[#1a1a1a]">
               آگهی من
             </Typography>
             <SwitchButton
@@ -197,7 +199,7 @@ export function IndependentConsultantAdFilterPage() {
         <section className="mt-2 bg-white px-4 pb-4 pt-4" aria-label="نوع معامله">
           <div className="mb-4 flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
             <LinearApartment className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-            <Typography as="h2" variant="headline" size="large" className="m-0">نوع معامله</Typography>
+            <Typography as="p" variant="label" size="large" className="m-0">نوع معامله</Typography>
           </div>
 
           <div className="grid grid-cols-3 gap-2" dir="rtl">
@@ -215,8 +217,11 @@ export function IndependentConsultantAdFilterPage() {
                   key={option.id}
                   onClick={() => selectTransaction(option.id)}
                   type="button"
+                  size="x-medium"
                 >
+                  <Typography variant="label" size="medium" weight="medium">
                   {option.label}
+                  </Typography>
                 </Button>
               );
             })}
@@ -243,20 +248,14 @@ export function IndependentConsultantAdFilterPage() {
                     transaction ? "text-[#0048c4]" : "text-[#cccccc]"
                   }`}
                 >
-                  <ChevronLeftIcon className="h-5 w-5 shrink-0" />
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="truncate [direction:rtl]">
-                    {propertyTypes.length
-                      ? `${propertyTypes.length} انتخاب`
-                      : "انتخاب"}
-                  </Typography>
+                  <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
                 </Typography>
                 <Typography as="span" variant="label" size="large" weight="medium"
                   className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${
                     transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
                   }`}
                 >
-                  <Typography as="span" variant="body" size="medium" weight="regular">نوع ملک</Typography>
-                  <LinearRealestate className="h-6 w-6" />
+                  <Typography as="span" variant="label" size="large" weight="medium">نوع ملک</Typography>
                 </Typography>
               </Button>
 
@@ -440,12 +439,12 @@ function NeighborhoodPickerRow({
         type="button"
       >
         <Typography as="span" variant="label" size="medium" weight="medium" className="flex items-center gap-1 text-sm font-medium text-[#0048c4]">
-          <ChevronLeftIcon className="h-5 w-5" />
-          <Typography as="span" variant="body" size="medium" weight="regular">{selectionLabel}</Typography>
+          <LinearArrowLeft1 className="h-5 w-5" />
+          <Typography as="span" variant="label" size="medium" weight="medium">{selectionLabel}</Typography>
         </Typography>
         <Typography as="span" variant="label" size="large" weight="medium" className="flex items-center gap-2 text-base font-medium text-[#1a1a1a]">
-          <Typography as="span" variant="body" size="medium" weight="regular">محله</Typography>
-          <LinearLocation className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <Typography as="span" variant="label" size="large" weight="medium">محله</Typography>
+          <LinearLocation className="h-6 w-6 shrink-0 text-on-surface-var" />
         </Typography>
       </Button>
 
@@ -502,7 +501,7 @@ function NeighborhoodPickerRow({
               onClick={() => setIsPickerOpen(false)}
               type="button"
             >
-              <ChevronLeftIcon className="h-6 w-6 rotate-180" />
+              <LinearArrowLeft1 className="h-6 w-6 rotate-180" />
             </Button>
           </div>
 
@@ -678,10 +677,10 @@ function PublisherSelectField({
             <ClearCircleIcon />
           </Button>
         ) : (
-          <ChevronDownIcon className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+          <LinearArrowDown1 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
         )}
         <Button unstyled
-          className="min-w-0 flex-1 truncate pr-3 text-right text-sm font-normal leading-5 [direction:rtl]"
+          className="min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 [direction:rtl]"
           onClick={openPicker}
           type="button"
         >
@@ -741,7 +740,7 @@ function PublisherSelectField({
                   return (
                     <Button unstyled
                       aria-pressed={isSelected}
-                      className={`flex min-h-16 w-full items-center gap-5 rounded-xl py-1 pl-4 pr-10 text-right transition-colors active:bg-[#0048c40a] ${
+                      className={`flex min-h-16 w-full items-center gap-5 rounded-xl py-1 text-right transition-colors active:bg-[#0048c40a] ${
                         isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
                       }`}
                       key={publisherOption.id}
@@ -813,9 +812,9 @@ function SingleSelectField({
 
   return (
     <>
-      <div className="relative flex h-14 w-full items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
+      <div className="relative flex h-14 w-full items-center rounded-xl border border-[#cccccc] bg-white px-3 [direction:ltr]">
         {value ? (
-          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-3 bg-white px-1 text-xs font-normal leading-4 text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 bg-white text-[#808080] [direction:rtl]">
             {label}
           </Typography>
         ) : null}
@@ -829,10 +828,10 @@ function SingleSelectField({
             <ClearCircleIcon />
           </Button>
         ) : (
-          <ChevronDownIcon className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+          <LinearArrowDown1 className="h-5 w-5 text-[#4d4d4d]" />
         )}
         <Button unstyled
-          className="min-w-0 flex-1 truncate pr-3 text-right text-sm font-normal leading-5 [direction:rtl]"
+          className="min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 [direction:rtl]"
           onClick={() => setIsOpen(true)}
           type="button"
         >

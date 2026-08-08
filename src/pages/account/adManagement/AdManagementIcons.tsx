@@ -69,22 +69,6 @@ export function StatisticsIcon({
   );
 }
 
-export function ChevronDownIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="m8 10 4 4 4-4" />
-    </svg>
-  );
-}
-
-export function ChevronLeftIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="m14 7-5 5 5 5" />
-    </svg>
-  );
-}
-
 export function AllocationIcon({
   className = "",
   icon,

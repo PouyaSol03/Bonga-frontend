@@ -109,6 +109,7 @@ export function InputBox({
   formatNumeric,
   highlightWhenFilled,
   leftText,
+  maxLength,
   numeric,
   onChange,
   placeholder,
@@ -120,6 +121,7 @@ export function InputBox({
   formatNumeric?: boolean;
   highlightWhenFilled?: boolean;
   leftText?: string;
+  maxLength?: number;
   numeric?: boolean;
   onChange: (value: string) => void;
   placeholder: string;
@@ -146,6 +148,7 @@ export function InputBox({
       formatNumber={Boolean(numeric)}
       inputMode={numeric ? "numeric" : "text"}
       label={resolvedFloatingLabel}
+      maxLength={maxLength}
       onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
       onClear={() => onChange("")}
       placeholder={hasValue ? "" : placeholder}

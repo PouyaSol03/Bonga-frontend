@@ -720,6 +720,8 @@ function getMediaValidationErrors(
 
   if (!hasRequiredText(values.title)) {
     errors.title = "لطفا عنوان آگهی را وارد کنید.";
+  } else if (values.title.trim().length > 30) {
+    errors.title = "عنوان آگهی حداکثر می‌تواند ۳۰ کاراکتر باشد.";
   }
 
   if (!hasRequiredText(values.description)) {

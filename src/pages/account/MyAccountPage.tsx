@@ -357,6 +357,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
     { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
     { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
     { icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` },
+    { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
     { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
     { icon: "message", label: "پیام‌ها", to: "/chat" },
     { icon: "headphone", label: "پشتیبانی", to: "/account/support" },

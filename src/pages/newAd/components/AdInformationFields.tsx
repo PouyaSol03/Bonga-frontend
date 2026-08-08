@@ -271,7 +271,8 @@ export function AdInformationFields({
         </div>
         <InputBox
           error={errors.title}
-          onChange={(value) => onSetField("title", value)}
+          maxLength={30}
+          onChange={(value) => onSetField("title", value.slice(0, 30))}
           placeholder={`مثال: ${label} ۱۲۰ متری، ۲ خوابه، طبقه اول`}
           value={values.title}
         />

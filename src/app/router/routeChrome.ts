@@ -150,9 +150,14 @@ export function getAppChromeConfig(
   const topBar = getRouteTopBar(path, title, notificationIcon);
 
   if (!bottomNavigationKey) {
+    const isDashboardRoute =
+      path === "/account/dashboard" || path.startsWith("/account/dashboard/");
+
     return topBar
       ? {
-          contentClassName: "min-h-0 flex-1 overflow-hidden",
+          contentClassName: isDashboardRoute
+            ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
+            : "min-h-0 flex-1 overflow-hidden",
           frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]",
           topBar,
           wrapInShell: true,
@@ -165,16 +170,6 @@ export function getAppChromeConfig(
       bottomNavigationKey,
       contentClassName: "min-h-0 flex-1 overflow-hidden",
       frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]",
-      topBar,
-      wrapInShell: true,
-    };
-  }
-
-  if (path === "/account/dashboard") {
-    return {
-      bottomNavigationKey,
-      contentClassName: "min-h-0 flex-1 overflow-y-auto overflow-x-hidden",
-      frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]",
       topBar,
       wrapInShell: true,
     };

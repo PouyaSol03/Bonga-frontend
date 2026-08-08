@@ -19,7 +19,6 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { USER } from "../../../shared/constants/roles.constants";
 import { useAdvertisementDetailQuery } from "../../../core/hooks/advertisement.hooks";
 import { RouteLink } from "../../../app/router/RouteLink";
-import { ChevronLeftIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
   getAdIncreaseVisitsPath,
@@ -29,6 +28,7 @@ import {
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 type ChartMetric = "calls" | "chats" | "searchDisplays" | "views";
 
@@ -172,7 +172,7 @@ function UserAdVisitStatisticsView({
           }}
           to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
         >
-          <ChevronLeftIcon className="h-6 w-6" />
+          <LinearArrowLeft1 className="h-6 w-6" />
           <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 [direction:rtl]">
             افزایش بازدید
             <TrendArrowIcon className="h-6 w-6" />
@@ -372,7 +372,7 @@ function ChartRangeControls({
         onClick={() => setOffset((current) => Math.min(current + 1, 2))}
         type="button"
       >
-        <ChevronLeftIcon className="h-5 w-5" />
+        <LinearArrowLeft1 className="h-5 w-5" />
       </Button>
       <Button unstyled
         aria-label="بازه بعدی"

@@ -10,7 +10,6 @@ import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { TopBar } from "../../../shared/components/TopBar";
 import { useAgencyConsultantsQuery } from "../../../core/hooks/agency.hooks";
 import { RouteLink } from "../../../app/router/RouteLink";
-import { ChevronLeftIcon } from "./AdManagementIcons";
 import { AnimatePresence, motion } from "motion/react";
 import {
   adManagementPaths,
@@ -27,6 +26,7 @@ import LinearCancel from "../../../shared/icons/LinearCancel";
 import LinearSearch from "../../../shared/icons/LinearSearch";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 type PublisherType = "agency" | "consultant";
 
@@ -83,7 +83,11 @@ export function IndependentConsultantAdAllocationReviewPage() {
     routeState.consultantId ?? assignment?.consultantId ?? "",
   );
   const primaryActionLabel =
-    publisher === "consultant" && !assignedConsultant ? "انتخاب مشاور" : "پرداخت";
+    publisher === "consultant"
+      ? assignedConsultant
+        ? "پرداخت"
+        : "انتخاب مشاور"
+      : "ادامه و پرداخت";
 
   useEffect(() => {
     if (assignedConsultant || !initialConsultantId) return;
@@ -276,7 +280,7 @@ function ReviewAction({
       state={state}
       to={to}
     >
-      <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography>
         {label}
@@ -291,7 +295,7 @@ function RejectAction() {
       className="flex h-[52px] w-full items-center justify-between border-0 bg-white p-0 text-[#1a1a1a] [direction:ltr] active:bg-[#1a1a1a0a]"
       type="button"
     >
-      <ChevronLeftIcon className="h-5 w-5 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <LinearCancel className="h-6 w-6 text-[#4d4d4d]" />
         رد ثبت آگهی
@@ -379,7 +383,7 @@ function PublisherOptionCard({
                 type="button"
               >
                 {assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}
-                <ChevronLeftIcon className="h-5 w-5" />
+                <LinearArrowLeft1 className="h-5 w-5" />
               </Button>
             </div>
           </motion.div>

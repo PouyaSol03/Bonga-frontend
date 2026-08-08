@@ -2,7 +2,9 @@ import ky, { HTTPError, type Options } from "ky";
 
 import {
   clearStoredAuthSession,
+  getActiveAuthRole,
   getStoredAccessToken,
+  getStoredAuthSession,
 } from "../auth/auth-storage";
 
 export type ApiQueryParams = Record<
@@ -36,6 +38,64 @@ export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
 export const websocketBaseUrl = normalizeWebSocketBaseUrl(
   import.meta.env.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
 );
+
+function getRequestPathname(request: Request) {
+  try {
+    return new URL(request.url).pathname;
+  } catch {
+    return "";
+  }
+}
+
+function isPublicApiRequest(request: Request, options: Options) {
+  if (options.context?.authenticated === false) return true;
+
+  return /(?:^|\/)public(?:\/|$)/i.test(getRequestPathname(request));
+}
+
+function isAuthApiRequest(request: Request) {
+  const pathname = getRequestPathname(request);
+
+  return (
+    /(?:^|\/)auth(?:\/|$)/i.test(pathname) ||
+    /(?:^|\/)(?:login|logout|otp|request-otp|verify-otp|resend-otp)(?:\/|$)/i.test(pathname)
+  );
+}
+
+type ApiUserType =
+  | "superadmin"
+  | "user"
+  | "real_estate_manager"
+  | "real_estate_consultant"
+  | "independent_consultant"
+  | "crm_advertise_manager"
+  | "crm_finance_manager"
+  | "support";
+
+const allowedApiUserTypes = new Set<ApiUserType>([
+  "superadmin",
+  "user",
+  "real_estate_manager",
+  "real_estate_consultant",
+  "independent_consultant",
+  "crm_advertise_manager",
+  "crm_finance_manager",
+  "support",
+]);
+
+function getApiUserType(): ApiUserType {
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+
+  // The frontend uses `super-admin` internally, while the backend header
+  // contract expects `superadmin`. Keep that translation at the API boundary.
+  const candidate = activeRole === "super-admin" ? "superadmin" : activeRole;
+
+  if (candidate && allowedApiUserTypes.has(candidate as ApiUserType)) {
+    return candidate as ApiUserType;
+  }
+
+  return "user";
+}
 
 function normalizeSearchParams(params?: ApiQueryParams) {
   if (!params) return undefined;
@@ -187,6 +247,16 @@ const apiOptions: Options = {
     ],
     beforeRequest: [
       ({ request, options }) => {
+        const shouldOmitUserType =
+          isPublicApiRequest(request, options) || isAuthApiRequest(request);
+
+        if (shouldOmitUserType) {
+          // Public and authentication flows must never receive the active account type.
+          request.headers.delete("user-type");
+        } else {
+          request.headers.set("user-type", getApiUserType());
+        }
+
         if (options.context.authenticated === false) return;
 
         const accessToken = getStoredAccessToken();

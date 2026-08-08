@@ -22,6 +22,8 @@ import { updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
+import { REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 
 type NewAdMapCenter = {
   lat: number;
@@ -255,6 +257,14 @@ export function NewAdLocationPage() {
     ),
     [mapCenter.lat, mapCenter.lng, subNeighborhoodsQuery.data],
   );
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isAgencyUser = activeRole === REAL_ESTATE_MANAGER || activeRole === REAL_ESTATE_CONSULTANT;
+  const selectedSubNeighborhoodGeofence = useMemo(
+    () => getNeighborhoodPolygonPoints(
+      selectedSubNeighborhood?.geofence ?? selectedSubNeighborhood?.polygon,
+    ),
+    [selectedSubNeighborhood],
+  );
 
   const locations = useMemo(
     () => (canSearchNeighborhoods ? neighborhoodsQuery.data ?? [] : []),
@@ -385,11 +395,24 @@ export function NewAdLocationPage() {
               pathOptions={{
                 color: "#0048c4",
                 fillColor: "#0048c4",
-                fillOpacity: 0.18,
-                opacity: 0.9,
+                fillOpacity: isAgencyUser && selectedSubNeighborhoodGeofence.length >= 3 ? 0.07 : 0.18,
+                opacity: isAgencyUser && selectedSubNeighborhoodGeofence.length >= 3 ? 0.55 : 0.9,
                 weight: 2,
               }}
               positions={selectedNeighborhoodGeofence}
+            />
+          ) : null}
+          {isAgencyUser && selectedSubNeighborhoodGeofence.length >= 3 ? (
+            <Polygon
+              interactive={false}
+              pathOptions={{
+                color: "#11a366",
+                fillColor: "#11a366",
+                fillOpacity: 0.2,
+                opacity: 0.95,
+                weight: 2.5,
+              }}
+              positions={selectedSubNeighborhoodGeofence}
             />
           ) : null}
         </MapContainer>

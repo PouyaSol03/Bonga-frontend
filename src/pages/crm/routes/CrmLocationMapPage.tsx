@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { LatLngTuple, Map as LeafletMap } from "leaflet";
-import { CircleMarker, MapContainer, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { divIcon, type LatLngTuple, type Map as LeafletMap, type Marker as LeafletMarker } from "leaflet";
+import { CircleMarker, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { pushRoute } from "../../../app/router/navigation";
 import { getApiErrorMessage } from "../../../core/api/api";
@@ -355,7 +355,336 @@ function BoundaryDrawCollector({
   return null;
 }
 
+function EditableBoundaryVertex({
+  boundaries,
+  color,
+  index,
+  onMove,
+  onSelect,
+  point,
+  selected,
+}: {
+  boundaries: BoundaryItem[];
+  color: string;
+  index: number;
+  onMove: (index: number, point: LatLngTuple, snapped: boolean) => boolean;
+  onSelect: (index: number) => void;
+  point: LatLngTuple;
+  selected: boolean;
+}) {
+  const map = useMap();
+  const icon = useMemo(() => divIcon({
+    className: "",
+    html: `<span style="display:block;width:${selected ? 18 : 16}px;height:${selected ? 18 : 16}px;border-radius:9999px;border:3px solid ${color};background:${selected ? color : "#fff"};box-shadow:0 2px 8px rgba(26,26,26,.22);cursor:grab"></span>`,
+    iconAnchor: [selected ? 9 : 8, selected ? 9 : 8],
+    iconSize: [selected ? 18 : 16, selected ? 18 : 16],
+  }), [color, selected]);
 
+  return (
+    <Marker
+      draggable
+      eventHandlers={{
+        click: (event) => {
+          event.originalEvent.stopPropagation();
+          onSelect(index);
+        },
+        dragend: (event) => {
+          const marker = event.target as LeafletMarker;
+          const latLng = marker.getLatLng();
+          const rawPoint: LatLngTuple = [latLng.lat, latLng.lng];
+          const snappedPoint = closestSnapPoint(map, rawPoint, boundaries);
+          const accepted = onMove(index, snappedPoint, !samePoint(rawPoint, snappedPoint));
+          if (!accepted) marker.setLatLng(point);
+        },
+      }}
+      icon={icon}
+      position={point}
+      zIndexOffset={selected ? 1200 : 1100}
+    />
+  );
+}
+
+function getEdgeMidpoint(start: LatLngTuple, end: LatLngTuple): LatLngTuple {
+  return [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+}
+
+type BoundaryLabelItem = {
+  id: string;
+  kind: BoundaryKind;
+  name: string;
+  points: LatLngTuple[];
+};
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getPolygonCentroid(points: Array<{ x: number; y: number }>) {
+  let signedArea = 0;
+  let centroidX = 0;
+  let centroidY = 0;
+
+  points.forEach((point, index) => {
+    const next = points[(index + 1) % points.length];
+    const cross = point.x * next.y - next.x * point.y;
+    signedArea += cross;
+    centroidX += (point.x + next.x) * cross;
+    centroidY += (point.y + next.y) * cross;
+  });
+
+  signedArea *= 0.5;
+  if (Math.abs(signedArea) < Number.EPSILON) return null;
+
+  return {
+    x: centroidX / (6 * signedArea),
+    y: centroidY / (6 * signedArea),
+  };
+}
+
+function isProjectedPointInsidePolygon(
+  point: { x: number; y: number },
+  polygon: Array<{ x: number; y: number }>,
+) {
+  let inside = false;
+
+  for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index, index += 1) {
+    const current = polygon[index];
+    const before = polygon[previous];
+    const intersects =
+      current.y > point.y !== before.y > point.y &&
+      point.x < ((before.x - current.x) * (point.y - current.y)) / (before.y - current.y || Number.EPSILON) + current.x;
+
+    if (intersects) inside = !inside;
+  }
+
+  return inside;
+}
+
+function distanceToSegment(
+  point: { x: number; y: number },
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (!lengthSquared) return Math.hypot(point.x - start.x, point.y - start.y);
+
+  const progress = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared));
+  const projectedX = start.x + progress * dx;
+  const projectedY = start.y + progress * dy;
+  return Math.hypot(point.x - projectedX, point.y - projectedY);
+}
+
+function distanceToPolygonEdges(point: { x: number; y: number }, polygon: Array<{ x: number; y: number }>) {
+  return polygon.reduce((minimum, start, index) => {
+    const end = polygon[(index + 1) % polygon.length];
+    return Math.min(minimum, distanceToSegment(point, start, end));
+  }, Number.POSITIVE_INFINITY);
+}
+
+function getInteriorVisualCenter(points: Array<{ x: number; y: number }>) {
+  const minX = Math.min(...points.map((point) => point.x));
+  const maxX = Math.max(...points.map((point) => point.x));
+  const minY = Math.min(...points.map((point) => point.y));
+  const maxY = Math.max(...points.map((point) => point.y));
+  const boundsCenter = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  const centroid = getPolygonCentroid(points);
+
+  if (centroid && isProjectedPointInsidePolygon(centroid, points)) return centroid;
+  if (isProjectedPointInsidePolygon(boundsCenter, points)) return boundsCenter;
+
+  // Concave polygons can have their geometric center outside the geofence.
+  // Sample the visible polygon and choose the most central point that is safely inside.
+  let best: { x: number; y: number } | null = null;
+  let bestDistance = -1;
+  const steps = 18;
+  for (let row = 0; row <= steps; row += 1) {
+    for (let column = 0; column <= steps; column += 1) {
+      const candidate = {
+        x: minX + ((maxX - minX) * column) / steps,
+        y: minY + ((maxY - minY) * row) / steps,
+      };
+      if (!isProjectedPointInsidePolygon(candidate, points)) continue;
+      const distance = distanceToPolygonEdges(candidate, points);
+      if (distance > bestDistance) {
+        best = candidate;
+        bestDistance = distance;
+      }
+    }
+  }
+
+  return best;
+}
+
+function doesRotatedLabelFit(
+  center: { x: number; y: number },
+  polygon: Array<{ x: number; y: number }>,
+  rotation: number,
+  width: number,
+  height: number,
+) {
+  const radians = (rotation * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const offsets = [
+    [-halfWidth, -halfHeight],
+    [0, -halfHeight],
+    [halfWidth, -halfHeight],
+    [halfWidth, 0],
+    [halfWidth, halfHeight],
+    [0, halfHeight],
+    [-halfWidth, halfHeight],
+    [-halfWidth, 0],
+  ];
+
+  return offsets.every(([offsetX, offsetY]) => {
+    const point = {
+      x: center.x + offsetX * cos - offsetY * sin,
+      y: center.y + offsetX * sin + offsetY * cos,
+    };
+    return isProjectedPointInsidePolygon(point, polygon);
+  });
+}
+
+function getBoundaryLabelGeometry(map: LeafletMap, item: BoundaryLabelItem) {
+  const projected = item.points.map((point) => map.latLngToLayerPoint(point));
+  if (projected.length < 3) return null;
+
+  const center = getInteriorVisualCenter(projected);
+  if (!center) return null;
+
+  let covarianceXX = 0;
+  let covarianceYY = 0;
+  let covarianceXY = 0;
+  projected.forEach((point) => {
+    const dx = point.x - center.x;
+    const dy = point.y - center.y;
+    covarianceXX += dx * dx;
+    covarianceYY += dy * dy;
+    covarianceXY += dx * dy;
+  });
+
+  const principalAngle = 0.5 * Math.atan2(2 * covarianceXY, covarianceXX - covarianceYY);
+  let rotation = (principalAngle * 180) / Math.PI;
+  while (rotation > 90) rotation -= 180;
+  while (rotation < -90) rotation += 180;
+
+  const characterCount = Math.max(4, Array.from(item.name.trim()).length);
+  const minX = Math.min(...projected.map((point) => point.x));
+  const maxX = Math.max(...projected.map((point) => point.x));
+  const minY = Math.min(...projected.map((point) => point.y));
+  const maxY = Math.max(...projected.map((point) => point.y));
+  const boundsWidth = maxX - minX;
+  const boundsHeight = maxY - minY;
+
+  // The polygon is measured in screen pixels, so this automatically reacts to BOTH:
+  // 1) the real geofence size, and 2) the current map zoom.
+  // As the user zooms out the projected geofence becomes smaller and so does the label.
+  let doubleArea = 0;
+  projected.forEach((point, index) => {
+    const next = projected[(index + 1) % projected.length];
+    doubleArea += point.x * next.y - next.x * point.y;
+  });
+  const polygonArea = Math.abs(doubleArea) / 2;
+  const equivalentDiameter = polygonArea > 0 ? 2 * Math.sqrt(polygonArea / Math.PI) : 0;
+  const shortSide = Math.min(boundsWidth, boundsHeight);
+
+  // Larger geofences get larger labels; smaller/zoomed-out geofences get smaller labels.
+  // shortSide prevents very long/thin polygons from receiving oversized text.
+  const sizeFromArea = equivalentDiameter * 0.12;
+  const sizeFromShortSide = shortSide * 0.22;
+  let fontSize = Math.floor(Math.min(24, sizeFromArea, sizeFromShortSide));
+
+  // Below this size the text is no longer useful/readable, so hide it instead.
+  const minimumReadableFontSize = 8;
+
+  // Shrink further until the COMPLETE rotated text box stays inside the selected geofence.
+  while (fontSize >= minimumReadableFontSize) {
+    const estimatedWidth = characterCount * fontSize * 0.62;
+    const estimatedHeight = fontSize * 1.35;
+    if (doesRotatedLabelFit(center, projected, rotation, estimatedWidth, estimatedHeight)) break;
+    fontSize -= 1;
+  }
+
+  if (fontSize < minimumReadableFontSize) return null;
+
+  const estimatedWidth = characterCount * fontSize * 0.62;
+  const estimatedHeight = fontSize * 1.35;
+
+  // Visually bias the selected boundary label to the RIGHT instead of leaving it
+  // at the exact polygon center. We search from a noticeably right-shifted target
+  // back toward the safe center so irregular/concave geofences never let the text
+  // escape outside their boundary.
+  const desiredRightShift = Math.min(
+    boundsWidth * 0.24,
+    Math.max(0, maxX - center.x - estimatedWidth * 0.58),
+  );
+  let labelCenter = center;
+  const rightShiftSteps = 18;
+  for (let step = rightShiftSteps; step >= 1; step -= 1) {
+    const candidate = {
+      x: center.x + desiredRightShift * (step / rightShiftSteps),
+      y: center.y,
+    };
+    if (
+      isProjectedPointInsidePolygon(candidate, projected) &&
+      doesRotatedLabelFit(candidate, projected, rotation, estimatedWidth, estimatedHeight)
+    ) {
+      labelCenter = candidate;
+      break;
+    }
+  }
+
+  const position = map.layerPointToLatLng([labelCenter.x, labelCenter.y]);
+  return {
+    fontSize,
+    position: [position.lat, position.lng] as LatLngTuple,
+    rotation: Number(rotation.toFixed(1)),
+  };
+}
+
+function BoundaryLabels({ items }: { items: BoundaryLabelItem[] }) {
+  const [viewportVersion, setViewportVersion] = useState(0);
+  const map = useMapEvents({
+    moveend: () => setViewportVersion((current) => current + 1),
+    resize: () => setViewportVersion((current) => current + 1),
+    zoomend: () => setViewportVersion((current) => current + 1),
+  });
+
+  const labels = useMemo(() => items.flatMap((item) => {
+    if (item.points.length < 3 || !item.name.trim()) return [];
+    const geometry = getBoundaryLabelGeometry(map, item);
+    if (!geometry) return [];
+
+    const color = item.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR;
+    const icon = divIcon({
+      className: "",
+      html: `<div style="pointer-events:none;direction:rtl;white-space:nowrap;transform:translate(-50%,-50%) rotate(${geometry.rotation}deg);transform-origin:center;color:${color};font-family:'DanaFaNum',Vazirmatn,IRANSans,Tahoma,Arial,sans-serif;font-size:${geometry.fontSize}px;font-weight:700;line-height:1.2;text-align:center;background:transparent;padding:0;margin:0;border:0;box-shadow:none;">${escapeHtml(item.name)}</div>`,
+      iconAnchor: [0, 0],
+      iconSize: [0, 0],
+    });
+
+    return [{ ...geometry, icon, item }];
+  }), [items, map, viewportVersion]);
+
+  return labels.map(({ icon, item, position }) => (
+    <Marker
+      interactive={false}
+      icon={icon}
+      key={`boundary-label:${item.id}`}
+      position={position}
+      zIndexOffset={850}
+    />
+  ));
+}
 
 export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
@@ -363,6 +692,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const citySnapshot = getCitySnapshotFromUrl();
   const initialNeighborhoodId = getSelectedNeighborhoodIdFromUrl();
   const workspaceRef = useRef<HTMLDivElement | null>(null);
+  const didApplyDefaultSelectionRef = useRef(false);
   const [expandedNeighborhoodId, setExpandedNeighborhoodId] = useState(initialNeighborhoodId);
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState(initialNeighborhoodId);
   const [selectedSubId, setSelectedSubId] = useState("");
@@ -374,6 +704,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const [showNewNeighborhoodInput, setShowNewNeighborhoodInput] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
   const [lastSnapNotice, setLastSnapNotice] = useState(false);
+  const [selectedDraftPointIndex, setSelectedDraftPointIndex] = useState<number | null>(null);
 
   const citiesQuery = useQuery({
     queryFn: () => listCrmCities(),
@@ -410,9 +741,56 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
 
     return candidates.filter((boundary) => boundary.kind === "neighborhood");
   }, [activeBoundaryId, boundaries, editTarget]);
-  const parentPolygonForActiveSub = editTarget?.kind === "sub-neighborhood"
-    ? getNeighborhoodPoints(neighborhoods.find((item) => getCrmRecordId(item) === editTarget.neighborhoodId) ?? {})
+  const activeSubParentNeighborhood = editTarget?.kind === "sub-neighborhood"
+    ? neighborhoods.find((item) => getCrmRecordId(item) === editTarget.neighborhoodId)
+    : undefined;
+  const activeSubParentName = activeSubParentNeighborhood
+    ? readText(activeSubParentNeighborhood, ["name"], "محله انتخاب‌شده")
+    : "";
+  const parentPolygonForActiveSub = activeSubParentNeighborhood
+    ? getNeighborhoodPoints(activeSubParentNeighborhood)
     : [];
+  const boundaryLabelItems = useMemo<BoundaryLabelItem[]>(() => {
+    if (editTarget && draftPoints.length >= 3 && draftName.trim()) {
+      return [{
+        id: `draft:${activeBoundaryId || editTarget.kind}`,
+        kind: editTarget.kind === "sub-neighborhood" ? "sub-neighborhood" : "neighborhood",
+        name: draftName.trim(),
+        points: draftPoints,
+      }];
+    }
+
+    const selectedBoundary = boundaries.find((boundary) =>
+      boundary.kind === "neighborhood"
+        ? selectedNeighborhoodId === boundary.neighborhoodId && !selectedSubId
+        : selectedNeighborhoodId === boundary.neighborhoodId && selectedSubId === boundary.subId,
+    );
+
+    return selectedBoundary
+      ? [{
+        id: selectedBoundary.id,
+        kind: selectedBoundary.kind,
+        name: selectedBoundary.name,
+        points: selectedBoundary.points,
+      }]
+      : [];
+  }, [activeBoundaryId, boundaries, draftName, draftPoints, editTarget, selectedNeighborhoodId, selectedSubId]);
+
+  useEffect(() => {
+    if (didApplyDefaultSelectionRef.current || !boundaries.length) return;
+
+    const preferredBoundary = initialNeighborhoodId
+      ? boundaries.find((boundary) => boundary.neighborhoodId === initialNeighborhoodId && boundary.kind === "neighborhood")
+        ?? boundaries.find((boundary) => boundary.neighborhoodId === initialNeighborhoodId)
+      : undefined;
+    const defaultBoundary = preferredBoundary ?? boundaries[0];
+    if (!defaultBoundary) return;
+
+    setSelectedNeighborhoodId(defaultBoundary.neighborhoodId);
+    setSelectedSubId(defaultBoundary.subId ?? "");
+    setExpandedNeighborhoodId(defaultBoundary.neighborhoodId);
+    didApplyDefaultSelectionRef.current = true;
+  }, [boundaries, initialNeighborhoodId]);
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -447,6 +825,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     setDraftPoints([]);
     setDraftName("");
     setLastSnapNotice(false);
+    setSelectedDraftPointIndex(null);
   };
 
   const startNeighborhoodBoundary = (neighborhood: CrmRecord) => {
@@ -457,6 +836,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     setEditTarget({ kind: "neighborhood", neighborhoodId });
     setDraftName(readText(neighborhood, ["name"], ""));
     setDraftPoints(getNeighborhoodPoints(neighborhood));
+    setSelectedDraftPointIndex(null);
   };
 
   const startNewNeighborhood = () => {
@@ -475,6 +855,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     setSelectedSubId("");
     setEditTarget({ kind: "new-neighborhood" });
     setDraftPoints([]);
+    setSelectedDraftPointIndex(null);
     setShowNewNeighborhoodInput(false);
   };
 
@@ -483,11 +864,6 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     subNeighborhood: SubNeighborhoodRecord,
   ) => {
     const neighborhoodId = getCrmRecordId(neighborhood);
-    const parentPoints = getNeighborhoodPoints(neighborhood);
-    if (parentPoints.length < 3) {
-      notify("ابتدا محدوده محله اصلی را ترسیم و ذخیره کنید.", "error");
-      return;
-    }
 
     setSelectedNeighborhoodId(neighborhoodId);
     setSelectedSubId(subNeighborhood.id);
@@ -500,6 +876,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     });
     setDraftName(subNeighborhood.name);
     setDraftPoints(getSubNeighborhoodPoints(subNeighborhood));
+    setSelectedDraftPointIndex(null);
   };
 
   const startNewSubNeighborhood = (neighborhood: CrmRecord) => {
@@ -530,23 +907,60 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     setEditTarget({ isNew: true, kind: "sub-neighborhood", neighborhoodId, subId });
     setDraftName(name);
     setDraftPoints([]);
+    setSelectedDraftPointIndex(null);
     setNewSubName("");
     setShowNewSubInputFor("");
   };
 
-  const addDraftPoint = (point: LatLngTuple, snapped: boolean) => {
-    if (!editTarget) return;
+  const isAllowedDraftPoint = (point: LatLngTuple) => {
+    if (editTarget?.kind !== "sub-neighborhood") return true;
 
-    if (editTarget.kind === "sub-neighborhood") {
-      if (parentPolygonForActiveSub.length < 3 || !isPointInsideOrOnPolygon(point, parentPolygonForActiveSub)) {
-        notify("تمام نقاط زیرمحله باید داخل محدوده محله اصلی باشند.", "error");
-        return;
-      }
+    if (parentPolygonForActiveSub.length < 3 || !isPointInsideOrOnPolygon(point, parentPolygonForActiveSub)) {
+      notify("تمام نقاط زیرمحله باید داخل محدوده محله اصلی باشند.", "error");
+      return false;
     }
 
+    return true;
+  };
+
+  const addDraftPoint = (point: LatLngTuple, snapped: boolean) => {
+    if (!editTarget || !isAllowedDraftPoint(point)) return;
     if (draftPoints.some((current) => samePoint(current, point))) return;
+
     setDraftPoints((current) => [...current, point]);
+    setSelectedDraftPointIndex(draftPoints.length);
     if (snapped) setLastSnapNotice(true);
+  };
+
+  const moveDraftPoint = (index: number, point: LatLngTuple, snapped: boolean) => {
+    if (!editTarget || !isAllowedDraftPoint(point)) return false;
+    if (draftPoints.some((currentPoint, currentIndex) => currentIndex !== index && samePoint(currentPoint, point))) {
+      notify("دو نقطه مرز نمی‌توانند دقیقاً روی یک مختصات قرار بگیرند.", "error");
+      return false;
+    }
+
+    setDraftPoints((current) => current.map((currentPoint, currentIndex) =>
+      currentIndex === index ? point : currentPoint,
+    ));
+    setSelectedDraftPointIndex(index);
+    if (snapped) setLastSnapNotice(true);
+    return true;
+  };
+
+  const insertDraftPointAfter = (index: number, point: LatLngTuple) => {
+    if (!editTarget || !isAllowedDraftPoint(point)) return;
+
+    setDraftPoints((current) => [
+      ...current.slice(0, index + 1),
+      point,
+      ...current.slice(index + 1),
+    ]);
+    setSelectedDraftPointIndex(index + 1);
+  };
+
+  const removeDraftPoint = (index: number) => {
+    setDraftPoints((current) => current.filter((_, currentIndex) => currentIndex !== index));
+    setSelectedDraftPointIndex(null);
   };
 
   const saveActiveBoundary = async () => {
@@ -556,16 +970,23 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
       notify(editTarget.kind === "sub-neighborhood" ? "نام زیرمحله را وارد کنید." : "نام محله را وارد کنید.", "error");
       return;
     }
-    if (draftPoints.length < 3) {
+
+    const isNewBoundary = editTarget.kind === "new-neighborhood" ||
+      (editTarget.kind === "sub-neighborhood" && editTarget.isNew);
+    if (isNewBoundary && draftPoints.length < 3) {
       notify("برای ذخیره محدوده حداقل سه نقطه انتخاب کنید.", "error");
       return;
     }
+    if (draftPoints.length > 0 && draftPoints.length < 3) {
+      notify("برای تغییر مرزبندی حداقل سه نقطه انتخاب کنید، یا نقاط را کامل پاک کنید تا فقط نام ذخیره شود.", "error");
+      return;
+    }
 
-    const polygon = pointsToGeoJson(draftPoints);
-    if (!polygon) return;
-    const center = polygonCenter(draftPoints, cityCenter);
+    const polygon = draftPoints.length >= 3 ? pointsToGeoJson(draftPoints) : null;
+    const center = polygon ? polygonCenter(draftPoints, cityCenter) : cityCenter;
 
     if (editTarget.kind === "new-neighborhood") {
+      if (!polygon) return;
       await saveMutation.mutateAsync({
         id: null,
         payload: {
@@ -588,14 +1009,23 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     }
 
     if (editTarget.kind === "neighborhood") {
+      const duplicateNeighborhood = neighborhoods.find((item) =>
+        getCrmRecordId(item) !== editTarget.neighborhoodId &&
+        readText(item, ["name"], "").trim() === name,
+      );
+      if (duplicateNeighborhood) {
+        notify("محله‌ای با این نام در همین شهر وجود دارد.", "error");
+        return;
+      }
+
       await saveMutation.mutateAsync({
         id: editTarget.neighborhoodId,
         payload: {
           city_id: neighborhood.city_id ?? cityId,
-          lat: center[0],
-          lng: center[1],
+          lat: polygon ? center[0] : neighborhood.lat ?? cityCenter[0],
+          lng: polygon ? center[1] : neighborhood.lng ?? cityCenter[1],
           name,
-          polygon,
+          polygon: polygon ?? parseMaybeJson(neighborhood.polygon ?? neighborhood.geofence) ?? undefined,
           sub_neighbors: parseSubNeighborhoods(neighborhood.sub_neighbors),
         },
       });
@@ -603,7 +1033,19 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
       return;
     }
 
-    if (!isBoundaryInsidePolygon(draftPoints, parentPolygonForActiveSub)) {
+    const duplicateSubNeighborhood = neighborhoods.find((item) => {
+      const ownerId = getCrmRecordId(item);
+      return parseSubNeighborhoods(item.sub_neighbors).some((sub) =>
+        sub.name.trim() === name &&
+        !(ownerId === editTarget.neighborhoodId && sub.id === editTarget.subId),
+      );
+    });
+    if (duplicateSubNeighborhood) {
+      notify(`زیرمحله «${name}» قبلاً زیر محله «${readText(duplicateSubNeighborhood, ["name"], "")}» ثبت شده است.`, "error");
+      return;
+    }
+
+    if (polygon && !isBoundaryInsidePolygon(draftPoints, parentPolygonForActiveSub)) {
       notify("محدوده زیرمحله نمی‌تواند از محدوده محله اصلی خارج شود.", "error");
       return;
     }
@@ -622,7 +1064,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
       ? [...subNeighborhoods, { geofence: polygon, id: editTarget.subId, name }]
       : subNeighborhoods.map((item) =>
         item.id === editTarget.subId
-          ? { ...item, geofence: polygon, name }
+          ? { ...item, ...(polygon ? { geofence: polygon } : {}), name }
           : item,
       );
 
@@ -775,7 +1217,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                             </Typography>
                           </span>
                         </Button>
-                        <Button onClick={() => startNeighborhoodBoundary(neighborhood)} size="small" variant="secondary">مرزبندی</Button>
+                        <Button onClick={() => startNeighborhoodBoundary(neighborhood)} size="small" variant="secondary">ویرایش</Button>
                         <LinearArrowLeft1 className={`w-5 h-5 ${isExpanded ? "rotate-90" : ""}`} />
                       </div>
 
@@ -800,7 +1242,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                                     <Typography as="span" variant="body" size="medium" weight="medium" className="block truncate text-[#333333]">{subNeighborhood.name}</Typography>
                                     <Typography as="span" variant="body" size="small" weight="regular" className="block text-[#909090]">{hasSubBoundary ? "مرزبندی شده" : "بدون مرزبندی"}</Typography>
                                   </Button>
-                                  <Button onClick={() => startSubNeighborhoodBoundary(neighborhood, subNeighborhood)} size="small" variant="neutral-outline">مرز</Button>
+                                  <Button onClick={() => startSubNeighborhoodBoundary(neighborhood, subNeighborhood)} size="small" variant="neutral-outline">ویرایش</Button>
                                   <Button
                                     aria-label={`حذف ${subNeighborhood.name}`}
                                     disabled={isPending}
@@ -819,23 +1261,32 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                           </div>
 
                           {showNewSubInputFor === neighborhoodId ? (
-                            <div className="mt-2 flex gap-2 rounded-lg border border-dashed border-[#cdd7e7] bg-white p-2">
-                              <input
-                                autoFocus
-                                className="h-9 min-w-0 flex-1 rounded-lg border border-[#cccccc] px-2.5 text-sm outline-none focus:border-[#0048c4]"
-                                onChange={(event) => setNewSubName(event.target.value)}
-                                onKeyDown={(event) => {
-                                  if (event.key === "Enter") startNewSubNeighborhood(neighborhood);
-                                }}
-                                placeholder="نام زیرمحله"
-                                value={newSubName}
-                              />
-                              <Button onClick={() => startNewSubNeighborhood(neighborhood)} size="small" variant="primary">ترسیم</Button>
+                            <div className="mt-2 rounded-lg border border-dashed border-[#cdd7e7] bg-white p-2">
+                              <div className="mb-2 flex items-center gap-2 rounded-lg bg-[#f2f6ff] px-2.5 py-2">
+                                <Typography as="span" variant="body" size="small" weight="regular" className="text-[#596477]">محله انتخاب‌شده:</Typography>
+                                <Typography as="strong" variant="label" size="small" weight="semibold" className="truncate text-[#0048c4]">{neighborhoodName}</Typography>
+                              </div>
+                              <div className="flex gap-2">
+                                <input
+                                  autoFocus
+                                  className="h-9 min-w-0 flex-1 rounded-lg border border-[#cccccc] px-2.5 text-sm outline-none focus:border-[#0048c4]"
+                                  onChange={(event) => setNewSubName(event.target.value)}
+                                  onKeyDown={(event) => {
+                                    if (event.key === "Enter") startNewSubNeighborhood(neighborhood);
+                                  }}
+                                  placeholder={`نام زیرمحله برای ${neighborhoodName}`}
+                                  value={newSubName}
+                                />
+                                <Button onClick={() => startNewSubNeighborhood(neighborhood)} size="small" variant="primary">ترسیم</Button>
+                              </div>
                             </div>
                           ) : (
                             <Button
                               className="mt-2"
                               onClick={() => {
+                                setSelectedNeighborhoodId(neighborhoodId);
+                                setSelectedSubId("");
+                                setExpandedNeighborhoodId(neighborhoodId);
                                 setNewSubName("");
                                 setShowNewSubInputFor(neighborhoodId);
                               }}
@@ -871,7 +1322,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
             <MapResizeOnFullscreen fullscreen={isFullscreen} />
             <BoundaryDrawCollector
               boundaries={snapBoundaries}
-              enabled={Boolean(editTarget)}
+              enabled={Boolean(editTarget) && (draftPoints.length < 3 || editTarget?.kind === "new-neighborhood" || (editTarget?.kind === "sub-neighborhood" && editTarget.isNew))}
               onAdd={addDraftPoint}
             />
 
@@ -880,9 +1331,15 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
               const isSelected = boundary.kind === "neighborhood"
                 ? selectedNeighborhoodId === boundary.neighborhoodId && !selectedSubId
                 : selectedNeighborhoodId === boundary.neighborhoodId && selectedSubId === boundary.subId;
+              const isParentOfSelectedSub =
+                boundary.kind === "neighborhood" &&
+                selectedNeighborhoodId === boundary.neighborhoodId &&
+                Boolean(selectedSubId);
               const color = isSelected
                 ? boundary.kind === "neighborhood" ? MAIN_BOUNDARY_COLOR : SUB_BOUNDARY_COLOR
-                : MUTED_BOUNDARY_COLOR;
+                : isParentOfSelectedSub
+                  ? MAIN_BOUNDARY_COLOR
+                  : MUTED_BOUNDARY_COLOR;
 
               return (
                 <Polygon
@@ -899,14 +1356,16 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                   pathOptions={{
                     color,
                     fillColor: color,
-                    fillOpacity: isSelected ? 0.18 : boundary.kind === "sub-neighborhood" ? 0.08 : 0.05,
-                    opacity: isSelected ? 1 : 0.65,
-                    weight: isSelected ? 3 : 2,
+                    fillOpacity: isSelected ? 0.18 : isParentOfSelectedSub ? 0.07 : boundary.kind === "sub-neighborhood" ? 0.08 : 0.05,
+                    opacity: isSelected ? 1 : isParentOfSelectedSub ? 0.55 : 0.65,
+                    weight: isSelected ? 3 : isParentOfSelectedSub ? 2.5 : 2,
                   }}
                   positions={boundary.points}
                 />
               );
             })}
+
+            <BoundaryLabels items={boundaryLabelItems} />
 
             {editTarget && draftPoints.length >= 3 ? (
               <Polygon
@@ -937,25 +1396,58 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
               )),
             ) : null}
 
-            {draftPoints.map((point, index) => (
-              <CircleMarker
-                center={point}
-                key={`draft:${point[0]}:${point[1]}:${index}`}
-                pathOptions={{
-                  color: editTarget?.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR,
-                  fillColor: "#ffffff",
-                  fillOpacity: 1,
-                  weight: 3,
-                }}
-                radius={6}
+            {editTarget && draftPoints.length >= 3 ? draftPoints.map((point, index) => {
+              const nextPoint = draftPoints[(index + 1) % draftPoints.length];
+              const midpoint = getEdgeMidpoint(point, nextPoint);
+
+              return (
+                <CircleMarker
+                  center={midpoint}
+                  eventHandlers={{
+                    click: (event) => {
+                      event.originalEvent.stopPropagation();
+                      insertDraftPointAfter(index, midpoint);
+                    },
+                  }}
+                  key={`edge-add:${index}:${midpoint[0]}:${midpoint[1]}`}
+                  pathOptions={{
+                    color: "#ffffff",
+                    fillColor: editTarget.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR,
+                    fillOpacity: 0.92,
+                    weight: 2,
+                  }}
+                  radius={5}
+                />
+              );
+            }) : null}
+
+            {editTarget ? draftPoints.map((point, index) => (
+              <EditableBoundaryVertex
+                boundaries={snapBoundaries}
+                color={editTarget.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR}
+                index={index}
+                key={`draft:${index}`}
+                onMove={moveDraftPoint}
+                onSelect={setSelectedDraftPointIndex}
+                point={point}
+                selected={selectedDraftPointIndex === index}
               />
-            ))}
+            )) : null}
           </MapContainer>
 
           <div className="pointer-events-none absolute left-4 right-4 top-4 z-[600] flex items-start justify-between gap-4" dir="rtl">
             <div className="pointer-events-auto max-w-[680px] rounded-2xl border border-white/70 bg-white/95 p-3 shadow-[0_12px_34px_rgba(31,46,70,0.14)] backdrop-blur">
               {editTarget ? (
                 <>
+                  {editTarget.kind === "sub-neighborhood" ? (
+                    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-[#dce8ff] bg-[#f2f6ff] px-3 py-2">
+                      <Typography as="span" variant="body" size="small" weight="regular" className="text-[#596477]">محله اصلی:</Typography>
+                      <Typography as="strong" variant="label" size="small" weight="semibold" className="text-[#0048c4]">{activeSubParentName || "محله انتخاب‌شده"}</Typography>
+                      <Typography as="span" variant="body" size="small" weight="regular" className="text-[#808080]">
+                        {editTarget.isNew ? "· زیرمحله جدید برای این محله ثبت می‌شود" : "· این زیرمحله متعلق به همین محله است"}
+                      </Typography>
+                    </div>
+                  ) : null}
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="min-w-[210px] flex-1">
                       <Typography as="p" variant="label" size="small" weight="semibold" className="m-0 mb-1 text-[#596477]">
@@ -968,14 +1460,34 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                       />
                     </div>
                     <div className="mt-5 flex flex-wrap gap-2">
-                      <Button disabled={!draftPoints.length || isPending} onClick={() => setDraftPoints((current) => current.slice(0, -1))} size="x-medium" variant="neutral-outline">حذف آخرین نقطه</Button>
-                      <Button disabled={!draftPoints.length || isPending} onClick={() => setDraftPoints([])} size="x-medium" variant="neutral-outline">پاک کردن</Button>
+                      <Button
+                        disabled={selectedDraftPointIndex === null || draftPoints.length <= 3 || isPending}
+                        onClick={() => {
+                          if (selectedDraftPointIndex === null) return;
+                          removeDraftPoint(selectedDraftPointIndex);
+                        }}
+                        size="x-medium"
+                        variant="neutral-outline"
+                      >
+                        حذف نقطه انتخاب‌شده
+                      </Button>
+                      <Button
+                        disabled={!draftPoints.length || isPending}
+                        onClick={() => {
+                          setDraftPoints([]);
+                          setSelectedDraftPointIndex(null);
+                        }}
+                        size="x-medium"
+                        variant="neutral-outline"
+                      >
+                        پاک کردن مرز
+                      </Button>
                       <Button disabled={isPending} onClick={resetEditor} size="x-medium" variant="secondary">انصراف</Button>
-                      <Button disabled={draftPoints.length < 3} loading={saveMutation.isPending} onClick={() => void saveActiveBoundary()} size="x-medium" variant="primary">ذخیره مرزبندی</Button>
+                      <Button disabled={(editTarget.kind === "new-neighborhood" || (editTarget.kind === "sub-neighborhood" && editTarget.isNew)) && draftPoints.length < 3} loading={saveMutation.isPending} onClick={() => void saveActiveBoundary()} size="x-medium" variant="primary">ذخیره تغییرات</Button>
                     </div>
                   </div>
                   <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 leading-5 text-[#596477]">
-                    روی نقشه نقطه بگذارید. نزدیک شدن به نقطه یا خط مرز موجود، نقطه را خودکار به همان مرز متصل می‌کند تا بین دو محدوده فضای خالی ایجاد نشود.
+                    برای ویرایش واقعی مرز، نقطه‌های بزرگ را بکشید و جابه‌جا کنید؛ نقطه‌های کوچک بین اضلاع را بزنید تا یک نقطه جدید دقیقاً روی همان ضلع اضافه شود. برای حذف هم ابتدا یک نقطه را انتخاب کنید و «حذف نقطه انتخاب‌شده» را بزنید. نزدیک شدن به مرزهای موجود همچنان نقطه را خودکار به همان مرز متصل می‌کند.
                     {editTarget.kind === "sub-neighborhood" ? " نقاط زیرمحله فقط داخل محله اصلی پذیرفته می‌شوند." : ""}
                   </Typography>
                 </>
@@ -984,7 +1496,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></span>
                   <div>
                     <Typography as="p" variant="label" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">نقشه مرزبندی {cityName}</Typography>
-                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-[#596477]">تمام محدوده‌های ثبت‌شده همزمان نمایش داده می‌شوند. از فهرست سمت راست یک محله یا زیرمحله را برای ویرایش انتخاب کنید.</Typography>
+                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-[#596477]">تمام محدوده‌های ثبت‌شده همزمان نمایش داده می‌شوند. از فهرست سمت راست دکمه «ویرایش» محله یا زیرمحله را بزنید تا نام و مرزبندی آن را تغییر دهید.</Typography>
                   </div>
                 </div>
               )}

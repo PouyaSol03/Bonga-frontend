@@ -5,7 +5,7 @@ import { PageFrame } from "../../../app/layout/PageFrame";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
 import { RouteLink } from "../../../app/router/RouteLink";
-import { ChevronLeftIcon, PublishedActionIcon } from "./AdManagementIcons";
+import { PublishedActionIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
   getAdEditPath,
@@ -18,6 +18,7 @@ import {
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 export function IndependentConsultantAdPublishedPage() {
   const ad = getSelectedConsultantAd();
@@ -157,7 +158,7 @@ function PublishedAction({
 }) {
   const content = (
     <>
-      <ChevronLeftIcon className="h-6 w-6 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-6 w-6 text-[#4d4d4d]" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <PublishedActionIcon className="h-6 w-6 text-[#4d4d4d]" icon={icon} />
         {label}

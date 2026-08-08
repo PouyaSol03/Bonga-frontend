@@ -6,10 +6,15 @@ import { CircleMarker, MapContainer, Marker, Polygon, TileLayer, useMap, useMapE
 import { pushRoute } from "../../../app/router/navigation";
 import { getApiErrorMessage } from "../../../core/api/api";
 import {
+  createCrmSubNeighborhood,
+  deleteCrmSubNeighborhood,
   getCrmRecordId,
   listCrmCities,
   listCrmNeighborhoods,
+  listCrmSubNeighborhoods,
   saveCrmNeighborhood,
+  updateCrmSubNeighborhood,
+  type CrmSubNeighborhoodPayload,
   type CrmRecord,
 } from "../../../core/services/crm.service";
 import { getNeighborhoodPolygonPoints } from "../../../core/services/neighborhood.service";
@@ -54,6 +59,20 @@ type EditTarget =
 
 const MAIN_BOUNDARY_COLOR = "#0048c4";
 const SUB_BOUNDARY_COLOR = "#11a366";
+const SUB_BOUNDARY_COLORS = [
+  "#e11d48", // rose
+  "#7c3aed", // violet
+  "#0891b2", // cyan
+  "#d97706", // amber
+  "#16a34a", // green
+  "#db2777", // pink
+  "#4f46e5", // indigo
+  "#ea580c", // orange
+  "#0f766e", // teal
+  "#9333ea", // purple
+  "#65a30d", // lime
+  "#dc2626", // red
+] as const;
 const MUTED_BOUNDARY_COLOR = "#7b8494";
 const SNAP_DISTANCE_PX = 16;
 
@@ -129,6 +148,17 @@ function createLocalSubNeighborhoodId() {
   return `sub-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function getSubNeighborhoodColor(key: string) {
+  if (!key) return SUB_BOUNDARY_COLOR;
+
+  let hash = 0;
+  for (let index = 0; index < key.length; index += 1) {
+    hash = ((hash << 5) - hash + key.charCodeAt(index)) | 0;
+  }
+
+  return SUB_BOUNDARY_COLORS[Math.abs(hash) % SUB_BOUNDARY_COLORS.length];
+}
+
 function pointsToGeoJson(points: LatLngTuple[]) {
   if (points.length < 3) return null;
 
@@ -194,18 +224,149 @@ function isPointInsideOrOnPolygon(point: LatLngTuple, polygon: LatLngTuple[]) {
   return inside;
 }
 
-function isBoundaryInsidePolygon(points: LatLngTuple[], parentPolygon: LatLngTuple[]) {
-  if (points.length < 3 || parentPolygon.length < 3) return false;
+function orientation(a: LatLngTuple, b: LatLngTuple, c: LatLngTuple) {
+  const value = (b[1] - a[1]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[1] - a[1]);
+  if (Math.abs(value) <= 0.00000002) return 0;
+  return value > 0 ? 1 : -1;
+}
 
-  return points.every((point, index) => {
-    if (!isPointInsideOrOnPolygon(point, parentPolygon)) return false;
-    const next = points[(index + 1) % points.length];
-    const midpoint: LatLngTuple = [
-      (point[0] + next[0]) / 2,
-      (point[1] + next[1]) / 2,
+function segmentsProperlyIntersect(a: LatLngTuple, b: LatLngTuple, c: LatLngTuple, d: LatLngTuple) {
+  const o1 = orientation(a, b, c);
+  const o2 = orientation(a, b, d);
+  const o3 = orientation(c, d, a);
+  const o4 = orientation(c, d, b);
+  return o1 !== 0 && o2 !== 0 && o3 !== 0 && o4 !== 0 && o1 !== o2 && o3 !== o4;
+}
+
+function segmentStaysInsidePolygon(start: LatLngTuple, end: LatLngTuple, polygon: LatLngTuple[]) {
+  if (!isPointInsideOrOnPolygon(start, polygon) || !isPointInsideOrOnPolygon(end, polygon)) return false;
+
+  for (let index = 0; index < polygon.length; index += 1) {
+    const parentStart = polygon[index];
+    const parentEnd = polygon[(index + 1) % polygon.length];
+    if (segmentsProperlyIntersect(start, end, parentStart, parentEnd)) return false;
+  }
+
+  // Also sample the edge so a line passing exactly through a concave parent vertex
+  // cannot briefly leave the parent polygon without a proper segment intersection.
+  for (let step = 1; step < 16; step += 1) {
+    const t = step / 16;
+    const point: LatLngTuple = [
+      start[0] + (end[0] - start[0]) * t,
+      start[1] + (end[1] - start[1]) * t,
     ];
-    return isPointInsideOrOnPolygon(midpoint, parentPolygon);
-  });
+    if (!isPointInsideOrOnPolygon(point, polygon)) return false;
+  }
+
+  return true;
+}
+
+function isBoundaryInsidePolygon(points: LatLngTuple[], parentPolygon: LatLngTuple[]) {
+  if (!points.length || parentPolygon.length < 3) return false;
+  if (!points.every((point) => isPointInsideOrOnPolygon(point, parentPolygon))) return false;
+  if (points.length === 1) return true;
+
+  const edgeCount = points.length >= 3 ? points.length : points.length - 1;
+  for (let index = 0; index < edgeCount; index += 1) {
+    const nextIndex = points.length >= 3 ? (index + 1) % points.length : index + 1;
+    if (!segmentStaysInsidePolygon(points[index], points[nextIndex], parentPolygon)) return false;
+  }
+
+  return true;
+}
+
+function isPointStrictlyInsidePolygon(point: LatLngTuple, polygon: LatLngTuple[]) {
+  if (polygon.length < 3) return false;
+
+  for (let index = 0; index < polygon.length; index += 1) {
+    if (isPointOnSegment(point, polygon[index], polygon[(index + 1) % polygon.length])) return false;
+  }
+
+  return isPointInsideOrOnPolygon(point, polygon);
+}
+
+function segmentEntersPolygon(start: LatLngTuple, end: LatLngTuple, polygon: LatLngTuple[]) {
+  if (isPointStrictlyInsidePolygon(start, polygon) || isPointStrictlyInsidePolygon(end, polygon)) return true;
+
+  for (let index = 0; index < polygon.length; index += 1) {
+    if (segmentsProperlyIntersect(start, end, polygon[index], polygon[(index + 1) % polygon.length])) return true;
+  }
+
+  // Sampling also catches a segment that enters/leaves through an exact polygon vertex.
+  for (let step = 1; step < 20; step += 1) {
+    const t = step / 20;
+    const point: LatLngTuple = [
+      start[0] + (end[0] - start[0]) * t,
+      start[1] + (end[1] - start[1]) * t,
+    ];
+    if (isPointStrictlyInsidePolygon(point, polygon)) return true;
+  }
+
+  return false;
+}
+
+function polygonsShareInterior(first: LatLngTuple[], second: LatLngTuple[]) {
+  if (first.length < 3 || second.length < 3) return false;
+
+  if (first.some((point) => isPointStrictlyInsidePolygon(point, second))) return true;
+  if (second.some((point) => isPointStrictlyInsidePolygon(point, first))) return true;
+
+  for (let firstIndex = 0; firstIndex < first.length; firstIndex += 1) {
+    const firstStart = first[firstIndex];
+    const firstEnd = first[(firstIndex + 1) % first.length];
+
+    for (let secondIndex = 0; secondIndex < second.length; secondIndex += 1) {
+      if (segmentsProperlyIntersect(
+        firstStart,
+        firstEnd,
+        second[secondIndex],
+        second[(secondIndex + 1) % second.length],
+      )) return true;
+    }
+  }
+
+  // Coincident/mostly coincident polygons can have no strict vertex containment or
+  // proper edge crossing. Sample their overlapping bounding box to detect shared area.
+  const firstLats = first.map((point) => point[0]);
+  const firstLngs = first.map((point) => point[1]);
+  const secondLats = second.map((point) => point[0]);
+  const secondLngs = second.map((point) => point[1]);
+  const minLat = Math.max(Math.min(...firstLats), Math.min(...secondLats));
+  const maxLat = Math.min(Math.max(...firstLats), Math.max(...secondLats));
+  const minLng = Math.max(Math.min(...firstLngs), Math.min(...secondLngs));
+  const maxLng = Math.min(Math.max(...firstLngs), Math.max(...secondLngs));
+
+  if (minLat >= maxLat || minLng >= maxLng) return false;
+
+  for (let row = 1; row < 8; row += 1) {
+    for (let column = 1; column < 8; column += 1) {
+      const point: LatLngTuple = [
+        minLat + ((maxLat - minLat) * row) / 8,
+        minLng + ((maxLng - minLng) * column) / 8,
+      ];
+      if (isPointStrictlyInsidePolygon(point, first) && isPointStrictlyInsidePolygon(point, second)) return true;
+    }
+  }
+
+  return false;
+}
+
+function boundaryEntersAnyPolygon(points: LatLngTuple[], polygons: LatLngTuple[][]) {
+  for (const polygon of polygons) {
+    if (points.some((point) => isPointStrictlyInsidePolygon(point, polygon))) return true;
+
+    if (points.length >= 2) {
+      const edgeCount = points.length >= 3 ? points.length : points.length - 1;
+      for (let index = 0; index < edgeCount; index += 1) {
+        const nextIndex = points.length >= 3 ? (index + 1) % points.length : index + 1;
+        if (segmentEntersPolygon(points[index], points[nextIndex], polygon)) return true;
+      }
+    }
+
+    if (points.length >= 3 && polygonsShareInterior(points, polygon)) return true;
+  }
+
+  return false;
 }
 
 function getNeighborhoodPoints(neighborhood: CrmRecord) {
@@ -288,6 +449,97 @@ function MapResizeOnFullscreen({ fullscreen }: { fullscreen: boolean }) {
   return null;
 }
 
+function layerDistance(map: LeafletMap, first: LatLngTuple, second: LatLngTuple) {
+  return map.latLngToLayerPoint(first).distanceTo(map.latLngToLayerPoint(second));
+}
+
+function projectedPointOnSegment(
+  map: LeafletMap,
+  point: LatLngTuple,
+  start: LatLngTuple,
+  end: LatLngTuple,
+): LatLngTuple {
+  const pointPx = map.latLngToLayerPoint(point);
+  const startPx = map.latLngToLayerPoint(start);
+  const endPx = map.latLngToLayerPoint(end);
+  const dx = endPx.x - startPx.x;
+  const dy = endPx.y - startPx.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (!lengthSquared) return start;
+
+  const t = Math.max(
+    0,
+    Math.min(1, ((pointPx.x - startPx.x) * dx + (pointPx.y - startPx.y) * dy) / lengthSquared),
+  );
+  const projected = map.layerPointToLatLng([
+    startPx.x + t * dx,
+    startPx.y + t * dy,
+  ]);
+  return [projected.lat, projected.lng];
+}
+
+function closestValidPoint(
+  map: LeafletMap,
+  requestedPoint: LatLngTuple,
+  anchorPoint: LatLngTuple | null,
+  constraintPolygons: LatLngTuple[][],
+  isValid: (point: LatLngTuple) => boolean,
+) {
+  if (isValid(requestedPoint)) return requestedPoint;
+
+  const candidates: LatLngTuple[] = [];
+
+  // First clamp along the exact direction the user moved the pointer. This makes
+  // dragging feel continuous: the handle reaches the last legal point instead of
+  // jumping back to its old position when the cursor crosses a forbidden area.
+  if (anchorPoint) {
+    let low = 0;
+    let high = 1;
+    let best: LatLngTuple | null = null;
+
+    for (let iteration = 0; iteration < 28; iteration += 1) {
+      const t = (low + high) / 2;
+      const candidate: LatLngTuple = [
+        anchorPoint[0] + (requestedPoint[0] - anchorPoint[0]) * t,
+        anchorPoint[1] + (requestedPoint[1] - anchorPoint[1]) * t,
+      ];
+
+      if (isValid(candidate)) {
+        best = candidate;
+        low = t;
+      } else {
+        high = t;
+      }
+    }
+
+    if (best) candidates.push(best);
+  }
+
+  // If the pointer is outside the parent or inside a sibling, also consider the
+  // geometrically nearest legal border point. This is especially useful when a
+  // user clicks well outside the allowed area while adding a new vertex.
+  constraintPolygons.forEach((polygon) => {
+    polygon.forEach((start, index) => {
+      const end = polygon[(index + 1) % polygon.length];
+      candidates.push(start, projectedPointOnSegment(map, requestedPoint, start, end));
+    });
+  });
+
+  let bestPoint: LatLngTuple | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  candidates.forEach((candidate) => {
+    if (!isValid(candidate)) return;
+    const distance = layerDistance(map, requestedPoint, candidate);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestPoint = candidate;
+    }
+  });
+
+  return bestPoint;
+}
+
 function closestSnapPoint(
   map: LeafletMap,
   point: LatLngTuple,
@@ -334,21 +586,18 @@ function closestSnapPoint(
 }
 
 function BoundaryDrawCollector({
-  boundaries,
   enabled,
   onAdd,
 }: {
-  boundaries: BoundaryItem[];
   enabled: boolean;
-  onAdd: (point: LatLngTuple, snapped: boolean) => void;
+  onAdd: (map: LeafletMap, point: LatLngTuple) => void;
 }) {
   const map = useMapEvents({
     click(event) {
       if (!enabled) return;
 
       const rawPoint: LatLngTuple = [event.latlng.lat, event.latlng.lng];
-      const snappedPoint = closestSnapPoint(map, rawPoint, boundaries);
-      onAdd(snappedPoint, !samePoint(rawPoint, snappedPoint));
+      onAdd(map, rawPoint);
     },
   });
 
@@ -360,6 +609,7 @@ function EditableBoundaryVertex({
   color,
   index,
   onMove,
+  onPreviewMove,
   onSelect,
   point,
   selected,
@@ -367,7 +617,8 @@ function EditableBoundaryVertex({
   boundaries: BoundaryItem[];
   color: string;
   index: number;
-  onMove: (index: number, point: LatLngTuple, snapped: boolean) => boolean;
+  onMove: (index: number, point: LatLngTuple, map: LeafletMap) => LatLngTuple | null;
+  onPreviewMove: (index: number, point: LatLngTuple, map: LeafletMap) => LatLngTuple | null;
   onSelect: (index: number) => void;
   point: LatLngTuple;
   selected: boolean;
@@ -388,13 +639,22 @@ function EditableBoundaryVertex({
           event.originalEvent.stopPropagation();
           onSelect(index);
         },
+        drag: (event) => {
+          const marker = event.target as LeafletMarker;
+          const latLng = marker.getLatLng();
+          const rawPoint: LatLngTuple = [latLng.lat, latLng.lng];
+          const resolvedPoint = onPreviewMove(index, rawPoint, map);
+          if (resolvedPoint) marker.setLatLng(resolvedPoint);
+          else marker.setLatLng(point);
+        },
         dragend: (event) => {
           const marker = event.target as LeafletMarker;
           const latLng = marker.getLatLng();
           const rawPoint: LatLngTuple = [latLng.lat, latLng.lng];
           const snappedPoint = closestSnapPoint(map, rawPoint, boundaries);
-          const accepted = onMove(index, snappedPoint, !samePoint(rawPoint, snappedPoint));
-          if (!accepted) marker.setLatLng(point);
+          const resolvedPoint = onMove(index, snappedPoint, map);
+          if (resolvedPoint) marker.setLatLng(resolvedPoint);
+          else marker.setLatLng(point);
         },
       }}
       icon={icon}
@@ -406,284 +666,6 @@ function EditableBoundaryVertex({
 
 function getEdgeMidpoint(start: LatLngTuple, end: LatLngTuple): LatLngTuple {
   return [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
-}
-
-type BoundaryLabelItem = {
-  id: string;
-  kind: BoundaryKind;
-  name: string;
-  points: LatLngTuple[];
-};
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function getPolygonCentroid(points: Array<{ x: number; y: number }>) {
-  let signedArea = 0;
-  let centroidX = 0;
-  let centroidY = 0;
-
-  points.forEach((point, index) => {
-    const next = points[(index + 1) % points.length];
-    const cross = point.x * next.y - next.x * point.y;
-    signedArea += cross;
-    centroidX += (point.x + next.x) * cross;
-    centroidY += (point.y + next.y) * cross;
-  });
-
-  signedArea *= 0.5;
-  if (Math.abs(signedArea) < Number.EPSILON) return null;
-
-  return {
-    x: centroidX / (6 * signedArea),
-    y: centroidY / (6 * signedArea),
-  };
-}
-
-function isProjectedPointInsidePolygon(
-  point: { x: number; y: number },
-  polygon: Array<{ x: number; y: number }>,
-) {
-  let inside = false;
-
-  for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index, index += 1) {
-    const current = polygon[index];
-    const before = polygon[previous];
-    const intersects =
-      current.y > point.y !== before.y > point.y &&
-      point.x < ((before.x - current.x) * (point.y - current.y)) / (before.y - current.y || Number.EPSILON) + current.x;
-
-    if (intersects) inside = !inside;
-  }
-
-  return inside;
-}
-
-function distanceToSegment(
-  point: { x: number; y: number },
-  start: { x: number; y: number },
-  end: { x: number; y: number },
-) {
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const lengthSquared = dx * dx + dy * dy;
-  if (!lengthSquared) return Math.hypot(point.x - start.x, point.y - start.y);
-
-  const progress = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared));
-  const projectedX = start.x + progress * dx;
-  const projectedY = start.y + progress * dy;
-  return Math.hypot(point.x - projectedX, point.y - projectedY);
-}
-
-function distanceToPolygonEdges(point: { x: number; y: number }, polygon: Array<{ x: number; y: number }>) {
-  return polygon.reduce((minimum, start, index) => {
-    const end = polygon[(index + 1) % polygon.length];
-    return Math.min(minimum, distanceToSegment(point, start, end));
-  }, Number.POSITIVE_INFINITY);
-}
-
-function getInteriorVisualCenter(points: Array<{ x: number; y: number }>) {
-  const minX = Math.min(...points.map((point) => point.x));
-  const maxX = Math.max(...points.map((point) => point.x));
-  const minY = Math.min(...points.map((point) => point.y));
-  const maxY = Math.max(...points.map((point) => point.y));
-  const boundsCenter = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-  const centroid = getPolygonCentroid(points);
-
-  if (centroid && isProjectedPointInsidePolygon(centroid, points)) return centroid;
-  if (isProjectedPointInsidePolygon(boundsCenter, points)) return boundsCenter;
-
-  // Concave polygons can have their geometric center outside the geofence.
-  // Sample the visible polygon and choose the most central point that is safely inside.
-  let best: { x: number; y: number } | null = null;
-  let bestDistance = -1;
-  const steps = 18;
-  for (let row = 0; row <= steps; row += 1) {
-    for (let column = 0; column <= steps; column += 1) {
-      const candidate = {
-        x: minX + ((maxX - minX) * column) / steps,
-        y: minY + ((maxY - minY) * row) / steps,
-      };
-      if (!isProjectedPointInsidePolygon(candidate, points)) continue;
-      const distance = distanceToPolygonEdges(candidate, points);
-      if (distance > bestDistance) {
-        best = candidate;
-        bestDistance = distance;
-      }
-    }
-  }
-
-  return best;
-}
-
-function doesRotatedLabelFit(
-  center: { x: number; y: number },
-  polygon: Array<{ x: number; y: number }>,
-  rotation: number,
-  width: number,
-  height: number,
-) {
-  const radians = (rotation * Math.PI) / 180;
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-  const halfWidth = width / 2;
-  const halfHeight = height / 2;
-  const offsets = [
-    [-halfWidth, -halfHeight],
-    [0, -halfHeight],
-    [halfWidth, -halfHeight],
-    [halfWidth, 0],
-    [halfWidth, halfHeight],
-    [0, halfHeight],
-    [-halfWidth, halfHeight],
-    [-halfWidth, 0],
-  ];
-
-  return offsets.every(([offsetX, offsetY]) => {
-    const point = {
-      x: center.x + offsetX * cos - offsetY * sin,
-      y: center.y + offsetX * sin + offsetY * cos,
-    };
-    return isProjectedPointInsidePolygon(point, polygon);
-  });
-}
-
-function getBoundaryLabelGeometry(map: LeafletMap, item: BoundaryLabelItem) {
-  const projected = item.points.map((point) => map.latLngToLayerPoint(point));
-  if (projected.length < 3) return null;
-
-  const center = getInteriorVisualCenter(projected);
-  if (!center) return null;
-
-  let covarianceXX = 0;
-  let covarianceYY = 0;
-  let covarianceXY = 0;
-  projected.forEach((point) => {
-    const dx = point.x - center.x;
-    const dy = point.y - center.y;
-    covarianceXX += dx * dx;
-    covarianceYY += dy * dy;
-    covarianceXY += dx * dy;
-  });
-
-  const principalAngle = 0.5 * Math.atan2(2 * covarianceXY, covarianceXX - covarianceYY);
-  let rotation = (principalAngle * 180) / Math.PI;
-  while (rotation > 90) rotation -= 180;
-  while (rotation < -90) rotation += 180;
-
-  const characterCount = Math.max(4, Array.from(item.name.trim()).length);
-  const minX = Math.min(...projected.map((point) => point.x));
-  const maxX = Math.max(...projected.map((point) => point.x));
-  const minY = Math.min(...projected.map((point) => point.y));
-  const maxY = Math.max(...projected.map((point) => point.y));
-  const boundsWidth = maxX - minX;
-  const boundsHeight = maxY - minY;
-
-  // The polygon is measured in screen pixels, so this automatically reacts to BOTH:
-  // 1) the real geofence size, and 2) the current map zoom.
-  // As the user zooms out the projected geofence becomes smaller and so does the label.
-  let doubleArea = 0;
-  projected.forEach((point, index) => {
-    const next = projected[(index + 1) % projected.length];
-    doubleArea += point.x * next.y - next.x * point.y;
-  });
-  const polygonArea = Math.abs(doubleArea) / 2;
-  const equivalentDiameter = polygonArea > 0 ? 2 * Math.sqrt(polygonArea / Math.PI) : 0;
-  const shortSide = Math.min(boundsWidth, boundsHeight);
-
-  // Larger geofences get larger labels; smaller/zoomed-out geofences get smaller labels.
-  // shortSide prevents very long/thin polygons from receiving oversized text.
-  const sizeFromArea = equivalentDiameter * 0.12;
-  const sizeFromShortSide = shortSide * 0.22;
-  let fontSize = Math.floor(Math.min(24, sizeFromArea, sizeFromShortSide));
-
-  // Below this size the text is no longer useful/readable, so hide it instead.
-  const minimumReadableFontSize = 8;
-
-  // Shrink further until the COMPLETE rotated text box stays inside the selected geofence.
-  while (fontSize >= minimumReadableFontSize) {
-    const estimatedWidth = characterCount * fontSize * 0.62;
-    const estimatedHeight = fontSize * 1.35;
-    if (doesRotatedLabelFit(center, projected, rotation, estimatedWidth, estimatedHeight)) break;
-    fontSize -= 1;
-  }
-
-  if (fontSize < minimumReadableFontSize) return null;
-
-  const estimatedWidth = characterCount * fontSize * 0.62;
-  const estimatedHeight = fontSize * 1.35;
-
-  // Visually bias the selected boundary label to the RIGHT instead of leaving it
-  // at the exact polygon center. We search from a noticeably right-shifted target
-  // back toward the safe center so irregular/concave geofences never let the text
-  // escape outside their boundary.
-  const desiredRightShift = Math.min(
-    boundsWidth * 0.24,
-    Math.max(0, maxX - center.x - estimatedWidth * 0.58),
-  );
-  let labelCenter = center;
-  const rightShiftSteps = 18;
-  for (let step = rightShiftSteps; step >= 1; step -= 1) {
-    const candidate = {
-      x: center.x + desiredRightShift * (step / rightShiftSteps),
-      y: center.y,
-    };
-    if (
-      isProjectedPointInsidePolygon(candidate, projected) &&
-      doesRotatedLabelFit(candidate, projected, rotation, estimatedWidth, estimatedHeight)
-    ) {
-      labelCenter = candidate;
-      break;
-    }
-  }
-
-  const position = map.layerPointToLatLng([labelCenter.x, labelCenter.y]);
-  return {
-    fontSize,
-    position: [position.lat, position.lng] as LatLngTuple,
-    rotation: Number(rotation.toFixed(1)),
-  };
-}
-
-function BoundaryLabels({ items }: { items: BoundaryLabelItem[] }) {
-  const [viewportVersion, setViewportVersion] = useState(0);
-  const map = useMapEvents({
-    moveend: () => setViewportVersion((current) => current + 1),
-    resize: () => setViewportVersion((current) => current + 1),
-    zoomend: () => setViewportVersion((current) => current + 1),
-  });
-
-  const labels = useMemo(() => items.flatMap((item) => {
-    if (item.points.length < 3 || !item.name.trim()) return [];
-    const geometry = getBoundaryLabelGeometry(map, item);
-    if (!geometry) return [];
-
-    const color = item.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR;
-    const icon = divIcon({
-      className: "",
-      html: `<div style="pointer-events:none;direction:rtl;white-space:nowrap;transform:translate(-50%,-50%) rotate(${geometry.rotation}deg);transform-origin:center;color:${color};font-family:'DanaFaNum',Vazirmatn,IRANSans,Tahoma,Arial,sans-serif;font-size:${geometry.fontSize}px;font-weight:700;line-height:1.2;text-align:center;background:transparent;padding:0;margin:0;border:0;box-shadow:none;">${escapeHtml(item.name)}</div>`,
-      iconAnchor: [0, 0],
-      iconSize: [0, 0],
-    });
-
-    return [{ ...geometry, icon, item }];
-  }), [items, map, viewportVersion]);
-
-  return labels.map(({ icon, item, position }) => (
-    <Marker
-      interactive={false}
-      icon={icon}
-      key={`boundary-label:${item.id}`}
-      position={position}
-      zIndexOffset={850}
-    />
-  ));
 }
 
 export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -716,7 +698,39 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     queryKey: ["crm", "neighborhoods", cityId, refreshNonce],
   });
 
-  const neighborhoods = neighborhoodsQuery.data ?? [];
+  const baseNeighborhoods = neighborhoodsQuery.data ?? [];
+  const neighborhoodIds = useMemo(
+    () => baseNeighborhoods.map((item) => getCrmRecordId(item)).filter(Boolean),
+    [baseNeighborhoods],
+  );
+  const subNeighborhoodsQuery = useQuery({
+    enabled: Boolean(cityId) && neighborhoodIds.length > 0,
+    queryFn: async () => {
+      const entries = await Promise.all(
+        neighborhoodIds.map(async (neighborhoodId) => [
+          neighborhoodId,
+          await listCrmSubNeighborhoods({ neighborhoodId }),
+        ] as const),
+      );
+
+      return Object.fromEntries(entries) as Record<string, CrmRecord[]>;
+    },
+    queryKey: ["crm", "sub-neighborhoods", "map", cityId, neighborhoodIds.join(","), refreshNonce],
+  });
+  const neighborhoods = useMemo(
+    () => baseNeighborhoods.map((neighborhood) => {
+      const neighborhoodId = getCrmRecordId(neighborhood);
+      const standaloneSubNeighborhoods = subNeighborhoodsQuery.data?.[neighborhoodId];
+
+      return {
+        ...neighborhood,
+        sub_neighbors: standaloneSubNeighborhoods ?? (
+          subNeighborhoodsQuery.isSuccess ? [] : parseSubNeighborhoods(neighborhood.sub_neighbors)
+        ),
+      };
+    }),
+    [baseNeighborhoods, subNeighborhoodsQuery.data, subNeighborhoodsQuery.isSuccess],
+  );
   const city = citiesQuery.data?.find((item) => getCrmRecordId(item) === cityId);
   const cityName = city ? readText(city, ["name"], citySnapshot.name || `شهر ${cityId}`) : citySnapshot.name || `شهر ${cityId}`;
   const cityLat = Number(city?.lat);
@@ -750,31 +764,12 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const parentPolygonForActiveSub = activeSubParentNeighborhood
     ? getNeighborhoodPoints(activeSubParentNeighborhood)
     : [];
-  const boundaryLabelItems = useMemo<BoundaryLabelItem[]>(() => {
-    if (editTarget && draftPoints.length >= 3 && draftName.trim()) {
-      return [{
-        id: `draft:${activeBoundaryId || editTarget.kind}`,
-        kind: editTarget.kind === "sub-neighborhood" ? "sub-neighborhood" : "neighborhood",
-        name: draftName.trim(),
-        points: draftPoints,
-      }];
-    }
-
-    const selectedBoundary = boundaries.find((boundary) =>
-      boundary.kind === "neighborhood"
-        ? selectedNeighborhoodId === boundary.neighborhoodId && !selectedSubId
-        : selectedNeighborhoodId === boundary.neighborhoodId && selectedSubId === boundary.subId,
-    );
-
-    return selectedBoundary
-      ? [{
-        id: selectedBoundary.id,
-        kind: selectedBoundary.kind,
-        name: selectedBoundary.name,
-        points: selectedBoundary.points,
-      }]
-      : [];
-  }, [activeBoundaryId, boundaries, draftName, draftPoints, editTarget, selectedNeighborhoodId, selectedSubId]);
+  const siblingPolygonsForActiveSub = editTarget?.kind === "sub-neighborhood" && activeSubParentNeighborhood
+    ? parseSubNeighborhoods(activeSubParentNeighborhood.sub_neighbors)
+      .filter((subNeighborhood) => subNeighborhood.id !== editTarget.subId)
+      .map(getSubNeighborhoodPoints)
+      .filter((points) => points.length >= 3)
+    : [];
 
   useEffect(() => {
     if (didApplyDefaultSelectionRef.current || !boundaries.length) return;
@@ -807,6 +802,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const invalidateNeighborhoods = async () => {
     await queryClient.invalidateQueries({ queryKey: ["crm", "neighborhoods", cityId] });
     await queryClient.invalidateQueries({ queryKey: ["crm", "neighborhoods"] });
+    await queryClient.invalidateQueries({ queryKey: ["crm", "sub-neighborhoods"] });
   };
 
   const saveMutation = useMutation({
@@ -818,7 +814,26 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     },
   });
 
-  const isPending = saveMutation.isPending;
+  const subNeighborhoodSaveMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string | null; payload: CrmSubNeighborhoodPayload }) =>
+      id ? updateCrmSubNeighborhood(id, payload) : createCrmSubNeighborhood(payload),
+    onError: (error) => notify(getApiErrorMessage(error, "ذخیره زیرمحله با خطا مواجه شد."), "error"),
+    onSuccess: async () => {
+      await invalidateNeighborhoods();
+      notify("زیرمحله با موفقیت ذخیره شد.");
+    },
+  });
+
+  const subNeighborhoodDeleteMutation = useMutation({
+    mutationFn: deleteCrmSubNeighborhood,
+    onError: (error) => notify(getApiErrorMessage(error, "حذف زیرمحله با خطا مواجه شد."), "error"),
+    onSuccess: async () => {
+      await invalidateNeighborhoods();
+      notify("زیرمحله با موفقیت حذف شد.");
+    },
+  });
+
+  const isPending = saveMutation.isPending || subNeighborhoodSaveMutation.isPending || subNeighborhoodDeleteMutation.isPending;
 
   const resetEditor = () => {
     setEditTarget(null);
@@ -826,6 +841,16 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     setDraftName("");
     setLastSnapNotice(false);
     setSelectedDraftPointIndex(null);
+  };
+
+  const cancelActiveBoundary = () => {
+    if (editTarget?.kind === "sub-neighborhood" && editTarget.isNew) {
+      setSelectedNeighborhoodId(editTarget.neighborhoodId);
+      setSelectedSubId("");
+      setExpandedNeighborhoodId(editTarget.neighborhoodId);
+    }
+
+    resetEditor();
   };
 
   const startNeighborhoodBoundary = (neighborhood: CrmRecord) => {
@@ -912,54 +937,141 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     setShowNewSubInputFor("");
   };
 
-  const isAllowedDraftPoint = (point: LatLngTuple) => {
+  const isAllowedSubNeighborhoodDraft = (points: LatLngTuple[], showError = true) => {
     if (editTarget?.kind !== "sub-neighborhood") return true;
 
-    if (parentPolygonForActiveSub.length < 3 || !isPointInsideOrOnPolygon(point, parentPolygonForActiveSub)) {
-      notify("تمام نقاط زیرمحله باید داخل محدوده محله اصلی باشند.", "error");
+    if (parentPolygonForActiveSub.length < 3 || !isBoundaryInsidePolygon(points, parentPolygonForActiveSub)) {
+      if (showError) notify("محدوده زیرمحله باید کاملاً داخل محدوده محله اصلی باشد.", "error");
+      return false;
+    }
+
+    if (boundaryEntersAnyPolygon(points, siblingPolygonsForActiveSub)) {
+      if (showError) notify("محدوده زیرمحله نمی‌تواند داخل یا روی محدوده زیرمحله دیگری هم‌پوشانی داشته باشد.", "error");
       return false;
     }
 
     return true;
   };
 
-  const addDraftPoint = (point: LatLngTuple, snapped: boolean) => {
-    if (!editTarget || !isAllowedDraftPoint(point)) return;
-    if (draftPoints.some((current) => samePoint(current, point))) return;
+  const subNeighborhoodConstraintPolygons = editTarget?.kind === "sub-neighborhood"
+    ? [parentPolygonForActiveSub, ...siblingPolygonsForActiveSub].filter((points) => points.length >= 3)
+    : [];
 
-    setDraftPoints((current) => [...current, point]);
+  const addExactDraftPoint = (point: LatLngTuple, adjusted = false) => {
+    if (!editTarget) return false;
+    if (draftPoints.some((current) => samePoint(current, point))) return false;
+
+    const nextPoints = [...draftPoints, point];
+    if (!isAllowedSubNeighborhoodDraft(nextPoints, false)) return false;
+
+    setDraftPoints(nextPoints);
     setSelectedDraftPointIndex(draftPoints.length);
-    if (snapped) setLastSnapNotice(true);
-  };
-
-  const moveDraftPoint = (index: number, point: LatLngTuple, snapped: boolean) => {
-    if (!editTarget || !isAllowedDraftPoint(point)) return false;
-    if (draftPoints.some((currentPoint, currentIndex) => currentIndex !== index && samePoint(currentPoint, point))) {
-      notify("دو نقطه مرز نمی‌توانند دقیقاً روی یک مختصات قرار بگیرند.", "error");
-      return false;
-    }
-
-    setDraftPoints((current) => current.map((currentPoint, currentIndex) =>
-      currentIndex === index ? point : currentPoint,
-    ));
-    setSelectedDraftPointIndex(index);
-    if (snapped) setLastSnapNotice(true);
+    if (adjusted) setLastSnapNotice(true);
     return true;
   };
+
+  const addDraftPoint = (map: LeafletMap, rawPoint: LatLngTuple) => {
+    if (!editTarget) return;
+
+    const snappedPoint = closestSnapPoint(map, rawPoint, snapBoundaries);
+    const isValidCandidate = (candidate: LatLngTuple) => {
+      if (draftPoints.some((current) => samePoint(current, candidate))) return false;
+      return isAllowedSubNeighborhoodDraft([...draftPoints, candidate], false);
+    };
+
+    if (editTarget.kind !== "sub-neighborhood") {
+      addExactDraftPoint(snappedPoint, !samePoint(rawPoint, snappedPoint));
+      return;
+    }
+
+    let resolvedPoint = isValidCandidate(snappedPoint) ? snappedPoint : null;
+    if (!resolvedPoint) {
+      resolvedPoint = closestValidPoint(
+        map,
+        rawPoint,
+        draftPoints.length ? draftPoints[draftPoints.length - 1] : null,
+        subNeighborhoodConstraintPolygons,
+        isValidCandidate,
+      );
+    }
+
+    if (!resolvedPoint) {
+      notify("در این قسمت امکان قرار دادن نقطه وجود ندارد.", "error");
+      return;
+    }
+
+    addExactDraftPoint(resolvedPoint, !samePoint(rawPoint, resolvedPoint));
+  };
+
+  const resolveAndMoveDraftPoint = (
+    index: number,
+    requestedPoint: LatLngTuple,
+    map: LeafletMap,
+    showAdjustmentNotice: boolean,
+  ) => {
+    if (!editTarget) return null;
+
+    const isValidCandidate = (candidate: LatLngTuple) => {
+      if (draftPoints.some((currentPoint, currentIndex) => currentIndex !== index && samePoint(currentPoint, candidate))) {
+        return false;
+      }
+
+      const nextPoints = draftPoints.map((currentPoint, currentIndex) =>
+        currentIndex === index ? candidate : currentPoint,
+      );
+      return isAllowedSubNeighborhoodDraft(nextPoints, false);
+    };
+
+    const resolvedPoint = editTarget.kind === "sub-neighborhood"
+      ? closestValidPoint(
+        map,
+        requestedPoint,
+        draftPoints[index] ?? null,
+        subNeighborhoodConstraintPolygons,
+        isValidCandidate,
+      )
+      : isValidCandidate(requestedPoint) ? requestedPoint : null;
+
+    if (!resolvedPoint) return null;
+
+    const nextPoints = draftPoints.map((currentPoint, currentIndex) =>
+      currentIndex === index ? resolvedPoint : currentPoint,
+    );
+    setDraftPoints(nextPoints);
+    setSelectedDraftPointIndex(index);
+
+    if (showAdjustmentNotice && !samePoint(requestedPoint, resolvedPoint)) {
+      setLastSnapNotice(true);
+    }
+
+    return resolvedPoint;
+  };
+
+  const moveDraftPoint = (index: number, point: LatLngTuple, map: LeafletMap) =>
+    resolveAndMoveDraftPoint(index, point, map, true);
+
+  const previewDraftPointMove = (index: number, point: LatLngTuple, map: LeafletMap) =>
+    resolveAndMoveDraftPoint(index, point, map, false);
 
   const insertDraftPointAfter = (index: number, point: LatLngTuple) => {
-    if (!editTarget || !isAllowedDraftPoint(point)) return;
+    if (!editTarget) return;
 
-    setDraftPoints((current) => [
-      ...current.slice(0, index + 1),
+    const nextPoints = [
+      ...draftPoints.slice(0, index + 1),
       point,
-      ...current.slice(index + 1),
-    ]);
+      ...draftPoints.slice(index + 1),
+    ];
+    if (!isAllowedSubNeighborhoodDraft(nextPoints)) return;
+
+    setDraftPoints(nextPoints);
     setSelectedDraftPointIndex(index + 1);
   };
 
   const removeDraftPoint = (index: number) => {
-    setDraftPoints((current) => current.filter((_, currentIndex) => currentIndex !== index));
+    const nextPoints = draftPoints.filter((_, currentIndex) => currentIndex !== index);
+    if (nextPoints.length > 0 && !isAllowedSubNeighborhoodDraft(nextPoints)) return;
+
+    setDraftPoints(nextPoints);
     setSelectedDraftPointIndex(null);
   };
 
@@ -971,9 +1083,8 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
       return;
     }
 
-    const isNewBoundary = editTarget.kind === "new-neighborhood" ||
-      (editTarget.kind === "sub-neighborhood" && editTarget.isNew);
-    if (isNewBoundary && draftPoints.length < 3) {
+    const requiresPolygon = editTarget.kind === "new-neighborhood" || editTarget.kind === "sub-neighborhood";
+    if (requiresPolygon && draftPoints.length < 3) {
       notify("برای ذخیره محدوده حداقل سه نقطه انتخاب کنید.", "error");
       return;
     }
@@ -1050,7 +1161,11 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
       return;
     }
 
-    const subNeighborhoods = parseSubNeighborhoods(neighborhood.sub_neighbors);
+    if (polygon && boundaryEntersAnyPolygon(draftPoints, siblingPolygonsForActiveSub)) {
+      notify("محدوده زیرمحله نمی‌تواند با زیرمحله دیگری هم‌پوشانی داشته باشد.", "error");
+      return;
+    }
+
     const duplicateIdOwner = neighborhoods.find((item) => {
       if (getCrmRecordId(item) === editTarget.neighborhoodId) return false;
       return parseSubNeighborhoods(item.sub_neighbors).some((sub) => sub.id === editTarget.subId);
@@ -1060,43 +1175,33 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
       return;
     }
 
-    const nextSubNeighborhoods = editTarget.isNew
-      ? [...subNeighborhoods, { geofence: polygon, id: editTarget.subId, name }]
-      : subNeighborhoods.map((item) =>
-        item.id === editTarget.subId
-          ? { ...item, ...(polygon ? { geofence: polygon } : {}), name }
-          : item,
-      );
+    if (!polygon) return;
 
-    await saveMutation.mutateAsync({
-      id: editTarget.neighborhoodId,
+    const neighborhoodId = Number(editTarget.neighborhoodId);
+    if (!Number.isInteger(neighborhoodId) || neighborhoodId <= 0) {
+      notify("شناسه محله اصلی معتبر نیست.", "error");
+      return;
+    }
+
+    await subNeighborhoodSaveMutation.mutateAsync({
+      id: editTarget.isNew ? null : editTarget.subId,
       payload: {
-        city_id: neighborhood.city_id ?? cityId,
-        lat: neighborhood.lat ?? cityCenter[0],
-        lng: neighborhood.lng ?? cityCenter[1],
-        name: readText(neighborhood, ["name"], ""),
-        polygon: parseMaybeJson(neighborhood.polygon ?? neighborhood.geofence) ?? undefined,
-        sub_neighbors: nextSubNeighborhoods,
+        neighborhood_id: neighborhoodId,
+        name,
+        geofence: polygon,
       },
     });
+
+    if (editTarget.isNew) {
+      setSelectedNeighborhoodId(editTarget.neighborhoodId);
+      setSelectedSubId("");
+      setExpandedNeighborhoodId(editTarget.neighborhoodId);
+    }
     resetEditor();
   };
 
-  const deleteSubNeighborhood = async (neighborhood: CrmRecord, subId: string) => {
-    const neighborhoodId = getCrmRecordId(neighborhood);
-    const nextSubNeighborhoods = parseSubNeighborhoods(neighborhood.sub_neighbors).filter((item) => item.id !== subId);
-
-    await saveMutation.mutateAsync({
-      id: neighborhoodId,
-      payload: {
-        city_id: neighborhood.city_id ?? cityId,
-        lat: neighborhood.lat ?? cityCenter[0],
-        lng: neighborhood.lng ?? cityCenter[1],
-        name: readText(neighborhood, ["name"], ""),
-        polygon: parseMaybeJson(neighborhood.polygon ?? neighborhood.geofence) ?? undefined,
-        sub_neighbors: nextSubNeighborhoods,
-      },
-    });
+  const deleteSubNeighborhood = async (subId: string) => {
+    await subNeighborhoodDeleteMutation.mutateAsync(subId);
 
     if (selectedSubId === subId) setSelectedSubId("");
     if (editTarget?.kind === "sub-neighborhood" && editTarget.subId === subId) resetEditor();
@@ -1175,14 +1280,24 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
-            {neighborhoodsQuery.isLoading ? (
+            {neighborhoodsQuery.isLoading || (neighborhoodIds.length > 0 && subNeighborhoodsQuery.isLoading) ? (
               <div className="space-y-2">
                 {Array.from({ length: 7 }, (_, index) => <div className="h-14 animate-pulse rounded-xl bg-[#f3f4f6]" key={index} />)}
               </div>
-            ) : neighborhoodsQuery.isError ? (
+            ) : neighborhoodsQuery.isError || subNeighborhoodsQuery.isError ? (
               <div className="rounded-xl bg-[#fff3f3] p-4 text-sm text-[#c11004]">
-                دریافت محله‌ها با خطا مواجه شد.
-                <Button className="mt-3" onClick={() => void neighborhoodsQuery.refetch()} size="small" variant="secondary">تلاش دوباره</Button>
+                دریافت محله‌ها یا زیرمحله‌ها با خطا مواجه شد.
+                <Button
+                  className="mt-3"
+                  onClick={() => {
+                    void neighborhoodsQuery.refetch();
+                    void subNeighborhoodsQuery.refetch();
+                  }}
+                  size="small"
+                  variant="secondary"
+                >
+                  تلاش دوباره
+                </Button>
               </div>
             ) : neighborhoods.length ? (
               <div className="space-y-2">
@@ -1225,11 +1340,19 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                         <div className="border-t border-[#eeeeee] bg-[#fafafa] p-2">
                           <div className="space-y-1.5">
                             {subNeighborhoods.map((subNeighborhood) => {
+                              const subNeighborhoodColor = getSubNeighborhoodColor(`${neighborhoodId}:${subNeighborhood.id}`);
                               const isSubSelected = selectedNeighborhoodId === neighborhoodId && selectedSubId === subNeighborhood.id;
                               const hasSubBoundary = getSubNeighborhoodPoints(subNeighborhood).length >= 3;
 
                               return (
-                                <div className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 ${isSubSelected ? "border-[#11a366] bg-[#f0fbf6]" : "border-[#eeeeee] bg-white"}`} key={subNeighborhood.id}>
+                                <div
+                                  className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 ${isSubSelected ? "" : "border-[#eeeeee] bg-white"}`}
+                                  key={subNeighborhood.id}
+                                  style={isSubSelected ? {
+                                    backgroundColor: `${subNeighborhoodColor}12`,
+                                    borderColor: subNeighborhoodColor,
+                                  } : undefined}
+                                >
                                   <Button
                                     unstyled
                                     className="min-w-0 flex-1 text-right"
@@ -1239,7 +1362,14 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                                     }}
                                     type="button"
                                   >
-                                    <Typography as="span" variant="body" size="medium" weight="medium" className="block truncate text-[#333333]">{subNeighborhood.name}</Typography>
+                                    <span className="flex min-w-0 items-center gap-2">
+                                      <span
+                                        aria-hidden="true"
+                                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                        style={{ backgroundColor: subNeighborhoodColor }}
+                                      />
+                                      <Typography as="span" variant="body" size="medium" weight="medium" className="block min-w-0 truncate text-[#333333]">{subNeighborhood.name}</Typography>
+                                    </span>
                                     <Typography as="span" variant="body" size="small" weight="regular" className="block text-[#909090]">{hasSubBoundary ? "مرزبندی شده" : "بدون مرزبندی"}</Typography>
                                   </Button>
                                   <Button onClick={() => startSubNeighborhoodBoundary(neighborhood, subNeighborhood)} size="small" variant="neutral-outline">ویرایش</Button>
@@ -1248,7 +1378,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                                     disabled={isPending}
                                     onClick={() => {
                                       if (!window.confirm(`زیرمحله «${subNeighborhood.name}» حذف شود؟`)) return;
-                                      void deleteSubNeighborhood(neighborhood, subNeighborhood.id);
+                                      void deleteSubNeighborhood(subNeighborhood.id);
                                     }}
                                     size="small"
                                     variant="text"
@@ -1321,7 +1451,6 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
             <MapViewport center={cityCenter} points={allBoundaryPoints} />
             <MapResizeOnFullscreen fullscreen={isFullscreen} />
             <BoundaryDrawCollector
-              boundaries={snapBoundaries}
               enabled={Boolean(editTarget) && (draftPoints.length < 3 || editTarget?.kind === "new-neighborhood" || (editTarget?.kind === "sub-neighborhood" && editTarget.isNew))}
               onAdd={addDraftPoint}
             />
@@ -1335,9 +1464,12 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                 boundary.kind === "neighborhood" &&
                 selectedNeighborhoodId === boundary.neighborhoodId &&
                 Boolean(selectedSubId);
-              const color = isSelected
-                ? boundary.kind === "neighborhood" ? MAIN_BOUNDARY_COLOR : SUB_BOUNDARY_COLOR
-                : isParentOfSelectedSub
+              const subNeighborhoodColor = boundary.kind === "sub-neighborhood"
+                ? getSubNeighborhoodColor(`${boundary.neighborhoodId}:${boundary.subId ?? boundary.name}`)
+                : null;
+              const color = boundary.kind === "sub-neighborhood"
+                ? subNeighborhoodColor ?? SUB_BOUNDARY_COLOR
+                : isSelected || isParentOfSelectedSub
                   ? MAIN_BOUNDARY_COLOR
                   : MUTED_BOUNDARY_COLOR;
 
@@ -1356,22 +1488,24 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                   pathOptions={{
                     color,
                     fillColor: color,
-                    fillOpacity: isSelected ? 0.18 : isParentOfSelectedSub ? 0.07 : boundary.kind === "sub-neighborhood" ? 0.08 : 0.05,
-                    opacity: isSelected ? 1 : isParentOfSelectedSub ? 0.55 : 0.65,
-                    weight: isSelected ? 3 : isParentOfSelectedSub ? 2.5 : 2,
+                    fillOpacity: isSelected ? 0.2 : isParentOfSelectedSub ? 0.07 : boundary.kind === "sub-neighborhood" ? 0.11 : 0.05,
+                    opacity: isSelected ? 1 : isParentOfSelectedSub ? 0.55 : boundary.kind === "sub-neighborhood" ? 0.82 : 0.65,
+                    weight: isSelected ? 3 : isParentOfSelectedSub ? 2.5 : boundary.kind === "sub-neighborhood" ? 2.25 : 2,
                   }}
                   positions={boundary.points}
                 />
               );
             })}
 
-            <BoundaryLabels items={boundaryLabelItems} />
-
             {editTarget && draftPoints.length >= 3 ? (
               <Polygon
                 pathOptions={{
-                  color: editTarget.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR,
-                  fillColor: editTarget.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR,
+                  color: editTarget.kind === "sub-neighborhood"
+                    ? getSubNeighborhoodColor(`${editTarget.neighborhoodId}:${editTarget.subId}`)
+                    : MAIN_BOUNDARY_COLOR,
+                  fillColor: editTarget.kind === "sub-neighborhood"
+                    ? getSubNeighborhoodColor(`${editTarget.neighborhoodId}:${editTarget.subId}`)
+                    : MAIN_BOUNDARY_COLOR,
                   fillOpacity: 0.2,
                   weight: 3,
                 }}
@@ -1386,7 +1520,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                   eventHandlers={{
                     click: (event) => {
                       event.originalEvent.stopPropagation();
-                      addDraftPoint(point, true);
+                      addExactDraftPoint(point, true);
                     },
                   }}
                   key={`snap:${boundary.id}:${index}`}
@@ -1412,7 +1546,9 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                   key={`edge-add:${index}:${midpoint[0]}:${midpoint[1]}`}
                   pathOptions={{
                     color: "#ffffff",
-                    fillColor: editTarget.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR,
+                    fillColor: editTarget.kind === "sub-neighborhood"
+                      ? getSubNeighborhoodColor(`${editTarget.neighborhoodId}:${editTarget.subId}`)
+                      : MAIN_BOUNDARY_COLOR,
                     fillOpacity: 0.92,
                     weight: 2,
                   }}
@@ -1424,10 +1560,13 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
             {editTarget ? draftPoints.map((point, index) => (
               <EditableBoundaryVertex
                 boundaries={snapBoundaries}
-                color={editTarget.kind === "sub-neighborhood" ? SUB_BOUNDARY_COLOR : MAIN_BOUNDARY_COLOR}
+                color={editTarget.kind === "sub-neighborhood"
+                  ? getSubNeighborhoodColor(`${editTarget.neighborhoodId}:${editTarget.subId}`)
+                  : MAIN_BOUNDARY_COLOR}
                 index={index}
                 key={`draft:${index}`}
                 onMove={moveDraftPoint}
+                onPreviewMove={previewDraftPointMove}
                 onSelect={setSelectedDraftPointIndex}
                 point={point}
                 selected={selectedDraftPointIndex === index}
@@ -1435,74 +1574,39 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
             )) : null}
           </MapContainer>
 
-          <div className="pointer-events-none absolute left-4 right-4 top-4 z-[600] flex items-start justify-between gap-4" dir="rtl">
-            <div className="pointer-events-auto max-w-[680px] rounded-2xl border border-white/70 bg-white/95 p-3 shadow-[0_12px_34px_rgba(31,46,70,0.14)] backdrop-blur">
-              {editTarget ? (
-                <>
-                  {editTarget.kind === "sub-neighborhood" ? (
-                    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-[#dce8ff] bg-[#f2f6ff] px-3 py-2">
-                      <Typography as="span" variant="body" size="small" weight="regular" className="text-[#596477]">محله اصلی:</Typography>
-                      <Typography as="strong" variant="label" size="small" weight="semibold" className="text-[#0048c4]">{activeSubParentName || "محله انتخاب‌شده"}</Typography>
-                      <Typography as="span" variant="body" size="small" weight="regular" className="text-[#808080]">
-                        {editTarget.isNew ? "· زیرمحله جدید برای این محله ثبت می‌شود" : "· این زیرمحله متعلق به همین محله است"}
-                      </Typography>
-                    </div>
-                  ) : null}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="min-w-[210px] flex-1">
-                      <Typography as="p" variant="label" size="small" weight="semibold" className="m-0 mb-1 text-[#596477]">
-                        {editTarget.kind === "sub-neighborhood" ? "نام زیرمحله" : "نام محله"}
-                      </Typography>
-                      <input
-                        className="h-10 w-full rounded-lg border border-[#cccccc] bg-white px-3 text-sm outline-none focus:border-[#0048c4]"
-                        onChange={(event) => setDraftName(event.target.value)}
-                        value={draftName}
-                      />
-                    </div>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <Button
-                        disabled={selectedDraftPointIndex === null || draftPoints.length <= 3 || isPending}
-                        onClick={() => {
-                          if (selectedDraftPointIndex === null) return;
-                          removeDraftPoint(selectedDraftPointIndex);
-                        }}
-                        size="x-medium"
-                        variant="neutral-outline"
-                      >
-                        حذف نقطه انتخاب‌شده
-                      </Button>
-                      <Button
-                        disabled={!draftPoints.length || isPending}
-                        onClick={() => {
-                          setDraftPoints([]);
-                          setSelectedDraftPointIndex(null);
-                        }}
-                        size="x-medium"
-                        variant="neutral-outline"
-                      >
-                        پاک کردن مرز
-                      </Button>
-                      <Button disabled={isPending} onClick={resetEditor} size="x-medium" variant="secondary">انصراف</Button>
-                      <Button disabled={(editTarget.kind === "new-neighborhood" || (editTarget.kind === "sub-neighborhood" && editTarget.isNew)) && draftPoints.length < 3} loading={saveMutation.isPending} onClick={() => void saveActiveBoundary()} size="x-medium" variant="primary">ذخیره تغییرات</Button>
-                    </div>
-                  </div>
-                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 leading-5 text-[#596477]">
-                    برای ویرایش واقعی مرز، نقطه‌های بزرگ را بکشید و جابه‌جا کنید؛ نقطه‌های کوچک بین اضلاع را بزنید تا یک نقطه جدید دقیقاً روی همان ضلع اضافه شود. برای حذف هم ابتدا یک نقطه را انتخاب کنید و «حذف نقطه انتخاب‌شده» را بزنید. نزدیک شدن به مرزهای موجود همچنان نقطه را خودکار به همان مرز متصل می‌کند.
-                    {editTarget.kind === "sub-neighborhood" ? " نقاط زیرمحله فقط داخل محله اصلی پذیرفته می‌شوند." : ""}
-                  </Typography>
-                </>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></span>
-                  <div>
-                    <Typography as="p" variant="label" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">نقشه مرزبندی {cityName}</Typography>
-                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-[#596477]">تمام محدوده‌های ثبت‌شده همزمان نمایش داده می‌شوند. از فهرست سمت راست دکمه «ویرایش» محله یا زیرمحله را بزنید تا نام و مرزبندی آن را تغییر دهید.</Typography>
-                  </div>
-                </div>
-              )}
+          {editTarget ? (
+            <div className="absolute left-1/2 top-4 z-[700] -translate-x-1/2" dir="rtl">
+              <div className="flex items-center gap-2 rounded-xl border border-[#e1e4e8] bg-white p-2 shadow-[0_8px_28px_rgba(26,26,26,0.14)]">
+                <Button
+                  disabled={isPending}
+                  loading={subNeighborhoodSaveMutation.isPending || saveMutation.isPending}
+                  onClick={() => void saveActiveBoundary()}
+                  size="x-medium"
+                  variant="primary"
+                >
+                  ثبت تغییرات
+                </Button>
+                <Button
+                  disabled={isPending}
+                  onClick={cancelActiveBoundary}
+                  size="x-medium"
+                  variant="neutral-outline"
+                >
+                  انصراف
+                </Button>
+                {selectedDraftPointIndex !== null ? (
+                  <Button
+                    disabled={isPending}
+                    onClick={() => removeDraftPoint(selectedDraftPointIndex)}
+                    size="x-medium"
+                    variant="danger"
+                  >
+                    حذف نقطه
+                  </Button>
+                ) : null}
+              </div>
             </div>
-
-          </div>
+          ) : null}
 
           <div className="absolute bottom-4 left-4 z-[650]" dir="rtl">
             <Button onClick={toggleFullscreen} size="x-medium" variant="neutral-outline">
@@ -1512,7 +1616,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
 
           {lastSnapNotice ? (
             <div className="pointer-events-none absolute bottom-5 left-1/2 z-[700] -translate-x-1/2 rounded-full bg-[#1a1a1a] px-4 py-2 text-sm font-medium text-white shadow-lg">
-              نقطه به مرز موجود متصل شد
+              نقطه به نزدیک‌ترین مرز یا موقعیت مجاز منتقل شد
             </div>
           ) : null}
         </section>

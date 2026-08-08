@@ -89,6 +89,17 @@ export type CrmNeighborhoodFilters = {
   perPage?: number;
 };
 
+export type CrmSubNeighborhoodFilters = {
+  neighborhoodId: string;
+  q?: string;
+};
+
+export type CrmSubNeighborhoodPayload = {
+  neighborhood_id: number;
+  name: string;
+  geofence: unknown;
+};
+
 export type CrmPaymentFilters = {
   page?: number;
   perPage?: number;
@@ -131,6 +142,10 @@ const rowContainerKeys = [
   "categories",
   "cities",
   "neighborhoods",
+  "sub_neighborhood",
+  "sub_neighborhoods",
+  "subNeighborhood",
+  "subNeighborhoods",
   "items",
   "list",
   "packages",
@@ -575,6 +590,49 @@ export function saveCrmNeighborhood(id: string | null, payload: CrmRecord) {
 
 export function deleteCrmNeighborhood(id: string) {
   return api.delete(`panel/neighborhood/delete/${id}`).json<unknown>();
+}
+
+export async function listCrmSubNeighborhoods(filters: CrmSubNeighborhoodFilters) {
+  return normalizeRows(
+    await api.get("panel/neighborhood/sub-neighborhood/list", {
+      searchParams: compactSearchParams({
+        neighborhood_id: Number(filters.neighborhoodId),
+        q: filters.q?.trim(),
+      }),
+    }).json<unknown>(),
+  );
+}
+
+function subNeighborhoodRequestBody(payload: CrmSubNeighborhoodPayload) {
+  // Keep the standalone API contract strict: the sub-neighborhood id belongs
+  // only in the update/delete URL and must never be sent in the JSON body.
+  return {
+    neighborhood_id: payload.neighborhood_id,
+    name: payload.name,
+    geofence: payload.geofence,
+  };
+}
+
+export function createCrmSubNeighborhood(payload: CrmSubNeighborhoodPayload) {
+  return api
+    .post("panel/neighborhood/sub-neighborhood/create", {
+      json: subNeighborhoodRequestBody(payload),
+    })
+    .json<unknown>();
+}
+
+export function updateCrmSubNeighborhood(id: string, payload: CrmSubNeighborhoodPayload) {
+  return api
+    .post(`panel/neighborhood/sub-neighborhood/update/${id}`, {
+      json: subNeighborhoodRequestBody(payload),
+    })
+    .json<unknown>();
+}
+
+export function deleteCrmSubNeighborhood(id: string) {
+  return api
+    .delete(`panel/neighborhood/sub-neighborhood/delete/${id}`)
+    .json<unknown>();
 }
 
 export async function listCrmAdvertiseForms() {

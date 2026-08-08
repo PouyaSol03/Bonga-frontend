@@ -178,7 +178,7 @@ export function ConsultantManagementPage() {
         centerClassName="px-0"
         reserveStartSpace
         title="مدیریت مشاورین"
-        titleClassName="text-center text-sm font-semibold leading-5"
+        titleClassName="text-right text-base font-semibold leading-6"
       />
 
       <div

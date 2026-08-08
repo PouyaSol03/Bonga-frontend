@@ -251,7 +251,6 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "floor",
   "rooms",
   "totalFloors",
-  "unitsPerFloor",
   "unitType",
   "unitPosition",
   "documentType",
@@ -357,6 +356,7 @@ const saleApartmentBasicFields: BasicPropertyField[] = [
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
+  { key: "unitsPerFloor", label: "تعداد واحد در هر طبقه", control: "input", numeric: true },
 ];
 
 const saleVillaHouseBasicFields: BasicPropertyField[] = [
@@ -496,7 +496,6 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   floor: floorOptions,
   rooms: roomOptions,
   totalFloors: ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"],
-  unitsPerFloor: ["۱ واحد", "۲ واحد", "۳ واحد", "۴ واحد", "۵ واحد", "۶ واحد", "۷ واحد", "۸ واحد", "بیشتر"],
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
   documentType: documentTypeOptions,
@@ -512,7 +511,6 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
 };
 
 const apartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "unitsPerFloor", label: "تعداد واحد در هر طبقه", control: "select" },
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
   { key: "unitType", label: "جهت ساختمان", control: "select" },
   { key: "unitPosition", label: "موقعیت واحد", control: "select" },

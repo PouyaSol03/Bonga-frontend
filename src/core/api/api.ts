@@ -121,7 +121,7 @@ function redirectForAuthError(status: number) {
   }
 
   if (status === 403 && window.location.pathname !== "/403") {
-    window.location.assign("/403");
+    // window.location.assign("/403");
   }
 }
 

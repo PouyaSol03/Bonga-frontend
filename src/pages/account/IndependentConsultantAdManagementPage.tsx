@@ -318,7 +318,7 @@ export function IndependentConsultantAdManagementPage() {
         backTo="/account"
         centerClassName="px-0"
         centerSlot={
-          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a]">
             مدیریت آگهی‌ها
           </Typography>
         }

@@ -47,7 +47,6 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     floor: values.floor,
     rooms: values.rooms,
     totalFloors: values.totalFloors,
-    unitsPerFloor: values.unitsPerFloor,
     unitType: values.unitType,
     unitPosition: values.unitPosition,
     documentType: values.documentType,
@@ -392,6 +391,7 @@ export function buildPayload(values: NewAdFormValues) {
   const isDailyRent = isRent && params.category.startsWith("daily-");
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
+  const isSaleApartment = isSale && params.category === "apartment";
   const hideHeatingCooling = isPartnership || params.category === "land" || params.category === "factory-workshop";
   const featureItemsForCategory = getFacilityItemsForCategory(params.category);
   const features: NewAdFeature[] = [];
@@ -424,7 +424,9 @@ export function buildPayload(values: NewAdFormValues) {
   }
 
   addFeature(features, "total_floors", values.totalFloors);
-  addFeature(features, "units_per_floor", values.unitsPerFloor);
+  if (isSaleApartment) {
+    addFeature(features, "unit_per_floor", toNumber(values.unitsPerFloor));
+  }
   addFeature(features, "unit_type", values.unitType);
   addFeature(features, "unit_direction", values.unitPosition);
   addFeature(features, "renovated", values.renovated);
@@ -639,7 +641,9 @@ export function buildNewAdFormData(
   appendDynamicValue("has_document", Boolean(values.documentType));
   appendDynamicValue("document_type", values.documentType);
   appendDynamicValue("total_floors", values.totalFloors);
-  appendDynamicValue("units_per_floor", values.unitsPerFloor);
+  if (params.transaction === "sale" && params.category === "apartment") {
+    appendDynamicValue("unit_per_floor", toNumber(values.unitsPerFloor));
+  }
   appendDynamicValue("unit_type", values.unitType);
   appendDynamicValue("unit_position", values.unitPosition);
   appendDynamicValue("density", toNumber(values.density));

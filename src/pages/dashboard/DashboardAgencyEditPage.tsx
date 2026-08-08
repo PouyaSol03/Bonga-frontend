@@ -8,7 +8,7 @@ import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../..
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../../core/services/account.service";
-import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../core/services/neighborhood.service";
 import { RouteLink } from "../../app/router/RouteLink";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Typography } from "../../shared/ui/Typography";
@@ -104,10 +104,13 @@ export default function DashboardAgencyEditPage() {
     const [saveMessage, setSaveMessage] = useState("");
 
     const neighborhoodOptions = useMemo<SelectOption[]>(() => {
-        const options = neighborhoods.map((item) => ({
-            label: item.name,
-            value: getNeighborhoodId(item),
-        }));
+        const options = neighborhoods.map((item) => {
+            const subNeighborhoods = getNeighborhoodHierarchyDescription(item);
+            return {
+                label: subNeighborhoods ? `${item.name} — ${subNeighborhoods}` : item.name,
+                value: getNeighborhoodId(item),
+            };
+        });
         const missingIds = Array.from(new Set([mainNeighborhoodId, ...activityAreaIds]))
             .filter(Boolean)
             .filter((id) => !options.some((option) => option.value === id));

@@ -43,6 +43,7 @@ const CrmConsultantsPage = lazyNamed(() => import('../../pages/crm/routes/CrmCon
 const CrmAgenciesPage = lazyNamed(() => import('../../pages/crm/routes/CrmAgenciesPage'), 'CrmAgenciesPage')
 const CrmCategoriesPage = lazyNamed(() => import('../../pages/crm/routes/CrmCategoriesPage'), 'CrmCategoriesPage')
 const CrmLocationsPage = lazyNamed(() => import('../../pages/crm/routes/CrmLocationsPage'), 'CrmLocationsPage')
+const CrmLocationMapPage = lazyNamed(() => import('../../pages/crm/routes/CrmLocationMapPage'), 'CrmLocationMapPage')
 const CrmFormsPage = lazyNamed(() => import('../../pages/crm/routes/CrmFormsPage'), 'CrmFormsPage')
 const CrmPackagesPage = lazyNamed(() => import('../../pages/crm/routes/CrmPackagesPage'), 'CrmPackagesPage')
 const CrmPaymentsPage = lazyNamed(() => import('../../pages/crm/routes/CrmPaymentsPage'), 'CrmPaymentsPage')
@@ -457,6 +458,15 @@ export const routes: AppRoute[] = [
     path: `${CRM_PATH}/locations`,
     title: 'مدیریت موقعیت‌ها',
     Component: CrmLocationsPage,
+    crmSection: 'locations',
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/locations/map`,
+    title: 'نقشه مرزبندی موقعیت‌ها',
+    Component: CrmLocationMapPage,
     crmSection: 'locations',
     authority: [SUPER_ADMIN],
     layout: 'crm',

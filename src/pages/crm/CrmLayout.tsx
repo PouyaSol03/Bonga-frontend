@@ -10,6 +10,7 @@ import LinearRequestList from "../../shared/icons/LinearRequestList";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../core/services/advertisement.service";
 import { useMyProfileQuery } from "../../core/hooks/account.hooks";
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { getNeighborhoodHierarchyDescription } from "../../core/services/neighborhood.service";
 import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../app/router/RouteLink";
@@ -1223,7 +1224,12 @@ function CrmNeighborhoodMultiField({ onChange, value }: { onChange: (ids: string
           const checked = selectedIds.includes(id);
           return (
             <Button unstyled aria-pressed={checked} className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-2 text-right text-base transition-colors active:bg-[#0048c40a] ${checked ? "text-[#0048c4]" : "text-[#1a1a1a] hover:bg-[#f5f7fa]"}`} key={id} onClick={() => toggle(id)} type="button">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{neighborhood.name}</Typography><SelectionCheckIndicator checked={checked} />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate">{neighborhood.name}</Typography>
+                {getNeighborhoodHierarchyDescription(neighborhood) ? (
+                  <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-1 text-[#8b94a3]">{getNeighborhoodHierarchyDescription(neighborhood)}</Typography>
+                ) : null}
+              </Typography><SelectionCheckIndicator checked={checked} />
             </Button>
           );
         })}

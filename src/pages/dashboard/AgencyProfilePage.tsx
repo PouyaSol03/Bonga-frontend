@@ -23,7 +23,7 @@ import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../..
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../../core/services/account.service";
-import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../core/services/neighborhood.service";
 import { searchMapCenter, searchMapTileConfig } from "../search/searchMapData";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import TonalTelegram from "../../shared/icons/TonalTelegram";
@@ -1038,7 +1038,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
                       {neighborhood.name}
                     </Typography>
                     <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-[#808080]">
-                      {selectedCity?.name ?? "شهر انتخاب‌شده"}
+                      {getNeighborhoodHierarchyDescription(neighborhood) || selectedCity?.name || "شهر انتخاب‌شده"}
                     </Typography>
                   </Typography>
                 </Button>

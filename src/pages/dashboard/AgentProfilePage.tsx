@@ -33,7 +33,7 @@ import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type { UserProfile } from "../../core/services/account.service";
-import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../core/services/neighborhood.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
@@ -790,7 +790,7 @@ function NeighborhoodSelectionSheet({
                       {neighborhood.name}
                     </Typography>
                     <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
-                      {cityName || "شهر انتخاب‌شده"}
+                      {getNeighborhoodHierarchyDescription(neighborhood) || cityName || "شهر انتخاب‌شده"}
                     </Typography>
                   </Typography>
                 </Button>

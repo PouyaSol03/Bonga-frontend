@@ -15,6 +15,7 @@ import { RouteLink } from "../../app/router/RouteLink";
 import type { PackageItem } from "../../core/services/package.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import LinearTooman from "../../shared/icons/LinearTooman";
 
 type PricingCardPlan = {
   discount: number;
@@ -171,7 +172,7 @@ function MobileDiscountBadge({ discount }: { discount: number }) {
   if (!discount) return null;
 
   return (
-    <Typography as="span" variant="body" size="small" weight="regular" className="rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
+    <Typography as="p" variant="body" size="medium" weight="medium" className="rounded-full bg-error/8 px-3 py-1 text-error">
       {toFaNumber(discount)}٪ تخفیف
     </Typography>
   );
@@ -180,14 +181,13 @@ function MobileDiscountBadge({ discount }: { discount: number }) {
 function MobilePrice({ plan }: { plan: MobileCreditPlan }) {
   return (
     <>
-      <div className="flex h-6 items-center justify-end">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
+      <div className="flex h-6 items-center">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#0048c4] [direction:rtl]">
           {plan.title}
         </Typography>
       </div>
-      <div className="mt-4 flex h-[68px] items-end justify-between [direction:ltr]">
-        <MobileDiscountBadge discount={plan.discount} />
-        <div className="text-right [direction:rtl]">
+      <div className="mt-8 flex items-end gap-x-6">
+        <div className="text-right">
           <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">
             {toFaNumber(plan.originalPrice)}
           </Typography>
@@ -195,9 +195,10 @@ function MobilePrice({ plan }: { plan: MobileCreditPlan }) {
             <strong className="text-[22px] font-semibold leading-7 text-[#1a1a1a]">
               {toFaNumber(plan.currentPrice)}
             </strong>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</Typography>
+            <LinearTooman className="h-6 w-6 text-on-surface-var"/>
           </div>
         </div>
+        <MobileDiscountBadge discount={plan.discount} />
       </div>
     </>
   );
@@ -223,8 +224,8 @@ function MobileGiftIcon({ className = "" }: { className?: string }) {
 
 function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
   return (
-    <div className="h-[261px]">
-      <div className="h-[108px]">
+    <div className="">
+      <div className="">
         <MobilePrice plan={plan} />
       </div>
       <div className="my-4 h-px border-t border-dashed border-[#cccccc]" />
@@ -265,8 +266,8 @@ function MobilePanelContent({ plan, showGift }: { plan: MobileCreditPlan; showGi
   const hasGiftBenefits = showGift && Boolean(plan.giftBenefits?.length);
 
   return (
-    <div className={hasGiftBenefits ? "h-[204px]" : "h-[124px]"}>
-      <div className="h-[124px]">
+    <div>
+      <div className="">
         <MobilePrice plan={plan} />
       </div>
       {hasGiftBenefits ? <MobileGiftBenefits benefits={plan.giftBenefits ?? []} /> : null}
@@ -299,10 +300,13 @@ function MobilePlanCard({
         <MobilePanelContent plan={plan} showGift={showGift} />
       )}
 
-      <Button unstyled
-        className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:cursor-not-allowed disabled:opacity-60"
+      <Button
+        className="mt-8 bg-[#0048c4] text-white disabled:cursor-not-allowed disabled:opacity-60"
         disabled={paymentPending}
         onClick={onPay}
+        size="x-medium"
+        radius="medium"
+        fullWidth
         type="button"
       >
         پرداخت

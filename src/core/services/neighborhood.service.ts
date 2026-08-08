@@ -229,6 +229,16 @@ export function getNeighborhoodSubNeighborhoods(neighborhood: NeighborhoodDto): 
   return value.flatMap((item, index) => normalizeSubNeighborhood(item, index));
 }
 
+export function getNeighborhoodSubNeighborhoodNames(neighborhood: NeighborhoodDto) {
+  return getNeighborhoodSubNeighborhoods(neighborhood)
+    .map((item) => item.name.trim())
+    .filter(Boolean);
+}
+
+export function getNeighborhoodHierarchyDescription(neighborhood: NeighborhoodDto) {
+  return getNeighborhoodSubNeighborhoodNames(neighborhood).join("، ");
+}
+
 function normalizeSubNeighborhood(value: unknown, index: number): SubNeighborhoodDto[] {
   if (typeof value === "string") {
     const name = value.trim();

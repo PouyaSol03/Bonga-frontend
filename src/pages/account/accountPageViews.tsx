@@ -217,10 +217,10 @@ function AccountMyAdsEmptyState({
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
+      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-[#4d4d4d]">
         {description}
       </Typography>
       {isAllFilter ? (
@@ -479,7 +479,7 @@ export function BookmarkAdCard({
         }}
         type="button"
       >
-        <LinearDelete className="text-on-surface-var w-6 h-6"/>
+        <LinearDelete className="text-on-surface-var w-6 h-6" />
       </Button>
     </div>
   );
@@ -758,7 +758,7 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-[#4D4D4D]" />
           <Typography as="p" variant="body" size="small" weight="regular" className="">
             در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
-            <br/>
+            <br />
             در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
           </Typography>
         </div>

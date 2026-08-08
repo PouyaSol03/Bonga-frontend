@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { SwitchButton } from "../../shared/components/SwitchButton";
-import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { RouteLink } from "../../app/router/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard } from "./DashboardAdCard";
@@ -143,9 +142,58 @@ export function DashboardAdsPage() {
             ))}
           </div>
         ) : (
-          <SearchEmptyState />
+          <DashboardAdsEmptyState />
         )}
       </div>
     </section>
+  );
+}
+
+function DashboardAdsEmptyState() {
+  return (
+    <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-10 text-center">
+      <img
+        alt=""
+        aria-hidden="true"
+        className="mb-4 h-[66px] w-[66px] object-contain"
+        src="/vectors/NoAdd.svg"
+      />
+      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
+        هیچ آگهی‌ای برای نمایش وجود ندارد!
+      </Typography>
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]"
+      >
+        می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید.
+      </Typography>
+      <RouteLink
+        className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+        to="/new-ad/category"
+      >
+        <PlusIcon className="h-5 w-5" />
+        ثبت آگهی
+      </RouteLink>
+    </section>
+  );
+}
+
+function PlusIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 5v14M5 12h14" />
+    </svg>
   );
 }

@@ -15,7 +15,7 @@ import { useAgencyConsultantsQuery } from "../../../core/hooks/agency.hooks";
 import { useMyAgencyProfileQuery } from "../../../core/hooks/account.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import { RouteLink } from "../../../app/router/RouteLink";
-import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
+import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../../core/services/neighborhood.service";
 import { ChevronDownIcon, ChevronLeftIcon, SearchIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
@@ -548,7 +548,7 @@ function NeighborhoodPickerRow({
                         {neighborhood.name}
                       </Typography>
                       <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-[#808080]">
-                        {selectedCity?.name ?? "شهر انتخاب‌شده"}
+                        {getNeighborhoodHierarchyDescription(neighborhood) || selectedCity?.name || "شهر انتخاب‌شده"}
                       </Typography>
                     </Typography>
                   </Button>

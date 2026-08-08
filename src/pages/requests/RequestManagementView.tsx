@@ -464,11 +464,16 @@ export function RequestManagementView({
         }
         contentClassName="px-2"
         heightClassName={variant === "account" ? "h-14" : "h-12"}
-        title="درخواست‌ها"
-        titleClassName={
-          variant === "account"
-            ? "text-base font-semibold leading-6"
-            : "text-[20px] font-semibold leading-7"
+        centerSlot={
+          <Typography
+            as="h1"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 truncate text-right text-[#1a1a1a]"
+          >
+            درخواست‌ها
+          </Typography>
         }
       />
 
@@ -1047,16 +1052,12 @@ function EmptyRequestState({
           : "min-h-[calc(100dvh-183px)] px-8 pb-16"
       }`}
     >
-      {isAccount ? (
-        <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
-      ) : (
-        <Typography as="span" variant="body" size="medium" weight="regular"
-          aria-hidden="true"
-          className="mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-[#f0f1f5] text-[#cfd3dd]"
-        >
-          <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" />
-        </Typography>
-      )}
+      <img
+        src="/vectors/NoRequest.svg"
+        className="h-16.5 w-16.5"
+        alt=""
+        aria-hidden="true"
+      />
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-4 text-[#1a1a1a]">
         {title}
       </Typography>

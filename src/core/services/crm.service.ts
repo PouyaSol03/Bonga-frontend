@@ -86,6 +86,7 @@ export type CrmCityFilters = {
 
 export type CrmNeighborhoodFilters = {
   cityId: string;
+  perPage?: number;
 };
 
 export type CrmPaymentFilters = {
@@ -555,7 +556,7 @@ export function deleteCrmCity(id: string) {
 export async function listCrmNeighborhoods(filters: CrmNeighborhoodFilters) {
   const searchParams: ApiQueryParams = {
     page: 1,
-    per_page: 50,
+    per_page: filters.perPage ?? 50,
     city_id: filters.cityId,
   };
 

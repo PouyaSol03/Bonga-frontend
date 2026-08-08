@@ -14,7 +14,7 @@ import { useCreateMyAgencyMutation, useCreateMyAgentMutation } from "../../core/
 import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { RouteLink } from "../../app/router/RouteLink";
-import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
+import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../core/services/neighborhood.service";
 import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
 import { ChoiceIndicator } from "../../shared/ui/Choice";
 import { Typography } from "../../shared/ui/Typography";
@@ -723,7 +723,14 @@ function AgencyFields({
                     onClick={() => toggleNeighborhood(neighborhood)}
                     type="button"
                   >
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{neighborhood.name}</Typography>
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
+                      <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-[#1a1a1a]">{neighborhood.name}</Typography>
+                      {getNeighborhoodHierarchyDescription(neighborhood) ? (
+                        <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-1 text-[#a6a6a6]">
+                          {getNeighborhoodHierarchyDescription(neighborhood)}
+                        </Typography>
+                      ) : null}
+                    </Typography>
                     <ChoiceIndicator checked={isSelected} />
                   </Button>
                 );

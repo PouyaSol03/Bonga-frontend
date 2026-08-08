@@ -131,7 +131,7 @@ function CreditTabs({ activeTab }: { activeTab: "packages" | "panel" }) {
     <nav className="shrink-0 bg-white px-4 py-4" aria-label="نوع افزایش اعتبار">
       <div className="flex h-11 overflow-hidden rounded-xl border border-[#0048c4] [direction:ltr]">
         <RouteLink
-          className={`flex flex-1 items-center justify-center text-base font-medium leading-6 no-underline [direction:rtl] ${
+          className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
             activeTab === "panel" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
           }`}
           to="/account/credit/panel"
@@ -139,7 +139,7 @@ function CreditTabs({ activeTab }: { activeTab: "packages" | "panel" }) {
           اعتبار پنل
         </RouteLink>
         <RouteLink
-          className={`flex flex-1 items-center justify-center border-l border-[#0048c4] text-base font-medium leading-6 no-underline [direction:rtl] ${
+          className={`flex flex-1 items-center justify-center border-l border-[#0048c4] text-base font-medium leading-6 [direction:rtl] ${
             activeTab === "packages" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
           }`}
           to="/account/credit/packages"
@@ -231,7 +231,7 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
       <div className="flex h-6 items-center justify-end">
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">{plan.name}</Typography>
       </div>
-      <div className="mt-4 flex h-[68px] items-end justify-between [direction:ltr]">
+      <div className="mt-4 flex h-[68px] items-end justify-between">
         {plan.discountPercent > 0 ? (
           <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
             {formatCreditNumber(plan.discountPercent)}٪ تخفیف

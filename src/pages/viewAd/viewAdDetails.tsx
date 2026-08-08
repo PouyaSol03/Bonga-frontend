@@ -277,7 +277,7 @@ const propertyInfoLabelMap: Record<string, string> = {
   meter_price: "قیمت متری",
   daily_price: "قیمت روزانه",
   capacity: "ظرفیت",
-  unit_type: "تیپ واحد",
+  unit_type: "جهت ساختمان",
   unit_position: "موقعیت واحد",
   density: "تراکم",
   total_floors: "تعداد طبقات",

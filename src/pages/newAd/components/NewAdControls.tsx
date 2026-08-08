@@ -143,6 +143,7 @@ export function InputBox({
       error={error}
       hideBadgeWhenFloatingLabel={unitMovesToFloatingLabel}
       highlightWhenFilled={highlightWhenFilled ?? false}
+      formatNumber={Boolean(numeric)}
       inputMode={numeric ? "numeric" : "text"}
       label={resolvedFloatingLabel}
       onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}

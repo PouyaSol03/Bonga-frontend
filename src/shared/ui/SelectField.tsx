@@ -42,6 +42,20 @@ export function SelectField({
         type={type}
         {...props}
       >
+        {hasValue ? (
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className={cn(
+              "pointer-events-none absolute -top-[10px] right-4 max-w-[calc(100%-4rem)] truncate bg-white px-1 text-right [direction:rtl]",
+              error ? "text-[#ee3623]" : "text-[#808080]",
+            )}
+          >
+            {placeholder}
+          </Typography>
+        ) : null}
         {leadingSlot ?? <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 text-[#4d4d4d]" />}
         <Typography as="span" variant="body" size="medium" weight="regular" className={cn("min-w-0 flex-1 truncate text-right [direction:rtl]", hasValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]")}>
           {value || placeholder}

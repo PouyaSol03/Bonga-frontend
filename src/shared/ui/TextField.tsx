@@ -6,6 +6,21 @@ import LinearCancelCircle from "../icons/LinearCancelCircle";
 import { Typography } from "./Typography";
 import { Button } from "./Button";
 
+function formatNumberForDisplay(value: string) {
+  const rawValue = value.replace(/[,،٬]/g, "");
+  const match = rawValue.match(/^(-?)([0-9۰-۹٠-٩]+)([.٫][0-9۰-۹٠-٩]*)?$/);
+
+  if (!match) return value;
+
+  const [, sign, integerPart, decimalPart = ""] = match;
+  const groupedInteger = integerPart.replace(
+    /([0-9۰-۹٠-٩])(?=(?:[0-9۰-۹٠-٩]{3})+(?![0-9۰-۹٠-٩]))/g,
+    "$1,",
+  );
+
+  return `${sign}${groupedInteger}${decimalPart}`;
+}
+
 type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> & {
   badge?: string;
   containerClassName?: string;
@@ -15,6 +30,7 @@ type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "
   hideBadgeWhenFloatingLabel?: boolean;
   forceHighlight?: boolean;
   forceLabel?: boolean;
+  formatNumber?: boolean;
   inputRef?: Ref<HTMLInputElement>;
   leadingSlot?: ReactNode;
   onChange?: ChangeEventHandler<HTMLInputElement>;
@@ -33,6 +49,7 @@ export function TextField({
   hideBadgeWhenFloatingLabel = false,
   forceHighlight = false,
   forceLabel = false,
+  formatNumber = false,
   inputRef,
   leadingSlot,
   onBlur,
@@ -47,6 +64,7 @@ export function TextField({
 }: TextFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
   const stringValue = typeof value === "string" ? value : "";
+  const displayValue = formatNumber ? formatNumberForDisplay(stringValue) : stringValue;
   const hasValue = stringValue.length > 0;
   const helperText = error || supportingText;
   const hasFocusedStyle = forceHighlight || isFocused;
@@ -110,13 +128,19 @@ export function TextField({
             setIsFocused(false);
             onBlur?.(event);
           }}
-          onChange={onChange}
+          onChange={(event) => {
+            if (formatNumber) {
+              event.currentTarget.value = event.currentTarget.value.replace(/[,،٬]/g, "");
+            }
+
+            onChange?.(event);
+          }}
           onFocus={(event) => {
             setIsFocused(true);
             onFocus?.(event);
           }}
           placeholder={placeholder}
-          value={value}
+          value={formatNumber ? displayValue : value}
           {...props}
         />
         <AnimatePresence initial={false}>

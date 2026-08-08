@@ -47,6 +47,7 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     floor: values.floor,
     rooms: values.rooms,
     totalFloors: values.totalFloors,
+    unitsPerFloor: values.unitsPerFloor,
     unitType: values.unitType,
     unitPosition: values.unitPosition,
     documentType: values.documentType,
@@ -423,6 +424,7 @@ export function buildPayload(values: NewAdFormValues) {
   }
 
   addFeature(features, "total_floors", values.totalFloors);
+  addFeature(features, "units_per_floor", values.unitsPerFloor);
   addFeature(features, "unit_type", values.unitType);
   addFeature(features, "unit_direction", values.unitPosition);
   addFeature(features, "renovated", values.renovated);
@@ -637,6 +639,7 @@ export function buildNewAdFormData(
   appendDynamicValue("has_document", Boolean(values.documentType));
   appendDynamicValue("document_type", values.documentType);
   appendDynamicValue("total_floors", values.totalFloors);
+  appendDynamicValue("units_per_floor", values.unitsPerFloor);
   appendDynamicValue("unit_type", values.unitType);
   appendDynamicValue("unit_position", values.unitPosition);
   appendDynamicValue("density", toNumber(values.density));

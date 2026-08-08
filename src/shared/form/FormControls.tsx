@@ -120,6 +120,7 @@ export function FormTextField({
       containerClassName={className}
       forceHighlight={forceHighlight}
       forceLabel={forceLabel}
+      formatNumber
       inputMode="numeric"
       inputRef={inputRef}
       label={label}

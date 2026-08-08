@@ -79,6 +79,7 @@ export type MoreFeatureSelectKey =
   | "floor"
   | "rooms"
   | "totalFloors"
+  | "unitsPerFloor"
   | "unitType"
   | "unitPosition"
   | "documentType"
@@ -211,6 +212,7 @@ export type NewAdFormValues = {
   builderSharePercent: string;
 
   totalFloors: string;
+  unitsPerFloor: string;
   unitType: string;
   unitPosition: string;
   renovated: boolean;

@@ -341,10 +341,10 @@ function PublisherOptionCard({
         <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
           <PublisherIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" icon={option.icon} />
           <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="block text-normal text-[#1a1a1a]">
+            <Typography as="p" variant="body" size="large" weight="regular" className="block text-[#1a1a1a]">
               {option.label}
             </Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="block text-sm font-normal text-[#a6a6a6]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="block text-[#a6a6a6]">
               {option.description}
             </Typography>
           </Typography>

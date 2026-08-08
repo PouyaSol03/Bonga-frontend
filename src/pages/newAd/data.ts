@@ -127,6 +127,7 @@ export const blankValues: NewAdFormValues = {
   targetOwnerId: "",
 
   totalFloors: "",
+  unitsPerFloor: "",
   unitType: "",
   unitPosition: "",
   renovated: false,
@@ -250,6 +251,7 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "floor",
   "rooms",
   "totalFloors",
+  "unitsPerFloor",
   "unitType",
   "unitPosition",
   "documentType",
@@ -494,6 +496,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   floor: floorOptions,
   rooms: roomOptions,
   totalFloors: ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"],
+  unitsPerFloor: ["۱ واحد", "۲ واحد", "۳ واحد", "۴ واحد", "۵ واحد", "۶ واحد", "۷ واحد", "۸ واحد", "بیشتر"],
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
   documentType: documentTypeOptions,
@@ -509,8 +512,9 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
 };
 
 const apartmentMoreFeatureFields: MoreFeatureField[] = [
+  { key: "unitsPerFloor", label: "تعداد واحد در هر طبقه", control: "select" },
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
-  { key: "unitType", label: "تیپ واحد", control: "select" },
+  { key: "unitType", label: "جهت ساختمان", control: "select" },
   { key: "unitPosition", label: "موقعیت واحد", control: "select" },
   { key: "documentType", label: "نوع سند", control: "select" },
   { key: "renovated", label: "بازسازی شده", control: "toggle" },

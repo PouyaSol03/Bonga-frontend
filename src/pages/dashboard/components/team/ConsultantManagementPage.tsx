@@ -31,6 +31,7 @@ import type {
 import { Typography } from "../../../../shared/ui/Typography";
 import { useAgencyDashboardQuery } from "../../../../core/hooks/dashboard.hooks";
 import { Button } from "../../../../shared/ui/Button";
+import { TextField } from "../../../../shared/ui/TextField";
 
 type ConsultantStatus = "active" | "pending";
 
@@ -229,13 +230,20 @@ export function ConsultantManagementPage() {
       </div>
 
       <div className="shrink-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <RouteLink
-          className="flex h-12 items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white no-underline transition hover:bg-[#003da8]"
-          to="/account/dashboard/team/add-consultant"
+        <Button
+          fullWidth
+          leadingIcon={<LinearUserAdd className="h-5 w-5" />}
+          onClick={() => {
+            window.history.pushState({}, "", "/account/dashboard/team/add-consultant");
+            window.dispatchEvent(new PopStateEvent("popstate"));
+          }}
+          size="x-medium"
+          radius="medium"
+          type="button"
+          variant="primary"
         >
-          <LinearUserAdd className="h-5 w-5" />
           اضافه کردن مشاور
-        </RouteLink>
+        </Button>
       </div>
     </section>
   );
@@ -355,21 +363,18 @@ export function AddConsultantPage() {
         />
       ) : null}
 
-      <main className="min-h-0 flex-1 overflow-y-auto pb-24">
-        <div className="bg-white px-4 pb-5 pt-3">
-          <label className="flex h-12 items-center gap-2 rounded-lg border border-[#d9d9d9] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-[#1a1a1a] outline-none placeholder:text-[#bdbdbd]"
-              onChange={(event) => {
-                setSearchValue(event.target.value);
-                setSelectedConsultantId(null);
-              }}
-              placeholder="شماره تلفن مشاور مورد نظر را وارد کنید"
-              type="search"
-              value={searchValue}
-            />
-            <LinearSearch className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-          </label>
+      <main className="min-h-0 flex-1 overflow-y-auto pb-14">
+        <div className="bg-white px-4 pb-2.5 pt-4">
+          <TextField
+            onChange={(event) => {
+              setSearchValue(event.target.value);
+              setSelectedConsultantId(null);
+            }}
+            placeholder="شماره تلفن مشاور مورد نظر را وارد کنید"
+            trailingSlot={<LinearSearch className="h-6 w-6 text-outline" />}
+            type="search"
+            value={searchValue}
+          />
 
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 flex items-start gap-1 text-right text-sm text-[#808080]">
             <LinearInfoCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#4d4d4d]" />
@@ -434,14 +439,14 @@ export function AddConsultantPage() {
             <AddConsultantEmptyState />
           )}
 
-          <section className="border-t border-[#f0f0f0] bg-white px-4 py-5">
-            <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-semibold leading-5 text-[#1a1a1a]">
+          <section className="border-t-[8px] border-[#f5f5f5] bg-white px-4 py-5">
+            <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
               انتخاب سمت
             </Typography>
 
             <div
               aria-label="انتخاب سمت"
-              className="mt-3 grid"
+              className="mt-4 grid"
               role="radiogroup"
             >
               <AddConsultantRoleOption
@@ -472,15 +477,24 @@ export function AddConsultantPage() {
                     onClick={() => toggleManagerAccess(item.id)}
                     type="button"
                   >
-                    <SelectionCheckIndicator className="w-[18px] h-[18px] rounded-sm" checked={isChecked} />
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm ">{item.label}</Typography>
+                    <SelectionCheckIndicator
+                      className={`h-4.5 w-4.5 rounded-sm ${
+                        isChecked
+                          ? ""
+                          : isManager
+                            ? "!border-[#4d4d4d]"
+                            : "!border-[#bdbdbd]"
+                      }`}
+                      checked={isChecked}
+                    />
+                    <Typography as="span" variant="label" size="medium" weight="medium" className={`${isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"}`}>{item.label}</Typography>
                   </Button>
                 );
               })}
             </div>
           </section>
 
-          <section className="grid gap-4 border-t border-[#f0f0f0] bg-white px-4 py-5">
+          <section className="grid gap-4 border-t-[8px] border-[#f5f5f5] bg-white px-4 py-5">
             <QuotaStepper
               label="سهمیه آگهی"
               remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
@@ -507,13 +521,19 @@ export function AddConsultantPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-xs font-semibold leading-5 text-white transition disabled:bg-[#b3c8ef]"
-          disabled={addConsultantMutation.isPending}
+        <Button
+          fullWidth
+          leadingIcon={
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[13px] leading-none">
+              +
+            </Typography>
+          }
+          loading={addConsultantMutation.isPending}
           onClick={handleAddConsultant}
+          size="x-medium"
           type="button"
+          variant="primary"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[13px] leading-none">+</Typography>
           {addConsultantMutation.isPending ? "در حال افزودن..." : "اضافه کن"}
         </Button>
       </div>
@@ -544,13 +564,13 @@ export function AddConsultantRoleOption({
   return (
     <Button unstyled
       aria-checked={checked}
-      className="flex w-full items-center gap-2 text-right text-xs font-semibold pt-3 text-[#1a1a1a]"
+      className="flex w-full items-center py-2.25 gap-3.5 text-[#1a1a1a]"
       onClick={onClick}
       role="radio"
       type="button"
     >
       <RadioIndicator checked={checked} />
-      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
+      <Typography as="span" variant="label" size="large" weight="medium">{label}</Typography>
     </Button>
   );
 }

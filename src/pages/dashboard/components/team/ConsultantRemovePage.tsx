@@ -104,20 +104,21 @@ export function ConsultantRemovePage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="flex h-10 items-center justify-center rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]"
+        <Button
+          fullWidth
           onClick={() => window.history.back()}
+          size="x-medium"
           type="button"
+          variant="secondary"
         >
           انصراف
         </Button>
-        <Button unstyled
-          className={`flex h-10 items-center justify-center rounded-lg text-sm font-semibold leading-5 ${
-            selectedReplacement
-              ? "bg-[#0048c4] text-white"
-              : "bg-[#e5e5e5] text-[#b8b8b8]"
-          }`}
-          disabled={!selectedReplacement || deactivateConsultantMutation.isPending}
+        <Button
+          fullWidth
+          loading={deactivateConsultantMutation.isPending}
+          disabled={!selectedReplacement} 
+          size="x-medium"
+          variant="primary"
           onClick={() => {
             if (!selectedReplacement) return;
 
@@ -265,11 +266,11 @@ function ReplacementPicker({
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className={`flex h-10 w-full items-center justify-center rounded-lg text-xs font-semibold leading-5 transition ${
-            draftTarget ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
-          }`}
+        <Button
+          fullWidth
           disabled={!draftTarget}
+          size="x-medium"
+          variant="primary"
           onClick={() => {
             if (draftTarget) onConfirm(draftTarget);
           }}

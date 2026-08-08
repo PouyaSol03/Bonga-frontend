@@ -204,11 +204,12 @@ export function ConsultantEditPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="flex h-12 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white"
-          disabled={
-            updateConsultantMutation.isPending || consultantQuery.isPending
-          }
+        <Button
+          fullWidth
+          loading={updateConsultantMutation.isPending}
+          disabled={consultantQuery.isPending}
+          size="md"
+          variant="primary"
           onClick={() => {
             updateConsultantMutation.mutate(
               {

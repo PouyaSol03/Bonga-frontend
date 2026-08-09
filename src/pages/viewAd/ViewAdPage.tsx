@@ -896,16 +896,16 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
           as="h2"
           variant="title"
           size="medium"
-          weight="semibold"
+          weight="medium"
           className="mt-2 text-[#4d4d4d]"
         >
           {preview.name}
         </Typography>
 
         {location ? (
-          <div className="mt-1 flex items-center justify-center gap-1 [direction:rtl]">
+          <div className="mt-1 flex items-center justify-center gap-1">
             <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="location" />
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base text-[#0048c4]">
+            <Typography as="span" variant="body" size="small" weight="medium" className="text-[#0048c4]">
               {location}
             </Typography>
           </div>
@@ -928,12 +928,12 @@ function AdvertiserMetrics({
 
   if (agencyStyle) {
     return (
-      <div className="mx-auto mt-3 flex items-center justify-center gap-4 text-[#4d4d4d] [direction:rtl]">
+      <div className="mx-auto mt-4 flex items-center justify-center gap-4 text-[#4d4d4d] [direction:rtl]">
         {preview.ratingScore ? (
           <div className="flex items-center gap-1 [direction:rtl]">
             <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="star" />
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base">امتیاز</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base text-[#11a366]">
+            <Typography as="span" variant="body" size="small" weight="medium">امتیاز</Typography>
+            <Typography as="span" variant="title" size="small" weight="semibold" className=" mr-2 text-[#11a366]">
               {preview.ratingScore}
             </Typography>
           </div>
@@ -944,8 +944,8 @@ function AdvertiserMetrics({
         {preview.rank ? (
           <div className="flex items-center gap-1 [direction:rtl]">
             <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="ranking" />
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base">رتبه</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-base text-[#11a366]">
+            <Typography as="span" variant="body" size="small" weight="medium">رتبه</Typography>
+            <Typography as="span" variant="title" size="small" weight="semibold" className="mr-2 text-[#11a366]">
               {preview.rank}
             </Typography>
           </div>

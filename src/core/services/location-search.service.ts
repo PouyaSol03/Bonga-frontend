@@ -147,6 +147,7 @@ function normalizeLocationSearchItem(value: unknown): NeighborhoodDto | null {
       item.polygon ??
       neighborhood?.geofence ??
       neighborhood?.polygon,
+    matched_by: Array.isArray(item.matched_by) ? item.matched_by.map(String) : undefined,
     polygon:
       item.polygon ??
       item.geofence ??

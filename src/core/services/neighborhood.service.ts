@@ -16,6 +16,7 @@ export type NeighborhoodDto = {
   id?: string | number;
   lat?: number;
   lng?: number;
+  matched_by?: string[];
   name: string;
   polygon?: unknown;
   sub_neighborhoods?: SubNeighborhoodDto[] | string[] | string;
@@ -31,12 +32,7 @@ type NeighborhoodListResponse =
 
 
 
-type SubNeighborhoodListResponse =
-  | {
-      data?: SubNeighborhoodDto[];
-      status?: boolean;
-    }
-  | SubNeighborhoodDto[];
+
 
 type NeighborhoodInfoResponse =
   | {
@@ -139,19 +135,20 @@ export async function getNeighborhoodInfoWithLoc({
   return unwrapNeighborhoodInfo(response);
 }
 
-export async function getSubNeighborhoodList(neighborhoodId: string | number) {
+export async function getNeighborhoodInfo(neighborhoodId: string | number) {
+  const id = toPostgresInteger(neighborhoodId, "neighborhood_id");
   const response = await publicApi
-    .get("public/neighborhood/sub-neighborhood/list", {
-      searchParams: {
-        neighborhood_id: toPostgresInteger(neighborhoodId, "neighborhood_id"),
-      },
-    })
-    .json<SubNeighborhoodListResponse>();
+    .get(`public/neighborhood/${id}`)
+    .json<NeighborhoodInfoResponse>();
 
-  const data = Array.isArray(response) ? response : response.data ?? [];
+  return unwrapNeighborhoodInfo(response);
+}
 
-  return data
-    .flatMap((item, index) => normalizeSubNeighborhood(item, index))
+export async function getSubNeighborhoodList(neighborhoodId: string | number) {
+  const neighborhood = await getNeighborhoodInfo(neighborhoodId);
+  if (!neighborhood) return [];
+
+  return getNeighborhoodSubNeighborhoods(neighborhood)
     .filter((item) => item.id !== undefined && item.id !== null && item.name);
 }
 
@@ -212,7 +209,7 @@ export function getNeighborhoodPolygonPoints(value: unknown): NeighborhoodGeoPoi
 }
 
 export function getNeighborhoodSubNeighborhoods(neighborhood: NeighborhoodDto): SubNeighborhoodDto[] {
-  const value = neighborhood.sub_neighbors;
+  const value = neighborhood.sub_neighborhoods ?? neighborhood.sub_neighbors;
   if (!value) return [];
 
   if (typeof value === "string") {

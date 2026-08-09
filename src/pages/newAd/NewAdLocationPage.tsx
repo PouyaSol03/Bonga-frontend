@@ -5,9 +5,9 @@ import { PageFrame } from "../../app/layout/PageFrame";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { getBrowserLocation } from "../../shared/lib/browserLocation";
 import { defaultSelectedCity, readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
-import { useSubNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { useNeighborhoodInfoQuery } from "../../core/hooks/neighborhood.hooks";
 import { useLocationSearchByCoordinates, useLocationSearchByQuery } from "../../core/hooks/location-search.hooks";
-import { getNeighborhoodPolygonPoints, type NeighborhoodDto, type SubNeighborhoodDto } from "../../core/services/neighborhood.service";
+import { getNeighborhoodPolygonPoints, getNeighborhoodSubNeighborhoodNames, getNeighborhoodSubNeighborhoods, type NeighborhoodDto, type SubNeighborhoodDto } from "../../core/services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
@@ -226,7 +226,10 @@ export function NewAdLocationPage() {
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<NeighborhoodDto | null>(
     createStoredNeighborhood,
   );
-  const [query, setQuery] = useState(() => createStoredNeighborhood()?.name ?? "");
+  const [query, setQuery] = useState(() => {
+    const stored = createStoredNeighborhood();
+    return stored ? stored.name : "";
+  });
   const [isManualSearch, setIsManualSearch] = useState(false);
   const [isResolvingLocation, setIsResolvingLocation] = useState(false);
   const [mapCenter, setMapCenter] = useState<NewAdMapCenter>(getStoredMapCenter);
@@ -246,18 +249,39 @@ export function NewAdLocationPage() {
     lng: Number(mapCenter.lng.toFixed(7)),
   });
   const selectedNeighborhoodId = getNeighborhoodId(selectedNeighborhood);
-  const subNeighborhoodsQuery = useSubNeighborhoodListQuery(
+  const neighborhoodInfoQuery = useNeighborhoodInfoQuery(
     selectedNeighborhoodId,
     Boolean(selectedNeighborhoodId),
   );
   const selectedSubNeighborhood = useMemo(
     () => resolveSubNeighborhoodAtPoint(
-      subNeighborhoodsQuery.data ?? [],
+      neighborhoodInfoQuery.data ? getNeighborhoodSubNeighborhoods(neighborhoodInfoQuery.data) : [],
       mapCenter.lat,
       mapCenter.lng,
     ),
-    [mapCenter.lat, mapCenter.lng, subNeighborhoodsQuery.data],
+    [mapCenter.lat, mapCenter.lng, neighborhoodInfoQuery.data],
   );
+
+  useEffect(() => {
+    const fullInfo = neighborhoodInfoQuery.data;
+    if (!fullInfo) return;
+
+    if (
+      selectedNeighborhood &&
+      getNeighborhoodId(selectedNeighborhood) === String(fullInfo.id) &&
+      (!selectedNeighborhood.polygon && !selectedNeighborhood.geofence)
+    ) {
+      setSelectedNeighborhood(fullInfo);
+
+      if (Number.isFinite(fullInfo.lat) && Number.isFinite(fullInfo.lng)) {
+        setMapCenter({
+          lat: Number(fullInfo.lat),
+          lng: Number(fullInfo.lng),
+          zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
+        });
+      }
+    }
+  }, [neighborhoodInfoQuery.data, selectedNeighborhood, mapCenter.zoom]);
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isAgencyUser = activeRole === REAL_ESTATE_MANAGER || activeRole === REAL_ESTATE_CONSULTANT;
   const selectedSubNeighborhoodGeofence = useMemo(
@@ -301,6 +325,7 @@ export function NewAdLocationPage() {
 
   useEffect(() => {
     if (locationByCoordinatesQuery.isFetching || isManualSearch) return;
+    if (selectedNeighborhood && !isResolvingLocation) return;
 
     const neighborhood = locationByCoordinatesQuery.data;
 
@@ -319,16 +344,18 @@ export function NewAdLocationPage() {
     locationByCoordinatesQuery.data,
     locationByCoordinatesQuery.isError,
     locationByCoordinatesQuery.isFetching,
+    selectedNeighborhood,
+    isResolvingLocation,
   ]);
 
   const updateMapCenter = (center: NewAdMapCenter) => {
+    const threshold = 0.00005;
     const hasLocationChanged =
-      Number(center.lat.toFixed(7)) !== Number(mapCenter.lat.toFixed(7)) ||
-      Number(center.lng.toFixed(7)) !== Number(mapCenter.lng.toFixed(7));
+      Math.abs(center.lat - mapCenter.lat) > threshold ||
+      Math.abs(center.lng - mapCenter.lng) > threshold;
 
     if (hasLocationChanged) {
       setSelectedNeighborhood(null);
-      setQuery("");
       setIsManualSearch(false);
       setIsResolvingLocation(true);
       window.localStorage.removeItem(subNeighborhoodIdKey);
@@ -338,12 +365,11 @@ export function NewAdLocationPage() {
   };
 
   const selectNeighborhood = (neighborhood: NeighborhoodDto) => {
-    setQuery(neighborhood.name);
     setIsManualSearch(false);
+    setSelectedNeighborhood(neighborhood);
+    setQuery(neighborhood.name);
 
     if (Number.isFinite(neighborhood.lat) && Number.isFinite(neighborhood.lng)) {
-      setSelectedNeighborhood(null);
-      setIsResolvingLocation(true);
       setMapCenter({
         lat: Number(neighborhood.lat),
         lng: Number(neighborhood.lng),
@@ -351,9 +377,6 @@ export function NewAdLocationPage() {
       });
       return;
     }
-
-    setSelectedNeighborhood(neighborhood);
-    setIsResolvingLocation(false);
   };
 
   const moveToBrowserLocation = () => {
@@ -486,7 +509,7 @@ export function NewAdLocationPage() {
                     >
                       <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold leading-5 text-[#1a1a1a]">{item.name}</Typography>
                       <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-[#808080]">
-                        {readStoredSelectedCity()?.name ?? "مشهد"}
+                        {getNeighborhoodSubNeighborhoodNames(item).join("، ") || "\u00A0"}
                       </Typography>
                     </Button>
                   ))}
@@ -502,7 +525,7 @@ export function NewAdLocationPage() {
             disabled={
               isResolvingLocation ||
               locationByCoordinatesQuery.isFetching ||
-              subNeighborhoodsQuery.isFetching ||
+              neighborhoodInfoQuery.isFetching ||
               !selectedLocation ||
               !getNeighborhoodId(selectedNeighborhood)
             }

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "../api/query-keys";
 import {
+  getNeighborhoodInfo,
   getNeighborhoodInfoWithLoc,
   getNeighborhoodList,
   getSubNeighborhoodList,
@@ -44,5 +45,16 @@ export function useSubNeighborhoodListQuery(
     enabled: enabled && Boolean(neighborhoodId),
     queryFn: () => getSubNeighborhoodList(neighborhoodId ?? ""),
     queryKey: queryKeys.neighborhoods.subNeighborhoods(neighborhoodId ?? ""),
+  });
+}
+
+export function useNeighborhoodInfoQuery(
+  neighborhoodId: string | number | null | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    enabled: enabled && Boolean(neighborhoodId),
+    queryFn: () => getNeighborhoodInfo(neighborhoodId ?? ""),
+    queryKey: queryKeys.neighborhoods.info(neighborhoodId ?? ""),
   });
 }

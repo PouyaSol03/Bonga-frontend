@@ -109,6 +109,8 @@ export const queryKeys = {
         filters.lat ?? "",
         filters.lng ?? "",
       ] as const,
+    info: (id: string | number) =>
+      [...queryKeys.neighborhoods.all, "info", String(id)] as const,
     list: (filters: { cityId?: string; page?: number; perPage?: number; q?: string }) =>
       [
         ...queryKeys.neighborhoods.all,

@@ -16,7 +16,12 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { useAdvertiseFormDefinitionQuery, useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../core/hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
-import { adManagementPaths, getAdPaymentPath, getAdStatePath } from "../account/adManagement/adManagementData";
+import {
+  adManagementPaths,
+  getAdPaymentPath,
+  getAdStatePath,
+  markNewAdCheckout,
+} from "../account/adManagement/adManagementData";
 import {
   blankValues,
   dailyHotelRoomTypes,
@@ -720,12 +725,14 @@ function getMediaValidationErrors(
 
   if (!hasRequiredText(values.title)) {
     errors.title = "لطفا عنوان آگهی را وارد کنید.";
-  } else if (values.title.trim().length > 30) {
-    errors.title = "عنوان آگهی حداکثر می‌تواند ۳۰ کاراکتر باشد.";
+  } else if (values.title.trim().length > 50) {
+    errors.title = "عنوان آگهی حداکثر می‌تواند ۵۰ کاراکتر باشد.";
   }
 
   if (!hasRequiredText(values.description)) {
     errors.description = "لطفا توضیحات آگهی را وارد کنید.";
+  } else if (values.description.trim().length > 500) {
+    errors.description = "توضیحات آگهی حداکثر می‌تواند ۵۰۰ کاراکتر باشد.";
   }
 
   return errors;
@@ -1227,6 +1234,7 @@ export function NewAdFlowPage() {
           return;
         }
 
+        markNewAdCheckout(createdAdId);
         navigateTo(getAdPaymentPath(createdAdId), {
           ad,
           paymentFlow: "new-ad",

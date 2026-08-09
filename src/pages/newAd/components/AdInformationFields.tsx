@@ -271,8 +271,8 @@ export function AdInformationFields({
         </div>
         <InputBox
           error={errors.title}
-          maxLength={30}
-          onChange={(value) => onSetField("title", value.slice(0, 30))}
+          maxLength={50}
+          onChange={(value) => onSetField("title", value.slice(0, 50))}
           placeholder={`مثال: ${label} ۱۲۰ متری، ۲ خوابه، طبقه اول`}
           value={values.title}
         />
@@ -290,7 +290,8 @@ export function AdInformationFields({
           <textarea
             aria-invalid={Boolean(errors.description)}
             className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6]"
-            onChange={(event) => onSetField("description", event.target.value)}
+            maxLength={500}
+            onChange={(event) => onSetField("description", event.target.value.slice(0, 500))}
             placeholder="اطلاعات بیشتر را وارد کنید..."
             value={values.description}
           />

@@ -251,6 +251,7 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "floor",
   "rooms",
   "totalFloors",
+  "unitsPerFloor",
   "unitType",
   "unitPosition",
   "documentType",
@@ -275,7 +276,7 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
-export const unitsPerFloorOptions = Array.from({ length: 20 }, (_, index) =>
+export const unitsPerFloorOptions = Array.from({ length: 8 }, (_, index) =>
   new Intl.NumberFormat("fa-IR").format(index + 1),
 );
 export const capacityOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۲", "۱۵", "۲۰", "۳۰", "۴۰", "۵۰+"];
@@ -359,7 +360,6 @@ const saleApartmentBasicFields: BasicPropertyField[] = [
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
-  { key: "unitsPerFloor", label: "تعداد واحد در هر طبقه", control: "select", options: unitsPerFloorOptions },
 ];
 
 const saleVillaHouseBasicFields: BasicPropertyField[] = [
@@ -499,6 +499,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   floor: floorOptions,
   rooms: roomOptions,
   totalFloors: ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"],
+  unitsPerFloor: unitsPerFloorOptions,
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
   documentType: documentTypeOptions,
@@ -515,6 +516,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
 
 const apartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
+  { key: "unitsPerFloor", label: "تعداد واحد در طبقه", control: "select" },
   { key: "unitType", label: "جهت ساختمان", control: "select" },
   { key: "unitPosition", label: "موقعیت واحد", control: "select" },
   { key: "documentType", label: "نوع سند", control: "select" },
@@ -526,7 +528,7 @@ const apartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentApartmentMoreFeatureFields: MoreFeatureField[] = apartmentMoreFeatureFields.filter(
-  (field) => field.key !== "documentType",
+  (field) => field.key !== "documentType" && field.key !== "unitsPerFloor",
 );
 
 const villaHouseMoreFeatureFields: MoreFeatureField[] = [

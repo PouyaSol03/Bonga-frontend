@@ -182,6 +182,7 @@ export function getAdPaymentPath(adId: ConsultantAd["id"] | string) {
 }
 
 const agencyAllocationCheckoutStoragePrefix = "bonga:agency-allocation-checkout:";
+const newAdCheckoutStoragePrefix = "bonga:new-ad-checkout:";
 
 export function markAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
@@ -203,6 +204,30 @@ export function hasAgencyAllocationCheckoutMarker(adId: ConsultantAd["id"] | str
   return (
     window.sessionStorage.getItem(
       `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
+    ) === "1"
+  );
+}
+
+export function markNewAdCheckout(adId: ConsultantAd["id"] | string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(
+    `${newAdCheckoutStoragePrefix}${String(adId)}`,
+    "1",
+  );
+}
+
+export function clearNewAdCheckout(adId: ConsultantAd["id"] | string) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(
+    `${newAdCheckoutStoragePrefix}${String(adId)}`,
+  );
+}
+
+export function hasNewAdCheckoutMarker(adId: ConsultantAd["id"] | string) {
+  if (typeof window === "undefined") return false;
+  return (
+    window.sessionStorage.getItem(
+      `${newAdCheckoutStoragePrefix}${String(adId)}`,
     ) === "1"
   );
 }

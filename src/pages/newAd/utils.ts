@@ -47,6 +47,7 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     floor: values.floor,
     rooms: values.rooms,
     totalFloors: values.totalFloors,
+    unitsPerFloor: normalizeUnitsPerFloorValue(values.unitsPerFloor),
     unitType: values.unitType,
     unitPosition: values.unitPosition,
     documentType: values.documentType,
@@ -273,6 +274,28 @@ function normalizeDigits(value: string) {
     .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
 }
 
+function parseUnitsPerFloor(value: unknown) {
+  const match = normalizeDigits(String(value ?? "")).match(/\d+/);
+
+  if (!match) return null;
+
+  const number = Number(match[0]);
+
+  return Number.isInteger(number) && number >= 1 && number <= 8 ? number : null;
+}
+
+export function normalizeUnitsPerFloorValue(value: unknown) {
+  const number = parseUnitsPerFloor(value);
+
+  return number === null ? "" : new Intl.NumberFormat("fa-IR").format(number);
+}
+
+export function formatUnitsPerFloorLabel(value: unknown) {
+  const normalized = normalizeUnitsPerFloorValue(value);
+
+  return normalized ? `${normalized} واحد` : "";
+}
+
 export function normalizeNumberInput(value: string) {
   return normalizeDigits(value).replace(/[^\d,]/g, "");
 }
@@ -281,6 +304,10 @@ function toNumber(value: string) {
   const normalized = normalizeDigits(value).replace(/,/g, "");
   const number = Number(normalized);
   return Number.isFinite(number) && normalized ? number : null;
+}
+
+function toUnitsPerFloorNumber(value: string) {
+  return parseUnitsPerFloor(value);
 }
 
 function labels(items: ChipItem[], ids: string[]) {
@@ -425,7 +452,7 @@ export function buildPayload(values: NewAdFormValues) {
 
   addFeature(features, "total_floors", toNumber(pickFirstNumber(values.totalFloors)));
   if (isSaleApartment) {
-    addFeature(features, "unit_per_floor", toNumber(values.unitsPerFloor));
+    addFeature(features, "unit_per_floor", toUnitsPerFloorNumber(values.unitsPerFloor));
   }
   addFeature(features, "unit_type", values.unitType);
   addFeature(features, "unit_direction", values.unitPosition);
@@ -562,6 +589,13 @@ export function buildNewAdFormData(
     formData.append(key, serializedValue);
   };
 
+  const appendDynamicAliasValue = (keys: string[], value: unknown) => {
+    const matchingKey = keys.find((key) => dynamicFieldKeys.has(key));
+
+    if (!matchingKey) return;
+    appendDynamicValue(matchingKey, value);
+  };
+
   const appendDynamicArray = (key: string, value: string[]) => {
     if (!dynamicFieldKeys.has(key)) return;
 
@@ -642,7 +676,10 @@ export function buildNewAdFormData(
   appendDynamicValue("document_type", values.documentType);
   appendDynamicValue("total_floors", toNumber(pickFirstNumber(values.totalFloors)));
   if (params.transaction === "sale" && params.category === "apartment") {
-    appendDynamicValue("unit_per_floor", toNumber(values.unitsPerFloor));
+    appendDynamicAliasValue(
+      ["units_per_floor", "unit_per_floor"],
+      toUnitsPerFloorNumber(values.unitsPerFloor),
+    );
   }
   appendDynamicValue("unit_type", values.unitType);
   appendDynamicValue("unit_position", values.unitPosition);

@@ -12,6 +12,7 @@ import {
   landFacilityItems,
 } from "../data";
 import {
+  formatUnitsPerFloorLabel,
   getBasicPropertyFields,
   getMoreFeatureFields,
   getParams,
@@ -138,7 +139,13 @@ export function DetailsStep({
       }
 
       if (typeof value === "string" && value.trim()) {
-        return { key: field.key, label: `${field.label}: ${value}` };
+        const displayValue = field.key === "unitsPerFloor"
+          ? formatUnitsPerFloorLabel(value)
+          : value;
+
+        if (!displayValue) return null;
+
+        return { key: field.key, label: `${field.label}: ${displayValue}` };
       }
 
       return null;

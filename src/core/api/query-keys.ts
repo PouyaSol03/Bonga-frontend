@@ -80,6 +80,25 @@ export const queryKeys = {
       ] as const,
   },
 
+  locationSearch: {
+    all: ["location-search"] as const,
+    byQuery: (filters: { cityId?: string; query?: string }) =>
+      [
+        ...queryKeys.locationSearch.all,
+        "query",
+        filters.cityId ?? "",
+        filters.query ?? "",
+      ] as const,
+    byCoordinates: (filters: { cityId?: string; lat?: number; lng?: number }) =>
+      [
+        ...queryKeys.locationSearch.all,
+        "coordinates",
+        filters.cityId ?? "",
+        filters.lat ?? "",
+        filters.lng ?? "",
+      ] as const,
+  },
+
   neighborhoods: {
     all: ["neighborhoods"] as const,
     infoWithLoc: (filters: { cityId?: string; lat?: number; lng?: number }) =>

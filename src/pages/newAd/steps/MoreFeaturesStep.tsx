@@ -4,7 +4,12 @@ import { useFormContext } from "react-hook-form";
 import { BottomSheet, BottomSheetActionList } from "../../../shared/components/BottomSheet";
 import { moreFeatureKeys, moreFeatureOptions } from "../data";
 import type { MoreFeatureFormKey, MoreFeatureSelectKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
-import { getMoreFeatureFields, pickMoreFeatures } from "../utils";
+import {
+  formatUnitsPerFloorLabel,
+  getMoreFeatureFields,
+  normalizeUnitsPerFloorValue,
+  pickMoreFeatures,
+} from "../utils";
 import { CompactToggle, InputBox, MoreFeaturesFooter, SelectBox } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 
@@ -45,6 +50,12 @@ export function MoreFeaturesStep({
   const getDraftString = (key: MoreFeatureFormKey) => {
     const value = draft[key];
     return typeof value === "string" ? value : "";
+  };
+
+  const getDisplayValue = (key: MoreFeatureFormKey) => {
+    const value = getDraftString(key);
+
+    return key === "unitsPerFloor" ? formatUnitsPerFloorLabel(value) : value;
   };
 
   const commit = () => {
@@ -98,7 +109,7 @@ export function MoreFeaturesStep({
                   onClear={() => setDraftField(field.key, "")}
                   onClick={() => openSelect(field.key as MoreFeatureSelectKey, field.label)}
                   placeholder={field.label}
-                  value={getDraftString(field.key)}
+                  value={getDisplayValue(field.key)}
                 />
               );
             })}
@@ -135,16 +146,27 @@ export function MoreFeaturesStep({
           isOpen={Boolean(sheet)}
           items={(sheet ? moreFeatureOptions[sheet.key] : []).map((option) => ({
             id: option,
-            title: option,
+            title: sheet?.key === "unitsPerFloor"
+              ? formatUnitsPerFloorLabel(option)
+              : option,
           }))}
           itemClassName="h-12 text-sm font-normal leading-5"
           onSelect={(item) => {
             if (!sheet) return;
 
-            setDraftField(sheet.key, item.title);
+            setDraftField(
+              sheet.key,
+              sheet.key === "unitsPerFloor"
+                ? normalizeUnitsPerFloorValue(item.id)
+                : item.id,
+            );
             setSheet(null);
           }}
-          selectedId={sheet ? getDraftString(sheet.key) : undefined}
+          selectedId={sheet
+            ? sheet.key === "unitsPerFloor"
+              ? normalizeUnitsPerFloorValue(getDraftString(sheet.key))
+              : getDraftString(sheet.key)
+            : undefined}
           showDividers={false}
         />
       </BottomSheet>

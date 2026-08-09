@@ -33,9 +33,11 @@ import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 import LinearTooman from "../../../shared/icons/LinearTooman";
 import {
   clearAgencyAllocationCheckout,
+  clearNewAdCheckout,
   getAdManagementRouteState,
   getAdStatePath,
   hasAgencyAllocationCheckoutMarker,
+  hasNewAdCheckoutMarker,
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -189,11 +191,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const isAgencyAllocationCheckout =
     routeState.paymentFlow === "agency-allocation" ||
     hasAgencyAllocationCheckoutMarker(advertiseId);
+  const isNewAdCheckout =
+    routeState.paymentFlow === "new-ad" || hasNewAdCheckoutMarker(advertiseId);
   const usesAgencyCheckoutOptions =
     isAgencyAllocationCheckout ||
     routeState.publisherType === "agency" ||
     (activeRole === REAL_ESTATE_MANAGER && routeState.publisherType !== "consultant");
-  const combineCheckoutSteps = activeRole === REAL_ESTATE_MANAGER;
+  const combineCheckoutSteps = !isNewAdCheckout && activeRole === REAL_ESTATE_MANAGER;
   const personalCheckoutQuery = useAdvertisementCheckoutQuery(
     advertiseId,
     !isAgencyAllocationCheckout,
@@ -428,6 +432,9 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       onSuccess: ({ paymentUrl }: SubmitAdvertisementCheckoutResult) => {
         if (isAgencyAllocationCheckout) {
           clearAgencyAllocationCheckout(advertiseId);
+        }
+        if (isNewAdCheckout) {
+          clearNewAdCheckout(advertiseId);
         }
 
         if (paymentMethod === "gateway") {

@@ -5,7 +5,8 @@ import { PageFrame } from "../../app/layout/PageFrame";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { getBrowserLocation } from "../../shared/lib/browserLocation";
 import { defaultSelectedCity, readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
-import { useNeighborhoodInfoWithLocQuery, useNeighborhoodListQuery, useSubNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { useSubNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
+import { useLocationSearchByCoordinates, useLocationSearchByQuery } from "../../core/hooks/location-search.hooks";
 import { getNeighborhoodPolygonPoints, type NeighborhoodDto, type SubNeighborhoodDto } from "../../core/services/neighborhood.service";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Header } from "./components/NewAdControls";
@@ -233,12 +234,12 @@ export function NewAdLocationPage() {
   const canSearchNeighborhoods =
     isManualSearch && normalizedQuery.length >= minNeighborhoodSearchLength;
 
-  const neighborhoodsQuery = useNeighborhoodListQuery({
+  const locationSearchQuery = useLocationSearchByQuery({
     cityId,
     enabled: Boolean(cityId) && canSearchNeighborhoods,
-    q: normalizedQuery,
+    query: normalizedQuery,
   });
-  const neighborhoodByLocationQuery = useNeighborhoodInfoWithLocQuery({
+  const locationByCoordinatesQuery = useLocationSearchByCoordinates({
     cityId,
     enabled: Boolean(cityId),
     lat: Number(mapCenter.lat.toFixed(7)),
@@ -267,8 +268,8 @@ export function NewAdLocationPage() {
   );
 
   const locations = useMemo(
-    () => (canSearchNeighborhoods ? neighborhoodsQuery.data ?? [] : []),
-    [canSearchNeighborhoods, neighborhoodsQuery.data],
+    () => (canSearchNeighborhoods ? locationSearchQuery.data ?? [] : []),
+    [canSearchNeighborhoods, locationSearchQuery.data],
   );
   const selectedLocation = selectedNeighborhood?.name ?? "";
   const selectedNeighborhoodGeofence = useMemo(
@@ -299,9 +300,9 @@ export function NewAdLocationPage() {
   }, []);
 
   useEffect(() => {
-    if (neighborhoodByLocationQuery.isFetching || isManualSearch) return;
+    if (locationByCoordinatesQuery.isFetching || isManualSearch) return;
 
-    const neighborhood = neighborhoodByLocationQuery.data;
+    const neighborhood = locationByCoordinatesQuery.data;
 
     if (!neighborhood || !getNeighborhoodId(neighborhood) || !neighborhood.name.trim()) {
       setSelectedNeighborhood(null);
@@ -315,9 +316,9 @@ export function NewAdLocationPage() {
     setIsResolvingLocation(false);
   }, [
     isManualSearch,
-    neighborhoodByLocationQuery.data,
-    neighborhoodByLocationQuery.isError,
-    neighborhoodByLocationQuery.isFetching,
+    locationByCoordinatesQuery.data,
+    locationByCoordinatesQuery.isError,
+    locationByCoordinatesQuery.isFetching,
   ]);
 
   const updateMapCenter = (center: NewAdMapCenter) => {
@@ -470,16 +471,16 @@ export function NewAdLocationPage() {
 
           {canSearchNeighborhoods ? (
             <div
-              className={`${neighborhoodsQuery.isLoading || locations.length ? "max-h-40" : "max-h-[280px]"} overflow-y-auto pt-3`}
+              className={`${locationSearchQuery.isLoading || locations.length ? "max-h-40" : "max-h-[280px]"} overflow-y-auto pt-3`}
             >
-              {neighborhoodsQuery.isLoading ? (
+              {locationSearchQuery.isLoading ? (
                 <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
               ) : locations.length ? (
                 <div className="space-y-1">
                   {locations.map((item) => (
                     <Button unstyled
                       className={`w-full rounded-[10px] px-3 py-2 text-right ${getNeighborhoodId(selectedNeighborhood) === getNeighborhoodId(item) ? "bg-[#0048c414]" : "bg-white"}`}
-                      key={getNeighborhoodId(item)}
+                      key={`${getNeighborhoodId(item)}:${item.lat ?? ""}:${item.lng ?? ""}:${item.name}`}
                       onClick={() => selectNeighborhood(item)}
                       type="button"
                     >
@@ -500,7 +501,7 @@ export function NewAdLocationPage() {
             className="mt-4 h-12 w-full rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6]"
             disabled={
               isResolvingLocation ||
-              neighborhoodByLocationQuery.isFetching ||
+              locationByCoordinatesQuery.isFetching ||
               subNeighborhoodsQuery.isFetching ||
               !selectedLocation ||
               !getNeighborhoodId(selectedNeighborhood)

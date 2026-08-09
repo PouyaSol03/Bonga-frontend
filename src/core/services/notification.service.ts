@@ -10,7 +10,11 @@ export type NotificationCategory =
 
 export type NotificationPayload = Record<string, unknown> & {
   advertise_id?: number | string;
+  agent_id?: number | string;
+  agentId?: number | string;
   agency_id?: number | string;
+  agency_name?: string;
+  agencyName?: string;
   chat_thread_id?: number | string;
   message_id?: number | string;
   payment_id?: number | string;

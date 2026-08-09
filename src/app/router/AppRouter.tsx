@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { getStoredAuthSession, storeLoginRedirectPath } from '../../core/auth/auth-storage'
+import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../core/auth/auth-storage'
 import { MobileAppShell } from '../layout/MobileAppShell'
 import { PageFrame } from '../layout/PageFrame'
 import { BottomNavigation } from '../../shared/components/BottomNavigation'
@@ -8,7 +8,12 @@ import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../../
 import LinearNotification from '../../shared/icons/LinearNotification'
 import { TopBar, TopBarLayoutProvider } from '../../shared/components/TopBar'
 import { Typography } from '../../shared/ui/Typography'
-import { CRM_ADVERTISE_ROLES } from '../../shared/constants/roles.constants'
+import {
+  CRM_ADVERTISE_ROLES,
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from '../../shared/constants/roles.constants'
 import { isUserIdentityVerified } from "../../core/services/account.service";
 import { useMyProfileQuery } from '../../core/hooks/account.hooks'
 import { useNotificationUnreadCountQuery } from '../../core/hooks/notification.hooks'
@@ -546,6 +551,23 @@ export function AppRouter() {
 
     replaceRoute('/403', undefined, { rememberCurrent: false })
   }, [isAccessDenied, route.path])
+
+  useEffect(() => {
+    if (!isAccessDenied || !route.path.startsWith(`${DASHBOARD_PATH}/`)) {
+      return
+    }
+
+    const activeRole = getActiveAuthRole(authSession)
+    const fallbackPath = activeRole === REAL_ESTATE_MANAGER
+      ? `${DASHBOARD_PATH}/agency`
+      : activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT
+        ? `${DASHBOARD_PATH}/agent`
+        : '/account'
+
+    if (fallbackPath !== route.path) {
+      replaceRoute(fallbackPath, undefined, { rememberCurrent: false })
+    }
+  }, [authSession, isAccessDenied, route.path])
 
   useEffect(() => {
     function handleNavigation() {

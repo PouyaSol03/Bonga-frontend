@@ -5,6 +5,7 @@ import {
   disconnectNotificationSocket,
   type NotificationReadPayload,
 } from "../../core/api/notification-socket";
+import { getApiErrorMessage } from "../../core/api/api";
 import { queryClient } from "../../core/api/query-client";
 import { queryKeys } from "../../core/api/query-keys";
 import { PageFrame } from "../../app/layout/PageFrame";
@@ -12,6 +13,7 @@ import { BottomSheet } from "../../shared/components/BottomSheet";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { Snackbar } from "../../shared/components/Snackbar";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { TopBar } from "../../shared/components/TopBar";
 import LinearDelete from "../../shared/icons/LinearDelete";
@@ -26,10 +28,12 @@ import {
   useNotificationUnreadCountQuery,
   useUpdateNotificationPreferenceMutation,
 } from "../../core/hooks/notification.hooks";
+import { useAgencyConsultantRequestDecisionMutation } from "../../core/hooks/agency.hooks";
 import type {
   NotificationCategory,
   NotificationItem,
 } from "../../core/services/notification.service";
+import type { AgencyConsultantRequestDecision } from "../../core/services/agency.service";
 import LinearArrowRight2 from "../../shared/icons/LinearArrowRight2";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { Typography } from "../../shared/ui/Typography";
@@ -43,6 +47,7 @@ type FilterOption = {
 const notificationsPerPage = 20;
 const notificationDeleteActionWidth = 84;
 const notificationDeleteThreshold = 56;
+const agencyConsultantRequestType = "agency_consultant_request";
 
 const notificationFilterOptions: FilterOption[] = [
   { id: "advertise", label: "آگهی‌ها" },
@@ -157,6 +162,25 @@ function readPayloadId(value: unknown) {
   if (typeof value === "string" || typeof value === "number") return String(value);
 
   return "";
+}
+
+function readRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function getAgencyConsultantRequestAgentId(notification: NotificationItem) {
+  const payload = notification.payload ?? {};
+  const nestedAgent = readRecord(payload.agent);
+
+  return readPayloadId(
+    payload.agent_id ??
+      payload.agentId ??
+      nestedAgent?.id ??
+      notification.agent_id ??
+      notification.agentId,
+  );
 }
 
 function formatNotificationTime(value?: string) {
@@ -525,16 +549,150 @@ function NotificationActionButton({
   );
 }
 
-function SwipeableNotificationCard({
-  isDeleting,
+function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }) {
+  const description =
+    item.description || "یک آژانس شما را برای همکاری دعوت کرده است.";
+  const payload = item.payload ?? {};
+  const nestedAgency = readRecord(payload.agency);
+  const payloadAgencyName = [
+    payload.agency_name,
+    payload.agencyName,
+    nestedAgency?.name,
+    nestedAgency?.title,
+  ].find((value): value is string => typeof value === "string" && value.trim().length > 0);
+  const agencyNameInDescription =
+    description.match(/«[^»]+»/)?.[0] ??
+    (payloadAgencyName && description.includes(payloadAgencyName)
+      ? payloadAgencyName
+      : undefined);
+
+  if (!agencyNameInDescription) {
+    return (
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="m-0 truncate text-xs font-normal leading-5 text-[#4d4d4d]"
+      >
+        {description}
+      </Typography>
+    );
+  }
+
+  const [beforeAgency = "", afterAgency = ""] = description.split(agencyNameInDescription);
+
+  return (
+    <Typography
+      as="p"
+      variant="body"
+      size="small"
+      weight="regular"
+      className="m-0 truncate text-xs font-normal leading-5 text-[#4d4d4d]"
+    >
+      {beforeAgency}
+      <Typography as="span" variant="body" size="small" weight="regular" className="text-[#0048c4]">
+        {agencyNameInDescription}
+      </Typography>
+      {afterAgency}
+    </Typography>
+  );
+}
+
+function AgencyConsultantRequestCardContent({
+  decision,
+  isResponding,
   item,
+  onDecision,
+  pendingDecision,
+}: {
+  decision?: AgencyConsultantRequestDecision;
+  isResponding: boolean;
+  item: NotificationItem;
+  onDecision: (decision: AgencyConsultantRequestDecision) => void;
+  pendingDecision?: AgencyConsultantRequestDecision;
+}) {
+  const isResolved = decision !== undefined;
+
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3 [direction:ltr]">
+        <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-[#999999]">
+          {formatNotificationTime(item.created_at)}
+        </time>
+
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="m-0 min-w-0 truncate text-right text-sm font-semibold leading-5 text-[#1a1a1a] [direction:rtl]"
+        >
+          {item.title || "دعوت همکاری جدید"}
+        </Typography>
+      </div>
+
+      <div className="text-right [direction:rtl]">
+        <AgencyConsultantRequestDescription item={item} />
+      </div>
+
+      <div className="mt-auto flex items-center justify-start gap-2 [direction:rtl]">
+        <Button
+          unstyled
+          className="h-7 w-[106px] shrink-0 rounded-lg bg-[#0048c4] px-2 text-center text-xs font-medium leading-4 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isResponding || isResolved}
+          onClick={() => onDecision("accept")}
+          onPointerDown={(event) => event.stopPropagation()}
+          type="button"
+        >
+          <Typography as="span" variant="label" size="small" weight="medium">
+            {decision === "accept"
+              ? "پذیرفته شد"
+              : isResponding && pendingDecision === "accept"
+                ? "در حال پذیرش..."
+                : "پذیرش همکاری"}
+          </Typography>
+        </Button>
+
+        <Button
+          unstyled
+          className="h-7 w-[76px] shrink-0 rounded-lg border border-[#0048c4] bg-white px-2 text-center text-xs font-medium leading-4 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isResponding || isResolved}
+          onClick={() => onDecision("reject")}
+          onPointerDown={(event) => event.stopPropagation()}
+          type="button"
+        >
+          <Typography as="span" variant="label" size="small" weight="medium">
+            {decision === "reject"
+              ? "دعوت رد شد"
+              : isResponding && pendingDecision === "reject"
+                ? "در حال رد..."
+                : "رد دعوت"}
+          </Typography>
+        </Button>
+      </div>
+    </>
+  );
+}
+
+function SwipeableNotificationCard({
+  agencyRequestDecision,
+  isDeleting,
+  isRespondingToAgencyRequest,
+  item,
+  onAgencyRequestDecision,
   onDelete,
   onOpen,
+  pendingAgencyRequestDecision,
 }: {
+  agencyRequestDecision?: AgencyConsultantRequestDecision;
   isDeleting: boolean;
+  isRespondingToAgencyRequest: boolean;
   item: NotificationItem;
+  onAgencyRequestDecision: (decision: AgencyConsultantRequestDecision) => void;
   onDelete: () => void;
   onOpen: () => void;
+  pendingAgencyRequestDecision?: AgencyConsultantRequestDecision;
 }) {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -545,6 +703,8 @@ function SwipeableNotificationCard({
   const dragOffsetRef = useRef(0);
   const category = item.category ?? "systems";
   const isUnread = item.is_read === false;
+  const isAgencyConsultantRequest = item.type === agencyConsultantRequestType;
+  const isInteractionLocked = isDeleting || isRespondingToAgencyRequest;
 
   const updateDragOffset = (nextOffset: number) => {
     const clampedOffset = Math.max(0, Math.min(nextOffset, notificationDeleteActionWidth));
@@ -571,7 +731,7 @@ function SwipeableNotificationCard({
       <Button unstyled
         aria-label={`حذف اعلان ${item.title || ""}`.trim()}
         className="absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f] disabled:cursor-not-allowed"
-        disabled={isDeleting}
+        disabled={isInteractionLocked}
         onClick={onDelete}
         type="button"
       >
@@ -580,12 +740,12 @@ function SwipeableNotificationCard({
       </Button>
 
       <article
-        className={`relative z-10 flex h-full w-full max-w-full touch-pan-y select-none flex-col gap-y-4 overflow-hidden px-4 py-4 text-right will-change-transform ${
-          isUnread ? "bg-[#f7faff]" : "bg-white"
+        className={`relative z-10 flex w-full max-w-full touch-pan-y select-none flex-col overflow-hidden px-4 py-4 text-right will-change-transform ${
+          isAgencyConsultantRequest ? "h-[120px] gap-y-2 bg-white" : `h-full gap-y-4 ${isUnread ? "bg-[#f7faff]" : "bg-white"}`
         } ${isDragging ? "" : "transition-transform duration-200 ease-out"}`}
         style={{ transform: `translateX(${dragOffset}px)` }}
         onPointerDown={(event) => {
-          if (isDeleting) return;
+          if (isInteractionLocked) return;
           if (event.pointerType === "mouse" && event.button !== 0) return;
 
           startXRef.current = event.clientX;
@@ -594,7 +754,7 @@ function SwipeableNotificationCard({
           isSwipeRef.current = false;
         }}
         onPointerMove={(event) => {
-          if (isDeleting) return;
+          if (isInteractionLocked) return;
           const startX = startXRef.current;
           const startY = startYRef.current;
 
@@ -643,7 +803,7 @@ function SwipeableNotificationCard({
           const finalOffset = dragOffsetRef.current;
 
           if (
-            !isDeleting &&
+            !isInteractionLocked &&
             wasSwipe &&
             finalOffset >= notificationDeleteThreshold &&
             Math.abs(dx) > Math.abs(dy)
@@ -665,6 +825,16 @@ function SwipeableNotificationCard({
           resetSwipe();
         }}
       >
+        {isAgencyConsultantRequest ? (
+          <AgencyConsultantRequestCardContent
+            decision={agencyRequestDecision}
+            isResponding={isRespondingToAgencyRequest}
+            item={item}
+            onDecision={onAgencyRequestDecision}
+            pendingDecision={pendingAgencyRequestDecision}
+          />
+        ) : (
+          <>
         <div className="flex items-start justify-between gap-3 [direction:ltr]">
           <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-[#999999]">
             {formatNotificationTime(item.created_at)}
@@ -701,6 +871,8 @@ function SwipeableNotificationCard({
             onClick={onOpen}
           />
         </div>
+          </>
+        )}
       </article>
     </div>
   );
@@ -729,6 +901,16 @@ export function NotificationsPage() {
   const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
   const [isClearingRead, setIsClearingRead] = useState(false);
   const [markAllUnread, setMarkAllUnread] = useState(false);
+  const [agencyRequestActionNotificationId, setAgencyRequestActionNotificationId] =
+    useState<string | null>(null);
+  const [agencyRequestDecisions, setAgencyRequestDecisions] = useState<
+    Record<string, AgencyConsultantRequestDecision>
+  >({});
+  const [feedback, setFeedback] = useState<{
+    message: string;
+    title: string;
+    variant: "error" | "success";
+  } | null>(null);
   const [realtimeNotifications, setRealtimeNotifications] = useState<NotificationItem[]>([]);
   const [selectedFilterIds, setSelectedFilterIds] = useState<Set<NotificationCategory>>(
     () => new Set(),
@@ -742,6 +924,7 @@ export function NotificationsPage() {
   const markReadMutation = useMarkNotificationReadMutation();
   const markAllReadMutation = useMarkAllNotificationsReadMutation();
   const deleteMutation = useDeleteNotificationMutation();
+  const agencyRequestDecisionMutation = useAgencyConsultantRequestDecisionMutation();
 
   const serverNotifications = useMemo(
     () => notificationsQuery.data?.pages.flatMap((page) => page.data) ?? [],
@@ -978,6 +1161,72 @@ export function NotificationsPage() {
     }
   };
 
+  const respondToAgencyConsultantRequest = async (
+    notification: NotificationItem,
+    decision: AgencyConsultantRequestDecision,
+  ) => {
+    const notificationId = String(notification.id);
+
+    if (
+      agencyRequestActionNotificationId !== null ||
+      agencyRequestDecisions[notificationId] !== undefined
+    ) {
+      return;
+    }
+
+    const agentId = getAgencyConsultantRequestAgentId(notification);
+
+    if (!agentId) {
+      setFeedback({
+        message: "شناسه مشاور در اطلاعات این اعلان موجود نیست.",
+        title: "امکان ثبت پاسخ وجود ندارد",
+        variant: "error",
+      });
+      return;
+    }
+
+    setAgencyRequestActionNotificationId(notificationId);
+
+    try {
+      await agencyRequestDecisionMutation.mutateAsync({ agentId, decision });
+      setAgencyRequestDecisions((current) => ({
+        ...current,
+        [notificationId]: decision,
+      }));
+      setRealtimeNotifications((current) =>
+        current.map((item) =>
+          String(item.id) === notificationId ? { ...item, is_read: true } : item,
+        ),
+      );
+
+      if (notification.is_read !== true) {
+        try {
+          await markReadMutation.mutateAsync(notificationId);
+        } catch {
+          // The agency request response already succeeded; reading the notification is secondary.
+        }
+      }
+
+      await Promise.all([notificationsQuery.refetch(), unreadCountQuery.refetch()]);
+      setFeedback({
+        message:
+          decision === "accept"
+            ? "دعوت همکاری با موفقیت پذیرفته شد."
+            : "دعوت همکاری با موفقیت رد شد.",
+        title: decision === "accept" ? "همکاری پذیرفته شد" : "دعوت رد شد",
+        variant: "success",
+      });
+    } catch (error) {
+      setFeedback({
+        message: getApiErrorMessage(error, "ثبت پاسخ دعوت همکاری انجام نشد. دوباره تلاش کنید."),
+        title: "خطا در ثبت پاسخ",
+        variant: "error",
+      });
+    } finally {
+      setAgencyRequestActionNotificationId(null);
+    }
+  };
+
   const markAllRead = async () => {
     try {
       await markAllReadMutation.mutateAsync(undefined);
@@ -1057,13 +1306,25 @@ export function NotificationsPage() {
                 ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
               >
                 <SwipeableNotificationCard
+                  agencyRequestDecision={agencyRequestDecisions[String(notification.id)]}
                   isDeleting={
                     deleteMutation.isPending &&
                     deleteMutation.variables === String(notification.id)
                   }
+                  isRespondingToAgencyRequest={
+                    agencyRequestActionNotificationId === String(notification.id)
+                  }
                   item={notification}
+                  onAgencyRequestDecision={(decision) =>
+                    void respondToAgencyConsultantRequest(notification, decision)
+                  }
                   onDelete={() => void removeNotification(notification)}
                   onOpen={() => void openNotification(notification)}
+                  pendingAgencyRequestDecision={
+                    agencyRequestActionNotificationId === String(notification.id)
+                      ? agencyRequestDecisionMutation.variables?.decision
+                      : undefined
+                  }
                 />
               </div>
             );
@@ -1102,6 +1363,14 @@ export function NotificationsPage() {
           navigateTo("/notifications/settings");
         }}
       />
+      {feedback ? (
+        <Snackbar
+          message={feedback.message}
+          onDismiss={() => setFeedback(null)}
+          title={feedback.title}
+          variant={feedback.variant}
+        />
+      ) : null}
     </PageFrame>
   );
 }

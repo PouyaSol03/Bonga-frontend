@@ -11,6 +11,7 @@ import {
   getPublicAgencyDetail,
   getPublicAgents,
   getPublicAgentDetail,
+  respondToAgencyConsultantRequest,
   updateMyAgencyConsultant,
   type AgencySort,
   type PublicAgencyPage,
@@ -81,6 +82,20 @@ export function useAddAgencyConsultantMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.agencies.all,
+      });
+    },
+  });
+}
+
+export function useAgencyConsultantRequestDecisionMutation() {
+  return useMutation({
+    mutationFn: respondToAgencyConsultantRequest,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencies.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.all,
       });
     },
   });

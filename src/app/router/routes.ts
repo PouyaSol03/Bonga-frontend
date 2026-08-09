@@ -184,6 +184,10 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
   }
 
   if (route.authority?.length) {
+    if (route.layout === 'dashboard' || route.path.startsWith(`${DASHBOARD_PATH}/`)) {
+      return route.authority.includes(activeRole)
+    }
+
     const sessionRoles = getSessionRoleSlugs(session)
     return route.authority.some((role) => sessionRoles.includes(role))
   }
@@ -638,6 +642,7 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/agency/preview`,
     title: 'صفحه آژانس',
     Component: DashboardAgencyPreviewPage,
+    authority: [REAL_ESTATE_MANAGER],
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -645,6 +650,7 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/agency/preview/qr-code`,
     title: 'کیوآرکد آژانس',
     Component: DashboardAgencyQrCodePage,
+    authority: [REAL_ESTATE_MANAGER],
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -652,6 +658,7 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/agency/preview/filter`,
     title: 'فیلتر آگهی‌ها',
     Component: SearchMapFilterPage,
+    authority: [REAL_ESTATE_MANAGER],
     requiresAuth: true,
     requiresNonUser: true,
   },
@@ -744,49 +751,49 @@ export const routes: AppRoute[] = [
     path: '/account/ranking',
     title: 'نشان‌ها و رتبه',
     Component: IndependentConsultantRankingPage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ranking/levels',
     title: 'سطح پیشرفت مشاور',
     Component: IndependentConsultantRankingLevelsPage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/guide',
     title: 'راهنمای نشان‌ها',
     Component: IndependentConsultantBadgesGuidePage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/file',
     title: 'جزئیات نشان',
     Component: IndependentConsultantFileBadgePage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/magnet',
     title: 'جزئیات نشان',
     Component: IndependentConsultantMagnetBadgePage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/response',
     title: 'جزئیات نشان',
     Component: IndependentConsultantResponseBadgePage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ranking/badges/time',
     title: 'جزئیات نشان',
     Component: IndependentConsultantTimeBadgePage,
-    authority: [INDEPENDENT_CONSULTANT],
+    authority: [REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT],
     requiresAuth: true,
   },
   {
@@ -821,14 +828,14 @@ export const routes: AppRoute[] = [
     path: '/account/ad-management/allocation',
     title: 'انتشار آگهی',
     Component: IndependentConsultantAdAllocationPage,
-    authority: DASHBOARD_ROLES,
+    authority: [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT],
     requiresAuth: true,
   },
   {
     path: '/account/ad-management/allocation-review',
     title: 'بررسی و تخصیص',
     Component: IndependentConsultantAdAllocationReviewPage,
-    authority: DASHBOARD_ROLES,
+    authority: [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT],
     requiresAuth: true,
   },
   {

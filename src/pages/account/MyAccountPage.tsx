@@ -207,12 +207,11 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
   const authSession = getStoredAuthSession();
   const activeRole = getActiveAuthRole(authSession);
   const isManagerRole = activeRole === REAL_ESTATE_MANAGER;
-  const isAgencyRole = isManagerRole || activeRole === REAL_ESTATE_CONSULTANT;
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
     enabled: Boolean(authSession) && !isManagerRole,
   });
   const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({
-    enabled: Boolean(authSession) && isAgencyRole,
+    enabled: Boolean(authSession) && isManagerRole,
   });
   const {
     closeLogoutConfirm,
@@ -226,7 +225,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
   const businessHeader = getBusinessAccountHeader(activeRole, profile, agencyProfile);
   const isBusinessAccountLoading = Boolean(authSession) && (
     (!isManagerRole && isProfileLoading) ||
-    (isAgencyRole && isAgencyProfileLoading)
+    (isManagerRole && isAgencyProfileLoading)
   );
   const accountOverlay = (
     <>
@@ -371,7 +370,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
       { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
-      { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
+      { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
       { icon: "message", label: "پیام‌ها", to: "/chat" },
@@ -383,7 +382,7 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
       { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
-      { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agency` },
+      { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
       { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
@@ -468,13 +467,11 @@ function StandardAccountPage({
   businessSuccessSheet?: ReactNode;
 }) {
   const isLoggedIn = authSession !== null;
-  const hasAgencyRole = Boolean(
-    authSession?.roles.some(
-      (role) => role.slug === REAL_ESTATE_MANAGER || role.slug === REAL_ESTATE_CONSULTANT,
-    ),
+  const hasManagerRole = Boolean(
+    authSession?.roles.some((role) => role.slug === REAL_ESTATE_MANAGER),
   );
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({ enabled: isLoggedIn });
-  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({ enabled: isLoggedIn && hasAgencyRole });
+  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({ enabled: isLoggedIn && hasManagerRole });
   const {
     closeLogoutConfirm,
     confirmLogout,
@@ -484,7 +481,7 @@ function StandardAccountPage({
   } = useLogoutAccount();
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
-  const isAccountLoading = isLoggedIn && (isProfileLoading || (hasAgencyRole && isAgencyProfileLoading));
+  const isAccountLoading = isLoggedIn && (isProfileLoading || (hasManagerRole && isAgencyProfileLoading));
   const primaryAccountActions = isUserIdentityVerified(profile)
     ? primaryActions.map((action) =>
         action.to === "/account/identity"

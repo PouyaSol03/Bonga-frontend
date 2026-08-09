@@ -252,7 +252,7 @@ export function ConsultantManagementPage() {
 export function AddConsultantPage() {
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedConsultantId, setSelectedConsultantId] = useState<string | null>(null);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [accessRole, setAccessRole] = useState<AccessRole>("consultant");
   const [managerAccess, setManagerAccess] = useState<string[]>(["ads", "requests"]);
   const [adQuota, setAdQuota] = useState(0);
@@ -302,7 +302,7 @@ export function AddConsultantPage() {
   };
 
   const handleAddConsultant = () => {
-    if (!selectedConsultantId) {
+    if (!selectedAgentId) {
       setErrorMessage("ابتدا یک مشاور را از نتیجه جستجو انتخاب کنید.");
       return;
     }
@@ -321,11 +321,11 @@ export function AddConsultantPage() {
     addConsultantMutation.mutate(
       {
         adQuota,
+        agentId: selectedAgentId,
         permissions,
         renewQuota: updateQuota,
         role: accessRole,
         specialQuota,
-        userId: selectedConsultantId,
       },
       {
         onError: (error) => {
@@ -368,7 +368,7 @@ export function AddConsultantPage() {
           <TextField
             onChange={(event) => {
               setSearchValue(event.target.value);
-              setSelectedConsultantId(null);
+              setSelectedAgentId(null);
             }}
             placeholder="شماره تلفن مشاور مورد نظر را وارد کنید"
             trailingSlot={<LinearSearch className="h-6 w-6 text-outline" />}
@@ -392,7 +392,7 @@ export function AddConsultantPage() {
               </Typography>
               <div className="mt-3 space-y-2">
                 {visibleResults.map((consultant) => {
-                  const isSelected = selectedConsultantId === consultant.id;
+                  const isSelected = selectedAgentId === consultant.id;
 
                   return (
                     <Button unstyled
@@ -402,7 +402,7 @@ export function AddConsultantPage() {
                         : "border-[#e6e6e6] bg-white"
                         }`}
                       key={consultant.id}
-                      onClick={() => setSelectedConsultantId(consultant.id)}
+                      onClick={() => setSelectedAgentId(consultant.id)}
                       type="button"
                     >
                       <div className="flex flex-1 gap-x-2">

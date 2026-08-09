@@ -76,13 +76,23 @@ export type AgencyConsultantPermissions = {
   support: boolean;
 };
 
-export type AddAgencyConsultantPayload = {
+type AgencyConsultantSettingsPayload = {
   adQuota: number;
   permissions: AgencyConsultantPermissions | Record<string, boolean>;
   renewQuota: number;
   role: "consultant" | "manager";
   specialQuota: number;
-  userId: number | string;
+};
+
+export type AddAgencyConsultantPayload = AgencyConsultantSettingsPayload & {
+  agentId: number | string;
+};
+
+export type AgencyConsultantRequestDecision = "accept" | "reject";
+
+export type AgencyConsultantRequestDecisionPayload = {
+  agentId: number | string;
+  decision: AgencyConsultantRequestDecision;
 };
 
 export type AgencyConsultantMetrics = {
@@ -120,7 +130,9 @@ export type AgencyConsultantsParams = {
   perPage?: number;
 };
 
-export type UpdateAgencyConsultantPayload = AddAgencyConsultantPayload;
+export type UpdateAgencyConsultantPayload = AgencyConsultantSettingsPayload & {
+  userId: number | string;
+};
 
 export type DeactivateAgencyConsultantPayload = {
   transferTo: "agency" | "member";
@@ -668,24 +680,37 @@ function normalizePublicAgentDetail(
 
 export async function addMyAgencyConsultant({
   adQuota,
+  agentId,
   permissions,
   renewQuota,
   role,
   specialQuota,
-  userId,
 }: AddAgencyConsultantPayload) {
   return api.post("me/agency/consultants", {
     context: { allowNonJsonResponse: true },
     headers: { Accept: "*/*" },
     json: {
       ad_quota: Math.max(0, Math.trunc(adQuota)),
+      agent_id: Number.isFinite(Number(agentId)) ? Number(agentId) : agentId,
       permissions,
       renew_quota: Math.max(0, Math.trunc(renewQuota)),
       role,
       special_quota: Math.max(0, Math.trunc(specialQuota)),
-      user_id: Number.isFinite(Number(userId)) ? Number(userId) : userId,
     },
   });
+}
+
+export async function respondToAgencyConsultantRequest({
+  agentId,
+  decision,
+}: AgencyConsultantRequestDecisionPayload) {
+  return api.patch(
+    `me/agent/agency-requests/${encodeURIComponent(String(agentId))}/${decision}`,
+    {
+      context: { allowNonJsonResponse: true },
+      headers: { Accept: "*/*" },
+    },
+  );
 }
 
 export async function getMyAgencyConsultants({

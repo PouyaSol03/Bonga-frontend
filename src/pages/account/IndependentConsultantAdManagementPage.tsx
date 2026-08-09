@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import "../../shared/components/AdCard.css";
 
 import { PageFrame } from "../../app/layout/PageFrame";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
 import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
@@ -30,6 +31,7 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { AccountMyAdsEmptyState } from "./accountPageViews";
+import { INDEPENDENT_CONSULTANT } from "../../shared/constants/roles.constants";
 
 const assignmentPageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -237,7 +239,11 @@ function readAdvertisementPublisher(ad: AdvertisementItem) {
 
 export function IndependentConsultantAdManagementPage() {
   const routeState = getAdManagementRouteState();
-  const [activeTab, setActiveTab] = useState<AdsTab>(routeState.tab ?? "active");
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const canAccessAssignments = activeRole !== INDEPENDENT_CONSULTANT;
+  const [activeTab, setActiveTab] = useState<AdsTab>(() =>
+    canAccessAssignments ? (routeState.tab ?? "active") : "active",
+  );
   const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
   const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyFilters);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -245,7 +251,7 @@ export function IndependentConsultantAdManagementPage() {
   const scopedFilters = getScopedFilters(filters, activeTab);
   const hasFilters = hasActiveFilters(scopedFilters, activeTab);
   const assignmentsQuery = useAgencyAdvertiseAssignmentsInfiniteQuery({
-    enabled: assignedTab,
+    enabled: canAccessAssignments && assignedTab,
     perPage: assignmentPageSize,
     status: "pending",
   });
@@ -334,30 +340,32 @@ export function IndependentConsultantAdManagementPage() {
         }
       />
 
-      <section className="shrink-0 bg-[#f0f0f0] px-4 py-2" aria-label="بخش‌های مدیریت آگهی">
-        <div className="grid h-10 grid-cols-2 overflow-hidden rounded-xl border border-[#808080] bg-white [direction:rtl]">
-          <Button unstyled
-            aria-current={activeTab === "active" ? "page" : undefined}
-            className={`text-base font-medium leading-6 [direction:rtl] ${
-              activeTab === "active" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
-            }`}
-            onClick={() => setActiveTab("active")}
-            type="button"
-          >
-            آگهی‌ها
-          </Button>
-          <Button unstyled
-            aria-current={activeTab === "status" ? "page" : undefined}
-            className={`text-base font-medium leading-6 [direction:rtl] ${
-              activeTab === "status" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
-            }`}
-            onClick={() => setActiveTab("status")}
-            type="button"
-          >
-            تخصیصی‌ها
-          </Button>
-        </div>
-      </section>
+      {canAccessAssignments ? (
+        <section className="shrink-0 bg-[#f0f0f0] px-4 py-2" aria-label="بخش‌های مدیریت آگهی">
+          <div className="grid h-10 grid-cols-2 overflow-hidden rounded-xl border border-[#808080] bg-white [direction:rtl]">
+            <Button unstyled
+              aria-current={activeTab === "active" ? "page" : undefined}
+              className={`text-base font-medium leading-6 [direction:rtl] ${
+                activeTab === "active" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
+              }`}
+              onClick={() => setActiveTab("active")}
+              type="button"
+            >
+              آگهی‌ها
+            </Button>
+            <Button unstyled
+              aria-current={activeTab === "status" ? "page" : undefined}
+              className={`text-base font-medium leading-6 [direction:rtl] ${
+                activeTab === "status" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
+              }`}
+              onClick={() => setActiveTab("status")}
+              type="button"
+            >
+              تخصیصی‌ها
+            </Button>
+          </div>
+        </section>
+      ) : null}
 
       <section
         aria-label="فیلترهای مدیریت آگهی"

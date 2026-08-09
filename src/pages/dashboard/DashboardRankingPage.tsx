@@ -15,6 +15,9 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { useMyBadgesQuery } from "../../core/hooks/account.hooks";
 import { useAgencyDashboardQuery } from "../../core/hooks/dashboard.hooks";
+import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../shared/constants/roles.constants";
+import { IndependentConsultantRankingPage } from "../account/IndependentConsultantRankingPage";
 import type { BadgeItem } from "../../core/services/account.service";
 import type { DashboardRankingEntity } from "../../core/services/dashboard.service";
 
@@ -78,6 +81,16 @@ function mapBadgeItemToBadge(item: BadgeItem, index: number): AgencyBadge {
 }
 
 export function DashboardRankingPage() {
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+
+  if (activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT) {
+    return <IndependentConsultantRankingPage />;
+  }
+
+  return <AgencyDashboardRankingPage />;
+}
+
+function AgencyDashboardRankingPage() {
   const [period, setPeriod] = useState<RankingPeriod>("ماه");
   const dashboardQuery = useAgencyDashboardQuery({ period: period === "هفته" ? "7d" : "30d" });
   const dashboard = dashboardQuery.data;

@@ -13,7 +13,7 @@ import { getCategoryList, type CategoryItem } from "../../core/services/category
 import type { PublicAgencyDto } from "../../core/services/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../core/services/crm.service";
 import { Snackbar } from "../../shared/components/Snackbar";
-import { useAdvertiseFormDefinitionQuery, useAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../core/hooks/advertisement.hooks";
+import { useAdvertiseFormDefinitionQuery, useMyAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../core/hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import {
@@ -945,7 +945,7 @@ export function NewAdFlowPage() {
   const advertiseFormQuery = useAdvertiseFormDefinitionQuery(
     !isEditMode && !isCrmSource ? currentFormCode : null,
   );
-  const editAdQuery = useAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
+  const editAdQuery = useMyAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
   const crmEditAdQuery = useQuery({
     enabled: Boolean(isCrmEditMode && editAdId),
     queryFn: () => getCrmAdvertise(editAdId ?? ""),
@@ -1039,6 +1039,18 @@ export function NewAdFlowPage() {
       return next;
     });
   };
+
+  useEffect(() => {
+    if (Object.keys(fieldErrors).length > 0) {
+      const timer = setTimeout(() => {
+        const firstError = document.querySelector('[data-field-error="true"]');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [fieldErrors]);
 
   useEffect(() => {
     const clearOnExit = () => {

@@ -14,7 +14,7 @@ function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]" data-field-error="true">
       {message}
     </Typography>
   );

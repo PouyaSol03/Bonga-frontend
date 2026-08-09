@@ -1,8 +1,10 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 
+import { queryClient } from "../api/query-client";
 import { queryKeys } from "../api/query-keys";
 import {
   getMyAgencyAdvertiseAssignments,
+  rejectAgencyAdvertiseAssignment,
   type AgencyAdvertiseAssignmentsPage,
   type AgencyAdvertiseAssignmentsParams,
 } from "../services/agency-advertise-assignment.service";
@@ -45,5 +47,20 @@ export function useAgencyAdvertiseAssignmentsInfiniteQuery({
       status,
       targetType,
     }),
+  });
+}
+
+
+export function useRejectAgencyAdvertiseAssignmentMutation() {
+  return useMutation({
+    mutationFn: rejectAgencyAdvertiseAssignment,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencyAdvertiseAssignments.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
   });
 }

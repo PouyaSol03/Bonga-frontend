@@ -83,6 +83,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
   const initialConsultantId = String(
     routeState.consultantId ?? assignment?.consultantId ?? "",
   );
+  const assignmentId = routeState.assignmentId ?? assignment?.id;
   const primaryActionLabel =
     publisher === "consultant"
       ? assignedConsultant
@@ -129,6 +130,8 @@ export function IndependentConsultantAdAllocationReviewPage() {
 
     navigateToPayment();
   }
+
+
 
   return (
     <PageFrame
@@ -178,7 +181,15 @@ export function IndependentConsultantAdAllocationReviewPage() {
             to={getAdEditPath(ad.id)}
           />
           <ActionDivider />
-          <RejectAction />
+          <RejectAction
+            state={{
+              ad,
+              assignment,
+              assignmentId,
+              tab: "status",
+            }}
+            to={getAllocationRejectPathForCurrentAd(ad.id)}
+          />
         </section>
 
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
@@ -240,6 +251,10 @@ function getAllocationReviewPathForCurrentAd(adId: ConsultantAd["id"] | string) 
   return `${adManagementPaths.allocationReview}/${encodeURIComponent(String(adId))}`;
 }
 
+function getAllocationRejectPathForCurrentAd(adId: ConsultantAd["id"] | string) {
+  return `${getAllocationReviewPathForCurrentAd(adId)}/reject`;
+}
+
 function CompactAdSummary({ ad }: { ad: ConsultantAd }) {
   return (
     <section
@@ -293,18 +308,19 @@ function ReviewAction({
   );
 }
 
-function RejectAction() {
+function RejectAction({ state, to }: { state?: unknown; to: string }) {
   return (
-    <Button unstyled
-      className="flex h-[52px] w-full items-center justify-between border-0 bg-white p-0 text-[#1a1a1a] [direction:ltr] active:bg-[#1a1a1a0a]"
-      type="button"
+    <RouteLink
+      className="flex h-[52px] w-full items-center justify-between bg-white p-0 text-[#1a1a1a] no-underline [direction:ltr] active:bg-[#1a1a1a0a]"
+      state={state}
+      to={to}
     >
       <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <LinearCancel className="h-6 w-6 text-[#4d4d4d]" />
         رد ثبت آگهی
       </Typography>
-    </Button>
+    </RouteLink>
   );
 }
 

@@ -345,7 +345,9 @@ function DashboardPaymentMobilePage({
   packages: PackageItem[];
   refetch: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<MobilePaymentTab>("panel");
+  const initialPaymentTab =
+    window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
+  const [activeTab, setActiveTab] = useState<MobilePaymentTab>(initialPaymentTab);
   const [payingPackageId, setPayingPackageId] = useState<string | null>(null);
   const { message, showNotice } = useTransientNotice();
   const packagePaymentMutation = useAgencyPackagePaymentMutation();

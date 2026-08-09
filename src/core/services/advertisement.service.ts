@@ -244,6 +244,7 @@ export type AdvertisementCheckoutPaymentMethodCode =
 
 export type AgencyAdvertisementCheckoutPaymentMethodCode =
   | "ad_credit"
+  | "by_consultant"
   | "free_quota"
   | "gateway"
   | "wallet";

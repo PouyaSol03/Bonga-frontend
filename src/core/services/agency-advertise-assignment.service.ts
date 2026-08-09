@@ -44,6 +44,17 @@ export type AgencyAdvertiseAssignmentsPage = {
   total: number;
 };
 
+export type RejectAgencyAdvertiseAssignmentPayload = {
+  assignmentId: number | string;
+  rejectReason: string;
+};
+
+type RejectAssignmentApiResponse = {
+  assignment?: AssignmentApiItem;
+  data?: { assignment?: AssignmentApiItem } | AssignmentApiItem;
+  status?: boolean;
+};
+
 type AssignmentApiItem = Record<string, unknown> & {
   ad?: unknown;
   advertise?: unknown;
@@ -197,4 +208,36 @@ export async function getMyAgencyAdvertiseAssignments({
     perPage: resolvedPerPage,
     total,
   };
+}
+
+
+export async function rejectAgencyAdvertiseAssignment({
+  assignmentId,
+  rejectReason,
+}: RejectAgencyAdvertiseAssignmentPayload): Promise<AgencyAdvertiseAssignmentDto | null> {
+  const normalizedReason = rejectReason.trim();
+
+  if (!normalizedReason) {
+    throw new Error("دلیل رد آگهی مشخص نشده است.");
+  }
+
+  const response = await api
+    .post(
+      `me/agency/advertise/assignments/${encodeURIComponent(String(assignmentId))}/reject`,
+      {
+        json: { reject_reason: normalizedReason },
+      },
+    )
+    .json<RejectAssignmentApiResponse>();
+
+  const responseData = response.data;
+  const rawAssignment =
+    response.assignment ??
+    (responseData && typeof responseData === "object" && !Array.isArray(responseData)
+      ? "assignment" in responseData
+        ? responseData.assignment
+        : responseData
+      : undefined);
+
+  return rawAssignment ? normalizeAssignment(rawAssignment as AssignmentApiItem) : null;
 }

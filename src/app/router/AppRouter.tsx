@@ -69,6 +69,10 @@ const AdCloseResultPage = lazyNamed(
   () => import('../../pages/account/adManagement/AdCloseResultPage'),
   'AdCloseResultPage',
 )
+const IndependentConsultantAdRejectPage = lazyNamed(
+  () => import('../../pages/account/adManagement/IndependentConsultantAdRejectPage'),
+  'IndependentConsultantAdRejectPage',
+)
 const UserChatDetailPage = lazyNamed(
   () => import('../../pages/chat/UserChatHomePage'),
   'UserChatDetailPage',
@@ -345,6 +349,19 @@ function getRoute(path: string): AppRoute {
 
   if (/^\/account\/my-ads\/[^/]+\/close-result\/?$/.test(path)) {
     return { path, title: 'ثبت نتیجه آگهی', Component: AdCloseResultPage, requiresAuth: true }
+  }
+
+  if (/^\/account\/ad-management\/allocation-review\/[^/]+\/reject\/?$/.test(path)) {
+    const allocationReviewRoute = routes.find(
+      (route) => route.path === '/account/ad-management/allocation-review',
+    )
+
+    return {
+      ...(allocationReviewRoute ?? routes[0]),
+      Component: IndependentConsultantAdRejectPage,
+      path,
+      title: 'رد ثبت آگهی',
+    }
   }
 
   if (/^\/account\/ad-management\/allocation-review\/[^/]+\/?$/.test(path)) {

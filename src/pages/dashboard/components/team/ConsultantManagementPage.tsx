@@ -187,7 +187,7 @@ export function ConsultantManagementPage() {
         }`}
       >
         {showConsultantControls ? (
-          <div className="shrink-0 bg-white px-4 pb-4 pt-3">
+          <div className="shrink-0 bg-surface-container px-4 py-2">
             <label className="flex h-12 items-center gap-2 rounded-xl border border-[#bdbdbd] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
               <input
                 className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-[#1a1a1a] outline-none placeholder:text-[#bdbdbd]"
@@ -744,11 +744,11 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
     <article className="bg-white px-4 pb-4 pt-5">
       {isPending && (
         <div className="mb-4 flex items-center justify-between">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-3 py-2 text-sm font-medium leading-4 text-[#FF6D00]">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-4 py-2 text-[#FF6D00]">
             در انتظار تایید انتشار
           </Typography>
           <Button unstyled
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-[#ef1f1f]"
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-on-error-container"
             type="button"
           >
             <LinearCancel className="h-5 w-5" />
@@ -758,10 +758,10 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
       )}
 
       <div className="flex items-center gap-2">
-        <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
           {consultant.name}
         </Typography>
-        <Typography as="span" variant="label" size="small" weight="medium" className="rounded-lg px-2 py-0.5 text-xs text-[#808080] bg-[#80808014] font-medium">
+        <Typography as="span" variant="body" size="small" weight="medium" className="rounded-lg px-2 py-0.5 text-xs text-[#808080] bg-[#80808014] font-medium">
           {consultant.roleLabel || "مشاور"}
         </Typography>
       </div>

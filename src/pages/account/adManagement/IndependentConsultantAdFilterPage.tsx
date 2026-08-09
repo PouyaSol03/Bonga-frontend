@@ -209,18 +209,17 @@ export function IndependentConsultantAdFilterPage() {
               return (
                 <Button unstyled
                   aria-pressed={isSelected}
-                  className={`py-2.5 rounded-xl border text-sm font-medium transition-colors ${
-                    isSelected
+                  className={`py-2.5 rounded-xl border text-sm font-medium transition-colors ${isSelected
                       ? "border-[#0048c4] bg-[#e6efff] text-[#0048c4]"
                       : "border-[#cccccc] bg-white text-[#1a1a1a]"
-                  }`}
+                    }`}
                   key={option.id}
                   onClick={() => selectTransaction(option.id)}
                   type="button"
                   size="x-medium"
                 >
                   <Typography variant="label" size="medium" weight="medium">
-                  {option.label}
+                    {option.label}
                   </Typography>
                 </Button>
               );
@@ -229,49 +228,46 @@ export function IndependentConsultantAdFilterPage() {
 
           <div className="mt-4 h-px bg-[#cccccc]" />
 
-              <Button unstyled
-                aria-disabled={!transaction}
-                className={`mt-4 flex h-10 w-full items-center justify-between [direction:ltr] ${
-                  transaction
-                    ? "active:bg-[#0048c40a]"
-                    : "cursor-not-allowed"
+          <Button unstyled
+            aria-disabled={!transaction}
+            className={`mt-4 flex h-10 w-full items-center justify-between [direction:ltr] ${transaction
+                ? "active:bg-[#0048c40a]"
+                : "cursor-not-allowed"
+              }`}
+            disabled={!transaction}
+            onClick={() => {
+              if (!transaction) return;
+              setIsPropertyTypePickerOpen(true);
+            }}
+            type="button"
+          >
+            <Typography as="span" variant="label" size="medium" weight="medium"
+              className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${transaction ? "text-[#0048c4]" : "text-[#cccccc]"
                 }`}
-                disabled={!transaction}
-                onClick={() => {
-                  if (!transaction) return;
-                  setIsPropertyTypePickerOpen(true);
-                }}
-                type="button"
-              >
-                <Typography as="span" variant="label" size="medium" weight="medium"
-                  className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${
-                    transaction ? "text-[#0048c4]" : "text-[#cccccc]"
-                  }`}
-                >
-                  <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
-                </Typography>
-                <Typography as="span" variant="label" size="large" weight="medium"
-                  className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${
-                    transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
-                  }`}
-                >
-                  <Typography as="span" variant="label" size="large" weight="medium">نوع ملک</Typography>
-                </Typography>
-              </Button>
+            >
+              <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
+            </Typography>
+            <Typography as="span" variant="label" size="large" weight="medium"
+              className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
+                }`}
+            >
+              <Typography as="span" variant="label" size="large" weight="medium">نوع ملک</Typography>
+            </Typography>
+          </Button>
 
-              {propertyTypes.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2" dir="rtl">
-                  {propertyTypes.map((selectedPropertyType) => (
-                    <FormChoiceChip
-                      key={selectedPropertyType}
-                      label={adManagementPropertyTypeLabels[selectedPropertyType]}
-                      onClick={() => removePropertyType(selectedPropertyType)}
-                      removable
-                      selected
-                    />
-                  ))}
-                </div>
-              ) : null}
+          {propertyTypes.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2" dir="rtl">
+              {propertyTypes.map((selectedPropertyType) => (
+                <FormChoiceChip
+                  key={selectedPropertyType}
+                  label={adManagementPropertyTypeLabels[selectedPropertyType]}
+                  onClick={() => removePropertyType(selectedPropertyType)}
+                  removable
+                  selected
+                />
+              ))}
+            </div>
+          ) : null}
         </section>
 
         {!isAssignedTab ? (
@@ -635,8 +631,8 @@ function PublisherSelectField({
     () =>
       normalizedQuery
         ? publisherOptions.filter((publisherOption) =>
-            publisherOption.name.toLowerCase().includes(normalizedQuery),
-          )
+          publisherOption.name.toLowerCase().includes(normalizedQuery),
+        )
         : publisherOptions,
     [normalizedQuery, publisherOptions],
   );
@@ -701,7 +697,7 @@ function PublisherSelectField({
             placement="inline"
             centerClassName="px-0"
             centerSlot={
-              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 truncate text-center text-base font-semibold leading-6 text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-[#1a1a1a]">
                 نشر دهنده
               </Typography>
             }
@@ -733,26 +729,23 @@ function PublisherSelectField({
             </label>
 
             {filteredPublishers.length > 0 ? (
-              <div className="mt-8 space-y-5">
+              <div className="mt-6 space-y-5 px-2">
                 {filteredPublishers.map((publisherOption) => {
                   const isSelected = draftValue === publisherOption.name;
 
                   return (
                     <Button unstyled
                       aria-pressed={isSelected}
-                      className={`flex min-h-16 w-full items-center gap-5 rounded-xl py-1 text-right transition-colors active:bg-[#0048c40a] ${
-                        isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
-                      }`}
+                      className={`flex min-h-16 w-full items-center px-4 gap-5 rounded-xl py-2 text-right transition-colors ${isSelected ? "bg-primary/12" : "text-[#1a1a1a]"
+                        }`}
                       key={publisherOption.id}
                       onClick={() =>
                         setDraftValue(isSelected ? undefined : publisherOption.name)
                       }
                       type="button"
                     >
-                      <Typography as="span" variant="body" size="medium" weight="regular"
-                        className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border bg-white ${
-                          isSelected ? "border-[#0048c4]" : "border-[#cccccc]"
-                        }`}
+                      <Typography as="span" variant="body" size="large" weight="regular"
+                        className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-white`}
                       >
                         {publisherOption.image ? (
                           <img
@@ -856,9 +849,8 @@ function SingleSelectField({
             return (
               <Button unstyled
                 aria-pressed={isSelected}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-1 text-right text-sm font-normal leading-5 [direction:ltr] ${
-                  isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
-                }`}
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-1 text-right text-sm font-normal leading-5 [direction:ltr] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
+                  }`}
                 key={option}
                 onClick={() => {
                   onChange(isSelected ? undefined : option);

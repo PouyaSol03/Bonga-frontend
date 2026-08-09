@@ -9,7 +9,6 @@ import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import LinearAdd from "../../shared/icons/LinearAdd";
 import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
-import LinearCalendar from "../../shared/icons/LinearCalendar";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
 import LinearLocation from "../../shared/icons/LinearLocation";
@@ -1191,7 +1190,7 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
 }
 
 function ConsultantAvatar({
-  className = "",
+  className: _className = "",
   name,
   src,
 }: {
@@ -1204,7 +1203,7 @@ function ConsultantAvatar({
 
   return (
     <div
-      className={`grid h-18 w-18 place-items-center overflow-hidden rounded-full bg-gradient-to-br bg-surface-container-low`}
+      className="grid h-18 w-18 place-items-center overflow-hidden rounded-full bg-gradient-to-br bg-surface-container-low"
     >
       {shouldShowImage ? (
         <img

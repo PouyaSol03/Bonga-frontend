@@ -546,13 +546,17 @@ function closestSnapPoint(
   boundaries: BoundaryItem[],
 ) {
   const clickPoint = map.latLngToLayerPoint(point);
-  let best: { distance: number; point: LatLngTuple } | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  let bestPoint: LatLngTuple | null = null;
 
   const consider = (candidate: LatLngTuple) => {
     const candidatePoint = map.latLngToLayerPoint(candidate);
     const distance = clickPoint.distanceTo(candidatePoint);
     if (distance > SNAP_DISTANCE_PX) return;
-    if (!best || distance < best.distance) best = { distance, point: candidate };
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestPoint = candidate;
+    }
   };
 
   boundaries.forEach((boundary) => {
@@ -582,7 +586,7 @@ function closestSnapPoint(
     });
   });
 
-  return best?.point ?? point;
+  return bestPoint ?? point;
 }
 
 function BoundaryDrawCollector({
@@ -717,17 +721,18 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
     },
     queryKey: ["crm", "sub-neighborhoods", "map", cityId, neighborhoodIds.join(","), refreshNonce],
   });
-  const neighborhoods = useMemo(
+  const neighborhoods = useMemo<CrmRecord[]>(
     () => baseNeighborhoods.map((neighborhood) => {
       const neighborhoodId = getCrmRecordId(neighborhood);
       const standaloneSubNeighborhoods = subNeighborhoodsQuery.data?.[neighborhoodId];
-
-      return {
+      const enrichedNeighborhood: CrmRecord = {
         ...neighborhood,
         sub_neighbors: standaloneSubNeighborhoods ?? (
           subNeighborhoodsQuery.isSuccess ? [] : parseSubNeighborhoods(neighborhood.sub_neighbors)
         ),
       };
+
+      return enrichedNeighborhood;
     }),
     [baseNeighborhoods, subNeighborhoodsQuery.data, subNeighborhoodsQuery.isSuccess],
   );
@@ -758,9 +763,6 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const activeSubParentNeighborhood = editTarget?.kind === "sub-neighborhood"
     ? neighborhoods.find((item) => getCrmRecordId(item) === editTarget.neighborhoodId)
     : undefined;
-  const activeSubParentName = activeSubParentNeighborhood
-    ? readText(activeSubParentNeighborhood, ["name"], "محله انتخاب‌شده")
-    : "";
   const parentPolygonForActiveSub = activeSubParentNeighborhood
     ? getNeighborhoodPoints(activeSubParentNeighborhood)
     : [];

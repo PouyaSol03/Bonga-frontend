@@ -12,7 +12,7 @@ import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 function getSubNeighborhoodNames(value: unknown) {
   if (!value) return [] as string[];
 
-  let parsed = value;
+  let parsed: unknown = value;
   if (typeof value === "string") {
     try {
       parsed = JSON.parse(value) as unknown;

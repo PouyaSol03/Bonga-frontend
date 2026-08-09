@@ -120,7 +120,7 @@ export function AgencyNeighborhoodSelectionPage() {
       className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white text-[#1a1a1a]"
       dir="rtl"
     >
-      <header className={`${pendingNeighborhoods.length > 0 ? "h-28" : "h-16"} shrink-0 bg-[#f0f0f0]`}>
+      <header className={`${pendingNeighborhoods.length > 0 ? "h-28" : "h-14"} shrink-0 bg-[#f0f0f0]`}>
         <div className="flex h-14 items-end gap-2 pl-4 pr-2 [direction:ltr]">
           <SearchInputBar
             aria-label="جستجو محله"
@@ -227,7 +227,7 @@ export function AgencyNeighborhoodSelectionPage() {
                 <Button
                   unstyled
                   aria-pressed={isSelected}
-                  className="flex w-full items-center gap-5 pr-8 pl-9 py-3.5 text-right [-webkit-tap-highlight-color:transparent] active:bg-[#fafafa] [direction:ltr]"
+                  className="flex min-h-[88px] w-full items-center gap-5 px-9 py-2 text-right [-webkit-tap-highlight-color:transparent] active:bg-[#fafafa] [direction:ltr]"
                   key={neighborhoodId}
                   onClick={() => toggleNeighborhood(neighborhood)}
                   type="button"

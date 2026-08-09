@@ -18,6 +18,7 @@ import {
   normalizeMobile,
 } from "../../core/services/auth.service";
 import { getMyProfile } from "../../core/services/account.service";
+import { searchCities } from "../../core/services/city.service";
 import {
   consumeLoginRedirectPath,
   getOtpResendSecondsRemaining,
@@ -26,6 +27,32 @@ import {
 import LinearArrowRight2 from "../../shared/icons/LinearArrowRight2";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { saveSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
+
+
+async function ensureSelectedCityAfterLogin() {
+  const hasStoredCity = Boolean(
+    window.localStorage.getItem(selectedCityStorageKeys.name)?.trim(),
+  );
+
+  if (hasStoredCity) return;
+
+  try {
+    const cities = await searchCities("");
+    const firstCity = cities.find((city) => city.name?.trim());
+
+    if (!firstCity) return;
+
+    saveSelectedCity({
+      id: String(firstCity.id ?? firstCity._id ?? "") || undefined,
+      latitude: firstCity.lat,
+      longitude: firstCity.lng,
+      name: firstCity.name.trim(),
+    });
+  } catch {
+    // Keep the existing router fallback: without a stored city, the user is sent to city selection.
+  }
+}
 
 function goBackOrNavigate(fallbackPath: string) {
   if (window.history.length > 1) {
@@ -167,6 +194,8 @@ export function LoginVerifyPage() {
         });
         return;
       }
+
+      await ensureSelectedCityAfterLogin();
 
       window.history.pushState({ state: "new" }, "", redirectPath);
       window.dispatchEvent(new PopStateEvent("popstate"));

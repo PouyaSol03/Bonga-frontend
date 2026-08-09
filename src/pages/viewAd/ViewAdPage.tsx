@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { SEO } from "../../shared/components/SEO";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
 
@@ -1367,6 +1368,7 @@ export function ViewAdPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
+      <SEO title={details.title || details.headline || "آگهی املاک"} description={details.description} />
       <ViewAdTopBar
         actionIcons={usesPublicAdPresentation ? undefined : ["share"]}
         backTo="/home"

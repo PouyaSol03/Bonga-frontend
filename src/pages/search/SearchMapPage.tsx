@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SEO } from "../../shared/components/SEO";
 import "./searchMap.css";
 import {
   getApiAssetUrl,
@@ -1472,6 +1473,11 @@ export function SearchMapPage() {
           : "relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]"
       }
     >
+      <SEO 
+        title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین" 
+        description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه. به راحتی آپارتمان، خانه ویلایی، زمین و مغازه مورد نظر خود را در محله دلخواه برای خرید یا اجاره پیدا کنید."
+        keywords="جستجوی املاک روی نقشه, نقشه املاک, خرید خانه در محله, قیمت آپارتمان در مناطق مختلف, اجاره آپارتمان از روی نقشه"
+      />
       {!showCurrentEmptyState ? (
         isFullListOpen ? (
           <SearchMapListView

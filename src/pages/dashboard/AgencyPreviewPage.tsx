@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { SEO } from "../../shared/components/SEO";
 import { AdCard } from "../../shared/components/AdCard";
 import type { AdCardData } from "../../shared/components/AdCard";
 import { BottomSheet } from "../../shared/components/BottomSheet";
@@ -601,6 +602,7 @@ export function AgencyPreviewPage() {
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
+      <SEO title={pageTitle} description={entityAbout} />
       <TopBar
         actions={
           isPublicPreview

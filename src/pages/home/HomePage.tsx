@@ -33,6 +33,7 @@ import LinearSearch from "../../shared/icons/LinearSearch";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { pushRoute } from "../../app/router/navigation";
+import { SEO } from "../../shared/components/SEO";
 
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
@@ -346,6 +347,11 @@ export function HomePage() {
 
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[#f0f0f0]" dir="rtl">
+      <SEO 
+        title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک بنگاه" 
+        description="سامانه هوشمند املاک بنگاه؛ مرجع تخصصی خرید، فروش، رهن و اجاره آپارتمان، خانه ویلایی، زمین و مغازه. جدیدترین آگهی‌های املاک را در بنگاه جستجو کنید."
+        keywords="خرید آپارتمان, فروش آپارتمان, رهن و اجاره خانه, خرید زمین, قیمت آپارتمان, مشاور املاک, سامانه املاک بنگاه"
+      />
       <header className="shrink-0 bg-white">
         <section
           className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-white px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"

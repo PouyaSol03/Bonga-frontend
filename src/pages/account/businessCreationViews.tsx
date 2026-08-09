@@ -1,16 +1,12 @@
-import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { PageFrame } from "../../app/layout/PageFrame";
-import { BottomSheet } from "../../shared/components/BottomSheet";
 import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
-import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { setStoredActiveRole } from "../../core/auth/auth-storage";
 import { USER } from "../../shared/constants/roles.constants";
 import { getMyProfile } from "../../core/services/account.service";
-import { useNeighborhoodListQuery } from "../../core/hooks/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { RouteLink } from "../../app/router/RouteLink";
-import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../core/services/neighborhood.service";
+import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
 import LinearBuilding from "../../shared/icons/LinearBuilding";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
@@ -337,6 +333,7 @@ export function AgencyFields({
   agencyName,
   agencyNameError,
   neighborhoodsError,
+  onOpenNeighborhoods,
   selectedNeighborhoods,
   setAgencyName,
   setSelectedNeighborhoods,
@@ -344,49 +341,16 @@ export function AgencyFields({
   agencyName: string;
   agencyNameError?: string | null;
   neighborhoodsError?: string | null;
+  onOpenNeighborhoods: () => void;
   selectedNeighborhoods: NeighborhoodDto[];
   setAgencyName: (value: string) => void;
   setSelectedNeighborhoods: Dispatch<SetStateAction<NeighborhoodDto[]>>;
 }) {
-  const [isNeighborhoodSheetOpen, setIsNeighborhoodSheetOpen] = useState(false);
-  const [neighborhoodQuery, setNeighborhoodQuery] = useState("");
-
-  const selectedCity = readStoredSelectedCity();
-  const cityId = selectedCity?.id ?? "";
-  const selectedNeighborhoodIds = useMemo(
-    () => new Set(selectedNeighborhoods.map(getNeighborhoodId)),
-    [selectedNeighborhoods],
-  );
-  const neighborhoodsQuery = useNeighborhoodListQuery({
-    cityId,
-    enabled: isNeighborhoodSheetOpen && Boolean(cityId),
-    page: 1,
-    perPage: 100,
-    q: neighborhoodQuery,
-  });
-  const neighborhoodsFromApi = neighborhoodsQuery.data ?? [];
-  const neighborhoods = cityId ? neighborhoodsFromApi : [];
-
-  const toggleNeighborhood = (neighborhood: NeighborhoodDto) => {
-    const neighborhoodId = getNeighborhoodId(neighborhood);
-
-    setSelectedNeighborhoods((current) => {
-      if (current.some((item) => getNeighborhoodId(item) === neighborhoodId)) {
-        return current.filter((item) => getNeighborhoodId(item) !== neighborhoodId);
-      }
-
-      return [...current, neighborhood];
-    });
-  };
-
   const removeNeighborhood = (neighborhoodId: string) => {
     setSelectedNeighborhoods((current) =>
       current.filter((item) => getNeighborhoodId(item) !== neighborhoodId),
     );
   };
-
-  const clearNeighborhoods = () => setSelectedNeighborhoods([]);
-
 
   return (
     <>
@@ -411,7 +375,7 @@ export function AgencyFields({
         <div className="mt-2">
           <ActivityAreaSelect
             error={neighborhoodsError}
-            onClick={() => setIsNeighborhoodSheetOpen(true)}
+            onClick={onOpenNeighborhoods}
             onRemove={removeNeighborhood}
             placeholder="محدوده فعالیت خود را انتخاب کن"
             selectedNeighborhoods={selectedNeighborhoods}
@@ -424,96 +388,6 @@ export function AgencyFields({
         ) : null}
       </div>
 
-      <BottomSheet
-        ariaLabel="محدوده فعالیت"
-        className="rounded-t-[20px]"
-        contentClassName="flex min-h-0 flex-1 flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3"
-        heightClassName="h-[min(82dvh,560px)]"
-        isOpen={isNeighborhoodSheetOpen}
-        onClose={() => setIsNeighborhoodSheetOpen(false)}
-        panelPaddingClassName="flex flex-col pt-4"
-        showHeaderDivider={false}
-        title="محدوده فعالیت"
-        zIndexClassName="z-[80]"
-      >
-        <label
-          className="flex h-12 shrink-0 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3 text-[#4d4d4d] focus-within:border-[#0048c4]"
-          dir="rtl"
-        >
-          <SearchIcon />
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
-            onChange={(event) => setNeighborhoodQuery(event.target.value)}
-            placeholder="جستجوی محله"
-            type="search"
-            value={neighborhoodQuery}
-          />
-          {neighborhoodQuery ? (
-            <Button unstyled
-              aria-label="پاک کردن جستجو"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
-              onClick={() => setNeighborhoodQuery("")}
-              type="button"
-            >
-              <LinearCancelSmall className="h-5 w-5" />
-            </Button>
-          ) : null}
-        </label>
-
-        {selectedNeighborhoods.length > 0 ? (
-          <Button unstyled
-            className="mt-3 h-10 shrink-0 self-start rounded-lg px-2 text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
-            onClick={clearNeighborhoods}
-            type="button"
-          >
-            پاک کردن انتخاب
-          </Button>
-        ) : null}
-
-        <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain" dir="rtl">
-          {cityId && neighborhoodsQuery.isLoading ? (
-            <div className="space-y-2">
-              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-              <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-            </div>
-          ) : neighborhoods.length > 0 ? (
-            <div className="space-y-1">
-              {neighborhoods.map((neighborhood) => {
-                const neighborhoodId = getNeighborhoodId(neighborhood);
-                const isSelected = selectedNeighborhoodIds.has(neighborhoodId);
-
-                return (
-                  <Button unstyled
-                    aria-pressed={isSelected}
-                    className={`flex h-14 w-full items-center justify-between gap-3 rounded-[10px] px-1 text-right text-base font-normal leading-6 transition-colors active:bg-[#0048c40a] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
-                      }`}
-                    key={neighborhoodId}
-                    onClick={() => toggleNeighborhood(neighborhood)}
-                    type="button"
-                  >
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
-                      <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-[#1a1a1a]">{neighborhood.name}</Typography>
-                      {getNeighborhoodHierarchyDescription(neighborhood) ? (
-                        <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-1 text-[#a6a6a6]">
-                          {getNeighborhoodHierarchyDescription(neighborhood)}
-                        </Typography>
-                      ) : null}
-                    </Typography>
-                    <ChoiceIndicator checked={isSelected} />
-                  </Button>
-                );
-              })}
-            </div>
-          ) : neighborhoodQuery.trim() ? (
-            <SearchEmptyState compact />
-          ) : (
-            <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-[#808080]">
-              محله‌ای برای این شهر ثبت نشده است.
-            </Typography>
-          )}
-        </div>
-      </BottomSheet>
     </>
   );
 }
@@ -585,7 +459,7 @@ function ActivityAreaSelect({
       ) : null}
 
       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]">
-        <ChevronDownIcon />
+        <ArrowLeftIcon />
       </Typography>
     </div>
   );
@@ -867,14 +741,6 @@ function GridIcon() {
   );
 }
 
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path d="M10.8 18.2a7.4 7.4 0 1 0 0-14.8 7.4 7.4 0 0 0 0 14.8ZM16.1 16.1 21 21" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
 function PeopleIcon() {
   return (
     <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
@@ -920,14 +786,6 @@ function WalletAddIcon() {
 }
 
 
-
-function ChevronDownIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
-      <path d="M7 10l5 5 5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-    </svg>
-  );
-}
 
 export function ArrowLeftIcon() {
   return (

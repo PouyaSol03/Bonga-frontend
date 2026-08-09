@@ -10,7 +10,7 @@ export type SubNeighborhoodDto = {
 export type NeighborhoodGeoPoint = [latitude: number, longitude: number];
 
 export type NeighborhoodDto = {
-  _id?: string;
+  _id?: string | number;
   city_id?: string | number;
   geofence?: unknown;
   id?: string | number;
@@ -18,6 +18,7 @@ export type NeighborhoodDto = {
   lng?: number;
   name: string;
   polygon?: unknown;
+  sub_neighborhoods?: SubNeighborhoodDto[] | string[] | string;
   sub_neighbors?: SubNeighborhoodDto[] | string[] | string;
 };
 
@@ -74,6 +75,7 @@ function normalizeNeighborhood(neighborhood: NeighborhoodDto): NeighborhoodDto {
   return {
     ...neighborhood,
     id: String(neighborhood.id ?? neighborhood._id ?? ""),
+    sub_neighbors: neighborhood.sub_neighbors ?? neighborhood.sub_neighborhoods,
   };
 }
 

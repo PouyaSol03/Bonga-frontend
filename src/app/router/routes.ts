@@ -126,6 +126,7 @@ const ConsultantsNeighborhoodPage = lazyNamed(
   'ConsultantsNeighborhoodPage',
 )
 const AgencyBusinessCreationPage = lazyNamed(() => import('../../pages/account/routes/AgencyBusinessCreationPage'), 'AgencyBusinessCreationPage')
+const AgencyNeighborhoodSelectionPage = lazyNamed(() => import('../../pages/account/routes/AgencyNeighborhoodSelectionPage'), 'AgencyNeighborhoodSelectionPage')
 const BusinessCreationPage = lazyNamed(() => import('../../pages/account/routes/BusinessCreationPage'), 'BusinessCreationPage')
 const BusinessInfoPage = lazyNamed(() => import('../../pages/account/routes/BusinessInfoPage'), 'BusinessInfoPage')
 const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../../pages/account/routes/IndependentConsultantBusinessCreationPage'), 'IndependentConsultantBusinessCreationPage')
@@ -386,6 +387,12 @@ export const routes: AppRoute[] = [
     path: '/account/business/create/agency',
     title: 'ایجاد کسب و کار',
     Component: AgencyBusinessCreationPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/account/business/create/agency/neighborhoods',
+    title: 'انتخاب محدوده فعالیت',
+    Component: AgencyNeighborhoodSelectionPage,
     requiresAuth: true,
   },
   {

@@ -92,6 +92,10 @@ export function getRouteTopBar(
   title: string,
   notificationIcon?: ReactNode,
 ): TopBarProps | undefined {
+  if (path === "/account/business/create/agency/neighborhoods") {
+    return undefined;
+  }
+
   if (path === "/login") {
     return { showBack: false, title };
   }

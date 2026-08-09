@@ -3,13 +3,22 @@ import type { NeighborhoodDto } from "../../../core/services/neighborhood.servic
 import { useCreateMyAgencyMutation } from "../../../core/hooks/account.hooks";
 import type { SnackbarVariant } from "../../../shared/components/Snackbar";
 import { getApiErrorMessage } from "../../../core/api/api";
+import { pushRoute } from "../../../app/router/navigation";
 import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationViews";
 import type { BusinessToast } from "../businessCreationViews";
+import {
+  clearAgencyCreationDraft,
+  readAgencyCreationDraft,
+  writeAgencyCreationDraft,
+} from "../agencyCreationDraft";
 
 export function AgencyBusinessCreationPage() {
-  const [agencyName, setAgencyName] = useState("");
+  const initialDraft = useMemo(() => readAgencyCreationDraft(), []);
+  const [agencyName, setAgencyName] = useState(initialDraft.agencyName);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<NeighborhoodDto[]>([]);
+  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<NeighborhoodDto[]>(
+    initialDraft.selectedNeighborhoods,
+  );
   const [toast, setToast] = useState<BusinessToast | null>(null);
   const createAgencyMutation = useCreateMyAgencyMutation();
   const neighborhoodIds = useMemo(
@@ -54,6 +63,7 @@ export function AgencyBusinessCreationPage() {
         neighborhood_ids: neighborhoodIds,
       });
 
+      clearAgencyCreationDraft();
       return true;
     } catch (error) {
       showToast(getApiErrorMessage(error, "ایجاد کسب و کار با خطا مواجه شد."));
@@ -69,6 +79,10 @@ export function AgencyBusinessCreationPage() {
           agencyName={agencyName}
           agencyNameError={agencyNameError}
           neighborhoodsError={neighborhoodsError}
+          onOpenNeighborhoods={() => {
+            writeAgencyCreationDraft({ agencyName, selectedNeighborhoods });
+            pushRoute("/account/business/create/agency/neighborhoods");
+          }}
           selectedNeighborhoods={selectedNeighborhoods}
           setAgencyName={setAgencyName}
           setSelectedNeighborhoods={setSelectedNeighborhoods}

@@ -1193,6 +1193,10 @@ function formatTotalFloorsDetailValue(value: unknown) {
   return `${text} طبقه`;
 }
 
+function formatUnitsPerFloorDetailValue(value: unknown) {
+  return appendSuffixIfNeeded(value, "واحد");
+}
+
 function formatTomanDetailValue(value: unknown) {
   const text = toText(value);
 
@@ -1454,6 +1458,13 @@ export function buildPropertyDetailSections(
       labels: ["total_floors", "floors", "building_floors", "apartment_floors"],
       label: "طبقات آپارتمان",
       formatter: formatTotalFloorsDetailValue,
+      icon: "building",
+    }),
+    createGridItem({
+      features,
+      labels: ["unit_per_floor", "units_per_floor", "units_per_floor_count"],
+      label: "تعداد واحد در طبقه",
+      formatter: formatUnitsPerFloorDetailValue,
       icon: "building",
     }),
   ].filter((item): item is DetailInfoItem => item !== null);

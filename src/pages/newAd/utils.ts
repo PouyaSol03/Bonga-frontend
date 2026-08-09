@@ -423,7 +423,7 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "document_type", values.documentType);
   }
 
-  addFeature(features, "total_floors", values.totalFloors);
+  addFeature(features, "total_floors", toNumber(pickFirstNumber(values.totalFloors)));
   if (isSaleApartment) {
     addFeature(features, "unit_per_floor", toNumber(values.unitsPerFloor));
   }
@@ -438,9 +438,9 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "land_width", toNumber(values.landWidth));
   addFeature(features, "street_width", toNumber(values.streetWidth));
   addFeature(features, "ceiling_height", toNumber(values.ceilingHeight));
-  addFeature(features, "single_room_count", toNumber(values.singleRoomCount));
-  addFeature(features, "double_room_count", toNumber(values.doubleRoomCount));
-  addFeature(features, "suite_count", toNumber(values.suiteCount));
+  addFeature(features, "single_room_count", toNumber(pickFirstNumber(values.singleRoomCount)));
+  addFeature(features, "double_room_count", toNumber(pickFirstNumber(values.doubleRoomCount)));
+  addFeature(features, "suite_count", toNumber(pickFirstNumber(values.suiteCount)));
 
   if (params.category === "daily-hotel-apartment") {
     addFeature(features, "daily_hotel_rooms", buildDailyHotelRoomFeatures(values));
@@ -640,7 +640,7 @@ export function buildNewAdFormData(
   appendDynamicValue("loan_installment", values.loanEnabled ? toNumber(values.loanInstallment) : null);
   appendDynamicValue("has_document", Boolean(values.documentType));
   appendDynamicValue("document_type", values.documentType);
-  appendDynamicValue("total_floors", values.totalFloors);
+  appendDynamicValue("total_floors", toNumber(pickFirstNumber(values.totalFloors)));
   if (params.transaction === "sale" && params.category === "apartment") {
     appendDynamicValue("unit_per_floor", toNumber(values.unitsPerFloor));
   }
@@ -657,9 +657,9 @@ export function buildNewAdFormData(
   appendDynamicValue("cabinet_material", values.cabinetMaterial);
   appendDynamicValue("land_width", toNumber(values.landWidth));
   appendDynamicValue("street_width", toNumber(values.streetWidth));
-  appendDynamicValue("single_room_count", toNumber(values.singleRoomCount));
-  appendDynamicValue("double_room_count", toNumber(values.doubleRoomCount));
-  appendDynamicValue("suite_count", toNumber(values.suiteCount));
+  appendDynamicValue("single_room_count", toNumber(pickFirstNumber(values.singleRoomCount)));
+  appendDynamicValue("double_room_count", toNumber(pickFirstNumber(values.doubleRoomCount)));
+  appendDynamicValue("suite_count", toNumber(pickFirstNumber(values.suiteCount)));
   appendDynamicValue(
     "commercial_permit",
     values.commercialLicense || (values.commercialPermit ? "دارد" : ""),

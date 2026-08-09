@@ -53,6 +53,7 @@ export type BasicPropertySelectKey =
   | "floor"
   | "rooms"
   | "age"
+  | "unitsPerFloor"
   | "usageType"
   | "landPosition"
   | "documentType"

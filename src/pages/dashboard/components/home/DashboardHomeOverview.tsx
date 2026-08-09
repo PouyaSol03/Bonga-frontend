@@ -376,7 +376,7 @@ function AgencyRankingScoreCard({
 
   return (
     <article className="rounded-2xl bg-white p-4">
-      <Typography as="h2" variant="headline" size="large" className="m-0 text-right font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-[#1a1a1a]">
         رتبه و امتیاز آژانس
       </Typography>
 

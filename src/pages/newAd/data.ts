@@ -275,6 +275,9 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
+export const unitsPerFloorOptions = Array.from({ length: 20 }, (_, index) =>
+  new Intl.NumberFormat("fa-IR").format(index + 1),
+);
 export const capacityOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۲", "۱۵", "۲۰", "۳۰", "۴۰", "۵۰+"];
 export const roomCountOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۵", "۲۰", "۳۰", "۵۰+"];
 export const yesNoOptions = ["دارد", "ندارد"];
@@ -356,7 +359,7 @@ const saleApartmentBasicFields: BasicPropertyField[] = [
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق ها", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
-  { key: "unitsPerFloor", label: "تعداد واحد در هر طبقه", control: "input", numeric: true },
+  { key: "unitsPerFloor", label: "تعداد واحد در هر طبقه", control: "select", options: unitsPerFloorOptions },
 ];
 
 const saleVillaHouseBasicFields: BasicPropertyField[] = [

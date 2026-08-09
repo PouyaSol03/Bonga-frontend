@@ -26,7 +26,7 @@ import type { CrmRoutePageProps } from '../../pages/crm/CrmLayout'
 import { replaceRoute } from './navigation'
 import { getAppChromeConfig } from './routeChrome'
 import { Button } from "../../shared/ui/Button";
-import { readStoredSelectedCity } from '../../shared/lib/selectedCityStorage'
+import { selectedCityStorageKeys } from '../../shared/lib/selectedCityStorage'
 
 
 function RouteNotFoundPage() {
@@ -112,7 +112,9 @@ function getCurrentPath() {
 }
 
 function hasStoredCity() {
-  return Boolean(readStoredSelectedCity()?.id)
+  return Boolean(
+    window.localStorage.getItem(selectedCityStorageKeys.name)?.trim(),
+  )
 }
 
 function NotificationTopBarIcon() {
@@ -236,6 +238,16 @@ function getResolvedPath() {
   const currentPath = getCurrentPath()
   const path = getCanonicalDashboardPath(currentPath)
   const returnTo = `${path}${window.location.search}`
+  const hasCity = hasStoredCity()
+
+  if (!hasCity) {
+    if (path !== '/' || window.location.search || window.location.hash) {
+      window.history.replaceState({}, '', '/')
+    }
+
+    return '/'
+  }
+
   const session = getStoredAuthSession()
   const route = getRoute(path)
 
@@ -247,7 +259,7 @@ function getResolvedPath() {
     )
   }
 
-  if (path === '/' && hasStoredCity()) {
+  if (path === '/') {
     window.history.replaceState({}, '', '/home')
     return '/home'
   }

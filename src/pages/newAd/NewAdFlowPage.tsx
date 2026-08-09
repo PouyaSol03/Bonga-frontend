@@ -807,7 +807,7 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("saleTermsInstallmentMonths", readFirstValue(ad, features, ["sale_terms_installment_months"], ["sale_terms_installment_months", "saleTermsInstallmentMonths"]), numericInputText);
   setText("builderSharePercent", readFirstValue(ad, features, ["builder_share", "builder_share_percent"], ["builder_share", "builderSharePercent"]), numericInputText);
   setText("totalFloors", readFirstValue(ad, features, ["total_floors"], ["total_floors", "totalFloors"]), selectText);
-  setText("unitsPerFloor", readFirstValue(ad, features, ["unit_per_floor", "units_per_floor"], ["unit_per_floor", "units_per_floor", "unitsPerFloor"]), numericInputText);
+  setText("unitsPerFloor", readFirstValue(ad, features, ["unit_per_floor", "units_per_floor"], ["unit_per_floor", "units_per_floor", "unitsPerFloor"]), selectText);
   setText("unitType", readFirstValue(ad, features, ["unit_type"], ["unit_type", "unitType"]));
   setText("unitPosition", readFirstValue(ad, features, ["unit_position", "unit_direction"], ["unit_position", "unitPosition"]));
   setText("facadeMaterial", readFirstValue(ad, features, ["facade_material"], ["facade_material", "facadeMaterial"]));

@@ -407,10 +407,13 @@ export type PublicAgencyDetailDto = PublicAgencyDto & {
   about_us?: string;
   agency_type?: number;
   consultants: AgencyConsultantDto[];
+  instagram?: string;
   phone1?: string;
   phone2?: string;
   phone3?: string;
   recent_advertises: AdvertisementItem[];
+  telegram?: string;
+  whatsapp?: string;
   working_hours?: string;
 };
 
@@ -531,6 +534,7 @@ function normalizePublicAgencyDetail(
       ? Number(item.agency_type)
       : undefined,
     consultants,
+    instagram: readSocialValue(item, "instagram") || undefined,
     lat: toOptionalNumber(item.lat),
     lng: toOptionalNumber(item.lng),
     phone1: firstText(item.phone1, item.phone) || undefined,

@@ -3,7 +3,8 @@ import { AdCard } from "../../shared/components/AdCard";
 import type { AdCardData } from "../../shared/components/AdCard";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { QRCodeSVG } from "qrcode.react";
-import { CircleMarker, MapContainer, TileLayer } from "react-leaflet";
+import { DivIcon } from "leaflet";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
 
 import LinearAdd from "../../shared/icons/LinearAdd";
 import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
@@ -11,17 +12,13 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearCalendar from "../../shared/icons/LinearCalendar";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
-import LinearInstagram from "../../shared/icons/LinearInstagram";
 import LinearLocation from "../../shared/icons/LinearLocation";
-import LinearPhone2 from "../../shared/icons/LinearPhone2";
 import LinearQrCode from "../../shared/icons/LinearQrCode";
 import LinearRanking from "../../shared/icons/LinearRanking";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import LinearShare from "../../shared/icons/LinearShare";
 import LinearStar from "../../shared/icons/LinearStar";
 import LinearTag from "../../shared/icons/LinearTag";
-import LinearTelegram from "../../shared/icons/LinearTelegram";
-import LinearWhatsapp from "../../shared/icons/LinearWhatsapp";
 import { TopBar } from "../../shared/components/TopBar";
 import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
@@ -47,6 +44,9 @@ import { mapAdvertisementToAdCard } from "../../core/services/advertisement.serv
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearAddToList from "../../shared/icons/LinearAddToList";
+import TonalInstagram from "../../shared/icons/TonalInstagram";
+import TonalTelegram from "../../shared/icons/TonalTelegram";
+import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
 import LinearBuilding2 from "../../shared/icons/LinearBuilding2";
 
 const agencyEditPath = "/account/dashboard/agency";
@@ -134,6 +134,27 @@ function getAgencyConsultantRoleLabel(role: string) {
   }
 }
 
+function readAgencyProfileSocialValue(
+  profile: MyAgencyProfile | null | undefined,
+  key: "instagram" | "telegram" | "whatsapp",
+) {
+  if (!profile) return "";
+
+  const record = profile as unknown as Record<string, unknown>;
+  const directValue = record[key];
+  if (typeof directValue === "string" && directValue.trim()) return directValue.trim();
+
+  for (const sourceKey of ["social", "contact_social", "contacts"]) {
+    const source = record[sourceKey];
+    if (!source || typeof source !== "object" || Array.isArray(source)) continue;
+
+    const value = (source as Record<string, unknown>)[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+
+  return "";
+}
+
 function resolvePreviewContactInfo(
   profile: MyAgencyProfile | null | undefined,
   isPublicPreview: boolean,
@@ -155,9 +176,9 @@ function resolvePreviewContactInfo(
     phone: profile.phone1?.trim() ?? "",
     secondPhone: profile.phone2?.trim() ?? "",
     landline: profile.phone3?.trim() ?? "",
-    whatsapp: "",
-    telegram: "",
-    instagram: "",
+    whatsapp: readAgencyProfileSocialValue(profile, "whatsapp"),
+    telegram: readAgencyProfileSocialValue(profile, "telegram"),
+    instagram: readAgencyProfileSocialValue(profile, "instagram"),
     lat: toOptionalCoordinate(profile.lat),
     lng: toOptionalCoordinate(profile.lng),
   };
@@ -424,9 +445,9 @@ export function AgencyPreviewPage() {
           phone: publicAgency.phone1 ?? "",
           secondPhone: publicAgency.phone2 ?? "",
           landline: publicAgency.phone3 ?? "",
-          whatsapp: "",
-          telegram: "",
-          instagram: "",
+          whatsapp: publicAgency.whatsapp ?? "",
+          telegram: publicAgency.telegram ?? "",
+          instagram: publicAgency.instagram ?? "",
           lat: publicAgency.lat,
           lng: publicAgency.lng,
         }
@@ -1209,53 +1230,82 @@ function AgencyContactBottomSheet({
 }) {
   const phoneHref = toEnglishDigits(contactInfo.phone).replace(/[^\d+]/g, "");
   const secondPhoneHref = toEnglishDigits(contactInfo.secondPhone).replace(/[^\d+]/g, "");
-  const landlineHref = toEnglishDigits(contactInfo.landline).replace(/[^\d+]/g, "");
+  const messagePhoneHref = toEnglishDigits(contactInfo.landline).replace(/[^\d+]/g, "");
   const socialLinks = [
-    { label: "واتساپ", href: normalizeSocialUrl("whatsapp", contactInfo.whatsapp), icon: <LinearWhatsapp className="h-5 w-5" />, className: "text-[#11A366]" },
-    { label: "تلگرام", href: normalizeSocialUrl("telegram", contactInfo.telegram), icon: <LinearTelegram className="h-5 w-5" />, className: "text-[#1D9BF0]" },
-    { label: "اینستاگرام", href: normalizeSocialUrl("instagram", contactInfo.instagram), icon: <LinearInstagram className="h-5 w-5" />, className: "text-[#E1306C]" },
+    {
+      label: "واتساپ",
+      href: normalizeSocialUrl("whatsapp", contactInfo.whatsapp),
+      icon: <TonalWhatsapp className="h-6 w-6" />,
+    },
+    {
+      label: "تلگرام",
+      href: normalizeSocialUrl("telegram", contactInfo.telegram),
+      icon: <TonalTelegram className="h-6 w-6" />,
+    },
+    {
+      label: "اینستاگرام",
+      href: normalizeSocialUrl("instagram", contactInfo.instagram),
+      icon: <TonalInstagram className="h-6 w-6" />,
+    },
   ].filter((item) => item.href);
+  const hasMap = contactInfo.lat !== undefined && contactInfo.lng !== undefined;
+  const contactRowCount = [contactInfo.phone, contactInfo.secondPhone, contactInfo.landline].filter(Boolean).length;
+  const hasAnyContactInfo = contactRowCount > 0 || hasMap || socialLinks.length > 0;
+  const hasRichContactInfo = contactRowCount === 3 && hasMap && socialLinks.length > 0;
 
   return (
     <BottomSheet
       ariaLabel="اطلاعات تماس"
-      contentClassName="mx-4 mt-1 pb-5"
-      heightClassName="h-auto max-h-[calc(100dvh-88px)]"
+      contentClassName="mx-4 mt-2 pb-5"
+      heightClassName={
+        hasRichContactInfo
+          ? "h-[min(571px,calc(100dvh-56px))]"
+          : "h-auto max-h-[calc(100dvh-56px)]"
+      }
       isOpen={isOpen}
       onClose={onClose}
+      panelPaddingClassName="pt-2"
       title="اطلاعات تماس"
     >
-      {contactInfo.phone ? (
-        <ContactRow href={`tel:${phoneHref}`} label="شماره اصلی" value={contactInfo.phone} />
-      ) : null}
-      {contactInfo.secondPhone ? (
-        <ContactRow href={`tel:${secondPhoneHref}`} label="شماره دوم" value={contactInfo.secondPhone} />
-      ) : null}
-      {contactInfo.landline ? (
-        <ContactRow href={`tel:${landlineHref}`} label="ثابت" value={contactInfo.landline} />
-      ) : null}
-      {!contactInfo.phone && !contactInfo.secondPhone && !contactInfo.landline ? (
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-[#808080]">شماره تماسی ثبت نشده است.</Typography>
-      ) : null}
-
-      <div className="mt-3 overflow-hidden rounded-2xl border border-[#eeeeee] bg-[#f6f2eb]">
-        {contactInfo.lat !== undefined && contactInfo.lng !== undefined ? (
-          <AgencyMiniMap lat={contactInfo.lat} lng={contactInfo.lng} />
-        ) : (
-          <div className="grid h-[178px] w-full place-items-center px-4 text-center text-sm text-[#808080]">
-            موقعیت نقشه‌ای ثبت نشده است.
-          </div>
-        )}
+      <div>
+        {contactInfo.phone ? (
+          <ContactRow href={`tel:${phoneHref}`} label="شماره اصلی" value={contactInfo.phone} />
+        ) : null}
+        {contactInfo.secondPhone ? (
+          <ContactRow href={`tel:${secondPhoneHref}`} label="شماره دوم" value={contactInfo.secondPhone} />
+        ) : null}
+        {contactInfo.landline ? (
+          <ContactRow
+            href={`sms:${messagePhoneHref}`}
+            icon="message"
+            label="پیامک"
+            value={contactInfo.landline}
+          />
+        ) : null}
       </div>
 
+      {hasMap ? (
+        <div className={`${contactRowCount ? "mt-4" : "mt-2"} overflow-hidden rounded-2xl bg-[#f6f6f3]`}>
+          <AgencyMiniMap lat={contactInfo.lat as number} lng={contactInfo.lng as number} />
+        </div>
+      ) : null}
+
       {socialLinks.length ? (
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#4d4d4d]">شبکه‌های اجتماعی</Typography>
-          <div className="flex items-center gap-4 [direction:ltr]">
+        <div className="mt-4 pb-1">
+          <Typography
+            as="p"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="m-0 text-right text-sm font-medium leading-5 text-[#4d4d4d]"
+          >
+            شبکه‌های اجتماعی
+          </Typography>
+          <div className="mt-3 flex items-center justify-end gap-10 [direction:ltr]">
             {socialLinks.map((item) => (
               <a
                 aria-label={item.label}
-                className={`grid h-8 w-8 place-items-center rounded-full bg-[#f7f7f7] no-underline ${item.className}`}
+                className="grid h-6 w-6 shrink-0 place-items-center no-underline"
                 href={item.href}
                 key={item.label}
                 rel="noreferrer"
@@ -1267,20 +1317,115 @@ function AgencyContactBottomSheet({
           </div>
         </div>
       ) : null}
+
+      {!hasAnyContactInfo ? (
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="m-0 py-6 text-center text-sm text-[#808080]"
+        >
+          اطلاعات تماسی ثبت نشده است.
+        </Typography>
+      ) : null}
     </BottomSheet>
   );
 }
 
-function ContactRow({ href, label, value }: { href: string; label: string; value: string }) {
+function ContactPhoneIcon({ className = "" }: { className?: string }) {
   return (
-    <a className="flex h-12 items-center justify-between gap-3 border-b border-[#eeeeee] text-[#1a1a1a] no-underline [direction:ltr]" href={href}>
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-left text-sm font-medium">{value}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-right text-sm font-normal text-[#808080] [direction:rtl]">
-        {label}
-        <LinearPhone2 className="h-5 w-5 text-[#4d4d4d]" />
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
+      <path d="M6.6 4.8 9 4.2l2.1 4.8-1.5 1.1a11.2 11.2 0 0 0 4.3 4.3L15 12.9l4.8 2.1-.6 2.4c-.3 1.2-1.4 2-2.6 1.8C10.2 18.2 5.8 13.8 4.8 7.4 4.6 6.2 5.4 5.1 6.6 4.8Z" />
+    </svg>
+  );
+}
+
+function ContactMessageIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
+      <path d="M5 18.5V20l3.1-1.6A8 8 0 1 0 4 11.5c0 2.6 1.2 4.9 3.1 6.4" />
+      <path d="M8.5 12h7" />
+    </svg>
+  );
+}
+
+function ContactRow({
+  href,
+  icon = "phone",
+  label,
+  value,
+}: {
+  href: string;
+  icon?: "message" | "phone";
+  label: string;
+  value: string;
+}) {
+  return (
+    <a
+      className="flex h-14 items-center justify-between gap-3 border-b border-[#dedede] text-[#1a1a1a] no-underline [direction:ltr]"
+      href={href}
+    >
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className="text-left text-base font-medium leading-6 text-[#1a1a1a]"
+      >
+        {toPersianDigits(value)}
       </Typography>
+      <span className="inline-flex min-w-0 items-center gap-2 [direction:rtl]">
+        {icon === "message" ? (
+          <ContactMessageIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+        ) : (
+          <ContactPhoneIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+        )}
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-right text-sm font-normal leading-5 text-[#808080]"
+        >
+          {label}
+        </Typography>
+      </span>
     </a>
   );
+}
+
+function createAgencyContactMapMarkerIcon() {
+  return new DivIcon({
+    className: "agency-contact-map-marker-wrapper",
+    html: `
+      <svg aria-hidden="true" width="31" height="42" viewBox="0 0 31 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="15.5" cy="40.5" rx="6" ry="1.5" fill="#1A1A1A" fill-opacity="0.12"/>
+        <path d="M20.738 30.061C26.721 27.916 31 22.199 31 15.484C31 6.932 24.06 0 15.5 0S0 6.932 0 15.484c0 6.715 4.279 12.431 10.261 14.577 2.136.868 3.947 2.591 3.947 4.778v3.87a1.292 1.292 0 0 0 2.584 0v-3.87c0-2.187 1.811-3.91 3.946-4.778Z" fill="#11A366"/>
+        <circle cx="15.5" cy="15" r="6" fill="white"/>
+      </svg>
+    `,
+    iconAnchor: [15.5, 42],
+    iconSize: [31, 42],
+  });
 }
 
 function AgencyMiniMap({ lat, lng }: { lat: number; lng: number }) {
@@ -1288,19 +1433,20 @@ function AgencyMiniMap({ lat, lng }: { lat: number; lng: number }) {
     <MapContainer
       attributionControl={false}
       center={[lat, lng]}
-      className="h-[178px] w-full"
+      className="h-[196px] w-full"
       dragging={false}
       doubleClickZoom={false}
+      keyboard={false}
       scrollWheelZoom={false}
       touchZoom={false}
-      zoom={15}
+      zoom={16}
       zoomControl={false}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <CircleMarker
-        center={[lat, lng]}
-        pathOptions={{ color: "#11A366", fillColor: "#11A366", fillOpacity: 1 }}
-        radius={8}
+      <Marker
+        icon={createAgencyContactMapMarkerIcon()}
+        interactive={false}
+        position={[lat, lng]}
       />
     </MapContainer>
   );

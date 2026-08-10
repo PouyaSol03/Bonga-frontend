@@ -154,6 +154,15 @@ export function useVerifyPaymentCallbackMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.all,
       });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.packages.agentEntitlements(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.packages.agentEntitlementLedgerRoot(),
+      });
     },
   });
 }

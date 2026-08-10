@@ -1,13 +1,19 @@
+import { useState } from "react";
+
 import { PageFrame } from "../../../app/layout/PageFrame";
 import { TransientNotice } from "../../../shared/components/TransientNotice";
 import { TopBar } from "../../../shared/components/TopBar";
 import { RouteLink } from "../../../app/router/RouteLink";
 import { useTransientNotice } from "../../../core/hooks/useTransientNotice";
-import { usePackagesQuery } from "../../../core/hooks/package.hooks";
-import type { PackageItem } from "../../../core/services/package.service";
+import { usePackagePaymentMutation, usePackagesQuery } from "../../../core/hooks/package.hooks";
+import { useWalletQuery } from "../../../core/hooks/account.hooks";
+import type { PackageItem, PackagePaymentType } from "../../../core/services/package.service";
 
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { PackagePaymentMethodSheet } from "../../../shared/components/PackagePaymentMethodSheet";
+import { getApiErrorMessage } from "../../../core/api/api";
+import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 
 type CreditView = "packages" | "panel" | "panel-bonus";
 type CreditPlan = {
@@ -60,14 +66,58 @@ function mapPackageToCreditPlan(
 
 export function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
   const { message, showNotice } = useTransientNotice();
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const packagesQuery = usePackagesQuery();
+  const walletQuery = useWalletQuery();
+  const packagePaymentMutation = usePackagePaymentMutation();
   const isPackages = view === "packages";
   const hasGiftBenefits = view === "panel-bonus";
-  const plans = (packagesQuery.data ?? [])
+  const sourcePackages = packagesQuery.data ?? [];
+  const plans = sourcePackages
     .filter((plan) =>
       isPackages ? plan.kind === "credit_bundle" : plan.kind === "panel_subscription",
     )
     .map((plan, index) => mapPackageToCreditPlan(plan, index, view));
+  const selectedPackage = selectedPackageId
+    ? sourcePackages.find((item) => item.id === selectedPackageId) ?? null
+    : null;
+
+  function submitPackagePayment(paymentType: PackagePaymentType) {
+    if (!selectedPackage || packagePaymentMutation.isPending) return;
+
+    packagePaymentMutation.mutate(
+      { packageId: selectedPackage.id, paymentType },
+      {
+        onError: (error) => {
+          showNotice(
+            getApiErrorMessage(
+              error,
+              paymentType === 1
+                ? "پرداخت بسته از کیف پول با خطا مواجه شد."
+                : "اتصال به درگاه پرداخت با خطا مواجه شد.",
+            ),
+          );
+        },
+        onSuccess: ({ paymentUrl }) => {
+          if (paymentUrl) {
+            const returnPath = isPackages
+              ? "/account/credit/packages"
+              : "/account/credit/panel";
+            storePaymentReturnTarget({
+              kind: "package",
+              label: "بازگشت به افزایش اعتبار",
+              path: returnPath,
+            });
+            window.location.assign(paymentUrl);
+            return;
+          }
+
+          setSelectedPackageId(null);
+          showNotice("بسته با موفقیت از کیف پول خریداری شد.");
+        },
+      },
+    );
+  }
 
   return (
     <PageFrame
@@ -93,9 +143,9 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
                 hasGiftBenefits={hasGiftBenefits}
                 isPackage={isPackages}
                 key={plan.id}
-                onPay={() =>
-                  showNotice("خرید این بسته هنوز به سرویس پرداخت متصل نشده است.")
-                }
+                onPay={() => {
+                  if (!packagePaymentMutation.isPending) setSelectedPackageId(plan.id);
+                }}
                 plan={plan}
               />
             ))}
@@ -105,6 +155,26 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
         )}
       </main>
       <TransientNotice message={message} />
+      <PackagePaymentMethodSheet
+        isOpen={Boolean(selectedPackage)}
+        isPending={packagePaymentMutation.isPending}
+        onClose={() => {
+          if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
+        }}
+        onSubmit={submitPackagePayment}
+        packagePrice={selectedPackage?.final_price ?? 0}
+        packageTitle={selectedPackage?.title ?? ""}
+        walletCredit={walletQuery.data?.credit}
+        walletError={
+          walletQuery.isError
+            ? getApiErrorMessage(
+                walletQuery.error,
+                "دریافت موجودی کیف پول با خطا مواجه شد.",
+              )
+            : null
+        }
+        walletLoading={walletQuery.isLoading}
+      />
     </PageFrame>
   );
 }

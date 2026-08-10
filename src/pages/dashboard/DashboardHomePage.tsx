@@ -25,6 +25,7 @@ import {
   useAgencyDashboardQuery,
   useAgentDashboardQuery,
 } from "../../core/hooks/dashboard.hooks";
+import { useAgentEntitlementsQuery } from "../../core/hooks/package.hooks";
 import { RequestManagementView } from "../requests/RequestManagementView";
 
 export function DashboardHomePage() {
@@ -58,14 +59,27 @@ export function DashboardHomePage() {
     enabled: isAgentRole,
     period: "30d",
   });
+  const agentEntitlementsQuery = useAgentEntitlementsQuery({
+    enabled: isAgentRole,
+  });
   const dashboardQuery = isRealEstateManager
     ? agencyDashboardQuery
     : agentDashboardQuery;
+  const dashboard =
+    isAgentRole && agentDashboardQuery.data && agentEntitlementsQuery.data
+      ? {
+          ...agentDashboardQuery.data,
+          balances: {
+            ...agentDashboardQuery.data.balances,
+            ...agentEntitlementsQuery.data,
+          },
+        }
+      : dashboardQuery.data;
   const useDashboardApi = isRealEstateManager || isAgentRole;
 
   return (
     <DashboardHomeOverview
-      dashboard={dashboardQuery.data}
+      dashboard={dashboard}
       dashboardKind={
         isRealEstateManager ? "agency" : isAgentRole ? "agent" : undefined
       }

@@ -62,6 +62,7 @@ type AccountAction = {
   activeRole?: AuthRoleSlug;
   icon: AccountIconName;
   label: string;
+  tone?: "default" | "danger";
   onClick?: () => void;
   requiresAuth?: boolean;
   to?: string;
@@ -284,9 +285,11 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
               </div>
             </Button>
 
-            <DangerAccountRow
-              action={{ icon: "trash", label: "حذف کسب و کار", to: "/account/delete-user" }}
-            />
+            {accountSwitchActions.length > 0 ? (
+              <div className="mt-4">
+                <Divider spaced />
+              </div>
+            ) : null}
             <AccountSection actions={accountSwitchActions} spacedDividers />
           </section>
 
@@ -297,6 +300,7 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
           />
           <AccountSection
             actions={[
+              { icon: "trash", label: "حذف کسب و کار", tone: "danger", to: "/account/delete-user" },
               {
                 icon: "log_out",
                 label: isLoggingOut ? "در حال خروج..." : "خروج از حساب کاربری",
@@ -372,7 +376,8 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
       { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
-      { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+      { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
+      { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
       { icon: "message", label: "پیام‌ها", to: "/chat" },
       { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
     ];
@@ -385,7 +390,8 @@ function getBusinessAccountActions(role?: string | null): AccountAction[] {
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
-      { icon: "wallet", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
+      { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
+      { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
       { icon: "message", label: "پیام‌ها", to: "/chat" },
       { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
     ];
@@ -940,13 +946,27 @@ function AccountMenuRow({
   hasDivider?: boolean;
   spacedDivider?: boolean;
 }) {
+  const isDanger = action.tone === "danger";
   const content = (
     <>
-      <ChevronLeftIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-      <Typography as="span" variant="label" size="large" weight="medium" className="flex-1 text-right text-base font-medium [direction:rtl]">
+      <ChevronLeftIcon
+        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : "text-[#4d4d4d]"}`}
+      />
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className={`flex-1 text-right text-base font-medium [direction:rtl] ${
+          isDanger ? "text-on-error-container" : ""
+        }`}
+      >
         {action.label}
       </Typography>
-      <AccountIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" name={action.icon} />
+      <AccountIcon
+        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : "text-[#4d4d4d]"}`}
+        name={action.icon}
+      />
     </>
   );
 
@@ -984,38 +1004,6 @@ function AccountMenuRow({
       )}
       {hasDivider ? <Divider spaced={spacedDivider} /> : null}
     </>
-  );
-}
-
-function DangerAccountRow({ action }: { action: AccountAction }) {
-  const content = (
-    <div className="flex justify-center items-center gap-2 w-full">
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-sm font-semibold leading-5 [direction:rtl]">
-        {action.label}
-      </Typography>
-      <AccountIcon className="h-5 w-5 shrink-0 text-[#C11004]" name={action.icon} />
-    </div>
-  );
-
-  if (action.to) {
-    return (
-      <RouteLink
-        className="mx-4 my-4 flex py-2.5 cursor-pointer items-center gap-2 rounded-[10px] border border-[#C11004] bg-white px-4 text-[#C11004] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
-        to={action.to}
-      >
-        {content}
-      </RouteLink>
-    );
-  }
-
-  return (
-    <Button unstyled
-      className="mx-4 mb-3 mt-2 flex h-10 w-[calc(100%-2rem)] cursor-pointer items-center gap-2 rounded-[10px] border border-[#C11004] bg-white px-4 text-[#C11004] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440]"
-      onClick={action.onClick}
-      type="button"
-    >
-      {content}
-    </Button>
   );
 }
 

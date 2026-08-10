@@ -6,6 +6,7 @@ import {
   REAL_ESTATE_MANAGER,
 } from "../../../shared/constants/roles.constants";
 import { DASHBOARD_PATH } from "../../../app/router/routes";
+import LinearWallet2 from "../../../shared/icons/LinearWallet2";
 
 export type DashboardNavItem = {
   allowedRoles: string[];
@@ -60,6 +61,12 @@ export const dashboardNavigationItems: DashboardNavItem[] = [
     icon: EditUserIcon,
     label: "مدیریت مشاورین",
     path: `${DASHBOARD_PATH}/team`,
+  },
+  {
+    allowedRoles: DASHBOARD_ROLES,
+    icon: LinearWallet2,
+    label: "کیف پول",
+    path: "/account/wallet",
   },
   {
     allowedRoles: DASHBOARD_ROLES,

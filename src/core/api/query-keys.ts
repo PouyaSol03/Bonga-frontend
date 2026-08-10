@@ -223,6 +223,12 @@ export const queryKeys = {
   packages: {
     all: ["packages"] as const,
     list: () => [...queryKeys.packages.all, "list"] as const,
+    agentEntitlements: () =>
+      [...queryKeys.packages.all, "agent-entitlements"] as const,
+    agentEntitlementLedgerRoot: () =>
+      [...queryKeys.packages.all, "agent-entitlement-ledger"] as const,
+    agentEntitlementLedger: (page: number, perPage: number) =>
+      [...queryKeys.packages.agentEntitlementLedgerRoot(), page, perPage] as const,
   },
 
   chats: {

@@ -35,7 +35,7 @@ const MyAccountPage = lazyNamed(() => import('../../pages/account/MyAccountPage'
 const NewAdCategoryPage = lazyNamed(() => import('../../pages/newAd/NewAdCategoryPage'), 'NewAdCategoryPage')
 const NewAdFlowPage = lazyNamed(() => import('../../pages/newAd/NewAdFlowPage'), 'NewAdFlowPage')
 const NewAdLocationPage = lazyNamed(() => import('../../pages/newAd/NewAdFlowPage'), 'NewAdLocationPage')
-const PublicLandingPage = lazyNamed(() => import('../../pages/publicLanding/PublicLandingPage'), 'PublicLandingPage')
+const OnboardingPage = lazyNamed(() => import('../../pages/onboarding/OnboardingPage'), 'OnboardingPage')
 const CrmOverviewPage = lazyNamed(() => import('../../pages/crm/routes/CrmOverviewPage'), 'CrmOverviewPage')
 const CrmAdvertisesPage = lazyNamed(() => import('../../pages/crm/routes/CrmAdvertisesPage'), 'CrmAdvertisesPage')
 const CrmUsersPage = lazyNamed(() => import('../../pages/crm/routes/CrmUsersPage'), 'CrmUsersPage')
@@ -236,7 +236,7 @@ export const routes: AppRoute[] = [
   {
     path: '/',
     title: 'بنگاه',
-    Component: PublicLandingPage,
+    Component: OnboardingPage,
   },
   {
     path: '/login',

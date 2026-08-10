@@ -162,6 +162,15 @@ function getLoginRequiredPath(returnTo: string) {
   return `/login-required?${params.toString()}`
 }
 
+function isLoginFlowPath(path: string) {
+  return (
+    path === '/login' ||
+    path === '/login-required' ||
+    path === '/login/phone' ||
+    path === '/login/verify'
+  )
+}
+
 function shouldRequireIdentityForPath(path: string) {
   if (
     path.startsWith('/new-ad') &&
@@ -254,6 +263,14 @@ function getResolvedPath() {
   }
 
   const session = getStoredAuthSession()
+
+  // Authenticated users must never land back inside the login/OTP flow.
+  // This also catches browser Back/Forward entries left in history after login.
+  if (session && isLoginFlowPath(path)) {
+    window.history.replaceState(window.history.state ?? {}, '', '/account')
+    return '/account'
+  }
+
   const route = getRoute(path)
 
   if (path !== browserPath) {

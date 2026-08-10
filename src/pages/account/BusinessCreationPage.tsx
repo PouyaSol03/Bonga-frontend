@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetSt
 import { PageFrame } from "../../app/layout/PageFrame";
 import { getApiErrorMessage } from "../../core/api/api";
 import { BottomSheet } from "../../shared/components/BottomSheet";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { setStoredActiveRole } from "../../core/auth/auth-storage";
 import {
@@ -25,7 +24,7 @@ export type BusinessType = "agency" | "independent-consultant";
 type BusinessToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 type InfoCard = {
@@ -327,7 +326,7 @@ export function AgencyBusinessCreationPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const showToast = (message: string, title = "خطا", variant: SnackbarVariant = "error") => {
+  const showToast = (message: string, title = "خطا", variant: "error" | "success" | "info" | "warning" = "error") => {
     setToast({ message, title, variant });
   };
 
@@ -475,9 +474,7 @@ function BusinessFormPage({
   businessType,
   fields,
   isSubmitting = false,
-  onDismissToast,
   onSubmit,
-  toast,
 }: {
   businessType: BusinessType;
   fields: ReactNode;
@@ -549,15 +546,6 @@ function BusinessFormPage({
         </div>
       </form>
 
-      {toast && onDismissToast ? (
-        <Snackbar
-          className="top-[72px]"
-          message={toast.message}
-          onDismiss={onDismissToast}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </BusinessCreationShell>
   );
 }

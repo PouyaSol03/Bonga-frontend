@@ -14,7 +14,6 @@ import { RadioIndicator } from "../../../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
 import { SelectionCheckIndicator } from "../../../../shared/components/SelectionCheckIndicator";
 import { FormChoiceChip } from "../../../../shared/form/FormControls";
-import { Snackbar } from "../../../../shared/components/Snackbar";
 import { TopBar } from "../../../../shared/components/TopBar";
 import { RouteLink } from "../../../../app/router/RouteLink";
 import NoSearchIcon from "../../../../shared/assets/icons/NoSearch.svg";
@@ -354,14 +353,6 @@ export function AddConsultantPage() {
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      {errorMessage ? (
-        <Snackbar
-          message={errorMessage}
-          onDismiss={() => setErrorMessage("")}
-          title="خطا"
-          variant="error"
-        />
-      ) : null}
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-14">
         <div className="bg-white px-4 pb-2.5 pt-4">

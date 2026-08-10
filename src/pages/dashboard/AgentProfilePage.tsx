@@ -22,7 +22,6 @@ import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { FormChoiceChip } from "../../shared/form/FormControls";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -49,7 +48,7 @@ type SelectedNeighborhood = {
 type AgentProfileToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 function isDesktopDashboard() {
@@ -230,7 +229,7 @@ export function AgentProfilePage() {
   const showToast = (
     message: string,
     title = "موفقیت",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
   const handleAvatarChange = (file: File | null) => {
@@ -339,15 +338,6 @@ export function AgentProfilePage() {
         </PageFrame>
       )}
 
-      {toast ? (
-        <Snackbar
-          className={desktop ? "top-6" : "top-[72px]"}
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
 
       <NeighborhoodSelectionSheet
         cityId={cityId}

@@ -78,11 +78,13 @@ function RegistrantTypeFields({
 function PersonalContactFields({
   chatEnabled,
   contactError,
+  mobile,
   onSetField,
   phoneEnabled,
 }: {
   chatEnabled: boolean;
   contactError?: string;
+  mobile: string;
   onSetField: SetNewAdField;
   phoneEnabled: boolean;
 }) {
@@ -97,7 +99,7 @@ function PersonalContactFields({
       />
       <CheckRow
         checked={phoneEnabled}
-        label="شماره تماس"
+        label={mobile ? `شماره تماس (${mobile})` : "شماره تماس"}
         onChange={(checked) => {
           onSetField("phoneEnabled", checked);
           onSetField("phoneNumber", "");
@@ -213,6 +215,7 @@ export function AdInformationFields({
   errors,
   label,
   mobile,
+  profileMobile,
   onSelectAgency,
   onSelectPersonal,
   onSetField,
@@ -221,6 +224,7 @@ export function AdInformationFields({
   errors: NewAdFieldErrors;
   label: string;
   mobile: string;
+  profileMobile: string;
   onSelectAgency: () => void;
   onSelectPersonal: () => void;
   onSetField: SetNewAdField;
@@ -242,6 +246,7 @@ export function AdInformationFields({
         <PersonalContactFields
           chatEnabled={values.chatEnabled}
           contactError={errors.contactMethods}
+          mobile={profileMobile}
           onSetField={onSetField}
           phoneEnabled={values.phoneEnabled}
         />

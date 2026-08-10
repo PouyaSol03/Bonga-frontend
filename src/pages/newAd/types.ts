@@ -88,13 +88,13 @@ export type MoreFeatureSelectKey =
   | "cabinetMaterial"
   | "landPosition"
   | "villaType"
+  | "density"
   | "commercialLicense"
   | "singleRoomCount"
   | "doubleRoomCount"
   | "suiteCount";
 
 export type MoreFeatureNumberKey =
-  | "density"
   | "landWidth"
   | "streetWidth"
   | "ceilingHeight";

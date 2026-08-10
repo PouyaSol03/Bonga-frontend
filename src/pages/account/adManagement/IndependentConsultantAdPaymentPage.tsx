@@ -6,7 +6,6 @@ import {
   getStoredAuthSession,
 } from "../../../core/auth/auth-storage";
 import { PageFrame } from "../../../app/layout/PageFrame";
-import { Snackbar } from "../../../shared/components/Snackbar";
 import { TopBar } from "../../../shared/components/TopBar";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
@@ -217,7 +216,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("free_quota");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setErrorMessage] = useState("");
   const stateAdPath = getAdStatePath(advertiseId);
   const publishState = useMemo(
     () => ({
@@ -536,13 +535,6 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         upgradeItems={upgradeItems}
         walletMethod={walletMethod}
       >
-        {errorMessage ? (
-          <Snackbar
-            message={errorMessage}
-            onDismiss={() => setErrorMessage("")}
-            title="خطا در پرداخت"
-          />
-        ) : null}
       </AgencyCombinedCheckoutView>
     );
   }
@@ -571,13 +563,6 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           upgradeItems={upgradeItems}
           walletMethod={walletMethod}
         >
-          {errorMessage ? (
-            <Snackbar
-              message={errorMessage}
-              onDismiss={() => setErrorMessage("")}
-              title="خطا در پرداخت"
-            />
-          ) : null}
         </AgencyCombinedCheckoutView>
       );
     }
@@ -594,13 +579,6 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         totalPrice={totalPrice}
         walletMethod={walletMethod}
       >
-        {errorMessage ? (
-          <Snackbar
-            message={errorMessage}
-            onDismiss={() => setErrorMessage("")}
-            title="خطا در پرداخت"
-          />
-        ) : null}
       </ApiPaymentCheckoutView>
     );
   }
@@ -613,13 +591,6 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       pending={checkoutPending}
       price={publishPrice}
     >
-      {errorMessage ? (
-        <Snackbar
-          message={errorMessage}
-          onDismiss={() => setErrorMessage("")}
-          title="خطا در انتشار آگهی"
-        />
-      ) : null}
     </CheckoutTariffView>
   );
 }
@@ -1237,7 +1208,7 @@ function ApiCreditDeficitBox({ deficit }: { deficit: number }) {
 
 function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
   const chargeWalletMutation = useChargeWalletMutation();
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setErrorMessage] = useState("");
 
   function chargeWallet() {
     if (chargeWalletMutation.isPending || deficit <= 0) return;
@@ -1279,15 +1250,6 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
           کسری: {formatTariffToman(deficit)} تومان
         </Typography>
       </div>
-      {errorMessage ? (
-        <Snackbar
-          className="relative inset-x-auto bottom-auto mt-2"
-          message={errorMessage}
-          onDismiss={() => setErrorMessage("")}
-          title="خطا در شارژ کیف پول"
-          variant="error"
-        />
-      ) : null}
     </div>
   );
 }

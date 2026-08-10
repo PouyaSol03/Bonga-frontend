@@ -446,7 +446,7 @@ export function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdF
   setText("floor", readFirstValue(ad, features, ["floor"], ["floor"]), selectText);
   setText("rooms", readFirstValue(ad, features, ["rooms"], ["rooms"]), selectText);
   setText("age", readFirstValue(ad, features, ["building_age"], ["building_age", "age", "year"]), ageText);
-  setText("density", readFirstValue(ad, features, ["density"], ["density"]), numericInputText);
+  setText("density", readFirstValue(ad, features, ["density"], ["density"]));
   setText("usageType", readFirstValue(ad, features, ["land_use", "usage"], ["land_use", "usageType"]));
   setText("landPosition", readFirstValue(ad, features, ["land_position"], ["land_position", "landPosition"]));
   setText("documentType", readFirstValue(ad, features, ["document_type"], ["document_type", "documentType"]));

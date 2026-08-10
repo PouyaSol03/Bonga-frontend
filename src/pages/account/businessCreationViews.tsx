@@ -1,6 +1,5 @@
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { PageFrame } from "../../app/layout/PageFrame";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { setStoredActiveRole } from "../../core/auth/auth-storage";
 import { USER } from "../../shared/constants/roles.constants";
@@ -20,7 +19,7 @@ export type BusinessType = "agency" | "independent-consultant";
 export type BusinessToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 type InfoCard = {
@@ -242,9 +241,7 @@ export function BusinessFormPage({
   businessType,
   fields,
   isSubmitting = false,
-  onDismissToast,
   onSubmit,
-  toast,
 }: {
   businessType: BusinessType;
   fields: ReactNode;
@@ -316,15 +313,6 @@ export function BusinessFormPage({
         </div>
       </form>
 
-      {toast && onDismissToast ? (
-        <Snackbar
-          className="top-[72px]"
-          message={toast.message}
-          onDismiss={onDismissToast}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </BusinessCreationShell>
   );
 }

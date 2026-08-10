@@ -34,7 +34,6 @@ import type { AdCardData } from "../../shared/components/AdCard";
 import { AdCardSkeleton } from "../../shared/components/AdCardSkeleton";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { DemoNotice } from "../../shared/components/DemoNotice";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { Button } from "../../shared/ui/Button";
 import { Chip } from "../../shared/ui/Chip";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
@@ -106,7 +105,7 @@ export function AccountProfilePage() {
   const showToast = (
     message: string,
     title = "موفقیت",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
   return (
@@ -146,15 +145,6 @@ export function AccountProfilePage() {
         ) : null}
       </main>
 
-      {toast ? (
-        <Snackbar
-          className="bottom-20"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </AccountPageShell>
   );
 }
@@ -471,7 +461,7 @@ function normalizeWalletAmount(value: string) {
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
-  const [chargeError, setChargeError] = useState<string | null>(null);
+  const [, setChargeError] = useState<string | null>(null);
   const chargeWalletMutation = useChargeWalletMutation();
   const { data: wallet, error, isError, isLoading, refetch } = useWalletQuery();
   const numericAmount = Number(amount);
@@ -619,15 +609,6 @@ export function AccountWalletPage() {
         </Button>
       </div>
 
-      {chargeError ? (
-        <Snackbar
-          className="bottom-20"
-          message={chargeError}
-          onDismiss={() => setChargeError(null)}
-          title="خطا در پرداخت"
-          variant="error"
-        />
-      ) : null}
     </AccountPageShell>
   );
 }
@@ -667,7 +648,7 @@ export function AccountWalletHistoryPage() {
 type AccountToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 export function AccountNotesPage() {
@@ -690,7 +671,7 @@ export function AccountNotesPage() {
   const showToast = (
     message: string,
     title = "انجام شد",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
   const openEditNote = (note: NoteItem) => {
@@ -759,15 +740,6 @@ export function AccountNotesPage() {
       }
       title="یادداشت ها"
     >
-      {toast ? (
-        <Snackbar
-          className="top-16"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
 
       <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
         <div className={`${!isLoading && !isError && notes.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-0 bg-white"}`}>

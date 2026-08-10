@@ -125,7 +125,6 @@ export const spacing = {
 export const zIndex = {
   bottomNavigation: 30,
   topBar: 40,
-  snackbar: 80,
   sheet: 90,
   modal: 100,
 } as const;

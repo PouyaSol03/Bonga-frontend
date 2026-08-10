@@ -11,7 +11,6 @@ import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
 import LinearRefresh from "../../shared/icons/LinearRefresh";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -54,7 +53,7 @@ type RequestFilterOption = {
 type RequestToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 const receivedRequestsGuideStorageKey =
@@ -313,7 +312,7 @@ export function RequestManagementView({
   const showToast = (
     message: string,
     title = "موفق",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => {
     setToast({ message, title, variant });
   };
@@ -629,15 +628,6 @@ export function RequestManagementView({
         options={requestFilterOptions}
       />
 
-      {toast ? (
-        <Snackbar
-          className="top-[72px]"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </PageFrame>
   );
 }

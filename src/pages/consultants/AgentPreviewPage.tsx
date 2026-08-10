@@ -7,7 +7,6 @@ import LinearShare from "../../shared/icons/LinearShare";
 import LinearStar from "../../shared/icons/LinearStar";
 import LinearRanking from "../../shared/icons/LinearRanking";
 import LinearTag from "../../shared/icons/LinearTag";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
@@ -56,7 +55,7 @@ const agentAds: AdCardData[] = [
 type PreviewToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 function getParam(name: string, fallback: string) {
@@ -98,7 +97,7 @@ export function AgentPreviewPage() {
   const showToast = (
     message: string,
     title = "انجام شد",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => {
     setToast({ message, title, variant });
   };
@@ -193,15 +192,6 @@ export function AgentPreviewPage() {
         </div>
       </footer>
 
-      {toast ? (
-        <Snackbar
-          className="top-16"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </div>
   );
 }

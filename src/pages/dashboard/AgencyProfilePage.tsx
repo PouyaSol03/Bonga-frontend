@@ -9,7 +9,6 @@ import LinearBuilding3 from "../../shared/icons/LinearBuilding3";
 import LinearEdit2 from "../../shared/icons/LinearEdit2";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
 import { BottomSheet } from "../../shared/components/BottomSheet";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { FormChoiceChip } from "../../shared/form/FormControls";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
@@ -53,7 +52,7 @@ type AgencyProfileMapCenter = {
 type AgencyProfileToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 const selectedCityMapZoom = 12;
@@ -240,7 +239,7 @@ export function AgencyProfilePage() {
   const showToast = (
     message: string,
     title = "موفقیت",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
   useEffect(() => {
@@ -421,15 +420,6 @@ export function AgencyProfilePage() {
         onSave={handleSave}
       />
 
-      {toast ? (
-        <Snackbar
-          className="top-[72px]"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
 
       <NeighborhoodSelectionSheet
         mode="single"

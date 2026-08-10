@@ -13,7 +13,6 @@ import { BottomSheet } from "../../shared/components/BottomSheet";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
-import { Snackbar } from "../../shared/components/Snackbar";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { TopBar } from "../../shared/components/TopBar";
 import LinearDelete from "../../shared/icons/LinearDelete";
@@ -906,7 +905,7 @@ export function NotificationsPage() {
   const [agencyRequestDecisions, setAgencyRequestDecisions] = useState<
     Record<string, AgencyConsultantRequestDecision>
   >({});
-  const [feedback, setFeedback] = useState<{
+  const [, setFeedback] = useState<{
     message: string;
     title: string;
     variant: "error" | "success";
@@ -1278,7 +1277,7 @@ export function NotificationsPage() {
         selectedFilters={selectedFilters}
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white [-webkit-overflow-scrolling:touch]">
         {notificationsQuery.isLoading ? (
           <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">
             در حال دریافت اعلان‌ها...
@@ -1363,14 +1362,6 @@ export function NotificationsPage() {
           navigateTo("/notifications/settings");
         }}
       />
-      {feedback ? (
-        <Snackbar
-          message={feedback.message}
-          onDismiss={() => setFeedback(null)}
-          title={feedback.title}
-          variant={feedback.variant}
-        />
-      ) : null}
     </PageFrame>
   );
 }

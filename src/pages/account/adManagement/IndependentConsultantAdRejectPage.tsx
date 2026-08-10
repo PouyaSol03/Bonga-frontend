@@ -8,7 +8,6 @@ import {
   useRejectAgencyAdvertiseAssignmentMutation,
 } from "../../../core/hooks/agency-advertise-assignment.hooks";
 import { RadioIndicator } from "../../../shared/components/RadioIndicator";
-import { Snackbar } from "../../../shared/components/Snackbar";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
@@ -39,7 +38,7 @@ export function IndependentConsultantAdRejectPage() {
   const advertiseId = getRejectAdvertiseId();
   const ad = getSelectedConsultantAd(advertiseId);
   const [selectedReason, setSelectedReason] = useState<RejectReason | null>(null);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setErrorMessage] = useState("");
   const rejectAssignmentMutation = useRejectAgencyAdvertiseAssignmentMutation();
   const shouldResolveAssignment = !routeState.assignmentId && !routeState.assignment?.id;
   const assignmentsQuery = useAgencyAdvertiseAssignmentsInfiniteQuery({
@@ -219,14 +218,6 @@ export function IndependentConsultantAdRejectPage() {
         </Button>
       </footer>
 
-      {errorMessage ? (
-        <Snackbar
-          message={errorMessage}
-          onDismiss={() => setErrorMessage("")}
-          title="خطا در رد آگهی"
-          variant="error"
-        />
-      ) : null}
     </PageFrame>
   );
 }

@@ -41,6 +41,7 @@ export function MediaStep({
   const values = watch();
   const { data: profile } = useMyProfileQuery();
   const storedMobile = getStoredAuthSession()?.mobile?.trim() ?? "";
+  const meShowMobile = profile?.mobile?.trim() || profile?.phone?.trim() || "";
   const profileMobile = profile?.mobile?.trim() || storedMobile;
   const profileFullName = [profile?.name, profile?.family]
     .map((part) => part?.trim() ?? "")
@@ -172,6 +173,7 @@ export function MediaStep({
             errors={errors}
             label={label}
             mobile={profileMobile || values.phoneNumber}
+            profileMobile={meShowMobile}
             onSelectAgency={selectAgency}
             onSelectPersonal={selectPersonal}
             onSetField={setField}

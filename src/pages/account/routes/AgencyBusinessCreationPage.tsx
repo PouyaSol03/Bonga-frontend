@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import type { NeighborhoodDto } from "../../../core/services/neighborhood.service";
 import { useCreateMyAgencyMutation } from "../../../core/hooks/account.hooks";
-import type { SnackbarVariant } from "../../../shared/components/Snackbar";
 import { getApiErrorMessage } from "../../../core/api/api";
 import { pushRoute } from "../../../app/router/navigation";
 import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationViews";
@@ -38,7 +37,7 @@ export function AgencyBusinessCreationPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const showToast = (message: string, title = "خطا", variant: SnackbarVariant = "error") => {
+  const showToast = (message: string, title = "خطا", variant: "error" | "success" | "info" | "warning" = "error") => {
     setToast({ message, title, variant });
   };
 

@@ -5,7 +5,6 @@ import { AdCardTomanIcon } from "../../../shared/components/AdCardIcons";
 import { formatPrice, formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import { RouteLink } from "../../../app/router/RouteLink";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
-import { Snackbar } from "../../../shared/components/Snackbar";
 import { AccountLoadingState, AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, formatMoney, normalizeWalletAmount } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -13,7 +12,7 @@ import { TextField } from "../../../shared/ui/TextField";
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
-  const [chargeError, setChargeError] = useState<string | null>(null);
+  const [, setChargeError] = useState<string | null>(null);
   const chargeWalletMutation = useChargeWalletMutation();
   const { data: wallet, error, isError, isLoading, refetch } = useWalletQuery();
   const numericAmount = Number(amount);
@@ -166,15 +165,6 @@ export function AccountWalletPage() {
         </Button>
       </div>
 
-      {chargeError ? (
-        <Snackbar
-          className="bottom-20"
-          message={chargeError}
-          onDismiss={() => setChargeError(null)}
-          title="خطا در پرداخت"
-          variant="error"
-        />
-      ) : null}
     </AccountPageShell>
   );
 }

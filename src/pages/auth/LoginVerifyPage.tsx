@@ -7,7 +7,6 @@ import {
   type KeyboardEvent,
 } from "react";
 import { PageFrame } from "../../app/layout/PageFrame";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../app/router/RouteLink";
 import LoginOTPbackground from "../../shared/assets/images/LoginOTPBackground.svg";
@@ -69,7 +68,7 @@ export function LoginVerifyPage() {
   const [notice, setNotice] = useState<{
     message: string;
     title: string;
-    variant: SnackbarVariant;
+    variant: "error" | "success" | "info" | "warning";
   } | null>(null);
   const [resendSeconds, setResendSeconds] = useState(getOtpResendSecondsRemaining);
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -197,7 +196,10 @@ export function LoginVerifyPage() {
 
       await ensureSelectedCityAfterLogin();
 
-      window.history.pushState({ state: "new" }, "", redirectPath);
+      // Replace the OTP entry after a successful login so Back does not
+      // return to the verification screen. The router also guards all auth
+      // pages while a valid session exists.
+      window.history.replaceState({ state: "new" }, "", redirectPath);
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {
       setNotice({
@@ -253,14 +255,6 @@ export function LoginVerifyPage() {
           onBack={() => goBackOrNavigate("/login/phone")}
           title="ورود به حساب کاربری"
         />
-        {notice ? (
-          <Snackbar
-            message={notice.message}
-            onDismiss={() => setNotice(null)}
-            title={notice.title}
-            variant={notice.variant}
-          />
-        ) : null}
 
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
           <section

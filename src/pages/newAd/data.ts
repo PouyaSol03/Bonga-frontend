@@ -311,6 +311,25 @@ export const usageTypeOptions = [
   "مسکونی تجاری",
 ];
 
+const saleLandUsageTypeOptions = [
+  "مسکونی",
+  "اداری",
+  "تجاری",
+  "صنعتی",
+  "کشاورزی",
+  "باغی",
+  "آموزشی",
+  "درمانی",
+  "مذهبی",
+  "ورزشی",
+  "خدماتی",
+  "گردشگری و توریستی",
+  "پارکینگ",
+  "حریم",
+  "فاقد کاربری",
+  "سایر",
+];
+
 export const landPositionOptions = [
   "شمالی",
   "جنوبی",
@@ -338,6 +357,21 @@ export const documentTypeOptions = [
   "قولنامه",
   "وکالت",
 ];
+
+const saleLandDocumentTypeOptions = [
+  "تک برگ ملک",
+  "منگوله دار",
+  "آستانه",
+  "اوقافی",
+  "موقوفه",
+  "وکالت محضری",
+  "قولنامه",
+  "مشاع",
+  "در دست اقدام",
+  "آماده انتقال",
+];
+
+const saleLandDensityOptions = ["کم", "متوسط", "زیاد"];
 
 export const suitableForOptions = [
   "مهندسین",
@@ -382,9 +416,9 @@ const saleVillaHouseBasicFields: BasicPropertyField[] = [
 
 const saleLandBasicFields: BasicPropertyField[] = [
   { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "usageType", label: "کاربری", control: "select", options: usageTypeOptions, required: true },
+  { key: "usageType", label: "نوع کاربری", control: "select", options: saleLandUsageTypeOptions, required: true },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions, required: true },
-  { key: "documentType", label: "نوع سند", control: "select", options: documentTypeOptions, required: true },
+  { key: "documentType", label: "نوع سند", control: "select", options: saleLandDocumentTypeOptions, required: true },
 ];
 
 const saleOfficeBasicFields: BasicPropertyField[] = [
@@ -519,6 +553,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی", "ندارد"],
   landPosition: landPositionOptions,
   villaType: ["فلت", "دوبلکس", "تریپلکس", "مدرن", "کلاسیک", "باغ‌ویلا"],
+  density: saleLandDensityOptions,
   commercialLicense: commercialLicenseOptions,
   singleRoomCount: roomCountOptions,
   doubleRoomCount: roomCountOptions,
@@ -573,6 +608,13 @@ const rentGardenVillaMoreFeatureFields: MoreFeatureField[] = gardenVillaMoreFeat
 const landMoreFeatureFields: MoreFeatureField[] = [
   { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
   { key: "streetWidth", label: "عرض خیابان", control: "number", leftText: "متر" },
+  { key: "constructionPermit", label: "مجوز ساخت", control: "toggle" },
+];
+
+const saleLandMoreFeatureFields: MoreFeatureField[] = [
+  { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
+  { key: "streetWidth", label: "عرض خیابان", control: "number", leftText: "متر" },
+  { key: "density", label: "تراکم", control: "select" },
   { key: "constructionPermit", label: "مجوز ساخت", control: "toggle" },
 ];
 
@@ -639,6 +681,7 @@ export const moreFeatureFieldsByCategory: Record<string, MoreFeatureField[]> = {
 };
 
 export const moreFeatureFieldsByListingType: Record<string, MoreFeatureField[]> = {
+  "sale:land": saleLandMoreFeatureFields,
   "rent:apartment": rentApartmentMoreFeatureFields,
   "rent:villa-house": rentVillaHouseMoreFeatureFields,
   "rent:garden-villa": rentGardenVillaMoreFeatureFields,

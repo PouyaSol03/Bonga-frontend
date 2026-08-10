@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import type { NoteItem } from "../../../core/services/account.service";
 import { useMyNotesQuery, useDeleteAdvertiseNoteMutation, useSaveAdvertiseNoteMutation } from "../../../core/hooks/account.hooks";
-import { type SnackbarVariant, Snackbar } from "../../../shared/components/Snackbar";
 import { getApiErrorMessage } from "../../../core/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Button } from "../../../shared/ui/Button";
@@ -29,7 +28,7 @@ export function AccountNotesPage() {
   const showToast = (
     message: string,
     title = "انجام شد",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
   const openEditNote = (note: NoteItem) => {
@@ -98,15 +97,6 @@ export function AccountNotesPage() {
       }
       title="یادداشت ها"
     >
-      {toast ? (
-        <Snackbar
-          className="top-16"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
 
       <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
         <div className={`${!isLoading && !isError && notes.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-0 bg-white"}`}>

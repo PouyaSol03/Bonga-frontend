@@ -12,7 +12,6 @@ import {
 import { getCategoryList, type CategoryItem } from "../../core/services/category.service";
 import type { PublicAgencyDto } from "../../core/services/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../core/services/crm.service";
-import { Snackbar } from "../../shared/components/Snackbar";
 import { useAdvertiseFormDefinitionQuery, useMyAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../../core/hooks/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
@@ -795,7 +794,7 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("floor", readFirstValue(ad, features, ["floor"], ["floor"]), selectText);
   setText("rooms", readFirstValue(ad, features, ["rooms"], ["rooms"]), selectText);
   setText("age", readFirstValue(ad, features, ["building_age"], ["building_age", "age", "year"]), ageText);
-  setText("density", readFirstValue(ad, features, ["density"], ["density"]), numericInputText);
+  setText("density", readFirstValue(ad, features, ["density"], ["density"]));
   setText("usageType", readFirstValue(ad, features, ["land_use", "usage"], ["land_use", "usageType"]));
   setText("landPosition", readFirstValue(ad, features, ["land_position"], ["land_position", "landPosition"]));
   setText("documentType", readFirstValue(ad, features, ["document_type"], ["document_type", "documentType"]));
@@ -926,7 +925,7 @@ export function NewAdFlowPage() {
     () => restoredSessionRef.current?.step ?? "details",
   );
   const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
-  const [submitError, setSubmitError] = useState("");
+  const [, setSubmitError] = useState("");
   const methods = useForm<NewAdFormValues>({
     defaultValues: initialValues,
     mode: "onChange",
@@ -1348,13 +1347,6 @@ export function NewAdFlowPage() {
               />
             ) : null}
 
-        {submitError ? (
-          <Snackbar
-            message={submitError}
-            onDismiss={() => setSubmitError("")}
-            title="خطا"
-          />
-        ) : null}
 
         {isCrmEditMode && editAdIsLoading ? (
           <div className="grid min-h-0 flex-1 place-items-center bg-[#f5f7fb] text-sm font-medium text-[#687386]">

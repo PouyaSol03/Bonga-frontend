@@ -8,7 +8,6 @@ import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "../../core/s
 import { AdCard } from "../../shared/components/AdCard";
 import type { AdCardData } from "../../shared/components/AdCard";
 import { AdCardSkeleton } from "../../shared/components/AdCardSkeleton";
-import type { SnackbarVariant } from "../../shared/components/Snackbar";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../app/router/RouteLink";
@@ -346,7 +345,7 @@ export function normalizeWalletAmount(value: string) {
 export type AccountToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 export function AccountPageShell({ action, children, onBack, title }: React.PropsWithChildren<TopBarProps>) {

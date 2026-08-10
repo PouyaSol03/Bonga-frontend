@@ -20,7 +20,6 @@ import LinearShare from "../../shared/icons/LinearShare";
 import LinearStar from "../../shared/icons/LinearStar";
 import LinearTag from "../../shared/icons/LinearTag";
 import { TopBar } from "../../shared/components/TopBar";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
@@ -335,7 +334,7 @@ async function shareOrCopyAgencyUrl(url: string, title: string, text: string) {
 type AgencyToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 
@@ -561,7 +560,7 @@ export function AgencyPreviewPage() {
   const showToast = (
     message: string,
     title = "انجام شد",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => {
     setToast({ message, title, variant });
   };
@@ -695,15 +694,6 @@ export function AgencyPreviewPage() {
         isOpen={isContactSheetOpen}
         onClose={() => setIsContactSheetOpen(false)}
       />
-      {toast ? (
-        <Snackbar
-          className="top-16"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </div>
   );
 }
@@ -738,7 +728,7 @@ export function AgencyQrCodePage() {
   const showToast = (
     message: string,
     title = "انجام شد",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => {
     setToast({ message, title, variant });
   };
@@ -787,15 +777,6 @@ export function AgencyQrCodePage() {
           </Typography>
         </Button>
       </footer>
-      {toast ? (
-        <Snackbar
-          className="top-16"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </div>
   );
 }

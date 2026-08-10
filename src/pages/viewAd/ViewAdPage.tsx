@@ -8,7 +8,6 @@ import "swiper/css";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { ColorableSvgIcon } from "../../shared/components/ColorableSvgIcon";
 import { AdLocationMap } from "../../shared/components/AdLocationMap";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { RouteLink } from "../../app/router/RouteLink";
 import { PageFrame } from "../../app/layout/PageFrame";
 import { getApiErrorMessage, isUnauthorizedApiError } from "../../core/api/api";
@@ -73,7 +72,7 @@ import {
 type ActionToast = {
   message: string;
   title: string;
-  variant: SnackbarVariant;
+  variant: "error" | "success" | "info" | "warning";
 };
 
 type GalleryMediaKind = "album" | "video" | "tour3d";
@@ -1102,7 +1101,7 @@ export function ViewAdPage() {
   const showToast = (
     message: string,
     title = "انجام شد",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => {
     setToast({ message, title, variant });
   };
@@ -1377,15 +1376,6 @@ export function ViewAdPage() {
         onAction={handleTopBarAction}
       />
 
-      {toast ? (
-        <Snackbar
-          className="top-16"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0]">
         <ViewAdContent

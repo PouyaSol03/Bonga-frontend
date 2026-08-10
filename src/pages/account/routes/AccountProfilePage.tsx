@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMyProfileQuery, useUpdateMyProfileMutation } from "../../../core/hooks/account.hooks";
 import { getStoredAuthSession } from "../../../core/auth/auth-storage";
-import { type SnackbarVariant, Snackbar } from "../../../shared/components/Snackbar";
 import { getApiErrorMessage } from "../../../core/api/api";
 import { AccountPageShell, AccountProfileForm, AccountProfileSkeleton, AccountRetryState } from "../accountPageViews";
 import type { AccountToast } from "../accountPageViews";
@@ -31,7 +30,7 @@ export function AccountProfilePage() {
   const showToast = (
     message: string,
     title = "موفقیت",
-    variant: SnackbarVariant = "success",
+    variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
   return (
@@ -71,15 +70,6 @@ export function AccountProfilePage() {
         ) : null}
       </main>
 
-      {toast ? (
-        <Snackbar
-          className="bottom-20"
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          title={toast.title}
-          variant={toast.variant}
-        />
-      ) : null}
     </AccountPageShell>
   );
 }

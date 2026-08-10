@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { PageFrame } from "../../app/layout/PageFrame";
-import { Snackbar, type SnackbarVariant } from "../../shared/components/Snackbar";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../app/router/RouteLink";
 import LoginPhoneBackground from "../../shared/assets/images/LoginPhoneBackground.svg";
@@ -24,7 +23,7 @@ export function LoginPhonePage() {
   const [notice, setNotice] = useState<{
     message: string;
     title: string;
-    variant: SnackbarVariant;
+    variant: "error" | "success" | "info" | "warning";
   } | null>(null);
   const requestOtpMutation = useRequestOtpMutation();
   const isSubmitting = requestOtpMutation.isPending;
@@ -69,14 +68,6 @@ export function LoginPhonePage() {
           onBack={() => goBackOrNavigate("/account")}
           title="ورود به حساب کاربری"
         />
-        {notice ? (
-          <Snackbar
-            message={notice.message}
-            onDismiss={() => setNotice(null)}
-            title={notice.title}
-            variant={notice.variant}
-          />
-        ) : null}
 
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
           <section

@@ -436,7 +436,11 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "floor", values.floor);
   addFeature(features, "rooms", values.rooms);
   addFeature(features, "building_age", values.age);
-  addFeature(features, "density", toNumber(values.density));
+  addFeature(
+    features,
+    "density",
+    isSale && params.category === "land" ? values.density : toNumber(values.density),
+  );
   addFeature(features, "land_use", values.usageType);
   addFeature(features, "land_position", values.landPosition);
   addFeature(features, "suitable_for", values.suitableFor);
@@ -683,7 +687,12 @@ export function buildNewAdFormData(
   }
   appendDynamicValue("unit_type", values.unitType);
   appendDynamicValue("unit_position", values.unitPosition);
-  appendDynamicValue("density", toNumber(values.density));
+  appendDynamicValue(
+    "density",
+    params.transaction === "sale" && params.category === "land"
+      ? values.density
+      : toNumber(values.density),
+  );
   appendDynamicValue("land_use", values.usageType);
   appendDynamicValue("land_position", values.landPosition);
   appendDynamicValue("house_type", values.villaType);

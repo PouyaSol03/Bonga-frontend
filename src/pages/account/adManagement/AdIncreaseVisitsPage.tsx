@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { getApiErrorMessage } from "../../../core/api/api";
 import { PageFrame } from "../../../app/layout/PageFrame";
-import { Snackbar } from "../../../shared/components/Snackbar";
 import { TopBar } from "../../../shared/components/TopBar";
 import {
   useAdvertisementCheckoutQuery,
@@ -44,7 +43,7 @@ export function AdIncreaseVisitsPage() {
   const [step, setStep] = useState<"options" | "checkout">("options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["special"]);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setErrorMessage] = useState("");
   const checkout = checkoutQuery.data;
   const products = useMemo(() => resolveUpgradeProducts(checkout), [checkout]);
   const tariffOptions = useMemo(
@@ -127,7 +126,6 @@ export function AdIncreaseVisitsPage() {
         totalPrice={payableAmount}
         walletMethod={walletMethod}
       >
-        {errorMessage ? <Snackbar message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در پرداخت" /> : null}
       </ApiPaymentCheckoutView>
     );
   }
@@ -135,7 +133,6 @@ export function AdIncreaseVisitsPage() {
   return (
     <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
       <TopBar backTo={backTo} className="bg-[#f0f0f0]" title="افزایش بازدید" />
-      {errorMessage ? <Snackbar message={errorMessage} onDismiss={() => setErrorMessage("")} title="خطا در پرداخت" /> : null}
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[76px]">
         <AdTariffOptionsList onToggle={toggleTariff} options={tariffOptions} selectedIds={selectedTariffs} />
       </main>

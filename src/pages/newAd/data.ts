@@ -319,6 +319,17 @@ export const landPositionOptions = [
   "چهار نبش",
 ];
 
+const saleLandPositionOptions = [
+  "شمالی",
+  "جنوبی",
+  "غربی",
+  "شرقی",
+  "دوممر",
+  "دونبش",
+  "سه نبش",
+  "چهارنبش",
+];
+
 export const documentTypeOptions = [
   "ملکی",
   "آستانه",
@@ -372,7 +383,7 @@ const saleVillaHouseBasicFields: BasicPropertyField[] = [
 const saleLandBasicFields: BasicPropertyField[] = [
   { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "usageType", label: "کاربری", control: "select", options: usageTypeOptions, required: true },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
+  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions, required: true },
   { key: "documentType", label: "نوع سند", control: "select", options: documentTypeOptions, required: true },
 ];
 

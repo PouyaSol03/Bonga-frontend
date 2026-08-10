@@ -186,13 +186,13 @@ function MetricSummaryCard({
   value: string;
 }) {
   return (
-    <section className="flex h-20 items-center justify-between rounded-2xl bg-white px-4 [direction:ltr]" aria-label={label}>
-      <div className="h-12 w-[232px]">
+    <section className="flex h-20 items-center justify-end gap-x-4 rounded-2xl bg-white px-4 [direction:ltr]" aria-label={label}>
+      <div className="h-12 w-[232px] flex-1">
         <div className="flex h-6 items-center justify-between [direction:ltr]">
-          <strong className="text-base font-semibold">{value}</strong>
+          <Typography variant="title" size="medium" weight="semibold" className="text-on-surface">{value}</Typography>
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#4d4d4d] [direction:rtl]">{label}</Typography>
         </div>
-        <div className="mt-2 flex h-4 items-center justify-end text-xs [direction:ltr]">
+        <div className="mt-2 flex h-4 items-center justify-end [direction:ltr]">
           <Typography as="span" variant="body" size="small" weight="regular" className="text-[#808080] [direction:rtl]">
             اطلاعات مقایسه‌ای از سرور دریافت نشده است
           </Typography>

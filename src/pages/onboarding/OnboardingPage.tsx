@@ -185,11 +185,11 @@ export function OnboardingPage() {
                       shouldReduceMotion || card.depth < ONBOARDING_STACK_SIZE - 1
                         ? false
                         : {
-                            left: `${enteringInset}%`,
-                            right: `${enteringInset}%`,
-                            opacity: 0,
-                            y: targetY + ONBOARDING_LAYER_OFFSET,
-                          }
+                          left: `${enteringInset}%`,
+                          right: `${enteringInset}%`,
+                          opacity: 0,
+                          y: targetY + ONBOARDING_LAYER_OFFSET,
+                        }
                     }
                     animate={{
                       left: `${targetInset}%`,
@@ -210,7 +210,11 @@ export function OnboardingPage() {
                   >
                     <img
                       alt=""
-                      className="block h-auto w-full object-contain object-top"
+                      className={
+                        card.src.includes("third_image.png")
+                          ? "block h-auto w-full origin-top scale-[1] w-full object-contain object-top"
+                          : "block h-auto w-full object-contain object-top"
+                      }
                       decoding="async"
                       draggable={false}
                       src={card.src}

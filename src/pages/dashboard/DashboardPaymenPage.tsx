@@ -464,7 +464,6 @@ function DashboardPaymentDesktopPage({
   refetch: () => void;
 }) {
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const packagePaymentMutation = usePackagePaymentMutation();
   const panelCreditPlans = packages
     .filter((plan) => plan.kind === "panel_subscription")
@@ -477,12 +476,10 @@ function DashboardPaymentDesktopPage({
     if (packagePaymentMutation.isPending) return;
 
     setPaymentError(null);
-    setSelectedPackageId(packageId);
     packagePaymentMutation.mutate(
       { packageId, paymentType: 0 },
       {
         onError: (requestError) => {
-          setSelectedPackageId(null);
           setPaymentError(
             getApiErrorMessage(
               requestError,
@@ -492,7 +489,6 @@ function DashboardPaymentDesktopPage({
         },
         onSuccess: ({ paymentUrl }) => {
           if (!paymentUrl) {
-            setSelectedPackageId(null);
             setPaymentError("آدرس درگاه پرداخت از سرور دریافت نشد.");
             return;
           }

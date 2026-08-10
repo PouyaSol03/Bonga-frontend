@@ -10,14 +10,12 @@ import PricingCard from "./components/addWallet/PricingCard";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
 import { usePackagePaymentMutation, usePackagesQuery } from "../../core/hooks/package.hooks";
-import { useWalletQuery } from "../../core/hooks/account.hooks";
 import { useTransientNotice } from "../../core/hooks/useTransientNotice";
 import { RouteLink } from "../../app/router/RouteLink";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearTooman from "../../shared/icons/LinearTooman";
-import { PackagePaymentMethodSheet } from "../../shared/components/PackagePaymentMethodSheet";
-import type { PackageItem, PackagePaymentType } from "../../core/services/package.service";
+import type { PackageItem } from "../../core/services/package.service";
 
 type PricingCardPlan = {
   discount: number;
@@ -353,7 +351,6 @@ function DashboardPaymentMobilePage({
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const { message, showNotice } = useTransientNotice();
   const packagePaymentMutation = usePackagePaymentMutation();
-  const walletQuery = useWalletQuery();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isManager = activeRole === REAL_ESTATE_MANAGER;
   const panelPlans = useMemo(
@@ -371,44 +368,35 @@ function DashboardPaymentMobilePage({
   const ErrorState = getRequestErrorState(error);
   const shownPlans = activeTab === "packages" ? packagePlans : panelPlans;
   const showGift = activeTab === "panel" && isManager;
-  const selectedPackage = selectedPackageId
-    ? packages.find((item) => item.id === selectedPackageId) ?? null
-    : null;
-
   function handlePay(packageId: string) {
     if (packagePaymentMutation.isPending) return;
+
     setSelectedPackageId(packageId);
-  }
-
-  function submitPackagePayment(paymentType: PackagePaymentType) {
-    if (!selectedPackage || packagePaymentMutation.isPending) return;
-
     packagePaymentMutation.mutate(
-      { packageId: selectedPackage.id, paymentType },
+      { packageId, paymentType: 0 },
       {
         onError: (paymentError) => {
+          setSelectedPackageId(null);
           showNotice(
             getApiErrorMessage(
               paymentError,
-              paymentType === 1
-                ? "پرداخت بسته از کیف پول با خطا مواجه شد."
-                : "اتصال به درگاه پرداخت با خطا مواجه شد.",
+              "اتصال به درگاه پرداخت با خطا مواجه شد.",
             ),
           );
         },
         onSuccess: ({ paymentUrl }) => {
-          if (paymentUrl) {
-            storePaymentReturnTarget({
-              kind: "package",
-              label: "بازگشت به افزایش اعتبار",
-              path: "/account/dashboard/payments",
-            });
-            window.location.assign(paymentUrl);
+          if (!paymentUrl) {
+            setSelectedPackageId(null);
+            showNotice("آدرس درگاه پرداخت از سرور دریافت نشد.");
             return;
           }
 
-          setSelectedPackageId(null);
-          showNotice("بسته با موفقیت از کیف پول خریداری شد.");
+          storePaymentReturnTarget({
+            kind: "package",
+            label: "بازگشت به افزایش اعتبار",
+            path: "/account/dashboard/payments",
+          });
+          window.location.assign(paymentUrl);
         },
       },
     );
@@ -458,26 +446,6 @@ function DashboardPaymentMobilePage({
         ) : null}
       </main>
       <TransientNotice message={message} />
-      <PackagePaymentMethodSheet
-        isOpen={Boolean(selectedPackage)}
-        isPending={packagePaymentMutation.isPending}
-        onClose={() => {
-          if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
-        }}
-        onSubmit={submitPackagePayment}
-        packagePrice={selectedPackage?.final_price ?? 0}
-        packageTitle={selectedPackage?.title ?? ""}
-        walletCredit={walletQuery.data?.credit}
-        walletError={
-          walletQuery.isError
-            ? getApiErrorMessage(
-                walletQuery.error,
-                "دریافت موجودی کیف پول با خطا مواجه شد.",
-              )
-            : null
-        }
-        walletLoading={walletQuery.isLoading}
-      />
     </PageFrame>
   );
 }
@@ -498,7 +466,6 @@ function DashboardPaymentDesktopPage({
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const packagePaymentMutation = usePackagePaymentMutation();
-  const walletQuery = useWalletQuery();
   const panelCreditPlans = packages
     .filter((plan) => plan.kind === "panel_subscription")
     .map(mapPanelPlan);
@@ -506,45 +473,36 @@ function DashboardPaymentDesktopPage({
     .filter((plan) => plan.kind === "credit_bundle")
     .map(mapBundlePlan);
   const ErrorState = getRequestErrorState(error);
-  const selectedPackage = selectedPackageId
-    ? packages.find((item) => item.id === selectedPackageId) ?? null
-    : null;
-
   function handlePay(packageId: string) {
     if (packagePaymentMutation.isPending) return;
+
     setPaymentError(null);
     setSelectedPackageId(packageId);
-  }
-
-  function submitPackagePayment(paymentType: PackagePaymentType) {
-    if (!selectedPackage || packagePaymentMutation.isPending) return;
-
-    setPaymentError(null);
     packagePaymentMutation.mutate(
-      { packageId: selectedPackage.id, paymentType },
+      { packageId, paymentType: 0 },
       {
         onError: (requestError) => {
+          setSelectedPackageId(null);
           setPaymentError(
             getApiErrorMessage(
               requestError,
-              paymentType === 1
-                ? "پرداخت بسته از کیف پول با خطا مواجه شد."
-                : "اتصال به درگاه پرداخت با خطا مواجه شد.",
+              "اتصال به درگاه پرداخت با خطا مواجه شد.",
             ),
           );
         },
         onSuccess: ({ paymentUrl }) => {
-          if (paymentUrl) {
-            storePaymentReturnTarget({
-              kind: "package",
-              label: "بازگشت به افزایش اعتبار",
-              path: "/account/dashboard/payments",
-            });
-            window.location.assign(paymentUrl);
+          if (!paymentUrl) {
+            setSelectedPackageId(null);
+            setPaymentError("آدرس درگاه پرداخت از سرور دریافت نشد.");
             return;
           }
 
-          setSelectedPackageId(null);
+          storePaymentReturnTarget({
+            kind: "package",
+            label: "بازگشت به افزایش اعتبار",
+            path: "/account/dashboard/payments",
+          });
+          window.location.assign(paymentUrl);
         },
       },
     );
@@ -634,26 +592,6 @@ function DashboardPaymentDesktopPage({
         </>
       ) : null}
 
-      <PackagePaymentMethodSheet
-        isOpen={Boolean(selectedPackage)}
-        isPending={packagePaymentMutation.isPending}
-        onClose={() => {
-          if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
-        }}
-        onSubmit={submitPackagePayment}
-        packagePrice={selectedPackage?.final_price ?? 0}
-        packageTitle={selectedPackage?.title ?? ""}
-        walletCredit={walletQuery.data?.credit}
-        walletError={
-          walletQuery.isError
-            ? getApiErrorMessage(
-                walletQuery.error,
-                "دریافت موجودی کیف پول با خطا مواجه شد.",
-              )
-            : null
-        }
-        walletLoading={walletQuery.isLoading}
-      />
     </div>
   );
 }

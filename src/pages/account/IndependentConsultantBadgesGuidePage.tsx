@@ -96,41 +96,41 @@ export function IndependentConsultantBadgesGuidePage() {
 function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
   return (
     <section className="bg-white p-4">
-      <div className="flex h-16 items-center justify-center gap-4 rounded-2xl border border-[#f5f5f5] bg-white">
+      <div className="flex h-22 items-center justify-center gap-4 rounded-2xl border border-[#f5f5f5] bg-linear-to-b from-on-surface/40 to-on-surface/0">
         <img alt="" className="h-14 w-14 object-contain" src={badge.image} />
         <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">{badge.name}</Typography>
       </div>
 
       <div className="mt-6">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">سطوح نشان</Typography>
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-3 text-base font-normal leading-6">{badge.intro}</Typography>
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0">سطوح نشان</Typography>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-base font-normal leading-6">{badge.intro}</Typography>
         <div className="mt-2 space-y-2">
           {badge.levels.map((level, index) => (
             <div className="flex items-center justify-start gap-1 text-sm font-normal leading-5" key={level}>
-              <Typography as="span" variant="body" size="medium" weight="regular">{`سطح ${index + 1}: ${level}`}</Typography>
               <LevelStars count={index + 1} />
+              <Typography as="span" variant="body" size="medium" weight="regular">{`سطح ${index + 1}: ${level}`}</Typography>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-12">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="flex items-center gap-1 text-base font-semibold leading-6 text-[#0048c4]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 rounded-full bg-[#0048c4]" />
+          <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 ml-2 rounded-full bg-[#0048c4]" />
           {badge.indicatorTitle}
         </Typography>
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-3 text-base font-normal leading-6">{badge.indicatorDescription}</Typography>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-2 text-base font-normal leading-6">{badge.indicatorDescription}</Typography>
 
-        <Typography as="h4" variant="title" size="medium" weight="semibold" className="mt-6 text-base font-semibold leading-6">موارد مؤثر در امتیاز:</Typography>
-        <ul className="mt-2 space-y-2 text-base font-normal leading-6">
+        <Typography as="p" variant="label" size="large" weight="semibold" className="mt-6 text-base font-semibold leading-6">موارد مؤثر در امتیاز:</Typography>
+        <ul className="mt-2 mr-4 space-y-2 text-base font-normal leading-6">
           {badge.points.map((point) => (
-            <li className="flex items-start gap-2" key={point}>
+            <li className="flex items-start gap-3.5" key={point}>
               <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
-              <Typography as="span" variant="body" size="medium" weight="regular">{point}</Typography>
+              <Typography as="span" variant="body" size="large" weight="regular">{point}</Typography>
             </li>
           ))}
         </ul>
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-base font-normal leading-6">{badge.note}</Typography>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4">{badge.note}</Typography>
       </div>
     </section>
   );

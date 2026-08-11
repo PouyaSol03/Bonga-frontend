@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 
 import LinearArrowDown1 from "../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
@@ -29,7 +29,7 @@ export function Header({
   title: string;
   onBack?: () => void;
 }) {
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (onBack) {
       onBack();
       return;
@@ -40,7 +40,7 @@ export function Header({
     } else {
       navigateTo("/new-ad/category");
     }
-  };
+  }, [onBack]);
 
   return (
     <TopBar onBack={handleBack} title={title} />

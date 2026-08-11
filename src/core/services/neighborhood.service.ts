@@ -3,6 +3,8 @@ import { publicApi } from "../api/api";
 export type SubNeighborhoodDto = {
   geofence?: unknown;
   id?: string | number;
+  lat?: number;
+  lng?: number;
   name: string;
   polygon?: unknown;
 };
@@ -17,6 +19,7 @@ export type NeighborhoodDto = {
   lat?: number;
   lng?: number;
   matched_by?: string[];
+  matched_sub_neighborhood?: SubNeighborhoodDto | null;
   name: string;
   polygon?: unknown;
   sub_neighborhoods?: SubNeighborhoodDto[] | string[] | string;
@@ -251,9 +254,20 @@ function normalizeSubNeighborhood(value: unknown, index: number): SubNeighborhoo
   const name = typeof nameValue === "string" ? nameValue.trim() : "";
   if (!name) return [];
 
+  const latValue = record.lat ?? record.latitude;
+  const lngValue = record.lng ?? record.lon ?? record.long ?? record.longitude;
+  const lat = latValue === null || latValue === undefined || latValue === ""
+    ? undefined
+    : Number(latValue);
+  const lng = lngValue === null || lngValue === undefined || lngValue === ""
+    ? undefined
+    : Number(lngValue);
+
   return [{
     geofence: record.geofence ?? record.polygon,
     id: String(record.id ?? record._id ?? `legacy-${index + 1}`),
+    lat: Number.isFinite(lat) ? lat : undefined,
+    lng: Number.isFinite(lng) ? lng : undefined,
     name,
     polygon: record.polygon,
   }];

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { PageFrame } from "../../app/layout/PageFrame";
@@ -23,8 +23,6 @@ import { updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
-import { getActiveAuthRole, getStoredAuthSession } from "../../core/auth/auth-storage";
-import { REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 
 type NewAdMapCenter = {
   lat: number;
@@ -119,6 +117,84 @@ function getNeighborhoodId(neighborhood: NeighborhoodDto | null) {
 
 function getSubNeighborhoodId(subNeighborhood: SubNeighborhoodDto | null) {
   return String(subNeighborhood?.id ?? "");
+}
+
+function normalizeLocationName(value: string) {
+  return value.trim().toLocaleLowerCase("fa");
+}
+
+function getPolygonCenter(points: Array<[number, number]>) {
+  if (!points.length) return null;
+
+  let twiceArea = 0;
+  let longitudeSum = 0;
+  let latitudeSum = 0;
+
+  for (let index = 0; index < points.length; index += 1) {
+    const [latitudeA, longitudeA] = points[index];
+    const [latitudeB, longitudeB] = points[(index + 1) % points.length];
+    const cross = longitudeA * latitudeB - longitudeB * latitudeA;
+
+    twiceArea += cross;
+    longitudeSum += (longitudeA + longitudeB) * cross;
+    latitudeSum += (latitudeA + latitudeB) * cross;
+  }
+
+  if (Math.abs(twiceArea) > Number.EPSILON) {
+    return {
+      lat: latitudeSum / (3 * twiceArea),
+      lng: longitudeSum / (3 * twiceArea),
+    };
+  }
+
+  const total = points.reduce(
+    (sum, [lat, lng]) => ({ lat: sum.lat + lat, lng: sum.lng + lng }),
+    { lat: 0, lng: 0 },
+  );
+
+  return {
+    lat: total.lat / points.length,
+    lng: total.lng / points.length,
+  };
+}
+
+function getSubNeighborhoodCenter(subNeighborhood: SubNeighborhoodDto | null) {
+  if (!subNeighborhood) return null;
+
+  if (Number.isFinite(subNeighborhood.lat) && Number.isFinite(subNeighborhood.lng)) {
+    return {
+      lat: Number(subNeighborhood.lat),
+      lng: Number(subNeighborhood.lng),
+    };
+  }
+
+  return getPolygonCenter(
+    getNeighborhoodPolygonPoints(subNeighborhood.geofence ?? subNeighborhood.polygon),
+  );
+}
+
+function findMatchingSubNeighborhood(
+  neighborhood: NeighborhoodDto,
+  selectedSubNeighborhood: SubNeighborhoodDto | null,
+) {
+  if (!selectedSubNeighborhood) return null;
+
+  const subNeighborhoods = getNeighborhoodSubNeighborhoods(neighborhood);
+  const selectedId = getSubNeighborhoodId(selectedSubNeighborhood);
+
+  if (selectedId) {
+    const idMatch = subNeighborhoods.find(
+      (item) => getSubNeighborhoodId(item) === selectedId,
+    );
+    if (idMatch) return idMatch;
+  }
+
+  const selectedName = normalizeLocationName(selectedSubNeighborhood.name);
+  if (!selectedName) return null;
+
+  return subNeighborhoods.find(
+    (item) => normalizeLocationName(item.name) === selectedName,
+  ) ?? null;
 }
 
 function isPointInsidePolygon(
@@ -231,8 +307,15 @@ export function NewAdLocationPage() {
     return stored ? stored.name : "";
   });
   const [isManualSearch, setIsManualSearch] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isResolvingLocation, setIsResolvingLocation] = useState(false);
+  const [selectedSearchSubNeighborhood, setSelectedSearchSubNeighborhood] = useState<SubNeighborhoodDto | null>(null);
   const [mapCenter, setMapCenter] = useState<NewAdMapCenter>(getStoredMapCenter);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const pendingQuerySelectionRef = useRef<{
+    neighborhoodId: string;
+    subNeighborhood: SubNeighborhoodDto | null;
+  } | null>(null);
   const normalizedQuery = query.trim();
   const canSearchNeighborhoods =
     isManualSearch && normalizedQuery.length >= minNeighborhoodSearchLength;
@@ -253,56 +336,102 @@ export function NewAdLocationPage() {
     selectedNeighborhoodId,
     Boolean(selectedNeighborhoodId),
   );
-  const selectedSubNeighborhood = useMemo(
-    () => resolveSubNeighborhoodAtPoint(
-      neighborhoodInfoQuery.data ? getNeighborhoodSubNeighborhoods(neighborhoodInfoQuery.data) : [],
-      mapCenter.lat,
-      mapCenter.lng,
-    ),
-    [mapCenter.lat, mapCenter.lng, neighborhoodInfoQuery.data],
-  );
+  const selectedSubNeighborhood = useMemo(() => {
+    const fullInfo = neighborhoodInfoQuery.data;
+    const subNeighborhoods = fullInfo ? getNeighborhoodSubNeighborhoods(fullInfo) : [];
+    const matchedSearchSubNeighborhood = fullInfo
+      ? findMatchingSubNeighborhood(fullInfo, selectedSearchSubNeighborhood)
+      : null;
+
+    return matchedSearchSubNeighborhood ??
+      selectedSearchSubNeighborhood ??
+      resolveSubNeighborhoodAtPoint(subNeighborhoods, mapCenter.lat, mapCenter.lng);
+  }, [mapCenter.lat, mapCenter.lng, neighborhoodInfoQuery.data, selectedSearchSubNeighborhood]);
 
   useEffect(() => {
     const fullInfo = neighborhoodInfoQuery.data;
-    if (!fullInfo) return;
+    if (!fullInfo || !selectedNeighborhood) return;
 
-    if (
-      selectedNeighborhood &&
-      getNeighborhoodId(selectedNeighborhood) === String(fullInfo.id) &&
-      (!selectedNeighborhood.polygon && !selectedNeighborhood.geofence)
-    ) {
-      setSelectedNeighborhood(fullInfo);
+    const neighborhoodId = getNeighborhoodId(selectedNeighborhood);
+    if (neighborhoodId !== String(fullInfo.id)) return;
 
-      if (Number.isFinite(fullInfo.lat) && Number.isFinite(fullInfo.lng)) {
-        setMapCenter({
-          lat: Number(fullInfo.lat),
-          lng: Number(fullInfo.lng),
-          zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
-        });
-      }
+    const pendingSelection = pendingQuerySelectionRef.current;
+    const isPendingQuerySelection =
+      pendingSelection?.neighborhoodId === neighborhoodId;
+    const matchedSearchSubNeighborhood = findMatchingSubNeighborhood(
+      fullInfo,
+      isPendingQuerySelection
+        ? pendingSelection.subNeighborhood
+        : selectedSearchSubNeighborhood,
+    );
+
+    const needsNeighborhoodHydration =
+      selectedNeighborhood.name !== fullInfo.name ||
+      (!selectedNeighborhood.polygon && Boolean(fullInfo.polygon)) ||
+      (!selectedNeighborhood.geofence && Boolean(fullInfo.geofence));
+
+    if (needsNeighborhoodHydration) {
+      setSelectedNeighborhood({
+        ...fullInfo,
+        matched_sub_neighborhood:
+          matchedSearchSubNeighborhood ?? selectedSearchSubNeighborhood ?? undefined,
+      });
     }
-  }, [neighborhoodInfoQuery.data, selectedNeighborhood, mapCenter.zoom]);
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  const isAgencyUser = activeRole === REAL_ESTATE_MANAGER || activeRole === REAL_ESTATE_CONSULTANT;
-  const selectedSubNeighborhoodGeofence = useMemo(
-    () => getNeighborhoodPolygonPoints(
-      selectedSubNeighborhood?.geofence ?? selectedSubNeighborhood?.polygon,
-    ),
-    [selectedSubNeighborhood],
-  );
 
+    // Query selection is allowed to move the map once only. Never keep the map
+    // attached to the result after that, and never change the user's zoom.
+    if (!isPendingQuerySelection) return;
+
+    pendingQuerySelectionRef.current = null;
+
+    const subNeighborhoodCenter = getSubNeighborhoodCenter(
+      matchedSearchSubNeighborhood ?? pendingSelection.subNeighborhood,
+    );
+    const target = subNeighborhoodCenter ?? (
+      Number.isFinite(fullInfo.lat) && Number.isFinite(fullInfo.lng)
+        ? { lat: Number(fullInfo.lat), lng: Number(fullInfo.lng) }
+        : null
+    );
+
+    if (!target) return;
+
+    setMapCenter((current) => {
+      const threshold = 0.00001;
+      if (
+        Math.abs(current.lat - target.lat) <= threshold &&
+        Math.abs(current.lng - target.lng) <= threshold
+      ) {
+        return current;
+      }
+
+      return {
+        ...current,
+        lat: target.lat,
+        lng: target.lng,
+      };
+    });
+  }, [neighborhoodInfoQuery.data, selectedNeighborhood, selectedSearchSubNeighborhood]);
   const locations = useMemo(
     () => (canSearchNeighborhoods ? locationSearchQuery.data ?? [] : []),
     [canSearchNeighborhoods, locationSearchQuery.data],
   );
   const selectedLocation = selectedNeighborhood?.name ?? "";
-  const selectedNeighborhoodGeofence = useMemo(
-    () =>
-      getNeighborhoodPolygonPoints(
-        selectedNeighborhood?.geofence ?? selectedNeighborhood?.polygon,
-      ),
-    [selectedNeighborhood],
-  );
+  const selectedNeighborhoodGeofence = useMemo(() => {
+    const fullInfo = neighborhoodInfoQuery.data;
+
+    // Draw only the hydrated parent neighborhood boundary. Search/coordinate
+    // responses can briefly contain sub-neighborhood geometry at the top level,
+    // which must never be rendered as the neighborhood outline.
+    if (
+      !fullInfo ||
+      !selectedNeighborhoodId ||
+      String(fullInfo.id ?? fullInfo._id ?? "") !== selectedNeighborhoodId
+    ) {
+      return [];
+    }
+
+    return getNeighborhoodPolygonPoints(fullInfo.geofence ?? fullInfo.polygon);
+  }, [neighborhoodInfoQuery.data, selectedNeighborhoodId]);
 
   useRequireAuth();
 
@@ -331,12 +460,14 @@ export function NewAdLocationPage() {
 
     if (!neighborhood || !getNeighborhoodId(neighborhood) || !neighborhood.name.trim()) {
       setSelectedNeighborhood(null);
+      setSelectedSearchSubNeighborhood(null);
       setQuery("");
       setIsResolvingLocation(false);
       return;
     }
 
     setSelectedNeighborhood(neighborhood);
+    setSelectedSearchSubNeighborhood(neighborhood.matched_sub_neighborhood ?? null);
     setQuery(neighborhood.name);
     setIsResolvingLocation(false);
   }, [
@@ -355,7 +486,9 @@ export function NewAdLocationPage() {
       Math.abs(center.lng - mapCenter.lng) > threshold;
 
     if (hasLocationChanged) {
+      pendingQuerySelectionRef.current = null;
       setSelectedNeighborhood(null);
+      setSelectedSearchSubNeighborhood(null);
       setIsManualSearch(false);
       setIsResolvingLocation(true);
       window.localStorage.removeItem(subNeighborhoodIdKey);
@@ -365,17 +498,50 @@ export function NewAdLocationPage() {
   };
 
   const selectNeighborhood = (neighborhood: NeighborhoodDto) => {
+    const matchedSubNeighborhood = neighborhood.matched_sub_neighborhood ?? null;
+    const neighborhoodId = getNeighborhoodId(neighborhood);
+
+    searchInputRef.current?.blur();
     setIsManualSearch(false);
+    setIsSearchExpanded(false);
     setSelectedNeighborhood(neighborhood);
+    setSelectedSearchSubNeighborhood(matchedSubNeighborhood);
     setQuery(neighborhood.name);
 
+    const matchedSubNeighborhoodCenter = getSubNeighborhoodCenter(matchedSubNeighborhood);
+
+    if (matchedSubNeighborhoodCenter) {
+      pendingQuerySelectionRef.current = null;
+      setMapCenter((current) => ({
+        ...current,
+        lat: matchedSubNeighborhoodCenter.lat,
+        lng: matchedSubNeighborhoodCenter.lng,
+      }));
+      return;
+    }
+
+    // When the clicked query item matched a sub-neighborhood but the search
+    // payload did not include its center, hydrate the parent neighborhood and
+    // move to that sub-neighborhood once. If there is no sub-neighborhood, the
+    // same one-shot fallback uses the parent neighborhood center.
+    if (neighborhoodId && (matchedSubNeighborhood || !Number.isFinite(neighborhood.lat) || !Number.isFinite(neighborhood.lng))) {
+      pendingQuerySelectionRef.current = {
+        neighborhoodId,
+        subNeighborhood: matchedSubNeighborhood,
+      };
+
+      if (matchedSubNeighborhood) return;
+    } else {
+      pendingQuerySelectionRef.current = null;
+    }
+
     if (Number.isFinite(neighborhood.lat) && Number.isFinite(neighborhood.lng)) {
-      setMapCenter({
+      pendingQuerySelectionRef.current = null;
+      setMapCenter((current) => ({
+        ...current,
         lat: Number(neighborhood.lat),
         lng: Number(neighborhood.lng),
-        zoom: Math.max(mapCenter.zoom, selectedNeighborhoodMapZoom),
-      });
-      return;
+      }));
     }
   };
 
@@ -419,24 +585,11 @@ export function NewAdLocationPage() {
               pathOptions={{
                 color: "#0048c4",
                 fillColor: "#0048c4",
-                fillOpacity: isAgencyUser && selectedSubNeighborhoodGeofence.length >= 3 ? 0.07 : 0.18,
-                opacity: isAgencyUser && selectedSubNeighborhoodGeofence.length >= 3 ? 0.55 : 0.9,
+                fillOpacity: 0.18,
+                opacity: 0.9,
                 weight: 2,
               }}
               positions={selectedNeighborhoodGeofence}
-            />
-          ) : null}
-          {isAgencyUser && selectedSubNeighborhoodGeofence.length >= 3 ? (
-            <Polygon
-              interactive={false}
-              pathOptions={{
-                color: "#11a366",
-                fillColor: "#11a366",
-                fillOpacity: 0.2,
-                opacity: 0.95,
-                weight: 2.5,
-              }}
-              positions={selectedSubNeighborhoodGeofence}
             />
           ) : null}
         </MapContainer>
@@ -461,17 +614,27 @@ export function NewAdLocationPage() {
         </div>
 
         <section className={isCrmSource
-          ? "absolute bottom-6 right-6 z-30 w-[420px] max-w-[calc(100%_-_48px)] rounded-xl border border-[#e1e7f0] bg-white px-5 pb-5 pt-4 shadow-[0_18px_50px_rgba(26,26,26,0.2)]"
-          : "absolute inset-x-0 bottom-0 z-30 rounded-t-[24px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-12px_28px_rgba(26,26,26,0.14)]"}>
+          ? "absolute bottom-6 right-6 z-30 flex w-[420px] max-w-[calc(100%_-_48px)] flex-col rounded-xl border border-[#e1e7f0] bg-white px-5 pb-5 pt-4 shadow-[0_18px_50px_rgba(26,26,26,0.2)]"
+          : isSearchExpanded
+            ? "absolute inset-x-0 bottom-0 top-0 z-30 flex min-h-0 flex-col rounded-t-[24px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3"
+            : "absolute inset-x-0 bottom-0 z-30 flex flex-col rounded-t-[24px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-12px_28px_rgba(26,26,26,0.14)]"}>
           <div className="mx-auto mb-4 h-1 w-[42px] rounded-full bg-[#d6d6d6]" />
 
           <label className="flex h-12 items-center gap-3 rounded-[10px] border border-[#cccccc] bg-white px-3 text-right focus-within:border-[#0048c4]" dir="rtl">
             <input
+              ref={searchInputRef}
               className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              onFocus={() => {
+                if (!isCrmSource) setIsSearchExpanded(true);
+                setIsManualSearch(true);
+              }}
               onChange={(event) => {
+                pendingQuerySelectionRef.current = null;
                 setQuery(event.target.value);
                 setSelectedNeighborhood(null);
+                setSelectedSearchSubNeighborhood(null);
                 setIsManualSearch(true);
+                if (!isCrmSource) setIsSearchExpanded(true);
               }}
               placeholder="جستجوی محله، خیابان..."
               type="search"
@@ -481,9 +644,12 @@ export function NewAdLocationPage() {
               <Button unstyled
                 aria-label="پاک کردن"
                 onClick={() => {
+                  pendingQuerySelectionRef.current = null;
                   setQuery("");
                   setSelectedNeighborhood(null);
+                  setSelectedSearchSubNeighborhood(null);
                   setIsManualSearch(true);
+                  if (!isCrmSource) setIsSearchExpanded(true);
                 }}
                 type="button"
               >
@@ -494,7 +660,7 @@ export function NewAdLocationPage() {
 
           {canSearchNeighborhoods ? (
             <div
-              className={`${locationSearchQuery.isLoading || locations.length ? "max-h-40" : "max-h-[280px]"} overflow-y-auto pt-3`}
+              className={`${isSearchExpanded && !isCrmSource ? "min-h-0 flex-1" : locationSearchQuery.isLoading || locations.length ? "max-h-40" : "max-h-[280px]"} overflow-y-auto pt-3`}
             >
               {locationSearchQuery.isLoading ? (
                 <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
@@ -521,7 +687,7 @@ export function NewAdLocationPage() {
           ) : null}
 
           <Button unstyled
-            className="mt-4 h-12 w-full rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6]"
+            className={`${isSearchExpanded && !isCrmSource ? "mt-auto" : "mt-4"} h-12 w-full shrink-0 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white disabled:bg-[#e0e0e0] disabled:text-[#a6a6a6]`}
             disabled={
               isResolvingLocation ||
               locationByCoordinatesQuery.isFetching ||

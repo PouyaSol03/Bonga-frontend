@@ -115,7 +115,7 @@ export function MediaStep({
       : "در حال ثبت..."
     : isAgencyFlow
       ? "انتخاب آژانس"
-      : "ثبت آگهی";
+      : "ثبت اطلاعات";
 
   return (
     <>

@@ -504,7 +504,7 @@ export function DetailsStep({
 
         {values.exchangeEnabled ? (
           <div className="mt-3 rounded-2xl border border-[#f0f0f0] px-4 py-6">
-            <div className={`flex items-center justify-between [direction:rtl] ${values.exchangeTargets.length && 'mb-4'}`}>
+            <div className="mb-4 flex items-center justify-between [direction:rtl]">
               <Typography
                 as="span"
                 variant="label"

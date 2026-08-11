@@ -19,7 +19,8 @@ import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearInformation from "../../../shared/icons/LinearInformation";
-import LinearCancelSmall from "../../../shared/icons/LinearCancelSmall";
+import LinearImage from "../../../shared/icons/LinearImage";
+import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 
 export function Header({
   title,
@@ -48,6 +49,7 @@ export function Header({
 
 export function Section({
   title,
+  icon,
   warning,
   children,
   contentClassName = "",
@@ -68,7 +70,11 @@ export function Section({
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <LinearInformation className="h-6 w-6 text-on-surface-var"/>
+          {icon === "image.svg" ? (
+            <LinearImage className="h-6 w-6 text-on-surface-var" />
+          ) : (
+            <LinearInformation className="h-6 w-6 text-on-surface-var" />
+          )}
 
           <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
             {title}
@@ -76,7 +82,7 @@ export function Section({
         </div>
 
         {warning ? (
-          <img src="/icons/add_advertisement/warning.svg" alt="" />
+          <LinearInfoCircle className="w-6 h-6 text-on-surface-var" />
         ) : (
           <Typography as="span" variant="body" size="medium" weight="regular" className="h-7 w-7 shrink-0" />
         )}
@@ -213,7 +219,7 @@ export function Tag({
       className={className}
       onClick={onRemove}
       removable
-      removeIcon={<LinearCancelSmall aria-hidden="true" className="h-5 w-5" />}
+      removeIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
       selected
     >
       {label}
@@ -270,12 +276,15 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between border-t border-[#cccccc] py-3 [direction:ltr]">
+    <div className="flex items-center justify-between border-t border-[#cccccc] py-5 [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
-      <Typography as="span" variant="title" size="medium" weight="medium" className="text-[#1a1a1a] [direction:rtl]">
-        {label}
-      </Typography>
+      <div className="flex gap-2">
+        <LinearInfoCircle className="w-6 h-6 text-on-surface-var" />
+        <Typography as="span" variant="title" size="medium" weight="medium" className="text-[#1a1a1a] [direction:rtl]">
+          {label}
+        </Typography>
+      </div>
     </div>
   );
 }
@@ -296,7 +305,7 @@ export function Footer({
   return (
     <footer className={desktop
       ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
-      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]"}>
+      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]"}>
       <Button
         className={desktop ? "w-48" : ""}
         disabled={disabled}
@@ -381,7 +390,7 @@ export function MoreFeaturesFooter({
   return (
     <footer className={desktop
       ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
-      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]"}>
+      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]"}>
       <Button
         className={desktop ? "w-48" : ""}
         fullWidth={!desktop}

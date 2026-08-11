@@ -366,7 +366,7 @@ export function DailyHotelRoomsSection() {
             </div>
           </main>
 
-          <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-16px_24px_rgba(255,255,255,0.96)] [direction:ltr]">
+          <footer className="grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]">
             <Button unstyled
               className="h-12 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white"
               onClick={saveRoom}

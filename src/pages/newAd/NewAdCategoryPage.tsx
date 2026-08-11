@@ -285,7 +285,7 @@ function NextActionBar({
   return (
     <footer className={desktop
       ? "relative z-20 flex shrink-0 justify-end border-t border-[#e1e7f0] bg-white px-6 py-4"
-      : "relative z-20 shrink-0 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_28px_rgba(0,0,0,0.10)] before:pointer-events-none before:absolute before:inset-x-0 before:-top-8 before:h-8 before:bg-gradient-to-t before:from-white before:to-transparent"}>
+      : "relative z-20 shrink-0 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)]"}>
       <Button unstyled
         className={`${desktop ? "h-12 w-48" : "w-full py-2"} rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${disabled
             ? "bg-[#e0e0e0] text-[#a6a6a6]"

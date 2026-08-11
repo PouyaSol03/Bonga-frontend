@@ -241,7 +241,7 @@ export function ProjectDetailsStep({
 
       <footer className={desktop
         ? "flex justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
-        : "grid grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-16px_24px_rgba(255,255,255,0.94)]"}>
+        : "grid grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)]"}>
         <Button unstyled
           className={`h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] ${desktop ? "w-40" : ""}`}
           onClick={onBack}

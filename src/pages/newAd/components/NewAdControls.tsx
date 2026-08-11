@@ -90,7 +90,7 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
   return (
     <Button unstyled
       aria-label="پاک کردن"
-      className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d] transition active:opacity-70"
+      className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();

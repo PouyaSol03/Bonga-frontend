@@ -4,7 +4,6 @@ import "./homeArtwork.css";
 import { AdCard } from "../../shared/components/AdCard";
 
 import { CategoryBottomSheet } from "./components/CategoryBottomSheet";
-import { CitySelectionScreen } from "./components/CitySelectionScreen";
 import { HomeSearchScreen } from "./components/HomeSearchScreen";
 import type { CategoryOption, QuickAction } from "./homeTypes";
 import ArrowDown from "../../shared/assets/icons/ArrowDown";
@@ -212,9 +211,7 @@ export function HomePage() {
   const [selectedFormCode, setSelectedFormCode] = useState("");
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isCityOpen, setIsCityOpen] = useState(false);
-
-  const [selectedCity, setSelectedCity] = useState(getStoredCity);
+  const [selectedCity] = useState(getStoredCity);
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const {
     data: categories = [],
@@ -376,7 +373,7 @@ export function HomePage() {
             <Button unstyled
               className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4]"
               type="button"
-              onClick={() => setIsCityOpen(true)}
+              onClick={() => pushRoute("/?city=1")}
             >
               <ArrowDown size={20} />
               <Typography as="span" variant="body" size="medium" weight="regular">{selectedCity.name}</Typography>
@@ -569,16 +566,6 @@ export function HomePage() {
         }
       />
 
-      <CitySelectionScreen
-        currentCity={selectedCity.name}
-        isOpen={isCityOpen}
-        onClose={() => setIsCityOpen(false)}
-        onConfirm={(city) => {
-          setSelectedCity(city);
-          window.sessionStorage.setItem("bonga-selected-city", city.name);
-          setIsCityOpen(false);
-        }}
-      />
     </div>
   );
 }

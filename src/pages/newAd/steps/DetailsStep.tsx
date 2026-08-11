@@ -824,7 +824,7 @@ export function DetailsStep({
         onBack={() => setSheet(null)}
         onClose={() => setSheet(null)}
         panelPaddingClassName={sheet?.kind === "exchange" ? "flex flex-col pt-3" : "pt-3"}
-        showBackButton
+        showBackButton={sheet?.kind === "exchange"}
         showHandle
         showHeader
         showHeaderDivider={sheet?.kind !== "exchange"}

@@ -253,6 +253,8 @@ function getResolvedPath() {
   const path = getCanonicalDashboardPath(currentPath)
   const returnTo = `${path}${window.location.search}`
   const hasCity = hasStoredCity()
+  const isOnboardingCitySelection =
+    path === '/' && new URLSearchParams(window.location.search).get('city') === '1'
 
   if (!hasCity) {
     if (path !== '/' || window.location.search || window.location.hash) {
@@ -281,7 +283,7 @@ function getResolvedPath() {
     )
   }
 
-  if (path === '/') {
+  if (path === '/' && !isOnboardingCitySelection) {
     window.history.replaceState({}, '', '/home')
     return '/home'
   }

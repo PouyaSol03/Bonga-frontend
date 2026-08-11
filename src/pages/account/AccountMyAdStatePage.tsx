@@ -482,13 +482,14 @@ function PendingReviewNotice() {
     <div className="mt-4 rounded-lg border border-[#ffb15d] bg-[#fff7ed] px-4 py-3 text-right">
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
         این آگهی در صف بررسی سامانه قرار دارد.
-        <br />
+      </Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular">
         پس از تایید، آگهی به صورت خودکار منتشر می‌شود.
       </Typography>
 
       <div className="mt-3 border-t border-dashed border-[#cccccc] pt-3">
         <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">—</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">بین 1 تا 6 ساعت</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-[#4d4d4d] [direction:rtl]">
             <ClockIcon className="h-5 w-5" />
             زمان تقریبی بررسی:

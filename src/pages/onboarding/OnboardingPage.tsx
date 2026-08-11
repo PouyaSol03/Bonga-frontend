@@ -4,11 +4,12 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCitySearchQuery, useMostVisitedCityListQuery } from "../../core/hooks/city.hooks";
 import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
 import type { CityDto } from "../../core/services/city.service";
-import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearCancel from "../../shared/icons/LinearCancel";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import {
+  readStoredSelectedCity,
   saveSelectedCity,
+  selectedCityStorageKeys,
   type StoredSelectedCity,
 } from "../../shared/lib/selectedCityStorage";
 import { Button } from "../../shared/ui/Button";
@@ -97,9 +98,19 @@ function goHome() {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function readExplicitlyStoredCity() {
+  const storedName = window.localStorage
+    .getItem(selectedCityStorageKeys.name)
+    ?.trim();
+
+  return storedName ? readStoredSelectedCity() : null;
+}
+
 export function OnboardingPage() {
   const [stepIndex, setStepIndex] = useState(0);
-  const [isCityStep, setIsCityStep] = useState(false);
+  const [isCityStep, setIsCityStep] = useState(
+    () => new URLSearchParams(window.location.search).get("city") === "1",
+  );
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -330,8 +341,12 @@ export function OnboardingPage() {
 
 function OnboardingCitySelectionPage() {
   const [query, setQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState<StoredSelectedCity | null>(null);
-  const [hasExplicitCitySelection, setHasExplicitCitySelection] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<StoredSelectedCity | null>(
+    readExplicitlyStoredCity,
+  );
+  const [hasExplicitCitySelection, setHasExplicitCitySelection] = useState(
+    () => Boolean(readExplicitlyStoredCity()),
+  );
   const debouncedQuery = useDebouncedValue(query.trim(), 250);
 
   const {

@@ -395,7 +395,7 @@ export function DailyHotelRoomsSection() {
             onBack={() => setSheet(null)}
             onClose={() => setSheet(null)}
             panelPaddingClassName="pt-3"
-            showBackButton
+            showBackButton={false}
             showHandle
             showHeader
             showHeaderDivider

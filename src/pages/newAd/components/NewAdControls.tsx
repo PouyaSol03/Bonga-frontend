@@ -19,6 +19,7 @@ import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearInformation from "../../../shared/icons/LinearInformation";
+import LinearCancelSmall from "../../../shared/icons/LinearCancelSmall";
 
 export function Header({
   title,
@@ -212,7 +213,7 @@ export function Tag({
       className={className}
       onClick={onRemove}
       removable
-      removeIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
+      removeIcon={<LinearCancelSmall aria-hidden="true" className="h-5 w-5" />}
       selected
     >
       {label}
@@ -231,6 +232,7 @@ export function Chip({
 }) {
   return (
     <UiChip
+      className="flex-row-reverse"
       icon={
         <FeaturesIcons
           feature={item.label}

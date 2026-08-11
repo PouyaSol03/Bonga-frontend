@@ -55,39 +55,10 @@ const onboardingSteps = [
 
 const ONBOARDING_STEP_COUNT = onboardingSteps.length;
 const citySelectionImage = "/images/onboarding/sixth_image.png";
-const ONBOARDING_STACK_SIZE = 3;
-const ONBOARDING_LAYER_OFFSET = 40;
-const ONBOARDING_LAYER_WIDTHS = [100, 92, 84] as const;
-const onboardingDeckImages = [
-  ...onboardingSteps.map((step) => step.image),
-  citySelectionImage,
-] as const;
-
-type OnboardingDeckCard = {
-  depth: number;
-  imageIndex: number;
-  key: string;
-  src: string;
-};
-
-function getOnboardingDeckCards(stepIndex: number): OnboardingDeckCard[] {
-  const lastImageIndex = onboardingDeckImages.length - 1;
-
-  return Array.from({ length: ONBOARDING_STACK_SIZE }, (_, depth) => {
-    const requestedImageIndex = stepIndex + depth;
-    const imageIndex = Math.min(requestedImageIndex, lastImageIndex);
-
-    return {
-      depth,
-      imageIndex,
-      key:
-        requestedImageIndex <= lastImageIndex
-          ? `onboarding-card-${imageIndex}`
-          : `onboarding-tail-${requestedImageIndex}`,
-      src: onboardingDeckImages[imageIndex],
-    };
-  });
-}
+// Decorative layers behind the active onboarding image.
+// They are intentionally plain colors — no future-step images are rendered here.
+const ONBOARDING_SECOND_LAYER = "#c5d6f2"; // Primary / 16%
+const ONBOARDING_THIRD_LAYER = "#ebf1fa"; // Primary / 8%
 
 type SelectableCity = StoredSelectedCity & {
   key: string;
@@ -146,83 +117,104 @@ export function OnboardingPage() {
 
   const showCityStep = () => setIsCityStep(true);
 
+  const goToStep = (nextStepIndex: number) => {
+    if (nextStepIndex === stepIndex) return;
+    if (nextStepIndex < 0 || nextStepIndex >= ONBOARDING_STEP_COUNT) return;
+
+    setStepIndex(nextStepIndex);
+  };
+
   const goToNextStep = () => {
     if (stepIndex >= ONBOARDING_STEP_COUNT - 1) {
       showCityStep();
       return;
     }
 
-    setStepIndex((currentStep) => currentStep + 1);
+    goToStep(stepIndex + 1);
   };
 
   if (isCityStep) {
     return <OnboardingCitySelectionPage />;
   }
 
-  const visibleCards = getOnboardingDeckCards(stepIndex);
-
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
       <main className="min-h-0 flex-1 overflow-hidden px-4">
         <div className="mx-auto flex h-full w-full max-w-[500px] flex-col items-center">
           <div className="relative mt-0 h-[min(46dvh,390px)] min-h-[260px] w-full shrink-0">
-            <AnimatePresence initial={false}>
-              {[...visibleCards].reverse().map((card) => {
-                const isCurrent = card.depth === 0;
-                const targetY = card.depth * ONBOARDING_LAYER_OFFSET;
-                const targetWidth = ONBOARDING_LAYER_WIDTHS[card.depth];
-                const targetInset = (100 - targetWidth) / 2;
-                const enteringDepth = Math.min(card.depth + 1, ONBOARDING_STACK_SIZE - 1);
-                const enteringWidth = ONBOARDING_LAYER_WIDTHS[enteringDepth];
-                const enteringInset = (100 - enteringWidth) / 2;
+            {/*
+              The front card stays in normal flow so its image defines the stack height.
+              The two colored cards copy that exact height and are translated down
+              by 10px and 20px. No shared bottom edge, so both offsets stay visible.
+            */}
+            <div className="relative w-full">
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-0 left-[8%] right-[8%] z-0 translate-y-[20px] rounded-3xl"
+                style={{ backgroundColor: ONBOARDING_THIRD_LAYER }}
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-0 left-[4%] right-[4%] z-10 translate-y-[10px] rounded-3xl"
+                style={{ backgroundColor: ONBOARDING_SECOND_LAYER }}
+              />
 
-                return (
-                  <motion.div
-                    key={card.key}
-                    aria-hidden="true"
-                    className="absolute top-0 [backface-visibility:hidden] will-change-[transform,opacity,left,right]"
-                    initial={
-                      shouldReduceMotion || card.depth < ONBOARDING_STACK_SIZE - 1
-                        ? false
-                        : {
-                          left: `${enteringInset}%`,
-                          right: `${enteringInset}%`,
-                          opacity: 0,
-                          y: targetY + ONBOARDING_LAYER_OFFSET,
+              {/*
+                Only the active/front card contains an image. On every page change
+                the new card starts exactly where the Primary/16 layer sits
+                (92% width + 10px lower), then grows/moves into the front position.
+                This makes it feel like the next card is physically coming from behind.
+              */}
+              <AnimatePresence initial={false} mode="wait">
+                <motion.div
+                  key={stepIndex}
+                  aria-hidden="true"
+                  className="relative z-20 w-full origin-top overflow-hidden rounded-3xl bg-white [backface-visibility:hidden] will-change-[transform,opacity]"
+                  initial={
+                    shouldReduceMotion
+                      ? false
+                      : {
+                          opacity: 0.72,
+                          y: 10,
+                          scaleX: 0.92,
+                          scaleY: 0.985,
                         }
+                  }
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scaleX: 1,
+                    scaleY: 1,
+                  }}
+                  exit={
+                    shouldReduceMotion
+                      ? { opacity: 0 }
+                      : {
+                          opacity: 0,
+                          y: -18,
+                          scaleX: 1.015,
+                          scaleY: 1.005,
+                        }
+                  }
+                  transition={{
+                    duration: shouldReduceMotion ? 0.01 : 0.34,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <img
+                    alt=""
+                    className={
+                      onboardingSteps[stepIndex].image.includes("third_image.png")
+                        ? "block h-auto w-full origin-top object-contain object-top"
+                        : "block h-auto w-full object-contain object-top"
                     }
-                    animate={{
-                      left: `${targetInset}%`,
-                      right: `${targetInset}%`,
-                      opacity: 1,
-                      y: targetY,
-                    }}
-                    exit={
-                      shouldReduceMotion
-                        ? { opacity: 0 }
-                        : { opacity: 0, y: -6 }
-                    }
-                    transition={{
-                      duration: shouldReduceMotion ? 0.01 : isCurrent ? 0.24 : 0.3,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    style={{ zIndex: 100 - card.depth }}
-                  >
-                    <img
-                      alt=""
-                      className={
-                        card.src.includes("third_image.png")
-                          ? "block h-auto w-full origin-top scale-[1] w-full object-contain object-top"
-                          : "block h-auto w-full object-contain object-top"
-                      }
-                      decoding="async"
-                      draggable={false}
-                      src={card.src}
-                    />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+                    decoding="async"
+                    draggable={false}
+                    src={onboardingSteps[stepIndex].image}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="relative mt-6 min-h-[150px] w-full max-w-[328px] text-center">
@@ -272,22 +264,32 @@ export function OnboardingPage() {
           </div>
 
           <div
-            className="mt-auto mb-5 flex h-2 items-center justify-center gap-2 [direction:ltr]"
+            className="mt-[40px] mb-5 flex h-6 items-center justify-center gap-2 [direction:ltr]"
             aria-label={`مرحله ${stepIndex + 1} از ${ONBOARDING_STEP_COUNT}`}
+            role="group"
           >
-            {Array.from({ length: ONBOARDING_STEP_COUNT }).map((_, index) => (
-              <motion.span
-                aria-hidden="true"
-                className={
-                  index === stepIndex
-                    ? "h-2 rounded-full bg-[#0048c4]"
-                    : "h-2 rounded-full bg-[#d8e3f7]"
-                }
-                animate={{ width: index === stepIndex ? 24 : 8 }}
-                transition={{ duration: shouldReduceMotion ? 0.01 : 0.2 }}
-                key={index}
-              />
-            ))}
+            {Array.from({ length: ONBOARDING_STEP_COUNT }).map((_, index) => {
+              const isActive = index === stepIndex;
+
+              return (
+                <motion.button
+                  aria-label={`رفتن به مرحله ${index + 1}`}
+                  aria-current={isActive ? "step" : undefined}
+                  className={
+                    isActive
+                      ? "h-2 cursor-pointer rounded-full border-0 bg-[#0048c4] p-0 outline-none focus-visible:ring-2 focus-visible:ring-[#0048c4]/30 focus-visible:ring-offset-2"
+                      : "h-2 cursor-pointer rounded-full border-0 bg-[#d8e3f7] p-0 outline-none focus-visible:ring-2 focus-visible:ring-[#0048c4]/30 focus-visible:ring-offset-2"
+                  }
+                  animate={{ width: isActive ? 24 : 8 }}
+                  whileHover={shouldReduceMotion ? undefined : { scale: 1.12 }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.92 }}
+                  transition={{ duration: shouldReduceMotion ? 0.01 : 0.2 }}
+                  key={index}
+                  onClick={() => goToStep(index)}
+                  type="button"
+                />
+              );
+            })}
           </div>
         </div>
       </main>
@@ -297,6 +299,11 @@ export function OnboardingPage() {
           <Button
             className="h-10 flex-1 rounded-[10px]"
             onClick={goToNextStep}
+            onMouseDown={(event) => {
+              // Prevent mouse clicks from leaving the button in its focus background state.
+              // Keyboard focus is unaffected because this only runs for mouse interaction.
+              event.preventDefault();
+            }}
             size="x-medium"
             leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}
             type="button"
@@ -389,25 +396,34 @@ function OnboardingCitySelectionPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0">
         <div className="mx-auto flex w-full max-w-[500px] flex-col items-center">
           <div className="relative h-[min(42dvh,360px)] min-h-[250px] w-full shrink-0">
-            <div
-              aria-hidden="true"
-              className="absolute bottom-0 left-[8%] right-[8%] h-[165px] rounded-3xl bg-[#0048c4]/8"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute bottom-2.5 left-[4%] right-[4%] h-[165px] rounded-3xl bg-[#0048c4]/16"
-            />
-            <img
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-x-0 top-0 block h-auto w-full object-contain object-top"
-              decoding="async"
-              draggable={false}
-              src={citySelectionImage}
-            />
+            <div className="relative w-full">
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-0 left-[8%] right-[8%] z-0 translate-y-[20px] rounded-3xl"
+                style={{ backgroundColor: ONBOARDING_THIRD_LAYER }}
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-0 left-[4%] right-[4%] z-10 translate-y-[10px] rounded-3xl"
+                style={{ backgroundColor: ONBOARDING_SECOND_LAYER }}
+              />
+
+              <div
+                aria-hidden="true"
+                className="relative z-20 w-full overflow-hidden rounded-3xl bg-white"
+              >
+                <img
+                  alt=""
+                  className="block h-auto w-full object-contain object-top"
+                  decoding="async"
+                  draggable={false}
+                  src={citySelectionImage}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="mt-8 w-full max-w-[328px] text-center">
+          <div className="mt-18 w-full max-w-[328px] text-center">
             <Typography
               as="h1"
               className="m-0 text-[#1a1a1a]"
@@ -511,7 +527,7 @@ function OnboardingCitySelectionPage() {
           disabled={!selectedCity}
           onClick={start}
           size="x-medium"
-          leadingIcon={<LinearArrowLeft1 className="h-5 w-5" />}
+          leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}
           type="button"
           variant="primary"
         >

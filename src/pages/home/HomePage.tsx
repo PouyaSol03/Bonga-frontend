@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import "./homeArtwork.css";
 
-import { AdCard } from "../../shared/components/AdCard";
 
 import { CategoryBottomSheet } from "./components/CategoryBottomSheet";
 import { HomeSearchScreen } from "./components/HomeSearchScreen";
@@ -11,14 +10,12 @@ import ShenasaVector from "../../shared/assets/icons/ShenasaVector";
 import IranShenasaTypo from "../../shared/assets/icons/IranShenasaTypo";
 import { BusinessFeatureSection } from "./components/BusinessFeatureSection";
 import { HomeStatsSection } from "./components/HomeStatsSection";
+import { TrustedPartnersSection } from "./components/TrustedPartnersSection";
+import { PopularAdsSection } from "./components/PopularAdsSection";
 
 import { getApiErrorMessage } from "../../core/api/api";
-import { useAdvertisementInfiniteQuery } from "../../core/hooks/advertisement.hooks";
 import { useCategoryListQuery } from "../../core/hooks/category.hooks";
 import { useNotificationUnreadCountQuery } from "../../core/hooks/notification.hooks";
-import {
-  mapAdvertisementToAdCard,
-} from "../../core/services/advertisement.service";
 import type { CategoryItem } from "../../core/services/category.service";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { getStoredAuthSession } from "../../core/auth/auth-storage";
@@ -157,42 +154,13 @@ function getStoredCity(): SelectedCity {
   };
 }
 
-function HomeAdCardSkeleton() {
-  return (
-    <article className="overflow-hidden bg-white">
-      <div className="p-4 pb-3">
-        <div className="aspect-[328/219] w-full rounded-2xl bg-[#f0f0f0]" />
-
-        <div className="mt-3 flex">
-          <div className="h-6 w-44 rounded-full bg-[#f0f0f0]" />
-        </div>
-
-        <div className="mt-3 flex items-center justify-start gap-7">
-          <div className="h-5 w-20 rounded-full bg-[#f0f0f0]" />
-          <div className="h-5 w-20 rounded-full bg-[#f0f0f0]" />
-          <div className="h-5 w-20 rounded-full bg-[#f0f0f0]" />
-        </div>
-
-        <div className="mt-4 h-5 w-full rounded-full bg-[#f0f0f0]" />
-
-        <div className="mt-4 flex justify-start">
-          <div className="h-6 w-44 rounded-full bg-[#f0f0f0]" />
-        </div>
-      </div>
-    </article>
-  );
-}
-
 export function HomePage() {
   const hasAuthSession = Boolean(getStoredAuthSession());
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
   );
-  const [selectedFormCode, setSelectedFormCode] = useState("");
-
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedCity] = useState(getStoredCity);
-  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const {
     data: categories = [],
     error: categoryError,
@@ -200,20 +168,6 @@ export function HomePage() {
     isLoading: isCategoryLoading,
     refetch: refetchCategories,
   } = useCategoryListQuery();
-  const {
-    data: advertisementPages,
-    error: advertisementError,
-    fetchNextPage,
-    hasNextPage,
-    isError: isAdvertisementError,
-    isFetchingNextPage,
-    isLoading: isAdvertisementLoading,
-    refetch: refetchAdvertisements,
-  } = useAdvertisementInfiniteQuery({
-    cityId: selectedCity.id,
-    filters: selectedFormCode ? { formCode: selectedFormCode } : undefined,
-    perPage: 10,
-  });
   const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery({
     enabled: hasAuthSession,
   });
@@ -225,45 +179,8 @@ export function HomePage() {
 
     return [...apiCategories, consultantCategory];
   }, [categories]);
-  const advertisements = useMemo(
-    () =>
-      advertisementPages?.pages.flatMap((page, pageIndex) =>
-        page.data.map((ad, adIndex) =>
-          mapAdvertisementToAdCard(ad, pageIndex * 10 + adIndex),
-        ),
-      ) ?? [],
-    [advertisementPages],
-  );
-
-  const loadMoreTriggerIndex = Math.max(advertisements.length - 3, 0);
-
   const isCategorySheetOpen = selectedCategory !== null;
-  const pageError = categoryError ?? advertisementError;
-  const PageErrorState = getRequestErrorState(pageError);
-
-  const loadMoreSentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      loadMoreObserverRef.current?.disconnect();
-      loadMoreObserverRef.current = null;
-
-      if (!node || !hasNextPage || isFetchingNextPage) {
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-            void fetchNextPage();
-          }
-        },
-        { root: null, rootMargin: "240px 0px", threshold: 0 },
-      );
-
-      observer.observe(node);
-      loadMoreObserverRef.current = observer;
-    },
-    [fetchNextPage, hasNextPage, isFetchingNextPage],
-  );
+  const PageErrorState = getRequestErrorState(categoryError);
 
   const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
@@ -306,16 +223,13 @@ export function HomePage() {
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-  if (isCategoryError || isAdvertisementError) {
+  if (isCategoryError) {
     return (
       <div className="fixed inset-0 z-[999] bg-white">
         <PageErrorState
           className="h-full"
           onRetry={async () => {
-            await Promise.all([
-              isCategoryError ? refetchCategories() : Promise.resolve(),
-              isAdvertisementError ? refetchAdvertisements() : Promise.resolve(),
-            ]);
+            await refetchCategories();
           }}
         />
       </div>
@@ -370,7 +284,7 @@ export function HomePage() {
         </section>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[96px] [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[64px] [-webkit-overflow-scrolling:touch]">
         <section
           className="flex w-full flex-col gap-5 bg-white px-4 pb-5 pt-2 min-[390px]:gap-7 min-[390px]:pb-6"
           aria-label="جستجوی ملک"
@@ -451,73 +365,9 @@ export function HomePage() {
 
         <HomeStatsSection />
 
-        <section
-          className="flex flex-col gap-4 border-t-[16px] border-[#f0f0f0] bg-white pt-4"
-          aria-labelledby="latest-mashhad-title"
-        >
-          <div className="flex items-center justify-start px-4">
-            <Typography as="h2" variant="title" size="medium" weight="semibold"
-              className="m-0 text-right text-sm font-bold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
-              id="latest-mashhad-title"
-            >
-              آخرین آگهی‌های {selectedCity.name}
-            </Typography>
-          </div>
+        <TrustedPartnersSection />
 
-          <div className="flex flex-col gap-3 bg-[#f0f0f0]">
-            {isAdvertisementLoading &&
-              Array.from({ length: 3 }).map((_, index) => (
-                <HomeAdCardSkeleton key={index} />
-              ))}
-
-            {!isAdvertisementLoading &&
-              advertisements.map((ad, index) => {
-                const shouldAttachLoadMoreRef =
-                  index === loadMoreTriggerIndex &&
-                  hasNextPage &&
-                  !isFetchingNextPage;
-
-                return (
-                  <div
-                    key={ad.id}
-                    ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
-                  >
-                    <AdCard ad={ad} />
-                  </div>
-                );
-              })}
-
-            {false && (
-              <>
-                <PageErrorState
-                  className="min-h-[420px]"
-                  onRetry={() => undefined}
-                />
-                <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">
-                  {getApiErrorMessage(advertisementError, "دریافت آگهی‌ها با خطا مواجه شد.")}
-                </Typography>
-              </>
-            )}
-
-            {!isAdvertisementLoading && !isAdvertisementError && advertisements.length === 0 && (
-              <div className="mx-auto w-full bg-white px-4 py-8 text-center text-sm font-medium text-[#808080]">
-                آگهی‌ای برای این شهر یافت نشد.
-              </div>
-            )}
-
-            {false && (
-              <div className="bg-white px-4 py-4 text-right text-xs font-medium text-red-600">
-                {getApiErrorMessage(advertisementError, "دریافت آگهی‌ها با خطا مواجه شد.")}
-              </div>
-            )}
-
-
-            {isFetchingNextPage &&
-              Array.from({ length: 2 }).map((_, index) => (
-                <HomeAdCardSkeleton key={`next-page-skeleton-${index}`} />
-              ))}
-          </div>
-        </section>
+        <PopularAdsSection cityId={selectedCity.id} />
       </main>
 
       <CategoryBottomSheet
@@ -532,7 +382,6 @@ export function HomePage() {
 
           const formCode = getCategorySelectionFormCode(category, selectedCategory);
 
-          setSelectedFormCode(formCode);
           navigateToSearch({ formCode });
         }}
       />

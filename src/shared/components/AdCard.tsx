@@ -32,7 +32,15 @@ export type AdCardData = {
   badges: string[]
 }
 
-type AdCardVariant = 'standard' | 'dashboard' | 'requestResult' | 'mapPreview'
+type AdCardVariant = 'standard' | 'dashboard' | 'requestResult' | 'mapPreview' | 'carousel'
+
+const AD_CARD_TITLE_MAX_LENGTH = 50
+
+function getCardTitle(title: string) {
+  if (title.length <= AD_CARD_TITLE_MAX_LENGTH) return title
+
+  return `${title.slice(0, AD_CARD_TITLE_MAX_LENGTH - 1).trimEnd()}…`
+}
 
 type AdCardProps = {
   ad: AdCardData
@@ -123,7 +131,7 @@ export function AdCard({
         <PropertyRow className="mt-1.5 min-h-6 flex-wrap gap-3 text-[13px]" ad={ad} />
 
         <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-[#1a1a1a]">
-          {ad.title}
+          {getCardTitle(ad.title)}
         </Typography>
       </RouteLink>
     )
@@ -170,6 +178,7 @@ export function AdCard({
   }
 
   const isDashboard = variant === 'dashboard'
+  const isCarousel = variant === 'carousel'
 
   return (
     <RouteLink
@@ -178,7 +187,15 @@ export function AdCard({
       state={linkState}
       to={to}
     >
-      <article className={isDashboard ? 'flex min-w-0 flex-col gap-4 text-right' : 'flex flex-col bg-white px-4 py-4 text-right [direction:rtl]'}>
+      <article
+        className={
+          isDashboard
+            ? 'flex min-w-0 flex-col gap-4 text-right'
+            : isCarousel
+              ? 'flex min-w-0 flex-col text-right [direction:rtl]'
+              : 'flex flex-col bg-white px-4 py-4 text-right [direction:rtl]'
+        }
+      >
         <AdCardImage
           ad={ad}
           className={isDashboard ? 'h-[224px] w-auto' : undefined}
@@ -264,7 +281,7 @@ function AdCardBody({
       <PropertyRow className="mt-3 h-5 gap-[22px] text-sm" ad={ad} />
 
       <Typography as="p" variant="body" size="medium" weight="medium" className="mt-3 text-[#1a1a1a]">
-        {ad.title}
+        {getCardTitle(ad.title)}
       </Typography>
 
       <div className="mt-3 flex h-6 items-center justify-start gap-2">

@@ -1,5 +1,6 @@
 import { pushRoute } from "../../../app/router/navigation";
 import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
+import LinearCrm from "../../../shared/icons/LinearCrm";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -7,22 +8,9 @@ function CrmBadgeIcon() {
   return (
     <div
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#4B507014] text-[#4B5070]"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8 text-secondary"
     >
-      <svg
-        className="h-8 w-8"
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M19.375 20.833 21.25 25M16 25v-5M16 20v-5h3.5a2.5 2.5 0 0 1 0 5H16Zm19 5V15l-4 5.667L27 15v10M11 17c-.556-1.196-1.595-2-2.785-2C6.44 15 5 16.79 5 19v2c0 2.21 1.44 4 3.215 4 1.19 0 2.229-.804 2.785-2M10 31.18A14.93 14.93 0 0 0 20 35a14.93 14.93 0 0 0 10-3.82L26.667 30M30 8.82A14.93 14.93 0 0 0 20 5a14.93 14.93 0 0 0-10 3.82L13.333 10"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <LinearCrm className="w-8 h-8"/>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import LinearAnalystic from "../../../shared/icons/LinearAnalystic";
 import { Typography } from "../../../shared/ui/Typography";
 
 const stats = [
@@ -11,22 +12,9 @@ function StatsPieIcon() {
   return (
     <div
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8 text-on-surface-var"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8 text-secondary"
     >
-      <svg
-        className="h-8 w-8"
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M16.046 8.6667C11.361 10.301 8 14.7579 8 20C8 26.6274 13.373 32 20 32C25.225 32 29.67 28.6608 31.317 24M20 8C26.627 8 32 13.3726 32 20H20V8Z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <LinearAnalystic className="w-8 h-8"/>
     </div>
   );
 }

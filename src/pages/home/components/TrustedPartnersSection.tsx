@@ -117,7 +117,7 @@ export function TrustedPartnersSection() {
           {agenciesQuery.isLoading ? (
             <DirectoryCardSkeleton layout="carousel" />
           ) : (
-            partners.map((partner, index) => (
+            partners.map((partner) => (
               <div
                 key={partner.id}
                 data-trusted-partner-slide

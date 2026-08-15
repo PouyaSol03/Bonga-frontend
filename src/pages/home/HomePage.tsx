@@ -9,7 +9,8 @@ import type { CategoryOption, QuickAction } from "./homeTypes";
 import ArrowDown from "../../shared/assets/icons/ArrowDown";
 import ShenasaVector from "../../shared/assets/icons/ShenasaVector";
 import IranShenasaTypo from "../../shared/assets/icons/IranShenasaTypo";
-import { BusinessBanner } from "./components/BusinessBanner";
+import { BusinessFeatureSection } from "./components/BusinessFeatureSection";
+import { HomeStatsSection } from "./components/HomeStatsSection";
 
 import { getApiErrorMessage } from "../../core/api/api";
 import { useAdvertisementInfiniteQuery } from "../../core/hooks/advertisement.hooks";
@@ -100,27 +101,6 @@ function getCategorySelectionFormCode(category: CategoryOption | QuickAction | u
 function isConsultantsCategory(item: QuickAction) {
   return item.code === "consultants" || item.label.includes("مشاور");
 }
-
-const businessBannerSlides = [
-  {
-    eyebrow: "سامانه کسب و کار",
-    title: "آژانس‌های املاک",
-    buttonText: "بیشتر بدانید",
-    to: "/account/about",
-  },
-  {
-    eyebrow: "سامانه کسب و کار",
-    title: "مشاوران مستقل",
-    buttonText: "بیشتر بدانید",
-    to: "/account/dashboard",
-  },
-  {
-    eyebrow: "سامانه کسب و کار",
-    title: "مدیریت آگهی‌ها",
-    buttonText: "بیشتر بدانید",
-    to: "/account/manage-ads",
-  },
-];
 
 const consultantCategory: QuickAction = {
   code: "consultants",
@@ -467,7 +447,9 @@ export function HomePage() {
           )}
         </section>
 
-        <BusinessBanner slides={businessBannerSlides} />
+        <BusinessFeatureSection />
+
+        <HomeStatsSection />
 
         <section
           className="flex flex-col gap-4 border-t-[16px] border-[#f0f0f0] bg-white pt-4"

@@ -48,6 +48,7 @@ export const queryKeys = {
         filters.page,
         filters.perPage,
       ] as const,
+    trusted: () => [...queryKeys.agencies.all, "trusted"] as const,
     publicAgents: (filters: {
       agencyId?: number | string;
       page?: number;

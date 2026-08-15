@@ -848,6 +848,16 @@ export async function getPublicAgents({
   };
 }
 
+export async function getPublicTrustedAgencies(): Promise<PublicAgencyDto[]> {
+  const response = await publicApi
+    .get("public/agencies/trusted")
+    .json<PublicAgencyApiResponse>();
+
+  return (response.data ?? [])
+    .map(normalizeAgency)
+    .filter((item): item is PublicAgencyDto => Boolean(item));
+}
+
 export async function getPublicAgencies({
   neighborhoodId,
   page = 1,

@@ -78,6 +78,7 @@ export type CrmUserFilters = {
 
 export type CrmAgencyFilters = {
   name?: string;
+  trusted?: boolean;
 };
 
 export type CrmCityFilters = {
@@ -462,6 +463,7 @@ export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
     page: 1,
     per_page: 50,
     name: filters.name?.trim(),
+    trusted: filters.trusted,
   };
 
   return normalizeRows(
@@ -475,6 +477,14 @@ export function updateCrmAgencyStatus(id: string, status: CrmAgencyReviewStatus)
   return api
     .post(`panel/agency/update/${id}`, {
       json: { status },
+    })
+    .json<unknown>();
+}
+
+export function setCrmAgencyTrusted(id: string, isTrusted: boolean) {
+  return api
+    .post(`panel/agency/trusted/${encodeURIComponent(id)}`, {
+      json: { is_trusted: isTrusted },
     })
     .json<unknown>();
 }

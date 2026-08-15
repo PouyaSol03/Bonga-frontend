@@ -1,19 +1,11 @@
 import { useMemo, useRef, useState, type UIEvent } from "react";
 
 import { pushRoute } from "../../../app/router/navigation";
-import { useAgencyInfiniteQuery } from "../../../core/hooks/agency.hooks";
+import { useTrustedAgenciesQuery } from "../../../core/hooks/agency.hooks";
 import { DirectoryCard, DirectoryCardSkeleton } from "../../consultants/components/DirectoryCard";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearMedalFirst from "../../../shared/icons/LinearMedalFirst";
-
-const REFERENCE_PARTNER = {
-  id: "reference-don-tama",
-  logo: "/images/home/trusted-partner-don-tama.png",
-  name: "املاک تمدن",
-  rank: 12,
-  score: 85,
-};
 
 const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
 
@@ -38,17 +30,12 @@ function TrustedBadgeIcon() {
 export function TrustedPartnersSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const agenciesQuery = useAgencyInfiniteQuery({
-    perPage: 7,
-    sort: "score",
-  });
+  const agenciesQuery = useTrustedAgenciesQuery();
 
-  const remotePartners = useMemo(
-    () => agenciesQuery.data?.pages.flatMap((page) => page.data).slice(0, 7) ?? [],
+  const partners = useMemo(
+    () => agenciesQuery.data ?? [],
     [agenciesQuery.data],
   );
-  const useReferenceFallback = !agenciesQuery.isLoading && remotePartners.length === 0;
-  const partners = useReferenceFallback ? [REFERENCE_PARTNER] : remotePartners;
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const viewport = event.currentTarget;
@@ -83,6 +70,10 @@ export function TrustedPartnersSection() {
 
     slide?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" });
   };
+
+  if (!agenciesQuery.isLoading && partners.length === 0) {
+    return null;
+  }
 
   return (
     <section
@@ -141,11 +132,7 @@ export function TrustedPartnersSection() {
                   }}
                   layout="carousel"
                   mode="agency"
-                  onClick={
-                    useReferenceFallback && index === 0
-                      ? undefined
-                      : () => pushRoute(`/agencies/${encodeURIComponent(partner.id)}`)
-                  }
+                  onClick={() => pushRoute(`/agencies/${encodeURIComponent(partner.id)}`)}
                 />
               </div>
             ))
@@ -184,20 +171,7 @@ export function TrustedPartnersSection() {
             );
           })}
         </div>
-      ) : (
-        <div
-          className="mt-6 flex h-2 items-center justify-center gap-2 [direction:ltr]"
-          aria-hidden="true"
-        >
-          <span className="h-2 w-6 rounded-full bg-on-surface-var" />
-          <span className="h-2 w-2 rounded-full bg-on-surface-var/16" />
-          <span className="h-2 w-2 rounded-full bg-on-surface-var/16" />
-          <span className="h-2 w-2 rounded-full bg-on-surface-var/16" />
-          <span className="h-2 w-2 rounded-full bg-on-surface-var/16" />
-          <span className="h-1.5 w-1.5 rounded-full bg-on-surface-var/16" />
-          <span className="h-1 w-1 rounded-full bg-on-surface-var/16" />
-        </div>
-      )}
+      ) : null}
     </section>
   );
 }

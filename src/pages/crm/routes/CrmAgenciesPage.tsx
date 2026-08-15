@@ -1,22 +1,36 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, updateCrmAgencyStatus, updateCrmConsultant } from "../../../core/services/crm.service";
+import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, setCrmAgencyTrusted, updateCrmAgencyStatus, updateCrmConsultant } from "../../../core/services/crm.service";
 import { getApiErrorMessage } from "../../../core/api/api";
 import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, consultantApiIdentifier, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { SwitchButton } from "../../../shared/components/SwitchButton";
+
+type TrustedAgencyFilter = "" | "true" | "false";
+
+function isTrustedAgency(agency: CrmRecord) {
+  return (
+    agency.is_trusted === true ||
+    agency.is_trusted === 1 ||
+    agency.is_trusted === "1" ||
+    agency.is_trusted === "true"
+  );
+}
 
 export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
+  const [trustedFilter, setTrustedFilter] = useState<TrustedAgencyFilter>("");
   const filterName = name.trim();
+  const trusted = trustedFilter === "" ? undefined : trustedFilter === "true";
   const [agentsAgency, setAgentsAgency] = useState<CrmRecord | null>(null);
   const [agentEditor, setAgentEditor] = useState<EditorState | null>(null);
 
   const query = useQuery({
-    queryFn: () => listCrmAgencies({ name: filterName }),
-    queryKey: ["crm", "agencies", filterName, refreshNonce],
+    queryFn: () => listCrmAgencies({ name: filterName, trusted }),
+    queryKey: ["crm", "agencies", filterName, trustedFilter, refreshNonce],
   });
   const agencyAgentsQuery = useQuery({
     enabled: Boolean(agentsAgency),
@@ -37,6 +51,18 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
       await queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] });
       await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "agencies"] });
       notify("وضعیت آژانس به‌روزرسانی شد.");
+    },
+  });
+
+  const trustedMutation = useMutation({
+    mutationFn: ({ id, isTrusted }: { id: string; isTrusted: boolean }) =>
+      setCrmAgencyTrusted(id, isTrusted),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] }),
+        queryClient.invalidateQueries({ queryKey: ["agencies"] }),
+      ]);
+      notify("فهرست آژانس‌های مورد اعتماد به‌روزرسانی شد.");
     },
   });
 
@@ -112,11 +138,24 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
           <FilterField label="نام آژانس">
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="جستجوی نام" value={name} />
           </FilterField>
-          {name ? (
+          <FilterField label="مورد اعتماد">
+            <CrmSelect
+              aria-label="فیلتر آژانس‌های مورد اعتماد"
+              className={inputClassName}
+              onChange={(event) => setTrustedFilter(event.target.value as TrustedAgencyFilter)}
+              value={trustedFilter}
+            >
+              <option value="">همه</option>
+              <option value="true">مورد اعتماد</option>
+              <option value="false">غیر مورد اعتماد</option>
+            </CrmSelect>
+          </FilterField>
+          {name || trustedFilter ? (
             <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setName("");
+                setTrustedFilter("");
               }}
               type="button"
             >
@@ -132,19 +171,23 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 <TableHead>نام آژانس</TableHead>
                 <TableHead>شماره تماس</TableHead>
                 <TableHead>وضعیت</TableHead>
+                <TableHead>مورد اعتماد</TableHead>
                 <TableHead>موقعیت</TableHead>
                 <TableHead>عملیات</TableHead>
               </tr>
             </thead>
             <tbody>
               {query.isLoading ? (
-                <TableLoadingRows columns={5} rows={6} />
+                <TableLoadingRows columns={6} rows={6} />
               ) : query.data?.length ? (
                 query.data.map((agency) => {
                   const id = getCrmRecordId(agency);
                   const normalizedStatus = normalizeAgencyStatus(agency.status);
+                  const trustedAgency = isTrustedAgency(agency);
                   const isUpdatingThisAgency =
                     statusMutation.isPending && statusMutation.variables?.id === id;
+                  const isUpdatingTrustedAgency =
+                    trustedMutation.isPending && trustedMutation.variables?.id === id;
 
                   return (
                     <tr key={id}>
@@ -176,6 +219,24 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                           <option className="bg-white text-[#cc3342]" style={{ backgroundColor: "#ffffff", color: "#cc3342" }} value="reject">رد شده</option>
                         </CrmSelect>
                       </TableCell>
+                      <TableCell>
+                        <SwitchButton
+                          ariaLabel={`مورد اعتماد ${readText(agency, ["name"])}`}
+                          checked={trustedAgency}
+                          disabled={
+                            !id ||
+                            isUpdatingTrustedAgency ||
+                            (!trustedAgency && normalizedStatus !== "accept")
+                          }
+                          onChange={async (nextTrusted) => {
+                            try {
+                              await trustedMutation.mutateAsync({ id, isTrusted: nextTrusted });
+                            } catch (error) {
+                              notify(getApiErrorMessage(error, "به‌روزرسانی آژانس مورد اعتماد ناموفق بود."), "error");
+                            }
+                          }}
+                        />
+                      </TableCell>
                       <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</Typography></TableCell>
                       <TableCell>
                         <SmallActionButton
@@ -188,7 +249,7 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   );
                 })
               ) : (
-                <SearchTableEmptyRow columns={5} />
+                <SearchTableEmptyRow columns={6} />
               )}
             </tbody>
           </table>

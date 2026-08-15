@@ -8,6 +8,7 @@ import {
   getMyAgencyConsultant,
   getMyAgencyConsultants,
   getPublicAgencies,
+  getPublicTrustedAgencies,
   getPublicAgencyDetail,
   getPublicAgents,
   getPublicAgentDetail,
@@ -128,6 +129,14 @@ export function usePublicAgentDetailQuery({
     enabled: enabled && id !== undefined && String(id).trim().length > 0,
     queryFn: () => getPublicAgentDetail(id as number | string),
     queryKey: [...queryKeys.agencies.all, "public-agent-detail", String(id ?? "")],
+  });
+}
+
+export function useTrustedAgenciesQuery({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({
+    enabled,
+    queryFn: getPublicTrustedAgencies,
+    queryKey: queryKeys.agencies.trusted(),
   });
 }
 

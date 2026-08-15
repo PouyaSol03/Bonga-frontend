@@ -141,6 +141,13 @@ type AdvertisementListResponse =
   }
   | AdvertisementItem[];
 
+type TopViewedAdvertisementsResponse =
+  | {
+    data?: AdvertisementItem[];
+    status?: boolean;
+  }
+  | AdvertisementItem[];
+
 type AdvertisementShowResponse = {
   data: AdvertisementItem;
   status: boolean;
@@ -586,6 +593,14 @@ export function mapAdvertisementToAdCard(
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: formatBuildingAge(buildingAge),
   };
+}
+
+export async function getTopViewedAdvertisements(): Promise<AdvertisementItem[]> {
+  const response = await publicApi
+    .get("public/advertise/top-viewed")
+    .json<TopViewedAdvertisementsResponse>();
+
+  return Array.isArray(response) ? response : response.data ?? [];
 }
 
 export async function getAdvertisementList({

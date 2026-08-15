@@ -10,6 +10,7 @@ import {
   getAdvertisementDetail,
   getAdvertisementList,
   getAdvertisementMap,
+  getTopViewedAdvertisements,
   getAdvertiseFormDefinition,
   getMyAdvertisementDetail,
   getAdvertisementPreview,
@@ -50,6 +51,13 @@ export function useAdvertisementInfiniteQuery({
         perPage,
       }),
     queryKey: queryKeys.advertisements.list({ cityId, filters, perPage }),
+  });
+}
+
+export function useTopViewedAdvertisementsQuery() {
+  return useQuery({
+    queryFn: getTopViewedAdvertisements,
+    queryKey: queryKeys.advertisements.topViewed(),
   });
 }
 

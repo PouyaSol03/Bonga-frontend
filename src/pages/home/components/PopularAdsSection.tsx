@@ -1,13 +1,13 @@
 import { useMemo, useRef, useState, type UIEvent } from "react";
 
-import { useAdvertisementInfiniteQuery } from "../../../core/hooks/advertisement.hooks";
+import { useTopViewedAdvertisementsQuery } from "../../../core/hooks/advertisement.hooks";
 import { mapAdvertisementToAdCard } from "../../../core/services/advertisement.service";
 import { AdCard } from "../../../shared/components/AdCard";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearAnalytics from "../../../shared/icons/LinearAnalytics";
 
-const MAX_POPULAR_ADS = 7;
+const MAX_POPULAR_ADS = 10;
 
 function PopularAdsIcon() {
   return (
@@ -43,27 +43,17 @@ type PopularAdsSectionProps = {
   cityId?: string;
 };
 
-export function PopularAdsSection({ cityId }: PopularAdsSectionProps) {
+export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
-  const advertisementsQuery = useAdvertisementInfiniteQuery({
-    cityId,
-    perPage: MAX_POPULAR_ADS,
-  });
+  const advertisementsQuery = useTopViewedAdvertisementsQuery();
 
   const advertisements = useMemo(
     () =>
-      advertisementsQuery.data?.pages
-        .flatMap((page, pageIndex) =>
-          page.data.map((ad, adIndex) =>
-            mapAdvertisementToAdCard(
-              ad,
-              pageIndex * MAX_POPULAR_ADS + adIndex,
-            ),
-          ),
-        )
-        .slice(0, MAX_POPULAR_ADS) ?? [],
+      (advertisementsQuery.data ?? [])
+        .map((ad, index) => mapAdvertisementToAdCard(ad, index))
+        .slice(0, MAX_POPULAR_ADS),
     [advertisementsQuery.data],
   );
 

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
+import { replaceRoute } from "../../app/router/navigation";
+
 import { useCitySearchQuery, useMostVisitedCityListQuery } from "../../core/hooks/city.hooks";
 import { useDebouncedValue } from "../../core/hooks/useDebouncedValue";
 import type { CityDto } from "../../core/services/city.service";
@@ -94,8 +96,7 @@ function dedupeCities(cities: CityDto[]) {
 }
 
 function goHome() {
-  window.history.replaceState(window.history.state ?? {}, "", "/home");
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  replaceRoute("/home", undefined, { rememberCurrent: false });
 }
 
 function readExplicitlyStoredCity() {

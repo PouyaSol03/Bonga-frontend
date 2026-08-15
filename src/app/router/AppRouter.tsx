@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../core/auth/auth-storage'
 import { MobileAppShell } from '../layout/MobileAppShell'
 import { PageFrame } from '../layout/PageFrame'
@@ -28,10 +28,12 @@ import {
 } from './routes'
 import LinearUserAccount from '../../shared/icons/LinearUserAccount'
 import type { CrmRoutePageProps } from '../../pages/crm/CrmLayout'
-import { replaceRoute } from './navigation'
+import { historyRouteChangeEvent, installHistoryNavigationBridge, replaceRoute } from './navigation'
 import { getAppChromeConfig } from './routeChrome'
 import { Button } from "../../shared/ui/Button";
 import { selectedCityStorageKeys } from '../../shared/lib/selectedCityStorage'
+
+installHistoryNavigationBridge();
 
 
 function RouteNotFoundPage() {
@@ -535,6 +537,7 @@ function getRoute(path: string): AppRoute {
 
 export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
+  const pathRef = useRef(path)
   const [isOffline, setIsOffline] = useState(() => !window.navigator.onLine)
   const route = useMemo(() => getRoute(path), [path])
   const ActivePage = route.Component
@@ -590,14 +593,21 @@ export function AppRouter() {
 
   useEffect(() => {
     function handleNavigation() {
-      setPath(getResolvedPath())
+      const nextPath = getResolvedPath()
+
+      if (nextPath === pathRef.current) return
+
+      pathRef.current = nextPath
+      setPath(nextPath)
       window.scrollTo({ top: 0 })
     }
 
     window.addEventListener('popstate', handleNavigation)
+    window.addEventListener(historyRouteChangeEvent, handleNavigation)
 
     return () => {
       window.removeEventListener('popstate', handleNavigation)
+      window.removeEventListener(historyRouteChangeEvent, handleNavigation)
     }
   }, [])
 

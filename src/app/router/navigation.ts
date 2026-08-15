@@ -1,3 +1,39 @@
+const BONGA_ROUTE_CHANGE_EVENT = "bonga:route-change";
+
+let isHistoryNavigationPatched = false;
+
+function dispatchRouteChange() {
+  window.dispatchEvent(new Event(BONGA_ROUTE_CHANGE_EVENT));
+}
+
+/**
+ * Keep the SPA router in sync even when legacy screens call history.pushState /
+ * history.replaceState directly instead of using pushRoute / replaceRoute.
+ *
+ * pushState/replaceState do not emit popstate by themselves, so without this a
+ * URL can change while React keeps rendering the previous route until refresh.
+ */
+export function installHistoryNavigationBridge() {
+  if (isHistoryNavigationPatched) return;
+
+  isHistoryNavigationPatched = true;
+
+  const nativePushState = window.history.pushState.bind(window.history);
+  const nativeReplaceState = window.history.replaceState.bind(window.history);
+
+  window.history.pushState = (data, unused, url) => {
+    nativePushState(data, unused, url);
+    dispatchRouteChange();
+  };
+
+  window.history.replaceState = (data, unused, url) => {
+    nativeReplaceState(data, unused, url);
+    dispatchRouteChange();
+  };
+}
+
+export const historyRouteChangeEvent = BONGA_ROUTE_CHANGE_EVENT;
+
 const BONGA_BACK_TO_KEY = "__bongaBackTo";
 const BONGA_BACK_STATE_KEY = "__bongaBackState";
 

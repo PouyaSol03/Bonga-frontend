@@ -108,8 +108,7 @@ function getInitialMode(): DirectoryMode {
 }
 
 function navigateBack() {
-  window.history.pushState({}, "", "/home");
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  pushRoute("/home", undefined, { rememberCurrent: false });
 }
 
 function setRouteMode(mode: DirectoryMode) {

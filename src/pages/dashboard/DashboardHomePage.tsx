@@ -22,9 +22,18 @@ import {
 } from "../../shared/constants/roles.constants";
 import { getApiErrorMessage } from "../../core/api/api";
 import {
-  useAgencyDashboardQuery,
+  useAgencyDashboardAdvertiseRegistrationProgressQuery,
+  useAgencyDashboardConsultantActivityQuery,
+  useAgencyDashboardCreditsQuery,
+  useAgencyDashboardPublishedAdvertisesQuery,
+  useAgencyDashboardRankingProgressQuery,
+  useAgencyDashboardRankingQuery,
   useAgentDashboardQuery,
 } from "../../core/hooks/dashboard.hooks";
+import {
+  mergeAgencyDashboardSections,
+  type DashboardPeriod,
+} from "../../core/services/dashboard.service";
 import { useAgentEntitlementsQuery } from "../../core/hooks/package.hooks";
 import { RequestManagementView } from "../requests/RequestManagementView";
 
@@ -32,6 +41,14 @@ export function DashboardHomePage() {
   const [activeRole, setActiveRole] = useState(() =>
     getActiveAuthRole(getStoredAuthSession()),
   );
+  const [consultantActivityPeriod, setConsultantActivityPeriod] =
+    useState<DashboardPeriod>("month");
+  const [publishedAdvertisesPeriod, setPublishedAdvertisesPeriod] =
+    useState<DashboardPeriod>("month");
+  const [advertiseRegistrationProgressPeriod, setAdvertiseRegistrationProgressPeriod] =
+    useState<DashboardPeriod>("month");
+  const [rankingProgressPeriod, setRankingProgressPeriod] =
+    useState<DashboardPeriod>("month");
 
   useEffect(() => {
     function syncActiveRole() {
@@ -51,10 +68,60 @@ export function DashboardHomePage() {
   const isAgentRole =
     activeRole === REAL_ESTATE_CONSULTANT ||
     activeRole === INDEPENDENT_CONSULTANT;
-  const agencyDashboardQuery = useAgencyDashboardQuery({
+
+  const agencyCreditsQuery = useAgencyDashboardCreditsQuery({
     enabled: isRealEstateManager,
-    period: "30d",
+    period: "month",
   });
+  const agencyConsultantActivityQuery =
+    useAgencyDashboardConsultantActivityQuery({
+      enabled: isRealEstateManager,
+      period: consultantActivityPeriod,
+    });
+  const agencyPublishedAdvertisesQuery =
+    useAgencyDashboardPublishedAdvertisesQuery({
+      enabled: isRealEstateManager,
+      period: publishedAdvertisesPeriod,
+    });
+  const agencyAdvertiseRegistrationProgressQuery =
+    useAgencyDashboardAdvertiseRegistrationProgressQuery({
+      enabled: isRealEstateManager,
+      period: advertiseRegistrationProgressPeriod,
+    });
+  const agencyRankingProgressQuery = useAgencyDashboardRankingProgressQuery({
+    enabled: isRealEstateManager,
+    period: rankingProgressPeriod,
+  });
+  const agencyRankingQuery = useAgencyDashboardRankingQuery({
+    enabled: isRealEstateManager,
+  });
+
+  const agencySectionQueries = [
+    agencyCreditsQuery,
+    agencyConsultantActivityQuery,
+    agencyPublishedAdvertisesQuery,
+    agencyAdvertiseRegistrationProgressQuery,
+    agencyRankingProgressQuery,
+    agencyRankingQuery,
+  ];
+  const failedAgencySection = agencySectionQueries.find(
+    (query) => query.isError,
+  );
+
+  // Keep every section independent. A refetch in one chart must never blank the
+  // merged dashboard or put the whole route back into its loading skeleton.
+  const agencyDashboard = isRealEstateManager
+    ? mergeAgencyDashboardSections("month", {
+        advertiseRegistrationProgress:
+          agencyAdvertiseRegistrationProgressQuery.data,
+        consultantActivity: agencyConsultantActivityQuery.data,
+        credits: agencyCreditsQuery.data,
+        publishedAdvertises: agencyPublishedAdvertisesQuery.data,
+        ranking: agencyRankingQuery.data,
+        rankingProgress: agencyRankingProgressQuery.data,
+      })
+    : undefined;
+
   const agentDashboardQuery = useAgentDashboardQuery({
     enabled: isAgentRole,
     period: "30d",
@@ -62,10 +129,7 @@ export function DashboardHomePage() {
   const agentEntitlementsQuery = useAgentEntitlementsQuery({
     enabled: isAgentRole,
   });
-  const dashboardQuery = isRealEstateManager
-    ? agencyDashboardQuery
-    : agentDashboardQuery;
-  const dashboard =
+  const agentDashboard =
     isAgentRole && agentDashboardQuery.data && agentEntitlementsQuery.data
       ? {
           ...agentDashboardQuery.data,
@@ -74,24 +138,65 @@ export function DashboardHomePage() {
             ...agentEntitlementsQuery.data,
           },
         }
-      : dashboardQuery.data;
+      : agentDashboardQuery.data;
+  const dashboard = isRealEstateManager ? agencyDashboard : agentDashboard;
   const useDashboardApi = isRealEstateManager || isAgentRole;
 
   return (
     <DashboardHomeOverview
+      agencyChartPeriods={
+        isRealEstateManager
+          ? {
+              advertiseRegistrationProgress:
+                advertiseRegistrationProgressPeriod,
+              consultantActivity: consultantActivityPeriod,
+              publishedAdvertises: publishedAdvertisesPeriod,
+              rankingProgress: rankingProgressPeriod,
+            }
+          : undefined
+      }
+      agencySectionLoading={
+        isRealEstateManager
+          ? {
+              advertiseRegistrationProgress:
+                agencyAdvertiseRegistrationProgressQuery.isLoading,
+              consultantActivity: agencyConsultantActivityQuery.isLoading,
+              credits: agencyCreditsQuery.isLoading,
+              publishedAdvertises: agencyPublishedAdvertisesQuery.isLoading,
+              ranking: agencyRankingQuery.isLoading,
+              rankingProgress: agencyRankingProgressQuery.isLoading,
+            }
+          : undefined
+      }
       dashboard={dashboard}
       dashboardKind={
         isRealEstateManager ? "agency" : isAgentRole ? "agent" : undefined
       }
       dashboardError={
-        useDashboardApi && dashboardQuery.isError
+        isRealEstateManager && failedAgencySection
           ? getApiErrorMessage(
-              dashboardQuery.error,
-              "دریافت اطلاعات داشبورد با خطا مواجه شد.",
+              failedAgencySection.error,
+              "دریافت بخشی از اطلاعات داشبورد آژانس با خطا مواجه شد.",
             )
-          : null
+          : isAgentRole && agentDashboardQuery.isError
+            ? getApiErrorMessage(
+                agentDashboardQuery.error,
+                "دریافت اطلاعات داشبورد با خطا مواجه شد.",
+              )
+            : null
       }
-      isDashboardLoading={useDashboardApi && dashboardQuery.isLoading}
+      isDashboardLoading={isAgentRole && agentDashboardQuery.isLoading}
+      onAgencyChartPeriodChange={
+        isRealEstateManager
+          ? {
+              advertiseRegistrationProgress:
+                setAdvertiseRegistrationProgressPeriod,
+              consultantActivity: setConsultantActivityPeriod,
+              publishedAdvertises: setPublishedAdvertisesPeriod,
+              rankingProgress: setRankingProgressPeriod,
+            }
+          : undefined
+      }
       useDashboardApi={useDashboardApi}
     />
   );

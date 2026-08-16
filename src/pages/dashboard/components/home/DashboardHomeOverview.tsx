@@ -25,6 +25,7 @@ import LinearStartup from "../../../../shared/icons/LinearStartup";
 import type {
   DashboardKind,
   DashboardOverview,
+  DashboardPeriod,
 } from "../../../../core/services/dashboard.service";
 import {
   type DashboardAdTypeDatum,
@@ -175,7 +176,7 @@ function getManagerDashboardMetrics(
       id: "ad-credit",
       title: "مانده اعتبار آگهی",
       tone: "blue",
-      value: dashboard
+      value: !isLoading && dashboard
         ? formatNumber(dashboard.balances.adCreditBalance)
         : "—",
     },
@@ -185,7 +186,7 @@ function getManagerDashboardMetrics(
       id: "renew-credit",
       title: "مانده بروزرسانی",
       tone: "green",
-      value: dashboard
+      value: !isLoading && dashboard
         ? formatNumber(dashboard.balances.renewCreditBalance)
         : "—",
     },
@@ -195,7 +196,7 @@ function getManagerDashboardMetrics(
       id: "special-credit",
       title: "مانده ویژه",
       tone: "amber",
-      value: dashboard
+      value: !isLoading && dashboard
         ? formatNumber(dashboard.balances.specialCreditBalance)
         : "—",
     },
@@ -212,33 +213,85 @@ function getManagerDashboardMetrics(
       tone: "neutral",
       trend: "",
       trendTone: "neutral",
-      value: dashboard
+      value: !isLoading && dashboard
         ? `${formatNumber(dashboard.balances.panelDaysRemaining)} روز`
         : "—",
     },
   ];
 }
 
+type AgencyChartPeriods = {
+  advertiseRegistrationProgress: DashboardPeriod;
+  consultantActivity: DashboardPeriod;
+  publishedAdvertises: DashboardPeriod;
+  rankingProgress: DashboardPeriod;
+};
+
+type AgencySectionLoading = {
+  advertiseRegistrationProgress: boolean;
+  consultantActivity: boolean;
+  credits: boolean;
+  publishedAdvertises: boolean;
+  ranking: boolean;
+  rankingProgress: boolean;
+};
+
+type AgencyChartPeriodChangeHandlers = {
+  advertiseRegistrationProgress: (period: DashboardPeriod) => void;
+  consultantActivity: (period: DashboardPeriod) => void;
+  publishedAdvertises: (period: DashboardPeriod) => void;
+  rankingProgress: (period: DashboardPeriod) => void;
+};
+
 type DashboardHomeOverviewProps = {
+  agencyChartPeriods?: AgencyChartPeriods;
+  agencySectionLoading?: AgencySectionLoading;
   dashboard?: DashboardOverview;
   dashboardKind?: DashboardKind;
   dashboardError?: string | null;
   isDashboardLoading?: boolean;
+  onAgencyChartPeriodChange?: AgencyChartPeriodChangeHandlers;
   useDashboardApi?: boolean;
 };
 
+const defaultAgencyChartPeriods: AgencyChartPeriods = {
+  advertiseRegistrationProgress: "month",
+  consultantActivity: "month",
+  publishedAdvertises: "month",
+  rankingProgress: "month",
+};
+
+const defaultAgencySectionLoading: AgencySectionLoading = {
+  advertiseRegistrationProgress: false,
+  consultantActivity: false,
+  credits: false,
+  publishedAdvertises: false,
+  ranking: false,
+  rankingProgress: false,
+};
+
 export function DashboardHomeOverview({
+  agencyChartPeriods = defaultAgencyChartPeriods,
+  agencySectionLoading = defaultAgencySectionLoading,
   dashboard,
   dashboardError = null,
-  dashboardKind: _dashboardKind,
+  dashboardKind,
   isDashboardLoading = false,
+  onAgencyChartPeriodChange,
   useDashboardApi = false,
 }: DashboardHomeOverviewProps) {
-  if (useDashboardApi && isDashboardLoading && !dashboard) {
+  const isAgencyDashboard = dashboardKind === "agency";
+
+  // The agent dashboard still has one aggregate request. Agency sections are
+  // independent, so a single chart refetch must never replace the whole page.
+  if (!isAgencyDashboard && useDashboardApi && isDashboardLoading && !dashboard) {
     return <DashboardHomeOverviewSkeleton />;
   }
 
-  const metrics = getManagerDashboardMetrics(dashboard, isDashboardLoading);
+  const metrics = getManagerDashboardMetrics(
+    dashboard,
+    isAgencyDashboard ? agencySectionLoading.credits : isDashboardLoading,
+  );
 
   return (
     <div className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4">
@@ -260,26 +313,85 @@ export function DashboardHomeOverview({
       <section className="grid gap-4">
         <ConsultantActivityCard
           dashboard={dashboard}
-          isLoading={isDashboardLoading}
+          isLoading={
+            isAgencyDashboard
+              ? agencySectionLoading.consultantActivity
+              : isDashboardLoading
+          }
+          onPeriodChange={
+            isAgencyDashboard
+              ? onAgencyChartPeriodChange?.consultantActivity
+              : undefined
+          }
+          period={agencyChartPeriods.consultantActivity}
           useApiData={useDashboardApi}
         />
-        <PublishedAgencyAdsCard dashboard={dashboard} isLoading={isDashboardLoading} />
+        <PublishedAgencyAdsCard
+          dashboard={dashboard}
+          isLoading={
+            isAgencyDashboard
+              ? agencySectionLoading.publishedAdvertises
+              : isDashboardLoading
+          }
+          onPeriodChange={
+            isAgencyDashboard
+              ? onAgencyChartPeriodChange?.publishedAdvertises
+              : undefined
+          }
+          period={agencyChartPeriods.publishedAdvertises}
+        />
       </section>
 
       <section className="grid gap-4">
         <div className="grid gap-4">
           <ProgressLineChartCard
-            data={(dashboard?.advertiseRegistrationProgress ?? []).map((item) => ({ month: item.month, value: item.count }))}
+            data={(dashboard?.advertiseRegistrationProgress ?? []).map((item) => ({
+              month: item.month,
+              value: item.count,
+            }))}
+            isLoading={
+              isAgencyDashboard
+                ? agencySectionLoading.advertiseRegistrationProgress
+                : isDashboardLoading
+            }
+            onPeriodChange={
+              isAgencyDashboard
+                ? onAgencyChartPeriodChange?.advertiseRegistrationProgress
+                : undefined
+            }
+            period={
+              isAgencyDashboard
+                ? agencyChartPeriods.advertiseRegistrationProgress
+                : "year"
+            }
             title="نمودار پیشرفت ثبت آگهی"
             valueSuffix=" آگهی"
           />
           <ProgressLineChartCard
-            data={[]}
+            data={(dashboard?.rankingProgress ?? []).map((item) => ({
+              month: item.month,
+              value: item.rank,
+            }))}
+            isLoading={
+              isAgencyDashboard
+                ? agencySectionLoading.rankingProgress
+                : isDashboardLoading
+            }
+            onPeriodChange={
+              isAgencyDashboard
+                ? onAgencyChartPeriodChange?.rankingProgress
+                : undefined
+            }
+            period={isAgencyDashboard ? agencyChartPeriods.rankingProgress : "year"}
+            reverseYAxis
             title="نمودار پیشرفت رتبه"
+            valueSuffix=" رتبه"
           />
           <AgencyRankingScoreCard
             dashboard={dashboard}
-            isLoading={isDashboardLoading}
+            isLoading={
+              isAgencyDashboard ? agencySectionLoading.ranking : isDashboardLoading
+            }
             useApiData={useDashboardApi}
           />
         </div>
@@ -449,10 +561,18 @@ function AgencyRankMetric({
 
 export function ProgressLineChartCard({
   data,
+  isLoading = false,
+  onPeriodChange,
+  period = "year",
+  reverseYAxis = false,
   title,
   valueSuffix = "",
 }: {
   data: Array<{ month: string; value: number }>;
+  isLoading?: boolean;
+  onPeriodChange?: (period: DashboardPeriod) => void;
+  period?: DashboardPeriod;
+  reverseYAxis?: boolean;
   title: string;
   valueSuffix?: string;
 }) {
@@ -462,10 +582,18 @@ export function ProgressLineChartCard({
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
           {title}
         </Typography>
-        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">در سال</Typography>
+        <DashboardPeriodControl
+          onChange={onPeriodChange}
+          period={period}
+        />
       </div>
 
-      <ScrollableProgressLineChart data={data} valueSuffix={valueSuffix} />
+      <ScrollableProgressLineChart
+        data={data}
+        isLoading={isLoading}
+        reverseYAxis={reverseYAxis}
+        valueSuffix={valueSuffix}
+      />
     </article>
   );
 }
@@ -475,14 +603,26 @@ const progressChartMonthGuideY = 187;
 
 
 
-function ScrollableProgressLineChart({ data, valueSuffix }: { data: Array<{ month: string; value: number }>; valueSuffix: string }) {
+function ScrollableProgressLineChart({
+  data,
+  isLoading,
+  reverseYAxis,
+  valueSuffix,
+}: {
+  data: Array<{ month: string; value: number }>;
+  isLoading: boolean;
+  reverseYAxis: boolean;
+  valueSuffix: string;
+}) {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   if (data.length === 0) {
     return (
       <div className="mx-auto mt-7 flex h-[252px] w-full items-center justify-center border-b border-[#e6e6e6] px-6 text-center">
         <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
-          داده نموداری از سرور دریافت نشده است.
+          {isLoading
+            ? "در حال دریافت اطلاعات نمودار..."
+            : "داده نموداری از سرور دریافت نشده است."}
         </Typography>
       </div>
     );
@@ -521,7 +661,8 @@ function ScrollableProgressLineChart({ data, valueSuffix }: { data: Array<{ mont
           />
 
           <YAxis
-            domain={[0, "auto"]}
+            domain={reverseYAxis ? [1, "auto"] : [0, "auto"]}
+            reversed={reverseYAxis}
             axisLine={false}
             tickLine={false}
             tick={{
@@ -653,15 +794,95 @@ function ProgressMonthTick(props: any) {
   );
 }
 
-function PublishedAgencyAdsCard({ dashboard, isLoading }: { dashboard?: DashboardOverview; isLoading: boolean }) {
+function DashboardPeriodControl({
+  onChange,
+  period,
+}: {
+  onChange?: (period: DashboardPeriod) => void;
+  period: DashboardPeriod;
+}) {
+  const selectedPeriod = period === "year" ? "year" : "month";
+
+  if (!onChange) {
+    return (
+      <Typography
+        as="span"
+        variant="label"
+        size="small"
+        weight="medium"
+        className="text-xs font-medium text-[#1a1a1a]"
+      >
+        {selectedPeriod === "year" ? "در سال" : "در ماه"}
+      </Typography>
+    );
+  }
+
+  return (
+    <label className="relative flex h-7 items-center rounded-lg bg-transparent transition hover:bg-[#f5f7fb]">
+      <select
+        aria-label="بازه زمانی داشبورد آژانس"
+        className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-[#1a1a1a] outline-none"
+        onChange={(event) => onChange(event.target.value as DashboardPeriod)}
+        value={selectedPeriod}
+      >
+        <option value="month">در ماه</option>
+        <option value="year">در سال</option>
+      </select>
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute left-2 h-4 w-4 text-[#4d4d4d]"
+        fill="none"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19 9l-7 7-7-7"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+        />
+      </svg>
+    </label>
+  );
+}
+
+function PublishedAgencyAdsCard({
+  dashboard,
+  isLoading,
+  onPeriodChange,
+  period,
+}: {
+  dashboard?: DashboardOverview;
+  isLoading: boolean;
+  onPeriodChange?: (period: DashboardPeriod) => void;
+  period: DashboardPeriod;
+}) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const pieContainerRef = useRef<HTMLDivElement | null>(null);
-  const palette = ["#4C6BD8", "#7F98E6", "#B2C0F4", "#D7DDF8", "#5C79D7"];
-  const pieData: DashboardAdTypeDatum[] = (dashboard?.publishedAdvertises.breakdown ?? []).map((item, index) => ({
-    color: palette[index % palette.length],
-    name: item.categoryId ? `دسته ${item.categoryId}` : "بدون دسته‌بندی",
-    value: item.percent,
-  }));
+  const typeColors: Record<string, string> = {
+    sale: "#4C6BD8",
+    rent: "#7F98E6",
+    partnership: "#B2C0F4",
+  };
+  const pieData: DashboardAdTypeDatum[] =
+    (dashboard?.publishedAdvertises.total ?? 0) > 0
+      ? (dashboard?.publishedAdvertises.breakdown ?? []).map((item, index) => ({
+          color: typeColors[item.type] ?? ["#4C6BD8", "#7F98E6", "#B2C0F4"][index % 3],
+          name:
+            item.label ||
+            (item.type === "sale"
+              ? "فروش"
+              : item.type === "rent"
+                ? "اجاره"
+                : item.type === "partnership"
+                  ? "مشارکت"
+                  : item.categoryId
+                    ? `دسته ${item.categoryId}`
+                    : "بدون دسته‌بندی"),
+          value: item.percent,
+        }))
+      : [];
   const selectedEntry = selectedIndex === null ? null : pieData[selectedIndex];
   const selectedGeometry = selectedIndex === null || !pieData[selectedIndex]
     ? null
@@ -707,33 +928,17 @@ function PublishedAgencyAdsCard({ dashboard, isLoading }: { dashboard?: Dashboar
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             آگهی منتشر شده در آژانس
           </Typography>
-          <Button unstyled
-            className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
-            type="button"
-          >
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-[#1a1a1a]">در ماه</Typography>
-            <svg
-              className="h-4 w-4 text-[#4d4d4d]"
-              fill="none"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19 9l-7 7-7-7"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-              />
-            </svg>
-          </Button>
+          <DashboardPeriodControl
+            onChange={onPeriodChange}
+            period={period}
+          />
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
             {isLoading ? "—" : dashboard ? formatNumber(dashboard.publishedAdvertises.total) : "—"}
           </Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
-            آگهی ثبت شده
+            آگهی منتشر شده
           </Typography>
         </div>
       </div>
@@ -745,7 +950,9 @@ function PublishedAgencyAdsCard({ dashboard, isLoading }: { dashboard?: Dashboar
       >
         {pieData.length === 0 ? (
           <div className="flex h-full items-center justify-center rounded-full border border-[#e6e6e6] px-5 text-center [direction:rtl]">
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">داده‌ای دریافت نشده است.</Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+              {isLoading ? "در حال دریافت اطلاعات..." : "داده‌ای دریافت نشده است."}
+            </Typography>
           </div>
         ) : null}
         {pieData.length > 0 && selectedEntry && selectedGeometry ? (
@@ -1049,10 +1256,14 @@ function ConsultantBarShape(props: any) {
 function ConsultantActivityCard({
   dashboard,
   isLoading,
+  onPeriodChange,
+  period,
   useApiData: _useApiData,
 }: {
   dashboard?: DashboardOverview;
   isLoading: boolean;
+  onPeriodChange?: (period: DashboardPeriod) => void;
+  period: DashboardPeriod;
   useApiData: boolean;
 }) {
   const chartScrollRef = useRef<HTMLDivElement>(null);
@@ -1089,26 +1300,10 @@ function ConsultantActivityCard({
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
             فعالیت مشاورین
           </Typography>
-          <Button unstyled
-            className="flex h-7 items-center gap-1 rounded-lg px-2 py-1 bg-transparent hover:bg-[#f5f7fb] transition"
-            type="button"
-          >
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-[#1a1a1a]">در ماه</Typography>
-            <svg
-              className="h-4 w-4 text-[#4d4d4d]"
-              fill="none"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19 9l-7 7-7-7"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-              />
-            </svg>
-          </Button>
+          <DashboardPeriodControl
+            onChange={onPeriodChange}
+            period={period}
+          />
         </div>
         <div className="flex items-center justify-start gap-2">
           <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
@@ -1143,7 +1338,11 @@ function ConsultantActivityCard({
         </Button>
       </div>
 
-      {!isLoading && chartData.length === 0 ? (
+      {isLoading && chartData.length === 0 ? (
+        <div className="grid h-[240px] place-items-center text-sm text-[#808080]">
+          در حال دریافت فعالیت مشاورین...
+        </div>
+      ) : chartData.length === 0 ? (
         <div className="grid h-[240px] place-items-center text-sm text-[#808080]">
           فعالیتی برای مشاوران در این دوره ثبت نشده است.
         </div>

@@ -1,6 +1,6 @@
 import { api } from "../api/api";
 
-export type DashboardPeriod = "30d" | string;
+export type DashboardPeriod = "month" | "year" | "7d" | "30d" | "90d";
 export type DashboardKind = "agency" | "agent";
 
 export type DashboardBalanceDelta = {
@@ -40,6 +40,11 @@ export type DashboardOverview = {
     count: number;
     month: string;
   }>;
+  rankingProgress: Array<{
+    month: string;
+    rank: number;
+    score: number;
+  }>;
   balanceDeltas: {
     adCreditUsed: DashboardBalanceDelta;
     renewCreditUsed: DashboardBalanceDelta;
@@ -59,7 +64,9 @@ export type DashboardOverview = {
     breakdown: Array<{
       categoryId: string | null;
       count: number;
+      label: string;
       percent: number;
+      type: string;
     }>;
     total: number;
   };
@@ -81,15 +88,53 @@ export type DashboardOverview = {
   } | null;
 };
 
+export type AgencyDashboardCreditsSection = Pick<
+  DashboardOverview,
+  "balanceDeltas" | "balances" | "period"
+>;
+
+export type AgencyDashboardConsultantActivitySection = Pick<
+  DashboardOverview,
+  "consultantActivity" | "period"
+>;
+
+export type AgencyDashboardPublishedAdvertisesSection = Pick<
+  DashboardOverview,
+  "period" | "publishedAdvertises"
+>;
+
+export type AgencyDashboardAdvertiseRegistrationProgressSection = Pick<
+  DashboardOverview,
+  "advertiseRegistrationProgress" | "period"
+>;
+
+export type AgencyDashboardRankingProgressSection = Pick<
+  DashboardOverview,
+  "period" | "rankingProgress"
+>;
+
+export type AgencyDashboardRankingSection = Pick<DashboardOverview, "ranking">;
+
+export type AgencyDashboardSections = {
+  advertiseRegistrationProgress?: AgencyDashboardAdvertiseRegistrationProgressSection;
+  consultantActivity?: AgencyDashboardConsultantActivitySection;
+  credits?: AgencyDashboardCreditsSection;
+  publishedAdvertises?: AgencyDashboardPublishedAdvertisesSection;
+  ranking?: AgencyDashboardRankingSection;
+  rankingProgress?: AgencyDashboardRankingProgressSection;
+};
+
 type RawRecord = Record<string, unknown>;
 
 type AgencyDashboardApiResponse = {
+  advertise_registration_progress?: unknown[];
   balance_deltas?: RawRecord;
   balances?: RawRecord;
   consultant_activity?: unknown[];
   period?: unknown;
   published_advertises?: RawRecord;
   ranking?: RawRecord;
+  ranking_progress?: unknown[];
   status?: boolean;
 };
 
@@ -191,7 +236,9 @@ function normalizePublishedAdvertises(value: unknown) {
             ? null
             : String(categoryId),
         count: Math.max(0, toNumber(breakdownItem.count)),
+        label: toText(breakdownItem.label),
         percent: Math.max(0, toNumber(breakdownItem.percent)),
+        type: toText(breakdownItem.type),
       };
     }),
     total: Math.max(0, toNumber(publishedAdvertises.total)),
@@ -233,9 +280,22 @@ function normalizeAgencyDashboard(
   const rawConsultantActivity = Array.isArray(response.consultant_activity)
     ? response.consultant_activity
     : [];
+  const rawAdvertiseProgress = Array.isArray(response.advertise_registration_progress)
+    ? response.advertise_registration_progress
+    : [];
+  const rawRankingProgress = Array.isArray(response.ranking_progress)
+    ? response.ranking_progress
+    : [];
 
   return {
-    advertiseRegistrationProgress: [],
+    advertiseRegistrationProgress: rawAdvertiseProgress.map((item) => {
+      const progress = asRecord(item);
+
+      return {
+        count: Math.max(0, toNumber(progress.count)),
+        month: toText(progress.month) || toText(progress.bucket),
+      };
+    }),
     balanceDeltas: normalizeBalanceDeltas(response.balance_deltas),
     balances: normalizeBalances(response.balances),
     consultantActivity: rawConsultantActivity.map((item) => {
@@ -256,6 +316,19 @@ function normalizeAgencyDashboard(
     publishedAdvertises: normalizePublishedAdvertises(
       response.published_advertises,
     ),
+    rankingProgress: rawRankingProgress
+      .map((item) => {
+        const progress = asRecord(item);
+        const rank = toNullableNumber(progress.rank);
+        if (rank === null || rank <= 0) return null;
+
+        return {
+          month: toText(progress.month) || toText(progress.bucket),
+          rank,
+          score: Math.max(0, toNumber(progress.score)),
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null),
     ranking: {
       current: {
         ...currentRanking,
@@ -313,6 +386,7 @@ function normalizeAgentDashboard(
       rank: toNullableNumber(ranking.rank),
       topEntities: [],
     },
+    rankingProgress: [],
     renewUsage: normalizeUsage(response.renew_usage),
     specialUsage: normalizeUsage(response.special_usage),
     walletCredit: Math.max(0, toNumber(wallet.credit)),
@@ -336,6 +410,134 @@ function normalizeAgentDashboard(
             ),
             rejected: Math.max(0, toNumber(workSummary.rejected)),
           },
+  };
+}
+
+async function getAgencyDashboardSection(
+  path: string,
+  period: DashboardPeriod,
+) {
+  return api
+    .get(path, {
+      searchParams: { period },
+    })
+    .json<AgencyDashboardApiResponse>();
+}
+
+export async function getAgencyDashboardCredits(
+  period: DashboardPeriod = "month",
+): Promise<AgencyDashboardCreditsSection> {
+  const response = await getAgencyDashboardSection(
+    "me/agency/dashboard/credits",
+    period,
+  );
+  const normalized = normalizeAgencyDashboard(response, period);
+
+  return {
+    balanceDeltas: normalized.balanceDeltas,
+    balances: normalized.balances,
+    period: normalized.period,
+  };
+}
+
+export async function getAgencyDashboardConsultantActivity(
+  period: DashboardPeriod = "month",
+): Promise<AgencyDashboardConsultantActivitySection> {
+  const response = await getAgencyDashboardSection(
+    "me/agency/dashboard/consultant-activity",
+    period,
+  );
+  const normalized = normalizeAgencyDashboard(response, period);
+
+  return {
+    consultantActivity: normalized.consultantActivity,
+    period: normalized.period,
+  };
+}
+
+export async function getAgencyDashboardPublishedAdvertises(
+  period: DashboardPeriod = "month",
+): Promise<AgencyDashboardPublishedAdvertisesSection> {
+  const response = await getAgencyDashboardSection(
+    "me/agency/dashboard/published-advertises",
+    period,
+  );
+  const normalized = normalizeAgencyDashboard(response, period);
+
+  return {
+    period: normalized.period,
+    publishedAdvertises: normalized.publishedAdvertises,
+  };
+}
+
+export async function getAgencyDashboardAdvertiseRegistrationProgress(
+  period: DashboardPeriod = "month",
+): Promise<AgencyDashboardAdvertiseRegistrationProgressSection> {
+  const response = await getAgencyDashboardSection(
+    "me/agency/dashboard/advertise-registration-progress",
+    period,
+  );
+  const normalized = normalizeAgencyDashboard(response, period);
+
+  return {
+    advertiseRegistrationProgress: normalized.advertiseRegistrationProgress,
+    period: normalized.period,
+  };
+}
+
+export async function getAgencyDashboardRankingProgress(
+  period: DashboardPeriod = "month",
+): Promise<AgencyDashboardRankingProgressSection> {
+  const response = await getAgencyDashboardSection(
+    "me/agency/dashboard/ranking-progress",
+    period,
+  );
+  const normalized = normalizeAgencyDashboard(response, period);
+
+  return {
+    period: normalized.period,
+    rankingProgress: normalized.rankingProgress,
+  };
+}
+
+export async function getAgencyDashboardRanking(): Promise<AgencyDashboardRankingSection> {
+  const response = await api
+    .get("me/agency/dashboard/ranking")
+    .json<AgencyDashboardApiResponse>();
+  const normalized = normalizeAgencyDashboard(response, "month");
+
+  return { ranking: normalized.ranking };
+}
+
+export function mergeAgencyDashboardSections(
+  period: DashboardPeriod,
+  sections: AgencyDashboardSections,
+): DashboardOverview {
+  const empty = normalizeAgencyDashboard({ period }, period);
+
+  return {
+    ...empty,
+    advertiseRegistrationProgress:
+      sections.advertiseRegistrationProgress?.advertiseRegistrationProgress ??
+      empty.advertiseRegistrationProgress,
+    balanceDeltas: sections.credits?.balanceDeltas ?? empty.balanceDeltas,
+    balances: sections.credits?.balances ?? empty.balances,
+    consultantActivity:
+      sections.consultantActivity?.consultantActivity ??
+      empty.consultantActivity,
+    period:
+      sections.credits?.period ??
+      sections.consultantActivity?.period ??
+      sections.publishedAdvertises?.period ??
+      sections.advertiseRegistrationProgress?.period ??
+      sections.rankingProgress?.period ??
+      empty.period,
+    publishedAdvertises:
+      sections.publishedAdvertises?.publishedAdvertises ??
+      empty.publishedAdvertises,
+    ranking: sections.ranking?.ranking ?? empty.ranking,
+    rankingProgress:
+      sections.rankingProgress?.rankingProgress ?? empty.rankingProgress,
   };
 }
 

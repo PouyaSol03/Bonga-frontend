@@ -72,8 +72,8 @@ const consultantAvatarClasses = [
 ];
 
 const agencyTabs: { id: AgencyPreviewTab; label: string }[] = [
-  { id: "consultants", label: "مشاوران" },
   { id: "ads", label: "آگهی‌ها" },
+  { id: "consultants", label: "مشاوران" },
   { id: "info", label: "اطلاعات" },
 ];
 
@@ -901,16 +901,21 @@ function AgencyHero({
         ) : null}
       </div>
 
-      <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-[#dddddd] text-[#4d4d4d]">
-        {agencyStats.map((item) => (
-          <div className="grid gap-1 text-center" key={item.label}>
-            <Typography as="span" variant="body" size="small" weight="regular" className="mx-auto inline-flex items-center gap-1 text-on-surface">
-              {item.icon}
-              {item.label}
-            </Typography>
-            <Typography variant="title" size="small" weight="semibold" className="text-on-surface">
-              {item.value}
-            </Typography>
+      <div className="mt-4 flex items-center text-[#4d4d4d]">
+        {agencyStats.map((item, index) => (
+          <div className="contents" key={item.label}>
+            <div className="grid flex-1 gap-1 text-center">
+              <Typography as="span" variant="body" size="small" weight="regular" className="mx-auto inline-flex items-center gap-1 text-on-surface">
+                {item.icon}
+                {item.label}
+              </Typography>
+              <Typography variant="title" size="small" weight="semibold" className="text-on-surface">
+                {item.value}
+              </Typography>
+            </div>
+            {index < agencyStats.length - 1 ? (
+              <div aria-hidden="true" className="h-7 w-px shrink-0 bg-[#dddddd]" />
+            ) : null}
           </div>
         ))}
       </div>

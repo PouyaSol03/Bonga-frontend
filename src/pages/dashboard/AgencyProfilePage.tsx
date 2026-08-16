@@ -197,7 +197,6 @@ export function AgencyProfilePage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [toast, setToast] = useState<AgencyProfileToast | null>(null);
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
@@ -325,7 +324,6 @@ export function AgencyProfilePage() {
     }
 
     setHasSubmitted(true);
-    setSaveMessage(null);
     updateAgencyProfileMutation.reset();
 
     const validationError = !trimmedAgencyName
@@ -366,7 +364,6 @@ export function AgencyProfilePage() {
       });
       showToast("اطلاعات آژانس ذخیره شد.");
     } catch (error) {
-      setSaveMessage(null);
       showToast(
         getApiErrorMessage(error, "ذخیره اطلاعات آژانس با خطا مواجه شد."),
         "خطا",
@@ -434,7 +431,6 @@ export function AgencyProfilePage() {
 
       <AgencyFooterActions
         isSaving={updateAgencyProfileMutation.isPending}
-        message={saveMessage}
         onSave={handleSave}
       />
 
@@ -1128,20 +1124,13 @@ function Separator() {
 
 function AgencyFooterActions({
   isSaving,
-  message,
   onSave,
 }: {
   isSaving: boolean;
-  message: string | null;
   onSave: () => void;
 }) {
   return (
     <footer className="absolute inset-x-0 bottom-0 z-10 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-      {message ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-2 text-right text-xs font-normal leading-5 text-[#16803c]">
-          {message}
-        </Typography>
-      ) : null}
       <div className="grid h-10 grid-cols-2 gap-3 [direction:ltr]">
         <Button unstyled
           className="rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"

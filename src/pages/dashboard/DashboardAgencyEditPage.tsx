@@ -10,6 +10,7 @@ import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/se
 import type { MyAgencyProfile } from "../../core/services/account.service";
 import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../core/services/neighborhood.service";
 import { RouteLink } from "../../app/router/RouteLink";
+import { Toast, type ToastItem } from "../../shared/components/Toast";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
@@ -101,7 +102,7 @@ export default function DashboardAgencyEditPage() {
         lng: selectedCity?.longitude ?? defaultAgencyCenter.lng,
         zoom: defaultAgencyCenter.zoom,
     }));
-    const [saveMessage, setSaveMessage] = useState("");
+    const [toast, setToast] = useState<ToastItem | null>(null);
 
     const neighborhoodOptions = useMemo<SelectOption[]>(() => {
         const options = neighborhoods.map((item) => {
@@ -125,6 +126,20 @@ export default function DashboardAgencyEditPage() {
         if (!logoPreview) return undefined;
         return () => URL.revokeObjectURL(logoPreview);
     }, [logoPreview]);
+
+    useEffect(() => {
+        if (!toast) return;
+
+        const timer = window.setTimeout(() => setToast(null), 3200);
+
+        return () => window.clearTimeout(timer);
+    }, [toast]);
+
+    const showToast = (
+        message: string,
+        title = "موفقیت",
+        variant: "error" | "success" | "info" | "warning" = "success",
+    ) => setToast({ message, title, variant });
 
     useEffect(() => {
         const profile = agencyProfileQuery.data;
@@ -158,12 +173,12 @@ export default function DashboardAgencyEditPage() {
         if (!file) return;
 
         if (!agencyImageMimeTypes.has(file.type)) {
-            window.alert("فرمت لوگو باید JPG، PNG یا GIF باشد.");
+            showToast("فرمت لوگو باید JPG، PNG یا GIF باشد.", "خطا", "error");
             return;
         }
 
         if (file.size > agencyImageMaxBytes) {
-            window.alert("حجم لوگو نباید بیشتر از ۱ مگابایت باشد.");
+            showToast("حجم لوگو نباید بیشتر از ۱ مگابایت باشد.", "خطا", "error");
             return;
         }
 
@@ -173,10 +188,9 @@ export default function DashboardAgencyEditPage() {
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setSaveMessage("");
 
         if (!isRealEstateManager) {
-            setSaveMessage("ویرایش مشخصات آژانس فقط برای مدیر آژانس فعال است.");
+            showToast("ویرایش مشخصات آژانس فقط برای مدیر آژانس فعال است.", "خطا", "error");
             return;
         }
 
@@ -189,7 +203,7 @@ export default function DashboardAgencyEditPage() {
         );
 
         if (!trimmedName || neighborhoodIds.length === 0) {
-            setSaveMessage("نام آژانس و محدوده فعالیت الزامی است.");
+            showToast("نام آژانس و محدوده فعالیت الزامی است.", "خطا", "error");
             return;
         }
 
@@ -208,9 +222,13 @@ export default function DashboardAgencyEditPage() {
                 phone3: normalizeOptionalText(phone3),
                 working_hours: normalizeOptionalText(workingHours),
             });
-            setSaveMessage("اطلاعات آژانس ذخیره شد.");
+            showToast("اطلاعات آژانس ذخیره شد.");
         } catch (error) {
-            setSaveMessage(getApiErrorMessage(error, "ذخیره اطلاعات آژانس با خطا مواجه شد."));
+            showToast(
+                getApiErrorMessage(error, "ذخیره اطلاعات آژانس با خطا مواجه شد."),
+                "خطا",
+                "error",
+            );
         }
     };
 
@@ -225,6 +243,8 @@ export default function DashboardAgencyEditPage() {
             dir="rtl"
             onSubmit={handleSubmit}
         >
+            <Toast onDismiss={() => setToast(null)} toast={toast} />
+
             <section>
                 <SectionTitle icon={<InfoIcon />} title="مشخصات" />
 
@@ -321,7 +341,6 @@ export default function DashboardAgencyEditPage() {
                 <AgencyLocationMap center={mapCenter} onCenterChange={setMapCenter} />
             </section>
 
-            <Typography as="span" variant="body" size="medium" weight="regular" aria-live="polite" className="sr-only">{saveMessage}</Typography>
             <div className="mt-14 flex justify-start gap-5 [direction:ltr]">
                 <Button unstyled
                     className="h-14 rounded-xl bg-[#0048c4] px-7 text-base font-semibold leading-6 text-white transition hover:bg-[#003ba1]"

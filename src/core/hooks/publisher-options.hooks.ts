@@ -27,14 +27,14 @@ const basePublisherOptions: PublisherOption[] = [
   {
     id: "independent-consultant",
     title: "مشاور مستقل",
-    description: "انتشار آگهی در صفحه مشاور مستقل",
+    description: "انتشار آگهی در صفحه مستقل",
     icon: "building",
     senderRole: "independent_consultant",
   },
   {
     id: "jaliliyan-agency",
     title: "مشاور آژانس",
-    description: "انتشار آگهی در صفحه مشاور آژانس",
+    description: "انتشار آگهی در صفحه آژانس",
     icon: "agency",
     senderRole: "real_estate_consultant",
   },
@@ -83,10 +83,10 @@ export function usePublisherOptions(enabled = true) {
           return {
             ...option,
             description: agencyName
-              ? `انتشار آگهی در صفحه مشاور آژانس ${agencyName}`
+              ? `انتشار آگهی در صفحه ${agencyName}`
               : option.description,
             senderRole: agencySenderRole,
-            title: agencyName ? `مشاور آژانس ${agencyName}` : option.title,
+            title: agencyName ? `${agencyName}` : option.title,
           };
         }),
     [agencyName, agencySenderRole, canPublishAsAgency, canPublishAsIndependent],

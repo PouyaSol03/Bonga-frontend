@@ -13,6 +13,7 @@ import { FormChoiceChip } from "../../shared/form/FormControls";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
 import { TopBar } from "../../shared/components/TopBar";
+import { Toast } from "../../shared/components/Toast";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { RouteLink } from "../../app/router/RouteLink";
 import { getApiAssetUrl, getApiErrorMessage } from "../../core/api/api";
@@ -36,7 +37,7 @@ import { Button } from "../../shared/ui/Button";
 
 const neighborhoodSearchDebounceMs = 250;
 const agencyImageMaxBytes = 1024 * 1024;
-const agencyImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
+const agencyImageMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type SelectedNeighborhood = {
   id: string;
@@ -183,6 +184,9 @@ export function AgencyProfilePage() {
   const [phone1, setPhone1] = useState("");
   const [phone2, setPhone2] = useState("");
   const [phone3, setPhone3] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [instagram, setInstagram] = useState("");
   const [workingHours, setWorkingHours] = useState("");
   const [address, setAddress] = useState("");
   const [aboutUs, setAboutUs] = useState("");
@@ -264,6 +268,9 @@ export function AgencyProfilePage() {
     setPhone1(normalizeProfileText(profile.phone1));
     setPhone2(normalizeProfileText(profile.phone2));
     setPhone3(normalizeProfileText(profile.phone3));
+    setTelegram(normalizeProfileText(profile.telegram));
+    setWhatsapp(normalizeProfileText(profile.whatsapp));
+    setInstagram(normalizeProfileText(profile.instagram));
     setWorkingHours(normalizeProfileText(profile.working_hours));
     setAddress(normalizeProfileText(profile.address));
     setAboutUs(normalizeProfileText(profile.about_us));
@@ -298,7 +305,7 @@ export function AgencyProfilePage() {
 
   const handleLogoChange = (file: File | null) => {
     if (file && !agencyImageMimeTypes.has(file.type)) {
-      showToast("فرمت لوگو باید JPG، PNG یا GIF باشد.", "خطا", "error");
+      showToast("فرمت لوگو باید JPG، JPEG، PNG یا WEBP باشد.", "خطا", "error");
       return;
     }
 
@@ -352,6 +359,9 @@ export function AgencyProfilePage() {
         phone1: normalizeOptionalText(phone1),
         phone2: normalizeOptionalText(phone2),
         phone3: normalizeOptionalText(phone3),
+        telegram: normalizeOptionalText(telegram),
+        whatsapp: normalizeOptionalText(whatsapp),
+        instagram: normalizeOptionalText(instagram),
         working_hours: normalizeOptionalText(workingHours),
       });
       showToast("اطلاعات آژانس ذخیره شد.");
@@ -378,6 +388,8 @@ export function AgencyProfilePage() {
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
+      <Toast onDismiss={() => setToast(null)} toast={toast} />
+
       <main className="min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pb-28">
         {agencyProfileQuery.isLoading ? (
           <div className="bg-white px-4 py-3 text-center text-sm font-medium text-[#808080]">
@@ -400,9 +412,15 @@ export function AgencyProfilePage() {
           onPhone1Change={setPhone1}
           onPhone2Change={setPhone2}
           onPhone3Change={setPhone3}
+          onTelegramChange={setTelegram}
+          onWhatsappChange={setWhatsapp}
+          onInstagramChange={setInstagram}
           phone1={phone1}
           phone2={phone2}
           phone3={phone3}
+          telegram={telegram}
+          whatsapp={whatsapp}
+          instagram={instagram}
         />
         <ActivityAreaSection
           activityAreas={selectedActivityAreas}
@@ -441,6 +459,7 @@ export function AgencyProfilePage() {
     </PageFrame>
   );
 }
+
 
 function OwnerInfoSection({
   agencyName,
@@ -498,7 +517,7 @@ function LogoHelpText() {
       <div>
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex items-center gap-1.5">حجم عکس کمتر از 1MB باشد</Typography>
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">بهترین ابعاد نمایش 100×100 پیکسل</Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">فرمت‌های قابل استفاده jpg, png, gif</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">فرمت‌های قابل استفاده jpg, jpeg, png, webp</Typography>
       </div>
     </div>
   );
@@ -544,7 +563,7 @@ function AgencyLogoUpload({
       </Button>
       <input
         ref={inputRef}
-        accept="image/png,image/jpeg,image/jpg,image/gif"
+        accept="image/png,image/jpeg,image/webp"
         className="hidden"
         onChange={handleInputChange}
         type="file"
@@ -559,18 +578,30 @@ function ContactInfoSection({
   onPhone1Change,
   onPhone2Change,
   onPhone3Change,
+  onTelegramChange,
+  onWhatsappChange,
+  onInstagramChange,
   phone1,
   phone2,
   phone3,
+  telegram,
+  whatsapp,
+  instagram,
 }: {
   address: string;
   onAddressChange: (value: string) => void;
   onPhone1Change: (value: string) => void;
   onPhone2Change: (value: string) => void;
   onPhone3Change: (value: string) => void;
+  onTelegramChange: (value: string) => void;
+  onWhatsappChange: (value: string) => void;
+  onInstagramChange: (value: string) => void;
   phone1: string;
   phone2: string;
   phone3: string;
+  telegram: string;
+  whatsapp: string;
+  instagram: string;
 }) {
   return (
     <Section title="اطلاعات تماس">
@@ -585,9 +616,9 @@ function ContactInfoSection({
 
       <div className="grid gap-3">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">شبکه‌های اجتماعی</Typography>
-        <Field icon={<TonalTelegram className="w-6 h-6" />} placeholder="آیدی تلگرام بدون @" />
-        <Field icon={<TonalWhatsapp className="w-6 h-6" />} placeholder="شماره واتساپ بدون صفر" />
-        <Field icon={<TonalInstagram className="w-6 h-6" />} placeholder="آیدی اینستاگرام بدون @" />
+        <Field icon={<TonalTelegram className="w-6 h-6" />} onChange={onTelegramChange} placeholder="آیدی تلگرام بدون @" value={telegram} />
+        <Field icon={<TonalWhatsapp className="w-6 h-6" />} onChange={onWhatsappChange} placeholder="شماره واتساپ بدون صفر" value={whatsapp} />
+        <Field icon={<TonalInstagram className="w-6 h-6" />} onChange={onInstagramChange} placeholder="آیدی اینستاگرام بدون @" value={instagram} />
       </div>
 
       <Separator />

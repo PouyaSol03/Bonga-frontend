@@ -176,6 +176,9 @@ export type MyAgencyProfile = {
   phone1?: string | null;
   phone2?: string | null;
   phone3?: string | null;
+  telegram?: string | null;
+  whatsapp?: string | null;
+  instagram?: string | null;
   working_hours?: string | null;
   address?: string | null;
   city_id?: string | null;
@@ -196,6 +199,9 @@ export type UpdateMyAgencyProfilePayload = {
   phone1?: string | null;
   phone2?: string | null;
   phone3?: string | null;
+  telegram?: string | null;
+  whatsapp?: string | null;
+  instagram?: string | null;
   working_hours?: string | null;
   address?: string | null;
   about_us?: string | null;
@@ -517,6 +523,9 @@ export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayloa
     phone1: normalizeOptionalAgencyValue(payload.phone1),
     phone2: normalizeOptionalAgencyValue(payload.phone2),
     phone3: normalizeOptionalAgencyValue(payload.phone3),
+    telegram: normalizeOptionalAgencyValue(payload.telegram),
+    whatsapp: normalizeOptionalAgencyValue(payload.whatsapp),
+    instagram: normalizeOptionalAgencyValue(payload.instagram),
     working_hours: normalizeOptionalAgencyValue(payload.working_hours),
   };
   const hasFile = Boolean(payload.logo || payload.img);

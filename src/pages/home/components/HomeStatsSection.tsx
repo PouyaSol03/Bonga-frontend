@@ -1,12 +1,13 @@
+import { useHomeStatsQuery } from "../../../core/hooks/home-stats.hooks";
 import LinearAnalystic from "../../../shared/icons/LinearAnalystic";
 import { Typography } from "../../../shared/ui/Typography";
 
-const stats = [
-  { value: "+12,500", label: "آگهی فعال" },
-  { value: "+100,000", label: "جستجو در ماه" },
-  { value: "493", label: "آژانس عضو" },
-  { value: "3548", label: "مشاور فعال" },
-] as const;
+function formatCount(value: number | undefined, withPlus = false) {
+  if (value === undefined) return "—";
+
+  const formatted = new Intl.NumberFormat("en-US").format(value);
+  return withPlus ? `+${formatted}` : formatted;
+}
 
 function StatsPieIcon() {
   return (
@@ -20,6 +21,14 @@ function StatsPieIcon() {
 }
 
 export function HomeStatsSection() {
+  const { data } = useHomeStatsQuery();
+  const stats = [
+    { value: formatCount(data?.activeAdvertises, true), label: "آگهی فعال" },
+    { value: formatCount(data?.searchesThisMonth, true), label: "جستجو در ماه" },
+    { value: formatCount(data?.approvedAgencies), label: "آژانس عضو" },
+    { value: formatCount(data?.approvedAgents), label: "مشاور فعال" },
+  ];
+
   return (
     <section
       className="border-t-[16px] border-surface-container bg-surface-container-lowest px-4 py-4"

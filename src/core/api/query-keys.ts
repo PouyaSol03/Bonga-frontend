@@ -151,6 +151,11 @@ export const queryKeys = {
       ] as const,
   },
 
+  homeStats: {
+    all: ["home-stats"] as const,
+    snapshot: () => [...queryKeys.homeStats.all, "snapshot"] as const,
+  },
+
   advertisements: {
     all: ["advertisements"] as const,
     checkout: (id: string) => [...queryKeys.advertisements.all, "checkout", id] as const,

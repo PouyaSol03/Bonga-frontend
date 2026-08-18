@@ -12,7 +12,12 @@
     "preview": "vite preview",
     "audit:perf": "powershell -ExecutionPolicy Bypass -File ./scripts/run-sitespeed.ps1 -Mode representative",
     "audit:perf:all": "powershell -ExecutionPolicy Bypass -File ./scripts/run-sitespeed.ps1 -Mode all-public",
-    "audit:seo": "node scripts/audit-seo.mjs"
+    "audit:seo": "node scripts/audit-seo.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:ad": "playwright test tests/e2e/advertise",
+    "test:e2e:ad:ui": "playwright test tests/e2e/advertise --ui",
+    "test:e2e:ad:headed": "playwright test tests/e2e/advertise --headed",
+    "test:e2e:ad:debug": "playwright test tests/e2e/advertise --debug"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
@@ -39,7 +44,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
@@ -52,6 +56,7 @@
     "globals": "^17.6.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "@playwright/test": "^1.62.1"
   }
 }

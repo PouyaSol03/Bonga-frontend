@@ -484,3 +484,10 @@
   border-radius: 999px;
   background: #11a366;
 }
+
+
+/* Skip off-screen Home section rendering until the browser needs it. */
+.home-content-visibility {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}

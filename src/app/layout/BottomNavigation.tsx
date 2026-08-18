@@ -1,9 +1,7 @@
-import { memo, useEffect, useState } from "react";
+import { lazy, memo, Suspense, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
-import { useChatUnreadCountQuery } from "../../features/chat/api/chat.hooks";
 import { RouteLink } from "../../shared/navigation/RouteLink";
-import { CreateAdBottomSheet } from "../../features/advertisements/components/CreateAdBottomSheet";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearHome3 from "../../shared/icons/LinearHome3";
@@ -58,6 +56,18 @@ const navigationItems: BottomNavigationItem[] = [
   },
 ];
 
+const CreateAdBottomSheet = lazy(() =>
+  import("../../features/advertisements/components/CreateAdBottomSheet").then(
+    (module) => ({ default: module.CreateAdBottomSheet }),
+  ),
+);
+
+const BottomNavigationUnreadChatBadge = lazy(() =>
+  import("../../features/chat/components/BottomNavigationUnreadChatBadge").then(
+    (module) => ({ default: module.BottomNavigationUnreadChatBadge }),
+  ),
+);
+
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
@@ -75,34 +85,10 @@ function BottomNavigationComponent({
   activeKey?: string;
 }) {
   const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
+  const [hasLoadedCreateAdSheet, setHasLoadedCreateAdSheet] = useState(false);
   const hasAuthSession = Boolean(getStoredAuthSession());
-  const { data: unreadChatsCount = 0, refetch: refetchUnreadChatsCount } =
-    useChatUnreadCountQuery({
-      enabled: hasAuthSession,
-    });
 
   const resolvedActiveKey = isCreateAdOpen ? "new-ad" : activeKey;
-  const hasUnreadChats = unreadChatsCount > 0;
-
-  useEffect(() => {
-    if (!hasAuthSession) return;
-
-    void refetchUnreadChatsCount();
-  }, [activeKey, hasAuthSession, refetchUnreadChatsCount]);
-
-  useEffect(() => {
-    if (!hasAuthSession) return;
-
-    function handleRouteChange() {
-      void refetchUnreadChatsCount();
-    }
-
-    window.addEventListener("popstate", handleRouteChange);
-
-    return () => {
-      window.removeEventListener("popstate", handleRouteChange);
-    };
-  }, [hasAuthSession, refetchUnreadChatsCount]);
 
   return (
     <>
@@ -134,6 +120,7 @@ function BottomNavigationComponent({
                     return;
                   }
 
+                  setHasLoadedCreateAdSheet(true);
                   setIsCreateAdOpen(true);
                 }}
                 className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] gap-1 py-2
@@ -154,11 +141,10 @@ function BottomNavigationComponent({
                         })}
                   />
 
-                  {item.key === "chat" && hasUnreadChats ? (
-                    <Typography as="span" variant="body" size="small" weight="medium"
-                      aria-hidden="true"
-                      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
-                    />
+                  {item.key === "chat" && hasAuthSession ? (
+                    <Suspense fallback={null}>
+                      <BottomNavigationUnreadChatBadge activeKey={activeKey} />
+                    </Suspense>
                   ) : null}
                 </Typography>
 
@@ -171,25 +157,29 @@ function BottomNavigationComponent({
         </div>
       </nav>
 
-      <CreateAdBottomSheet
-        isOpen={isCreateAdOpen}
-        onClose={() => setIsCreateAdOpen(false)}
-        onSelect={(option) => {
-          setIsCreateAdOpen(false);
+      {hasLoadedCreateAdSheet ? (
+        <Suspense fallback={null}>
+          <CreateAdBottomSheet
+            isOpen={isCreateAdOpen}
+            onClose={() => setIsCreateAdOpen(false)}
+            onSelect={(option) => {
+              setIsCreateAdOpen(false);
 
-          if (option.id === "personal") {
-            navigateTo("/new-ad/personal?registrantType=personal");
-          }
+              if (option.id === "personal") {
+                navigateTo("/new-ad/personal?registrantType=personal");
+              }
 
-          if (option.id === "independent-consultant") {
-            navigateTo("/new-ad/independent-consultant");
-          }
+              if (option.id === "independent-consultant") {
+                navigateTo("/new-ad/independent-consultant");
+              }
 
-          if (option.id === "jaliliyan-agency") {
-            navigateTo("/new-ad/jaliliyan-agency?registrantType=agency");
-          }
-        }}
-      />
+              if (option.id === "jaliliyan-agency") {
+                navigateTo("/new-ad/jaliliyan-agency?registrantType=agency");
+              }
+            }}
+          />
+        </Suspense>
+      ) : null}
     </>
   );
 }

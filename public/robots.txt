@@ -1,0 +1,47 @@
+# Bonga crawler policy
+# robots.txt manages crawling only; authentication and authorization protect private data.
+
+User-agent: *
+Allow: /
+
+# Authentication and account-only areas
+Disallow: /login
+Disallow: /login/
+Disallow: /login-required
+Disallow: /account
+Disallow: /account/
+Disallow: /dashboard
+Disallow: /dashboard/
+
+# CRM / administration
+Disallow: /crm
+Disallow: /crm/
+
+# Private creation, messaging, notification and payment flows
+Disallow: /new-ad
+Disallow: /new-ad/
+Disallow: /chat
+Disallow: /chat/
+Disallow: /notifications
+Disallow: /notifications/
+Disallow: /support/chat
+Disallow: /verify
+Disallow: /403
+
+# Non-public advertisement previews and workflow-only routes
+Disallow: /preview-ad
+Disallow: /preview-ad/
+
+# UI-only filter / selector routes. Their canonical public parents remain crawlable.
+Disallow: /search/filter
+Disallow: /consultants/neighborhood
+
+# Public discovery and detail pages remain crawlable:
+# /home
+# /search
+# /consultants
+# /ads/{id}
+# /agencies/{id}
+# /agents/{id}
+
+Sitemap: https://bonga.exirfirm.com/sitemap.xml

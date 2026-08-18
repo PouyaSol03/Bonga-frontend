@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import './AdCard.css'
 
 import { RouteLink } from '../../../shared/navigation/RouteLink'
+import LinearImage from '../../../shared/icons/LinearImage'
 import {
   AdCardAlbumIcon,
   AdCardAreaIcon,
@@ -34,12 +35,12 @@ export type AdCardData = {
 
 type AdCardVariant = 'standard' | 'dashboard' | 'requestResult' | 'mapPreview' | 'carousel'
 
-const AD_CARD_TITLE_MAX_LENGTH = 50
+export const AD_CARD_TEXT_MAX_LENGTH = 50
 
-function getCardTitle(title: string) {
-  if (title.length <= AD_CARD_TITLE_MAX_LENGTH) return title
+export function truncateAdCardText(text: string) {
+  if (text.length <= AD_CARD_TEXT_MAX_LENGTH) return text
 
-  return `${title.slice(0, AD_CARD_TITLE_MAX_LENGTH - 1).trimEnd()}…`
+  return `${text.slice(0, AD_CARD_TEXT_MAX_LENGTH - 1).trimEnd()}…`
 }
 
 type AdCardProps = {
@@ -48,8 +49,8 @@ type AdCardProps = {
   className?: string
   imageAction?: ReactNode
   imageMeta?: ReactNode
+  imageLoading?: 'eager' | 'lazy'
   isSelected?: boolean
-  mapPreviewFallbackImage?: string
   mapPreviewImages?: string[]
   mapSliderCardId?: number | string
   showBadges?: boolean
@@ -82,8 +83,8 @@ export function AdCard({
   className = '',
   imageAction,
   imageMeta,
+  imageLoading = 'eager',
   isSelected = false,
-  mapPreviewFallbackImage,
   mapPreviewImages = [],
   mapSliderCardId,
   showAgency = true,
@@ -103,9 +104,7 @@ export function AdCard({
       ? mapPreviewImages
       : ad.imageUrl
         ? [ad.imageUrl]
-        : mapPreviewFallbackImage
-          ? [mapPreviewFallbackImage]
-          : []
+        : []
 
     return (
       <RouteLink
@@ -117,7 +116,6 @@ export function AdCard({
         to={to}
       >
         <MapPreviewImages
-          fallbackImage={mapPreviewFallbackImage}
           images={images}
           title={ad.title}
         />
@@ -131,7 +129,7 @@ export function AdCard({
         <PropertyRow className="mt-1.5 min-h-6 flex-wrap gap-3 text-[13px]" ad={ad} />
 
         <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-[#1a1a1a]">
-          {getCardTitle(ad.title)}
+          {truncateAdCardText(ad.title)}
         </Typography>
       </RouteLink>
     )
@@ -152,6 +150,7 @@ export function AdCard({
             <AdCardImage
               ad={ad}
               imageMeta={imageMeta}
+              imageLoading={imageLoading}
               showAgency={showAgency}
               showImageCount={false}
               showStatusBadge={false}
@@ -199,6 +198,7 @@ export function AdCard({
         <AdCardImage
           ad={ad}
           className={isDashboard ? 'h-[224px] w-auto' : undefined}
+          imageLoading={imageLoading}
           showAgency={showAgency}
           showImageCount={showImageCount}
           showStatusBadge={showStatusBadge}
@@ -219,6 +219,7 @@ function AdCardImage({
   ad,
   className = '',
   imageMeta,
+  imageLoading,
   showAgency = true,
   showImageCount,
   showStatusBadge,
@@ -226,6 +227,7 @@ function AdCardImage({
   ad: AdCardData
   className?: string
   imageMeta?: ReactNode
+  imageLoading?: 'eager' | 'lazy'
   showAgency?: boolean
   showImageCount: boolean
   showStatusBadge: boolean
@@ -233,8 +235,24 @@ function AdCardImage({
   return (
     <div
       className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover bg-center ${ad.imageClassName} ${className}`}
-      style={ad.imageUrl ? { backgroundImage: `url(${ad.imageUrl})` } : undefined}
     >
+      <div className="absolute inset-0 grid place-items-center text-[#9aabc2]" aria-hidden="true">
+        <LinearImage className="h-12 w-12" />
+      </div>
+      {ad.imageUrl ? (
+        <img
+          src={ad.imageUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          draggable={false}
+          loading={imageLoading}
+          decoding="async"
+          fetchPriority={imageLoading === 'lazy' ? 'low' : undefined}
+          onError={(event) => {
+            event.currentTarget.style.display = 'none'
+          }}
+        />
+      ) : null}
       {imageMeta}
       {showImageCount ? (
         <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]" aria-label={`${ad.imageCount} تصویر`}>
@@ -281,7 +299,7 @@ function AdCardBody({
       <PropertyRow className="mt-3 h-5 gap-[22px] text-sm" ad={ad} />
 
       <Typography as="p" variant="body" size="medium" weight="medium" className="mt-3 text-[#1a1a1a]">
-        {getCardTitle(ad.title)}
+        {truncateAdCardText(ad.title)}
       </Typography>
 
       <div className="mt-3 flex h-6 items-center justify-start gap-2">
@@ -327,35 +345,37 @@ function PropertyItem({ icon, value }: { icon: ReactNode; value: string }) {
 }
 
 function MapPreviewImages({
-  fallbackImage,
   images,
   title,
 }: {
-  fallbackImage?: string
   images: string[]
   title: string
 }) {
+  const visibleImages = images.length > 0 ? images : [null]
+
   return (
     <div className="flex h-[92px] w-full gap-3 overflow-hidden rounded-xl" dir="rtl">
-      {images.map((src, index) => (
-        <img
-          key={`${src}-${index}`}
-          className="h-[92px] w-[140px] shrink-0 rounded-xl object-cover"
-          src={src}
-          alt={index === 0 ? title : ''}
-          draggable={false}
-          loading={index === 0 ? 'eager' : 'lazy'}
-          onError={(event) => {
-            if (!fallbackImage) return
-
-            const target = event.currentTarget
-
-            if (target.dataset.fallback === '1') return
-
-            target.dataset.fallback = '1'
-            target.src = fallbackImage
-          }}
-        />
+      {visibleImages.map((src, index) => (
+        <div
+          key={src ? `${src}-${index}` : `no-image-${index}`}
+          className="relative h-[92px] w-[140px] shrink-0 overflow-hidden rounded-xl bg-[#dbe5ff]"
+        >
+          <div className="absolute inset-0 grid place-items-center text-[#9aabc2]" aria-hidden="true">
+            <LinearImage className="h-8 w-8" />
+          </div>
+          {src ? (
+            <img
+              className="absolute inset-0 h-full w-full object-cover"
+              src={src}
+              alt={index === 0 ? title : ''}
+              draggable={false}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              onError={(event) => {
+                event.currentTarget.style.display = 'none'
+              }}
+            />
+          ) : null}
+        </div>
       ))}
     </div>
   )

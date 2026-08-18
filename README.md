@@ -71,3 +71,11 @@ export default defineConfig([
   },
 ])
 ```
+
+## Performance and SEO audits
+
+- `npm run audit:perf` — repeatable sitespeed.io audit of representative public route templates (Docker Desktop required).
+- `npm run audit:perf:all` — sitespeed.io audit of every generated public sitemap URL.
+- `npm run audit:seo` — repository-level technical SEO sanity checks.
+
+See [`PERFORMANCE_SEO_AUDIT.md`](./PERFORMANCE_SEO_AUDIT.md) for setup, authenticated-route testing and interpretation guidance.

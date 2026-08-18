@@ -19,7 +19,7 @@ type BadgeGuide = {
 const badgeGuides: BadgeGuide[] = [
   {
     id: "golden-team",
-    image: "/vectors/badges/badge-cup.png",
+    image: "/vectors/badges/badge-cup.webp",
     title: "نشان تیم طلایی",
     levelsIntro: "بر اساس میانگین امتیاز مشاوران:",
     levels: [
@@ -41,7 +41,7 @@ const badgeGuides: BadgeGuide[] = [
   },
   {
     id: "record-holder",
-    image: "/vectors/badges/badge-bookmark.png",
+    image: "/vectors/badges/badge-bookmark.webp",
     title: "نشان رکورددار",
     levelsIntro: "بر اساس تعداد معامله موفق:",
     levels: ["۱۰۰ معامله موفق", "۳۰۰ معامله موفق", "۶۰۰ معامله موفق"],
@@ -59,7 +59,7 @@ const badgeGuides: BadgeGuide[] = [
   },
   {
     id: "fast-team",
-    image: "/vectors/badges/badge-chat.png",
+    image: "/vectors/badges/badge-chat.webp",
     title: "نشان تیم پرسرعت",
     levelsIntro: "بر اساس تعداد پاسخگویی در زمان مشخص:",
     levels: [
@@ -81,7 +81,7 @@ const badgeGuides: BadgeGuide[] = [
   },
   {
     id: "popular",
-    image: "/vectors/badges/badge-first.png",
+    image: "/vectors/badges/badge-first.webp",
     title: "نشان محبوب‌ترین",
     levelsIntro: "بر اساس امتیاز کاربران:",
     levels: [

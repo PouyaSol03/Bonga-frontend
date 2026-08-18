@@ -5,9 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "seo:generate": "node scripts/generate-seo-files.mjs",
+    "prebuild": "npm run seo:generate",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audit:perf": "powershell -ExecutionPolicy Bypass -File ./scripts/run-sitespeed.ps1 -Mode representative",
+    "audit:perf:all": "powershell -ExecutionPolicy Bypass -File ./scripts/run-sitespeed.ps1 -Mode all-public",
+    "audit:seo": "node scripts/audit-seo.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",

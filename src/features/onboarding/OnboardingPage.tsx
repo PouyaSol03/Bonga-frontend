@@ -20,35 +20,35 @@ import LinearArrowRight2 from "../../shared/icons/LinearArrowRight2";
 
 const onboardingSteps = [
   {
-    image: "/images/onboarding/first_image.png",
+    image: "/images/onboarding/first_image.webp",
     eyebrow: "همه‌چیز برای",
     title: "خرید، فروش و اجاره ملک",
     description:
       "هزاران آگهی به‌روز را جستجو کنید، با آگهی‌دهندگان گفتگو کنید و ملک مناسب خود را سریع‌تر پیدا کنید.",
   },
   {
-    image: "/images/onboarding/second_image.png",
+    image: "/images/onboarding/second_image.webp",
     eyebrow: "آگهی خود را",
     title: "رایگان منتشر کنید",
     description:
       "ملک خود را مستقیماً ثبت کنید یا انتشار آن را به یک آژانس حرفه‌ای بسپارید.",
   },
   {
-    image: "/images/onboarding/third_image.png",
+    image: "/images/onboarding/third_image.webp",
     eyebrow: "با مشاوران و",
     title: "آژانس‌های معتبر در ارتباط باشید",
     description:
       "مشاوران و آژانس‌ها را مقایسه کنید، امتیازها و نشان‌های آن‌ها را ببینید و با اطمینان انتخاب کنید.",
   },
   {
-    image: "/images/onboarding/fourth_image.png",
+    image: "/images/onboarding/fourth_image.webp",
     eyebrow: "سامانه هوشمند",
     title: "کسب‌و‌کار املاک",
     description:
       "اگر مشاور یا آژانس هستید، آگهی‌ها، مشتریان، فایل‌ها، معاملات و تیم خود را در یک پنل حرفه‌ای مدیریت کنید.",
   },
   {
-    image: "/images/onboarding/fifth_image.png",
+    image: "/images/onboarding/fifth_image.webp",
     eyebrow: "همه ابزارهای موردنیاز",
     title: "در یک سامانه متمرکز",
     description:
@@ -57,7 +57,7 @@ const onboardingSteps = [
 ] as const;
 
 const ONBOARDING_STEP_COUNT = onboardingSteps.length;
-const citySelectionImage = "/images/onboarding/sixth_image.png";
+const citySelectionImage = "/images/onboarding/sixth_image.webp";
 // Decorative layers behind the active onboarding image.
 // They are intentionally plain colors — no future-step images are rendered here.
 const ONBOARDING_SECOND_LAYER = "#c5d6f2"; // Primary / 16%
@@ -216,7 +216,7 @@ export function OnboardingPage() {
                   <img
                     alt=""
                     className={
-                      onboardingSteps[stepIndex].image.includes("third_image.png")
+                      onboardingSteps[stepIndex].image.includes("third_image.webp")
                         ? "block h-auto w-full origin-top object-contain object-top"
                         : "block h-auto w-full object-contain object-top"
                     }

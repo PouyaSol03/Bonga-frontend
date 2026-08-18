@@ -1367,7 +1367,13 @@ export function ViewAdPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
-      <SEO title={details.title || details.headline || "آگهی املاک"} description={details.description} />
+      <SEO
+        title={details.title || details.headline || "آگهی املاک"}
+        description={details.description}
+        ogImage={mediaItems.find((item) => item.type === "image")?.src}
+        twitterCard="summary_large_image"
+      />
+      <h1 className="sr-only">{details.title || details.headline || "آگهی املاک"}</h1>
       <ViewAdTopBar
         actionIcons={usesPublicAdPresentation ? undefined : ["share"]}
         backTo="/home"

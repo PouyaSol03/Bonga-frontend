@@ -73,11 +73,11 @@ function AboutIntroCard() {
     <section className="relative p-4 mx-4 mt-4 overflow-hidden rounded-2xl bg-[#ebf0fa]">
       <div className="relative">
         <img
-          alt="تصویری از خدمات بونگا در بازار املاک"
+          alt="تصویری از خدمات بنگاه در بازار املاک"
           className="block h-auto w-full"
           height={292}
           loading="eager"
-          src="/images/about-hero.svg"
+          src="/images/about-hero.webp"
           width={624}
         />
 

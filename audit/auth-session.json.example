@@ -1,0 +1,15 @@
+{
+  "accessToken": "PASTE_A_VALID_TEST_TOKEN_HERE",
+  "accountType": "user",
+  "activeRole": "user",
+  "expiresAt": null,
+  "mobile": "",
+  "role": "user",
+  "roles": [
+    {
+      "id": "user",
+      "name": "کاربر",
+      "slug": "user"
+    }
+  ]
+}

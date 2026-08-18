@@ -1,3 +1,4 @@
+import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { SEO } from "../../shared/components/SEO";
 import { AdCard } from "../advertisements/components/AdCard";
@@ -512,6 +513,10 @@ export function AgencyPreviewPage() {
     : agencyTabs;
   const entityLabel = isAgentPreview ? "مشاور" : "آژانس";
   const pageTitle = `صفحه ${entityLabel}`;
+  const seoTitle = `${entityName} | ${entityLabel} املاک | بنگاه`;
+  const seoDescription =
+    entityAbout?.trim() ||
+    `${entityName}، ${entityLabel} املاک${entityLocation ? ` در ${entityLocation}` : ""}. مشاهده اطلاعات، آگهی‌های فعال و راه‌های ارتباطی در بنگاه.`;
   const shareTitle = entityName;
   const shareText = `${pageTitle} ${shareTitle}`;
   const shareUrl = isPublicPreview
@@ -601,7 +606,26 @@ export function AgencyPreviewPage() {
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
-      <SEO title={pageTitle} description={entityAbout} />
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        ogImage={entityLogo || undefined}
+        ogType={isAgentPreview ? "profile" : "website"}
+        twitterCard={entityLogo ? "summary_large_image" : "summary"}
+        structuredData={
+          isPublicPreview
+            ? {
+                "@context": "https://schema.org",
+                "@type": isAgentPreview ? "Person" : "Organization",
+                name: entityName,
+                description: seoDescription,
+                ...(entityLogo ? { image: entityLogo } : {}),
+                ...(entityLocation ? { address: entityLocation } : {}),
+              }
+            : undefined
+        }
+      />
+      <h1 className="sr-only">{seoTitle}</h1>
       <TopBar
         actions={
           isPublicPreview

@@ -61,12 +61,14 @@ export function DirectoryCard({
   onClick,
   className,
   layout = "list",
+  imageLoading = "eager",
 }: {
   item: DirectoryCardItem;
   mode: DirectoryCardMode;
   onClick?: () => void;
   className?: string;
   layout?: "list" | "carousel";
+  imageLoading?: "eager" | "lazy";
 }) {
   const content = (
     <>
@@ -76,6 +78,8 @@ export function DirectoryCard({
           className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} h-[72px] w-[72px] shrink-0 object-cover shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
           src={item.image}
           draggable={false}
+          loading={imageLoading}
+          decoding="async"
         />
       ) : (
         <Typography

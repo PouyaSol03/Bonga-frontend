@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SEO } from "../../shared/components/SEO";
 import "./searchMap.css";
 import {
-  getApiAssetUrl,
   getApiErrorMessage,
   isUnauthorizedApiError,
 } from "../../shared/api/api";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../advertisements/api/advertisement.hooks";
+import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { usePublisherOptions } from "../advertisements/api/publisher-options.hooks";
 import { useCreatePropertyRequestMutation } from "../property-requests/api/property-request.hooks";
@@ -49,7 +49,6 @@ import type {
 } from "./geofence/geofenceTypes";
 import { serializeGeofenceForApi } from "./geofence/geofenceApi";
 import {
-  SEARCH_MAP_FALLBACK_IMAGE,
   searchMapCenter,
   searchMapTileConfig,
   type SearchFilterChip,
@@ -494,24 +493,7 @@ function readNestedText(item: AdvertisementItem, keys: string[]) {
 }
 
 function readImageSources(item: AdvertisementItem) {
-  const images = Array.isArray(item.images) ? item.images : [];
-  const imageSources = images
-    .map((image) => {
-      if (typeof image === "string") return image;
-
-      return image.url ?? image.path ?? "";
-    })
-    .filter(Boolean);
-
-  if (typeof item.image === "string" && item.image.trim()) {
-    imageSources.unshift(item.image);
-  }
-
-  const uniqueSources = Array.from(new Set(imageSources));
-
-  return uniqueSources.length > 0
-    ? uniqueSources.map((image) => getApiAssetUrl(image))
-    : [SEARCH_MAP_FALLBACK_IMAGE];
+  return getAdvertisementImageUrls(item);
 }
 
 type PositionContainer = Record<string, unknown> & {
@@ -663,8 +645,8 @@ function mapAdvertisementToSearchListing(
     area: readFeature(item, ["area", "meterage", "building_area", "متراژ"], item.area ? `${toText(item.area)} متر` : "-"),
     badges: readBadges(item),
     dotId: `dot-${id}`,
-    imageClassName: images[0] === SEARCH_MAP_FALLBACK_IMAGE ? `ad-card__image--${(index % 4) + 1}` : "",
-    imageSrc: images[0] ?? SEARCH_MAP_FALLBACK_IMAGE,
+    imageClassName: "",
+    imageSrc: images[0],
     images,
     latitude: position.latitude,
     locationLabel,
@@ -1478,6 +1460,7 @@ export function SearchMapPage() {
         description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه. به راحتی آپارتمان، خانه ویلایی، زمین و مغازه مورد نظر خود را در محله دلخواه برای خرید یا اجاره پیدا کنید."
         keywords="جستجوی املاک روی نقشه, نقشه املاک, خرید خانه در محله, قیمت آپارتمان در مناطق مختلف, اجاره آپارتمان از روی نقشه"
       />
+      <h1 className="sr-only">جستجوی آگهی‌های املاک روی نقشه بنگاه</h1>
       {!showCurrentEmptyState ? (
         isFullListOpen ? (
           <SearchMapListView

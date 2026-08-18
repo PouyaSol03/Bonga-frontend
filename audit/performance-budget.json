@@ -1,0 +1,34 @@
+{
+  "budget": {
+    "googleWebVitals": {
+      "firstContentfulPaint": 1800,
+      "largestContentfulPaint": 2500,
+      "totalBlockingTime": 200,
+      "cumulativeLayoutShift": 0.1
+    },
+    "requests": {
+      "total": 80,
+      "httpErrors": 0
+    },
+    "transferSize": {
+      "total": 1572864,
+      "javascript": 524288,
+      "image": 786432,
+      "font": 262144
+    },
+    "score": {
+      "performance": 80,
+      "bestpractice": 90
+    },
+    "lighthouse": {
+      "performance": 80,
+      "accessibility": 90,
+      "best-practices": 90,
+      "seo": 95
+    },
+    "axe": {
+      "critical": 0,
+      "serious": 0
+    }
+  }
+}

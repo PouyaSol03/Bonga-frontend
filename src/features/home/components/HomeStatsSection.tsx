@@ -31,7 +31,7 @@ export function HomeStatsSection() {
 
   return (
     <section
-      className="border-t-[16px] border-surface-container bg-surface-container-lowest px-4 py-4"
+      className="home-content-visibility border-t-[16px] border-surface-container bg-surface-container-lowest px-4 py-4"
       aria-labelledby="home-stats-title"
       dir="rtl"
     >

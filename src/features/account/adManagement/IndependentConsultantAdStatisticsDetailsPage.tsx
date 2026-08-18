@@ -4,6 +4,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Typography } from "../../../shared/ui/Typography";
 import { adManagementPaths, getAdManagementRouteState, type StatisticsAd } from "./adManagementData";
+import { getPrimaryAdvertisementImageUrl } from "../../advertisements/utils/advertisement-images";
 
 const chartSections = [
   { keys: ["total_views", "views_count", "views", "visit_count", "view_count"], label: "بازدید امروز:", title: "بازدید از آگهی" },
@@ -110,8 +111,7 @@ function readStatistic(ad: unknown, keys: string[]) {
 }
 
 function readImageUrl(record: Record<string, unknown>) {
-  const value = record.imageUrl ?? record.image_url ?? record.image;
-  return typeof value === "string" && value.trim() ? value : undefined;
+  return getPrimaryAdvertisementImageUrl(record);
 }
 
 function readText(value: unknown) {

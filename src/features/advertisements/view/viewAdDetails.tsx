@@ -3,6 +3,7 @@ import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
 import { FeaturesIcons } from "../components/FeaturesIcons";
 import { TopBar } from "../../../shared/components/TopBar";
 import { getApiAssetUrl } from "../../../shared/api/api";
+import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 import { getBuildingInfo } from "../../../shared/lib/handleBuildingInfo";
 import { getFeatureIconSrc } from "../../../shared/lib/handleFeaturesIcons";
 import type { AdvertisementItem } from "../api/advertisement.service";
@@ -182,21 +183,6 @@ function formatPrice(value: unknown) {
   return new Intl.NumberFormat("fa-IR").format(numericValue);
 }
 
-function readImages(ad: AdvertisementItem) {
-  const images = Array.isArray(ad.images) ? ad.images : [];
-  const sortedImages = [...images].sort((a, b) => {
-    if (a.is_main && !b.is_main) return -1;
-    if (!a.is_main && b.is_main) return 1;
-    return 0;
-  });
-
-  return sortedImages
-    .map((image) => image.url)
-    .filter((url): url is string => typeof url === "string" && url.trim().length > 0)
-    .map((url) => getApiAssetUrl(url));
-}
-
-
 
 function readVideoUrl(ad: AdvertisementItem) {
   return typeof ad.video === "string" && ad.video.trim()
@@ -215,7 +201,7 @@ export function hasTour3d(ad: AdvertisementItem) {
 }
 
 export function buildGalleryMediaItems(ad: AdvertisementItem) {
-  const images = readImages(ad);
+  const images = getAdvertisementImageUrls(ad);
   const videoUrl = readVideoUrl(ad);
   const imageItems = images.map(
     (src): AlbumMediaItem => ({ src, type: "image" }),

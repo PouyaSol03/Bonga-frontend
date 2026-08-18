@@ -12,27 +12,27 @@ type AgencyLevel = {
 
 const agencyLevels: AgencyLevel[] = [
   {
-    image: "/vectors/agencyLevel/newbie.svg",
+    image: "/vectors/agencyLevel/newbie.webp",
     points: "۰-۴۹",
     title: "آژانس تازه‌کار",
   },
   {
-    image: "/vectors/agencyLevel/active.svg",
+    image: "/vectors/agencyLevel/active.webp",
     points: "۵۰-۶۴",
     title: "آژانس فعال",
   },
   {
-    image: "/vectors/agencyLevel/very_active.svg",
+    image: "/vectors/agencyLevel/very_active.webp",
     points: "۶۵-۷۹",
     title: "آژانس پویا",
   },
   {
-    image: "/vectors/agencyLevel/top_one.svg",
+    image: "/vectors/agencyLevel/top_one.webp",
     points: "۸۰-۸۹",
     title: "آژانس برتر منطقه",
   },
   {
-    image: "/vectors/agencyLevel/legendery.svg",
+    image: "/vectors/agencyLevel/legendery.webp",
     points: "۹۰-۱۰۰",
     title: "آژانس افسانه‌ای",
   },

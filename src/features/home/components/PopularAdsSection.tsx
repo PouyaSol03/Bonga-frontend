@@ -98,7 +98,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
 
   return (
     <section
-      className="border-t-[16px] border-surface-container bg-surface-container-lowest pb-6 pt-6"
+      className="home-content-visibility border-t-[16px] border-surface-container bg-surface-container-lowest pb-6 pt-6"
       aria-labelledby="popular-ads-title"
       dir="rtl"
     >
@@ -155,6 +155,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
                     ad={ad}
                     className="w-[300px]"
                     showAgency={false}
+                    imageLoading="lazy"
                     variant="carousel"
                   />
                 </div>

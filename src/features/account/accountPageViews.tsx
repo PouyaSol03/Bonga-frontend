@@ -5,7 +5,7 @@ import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../advertisements/api/advertisement.service";
 import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
-import { AdCard } from "../advertisements/components/AdCard";
+import { AdCard, truncateAdCardText } from "../advertisements/components/AdCard";
 import type { AdCardData } from "../advertisements/components/AdCard";
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
@@ -539,8 +539,9 @@ export function NoteCard({
   const noteId = getNoteId(note);
   const advertiseId = getNoteAdvertiseId(note);
   const mappedAd = mapAdvertisementToAdCard(getNoteAdvertiseSource(note), 0);
-  const noteText = readNoteText(note) || "یادداشت";
-  const dateText = mappedAd.timeAndLocation || readNoteDate(note, "");
+  const noteText = truncateAdCardText(readNoteText(note) || "یادداشت");
+  const adTitle = truncateAdCardText(mappedAd.title);
+  const dateText = truncateAdCardText(mappedAd.timeAndLocation || readNoteDate(note, ""));
   const maxDragOffset = 59;
 
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
@@ -614,7 +615,7 @@ export function NoteCard({
 
           <div className="min-w-0 flex-1 text-right">
             <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-[#1a1a1a]">
-              {mappedAd.title}
+              {adTitle}
             </Typography>
             <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-[#808080]">
               {dateText}

@@ -1,3 +1,4 @@
+import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 

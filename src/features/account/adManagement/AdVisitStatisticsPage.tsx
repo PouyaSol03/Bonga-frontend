@@ -18,6 +18,7 @@ import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
 import { USER } from "../../../shared/constants/roles.constants";
 import { useAdvertisementDetailQuery } from "../../advertisements/api/advertisement.hooks";
+import { getPrimaryAdvertisementImageUrl } from "../../advertisements/utils/advertisement-images";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import {
   adManagementPaths,
@@ -569,22 +570,7 @@ function readEntityId(entity: unknown) {
 }
 
 function readImageUrl(record: Record<string, unknown>) {
-  const directImage = record.imageUrl ?? record.image_url ?? record.image;
-
-  if (typeof directImage === "string" && directImage.trim()) return directImage;
-
-  const images = record.images;
-  if (!Array.isArray(images)) return undefined;
-
-  for (const image of images) {
-    if (typeof image === "string" && image.trim()) return image;
-    if (isRecord(image)) {
-      const imagePath = image.url ?? image.path;
-      if (typeof imagePath === "string" && imagePath.trim()) return imagePath;
-    }
-  }
-
-  return undefined;
+  return getPrimaryAdvertisementImageUrl(record);
 }
 
 function readText(value: unknown, fallback = "") {

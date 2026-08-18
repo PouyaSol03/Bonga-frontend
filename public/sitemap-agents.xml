@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://192.168.1.242:4173/agents/4</loc>
+    <lastmod>2026-08-12T04:05:16.400Z</lastmod>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/agents/5</loc>
+    <lastmod>2026-08-08T11:31:26.648Z</lastmod>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/agents/6</loc>
+    <lastmod>2026-08-08T07:00:49.687Z</lastmod>
+  </url>
+</urlset>

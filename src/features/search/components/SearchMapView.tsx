@@ -1,3 +1,4 @@
+import "leaflet/dist/leaflet.css";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { DivIcon } from "leaflet";
 import { Circle, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";

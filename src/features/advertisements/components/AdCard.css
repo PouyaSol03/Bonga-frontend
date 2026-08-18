@@ -1,7 +1,4 @@
 .ad-card__image {
-  background-image:
-    linear-gradient(0deg, rgba(26, 26, 26, 0.08), rgba(26, 26, 26, 0.02)),
-    url("/figma/view-ad-album.png");
   background-position: center;
 }
 

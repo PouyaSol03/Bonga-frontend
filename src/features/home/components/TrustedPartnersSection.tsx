@@ -77,7 +77,7 @@ export function TrustedPartnersSection() {
 
   return (
     <section
-      className="border-t-[16px] border-surface-container bg-surface-container-lowest pb-6 pt-4"
+      className="home-content-visibility border-t-[16px] border-surface-container bg-surface-container-lowest pb-6 pt-4"
       aria-labelledby="trusted-partners-title"
       dir="rtl"
     >
@@ -131,6 +131,7 @@ export function TrustedPartnersSection() {
                     score: toPersianNumber(partner.score),
                   }}
                   layout="carousel"
+                  imageLoading="lazy"
                   mode="agency"
                   onClick={() => pushRoute(`/agencies/${encodeURIComponent(partner.id)}`)}
                 />

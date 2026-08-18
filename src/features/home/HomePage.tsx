@@ -1,9 +1,7 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import "./homeArtwork.css";
 
 
-import { CategoryBottomSheet } from "./components/CategoryBottomSheet";
-import { HomeSearchScreen } from "./components/HomeSearchScreen";
 import type { CategoryOption, QuickAction } from "./homeTypes";
 import ArrowDown from "../../shared/assets/icons/ArrowDown";
 import ShenasaVector from "../../shared/assets/icons/ShenasaVector";
@@ -15,7 +13,6 @@ import { PopularAdsSection } from "./components/PopularAdsSection";
 
 import { getApiErrorMessage } from "../../shared/api/api";
 import { useCategoryListQuery } from "../categories/api/category.hooks";
-import { useNotificationUnreadCountQuery } from "../notifications/api/notification.hooks";
 import type { CategoryItem } from "../categories/api/category.service";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
@@ -31,6 +28,24 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { pushRoute } from "../../shared/navigation/navigation";
 import { SEO } from "../../shared/components/SEO";
+
+const UnreadNotificationBadge = lazy(() =>
+  import("../notifications/components/UnreadNotificationBadge").then((module) => ({
+    default: module.UnreadNotificationBadge,
+  })),
+);
+
+const CategoryBottomSheet = lazy(() =>
+  import("./components/CategoryBottomSheet").then((module) => ({
+    default: module.CategoryBottomSheet,
+  })),
+);
+
+const HomeSearchScreen = lazy(() =>
+  import("./components/HomeSearchScreen").then((module) => ({
+    default: module.HomeSearchScreen,
+  })),
+);
 
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
@@ -160,6 +175,8 @@ export function HomePage() {
     null,
   );
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [hasLoadedCategorySheet, setHasLoadedCategorySheet] = useState(false);
+  const [hasLoadedSearchScreen, setHasLoadedSearchScreen] = useState(false);
   const [selectedCity] = useState(getStoredCity);
   const {
     data: categories = [],
@@ -168,10 +185,6 @@ export function HomePage() {
     isLoading: isCategoryLoading,
     refetch: refetchCategories,
   } = useCategoryListQuery();
-  const { data: unreadNotificationsCount = 0 } = useNotificationUnreadCountQuery({
-    enabled: hasAuthSession,
-  });
-
   const quickActions = useMemo(() => {
     const apiCategories = categories
       .map(mapCategoryToQuickAction)
@@ -181,6 +194,14 @@ export function HomePage() {
   }, [categories]);
   const isCategorySheetOpen = selectedCategory !== null;
   const PageErrorState = getRequestErrorState(categoryError);
+
+  useEffect(() => {
+    if (isCategorySheetOpen) setHasLoadedCategorySheet(true);
+  }, [isCategorySheetOpen]);
+
+  useEffect(() => {
+    if (isSearchOpen) setHasLoadedSearchScreen(true);
+  }, [isSearchOpen]);
 
   const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
@@ -242,7 +263,15 @@ export function HomePage() {
         title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک بنگاه" 
         description="سامانه هوشمند املاک بنگاه؛ مرجع تخصصی خرید، فروش، رهن و اجاره آپارتمان، خانه ویلایی، زمین و مغازه. جدیدترین آگهی‌های املاک را در بنگاه جستجو کنید."
         keywords="خرید آپارتمان, فروش آپارتمان, رهن و اجاره خانه, خرید زمین, قیمت آپارتمان, مشاور املاک, سامانه املاک بنگاه"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "بنگاه",
+          inLanguage: "fa-IR",
+          description: "سامانه هوشمند املاک بنگاه برای خرید، فروش، رهن و اجاره ملک",
+        }}
       />
+      <h1 className="sr-only">سامانه هوشمند املاک بنگاه برای خرید، فروش، رهن و اجاره ملک</h1>
       <header className="shrink-0 bg-white">
         <section
           className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-white px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
@@ -256,11 +285,12 @@ export function HomePage() {
               type="button"
             >
               <LinearNotification className="h-6 w-6" />
-              {unreadNotificationsCount > 0 ? (
-                <Typography as="span" variant="body" size="medium" weight="regular"
-                  aria-hidden="true"
-                  className="absolute right-3.5 top-3 h-2 w-2 rounded-full bg-[#ef1f1f] ring-2 ring-white"
-                />
+              {hasAuthSession ? (
+                <Suspense fallback={null}>
+                  <UnreadNotificationBadge
+                    className="absolute right-3.5 top-3 h-2 w-2 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+                  />
+                </Suspense>
               ) : null}
             </Button>
 
@@ -277,6 +307,7 @@ export function HomePage() {
           <div
             className="flex items-end justify-start gap-2 pr-1 min-[390px]:gap-3"
             aria-label="ایران شناسا"
+            role="img"
           >
             <IranShenasaTypo />
             <ShenasaVector />
@@ -370,33 +401,40 @@ export function HomePage() {
         <PopularAdsSection cityId={selectedCity.id} />
       </main>
 
-      <CategoryBottomSheet
-        isOpen={isCategorySheetOpen}
-        selectedCategory={selectedCategory}
-        onClose={() => setSelectedCategory(null)}
-        onSelectCategory={(category) => {
-          if (category?.code === "agency" || category?.code === "consultant") {
-            navigateToConsultants(category.code);
-            return;
-          }
+      {hasLoadedCategorySheet || isCategorySheetOpen ? (
+        <Suspense fallback={null}>
+          <CategoryBottomSheet
+            isOpen={isCategorySheetOpen}
+            selectedCategory={selectedCategory}
+            onClose={() => setSelectedCategory(null)}
+            onSelectCategory={(category) => {
+              if (category?.code === "agency" || category?.code === "consultant") {
+                navigateToConsultants(category.code);
+                return;
+              }
 
-          const formCode = getCategorySelectionFormCode(category, selectedCategory);
+              const formCode = getCategorySelectionFormCode(category, selectedCategory);
 
-          navigateToSearch({ formCode });
-        }}
-      />
+              navigateToSearch({ formCode });
+            }}
+          />
+        </Suspense>
+      ) : null}
 
-      <HomeSearchScreen
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSelectResult={(item) =>
-          navigateToSearch({
-            formCode: item.formCode,
-            query: item.title,
-          })
-        }
-      />
-
+      {hasLoadedSearchScreen || isSearchOpen ? (
+        <Suspense fallback={null}>
+          <HomeSearchScreen
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onSelectResult={(item) =>
+              navigateToSearch({
+                formCode: item.formCode,
+                query: item.title,
+              })
+            }
+          />
+        </Suspense>
+      ) : null}
     </div>
   );
 }

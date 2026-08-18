@@ -27,6 +27,7 @@ import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { DirectoryCard, DirectoryCardSkeleton } from "./components/DirectoryCard";
+import { SEO } from "../../shared/components/SEO";
 
 type DirectoryMode = "agency" | "consultant";
 
@@ -331,6 +332,21 @@ export function ConsultantsDirectoryPage() {
   );
   const activeQuery = mode === "agency" ? agenciesQuery : agentsQuery;
   const DirectoryErrorState = getRequestErrorState(activeQuery.error);
+  const seoTitle =
+    mode === "consultant"
+      ? "مشاوران املاک | جستجو و مقایسه مشاوران در بنگاه"
+      : "آژانس‌های املاک | جستجو و مقایسه آژانس‌ها در بنگاه";
+  const seoDescription =
+    mode === "consultant"
+      ? "فهرست مشاوران املاک در بنگاه؛ مشاوران را بر اساس امتیاز، رتبه و محدوده فعالیت بررسی و مقایسه کنید."
+      : "فهرست آژانس‌های املاک در بنگاه؛ آژانس‌ها را بر اساس امتیاز، رتبه، محدوده فعالیت و آگهی‌های فعال بررسی کنید.";
+  const directorySeo = (
+    <SEO
+      title={seoTitle}
+      description={seoDescription}
+      keywords="مشاور املاک, آژانس املاک, بهترین مشاور املاک, بهترین آژانس املاک, بنگاه املاک"
+    />
+  );
 
   const loadMoreSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -429,6 +445,8 @@ export function ConsultantsDirectoryPage() {
         className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
         variant="flush"
       >
+        {directorySeo}
+        <h1 className="sr-only">{seoTitle}</h1>
         <AgencyDirectoryMapView
           center={mapCenter}
           items={agencyDirectoryItems}
@@ -453,6 +471,8 @@ export function ConsultantsDirectoryPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
       variant="flush"
     >
+      {directorySeo}
+      <h1 className="sr-only">{seoTitle}</h1>
       <div className="shrink-0 bg-[#f0f0f0]">
         <TopBar
           className="bg-[#f0f0f0]"

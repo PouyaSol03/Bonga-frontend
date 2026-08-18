@@ -1,5 +1,6 @@
 import { memo, type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
+import { getPrimaryAdvertisementImageUrl } from "../advertisements/utils/advertisement-images";
 import {
   joinChatThread,
   leaveChatThread,
@@ -38,6 +39,7 @@ import { RouteLink } from "../../shared/navigation/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../../shared/lib/browserLocation";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import LinearSupport from "../../shared/icons/LinearSupport";
+import LinearImage from "../../shared/icons/LinearImage";
 import {
   uploadChatAttachment,
   type ChatAvailability,
@@ -455,24 +457,7 @@ function dedupeChatMessages(messages: ChatMessage[]) {
 }
 
 function readImageUrl(source: unknown) {
-  const directImage = readPathText(source, ["image", "image_url", "thumbnail", "cover"]);
-
-  if (directImage) return /^https?:\/\//i.test(directImage) ? directImage : getApiAssetUrl(directImage);
-
-  const images = asRecord(source)?.images;
-
-  if (Array.isArray(images)) {
-    for (const image of images) {
-      const imageUrl =
-        typeof image === "string"
-          ? image
-          : readPathText(image, ["url", "path", "image", "thumbnail"]);
-
-      if (imageUrl) return /^https?:\/\//i.test(imageUrl) ? imageUrl : getApiAssetUrl(imageUrl);
-    }
-  }
-
-  return undefined;
+  return getPrimaryAdvertisementImageUrl(source);
 }
 
 function formatChatDate(value: unknown) {
@@ -1275,11 +1260,19 @@ const ChatCard = memo(function ChatCard({
             {displayItem.adTitle}
           </div>
         </div>
-        <img
-          alt=""
-          className="h-12 w-[72px] shrink-0 rounded object-cover"
-          src={displayItem.imageUrl ?? "/figma/view-ad-album.png"}
-        />
+        <div className="relative grid h-12 w-[72px] shrink-0 place-items-center overflow-hidden rounded bg-[#dbe5ff] text-[#9aabc2]">
+          <LinearImage className="h-6 w-6" aria-hidden="true" />
+          {displayItem.imageUrl ? (
+            <img
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              src={displayItem.imageUrl}
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+          ) : null}
+        </div>
       </div>
     </article>
   );
@@ -1350,14 +1343,22 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
   const advertiseTitle =
     readPathText(advertise, ["title", "label", "name"]) || "جزئیات ملک";
   const advertiseFormTitle = readAdvertiseFormTitle(advertise);
-  const imageUrl = readImageUrl(advertise) ?? "/figma/view-ad-album.png";
+  const imageUrl = readImageUrl(advertise);
   const content = (
     <section className="flex h-[52px] shrink-0 items-center gap-2 bg-[#f5f5f5] px-4 text-right [direction:rtl]">
-      <img
-        alt={advertiseTitle}
-        className="h-10 w-[54px] shrink-0 rounded-md object-cover"
-        src={imageUrl}
-      />
+      <div className="relative grid h-10 w-[54px] shrink-0 place-items-center overflow-hidden rounded-md bg-[#dbe5ff] text-[#9aabc2]">
+        <LinearImage className="h-5 w-5" aria-hidden="true" />
+        {imageUrl ? (
+          <img
+            alt={advertiseTitle}
+            className="absolute inset-0 h-full w-full object-cover"
+            src={imageUrl}
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+        ) : null}
+      </div>
       <div className="min-w-0 flex-1">
         {advertiseFormTitle ? (
           <Typography as="p" variant="body" size="small" weight="regular" className="truncate text-xs font-normal leading-4 text-[#1a1a1a]">

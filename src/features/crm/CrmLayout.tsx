@@ -1,9 +1,10 @@
+import "leaflet/dist/leaflet.css";
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode, type SelectHTMLAttributes } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { LatLngTuple } from "leaflet";
 import { CircleMarker, MapContainer, Polygon, TileLayer, useMapEvents } from "react-leaflet";
 import { getApiErrorMessage } from "../../shared/api/api";
-import type { AdCardData } from "../advertisements/components/AdCard";
+import { truncateAdCardText, type AdCardData } from "../advertisements/components/AdCard";
 import LinearEdit2 from "../../shared/icons/LinearEdit2";
 import LinearFlag from "../../shared/icons/LinearFlag";
 import LinearRequestList from "../../shared/icons/LinearRequestList";
@@ -385,7 +386,8 @@ export function mapCrmAdvertiseToCard(advertise: CrmRecord, index: number): AdCa
     imageCount: mapped.imageCount || String(readArray(advertise, "images").length || 1),
     pricePrimary: mapped.pricePrimary && mapped.pricePrimary !== "-" ? mapped.pricePrimary : rawPrice,
     status: advertiseStatusLabel(advertise.status),
-    timeAndLocation: advertiseLocationLabel(advertise, mapped.timeAndLocation),
+    title: truncateAdCardText(mapped.title),
+    timeAndLocation: truncateAdCardText(advertiseLocationLabel(advertise, mapped.timeAndLocation)),
   };
 }
 

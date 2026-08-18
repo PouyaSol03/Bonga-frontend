@@ -20,19 +20,19 @@ type BadgeDefinition = {
 
 const badgeDefinitions: Record<BadgeKey, BadgeDefinition> = {
   "record-holder": {
-    image: "/vectors/badges/badge-bookmark.png",
+    image: "/vectors/badges/badge-bookmark.webp",
     name: "رکورددار",
   },
   "golden-team": {
-    image: "/vectors/badges/badge-cup.png",
+    image: "/vectors/badges/badge-cup.webp",
     name: "تیم طلایی",
   },
   popular: {
-    image: "/vectors/badges/badge-first.png",
+    image: "/vectors/badges/badge-first.webp",
     name: "محبوب‌ترین",
   },
   "fast-team": {
-    image: "/vectors/badges/badge-chat.png",
+    image: "/vectors/badges/badge-chat.webp",
     name: "تیم پرسرعت",
   },
 };

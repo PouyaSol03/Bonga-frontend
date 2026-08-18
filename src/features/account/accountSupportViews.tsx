@@ -111,9 +111,9 @@ export type Conversation = {
 
 function SupportAgents() {
   const agents = [
-    "/support/support-agent-3.png",
-    "/support/support-agent-2.png",
-    "/support/support-agent-1.png",
+    "/support/support-agent-3.webp",
+    "/support/support-agent-2.webp",
+    "/support/support-agent-1.webp",
   ];
 
   return (

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
+import { getApiErrorMessage } from "../../shared/api/api";
 import LinearApartment from "../../shared/icons/LinearApartment";
 import LinearArrowRight1 from "../../shared/icons/LinearArrowRight1";
 import LinearBuilding from "../../shared/icons/LinearBuilding";
@@ -22,6 +22,7 @@ import LinearMoney from "../../shared/icons/LinearMoney";
 import LinearOwner from "../../shared/icons/LinearOwner";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { AdLocationMap } from "../advertisements/components/AdLocationMap";
+import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import {
   getCrmAdvertise,
@@ -403,25 +404,7 @@ function getFeatureIcon(key: string): ReactNode {
 }
 
 function getImageUrls(advertise: CrmRecord | undefined) {
-  if (!advertise) return [];
-
-  const values: unknown[] = [];
-  const images = advertise.images;
-
-  if (Array.isArray(images)) values.push(...images);
-  values.push(advertise.image, advertise.cover, advertise.thumbnail);
-
-  return values
-    .map((value) => {
-      if (typeof value === "string") return value;
-      if (value && typeof value === "object" && !Array.isArray(value)) {
-        return readText(value as CrmRecord, ["url", "path", "src", "image"]);
-      }
-
-      return "";
-    })
-    .filter(Boolean)
-    .map((value) => getApiAssetUrl(value));
+  return getAdvertisementImageUrls(advertise);
 }
 
 function findRecordNameById(records: CrmRecord[], id: string): string {

@@ -1,5 +1,6 @@
-import { ApiError, api, baseUrl, getApiAssetUrl, publicApi } from "../../../shared/api/api";
+import { ApiError, api, baseUrl, publicApi } from "../../../shared/api/api";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
+import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 
 export type AdvertisementStatus =
   | "wait_for_payment"
@@ -18,8 +19,8 @@ export type AdvertisementFeature = {
 };
 
 export type AdvertisementImage = {
-  // Detail endpoints normalize to url/is_main. Legacy list serializers may still
-  // expose path/src, so keep those aliases typed without using them in ViewAd.
+  // Detail endpoints usually normalize to url/is_main. Legacy serializers may
+  // still expose path/src, and the shared image normalizer supports all of them.
   is_main?: boolean;
   path?: string;
   src?: string;
@@ -508,18 +509,6 @@ function readNestedText(item: AdvertisementItem, keys: string[]) {
   return "";
 }
 
-function readImages(item: AdvertisementItem) {
-  const images = Array.isArray(item.images) ? item.images : [];
-
-  return images
-    .map((image) => {
-      if (typeof image === "string") return image;
-
-      return image.url ?? image.path ?? "";
-    })
-    .filter(Boolean);
-}
-
 function extractAdvertisementItems(payload: unknown): AdvertisementItem[] {
   if (Array.isArray(payload)) return payload as AdvertisementItem[];
 
@@ -560,7 +549,7 @@ export function mapAdvertisementToAdCard(
   item: AdvertisementItem,
   index: number,
 ): AdvertisementCardData {
-  const images = readImages(item);
+  const images = getAdvertisementImageUrls(item);
   const location = readNestedText(item, [
     "neighborhood",
     "neighborhood_name",
@@ -569,7 +558,7 @@ export function mapAdvertisementToAdCard(
     "city",
     "city_name",
   ]);
-  const image = toText(item.image || images[0]);
+  const image = images[0] ?? "";
   const description = toText(item.description ?? item.short_description);
   const area = readFeatureValue(item, ["area", "متراژ"]) ?? item.area;
   const rooms = readFeatureValue(item, ["rooms", "اتاق", "خواب"]) ?? item.rooms;
@@ -582,7 +571,7 @@ export function mapAdvertisementToAdCard(
     badges: Array.isArray(item.badges) ? item.badges : [],
     imageClassName: image ? "" : `ad-card__image--${(index % 4) + 1}`,
     imageCount: String(images.length || (image ? 1 : 0)),
-    imageUrl: image ? getApiAssetUrl(image) : undefined,
+    imageUrl: image || undefined,
     priceLabelPrimary: toText(item.price_label),
     priceLabelSecondary: "",
     pricePrimary: formatPrice(item.price),

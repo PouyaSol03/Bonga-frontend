@@ -25,7 +25,7 @@ export type SearchMapListing = {
   postedAt: string;
   agencyName: string;
   badges?: string[];
-  imageSrc: string;
+  imageSrc?: string;
   images: string[];
   showPriceMarker?: boolean;
   imageClassName?: string;
@@ -58,9 +58,6 @@ export type SearchMapTileConfig = {
   maxZoom?: number;
   isTms: boolean;
 };
-
-export const SEARCH_MAP_FALLBACK_IMAGE = "/figma/view-ad-album.png";
-export const SEARCH_MAP_DEMO_PHOTO = SEARCH_MAP_FALLBACK_IMAGE;
 
 export const searchMapTileConfig: SearchMapTileConfig = {
   urlTemplate: "https://map.exirfirm.com/tile/{z}/{x}/{y}.png",

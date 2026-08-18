@@ -60,8 +60,13 @@ export function BusinessFeatureSection() {
       </div>
 
       <img
-        src='./images/home/business-feature.png'
+        src="/images/home/business-feature.webp"
         alt="نمایی از پنل مدیریت کسب‌وکار املاک"
+        width={1312}
+        height={692}
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
         className="mt-4 aspect-328/173 w-full rounded-2xl object-cover"
         draggable={false}
       />

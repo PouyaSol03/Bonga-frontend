@@ -25,3 +25,8 @@ dist-ssr
 
 # Environment variables
 .env
+
+# Local performance audit output / credentials
+performance-results/
+audit/auth-session.json
+audit/performance-urls.txt

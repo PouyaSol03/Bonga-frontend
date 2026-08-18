@@ -1,9 +1,9 @@
 import type { ComponentType, ReactNode } from 'react'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../core/auth/auth-storage'
+import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../shared/auth/auth-storage'
 import { MobileAppShell } from '../layout/MobileAppShell'
-import { PageFrame } from '../layout/PageFrame'
-import { BottomNavigation } from '../../shared/components/BottomNavigation'
+import { PageFrame } from '../../shared/layout/PageFrame'
+import { BottomNavigation } from '../layout/BottomNavigation'
 import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../../shared/components/ErrorState'
 import LinearNotification from '../../shared/icons/LinearNotification'
 import { TopBar, TopBarLayoutProvider } from '../../shared/components/TopBar'
@@ -14,9 +14,9 @@ import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
 } from '../../shared/constants/roles.constants'
-import { isUserIdentityVerified } from "../../core/services/account.service";
-import { useMyProfileQuery } from '../../core/hooks/account.hooks'
-import { useNotificationUnreadCountQuery } from '../../core/hooks/notification.hooks'
+import { isUserIdentityVerified } from "../../features/account/api/account.service";
+import { useMyProfileQuery } from '../../features/account/api/account.hooks'
+import { useNotificationUnreadCountQuery } from '../../features/notifications/api/notification.hooks'
 import {
   canAccessRoute,
   CRM_PATH,
@@ -27,8 +27,8 @@ import {
   type AppRoute,
 } from './routes'
 import LinearUserAccount from '../../shared/icons/LinearUserAccount'
-import type { CrmRoutePageProps } from '../../pages/crm/CrmLayout'
-import { historyRouteChangeEvent, installHistoryNavigationBridge, replaceRoute } from './navigation'
+import type { CrmRoutePageProps } from '../../features/crm/CrmLayout'
+import { historyRouteChangeEvent, installHistoryNavigationBridge, replaceRoute } from '../../shared/navigation/navigation'
 import { getAppChromeConfig } from './routeChrome'
 import { Button } from "../../shared/ui/Button";
 import { selectedCityStorageKeys } from '../../shared/lib/selectedCityStorage'
@@ -52,56 +52,56 @@ function lazyNamed<TModule extends Record<string, unknown>>(
 }
 
 const AccountMyAdStatePage = lazyNamed(
-  () => import('../../pages/account/AccountMyAdStatePage'),
+  () => import('../../features/account/AccountMyAdStatePage'),
   'AccountMyAdStatePage',
 )
-const CrmLayout = lazyNamed(() => import('../../pages/crm/CrmLayout'), 'CrmLayout')
+const CrmLayout = lazyNamed(() => import('../../features/crm/CrmLayout'), 'CrmLayout')
 const CrmAdvertiseDetailPage = lazyNamed(
-  () => import('../../pages/crm/routes/CrmAdvertiseDetailPage'),
+  () => import('../../features/crm/routes/CrmAdvertiseDetailPage'),
   'CrmAdvertiseDetailPage',
 )
 const AdPaymentHistoryPage = lazyNamed(
-  () => import('../../pages/account/adManagement/AdPaymentHistoryPage'),
+  () => import('../../features/account/adManagement/AdPaymentHistoryPage'),
   'AdPaymentHistoryPage',
 )
 const AdIncreaseVisitsPage = lazyNamed(
-  () => import('../../pages/account/adManagement/AdIncreaseVisitsPage'),
+  () => import('../../features/account/adManagement/AdIncreaseVisitsPage'),
   'AdIncreaseVisitsPage',
 )
 const AdVisitStatisticsPage = lazyNamed(
-  () => import('../../pages/account/adManagement/AdVisitStatisticsPage'),
+  () => import('../../features/account/adManagement/AdVisitStatisticsPage'),
   'AdVisitStatisticsPage',
 )
 const AdCloseResultPage = lazyNamed(
-  () => import('../../pages/account/adManagement/AdCloseResultPage'),
+  () => import('../../features/account/adManagement/AdCloseResultPage'),
   'AdCloseResultPage',
 )
 const IndependentConsultantAdRejectPage = lazyNamed(
-  () => import('../../pages/account/adManagement/IndependentConsultantAdRejectPage'),
+  () => import('../../features/account/adManagement/IndependentConsultantAdRejectPage'),
   'IndependentConsultantAdRejectPage',
 )
 const UserChatDetailPage = lazyNamed(
-  () => import('../../pages/chat/UserChatHomePage'),
+  () => import('../../features/chat/UserChatHomePage'),
   'UserChatDetailPage',
 )
 const UserChatBulkDeletePage = lazyNamed(
-  () => import('../../pages/chat/UserChatHomePage'),
+  () => import('../../features/chat/UserChatHomePage'),
   'UserChatBulkDeletePage',
 )
 const ChatReportPage = lazyNamed(
-  () => import('../../pages/chat/ChatReportPage'),
+  () => import('../../features/chat/ChatReportPage'),
   'ChatReportPage',
 )
-const ViewAdPage = lazyNamed(() => import('../../pages/viewAd/ViewAdPage'), 'ViewAdPage')
+const ViewAdPage = lazyNamed(() => import('../../features/advertisements/view/ViewAdPage'), 'ViewAdPage')
 const ViewAdPropertyInfoPage = lazyNamed(
-  () => import('../../pages/viewAd/pages/ViewAdPropertyInfoPage'),
+  () => import('../../features/advertisements/view/pages/ViewAdPropertyInfoPage'),
   'ViewAdPropertyInfoPage',
 )
 const ViewAdEquipmentFacilitiesPage = lazyNamed(
-  () => import('../../pages/viewAd/pages/ViewAdEquipmentFacilitiesPage'),
+  () => import('../../features/advertisements/view/pages/ViewAdEquipmentFacilitiesPage'),
   'ViewAdEquipmentFacilitiesPage',
 )
-const PublicAgencyPreviewPage = lazyNamed(() => import('../../pages/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
+const PublicAgencyPreviewPage = lazyNamed(() => import('../../features/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const AgentPreviewPage = PublicAgencyPreviewPage
 
 function normalizePathname(pathname: string) {

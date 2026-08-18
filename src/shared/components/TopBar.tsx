@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
-import { getStoredBackTarget, pushRoute } from "../../app/router/navigation";
-import { RouteLink } from "../../app/router/RouteLink";
+import { getStoredBackTarget, pushRoute } from "../navigation/navigation";
+import { RouteLink } from "../navigation/RouteLink";
 import LinearArrowLeft2 from "../icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../icons/LinearArrowRight2";
 import BoldBookmarkSolid from "../icons/BoldBookmarkSolid";

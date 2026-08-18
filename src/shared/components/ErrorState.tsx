@@ -1,6 +1,6 @@
 import { useState, type ComponentType, type ReactNode } from "react";
 
-import { ApiError } from "../../core/api/api";
+import { ApiError } from "../api/api";
 import NoConnectionIcon from "../assets/icons/NoConnection.svg";
 import ServerErrorIcon from "../assets/icons/ServerError.svg";
 import RefreshIcon from "../assets/icons/RefreshIcon.svg";

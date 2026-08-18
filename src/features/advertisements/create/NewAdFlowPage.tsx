@@ -239,15 +239,6 @@ function findCategoryId(categories: CategoryItem[], value: string) {
   return match?.id ? String(match.id) : null;
 }
 
-function fileToDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("خواندن فایل تصویر ناموفق بود."));
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.readAsDataURL(file);
-  });
-}
-
 async function buildCrmAdvertisePayload(
   values: NewAdFormValues,
   original: CrmRecord = {},
@@ -259,10 +250,12 @@ async function buildCrmAdvertisePayload(
   const storedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
   const lat = Number(storedLat ?? original.lat ?? original.latitude);
   const lng = Number(storedLng ?? original.lng ?? original.long ?? original.longitude);
-  const images = await Promise.all(values.photos.map(async (photo) => {
-    if (photo.file) return fileToDataUrl(photo.file);
-    return mediaSource(photo.existingValue);
-  }));
+  const images = values.photos.flatMap((photo) => {
+    if (photo.file) return [];
+
+    const source = mediaSource(photo.existingValue);
+    return source && !source.toLowerCase().includes("data:image/") ? [source] : [];
+  });
 
   return {
     contact_type: structuredPayload.contact_type.map(String),
@@ -953,7 +946,11 @@ export function NewAdFlowPage() {
   const crmSaveMutation = useMutation({
     mutationFn: ({ id, original, values }: { id: string | null; original?: CrmRecord; values: NewAdFormValues }) =>
       buildCrmAdvertisePayload(values, original).then((payload) =>
-        saveCrmAdvertise(id, payload),
+        saveCrmAdvertise(
+          id,
+          payload,
+          values.photos.flatMap((photo) => (photo.file ? [photo.file] : [])),
+        ),
       ),
     onSuccess: async (_result, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "advertises"] });

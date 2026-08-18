@@ -408,10 +408,42 @@ export async function getCrmAdvertise(id: string) {
   );
 }
 
-export async function saveCrmAdvertise(id: string | null, payload: CrmAdvertisePayload) {
+function buildCrmAdvertiseFormData(payload: CrmAdvertisePayload, files: File[]) {
+  const formData = new FormData();
+
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === null) continue;
+
+    if (key === "images") {
+      formData.append("existing_images", JSON.stringify(value));
+      continue;
+    }
+
+    if (Array.isArray(value) || typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+      continue;
+    }
+
+    formData.append(key, String(value));
+  }
+
+  files.forEach((file) => {
+    formData.append("images", file, file.name);
+  });
+
+  return formData;
+}
+
+export async function saveCrmAdvertise(
+  id: string | null,
+  payload: CrmAdvertisePayload,
+  files: File[] = [],
+) {
+  const formData = buildCrmAdvertiseFormData(payload, files);
+
   return unwrapRecord(
     await api
-      .post(id ? `panel/advertise/update/${id}` : "panel/advertise/create", { json: payload })
+      .post(id ? `panel/advertise/update/${id}` : "panel/advertise/create", { body: formData })
       .json<unknown>(),
     ["advertise", "data", "result"],
   );

@@ -310,11 +310,11 @@ export function getApiFieldError(error: unknown, field: string) {
 }
 
 export function getApiAssetUrl(path: string) {
-  const embeddedDataImageIndex = path.indexOf("data:image/");
+  const normalizedPath = path.trim();
 
-  if (embeddedDataImageIndex >= 0) {
-    return path.slice(embeddedDataImageIndex);
+  if (!normalizedPath || normalizedPath.toLowerCase().includes("data:image/")) {
+    return "";
   }
 
-  return path;
+  return normalizedPath;
 }

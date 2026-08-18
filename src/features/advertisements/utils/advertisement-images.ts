@@ -68,7 +68,6 @@ function isMainImage(value: unknown) {
  *
  * Supported examples:
  * - { image: "/uploads/a.jpg" }
- * - { image: "data:image/png;base64,..." }
  * - { images: ["/uploads/a.jpg"] }
  * - { images: [{ url: "...", is_main: true }] }
  * - legacy { path/src/image/thumbnail }

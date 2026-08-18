@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { ArrowLeftIcon, BusinessCreationShell, BusinessHero, BusinessTypeCard, getBusinessTypePath, navigateTo } from "../businessCreationViews";
-import type { BusinessType } from "../businessCreationViews";
+import { BusinessCreationShell, BusinessHero, BusinessTypeCard, getBusinessTypePath, navigateTo } from "../businessCreationShared";
+import type { BusinessType } from "../businessCreationShared";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearBuilding from "../../../shared/icons/LinearBuilding";
+import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
 
 export function BusinessCreationPage() {
   const [selectedType, setSelectedType] = useState<BusinessType>("agency");
@@ -21,7 +24,7 @@ export function BusinessCreationPage() {
             type="button"
           >
             <Typography as="span" variant="label" size="medium" weight="medium">مرحله بعد</Typography>
-            <ArrowLeftIcon />
+            <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />
           </Button>
         </div>
       }
@@ -36,13 +39,13 @@ export function BusinessCreationPage() {
         <div className="mt-6 space-y-6">
           <BusinessTypeCard
             badge="رایگان"
-            icon="agency"
+            icon={<LinearBuilding aria-hidden="true" className="h-6 w-6 shrink-0" />}
             isSelected={selectedType === "agency"}
             label="آژانس املاک"
             onClick={() => setSelectedType("agency")}
           />
           <BusinessTypeCard
-            icon="consultant"
+            icon={<LinearUserSolid aria-hidden="true" className="h-6 w-6 shrink-0" />}
             isSelected={selectedType === "independent-consultant"}
             label="مشاور مستقل"
             onClick={() => setSelectedType("independent-consultant")}

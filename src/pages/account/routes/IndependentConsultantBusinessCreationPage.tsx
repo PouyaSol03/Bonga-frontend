@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useCreateMyAgentMutation } from "../../../core/hooks/account.hooks";
 import { getApiErrorMessage } from "../../../core/api/api";
-import { BusinessFormPage, RequiredLabel, normalizePhoneDigits } from "../businessCreationViews";
-import type { BusinessToast } from "../businessCreationViews";
+import { BusinessFormPage, RequiredLabel, normalizePhoneDigits } from "../businessCreationShared";
+import type { BusinessToast } from "../businessCreationShared";
 
 export function IndependentConsultantBusinessCreationPage() {
   const [fullName, setFullName] = useState("");

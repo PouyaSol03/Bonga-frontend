@@ -3,8 +3,8 @@ import type { NeighborhoodDto } from "../../../core/services/neighborhood.servic
 import { useCreateMyAgencyMutation } from "../../../core/hooks/account.hooks";
 import { getApiErrorMessage } from "../../../core/api/api";
 import { pushRoute } from "../../../app/router/navigation";
-import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationViews";
-import type { BusinessToast } from "../businessCreationViews";
+import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationShared";
+import type { BusinessToast } from "../businessCreationShared";
 import {
   clearAgencyCreationDraft,
   readAgencyCreationDraft,

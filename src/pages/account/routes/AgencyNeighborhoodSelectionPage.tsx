@@ -18,7 +18,7 @@ import {
   readAgencyCreationDraft,
   writeAgencyCreationDraft,
 } from "../agencyCreationDraft";
-import { getNeighborhoodId } from "../businessCreationViews";
+import { getNeighborhoodId } from "../businessCreationShared";
 
 const AGENCY_CREATE_PATH = "/account/business/create/agency";
 const SEARCH_DEBOUNCE_MS = 250;

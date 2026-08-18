@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useState, type ComponentType, type Dispatch, type ReactNode, type SetStateAction, type SVGProps } from "react";
 import { PageFrame } from "../../app/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { setStoredActiveRole } from "../../core/auth/auth-storage";
@@ -7,12 +7,20 @@ import { getMyProfile } from "../../core/services/account.service";
 import { RouteLink } from "../../app/router/RouteLink";
 import type { NeighborhoodDto } from "../../core/services/neighborhood.service";
 import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
-import LinearBuilding from "../../shared/icons/LinearBuilding";
-import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { ChoiceIndicator } from "../../shared/ui/Choice";
 
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import LinearWalletAdd from "../../shared/icons/LinearWalletAdd";
+import LinearTag from "../../shared/icons/LinearTag";
+import Dashboard from "../../shared/icons/Dashboard";
+import LinearRequest from "../../shared/icons/LinearRequest";
+import LinearRanking from "../../shared/icons/LinearRanking";
+import LinearEditUser from "../../shared/icons/LinearEditUser";
+import LinearCity from "../../shared/icons/LinearCity";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import LinearTick from "../../shared/icons/LinearTick";
+import LinearArrowRight1 from "../../shared/icons/LinearArrowRight1";
 
 export type BusinessType = "agency" | "independent-consultant";
 
@@ -22,10 +30,18 @@ export type BusinessToast = {
   variant: "error" | "success" | "info" | "warning";
 };
 
+type InfoCardSection = {
+  afterBullets?: string;
+  bullets?: string[];
+  description?: string;
+  title?: string;
+};
+
 type InfoCard = {
-  bullets: string[];
-  description: string;
-  icon: "grid" | "building" | "shield" | "request" | "people" | "wallet" | "ranking";
+  bullets?: string[];
+  description?: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+  sections?: InfoCardSection[];
   subtitle: string;
   title: string;
 };
@@ -36,66 +52,121 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
   agency: [
     {
       bullets: [
-        "وضعیت و عملکرد آگهی‌ها را بررسی کنید.",
-        "عملکرد مشاورها را به‌صورت منظم تحلیل کنید.",
-        "موجودی اعتبار و فعالیت‌های پرداختی را مدیریت کنید.",
+        "وضعیت و عملکرد آگهی‌ها را ببینید",
+        "فعالیت مشاورین را رصد کنید",
+        "اعتبار را مدیریت کنید",
+        "تصویر شفافی از وضعیت آژانس داشته باشید",
       ],
       description:
-        "داشبورد، نقطه شروع مدیریت هوشمند است. این بخش اطلاعات جامع و قابل پیگیری از وضعیت کسب‌وکار در اختیار مدیر آژانس قرار می‌دهد.",
-      icon: "grid",
-      subtitle: "مدیریت کاربران و امکانات و ابزارهای تبلیغی",
+        "داشبورد، نقطه شروع مدیریت هوشمند است. اینجا می‌توانید در چند ثانیه:",
+      Icon: Dashboard,
+      subtitle: "تصمیم‌گیری سریع، بر پایه داده‌های واقعی",
       title: "مدیریت سیستم",
     },
     {
       bullets: [
-        "معرفی کامل آژانس و خدمات قابل ارائه",
-        "معرفی مشاورها و اطلاعات تماس",
-        "نمایش آگهی‌های فعال و منتخب",
-        "ایجاد اعتماد و شفافیت برای کاربران",
+        "معرفی آژانس و اطلاعات تماس",
+        "درباره برند شما",
+        "لیست مشاورین فعال",
+        "آگهی‌های منتشرشده",
       ],
       description:
-        "هر آژانس دارای یک صفحه اختصاصی است تا کاربران بتوانند اطلاعات، مشاوران و آگهی‌های فعال آژانس را یک‌جا مشاهده کنند.",
-      icon: "building",
-      subtitle: "پنل اختصاصی آژانس",
+        "هر آژانس دارای یک صفحه اختصاصی مشابه یک وب‌سایت حرفه‌ای است که شامل:",
+      Icon: LinearCity,
+      subtitle: "ویترین دیجیتال شما",
       title: "صفحه آژانس",
     },
     {
-      bullets: [
-        "مشاهده و مدیریت آگهی‌های فعال",
-        "ثبت آگهی جدید",
-        "ویرایش، بروزرسانی و نوسازی آگهی‌ها",
-        "تحلیل عملکرد هر آگهی از طریق نمودارها",
+      Icon: LinearTag,
+      sections: [
+        {
+          description:
+            "تمام آگهی‌های منتشرشده و فعال شما به‌صورت متمرکز قابل مدیریت هستند.",
+          title: "آگهی‌های فعال",
+        },
+        {
+          bullets: [
+            "آگهی را به مشاور دلخواه اختصاص دهد",
+            "یا مستقیماً آگهی را توسط آژانس منتشر کند",
+          ],
+          description:
+            "کاربرانی که آگهی خود را به آژانس می‌سپارند، در این بخش قرار می‌گیرند. مدیر آژانس می‌تواند:",
+          title: "آگهی‌های تخصیصی",
+        },
+        {
+          bullets: [
+            "استفاده از اعتبار پنل",
+            "پرداخت از کیف پول",
+            "پرداخت آنلاین",
+          ],
+          description: "پرداخت هزینه آگهی کاملاً ساده و منعطف است:",
+          title: "پرداخت منعطف",
+        },
       ],
-      description:
-        "در پنل مشاور، مدیریت آگهی‌ها کاملاً شفاف و بدون پیچیدگی انجام می‌شود و مدیر می‌تواند روی کیفیت آگهی‌ها کنترل داشته باشد.",
-      icon: "shield",
-      subtitle: "مدیریت کامل آگهی‌ها",
+      subtitle: "تصمیم‌گیری سریع، بر پایه داده‌های واقعی",
       title: "مدیریت آگهی‌ها",
     },
     {
-      bullets: [
-        "درخواست‌های ثبت‌شده کاربران را مدیریت کنید.",
-        "وضعیت هر درخواست را پیگیری نمایید.",
-        "فرآیند پاسخ‌گویی را برای مشاورها ساده‌تر کنید.",
+      Icon: LinearRequest,
+      sections: [
+        {
+          description:
+            "درخواست‌های ثبت‌شده کاربران شامل نیازهای ملکی آن‌هاست. این داده‌ها به آژانس کمک می‌کند دقیق‌تر آگهی منتشر کند و پس از انتشار، اعلان آن را به کاربر ارسال نماید.",
+          title: "دریافتی کاربران",
+        },
+        {
+          description:
+            "درخواست‌هایی که توسط خود آژانس ثبت می‌شود، در این بخش مدیریت می‌گردد.",
+          title: "درخواست‌های آژانس",
+        },
+        {
+          description:
+            "تمام نتایج درخواست‌های ثبت‌شده آژانس به‌صورت شفاف در دسترس است.",
+          title: "نتایج درخواست‌ها",
+        },
       ],
-      description:
-        "در این بخش می‌توانید درخواست‌های ثبت‌شده توسط کاربران را بررسی و به مشاور مناسب ارجاع دهید.",
-      icon: "request",
-      subtitle: "مدیریت کامل درخواست‌ها",
+      subtitle: "اتصال هوشمند به نیاز بازار",
       title: "مدیریت درخواست‌ها",
     },
     {
-      bullets: [
-        "دعوت و اضافه‌کردن مشاور به مجموعه",
-        "مشاهده فعالیت هر مشاور",
-        "مدیریت دسترسی‌ها و سطح فعالیت مشاوران",
-        "حذف یا غیرفعال‌کردن مشاور در صورت نیاز",
+      Icon: LinearEditUser,
+      sections: [
+        {
+          description:
+            "با جستجوی شماره تلفن مشاوران ثبت‌نام‌شده در سامانه، تنها با یک درخواست آن‌ها را به آژانس خود دعوت کنید.",
+          title: "افزودن سریع مشاور",
+        },
+        {
+          bullets: [
+            "مشاور عادی",
+            "مشاور مدیر با دسترسی به مدیریت آگهی‌ها، مشاورین، درخواست‌ها، اعتبار و پشتیبانی",
+          ],
+          description: "دو سطح دسترسی تعریف شده است:",
+          title: "سطوح دسترسی هوشمند",
+        },
+        {
+          afterBullets: "استفاده کند.",
+          bullets: [
+            "ثبت آگهی",
+            "بروزرسانی آگهی",
+            "ویژه‌سازی آگهی‌ها",
+          ],
+          description: "به هر مشاور اعتبار اختصاص دهید تا از آن برای:",
+          title: "تخصیص اعتبار به مشاورین",
+        },
+        {
+          description:
+            "در صورت حذف مشاور، آگهی‌های او به‌راحتی به مشاور دیگر یا خود آژانس منتقل می‌شوند؛ بدون از دست رفتن اطلاعات.",
+          title: "کنترل کامل حتی هنگام حذف مشاور",
+        },
+        {
+          description:
+            "برای هر مشاور یک داشبورد اختصاصی وجود دارد تا عملکرد و آمار فعالیت او به صورت شفاف قابل بررسی باشد.",
+          title: "داشبورد اختصاصی مشاور",
+        },
       ],
-      description:
-        "مدیریت مشاورها به مدیر آژانس کمک می‌کند تیم فروش و فعالیت‌های روزانه را یکپارچه و دقیق کنترل کند.",
-      icon: "people",
-      subtitle: "مدیریت تیم فروش و مشاوران",
-      title: "مدیریت مشاورها",
+      subtitle: "تصمیم‌گیری سریع، بر پایه داده‌های واقعی",
+      title: "مدیریت مشاورین",
     },
     {
       bullets: [
@@ -106,21 +177,31 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       ],
       description:
         "با انتخاب بسته‌های متنوع اعتباری می‌توانید خدمات، آگهی‌ها و ابزارهای آژانس را فعال و تمدید کنید.",
-      icon: "wallet",
-      subtitle: "افزایش اعتبار آژانس",
+      Icon: LinearWalletAdd,
+      subtitle: "هزینه کمتر، بازدهی بیشتر",
       title: "افزایش اعتبار",
     },
     {
-      bullets: [
-        "کیفیت آگهی‌ها و میزان پاسخ‌گویی",
-        "فعالیت و عملکرد مشاورها",
-        "میزان بازدید و تعامل کاربران",
-        "روند فعالیت مجموعه در بازه‌های زمانی مختلف",
+      Icon: LinearRanking,
+      sections: [
+        {
+          afterBullets:
+            "به آژانس شما امتیاز داده می‌شود و رتبه آن در سیستم مشخص خواهد شد.",
+          bullets: [
+            "کیفیت و تعداد آگهی‌ها",
+            "میزان فعالیت و عملکرد مشاورین",
+            "تعامل با کاربران و پاسخ‌گویی",
+          ],
+          description: "بر اساس شاخص‌هایی مثل:",
+          title: "امتیاز و رتبه آژانس",
+        },
+        {
+          description:
+            "با بهبود عملکرد، آژانس می‌تواند نشان‌های مختلفی کسب کند؛ نشان‌هایی که اعتبار برند شما را افزایش می‌دهند و اعتماد کاربران را جلب می‌کنند.",
+          title: "نشان‌های عملکردی",
+        },
       ],
-      description:
-        "اعتبار و رتبه آژانس براساس شاخص‌های مشخص محاسبه می‌شود و به کاربران کمک می‌کند با اطمینان بیشتری انتخاب کنند.",
-      icon: "ranking",
-      subtitle: "اعتبار، اعتماد و رقابت",
+      subtitle: "اعتبار، شفاف و رقابتی",
       title: "نشان‌ها و رتبه‌بندی",
     },
   ],
@@ -133,9 +214,9 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "روند فعالیت و بازدهی خود را در بازه‌های زمانی مختلف ببینید.",
       ],
       description:
-        "داشبورد، مرکز کنترل فعالیت شماست. در این بخش می‌توانید به‌صورت لحظه‌ای وضعیت کارتان را بررسی کنید.",
-      icon: "grid",
-      subtitle: "مدیریت عمومی کاربران و ابزارهای تبلیغی",
+        "داشبورد، مرکز کنترل فعالیت شماست. در این بخش می‌توانید به‌صورت لحظه‌ای:",
+      Icon: Dashboard,
+      subtitle: "تصمیم‌گیری سریع، بر پایه داده‌های واقعی",
       title: "مدیریت سیستم",
     },
     {
@@ -143,12 +224,12 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "معرفی مشاور و اطلاعات تماس",
         "آگهی‌های فعال و منتشرشده",
         "رتبه، امتیاز و نشان‌های دریافتی",
-        "اعتمادسازی برای کاربران",
+        "سابقه و میزان فعالیت",
       ],
       description:
-        "هر مشاور یک صفحه اختصاصی عمومی دارد تا کاربران بتوانند با سوابق، تخصص و آگهی‌های فعال او آشنا شوند.",
-      icon: "building",
-      subtitle: "پنل شخصی شما",
+        "هر مشاور یک صفحه اختصاصی عمومی دارد؛ مثل یک پروفایل حرفه‌ای آنلاین:",
+      Icon: LinearCity,
+      subtitle: "برند شخصی شما",
       title: "صفحه مشاور",
     },
     {
@@ -160,8 +241,8 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       ],
       description:
         "در پنل مشاور، مدیریت آگهی‌ها کاملاً شفاف و بدون پیچیدگی انجام می‌شود.",
-      icon: "shield",
-      subtitle: "مدیریت کامل آگهی‌ها",
+      Icon: LinearTag,
+      subtitle: "ساده و متمرکز",
       title: "مدیریت آگهی‌ها",
     },
     {
@@ -171,8 +252,8 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       ],
       description:
         "در این بخش می‌توانید درخواست‌هایی را که خریداران ثبت کرده‌اند، مدیریت و پیگیری کنید.",
-      icon: "request",
-      subtitle: "مدیریت درخواست‌های دریافتی",
+      Icon: LinearRequest,
+      subtitle: "هدفمند و کاربردی",
       title: "مدیریت درخواست‌ها",
     },
     {
@@ -184,8 +265,8 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       ],
       description:
         "با انتخاب بسته‌های متنوع اعتباری می‌توانید فعالیت خود را گسترش دهید و آگهی‌ها را تقویت کنید.",
-      icon: "wallet",
-      subtitle: "اعتبار، کنترل و توسعه",
+      Icon: LinearWalletAdd,
+      subtitle: "کنترل کامل هزینه‌ها",
       title: "افزایش اعتبار",
     },
     {
@@ -197,8 +278,8 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       ],
       description:
         "عملکرد شما به‌صورت کاملاً سیستمی و شفاف ارزیابی می‌شود و امتیاز و رتبه مشاور براساس شاخص‌های مشخص محاسبه می‌شود.",
-      icon: "ranking",
-      subtitle: "اعتبار، اعتماد و رقابت",
+      Icon: LinearRanking,
+      subtitle: "اعتبار، شفاف و رقابتی",
       title: "نشان‌ها و رتبه‌بندی",
     },
   ],
@@ -273,7 +354,7 @@ export function BusinessFormPage({
             onClick={() => navigateTo("/account/business/create")}
             type="button"
           >
-            <ArrowRightIcon />
+            <LinearArrowRight1 className="h-5 w-5" />
             <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
           </Button>
           <Button unstyled
@@ -282,7 +363,7 @@ export function BusinessFormPage({
             onClick={handleSubmit}
             type="button"
           >
-            <CheckIcon />
+            <LinearTick className="h-5 w-5" />
             <Typography as="span" variant="body" size="medium" weight="regular">{isSubmitting ? "در حال ثبت..." : "ثبت نام"}</Typography>
           </Button>
         </div>
@@ -447,7 +528,7 @@ function ActivityAreaSelect({
       ) : null}
 
       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]">
-        <ArrowLeftIcon />
+        <LinearArrowLeft1 className="h-5 w-5" />
       </Typography>
     </div>
   );
@@ -532,7 +613,7 @@ export function BusinessHero({
           <Typography as="span" variant="label" size="medium" weight="medium">
             اطلاعات بیشتر درباره کسب و کار
           </Typography>
-          <ArrowLeftIcon />
+          <LinearArrowLeft1 className="h-5 w-5" />
         </Button>
       ) : null}
     </section>
@@ -547,7 +628,7 @@ export function BusinessTypeCard({
   onClick,
 }: {
   badge?: string;
-  icon: "agency" | "consultant";
+  icon: ReactNode;
   isSelected: boolean;
   label: string;
   onClick: () => void;
@@ -568,7 +649,7 @@ export function BusinessTypeCard({
         className={`mx-4 h-10 w-px shrink-0 ${isSelected ? "bg-[#b7c9ec]" : "bg-[#dedede]"}`}
       />
       <span className="flex min-w-0 flex-1 items-center gap-2">
-        <BusinessSmallIcon type={icon} />
+        {icon}
         <Typography
           as="span"
           variant="label"
@@ -609,8 +690,8 @@ function ActivationNotice({
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex items-center justify-between gap-2">
             <div className="flex gap-2.5">
-              <GridIcon />
-              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#00a66a]">
+              <Dashboard className="w-6 h-6"/>
+              <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-[#00a66a]">
                 پنل شما آماده فعال‌سازی است!
               </Typography>
             </div>
@@ -621,7 +702,7 @@ function ActivationNotice({
               onClick={onClose}
               type="button"
             >
-              <LinearCancelSmall className="w-5 h-5" />
+              <LinearCancelSmall className="w-6 h-6" />
             </Button>
           </div>
 
@@ -653,24 +734,25 @@ export function BusinessInfoCard({
 }) {
   const imagePrefix = businessType === "agency" ? "agency" : "consultant";
   const imageSrc = `/figma/business-info/${imagePrefix}-${index + 1}.png`;
+  const Icon = card.Icon;
 
   return (
-    <article className="bg-white px-4 pb-5 pt-4 text-right">
-      <div className="flex items-start gap-2">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#0048c4] text-white">
-          <InfoCardIcon name={card.icon} />
+    <article className="bg-white px-4 pb-5 pt-6 text-right">
+      <div className="flex items-start gap-2.5">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] bg-[#0048c4] text-white">
+          <Icon aria-hidden="true" className="h-6 w-6" />
         </Typography>
         <div className="min-w-0">
-          <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold leading-5 text-[#0048c4]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#0048c4]">
             {card.title}
           </Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 text-xs font-normal leading-4 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-[#4d4d4d]">
             {card.subtitle}
           </Typography>
         </div>
       </div>
 
-      <div className="mt-3 overflow-hidden rounded-xl bg-[#f8f8f8]">
+      <div className="mt-4 overflow-hidden rounded-2xl bg-[#f5f5f5]">
         <img
           alt=""
           className="h-[250px] w-full object-cover object-center"
@@ -679,14 +761,77 @@ export function BusinessInfoCard({
         />
       </div>
 
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 font-normal leading-6 text-[#1a1a1a]">
-        {card.description}
-      </Typography>
-      <ul className="m-0 mt-2 space-y-1 pr-4 font-normal leading-6 text-[#1a1a1a] marker:text-[#11A366]">
-        {card.bullets.map((bullet) => (
-          <li key={bullet}>{bullet}</li>
-        ))}
-      </ul>
+      {card.sections ? (
+        <div className="mt-4 space-y-4">
+          {card.sections.map((section, sectionIndex) => (
+            <div key={`${card.title}-section-${sectionIndex}`}>
+              {section.title ? (
+                <Typography
+                  as="h3"
+                  variant="label"
+                  size="large"
+                  weight="semibold"
+                  className="m-0 text-[#1a1a1a]"
+                >
+                  {section.title}
+                </Typography>
+              ) : null}
+
+              {section.description ? (
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="large"
+                  weight="regular"
+                  className={`m-0 text-[#1a1a1a] ${section.title ? "mt-1" : ""}`}
+                >
+                  {section.description}
+                </Typography>
+              ) : null}
+
+              {section.bullets?.length ? (
+                <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-[#1a1a1a] marker:text-[#11A366]">
+                  {section.bullets.map((bullet) => (
+                    <li key={bullet} className="pr-1">
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
+              {section.afterBullets ? (
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="large"
+                  weight="regular"
+                  className="m-0 mt-1 text-[#1a1a1a]"
+                >
+                  {section.afterBullets}
+                </Typography>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          {card.description ? (
+            <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+              {card.description}
+            </Typography>
+          ) : null}
+
+          {card.bullets?.length ? (
+            <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-[#1a1a1a] marker:text-[#11A366]">
+              {card.bullets.map((bullet) => (
+                <li key={bullet} className="pr-1">
+                  {bullet}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </>
+      )}
     </article>
   );
 }
@@ -697,104 +842,5 @@ export function RequiredLabel({ children }: { children: ReactNode }) {
       {children}
       <Typography as="span" variant="body" size="medium" weight="regular" className="mr-1 text-[#c11004]">*</Typography>
     </label>
-  );
-}
-
-function BusinessSmallIcon({ type }: { type: "agency" | "consultant" }) {
-  if (type === "consultant") {
-    return <LinearUserSolid aria-hidden="true" className="h-6 w-6 shrink-0" />;
-  }
-
-  return <LinearBuilding aria-hidden="true" className="h-6 w-6 shrink-0" />;
-}
-
-function InfoCardIcon({ name }: { name: InfoCard["icon"] }) {
-  if (name === "building") return <BusinessSmallIcon type="agency" />;
-  if (name === "people") return <PeopleIcon />;
-  if (name === "wallet") return <WalletAddIcon />;
-  if (name === "ranking") return <RankingIcon />;
-  if (name === "request") return <RequestIcon />;
-  if (name === "shield") return <ShieldIcon />;
-  return <GridIcon />;
-}
-
-function GridIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <rect height="6" rx="1" stroke="currentColor" strokeWidth="1.5" width="6" x="4" y="4" />
-      <rect height="6" rx="1" stroke="currentColor" strokeWidth="1.5" width="6" x="14" y="4" />
-      <rect height="6" rx="1" stroke="currentColor" strokeWidth="1.5" width="6" x="4" y="14" />
-      <rect height="6" rx="1" stroke="currentColor" strokeWidth="1.5" width="6" x="14" y="14" />
-    </svg>
-  );
-}
-
-function PeopleIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path d="M8.8 11.2a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2ZM15.8 10.8a3 3 0 1 0 0-6" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
-      <path d="M3.5 20a5.3 5.3 0 0 1 10.6 0M14.5 19.5a4.3 4.3 0 0 1 6-3.7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-function ShieldIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path d="M12 3.5 19 6v5.4c0 4.1-2.6 7.8-7 9.1-4.4-1.3-7-5-7-9.1V6l7-2.5Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.6" />
-      <path d="m8.8 12 2.1 2.1 4.4-4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-function RequestIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path d="M5 5.5h14v13H5z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.6" />
-      <path d="M8 9h8M8 12h8M8 15h5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-function RankingIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24">
-      <path d="m12 3 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.3 6.8 19l1-5.8-4.2-4.1 5.8-.8L12 3Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-function WalletAddIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
-      <path d="M3 6.5h14v9H3z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.5" />
-      <path d="M3 6.5 13.2 3.8c1-.3 1.8.4 1.8 1.4v1.3M13 11h4M15 9v4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-
-
-export function ArrowLeftIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
-      <path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-function ArrowRightIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
-      <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
-      <path d="m4.5 10.4 3.3 3.3 7.7-8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
   );
 }

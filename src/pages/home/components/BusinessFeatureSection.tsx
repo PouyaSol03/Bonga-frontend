@@ -1,6 +1,8 @@
 import { pushRoute } from "../../../app/router/navigation";
+import { getStoredAuthSession } from "../../../core/auth/auth-storage";
 import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
 import LinearCrm from "../../../shared/icons/LinearCrm";
+import { DASHBOARD_ROLES } from "../../../shared/constants/roles.constants";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -16,6 +18,15 @@ function CrmBadgeIcon() {
 }
 
 export function BusinessFeatureSection() {
+  const handleBusinessClick = () => {
+    const authSession = getStoredAuthSession();
+    const hasBusinessRole = authSession?.roles.some((role) =>
+      DASHBOARD_ROLES.includes(role.slug),
+    );
+
+    pushRoute(hasBusinessRole ? "/account" : "/account/business/create");
+  };
+
   return (
     <section
       className="border-t-[16px] border-[#f0f0f0] bg-white px-4 pb-4 pt-4"
@@ -60,7 +71,7 @@ export function BusinessFeatureSection() {
           className="w-full [direction:rtl]"
           size="x-medium"
           trailingIcon={<LinearArrowLeft2 className="h-5 w-5" />}
-          onClick={() => pushRoute("/account/business/create")}
+          onClick={handleBusinessClick}
         >
           ایجاد کسب‌وکار
         </Button>
@@ -70,7 +81,7 @@ export function BusinessFeatureSection() {
           size="x-medium"
           variant="secondary"
           trailingIcon={<LinearArrowLeft2 className="h-5 w-5" />}
-          onClick={() => pushRoute("/account/about")}
+          onClick={() => pushRoute("/account/business/create/info?type=agency")}
         >
           مشاهده امکانات
         </Button>

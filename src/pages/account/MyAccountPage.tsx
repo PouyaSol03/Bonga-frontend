@@ -530,8 +530,8 @@ function StandardAccountPage({
       ) : (
         <>
           {isLoggedIn ? (
-            <section className="bg-white" aria-label="وضعیت حساب">
-              <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
+            <section className="shrink-0 bg-white" aria-label="وضعیت حساب">
+              <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
                 <AccountProfileAvatar
                   avatarUrl={accountHeader.avatarUrl}
                   className="h-[72px] w-[72px]"

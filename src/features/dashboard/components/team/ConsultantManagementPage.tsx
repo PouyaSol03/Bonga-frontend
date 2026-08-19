@@ -866,29 +866,6 @@ function ConsultantStat({
   );
 }
 
-function ConsultantAction({
-  consultant,
-  icon,
-  label,
-  to,
-}: {
-  consultant: TeamConsultant;
-  icon: ReactNode;
-  label: string;
-  to: string;
-}) {
-  return (
-    <RouteLink
-      className="flex items-center justify-center gap-1 border-l border-[#e6e6e6] text-[#4d4d4d] no-underline last:border-l-0"
-      state={{ consultant }}
-      to={`${to}/${consultant.id}`}
-    >
-      {icon}
-      {label}
-    </RouteLink>
-  );
-}
-
 function ConsultantEmptyState() {
   return (
     <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center bg-white px-8 py-8 text-center">

@@ -186,9 +186,8 @@ export function ConsultantManagementPage() {
       />
 
       <div
-        className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${
-          showConsultantControls ? "bg-[#f5f5f5]" : "bg-white"
-        }`}
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${showConsultantControls ? "bg-[#f5f5f5]" : "bg-white"
+          }`}
       >
         {showConsultantControls ? (
           <div className="shrink-0 bg-surface-container px-4 py-2">
@@ -474,13 +473,12 @@ export function AddConsultantPage() {
                     type="button"
                   >
                     <SelectionCheckIndicator
-                      className={`h-4.5 w-4.5 rounded-sm ${
-                        isChecked
+                      className={`h-4.5 w-4.5 rounded-sm ${isChecked
                           ? ""
                           : isManager
                             ? "!border-[#4d4d4d]"
                             : "!border-[#bdbdbd]"
-                      }`}
+                        }`}
                       checked={isChecked}
                     />
                     <Typography as="span" variant="label" size="medium" weight="medium" className={`${isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"}`}>{item.label}</Typography>
@@ -493,21 +491,21 @@ export function AddConsultantPage() {
           <section className="grid gap-4 border-t-[8px] border-[#f5f5f5] bg-white px-4 py-5">
             <QuotaStepper
               label="سهمیه آگهی"
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`}
               remainingClassName="text-[#0048c4]"
               setValue={setAdQuota}
               value={adQuota}
             />
             <QuotaStepper
               label="سهمیه بروزرسانی"
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`} 
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`}
               remainingClassName="text-[#11a366]"
               setValue={setUpdateQuota}
               value={updateQuota}
             />
             <QuotaStepper
               label="سهمیه ویژه"
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`} 
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`}
               remainingClassName="text-[#ff6d00]"
               setValue={setSpecialQuota}
               value={specialQuota}
@@ -807,26 +805,29 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             />
           </div>
 
-          <div className="mt-4 grid h-10 grid-cols-3 overflow-hidden rounded-lg bg-[#f5f5f5] text-xs font-medium text-[#4d4d4d]">
+          <div className="mt-4 grid h-10 py-2 grid-cols-3 overflow-hidden rounded-lg bg-[#f5f5f5] text-xs font-medium text-[#4d4d4d]">
             <RouteLink
-              className="grid place-items-center border-l border-[#e0e0e0]"
+              className="flex justify-center items-center gap-2 border-l border-[#e0e0e0]"
               state={{ consultant }}
               to={`${consultantTeamPaths.info}/${consultant.id}`}
             >
-              مشاهده
+              <LinearInfoCircle className="w-5 h-5" />
+              اطلاعات
             </RouteLink>
             <RouteLink
-              className="grid place-items-center border-l border-[#e0e0e0]"
+              className="flex justify-center items-center gap-2 border-l border-[#e0e0e0]"
               state={{ consultant }}
               to={`${consultantTeamPaths.edit}/${consultant.id}`}
             >
+              <LinearEdit2 className="w-5 h-5" />
               ویرایش
             </RouteLink>
             <RouteLink
-              className="grid place-items-center text-[#d32f2f]"
+              className="flex justify-center items-center gap-2"
               state={{ consultant }}
               to={`${consultantTeamPaths.remove}/${consultant.id}`}
             >
+              <LinearDelete className="w-5 h-5" />
               حذف
             </RouteLink>
           </div>

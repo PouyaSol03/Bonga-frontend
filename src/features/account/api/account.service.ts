@@ -787,10 +787,13 @@ export async function getMyAds({
 }: {
   page?: number;
   perPage?: number;
-  type: MyAdsType;
+  type?: MyAdsType;
 }) {
+  const searchParams: Record<string, string | number> = { page, per_page: perPage };
+  if (type && type !== "all") searchParams.type = type;
+
   const response = await api
-    .get("me/myAds", { searchParams: { page, per_page: perPage, type } })
+    .get("me/myAds", { searchParams })
     .json<MyAdsResponse>();
   const record = Array.isArray(response) ? {} : (response as Record<string, unknown>);
   const data = Array.isArray(response)

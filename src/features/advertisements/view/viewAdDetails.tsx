@@ -794,7 +794,7 @@ function readMetric(value: unknown) {
 }
 
 export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetails): AdvertiserPreview | null {
-  const ownerType = String(ad.owner_type ?? "").toLowerCase();
+  const ownerType = String(ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
 
   if (ownerType === "agency") {
     const agency = ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency)
@@ -882,17 +882,18 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     ad.location_label,
     normalizedLocation || toText(ad.form_neighborhood_title, neighborhoodName || title),
   );
-  const agencyLocation = ad.owner_type === "agency" && ad.agency && typeof ad.agency === "object"
+  const ownerType = String(ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
+  const agencyLocation = ownerType === "agency" && ad.agency && typeof ad.agency === "object"
     ? toText(ad.agency.location, locationTitle)
-    : ad.owner_type === "agent" && ad.agent && typeof ad.agent === "object"
+    : ownerType === "agent" && ad.agent && typeof ad.agent === "object"
       ? toText(ad.agent.agency_name, locationTitle)
       : locationTitle;
 
   return {
     adCode: toPersianDigits(ad.track_code ?? ad.id ?? ad._id ?? ""),
-    agency: ad.owner_type === "agency" && ad.agency && typeof ad.agency === "object"
+    agency: ownerType === "agency" && ad.agency && typeof ad.agency === "object"
       ? toText(ad.agency.name)
-      : ad.owner_type === "agent" && ad.agent && typeof ad.agent === "object"
+      : ownerType === "agent" && ad.agent && typeof ad.agent === "object"
         ? toText(ad.agent.agency_name)
         : toText(featureMap.advertiser_type),
     agencyLocation,

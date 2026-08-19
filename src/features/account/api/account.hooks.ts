@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
+import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
   authorizeMe,
   chargeWallet,
@@ -175,8 +176,9 @@ export function useMyAdsInfiniteQuery({
 }: {
   enabled?: boolean;
   perPage?: number;
-  type: MyAdsType;
+  type?: MyAdsType;
 }) {
+  const userType = useActiveAuthRole();
   return useInfiniteQuery<
     MyAdsPage,
     Error,
@@ -189,7 +191,7 @@ export function useMyAdsInfiniteQuery({
       lastPage.hasNextPage ? lastPage.page + 1 : undefined,
     initialPageParam: 1,
     queryFn: ({ pageParam }) => getMyAds({ page: pageParam, perPage, type }),
-    queryKey: queryKeys.account.myAds({ perPage, type }),
+    queryKey: queryKeys.account.myAds({ perPage, type: type ?? "all", userType }),
   });
 }
 

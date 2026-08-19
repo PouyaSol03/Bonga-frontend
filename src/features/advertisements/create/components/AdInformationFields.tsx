@@ -220,6 +220,7 @@ export function AdInformationFields({
   onSelectPersonal,
   onSetField,
   values,
+  allowAssignmentChoice = true,
 }: {
   errors: NewAdFieldErrors;
   label: string;
@@ -229,18 +230,21 @@ export function AdInformationFields({
   onSelectPersonal: () => void;
   onSetField: SetNewAdField;
   values: NewAdFormValues;
+  allowAssignmentChoice?: boolean;
 }) {
   const isAgency = values.registrantType === "agency";
   const isPersonal = values.registrantType === "personal";
 
   return (
     <div className="space-y-4">
-      <RegistrantTypeFields
-        error={errors.registrantType}
-        onSelectAgency={onSelectAgency}
-        onSelectPersonal={onSelectPersonal}
-        registrantType={values.registrantType}
-      />
+      {allowAssignmentChoice ? (
+        <RegistrantTypeFields
+          error={errors.registrantType}
+          onSelectAgency={onSelectAgency}
+          onSelectPersonal={onSelectPersonal}
+          registrantType={values.registrantType}
+        />
+      ) : null}
 
       {isPersonal ? (
         <PersonalContactFields

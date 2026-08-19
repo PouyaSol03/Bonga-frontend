@@ -1,6 +1,6 @@
 import { lazy, memo, Suspense, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
-import { getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
+import { getStoredAuthSession, setStoredActiveRole, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
 import LinearChat from "../../shared/icons/LinearChat";
@@ -164,18 +164,24 @@ function BottomNavigationComponent({
             onClose={() => setIsCreateAdOpen(false)}
             onSelect={(option) => {
               setIsCreateAdOpen(false);
+              setStoredActiveRole(option.senderRole);
 
               if (option.id === "personal") {
                 navigateTo("/new-ad/personal?registrantType=personal");
+                return;
               }
 
               if (option.id === "independent-consultant") {
-                navigateTo("/new-ad/independent-consultant");
+                navigateTo("/new-ad/independent-consultant?registrantType=personal");
+                return;
               }
 
-              if (option.id === "jaliliyan-agency") {
-                navigateTo("/new-ad/jaliliyan-agency?registrantType=agency");
+              if (option.id === "agency-manager") {
+                navigateTo("/new-ad/agency?registrantType=personal");
+                return;
               }
+
+              navigateTo("/new-ad/agency-consultant?registrantType=personal");
             }}
           />
         </Suspense>

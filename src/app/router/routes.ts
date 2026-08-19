@@ -287,11 +287,13 @@ export const routes: AppRoute[] = [
     path: '/account/my-ads',
     title: 'آگهی‌های من',
     Component: AccountMyAdsPage,
+    requiresAuth: true,
   },
   {
     path: '/account/my-ads/empty',
     title: 'آگهی‌های من',
     Component: AccountMyAdsEmptyPage,
+    requiresAuth: true,
   },
   {
     path: '/account/wallet',
@@ -969,6 +971,18 @@ export const routes: AppRoute[] = [
   },
   {
     path: "/new-ad/independent-consultant",
+    title: "ثبت آگهی",
+    Component: NewAdCategoryPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/new-ad/agency",
+    title: "ثبت آگهی",
+    Component: NewAdCategoryPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/new-ad/agency-consultant",
     title: "ثبت آگهی",
     Component: NewAdCategoryPage,
     requiresAuth: true,

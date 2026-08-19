@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
+import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
   createAdvertisement,
   getAdvertisementCheckout,
@@ -89,10 +90,11 @@ export function useAdvertiseFormDefinitionQuery(formCode: string | null) {
 }
 
 export function useMyAdvertisementDetailQuery(id: string | null) {
+  const userType = useActiveAuthRole();
   return useQuery<AdvertisementItem, Error>({
     enabled: Boolean(id),
     queryFn: () => getMyAdvertisementDetail(id ?? ""),
-    queryKey: [...queryKeys.advertisements.all, "my-detail", id ?? ""],
+    queryKey: [...queryKeys.advertisements.all, "my-detail", userType, id ?? ""],
   });
 }
 
@@ -113,18 +115,20 @@ export function useAdvertisementDailyViewsQuery(id: string | null) {
 }
 
 export function useAdvertisementPaymentsQuery(id: string | null) {
+  const userType = useActiveAuthRole();
   return useQuery({
     enabled: Boolean(id),
     queryFn: () => getAdvertisementPayments(id ?? ""),
-    queryKey: queryKeys.advertisements.payments(id ?? ""),
+    queryKey: [...queryKeys.advertisements.payments(id ?? ""), userType],
   });
 }
 
 export function useAdvertisementPreviewQuery(id: string | null) {
+  const userType = useActiveAuthRole();
   return useQuery({
     enabled: Boolean(id),
     queryFn: () => getAdvertisementPreview(id ?? ""),
-    queryKey: queryKeys.advertisements.preview(id ?? ""),
+    queryKey: [...queryKeys.advertisements.preview(id ?? ""), userType],
   });
 }
 

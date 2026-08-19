@@ -104,6 +104,10 @@ export type AdvertisementItem = Record<string, unknown> & {
   neighborhood_id?: number | string | null;
   neighborhood_name?: string;
   owner_type?: string;
+  publisher_type?: "user" | "agency" | "agent" | string;
+  publisher_user_id?: number | string | null;
+  publisher_agency_id?: number | string | null;
+  publisher_agent_id?: number | string | null;
   price?: string | number;
   price_label?: string;
   published_days?: string | number | null;
@@ -506,6 +510,49 @@ function toText(value: unknown, fallback = "") {
   return fallback;
 }
 
+function readRecordText(record: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+
+  return "";
+}
+
+export function getAdvertisementPublisherName(item: AdvertisementItem) {
+  const publisherType = String(item.publisher_type ?? item.owner_type ?? "user").toLowerCase();
+  const record = item as Record<string, unknown>;
+
+  if (publisherType === "agent") {
+    if (item.agent?.name?.trim()) return item.agent.name.trim();
+
+    return readRecordText(record, [
+      "agent_name",
+      "consultant_name",
+      "publisher_agent_name",
+    ]);
+  }
+
+  if (publisherType === "agency") {
+    if (typeof item.agency === "string" && item.agency.trim()) return item.agency.trim();
+    if (item.agency && typeof item.agency === "object" && item.agency.name?.trim()) {
+      return item.agency.name.trim();
+    }
+
+    return readRecordText(record, [
+      "agency_name",
+      "publisher_agency_name",
+    ]);
+  }
+
+  return readRecordText(record, [
+    "owner_name",
+    "advertiser_name",
+    "user_name",
+    "publisher_user_name",
+  ]);
+}
+
 function formatPrice(value: unknown) {
   const numericValue = toNumber(value);
 
@@ -623,7 +670,7 @@ export function mapAdvertisementToAdCard(
 
   return {
     id: item.id ?? item._id ?? index + 1,
-    agency: toText(item.agency),
+    agency: getAdvertisementPublisherName(item),
     area: formatFeatureUnit(area, "متر"),
     badges: Array.isArray(item.badges) ? item.badges : [],
     imageClassName: image ? "" : `ad-card__image--${(index % 4) + 1}`,

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { useActiveAuthRole } from "../../shared/auth/use-active-auth-role";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
 import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
@@ -13,7 +13,7 @@ import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-advertise-assignment.service";
 import type { AdvertisementItem } from "../advertisements/api/advertisement.service";
-import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
+import { getAdvertisementPublisherName, mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";
 import {
@@ -215,31 +215,9 @@ function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto): Assig
   };
 }
 
-function readAdvertisementPublisher(ad: AdvertisementItem) {
-  if (typeof ad.agency === "string" && ad.agency.trim()) return ad.agency.trim();
-  if (ad.agency && typeof ad.agency === "object" && ad.agency.name?.trim()) {
-    return ad.agency.name.trim();
-  }
-
-  const record = ad as Record<string, unknown>;
-  const candidates = [
-    record.agency_name,
-    record.agent_name,
-    record.consultant_name,
-    record.advertiser_name,
-    record.owner_name,
-  ];
-
-  for (const candidate of candidates) {
-    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
-  }
-
-  return "";
-}
-
 export function IndependentConsultantAdManagementPage() {
   const routeState = getAdManagementRouteState();
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const activeRole = useActiveAuthRole();
   const canAccessAssignments = activeRole !== INDEPENDENT_CONSULTANT;
   const [activeTab, setActiveTab] = useState<AdsTab>(() =>
     canAccessAssignments ? (routeState.tab ?? "active") : "active",
@@ -255,9 +233,8 @@ export function IndependentConsultantAdManagementPage() {
     perPage: assignmentPageSize,
     status: "pending",
   });
-  const activeAdsQuery = useMyAdsInfiniteQuery({
+  const adsQuery = useMyAdsInfiniteQuery({
     perPage: assignmentPageSize,
-    type: "active",
   });
   const assignmentItems = useMemo(
     () => assignmentsQuery.data?.pages.flatMap((page) => page.data) ?? [],
@@ -275,20 +252,20 @@ export function IndependentConsultantAdManagementPage() {
   );
   const activeAdvertisements = useMemo(
     () =>
-      (activeAdsQuery.data?.pages ?? [])
+      (adsQuery.data?.pages ?? [])
         .flatMap((page) => page.data)
         .map((sourceAd, index) => {
           const statusInfo = getMyAdStatusInfo(sourceAd);
           const card = {
             ...mapAdvertisementToAdCard(sourceAd, index),
-            publisher: readAdvertisementPublisher(sourceAd),
+            publisher: getAdvertisementPublisherName(sourceAd),
             status: statusInfo.label,
           };
 
           return { card, sourceAd };
         })
         .filter(({ card }) => matchesAdFilters(card, scopedFilters, false)),
-    [activeAdsQuery.data, scopedFilters],
+    [adsQuery.data, scopedFilters],
   );
   const visibleCount = assignedTab ? assignedAdvertisements.length : activeAdvertisements.length;
   const preloadIndex = Math.max(visibleCount - loadMoreRemainingCount - 1, 0);
@@ -298,7 +275,7 @@ export function IndependentConsultantAdManagementPage() {
     observerRef.current?.disconnect();
     observerRef.current = null;
 
-    const targetQuery = assignedTab ? assignmentsQuery : activeAdsQuery;
+    const targetQuery = assignedTab ? assignmentsQuery : adsQuery;
     if (!node || !targetQuery.hasNextPage || targetQuery.isFetchingNextPage) return;
 
     const observer = new IntersectionObserver(
@@ -422,8 +399,8 @@ export function IndependentConsultantAdManagementPage() {
       <main
         className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${
           !assignedTab &&
-          !activeAdsQuery.isLoading &&
-          !activeAdsQuery.isError &&
+          !adsQuery.isLoading &&
+          !adsQuery.isError &&
           activeAdvertisements.length === 0
             ? "bg-white"
             : "bg-[#f0f0f0] pt-4"
@@ -432,8 +409,8 @@ export function IndependentConsultantAdManagementPage() {
         <div
           className={
             !assignedTab &&
-            !activeAdsQuery.isLoading &&
-            !activeAdsQuery.isError &&
+            !adsQuery.isLoading &&
+            !adsQuery.isError &&
             activeAdvertisements.length === 0
               ? "flex min-h-0 flex-1 flex-col bg-white"
               : assignedTab
@@ -468,15 +445,15 @@ export function IndependentConsultantAdManagementPage() {
             ) : (
               <AssignmentStatusMessage>آگهی تخصیصی در انتظار بررسی وجود ندارد.</AssignmentStatusMessage>
             )
-          ) : activeAdsQuery.isLoading ? (
+          ) : adsQuery.isLoading ? (
             <AssignmentStatusMessage>در حال دریافت آگهی‌ها...</AssignmentStatusMessage>
-          ) : activeAdsQuery.isError ? (
+          ) : adsQuery.isError ? (
             <AssignmentStatusMessage>
               دریافت آگهی‌ها با خطا مواجه شد.
               <Button
                 unstyled
                 className="mt-3 block w-full font-semibold text-[#0048c4]"
-                onClick={() => void activeAdsQuery.refetch()}
+                onClick={() => void adsQuery.refetch()}
                 type="button"
               >
                 تلاش دوباره
@@ -500,7 +477,7 @@ export function IndependentConsultantAdManagementPage() {
             <AccountMyAdsEmptyState filterLabel="همه" mode="compact" />
           )}
 
-          {(assignedTab ? assignmentsQuery.isFetchingNextPage : activeAdsQuery.isFetchingNextPage) ? (
+          {(assignedTab ? assignmentsQuery.isFetchingNextPage : adsQuery.isFetchingNextPage) ? (
             <AssignmentStatusMessage>در حال دریافت موارد بیشتر...</AssignmentStatusMessage>
           ) : null}
         </div>

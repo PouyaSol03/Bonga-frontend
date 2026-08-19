@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { getStoredAuthSession } from "../../../../shared/auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
 import { useMyProfileQuery } from "../../../account/api/account.hooks";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
 import { AdInformationFields } from "../components/AdInformationFields";
@@ -40,7 +40,10 @@ export function MediaStep({
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const { data: profile } = useMyProfileQuery();
-  const storedMobile = getStoredAuthSession()?.mobile?.trim() ?? "";
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const allowAssignmentChoice = activeRole === "user";
+  const storedMobile = session?.mobile?.trim() ?? "";
   const meShowMobile = profile?.mobile?.trim() || profile?.phone?.trim() || "";
   const profileMobile = profile?.mobile?.trim() || storedMobile;
   const profileFullName = [profile?.name, profile?.family]
@@ -60,6 +63,13 @@ export function MediaStep({
       onClearError?.("contactMethods");
     }
   };
+
+  useEffect(() => {
+    if (allowAssignmentChoice || values.registrantType === "personal") return;
+    setValue("registrantType", "personal", { shouldDirty: false });
+    setValue("agencyId", "", { shouldDirty: false });
+    setValue("publisherName", "", { shouldDirty: false });
+  }, [allowAssignmentChoice, setValue, values.registrantType]);
 
   useEffect(() => {
     if (!isAgencyFlow) return;
@@ -178,6 +188,7 @@ export function MediaStep({
             onSelectPersonal={selectPersonal}
             onSetField={setField}
             values={values}
+          allowAssignmentChoice={allowAssignmentChoice}
           />
         </Section>
       </main>

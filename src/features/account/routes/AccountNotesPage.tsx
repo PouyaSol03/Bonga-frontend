@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import type { NoteItem } from "../api/account.service";
-import { useMyNotesQuery, useDeleteAdvertiseNoteMutation, useSaveAdvertiseNoteMutation } from "../api/account.hooks";
+import { useMyNotesQuery, useDeleteAdvertiseNoteMutation, useUpdateAdvertiseNoteMutation } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Button } from "../../../shared/ui/Button";
-import { AccountNotesSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState, NoteCard, getNoteAdvertiseId, getNoteId, readNoteText } from "../accountPageViews";
+import { AccountNotesSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState, NoteCard, getNoteId, readNoteText } from "../accountPageViews";
 import type { AccountToast } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -15,7 +15,7 @@ export function AccountNotesPage() {
   const [toast, setToast] = useState<AccountToast | null>(null);
   const { data: notes = [], error, isError, isLoading, refetch } = useMyNotesQuery();
   const deleteNote = useDeleteAdvertiseNoteMutation();
-  const saveNote = useSaveAdvertiseNoteMutation();
+  const updateNote = useUpdateAdvertiseNoteMutation();
 
   useEffect(() => {
     if (!toast) return;
@@ -62,13 +62,13 @@ export function AccountNotesPage() {
   };
 
   const updateEditingNote = () => {
-    const advertiseId = editingNote ? getNoteAdvertiseId(editingNote) : "";
+    const noteId = editingNote ? getNoteId(editingNote) : "";
     const cleanNote = noteDraft.trim();
 
-    if (!advertiseId || !cleanNote || saveNote.isPending) return;
+    if (!noteId || !cleanNote || updateNote.isPending) return;
 
-    saveNote.mutate(
-      { advertiseId, note: cleanNote },
+    updateNote.mutate(
+      { noteId, note: cleanNote },
       {
         onError: (saveError) => {
           showToast(getApiErrorMessage(saveError, "ذخیره یادداشت با خطا مواجه شد."), "خطا", "error");
@@ -182,8 +182,8 @@ export function AccountNotesPage() {
         <div className="mt-5 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
-            disabled={!noteDraft.trim() || !editingNote || !getNoteAdvertiseId(editingNote) || saveNote.isPending}
-            loading={saveNote.isPending}
+            disabled={!noteDraft.trim() || !editingNote || !getNoteId(editingNote) || updateNote.isPending}
+            loading={updateNote.isPending}
             onClick={updateEditingNote}
             size="sm"
           >

@@ -20,6 +20,7 @@ import {
   getWalletPayments,
   saveAdvertiseNote,
   toggleAdvertiseBadge,
+  updateAdvertiseNote,
   updateMyAgencyProfile,
   updateMyProfile,
   verifyPaymentCallback,
@@ -260,6 +261,20 @@ export function useMyNotesQuery() {
 export function useSaveAdvertiseNoteMutation() {
   return useMutation({
     mutationFn: saveAdvertiseNote,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.notes(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+    },
+  });
+}
+
+export function useUpdateAdvertiseNoteMutation() {
+  return useMutation({
+    mutationFn: updateAdvertiseNote,
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.notes(),

@@ -11,6 +11,7 @@ import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { pushRoute } from "../../shared/navigation/navigation";
 import { AdCardTomanIcon } from "../advertisements/components/AdCardIcons";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import LinearUserConfirmation from "../../shared/icons/LinearUserConfirmation";
@@ -536,6 +537,7 @@ export function NoteCard({
   const [dragOffset, setDragOffset] = useState(0);
   const dragStartX = useRef<number | null>(null);
   const dragStartOffset = useRef(0);
+  const didDrag = useRef(false);
   const noteId = getNoteId(note);
   const advertiseId = getNoteAdvertiseId(note);
   const mappedAd = mapAdvertisementToAdCard(getNoteAdvertiseSource(note), 0);
@@ -548,6 +550,7 @@ export function NoteCard({
     if (dragStartX.current === null || disabled || !noteId) return;
 
     const deltaX = event.clientX - dragStartX.current;
+    if (Math.abs(deltaX) > 6) didDrag.current = true;
     setDragOffset(Math.min(maxDragOffset, Math.max(0, dragStartOffset.current + deltaX)));
   };
 
@@ -580,22 +583,46 @@ export function NoteCard({
 
       <div
         className="relative z-10 h-[136px] touch-pan-y bg-white px-4 py-4 transition-transform duration-150 ease-out"
+        onClick={(event) => {
+          if (didDrag.current) {
+            didDrag.current = false;
+            return;
+          }
+
+          const target = event.target as HTMLElement;
+          if (target.closest("button, a") || !advertiseId) return;
+
+          pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
+        }}
+        onKeyDown={(event) => {
+          if (!advertiseId || event.target !== event.currentTarget) return;
+          if (event.key !== "Enter" && event.key !== " ") return;
+
+          event.preventDefault();
+          pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
+        }}
         onPointerCancel={handlePointerEnd}
         onPointerDown={(event) => {
+          didDrag.current = false;
           dragStartX.current = event.clientX;
           dragStartOffset.current = dragOffset;
           event.currentTarget.setPointerCapture?.(event.pointerId);
         }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
+        role={advertiseId ? "link" : undefined}
         style={{ transform: `translateX(${dragOffset}px)` }}
+        tabIndex={advertiseId ? 0 : undefined}
       >
         <div className="flex items-center justify-end gap-4 py-2 [direction:ltr]">
           <Button unstyled
             aria-label="ویرایش یادداشت"
             className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d] disabled:opacity-50"
-            disabled={!advertiseId || disabled}
-            onClick={() => onEdit(note)}
+            disabled={!noteId || disabled}
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit(note);
+            }}
             type="button"
           >
             <LinearEdit className="h-5 w-5" />

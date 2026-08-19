@@ -345,6 +345,11 @@ export type SaveAdvertiseNotePayload = {
   note: string;
 };
 
+export type UpdateAdvertiseNotePayload = {
+  noteId: string;
+  note: string;
+};
+
 type MyNotesResponse =
   | ApiListResponse<NoteItem>
   | {
@@ -887,6 +892,12 @@ export async function getMyNotes() {
 export function saveAdvertiseNote({ advertiseId, note }: SaveAdvertiseNotePayload) {
   return api
     .post(`me/advertise/note/add/${advertiseId}`, { json: { note } })
+    .json<ApiDataResponse<NoteItem | unknown>>();
+}
+
+export function updateAdvertiseNote({ noteId, note }: UpdateAdvertiseNotePayload) {
+  return api
+    .put(`me/advertise/note/update/${encodeURIComponent(noteId)}`, { json: { note } })
     .json<ApiDataResponse<NoteItem | unknown>>();
 }
 

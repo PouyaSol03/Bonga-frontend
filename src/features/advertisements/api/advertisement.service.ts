@@ -154,6 +154,25 @@ type AdvertisementShowResponse = {
   status: boolean;
 };
 
+export type AdvertisementDailyViewPoint = {
+  count: number;
+  date: string;
+};
+
+export type AdvertisementDailyViews = {
+  data: AdvertisementDailyViewPoint[];
+  totalView: number;
+};
+
+type AdvertisementDailyViewsResponse = {
+  data?: Array<{
+    count?: number | string;
+    date?: string;
+  }>;
+  status?: boolean;
+  total_view?: number | string;
+};
+
 type AdvertisementAccountShowResponse =
   | {
     advertise?: AdvertisementItem;
@@ -673,6 +692,33 @@ export async function getAdvertisementDetail(id: string): Promise<AdvertisementI
     .json<AdvertisementShowResponse>();
 
   return unwrapAdvertisementShowResponse(response);
+}
+
+export async function getAdvertisementDailyViews(id: string): Promise<AdvertisementDailyViews> {
+  const response = await publicApi
+    .get(`public/advertise/view/preview-chart/${encodeURIComponent(id)}`)
+    .json<AdvertisementDailyViewsResponse>();
+  const data = Array.isArray(response.data)
+    ? response.data
+        .map((item) => {
+          const count = Number(item.count ?? 0);
+          const date = typeof item.date === "string" ? item.date.trim() : "";
+
+          if (!date || !Number.isFinite(count)) return null;
+
+          return {
+            count: Math.max(0, count),
+            date,
+          } satisfies AdvertisementDailyViewPoint;
+        })
+        .filter((item): item is AdvertisementDailyViewPoint => item !== null)
+    : [];
+  const totalView = Number(response.total_view ?? 0);
+
+  return {
+    data,
+    totalView: Number.isFinite(totalView) ? Math.max(0, totalView) : 0,
+  };
 }
 
 export async function getAdvertisementPreview(id: string): Promise<AdvertisementItem> {

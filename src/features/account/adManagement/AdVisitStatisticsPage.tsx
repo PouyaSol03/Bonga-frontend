@@ -17,7 +17,11 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/au
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
 import { USER } from "../../../shared/constants/roles.constants";
-import { useAdvertisementDetailQuery } from "../../advertisements/api/advertisement.hooks";
+import {
+  useAdvertisementDailyViewsQuery,
+  useAdvertisementDetailQuery,
+} from "../../advertisements/api/advertisement.hooks";
+import type { AdvertisementDailyViews } from "../../advertisements/api/advertisement.service";
 import { getPrimaryAdvertisementImageUrl } from "../../advertisements/utils/advertisement-images";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import {
@@ -69,14 +73,21 @@ export function AdVisitStatisticsPage() {
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const query = useAdvertisementDetailQuery(adId ?? null);
+  const dailyViewsQuery = useAdvertisementDailyViewsQuery(adId ?? null);
   const card = routeState.card ?? getSelectedConsultantAd(adId);
   const ad = query.data ?? routeState.ad ?? card;
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isUserRole = activeRole === USER;
   const backTo = routeState.visitStatisticsReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
   const summary = useMemo(() => createAdSummary(ad, card), [ad, card]);
-  const userChart = useMemo(() => createUserChartConfig(ad), [ad]);
-  const managerCharts = useMemo(() => createManagerChartConfigs(ad), [ad]);
+  const userChart = useMemo(() => createUserChartConfig(ad, dailyViewsQuery.data), [ad, dailyViewsQuery.data]);
+  const managerCharts = useMemo(() => createManagerChartConfigs(ad, dailyViewsQuery.data), [ad, dailyViewsQuery.data]);
+  const isLoading = query.isLoading || dailyViewsQuery.isLoading;
+  const isError = query.isError || dailyViewsQuery.isError;
+  const retry = () => {
+    void query.refetch();
+    void dailyViewsQuery.refetch();
+  };
 
   if (isUserRole) {
     return (
@@ -86,9 +97,9 @@ export function AdVisitStatisticsPage() {
         backTo={backTo}
         card={card}
         chart={userChart}
-        isError={query.isError}
-        isLoading={query.isLoading}
-        onRetry={() => void query.refetch()}
+        isError={isError}
+        isLoading={isLoading}
+        onRetry={retry}
         returnTo={routeState.returnTo}
       />
     );
@@ -98,9 +109,9 @@ export function AdVisitStatisticsPage() {
     <ManagerAdVisitStatisticsView
       backTo={backTo}
       charts={managerCharts}
-      isError={query.isError}
-      isLoading={query.isLoading}
-      onRetry={() => void query.refetch()}
+      isError={isError}
+      isLoading={isLoading}
+      onRetry={retry}
       returnTo={routeState.returnTo}
       summary={summary}
     />
@@ -257,18 +268,26 @@ type VisitChartPoint = ChartColumn & {
 function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | "user" }) {
   const [offset, setOffset] = useState(0);
   const [isInfoSheetOpen, setIsInfoSheetOpen] = useState(false);
-  const defaultSelectedIndex = useMemo(() => {
-    const markedIndex = chart.columns.findIndex((column) => column.selected);
-
-    return markedIndex >= 0 ? markedIndex : Math.max(0, chart.columns.length - 2);
-  }, [chart.columns]);
-  const [selectedIndex, setSelectedIndex] = useState(defaultSelectedIndex);
-  const isUserMode = mode === "user";
   const chartData = useMemo<VisitChartPoint[]>(
     () => chart.columns.map((column) => ({ ...column, value: column.height })),
     [chart.columns],
   );
-  const selectedColumn = chartData[selectedIndex] ?? chartData[defaultSelectedIndex] ?? chartData[0];
+  const rangeSize = 7;
+  const maxOffset = Math.max(0, Math.ceil(chartData.length / rangeSize) - 1);
+  const visibleChartData = useMemo(() => {
+    const end = Math.max(0, chartData.length - offset * rangeSize);
+    const start = Math.max(0, end - rangeSize);
+
+    return chartData.slice(start, end);
+  }, [chartData, offset]);
+  const defaultSelectedIndex = useMemo(() => {
+    const markedIndex = visibleChartData.findIndex((column) => column.selected);
+
+    return markedIndex >= 0 ? markedIndex : Math.max(0, visibleChartData.length - 1);
+  }, [visibleChartData]);
+  const [selectedIndex, setSelectedIndex] = useState(defaultSelectedIndex);
+  const isUserMode = mode === "user";
+  const selectedColumn = visibleChartData[selectedIndex] ?? visibleChartData[defaultSelectedIndex] ?? visibleChartData[0];
   const tooltipText = selectedColumn?.tooltip ?? chart.selectedTooltip;
   const chartInfo = getChartInfo(chart.metric);
 
@@ -276,13 +295,17 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
     setSelectedIndex(defaultSelectedIndex);
   }, [defaultSelectedIndex]);
 
+  useEffect(() => {
+    setOffset((current) => Math.min(current, maxOffset));
+  }, [maxOffset]);
+
   return (
     <section
       className={`${isUserMode ? "bg-white" : "h-[283px] bg-[#fafafa] px-4 py-4"}`}
       aria-label={chart.title}
     >
       <div className="flex h-12 items-center justify-between [direction:ltr]">
-        {chart.columns.length > 0 ? <ChartRangeControls offset={offset} setOffset={setOffset} /> : <div className="h-12 w-24" aria-hidden="true" />}
+        {chartData.length > rangeSize ? <ChartRangeControls maxOffset={maxOffset} offset={offset} setOffset={setOffset} /> : <div className="h-12 w-24" aria-hidden="true" />}
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
           <ChartTitleIcon className="h-6 w-6 text-[#4d4d4d]" metric={chart.metric} />
           {chart.title}
@@ -306,7 +329,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
         </div>
 
         <div className={`${isUserMode ? "mt-3 h-[190px]" : "mt-2 h-[155px]"} [direction:ltr]`}>
-          {chartData.length === 0 ? (
+          {visibleChartData.length === 0 ? (
             <div className="flex h-full items-center justify-center border-b border-[#cccccc] px-6 text-center [direction:rtl]">
               <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
                 داده نموداری از سرور دریافت نشده است.
@@ -316,14 +339,14 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
             <ResponsiveContainer height="100%" width="100%">
               <BarChart
                 barCategoryGap={isUserMode ? 26 : 20}
-                data={chartData}
+                data={visibleChartData}
                 margin={{ bottom: 0, left: 0, right: 0, top: 38 }}
               >
                 <CartesianGrid stroke="#e6e6e6" strokeDasharray="4 4" vertical={false} />
                 <XAxis axisLine={{ stroke: "#cccccc" }} dataKey="date" height={24} interval={0} tick={{ fill: "#4d4d4d", fontSize: 12 }} tickLine={false} />
                 <YAxis axisLine={false} domain={[0, 100]} tick={{ fill: "#808080", fontSize: 12 }} tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)} tickLine={false} ticks={createYAxisTicks(chart.yAxisLabels)} width={34} />
                 <Bar dataKey="value" fill="#12a36a" isAnimationActive={false} maxBarSize={6} minPointSize={2} onClick={(_, index) => setSelectedIndex(index)} radius={[999, 999, 0, 0]}>
-                  {chartData.map((column, index) => (
+                  {visibleChartData.map((column, index) => (
                     <Cell cursor="pointer" fill={index === selectedIndex ? "#0f9464" : "#12a36a"} key={column.date} onClick={() => setSelectedIndex(index)} />
                   ))}
                   <LabelList
@@ -359,9 +382,11 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
 }
 
 function ChartRangeControls({
+  maxOffset,
   offset,
   setOffset,
 }: {
+  maxOffset: number;
   offset: number;
   setOffset: (updater: (current: number) => number) => void;
 }) {
@@ -369,8 +394,9 @@ function ChartRangeControls({
     <div className="flex items-center">
       <Button unstyled
         aria-label="بازه قبلی"
-        className="grid h-12 w-12 place-items-center text-[#4d4d4d]"
-        onClick={() => setOffset((current) => Math.min(current + 1, 2))}
+        className={`grid h-12 w-12 place-items-center ${offset >= maxOffset ? "text-[#cccccc]" : "text-[#4d4d4d]"}`}
+        disabled={offset >= maxOffset}
+        onClick={() => setOffset((current) => Math.min(current + 1, maxOffset))}
         type="button"
       >
         <LinearArrowLeft1 className="h-5 w-5" />
@@ -480,26 +506,65 @@ function toChartNumber(value: unknown) {
   return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
-function createUserChartConfig(ad: unknown): ChartConfig {
+function createUserChartConfig(ad: unknown, dailyViews?: AdvertisementDailyViews): ChartConfig {
+  const dailyChart = createDailyViewsChart(dailyViews);
+
   return {
-    columns: [],
+    columns: dailyChart.columns,
     label: "بازدید کل:",
     metric: "views",
-    selectedTooltip: "",
+    selectedTooltip: dailyChart.selectedTooltip,
     title: "آمار بازدید",
-    total: readStatistic(ad, ["total_views", "views_count", "views", "visit_count", "view_count"]),
-    yAxisLabels: [],
+    total: dailyViews ? formatFaNumber(dailyViews.totalView) : readStatistic(ad, ["total_views", "views_count", "views", "visit_count", "view_count"]),
+    yAxisLabels: dailyChart.yAxisLabels,
   };
 }
 
-function createManagerChartConfigs(ad: unknown): ChartConfig[] {
-  return managerChartSections.map((section) => ({
-    ...section,
-    columns: [],
-    selectedTooltip: "",
-    total: readStatistic(ad, statisticKeysByMetric[section.metric]),
-    yAxisLabels: [],
+function createManagerChartConfigs(ad: unknown, dailyViews?: AdvertisementDailyViews): ChartConfig[] {
+  const dailyChart = createDailyViewsChart(dailyViews);
+
+  return managerChartSections.map((section) => {
+    const isViewsChart = section.metric === "views";
+
+    return {
+      ...section,
+      columns: isViewsChart ? dailyChart.columns : [],
+      selectedTooltip: isViewsChart ? dailyChart.selectedTooltip : "",
+      total: isViewsChart && dailyViews
+        ? formatFaNumber(dailyViews.totalView)
+        : readStatistic(ad, statisticKeysByMetric[section.metric]),
+      yAxisLabels: isViewsChart ? dailyChart.yAxisLabels : [],
+    };
+  });
+}
+
+function createDailyViewsChart(dailyViews?: AdvertisementDailyViews) {
+  const points = [...(dailyViews?.data ?? [])].reverse();
+  const maxCount = points.reduce((max, point) => Math.max(max, point.count), 0);
+  const columns: ChartColumn[] = points.map((point, index) => ({
+    date: point.date,
+    height: maxCount > 0 ? (point.count / maxCount) * 100 : 0,
+    selected: index === points.length - 1,
+    tooltip: `${formatFaNumber(point.count)} بازدید`,
   }));
+
+  return {
+    columns,
+    selectedTooltip: columns.at(-1)?.tooltip ?? "",
+    yAxisLabels: createDailyViewsYAxisLabels(maxCount),
+  };
+}
+
+function createDailyViewsYAxisLabels(maxCount: number) {
+  if (maxCount <= 0) return ["۰", "۰"];
+  if (maxCount <= 3) return [formatFaNumber(maxCount), "۰"];
+
+  return [
+    maxCount,
+    Math.round((maxCount * 2) / 3),
+    Math.round(maxCount / 3),
+    0,
+  ].map(formatFaNumber);
 }
 
 const statisticKeysByMetric: Record<ChartMetric, string[]> = {

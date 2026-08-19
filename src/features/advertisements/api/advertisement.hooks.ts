@@ -8,6 +8,7 @@ import {
   getAgencyAdvertisementCheckout,
   getConsultantAdvertisementCheckout,
   getAgencyAdvertisementPreview,
+  getAdvertisementDailyViews,
   getAdvertisementDetail,
   getAdvertisementList,
   getAdvertisementMap,
@@ -99,6 +100,14 @@ export function useAdvertisementDetailQuery(id: string | null) {
     enabled: Boolean(id),
     queryFn: () => getAdvertisementDetail(id ?? ""),
     queryKey: queryKeys.advertisements.detail(id ?? ""),
+  });
+}
+
+export function useAdvertisementDailyViewsQuery(id: string | null) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: () => getAdvertisementDailyViews(id ?? ""),
+    queryKey: queryKeys.advertisements.dailyViews(id ?? ""),
   });
 }
 

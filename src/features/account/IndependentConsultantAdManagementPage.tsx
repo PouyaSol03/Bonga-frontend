@@ -12,7 +12,6 @@ import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../advertisements/ap
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-advertise-assignment.service";
-import type { AdvertisementItem } from "../advertisements/api/advertisement.service";
 import { getAdvertisementPublisherName, mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";

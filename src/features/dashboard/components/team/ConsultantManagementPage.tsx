@@ -809,7 +809,7 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             <RouteLink
               className="flex justify-center items-center gap-2 border-l border-[#e0e0e0]"
               state={{ consultant }}
-              to={`${consultantTeamPaths.info}/${consultant.id}`}
+              to={`${consultantTeamPaths.info}/${consultant.agentId ?? consultant.id}`}
             >
               <LinearInfoCircle className="w-5 h-5" />
               اطلاعات

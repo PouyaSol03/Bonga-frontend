@@ -83,7 +83,7 @@ export function ConsultantInfoPage() {
       : new Intl.NumberFormat("fa-IR").format(value);
   const agencyDashboard = agencyDashboardQuery.data;
   const consultantActivity = agencyDashboard?.consultantActivity.find(
-    (activity) => String(activity.userId) === String(consultantId),
+    (activity) => String(activity.userId) === String(consultant.id),
   );
   const totalRenewals = agencyDashboard
     ? agencyDashboard.consultantActivity.reduce((sum, activity) => sum + activity.renewCount, 0)

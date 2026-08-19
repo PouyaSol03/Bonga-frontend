@@ -257,15 +257,8 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
         <BusinessAccountSkeleton />
       ) : (
         <>
-          <section className="shrink-0 bg-white pt-4" aria-label={businessHeader.ariaLabel}>
-            <Button unstyled
-              className="flex w-full items-center gap-4 px-4 text-right"
-              onClick={() => {
-                setStoredActiveRole(USER);
-                navigateTo("/account");
-              }}
-              type="button"
-            >
+          <section className="shrink-0 bg-white" aria-label={businessHeader.ariaLabel}>
+            <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
               <AccountProfileAvatar
                 avatarUrl={businessHeader.imageSrc}
                 className="h-[72px] w-[72px]"
@@ -273,8 +266,8 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
                 label={businessHeader.name}
               />
               <div className="min-w-0 flex-1 text-right">
-                <Typography as="p" variant="body" size="large" weight="medium"
-                  className="m-0 truncate text-base font-semibold leading-6"
+                <Typography as="p" variant="body" size="medium" weight="medium"
+                  className="m-0 truncate text-sm font-semibold leading-5"
                   style={{ color: businessHeader.color }}
                 >
                   {businessHeader.name}
@@ -283,13 +276,9 @@ function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSu
                   {businessHeader.subtitle}
                 </Typography>
               </div>
-            </Button>
+            </div>
 
-            {accountSwitchActions.length > 0 ? (
-              <div className="mt-4">
-                <Divider spaced />
-              </div>
-            ) : null}
+            {accountSwitchActions.length > 0 ? <Divider /> : null}
             <AccountSection actions={accountSwitchActions} spacedDividers />
           </section>
 

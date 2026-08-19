@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
-import { useAdvertisementDetailQuery } from "../../advertisements/api/advertisement.hooks";
+import { useAdvertisementPaymentsQuery } from "../../advertisements/api/advertisement.hooks";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
 import {
@@ -42,10 +42,11 @@ export function AdPaymentHistoryPage() {
   const routeState = getAdManagementRouteState() as AdPaymentHistoryRouteState;
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const backTo = routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
-  const query = useAdvertisementDetailQuery(adId ?? null);
-  const ad = query.data ?? routeState.ad;
-  const payments = resolveAdPayments(ad, routeState);
-  const showEmpty = !query.isLoading && !query.isError && payments.length === 0;
+  const paymentsQuery = useAdvertisementPaymentsQuery(adId ?? null);
+  const fallbackPayments = resolveAdPayments(routeState.ad, routeState);
+  const payments = paymentsQuery.data ?? fallbackPayments;
+  const ad = routeState.ad;
+  const showEmpty = !paymentsQuery.isLoading && !paymentsQuery.isError && payments.length === 0;
 
   return (
     <PageFrame
@@ -66,13 +67,13 @@ export function AdPaymentHistoryPage() {
       />
 
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white">
-        {query.isLoading ? <PaymentHistoryLoading /> : null}
+        {paymentsQuery.isLoading && fallbackPayments.length === 0 ? <PaymentHistoryLoading /> : null}
 
-        {query.isError && payments.length === 0 ? (
-          <PaymentHistoryError onRetry={() => void query.refetch()} />
+        {paymentsQuery.isError && payments.length === 0 ? (
+          <PaymentHistoryError onRetry={() => void paymentsQuery.refetch()} />
         ) : null}
 
-        {!query.isLoading && payments.length > 0 ? (
+        {!paymentsQuery.isLoading && payments.length > 0 ? (
           <div className="bg-[#f0f0f0]">
             {payments.map((payment, index) => (
               <PaymentHistoryCard
@@ -251,40 +252,48 @@ function PaymentHistoryRow({
 }
 
 function readPaymentStatus(payment: AdPayment) {
-  const status = String(payment.status ?? payment.payment_status ?? "-");
+  const raw = payment.status ?? payment.payment_status;
+  const status = String(raw ?? "-").trim().toLowerCase();
 
-  switch (status) {
-    case "paid":
-    case "success":
-    case "successful":
-    case "پرداخت شده":
-      return "پرداخت شده";
-
-    case "failed":
-    case "error":
-    case "rejected":
-    case "ناموفق":
-      return "ناموفق";
-
-    case "pending":
-    case "در انتظار":
-      return "در انتظار";
-
-    default:
-      return status;
+  if (raw === 1 || status === "1" || ["paid", "success", "successful", "پرداخت شده"].includes(status)) {
+    return "پرداخت شده";
   }
+
+  if (raw === -1 || status === "-1" || ["failed", "error", "rejected", "ناموفق"].includes(status)) {
+    return "ناموفق";
+  }
+
+  if (raw === 0 || status === "0" || ["pending", "registered", "register", "در انتظار"].includes(status)) {
+    return "در انتظار";
+  }
+
+  return String(raw ?? "-");
 }
 
 function readPaymentStatusClassName(payment: AdPayment) {
-  const status = String(payment.status ?? payment.payment_status ?? "");
+  const status = readPaymentStatus(payment);
 
-  if (["paid", "success", "successful", "پرداخت شده"].includes(status)) return "text-[#11a366]";
-  if (["failed", "error", "rejected", "ناموفق"].includes(status)) return "text-[#ee3623]";
+  if (status === "پرداخت شده") return "text-[#11a366]";
+  if (status === "ناموفق") return "text-[#ee3623]";
 
   return "text-[#1a1a1a]";
 }
 
+const paymentItemLabels: Record<string, string> = {
+  advertise_publish: "انتشار آگهی",
+  advertise_update: "بروزرسانی",
+  advertise_special: "ویژه",
+  advertise_extend: "تمدید",
+  advertise_update_special: "بروزرسانی و ویژه",
+};
+
 function readPaymentService(payment: AdPayment) {
+  if (Array.isArray(payment.items) && payment.items.length > 0) {
+    return payment.items
+      .map((item) => paymentItemLabels[String(item)] ?? String(item))
+      .join(" + ");
+  }
+
   return readText(
     payment.service ??
       payment.service_name ??
@@ -292,7 +301,7 @@ function readPaymentService(payment: AdPayment) {
       payment.plan_name ??
       payment.title ??
       payment.type,
-    "افزایش بازدید",
+    "پرداخت آگهی",
   );
 }
 
@@ -306,16 +315,41 @@ function readPaymentAmount(payment: AdPayment) {
 }
 
 function readPaymentDate(payment: AdPayment) {
-  return readText(payment.created_at ?? payment.paid_at ?? payment.payment_date ?? payment.date, "-");
+  const value = payment.created_at ?? payment.paid_at ?? payment.payment_date ?? payment.date;
+  const text = readText(value, "-");
+  if (text === "-") return text;
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
 }
 
 function readPaymentMethod(payment: AdPayment) {
-  return readText(payment.method ?? payment.payment_method, "پرداخت آنلاین");
+  const raw = payment.method ?? payment.payment_method ?? payment.payment_type;
+  const value = String(raw ?? "").trim().toLowerCase();
+
+  if (raw === 0 || value === "0" || value === "gateway" || value === "port") return "پرداخت آنلاین";
+  if (raw === 1 || value === "1" || value === "wallet") return "کیف پول";
+  if (value === "free_quota") return "سهمیه رایگان";
+  if (value === "ad_credit" || value === "package_credit") return "اعتبار بسته";
+
+  return readText(raw, "پرداخت آنلاین");
 }
 
 function readPaymentTrackingCode(payment: AdPayment) {
   return readText(
-    payment.tracking_code ?? payment.track_code ?? payment.ref_id ?? payment.reference_id ?? payment.id,
+    payment.tracking_code ??
+      payment.track_code ??
+      payment.ref_code ??
+      payment.ref_id ??
+      payment.reference_id ??
+      payment.payment_id ??
+      payment.authority ??
+      payment.id,
     "-",
   );
 }

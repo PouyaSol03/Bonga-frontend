@@ -164,6 +164,20 @@ export type AdvertisementDailyViews = {
   totalView: number;
 };
 
+export type AdvertisementPayment = Record<string, unknown> & {
+  amount?: number | string;
+  created_at?: string;
+  id?: number | string;
+  items?: string[];
+  method?: string;
+  payment_id?: number | string | null;
+  payment_method?: string;
+  payment_status?: number | string;
+  price?: number | string;
+  status?: number | string;
+};
+
+
 type AdvertisementDailyViewsResponse = {
   data?: Array<{
     count?: number | string;
@@ -720,6 +734,28 @@ export async function getAdvertisementDailyViews(id: string): Promise<Advertisem
     totalView: Number.isFinite(totalView) ? Math.max(0, totalView) : 0,
   };
 }
+
+export async function getAdvertisementPayments(id: string): Promise<AdvertisementPayment[]> {
+  const response = await api
+    .get(`me/advertise/payments/${encodeURIComponent(id)}`)
+    .json<unknown>();
+
+  if (Array.isArray(response)) return response as AdvertisementPayment[];
+  if (!response || typeof response !== "object") return [];
+
+  const record = response as Record<string, unknown>;
+  if (Array.isArray(record.payments)) return record.payments as AdvertisementPayment[];
+
+  const data = record.data;
+  if (Array.isArray(data)) return data as AdvertisementPayment[];
+  if (data && typeof data === "object") {
+    const nested = data as Record<string, unknown>;
+    if (Array.isArray(nested.payments)) return nested.payments as AdvertisementPayment[];
+  }
+
+  return [];
+}
+
 
 export async function getAdvertisementPreview(id: string): Promise<AdvertisementItem> {
   const response = await api

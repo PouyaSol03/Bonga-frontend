@@ -9,6 +9,7 @@ import {
   getConsultantAdvertisementCheckout,
   getAgencyAdvertisementPreview,
   getAdvertisementDailyViews,
+  getAdvertisementPayments,
   getAdvertisementDetail,
   getAdvertisementList,
   getAdvertisementMap,
@@ -108,6 +109,14 @@ export function useAdvertisementDailyViewsQuery(id: string | null) {
     enabled: Boolean(id),
     queryFn: () => getAdvertisementDailyViews(id ?? ""),
     queryKey: queryKeys.advertisements.dailyViews(id ?? ""),
+  });
+}
+
+export function useAdvertisementPaymentsQuery(id: string | null) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: () => getAdvertisementPayments(id ?? ""),
+    queryKey: queryKeys.advertisements.payments(id ?? ""),
   });
 }
 

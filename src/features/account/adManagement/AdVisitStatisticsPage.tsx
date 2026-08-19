@@ -34,6 +34,10 @@ import {
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearChartUp from "../../../shared/icons/LinearChartUp";
+import LinearArrowRight1 from "../../../shared/icons/LinearArrowRight1";
+import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
+import LinearAnalytics from "../../../shared/icons/LinearAnalytics";
 
 type ChartMetric = "calls" | "chats" | "searchDisplays" | "views";
 
@@ -155,19 +159,19 @@ function UserAdVisitStatisticsView({
         {isLoading ? <InlineNotice text="در حال دریافت آمار آگهی..." /> : null}
         {isError ? <ErrorNotice onRetry={onRetry} /> : null}
 
-        <section className="bg-white px-4 pb-5 pt-6" aria-label="آمار بازدید">
+        <section className="bg-white p-4" aria-label="آمار بازدید">
           <VisitBarChart chart={chart} mode="user" />
         </section>
 
         <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
 
-        <section className="flex min-h-[292px] flex-col items-center bg-white px-7 pb-10 pt-10 text-center">
+        <section className="flex min-h-[292px] flex-col bg-white px-7 pb-8 pt-8">
           <Typography as="h2" variant="headline" size="small" className="m-0 text-[26px] font-extrabold leading-10 tracking-[-0.04em]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#11a366]">دیده شو، </Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0048c4]">سریع‌تر بفروش!</Typography>
+            <Typography as="span" variant="title" size="large" className="font-black text-[#11a366]">دیده شو، </Typography>
+            <Typography as="span" variant="title" size="large" className="font-black text-[#0048c4]">سریع‌تر بفروش!</Typography>
           </Typography>
-          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 mt-3 max-w-[316px] text-base font-medium leading-8 text-[#4d4d4d]">
-            با بسته‌های <strong className="font-semibold text-[#0048c4]">بروزرسانی</strong> و <strong className="font-semibold text-[#0048c4]">ویژه</strong>، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-[#4d4d4d]">
+            با بسته‌های <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#0048c4]">«بروزرسانی»</Typography> و <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#0048c4]">«ویژه»</Typography>، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
           </Typography>
         </section>
       </main>
@@ -185,9 +189,9 @@ function UserAdVisitStatisticsView({
           to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
         >
           <LinearArrowLeft1 className="h-6 w-6" />
-          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 [direction:rtl]">
+          <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 [direction:rtl]">
+            <LinearChartUp className="h-6 w-6" />
             افزایش بازدید
-            <TrendArrowIcon className="h-6 w-6" />
           </Typography>
         </RouteLink>
       </footer>
@@ -307,15 +311,15 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
       <div className="flex h-12 items-center justify-between [direction:ltr]">
         {chartData.length > rangeSize ? <ChartRangeControls maxOffset={maxOffset} offset={offset} setOffset={setOffset} /> : <div className="h-12 w-24" aria-hidden="true" />}
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
-          <ChartTitleIcon className="h-6 w-6 text-[#4d4d4d]" metric={chart.metric} />
+          <LinearAnalytics className="h-6 w-6 text-on-surface-var" />
           {chart.title}
           <Button unstyled
             aria-label={`توضیحات ${chart.title}`}
-            className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition-colors hover:bg-[#f5f5f5] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            className="grid h-4 w-4 place-items-center rounded-full text-[#4d4d4d] transition-colors hover:bg-[#f5f5f5] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
             onClick={() => setIsInfoSheetOpen(true)}
             type="button"
           >
-            <InfoIcon className="h-5 w-5" />
+            <LinearInfoCircle className="h-4 w-4" />
           </Button>
         </Typography>
       </div>
@@ -408,7 +412,7 @@ function ChartRangeControls({
         onClick={() => setOffset((current) => Math.max(current - 1, 0))}
         type="button"
       >
-        <ChevronRightIcon className="h-5 w-5" />
+        <LinearArrowRight1 className="h-5 w-5" />
       </Button>
     </div>
   );
@@ -701,31 +705,6 @@ function ChartTitleIcon({ className = "", metric }: { className?: string; metric
     <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
       <rect height="17" rx="2" width="16" x="4" y="3.5" />
       <path d="m7.5 15.5 3.25-3.25 2.5 2.25 3.5-5M15 9.5h1.75v1.75" />
-    </svg>
-  );
-}
-
-function TrendArrowIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="m5 16 6-6 4 4 5-7M15 7h5v5" />
-    </svg>
-  );
-}
-
-function InfoIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 11.5v5M12 8h.01" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
-      <path d="m10 7 5 5-5 5" />
     </svg>
   );
 }

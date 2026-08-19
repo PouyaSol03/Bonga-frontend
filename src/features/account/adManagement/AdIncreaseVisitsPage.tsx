@@ -5,7 +5,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import {
   useAdvertisementCheckoutQuery,
-  useAdvertisementDetailQuery,
+  useMyAdvertisementDetailQuery,
   useSubmitAdvertisementCheckoutMutation,
 } from "../../advertisements/api/advertisement.hooks";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
@@ -37,7 +37,7 @@ export function AdIncreaseVisitsPage() {
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const backTo = routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
-  const adQuery = useAdvertisementDetailQuery(adId ?? null);
+  const adQuery = useMyAdvertisementDetailQuery(adId ?? null);
   const checkoutQuery = useAdvertisementCheckoutQuery(adId ?? null);
   const checkoutMutation = useSubmitAdvertisementCheckoutMutation();
   const [step, setStep] = useState<"options" | "checkout">("options");

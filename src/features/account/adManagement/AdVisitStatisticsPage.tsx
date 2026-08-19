@@ -19,7 +19,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { USER } from "../../../shared/constants/roles.constants";
 import {
   useAdvertisementDailyViewsQuery,
-  useAdvertisementDetailQuery,
+  useMyAdvertisementDetailQuery,
 } from "../../advertisements/api/advertisement.hooks";
 import type { AdvertisementDailyViews } from "../../advertisements/api/advertisement.service";
 import { getPrimaryAdvertisementImageUrl } from "../../advertisements/utils/advertisement-images";
@@ -72,7 +72,7 @@ const managerChartSections: Array<Pick<ChartConfig, "label" | "metric" | "title"
 export function AdVisitStatisticsPage() {
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
-  const query = useAdvertisementDetailQuery(adId ?? null);
+  const query = useMyAdvertisementDetailQuery(adId ?? null);
   const dailyViewsQuery = useAdvertisementDailyViewsQuery(adId ?? null);
   const card = routeState.card ?? getSelectedConsultantAd(adId);
   const ad = query.data ?? routeState.ad ?? card;

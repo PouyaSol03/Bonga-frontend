@@ -4,7 +4,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { useAdvertisementPaymentsQuery } from "../../advertisements/api/advertisement.hooks";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
-import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
+import type { AdvertisementItem, AdvertisementPayment } from "../../advertisements/api/advertisement.service";
 import {
   adManagementPaths,
   getAdIncreaseVisitsPath,
@@ -15,17 +15,7 @@ import {
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
-type AdPayment = Record<string, unknown> & {
-  amount?: number | string;
-  created_at?: string;
-  id?: number | string;
-  method?: string;
-  payment_method?: string;
-  service?: string;
-  service_name?: string;
-  status?: string;
-  tracking_code?: string;
-};
+type AdPayment = AdvertisementPayment;
 
 type AdPaymentHistoryRouteState = ReturnType<typeof getAdManagementRouteState> & {
   ad?: AdvertisementItem | ConsultantAd;

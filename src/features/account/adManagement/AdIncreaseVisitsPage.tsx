@@ -64,7 +64,14 @@ export function AdIncreaseVisitsPage() {
     [products],
   );
   const selectedProducts = useMemo(
-    () => Array.from(new Set(selectedTariffs.map((id) => resolveProductForOption(id, products)).filter(Boolean))),
+    () =>
+      Array.from(
+        new Set(
+          selectedTariffs
+            .map((id) => resolveProductForOption(id, products))
+            .filter((product): product is string => product !== undefined),
+        ),
+      ),
     [products, selectedTariffs],
   );
   const payableAmount = useMemo(() => {

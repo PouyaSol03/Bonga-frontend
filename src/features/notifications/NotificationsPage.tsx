@@ -38,6 +38,8 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
+type AgencyConsultantRequestDisplayState = AgencyConsultantRequestDecision | "cancel";
+
 type FilterOption = {
   id: NotificationCategory;
   label: string;
@@ -548,6 +550,16 @@ function NotificationActionButton({
   );
 }
 
+function getAgencyConsultantRequestDisplayState(
+  item: NotificationItem,
+): AgencyConsultantRequestDisplayState | undefined {
+  const status = String(item.payload?.request_status ?? "").toLowerCase();
+  if (status === "accept" || status === "reject" || status === "cancel") {
+    return status;
+  }
+  return undefined;
+}
+
 function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }) {
   const description =
     item.description || "یک آژانس شما را برای همکاری دعوت کرده است.";
@@ -559,9 +571,13 @@ function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }
     nestedAgency?.name,
     nestedAgency?.title,
   ].find((value): value is string => typeof value === "string" && value.trim().length > 0);
+  const displayDescription =
+    payloadAgencyName && !description.includes(payloadAgencyName)
+      ? `درخواست همکاری از آژانس «${payloadAgencyName}»`
+      : description;
   const agencyNameInDescription =
-    description.match(/«[^»]+»/)?.[0] ??
-    (payloadAgencyName && description.includes(payloadAgencyName)
+    displayDescription.match(/«[^»]+»/)?.[0] ??
+    (payloadAgencyName && displayDescription.includes(payloadAgencyName)
       ? payloadAgencyName
       : undefined);
 
@@ -574,12 +590,12 @@ function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }
         weight="regular"
         className="m-0 truncate text-xs font-normal leading-5 text-[#4d4d4d]"
       >
-        {description}
+        {displayDescription}
       </Typography>
     );
   }
 
-  const [beforeAgency = "", afterAgency = ""] = description.split(agencyNameInDescription);
+  const [beforeAgency = "", afterAgency = ""] = displayDescription.split(agencyNameInDescription);
 
   return (
     <Typography
@@ -605,7 +621,7 @@ function AgencyConsultantRequestCardContent({
   onDecision,
   pendingDecision,
 }: {
-  decision?: AgencyConsultantRequestDecision;
+  decision?: AgencyConsultantRequestDisplayState;
   isResponding: boolean;
   item: NotificationItem;
   onDecision: (decision: AgencyConsultantRequestDecision) => void;
@@ -647,7 +663,9 @@ function AgencyConsultantRequestCardContent({
           <Typography as="span" variant="label" size="small" weight="medium">
             {decision === "accept"
               ? "پذیرفته شد"
-              : isResponding && pendingDecision === "accept"
+              : decision === "cancel"
+                ? "دعوت لغو شد"
+                : isResponding && pendingDecision === "accept"
                 ? "در حال پذیرش..."
                 : "پذیرش همکاری"}
           </Typography>
@@ -664,7 +682,9 @@ function AgencyConsultantRequestCardContent({
           <Typography as="span" variant="label" size="small" weight="medium">
             {decision === "reject"
               ? "دعوت رد شد"
-              : isResponding && pendingDecision === "reject"
+              : decision === "cancel"
+                ? "دعوت لغو شد"
+                : isResponding && pendingDecision === "reject"
                 ? "در حال رد..."
                 : "رد دعوت"}
           </Typography>
@@ -684,7 +704,7 @@ function SwipeableNotificationCard({
   onOpen,
   pendingAgencyRequestDecision,
 }: {
-  agencyRequestDecision?: AgencyConsultantRequestDecision;
+  agencyRequestDecision?: AgencyConsultantRequestDisplayState;
   isDeleting: boolean;
   isRespondingToAgencyRequest: boolean;
   item: NotificationItem;
@@ -1305,7 +1325,7 @@ export function NotificationsPage() {
                 ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
               >
                 <SwipeableNotificationCard
-                  agencyRequestDecision={agencyRequestDecisions[String(notification.id)]}
+                  agencyRequestDecision={agencyRequestDecisions[String(notification.id)] ?? getAgencyConsultantRequestDisplayState(notification)}
                   isDeleting={
                     deleteMutation.isPending &&
                     deleteMutation.variables === String(notification.id)

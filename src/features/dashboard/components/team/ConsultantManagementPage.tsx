@@ -21,6 +21,7 @@ import { getApiErrorMessage } from "../../../../shared/api/api";
 import {
   useAddAgencyConsultantMutation,
   useAgencyConsultantsQuery,
+  useCancelAgencyConsultantRequestMutation,
   usePublicAgentsQuery,
 } from "../../../agencies/api/agency.hooks";
 import type {
@@ -36,7 +37,9 @@ type ConsultantStatus = "active" | "pending";
 
 export type TeamConsultant = {
   adQuota?: number;
+  agentId?: number;
   id: number;
+  requestId?: number;
   name: string;
   avatarSrc?: string;
   phone: string;
@@ -74,6 +77,7 @@ export function mapAgencyConsultantToTeamConsultant(
 ): TeamConsultant {
   return {
     adQuota: consultant.adQuota,
+    agentId: consultant.agentId,
     avatarSrc: consultant.avatar,
     id: consultant.userId,
     isActive: consultant.isActive,
@@ -84,6 +88,7 @@ export function mapAgencyConsultantToTeamConsultant(
     roleLabel: getTeamRoleLabel(consultant.role),
     roleId: consultant.roleId,
     rankingScore: consultant.metrics.rankingScore,
+    requestId: consultant.requestId,
     specialQuota: consultant.specialQuota,
     scores: {
       ads: consultant.metrics.publishedAdvertises,
@@ -730,21 +735,46 @@ function TeamFilterButton({
 
 function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
   const isPending = consultant.status === "pending";
+  const cancelRequestMutation = useCancelAgencyConsultantRequestMutation();
+  const [cancelError, setCancelError] = useState("");
+
+  const cancelRequest = () => {
+    const agentId = consultant.agentId;
+    if (!agentId || cancelRequestMutation.isPending) return;
+
+    setCancelError("");
+    cancelRequestMutation.mutate(agentId, {
+      onError: (error) => {
+        setCancelError(
+          getApiErrorMessage(error, "لغو درخواست همکاری با خطا مواجه شد."),
+        );
+      },
+    });
+  };
 
   return (
     <article className="bg-white px-4 pb-4 pt-5">
       {isPending && (
-        <div className="mb-4 flex items-center justify-between">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-4 py-2 text-[#FF6D00]">
-            در انتظار تایید انتشار
-          </Typography>
-          <Button unstyled
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-on-error-container"
-            type="button"
-          >
-            <LinearCancel className="h-5 w-5" />
-            لغو
-          </Button>
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-4 py-2 text-[#FF6D00]">
+              در انتظار تایید انتشار
+            </Typography>
+            <Button unstyled
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-on-error-container disabled:opacity-50"
+              disabled={!consultant.agentId || cancelRequestMutation.isPending}
+              onClick={cancelRequest}
+              type="button"
+            >
+              <LinearCancel className="h-5 w-5" />
+              {cancelRequestMutation.isPending ? "در حال لغو..." : "لغو"}
+            </Button>
+          </div>
+          {cancelError ? (
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs text-on-error-container">
+              {cancelError}
+            </Typography>
+          ) : null}
         </div>
       )}
 
@@ -778,24 +808,27 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
           </div>
 
           <div className="mt-4 grid h-10 grid-cols-3 overflow-hidden rounded-lg bg-[#f5f5f5] text-xs font-medium text-[#4d4d4d]">
-            <ConsultantAction
-              consultant={consultant}
-              icon={<LinearInfoCircle className="h-4 w-4" />}
-              label="اطلاعات"
-              to={consultantTeamPaths.info}
-            />
-            <ConsultantAction
-              consultant={consultant}
-              icon={<LinearEdit2 className="h-4 w-4" />}
-              label="ویرایش"
-              to={consultantTeamPaths.edit}
-            />
-            <ConsultantAction
-              consultant={consultant}
-              icon={<LinearDelete className="h-4 w-4" />}
-              label="حذف"
-              to={consultantTeamPaths.remove}
-            />
+            <RouteLink
+              className="grid place-items-center border-l border-[#e0e0e0]"
+              state={{ consultant }}
+              to={`${consultantTeamPaths.info}/${consultant.id}`}
+            >
+              مشاهده
+            </RouteLink>
+            <RouteLink
+              className="grid place-items-center border-l border-[#e0e0e0]"
+              state={{ consultant }}
+              to={`${consultantTeamPaths.edit}/${consultant.id}`}
+            >
+              ویرایش
+            </RouteLink>
+            <RouteLink
+              className="grid place-items-center text-[#d32f2f]"
+              state={{ consultant }}
+              to={`${consultantTeamPaths.remove}/${consultant.id}`}
+            >
+              حذف
+            </RouteLink>
           </div>
         </>
       )}

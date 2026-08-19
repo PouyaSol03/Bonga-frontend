@@ -105,6 +105,7 @@ export type AgencyConsultantMetrics = {
 export type AgencyConsultantDto = {
   adQuota: number;
   agentId?: number;
+  requestId?: number;
   avatar?: string;
   isActive: boolean;
   metrics: AgencyConsultantMetrics;
@@ -216,6 +217,7 @@ type AgencyConsultantApiItem = {
   renew_quota?: unknown;
   role?: unknown;
   role_id?: unknown;
+  request_id?: unknown;
   special_quota?: unknown;
   user?: unknown;
   user_id?: unknown;
@@ -403,6 +405,7 @@ function normalizeAgencyConsultant(
     ),
     role: firstText(item.role, membership.role),
     roleId: toNumber(item.role_id ?? membership.role_id),
+    requestId: toOptionalNumber(item.request_id),
     specialQuota: Math.max(
       0,
       toNumber(
@@ -706,6 +709,16 @@ export async function respondToAgencyConsultantRequest({
 }: AgencyConsultantRequestDecisionPayload) {
   return api.patch(
     `me/agent/agency-requests/${encodeURIComponent(String(agentId))}/${decision}`,
+    {
+      context: { allowNonJsonResponse: true },
+      headers: { Accept: "*/*" },
+    },
+  );
+}
+
+export async function cancelMyAgencyConsultantRequest(agentId: number | string) {
+  return api.delete(
+    `me/agency/consultants/${encodeURIComponent(String(agentId))}/request`,
     {
       context: { allowNonJsonResponse: true },
       headers: { Accept: "*/*" },

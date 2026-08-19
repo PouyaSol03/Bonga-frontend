@@ -4,6 +4,7 @@ import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
 import {
   addMyAgencyConsultant,
+  cancelMyAgencyConsultantRequest,
   deactivateMyAgencyConsultant,
   getMyAgencyConsultant,
   getMyAgencyConsultants,
@@ -80,6 +81,18 @@ export function useDeactivateAgencyConsultantMutation() {
 export function useAddAgencyConsultantMutation() {
   return useMutation({
     mutationFn: addMyAgencyConsultant,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencies.all,
+      });
+    },
+  });
+}
+
+
+export function useCancelAgencyConsultantRequestMutation() {
+  return useMutation({
+    mutationFn: cancelMyAgencyConsultantRequest,
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.agencies.all,

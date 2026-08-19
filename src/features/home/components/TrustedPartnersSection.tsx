@@ -30,6 +30,7 @@ function TrustedBadgeIcon() {
 export function TrustedPartnersSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const settleTimerRef = useRef<number | null>(null);
   const agenciesQuery = useTrustedAgenciesQuery();
 
   const partners = useMemo(
@@ -61,14 +62,40 @@ export function TrustedPartnersSection() {
     });
 
     setActiveIndex(closestIndex);
+
+    if (settleTimerRef.current !== null) {
+      window.clearTimeout(settleTimerRef.current);
+    }
+
+    settleTimerRef.current = window.setTimeout(() => {
+      if (closestIndex === 0 || closestIndex === slides.length - 1) return;
+
+      slides[closestIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }, 80);
   };
 
   const scrollToPartner = (index: number) => {
-    const slide = scrollerRef.current?.querySelectorAll<HTMLElement>(
+    const slides = scrollerRef.current?.querySelectorAll<HTMLElement>(
       "[data-trusted-partner-slide]",
-    )[index];
+    );
+    const slide = slides?.[index];
 
-    slide?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" });
+    if (!slide || !slides) return;
+
+    slide.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline:
+        index === 0
+          ? "start"
+          : index === slides.length - 1
+            ? "end"
+            : "center",
+    });
   };
 
   if (!agenciesQuery.isLoading && partners.length === 0) {
@@ -117,11 +144,17 @@ export function TrustedPartnersSection() {
           {agenciesQuery.isLoading ? (
             <DirectoryCardSkeleton layout="carousel" />
           ) : (
-            partners.map((partner) => (
+            partners.map((partner, index) => (
               <div
                 key={partner.id}
                 data-trusted-partner-slide
-                className="shrink-0 snap-end"
+                className={`shrink-0 ${
+                  index === 0
+                    ? "snap-start"
+                    : index === partners.length - 1
+                      ? "snap-end"
+                      : "snap-center"
+                }`}
               >
                 <DirectoryCard
                   item={{
@@ -143,7 +176,7 @@ export function TrustedPartnersSection() {
 
       {!agenciesQuery.isLoading && partners.length > 1 ? (
         <div
-          className="mt-6 flex h-2 items-center justify-center gap-2 [direction:ltr]"
+          className="mt-6 flex h-2 items-center justify-center gap-2 [direction:rtl]"
           aria-label="صفحات آژانس‌های برتر"
         >
           {partners.map((partner, index) => {

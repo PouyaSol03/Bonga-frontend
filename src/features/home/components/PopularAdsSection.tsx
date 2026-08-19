@@ -46,6 +46,7 @@ type PopularAdsSectionProps = {
 export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const settleTimerRef = useRef<number | null>(null);
 
   const advertisementsQuery = useTopViewedAdvertisementsQuery();
 
@@ -82,17 +83,39 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
     });
 
     setActiveIndex(closestIndex);
+
+    if (settleTimerRef.current !== null) {
+      window.clearTimeout(settleTimerRef.current);
+    }
+
+    settleTimerRef.current = window.setTimeout(() => {
+      if (closestIndex === 0 || closestIndex === slides.length - 1) return;
+
+      slides[closestIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }, 80);
   };
 
   const scrollToAdvertisement = (index: number) => {
-    const slide = scrollerRef.current?.querySelectorAll<HTMLElement>(
+    const slides = scrollerRef.current?.querySelectorAll<HTMLElement>(
       "[data-popular-ad-slide]",
-    )[index];
+    );
+    const slide = slides?.[index];
 
-    slide?.scrollIntoView({
+    if (!slide || !slides) return;
+
+    slide.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
-      inline: "end",
+      inline:
+        index === 0
+          ? "start"
+          : index === slides.length - 1
+            ? "end"
+            : "center",
     });
   };
 
@@ -136,20 +159,32 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
       >
         <div className="flex w-max min-w-full gap-4 px-4">
           {advertisementsQuery.isLoading
-            ? Array.from({ length: 2 }).map((_, index) => (
+            ? Array.from({ length: 2 }).map((_, index, skeletons) => (
                 <div
                   key={index}
                   data-popular-ad-slide
-                  className="w-[300px] shrink-0 snap-end"
+                  className={`w-[300px] shrink-0 ${
+                    index === 0
+                      ? "snap-start"
+                      : index === skeletons.length - 1
+                        ? "snap-end"
+                        : "snap-center"
+                  }`}
                 >
                   <PopularAdCardSkeleton />
                 </div>
               ))
-            : advertisements.map((ad) => (
+            : advertisements.map((ad, index) => (
                 <div
                   key={ad.id}
                   data-popular-ad-slide
-                  className="w-[300px] shrink-0 snap-end"
+                  className={`w-[300px] shrink-0 ${
+                    index === 0
+                      ? "snap-start"
+                      : index === advertisements.length - 1
+                        ? "snap-end"
+                        : "snap-center"
+                  }`}
                 >
                   <AdCard
                     ad={ad}
@@ -204,7 +239,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
       !advertisementsQuery.isError &&
       advertisements.length > 1 ? (
         <div
-          className="mt-6 flex h-2 items-center justify-center gap-2 [direction:ltr]"
+          className="mt-6 flex h-2 items-center justify-center gap-2 [direction:rtl]"
           aria-label="صفحات پربازدیدترین آگهی‌ها"
         >
           {advertisements.map((ad, index) => {

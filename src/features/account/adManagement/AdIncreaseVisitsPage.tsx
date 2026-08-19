@@ -47,7 +47,20 @@ export function AdIncreaseVisitsPage() {
   const checkout = checkoutQuery.data;
   const products = useMemo(() => resolveUpgradeProducts(checkout), [checkout]);
   const tariffOptions = useMemo(
-    () => createAdTariffOptions({ price: products[0]?.price ?? 0 }),
+    () =>
+      createAdTariffOptions({ price: 0 }).flatMap((option) => {
+        const product = resolveProductForOption(option.id, products);
+        const checkoutItem = product
+          ? products.find((item) => item.product === product)
+          : undefined;
+        if (!checkoutItem) return [];
+
+        return [{
+          ...option,
+          description: getUpgradeDescription(option.id, checkoutItem, option.description),
+          price: checkoutItem.price ?? 0,
+        }];
+      }),
     [products],
   );
   const selectedProducts = useMemo(
@@ -71,7 +84,19 @@ export function AdIncreaseVisitsPage() {
   }, [gatewayMethod?.available, walletMethod?.available]);
 
   function toggleTariff(id: AdTariffOptionId) {
-    setSelectedTariffs((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    setSelectedTariffs((current) => {
+      if (current.includes(id)) return current.filter((item) => item !== id);
+
+      if (id === "refreshSpecial") {
+        return [...current.filter((item) => item !== "refresh" && item !== "special"), id];
+      }
+
+      if (id === "refresh" || id === "special") {
+        return [...current.filter((item) => item !== "refreshSpecial"), id];
+      }
+
+      return [...current, id];
+    });
   }
 
   function submit(paymentMethod: AdvertisementCheckoutPaymentMethodCode) {
@@ -151,15 +176,41 @@ function resolveUpgradeProducts(checkout?: AdvertisementCheckout): Advertisement
   return upgradeItems;
 }
 
+const upgradeProductByTariff: Record<AdTariffOptionId, string> = {
+  refresh: "advertise_update",
+  special: "advertise_special",
+  renew: "advertise_extend",
+  refreshSpecial: "advertise_update_special",
+};
+
 function resolveProductForOption(id: AdTariffOptionId, products: AdvertisementCheckoutItem[]) {
-  const keywords: Record<AdTariffOptionId, string[]> = {
-    refresh: ["refresh", "update", "بازر", "برروز"],
-    special: ["special", "featured", "vip", "upgrade", "ویژه"],
-    renew: ["renew", "تمدید"],
-    refreshSpecial: ["refresh-special", "refresh_special", "combined"],
-  };
-  const match = products.find((item) => keywords[id].some((keyword) => item.product.toLowerCase().includes(keyword.toLowerCase())));
-  return (match ?? products[0])?.product;
+  const product = upgradeProductByTariff[id];
+  return products.some((item) => item.product === product) ? product : undefined;
+}
+
+function getUpgradeDescription(
+  id: AdTariffOptionId,
+  item: AdvertisementCheckoutItem | undefined,
+  fallback: string,
+) {
+  if (item?.description?.trim()) return item.description.trim();
+
+  const days = Number(item?.duration_days ?? 0);
+  const months = Number(item?.duration_months ?? 0);
+  if (id === "refresh" && days > 0) {
+    return `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز در اولویت نمایش قرار می‌گیرد.`;
+  }
+  if (id === "special" && days > 0) {
+    return `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز با برچسب ویژه نمایش داده می‌شود.`;
+  }
+  if (id === "renew" && months > 0) {
+    return `آگهی شما برای ${new Intl.NumberFormat("fa-IR").format(months)} ماه دیگر تمدید می‌شود.`;
+  }
+  if (id === "refreshSpecial" && days > 0) {
+    return `بروزرسانی و ویژه به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز همزمان فعال می‌شوند.`;
+  }
+
+  return fallback;
 }
 
 function getCheckoutAmount(checkout?: AdvertisementCheckout) {

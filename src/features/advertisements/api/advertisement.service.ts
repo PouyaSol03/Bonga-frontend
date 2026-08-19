@@ -196,18 +196,41 @@ export type AdvertiseFormDefinition = {
 
 export type AdvertisementCheckoutItem = {
   credit_cost?: number;
+  credit_requirements?: Array<{
+    amount?: number;
+    credit_type?: "ad_credit" | "special_credit" | "renew_credit" | string;
+  }>;
+  description?: string | null;
+  duration_days?: number | null;
+  duration_months?: number | null;
   free_quota?: {
     available?: boolean;
     remaining?: number;
   } | null;
   price?: number;
   product: string;
+  title?: string;
   required?: boolean;
   selected?: boolean;
 };
 
 export type AdvertisementCheckoutPaymentMethod = {
   action?: string | null;
+  balances?: {
+    ad_credit?: number;
+    special_credit?: number;
+    renew_credit?: number;
+  };
+  required_by_type?: {
+    ad_credit?: number;
+    special_credit?: number;
+    renew_credit?: number;
+  };
+  shortage_by_type?: {
+    ad_credit?: number;
+    special_credit?: number;
+    renew_credit?: number;
+  };
   available?: boolean;
   balance?: number;
   method: string;
@@ -270,6 +293,7 @@ export type SubmitAdvertisementCheckoutResult = {
 
 export type SubmitAgencyAdvertisementCheckoutPayload = {
   advertiseId: string;
+  consultantId?: string;
   items: string[];
   paymentMethod: AgencyAdvertisementCheckoutPaymentMethodCode;
 };
@@ -945,6 +969,28 @@ export async function getAgencyAdvertisementCheckout(advertiseId: string) {
   return unwrapAdvertisementCheckoutResponse(response);
 }
 
+export async function getConsultantAdvertisementCheckout(advertiseId: string) {
+  const response = await api
+    .get(`me/consultant/advertise/checkout/${encodeURIComponent(advertiseId)}`)
+    .json<AdvertisementCheckoutResponse>();
+
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "دریافت اطلاعات پرداخت آگهی تخصیص‌یافته با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
+  }
+
+  return unwrapAdvertisementCheckoutResponse(response);
+}
+
 export async function submitAdvertisementCheckout({
   advertiseId,
   items,
@@ -980,8 +1026,43 @@ export async function submitAdvertisementCheckout({
   };
 }
 
+export async function submitConsultantAdvertisementCheckout({
+  advertiseId,
+  items,
+  paymentMethod,
+}: SubmitAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
+  const response = await api
+    .post(`me/consultant/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
+      json: {
+        items,
+        payment_method: paymentMethod,
+      },
+    })
+    .json<unknown>();
+
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "پرداخت آگهی تخصیص‌یافته با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
+  }
+
+  return {
+    paymentUrl: findCheckoutPaymentUrl(response),
+    response,
+  };
+}
+
 export async function submitAgencyAdvertisementCheckout({
   advertiseId,
+  consultantId,
   items,
   paymentMethod,
 }: SubmitAgencyAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
@@ -990,6 +1071,7 @@ export async function submitAgencyAdvertisementCheckout({
       json: {
         items,
         payment_method: paymentMethod,
+        ...(consultantId ? { consultant_id: consultantId } : {}),
       },
     })
     .json<unknown>();

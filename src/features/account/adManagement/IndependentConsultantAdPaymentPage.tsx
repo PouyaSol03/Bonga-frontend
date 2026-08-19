@@ -13,8 +13,10 @@ import { useChargeWalletMutation } from "../api/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
   useAgencyAdvertisementCheckoutQuery,
+  useConsultantAdvertisementCheckoutQuery,
   useSubmitAdvertisementCheckoutMutation,
   useSubmitAgencyAdvertisementCheckoutMutation,
+  useSubmitConsultantAdvertisementCheckoutMutation,
 } from "../../advertisements/api/advertisement.hooks";
 import type {
   AdvertisementCheckout,
@@ -40,7 +42,10 @@ import {
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
-import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
+import {
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../../shared/constants/roles.constants";
 
 export type PaymentMethod = "online" | "wallet";
 type PaymentStep = "options" | "checkout";
@@ -83,22 +88,43 @@ const disabledUpgradeOptions = [
 
 type UpgradeOptionId = (typeof disabledUpgradeOptions)[number]["id"];
 
+const upgradeProductByOption: Record<UpgradeOptionId, string> = {
+  refresh: "advertise_update",
+  special: "advertise_special",
+  renew: "advertise_extend",
+  "refresh-special": "advertise_update_special",
+};
+
 function resolveUpgradeCheckoutItem(
   optionId: UpgradeOptionId,
   items: AdvertisementCheckoutItem[],
 ) {
-  const keywords: Record<UpgradeOptionId, string[]> = {
-    refresh: ["refresh", "update", "بروزر"],
-    special: ["special", "featured", "vip", "ویژه"],
-    renew: ["renew", "تمدید"],
-    "refresh-special": ["refresh-special", "refresh_special", "combined"],
-  };
+  return items.find((item) => item.product === upgradeProductByOption[optionId]);
+}
 
-  return items.find((item) =>
-    keywords[optionId].some((keyword) =>
-      item.product.toLowerCase().includes(keyword.toLowerCase()),
-    ),
-  );
+function getUpgradeDescription(
+  optionId: UpgradeOptionId,
+  item?: AdvertisementCheckoutItem,
+) {
+  if (item?.description?.trim()) return item.description.trim();
+
+  const days = Math.max(toSafeNumber(item?.duration_days), 0);
+  const months = Math.max(toSafeNumber(item?.duration_months), 0);
+
+  if (optionId === "refresh" && days > 0) {
+    return `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز در اولویت نمایش قرار می‌گیرد.`;
+  }
+  if (optionId === "special" && days > 0) {
+    return `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز با برچسب ویژه نمایش داده می‌شود.`;
+  }
+  if (optionId === "renew" && months > 0) {
+    return `آگهی شما برای ${new Intl.NumberFormat("fa-IR").format(months)} ماه دیگر تمدید می‌شود.`;
+  }
+  if (optionId === "refresh-special" && days > 0) {
+    return `بروزرسانی و ویژه به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز همزمان فعال می‌شوند.`;
+  }
+
+  return disabledUpgradeOptions.find((option) => option.id === optionId)?.description ?? "";
 }
 
 function getUpgradeCheckoutItems(checkout: AdvertisementCheckout | undefined) {
@@ -137,6 +163,41 @@ function toSafeNumber(value: unknown, fallback = 0) {
   }
 
   return fallback;
+}
+
+type CheckoutCreditType = "ad_credit" | "special_credit" | "renew_credit";
+
+function aggregateCreditRequirements(items: AdvertisementCheckoutItem[]) {
+  const result: Record<CheckoutCreditType, number> = {
+    ad_credit: 0,
+    special_credit: 0,
+    renew_credit: 0,
+  };
+
+  items.forEach((item) => {
+    (item.credit_requirements ?? []).forEach((requirement) => {
+      const type = requirement.credit_type as CheckoutCreditType;
+      if (!(type in result)) return;
+      result[type] += Math.max(toSafeNumber(requirement.amount), 0);
+    });
+  });
+
+  return result;
+}
+
+function getCreditBalances(method?: AdvertisementCheckoutPaymentMethod) {
+  return {
+    ad_credit: Math.max(
+      toSafeNumber(method?.balances?.ad_credit, toSafeNumber(method?.balance)),
+      0,
+    ),
+    special_credit: Math.max(toSafeNumber(method?.balances?.special_credit), 0),
+    renew_credit: Math.max(toSafeNumber(method?.balances?.renew_credit), 0),
+  };
+}
+
+function sumCreditValues(values: Record<CheckoutCreditType, number>) {
+  return values.ad_credit + values.special_credit + values.renew_credit;
 }
 
 function readCheckoutAdvertiseId() {
@@ -192,6 +253,10 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     hasAgencyAllocationCheckoutMarker(advertiseId);
   const isNewAdCheckout =
     routeState.paymentFlow === "new-ad" || hasNewAdCheckoutMarker(advertiseId);
+  const isConsultantAssignedCheckout =
+    activeRole === REAL_ESTATE_CONSULTANT &&
+    !isNewAdCheckout &&
+    !isAgencyAllocationCheckout;
   const usesAgencyCheckoutOptions =
     isAgencyAllocationCheckout ||
     routeState.publisherType === "agency" ||
@@ -199,20 +264,29 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const combineCheckoutSteps = !isNewAdCheckout && activeRole === REAL_ESTATE_MANAGER;
   const personalCheckoutQuery = useAdvertisementCheckoutQuery(
     advertiseId,
-    !isAgencyAllocationCheckout,
+    !isAgencyAllocationCheckout && !isConsultantAssignedCheckout,
   );
   const agencyCheckoutQuery = useAgencyAdvertisementCheckoutQuery(
     advertiseId,
     isAgencyAllocationCheckout,
   );
+  const consultantCheckoutQuery = useConsultantAdvertisementCheckoutQuery(
+    advertiseId,
+    isConsultantAssignedCheckout,
+  );
   const personalCheckoutMutation = useSubmitAdvertisementCheckoutMutation();
   const agencyCheckoutMutation = useSubmitAgencyAdvertisementCheckoutMutation();
+  const consultantCheckoutMutation = useSubmitConsultantAdvertisementCheckoutMutation();
   const checkoutQuery = isAgencyAllocationCheckout
     ? agencyCheckoutQuery
-    : personalCheckoutQuery;
+    : isConsultantAssignedCheckout
+      ? consultantCheckoutQuery
+      : personalCheckoutQuery;
   const checkoutPending = isAgencyAllocationCheckout
     ? agencyCheckoutMutation.isPending
-    : personalCheckoutMutation.isPending;
+    : isConsultantAssignedCheckout
+      ? consultantCheckoutMutation.isPending
+      : personalCheckoutMutation.isPending;
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("free_quota");
@@ -436,6 +510,11 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           clearNewAdCheckout(advertiseId);
         }
 
+        if (paymentMethod === "by_consultant") {
+          navigateTo("/account/my-ads", { tab: "status" }, true);
+          return;
+        }
+
         if (paymentMethod === "gateway") {
           if (!paymentUrl) {
             setErrorMessage("آدرس درگاه پرداخت از سرور دریافت نشد.");
@@ -458,8 +537,24 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       agencyCheckoutMutation.mutate(
         {
           advertiseId,
+          consultantId:
+            paymentMethod === "by_consultant" && routeState.consultantId
+              ? String(routeState.consultantId)
+              : undefined,
           items: Array.from(new Set([...checkoutItems, ...extraItems])),
           paymentMethod: paymentMethod as AgencyAdvertisementCheckoutPaymentMethodCode,
+        },
+        mutationOptions,
+      );
+      return;
+    }
+
+    if (isConsultantAssignedCheckout) {
+      consultantCheckoutMutation.mutate(
+        {
+          advertiseId,
+          items: checkoutItems,
+          paymentMethod: paymentMethod as AdvertisementCheckoutPaymentMethodCode,
         },
         mutationOptions,
       );
@@ -487,7 +582,9 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
 
   const checkoutBackTo = isAgencyAllocationCheckout
     ? `/account/ad-management/allocation-review/${encodeURIComponent(advertiseId)}`
-    : "/new-ad";
+    : isConsultantAssignedCheckout
+      ? "/account/ad-management/allocation"
+      : "/new-ad";
 
   if (checkoutQuery.isLoading) {
     return (
@@ -521,6 +618,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         creditCost={agencyCreditCost}
         creditAvailable={agencyCreditAvailable}
         creditMethod={agencyCreditMethod}
+        creditPaymentMethod={packageCreditMethod}
         creditRemaining={agencyCreditRemaining}
         creditShortage={agencyCreditShortage}
         gatewayMethod={gatewayMethod}
@@ -547,6 +645,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           creditCost={agencyCreditCost}
           creditAvailable={agencyCreditAvailable}
           creditMethod={agencyCreditMethod}
+          creditPaymentMethod={packageCreditMethod}
           creditRemaining={agencyCreditRemaining}
           creditShortage={agencyCreditShortage}
           gatewayMethod={gatewayMethod}
@@ -601,6 +700,7 @@ function AgencyCombinedCheckoutView({
   creditCost,
   creditAvailable,
   creditMethod,
+  creditPaymentMethod,
   creditRemaining,
   creditShortage,
   gatewayMethod,
@@ -622,6 +722,7 @@ function AgencyCombinedCheckoutView({
   creditCost: number;
   creditAvailable: boolean;
   creditMethod: AgencyPaymentMethod | null;
+  creditPaymentMethod?: AdvertisementCheckoutPaymentMethod;
   creditRemaining: number;
   creditShortage: number;
   gatewayMethod?: AdvertisementCheckoutPaymentMethod;
@@ -638,26 +739,56 @@ function AgencyCombinedCheckoutView({
   upgradeItems?: AdvertisementCheckoutItem[];
   walletMethod?: AdvertisementCheckoutPaymentMethod;
 }) {
-  const walletBalance = toSafeNumber(walletMethod?.balance);
-  const walletRequired = toSafeNumber(walletMethod?.required, payableAmount);
-  const walletDeficit = Math.max(
-    toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
-    0,
+  const [selectedUpgradeProducts, setSelectedUpgradeProducts] = useState<string[]>([]);
+  const upgradeSelectionEnabled = method !== "by_consultant";
+  const selectedUpgradeItems = upgradeItems.filter((item) =>
+    selectedUpgradeProducts.includes(item.product),
   );
+  const selectedPayableAmount =
+    price +
+    selectedUpgradeItems.reduce(
+      (total, item) => total + Math.max(toSafeNumber(item.price), 0),
+      0,
+    );
+
+  const walletBalance = toSafeNumber(walletMethod?.balance);
+  const walletRequired = selectedPayableAmount || payableAmount;
+  const walletDeficit = Math.max(walletRequired - walletBalance, 0);
   const walletAvailable = Boolean(walletMethod && walletMethod.available !== false);
   const walletSelectable = Boolean(
     walletMethod && (walletMethod.available !== false || walletDeficit > 0),
   );
+
+  const selectedRequirements = aggregateCreditRequirements(selectedUpgradeItems);
+  selectedRequirements.ad_credit += Math.max(creditCost, 0);
+  const selectedCreditCost = sumCreditValues(selectedRequirements);
+  const creditBalances = getCreditBalances(creditPaymentMethod);
+  const selectedShortage = {
+    ad_credit: Math.max(selectedRequirements.ad_credit - creditBalances.ad_credit, 0),
+    special_credit: Math.max(
+      selectedRequirements.special_credit - creditBalances.special_credit,
+      0,
+    ),
+    renew_credit: Math.max(
+      selectedRequirements.renew_credit - creditBalances.renew_credit,
+      0,
+    ),
+  };
+  const selectedCreditShortage =
+    creditMethod === "ad_credit" ? sumCreditValues(selectedShortage) : creditShortage;
+  const selectedCreditAvailable =
+    creditMethod === "ad_credit"
+      ? Boolean(creditPaymentMethod) && selectedCreditShortage === 0
+      : creditAvailable;
   const creditSelectable = Boolean(
-    creditMethod && (creditAvailable || creditShortage > 0),
+    creditMethod && (selectedCreditAvailable || selectedCreditShortage > 0),
   );
+
   const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
   const byConsultantAvailable = showByConsultant && byConsultantMethod?.available !== false;
-  const [selectedUpgradeProducts, setSelectedUpgradeProducts] = useState<string[]>([]);
-  const upgradeSelectionEnabled = method !== "by_consultant";
   const selectedMethodAvailable =
     method === "free_quota" || method === "package_credit" || method === "ad_credit"
-      ? Boolean(creditMethod && method === creditMethod && creditAvailable)
+      ? Boolean(creditMethod && method === creditMethod && selectedCreditAvailable)
       : method === "by_consultant"
         ? byConsultantAvailable
         : method === "wallet"
@@ -671,27 +802,56 @@ function AgencyCombinedCheckoutView({
 
   function toggleUpgrade(product: string) {
     if (!upgradeSelectionEnabled) return;
-    setSelectedUpgradeProducts((current) =>
-      current.includes(product)
-        ? current.filter((item) => item !== product)
-        : [...current, product],
-    );
+
+    setSelectedUpgradeProducts((current) => {
+      const isSelected = current.includes(product);
+      if (isSelected) return current.filter((item) => item !== product);
+
+      if (product === "advertise_update_special") {
+        return [
+          ...current.filter(
+            (item) =>
+              item !== "advertise_update" && item !== "advertise_special",
+          ),
+          product,
+        ];
+      }
+
+      if (product === "advertise_update" || product === "advertise_special") {
+        return [
+          ...current.filter((item) => item !== "advertise_update_special"),
+          product,
+        ];
+      }
+
+      return [...current, product];
+    });
   }
 
   const publishCostLabel =
-    creditCost > 0
-      ? `${new Intl.NumberFormat("fa-IR").format(creditCost)} اعتبار`
-      : creditAvailable
-        ? "رایگان"
+    method === "ad_credit"
+      ? `${new Intl.NumberFormat("fa-IR").format(Math.max(creditCost, 0))} اعتبار`
+      : method === "free_quota" || method === "package_credit"
+        ? creditCost > 0
+          ? `${new Intl.NumberFormat("fa-IR").format(creditCost)} اعتبار`
+          : creditAvailable
+            ? "رایگان"
+            : `${formatTariffToman(price)} تومان`
         : `${formatTariffToman(price)} تومان`;
+
   const submitLabel =
     method === "by_consultant"
       ? "ارسال به مشاور"
       : method === "free_quota" || method === "package_credit" || method === "ad_credit"
-        ? creditCost > 0
-          ? `انتشار آگهی - ${new Intl.NumberFormat("fa-IR").format(creditCost)} اعتبار`
+        ? selectedCreditCost > 0
+          ? `انتشار آگهی - ${new Intl.NumberFormat("fa-IR").format(selectedCreditCost)} اعتبار`
           : "انتشار آگهی"
-        : `پرداخت و انتشار - ${formatShortPayment(payableAmount)}`;
+        : `پرداخت و انتشار - ${formatShortPayment(selectedPayableAmount)}`;
+
+  const creditBalanceLabel =
+    creditMethod === "ad_credit" && creditPaymentMethod?.balances
+      ? `آگهی: ${new Intl.NumberFormat("fa-IR").format(creditBalances.ad_credit)} | ویژه: ${new Intl.NumberFormat("fa-IR").format(creditBalances.special_credit)} | تمدید: ${new Intl.NumberFormat("fa-IR").format(creditBalances.renew_credit)}`
+      : `مانده: ${new Intl.NumberFormat("fa-IR").format(creditRemaining)} اعتبار`;
 
   return (
     <PageFrame
@@ -761,12 +921,16 @@ function AgencyCombinedCheckoutView({
                 icon="credit"
                 label="اعتبار آگهی"
                 onClick={() => onMethodChange(creditMethod)}
-                subLabel={`مانده: ${new Intl.NumberFormat("fa-IR").format(creditRemaining)} اعتبار`}
-                subLabelClassName={creditShortage > 0 || !creditAvailable ? "text-[#c11004]" : "text-[#11a366]"}
+                subLabel={creditBalanceLabel}
+                subLabelClassName={
+                  selectedCreditShortage > 0 || !selectedCreditAvailable
+                    ? "text-[#c11004]"
+                    : "text-[#11a366]"
+                }
               />
 
-              {creditShortage > 0 ? (
-                <ApiCreditDeficitBox deficit={creditShortage} />
+              {selectedCreditShortage > 0 ? (
+                <ApiCreditDeficitBox deficit={selectedCreditShortage} />
               ) : null}
 
               <div className="my-2 border-t border-[#f0f0f0]" />
@@ -980,7 +1144,7 @@ function DisabledUpgradeOptionsSection({
                   </div>
                   <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-4 text-sm font-normal leading-6 ${optionEnabled ? "text-[#4d4d4d]" : "text-[#808080]"
                     }`}>
-                    {option.description}
+                    {getUpgradeDescription(option.id, checkoutItem)}
                   </Typography>
                 </div>
               </div>
@@ -1027,9 +1191,13 @@ export function ApiPaymentCheckoutView({
   submitLabelPrefix?: string;
 }) {
   const walletBalance = toSafeNumber(walletMethod?.balance);
-  const walletRequired = toSafeNumber(walletMethod?.required, payableAmount);
+  const walletRequired = Math.max(
+    toSafeNumber(walletMethod?.required),
+    Math.max(payableAmount, 0),
+  );
   const walletDeficit = Math.max(
-    toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
+    toSafeNumber(walletMethod?.shortage),
+    walletRequired - walletBalance,
     0,
   );
   // A wallet with insufficient credit is still a valid payment choice: keep it

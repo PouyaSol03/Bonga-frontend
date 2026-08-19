@@ -6,6 +6,7 @@ import {
   createAdvertisement,
   getAdvertisementCheckout,
   getAgencyAdvertisementCheckout,
+  getConsultantAdvertisementCheckout,
   getAgencyAdvertisementPreview,
   getAdvertisementDetail,
   getAdvertisementList,
@@ -17,6 +18,7 @@ import {
   getAdvertiseReportReasons,
   submitAdvertisementCheckout,
   submitAgencyAdvertisementCheckout,
+  submitConsultantAdvertisementCheckout,
   submitAdvertiseFeedback,
   submitAdvertiseReport,
   type AdvertisementItem,
@@ -162,6 +164,31 @@ export function useAgencyAdvertisementCheckoutQuery(advertiseId: string | null, 
     enabled: Boolean(advertiseId) && enabled,
     queryFn: () => getAgencyAdvertisementCheckout(advertiseId ?? ""),
     queryKey: queryKeys.advertisements.agencyCheckout(advertiseId ?? ""),
+  });
+}
+
+export function useConsultantAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
+  return useQuery({
+    enabled: Boolean(advertiseId) && enabled,
+    queryFn: () => getConsultantAdvertisementCheckout(advertiseId ?? ""),
+    queryKey: queryKeys.advertisements.consultantCheckout(advertiseId ?? ""),
+  });
+}
+
+export function useSubmitConsultantAdvertisementCheckoutMutation() {
+  return useMutation({
+    mutationFn: submitConsultantAdvertisementCheckout,
+    onSuccess: (
+      _result: SubmitAdvertisementCheckoutResult,
+      variables: SubmitAdvertisementCheckoutPayload,
+    ) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.consultantCheckout(variables.advertiseId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
   });
 }
 

@@ -219,7 +219,7 @@ function EmptyPaymentHistory({
 
 function PaymentHistoryCard({ payment }: { payment: AdPayment }) {
   return (
-    <article className="mb-2 flex min-h-[224px] flex-col justify-between bg-white px-4 py-4 text-right last:mb-0">
+    <article className="mb-2 flex min-h-[224px] flex-col justify-between bg-white gap-y-2 p-4 text-right last:mb-0">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
@@ -244,9 +244,9 @@ function PaymentHistoryRow({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
-      <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</Typography>
+    <div className="flex py-2 shrink-0 items-center justify-between [direction:ltr]">
+      <Typography as="span" variant="label" size="large" weight="medium" className={`min-w-0 text-left ${valueClassName}`}>{value}</Typography>
+      <Typography as="span" variant="label" size="large" weight="medium" className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</Typography>
     </div>
   );
 }

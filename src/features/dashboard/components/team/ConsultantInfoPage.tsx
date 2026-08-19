@@ -132,7 +132,7 @@ export function ConsultantInfoPage() {
         <ConsultantProfileSummary consultant={consultant} />
 
         <section className="mt-5 grid gap-4">
-          <article className="flex flex-col gap-8 rounded-2xl bg-white px-4 py-5">
+          <article className="flex flex-col gap-12 rounded-2xl bg-white px-4 py-7">
             <InfoStatRow label="آگهی‌های فعال" value={formatValue(consultant.scores.ads)} />
             <InfoStatRow label="درخواست فعال" value="—" />
           </article>
@@ -159,14 +159,14 @@ export function ConsultantInfoPage() {
               value={formatValue(consultant.adQuota)}
             />
             <InfoStatRow
-              icon={<LinearStairs className="h-5 w-5" />}
+              icon={<LinearStairs className="h-6 w-6" />}
               iconClassName="bg-[#d9f7ea] text-[#11a366] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده بروزرسانی"
               value={formatValue(consultant.renewQuota)}
             />
             <InfoStatRow
-              icon={<LinearStartup className="h-5 w-5" />}
+              icon={<LinearStartup className="h-6 w-6" />}
               iconClassName="bg-[#fff0dc] text-[#ff7a00] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده ویژه"

@@ -571,13 +571,13 @@ export function AddConsultantRoleOption({
 
 export function ConsultantProfileSummary({ consultant }: { consultant: TeamConsultant }) {
   return (
-    <div className="mt-3 flex items-center gap-3">
+    <div className="mt-4 flex items-center gap-3 bg-primary/12 px-4 py-2 rounded-2xl">
       <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
       <div className="grid">
-        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base text-[#1a1a1a]">
+        <Typography as="h1" variant="body" size="large" weight="regular" className="m-0 text-on-surface">
           {consultant.name} (مشاور)
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm font-normal text-[#bdbdbd]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-[#1a1a1a]/40">
           {consultant.phone}
         </Typography>
       </div>
@@ -649,17 +649,17 @@ export function InfoStatRow({
     <div className={`flex items-center justify-between gap-4 ${className}`}>
       <div className="flex items-center gap-4">
         {icon ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#808080]"}`}>
+          <Typography as="span" variant="body" size="large" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#4d4d4d]"}`}>
             {icon}
           </Typography>
         ) : null}
-        <Typography as="span" variant="body" size="medium" weight="regular" className={`text-[#1a1a1a] ${labelClassName}`}>
+        <Typography as="span" variant="body" size="large" weight="regular" className={`text-[#1a1a1a] ${labelClassName}`}>
           {label}
         </Typography>
       </div>
-      <strong className="font-semibold text-[#1a1a1a]">
+      <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1a1a1a]">
         {value}
-      </strong>
+      </Typography>
     </div>
   );
 }

@@ -78,7 +78,7 @@ export function LoginRequiredPage() {
           <img src="./vectors/LockIcon.svg" alt=""/>
           <div className="flex flex-col gap-y-2 items-center">
 
-          <Typography as="h2" variant="headline" size="large" className="font-semibold ">دسترسی محدود!</Typography>
+          <Typography as="h2" variant="title" size="medium" weight="semibold">دسترسی محدود!</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="font-normal text-sm text-[#4D4D4D] text-center">
             این قابلیت فقط برای کاربران ثبت‌نام‌شده <br/>
             در دسترس است.

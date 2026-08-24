@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
+import { PageFrame } from "../../shared/layout/PageFrame";
 import { replaceRoute } from "../../shared/navigation/navigation";
 
 import { useCitySearchQuery, useMostVisitedCityListQuery } from "../cities/api/city.hooks";
@@ -58,10 +59,8 @@ const onboardingSteps = [
 
 const ONBOARDING_STEP_COUNT = onboardingSteps.length;
 const citySelectionImage = "/images/onboarding/sixth_image.webp";
-// Decorative layers behind the active onboarding image.
-// They are intentionally plain colors — no future-step images are rendered here.
-const ONBOARDING_SECOND_LAYER = "#c5d6f2"; // Primary / 16%
-const ONBOARDING_THIRD_LAYER = "#ebf1fa"; // Primary / 8%
+const ONBOARDING_SECOND_LAYER = "#c5d6f2";
+const ONBOARDING_THIRD_LAYER = "#ebf1fa";
 
 type SelectableCity = StoredSelectedCity & {
   key: string;
@@ -150,38 +149,31 @@ export function OnboardingPage() {
   }
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
-      <main className="min-h-0 flex-1 overflow-hidden px-4">
-        <div className="mx-auto flex h-full w-full max-w-[500px] flex-col items-center">
-          <div className="relative mt-0 h-[min(46dvh,390px)] min-h-[260px] w-full shrink-0">
-            {/*
-              The front card stays in normal flow so its image defines the stack height.
-              The two colored cards copy that exact height and are translated down
-              by 10px and 20px. No shared bottom edge, so both offsets stay visible.
-            */}
-            <div className="relative w-full">
+    <PageFrame
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      dir="rtl"
+      variant="flush"
+    >
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0">
+        <div className="mx-auto flex min-h-full w-full max-w-[500px] flex-col items-center pb-2 pt-0">
+          <div className="relative w-full shrink-0 pb-5 pt-0">
+            <div className="relative aspect-[328/360] w-full">
               <div
                 aria-hidden="true"
-                className="absolute inset-y-0 left-[8%] right-[8%] z-0 translate-y-[20px] rounded-3xl"
+                className="absolute inset-x-[8%] top-[20px] bottom-[-20px] z-0 rounded-3xl"
                 style={{ backgroundColor: ONBOARDING_THIRD_LAYER }}
               />
               <div
                 aria-hidden="true"
-                className="absolute inset-y-0 left-[4%] right-[4%] z-10 translate-y-[10px] rounded-3xl"
+                className="absolute inset-x-[4%] top-[10px] bottom-[-10px] z-10 rounded-3xl"
                 style={{ backgroundColor: ONBOARDING_SECOND_LAYER }}
               />
 
-              {/*
-                Only the active/front card contains an image. On every page change
-                the new card starts exactly where the Primary/16 layer sits
-                (92% width + 10px lower), then grows/moves into the front position.
-                This makes it feel like the next card is physically coming from behind.
-              */}
               <AnimatePresence initial={false} mode="wait">
                 <motion.div
                   key={stepIndex}
                   aria-hidden="true"
-                  className="relative z-20 w-full origin-top overflow-hidden rounded-3xl bg-white [backface-visibility:hidden] will-change-[transform,opacity]"
+                  className="relative z-20 h-full w-full origin-top overflow-hidden rounded-3xl bg-white [backface-visibility:hidden] will-change-[transform,opacity]"
                   initial={
                     shouldReduceMotion
                       ? false
@@ -215,11 +207,7 @@ export function OnboardingPage() {
                 >
                   <img
                     alt=""
-                    className={
-                      onboardingSteps[stepIndex].image.includes("third_image.webp")
-                        ? "block h-auto w-full origin-top object-contain object-top"
-                        : "block h-auto w-full object-contain object-top"
-                    }
+                    className="block h-full w-full object-cover object-top"
                     decoding="async"
                     draggable={false}
                     src={onboardingSteps[stepIndex].image}
@@ -229,8 +217,8 @@ export function OnboardingPage() {
             </div>
           </div>
 
-          <div className="relative mt-6 min-h-[150px] w-full max-w-[328px] text-center">
-            <AnimatePresence initial={false}>
+          <div className="relative my-6 min-h-[136px] w-full shrink-0 text-center">
+            <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={stepIndex}
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
@@ -240,7 +228,7 @@ export function OnboardingPage() {
                   duration: shouldReduceMotion ? 0.01 : 0.18,
                   ease: [0.25, 0.8, 0.25, 1],
                 }}
-                className="absolute inset-x-0 top-0 flex w-full flex-col items-center [backface-visibility:hidden] [transform:translateZ(0)] will-change-[transform,opacity]"
+                className="flex w-full flex-col items-center [backface-visibility:hidden] [transform:translateZ(0)] will-change-[transform,opacity]"
               >
                 <Typography
                   as="p"
@@ -264,7 +252,7 @@ export function OnboardingPage() {
 
                 <Typography
                   as="p"
-                  className="m-0 mt-3 max-w-[328px] text-center text-outline px-4"
+                  className="m-0 mt-3 text-center text-outline px-4"
                   variant="body"
                   size="medium"
                   weight="regular"
@@ -276,7 +264,7 @@ export function OnboardingPage() {
           </div>
 
           <div
-            className="mt-[40px] mb-5 flex h-6 items-center justify-center gap-2 [direction:ltr]"
+            className="mb-4 mt-6 flex h-6 shrink-0 items-center justify-center gap-2 [direction:ltr]"
             aria-label={`مرحله ${stepIndex + 1} از ${ONBOARDING_STEP_COUNT}`}
             role="group"
           >
@@ -307,36 +295,36 @@ export function OnboardingPage() {
       </main>
 
       <footer className="shrink-0 bg-white px-4 pb-4 pt-3">
-        <div className="mx-auto flex w-full max-w-[328px] gap-4 [direction:rtl]">
-          <Button
-            className="h-10 flex-1 rounded-[10px]"
-            onClick={goToNextStep}
-            onMouseDown={(event) => {
-              // Prevent mouse clicks from leaving the button in its focus background state.
-              // Keyboard focus is unaffected because this only runs for mouse interaction.
-              event.preventDefault();
-            }}
-            size="x-medium"
-            leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}
-            type="button"
-            variant="secondary"
-          >
-            بعدی
-          </Button>
+        <div className="mx-auto flex w-full max-w-[500px] justify-center">
+          <div className="flex w-full gap-4 [direction:rtl]">
+            <Button
+              className="h-10 flex-1 rounded-[10px]"
+              onClick={goToNextStep}
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              size="x-medium"
+              leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}
+              type="button"
+              variant="secondary"
+            >
+              بعدی
+            </Button>
 
-          <Button
-            className="h-10 flex-1 rounded-[10px] text-outline border-outline-var"
-            trailingIcon={<LinearCancel className="h-5 w-5" />}
-            onClick={showCityStep}
-            size="x-medium"
-            type="button"
-            variant="neutral-outline"
-          >
-            رد کردن
-          </Button>
+            <Button
+              className="h-10 flex-1 rounded-[10px] text-outline border-outline-var"
+              trailingIcon={<LinearCancel className="h-5 w-5" />}
+              onClick={showCityStep}
+              size="x-medium"
+              type="button"
+              variant="neutral-outline"
+            >
+              رد کردن
+            </Button>
+          </div>
         </div>
       </footer>
-    </section>
+    </PageFrame>
   );
 }
 
@@ -408,29 +396,33 @@ function OnboardingCitySelectionPage() {
   };
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
+    <PageFrame
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      dir="rtl"
+      variant="flush"
+    >
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0">
-        <div className="mx-auto flex w-full max-w-[500px] flex-col items-center">
-          <div className="relative h-[min(42dvh,360px)] min-h-[250px] w-full shrink-0">
-            <div className="relative w-full">
+        <div className="mx-auto flex w-full max-w-[500px] flex-col items-center pb-6 pt-0">
+          <div className="relative w-full shrink-0 pb-5 pt-0">
+            <div className="relative aspect-[328/360] w-full">
               <div
                 aria-hidden="true"
-                className="absolute inset-y-0 left-[8%] right-[8%] z-0 translate-y-[20px] rounded-3xl"
+                className="absolute inset-x-[8%] top-[20px] bottom-[-20px] z-0 rounded-3xl"
                 style={{ backgroundColor: ONBOARDING_THIRD_LAYER }}
               />
               <div
                 aria-hidden="true"
-                className="absolute inset-y-0 left-[4%] right-[4%] z-10 translate-y-[10px] rounded-3xl"
+                className="absolute inset-x-[4%] top-[10px] bottom-[-10px] z-10 rounded-3xl"
                 style={{ backgroundColor: ONBOARDING_SECOND_LAYER }}
               />
 
               <div
                 aria-hidden="true"
-                className="relative z-20 w-full overflow-hidden rounded-3xl bg-white"
+                className="relative z-20 h-full w-full overflow-hidden rounded-3xl bg-white"
               >
                 <img
                   alt=""
-                  className="block h-auto w-full object-contain object-top"
+                  className="block h-full w-full object-cover object-top"
                   decoding="async"
                   draggable={false}
                   src={citySelectionImage}
@@ -439,7 +431,7 @@ function OnboardingCitySelectionPage() {
             </div>
           </div>
 
-          <div className="mt-18 w-full max-w-[328px] text-center">
+          <div className="my-6 w-full text-center">
             <Typography
               as="h1"
               className="m-0 text-[#1a1a1a]"
@@ -462,7 +454,7 @@ function OnboardingCitySelectionPage() {
             </Typography>
           </div>
 
-          <label className="relative mt-4 block h-12 w-full max-w-[328px]">
+          <label className="relative mt-4 block h-12 w-full">
             <Typography as="span" className="sr-only" size="small" variant="body" weight="regular">
               جستجوی شهر
             </Typography>
@@ -477,7 +469,7 @@ function OnboardingCitySelectionPage() {
             <LinearSearch className="pointer-events-none absolute left-3.5 top-1/2 h-6 w-6 -translate-y-1/2 text-[#1a1a1a]" />
           </label>
 
-          <div className="mt-8 w-full max-w-[328px]">
+          <div className="mt-8 w-full">
             <Typography
               as="h2"
               className="m-0 text-right text-[#1a1a1a]"
@@ -538,18 +530,20 @@ function OnboardingCitySelectionPage() {
       </main>
 
       <footer className="shrink-0 bg-white px-4 pb-4 pt-3">
-        <Button
-          className="mx-auto h-10 w-full max-w-[328px] rounded-[10px]"
-          disabled={!selectedCity}
-          onClick={start}
-          size="x-medium"
-          leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}
-          type="button"
-          variant="primary"
-        >
-          شروع کنید
-        </Button>
+        <div className="mx-auto flex w-full max-w-[500px] justify-center">
+          <Button
+            className="h-10 w-full rounded-[10px]"
+            disabled={!selectedCity}
+            onClick={start}
+            size="x-medium"
+            leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}
+            type="button"
+            variant="primary"
+          >
+            شروع کنید
+          </Button>
+        </div>
       </footer>
-    </section>
+    </PageFrame>
   );
 }

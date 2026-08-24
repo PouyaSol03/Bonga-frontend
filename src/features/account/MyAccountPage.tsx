@@ -147,7 +147,6 @@ const loggedOutPrimaryActions: AccountAction[] = [
   { icon: "bookmark", label: "نشان‌ها", requiresAuth: true, to: "/account/bookmarks" },
   { icon: "note", label: "یادداشت‌ها", requiresAuth: true, to: "/account/notes" },
   { icon: "wallet", label: "کیف پول", requiresAuth: true, to: "/account/wallet" },
-  { icon: "setting", label: "تنظیمات", to: "/account/about" },
 ];
 
 const secondaryActions: AccountAction[] = [
@@ -190,7 +189,12 @@ export function MyAccountPage() {
   );
 
   if (authSession && isBusinessAccount(activeRole)) {
-    return <IndependentConsultantAccountPage businessSuccessSheet={businessSuccessSheet} />;
+    return (
+      <IndependentConsultantAccountPage
+        authSession={authSession}
+        businessSuccessSheet={businessSuccessSheet}
+      />
+    );
   }
 
   return <StandardAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
@@ -204,8 +208,13 @@ function isBusinessAccount(role: string | null) {
   );
 }
 
-function IndependentConsultantAccountPage({ businessSuccessSheet }: { businessSuccessSheet?: ReactNode }) {
-  const authSession = getStoredAuthSession();
+function IndependentConsultantAccountPage({
+  authSession,
+  businessSuccessSheet,
+}: {
+  authSession: AuthSession | null;
+  businessSuccessSheet?: ReactNode;
+}) {
   const activeRole = getActiveAuthRole(authSession);
   const isManagerRole = activeRole === REAL_ESTATE_MANAGER;
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
@@ -554,7 +563,7 @@ function StandardAccountPage({
 
           <div className="h-4 bg-[#f0f0f0]" />
 
-          <AccountSection actions={isLoggedIn && secondaryActions} />
+          <AccountSection actions={secondaryActions} />
 
           {isLoggedIn ? (
             <>
@@ -861,7 +870,6 @@ function useLogoutAccount() {
     logoutMutation.mutate(undefined, {
       onSettled: () => {
         setIsLogoutConfirmOpen(false);
-        navigateTo("/login/phone");
       },
     });
   };

@@ -1,4 +1,5 @@
 import { api, ApiError, getApiErrorMessage, publicApi } from "../../../shared/api/api";
+import { queryClient } from "../../../shared/api/query-client";
 import {
   clearPendingOtpState,
   clearStoredAuthSession,
@@ -151,6 +152,7 @@ export async function logout() {
     return await api.get("me/auth/logout").json<StatusResponse>();
   } finally {
     clearStoredAuthSession();
+    queryClient.clear();
   }
 }
 

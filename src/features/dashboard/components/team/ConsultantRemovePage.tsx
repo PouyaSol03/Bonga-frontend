@@ -32,7 +32,7 @@ export function ConsultantRemovePage() {
   const routeConsultant = getRouteConsultant();
   const consultantId = getRouteConsultantId() ?? routeConsultant.id;
   const agencyProfileQuery = useMyAgencyProfileQuery();
-  const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
   const consultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
   const deactivateConsultantMutation = useDeactivateAgencyConsultantMutation();
   const consultant = consultantQuery.data
@@ -125,13 +125,13 @@ export function ConsultantRemovePage() {
             deactivateConsultantMutation.mutate(
               selectedReplacement.kind === "agency"
                 ? {
+                    agentId: consultantId,
                     transferTo: "agency",
-                    userId: consultantId,
                   }
                 : {
+                    agentId: consultantId,
                     transferTo: "member",
                     transferUserId: selectedReplacement.consultant.id,
-                    userId: consultantId,
                   },
               {
                 onSuccess: () => {

@@ -590,10 +590,10 @@ export function ConsultantProfilePill({ consultant }: { consultant: TeamConsulta
     <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[#cccccc] bg-white px-4 py-2">
       <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
       <div className="flex flex-col justify-center">
-        <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="h1" variant="body" size="large" weight="regular" className="m-0 text-on-surface">
           {consultant.name}
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#bdbdbd]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="text-on-surface/40">
           {consultant.phone}
         </Typography>
       </div>
@@ -649,7 +649,7 @@ export function InfoStatRow({
     <div className={`flex items-center justify-between gap-4 ${className}`}>
       <div className="flex items-center gap-4">
         {icon ? (
-          <Typography as="span" variant="body" size="large" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#4d4d4d]"}`}>
+          <Typography as="span" variant="body" size="large" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#808080]"}`}>
             {icon}
           </Typography>
         ) : null}
@@ -817,7 +817,7 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             <RouteLink
               className="flex justify-center items-center gap-2 border-l border-[#e0e0e0]"
               state={{ consultant }}
-              to={`${consultantTeamPaths.edit}/${consultant.id}`}
+              to={`${consultantTeamPaths.edit}/${consultant.agentId ?? consultant.id}`}
             >
               <LinearEdit2 className="w-5 h-5" />
               ویرایش
@@ -865,6 +865,7 @@ function ConsultantStat({
     </div>
   );
 }
+
 
 function ConsultantEmptyState() {
   return (

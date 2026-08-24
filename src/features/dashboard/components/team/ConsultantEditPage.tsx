@@ -73,8 +73,9 @@ function buildManagerPermissions(
 
 export function ConsultantEditPage() {
   const routeConsultant = getRouteConsultant();
-  const consultantId = getRouteConsultantId() ?? routeConsultant.id;
-  const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const consultantId =
+    routeConsultant.agentId ?? getRouteConsultantId() ?? routeConsultant.id;
+  const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
   const updateConsultantMutation = useUpdateAgencyConsultantMutation();
   const agencyDashboardQuery = useAgencyDashboardQuery();
   const agencyBalances = agencyDashboardQuery.data?.balances;
@@ -142,7 +143,7 @@ export function ConsultantEditPage() {
             انتخاب سمت
           </Typography>
 
-          <div className="mt-4 grid gap-4" role="radiogroup" aria-label="انتخاب سمت">
+          <div className="mt-4 grid" role="radiogroup" aria-label="انتخاب سمت">
             <AddConsultantRoleOption
               checked={accessRole === "consultant"}
               label="مشاور"
@@ -214,11 +215,11 @@ export function ConsultantEditPage() {
             updateConsultantMutation.mutate(
               {
                 adQuota,
+                agentId: consultantId,
                 permissions: buildManagerPermissions(accessRole, managerAccess),
                 renewQuota: updateQuota,
                 role: accessRole,
                 specialQuota,
-                userId: consultantId,
               },
               {
                 onSuccess: () => {

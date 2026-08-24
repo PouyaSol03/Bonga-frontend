@@ -97,7 +97,16 @@ export type AgencyConsultantRequestDecisionPayload = {
 
 export type AgencyConsultantMetrics = {
   publishedAdvertises: number;
+  rank?: number;
   rankingScore: number;
+  renewUsed: number;
+  specialUsed: number;
+};
+
+export type AgencyConsultantPeriodActivity = {
+  advertiseRegistrationProgress: Array<{ month: string; value: number }>;
+  period: string;
+  publishedAdvertises: number;
   renewUsed: number;
   specialUsed: number;
 };
@@ -112,6 +121,7 @@ export type AgencyConsultantDto = {
   mobile: string;
   name: string;
   permissions: AgencyConsultantPermissions;
+  periodActivity?: AgencyConsultantPeriodActivity;
   renewQuota: number;
   role: string;
   roleId: number;
@@ -132,13 +142,13 @@ export type AgencyConsultantsParams = {
 };
 
 export type UpdateAgencyConsultantPayload = AgencyConsultantSettingsPayload & {
-  userId: number | string;
+  agentId: number | string;
 };
 
 export type DeactivateAgencyConsultantPayload = {
+  agentId: number | string;
   transferTo: "agency" | "member";
   transferUserId?: number | string;
-  userId: number | string;
 };
 
 type PublicAgencyApiItem = {
@@ -197,6 +207,7 @@ type AgencyConsultantApiItem = {
   _id?: unknown;
   ad_quota?: unknown;
   agency_membership?: unknown;
+  agent_id?: unknown;
   avatar?: unknown;
   full_name?: unknown;
   id?: unknown;
@@ -206,6 +217,7 @@ type AgencyConsultantApiItem = {
   membership_state?: unknown;
   metrics?: {
     published_advertises?: unknown;
+    rank?: unknown;
     ranking_score?: unknown;
     renew_used?: unknown;
     special_used?: unknown;
@@ -213,6 +225,7 @@ type AgencyConsultantApiItem = {
   mobile?: unknown;
   name?: unknown;
   permissions?: unknown;
+  period_activity?: unknown;
   quotas?: unknown;
   renew_quota?: unknown;
   role?: unknown;
@@ -370,10 +383,16 @@ function normalizeAgencyConsultant(
   );
   const user = asRecord(item.user);
   const quotas = asRecord(item.quotas ?? membership.quotas);
-  const agentId = toNumber(item.id ?? item._id, Number.NaN);
+  const agentId = toNumber(item.agent_id ?? item.id ?? item._id, Number.NaN);
   const userId = toNumber(item.user_id ?? user.id ?? user._id, Number.NaN);
   const name = firstText(item.name, item.full_name, user.full_name, user.name);
   const isActiveValue = item.is_active ?? membership.is_active;
+  const periodActivity = asRecord(item.period_activity);
+  const rawRegistrationProgress = Array.isArray(
+    periodActivity.advertise_registration_progress,
+  )
+    ? periodActivity.advertise_registration_progress
+    : [];
 
   if (!Number.isFinite(userId) || !name) return null;
 
@@ -390,6 +409,7 @@ function normalizeAgencyConsultant(
         0,
         toNumber(item.metrics?.published_advertises),
       ),
+      rank: toOptionalNumber(item.metrics?.rank),
       rankingScore: Math.max(0, toNumber(item.metrics?.ranking_score)),
       renewUsed: Math.max(0, toNumber(item.metrics?.renew_used)),
       specialUsed: Math.max(0, toNumber(item.metrics?.special_used)),
@@ -399,6 +419,32 @@ function normalizeAgencyConsultant(
     permissions: normalizeAgencyConsultantPermissions(
       item.permissions ?? membership.permissions,
     ),
+    periodActivity:
+      Object.keys(periodActivity).length > 0
+        ? {
+            advertiseRegistrationProgress: rawRegistrationProgress
+              .map((entry) => {
+                const row = asRecord(entry);
+                const month = firstText(row.month, row.bucket);
+                if (!month) return null;
+                return {
+                  month,
+                  value: Math.max(0, toNumber(row.count ?? row.value)),
+                };
+              })
+              .filter(
+                (entry): entry is { month: string; value: number } =>
+                  entry !== null,
+              ),
+            period: firstText(periodActivity.period),
+            publishedAdvertises: Math.max(
+              0,
+              toNumber(periodActivity.published_advertises),
+            ),
+            renewUsed: Math.max(0, toNumber(periodActivity.renew_used)),
+            specialUsed: Math.max(0, toNumber(periodActivity.special_used)),
+          }
+        : undefined,
     renewQuota: Math.max(
       0,
       toNumber(item.renew_quota ?? membership.renew_quota ?? quotas.renew_quota),
@@ -751,10 +797,10 @@ export async function getMyAgencyConsultants({
 }
 
 export async function getMyAgencyConsultant(
-  userId: number | string,
+  agentId: number | string,
 ): Promise<AgencyConsultantDto> {
   const response = await api
-    .get(`me/agency/consultants/${encodeURIComponent(String(userId))}`)
+    .get(`me/agency/consultants/${encodeURIComponent(String(agentId))}`)
     .json<AgencyConsultantDetailApiResponse>();
   const source = response.consultant ?? response.data ?? response;
   const consultant = normalizeAgencyConsultant({
@@ -782,30 +828,32 @@ export async function getMyAgencyConsultant(
 
 export async function updateMyAgencyConsultant({
   adQuota,
+  agentId,
   permissions,
   renewQuota,
   role,
   specialQuota,
-  userId,
 }: UpdateAgencyConsultantPayload) {
-  return api.patch("me/agency/consultants", {
-    context: { allowNonJsonResponse: true },
-    headers: { Accept: "*/*" },
-    json: {
-      ad_quota: Math.max(0, Math.trunc(adQuota)),
-      permissions,
-      renew_quota: Math.max(0, Math.trunc(renewQuota)),
-      role,
-      special_quota: Math.max(0, Math.trunc(specialQuota)),
-      user_id: Number.isFinite(Number(userId)) ? Number(userId) : userId,
+  return api.patch(
+    `me/agency/consultants/${encodeURIComponent(String(agentId))}`,
+    {
+      context: { allowNonJsonResponse: true },
+      headers: { Accept: "*/*" },
+      json: {
+        ad_quota: Math.max(0, Math.trunc(adQuota)),
+        permissions,
+        renew_quota: Math.max(0, Math.trunc(renewQuota)),
+        role: role === "manager" ? 2 : 1,
+        special_quota: Math.max(0, Math.trunc(specialQuota)),
+      },
     },
-  });
+  );
 }
 
 export async function deactivateMyAgencyConsultant({
+  agentId,
   transferTo,
   transferUserId,
-  userId,
 }: DeactivateAgencyConsultantPayload) {
   const transferPayload =
     transferTo === "agency"
@@ -818,7 +866,7 @@ export async function deactivateMyAgencyConsultant({
         };
 
   return api.delete(
-    `me/agency/consultants/${encodeURIComponent(String(userId))}`,
+    `me/agency/consultants/${encodeURIComponent(String(agentId))}`,
     {
       context: { allowNonJsonResponse: true },
       headers: { Accept: "*/*" },

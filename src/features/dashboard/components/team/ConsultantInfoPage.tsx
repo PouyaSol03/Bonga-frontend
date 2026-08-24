@@ -67,7 +67,7 @@ function createConsultantPieDatum({
 export function ConsultantInfoPage() {
   const routeConsultant = getRouteConsultant();
   const consultantId = getRouteConsultantId() ?? routeConsultant.id;
-  const consultantQuery = useAgencyConsultantQuery({ userId: consultantId });
+  const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
   const agencyDashboardQuery = useAgencyDashboardQuery();
 
   if (consultantQuery.isLoading) {
@@ -82,7 +82,8 @@ export function ConsultantInfoPage() {
       ? "—"
       : new Intl.NumberFormat("fa-IR").format(value);
   const agencyDashboard = agencyDashboardQuery.data;
-  const consultantActivity = agencyDashboard?.consultantActivity.find(
+  const periodActivity = consultantQuery.data?.periodActivity;
+  const dashboardConsultantActivity = agencyDashboard?.consultantActivity.find(
     (activity) => String(activity.userId) === String(consultant.id),
   );
   const totalRenewals = agencyDashboard
@@ -94,21 +95,30 @@ export function ConsultantInfoPage() {
   const consultantPieCards: ConsultantPieDatum[] = [
     createConsultantPieDatum({
       color: "#0048c4",
-      consultantValue: consultantActivity?.advertiseCount ?? consultant.scores.ads,
+      consultantValue:
+        periodActivity?.publishedAdvertises ??
+        dashboardConsultantActivity?.advertiseCount ??
+        consultant.scores.ads,
       lightColor: "#d7ddf7",
       title: "آگهی منتشر شده در آژانس",
       total: agencyDashboard?.publishedAdvertises.total,
     }),
     createConsultantPieDatum({
       color: "#11a366",
-      consultantValue: consultantActivity?.renewCount ?? consultant.scores.steps,
+      consultantValue:
+        periodActivity?.renewUsed ??
+        dashboardConsultantActivity?.renewCount ??
+        consultant.scores.steps,
       lightColor: "#bfe8d2",
       title: "بروزرسانی منتشر شده در آژانس",
       total: totalRenewals,
     }),
     createConsultantPieDatum({
       color: "#ffb100",
-      consultantValue: consultantActivity?.specialCount ?? consultant.scores.rocket,
+      consultantValue:
+        periodActivity?.specialUsed ??
+        dashboardConsultantActivity?.specialCount ??
+        consultant.scores.rocket,
       lightColor: "#ffe9aa",
       title: "ویژه منتشر شده در آژانس",
       total: totalSpecials,
@@ -146,7 +156,7 @@ export function ConsultantInfoPage() {
             <InfoStatRow
               icon={<LinearRanking className="h-6 w-6" />}
               label="رتبه"
-              value="—"
+              value={formatValue(consultantQuery.data?.metrics.rank)}
             />
           </article>
 
@@ -159,14 +169,14 @@ export function ConsultantInfoPage() {
               value={formatValue(consultant.adQuota)}
             />
             <InfoStatRow
-              icon={<LinearStairs className="h-6 w-6" />}
+              icon={<LinearStairs className="h-5 w-5" />}
               iconClassName="bg-[#d9f7ea] text-[#11a366] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده بروزرسانی"
               value={formatValue(consultant.renewQuota)}
             />
             <InfoStatRow
-              icon={<LinearStartup className="h-6 w-6" />}
+              icon={<LinearStartup className="h-5 w-5" />}
               iconClassName="bg-[#fff0dc] text-[#ff7a00] w-12 h-12"
               labelClassName="text-sm font-medium text-[#4D4D4D]"
               label="مانده ویژه"
@@ -179,7 +189,7 @@ export function ConsultantInfoPage() {
           ))}
 
           <ProgressLineChartCard
-            data={[]}
+            data={periodActivity?.advertiseRegistrationProgress ?? []}
             title="نمودار پیشرفت ثبت آگهی"
             valueSuffix=" آگهی"
           />

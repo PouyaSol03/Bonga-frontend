@@ -21,16 +21,16 @@ import {
 } from "./agency.service";
 
 export function useAgencyConsultantQuery({
+  agentId,
   enabled = true,
-  userId,
 }: {
+  agentId?: number | string;
   enabled?: boolean;
-  userId?: number | string;
 }) {
   return useQuery({
-    enabled: enabled && userId !== undefined && String(userId).trim().length > 0,
-    queryFn: () => getMyAgencyConsultant(userId as number | string),
-    queryKey: queryKeys.agencies.consultant(userId ?? ""),
+    enabled: enabled && agentId !== undefined && String(agentId).trim().length > 0,
+    queryFn: () => getMyAgencyConsultant(agentId as number | string),
+    queryKey: queryKeys.agencies.consultant(agentId ?? ""),
   });
 }
 
@@ -55,7 +55,7 @@ export function useUpdateAgencyConsultantMutation() {
     mutationFn: updateMyAgencyConsultant,
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.agencies.consultant(variables.userId),
+        queryKey: queryKeys.agencies.consultant(variables.agentId),
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.agencies.all,
@@ -69,7 +69,7 @@ export function useDeactivateAgencyConsultantMutation() {
     mutationFn: deactivateMyAgencyConsultant,
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.agencies.consultant(variables.userId),
+        queryKey: queryKeys.agencies.consultant(variables.agentId),
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.agencies.all,

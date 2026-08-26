@@ -124,6 +124,7 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     commercialPermit: values.commercialPermit,
     commercialLicense: values.commercialLicense,
     ceilingHeight: values.ceilingHeight,
+    openingCount: values.openingCount,
     singleRoomCount: values.singleRoomCount,
     doubleRoomCount: values.doubleRoomCount,
     suiteCount: values.suiteCount,
@@ -519,7 +520,6 @@ export function buildPayload(values: NewAdFormValues) {
   const isDailyRent = isRent && params.category.startsWith("daily-");
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
-  const isSaleApartment = isSale && params.category === "apartment";
   const hideHeatingCooling = isPartnership || params.category === "land";
   const heatingItemsForListing = getHeatingItemsForListing(params.transaction, params.category);
   const featureItemsForCategory = getFacilityItemsForListing(params.transaction, params.category);

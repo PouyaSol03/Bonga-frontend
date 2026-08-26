@@ -227,7 +227,7 @@ const propertyInfoLabelMap: Record<string, string> = {
   building_age: "سال ساخت",
   rooms: "تعداد اتاق ها",
   floor: "طبقه آپارتمان",
-  has_document: "سند",
+  has_document: "دارای سند",
   renovated: "بازسازی شده",
   furnished: "مبله با لوازم",
   has_loan: "وام",
@@ -237,27 +237,67 @@ const propertyInfoLabelMap: Record<string, string> = {
   land_use: "کاربری",
   commercial_license: "مجوز تجاری",
   commercial_permit: "مجوز تجاری",
+  commercial_position: "موقعیت تجاری",
+  ownership_status: "وضعیت مالکیت",
+  current_status: "وضعیت فعلی",
+  industrial_property_type: "نوع ملک",
+  access_type: "دسترسی",
+  building_type: "نوع بنا",
   construction_license: "مجوز ساخت",
   build_permit: "مجوز ساخت",
   height: "ارتفاع سقف",
+  ceiling_height: "ارتفاع سقف",
+  opening_count: "تعداد دهنه",
   standard_capacity: "ظرفیت استاندارد",
-  extra_people_capacity: "تعداد نفرات اضافه",
-  hotel_stars: "رتبه‌بندی هتل",
+  extra_people_capacity: "ظرفیت اضافه",
+  hotel_stars: "رتبه اقامتگاه",
+  accommodation_type: "نوع اقامتگاه",
+  space_type: "نوع فضا",
+  rental_period: "دوره اجاره",
+  view_type: "چشم انداز",
+  check_in_time: "ساعت ورود",
+  check_out_time: "ساعت خروج",
+  min_stay_days: "حداقل مدت اقامت",
+  evacuation_guarantee: "تضمین تخلیه",
+  normal_daily_price: "روزهای عادی (شنبه تا چهارشنبه)",
+  weekend_daily_price: "آخر هفته (چهار شنبه تا جمعه)",
+  special_daily_price: "روزهای خاص (تعطیلات و مناسبت ها)",
+  extra_person_price: "هزینه هر نفر اضافه",
+  office_position: "موقعیت اداری",
+  office_document_type: "سند اداری",
+  management_room: "اتاق مدیریت",
+  conference_room: "اتاق کنفرانس",
+  reception_hall: "سالن پذیرش",
+  signboard: "تابلو خور",
+  kitchen: "آشپزخانه",
+  separate_entrance: "ورودی مجزا",
   min_price: "حداقل قیمت",
   max_price: "حداکثر قیمت",
+  min_meter_price: "حداقل قیمت متری",
+  max_meter_price: "حداکثر قیمت متری",
   mortgage_price: "رهن",
   rent_price: "اجاره",
+  builder_company_name: "نام سازنده/شرکت",
+  builder_name: "نام سازنده/شرکت",
+  developer_name: "نام سازنده/شرکت",
+  project_type: "نوع پروژه",
   project_total_floors: "تعداد کل طبقات",
   project_total_units: "تعداد کل واحد ها",
   project_status: "وضعیت پروژه",
   delivery_date: "تاریخ تحویل",
   participation_type: "نوع مشارکت",
   partnership_type: "نوع مشارکت",
-  builder_share: "سهم سازنده",
-  builder_share_percent: "سهم سازنده",
+  builder_share: "درصد مشارکت / درصد سهم",
+  builder_share_percent: "درصد مشارکت / درصد سهم",
   villa_type: "نوع ویلا",
   house_type: "نوع خانه",
   heating_cooling: "سرمایش و گرمایش",
+  occupancy_status: "وضعیت سکونت",
+  pet_policy: "حیوان خانگی",
+  ready_delivery_date: "تاریخ آماده تحویل",
+  min_contract_months: "حداقل مدت قرارداد",
+  rent_conversion_policy: "تبدیل رهن و اجاره",
+  kitchen_type: "نوع آشپزخانه",
   exchange_with: "قابل معاوضه با",
   advertiser_type: "نوع آگهی‌دهنده",
   meter_price: "قیمت متری",
@@ -293,6 +333,26 @@ const propertyInfoOrder = [
   "land_position",
   "height",
   "hotel_stars",
+  "accommodation_type",
+  "space_type",
+  "rental_period",
+  "view_type",
+  "check_in_time",
+  "check_out_time",
+  "min_stay_days",
+  "evacuation_guarantee",
+  "normal_daily_price",
+  "weekend_daily_price",
+  "special_daily_price",
+  "extra_person_price",
+  "office_position",
+  "office_document_type",
+  "management_room",
+  "conference_room",
+  "reception_hall",
+  "signboard",
+  "kitchen",
+  "separate_entrance",
   "has_document",
   "renovated",
   "furnished",
@@ -301,6 +361,12 @@ const propertyInfoOrder = [
   "document_type",
   "commercial_license",
   "commercial_permit",
+  "commercial_position",
+  "ownership_status",
+  "current_status",
+  "industrial_property_type",
+  "access_type",
+  "building_type",
   "construction_license",
   "build_permit",
   "standard_capacity",
@@ -313,6 +379,7 @@ const propertyInfoOrder = [
   "max_price",
   "mortgage_price",
   "rent_price",
+  "rent_conversion_policy",
   "participation_type",
   "partnership_type",
   "builder_share",
@@ -326,6 +393,10 @@ const propertyInfoOrder = [
   "capacity",
   "unit_type",
   "unit_position",
+  "occupancy_status",
+  "pet_policy",
+  "ready_delivery_date",
+  "min_contract_months",
   "density",
   "total_floors",
   "facade_material",
@@ -406,15 +477,15 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
   ],
   "sale-office": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["suitable_for"], label: "مناسب برای" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["document_type"], label: "نوع سند" },
+    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "sale-commercial": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["suitable_for"], label: "مناسب برای" },
-    { labels: ["document_type"], label: "نوع سند" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["commercial_position"], label: "موقعیت تجاری" },
+    { labels: ["document_type"], label: "سند" },
+    { labels: ["ownership_status"], label: "وضعیت مالکیت" },
   ],
   "sale-warehouse": [
     { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
@@ -423,28 +494,29 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
     { labels: ["suitable_for"], label: "مناسب برای" },
   ],
   "sale-hotel": [
-    { labels: ["hotel_stars"], label: "رتبه‌بندی هتل", formatter: formatHotelStarsDetailValue, icon: "star" },
-    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["document_type"], label: "نوع سند" },
-    { labels: ["land_position"], label: "موقعیت زمین" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["accommodation_type"], label: "نوع اقامتگاه" },
+    { labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" },
+    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["document_type"], label: "سند" },
   ],
   "sale-factory": [
     { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["document_type"], label: "نوع سند" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["document_type"], label: "سند" },
   ],
   "rent-apartment": [
-    { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["area", "meterage"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" },
     { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-villa-house": [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-garden-villa": [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
@@ -454,16 +526,15 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
   ],
   "rent-office": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
     { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-commercial": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["commercial_position"], label: "موقعیت تجاری" },
     { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
-    { labels: ["suitable_for"], label: "مناسب برای" },
+    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
   ],
   "rent-warehouse": [
     { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
@@ -474,29 +545,46 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
     { labels: ["commercial_permit", "commercial_license"], label: "مجوز تجاری" },
   ],
   "rent-hotel": [
+    { labels: ["accommodation_type"], label: "نوع اقامتگاه" },
+    { labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" },
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["land_position"], label: "موقعیت زمین" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-factory-workshop": [
     { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area", "area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
+    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "presale-special": [
+    { labels: ["builder_company_name", "builder_name", "developer_name"], label: "نام سازنده/شرکت" },
+    { labels: ["project_type"], label: "نوع پروژه" },
     { labels: ["project_total_floors"], label: "تعداد کل طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" },
     { labels: ["project_total_units"], label: "تعداد کل واحد ها" },
+    { labels: ["document_type"], label: "سند" },
     { labels: ["project_status"], label: "وضعیت پروژه" },
     { labels: ["delivery_date"], label: "تاریخ تحویل", icon: "calendar" },
-    { labels: ["min_price"], label: "حداقل قیمت", formatter: formatTomanDetailValue, icon: "tooman" },
-    { labels: ["max_price"], label: "حداکثر قیمت", formatter: formatTomanDetailValue, icon: "tooman" },
+    { labels: ["kitchen_type"], label: "نوع آشپزخانه" },
+    { labels: ["facade_material"], label: "جنس نما" },
+    { labels: ["floor_material"], label: "جنس کف" },
+    { labels: ["cabinet_material"], label: "جنس کابینت" },
+    { labels: ["furnished"], label: "با لوازم و مبله" },
+    { labels: ["min_meter_price", "min_price"], label: "حداقل قیمت متری", formatter: formatTomanDetailValue, icon: "tooman" },
+    { labels: ["max_meter_price", "max_price"], label: "حداکثر قیمت متری", formatter: formatTomanDetailValue, icon: "tooman" },
+    { labels: ["sale_terms_percent"], label: "درصد شرایط", formatter: formatPercentDetailValue },
+    { labels: ["sale_terms_installment_months"], label: "تعداد اقساط" },
   ],
   partnership: [
     { labels: ["partnership_type", "participation_type"], label: "نوع مشارکت" },
+    { labels: ["current_status"], label: "وضعیت فعلی ملک" },
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position"], label: "موقعیت زمین" },
     { labels: ["build_permit", "construction_license"], label: "مجوز ساخت" },
     { labels: ["document_type"], label: "نوع سند" },
-    { labels: ["builder_share", "builder_share_percent"], label: "سهم سازنده", formatter: formatPercentDetailValue },
+    { labels: ["land_width"], label: "عرض زمین", formatter: formatMeterDetailValue },
+    { labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue },
+    { labels: ["builder_share", "builder_share_percent"], label: "درصد مشارکت / درصد سهم", formatter: formatPercentDetailValue },
   ],
 };
 
@@ -649,7 +737,7 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
     return text ? `${text} متر` : "-";
   }
 
-  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price"].includes(label)) {
+  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price", "normal_daily_price", "weekend_daily_price", "special_daily_price", "extra_person_price", "evacuation_guarantee"].includes(label)) {
     return `${formatPrice(value)} تومان`;
   }
 
@@ -657,7 +745,7 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
     return formatPercentDetailValue(value);
   }
 
-  if (label === "sale_terms_installment_months") {
+  if (label === "sale_terms_installment_months" || label === "min_contract_months") {
     const text = toText(value);
     return text ? `${text} ماه` : "-";
   }
@@ -737,14 +825,13 @@ function resolvePricePresentation(
   }
 
   if (formCode.startsWith("daily-")) {
-    const minPrice = featureMap.min_price ?? featureMap.daily_price;
+    const minPrice = featureMap.min_price ?? featureMap.daily_price ?? featureMap.normal_daily_price;
     const maxPrice = featureMap.max_price;
-
     return {
-      primaryLabel: maxPrice === undefined ? "قیمت روزانه" : "حداقل قیمت",
+      primaryLabel: "حداقل قیمت",
       primaryValue: formatPrice(minPrice),
       secondaryLabel: "حداکثر قیمت",
-      secondaryValue: maxPrice === undefined ? "—" : formatPrice(maxPrice),
+      secondaryValue: formatPrice(maxPrice),
     };
   }
 
@@ -908,6 +995,7 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     pricePerMeter: pricePresentation.secondaryValue,
     pricePrimaryLabel: pricePresentation.primaryLabel,
     priceSecondaryLabel: pricePresentation.secondaryLabel,
+    rentConversionPolicy: toText(featureMap.rent_conversion_policy),
     propertyInfoPreview,
     propertyInfoRows,
     rows: [
@@ -1181,6 +1269,8 @@ function formatTotalFloorsDetailValue(value: unknown) {
 }
 
 function formatUnitsPerFloorDetailValue(value: unknown) {
+  const numericValue = toNumber(value);
+  if (numericValue === 8) return "هشت واحد بیشتر";
   return appendSuffixIfNeeded(value, "واحد");
 }
 
@@ -1382,12 +1472,41 @@ export function buildPropertyDetailSections(
   ad: AdvertisementItem,
 ): DetailInfoSection[] {
   const features = Array.isArray(ad.features) ? ad.features : [];
+  const formCode = toText(getFeatureValue(features, "form_code"));
+  const isApartment = formCode === "sale-apartment" || formCode === "rent-apartment";
+  const isOffice = formCode === "sale-office" || formCode === "rent-office";
+  const isCommercial = formCode === "sale-commercial" || formCode === "rent-commercial";
+  const isHotel = formCode === "sale-hotel" || formCode === "rent-hotel";
+  const isFactory = formCode === "sale-factory" || formCode === "rent-factory-workshop";
+  const areaLabel = isApartment ? "متراژ آپارتمان" : "متراژ";
+  const floorLabel = isApartment ? "طبقه" : isOffice || isCommercial ? "طبقه" : "طبقه";
+  const ageLabel = isOffice || isCommercial || isFactory ? "سال ساخت" : "سن ساخت";
+  const totalFloorsLabel = isApartment
+    ? "تعداد طبقات آپارتمان"
+    : isOffice || isCommercial
+      ? "تعداد کل طبقات"
+      : "تعداد طبقات";
+  const buildingAreaLabel = isHotel || isFactory ? "متراژ بنا" : "متراژ زیربنا";
 
   const mainItems = [
     createGridItem({
       features,
+      labels: ["land_area"],
+      label: "متراژ زمین",
+      formatter: formatAreaDetailValue,
+      icon: "area",
+    }),
+    createGridItem({
+      features,
+      labels: ["building_area"],
+      label: buildingAreaLabel,
+      formatter: formatAreaDetailValue,
+      icon: "area",
+    }),
+    createGridItem({
+      features,
       labels: ["area", "apartment_area", "unit_area", "meterage"],
-      label: "متراژ آپارتمان",
+      label: areaLabel,
       formatter: formatAreaDetailValue,
       icon: "area",
     }),
@@ -1401,14 +1520,14 @@ export function buildPropertyDetailSections(
     createGridItem({
       features,
       labels: ["building_age", "age", "construction_age"],
-      label: "سن ساخت",
+      label: ageLabel,
       formatter: formatAgeDetailValue,
       icon: "building",
     }),
     createGridItem({
       features,
       labels: ["floor", "unit_floor", "apartment_floor"],
-      label: "طبقه آپارتمان",
+      label: floorLabel,
       formatter: formatFloorDetailValue,
       icon: "building",
     }),
@@ -1438,12 +1557,12 @@ export function buildPropertyDetailSections(
     createGridItem({
       features,
       labels: ["has_document"],
-      label: "سند",
+      label: "دارای سند",
     }),
     createGridItem({
       features,
       labels: ["total_floors", "floors", "building_floors", "apartment_floors"],
-      label: "طبقات آپارتمان",
+      label: totalFloorsLabel,
       formatter: formatTotalFloorsDetailValue,
       icon: "building",
     }),
@@ -1454,11 +1573,41 @@ export function buildPropertyDetailSections(
       formatter: formatUnitsPerFloorDetailValue,
       icon: "building",
     }),
+    createGridItem({ features, labels: ["commercial_position"], label: "موقعیت تجاری" }),
+    createGridItem({ features, labels: ["office_position"], label: "موقعیت اداری" }),
+    createGridItem({ features, labels: ["office_document_type"], label: "سند اداری" }),
+    createGridItem({ features, labels: ["accommodation_type"], label: "نوع اقامتگاه" }),
+    createGridItem({ features, labels: ["hotel_stars"], label: "رتبه اقامتگاه" }),
+    createGridItem({ features, labels: ["ownership_status"], label: "وضعیت مالکیت" }),
+    createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+    createGridItem({ features, labels: ["industrial_property_type", "property_type"], label: "نوع ملک" }),
+    createGridItem({ features, labels: ["access_type", "access"], label: "دسترسی" }),
+    createGridItem({ features, labels: ["building_type", "house_building_type"], label: "نوع بنا" }),
+    createGridItem({ features, labels: ["villa_type", "house_type"], label: "تیپ بنا" }),
+    createGridItem({ features, labels: ["suitable_for"], label: "مناسب برای" }),
+    createGridItem({ features, labels: ["commercial_permit", "commercial_license"], label: "مجوز تجاری" }),
+    createGridItem({ features, labels: ["height", "ceiling_height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue }),
+    createGridItem({ features, labels: ["opening_count", "frontage_count", "openings"], label: "تعداد دهنه" }),
+    createGridItem({ features, labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue }),
+    createGridItem({ features, labels: ["kitchen_type", "kitchen_style"], label: "نوع آشپزخانه" }),
+    createGridItem({ features, labels: ["occupancy_status", "residency_status", "occupancy"], label: "وضعیت سکونت" }),
+    createGridItem({ features, labels: ["pet_policy", "pets_allowed", "pet_status"], label: "حیوان خانگی" }),
+    createGridItem({ features, labels: ["ready_delivery_date", "delivery_ready_date", "available_from"], label: "تاریخ آماده تحویل", icon: "calendar" }),
+    createGridItem({ features, labels: ["min_contract_months", "minimum_contract_months", "contract_months"], label: "حداقل مدت قرارداد", formatter: (value) => { const text = toText(value); return text ? `${text} ماه` : "-"; } }),
+    createGridItem({ features, labels: ["single_room_count"], label: "تعداد اتاق یک تخته" }),
+    createGridItem({ features, labels: ["double_room_count"], label: "تعداد اتاق دو تخته" }),
+    createGridItem({ features, labels: ["suite_count"], label: "تعداد سوییت ها" }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const buildingBadges = [
     createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
     createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+    createCheckBadge(features, ["management_room"], "اتاق مدیریت"),
+    createCheckBadge(features, ["conference_room"], "اتاق کنفرانس"),
+    createCheckBadge(features, ["reception_hall"], "سالن پذیرش"),
+    createCheckBadge(features, ["signboard"], "تابلو خور"),
+    createCheckBadge(features, ["kitchen"], "آشپزخانه"),
+    createCheckBadge(features, ["separate_entrance"], "ورودی مجزا"),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const finishItems = [
@@ -1524,33 +1673,49 @@ export function buildFacilitiesDetailSections(
 ): DetailInfoSection[] {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const facilities = getFeatureValue(features, "facilities");
+  const heatingCooling = getFeatureValue(features, "heating_cooling");
 
-  if (!Array.isArray(facilities)) {
-    return [];
+  const heatingItems = Array.isArray(heatingCooling)
+    ? heatingCooling
+        .map((item) => toText(item))
+        .filter(Boolean)
+        .map((item) => ({
+          icon: "apartment" as IconName,
+          iconSrc: getFeatureIconSrc(item),
+          label: item,
+          value: "دارد",
+          badge: true,
+          tone: "neutral" as DetailInfoTone,
+          featureIconLabel: item,
+          hideFallbackIcon: true,
+        }))
+    : [];
+
+  const facilityItems = Array.isArray(facilities)
+    ? facilities
+        .map((facility) => toText(facility))
+        .filter(Boolean)
+        .map((facility) => ({
+          icon: "apartment" as IconName,
+          iconSrc: getFeatureIconSrc(facility),
+          label: facility,
+          value: "دارد",
+          badge: true,
+          tone: "neutral" as DetailInfoTone,
+          featureIconLabel: facility,
+          hideFallbackIcon: true,
+        }))
+    : [];
+
+  const sections: DetailInfoSection[] = [];
+  if (heatingItems.length) {
+    sections.push({ title: "گرمایش و سرمایش", items: heatingItems, layout: "grid", columns: 3 });
+  }
+  if (facilityItems.length) {
+    sections.push({ title: "امکانات", items: facilityItems, layout: "grid", columns: 3 });
   }
 
-  const items = facilities
-    .map((facility) => toText(facility))
-    .filter(Boolean)
-    .map((facility) => ({
-      icon: "apartment" as IconName,
-      iconSrc: getFeatureIconSrc(facility),
-      label: facility,
-      value: "دارد",
-      badge: true,
-      tone: "neutral" as DetailInfoTone,
-      featureIconLabel: facility,
-      hideFallbackIcon: true,
-    }));
-
-  return [
-    {
-      title: "امکانات و تجهیزات",
-      items,
-      layout: "grid",
-      columns: 3,
-    },
-  ];
+  return sections;
 }
 
 function DetailInfoIcon({

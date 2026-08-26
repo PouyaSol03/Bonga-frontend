@@ -732,6 +732,9 @@ function ViewAdContent({
           <div className="mt-4 space-y-2">
             <PriceRow label={details.pricePrimaryLabel} value={details.totalPrice} />
             <PriceRow label={details.priceSecondaryLabel} value={details.pricePerMeter} />
+            {details.rentConversionPolicy ? (
+              <PriceRow label="تبدیل رهن و اجاره" value={details.rentConversionPolicy} />
+            ) : null}
           </div>
         </div>
       </section>

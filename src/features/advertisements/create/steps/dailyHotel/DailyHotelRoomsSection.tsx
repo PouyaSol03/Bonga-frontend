@@ -24,13 +24,13 @@ const editorSelectFields: Record<
   { title: string; placeholder: string; options: string[] }
 > = {
   guestCount: {
-    title: "تعداد نفر",
-    placeholder: "تعداد نفر *",
+    title: "ظرفیت استاندارد",
+    placeholder: "ظرفیت استاندارد *",
     options: dailyHotelRoomCapacityOptions,
   },
   extraGuestCount: {
-    title: "تعداد نفر اضافه",
-    placeholder: "تعداد نفر اضافه *",
+    title: "ظرفیت اضافه",
+    placeholder: "ظرفیت اضافه *",
     options: dailyHotelRoomCapacityOptions,
   },
   mealPlan: {
@@ -293,7 +293,7 @@ export function DailyHotelRoomsSection() {
       </div>
 
       {editingRoomId && draftRoom && selectedRoom ? (
-        <div className="absolute inset-0 z-50 flex flex-col bg-white" dir="rtl">
+        <div className="fixed inset-0 z-[70] flex flex-col bg-white" dir="rtl">
           <RoomEditorHeader title={selectedRoom.label} onBack={closeEditor} />
 
           <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-4 pt-6">

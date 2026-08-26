@@ -4,12 +4,10 @@ const categoryIds = [
   "apartment",
   "land",
   "villa-house",
-  "garden-villa",
   "office",
   "commercial-unit",
-  "warehouse",
-  "hotel-apartment",
   "factory-workshop",
+  "hotel-apartment",
   "daily-apartment-suite",
   "daily-garden-villa",
   "daily-hotel-apartment",
@@ -18,30 +16,122 @@ const categoryIds = [
   "project-partnership",
 ];
 
+const publishingKeys = ["advertiser_type", "published_at", "is_special", "has_image", "has_video"];
+const saleTail = ["loan_amount", "loan_installment", "has_exchange", "exchange_with", ...publishingKeys];
+const rentPrice = ["price", "mortgage_price", "rent_price", "rent_conversion_policy"];
+
+/**
+ * Mirrors the active backend advertise-form whitelist.
+ * E2E mocks intentionally stay form-specific because NewAdFlowPage uses the
+ * server-returned field keys as the multipart serialization whitelist.
+ */
 const dynamicFieldsByFormCode: Record<string, string[]> = {
-  "sale-apartment": ["area", "floor", "rooms", "building_age", "price"],
-  "sale-land": ["land_area", "land_use", "land_position", "document_type", "price"],
-  "sale-villa-house": ["land_area", "building_area", "rooms", "building_age", "price"],
-  "sale-garden-villa": ["land_area", "building_area", "rooms", "building_age", "price"],
-  "sale-office": ["area", "suitable_for", "rooms", "document_type", "price"],
-  "sale-commercial": ["area", "suitable_for", "document_type", "building_age", "price"],
-  "sale-warehouse": ["land_area", "building_area", "land_position", "suitable_for", "price"],
-  "sale-hotel": ["hotel_stars", "area", "document_type", "land_position", "building_age", "price"],
-  "sale-factory": ["land_area", "building_area", "document_type", "price"],
-  "rent-apartment": ["area", "floor", "rooms", "building_age", "mortgage_price", "rent_price"],
-  "rent-villa-house": ["land_area", "building_area", "rooms", "building_age", "mortgage_price", "rent_price"],
-  "rent-garden-villa": ["land_area", "building_area", "rooms", "building_age", "mortgage_price", "rent_price"],
-  "daily-apartment-suite": ["area", "rooms", "capacity", "extra_people_capacity", "min_price", "max_price"],
-  "daily-garden-villa": ["area", "rooms", "capacity", "extra_people_capacity", "min_price", "max_price"],
-  "daily-hotel": ["hotel_stars", "daily_hotel_rooms", "min_price", "max_price"],
-  "daily-office-booth": ["area", "rooms", "capacity", "extra_people_capacity", "min_price", "max_price"],
-  "rent-office": ["area", "floor", "rooms", "building_age", "mortgage_price", "rent_price"],
-  "rent-commercial": ["area", "floor", "rooms", "building_age", "suitable_for", "mortgage_price", "rent_price"],
-  "rent-warehouse": ["land_area", "building_area", "land_position", "ceiling_height", "suitable_for", "commercial_license", "mortgage_price", "rent_price"],
-  "rent-hotel": ["land_area", "building_area", "land_position", "building_age", "mortgage_price", "rent_price"],
-  "rent-factory-workshop": ["land_area", "building_area", "mortgage_price", "rent_price"],
-  "presale-special": ["project_total_floors", "project_total_units", "project_status", "delivery_date", "min_price", "max_price"],
-  partnership: ["partnership_type", "land_area", "construction_license", "document_type", "builder_share"],
+  "sale-apartment": [
+    "price", "area", "floor", "rooms", "building_age", "total_floors", "units_per_floor",
+    "unit_type", "unit_position", "document_type", "occupancy_status", "renovated", "furnished",
+    "kitchen_type", "facade_material", "floor_material", "cabinet_material", "heating_cooling",
+    "facilities", ...saleTail,
+  ],
+  "sale-villa-house": [
+    "price", "land_area", "building_area", "rooms", "building_age", "land_position", "building_type",
+    "villa_type", "document_type", "total_floors", "street_width", "renovated", "furnished",
+    "kitchen_type", "facade_material", "floor_material", "cabinet_material", "heating_cooling",
+    "facilities", ...saleTail,
+  ],
+  "sale-land": [
+    "price", "land_area", "document_type", "land_use", "land_position", "density", "suitable_for",
+    "land_width", "street_width", "build_permit", "facilities", ...saleTail,
+  ],
+  "sale-office": [
+    "price", "area", "floor", "rooms", "building_age", "total_floors", "suitable_for", "current_status",
+    "office_position", "office_document_type", "facade_material", "floor_material", "cabinet_material",
+    "management_room", "conference_room", "reception_hall", "signboard", "kitchen", "separate_entrance",
+    "renovated", "furnished", "heating_cooling", "facilities", ...saleTail,
+  ],
+  "sale-commercial": [
+    "price", "area", "commercial_position", "document_type", "ownership_status", "building_age", "floor",
+    "total_floors", "rooms", "opening_count", "suitable_for", "commercial_permit", "current_status",
+    "heating_cooling", "facilities", ...saleTail,
+  ],
+  "sale-factory": [
+    "price", "land_area", "land_position", "building_age", "document_type", "rooms", "building_area",
+    "height", "industrial_property_type", "access_type", "current_status", "commercial_permit",
+    "heating_cooling", "facilities", ...saleTail,
+  ],
+  "sale-hotel": [
+    "price", "accommodation_type", "hotel_stars", "land_area", "building_area", "document_type",
+    "land_position", "building_age", "total_floors", "single_room_count", "double_room_count", "suite_count",
+    "renovated", "furnished", "floor_material", "heating_cooling", "facilities", ...saleTail,
+  ],
+
+  "rent-apartment": [
+    ...rentPrice, "area", "floor", "rooms", "building_age", "suitable_for", "total_floors", "units_per_floor",
+    "unit_type", "unit_position", "occupancy_status", "ready_delivery_date", "min_contract_months", "pet_policy",
+    "renovated", "furnished", "kitchen_type", "facade_material", "floor_material", "cabinet_material",
+    "heating_cooling", "facilities", ...publishingKeys,
+  ],
+  "rent-villa-house": [
+    ...rentPrice, "land_area", "building_area", "rooms", "building_age", "suitable_for", "land_position",
+    "building_type", "villa_type", "total_floors", "street_width", "pet_policy", "renovated", "furnished",
+    "kitchen_type", "facade_material", "floor_material", "cabinet_material", "heating_cooling", "facilities",
+    ...publishingKeys,
+  ],
+  "rent-office": [
+    ...rentPrice, "area", "floor", "rooms", "building_age", "suitable_for", "office_position", "current_status",
+    "ready_delivery_date", "min_contract_months", "has_document", "office_document_type", "management_room",
+    "conference_room", "reception_hall", "signboard", "kitchen", "separate_entrance", "renovated", "furnished",
+    "facade_material", "floor_material", "cabinet_material", "heating_cooling", "facilities", ...publishingKeys,
+  ],
+  "rent-commercial": [
+    ...rentPrice, "area", "commercial_position", "building_age", "floor", "rooms", "opening_count", "height",
+    "suitable_for", "current_status", "ready_delivery_date", "min_contract_months", "heating_cooling", "facilities",
+    ...publishingKeys,
+  ],
+  "rent-factory-workshop": [
+    ...rentPrice, "land_area", "building_area", "land_position", "building_age", "rooms", "height",
+    "industrial_property_type", "access_type", "current_status", "commercial_permit", "ready_delivery_date",
+    "min_contract_months", "heating_cooling", "facilities", ...publishingKeys,
+  ],
+  "rent-hotel": [
+    ...rentPrice, "accommodation_type", "hotel_stars", "land_area", "building_area", "building_age", "land_position",
+    "total_floors", "single_room_count", "double_room_count", "suite_count", "renovated", "furnished",
+    "floor_material", "heating_cooling", "facilities", ...publishingKeys,
+  ],
+
+  "daily-apartment-suite": [
+    "price", "accommodation_type", "area", "rooms", "capacity", "extra_people_capacity", "floor", "rental_period",
+    "check_in_time", "check_out_time", "min_stay_days", "evacuation_guarantee", "pet_policy", "furnished",
+    "heating_cooling", "facilities", "min_price", "max_price", "normal_daily_price", "weekend_daily_price",
+    "special_daily_price", "extra_person_price", ...publishingKeys,
+  ],
+  "daily-garden-villa": [
+    "price", "land_area", "building_area", "rooms", "capacity", "extra_people_capacity", "view_type", "villa_type",
+    "rental_period", "check_in_time", "check_out_time", "min_stay_days", "evacuation_guarantee", "pet_policy",
+    "furnished", "heating_cooling", "facilities", "min_price", "max_price", "normal_daily_price",
+    "weekend_daily_price", "special_daily_price", "extra_person_price", ...publishingKeys,
+  ],
+  "daily-hotel": [
+    "price", "accommodation_type", "hotel_stars", "rental_period", "min_stay_days", "check_in_time", "check_out_time",
+    "pet_policy", "daily_hotel_rooms", "heating_cooling", "facilities", "min_price", "max_price", ...publishingKeys,
+  ],
+  "daily-office-booth": [
+    "price", "space_type", "area", "rooms", "capacity", "extra_people_capacity", "floor", "rental_period",
+    "check_in_time", "check_out_time", "min_stay_days", "evacuation_guarantee", "heating_cooling", "facilities",
+    "min_price", "max_price", "normal_daily_price", "weekend_daily_price", "special_daily_price", "extra_person_price",
+    ...publishingKeys,
+  ],
+
+  "presale-special": [
+    "price", "builder_company_name", "project_type", "project_total_floors", "project_total_units", "document_type",
+    "project_status", "delivery_date", "kitchen_type", "facade_material", "floor_material", "cabinet_material",
+    "furnished", "project_details", "heating_cooling", "facilities", "min_meter_price", "max_meter_price",
+    "installment_sale", "sale_terms_percent", "sale_terms_installment_months", "has_exchange", "exchange_with",
+    ...publishingKeys,
+  ],
+  partnership: [
+    "partnership_type", "current_status", "land_area", "land_position", "build_permit", "document_type", "land_width",
+    "street_width", "builder_share", ...publishingKeys,
+  ],
 };
 
 function json(route: Route, body: unknown) {

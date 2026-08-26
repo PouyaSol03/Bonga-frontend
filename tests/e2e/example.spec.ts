@@ -1,18 +1,40 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+async function seedLocalAppState(page: import("@playwright/test").Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("bonga-selected-city", "مشهد");
+    window.localStorage.setItem("bonga-selected-city-id", "000000000000000000000101");
+    window.localStorage.setItem(
+      "bonga-auth-session",
+      JSON.stringify({
+        accessToken: "playwright-smoke-token",
+        accountType: "user",
+        activeRole: "user",
+        expiresAt: Date.now() + 60 * 60 * 1000,
+        mobile: "09120000000",
+        role: "user",
+        roles: [{ id: "user", name: "کاربر", slug: "user" }],
+      }),
+    );
+  });
+}
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
+test.describe("local app smoke", () => {
+  test.beforeEach(async ({ page }) => {
+    await seedLocalAppState(page);
+  });
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+  test("new-ad category shell opens on the local app", async ({ page }) => {
+    await page.goto("/new-ad/category");
+    await expect(page.getByRole("tablist", { name: "نوع معامله" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "ادامه", exact: true })).toBeDisabled();
+  });
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  test("transaction tabs switch without an external website dependency", async ({ page }) => {
+    await page.goto("/new-ad/category");
+    const rent = page.getByRole("tab", { name: "اجاره", exact: true });
+    await rent.click();
+    await expect(rent).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByText("روزانه", { exact: true })).toBeVisible();
+  });
 });

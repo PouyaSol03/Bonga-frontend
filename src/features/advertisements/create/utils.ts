@@ -9,6 +9,32 @@ import {
   facilityItems,
   heatingItems,
   landFacilityItems,
+  saleApartmentFacilityItems,
+  saleApartmentHeatingItems,
+  saleLandFacilityItems,
+  saleCommercialFacilityItems,
+  saleCommercialHeatingItems,
+  saleFactoryFacilityItems,
+  saleFactoryHeatingItems,
+  saleOfficeFacilityItems,
+  saleOfficeHeatingItems,
+  saleHotelFacilityItems,
+  saleHotelHeatingItems,
+  saleVillaHouseFacilityItems,
+  saleVillaHouseHeatingItems,
+  rentApartmentFacilityItems,
+  rentCommercialFacilityItems,
+  rentFactoryFacilityItems,
+  rentVillaHouseFacilityItems,
+  rentOfficeFacilityItems,
+  rentHotelFacilityItems,
+  rentHeatingItems,
+  dailyRentHeatingItems,
+  dailyStayFacilityItems,
+  dailyHotelFacilityItems,
+  dailyWorkspaceFacilityItems,
+  projectFacilityItems,
+  projectHeatingItems,
   locationKey,
   locationLatKey,
   locationLngKey,
@@ -44,6 +70,8 @@ export function getMoreFeatureFields() {
 
 export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValues {
   return {
+    age: values.age,
+    buildingArea: values.buildingArea,
     floor: values.floor,
     rooms: values.rooms,
     totalFloors: values.totalFloors,
@@ -51,13 +79,44 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     unitType: values.unitType,
     unitPosition: values.unitPosition,
     documentType: values.documentType,
+    usageType: values.usageType,
+    suitableFor: values.suitableFor,
+    occupancyStatus: values.occupancyStatus,
+    kitchenType: values.kitchenType,
+    petPolicy: values.petPolicy,
+    readyDeliveryDate: values.readyDeliveryDate,
+    projectDeliveryDate: values.projectDeliveryDate,
+    projectStatus: values.projectStatus,
+    minContractMonths: values.minContractMonths,
+    rentalPeriod: values.rentalPeriod,
+    viewType: values.viewType,
+    checkInTime: values.checkInTime,
+    checkOutTime: values.checkOutTime,
+    minStayDays: values.minStayDays,
+    evacuationGuarantee: values.evacuationGuarantee,
+    extraPeopleCapacity: values.extraPeopleCapacity,
     renovated: values.renovated,
     furnished: values.furnished,
     facadeMaterial: values.facadeMaterial,
     floorMaterial: values.floorMaterial,
     cabinetMaterial: values.cabinetMaterial,
     landPosition: values.landPosition,
+    buildingType: values.buildingType,
     villaType: values.villaType,
+    commercialPosition: values.commercialPosition,
+    ownershipStatus: values.ownershipStatus,
+    currentStatus: values.currentStatus,
+    industrialPropertyType: values.industrialPropertyType,
+    accessType: values.accessType,
+    officePosition: values.officePosition,
+    officeDocumentType: values.officeDocumentType,
+    hasDocument: values.hasDocument,
+    managementRoom: values.managementRoom,
+    conferenceRoom: values.conferenceRoom,
+    receptionHall: values.receptionHall,
+    signboard: values.signboard,
+    kitchen: values.kitchen,
+    separateEntrance: values.separateEntrance,
     density: values.density,
     landWidth: values.landWidth,
     streetWidth: values.streetWidth,
@@ -268,8 +327,8 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
   };
 }
 
-function normalizeDigits(value: string) {
-  return value
+function normalizeDigits(value: unknown) {
+  return String(value ?? "")
     .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
     .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
 }
@@ -292,15 +351,25 @@ export function normalizeUnitsPerFloorValue(value: unknown) {
 
 export function formatUnitsPerFloorLabel(value: unknown) {
   const normalized = normalizeUnitsPerFloorValue(value);
+  const labelsByValue: Record<string, string> = {
+    "۱": "تک واحدی",
+    "۲": "دو واحدی",
+    "۳": "سه واحدی",
+    "۴": "چهار واحدی",
+    "۵": "پنج واحدی",
+    "۶": "شش واحدی",
+    "۷": "هفت واحدی",
+    "۸": "هشت واحد بیشتر",
+  };
 
-  return normalized ? `${normalized} واحد` : "";
+  return normalized ? labelsByValue[normalized] ?? `${normalized} واحد` : "";
 }
 
-export function normalizeNumberInput(value: string) {
+export function normalizeNumberInput(value: unknown) {
   return normalizeDigits(value).replace(/[^\d,]/g, "");
 }
 
-function toNumber(value: string) {
+function toNumber(value: unknown) {
   const normalized = normalizeDigits(value).replace(/,/g, "");
   const number = Number(normalized);
   return Number.isFinite(number) && normalized ? number : null;
@@ -366,7 +435,39 @@ function buildDailyHotelRoomFeatures(values: NewAdFormValues) {
     .filter((room) => Object.values(room).some((value) => hasFeatureValue(value)));
 }
 
-function getFacilityItemsForCategory(category: string) {
+function getHeatingItemsForListing(transaction: string, category: string) {
+  if (transaction === "project" && category === "project-presale") return projectHeatingItems;
+  if (transaction === "sale" && category === "apartment") return saleApartmentHeatingItems;
+  if (transaction === "sale" && category === "villa-house") return saleVillaHouseHeatingItems;
+  if (transaction === "sale" && category === "office") return saleOfficeHeatingItems;
+  if (transaction === "sale" && category === "commercial-unit") return saleCommercialHeatingItems;
+  if (transaction === "sale" && category === "factory-workshop") return saleFactoryHeatingItems;
+  if (transaction === "sale" && category === "hotel-apartment") return saleHotelHeatingItems;
+  if (transaction === "rent" && category.startsWith("daily-")) return dailyRentHeatingItems;
+  if (transaction === "rent" && ["apartment", "villa-house", "office", "commercial-unit", "factory-workshop", "hotel-apartment"].includes(category)) return rentHeatingItems;
+
+  return heatingItems;
+}
+
+function getFacilityItemsForListing(transaction: string, category: string) {
+  if (transaction === "project" && category === "project-presale") return projectFacilityItems;
+  if (transaction === "sale" && category === "apartment") return saleApartmentFacilityItems;
+  if (transaction === "sale" && category === "villa-house") return saleVillaHouseFacilityItems;
+  if (transaction === "sale" && category === "land") return saleLandFacilityItems;
+  if (transaction === "sale" && category === "office") return saleOfficeFacilityItems;
+  if (transaction === "sale" && category === "commercial-unit") return saleCommercialFacilityItems;
+  if (transaction === "sale" && category === "factory-workshop") return saleFactoryFacilityItems;
+  if (transaction === "sale" && category === "hotel-apartment") return saleHotelFacilityItems;
+  if (transaction === "rent" && category === "apartment") return rentApartmentFacilityItems;
+  if (transaction === "rent" && category === "villa-house") return rentVillaHouseFacilityItems;
+  if (transaction === "rent" && category === "office") return rentOfficeFacilityItems;
+  if (transaction === "rent" && category === "commercial-unit") return rentCommercialFacilityItems;
+  if (transaction === "rent" && category === "factory-workshop") return rentFactoryFacilityItems;
+  if (transaction === "rent" && category === "hotel-apartment") return rentHotelFacilityItems;
+  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category)) return dailyStayFacilityItems;
+  if (transaction === "rent" && category === "daily-hotel-apartment") return dailyHotelFacilityItems;
+  if (transaction === "rent" && category === "daily-workspace") return dailyWorkspaceFacilityItems;
+
   return category === "land" || category === "factory-workshop"
     ? landFacilityItems
     : facilityItems;
@@ -419,10 +520,11 @@ export function buildPayload(values: NewAdFormValues) {
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const isSaleApartment = isSale && params.category === "apartment";
-  const hideHeatingCooling = isPartnership || params.category === "land" || params.category === "factory-workshop";
-  const featureItemsForCategory = getFacilityItemsForCategory(params.category);
+  const hideHeatingCooling = isPartnership || params.category === "land";
+  const heatingItemsForListing = getHeatingItemsForListing(params.transaction, params.category);
+  const featureItemsForCategory = getFacilityItemsForListing(params.transaction, params.category);
   const features: NewAdFeature[] = [];
-  const heatingCooling = hideHeatingCooling ? [] : labels(heatingItems, values.heatingCooling);
+  const heatingCooling = hideHeatingCooling ? [] : labels(heatingItemsForListing, values.heatingCooling);
   const facilities = isPartnership ? [] : labels(featureItemsForCategory, values.facilities);
   const extraSpecs = labels(propertySpecs, values.selectedSpecs);
 
@@ -445,30 +547,61 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "land_position", values.landPosition);
   addFeature(features, "suitable_for", values.suitableFor);
   addFeature(features, "hotel_stars", values.hotelStars);
+  addFeature(features, "accommodation_type", values.accommodationType);
   addFeature(features, "standard_capacity", values.standardCapacity);
   addFeature(features, "extra_people_capacity", values.extraPeopleCapacity);
+  addFeature(features, "space_type", values.spaceType);
+  addFeature(features, "rental_period", values.rentalPeriod);
+  addFeature(features, "view_type", values.viewType);
+  addFeature(features, "check_in_time", values.checkInTime);
+  addFeature(features, "check_out_time", values.checkOutTime);
+  addFeature(features, "min_stay_days", toNumber(values.minStayDays));
+  addFeature(features, "evacuation_guarantee", toNumber(values.evacuationGuarantee));
   addFeature(features, "commercial_permit", values.commercialLicense || (values.commercialPermit ? "دارد" : ""));
   addFeature(features, "build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
+  addFeature(features, "builder_company_name", values.builderCompanyName);
+  addFeature(features, "project_type", values.projectType);
 
   if (!isRent) {
     addFeature(features, "document_type", values.documentType);
   }
 
   addFeature(features, "total_floors", toNumber(pickFirstNumber(values.totalFloors)));
-  if (isSaleApartment) {
+  if (params.category === "apartment" && (params.transaction === "sale" || params.transaction === "rent")) {
     addFeature(features, "unit_per_floor", toUnitsPerFloorNumber(values.unitsPerFloor));
   }
   addFeature(features, "unit_type", values.unitType);
   addFeature(features, "unit_direction", values.unitPosition);
+  addFeature(features, "occupancy_status", values.occupancyStatus);
+  addFeature(features, "kitchen_type", values.kitchenType);
+  addFeature(features, "pet_policy", values.petPolicy);
+  addFeature(features, "ready_delivery_date", values.readyDeliveryDate);
+  addFeature(features, "min_contract_months", toNumber(values.minContractMonths));
   addFeature(features, "renovated", values.renovated);
   addFeature(features, "furnished", values.furnished);
   addFeature(features, "facade_material", values.facadeMaterial);
   addFeature(features, "floor_material", values.floorMaterial);
   addFeature(features, "cabinet_material", values.cabinetMaterial);
+  addFeature(features, "building_type", values.buildingType);
   addFeature(features, "villa_type", values.villaType);
+  addFeature(features, "commercial_position", values.commercialPosition);
+  addFeature(features, "ownership_status", values.ownershipStatus);
+  addFeature(features, "current_status", values.currentStatus);
+  addFeature(features, "industrial_property_type", values.industrialPropertyType);
+  addFeature(features, "access_type", values.accessType);
+  addFeature(features, "office_position", values.officePosition);
+  addFeature(features, "office_document_type", values.officeDocumentType);
+  addFeature(features, "has_document", values.hasDocument || Boolean(values.documentType || values.officeDocumentType));
+  addFeature(features, "management_room", values.managementRoom);
+  addFeature(features, "conference_room", values.conferenceRoom);
+  addFeature(features, "reception_hall", values.receptionHall);
+  addFeature(features, "signboard", values.signboard);
+  addFeature(features, "kitchen", values.kitchen);
+  addFeature(features, "separate_entrance", values.separateEntrance);
   addFeature(features, "land_width", toNumber(values.landWidth));
   addFeature(features, "street_width", toNumber(values.streetWidth));
   addFeature(features, "ceiling_height", toNumber(values.ceilingHeight));
+  addFeature(features, "opening_count", toNumber(values.openingCount));
   addFeature(features, "single_room_count", toNumber(pickFirstNumber(values.singleRoomCount)));
   addFeature(features, "double_room_count", toNumber(pickFirstNumber(values.doubleRoomCount)));
   addFeature(features, "suite_count", toNumber(pickFirstNumber(values.suiteCount)));
@@ -484,13 +617,25 @@ export function buildPayload(values: NewAdFormValues) {
   if (isDailyRent) {
     addFeature(features, "min_price", toNumber(values.minPrice));
     addFeature(features, "max_price", toNumber(values.maxPrice));
+    if (params.category === "daily-hotel-apartment") {
+      addFeature(features, "min_meter_price", toNumber(values.minPrice));
+      addFeature(features, "max_meter_price", toNumber(values.maxPrice));
+    } else {
+      addFeature(features, "normal_daily_price", toNumber(values.normalDailyPrice));
+      addFeature(features, "weekend_daily_price", toNumber(values.weekendDailyPrice));
+      addFeature(features, "special_daily_price", toNumber(values.specialDailyPrice));
+      addFeature(features, "extra_person_price", toNumber(values.extraPersonPrice));
+    }
   } else if (isRent) {
     addFeature(features, "mortgage_price", toNumber(values.mortgagePrice));
     addFeature(features, "rent_price", toNumber(values.rentPrice));
+    addFeature(features, "rent_conversion_policy", values.rentConversionPolicy);
   } else if (isProject) {
     if (!isPartnership) {
       addFeature(features, "min_price", toNumber(values.minPrice));
       addFeature(features, "max_price", toNumber(values.maxPrice));
+      addFeature(features, "min_meter_price", toNumber(values.minPrice));
+      addFeature(features, "max_meter_price", toNumber(values.maxPrice));
     }
   } else {
     addFeature(features, "price", toNumber(values.price));
@@ -498,8 +643,9 @@ export function buildPayload(values: NewAdFormValues) {
 
   addFeature(features, "loan_amount", isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanAmount) : null);
   addFeature(features, "loan_installment", isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanInstallment) : null);
-  addFeature(features, "has_exchange", isSale && values.exchangeEnabled);
-  addFeature(features, "exchange_with", isSale && values.exchangeEnabled ? values.exchangeTargets : []);
+  const exchangeAllowed = isSale || (isProject && !isPartnership);
+  addFeature(features, "has_exchange", exchangeAllowed && values.exchangeEnabled);
+  addFeature(features, "exchange_with", exchangeAllowed && values.exchangeEnabled ? values.exchangeTargets : []);
 
   addFeature(features, "has_image", values.photos.length > 0);
   addFeature(features, "has_video", values.hasVideo);
@@ -559,8 +705,14 @@ export function buildNewAdFormData(
   const formCode =
     options.formCode?.trim() ||
     getAdvertiseFormCode(params.transaction, params.category);
-  const heatingCooling = labels(heatingItems, values.heatingCooling);
-  const facilities = labels(getFacilityItemsForCategory(params.category), values.facilities);
+  const heatingCooling = labels(
+    getHeatingItemsForListing(params.transaction, params.category),
+    values.heatingCooling,
+  );
+  const facilities = labels(
+    getFacilityItemsForListing(params.transaction, params.category),
+    values.facilities,
+  );
   const extraSpecs = labels(propertySpecs, values.selectedSpecs);
   const contactTypes = [
     values.chatEnabled ? "chat" : null,
@@ -658,11 +810,20 @@ export function buildNewAdFormData(
   appendDynamicValue("price", getPriceValue(values, params.transaction, params.category));
   appendDynamicValue("rent_price", toNumber(values.rentPrice));
   appendDynamicValue("mortgage_price", toNumber(values.mortgagePrice));
+  appendDynamicAliasValue(["rent_conversion_policy", "rent_convertibility", "conversion_policy"], values.rentConversionPolicy);
   // Updated daily forms use min/max. Keep daily_price only when the server form still exposes it.
   appendDynamicValue("daily_price", toNumber(values.minPrice));
   appendDynamicValue("meter_price", toNumber(values.minPrice));
   appendDynamicValue("min_price", toNumber(values.minPrice));
   appendDynamicValue("max_price", toNumber(values.maxPrice));
+  appendDynamicValue("min_meter_price", toNumber(values.minPrice));
+  appendDynamicValue("max_meter_price", toNumber(values.maxPrice));
+  appendDynamicValue("normal_daily_price", toNumber(values.normalDailyPrice));
+  appendDynamicValue("weekend_daily_price", toNumber(values.weekendDailyPrice));
+  appendDynamicValue("special_daily_price", toNumber(values.specialDailyPrice));
+  appendDynamicValue("extra_person_price", toNumber(values.extraPersonPrice));
+  appendDynamicAliasValue(["builder_company_name", "builder_name", "developer_name"], values.builderCompanyName);
+  appendDynamicValue("project_type", values.projectType);
   appendDynamicValue("project_total_floors", toNumber(values.projectTotalFloors));
   appendDynamicValue("project_total_units", toNumber(values.projectTotalUnits));
   appendDynamicValue("delivery_date", values.projectDeliveryDate);
@@ -670,16 +831,24 @@ export function buildNewAdFormData(
   appendDynamicValue("rooms", values.rooms);
   appendDynamicValue("floor", values.floor);
   appendDynamicValue("hotel_stars", values.hotelStars);
+  appendDynamicValue("accommodation_type", values.accommodationType);
+  appendDynamicValue("space_type", values.spaceType);
   appendDynamicValue("capacity", toNumber(pickFirstNumber(values.standardCapacity)));
   appendDynamicValue("extra_people_capacity", toNumber(pickFirstNumber(values.extraPeopleCapacity)));
+  appendDynamicValue("rental_period", values.rentalPeriod);
+  appendDynamicValue("view_type", values.viewType);
+  appendDynamicValue("check_in_time", values.checkInTime);
+  appendDynamicValue("check_out_time", values.checkOutTime);
+  appendDynamicValue("min_stay_days", toNumber(values.minStayDays));
+  appendDynamicValue("evacuation_guarantee", toNumber(values.evacuationGuarantee));
   appendDynamicValue("renovated", values.renovated);
   appendDynamicValue("furnished", values.furnished);
   appendDynamicValue("loan_amount", values.loanEnabled ? toNumber(values.loanAmount) : null);
   appendDynamicValue("loan_installment", values.loanEnabled ? toNumber(values.loanInstallment) : null);
-  appendDynamicValue("has_document", Boolean(values.documentType));
+  appendDynamicValue("has_document", values.hasDocument || Boolean(values.documentType || values.officeDocumentType));
   appendDynamicValue("document_type", values.documentType);
   appendDynamicValue("total_floors", toNumber(pickFirstNumber(values.totalFloors)));
-  if (params.transaction === "sale" && params.category === "apartment") {
+  if (params.category === "apartment" && (params.transaction === "sale" || params.transaction === "rent")) {
     appendDynamicAliasValue(
       ["units_per_floor", "unit_per_floor"],
       toUnitsPerFloorNumber(values.unitsPerFloor),
@@ -687,6 +856,11 @@ export function buildNewAdFormData(
   }
   appendDynamicValue("unit_type", values.unitType);
   appendDynamicValue("unit_position", values.unitPosition);
+  appendDynamicAliasValue(["occupancy_status", "residency_status", "occupancy"], values.occupancyStatus);
+  appendDynamicAliasValue(["kitchen_type", "kitchen_style"], values.kitchenType);
+  appendDynamicAliasValue(["pet_policy", "pets_allowed", "pet_status"], values.petPolicy);
+  appendDynamicAliasValue(["ready_delivery_date", "delivery_ready_date", "available_from"], values.readyDeliveryDate);
+  appendDynamicAliasValue(["min_contract_months", "minimum_contract_months", "contract_months"], toNumber(values.minContractMonths));
   appendDynamicValue(
     "density",
     params.transaction === "sale" && params.category === "land"
@@ -695,9 +869,24 @@ export function buildNewAdFormData(
   );
   appendDynamicValue("land_use", values.usageType);
   appendDynamicValue("land_position", values.landPosition);
+  appendDynamicAliasValue(["building_type", "house_building_type"], values.buildingType);
   appendDynamicValue("house_type", values.villaType);
   appendDynamicValue("villa_type", values.villaType);
+  appendDynamicValue("commercial_position", values.commercialPosition);
+  appendDynamicValue("ownership_status", values.ownershipStatus);
+  appendDynamicValue("current_status", values.currentStatus);
+  appendDynamicValue("industrial_property_type", values.industrialPropertyType);
+  appendDynamicValue("access_type", values.accessType);
+  appendDynamicValue("office_position", values.officePosition);
+  appendDynamicValue("office_document_type", values.officeDocumentType);
+  appendDynamicValue("management_room", values.managementRoom);
+  appendDynamicValue("conference_room", values.conferenceRoom);
+  appendDynamicValue("reception_hall", values.receptionHall);
+  appendDynamicValue("signboard", values.signboard);
+  appendDynamicValue("kitchen", values.kitchen);
+  appendDynamicValue("separate_entrance", values.separateEntrance);
   appendDynamicValue("height", toNumber(values.ceilingHeight));
+  appendDynamicAliasValue(["opening_count", "frontage_count", "openings"], toNumber(values.openingCount));
   appendDynamicValue("facade_material", values.facadeMaterial);
   appendDynamicValue("floor_material", values.floorMaterial);
   appendDynamicValue("cabinet_material", values.cabinetMaterial);
@@ -735,6 +924,7 @@ export function buildNewAdFormData(
   appendDynamicArray("suitable_for", values.suitableFor ? [values.suitableFor] : []);
   appendDynamicArray("heating_cooling", heatingCooling);
   appendDynamicArray("facilities", facilities);
+  appendDynamicValue("has_exchange", values.exchangeEnabled);
   appendDynamicArray("exchange_with", values.exchangeEnabled ? values.exchangeTargets : []);
 
   appendDynamicJson("project_details", buildProjectDetailFeatures(values));

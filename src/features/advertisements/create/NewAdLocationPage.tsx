@@ -559,7 +559,7 @@ export function NewAdLocationPage() {
   return (
     <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
     <PageFrame className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
-      <Header title="موقعیت ملک" />
+      <Header title="موقعیت آگهی" />
       <main className="relative min-h-0 flex-1 overflow-hidden bg-[#e9eef2]">
         <MapContainer
           attributionControl={false}

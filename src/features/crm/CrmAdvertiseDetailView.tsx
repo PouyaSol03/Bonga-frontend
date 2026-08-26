@@ -96,6 +96,8 @@ const featureLabelMap: Record<string, string> = {
   has_document: "سند",
   has_loan: "وام",
   heating_cooling: "سرمایش و گرمایش",
+  occupancy_status: "وضعیت سکونت",
+  kitchen_type: "نوع آشپزخانه",
   height: "ارتفاع سقف",
   hotel_stars: "رتبه هتل",
   land_area: "متراژ زمین",

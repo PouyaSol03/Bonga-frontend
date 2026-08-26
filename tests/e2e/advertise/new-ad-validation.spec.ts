@@ -41,7 +41,7 @@ test.describe("new ad validation", () => {
 
     await expect(page.getByText("لطفا متراژ آپارتمان را وارد کنید.", { exact: true })).toBeVisible();
     await expect(page.getByText("لطفا طبقه را وارد کنید.", { exact: true })).toBeVisible();
-    await expect(page.getByText("لطفا تعداد اتاق ها را وارد کنید.", { exact: true })).toBeVisible();
+    await expect(page.getByText("لطفا تعداد اتاق را وارد کنید.", { exact: true })).toBeVisible();
     await expect(page.getByText("لطفا سن ساخت را وارد کنید.", { exact: true })).toBeVisible();
     await expect(page.getByText("لطفا قیمت آگهی را وارد کنید.", { exact: true })).toBeVisible();
   });

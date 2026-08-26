@@ -20,6 +20,7 @@ import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../../shared/ui/Typography";
 import LinearInformation from "../../../../shared/icons/LinearInformation";
 import LinearImage from "../../../../shared/icons/LinearImage";
+import LinearMoney from "../../../../shared/icons/LinearMoney";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 
 export function Header({
@@ -72,6 +73,8 @@ export function Section({
         <div className="flex min-w-0 items-center gap-2">
           {icon === "image.svg" ? (
             <LinearImage className="h-6 w-6 text-on-surface-var" />
+          ) : icon === "money.svg" ? (
+            <LinearMoney className="h-6 w-6 text-on-surface-var" />
           ) : (
             <LinearInformation className="h-6 w-6 text-on-surface-var" />
           )}
@@ -121,6 +124,7 @@ export function InputBox({
   onChange,
   placeholder,
   supportingText,
+  type = "text",
   value,
 }: {
   error?: string;
@@ -133,6 +137,7 @@ export function InputBox({
   onChange: (value: string) => void;
   placeholder: string;
   supportingText?: string;
+  type?: "text" | "time";
   value: string;
 }) {
   const hasValue = Boolean(value);
@@ -160,6 +165,7 @@ export function InputBox({
       onClear={() => onChange("")}
       placeholder={hasValue ? "" : placeholder}
       supportingText={supportingText}
+      type={type}
       value={displayValue}
     />
   );
@@ -258,12 +264,14 @@ export function Chip({
 
 export function SwitchButton({
   checked,
+  disabled = false,
   onChange,
 }: {
   checked: boolean;
+  disabled?: boolean;
   onChange: (checked: boolean) => void;
 }) {
-  return <Switch checked={checked} onChange={onChange} />;
+  return <Switch checked={checked} disabled={disabled} onChange={onChange} />;
 }
 
 export function Toggle({

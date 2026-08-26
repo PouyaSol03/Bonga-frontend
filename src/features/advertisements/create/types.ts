@@ -46,7 +46,12 @@ export type BasicPropertyFieldKey =
   | "ceilingHeight"
   | "commercialLicense"
   | "constructionLicense"
-  | "participationType";
+  | "participationType"
+  | "commercialPosition"
+  | "ownershipStatus"
+  | "currentStatus"
+  | "accommodationType"
+  | "spaceType";
 
 export type BasicPropertySelectKey =
   | "floor"
@@ -61,7 +66,12 @@ export type BasicPropertySelectKey =
   | "extraPeopleCapacity"
   | "commercialLicense"
   | "constructionLicense"
-  | "participationType";
+  | "participationType"
+  | "commercialPosition"
+  | "ownershipStatus"
+  | "currentStatus"
+  | "accommodationType"
+  | "spaceType";
 
 export type BasicPropertyField = {
   key: BasicPropertyFieldKey;
@@ -76,6 +86,7 @@ export type BasicPropertyField = {
 /* ----------------------------- More Features ----------------------------- */
 
 export type MoreFeatureSelectKey =
+  | "age"
   | "floor"
   | "rooms"
   | "totalFloors"
@@ -83,43 +94,92 @@ export type MoreFeatureSelectKey =
   | "unitType"
   | "unitPosition"
   | "documentType"
+  | "usageType"
+  | "suitableFor"
+  | "occupancyStatus"
+  | "kitchenType"
   | "facadeMaterial"
   | "floorMaterial"
   | "cabinetMaterial"
   | "landPosition"
+  | "buildingType"
   | "villaType"
+  | "commercialPosition"
+  | "ownershipStatus"
+  | "currentStatus"
+  | "industrialPropertyType"
+  | "accessType"
+  | "officePosition"
+  | "officeDocumentType"
+  | "petPolicy"
   | "density"
   | "commercialLicense"
   | "singleRoomCount"
   | "doubleRoomCount"
-  | "suiteCount";
+  | "suiteCount"
+  | "extraPeopleCapacity"
+  | "rentalPeriod"
+  | "viewType"
+  | "openingCount"
+  | "projectStatus";
 
 export type MoreFeatureNumberKey =
+  | "buildingArea"
   | "landWidth"
   | "streetWidth"
-  | "ceilingHeight";
+  | "ceilingHeight"
+  | "minContractMonths"
+  | "minStayDays"
+  | "evacuationGuarantee";
+
+export type MoreFeatureDateKey = "readyDeliveryDate" | "projectDeliveryDate";
+
+export type MoreFeatureTimeKey = "checkInTime" | "checkOutTime";
 
 export type MoreFeatureToggleKey =
   | "renovated"
   | "furnished"
   | "constructionPermit"
-  | "commercialPermit";
+  | "commercialPermit"
+  | "managementRoom"
+  | "conferenceRoom"
+  | "receptionHall"
+  | "signboard"
+  | "kitchen"
+  | "separateEntrance"
+  | "hasDocument";
 
 export type MoreFeatureFormKey =
   | MoreFeatureSelectKey
   | MoreFeatureNumberKey
+  | MoreFeatureDateKey
+  | MoreFeatureTimeKey
   | MoreFeatureToggleKey;
 
 export type MoreFeatureField = {
   key: MoreFeatureFormKey;
   label: string;
-  control: "select" | "number" | "toggle";
+  control: "select" | "number" | "date" | "time" | "toggle";
   leftText?: string;
+  options?: string[];
 };
 
 /* -------------------------------- Project -------------------------------- */
 
-export type ProjectSelectKey = "projectStatus";
+export type ProjectSelectKey =
+  | "projectStatus"
+  | "projectType"
+  | "documentType"
+  | "kitchenType"
+  | "facadeMaterial"
+  | "floorMaterial"
+  | "cabinetMaterial"
+  | "participationType"
+  | "currentStatus"
+  | "landPosition"
+  | "constructionLicense"
+  | "projectTotalFloors"
+  | "projectTotalUnits";
 
 export type ProjectDetailItem = {
   id: string;
@@ -156,7 +216,10 @@ export type DailyHotelRoomConfigKey = keyof DailyHotelRoomConfig;
 
 export type SelectKey =
   | BasicPropertySelectKey
-  | ProjectSelectKey;
+  | ProjectSelectKey
+  | MoreFeatureSelectKey
+  | MoreFeatureTimeKey
+  | "rentConversionPolicy";
 
 export type SheetState =
   | {
@@ -194,11 +257,15 @@ export type NewAdFormValues = {
   documentType: string;
   suitableFor: string;
   hotelStars: string;
+  accommodationType: string;
+  spaceType: string;
   standardCapacity: string;
   extraPeopleCapacity: string;
   commercialLicense: string;
   constructionLicense: string;
   participationType: string;
+  builderCompanyName: string;
+  projectType: string;
 
   projectTotalFloors: string;
   projectTotalUnits: string;
@@ -215,17 +282,44 @@ export type NewAdFormValues = {
   unitsPerFloor: string;
   unitType: string;
   unitPosition: string;
+  occupancyStatus: string;
+  kitchenType: string;
+  petPolicy: string;
+  readyDeliveryDate: string;
+  minContractMonths: string;
+  rentalPeriod: string;
+  viewType: string;
+  checkInTime: string;
+  checkOutTime: string;
+  minStayDays: string;
+  evacuationGuarantee: string;
   renovated: boolean;
   furnished: boolean;
   facadeMaterial: string;
   floorMaterial: string;
   cabinetMaterial: string;
+  buildingType: string;
   villaType: string;
+  commercialPosition: string;
+  ownershipStatus: string;
+  currentStatus: string;
+  industrialPropertyType: string;
+  accessType: string;
+  officePosition: string;
+  officeDocumentType: string;
+  hasDocument: boolean;
+  managementRoom: boolean;
+  conferenceRoom: boolean;
+  receptionHall: boolean;
+  signboard: boolean;
+  kitchen: boolean;
+  separateEntrance: boolean;
   landWidth: string;
   streetWidth: string;
   constructionPermit: boolean;
   commercialPermit: boolean;
   ceilingHeight: string;
+  openingCount: string;
   singleRoomCount: string;
   doubleRoomCount: string;
   suiteCount: string;
@@ -238,8 +332,15 @@ export type NewAdFormValues = {
   price: string;
   mortgagePrice: string;
   rentPrice: string;
+  rentConversionEnabled: boolean;
+  rentConversionMortgagePrice: string;
+  rentConversionPolicy: string;
   minPrice: string;
   maxPrice: string;
+  normalDailyPrice: string;
+  weekendDailyPrice: string;
+  specialDailyPrice: string;
+  extraPersonPrice: string;
   loanEnabled: boolean;
   loanAmount: string;
   loanInstallment: string;

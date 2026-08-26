@@ -424,6 +424,7 @@ export type AdvertisementSearchFilters = {
   publishedAt?: string;
   query?: string;
   rooms?: string;
+  featureFilters?: Record<string, boolean | number | string>;
 };
 
 export type AdvertisementPage = {
@@ -489,6 +490,7 @@ function buildAdvertiseSearchParams(filters?: AdvertisementSearchFilters) {
     published_at: filters.publishedAt,
     query: filters.query,
     rooms: filters.rooms,
+    ...(filters.featureFilters ?? {}),
   });
 }
 

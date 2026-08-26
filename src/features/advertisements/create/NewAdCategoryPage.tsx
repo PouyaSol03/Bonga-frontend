@@ -30,30 +30,34 @@ type TransactionConfig = {
 
 const residentialSaleOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
-  { id: "land", label: "زمین" },
-  { id: "villa-house", label: "خانه ویلایی" },
-  { id: "garden-villa", label: "باغ، ویلا" },
+  { id: "land", label: "زمین، ملک کلنگی" },
+  { id: "villa-house", label: "خانه، ویلا" },
 ];
 
 const residentialRentOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
-  { id: "villa-house", label: "خانه ویلایی" },
-  { id: "garden-villa", label: "باغ، ویلا" },
+  { id: "villa-house", label: "خانه، ویلا" },
 ];
 
 const dailyRentOptions: CategoryOption[] = [
   { id: "daily-apartment-suite", label: "آپارتمان، سوئیت" },
-  { id: "daily-garden-villa", label: "باغ، ویلا" },
-  { id: "daily-hotel-apartment", label: "هتل، هتل آپارتمان" },
-  { id: "daily-workspace", label: "دفاتر کار، غرفه، نمایشگاه" },
+  { id: "daily-garden-villa", label: "ویلا، باغ" },
+  { id: "daily-hotel-apartment", label: "هتل، اقامتگاه" },
+  { id: "daily-workspace", label: "دفترکار، غرفه" },
 ];
 
-const commercialOptions: CategoryOption[] = [
-  { id: "office", label: "واحد اداری" },
+const saleCommercialOptions: CategoryOption[] = [
+  { id: "office", label: "اداری" },
   { id: "commercial-unit", label: "واحد تجاری" },
-  { id: "warehouse", label: "انبار، سوله" },
-  { id: "hotel-apartment", label: "هتل، هتل آپارتمان" },
-  { id: "factory-workshop", label: "کارخانه، کارگاه" },
+  { id: "factory-workshop", label: "واحد صنعتی" },
+  { id: "hotel-apartment", label: "هتل، اقامتگاه" },
+];
+
+const rentCommercialOptions: CategoryOption[] = [
+  { id: "office", label: "اداری" },
+  { id: "commercial-unit", label: "واحد تجاری" },
+  { id: "factory-workshop", label: "واحد صنعتی" },
+  { id: "hotel-apartment", label: "هتل، اقامتگاه" },
 ];
 
 const transactionConfigs: Record<TransactionType, TransactionConfig> = {
@@ -70,7 +74,7 @@ const transactionConfigs: Record<TransactionType, TransactionConfig> = {
       {
         id: "sale-commercial",
         title: "اداری، تجاری، صنعتی، اقامتی",
-        options: commercialOptions,
+        options: saleCommercialOptions,
       },
     ],
   },
@@ -92,7 +96,7 @@ const transactionConfigs: Record<TransactionType, TransactionConfig> = {
       {
         id: "rent-commercial",
         title: "اداری، تجاری، صنعتی، اقامتی",
-        options: commercialOptions,
+        options: rentCommercialOptions,
       },
     ],
   },
@@ -105,7 +109,7 @@ const transactionConfigs: Record<TransactionType, TransactionConfig> = {
         id: "project-commercial",
         title: "اداری، تجاری، صنعتی، اقامتی",
         options: [
-          { id: "project-presale", label: "پیش فروش، فروش پروژه" },
+          { id: "project-presale", label: "پروژه" },
           { id: "project-partnership", label: "مشارکت" },
         ],
       },

@@ -7,6 +7,7 @@ import {
 } from "../../shared/form/FormControls";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { Button } from "../../shared/ui/Button";
+import { TextField } from "../../shared/ui/TextField";
 import { Chip } from "../../shared/ui/Chip";
 import { ChoiceIndicator } from "../../shared/ui/Choice";
 import { TopBar } from "../../shared/components/TopBar";
@@ -22,6 +23,31 @@ import {
   facilityItems,
   heatingItems,
   landFacilityItems,
+  saleApartmentFacilityItems,
+  saleApartmentHeatingItems,
+  saleVillaHouseFacilityItems,
+  saleVillaHouseHeatingItems,
+  saleLandFacilityItems,
+  saleCommercialFacilityItems,
+  saleCommercialHeatingItems,
+  saleFactoryFacilityItems,
+  saleFactoryHeatingItems,
+  saleOfficeFacilityItems,
+  saleOfficeHeatingItems,
+  saleHotelFacilityItems,
+  saleHotelHeatingItems,
+  rentApartmentFacilityItems,
+  rentCommercialFacilityItems,
+  rentFactoryFacilityItems,
+  rentVillaHouseFacilityItems,
+  rentOfficeFacilityItems,
+  rentHotelFacilityItems,
+  rentHeatingItems,
+  dailyRentHeatingItems,
+  dailyStayFacilityItems,
+  dailyHotelFacilityItems,
+  dailyWorkspaceFacilityItems,
+  rentConversionPolicyOptions,
   exchangeTargets,
   moreFeatureFieldsByCategory,
   moreFeatureFieldsByListingType,
@@ -31,8 +57,14 @@ import {
   projectPositionOptions,
   projectRoomOptions,
   projectStatusOptions,
+  projectTypeOptions,
+  partnershipCurrentStatusOptions,
+  projectHeatingItems,
+  projectFacilityItems,
+  saleLandPositionOptions,
 } from "../advertisements/create/data";
 import type { BasicPropertyField, ChipItem, MoreFeatureField } from "../advertisements/create/types";
+import { JalaliDatePickerSheet } from "../advertisements/create/steps/project/JalaliDatePickerSheet";
 import { Typography } from "../../shared/ui/Typography";
 import LinearAgreement from "../../shared/icons/LinearAgreement";
 import LinearApartmentAge from "../../shared/icons/LinearApartmentAge";
@@ -115,6 +147,18 @@ type ToggleBlock = {
   title: string;
 };
 
+type DateBlock = {
+  id: string;
+  kind: "date";
+  title: string;
+};
+
+type TimeBlock = {
+  id: string;
+  kind: "time";
+  title: string;
+};
+
 type LoanBlock = {
   kind: "loan";
 };
@@ -125,6 +169,8 @@ type FilterBlock =
   | SingleChoiceBlock
   | MultiChoiceBlock
   | ToggleBlock
+  | DateBlock
+  | TimeBlock
   | LoanBlock
   | { kind: "advertiser" }
   | { kind: "publicationTime" }
@@ -451,6 +497,27 @@ function readInitialFiltersFromUrl(): FilterState {
   nextFilters.loanAmount = params.get("loan_amount") ?? "";
   nextFilters.loanInstallment = params.get("loan_installment") ?? "";
 
+  for (const [fieldId, paramKey] of Object.entries(filterFieldParamMap)) {
+    const directValue = params.get(paramKey);
+    const minValue = params.get(`${paramKey}_min`);
+    const maxValue = params.get(`${paramKey}_max`);
+
+    if (minValue || maxValue) {
+      nextFilters.ranges[fieldId] = { minimum: minValue ?? "", maximum: maxValue ?? "" };
+      continue;
+    }
+
+    if (!directValue) continue;
+
+    if (fieldId === "heatingCooling" || fieldId === "facilities") {
+      nextFilters.multis[fieldId] = directValue.split(/[_،,]/).filter(Boolean);
+    } else if (["renovated", "furnished", "constructionPermit", "commercialPermit", "managementRoom", "conferenceRoom", "receptionHall", "signboard", "kitchen", "separateEntrance"].includes(fieldId)) {
+      nextFilters.toggles[fieldId] = directValue === "true" || directValue === "1" || directValue === "دارد";
+    } else {
+      nextFilters.singles[fieldId] = directValue;
+    }
+  }
+
   return nextFilters;
 }
 
@@ -520,6 +587,26 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
   setOrDelete("has_image", filters.hasPhoto ? "true" : "");
   setOrDelete("has_video", filters.hasVideo ? "true" : "");
 
+  for (const [fieldId, paramKey] of Object.entries(filterFieldParamMap)) {
+    const range = filters.ranges[fieldId];
+    const single = filters.singles[fieldId];
+    const multi = filters.multis[fieldId];
+    const toggle = filters.toggles[fieldId];
+
+    setOrDelete(`${paramKey}_min`, normalizeRangeNumber(range?.minimum));
+    setOrDelete(`${paramKey}_max`, normalizeRangeNumber(range?.maximum));
+
+    if (multi?.length) {
+      setOrDelete(paramKey, multi.join("_"));
+    } else if (single) {
+      setOrDelete(paramKey, ["readyDeliveryDate", "projectDeliveryDate"].includes(fieldId) ? single : normalizeExactFilterValue(single));
+    } else if (toggle) {
+      setOrDelete(paramKey, "true");
+    } else {
+      setOrDelete(paramKey, "");
+    }
+  }
+
   const queryString = params.toString();
   const pathname = returnTo ? baseUrl.pathname : applyBasePath;
 
@@ -531,16 +618,16 @@ export const categoryLabels: Record<CategoryKey, string> = {
   "villa-house": "خانه ویلایی",
   "garden-villa": "باغ، ویلا",
   land: "زمین",
-  office: "واحد اداری",
+  office: "اداری",
   "commercial-unit": "واحد تجاری",
   warehouse: "انبار، سوله",
-  "hotel-apartment": "هتل، هتل آپارتمان",
-  "factory-workshop": "کارخانه، کارگاه",
+  "hotel-apartment": "هتل، اقامتگاه",
+  "factory-workshop": "واحد صنعتی",
   "daily-apartment-suite": "آپارتمان، سوئیت",
   "daily-garden-villa": "باغ، ویلا",
-  "daily-hotel-apartment": "هتل، هتل آپارتمان",
-  "daily-workspace": "دفاتر کار، غرفه، نمایشگاه",
-  "project-presale": "پیش فروش، فروش پروژه",
+  "daily-hotel-apartment": "هتل، اقامتگاه",
+  "daily-workspace": "دفترکار، غرفه",
+  "project-presale": "پروژه",
   "project-partnership": "مشارکت",
 };
 
@@ -555,7 +642,7 @@ export const categoryGroupsByTransaction: Record<
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
-      items: ["office", "commercial-unit", "warehouse", "hotel-apartment", "factory-workshop"],
+      items: ["office", "commercial-unit", "factory-workshop", "hotel-apartment"],
     },
   ],
 
@@ -570,7 +657,7 @@ export const categoryGroupsByTransaction: Record<
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
-      items: ["office", "commercial-unit", "warehouse", "hotel-apartment", "factory-workshop"],
+      items: ["office", "commercial-unit", "factory-workshop", "hotel-apartment"],
     },
   ],
 
@@ -590,7 +677,81 @@ export const transactionTabs: { label: string; value: TransactionType }[] = [
 
 const advertiserOptions = ["آژانس املاک", "شخصی", "مشاور"];
 const publicationTimeOptions = ["یک ساعت پیش", "سه ساعت پیش", "یک روز پیش", "یک هفته پیش", "یک ماه پیش"];
-const removedFilterFieldKeys = new Set(["cabinetMaterial", "floorMaterial", "facadeMaterial"]);
+const removedFilterFieldKeys = new Set<string>();
+
+const filterFieldParamMap: Record<string, string> = {
+  projectType: "project_type",
+  projectStatus: "project_status",
+  projectDeliveryDate: "delivery_date",
+  projectTotalFloors: "project_total_floors",
+  projectTotalUnits: "project_total_units",
+  saleTermsPercent: "sale_terms_percent",
+  saleTermsInstallmentMonths: "sale_terms_installment_months",
+  builderSharePercent: "builder_share",
+  participationType: "partnership_type",
+  landArea: "land_area",
+  buildingArea: "building_area",
+  totalFloors: "total_floors",
+  unitsPerFloor: "units_per_floor",
+  unitType: "unit_type",
+  unitPosition: "unit_position",
+  documentType: "document_type",
+  usageType: "land_use",
+  suitableFor: "suitable_for",
+  occupancyStatus: "occupancy_status",
+  petPolicy: "pet_policy",
+  readyDeliveryDate: "ready_delivery_date",
+  minContractMonths: "min_contract_months",
+  rentConversionPolicy: "rent_conversion_policy",
+  kitchenType: "kitchen_type",
+  renovated: "renovated",
+  furnished: "furnished",
+  landPosition: "land_position",
+  buildingType: "building_type",
+  villaType: "villa_type",
+  commercialPosition: "commercial_position",
+  ownershipStatus: "ownership_status",
+  accommodationType: "accommodation_type",
+  hotelStars: "hotel_stars",
+  officePosition: "office_position",
+  officeDocumentType: "office_document_type",
+  hasDocument: "has_document",
+  managementRoom: "management_room",
+  conferenceRoom: "conference_room",
+  receptionHall: "reception_hall",
+  signboard: "signboard",
+  kitchen: "kitchen",
+  separateEntrance: "separate_entrance",
+  facadeMaterial: "facade_material",
+  floorMaterial: "floor_material",
+  cabinetMaterial: "cabinet_material",
+  currentStatus: "current_status",
+  industrialPropertyType: "industrial_property_type",
+  accessType: "access_type",
+  density: "density",
+  landWidth: "land_width",
+  streetWidth: "street_width",
+  constructionPermit: "build_permit",
+  constructionLicense: "build_permit",
+  commercialPermit: "commercial_permit",
+  commercialLicense: "commercial_permit",
+  ceilingHeight: "height",
+  openingCount: "opening_count",
+  spaceType: "space_type",
+  rentalPeriod: "rental_period",
+  viewType: "view_type",
+  checkInTime: "check_in_time",
+  checkOutTime: "check_out_time",
+  minStayDays: "min_stay_days",
+  evacuationGuarantee: "evacuation_guarantee",
+  normalDailyPrice: "normal_daily_price",
+  weekendDailyPrice: "weekend_daily_price",
+  specialDailyPrice: "special_daily_price",
+  extraPersonPrice: "extra_person_price",
+  heatingCooling: "heating_cooling",
+  facilities: "facilities",
+};
+
 
 const minNeighborhoodSearchLength = 2;
 const neighborhoodSearchDebounceMs = 250;
@@ -666,9 +827,9 @@ function getBasicFields(transaction: TransactionType, category: CategoryKey): Ba
   if (category === "project-partnership") {
     return [
       { key: "participationType", label: "نوع مشارکت", control: "select", options: participationTypeOptions, required: true },
+      { key: "currentStatus", label: "وضعیت فعلی ملک", control: "select", options: partnershipCurrentStatusOptions, required: true },
       { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-      { key: "documentType", label: "نوع سند", control: "select", options: moreFeatureOptions.documentType, required: true },
-      { key: "constructionLicense", label: "مجوز ساخت", control: "select", options: ["دارد", "ندارد"], required: true },
+      { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions, required: true },
     ];
   }
 
@@ -690,10 +851,38 @@ function getMoreFields(transaction: TransactionType, category: CategoryKey): Mor
   ).filter((field) => !removedFilterFieldKeys.has(field.key));
 }
 
-function getFacilityItems(category: CategoryKey) {
-  return category === "land" || category === "factory-workshop"
-    ? landFacilityItems
-    : facilityItems;
+function getHeatingItems(transaction: TransactionType, category: CategoryKey) {
+  if (transaction === "project" && category === "project-presale") return projectHeatingItems;
+  if (transaction === "sale" && category === "apartment") return saleApartmentHeatingItems;
+  if (transaction === "sale" && category === "villa-house") return saleVillaHouseHeatingItems;
+  if (transaction === "sale" && category === "office") return saleOfficeHeatingItems;
+  if (transaction === "sale" && category === "commercial-unit") return saleCommercialHeatingItems;
+  if (transaction === "sale" && category === "factory-workshop") return saleFactoryHeatingItems;
+  if (transaction === "sale" && category === "hotel-apartment") return saleHotelHeatingItems;
+  if (transaction === "rent" && category.startsWith("daily-")) return dailyRentHeatingItems;
+  if (transaction === "rent" && ["apartment", "villa-house", "office", "commercial-unit", "factory-workshop", "hotel-apartment"].includes(category)) return rentHeatingItems;
+  return heatingItems;
+}
+
+function getFacilityItems(transaction: TransactionType, category: CategoryKey) {
+  if (transaction === "project" && category === "project-presale") return projectFacilityItems;
+  if (transaction === "sale" && category === "apartment") return saleApartmentFacilityItems;
+  if (transaction === "sale" && category === "villa-house") return saleVillaHouseFacilityItems;
+  if (transaction === "sale" && category === "land") return saleLandFacilityItems;
+  if (transaction === "sale" && category === "office") return saleOfficeFacilityItems;
+  if (transaction === "sale" && category === "commercial-unit") return saleCommercialFacilityItems;
+  if (transaction === "sale" && category === "factory-workshop") return saleFactoryFacilityItems;
+  if (transaction === "sale" && category === "hotel-apartment") return saleHotelFacilityItems;
+  if (transaction === "rent" && category === "apartment") return rentApartmentFacilityItems;
+  if (transaction === "rent" && category === "villa-house") return rentVillaHouseFacilityItems;
+  if (transaction === "rent" && category === "office") return rentOfficeFacilityItems;
+  if (transaction === "rent" && category === "commercial-unit") return rentCommercialFacilityItems;
+  if (transaction === "rent" && category === "factory-workshop") return rentFactoryFacilityItems;
+  if (transaction === "rent" && category === "hotel-apartment") return rentHotelFacilityItems;
+  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category)) return dailyStayFacilityItems;
+  if (transaction === "rent" && category === "daily-hotel-apartment") return dailyHotelFacilityItems;
+  if (transaction === "rent" && category === "daily-workspace") return dailyWorkspaceFacilityItems;
+  return category === "land" || category === "factory-workshop" ? landFacilityItems : facilityItems;
 }
 
 function isDailyRentCategory(category: CategoryKey) {
@@ -758,6 +947,14 @@ function blockFromBasicField(field: BasicPropertyField): FilterBlock {
 }
 
 function blockFromMoreFeatureField(field: MoreFeatureField): FilterBlock {
+  if (field.control === "time") {
+    return { id: field.key, kind: "time", title: field.label };
+  }
+
+  if (field.control === "date") {
+    return { id: field.key, kind: "date", title: field.label };
+  }
+
   if (field.control === "toggle") {
     return {
       id: field.key,
@@ -768,11 +965,12 @@ function blockFromMoreFeatureField(field: MoreFeatureField): FilterBlock {
 
   if (field.control === "number") {
     const isPercentField = field.leftText?.includes("درصد") || field.key === "density";
+    const isAreaField = field.key === "buildingArea" || field.leftText === "متر مربع";
 
     return createRangeBlock(
       field.key,
       field.label,
-      isPercentField ? "percent" : "number",
+      isPercentField ? "percent" : isAreaField ? "area" : "number",
       field.leftText,
     );
   }
@@ -782,7 +980,7 @@ function blockFromMoreFeatureField(field: MoreFeatureField): FilterBlock {
       icon: getFieldIcon(field.key),
       id: field.key,
       kind: "multi",
-      options: (moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? []).map((label) => ({ id: label, label })),
+      options: (field.options ?? moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? []).map((label) => ({ id: label, label })),
       title: field.label,
     };
   }
@@ -791,77 +989,77 @@ function blockFromMoreFeatureField(field: MoreFeatureField): FilterBlock {
     icon: getFieldIcon(field.key),
     id: field.key,
     kind: "single",
-    options: moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? [],
+    options: field.options ?? moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? [],
     title: field.label,
   };
 }
 
 function getProjectPresaleBlocks(): FilterBlock[] {
   return [
+    { icon: "settings", id: "projectType", kind: "single", options: projectTypeOptions, title: "نوع پروژه" },
     createRangeBlock("projectTotalFloors", "تعداد کل طبقات", "number"),
-    createRangeBlock("projectTotalUnits", "تعداد کل واحدها", "number"),
-    {
-      icon: "settings",
-      id: "projectStatus",
-      kind: "single",
-      options: projectStatusOptions,
-      title: "وضعیت پروژه",
-    },
-    createRangeBlock("projectMeterage", "متراژ واحد", "area", "متر مربع"),
-    {
-      icon: "floor",
-      id: "projectFloors",
-      kind: "multi",
-      options: projectFloorOptions.map((label) => ({ id: label, label })),
-      title: "طبقه",
-    },
-    {
-      icon: "bed",
-      id: "projectRooms",
-      kind: "multi",
-      options: projectRoomOptions.map((label) => ({ id: label, label })),
-      title: "تعداد اتاق",
-    },
-    {
-      icon: "orientation",
-      id: "projectPositions",
-      kind: "multi",
-      options: projectPositionOptions.map((label) => ({ id: label, label })),
-      title: "موقعیت",
-    },
+    createRangeBlock("projectTotalUnits", "تعداد کل واحد ها", "number"),
+    { icon: "agreement", id: "documentType", kind: "single", options: moreFeatureOptions.documentType, title: "سند" },
+    { icon: "settings", id: "projectStatus", kind: "single", options: projectStatusOptions, title: "وضعیت پروژه" },
+    { id: "projectDeliveryDate", kind: "date", title: "تاریخ تحویل" },
+    { icon: "settings", id: "kitchenType", kind: "single", options: moreFeatureOptions.kitchenType, title: "نوع آشپزخانه" },
+    { icon: "settings", id: "facadeMaterial", kind: "single", options: moreFeatureOptions.facadeMaterial, title: "جنس نما" },
+    { icon: "settings", id: "floorMaterial", kind: "single", options: moreFeatureOptions.floorMaterial, title: "جنس کف" },
+    { icon: "settings", id: "cabinetMaterial", kind: "single", options: moreFeatureOptions.cabinetMaterial, title: "جنس کابینت" },
+    { id: "furnished", kind: "toggle", title: "با لوازم و مبله" },
+    createRangeBlock("projectMeterage", "متراژ", "area", "متر مربع"),
+    { icon: "floor", id: "projectFloors", kind: "multi", options: projectFloorOptions.map((label) => ({ id: label, label })), title: "طبقه" },
+    { icon: "bed", id: "projectRooms", kind: "multi", options: projectRoomOptions.map((label) => ({ id: label, label })), title: "تعداد اتاق" },
+    { icon: "orientation", id: "projectPositions", kind: "multi", options: projectPositionOptions.map((label) => ({ id: label, label })), title: "موقعیت" },
+    createRangeBlock("saleTermsPercent", "درصد شرایط", "percent", "درصد"),
+    createRangeBlock("saleTermsInstallmentMonths", "تعداد اقساط", "number", "ماه"),
   ];
 }
 
 function getPriceBlocks(transaction: TransactionType, category: CategoryKey): FilterBlock[] {
   if (category === "project-partnership") {
-    return [createRangeBlock("builderSharePercent", "سهم سازنده", "percent", "درصد")];
+    return [createRangeBlock("builderSharePercent", "درصد مشارکت / درصد سهم", "percent", "درصد")];
   }
 
   if (transaction === "project") {
-    return [createRangeBlock("projectPrice", "قیمت", "money", "تومان")];
+    return [createRangeBlock("projectPrice", "قیمت متری", "money", "تومان")];
   }
 
   if (transaction === "rent" && isDailyRentCategory(category)) {
-    return [createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان")];
+    const blocks = [createRangeBlock("dailyPrice", "بازه قیمت", "money", "تومان")];
+    if (category === "daily-hotel-apartment") return blocks;
+    return [
+      ...blocks,
+      createRangeBlock("normalDailyPrice", "روزهای عادی", "money", "تومان"),
+      createRangeBlock("weekendDailyPrice", "آخر هفته", "money", "تومان"),
+      createRangeBlock("specialDailyPrice", "روزهای خاص", "money", "تومان"),
+      createRangeBlock("extraPersonPrice", "هزینه هر نفر اضافه", "money", "تومان"),
+    ];
   }
 
   if (transaction === "rent") {
     return [
       createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
       createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+      {
+        icon: "exchange",
+        id: "rentConversionPolicy",
+        kind: "single",
+        options: rentConversionPolicyOptions,
+        title: "تبدیل رهن و اجاره",
+      },
     ];
   }
 
   return [createRangeBlock("price", "قیمت", "money", "تومان")];
 }
 
-function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): FilterBlock[] {
+export function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): FilterBlock[] {
   if (!category) return [];
 
   const isPartnership = category === "project-partnership";
-  const hideHeatingCooling = isPartnership || category === "land" || category === "factory-workshop";
+  const hideHeatingCooling = isPartnership || category === "land";
   const showFacilitiesSection = !isPartnership;
-  const isDailyHotelRent = transaction === "rent" && category === "daily-hotel-apartment";
 
   const blocks: FilterBlock[] = [{ kind: "neighborhood" }];
 
@@ -873,7 +1071,7 @@ function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): 
 
   blocks.push(...getPriceBlocks(transaction, category));
 
-  if (!isProjectCategory(category) && !isDailyHotelRent) {
+  if (!isProjectCategory(category) || category === "project-partnership") {
     blocks.push(...getMoreFields(transaction, category).map(blockFromMoreFeatureField));
   }
 
@@ -889,6 +1087,14 @@ function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): 
       options: exchangeTargets.map((label) => ({ id: label, label })),
       title: "معاوضه با",
     });
+  } else if (transaction === "project" && category === "project-presale") {
+    blocks.push({
+      icon: "exchange",
+      id: "exchangeWith",
+      kind: "multi",
+      options: exchangeTargets.map((label) => ({ id: label, label })),
+      title: "معاوضه با",
+    });
   }
 
   if (!hideHeatingCooling) {
@@ -896,7 +1102,7 @@ function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): 
       icon: "temperature",
       id: "heatingCooling",
       kind: "multi",
-      options: heatingItems,
+      options: getHeatingItems(transaction, category),
       title: "سرمایش و گرمایش",
     });
   }
@@ -906,7 +1112,7 @@ function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): 
       icon: "settings",
       id: "facilities",
       kind: "multi",
-      options: getFacilityItems(category),
+      options: getFacilityItems(transaction, category),
       title: "امکانات",
     });
   }
@@ -1698,6 +1904,31 @@ function FilterBlockRenderer({
       );
     }
 
+    case "time":
+      return (
+        <TimeFilterSection
+          sectionId={getFilterSectionAnchor(block)}
+          title={block.title}
+          value={filters.singles[block.id] ?? ""}
+          onChange={(value) => setSingleValue(block.id, value)}
+        />
+      );
+
+    case "date":
+      return (
+        <DateFilterSection
+          sectionId={getFilterSectionAnchor(block)}
+          title={block.title}
+          value={filters.singles[block.id] ?? ""}
+          onChange={(value) =>
+            setFilters((current) => ({
+              ...current,
+              singles: { ...current.singles, [block.id]: value || undefined },
+            }))
+          }
+        />
+      );
+
     case "single":
       return (
         <SingleChoiceSection
@@ -2111,6 +2342,74 @@ function AreaRangeSection({
         />
       </div>
     </FilterSection>
+  );
+}
+
+function TimeFilterSection({
+  sectionId,
+  title,
+  value,
+  onChange,
+}: {
+  sectionId?: string;
+  title: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <FilterSection icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />} sectionId={sectionId} title={title}>
+      <TextField
+        className="text-sm"
+        containerClassName="w-full"
+        dir="ltr"
+        label={title}
+        onChange={(event) => onChange(event.target.value)}
+        onClear={() => onChange("")}
+        placeholder={title}
+        type="time"
+        value={value}
+      />
+    </FilterSection>
+  );
+}
+
+function DateFilterSection({
+  sectionId,
+  title,
+  value,
+  onChange,
+}: {
+  sectionId?: string;
+  title: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <FilterSection icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />} sectionId={sectionId} title={title}>
+        <Button
+          unstyled
+          className="flex h-12 w-full items-center justify-between rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm text-[#1a1a1a]"
+          onClick={() => setIsOpen(true)}
+          type="button"
+        >
+          <span>{value || "انتخاب تاریخ"}</span>
+          <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 text-[#666666]" />
+        </Button>
+      </FilterSection>
+      <JalaliDatePickerSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onConfirm={(nextValue) => {
+          onChange(nextValue);
+          setIsOpen(false);
+        }}
+        title={title}
+        value={value}
+      />
+    </>
   );
 }
 

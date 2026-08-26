@@ -10,6 +10,36 @@ import {
   facilityItems,
   heatingItems,
   landFacilityItems,
+  saleApartmentFacilityItems,
+  saleApartmentHeatingItems,
+  saleLandFacilityItems,
+  saleCommercialFacilityItems,
+  saleCommercialHeatingItems,
+  saleFactoryFacilityItems,
+  saleFactoryHeatingItems,
+  saleOfficeFacilityItems,
+  saleOfficeHeatingItems,
+  saleHotelFacilityItems,
+  saleHotelHeatingItems,
+  saleVillaHouseFacilityItems,
+  saleVillaHouseHeatingItems,
+  rentApartmentFacilityItems,
+  rentCommercialFacilityItems,
+  rentFactoryFacilityItems,
+  rentVillaHouseFacilityItems,
+  rentOfficeFacilityItems,
+  rentHotelFacilityItems,
+  rentHeatingItems,
+  dailyRentHeatingItems,
+  dailyStayFacilityItems,
+  dailyHotelFacilityItems,
+  dailyWorkspaceFacilityItems,
+  projectFacilityItems,
+  projectHeatingItems,
+  rentConversionPolicyOptions,
+  dailyRentalPeriodOptions,
+  rentPetPolicyOptions,
+  timeOptions,
 } from "../data";
 import {
   formatUnitsPerFloorLabel,
@@ -32,9 +62,9 @@ import {
   Toggle,
 } from "../components/NewAdControls";
 import { CrmTargetOwnerSelect } from "../components/CrmTargetOwnerSelect";
+import { RentPriceConversion } from "../components/RentPriceConversion";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
-import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
 import { ProjectSpecsSection } from "./project/ProjectSpecsSection";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -113,7 +143,6 @@ export function DetailsStep({
   const [showAllHeating, setShowAllHeating] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [showRegisteredMoreFeatures, setShowRegisteredMoreFeatures] = useState(false);
-  const [isDeliveryDateOpen, setIsDeliveryDateOpen] = useState(false);
   const isCrm = new URLSearchParams(window.location.search).get("editSource") === "crm";
 
   const { transaction, category } = getParams();
@@ -122,9 +151,26 @@ export function DetailsStep({
   const isRent = transaction === "rent";
   const isDailyRent = isRent && category.startsWith("daily-");
   const isDailyHotelRent = isRent && category === "daily-hotel-apartment";
+  const isDailyApartmentRent = isRent && category === "daily-apartment-suite";
+  const isDailyVillaRent = isRent && category === "daily-garden-villa";
+  const isDailyWorkspaceRent = isRent && category === "daily-workspace";
   const isSaleGardenVilla = transaction === "sale" && category === "garden-villa";
-  const hideHeatingCooling =
-    isPartnership || category === "land" || category === "factory-workshop";
+  const isSaleApartment = transaction === "sale" && category === "apartment";
+  const isSaleVillaHouse = transaction === "sale" && category === "villa-house";
+  const isSaleLand = transaction === "sale" && category === "land";
+  const isSaleOffice = transaction === "sale" && category === "office";
+  const isSaleCommercial = transaction === "sale" && category === "commercial-unit";
+  const isSaleFactory = transaction === "sale" && category === "factory-workshop";
+  const isSaleHotel = transaction === "sale" && category === "hotel-apartment";
+  const isRentApartment = transaction === "rent" && category === "apartment";
+  const isRentVillaHouse = transaction === "rent" && category === "villa-house";
+  const isRentOffice = transaction === "rent" && category === "office";
+  const isRentHotel = transaction === "rent" && category === "hotel-apartment";
+  const isRentCommercial = transaction === "rent" && category === "commercial-unit";
+  const isRentFactory = transaction === "rent" && category === "factory-workshop";
+  const isSaleResidential = transaction === "sale" && ["apartment", "villa-house", "land"].includes(category);
+  const isRentResidential = transaction === "rent" && ["apartment", "villa-house", "garden-villa"].includes(category);
+  const hideHeatingCooling = isPartnership || category === "land";
   const showFacilitiesSection = !isPartnership;
 
   const values = watch();
@@ -160,18 +206,57 @@ export function DetailsStep({
     ? registeredMoreFeatures
     : registeredMoreFeatures.slice(0, initialVisibleMoreFeatureTagCount);
 
+  const heatingItemsForListing = isProject
+    ? projectHeatingItems
+    : isSaleApartment
+    ? saleApartmentHeatingItems
+    : isSaleVillaHouse
+      ? saleVillaHouseHeatingItems
+      : isSaleOffice
+        ? saleOfficeHeatingItems
+      : isSaleCommercial
+        ? saleCommercialHeatingItems
+        : isSaleFactory
+          ? saleFactoryHeatingItems
+          : isSaleHotel
+            ? saleHotelHeatingItems
+              : isDailyRent
+                ? dailyRentHeatingItems
+              : isRentApartment || isRentVillaHouse || isRentOffice || isRentHotel || isRentCommercial || isRentFactory
+                ? rentHeatingItems
+            : heatingItems;
+
   const facilityItemsForCategory = useMemo(
-    () =>
-      category === "land" || category === "factory-workshop"
+    () => {
+      if (isProject) return projectFacilityItems;
+      if (isSaleApartment) return saleApartmentFacilityItems;
+      if (isSaleVillaHouse) return saleVillaHouseFacilityItems;
+      if (isSaleLand) return saleLandFacilityItems;
+      if (isSaleOffice) return saleOfficeFacilityItems;
+      if (isSaleCommercial) return saleCommercialFacilityItems;
+      if (isSaleFactory) return saleFactoryFacilityItems;
+      if (isSaleHotel) return saleHotelFacilityItems;
+      if (isRentApartment) return rentApartmentFacilityItems;
+      if (isRentVillaHouse) return rentVillaHouseFacilityItems;
+      if (isRentOffice) return rentOfficeFacilityItems;
+      if (isRentHotel) return rentHotelFacilityItems;
+      if (isRentCommercial) return rentCommercialFacilityItems;
+      if (isRentFactory) return rentFactoryFacilityItems;
+      if (isDailyApartmentRent || isDailyVillaRent) return dailyStayFacilityItems;
+      if (isDailyHotelRent) return dailyHotelFacilityItems;
+      if (isDailyWorkspaceRent) return dailyWorkspaceFacilityItems;
+
+      return category === "land" || category === "factory-workshop"
         ? landFacilityItems
-        : facilityItems,
-    [category],
+        : facilityItems;
+    },
+    [category, isProject, isDailyApartmentRent, isDailyHotelRent, isDailyVillaRent, isDailyWorkspaceRent, isRentApartment, isRentCommercial, isRentFactory, isRentHotel, isRentOffice, isRentVillaHouse, isSaleApartment, isSaleCommercial, isSaleFactory, isSaleHotel, isSaleLand, isSaleOffice, isSaleVillaHouse],
   );
 
   const initialVisibleChipCount = 8;
   const visibleHeating = showAllHeating
-    ? heatingItems
-    : heatingItems.slice(0, initialVisibleChipCount);
+    ? heatingItemsForListing
+    : heatingItemsForListing.slice(0, initialVisibleChipCount);
   const visibleFacilities = showAllFacilities
     ? facilityItemsForCategory
     : facilityItemsForCategory.slice(0, initialVisibleChipCount);
@@ -216,7 +301,7 @@ export function DetailsStep({
                 setField("builderSharePercent", normalizedPercent);
               }
             }}
-            placeholder="سهم سازنده به درصد *"
+            placeholder="درصد مشارکت / درصد سهم *"
             value={values.builderSharePercent}
           />
         </Section>
@@ -233,7 +318,7 @@ export function DetailsStep({
               numeric
               leftText="تومان"
               onChange={(value) => setField("minPrice", value)}
-              placeholder="حداقل قیمت *"
+              placeholder="حداقل قیمت متری *"
               supportingText={moneySupportingText(values.minPrice)}
               value={values.minPrice}
             />
@@ -243,11 +328,52 @@ export function DetailsStep({
               numeric
               leftText="تومان"
               onChange={(value) => setField("maxPrice", value)}
-              placeholder="حداکثر قیمت *"
+              placeholder="حداکثر قیمت متری *"
               supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
             <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
+
+            <Toggle
+              checked={values.exchangeEnabled}
+              label="معاوضه"
+              onChange={(checked) => setField("exchangeEnabled", checked)}
+            />
+
+            {values.exchangeEnabled ? (
+              <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
+                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
+                  <Typography as="span" variant="body" size="medium" weight="regular">معاوضه با</Typography>
+                  <Button
+                    unstyled
+                    className="flex items-center gap-1 text-[#0048c4]"
+                    onClick={() => setSheet({ kind: "exchange", title: "معاوضه با", options: exchangeTargets })}
+                    type="button"
+                  >
+                    <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
+                    <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                {values.exchangeTargets.length ? (
+                  <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+                    {values.exchangeTargets.map((target) => (
+                      <Tag
+                        key={target}
+                        label={target}
+                        onRemove={() => setField("exchangeTargets", values.exchangeTargets.filter((item) => item !== target))}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+
+                {errors.exchangeTargets ? (
+                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs text-[#ff3b30]">
+                    {errors.exchangeTargets}
+                  </Typography>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </Section>
       );
@@ -257,27 +383,24 @@ export function DetailsStep({
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-            <InputBox
-              error={errors.minPrice}
-              formatNumeric
-              numeric
-              leftText="تومان"
-              onChange={(value) => setField("minPrice", value)}
-              placeholder="حداقل قیمت *"
-              supportingText={moneySupportingText(values.minPrice)}
-              value={values.minPrice}
-            />
-            <InputBox
-              error={errors.maxPrice}
-              formatNumeric
-              numeric
-              leftText="تومان"
-              onChange={(value) => setField("maxPrice", value)}
-              placeholder="حداکثر قیمت *"
-              supportingText={moneySupportingText(values.maxPrice)}
-              value={values.maxPrice}
-            />
+            <InputBox error={errors.minPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("minPrice", value)} placeholder="حداقل قیمت *" supportingText={moneySupportingText(values.minPrice)} value={values.minPrice} />
+            <InputBox error={errors.maxPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("maxPrice", value)} placeholder="حداکثر قیمت *" supportingText={moneySupportingText(values.maxPrice)} value={values.maxPrice} />
           </div>
+
+          <div className="my-5 border-t border-dashed border-[#cccccc]" />
+
+          {isDailyHotelRent ? (
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-right text-sm leading-6 text-[#808080]">
+              قیمت روزهای عادی، آخر هفته و روزهای خاص برای هر نوع اتاق در بخش «مشخصات اتاق‌ها» ثبت می‌شود.
+            </Typography>
+          ) : (
+            <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
+              <InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} />
+              <InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} />
+              <InputBox error={errors.specialDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("specialDailyPrice", value)} placeholder="روزهای خاص (تعطیلات و مناسبت ها) *" supportingText={moneySupportingText(values.specialDailyPrice)} value={values.specialDailyPrice} />
+              <InputBox error={errors.extraPersonPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("extraPersonPrice", value)} placeholder="هزینه هر نفر اضافه" supportingText={moneySupportingText(values.extraPersonPrice)} value={values.extraPersonPrice} />
+            </div>
+          )}
         </Section>
       );
     }
@@ -291,7 +414,12 @@ export function DetailsStep({
               formatNumeric
               numeric
               leftText="تومان"
-              onChange={(value) => setField("mortgagePrice", value)}
+              onChange={(value) => {
+                setField("mortgagePrice", value);
+                if (values.rentConversionEnabled) {
+                  setField("rentConversionMortgagePrice", value.replace(/,/g, ""));
+                }
+              }}
               placeholder="رهن *"
               supportingText={moneySupportingText(values.mortgagePrice)}
               value={values.mortgagePrice}
@@ -307,6 +435,25 @@ export function DetailsStep({
               value={values.rentPrice}
             />
           </div>
+
+          <div className="mt-4">
+            <SelectBox
+              onClick={() => openSelectSheet("rentConversionPolicy", "تبدیل رهن و اجاره", rentConversionPolicyOptions)}
+              placeholder="تبدیل رهن و اجاره"
+              value={values.rentConversionPolicy}
+            />
+          </div>
+
+          <RentPriceConversion
+            enabled={values.rentConversionEnabled}
+            mortgagePrice={values.mortgagePrice}
+            onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
+            onMortgagePriceChange={(value) => setField("mortgagePrice", value)}
+            onRentPriceChange={(value) => setField("rentPrice", value)}
+            onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
+            rentPrice={values.rentPrice}
+            selectedMortgagePrice={values.rentConversionMortgagePrice}
+          />
         </Section>
       );
     }
@@ -574,20 +721,22 @@ export function DetailsStep({
       <main className={desktop
         ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
         : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"} dir="rtl">
-        <Section icon="location.svg" title="موقعیت ملک">
+        <Section icon="location.svg" title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}>
           <LocationBox label={label} value={values.location} />
         </Section>
 
         {isProject ? (
           <ProjectSpecsSection
+            errors={errors}
             values={values}
+            projectDetailsError={errors.projectDetails}
             setField={setField}
             onOpenSelect={openSelectSheet}
-            onOpenDeliveryDate={() => setIsDeliveryDateOpen(true)}
             onOpenProjectDetails={onProjectDetails}
+            onOpenMoreFeatures={onMoreFeatures}
           />
         ) : (
-          <Section icon="info.svg" title="مشخصات ملک">
+          <Section icon="info.svg" title={isDailyVillaRent ? "مشخصات ویلا" : isDailyRent ? "مشخصات آگهی" : isSaleApartment || isRentApartment ? "مشخصات آپارتمان" : isSaleVillaHouse || isRentVillaHouse ? "مشخصات بنا" : isSaleOffice || isRentOffice ? "مشخصات اداری" : isSaleCommercial || isRentCommercial ? "مشخصات تجاری" : isSaleFactory || isSaleHotel || isRentHotel || isRentFactory ? "مشخصات آگهی" : "مشخصات ملک"}>
             <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
               {basicPropertyFields.map((field) => {
                 const placeholder = `${field.label}${field.required ? " *" : ""}`;
@@ -626,9 +775,43 @@ export function DetailsStep({
                 );
               })}
 
-              {isDailyHotelRent ? <DailyHotelRoomsSection /> : null}
+              {isDailyHotelRent ? (
+                <>
+                  <SelectBox
+                    onClear={() => setField("rentalPeriod", "")}
+                    onClick={() => openSelectSheet("rentalPeriod", "دوره اجاره", dailyRentalPeriodOptions)}
+                    placeholder="دوره اجاره"
+                    value={values.rentalPeriod}
+                  />
+                  <InputBox
+                    numeric
+                    leftText="روز"
+                    onChange={(value) => setField("minStayDays", value)}
+                    placeholder="حداقل مدت اقامت"
+                    value={values.minStayDays}
+                  />
+                  <SelectBox
+                    onClear={() => setField("checkInTime", "")}
+                    onClick={() => openSelectSheet("checkInTime", "ساعت ورود", timeOptions)}
+                    placeholder="ساعت ورود"
+                    value={values.checkInTime}
+                  />
+                  <SelectBox
+                    onClear={() => setField("checkOutTime", "")}
+                    onClick={() => openSelectSheet("checkOutTime", "ساعت خروج", timeOptions)}
+                    placeholder="ساعت خروج"
+                    value={values.checkOutTime}
+                  />
+                  <SelectBox
+                    onClear={() => setField("petPolicy", "")}
+                    onClick={() => openSelectSheet("petPolicy", "حیوان خانگی", rentPetPolicyOptions)}
+                    placeholder="حیوان خانگی"
+                    value={values.petPolicy}
+                  />
+                </>
+              ) : null}
 
-              {!isDailyHotelRent && registeredMoreFeatures.length ? (
+              {registeredMoreFeatures.length ? (
                 <div className="space-y-3 pt-2" dir="rtl">
                   <div className="flex flex-wrap justify-start gap-2">
                     {visibleMoreFeatureTags.map((item) => (
@@ -681,7 +864,7 @@ export function DetailsStep({
                     </Typography>
                   </Button>
                 </div>
-              ) : !isDailyHotelRent && moreFeatureFields.length ? (
+              ) : moreFeatureFields.length ? (
                 <Button unstyled
                   className="mx-auto py-2.5 flex items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
                   onClick={onMoreFeatures}
@@ -699,8 +882,14 @@ export function DetailsStep({
           </Section>
         )}
 
+        {isDailyHotelRent ? (
+          <Section icon="info.svg" title="مشخصات اتاق‌ها">
+            <DailyHotelRoomsSection />
+          </Section>
+        ) : null}
+
         {!hideHeatingCooling ? (
-          <Section icon="tempreture.svg" title="سرمایش و گرمایش">
+          <Section icon="tempreture.svg" title="گرمایش و سرمایش">
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
               {visibleHeating.map((item) => (
                 <Chip
@@ -716,9 +905,9 @@ export function DetailsStep({
                 />
               ))}
             </div>
-            {heatingItems.length > initialVisibleChipCount ? (
+            {heatingItemsForListing.length > initialVisibleChipCount ? (
               <MoreButton
-                count={heatingItems.length - initialVisibleChipCount}
+                count={heatingItemsForListing.length - initialVisibleChipCount}
                 expanded={showAllHeating}
                 onClick={() => setShowAllHeating((current) => !current)}
               />
@@ -788,16 +977,6 @@ export function DetailsStep({
         onBack={onBack ?? (() => navigateTo(`/new-ad/category${window.location.search}`))}
         onPrimary={onNext}
         primary="مرحله بعد"
-      />
-
-      <JalaliDatePickerSheet
-        isOpen={isDeliveryDateOpen}
-        value={values.projectDeliveryDate}
-        onClose={() => setIsDeliveryDateOpen(false)}
-        onConfirm={(date) => {
-          setField("projectDeliveryDate", date);
-          setIsDeliveryDateOpen(false);
-        }}
       />
 
       <BottomSheet

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
-import { moreFeatureKeys, moreFeatureOptions } from "../data";
-import type { MoreFeatureFormKey, MoreFeatureSelectKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
+import { moreFeatureKeys, moreFeatureOptions, timeOptions } from "../data";
+import type { MoreFeatureDateKey, MoreFeatureFormKey, MoreFeatureSelectKey, MoreFeatureTimeKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
 import {
   formatUnitsPerFloorLabel,
   getMoreFeatureFields,
@@ -12,6 +12,7 @@ import {
 } from "../utils";
 import { CompactToggle, InputBox, MoreFeaturesFooter, SelectBox } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
+import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 
 export function MoreFeaturesStep({
   onConfirm,
@@ -25,9 +26,11 @@ export function MoreFeaturesStep({
   const fields = getMoreFeatureFields();
 
   const [sheet, setSheet] = useState<{
-    key: MoreFeatureSelectKey;
+    key: MoreFeatureSelectKey | MoreFeatureTimeKey;
     title: string;
+    options: string[];
   } | null>(null);
+  const [dateField, setDateField] = useState<MoreFeatureDateKey | null>(null);
 
   const [draft, setDraft] = useState<MoreFeaturesFormValues>(() =>
     pickMoreFeatures(getValues()),
@@ -43,8 +46,9 @@ export function MoreFeaturesStep({
     }));
   };
 
-  const openSelect = (key: MoreFeatureSelectKey, title: string) => {
-    setSheet({ key, title });
+  const openSelect = (key: MoreFeatureSelectKey | MoreFeatureTimeKey, title: string, options?: string[]) => {
+    const fallbackOptions = key === "checkInTime" || key === "checkOutTime" ? timeOptions : moreFeatureOptions[key as MoreFeatureSelectKey];
+    setSheet({ key, title, options: options ?? fallbackOptions });
   };
 
   const getDraftString = (key: MoreFeatureFormKey) => {
@@ -103,11 +107,35 @@ export function MoreFeaturesStep({
                 );
               }
 
+              if (field.control === "time") {
+                return (
+                  <SelectBox
+                    key={field.key}
+                    onClear={() => setDraftField(field.key, "")}
+                    onClick={() => openSelect(field.key as MoreFeatureTimeKey, field.label, timeOptions)}
+                    placeholder={field.label}
+                    value={getDraftString(field.key)}
+                  />
+                );
+              }
+
+              if (field.control === "date") {
+                return (
+                  <SelectBox
+                    key={field.key}
+                    onClear={() => setDraftField(field.key, "")}
+                    onClick={() => setDateField(field.key as MoreFeatureDateKey)}
+                    placeholder={field.label}
+                    value={getDraftString(field.key)}
+                  />
+                );
+              }
+
               return (
                 <SelectBox
                   key={field.key}
                   onClear={() => setDraftField(field.key, "")}
-                  onClick={() => openSelect(field.key as MoreFeatureSelectKey, field.label)}
+                  onClick={() => openSelect(field.key as MoreFeatureSelectKey, field.label, field.options)}
                   placeholder={field.label}
                   value={getDisplayValue(field.key)}
                 />
@@ -122,6 +150,17 @@ export function MoreFeaturesStep({
       </main>
 
       <MoreFeaturesFooter onCancel={onCancel} onConfirm={commit} />
+
+      <JalaliDatePickerSheet
+        isOpen={Boolean(dateField)}
+        onClose={() => setDateField(null)}
+        onConfirm={(date) => {
+          if (dateField) setDraftField(dateField, date);
+          setDateField(null);
+        }}
+        title={dateField === "projectDeliveryDate" ? "تاریخ تحویل" : "تاریخ آماده تحویل"}
+        value={dateField ? getDraftString(dateField) : ""}
+      />
 
       <BottomSheet
         ariaLabel={sheet?.title ?? "انتخاب"}
@@ -144,7 +183,7 @@ export function MoreFeaturesStep({
         <BottomSheetActionList
           align="center"
           isOpen={Boolean(sheet)}
-          items={(sheet ? moreFeatureOptions[sheet.key] : []).map((option) => ({
+          items={(sheet?.options ?? []).map((option) => ({
             id: option,
             title: sheet?.key === "unitsPerFloor"
               ? formatUnitsPerFloorLabel(option)

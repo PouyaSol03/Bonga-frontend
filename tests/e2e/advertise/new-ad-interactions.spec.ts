@@ -23,6 +23,22 @@ async function openSaleApartmentDetails(page: Page, withLocation = true) {
   return newAd;
 }
 
+async function openScenarioDetails(page: Page, formCode: string) {
+  const scenario = newAdScenarios.find((item) => item.formCode === formCode);
+  if (!scenario) throw new Error(`Missing E2E scenario for ${formCode}`);
+
+  const newAd = new NewAdPage(page);
+  await newAd.gotoCategory();
+  await newAd.chooseScenario(scenario);
+  await newAd.continueFromCategory();
+  await expect(page).toHaveURL(new RegExp(`/new-ad/details\\?.*category=${scenario.category}`));
+  await seedLocation(page);
+  await page.reload();
+  await expect(page.getByRole("button", { name: /مشهد، محله سجاد/ })).toBeVisible();
+
+  return { newAd, scenario };
+}
+
 test.describe("new ad shared interactions", () => {
   test.beforeEach(async ({ page }) => {
     await seedAuthenticatedUser(page);
@@ -86,7 +102,72 @@ test.describe("new ad shared interactions", () => {
     // Use the form-step navigation, not the header's browser-history back.
     // "مرحله قبل" deterministically returns media -> details.
     await page.getByRole("button", { name: "مرحله قبل", exact: true }).click();
-    await expect(page.getByText("موقعیت ملک", { exact: true })).toBeVisible();
+    await expect(page.getByText("موقعیت آگهی", { exact: true })).toBeVisible();
+  });
+
+  test("rent conversion is gated by price and the slider writes back into both inputs", async ({ page }) => {
+    const { newAd } = await openScenarioDetails(page, "rent-apartment");
+    await newAd.exerciseRentConversionGuard();
+  });
+
+  test("commercial opening count uses a bottom sheet in both sale and rent", async ({ page }) => {
+    for (const formCode of ["sale-commercial", "rent-commercial"]) {
+      const { newAd } = await openScenarioDetails(page, formCode);
+      await page.getByRole("button", { name: /ثبت .*مشخصات دیگر|ویرایش مشخصات/ }).first().click();
+      await expect(page.getByText("مشخصات بیشتر", { exact: true }).first()).toBeVisible();
+      await newAd.expectBottomSheetForField("تعداد دهنه");
+      await page.getByRole("button", { name: "انصراف", exact: true }).click();
+    }
+  });
+
+  test("daily rent check-in/out are bottom sheets and pet policy precedes toggles", async ({ page }) => {
+    const { newAd } = await openScenarioDetails(page, "daily-apartment-suite");
+    await page.getByRole("button", { name: /ثبت .*مشخصات دیگر|ویرایش مشخصات/ }).first().click();
+    await expect(page.getByText("مشخصات بیشتر", { exact: true }).first()).toBeVisible();
+
+    await newAd.expectBottomSheetForField("ساعت ورود");
+    await newAd.expectBottomSheetForField("ساعت خروج");
+
+    const pet = page.getByRole("button", { name: "حیوان خانگی", exact: true });
+    const furnished = page.getByText("با لوازم و مبله", { exact: true });
+    await expect(pet).toBeVisible();
+    await expect(furnished).toBeVisible();
+    const furnishedHandle = await furnished.elementHandle();
+    if (!furnishedHandle) throw new Error("Furnished toggle label was not rendered");
+    const petComesFirst = await pet.evaluate((element, other) =>
+      Boolean(element.compareDocumentPosition(other as Node) & Node.DOCUMENT_POSITION_FOLLOWING),
+      furnishedHandle,
+    );
+    expect(petComesFirst).toBe(true);
+
+    await newAd.expectBottomSheetForField("حیوان خانگی");
+    await page.getByRole("button", { name: "انصراف", exact: true }).click();
+  });
+
+  test("daily hotel has hotel-level time sheets and a single full-screen room editor header", async ({ page }) => {
+    const { newAd } = await openScenarioDetails(page, "daily-hotel");
+    await newAd.exerciseDailyHotelAdDetails();
+    await newAd.exerciseDailyHotelRoomEditor({ removeAfterSave: true });
+  });
+
+  test("project selectors use bottom sheets and partnership more-features action stays in its main section", async ({ page }) => {
+    {
+      const { newAd } = await openScenarioDetails(page, "presale-special");
+      await newAd.expectBottomSheetForField("تعداد کل طبقات *");
+      await newAd.expectBottomSheetForField("تعداد کل واحد ها *");
+      await expect(page.getByRole("button", { name: "ثبت مشخصات بیشتر", exact: true })).toBeVisible();
+    }
+
+    {
+      await page.goto("/home");
+      await openScenarioDetails(page, "partnership");
+      const partnershipSection = page
+        .getByText("مشخصات مشارکت", { exact: true })
+        .locator("xpath=ancestor::section[1]");
+      await expect(
+        partnershipSection.getByRole("button", { name: /ثبت .*مشخصات دیگر/, exact: false }),
+      ).toBeVisible();
+    }
   });
 
   test("agency publisher supports search, sort, neighborhood filter, map/list and submit", async ({ page }) => {

@@ -30,7 +30,7 @@ export function ProjectSaleTermsFields({
             numeric
             leftText="درصد"
             onChange={(value) => setField("saleTermsPercent", value)}
-            placeholder="درصد"
+            placeholder="درصد شرایط"
             value={values.saleTermsPercent}
           />
 
@@ -39,7 +39,7 @@ export function ProjectSaleTermsFields({
             numeric
             leftText="ماه"
             onChange={(value) => setField("saleTermsInstallmentMonths", value)}
-            placeholder="تعداد قسط"
+            placeholder="تعداد اقساط"
             value={values.saleTermsInstallmentMonths}
           />
         </div>

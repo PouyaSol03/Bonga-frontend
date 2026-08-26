@@ -81,6 +81,7 @@ export type ViewAdDetails = {
   pricePerMeter: string;
   pricePrimaryLabel: string;
   priceSecondaryLabel: string;
+  rentConversionPolicy?: string;
   status: string;
   title: string;
   totalPrice: string;

@@ -5,14 +5,17 @@ const png1x1 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
 function valueForRequiredField(field: string) {
-  if (field.includes("سهم سازنده")) return "50";
+  if (field.includes("درصد مشارکت") || field.includes("سهم سازنده")) return "50";
   if (field.includes("حداقل قیمت")) return "1000000000";
   if (field.includes("حداکثر قیمت")) return "2000000000";
+  if (field.includes("روزهای عادی")) return "1000000";
+  if (field.includes("آخر هفته")) return "1200000";
+  if (field.includes("روزهای خاص")) return "1500000";
   if (field.includes("رهن")) return "500000000";
   if (field.includes("اجاره")) return "10000000";
   if (field.includes("قیمت")) return "1500000000";
   if (field.includes("تعداد کل طبقات")) return "8";
-  if (field.includes("تعداد کل واحدها")) return "24";
+  if (field.includes("تعداد کل واحد")) return "24";
   if (field.includes("ارتفاع")) return "4";
   return "120";
 }
@@ -24,6 +27,14 @@ export class NewAdPage {
     return this.page
       .getByText(title, { exact: true })
       .locator("xpath=ancestor::section[1]");
+  }
+
+  async expectDetailsRoot() {
+    await expect(
+      this.page.getByText("موقعیت آگهی", { exact: true }).or(
+        this.page.getByText("موقعیت ملک", { exact: true }),
+      ).first(),
+    ).toBeVisible();
   }
 
   async gotoCategory() {
@@ -100,15 +111,12 @@ export class NewAdPage {
     await expect(dialog).toBeHidden();
   }
 
-  async chooseDeliveryDate() {
-    await this.page.getByRole("button", { name: "تاریخ تحویل *", exact: true }).click();
+  async chooseDateField(placeholder: string, title: string) {
+    await this.page.getByRole("button", { name: placeholder, exact: true }).click();
 
-    const dialog = this.page.getByRole("dialog", { name: "تاریخ تحویل", exact: true });
+    const dialog = this.page.getByRole("dialog", { name: title, exact: true });
     await expect(dialog).toBeVisible();
 
-    // react-multi-date-picker keeps hidden month/year cells in the DOM. Pick a
-    // visible 1-2 digit day only, otherwise Playwright can resolve a hidden
-    // year such as ۱۴۱۲.
     const day = dialog
       .locator(".rmdp-day:not(.rmdp-disabled):not(.rmdp-day-hidden):visible span:visible")
       .filter({ hasText: /^[۰-۹0-9]{1,2}$/ })
@@ -121,6 +129,10 @@ export class NewAdPage {
     await expect(confirm).toBeEnabled();
     await confirm.click();
     await expect(dialog).toBeHidden();
+  }
+
+  async chooseDeliveryDate() {
+    await this.chooseDateField("تاریخ تحویل *", "تاریخ تحویل");
   }
 
   async fillRequiredDetails(scenario: NewAdScenario) {
@@ -143,8 +155,8 @@ export class NewAdPage {
         continue;
       }
 
-      if (field === "تاریخ تحویل *") {
-        await this.chooseDeliveryDate();
+      if (field.startsWith("تاریخ تحویل")) {
+        await this.chooseDateField(field, "تاریخ تحویل");
         continue;
       }
 
@@ -169,7 +181,7 @@ export class NewAdPage {
 
   async exerciseMoreFeatures(expectedFields: string[]) {
     const moreButton = this.page
-      .getByRole("button", { name: /مشخصات دیگر|ویرایش مشخصات/ })
+      .getByRole("button", { name: /مشخصات دیگر|ویرایش مشخصات|ثبت مشخصات بیشتر/ })
       .first();
 
     if (!expectedFields.length) {
@@ -179,24 +191,21 @@ export class NewAdPage {
 
     await expect(moreButton).toBeVisible();
     await moreButton.click();
-    await expect(this.page.getByText("ویژگی‌های بیشتر", { exact: true })).toBeVisible();
+    await expect(this.page.getByText("مشخصات بیشتر", { exact: true }).first()).toBeVisible();
 
     for (const field of expectedFields) {
       const input = this.page.getByPlaceholder(field, { exact: true });
       const select = this.page.getByRole("button", { name: field, exact: true });
       const text = this.page.getByText(field, { exact: true });
-
-      // Wait for the actual control instead of using count() while the step is
-      // rendering/re-rendering.
       await expect(input.or(select).or(text).first()).toBeVisible();
     }
 
-    // Cancel is a real user path and must not commit draft changes.
+    // Cancel remains a covered user path and must return to the details page.
     await this.page.getByRole("button", { name: "انصراف", exact: true }).click();
-    await expect(this.page.getByText("موقعیت ملک", { exact: true })).toBeVisible();
+    await this.expectDetailsRoot();
 
     await this.page
-      .getByRole("button", { name: /مشخصات دیگر|ویرایش مشخصات/ })
+      .getByRole("button", { name: /مشخصات دیگر|ویرایش مشخصات|ثبت مشخصات بیشتر/ })
       .first()
       .click();
 
@@ -205,17 +214,19 @@ export class NewAdPage {
       const select = this.page.getByRole("button", { name: field, exact: true });
       const label = this.page.getByText(field, { exact: true });
 
-      // MoreFeaturesStep re-renders after each selection. Do not use count()
-      // as a readiness check; it can briefly return 0 and misclassify a
-      // select field (for example "جنس کابینت") as a switch.
       await expect(input.or(select).or(label).first()).toBeVisible();
 
       if (await input.isVisible()) {
-        await input.fill("12");
+        await input.fill(field.includes("تضمین") ? "5000000" : "12");
         continue;
       }
 
       if (await select.isVisible()) {
+        if (field === "تاریخ آماده تحویل" || field === "تاریخ تحویل") {
+          await this.chooseDateField(field, field);
+          continue;
+        }
+
         await select.click();
         const dialog = this.page.getByRole("dialog", { name: field, exact: true });
         await expect(dialog).toBeVisible();
@@ -228,11 +239,11 @@ export class NewAdPage {
     }
 
     await this.page.getByRole("button", { name: "تایید", exact: true }).click();
-    await expect(this.page.getByText("موقعیت ملک", { exact: true })).toBeVisible();
+    await this.expectDetailsRoot();
   }
 
   async exerciseHeatingAndFacilities() {
-    const heating = this.section("سرمایش و گرمایش");
+    const heating = this.section("گرمایش و سرمایش");
     if (await heating.count()) {
       const chip = heating.locator('button[aria-pressed]').first();
       if (await chip.count()) {
@@ -305,27 +316,46 @@ export class NewAdPage {
     if (!(await label.count())) return;
 
     await this.toggleByLabel("شرایط فروش", true);
-    await this.fillInput("درصد", "30");
-    await this.fillInput("تعداد قسط", "12");
+    await this.fillInput("درصد شرایط", "30");
+    await this.fillInput("تعداد اقساط", "12");
+  }
+
+  async exerciseProjectExchange() {
+    const label = this.page.getByText("معاوضه", { exact: true });
+    if (!(await label.count())) return;
+
+    await this.toggleByLabel("معاوضه", true);
+    const exchangeCard = this.page
+      .getByText("معاوضه با", { exact: true })
+      .locator("xpath=ancestor::div[.//button[normalize-space()='انتخاب']][1]");
+    await exchangeCard.getByRole("button", { name: "انتخاب", exact: true }).click();
+
+    const dialog = this.page.getByRole("dialog", { name: "معاوضه با", exact: true });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "خودرو", exact: true }).click();
+    await dialog.getByRole("button", { name: "بازگشت", exact: true }).click();
+    await expect(dialog).toBeHidden();
   }
 
   async exerciseProjectDetails() {
-    const open = this.page.getByRole("button", { name: "ثبت جزئیات پروژه", exact: true });
+    const open = this.page.getByRole("button", { name: "جزییات پروژه", exact: true });
     if (!(await open.count())) return;
 
     await open.click();
-    await expect(this.page.getByText("جزئیات پروژه", { exact: true })).toBeVisible();
+    await expect(this.page.getByText("جزئیات پروژه", { exact: true }).first()).toBeVisible();
     await this.fillInput("متراژ *", "120");
 
     for (const title of ["طبقه", "تعداد اتاق", "موقعیت"]) {
       const titleNode = this.page.getByText(title, { exact: true }).first();
-      const row = titleNode.locator("xpath=ancestor::div[contains(@class,'space-y-3')][1]");
+      const row = titleNode.locator("xpath=ancestor::div[.//button[normalize-space()='انتخاب']][1]");
       await row.getByRole("button", { name: "انتخاب", exact: true }).click();
 
       const dialog = this.page.getByRole("dialog", { name: title, exact: true });
       await expect(dialog).toBeVisible();
-      await this.pickFirstDialogOption(dialog);
-      await this.page.keyboard.press("Escape");
+      await dialog.locator("button:not([disabled])").filter({ hasNotText: /بازگشت|لغو|تایید/ }).first().click();
+      // Project detail sheets are multi-select. Close them through the real
+      // BottomSheet back action (the shared BottomSheet does not bind Escape).
+      await dialog.getByRole("button", { name: "بازگشت", exact: true }).click();
       await expect(dialog).toBeHidden();
     }
 
@@ -336,30 +366,90 @@ export class NewAdPage {
     await expect(projectMeterageInputs).toHaveCount(1);
 
     await this.page.getByRole("button", { name: "بازگشت", exact: true }).last().click();
-    await expect(this.page.getByRole("button", { name: "ثبت جزئیات پروژه", exact: true })).toBeVisible();
+    await expect(this.page.getByRole("button", { name: "جزییات پروژه", exact: true })).toBeVisible();
   }
 
-  async exerciseDailyHotelRoomEditor() {
+  async exerciseDailyHotelAdDetails() {
+    await this.chooseSelect("دوره اجاره", "دوره اجاره", "روزانه");
+    await this.fillInput("حداقل مدت اقامت", "1");
+    await this.chooseSelect("ساعت ورود", "ساعت ورود");
+    await this.chooseSelect("ساعت خروج", "ساعت خروج");
+    await this.chooseSelect("حیوان خانگی", "حیوان خانگی");
+  }
+
+  async exerciseDailyHotelRoomEditor(options: { removeAfterSave?: boolean } = {}) {
     const room = this.page.getByRole("button", { name: "اتاق یک تخته", exact: true }).last();
     if (!(await room.count())) return;
 
     await room.click();
-    await expect(
-      this.page.getByRole("heading", { name: "اتاق یک تخته", exact: true }),
-    ).toBeVisible();
 
-    await this.chooseSelect("تعداد نفر *", "تعداد نفر", "1");
-    await this.chooseSelect("تعداد نفر اضافه *", "تعداد نفر اضافه", "1");
+    // The new room editor is a fixed full-screen child view. Verify its own
+    // top bar instead of asserting that the covered parent header disappeared
+    // from the DOM. This guards the double-top-bar visual regression correctly.
+    const editor = this.page
+      .locator("div.fixed.inset-0")
+      .filter({ has: this.page.getByRole("button", { name: "بازگشت", exact: true }) })
+      .filter({ hasText: "اتاق یک تخته" })
+      .last();
+    await expect(editor).toBeVisible();
+    await expect(editor.locator("header")).toHaveCount(1);
+    await expect(editor.locator("header").getByText("اتاق یک تخته", { exact: true })).toBeVisible();
+
+    await this.chooseSelect("ظرفیت استاندارد *", "ظرفیت استاندارد", "1");
+    await this.chooseSelect("ظرفیت اضافه *", "ظرفیت اضافه", "1");
     await this.chooseSelect("وعده غذایی *", "وعده غذایی", "صبحانه");
     await this.fillInput("قیمت روزهای عادی *", "1000000");
     await this.fillInput("قیمت آخر هفته *", "1200000");
     await this.fillInput("قیمت روزهای خاص *", "1500000");
-    await this.page.getByRole("button", { name: "ثبت", exact: true }).click();
+    await editor.getByRole("button", { name: "ثبت", exact: true }).click();
 
     const remove = this.page.getByRole("button", { name: "حذف اطلاعات اتاق یک تخته", exact: true });
     await expect(remove).toBeVisible();
-    await remove.click();
-    await expect(remove).toHaveCount(0);
+
+    if (options.removeAfterSave) {
+      await remove.click();
+      await expect(remove).toHaveCount(0);
+    }
+  }
+
+  async expectBottomSheetForField(field: string) {
+    const button = this.page.getByRole("button", { name: field, exact: true }).first();
+    await expect(button).toBeVisible();
+    await button.click();
+    const dialog = this.page.getByRole("dialog", { name: field.replace(/\s*\*$/, ""), exact: true });
+    await expect(dialog).toBeVisible();
+    await this.pickFirstDialogOption(dialog);
+    await expect(dialog).toBeHidden();
+  }
+
+  async exerciseRentConversionGuard() {
+    const priceSection = this.section("اطلاعات قیمت");
+    const conversionLabel = priceSection.getByText("تبدیل رهن و اجاره", { exact: true }).last();
+    const conversionContainer = conversionLabel.locator("xpath=ancestor::*[.//button[@role='switch']][1]");
+    const toggle = conversionContainer.getByRole("switch").first();
+
+    await expect(toggle).toBeDisabled();
+    await this.fillInput("رهن *", "500000000");
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-checked", "true");
+
+    const range = this.page.getByRole("slider", { name: "تبدیل مبلغ رهن و اجاره" });
+    await expect(range).toBeVisible();
+    await range.fill("400000000");
+
+    // The range conversion must write back into the real source inputs.
+    const mortgageInput = priceSection.locator('input[inputmode="numeric"]').nth(0);
+    const rentInput = priceSection.locator('input[inputmode="numeric"]').nth(1);
+    await expect(mortgageInput).toHaveValue(/400,?000,?000|400000000/);
+    await expect(rentInput).not.toHaveValue("");
+
+    // If both source prices are cleared later, conversion must automatically
+    // switch off and become unavailable again.
+    await mortgageInput.fill("");
+    await rentInput.fill("");
+    await expect(toggle).toBeDisabled();
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
   }
 
   async continueToMedia() {

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -8,6 +8,8 @@ import {
   parseRentPriceValue,
   RENT_CONVERSION_MORTGAGE_UNIT,
 } from "../rentPriceConversion";
+import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
+import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 
 const faNumber = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
 
@@ -66,29 +68,30 @@ function ConversionSummaryCard({
         variant="label"
         size="medium"
         weight="medium"
-        className="mb-3 text-[#1a1a1a]"
+        className="mb-2 text-[#1a1a1a]"
       >
         {label}
       </Typography>
 
       <div
-        className={`flex min-h-[112px] flex-col items-center justify-center rounded-[28px] px-3 py-4 ${
+        className={`flex flex-col items-center justify-center rounded-2xl py-2 ${
           isMortgage ? "bg-[#eaf8f1]" : "bg-[#fff5e8]"
         }`}
       >
         <Typography
           as="strong"
-          variant="title"
+          variant="label"
           size="large"
           weight="semibold"
-          className={isMortgage ? "text-[#11a366]" : "text-[#ff7200]"}
+          dir="ltr"
+          className={`${isMortgage ? "text-[#11a366]" : "text-[#ff7200]"} [unicode-bidi:isolate]`}
         >
           {formatted.value}
         </Typography>
         <Typography
           as="span"
-          variant="body"
-          size="medium"
+          variant="label"
+          size="small"
           weight="medium"
           className="mt-2 text-[#4d4d4d]"
         >
@@ -98,6 +101,16 @@ function ConversionSummaryCard({
     </div>
   );
 }
+
+type ConversionBaseline = {
+  mortgage: number;
+  rent: number;
+};
+
+type CommittedConversion = {
+  mortgage: number;
+  rent: number;
+};
 
 export function RentPriceConversion({
   enabled,
@@ -118,42 +131,144 @@ export function RentPriceConversion({
   rentPrice: string;
   selectedMortgagePrice: string;
 }) {
-  const baseMortgage = parseRentPriceValue(mortgagePrice);
-  const baseRent = parseRentPriceValue(rentPrice);
-  const selected = selectedMortgagePrice || String(baseMortgage || 0);
-  const conversion = calculateRentPriceConversion(mortgagePrice, rentPrice, selected);
+  const sourceMortgage = parseRentPriceValue(mortgagePrice);
+  const sourceRent = parseRentPriceValue(rentPrice);
+  const sourceConversion = calculateRentPriceConversion(
+    sourceMortgage,
+    sourceRent,
+    sourceMortgage,
+  );
+  const sourceHasPrice = sourceConversion.maximumMortgage > 0;
+
+  const [baseline, setBaseline] = useState<ConversionBaseline>(() => ({
+    mortgage: sourceMortgage,
+    rent: sourceRent,
+  }));
+  const [liveMortgage, setLiveMortgage] = useState(() =>
+    parseRentPriceValue(selectedMortgagePrice) || sourceMortgage,
+  );
+
+  const draggingRef = useRef(false);
+  const lastCommittedRef = useRef<CommittedConversion | null>(null);
+
+  const activeBaseline = enabled
+    ? baseline
+    : { mortgage: sourceMortgage, rent: sourceRent };
+  const activeMortgage = enabled
+    ? liveMortgage
+    : parseRentPriceValue(selectedMortgagePrice) || sourceMortgage;
+
+  const conversion = calculateRentPriceConversion(
+    activeBaseline.mortgage,
+    activeBaseline.rent,
+    activeMortgage,
+  );
   const hasPrice = conversion.maximumMortgage > 0;
   const mortgageDelta = formatSignedAmount(conversion.mortgageDelta);
   const rentDelta = formatSignedAmount(conversion.rentDelta);
 
   useEffect(() => {
-    if (enabled && !hasPrice) {
+    if (enabled && !sourceHasPrice) {
+      draggingRef.current = false;
+      lastCommittedRef.current = null;
       onEnabledChange(false);
       onSelectedMortgageChange("");
       return;
     }
 
-    if (!enabled) return;
+    if (enabled) return;
 
-    const normalized = String(conversion.convertedMortgage);
+    setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
+    setLiveMortgage(parseRentPriceValue(selectedMortgagePrice) || sourceMortgage);
+    lastCommittedRef.current = null;
+  }, [
+    enabled,
+    onEnabledChange,
+    onSelectedMortgageChange,
+    selectedMortgagePrice,
+    sourceHasPrice,
+    sourceMortgage,
+    sourceRent,
+  ]);
+
+  useEffect(() => {
+    if (!enabled || draggingRef.current) return;
+
+    const lastCommitted = lastCommittedRef.current;
+    const sourceMatchesLastCommit =
+      lastCommitted !== null &&
+      lastCommitted.mortgage === sourceMortgage &&
+      lastCommitted.rent === sourceRent;
+
+    if (sourceMatchesLastCommit) return;
+
+    const sourceChangedOutsideSlider =
+      sourceMortgage !== baseline.mortgage || sourceRent !== baseline.rent;
+
+    if (!sourceChangedOutsideSlider) return;
+
+    setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
+    setLiveMortgage(sourceMortgage);
+    lastCommittedRef.current = null;
+
+    const normalized = String(sourceMortgage);
     if (normalized !== selectedMortgagePrice) {
       onSelectedMortgageChange(normalized);
     }
-  }, [conversion.convertedMortgage, enabled, hasPrice, onEnabledChange, onSelectedMortgageChange, selectedMortgagePrice]);
+  }, [
+    baseline.mortgage,
+    baseline.rent,
+    enabled,
+    onSelectedMortgageChange,
+    selectedMortgagePrice,
+    sourceMortgage,
+    sourceRent,
+  ]);
 
   const handleToggle = (checked: boolean) => {
-    if (checked && !hasPrice) return;
+    if (checked && !sourceHasPrice) return;
 
-    if (checked && !selectedMortgagePrice) {
-      onSelectedMortgageChange(String(baseMortgage || 0));
+    draggingRef.current = false;
+    lastCommittedRef.current = null;
+
+    if (checked) {
+      const initialMortgage = parseRentPriceValue(selectedMortgagePrice) || sourceMortgage;
+      setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
+      setLiveMortgage(initialMortgage);
+      onSelectedMortgageChange(String(initialMortgage));
     }
+
     onEnabledChange(checked);
+  };
+
+  const updateLiveConversion = (value: string | number) => {
+    const next = calculateRentPriceConversion(
+      baseline.mortgage,
+      baseline.rent,
+      value,
+    );
+
+    setLiveMortgage(next.convertedMortgage);
+    return next;
+  };
+
+  const commitConversion = (value: string | number) => {
+    const next = updateLiveConversion(value);
+
+    lastCommittedRef.current = {
+      mortgage: next.convertedMortgage,
+      rent: next.convertedRent,
+    };
+
+    onSelectedMortgageChange(String(next.convertedMortgage));
+    onMortgagePriceChange(String(next.convertedMortgage));
+    onRentPriceChange(String(next.convertedRent));
   };
 
   return (
     <div className="mt-5 border-t border-[#cccccc] pt-1">
       <div className="flex h-16 items-center justify-between [direction:ltr]">
-        <SwitchButton checked={enabled} disabled={!hasPrice} onChange={handleToggle} />
+        <SwitchButton checked={enabled} disabled={!sourceHasPrice} onChange={handleToggle} />
 
         <Typography
           as="span"
@@ -175,13 +290,13 @@ export function RentPriceConversion({
               variant="body"
               size="medium"
               weight="regular"
-              className="m-0 text-right leading-7"
+              className="m-0 text-right"
             >
               به ازای هر یک میلیون تومان رهن، ۳۰ هزار تومان اجاره محاسبه می‌شود.
             </Typography>
           </div>
 
-          <div className="mt-7">
+          <div className="mt-4 py-4">
             <div className="flex items-center justify-between gap-4 px-0.5">
               <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d]">
                 رهن <span className="text-[#11a366]">{formatMoney(conversion.convertedMortgage)}</span>
@@ -191,54 +306,62 @@ export function RentPriceConversion({
               </Typography>
             </div>
 
-            <div className="relative mt-2 h-[70px] select-none [direction:ltr]">
+            <div className="relative mx-2 mt-1 h-[28px] select-none [direction:ltr]">
               <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-[#f2f2f2]">
                 <div
-                  className="absolute bottom-0 left-0 top-0 bg-[#ffb100]"
+                  className="absolute bottom-0 left-0 top-0 bg-warning"
                   style={{ width: `${conversion.positionPercent}%` }}
                 />
                 <div
-                  className="absolute bottom-0 right-0 top-0 bg-[#11a366]"
+                  className="absolute bottom-0 right-0 top-0 bg-tertiary"
                   style={{ width: `${100 - conversion.positionPercent}%` }}
                 />
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-white" />
               </div>
 
-              <div className="absolute left-0 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#ffb100] shadow-[0_0_0_1px_#ffb100]">
+              <div className="absolute left-0 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-warning">
                 <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
               </div>
-              <div className="absolute right-0 top-1/2 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#11a366] shadow-[0_0_0_1px_#11a366]">
+              <div className="absolute right-0 top-1/2 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-tertiary">
                 <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
               </div>
 
               {hasPrice ? (
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 z-10 flex h-[54px] w-[112px] -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-3 rounded-[14px] border border-[#cccccc] bg-white text-[#4d4d4d] shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
+                  className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-white px-4 py-1.5 text-[#4d4d4d] shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
                   style={{ left: `${Math.min(88, Math.max(12, conversion.positionPercent))}%` }}
                 >
-                  <span className="text-2xl leading-none">‹</span>
-                  <Typography as="span" variant="title" size="medium" weight="medium">تبدیل</Typography>
-                  <span className="text-2xl leading-none">›</span>
+                  <LinearArrowLeft1 className="h-4 w-4" />
+                  <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">تبدیل</Typography>
+                  <LinearArrowRight1 className="h-4 w-4" />
                 </div>
               ) : null}
 
               <input
                 aria-label="تبدیل مبلغ رهن و اجاره"
-                className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0 disabled:cursor-not-allowed"
+                className="absolute inset-0 z-20 h-full w-full cursor-ew-resize touch-pan-y opacity-0 disabled:cursor-not-allowed"
                 disabled={!hasPrice}
                 max={Math.max(0, Math.round(conversion.maximumMortgage))}
                 min={0}
                 onChange={(event) => {
-                  const next = calculateRentPriceConversion(
-                    mortgagePrice,
-                    rentPrice,
-                    event.target.value,
-                  );
-
-                  onSelectedMortgageChange(String(next.convertedMortgage));
-                  onMortgagePriceChange(String(next.convertedMortgage));
-                  onRentPriceChange(String(next.convertedRent));
+                  if (!draggingRef.current) {
+                    commitConversion(event.target.value);
+                  }
+                }}
+                onInput={(event) => {
+                  updateLiveConversion(event.currentTarget.value);
+                }}
+                onPointerCancel={(event) => {
+                  draggingRef.current = false;
+                  commitConversion(event.currentTarget.value);
+                }}
+                onPointerDown={() => {
+                  draggingRef.current = true;
+                }}
+                onPointerUp={(event) => {
+                  draggingRef.current = false;
+                  commitConversion(event.currentTarget.value);
                 }}
                 step={RENT_CONVERSION_MORTGAGE_UNIT}
                 type="range"

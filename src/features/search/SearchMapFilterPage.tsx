@@ -48,6 +48,7 @@ import {
   dailyHotelFacilityItems,
   dailyWorkspaceFacilityItems,
   rentConversionPolicyOptions,
+  roomOptions,
   exchangeTargets,
   moreFeatureFieldsByCategory,
   moreFeatureFieldsByListingType,
@@ -123,6 +124,7 @@ type RangeBlock = {
   title: string;
   unit?: string;
   variant: "area" | "money" | "number" | "percent";
+  showUnitInTitle?: boolean;
 };
 
 type SingleChoiceBlock = {
@@ -131,6 +133,10 @@ type SingleChoiceBlock = {
   kind: "single";
   options: readonly string[];
   title: string;
+  more?: boolean;
+  moreLimit?: number;
+  moreLabel?: string;
+  moreIcon?: "down" | "left";
 };
 
 type MultiChoiceBlock = {
@@ -139,6 +145,10 @@ type MultiChoiceBlock = {
   kind: "multi";
   options: readonly ChipItem[];
   title: string;
+  more?: boolean;
+  moreLimit?: number;
+  moreLabel?: string;
+  moreIcon?: "down" | "left";
 };
 
 type ToggleBlock = {
@@ -341,6 +351,7 @@ function normalizeExactFilterValue(value: string | undefined) {
     .replace(/سال/g, "")
     .replace(/اتاق/g, "")
     .replace(/طبقه/g, "")
+    .replace(/نفر/g, "")
     .replace(/و بیشتر/g, "")
     .replace(/\+/g, "")
     .trim();
@@ -509,9 +520,14 @@ function readInitialFiltersFromUrl(): FilterState {
 
     if (!directValue) continue;
 
-    if (fieldId === "heatingCooling" || fieldId === "facilities") {
+    const isApprovedSaleLandMulti =
+      listing?.transaction === "sale" &&
+      listing.category === "land" &&
+      fieldId === "usageType";
+
+    if (fieldId === "heatingCooling" || fieldId === "facilities" || fieldId === "suitableFor" || isApprovedSaleLandMulti) {
       nextFilters.multis[fieldId] = directValue.split(/[_،,]/).filter(Boolean);
-    } else if (["renovated", "furnished", "constructionPermit", "commercialPermit", "managementRoom", "conferenceRoom", "receptionHall", "signboard", "kitchen", "separateEntrance"].includes(fieldId)) {
+    } else if (["renovated", "furnished", "constructionPermit", "commercialPermit", "hasDocument", "managementRoom", "conferenceRoom", "receptionHall", "signboard", "kitchen", "separateEntrance", "saleTermsEnabled"].includes(fieldId)) {
       nextFilters.toggles[fieldId] = directValue === "true" || directValue === "1" || directValue === "دارد";
     } else {
       nextFilters.singles[fieldId] = directValue;
@@ -529,19 +545,12 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
     ? getAdvertiseFormCode(filters.transaction, filters.category)
     : "";
   const neighborhoods = filters.neighborhoods.map((item) => item.id).join("_");
-  const areaRange = getRange(filters, [
-    "meterage",
-    "landArea",
-    "buildingArea",
-    "projectMeterage",
-  ]);
-  const priceRange = getRange(filters, [
-    "price",
-    "projectPrice",
-    "dailyPrice",
-    "rentPrice",
-    "mortgagePrice",
-  ]);
+  // Only the generic `area`/`price` fields use these legacy params.
+  // land_area, building_area, rent_price and mortgage_price are emitted below
+  // through filterFieldParamMap so independent ranges do not accidentally AND
+  // against a non-existent generic attribute.
+  const areaRange = getRange(filters, ["meterage", "projectMeterage"]);
+  const priceRange = getRange(filters, ["price", "projectPrice", "dailyPrice"]);
   const rooms =
     normalizeMultiExactFilterValue(filters.multis.rooms) ||
     normalizeExactFilterValue(filters.singles.rooms) ||
@@ -617,7 +626,7 @@ export const categoryLabels: Record<CategoryKey, string> = {
   apartment: "آپارتمان",
   "villa-house": "خانه ویلایی",
   "garden-villa": "باغ، ویلا",
-  land: "زمین",
+  land: "زمین، ملک کلنگی",
   office: "اداری",
   "commercial-unit": "واحد تجاری",
   warehouse: "انبار، سوله",
@@ -669,6 +678,38 @@ export const categoryGroupsByTransaction: Record<
   ],
 };
 
+function getApprovedSelectedCategoryLabel(transaction: TransactionType, category: CategoryKey) {
+  if (transaction === "sale") {
+    if (category === "apartment") return "فروش آپارتمان";
+    if (category === "land") return "فروش زمین، ملک کلنگی";
+    if (category === "garden-villa") return "فروش باغ، ویلا";
+    if (category === "office") return "فروش واحد اداری";
+    if (category === "commercial-unit") return "فروش واحد تجاری";
+    if (category === "factory-workshop") return "فروش واحد صنعتی";
+    if (category === "hotel-apartment") return "فروش هتل، اقامتگاه";
+  }
+
+  if (transaction === "rent") {
+    if (category === "apartment") return "اجاره آپارتمان";
+    if (category === "villa-house") return "اجاره خانه، ویلا";
+    if (category === "office") return "اجاره واحد اداری";
+    if (category === "commercial-unit") return "اجاره واحد تجاری";
+    if (category === "factory-workshop") return "اجاره واحد صنعتی";
+    if (category === "hotel-apartment") return "اجاره هتل، اقامتگاه";
+    if (category === "daily-apartment-suite") return "اجاره روزانه آپارتمان، سوئیت";
+    if (category === "daily-garden-villa") return "اجاره روزانه باغ، ویلا";
+    if (category === "daily-hotel-apartment") return "اجاره روزانه هتل، اقامتگاه";
+    if (category === "daily-workspace") return "اجاره روزانه دفترکار، غرفه";
+  }
+
+  // Both supplied project SVGs intentionally show the selected property category as apartment.
+  if (transaction === "project" && (category === "project-presale" || category === "project-partnership")) {
+    return "آپارتمان";
+  }
+
+  return categoryLabels[category];
+}
+
 export const transactionTabs: { label: string; value: TransactionType }[] = [
   { label: "فروش", value: "sale" },
   { label: "اجاره", value: "rent" },
@@ -687,14 +728,18 @@ const filterFieldParamMap: Record<string, string> = {
   projectTotalUnits: "project_total_units",
   saleTermsPercent: "sale_terms_percent",
   saleTermsInstallmentMonths: "sale_terms_installment_months",
+  saleTermsEnabled: "installment_sale",
   builderSharePercent: "builder_share",
   participationType: "partnership_type",
   landArea: "land_area",
   buildingArea: "building_area",
+  rentPrice: "rent_price",
+  mortgagePrice: "mortgage_price",
   totalFloors: "total_floors",
   unitsPerFloor: "units_per_floor",
   unitType: "unit_type",
   unitPosition: "unit_position",
+  unitLayout: "unit_layout",
   documentType: "document_type",
   usageType: "land_use",
   suitableFor: "suitable_for",
@@ -738,6 +783,7 @@ const filterFieldParamMap: Record<string, string> = {
   ceilingHeight: "height",
   openingCount: "opening_count",
   spaceType: "space_type",
+  standardCapacity: "standard_capacity",
   rentalPeriod: "rental_period",
   viewType: "view_type",
   checkInTime: "check_in_time",
@@ -904,13 +950,20 @@ function getFieldIcon(key: string): IconName {
   return "settings";
 }
 
-function createRangeBlock(id: string, title: string, variant: RangeBlock["variant"], unit?: string): RangeBlock {
+function createRangeBlock(
+  id: string,
+  title: string,
+  variant: RangeBlock["variant"],
+  unit?: string,
+  showUnitInTitle = false,
+): RangeBlock {
   return {
     id,
     kind: "range",
     title,
     unit,
     variant,
+    showUnitInTitle,
   };
 }
 
@@ -1016,6 +1069,918 @@ function getProjectPresaleBlocks(): FilterBlock[] {
   ];
 }
 
+
+const approvedSaleFilterAgeOptions = [
+  "۱ سال",
+  "نوساز",
+  "۲ سال",
+  "۳ سال",
+  "۴ سال",
+  "۱۰ سال",
+  "۱۵ سال",
+  "۲۰ سال",
+  "بیشتر از ۳۰ سال",
+];
+
+const approvedSaleFilterDocumentTypeOptions = [
+  "تک برگ",
+  "منگوله‌دار",
+  "آستانه",
+  "اوقافی",
+  "موقوفه",
+  "وکالت محضری",
+  "قولنامه",
+  "مشاع",
+  "در دست اقدام",
+  "آماده انتقال",
+];
+
+const approvedSaleFilterLandUseOptions = [
+  "مسکونی",
+  "اداری",
+  "تجاری",
+  "صنعتی",
+  "کشاورزی",
+  "باغی",
+  "آموزشی",
+  "درمانی",
+  "مذهبی",
+  "ورزشی",
+  "خدماتی",
+  "گردشگری و توریستی",
+  "پارکینگ",
+  "حریم",
+  "فاقد کاربری",
+];
+
+const approvedSaleFilterLandPositionOptions = [
+  "شمالی",
+  "جنوبی",
+  "غربی",
+  "شرقی",
+  "دوممر",
+  "دونبش",
+  "سه نبش",
+  "چهارنبش",
+];
+
+const approvedSaleFilterSuitableForOptions = [
+  "ساخت آپارتمان",
+  "ساخت ویلا",
+  "سرمایه‌گذاری",
+  "تجمیع با ملک مجاور",
+];
+
+const approvedSaleFilterBuildingPositionOptions = [
+  "شمالی",
+  "جنوبی",
+  "شرقی",
+  "غربی",
+  "دونبش",
+  "سه نبش",
+  "دوممر",
+];
+
+const approvedSaleFilterUnitPositionOptions = [
+  "جلو",
+  "عقب",
+  "وسط",
+  "کنج",
+  "دوبلکس",
+  "پنت هاوس",
+];
+
+const approvedSaleFilterVillaBuildingTypeOptions = [
+  "ویلایی مستقل",
+  "شهرکی",
+  "آپارتمانی",
+];
+
+const approvedSaleFilterVillaTypeOptions = [
+  "تک طبقه",
+  "دو طبقه",
+  "سه طبقه",
+  "دوبلکس",
+  "تریبلکس",
+  "فورلکس",
+];
+
+const approvedSaleFilterFloorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];
+
+// The supplied filter SVGs show the first six heating/cooling chips and five more.
+// Keep this filter-only list separate from create/edit feature contracts.
+const approvedSaleFilterHeatingItems: ChipItem[] = [
+  { id: "gas-cooler", label: "کولر گازی" },
+  { id: "water-cooler", label: "کولر آبی" },
+  { id: "package", label: "پکیج" },
+  { id: "water-heater", label: "آبگرمکن" },
+  { id: "heater", label: "بخاری" },
+  { id: "radiator", label: "شوفاژ" },
+  { id: "duct-split", label: "داکت اسپیلت" },
+  { id: "chiller", label: "چیلر" },
+  { id: "fan-coil", label: "فن کوئل" },
+  { id: "floor-heating", label: "گرمایش ازکف" },
+  { id: "fireplace", label: "شومینه" },
+];
+
+const approvedSaleFilterExchangeTargets = [
+  "ویلا",
+  "خودرو",
+  "آپارتمان",
+  "خانه ویلایی",
+  "زمین",
+  ...exchangeTargets.filter((item) => !["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"].includes(item)),
+];
+
+
+// Exact filter-screen contracts transcribed from the supplied sale/rent SVG references.
+// These lists are intentionally filter-only so create/edit form contracts remain untouched.
+const approvedBusinessCurrentStatusOptions = ["تخلیه", "فعال"];
+const approvedOfficeCurrentStatusOptions = ["تخلیه", "فعال", "درحال بازسازی"];
+const approvedOfficePositionOptions = ["مجتمع اداری", "برج اداری", "بر خیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"];
+const approvedOfficeDocumentOptions = ["دائم", "موقت"];
+const approvedCommercialLicenseOptions = ["دائم", "موقت"];
+const approvedRentIndustrialLicenseOptions = ["دائم", "موقت", "ندارد"];
+const approvedIndustrialPropertyOptions = ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "گاوداری", "مرغداری"];
+const approvedIndustrialAccessOptions = ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"];
+const approvedCommercialPositionOptions = ["بر خیابان اصلی", "داخل پاساژ", "داخل کوچه", "غرفه", "مالکیت مشترک", "بازار محله"];
+const approvedCommercialOwnershipOptions = ["مالکیت کامل", "فقط سرقفلی", "فقط مالکیت", "مالکیت مشترک"];
+const approvedHotelAccommodationOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"];
+const approvedHotelStarOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
+const approvedTotalFloorsOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+const approvedRentUnitLayoutOptions = ["تک طبقه", "دو طبقه", "سه طبقه", "دوبلکس", "فورلکس", "پنت هاوس"];
+const approvedRentApartmentBuildingPositionOptions = ["شمالی", "جنوبی", "غربی", "شرقی", "دو ممر", "دونبش", "سه نبش", "چهارنبش"];
+const approvedRentVillaLandPositionOptions = ["شمالی", "جنوبی", "دونبش", "سه نبش", "چهارنبش"];
+const approvedRentVillaBuildingTypeOptions = ["ویلایی مستقل", "آپارتمانی", "شهرکی"];
+const approvedRentVillaTypeOptions = ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"];
+
+const approvedSaleOfficeSuitableOptions = [
+  "شرکت‌ها", "مهندسین", "بیمه", "وکلا", "آموزشگاه",
+  "مطب", "موسسه", "آتلیه", "مزون", "اسناد رسمی",
+  "دفاتر دولت", "صنایع", "خدماتی", "ورزشی", "فرهنگی",
+];
+
+const approvedSaleCommercialSuitableOptions = [
+  "پوشاک", "متفرقه", "کترینگ", "ابزار آلات", "آشپزخانه", "کیف و کفش", "سوپر مارکت",
+  "موبایل و لوازم جانبی", "لوازم خانگی", "طلا و جواهر", "ساعت", "عطر و ادکلن", "آرایشی و بهداشتی",
+  "داروخانه", "تجهیزات پزشکی", "عینک", "کتاب و لوازم تحریر", "اسباب بازی", "لوازم ورزشی",
+  "دوچرخه و موتورسیکلت", "قطعات خودرو", "لوازم یدکی", "خدمات خودرو", "رستوران", "کافه", "فست فود",
+  "نانوایی", "قنادی", "میوه و تره بار", "پروتئینی", "لبنیات", "خشکبار", "گل فروشی", "مبلمان",
+  "فرش و موکت", "دکوراسیون", "پرده", "روشنایی", "الکتریکی", "تاسیسات", "مصالح ساختمانی",
+  "ابزارآلات صنعتی", "چاپ و تبلیغات", "آتلیه", "سالن زیبایی", "خیاطی", "آموزشگاه", "دفتر خدماتی",
+  "بیمه", "بانک و موسسه مالی", "املاک", "وکلا", "مطب",
+];
+
+const approvedRentApartmentSuitableOptions = [
+  "شرکت‌ها", "مهندسین", "بیمه", "وکلا", "آموزشگاه",
+  "خانواده", "مجرد", "دانشجو", "زوج", "مطب", "موسسه", "آتلیه", "مزون", "اسناد رسمی", "دفاتر دولت",
+];
+
+const approvedRentVillaSuitableOptions = [
+  "خانواده", "برگزاری مراسم", "چند خانواده",
+  "مجرد", "دانشجو", "زوج", "مهمانی", "جشن تولد", "عروسی", "دورهمی", "سفر خانوادگی", "اقامت گروهی", "استراحت",
+];
+
+const approvedRentOfficeSuitableOptions = [
+  "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی",
+  "درمانی", "انباری", "مهندسین", "شرکت ها", "وکلا", "مطب", "موسسه", "آموزشگاه", "آتلیه", "مزون",
+  "اسناد رسمی", "دفاتر دولت", "ورزشی", "فرهنگی", "همه مشاغل",
+];
+
+const approvedRentCommercialSuitableOptions = [
+  "وکلا", "مهندسین", "مطب", "درمانگاه", "آموزشگاه",
+  "فروشگاه", "تجاری", "خدماتی", "اداری", "صنعتی", "درمانی", "انباری", "شرکت ها", "موسسه", "آتلیه",
+  "مزون", "اسناد رسمی", "دفاتر دولت", "همه مشاغل", "سایر",
+];
+
+const approvedRentIndustrialSuitableOptions = ["صنایع پلاستیک", "صنایع چوب"];
+
+// Exact filter-only contracts transcribed from the supplied daily-rent/project SVGs.
+// These intentionally do not change create/edit-ad field definitions.
+const approvedDailyAccommodationOptions = ["سوئیت", "آپارتمان", "اتاق", "خوابگاه یا پانسیون", "بوم گردی"];
+const approvedDailyHotelAccommodationOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"];
+const approvedDailyHotelRankOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
+const approvedDailyWorkspaceTypeOptions = [
+  "اتاق کار اشتراکی",
+  "اتاق کار خصوصی",
+  "اتاق جلسه",
+  "کلاس آموزشی",
+  "سالن همایش",
+  "غرفه نمایشگاه",
+  "کانتر",
+];
+const approvedDailyCapacityOptions = [
+  "۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر",
+  "۹ نفر", "۱۰ نفر", "۱۲ نفر", "۱۵ نفر", "۲۰ نفر", "۳۰ نفر", "۴۰ نفر", "۵۰+ نفر",
+];
+const approvedPartnershipLandPositionOptions = [
+  "شمالی", "جنوبی", "غربی", "شرقی", "دو ممر", "دونبش", "سه نبش", "چهار نبش",
+];
+const approvedPartnershipDocumentOptions = ["ملکی", "آستانه", "اوقاف", "موقوفه", "قولنامه، وکالت"];
+
+const approvedDailyFacilities: ChipItem[] = [
+  { id: "elevator", label: "آسانسور" },
+  { id: "parking", label: "پارکینگ" },
+  { id: "warehouse", label: "انباری" },
+  { id: "terrace", label: "تراس" },
+  { id: "lobby", label: "لابی" },
+  { id: "guard", label: "نگهبانی" },
+  { id: "yard", label: "حیاط" },
+  { id: "iranian", label: "سرویس ایرانی" },
+  { id: "western", label: "سرویس فرهنگی" },
+  { id: "door", label: "درب ضد سرقت" },
+  { id: "video", label: "آیفون تصویری" },
+  { id: "gas-stove", label: "گاز رومیزی" },
+  { id: "hood", label: "هود" },
+  { id: "oven", label: "فرتوکار" },
+  { id: "camera", label: "دوربین امنیتی" },
+  { id: "bms", label: "سیستم هوشمند" },
+  { id: "roof", label: "روف گاردن" },
+  { id: "heated-pool", label: "استخر آب گرم" },
+  { id: "outdoor-pool", label: "استخر روباز" },
+  { id: "covered-pool", label: "استخر پوشیده" },
+  { id: "jacuzzi", label: "جکوزی" },
+  { id: "sauna", label: "سونا" },
+  { id: "gym", label: "سالن ورزشی" },
+  { id: "playground", label: "زمین بازی" },
+  { id: "internet", label: "اینترنت پر سرعت" },
+];
+
+const approvedRentBusinessHeatingItems: ChipItem[] = [
+  { id: "air-handler", label: "هواساز" },
+  { id: "heater", label: "بخاری" },
+  { id: "water-cooler", label: "کولر آبی" },
+  { id: "gas-cooler", label: "کولر گازی" },
+  { id: "duct-split", label: "داکت اسپیلت" },
+  { id: "chiller", label: "چیلر" },
+  { id: "fan-coil", label: "فن کوئل" },
+  { id: "radiator", label: "شوفاژ" },
+  { id: "floor-heating", label: "گرمایش ازکف" },
+  { id: "fireplace", label: "شومینه" },
+  { id: "water-heater", label: "آبگرمکن" },
+  { id: "package", label: "پکیج" },
+  { id: "engine-room", label: "موتورخانه" },
+  { id: "air-conditioning", label: "سیستم تهویه مطبوع" },
+  { id: "split", label: "اسپیلت" },
+];
+
+const approvedRentBusinessFacilities: ChipItem[] = [
+  { id: "terrace", label: "تراس" },
+  { id: "yard", label: "حیاط" },
+  { id: "fireplace", label: "شومینه" },
+  { id: "elevator", label: "آسانسور" },
+  { id: "parking", label: "پارکینگ" },
+  { id: "storage", label: "انباری" },
+  { id: "lobby", label: "لابی" },
+  { id: "security", label: "نگهبانی" },
+  { id: "roof-garden", label: "روف گاردن" },
+  { id: "pool", label: "استخر" },
+  { id: "sauna", label: "سونا" },
+  { id: "jacuzzi", label: "جکوزی" },
+  { id: "gym", label: "سالن ورزشی" },
+  { id: "camera", label: "دوربین مدار بسته" },
+  { id: "smart-system", label: "سیستم هوشمند" },
+];
+
+const approvedSaleHotelFacilities: ChipItem[] = (() => {
+  const labels = ["آسانسور", "پارکینگ", "رستوران", "کافی شاپ", "لابی", "استخر"];
+  const seen = new Set(labels);
+  for (const item of dailyHotelFacilityItems) {
+    if (labels.length >= 34) break;
+    if (!seen.has(item.label)) {
+      labels.push(item.label);
+      seen.add(item.label);
+    }
+  }
+  return labels.map((label) => ({ id: label, label }));
+})();
+
+
+function asChipItems(options: readonly string[]): ChipItem[] {
+  return options.map((label) => ({ id: label, label }));
+}
+
+function getApprovedSaleApartmentFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { kind: "loan" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "floor",
+      id: "floor",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterFloorOptions),
+      title: "طبقه",
+      more: true,
+      moreLimit: 6,
+      moreLabel: "مشاهده همه طبقات",
+      moreIcon: "left",
+    },
+    { icon: "floor", id: "unitsPerFloor", kind: "single", options: approvedSaleFilterUnitsPerFloorOptions, title: "تعداد واحد در طبقه", more: false },
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "نوع سند", more: false },
+    { icon: "orientation", id: "unitType", kind: "single", options: approvedSaleFilterBuildingPositionOptions, title: "موقعیت ساختمان", more: false },
+    { icon: "orientation", id: "unitPosition", kind: "single", options: approvedSaleFilterUnitPositionOptions, title: "موقعیت واحد", more: false },
+    {
+      icon: "temperature",
+      id: "heatingCooling",
+      kind: "multi",
+      options: approvedSaleFilterHeatingItems,
+      title: "سرمایش و گرمایش",
+      more: true,
+      moreLimit: 6,
+    },
+    {
+      icon: "settings",
+      id: "facilities",
+      kind: "multi",
+      options: facilityItems,
+      title: "امکانات",
+      more: true,
+      moreLimit: 6,
+    },
+    { icon: "exchange", id: "exchangeWith", kind: "multi", options: asChipItems(approvedSaleFilterExchangeTargets), title: "معاوضه با" },
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedSaleLandFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    createRangeBlock("landWidth", "عرض زمین", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "نوع سند", more: false },
+    {
+      icon: "settings",
+      id: "usageType",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterLandUseOptions),
+      title: "نوع کاربری",
+      more: true,
+      moreLimit: 10,
+      moreLabel: `مشاهده ${toPersianDigits(Math.max(approvedSaleFilterLandUseOptions.length - 10, 0))} مورد دیگر`,
+      moreIcon: "left",
+    },
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین", more: false },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "settings", id: "density", kind: "single", options: ["کم", "متوسط", "زیاد"], title: "تراکم زمین", more: false },
+    { icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleFilterSuitableForOptions), title: "مناسب برای" },
+    { id: "constructionPermit", kind: "toggle", title: "مجوز ساخت" },
+    { kind: "loan" },
+    {
+      icon: "temperature",
+      id: "heatingCooling",
+      kind: "multi",
+      options: approvedSaleFilterHeatingItems,
+      title: "سرمایش و گرمایش",
+      more: true,
+      moreLimit: 6,
+    },
+    {
+      icon: "settings",
+      id: "facilities",
+      kind: "multi",
+      options: facilityItems,
+      title: "امکانات",
+      more: true,
+      moreLimit: 6,
+    },
+    { icon: "exchange", id: "exchangeWith", kind: "multi", options: asChipItems(approvedSaleFilterExchangeTargets), title: "معاوضه با" },
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedSaleGardenVillaFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { kind: "loan" },
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین", more: false },
+    { icon: "building", id: "buildingType", kind: "single", options: approvedSaleFilterVillaBuildingTypeOptions, title: "نوع بنا", more: false },
+    { icon: "building", id: "villaType", kind: "single", options: approvedSaleFilterVillaTypeOptions, title: "تیپ بنا", more: false },
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "نوع سند", more: false },
+    {
+      icon: "floor",
+      id: "totalFloors",
+      kind: "single",
+      options: approvedSaleFilterFloorOptions,
+      title: "تعداد طبقات",
+      more: true,
+      moreLimit: 6,
+      moreLabel: "مشاهده همه طبقات",
+      moreIcon: "left",
+    },
+    {
+      icon: "temperature",
+      id: "heatingCooling",
+      kind: "multi",
+      options: approvedSaleFilterHeatingItems,
+      title: "سرمایش و گرمایش",
+      more: true,
+      moreLimit: 6,
+    },
+    {
+      icon: "settings",
+      id: "facilities",
+      kind: "multi",
+      options: facilityItems,
+      title: "امکانات",
+      more: true,
+      moreLimit: 6,
+    },
+    { icon: "exchange", id: "exchangeWith", kind: "multi", options: asChipItems(approvedSaleFilterExchangeTargets), title: "معاوضه با" },
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+
+function approvedSaleHeatingBlock(): MultiChoiceBlock {
+  return {
+    icon: "temperature",
+    id: "heatingCooling",
+    kind: "multi",
+    options: approvedSaleFilterHeatingItems,
+    title: "سرمایش و گرمایش",
+    more: true,
+    moreLimit: 6,
+    moreLabel: "نمایش ۵ مورد دیگر",
+  };
+}
+
+function approvedGenericFacilitiesBlock(): MultiChoiceBlock {
+  return {
+    icon: "settings",
+    id: "facilities",
+    kind: "multi",
+    options: facilityItems,
+    title: "امکانات",
+    more: true,
+    moreLimit: 6,
+    moreLabel: "نمایش ۱۹ مورد دیگر",
+  };
+}
+
+function approvedRentBusinessHeatingBlock(): MultiChoiceBlock {
+  return {
+    icon: "temperature",
+    id: "heatingCooling",
+    kind: "multi",
+    options: approvedRentBusinessHeatingItems,
+    title: "سرمایش و گرمایش",
+    more: true,
+    moreLimit: 3,
+    moreLabel: "نمایش ۱۲ مورد دیگر",
+  };
+}
+
+function approvedRentBusinessFacilitiesBlock(): MultiChoiceBlock {
+  return {
+    icon: "settings",
+    id: "facilities",
+    kind: "multi",
+    options: approvedRentBusinessFacilities,
+    title: "امکانات",
+    more: true,
+    moreLimit: 3,
+    moreLabel: "نمایش ۱۲ مورد دیگر",
+  };
+}
+
+function approvedExchangeBlock(): MultiChoiceBlock {
+  return {
+    icon: "exchange",
+    id: "exchangeWith",
+    kind: "multi",
+    options: asChipItems(approvedSaleFilterExchangeTargets),
+    title: "معاوضه با",
+  };
+}
+
+function approvedFloorBlock(title = "طبقه"): MultiChoiceBlock {
+  return {
+    icon: "floor",
+    id: "floor",
+    kind: "multi",
+    options: asChipItems(approvedSaleFilterFloorOptions),
+    title,
+    more: true,
+    moreLimit: 6,
+    moreLabel: "مشاهده همه طبقات",
+    moreIcon: "left",
+  };
+}
+
+function approvedTotalFloorsBlock(title = "تعداد طبقات"): SingleChoiceBlock {
+  return {
+    icon: "floor",
+    id: "totalFloors",
+    kind: "single",
+    options: approvedTotalFloorsOptions,
+    title,
+    more: true,
+    moreLimit: 7,
+    moreLabel: "مشاهده همه طبقات",
+    moreIcon: "left",
+  };
+}
+
+function getApprovedSaleOfficeFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { kind: "loan" },
+    approvedFloorBlock(),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    {
+      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleOfficeSuitableOptions), title: "مناسب برای",
+      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
+    },
+    { icon: "settings", id: "currentStatus", kind: "single", options: approvedOfficeCurrentStatusOptions, title: "وضعیت فعلی" },
+    { icon: "location", id: "officePosition", kind: "single", options: approvedOfficePositionOptions, title: "موقعیت اداری" },
+    { icon: "agreement", id: "officeDocumentType", kind: "single", options: approvedOfficeDocumentOptions, title: "سند اداری" },
+    { id: "managementRoom", kind: "toggle", title: "اتاق مدیریت" },
+    { id: "conferenceRoom", kind: "toggle", title: "اتاق کنفرانس" },
+    { id: "receptionHall", kind: "toggle", title: "سالن پذیرش" },
+    { id: "signboard", kind: "toggle", title: "تابلو خور" },
+    { id: "separateEntrance", kind: "toggle", title: "ورودی مجزا" },
+    { id: "kitchen", kind: "toggle", title: "آشپزخانه" },
+    approvedSaleHeatingBlock(),
+    approvedGenericFacilitiesBlock(),
+    approvedExchangeBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedSaleCommercialFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "نوع سند" },
+    { icon: "location", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
+    { icon: "settings", id: "ownershipStatus", kind: "single", options: approvedCommercialOwnershipOptions, title: "نوع مالکیت" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    approvedFloorBlock(),
+    approvedTotalFloorsBlock("تعداد کل طبقات"),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleCommercialSuitableOptions), title: "مناسب برای",
+      more: true, moreLimit: 7, moreLabel: "مشاهده ۴۶ مورد دیگر", moreIcon: "left",
+    },
+    { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedCommercialLicenseOptions, title: "مجوز تجاری" },
+    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
+    { kind: "loan" },
+    approvedSaleHeatingBlock(),
+    approvedGenericFacilitiesBlock(),
+    approvedExchangeBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedSaleIndustrialFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "نوع سند" },
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    { icon: "building", id: "industrialPropertyType", kind: "single", options: approvedIndustrialPropertyOptions, title: "نوع ملک" },
+    { icon: "location", id: "accessType", kind: "single", options: approvedIndustrialAccessOptions, title: "دسترسی" },
+    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
+    { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedCommercialLicenseOptions, title: "مجوز تجاری" },
+    { kind: "loan" },
+    approvedSaleHeatingBlock(),
+    { icon: "settings", id: "facilities", kind: "multi", options: landFacilityItems, title: "امکانات" },
+    approvedExchangeBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedSaleHotelFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("price", "قیمت", "money", "تومان"),
+    { icon: "building", id: "accommodationType", kind: "single", options: approvedHotelAccommodationOptions, title: "نوع اقامتگاه" },
+    { icon: "settings", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "ستاره هتل" },
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "نوع سند" },
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    approvedTotalFloorsBlock("تعداد طبقات"),
+    { kind: "loan" },
+    approvedSaleHeatingBlock(),
+    {
+      icon: "settings", id: "facilities", kind: "multi", options: approvedSaleHotelFacilities, title: "امکانات",
+      more: true, moreLimit: 6, moreLabel: "نمایش ۲۸ مورد دیگر",
+    },
+    approvedExchangeBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedRentApartmentFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ آپارتمان", "area", "متر مربع", true),
+    createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+    createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
+    approvedFloorBlock(),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    {
+      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentApartmentSuitableOptions), title: "مناسب برای",
+      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
+    },
+    approvedTotalFloorsBlock("تعداد طبقات آپارتمان"),
+    { icon: "floor", id: "unitsPerFloor", kind: "single", options: approvedSaleFilterUnitsPerFloorOptions, title: "تعداد واحد در طبقه" },
+    { icon: "orientation", id: "unitType", kind: "single", options: approvedRentApartmentBuildingPositionOptions, title: "موقعیت ساختمان" },
+    { icon: "orientation", id: "unitPosition", kind: "single", options: approvedSaleFilterUnitPositionOptions, title: "موقعیت واحد" },
+    { icon: "building", id: "unitLayout", kind: "single", options: approvedRentUnitLayoutOptions, title: "تیپ واحد" },
+    approvedSaleHeatingBlock(),
+    approvedGenericFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedRentVillaHouseFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+    createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    {
+      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentVillaSuitableOptions), title: "مناسب برای",
+      more: true, moreLimit: 3, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
+    },
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedRentVillaLandPositionOptions, title: "موقعیت زمین" },
+    { icon: "building", id: "buildingType", kind: "single", options: approvedRentVillaBuildingTypeOptions, title: "نوع بنا" },
+    { icon: "building", id: "villaType", kind: "single", options: approvedRentVillaTypeOptions, title: "تیپ بنا" },
+    approvedTotalFloorsBlock("تعداد طبقات"),
+    approvedSaleHeatingBlock(),
+    approvedGenericFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedRentOfficeFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+    createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
+    approvedFloorBlock(),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    {
+      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentOfficeSuitableOptions), title: "مناسب برای",
+      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۵ مورد دیگر", moreIcon: "down",
+    },
+    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
+    { icon: "location", id: "officePosition", kind: "single", options: approvedOfficePositionOptions, title: "موقعیت اداری" },
+    { id: "hasDocument", kind: "toggle", title: "سند اداری" },
+    { id: "managementRoom", kind: "toggle", title: "اتاق مدیریت" },
+    { id: "conferenceRoom", kind: "toggle", title: "اتاق کنفرانس" },
+    { id: "receptionHall", kind: "toggle", title: "سالن پذیرش" },
+    { id: "signboard", kind: "toggle", title: "تابلو خور" },
+    { id: "separateEntrance", kind: "toggle", title: "ورودی مجزا" },
+    { id: "kitchen", kind: "toggle", title: "آشپزخانه" },
+    approvedRentBusinessHeatingBlock(),
+    approvedRentBusinessFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedRentCommercialFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+    createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
+    { icon: "location", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    approvedFloorBlock(),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentCommercialSuitableOptions), title: "مناسب برای",
+      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۵ مورد دیگر", moreIcon: "down",
+    },
+    approvedRentBusinessHeatingBlock(),
+    approvedRentBusinessFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedRentIndustrialFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+    createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
+    { icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentIndustrialSuitableOptions), title: "مناسب برای" },
+    { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedRentIndustrialLicenseOptions, title: "مجوز تجاری" },
+    { icon: "settings", id: "facilities", kind: "multi", options: landFacilityItems, title: "امکانات" },
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedRentHotelFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    { icon: "settings", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "ستاره هتل" },
+    { icon: "building", id: "accommodationType", kind: "single", options: approvedHotelAccommodationOptions, title: "نوع اقامتگاه" },
+    createRangeBlock("rentPrice", "مبلغ اجاره", "money", "تومان"),
+    createRangeBlock("mortgagePrice", "مبلغ رهن", "money", "تومان"),
+    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    approvedTotalFloorsBlock("تعداد طبقات"),
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
+    approvedRentBusinessHeatingBlock(),
+    approvedRentBusinessFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+
+function approvedDailyHeatingBlock(): MultiChoiceBlock {
+  return {
+    icon: "temperature",
+    id: "heatingCooling",
+    kind: "multi",
+    options: approvedSaleFilterHeatingItems,
+    title: "سرمایش و گرمایش",
+    more: true,
+    moreLimit: 6,
+    moreLabel: "نمایش ۵ مورد دیگر",
+  };
+}
+
+function approvedDailyFacilitiesBlock(): MultiChoiceBlock {
+  return {
+    icon: "settings",
+    id: "facilities",
+    kind: "multi",
+    options: approvedDailyFacilities,
+    title: "امکانات",
+    more: true,
+    moreLimit: 6,
+    moreLabel: "نمایش ۱۹ مورد دیگر",
+  };
+}
+
+function approvedDailyCapacityBlock(): SingleChoiceBlock {
+  return {
+    icon: "unitBed",
+    id: "standardCapacity",
+    kind: "single",
+    options: approvedDailyCapacityOptions,
+    title: "ظرفیت استاندارد",
+    more: true,
+    moreLimit: 5,
+    moreLabel: "مشاهده همه ظرفیتها",
+    moreIcon: "left",
+  };
+}
+
+function getApprovedDailyApartmentFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
+    { icon: "building", id: "accommodationType", kind: "single", options: approvedDailyAccommodationOptions, title: "نوع اقامتگاه" },
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    approvedDailyCapacityBlock(),
+    approvedFloorBlock(),
+    approvedDailyHeatingBlock(),
+    approvedDailyFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedDailyVillaFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
+    createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    approvedDailyCapacityBlock(),
+    approvedDailyHeatingBlock(),
+    approvedDailyFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedDailyHotelFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
+    { icon: "building", id: "accommodationType", kind: "single", options: approvedDailyHotelAccommodationOptions, title: "نوع اقامتگاه" },
+    { icon: "settings", id: "hotelStars", kind: "single", options: approvedDailyHotelRankOptions, title: "رتبه اقامتگاه" },
+    approvedDailyHeatingBlock(),
+    approvedDailyFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedDailyWorkspaceFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
+    { icon: "building", id: "spaceType", kind: "single", options: approvedDailyWorkspaceTypeOptions, title: "نوع فضا" },
+    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    approvedDailyCapacityBlock(),
+    approvedFloorBlock(),
+    approvedDailyHeatingBlock(),
+    approvedDailyFacilitiesBlock(),
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedProjectPartnershipFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
+    { icon: "agreement", id: "participationType", kind: "single", options: participationTypeOptions, title: "نوع مشارکت" },
+    { icon: "settings", id: "currentStatus", kind: "single", options: partnershipCurrentStatusOptions, title: "وضعیت فعلی ملک" },
+    { icon: "orientation", id: "landPosition", kind: "single", options: approvedPartnershipLandPositionOptions, title: "موقعیت زمین" },
+    { icon: "agreement", id: "documentType", kind: "single", options: approvedPartnershipDocumentOptions, title: "نوع سند" },
+    { id: "constructionPermit", kind: "toggle", title: "مجوز ساخت" },
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
+function getApprovedProjectPresaleFilterBlocks(): FilterBlock[] {
+  return [
+    { kind: "neighborhood" },
+    createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
+    createRangeBlock("projectPrice", "قیمت متری", "money", "تومان"),
+    { icon: "building", id: "projectType", kind: "single", options: projectTypeOptions, title: "نوع پروژه" },
+    { icon: "settings", id: "projectStatus", kind: "single", options: projectStatusOptions, title: "وضعیت پروژه" },
+    approvedRentBusinessHeatingBlock(),
+    approvedRentBusinessFacilitiesBlock(),
+    approvedExchangeBlock(),
+    { id: "saleTermsEnabled", kind: "toggle", title: "فروش شرایطی" },
+    { kind: "advertiser" },
+    { kind: "publicationTime" },
+    { kind: "adFlags" },
+  ];
+}
+
 function getPriceBlocks(transaction: TransactionType, category: CategoryKey): FilterBlock[] {
   if (category === "project-partnership") {
     return [createRangeBlock("builderSharePercent", "درصد مشارکت / درصد سهم", "percent", "درصد")];
@@ -1056,6 +2021,82 @@ function getPriceBlocks(transaction: TransactionType, category: CategoryKey): Fi
 
 export function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): FilterBlock[] {
   if (!category) return [];
+
+  if (transaction === "rent" && category === "daily-apartment-suite") {
+    return getApprovedDailyApartmentFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "daily-garden-villa") {
+    return getApprovedDailyVillaFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "daily-hotel-apartment") {
+    return getApprovedDailyHotelFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "daily-workspace") {
+    return getApprovedDailyWorkspaceFilterBlocks();
+  }
+
+  if (transaction === "project" && category === "project-partnership") {
+    return getApprovedProjectPartnershipFilterBlocks();
+  }
+
+  if (transaction === "project" && category === "project-presale") {
+    return getApprovedProjectPresaleFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "apartment") {
+    return getApprovedSaleApartmentFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "land") {
+    return getApprovedSaleLandFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "garden-villa") {
+    return getApprovedSaleGardenVillaFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "office") {
+    return getApprovedSaleOfficeFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "commercial-unit") {
+    return getApprovedSaleCommercialFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "factory-workshop") {
+    return getApprovedSaleIndustrialFilterBlocks();
+  }
+
+  if (transaction === "sale" && category === "hotel-apartment") {
+    return getApprovedSaleHotelFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "apartment") {
+    return getApprovedRentApartmentFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "villa-house") {
+    return getApprovedRentVillaHouseFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "office") {
+    return getApprovedRentOfficeFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "commercial-unit") {
+    return getApprovedRentCommercialFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "factory-workshop") {
+    return getApprovedRentIndustrialFilterBlocks();
+  }
+
+  if (transaction === "rent" && category === "hotel-apartment") {
+    return getApprovedRentHotelFilterBlocks();
+  }
 
   const isPartnership = category === "project-partnership";
   const hideHeatingCooling = isPartnership || category === "land";
@@ -1387,7 +2428,7 @@ export function AdvertisementFilterPage({
             </div>
 
             <FormChoiceChip
-              label={categoryLabels[filters.category]}
+              label={getApprovedSelectedCategoryLabel(filters.transaction, filters.category)}
               selected
               onClick={openCategoryPicker}
             />
@@ -1457,6 +2498,8 @@ type ChipSectionProps = {
   showFeatureIcons?: boolean;
   more?: boolean;
   moreLimit?: number;
+  moreLabel?: string;
+  moreIcon?: "down" | "left";
   onToggle: (value: string) => void;
   options: readonly ChipItem[];
   selected: string[];
@@ -1469,6 +2512,8 @@ function ChipSection({
   showFeatureIcons = false,
   more = false,
   moreLimit = 8,
+  moreLabel,
+  moreIcon,
   onToggle,
   options,
   selected,
@@ -1499,6 +2544,8 @@ function ChipSection({
         <MoreButton
           count={options.length - moreLimit}
           expanded={expanded}
+          label={moreLabel}
+          icon={moreIcon}
           onClick={() => setExpanded((current) => !current)}
         />
       ) : null}
@@ -1600,6 +2647,9 @@ type SingleChoiceSectionProps = {
   icon: ReactNode;
   sectionId?: string;
   more?: boolean;
+  moreLimit?: number;
+  moreLabel?: string;
+  moreIcon?: "down" | "left";
   onSelect: (value: string) => void;
   options: readonly string[];
   selected?: string;
@@ -1610,13 +2660,15 @@ function SingleChoiceSection({
   icon,
   sectionId,
   more = false,
+  moreLimit = 8,
+  moreLabel,
+  moreIcon,
   onSelect,
   options,
   selected,
   title,
 }: SingleChoiceSectionProps) {
   const [expanded, setExpanded] = useState(false);
-  const moreLimit = 8;
   const canExpand = more && options.length > moreLimit;
   const visibleOptions = canExpand && !expanded ? options.slice(0, moreLimit) : options;
 
@@ -1638,6 +2690,8 @@ function SingleChoiceSection({
         <MoreButton
           count={options.length - moreLimit}
           expanded={expanded}
+          label={moreLabel}
+          icon={moreIcon}
           onClick={() => setExpanded((current) => !current)}
         />
       ) : null}
@@ -1648,10 +2702,14 @@ function SingleChoiceSection({
 function MoreButton({
   count,
   expanded,
+  icon = "down",
+  label,
   onClick,
 }: {
   count: number;
   expanded: boolean;
+  icon?: "down" | "left";
+  label?: string;
   onClick: () => void;
 }) {
   return (
@@ -1660,8 +2718,10 @@ function MoreButton({
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="label" size="medium" weight="medium">{expanded ? "نمایش کمتر" : `نمایش ${toPersianDigits(count)} مورد بیشتر`}</Typography>
-      <ChevronDownIcon isOpen={expanded} />
+      <Typography as="span" variant="label" size="medium" weight="medium">
+        {expanded ? "نمایش کمتر" : label ?? `نمایش ${toPersianDigits(count)} مورد بیشتر`}
+      </Typography>
+      {icon === "left" && !expanded ? <ChevronLeftIcon /> : <ChevronDownIcon isOpen={expanded} />}
     </Button>
   );
 }
@@ -1883,6 +2943,7 @@ function FilterBlockRenderer({
             sectionId={getFilterSectionAnchor(block)}
             title={block.title}
             unit={block.unit}
+            showUnitInTitle={block.showUnitInTitle}
             minimum={value.minimum}
             maximum={value.maximum}
             onMinimumChange={(nextValue) => setRangeValue(block.id, "minimum", nextValue)}
@@ -1934,7 +2995,10 @@ function FilterBlockRenderer({
         <SingleChoiceSection
           icon={getIcon(block.icon)}
           sectionId={getFilterSectionAnchor(block)}
-          more={block.id !== "age" && block.options.length > 8}
+          more={block.more ?? (block.id !== "age" && block.options.length > 8)}
+          moreLimit={block.moreLimit}
+          moreLabel={block.moreLabel}
+          moreIcon={block.moreIcon}
           onSelect={(value) => setSingleValue(block.id, value)}
           options={block.options}
           selected={filters.singles[block.id]}
@@ -1961,10 +3025,12 @@ function FilterBlockRenderer({
           icon={getIcon(block.icon)}
           sectionId={getFilterSectionAnchor(block)}
           showFeatureIcons={block.id === "heatingCooling" || block.id === "facilities"}
-          more={block.id === "facilities" && block.options.length > 6}
-          moreLimit={block.id === "facilities" ? 6 : 8}
+          more={block.more ?? (block.id === "facilities" && block.options.length > 6)}
+          moreLimit={block.moreLimit ?? (block.id === "facilities" ? 6 : 8)}
+          moreLabel={block.moreLabel}
+          moreIcon={block.moreIcon}
           onToggle={(value) => toggleMultiValue(block.id, value)}
-          options={block.id === "floor" ? block.options.filter((option) => !option.label.includes("بیشتر")) : block.options}
+          options={block.options}
           selected={filters.multis[block.id] ?? []}
           title={block.title}
         />
@@ -2305,12 +3371,29 @@ type RangeSectionProps = {
 function AreaRangeSection({
   sectionId,
   title,
+  unit,
   minimum,
   maximum,
   onMinimumChange,
   onMaximumChange,
-}: RangeSectionProps) {
-  const normalizedTitle = title.includes("متراژ") ? (
+  showUnitInTitle = false,
+}: RangeSectionProps & { showUnitInTitle?: boolean }) {
+  const titleUnit = (unit ?? "متر").replace(/\s+/g, "");
+  const normalizedTitle = showUnitInTitle ? (
+    <>
+      {title}
+      {" "}
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-[#4d4d4d]"
+      >
+        ({titleUnit})
+      </Typography>
+    </>
+  ) : title.includes("متراژ") ? (
     <>
       متراژ
       {" "}

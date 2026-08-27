@@ -5,6 +5,7 @@ import { queryKeys } from "../../../shared/api/query-keys";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
   createAdvertisement,
+  updateAdvertisement,
   getAdvertisementCheckout,
   getAgencyAdvertisementCheckout,
   getConsultantAdvertisementCheckout,
@@ -143,6 +144,20 @@ export function useAgencyAdvertisementPreviewQuery(id: string | null) {
 export function useCreateAdvertisementMutation() {
   return useMutation({
     mutationFn: createAdvertisement,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
+  });
+}
+
+export function useUpdateAdvertisementMutation() {
+  return useMutation({
+    mutationFn: updateAdvertisement,
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.advertisements.all,

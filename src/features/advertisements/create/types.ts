@@ -57,10 +57,8 @@ export type BasicPropertySelectKey =
   | "floor"
   | "rooms"
   | "age"
-  | "usageType"
   | "landPosition"
   | "documentType"
-  | "suitableFor"
   | "hotelStars"
   | "standardCapacity"
   | "extraPeopleCapacity"
@@ -73,10 +71,12 @@ export type BasicPropertySelectKey =
   | "accommodationType"
   | "spaceType";
 
+export type BasicPropertyMultiSelectKey = "suitableFor" | "usageType";
+
 export type BasicPropertyField = {
   key: BasicPropertyFieldKey;
   label: string;
-  control: "input" | "select";
+  control: "input" | "select" | "multiSelect";
   required?: boolean;
   numeric?: boolean;
   leftText?: string;
@@ -94,8 +94,6 @@ export type MoreFeatureSelectKey =
   | "unitType"
   | "unitPosition"
   | "documentType"
-  | "usageType"
-  | "suitableFor"
   | "occupancyStatus"
   | "kitchenType"
   | "facadeMaterial"
@@ -122,6 +120,8 @@ export type MoreFeatureSelectKey =
   | "viewType"
   | "openingCount"
   | "projectStatus";
+
+export type MoreFeatureMultiSelectKey = "suitableFor" | "usageType";
 
 export type MoreFeatureNumberKey =
   | "buildingArea"
@@ -151,6 +151,7 @@ export type MoreFeatureToggleKey =
 
 export type MoreFeatureFormKey =
   | MoreFeatureSelectKey
+  | MoreFeatureMultiSelectKey
   | MoreFeatureNumberKey
   | MoreFeatureDateKey
   | MoreFeatureTimeKey
@@ -159,7 +160,7 @@ export type MoreFeatureFormKey =
 export type MoreFeatureField = {
   key: MoreFeatureFormKey;
   label: string;
-  control: "select" | "number" | "date" | "time" | "toggle";
+  control: "select" | "multiSelect" | "number" | "date" | "time" | "toggle";
   leftText?: string;
   options?: string[];
 };
@@ -219,12 +220,19 @@ export type SelectKey =
   | ProjectSelectKey
   | MoreFeatureSelectKey
   | MoreFeatureTimeKey
+  | "elevatorCount"
   | "rentConversionPolicy";
 
 export type SheetState =
   | {
     kind: "select";
     key: SelectKey;
+    title: string;
+    options: string[];
+  }
+  | {
+    kind: "multiSelect";
+    key: BasicPropertyMultiSelectKey;
     title: string;
     options: string[];
   }
@@ -252,10 +260,10 @@ export type NewAdFormValues = {
   age: string;
 
   density: string;
-  usageType: string;
+  usageType: string[];
   landPosition: string;
   documentType: string;
-  suitableFor: string;
+  suitableFor: string[];
   hotelStars: string;
   accommodationType: string;
   spaceType: string;
@@ -320,6 +328,7 @@ export type NewAdFormValues = {
   commercialPermit: boolean;
   ceilingHeight: string;
   openingCount: string;
+  elevatorCount: string;
   singleRoomCount: string;
   doubleRoomCount: string;
   suiteCount: string;

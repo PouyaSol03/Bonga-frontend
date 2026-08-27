@@ -234,10 +234,12 @@ export function Tag({
 }
 
 export function Chip({
+  displayLabel,
   item,
   selected,
   onClick,
 }: {
+  displayLabel?: string;
   item: ChipItem;
   selected: boolean;
   onClick: () => void;
@@ -257,7 +259,7 @@ export function Chip({
       onClick={onClick}
       selected={selected}
     >
-      {item.label}
+      {displayLabel ?? item.label}
     </UiChip>
   );
 }

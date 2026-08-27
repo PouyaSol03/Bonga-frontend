@@ -10,7 +10,7 @@ import type { AdvertisementItem } from "../api/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../../shared/navigation/navigation";
-import type { IconName, ViewAdDetails } from "./viewAdTypes";
+import type { DetailItem, IconName, ViewAdDetails } from "./viewAdTypes";
 import { Typography } from "../../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
@@ -234,7 +234,7 @@ const propertyInfoLabelMap: Record<string, string> = {
   suitable_for: "مناسب برای",
   document_type: "نوع سند",
   land_position: "موقعیت زمین",
-  land_use: "کاربری",
+  land_use: "نوع کاربری",
   commercial_license: "مجوز تجاری",
   commercial_permit: "مجوز تجاری",
   commercial_position: "موقعیت تجاری",
@@ -305,7 +305,7 @@ const propertyInfoLabelMap: Record<string, string> = {
   capacity: "ظرفیت",
   unit_type: "جهت ساختمان",
   unit_position: "موقعیت واحد",
-  density: "تراکم",
+  density: "تراکم زمین",
   total_floors: "تعداد طبقات",
   facade_material: "جنس نما",
   floor_material: "جنس کف",
@@ -424,6 +424,7 @@ const ignoredFeatureLabels = new Set([
   "has_image",
   "has_video",
   "facilities",
+  "elevator_count",
 ]);
 
 export type AdvertisementFeatureMap = Record<string, unknown>;
@@ -772,16 +773,48 @@ function buildPropertyInfoItem(label: string, rawValue: unknown) {
   };
 }
 
+const parkingFacilityFormCodes = new Set([
+  "sale-apartment",
+  "sale-villa-house",
+  "sale-garden-villa",
+  "sale-office",
+  "sale-commercial",
+  "sale-hotel",
+  "rent-apartment",
+  "rent-villa-house",
+  "rent-garden-villa",
+  "rent-office",
+  "rent-commercial",
+  "rent-hotel",
+  "daily-apartment-suite",
+  "daily-garden-villa",
+  "daily-hotel",
+  "daily-office-booth",
+  "presale-special",
+]);
+
+function supportsParkingFacility(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
+  const formCode = toText(getFeatureValue(features, "form_code"));
+  return parkingFacilityFormCodes.has(formCode);
+}
+
+function getElevatorCountText(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
+  const count = getFeatureValue(features, "elevator_count");
+  const text = toText(count);
+  return text ? toPersianDigits(text) : "";
+}
+
 function buildFacilityItems(
   features: NonNullable<AdvertisementItem["features"]>,
 ) {
   const facilities = getFeatureValue(features, "facilities");
-
-  if (!Array.isArray(facilities)) {
-    return [];
-  }
-
-  return facilities
+  const elevatorCount = getElevatorCountText(features);
+  const selectedFacilities: DetailItem[] = Array.isArray(facilities)
+    ? facilities
     .map((facility) => toText(facility))
     .filter(Boolean)
     .map((facility) => ({
@@ -789,9 +822,31 @@ function buildFacilityItems(
       iconSrc: getFeatureIconSrc(facility),
       label: facility,
       value: facility,
+      inlineNote: facility === "آسانسور" && elevatorCount
+        ? `(${elevatorCount} لاین)`
+        : undefined,
       featureIconLabel: facility,
       hideFallbackIcon: true,
-    }));
+    }))
+    : [];
+
+  const hasParking = selectedFacilities.some((item) => item.label === "پارکینگ");
+  if (supportsParkingFacility(features) && !hasParking) {
+    const parkingItem: DetailItem = {
+      icon: "apartment" as IconName,
+      iconSrc: getFeatureIconSrc("پارکینگ"),
+      label: "پارکینگ",
+      value: "پارکینگ",
+      statusBadge: "ندارد",
+      tone: "neutral",
+      featureIconLabel: "پارکینگ",
+      hideFallbackIcon: true,
+    };
+    const elevatorIndex = selectedFacilities.findIndex((item) => item.label === "آسانسور");
+    selectedFacilities.splice(elevatorIndex >= 0 ? elevatorIndex + 1 : 0, 0, parkingItem);
+  }
+
+  return selectedFacilities;
 }
 
 function formatPricePerMeter(totalPrice: unknown, area: unknown) {
@@ -1017,7 +1072,7 @@ const PROPERTY_DETAIL_ICONS = {
 
 type DetailInfoValue = string | string[];
 
-type DetailInfoTone = "neutral" | "success" | "warning";
+type DetailInfoTone = "neutral" | "success" | "warning" | "danger";
 
 type DetailInfoLayout = "grid" | "rows";
 
@@ -1041,6 +1096,7 @@ type DetailInfoSection = {
   items: DetailInfoItem[];
   layout?: DetailInfoLayout;
   columns?: 2 | 3;
+  choiceRows?: DetailInfoItem[];
   badges?: DetailInfoItem[];
   showIcons?: boolean;
 };
@@ -1092,6 +1148,17 @@ function goBackOrNavigate(fallbackPath: string, legacyBackTarget?: string | null
 }
 
 export function goBackFromAd(fallbackPath: string) {
+  const storedBackTarget = getStoredBackTarget();
+
+  // Preview/detail pages are opened as real navigation entries. When we have
+  // a stored back target, use the browser back stack so the user returns to
+  // the exact previous page (including its URL/state) instead of replacing
+  // the current entry with a guessed destination.
+  if (storedBackTarget && window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+
   goBackOrNavigate(fallbackPath, getLegacyHistoryBackTarget());
 }
 
@@ -1344,6 +1411,33 @@ function createGridItem({
   };
 }
 
+function createChoiceRow(
+  features: NonNullable<AdvertisementItem["features"]>,
+  labels: string[],
+  label: string,
+): DetailInfoItem | null {
+  const rawValue = getFirstExistingFeatureValue(features, labels);
+
+  if (!isFilledValue(rawValue)) {
+    return null;
+  }
+
+  const values = Array.isArray(rawValue)
+    ? rawValue.map((item) => toText(item)).filter(Boolean)
+    : [toText(rawValue)].filter(Boolean);
+
+  if (!values.length) {
+    return null;
+  }
+
+  return {
+    icon: "apartment",
+    iconSrc: PROPERTY_DETAIL_ICONS.selected,
+    label,
+    value: values,
+  };
+}
+
 function createCheckBadge(
   features: NonNullable<AdvertisementItem["features"]>,
   labels: string[],
@@ -1551,13 +1645,18 @@ export function buildPropertyDetailSections(
     }),
     createGridItem({
       features,
-      labels: ["document_type", "document", "deed_type"],
-      label: "سند",
-    }) ??
+      labels: ["unit_type", "building_position", "building_direction"],
+      label: "موقعیت ساختمان",
+    }),
     createGridItem({
       features,
-      labels: ["has_document"],
-      label: "دارای سند",
+      labels: ["density"],
+      label: "تراکم زمین",
+    }),
+    createGridItem({
+      features,
+      labels: ["document_type", "document", "deed_type"],
+      label: "سند",
     }),
     createGridItem({
       features,
@@ -1584,10 +1683,10 @@ export function buildPropertyDetailSections(
     createGridItem({ features, labels: ["access_type", "access"], label: "دسترسی" }),
     createGridItem({ features, labels: ["building_type", "house_building_type"], label: "نوع بنا" }),
     createGridItem({ features, labels: ["villa_type", "house_type"], label: "تیپ بنا" }),
-    createGridItem({ features, labels: ["suitable_for"], label: "مناسب برای" }),
     createGridItem({ features, labels: ["commercial_permit", "commercial_license"], label: "مجوز تجاری" }),
     createGridItem({ features, labels: ["height", "ceiling_height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue }),
     createGridItem({ features, labels: ["opening_count", "frontage_count", "openings"], label: "تعداد دهنه" }),
+    createGridItem({ features, labels: ["land_width"], label: "عرض زمین", formatter: formatMeterDetailValue }),
     createGridItem({ features, labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue }),
     createGridItem({ features, labels: ["kitchen_type", "kitchen_style"], label: "نوع آشپزخانه" }),
     createGridItem({ features, labels: ["occupancy_status", "residency_status", "occupancy"], label: "وضعیت سکونت" }),
@@ -1597,9 +1696,26 @@ export function buildPropertyDetailSections(
     createGridItem({ features, labels: ["single_room_count"], label: "تعداد اتاق یک تخته" }),
     createGridItem({ features, labels: ["double_room_count"], label: "تعداد اتاق دو تخته" }),
     createGridItem({ features, labels: ["suite_count"], label: "تعداد سوییت ها" }),
+    createGridItem({ features, labels: ["capacity", "standard_capacity"], label: "ظرفیت استاندارد" }),
+    createGridItem({ features, labels: ["extra_people_capacity"], label: "ظرفیت اضافه" }),
+    createGridItem({ features, labels: ["rental_period"], label: "دوره اجاره" }),
+    createGridItem({ features, labels: ["view_type"], label: "چشم انداز" }),
+    createGridItem({ features, labels: ["check_in_time"], label: "ساعت ورود" }),
+    createGridItem({ features, labels: ["check_out_time"], label: "ساعت خروج" }),
+    createGridItem({ features, labels: ["min_stay_days"], label: "حداقل مدت اقامت", formatter: (value) => { const text = toText(value); return text ? `${text} روز` : "-"; } }),
+    createGridItem({ features, labels: ["evacuation_guarantee"], label: "تضمین تخلیه", formatter: formatTomanDetailValue }),
+    createGridItem({ features, labels: ["project_status"], label: "وضعیت پروژه" }),
+    createGridItem({ features, labels: ["delivery_date"], label: "تاریخ تحویل", icon: "calendar" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const buildingChoiceRows = [
+    createChoiceRow(features, ["land_use", "usage"], "نوع کاربری"),
+    createChoiceRow(features, ["suitable_for"], "مناسب برای"),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const buildingBadges = [
+    createCheckBadge(features, ["has_document"], "دارای سند"),
+    createCheckBadge(features, ["build_permit"], "مجوز ساخت"),
     createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
     createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
     createCheckBadge(features, ["management_room"], "اتاق مدیریت"),
@@ -1646,6 +1762,7 @@ export function buildPropertyDetailSections(
       items: buildingItems,
       layout: "grid",
       columns: 3,
+      choiceRows: buildingChoiceRows,
       badges: buildingBadges,
     },
     {
@@ -1664,6 +1781,7 @@ export function buildPropertyDetailSections(
   return sections.filter(
     (section) =>
       section.items.length > 0 ||
+      Boolean(section.choiceRows && section.choiceRows.length > 0) ||
       Boolean(section.badges && section.badges.length > 0),
   );
 }
@@ -1674,6 +1792,7 @@ export function buildFacilitiesDetailSections(
   const features = Array.isArray(ad.features) ? ad.features : [];
   const facilities = getFeatureValue(features, "facilities");
   const heatingCooling = getFeatureValue(features, "heating_cooling");
+  const elevatorCount = getElevatorCountText(features);
 
   const heatingItems = Array.isArray(heatingCooling)
     ? heatingCooling
@@ -1699,13 +1818,31 @@ export function buildFacilitiesDetailSections(
           icon: "apartment" as IconName,
           iconSrc: getFeatureIconSrc(facility),
           label: facility,
-          value: "دارد",
+          value: facility === "آسانسور" && elevatorCount
+            ? `${elevatorCount} دستگاه`
+            : "دارد",
           badge: true,
           tone: "neutral" as DetailInfoTone,
           featureIconLabel: facility,
           hideFallbackIcon: true,
         }))
     : [];
+
+  const hasParking = facilityItems.some((item) => item.label === "پارکینگ");
+  if (supportsParkingFacility(features) && !hasParking) {
+    const parkingItem = {
+      icon: "apartment" as IconName,
+      iconSrc: getFeatureIconSrc("پارکینگ"),
+      label: "پارکینگ",
+      value: "ندارد",
+      badge: true,
+      tone: "danger" as DetailInfoTone,
+      featureIconLabel: "پارکینگ",
+      hideFallbackIcon: true,
+    };
+    const elevatorIndex = facilityItems.findIndex((item) => item.label === "آسانسور");
+    facilityItems.splice(elevatorIndex >= 0 ? elevatorIndex + 1 : 0, 0, parkingItem);
+  }
 
   const sections: DetailInfoSection[] = [];
   if (heatingItems.length) {
@@ -1778,6 +1915,8 @@ function DetailInfoValueView({
     const badgeClassName =
       item.tone === "success"
         ? "bg-[#0FAF7314] text-[#0FAF73]"
+        : item.tone === "danger"
+          ? "bg-[#FF3B3014] text-[#FF3B30] border border-[#FF3B30]"
         : item.tone === "warning"
           ? "bg-[#FF8D0014] text-[#FF6D00] border border-[#FF6D00]"
           : "bg-[#edeff3] text-[#4d4d4d]";
@@ -1820,14 +1959,41 @@ function DetailInfoItemCard({
   );
 }
 
+function DetailInfoChoiceRows({ rows }: { rows: DetailInfoItem[] }) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      {rows.map((row) => (
+        <div
+          className="flex flex-wrap items-center justify-start gap-2 border-t border-dashed border-[#d9d9d9] py-4 [direction:rtl]"
+          key={row.label}
+        >
+          <div className="inline-flex shrink-0 items-center gap-1 text-[#808080]">
+            <ColorableSvgIcon
+              className="h-5 w-5 shrink-0"
+              src={row.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
+            />
+            <Typography as="span" variant="label" size="large" weight="medium">
+              {row.label}:
+            </Typography>
+          </div>
+          <DetailInfoValueView item={row} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
   if (badges.length === 0) {
     return null;
   }
 
   return (
-    <div>
-      <div aria-hidden="true" className="h-px w-full bg-[#e5e5e5]" />
+    <div className="border-t border-dashed border-[#d9d9d9]">
       <div className="flex flex-wrap justify-start gap-2 pb-4 pt-4 [direction:rtl]">
         {badges.map((badge) => (
           <Typography as="span" variant="label" size="medium" weight="semibold"
@@ -1941,6 +2107,7 @@ function DetailInfoSectionBlock({
             ))}
           </div>
 
+          <DetailInfoChoiceRows rows={section.choiceRows ?? []} />
           <DetailInfoCheckBadges badges={section.badges ?? []} />
         </>
       )}

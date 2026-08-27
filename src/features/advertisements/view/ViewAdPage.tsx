@@ -654,12 +654,13 @@ function ViewAdContent({
   const [areFacilitiesExpanded, setAreFacilitiesExpanded] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
   const propertyInfoItems = details.propertyInfoPreview;
+  const FACILITIES_COLLAPSED_MAX_ITEMS = 10; // 2 columns × 5 rows
   const visibleFacilityCount = areFacilitiesExpanded
     ? details.features.length
-    : 6;
+    : FACILITIES_COLLAPSED_MAX_ITEMS;
   const facilityItems = details.features.slice(0, visibleFacilityCount);
   const hasMorePropertyInfo = details.propertyInfoRows.length > propertyInfoItems.length;
-  const hasMoreFacilities = details.features.length > 6;
+  const hasMoreFacilities = details.features.length > FACILITIES_COLLAPSED_MAX_ITEMS;
   const advertiserPreview = getAdvertiserPreview(ad, details);
   const shouldShowDescriptionMore = isDescriptionOverflowing;
   const selectedNeighborhood = getAdvertisementNeighborhood(ad, details);
@@ -756,7 +757,7 @@ function ViewAdContent({
           >
             {areFacilitiesExpanded
               ? "نمایش موارد کمتر"
-              : `نمایش ${details.features.length - 6} مورد دیگر`}
+              : `نمایش ${details.features.length - FACILITIES_COLLAPSED_MAX_ITEMS} مورد دیگر`}
           </InlineMoreButton>
         ) : null}
       </DetailSection>

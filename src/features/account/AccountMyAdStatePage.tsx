@@ -21,6 +21,7 @@ import {
   getAdEditPath,
   getAdIncreaseVisitsPath,
   getAdPaymentHistoryPath,
+  getAdPaymentPath,
   getAdPreviewPath,
   getAdVisitStatisticsPath,
 } from "./adManagement/adManagementData";
@@ -36,6 +37,7 @@ import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearFactor from "../../shared/icons/LinearFactor";
+import LinearPayment from "../../shared/icons/LinearPayment";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
@@ -47,7 +49,7 @@ type MyAdRouteState = {
   returnTo?: string;
 };
 
-type StateActionKey = "delete" | "edit" | "history" | "preview" | "result" | "stats" | "upgrade";
+type StateActionKey = "delete" | "edit" | "history" | "payment" | "preview" | "result" | "stats" | "upgrade";
 
 type StateAction = {
   icon: StateActionKey;
@@ -110,6 +112,7 @@ export function AccountMyAdStatePage() {
           <StateAdSummary ad={sourceAd} card={card} />
 
           {statusInfo.key === "published" ? <PublishedMeta ad={sourceAd} /> : null}
+          {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice /> : null}
           {statusInfo.key === "pending" ? <PendingReviewNotice /> : null}
           {statusInfo.key === "needs_edit" ? (
             <NeedsEditNotice ad={sourceAd} card={card} returnTo={backTo} />
@@ -544,6 +547,14 @@ function NeedsEditNotice({
   );
 }
 
+function WaitForPaymentNotice() {
+  return (
+    <div className="mt-4 rounded-xl bg-[#0048c40d] px-3 py-3 text-sm leading-6 text-[#0048c4]">
+      برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.
+    </div>
+  );
+}
+
 function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = { icon: "edit", label: "ویرایش آگهی", to: getAdEditPath(adId) };
@@ -555,8 +566,10 @@ function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
   const upgrade: StateAction = { icon: "upgrade", label: "افزایش بازدید", to: getAdIncreaseVisitsPath(adId) };
   const stats: StateAction = { icon: "stats", label: "آمار بازدید", to: getAdVisitStatisticsPath(adId) };
   const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
+  const payment: StateAction = { icon: "payment", label: "تکمیل پرداخت", to: getAdPaymentPath(adId) };
 
   if (status === "published") return [preview, edit, remove, upgrade, stats, history];
+  if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
   if (status === "pending") return [preview, edit, remove, history];
 
   return [preview, history];
@@ -596,7 +609,12 @@ function StateAdAction({
           deleteReturnTo: action.icon === "delete" ? window.location.pathname : undefined,
           editReturnTo: window.location.pathname,
           isEditMode: action.icon === "edit" ? true : undefined,
-          paymentFlow: action.icon === "upgrade" ? "upgrade" : undefined,
+          paymentFlow:
+            action.icon === "upgrade"
+              ? "upgrade"
+              : action.icon === "payment"
+                ? "new-ad"
+                : undefined,
           paymentHistoryReturnTo: action.icon === "history" ? window.location.pathname : undefined,
           visitStatisticsReturnTo: action.icon === "stats" ? window.location.pathname : undefined,
           returnTo,
@@ -648,6 +666,12 @@ function StateIcon({ icon }: { icon: StateActionKey }) {
   if (icon === "upgrade") {
     return (
       <LinearChartUp className="h-6 w-6"/>
+    );
+  }
+
+  if (icon === "payment") {
+    return (
+      <LinearPayment className="h-6 w-6"/>
     );
   }
 

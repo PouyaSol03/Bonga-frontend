@@ -584,7 +584,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     ? `/account/ad-management/allocation-review/${encodeURIComponent(advertiseId)}`
     : isConsultantAssignedCheckout
       ? "/account/ad-management/allocation"
-      : "/new-ad";
+      : isNewAdCheckout
+        ? "/account/my-ads"
+        : "/new-ad";
+
+  const leaveNewAdPayment = () => {
+    navigateTo("/account/my-ads", { tab: "status" }, true);
+  };
 
   if (checkoutQuery.isLoading) {
     return (
@@ -650,7 +656,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           creditShortage={agencyCreditShortage}
           gatewayMethod={gatewayMethod}
           method={agencyMethod}
-          onBack={() => setStep("options")}
+          onBack={isNewAdCheckout ? leaveNewAdPayment : () => setStep("options")}
           onMethodChange={setAgencyMethod}
           onSubmit={(extraItems) => finishCheckout(agencyMethod, extraItems)}
           payableAmount={payableAmount}
@@ -670,7 +676,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       <ApiPaymentCheckoutView
         gatewayMethod={gatewayMethod}
         method={method}
-        onBack={() => setStep("options")}
+        onBack={isNewAdCheckout ? leaveNewAdPayment : () => setStep("options")}
         onMethodChange={setMethod}
         onSubmit={() => finishCheckout(method === "wallet" ? "wallet" : "gateway")}
         payableAmount={payableAmount}
@@ -684,6 +690,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
 
   return (
     <CheckoutTariffView
+      backTo={checkoutBackTo}
       freeQuotaRemaining={freeQuotaRemaining}
       hasFreeQuota={hasFreeQuota}
       onComplete={handleCompleteOptions}
@@ -1000,6 +1007,7 @@ function AgencyCombinedCheckoutView({
 }
 
 function CheckoutTariffView({
+  backTo,
   children,
   freeQuotaRemaining,
   hasFreeQuota,
@@ -1007,6 +1015,7 @@ function CheckoutTariffView({
   pending,
   price,
 }: {
+  backTo: string;
   children?: ReactNode;
   freeQuotaRemaining: number;
   hasFreeQuota: boolean;
@@ -1020,7 +1029,7 @@ function CheckoutTariffView({
       variant="flush"
     >
       <TopBar
-        backTo="/new-ad"
+        backTo={backTo}
         className="bg-[#f0f0f0]"
         title="هزینه ثبت آگهی"
       />

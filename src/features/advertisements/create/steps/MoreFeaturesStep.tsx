@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
 import { moreFeatureKeys, moreFeatureOptions, timeOptions } from "../data";
-import type { MoreFeatureDateKey, MoreFeatureFormKey, MoreFeatureSelectKey, MoreFeatureTimeKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
+import type { MoreFeatureDateKey, MoreFeatureFormKey, MoreFeatureMultiSelectKey, MoreFeatureSelectKey, MoreFeatureTimeKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
 import {
   formatUnitsPerFloorLabel,
   getMoreFeatureFields,
@@ -12,6 +12,9 @@ import {
 } from "../utils";
 import { CompactToggle, InputBox, MoreFeaturesFooter, SelectBox } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
+import { Button } from "../../../../shared/ui/Button";
+import { Typography } from "../../../../shared/ui/Typography";
+import { ChoiceIndicator } from "../../../../shared/ui/Choice";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
 
 export function MoreFeaturesStep({
@@ -30,6 +33,11 @@ export function MoreFeaturesStep({
     title: string;
     options: string[];
   } | null>(null);
+  const [multiSelectSheet, setMultiSelectSheet] = useState<{
+    key: MoreFeatureMultiSelectKey;
+    title: string;
+    options: string[];
+  } | null>(null);
   const [dateField, setDateField] = useState<MoreFeatureDateKey | null>(null);
 
   const [draft, setDraft] = useState<MoreFeaturesFormValues>(() =>
@@ -38,7 +46,7 @@ export function MoreFeaturesStep({
 
   const setDraftField = (
     key: MoreFeatureFormKey,
-    value: string | boolean,
+    value: string | boolean | string[],
   ) => {
     setDraft((current) => ({
       ...current,
@@ -54,6 +62,21 @@ export function MoreFeaturesStep({
   const getDraftString = (key: MoreFeatureFormKey) => {
     const value = draft[key];
     return typeof value === "string" ? value : "";
+  };
+
+  const getDraftArray = (key: MoreFeatureMultiSelectKey) => {
+    const value = draft[key];
+    return Array.isArray(value) ? value : [];
+  };
+
+  const toggleDraftArrayValue = (key: MoreFeatureMultiSelectKey, option: string) => {
+    const current = getDraftArray(key);
+    setDraftField(
+      key,
+      current.includes(option)
+        ? current.filter((item) => item !== option)
+        : [...current, option],
+    );
   };
 
   const getDisplayValue = (key: MoreFeatureFormKey) => {
@@ -103,6 +126,26 @@ export function MoreFeaturesStep({
                     onChange={(value) => setDraftField(field.key, value)}
                     placeholder={field.label}
                     value={getDraftString(field.key)}
+                  />
+                );
+              }
+
+              if (field.control === "multiSelect") {
+                const selectedValues = getDraftArray(field.key as MoreFeatureMultiSelectKey);
+
+                return (
+                  <SelectBox
+                    key={field.key}
+                    onClear={() => setDraftField(field.key, [])}
+                    onClick={() =>
+                      setMultiSelectSheet({
+                        key: field.key as MoreFeatureMultiSelectKey,
+                        title: field.label,
+                        options: field.options ?? [],
+                      })
+                    }
+                    placeholder={field.label}
+                    value={selectedValues.join("، ")}
                   />
                 );
               }
@@ -161,6 +204,51 @@ export function MoreFeaturesStep({
         title={dateField === "projectDeliveryDate" ? "تاریخ تحویل" : "تاریخ آماده تحویل"}
         value={dateField ? getDraftString(dateField) : ""}
       />
+
+      <BottomSheet
+        ariaLabel={multiSelectSheet?.title ?? "انتخاب چند گزینه"}
+        className="rounded-t-[14px]"
+        contentClassName="pt-0 pb-4"
+        handleClassName="h-1 w-[42px] rounded-full bg-[#cccccc]"
+        heightClassName="h-auto max-h-[calc(100dvh-24px)]"
+        isOpen={Boolean(multiSelectSheet)}
+        headerButtonAriaLabel="بازگشت"
+        onBack={() => setMultiSelectSheet(null)}
+        onClose={() => setMultiSelectSheet(null)}
+        panelPaddingClassName="pt-3"
+        showBackButton
+        showHandle
+        showHeader
+        showHeaderDivider={false}
+        title={multiSelectSheet?.title ?? "انتخاب"}
+        titleAlign="right"
+      >
+        <div className="px-5 pt-3" dir="rtl">
+          {(multiSelectSheet?.options ?? []).map((option) => {
+            const checked = multiSelectSheet
+              ? getDraftArray(multiSelectSheet.key).includes(option)
+              : false;
+
+            return (
+              <Button
+                unstyled
+                className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-[#1a1a1a]"
+                key={option}
+                onClick={() => {
+                  if (!multiSelectSheet) return;
+                  toggleDraftArrayValue(multiSelectSheet.key, option);
+                }}
+                type="button"
+              >
+                <Typography as="span" variant="body" size="large" weight="regular">
+                  {option}
+                </Typography>
+                <ChoiceIndicator checked={checked} />
+              </Button>
+            );
+          })}
+        </div>
+      </BottomSheet>
 
       <BottomSheet
         ariaLabel={sheet?.title ?? "انتخاب"}

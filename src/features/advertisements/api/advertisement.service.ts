@@ -980,6 +980,30 @@ export async function createAdvertisement(payload: FormData) {
   return createdAdvertise;
 }
 
+export async function updateAdvertisement({
+  advertiseId,
+  payload,
+}: {
+  advertiseId: string;
+  payload: FormData;
+}) {
+  const response = await api
+    .post(`me/advertise/update/${encodeURIComponent(advertiseId)}`, {
+      body: payload,
+    })
+    .json<AdvertisementCreateResponse>();
+
+  const updatedAdvertise = "data" in response && response.data
+    ? response.data as AdvertisementItem
+    : "result" in response && response.result
+      ? response.result as AdvertisementItem
+      : "advertise" in response && response.advertise
+        ? response.advertise as AdvertisementItem
+        : response as AdvertisementItem;
+
+  return updatedAdvertise;
+}
+
 function unwrapAdvertisementCheckoutResponse(
   response: AdvertisementCheckoutResponse,
 ): AdvertisementCheckout {

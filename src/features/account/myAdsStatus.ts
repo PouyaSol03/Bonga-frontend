@@ -1,4 +1,4 @@
-export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published" | "unknown" | "wait_for_agency";
+export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published" | "unknown" | "wait_for_agency" | "wait_for_payment";
 
 export type MyAdStatusInfo = {
   badgeClassName: string;
@@ -26,6 +26,11 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     badgeClassName: "bg-[#ee362314] text-[#ee3623]",
     key: "expired",
     label: "منقضی شده",
+  },
+  wait_for_payment: {
+    badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
+    key: "wait_for_payment",
+    label: "در انتظار پرداخت",
   },
   pending: {
     badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
@@ -125,14 +130,16 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.wait_for_agency;
   }
 
+  if (["0", "wait-for-payment"].includes(status) || status.includes("انتظار پرداخت")) {
+    return myAdStatusConfig.wait_for_payment;
+  }
+
   if ([
-    "0",
     "1",
     "pending",
     "review",
     "waiting",
     "in-review",
-    "wait-for-payment",
     "wait-for-admin",
   ].includes(status)) {
     return myAdStatusConfig.pending;

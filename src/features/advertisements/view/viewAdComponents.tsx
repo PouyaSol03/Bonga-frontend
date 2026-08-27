@@ -175,9 +175,39 @@ export function PropertyGrid({
             item={item}
           />
           <div className="min-w-0 text-right">
-            <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
-              {item.value}
-            </Typography>
+            <div className="flex flex-wrap items-center justify-start gap-1 [direction:rtl]">
+              <Typography
+                as="span"
+                variant="label"
+                size="large"
+                weight="medium"
+                className={item.tone === "danger" ? "text-[#ff3b30]" : "text-[#1a1a1a]"}
+              >
+                {item.value}
+              </Typography>
+              {item.inlineNote ? (
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className="text-[#808080]"
+                >
+                  {item.inlineNote}
+                </Typography>
+              ) : null}
+              {item.statusBadge ? (
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className="rounded-md bg-[#FF3B3014] px-2 py-1 text-[#FF3B30]"
+                >
+                  {item.statusBadge}
+                </Typography>
+              ) : null}
+            </div>
             {withLabels ? (
               <Typography variant="label" size="small" weight="medium" className="text-[#808080]">
                 {item.label}

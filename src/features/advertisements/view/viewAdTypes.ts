@@ -50,6 +50,9 @@ export type DetailItem = {
   icon: IconName;
   label: string;
   value: string;
+  tone?: "neutral" | "danger";
+  inlineNote?: string;
+  statusBadge?: string;
   featureIconLabel?: string;
   hideFallbackIcon?: boolean;
   iconSrc?: string | null;

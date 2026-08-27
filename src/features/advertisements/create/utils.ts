@@ -181,6 +181,23 @@ function getDraft(): Partial<NewAdFormValues> {
   }
 }
 
+function normalizeDraftStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(/[،,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 type EditAdCard = Partial<{
   agency: string;
   area: string;
@@ -308,6 +325,7 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
   const selectedRegistrantType: NewAdFormValues["registrantType"] = editState.isEditMode
     ? ""
     : getParams().registrantType;
+  const draftValues = editDefaults ? null : getDraft();
   const baseValues = editDefaults
     ? {
         ...blankValues,
@@ -315,7 +333,8 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
       }
     : {
         ...blankValues,
-        ...getDraft(),
+        ...draftValues,
+        suitableFor: normalizeDraftStringArray(draftValues?.suitableFor),
         location: window.localStorage.getItem(locationKey) ?? "",
       };
 
@@ -602,6 +621,11 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "street_width", toNumber(values.streetWidth));
   addFeature(features, "ceiling_height", toNumber(values.ceilingHeight));
   addFeature(features, "opening_count", toNumber(values.openingCount));
+  addFeature(
+    features,
+    "elevator_count",
+    values.facilities.includes("elevator") ? toNumber(values.elevatorCount) : null,
+  );
   addFeature(features, "single_room_count", toNumber(pickFirstNumber(values.singleRoomCount)));
   addFeature(features, "double_room_count", toNumber(pickFirstNumber(values.doubleRoomCount)));
   addFeature(features, "suite_count", toNumber(pickFirstNumber(values.suiteCount)));
@@ -867,7 +891,6 @@ export function buildNewAdFormData(
       ? values.density
       : toNumber(values.density),
   );
-  appendDynamicValue("land_use", values.usageType);
   appendDynamicValue("land_position", values.landPosition);
   appendDynamicAliasValue(["building_type", "house_building_type"], values.buildingType);
   appendDynamicValue("house_type", values.villaType);
@@ -887,6 +910,10 @@ export function buildNewAdFormData(
   appendDynamicValue("separate_entrance", values.separateEntrance);
   appendDynamicValue("height", toNumber(values.ceilingHeight));
   appendDynamicAliasValue(["opening_count", "frontage_count", "openings"], toNumber(values.openingCount));
+  appendDynamicValue(
+    "elevator_count",
+    values.facilities.includes("elevator") ? toNumber(values.elevatorCount) : null,
+  );
   appendDynamicValue("facade_material", values.facadeMaterial);
   appendDynamicValue("floor_material", values.floorMaterial);
   appendDynamicValue("cabinet_material", values.cabinetMaterial);
@@ -921,7 +948,8 @@ export function buildNewAdFormData(
   appendDynamicValue("has_image", values.photos.length > 0);
   appendDynamicValue("has_video", Boolean(values.video));
 
-  appendDynamicArray("suitable_for", values.suitableFor ? [values.suitableFor] : []);
+  appendDynamicArray("land_use", values.usageType);
+  appendDynamicArray("suitable_for", values.suitableFor);
   appendDynamicArray("heating_cooling", heatingCooling);
   appendDynamicArray("facilities", facilities);
   appendDynamicValue("has_exchange", values.exchangeEnabled);

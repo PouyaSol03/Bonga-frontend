@@ -34,6 +34,7 @@ import {
   dailyStayFacilityItems,
   dailyHotelFacilityItems,
   dailyWorkspaceFacilityItems,
+  elevatorCountOptions,
   projectFacilityItems,
   projectHeatingItems,
   rentConversionPolicyOptions,
@@ -184,6 +185,13 @@ export function DetailsStep({
         return value === true ? { key: field.key, label: field.label } : null;
       }
 
+      if (Array.isArray(value) && value.length) {
+        const displayValue = value.filter(Boolean).join("، ");
+        return displayValue
+          ? { key: field.key, label: `${field.label}: ${displayValue}` }
+          : null;
+      }
+
       if (typeof value === "string" && value.trim()) {
         const displayValue = field.key === "unitsPerFloor"
           ? formatUnitsPerFloorLabel(value)
@@ -269,10 +277,39 @@ export function DetailsStep({
     onClearError?.(key);
   };
 
+  const handleFacilityClick = (id: string) => {
+    if (id !== "elevator") {
+      setField("facilities", toggleArray(values.facilities, id));
+      return;
+    }
+
+    if (values.facilities.includes("elevator")) {
+      setField(
+        "facilities",
+        values.facilities.filter((facilityId) => facilityId !== "elevator"),
+      );
+      setField("elevatorCount", "");
+      return;
+    }
+
+    setSheet({
+      kind: "select",
+      key: "elevatorCount",
+      title: "تعداد آسانسور",
+      options: elevatorCountOptions,
+    });
+  };
+
   const removeMoreFeature = (key: MoreFeatureFormKey) => {
     const field = moreFeatureFields.find((item) => item.key === key);
 
-    setValue(key as never, (field?.control === "toggle" ? false : "") as never, {
+    const emptyValue = field?.control === "toggle"
+      ? false
+      : field?.control === "multiSelect"
+        ? []
+        : "";
+
+    setValue(key as never, emptyValue as never, {
       shouldDirty: true,
     });
   };
@@ -756,6 +793,28 @@ export function DetailsStep({
                   );
                 }
 
+                if (field.control === "multiSelect") {
+                  const selectedValues = values.suitableFor;
+
+                  return (
+                    <SelectBox
+                      key={field.key}
+                      error={errors[field.key]}
+                      onClear={() => setField("suitableFor", [])}
+                      onClick={() =>
+                        setSheet({
+                          kind: "multiSelect",
+                          key: "suitableFor",
+                          title: field.label,
+                          options: field.options ?? [],
+                        })
+                      }
+                      placeholder={placeholder}
+                      value={selectedValues.join("، ")}
+                    />
+                  );
+                }
+
                 return (
                   <SelectBox
                     key={field.key}
@@ -920,12 +979,13 @@ export function DetailsStep({
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
               {visibleFacilities.map((item) => (
                 <Chip
+                  displayLabel={item.id === "elevator" && values.elevatorCount
+                    ? `${item.label} (${values.elevatorCount})`
+                    : undefined}
                   key={item.id}
                   item={item}
                   selected={values.facilities.includes(item.id)}
-                  onClick={() =>
-                    setField("facilities", toggleArray(values.facilities, item.id))
-                  }
+                  onClick={() => handleFacilityClick(item.id)}
                 />
               ))}
             </div>
@@ -1003,12 +1063,12 @@ export function DetailsStep({
         onBack={() => setSheet(null)}
         onClose={() => setSheet(null)}
         panelPaddingClassName={sheet?.kind === "exchange" ? "flex flex-col pt-3" : "pt-3"}
-        showBackButton={sheet?.kind === "exchange"}
+        showBackButton={sheet?.kind === "exchange" || sheet?.kind === "multiSelect"}
         showHandle
         showHeader
-        showHeaderDivider={sheet?.kind !== "exchange"}
+        showHeaderDivider={sheet?.kind !== "exchange" && sheet?.kind !== "multiSelect"}
         title={sheet?.title ?? "انتخاب"}
-        titleAlign={sheet?.kind === "exchange" ? "right" : "center"}
+        titleAlign={sheet?.kind === "exchange" || sheet?.kind === "multiSelect" ? "right" : "center"}
       >
         {sheet?.kind === "exchange" ? (
           <div className="px-4" dir="rtl">
@@ -1035,6 +1095,29 @@ export function DetailsStep({
               );
             })}
           </div>
+        ) : sheet?.kind === "multiSelect" ? (
+          <div className="px-5 pb-4 pt-3" dir="rtl">
+            {sheet.options.map((option) => {
+              const checked = values[sheet.key].includes(option);
+
+              return (
+                <Button
+                  unstyled
+                  className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-[#1a1a1a]"
+                  key={option}
+                  onClick={() =>
+                    setField(sheet.key, toggleArray(values[sheet.key], option))
+                  }
+                  type="button"
+                >
+                  <Typography as="span" variant="body" size="large" weight="regular">
+                    {option}
+                  </Typography>
+                  <ChoiceIndicator checked={checked} />
+                </Button>
+              );
+            })}
+          </div>
         ) : (
           <BottomSheetActionList
             align="center"
@@ -1047,7 +1130,14 @@ export function DetailsStep({
             onSelect={(item) => {
               if (!sheet || sheet.kind !== "select") return;
 
-              setField(sheet.key, item.title);
+              if (sheet.key === "elevatorCount") {
+                setField("elevatorCount", item.title);
+                if (!values.facilities.includes("elevator")) {
+                  setField("facilities", [...values.facilities, "elevator"]);
+                }
+              } else {
+                setField(sheet.key, item.title);
+              }
               setSheet(null);
             }}
             selectedId={sheet?.kind === "select" ? values[sheet.key] : undefined}

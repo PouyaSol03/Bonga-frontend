@@ -66,10 +66,10 @@ export const blankValues: NewAdFormValues = {
   age: "",
 
   density: "",
-  usageType: "",
+  usageType: [],
   landPosition: "",
   documentType: "",
-  suitableFor: "",
+  suitableFor: [],
   hotelStars: "",
   accommodationType: "",
   spaceType: "",
@@ -179,6 +179,7 @@ export const blankValues: NewAdFormValues = {
   commercialPermit: false,
   ceilingHeight: "",
   openingCount: "",
+  elevatorCount: "",
   singleRoomCount: "",
   doubleRoomCount: "",
   suiteCount: "",
@@ -753,6 +754,7 @@ export const unitsPerFloorOptions = Array.from({ length: 8 }, (_, index) =>
 export const capacityOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۲", "۱۵", "۲۰", "۳۰", "۴۰", "۵۰+"];
 export const roomCountOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۵", "۲۰", "۳۰", "۵۰+"];
 export const openingCountOptions = Array.from({ length: 20 }, (_, index) => new Intl.NumberFormat("fa-IR").format(index + 1));
+export const elevatorCountOptions = Array.from({ length: 5 }, (_, index) => new Intl.NumberFormat("fa-IR").format(index + 1));
 export const projectCountOptions = Array.from({ length: 100 }, (_, index) => new Intl.NumberFormat("fa-IR").format(index + 1));
 export const timeOptions = Array.from({ length: 48 }, (_, index) => {
   const hour = String(Math.floor(index / 2)).padStart(2, "0");
@@ -957,7 +959,7 @@ const saleWarehouseBasicFields: BasicPropertyField[] = [
   { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: suitableForOptions, required: true },
 ];
 
 const saleHotelApartmentBasicFields: BasicPropertyField[] = [
@@ -1008,7 +1010,7 @@ const rentWarehouseBasicFields: BasicPropertyField[] = [
   { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
   { key: "ceilingHeight", label: "ارتفاع سقف", control: "input", numeric: true, leftText: "متر", required: true },
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: suitableForOptions, required: true },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: suitableForOptions, required: true },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: commercialLicenseOptions, required: true },
 ];
 
@@ -1092,8 +1094,6 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
   documentType: documentTypeOptions,
-  usageType: usageTypeOptions,
-  suitableFor: suitableForOptions,
   occupancyStatus: ["تخلیه", "مالک", "مستاجر دارد"],
   kitchenType: ["اپن", "جزیره", "بسته", "نیمه اپن"],
   facadeMaterial: ["سنگ", "آجر", "سیمان", "کامپوزیت", "شیشه", "رومی", "ترکیبی"],
@@ -1202,7 +1202,7 @@ const dailyApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentApartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: rentApartmentSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentApartmentSuitableForOptions },
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
   { key: "unitsPerFloor", label: "تعداد واحد در طبقه", control: "select", options: saleApartmentUnitsPerFloorOptions },
   { key: "unitType", label: "موقعیت ساختمان", control: "select", options: saleApartmentBuildingPositionOptions },
@@ -1249,7 +1249,7 @@ const villaHouseMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentVillaHouseMoreFeatureFields: MoreFeatureField[] = [
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: rentVillaSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentVillaSuitableForOptions },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
   { key: "buildingType", label: "نوع بنا", control: "select", options: saleVillaHouseBuildingTypeOptions },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
@@ -1284,10 +1284,10 @@ const landMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const saleLandMoreFeatureFields: MoreFeatureField[] = [
-  { key: "usageType", label: "نوع کاربری", control: "select", options: saleLandUsageTypeOptions },
+  { key: "usageType", label: "نوع کاربری", control: "multiSelect", options: saleLandUsageTypeOptions },
   { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
   { key: "density", label: "تراکم زمین", control: "select", options: saleLandDensityOptions },
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: saleLandSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: saleLandSuitableForOptions },
   { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   { key: "constructionPermit", label: "مجوز ساخت", control: "toggle" },
@@ -1330,7 +1330,7 @@ const dailyOfficeMoreFeatureFields: MoreFeatureField[] = [
 
 const saleOfficeMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: saleOfficeSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: saleOfficeSuitableForOptions },
   { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: saleOfficeCurrentStatusOptions },
   { key: "officePosition", label: "موقعیت اداری", control: "select", options: saleOfficePositionOptions },
   { key: "officeDocumentType", label: "سند اداری", control: "select", options: saleOfficeDocumentTypeOptions },
@@ -1348,7 +1348,7 @@ const saleOfficeMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentOfficeMoreFeatureFields: MoreFeatureField[] = [
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: rentOfficeSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentOfficeSuitableForOptions },
   { key: "officePosition", label: "موقعیت اداری", control: "select", options: saleOfficePositionOptions },
   { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: rentCurrentStatusOptions },
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
@@ -1381,7 +1381,7 @@ const saleCommercialUnitMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "openingCount", label: "تعداد دهنه", control: "select", options: openingCountOptions },
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: saleCommercialSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: saleCommercialSuitableForOptions },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: ["دائم", "موقت"] },
   { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: currentStatusOptions },
 ];
@@ -1390,7 +1390,7 @@ const rentCommercialUnitMoreFeatureFields: MoreFeatureField[] = [
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "openingCount", label: "تعداد دهنه", control: "select", options: openingCountOptions },
   { key: "ceilingHeight", label: "ارتفاع سقف", control: "number", leftText: "متر" },
-  { key: "suitableFor", label: "مناسب برای", control: "select", options: rentCommercialSuitableForOptions },
+  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentCommercialSuitableForOptions },
   { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: rentCurrentStatusOptions },
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "minContractMonths", label: "حداقل مدت قرارداد", control: "number", leftText: "ماه" },

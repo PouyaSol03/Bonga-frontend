@@ -12,7 +12,7 @@ import {
 import { getCategoryList, type CategoryItem } from "../../categories/api/category.service";
 import type { PublicAgencyDto } from "../../agencies/api/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../crm/api/crm.service";
-import { useAdvertiseFormDefinitionQuery, useMyAdvertisementDetailQuery, useCreateAdvertisementMutation } from "../api/advertisement.hooks";
+import { useAdvertiseFormDefinitionQuery, useMyAdvertisementDetailQuery, useCreateAdvertisementMutation, useUpdateAdvertisementMutation } from "../api/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import {
@@ -49,6 +49,7 @@ import {
   locationLatKey,
   locationLngKey,
   neighborhoodIdKey,
+  subNeighborhoodIdKey,
   propertySpecs,
 } from "./data";
 import { DetailsStep } from "./steps/DetailsStep";
@@ -221,6 +222,21 @@ function getExistingVideoMedia(ad: AdvertisementItem): UploadedMediaFile | null 
     size: 0,
     type: "video/mp4",
   };
+}
+
+function appendExistingEditMedia(formData: FormData, values: NewAdFormValues) {
+  values.photos.forEach((photo) => {
+    if (photo.file) return;
+    const source = mediaSource(photo.existingValue);
+    if (source) formData.append("existing_images", source);
+  });
+
+  if (values.video && !values.video.file) {
+    const source = mediaSource(values.video.existingValue);
+    if (source) formData.append("videos", source);
+  } else if (!values.video) {
+    formData.append("videos", "[]");
+  }
 }
 
 function nestedRecordId(record: CrmRecord, directKey: string, nestedKeys: string[]) {
@@ -421,6 +437,18 @@ function numericInputText(value: unknown): string {
   return String(Math.round(amount));
 }
 
+function elevatorCountText(value: unknown): string {
+  const text = numericInputText(value);
+
+  if (!text) return "";
+
+  const count = Number(text);
+
+  if (!Number.isFinite(count) || count < 1) return "";
+
+  return toPersianDigits(String(Math.min(5, Math.floor(count))));
+}
+
 function selectText(value: unknown): string {
   const text = readText(value);
 
@@ -440,12 +468,6 @@ function ageText(value: unknown): string {
   if (/^\d+$/.test(normalized)) return `${toPersianDigits(normalized)} سال`;
 
   return text;
-}
-
-function firstText(value: unknown): string {
-  const values = readArrayValue(value);
-
-  return values[0] ?? "";
 }
 
 function idsFromLabels(items: ChipItem[], value: unknown): string[] {
@@ -619,10 +641,16 @@ function syncEditLocationStorage(ad: AdvertisementItem, features: AdvertisementF
   const lat = numericInputText(ad.lat ?? ad.latitude);
   const lng = numericInputText(ad.lng ?? ad.long ?? ad.longitude);
   const neighborhoodId = readTextValue(ad, features, ["neighborhood_id"], ["neighborhood_id"]);
+  const subNeighborhoodId = readTextValue(ad, features, ["sub_neighborhood_id"], ["sub_neighborhood_id"]);
 
   if (lat) window.localStorage.setItem(locationLatKey, lat);
   if (lng) window.localStorage.setItem(locationLngKey, lng);
   if (neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
+  if (subNeighborhoodId) {
+    window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);
+  } else {
+    window.localStorage.removeItem(subNeighborhoodIdKey);
+  }
 }
 
 
@@ -632,6 +660,7 @@ type NewAdValidationResult = {
 };
 
 function hasRequiredText(value: unknown) {
+  if (Array.isArray(value)) return value.some((item) => hasRequiredText(item));
   return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
 }
 
@@ -810,6 +839,13 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
       (next[key] as string) = text;
     }
   };
+  const setArray = (key: "suitableFor" | "usageType", value: unknown) => {
+    const items = readArrayValue(value);
+
+    if (items.length) {
+      next[key] = items;
+    }
+  };
   const setBool = (key: keyof NewAdFormValues, value: unknown) => {
     const booleanValue = toBooleanValue(value);
 
@@ -832,10 +868,10 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("rooms", readFirstValue(ad, features, ["rooms"], ["rooms"]), selectText);
   setText("age", readFirstValue(ad, features, ["building_age"], ["building_age", "age", "year"]), ageText);
   setText("density", readFirstValue(ad, features, ["density"], ["density"]));
-  setText("usageType", readFirstValue(ad, features, ["land_use", "usage"], ["land_use", "usageType"]));
+  setArray("usageType", readFirstValue(ad, features, ["land_use", "usage"], ["land_use", "usageType"]));
   setText("landPosition", readFirstValue(ad, features, ["land_position"], ["land_position", "landPosition"]));
   setText("documentType", readFirstValue(ad, features, ["document_type"], ["document_type", "documentType"]));
-  setText("suitableFor", firstText(readFirstValue(ad, features, ["suitable_for"], ["suitable_for", "suitableFor"])));
+  setArray("suitableFor", readFirstValue(ad, features, ["suitable_for"], ["suitable_for", "suitableFor"]));
   setText("hotelStars", readFirstValue(ad, features, ["hotel_stars"], ["hotel_stars", "hotelStars"]), selectText);
   setText("accommodationType", readFirstValue(ad, features, ["accommodation_type"], ["accommodation_type", "accommodationType"]));
   setText("spaceType", readFirstValue(ad, features, ["space_type"], ["space_type", "spaceType"]));
@@ -882,6 +918,7 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("streetWidth", readFirstValue(ad, features, ["street_width"], ["street_width", "streetWidth"]), numericInputText);
   setText("ceilingHeight", readFirstValue(ad, features, ["ceiling_height", "height"], ["ceiling_height", "ceilingHeight"]), numericInputText);
   setText("openingCount", readFirstValue(ad, features, ["opening_count", "frontage_count", "openings"], ["opening_count", "openingCount"]), numericInputText);
+  setText("elevatorCount", readFirstValue(ad, features, ["elevator_count"], ["elevator_count", "elevatorCount"]), elevatorCountText);
   setText("singleRoomCount", readFirstValue(ad, features, ["single_room_count"], ["single_room_count", "singleRoomCount"]), selectText);
   setText("doubleRoomCount", readFirstValue(ad, features, ["double_room_count"], ["double_room_count", "doubleRoomCount"]), selectText);
   setText("suiteCount", readFirstValue(ad, features, ["suite_count"], ["suite_count", "suiteCount"]), selectText);
@@ -996,6 +1033,8 @@ export function NewAdFlowPage() {
       photos: Array.isArray(restoredValues.photos) ? restoredValues.photos : [],
       projectDetails: Array.isArray(restoredValues.projectDetails) ? restoredValues.projectDetails : [],
       selectedSpecs: Array.isArray(restoredValues.selectedSpecs) ? restoredValues.selectedSpecs : [],
+      suitableFor: readArrayValue(restoredValues.suitableFor),
+      usageType: readArrayValue(restoredValues.usageType),
     };
   });
   const editDataAppliedRef = useRef<string | null>(null);
@@ -1011,6 +1050,7 @@ export function NewAdFlowPage() {
   });
   const queryClient = useQueryClient();
   const createAdvertisement = useCreateAdvertisementMutation();
+  const updateAdvertisement = useUpdateAdvertisementMutation();
   const isCrmSource = isCrmAdvertiseSource();
   const isCrmEditMode = isEditMode && isCrmSource;
   const categoriesQuery = useQuery({
@@ -1021,7 +1061,7 @@ export function NewAdFlowPage() {
   const routeParams = getParams();
   const currentFormCode = getAdvertiseFormCode(routeParams.transaction, routeParams.category);
   const advertiseFormQuery = useAdvertiseFormDefinitionQuery(
-    !isEditMode && !isCrmSource ? currentFormCode : null,
+    !isCrmSource ? currentFormCode : null,
   );
   const editAdQuery = useMyAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
   const crmEditAdQuery = useQuery({
@@ -1156,6 +1196,7 @@ export function NewAdFlowPage() {
     if (
       submitLockRef.current ||
       createAdvertisement.isPending ||
+      updateAdvertisement.isPending ||
       crmSaveMutation.isPending
     ) {
       return;
@@ -1230,33 +1271,11 @@ export function NewAdFlowPage() {
       return;
     }
 
-    if (isEditMode) {
-
-      const updatedCard = {
-        ...(editAdState.card ?? editAdState.ad ?? {}),
-        title: values.title || editAdState.card?.title || "آگهی ملک",
-        agency: values.publisherName || editAdState.card?.agency || "",
-        area: values.meterage ? `${values.meterage} متر` : editAdState.card?.area,
-        rooms: values.rooms ? `${values.rooms} اتاق` : editAdState.card?.rooms,
-        year: values.age || editAdState.card?.year,
-      };
-
-      clearNewAdDraftStorage();
-      navigateTo(editAdState.editReturnTo ?? adManagementPaths.published, {
-        ad: updatedCard,
-        card: updatedCard,
-        isEditMode: true,
-        returnTo: editAdState.returnTo,
-        tab: editAdState.tab,
-      });
-      return;
-    }
-
     if (!advertiseFormQuery.data) {
       setSubmitError(
         advertiseFormQuery.isError
-          ? getApiErrorMessage(advertiseFormQuery.error, "دریافت ساختار فرم ثبت آگهی با خطا مواجه شد.")
-          : "در حال دریافت ساختار فرم ثبت آگهی هستیم. لطفا دوباره تلاش کنید.",
+          ? getApiErrorMessage(advertiseFormQuery.error, isEditMode ? "دریافت ساختار فرم ویرایش آگهی با خطا مواجه شد." : "دریافت ساختار فرم ثبت آگهی با خطا مواجه شد.")
+          : isEditMode ? "در حال دریافت ساختار فرم ویرایش آگهی هستیم. لطفا دوباره تلاش کنید." : "در حال دریافت ساختار فرم ثبت آگهی هستیم. لطفا دوباره تلاش کنید.",
       );
       return;
     }
@@ -1274,6 +1293,44 @@ export function NewAdFlowPage() {
       dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
       formCode: resolvedFormCode,
     });
+
+    if (isEditMode) {
+      if (!editAdId) {
+        setSubmitError("شناسه آگهی برای ویرایش مشخص نیست.");
+        return;
+      }
+
+      appendExistingEditMedia(formData, values);
+      setFieldErrors({});
+      setSubmitError("");
+      submitLockRef.current = true;
+      updateAdvertisement.mutate(
+        { advertiseId: editAdId, payload: formData },
+        {
+          onError: (error) => {
+            setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد."));
+          },
+          onSettled: () => {
+            submitLockRef.current = false;
+          },
+          onSuccess: (updatedAd) => {
+            clearNewAdDraftStorage();
+            const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
+            const returnTo = editAdState.editReturnTo ?? adManagementPaths.published;
+            const separator = returnTo.includes("?") ? "&" : "?";
+
+            navigateTo(`${returnTo}${separator}updated=1`, {
+              ad: updatedAd,
+              card: updatedCard,
+              isEditMode: true,
+              returnTo: editAdState.returnTo,
+              tab: editAdState.tab,
+            });
+          },
+        },
+      );
+      return;
+    }
 
     if (formData.getAll("images").length === 0) {
       setFieldErrors((current) => ({
@@ -1473,6 +1530,7 @@ export function NewAdFlowPage() {
             onSubmit={handleMediaPrimary}
             submitDisabled={
               createAdvertisement.isPending ||
+              updateAdvertisement.isPending ||
               crmSaveMutation.isPending ||
               (isEditMode && editAdIsLoading)
             }

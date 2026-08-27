@@ -56,6 +56,7 @@ type BottomSheetActionListProps<TItem extends BottomSheetAction> = {
   itemClassName?: string;
   onSelect?: (item: TItem) => void;
   selectedId?: string;
+  selectedIds?: string[];
   showCheckIcon?: boolean;
   showDividers?: boolean;
 };
@@ -231,6 +232,7 @@ export function BottomSheetActionList<TItem extends BottomSheetAction>({
   itemClassName = "",
   onSelect,
   selectedId,
+  selectedIds,
   showCheckIcon = false,
   showDividers = true,
 }: BottomSheetActionListProps<TItem>) {
@@ -240,7 +242,7 @@ export function BottomSheetActionList<TItem extends BottomSheetAction>({
     <div>
       {items.map((item, index) => {
         const Icon = item.Icon;
-        const isSelected = item.id === selectedId;
+        const isSelected = item.id === selectedId || selectedIds?.includes(item.id) === true;
 
         return (
           <div key={item.id}>

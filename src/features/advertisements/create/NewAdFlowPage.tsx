@@ -659,7 +659,7 @@ type NewAdValidationResult = {
   step: FlowStep;
 };
 
-function hasRequiredText(value: unknown) {
+function hasRequiredText(value: unknown): boolean {
   if (Array.isArray(value)) return value.some((item) => hasRequiredText(item));
   return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
 }

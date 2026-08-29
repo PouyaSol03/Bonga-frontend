@@ -60,19 +60,19 @@ export const adManagementTransactionOptions: {
 
 export const adManagementPropertyTypeLabels: Record<AdManagementPropertyType, string> = {
   apartment: "آپارتمان",
-  "villa-house": "خانه ویلایی",
-  "garden-villa": "باغ، ویلا",
-  land: "زمین",
-  office: "واحد اداری",
-  "commercial-unit": "واحد تجاری",
+  "villa-house": "خانه، ویلا",
+  "garden-villa": "ویلا، باغ",
+  land: "زمین، ملک کلنگی",
+  office: "اداری",
+  "commercial-unit": "تجاری",
   warehouse: "انبار، سوله",
-  "hotel-apartment": "هتل، هتل آپارتمان",
-  "factory-workshop": "کارخانه، کارگاه",
+  "hotel-apartment": "هتل، اقامتگاه",
+  "factory-workshop": "صنعتی",
   "daily-apartment-suite": "آپارتمان، سوئیت",
-  "daily-garden-villa": "باغ، ویلا",
-  "daily-hotel-apartment": "هتل، هتل آپارتمان",
-  "daily-workspace": "دفاتر کار، غرفه، نمایشگاه",
-  "project-presale": "پیش فروش، فروش پروژه",
+  "daily-garden-villa": "ویلا، باغ",
+  "daily-hotel-apartment": "هتل، اقامتگاه",
+  "daily-workspace": "دفترکار، غرفه",
+  "project-presale": "پروژه",
   "project-partnership": "مشارکت",
 };
 
@@ -83,18 +83,18 @@ export const adManagementPropertyGroupsByTransaction: Record<
   sale: [
     {
       title: "مسکونی",
-      items: ["apartment", "land", "villa-house", "garden-villa"],
+      items: ["apartment", "land", "villa-house"],
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
-      items: ["office", "commercial-unit", "warehouse", "hotel-apartment", "factory-workshop"],
+      items: ["office", "commercial-unit", "factory-workshop", "hotel-apartment"],
     },
   ],
 
   rent: [
     {
       title: "مسکونی",
-      items: ["apartment", "villa-house", "garden-villa"],
+      items: ["apartment", "villa-house"],
     },
     {
       title: "روزانه",
@@ -102,7 +102,7 @@ export const adManagementPropertyGroupsByTransaction: Record<
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
-      items: ["office", "commercial-unit", "warehouse", "hotel-apartment", "factory-workshop"],
+      items: ["office", "commercial-unit", "factory-workshop", "hotel-apartment"],
     },
   ],
 

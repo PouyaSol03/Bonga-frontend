@@ -24,6 +24,7 @@ import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { AdLocationMap } from "../advertisements/components/AdLocationMap";
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { backRoute } from "../../shared/navigation/navigation";
 import {
   getCrmAdvertise,
   getCrmRecordId,
@@ -55,20 +56,20 @@ const formCodeLabels: Record<string, string> = {
   "daily-hotel": "اجاره روزانه هتل و هتل‌آپارتمان",
   "daily-office-booth": "اجاره روزانه دفتر کار و غرفه",
   "rent-apartment": "اجاره آپارتمان",
-  "rent-commercial": "اجاره واحد تجاری",
+  "rent-commercial": "اجاره تجاری",
   "rent-factory-workshop": "اجاره کارخانه و کارگاه",
   "rent-garden-villa": "اجاره باغ و ویلا",
   "rent-hotel": "اجاره هتل و هتل‌آپارتمان",
-  "rent-office": "اجاره واحد اداری",
+  "rent-office": "اجاره اداری",
   "rent-villa-house": "اجاره خانه ویلایی",
   "rent-warehouse": "اجاره انبار و سوله",
   "sale-apartment": "فروش آپارتمان",
-  "sale-commercial": "فروش واحد تجاری",
+  "sale-commercial": "فروش تجاری",
   "sale-factory": "فروش کارخانه و کارگاه",
   "sale-garden-villa": "فروش باغ و ویلا",
   "sale-hotel": "فروش هتل و هتل‌آپارتمان",
   "sale-land": "فروش زمین",
-  "sale-office": "فروش واحد اداری",
+  "sale-office": "فروش اداری",
   "sale-villa-house": "فروش خانه ویلایی",
   "sale-warehouse": "فروش انبار و سوله",
 };
@@ -562,10 +563,10 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
           </Typography>
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]">اطلاعات آگهی دریافت نشد</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#808080]">پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.</Typography>
-          <RouteLink className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" to="/crm/advertises">
+          <Button unstyled className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" onClick={() => backRoute("/crm/advertises")} type="button">
             <LinearArrowRight1 className="h-5 w-5" />
             بازگشت به آگهی‌ها
-          </RouteLink>
+          </Button>
         </div>
       </section>
     );
@@ -619,10 +620,10 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
   return (
     <div className="pb-6" dir="rtl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white px-5 py-4">
-        <RouteLink className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]" to="/crm/advertises">
+        <Button unstyled className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]" onClick={() => backRoute("/crm/advertises")} type="button">
           <LinearArrowRight1 className="h-5 w-5" />
           بازگشت به مدیریت آگهی‌ها
-        </RouteLink>
+        </Button>
         <div className="flex flex-wrap items-center gap-3">
           <RouteLink
             className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white no-underline transition hover:bg-[#003ca4]"

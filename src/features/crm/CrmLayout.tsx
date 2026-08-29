@@ -175,7 +175,7 @@ const crmRoleLabels: Record<string, { subtitle: string; title: string }> = {
 };
 
 export const advertiseStatusOptions = [
-  { label: "ثبت شده", value: "wait_for_payment" },
+  { label: "در انتظار پرداخت", value: "wait_for_payment" },
   { label: "در انتظار مدیر", value: "wait_for_admin" },
   { label: "در انتظار آژانس", value: "wait_for_agency" },
   { label: "تأیید شده", value: "accepted" },
@@ -259,12 +259,12 @@ function advertiseStatusLabel(status: unknown) {
       rejected: "رد شده",
       wait_for_admin: "در انتظار بررسی",
       wait_for_agency: "در انتظار آژانس",
-      wait_for_payment: "ثبت شده",
+      wait_for_payment: "در انتظار پرداخت",
       "-3": "منقضی شده",
       "-2": "حذف شده",
       "-1": "رد شده",
       "-4": "نیازمند ویرایش",
-      "0": "ثبت شده",
+      "0": "در انتظار پرداخت",
       "1": "در انتظار بررسی",
       "2": "در انتظار آژانس",
       "3": "منتشر شده",

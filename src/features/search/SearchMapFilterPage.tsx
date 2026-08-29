@@ -624,16 +624,16 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
 
 export const categoryLabels: Record<CategoryKey, string> = {
   apartment: "آپارتمان",
-  "villa-house": "خانه ویلایی",
-  "garden-villa": "باغ، ویلا",
+  "villa-house": "خانه، ویلا",
+  "garden-villa": "ویلا، باغ",
   land: "زمین، ملک کلنگی",
   office: "اداری",
-  "commercial-unit": "واحد تجاری",
+  "commercial-unit": "تجاری",
   warehouse: "انبار، سوله",
   "hotel-apartment": "هتل، اقامتگاه",
-  "factory-workshop": "واحد صنعتی",
+  "factory-workshop": "صنعتی",
   "daily-apartment-suite": "آپارتمان، سوئیت",
-  "daily-garden-villa": "باغ، ویلا",
+  "daily-garden-villa": "ویلا، باغ",
   "daily-hotel-apartment": "هتل، اقامتگاه",
   "daily-workspace": "دفترکار، غرفه",
   "project-presale": "پروژه",
@@ -647,7 +647,7 @@ export const categoryGroupsByTransaction: Record<
   sale: [
     {
       title: "مسکونی",
-      items: ["apartment", "land", "villa-house", "garden-villa"],
+      items: ["apartment", "land", "villa-house"],
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
@@ -658,7 +658,7 @@ export const categoryGroupsByTransaction: Record<
   rent: [
     {
       title: "مسکونی",
-      items: ["apartment", "villa-house", "garden-villa"],
+      items: ["apartment", "villa-house"],
     },
     {
       title: "روزانه",
@@ -682,22 +682,22 @@ function getApprovedSelectedCategoryLabel(transaction: TransactionType, category
   if (transaction === "sale") {
     if (category === "apartment") return "فروش آپارتمان";
     if (category === "land") return "فروش زمین، ملک کلنگی";
-    if (category === "garden-villa") return "فروش باغ، ویلا";
-    if (category === "office") return "فروش واحد اداری";
-    if (category === "commercial-unit") return "فروش واحد تجاری";
-    if (category === "factory-workshop") return "فروش واحد صنعتی";
+    if (category === "villa-house") return "فروش خانه، ویلا";
+    if (category === "office") return "فروش اداری";
+    if (category === "commercial-unit") return "فروش تجاری";
+    if (category === "factory-workshop") return "فروش صنعتی";
     if (category === "hotel-apartment") return "فروش هتل، اقامتگاه";
   }
 
   if (transaction === "rent") {
     if (category === "apartment") return "اجاره آپارتمان";
     if (category === "villa-house") return "اجاره خانه، ویلا";
-    if (category === "office") return "اجاره واحد اداری";
-    if (category === "commercial-unit") return "اجاره واحد تجاری";
-    if (category === "factory-workshop") return "اجاره واحد صنعتی";
+    if (category === "office") return "اجاره اداری";
+    if (category === "commercial-unit") return "اجاره تجاری";
+    if (category === "factory-workshop") return "اجاره صنعتی";
     if (category === "hotel-apartment") return "اجاره هتل، اقامتگاه";
     if (category === "daily-apartment-suite") return "اجاره روزانه آپارتمان، سوئیت";
-    if (category === "daily-garden-villa") return "اجاره روزانه باغ، ویلا";
+    if (category === "daily-garden-villa") return "اجاره روزانه ویلا، باغ";
     if (category === "daily-hotel-apartment") return "اجاره روزانه هتل، اقامتگاه";
     if (category === "daily-workspace") return "اجاره روزانه دفترکار، غرفه";
   }

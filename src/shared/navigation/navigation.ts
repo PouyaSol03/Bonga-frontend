@@ -125,3 +125,18 @@ export function replaceRoute(
   window.history.replaceState(createNavigationState(state, options), "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
+
+/**
+ * Return to the previous SPA history entry when the current screen was opened
+ * through pushRoute. If the page was opened directly, replace it with the
+ * fallback route instead of pushing another entry that would require an extra
+ * Back click later.
+ */
+export function backRoute(fallbackPath: string, fallbackState?: unknown) {
+  if (getStoredBackTarget()) {
+    window.history.back();
+    return;
+  }
+
+  replaceRoute(fallbackPath, fallbackState, { rememberCurrent: false });
+}

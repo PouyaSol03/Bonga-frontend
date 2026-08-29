@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
+import { backRoute } from "../../../shared/navigation/navigation";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementFeature,
@@ -79,21 +80,21 @@ const editRouteParamsByFormCode: Record<string, EditRouteParams> = {
   partnership: { category: "project-partnership", label: "مشارکت", transaction: "project" },
   "presale-special": { category: "project-presale", label: "پروژه", transaction: "project" },
   "rent-apartment": { category: "apartment", label: "آپارتمان", transaction: "rent" },
-  "rent-commercial": { category: "commercial-unit", label: "واحد تجاری", transaction: "rent" },
-  "rent-factory-workshop": { category: "factory-workshop", label: "کارخانه، کارگاه", transaction: "rent" },
-  "rent-garden-villa": { category: "garden-villa", label: "باغ، ویلا", transaction: "rent" },
-  "rent-hotel": { category: "hotel-apartment", label: "هتل، هتل آپارتمان", transaction: "rent" },
-  "rent-office": { category: "office", label: "واحد اداری", transaction: "rent" },
-  "rent-villa-house": { category: "villa-house", label: "خانه ویلایی", transaction: "rent" },
+  "rent-commercial": { category: "commercial-unit", label: "تجاری", transaction: "rent" },
+  "rent-factory-workshop": { category: "factory-workshop", label: "صنعتی", transaction: "rent" },
+  "rent-garden-villa": { category: "garden-villa", label: "ویلا، باغ", transaction: "rent" },
+  "rent-hotel": { category: "hotel-apartment", label: "هتل، اقامتگاه", transaction: "rent" },
+  "rent-office": { category: "office", label: "اداری", transaction: "rent" },
+  "rent-villa-house": { category: "villa-house", label: "خانه، ویلا", transaction: "rent" },
   "rent-warehouse": { category: "warehouse", label: "انبار، سوله", transaction: "rent" },
   "sale-apartment": { category: "apartment", label: "آپارتمان", transaction: "sale" },
-  "sale-commercial": { category: "commercial-unit", label: "واحد تجاری", transaction: "sale" },
-  "sale-factory": { category: "factory-workshop", label: "کارخانه، کارگاه", transaction: "sale" },
-  "sale-garden-villa": { category: "garden-villa", label: "باغ، ویلا", transaction: "sale" },
-  "sale-hotel": { category: "hotel-apartment", label: "هتل، هتل آپارتمان", transaction: "sale" },
-  "sale-land": { category: "land", label: "زمین", transaction: "sale" },
-  "sale-office": { category: "office", label: "واحد اداری", transaction: "sale" },
-  "sale-villa-house": { category: "villa-house", label: "خانه ویلایی", transaction: "sale" },
+  "sale-commercial": { category: "commercial-unit", label: "تجاری", transaction: "sale" },
+  "sale-factory": { category: "factory-workshop", label: "صنعتی", transaction: "sale" },
+  "sale-garden-villa": { category: "garden-villa", label: "ویلا، باغ", transaction: "sale" },
+  "sale-hotel": { category: "hotel-apartment", label: "هتل، اقامتگاه", transaction: "sale" },
+  "sale-land": { category: "land", label: "زمین، ملک کلنگی", transaction: "sale" },
+  "sale-office": { category: "office", label: "اداری", transaction: "sale" },
+  "sale-villa-house": { category: "villa-house", label: "خانه، ویلا", transaction: "sale" },
   "sale-warehouse": { category: "warehouse", label: "انبار، سوله", transaction: "sale" },
 };
 
@@ -1402,7 +1403,7 @@ export function NewAdFlowPage() {
   const crmReturnTo = editAdId
     ? editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`
     : "/crm/advertises";
-  const leaveCrmEditor = () => navigateTo(crmReturnTo);
+  const leaveCrmEditor = () => backRoute(crmReturnTo);
   const goToAgencySelection = () => {
     const values = methods.getValues();
     const validation = validateNewAd(values, { forceFullEditFields: isEditMode });

@@ -48,15 +48,15 @@ const dailyRentOptions: CategoryOption[] = [
 
 const saleCommercialOptions: CategoryOption[] = [
   { id: "office", label: "اداری" },
-  { id: "commercial-unit", label: "واحد تجاری" },
-  { id: "factory-workshop", label: "واحد صنعتی" },
+  { id: "commercial-unit", label: "تجاری" },
+  { id: "factory-workshop", label: "صنعتی" },
   { id: "hotel-apartment", label: "هتل، اقامتگاه" },
 ];
 
 const rentCommercialOptions: CategoryOption[] = [
   { id: "office", label: "اداری" },
-  { id: "commercial-unit", label: "واحد تجاری" },
-  { id: "factory-workshop", label: "واحد صنعتی" },
+  { id: "commercial-unit", label: "تجاری" },
+  { id: "factory-workshop", label: "صنعتی" },
   { id: "hotel-apartment", label: "هتل، اقامتگاه" },
 ];
 

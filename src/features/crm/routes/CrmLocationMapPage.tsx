@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { divIcon, type LatLngTuple, type Map as LeafletMap, type Marker as LeafletMarker } from "leaflet";
 import { CircleMarker, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { backRoute } from "../../../shared/navigation/navigation";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import {
   createCrmSubNeighborhood,
@@ -1228,7 +1228,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
         <div>
           <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">شهری انتخاب نشده است</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="mt-2 text-[#808080]">از صفحه مدیریت موقعیت‌ها یک شهر را انتخاب و سپس نقشه را باز کنید.</Typography>
-          <Button className="mt-5" onClick={() => pushRoute("/crm/locations")} size="x-medium" variant="primary">بازگشت به موقعیت‌ها</Button>
+          <Button className="mt-5" onClick={() => backRoute("/crm/locations")} size="x-medium" variant="primary">بازگشت به موقعیت‌ها</Button>
         </div>
       </div>
     );
@@ -1244,7 +1244,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
                 <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-[#1a1a1a]">محله‌های {cityName}</Typography>
                 <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-[#808080]">محله اصلی را باز کنید تا زیرمحله‌های همان محدوده دیده شوند.</Typography>
               </div>
-              <Button aria-label="بازگشت" onClick={() => pushRoute("/crm/locations")} size="small" variant="neutral-outline">
+              <Button aria-label="بازگشت" onClick={() => backRoute("/crm/locations")} size="small" variant="neutral-outline">
                 <CrmIcon name="close" size={16} />
               </Button>
             </div>

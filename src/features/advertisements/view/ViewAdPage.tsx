@@ -664,7 +664,7 @@ function ViewAdContent({
   const [areFacilitiesExpanded, setAreFacilitiesExpanded] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
   const propertyInfoItems = details.propertyInfoPreview;
-  const FACILITIES_COLLAPSED_MAX_ITEMS = 10; // 2 columns × 5 rows
+  const FACILITIES_COLLAPSED_MAX_ITEMS = 4; // show the first four facilities, then expand inline
   const visibleFacilityCount = areFacilitiesExpanded
     ? details.features.length
     : FACILITIES_COLLAPSED_MAX_ITEMS;
@@ -768,7 +768,7 @@ function ViewAdContent({
           >
             {areFacilitiesExpanded
               ? "نمایش موارد کمتر"
-              : `نمایش ${details.features.length - FACILITIES_COLLAPSED_MAX_ITEMS} مورد دیگر`}
+              : `مشاهده ${details.features.length - FACILITIES_COLLAPSED_MAX_ITEMS} امکانات`}
           </InlineMoreButton>
         ) : null}
       </DetailSection>

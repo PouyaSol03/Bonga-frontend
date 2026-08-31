@@ -425,6 +425,11 @@ const ignoredFeatureLabels = new Set([
   "has_video",
   "facilities",
   "elevator_count",
+  "elevatorCount",
+  "parking_count",
+  "parkingCount",
+  "terrace_count",
+  "terraceCount",
 ]);
 
 export type AdvertisementFeatureMap = Record<string, unknown>;
@@ -773,41 +778,148 @@ function buildPropertyInfoItem(label: string, rawValue: unknown) {
   };
 }
 
-function getElevatorCountText(
+const parkingFacilityFormCodes = new Set([
+  "sale-apartment",
+  "sale-villa-house",
+  "sale-garden-villa",
+  "sale-office",
+  "sale-commercial",
+  "sale-hotel",
+  "rent-apartment",
+  "rent-villa-house",
+  "rent-garden-villa",
+  "rent-office",
+  "rent-commercial",
+  "rent-hotel",
+  "daily-apartment-suite",
+  "daily-garden-villa",
+  "daily-hotel",
+  "daily-office-booth",
+  "presale-special",
+]);
+
+function supportsParkingFacility(
   features: NonNullable<AdvertisementItem["features"]>,
 ) {
-  const count = getFeatureValue(features, "elevator_count");
+  const formCode = toText(getFeatureValue(features, "form_code"));
+  return parkingFacilityFormCodes.has(formCode);
+}
+
+function getFirstFeatureValue(
+  features: NonNullable<AdvertisementItem["features"]>,
+  labels: string[],
+) {
+  for (const label of labels) {
+    const value = getFeatureValue(features, label);
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+
+  return undefined;
+}
+
+function getAdOrFeatureValue(
+  ad: AdvertisementItem | undefined,
+  features: NonNullable<AdvertisementItem["features"]>,
+  labels: string[],
+) {
+  if (ad) {
+    for (const label of labels) {
+      const value = ad[label];
+      if (value !== undefined && value !== null && value !== "") return value;
+    }
+  }
+
+  return getFirstFeatureValue(features, labels);
+}
+
+function getFacilityCountText(
+  ad: AdvertisementItem | undefined,
+  features: NonNullable<AdvertisementItem["features"]>,
+  labels: string[],
+) {
+  const count = getAdOrFeatureValue(ad, features, labels);
   const text = toText(count);
   return text ? toPersianDigits(text) : "";
+}
+
+function getElevatorCountText(
+  features: NonNullable<AdvertisementItem["features"]>,
+  ad?: AdvertisementItem,
+) {
+  return getFacilityCountText(ad, features, [
+    "elevator_count",
+    "elevatorCount",
+    "elevators_count",
+  ]);
 }
 
 function getParkingCountText(
   features: NonNullable<AdvertisementItem["features"]>,
+  ad?: AdvertisementItem,
 ) {
-  const count = getFeatureValue(features, "parking_count");
-  const text = toText(count);
-  return text ? toPersianDigits(text) : "";
+  return getFacilityCountText(ad, features, [
+    "parking_count",
+    "parkingCount",
+    "parkings_count",
+  ]);
 }
 
 function getTerraceCountText(
   features: NonNullable<AdvertisementItem["features"]>,
+  ad?: AdvertisementItem,
 ) {
-  const count = getFeatureValue(features, "terrace_count");
-  const text = toText(count);
-  return text ? toPersianDigits(text) : "";
+  return getFacilityCountText(ad, features, [
+    "terrace_count",
+    "terraceCount",
+    "terraces_count",
+  ]);
+}
+
+function parseFeatureList(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.map((item) => toText(item).trim()).filter(Boolean);
+  }
+
+  if (typeof value !== "string" || !value.trim()) return [];
+
+  const text = value.trim();
+  if (text.startsWith("[") && text.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(text) as unknown;
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => toText(item).trim()).filter(Boolean);
+      }
+    } catch {
+      // Fall through to the delimiter-based parser for legacy payloads.
+    }
+  }
+
+  return text
+    .split(/[،,|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeFacilityDisplayLabel(value: string) {
+  const normalized = value.trim();
+
+  if (normalized === "سرویس فرهنگی") return "سرویس فرنگی";
+  if (normalized === "western") return "سرویس فرنگی";
+  if (normalized === "iranian") return "سرویس ایرانی";
+
+  return normalized;
 }
 
 function buildFacilityItems(
+  ad: AdvertisementItem,
   features: NonNullable<AdvertisementItem["features"]>,
 ) {
-  const facilities = getFeatureValue(features, "facilities");
-  const elevatorCount = getElevatorCountText(features);
-  const parkingCount = getParkingCountText(features);
-  const terraceCount = getTerraceCountText(features);
+  const facilities = getFeatureValue(features, "facilities") ?? ad.facilities;
+  const elevatorCount = getElevatorCountText(features, ad);
+  const parkingCount = getParkingCountText(features, ad);
+  const terraceCount = getTerraceCountText(features, ad);
 
-  const rawList = Array.isArray(facilities)
-    ? facilities.map((f) => toText(f).trim()).filter(Boolean)
-    : [];
+  const rawList = parseFeatureList(facilities).map(normalizeFacilityDisplayLabel);
   const facilitySet = new Set(rawList);
 
   const hasElevator = facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount);
@@ -1045,9 +1157,14 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = Array.isArray(ad.features) ? ad.features : [];
   const featureMap = buildAdvertisementFeatureMap(ad);
   const formCode = toText(ad.form_code ?? featureMap.form_code);
-  const propertyInfoRows = features.length > 0 ? buildPropertyInfoItems(features) : [];
+  const isRentalForm = formCode.startsWith("rent-") || formCode.startsWith("daily-");
+  const propertyInfoRows = (features.length > 0 ? buildPropertyInfoItems(features) : [])
+    .filter((item) => !(isRentalForm && item.label === "وام"))
+    .filter((item) => !(formCode === "rent-apartment" && item.label === "تبدیل رهن و اجاره"));
   const propertyInfoPreview = features.length > 0 ? buildPropertyInfoPreviewItems(features) : [];
-  const facilities = features.length > 0 ? buildFacilityItems(features) : [];
+  const facilities = features.length > 0 || ad.facilities !== undefined
+    ? buildFacilityItems(ad, features)
+    : [];
   const age = formatPublishedAge(ad, features);
   const meterArea = featureMap.area ?? featureMap.land_area ?? featureMap.building_area ?? ad.area;
   const pricePresentation = resolvePricePresentation(formCode, featureMap, ad.price, meterArea);
@@ -1089,7 +1206,13 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     pricePerMeter: pricePresentation.secondaryValue,
     pricePrimaryLabel: pricePresentation.primaryLabel,
     priceSecondaryLabel: pricePresentation.secondaryLabel,
-    rentConversionPolicy: toText(featureMap.rent_conversion_policy),
+    rentConversionPolicy: formCode === "rent-apartment"
+      ? ""
+      : toText(
+        featureMap.rent_conversion_policy ??
+        featureMap.rent_convertibility ??
+        featureMap.conversion_policy,
+      ),
     propertyInfoPreview,
     propertyInfoRows,
     rows: [
@@ -1613,6 +1736,7 @@ export function buildPropertyDetailSections(
   const features = Array.isArray(ad.features) ? ad.features : [];
   const formCode = toText(getFeatureValue(features, "form_code"));
   const isApartment = formCode === "sale-apartment" || formCode === "rent-apartment";
+  const isRentalForm = formCode.startsWith("rent-") || formCode.startsWith("daily-");
   const isOffice = formCode === "sale-office" || formCode === "rent-office";
   const isCommercial = formCode === "sale-commercial" || formCode === "rent-commercial";
   const isHotel = formCode === "sale-hotel" || formCode === "rent-hotel";
@@ -1789,10 +1913,9 @@ export function buildPropertyDetailSections(
     }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
-  const loanExchangeItems = [
-    createLoanRow(ad, features),
-    createExchangeRow(features),
-  ];
+  const loanExchangeItems = isRentalForm
+    ? [createExchangeRow(features)]
+    : [createLoanRow(ad, features), createExchangeRow(features)];
 
   const sections: DetailInfoSection[] = [
     {
@@ -1817,7 +1940,7 @@ export function buildPropertyDetailSections(
       columns: 3,
     },
     {
-      title: "وام و معاوضه",
+      title: isRentalForm ? "معاوضه" : "وام و معاوضه",
       items: loanExchangeItems,
       layout: "rows",
     },
@@ -1835,11 +1958,11 @@ export function buildFacilitiesDetailSections(
   ad: AdvertisementItem,
 ): DetailInfoSection[] {
   const features = Array.isArray(ad.features) ? ad.features : [];
-  const facilities = getFeatureValue(features, "facilities");
-  const heatingCooling = getFeatureValue(features, "heating_cooling");
-  const elevatorCount = getElevatorCountText(features);
-  const parkingCount = getParkingCountText(features);
-  const terraceCount = getTerraceCountText(features);
+  const facilities = getFeatureValue(features, "facilities") ?? ad.facilities;
+  const heatingCooling = getFeatureValue(features, "heating_cooling") ?? ad.heating_cooling;
+  const elevatorCount = getElevatorCountText(features, ad);
+  const parkingCount = getParkingCountText(features, ad);
+  const terraceCount = getTerraceCountText(features, ad);
 
   const heatingItems = Array.isArray(heatingCooling)
     ? heatingCooling
@@ -1857,9 +1980,7 @@ export function buildFacilitiesDetailSections(
         }))
     : [];
 
-  const rawList = Array.isArray(facilities)
-    ? facilities.map((f) => toText(f).trim()).filter(Boolean)
-    : [];
+  const rawList = parseFeatureList(facilities).map(normalizeFacilityDisplayLabel);
   const facilitySet = new Set(rawList);
 
   const hasElevator = facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount);

@@ -1288,7 +1288,7 @@ const approvedDailyFacilities: ChipItem[] = [
   { id: "guard", label: "نگهبانی" },
   { id: "yard", label: "حیاط" },
   { id: "iranian", label: "سرویس ایرانی" },
-  { id: "western", label: "سرویس فرهنگی" },
+  { id: "western", label: "سرویس فرنگی" },
   { id: "door", label: "درب ضد سرقت" },
   { id: "video", label: "آیفون تصویری" },
   { id: "gas-stove", label: "گاز رومیزی" },

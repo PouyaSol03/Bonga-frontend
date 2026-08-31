@@ -675,6 +675,7 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   const isPartnership = isProject && category === "project-partnership";
   const isRent = transaction === "rent";
   const isDailyRent = isRent && category.startsWith("daily-");
+  const loanAllowed = transaction === "sale" && category !== "garden-villa";
   const errors: NewAdFieldErrors = {};
 
   if (!isProject) {
@@ -729,11 +730,11 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
     errors.price = "لطفا قیمت آگهی را وارد کنید.";
   }
 
-  if (values.loanEnabled && !hasRequiredText(values.loanAmount)) {
+  if (loanAllowed && values.loanEnabled && !hasRequiredText(values.loanAmount)) {
     errors.loanAmount = "لطفا مبلغ وام را وارد کنید.";
   }
 
-  if (values.loanEnabled && !hasRequiredText(values.loanInstallment)) {
+  if (loanAllowed && values.loanEnabled && !hasRequiredText(values.loanInstallment)) {
     errors.loanInstallment = "لطفا قسط وام را وارد کنید.";
   }
 

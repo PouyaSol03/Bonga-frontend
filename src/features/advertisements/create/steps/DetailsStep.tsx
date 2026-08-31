@@ -511,24 +511,28 @@ export function DetailsStep({
             />
           </div>
 
-          <div className="mt-4">
-            <SelectBox
-              onClick={() => openSelectSheet("rentConversionPolicy", "تبدیل رهن و اجاره", rentConversionPolicyOptions)}
-              placeholder="تبدیل رهن و اجاره"
-              value={values.rentConversionPolicy}
-            />
-          </div>
+          {!isRentApartment ? (
+            <>
+              <div className="mt-4">
+                <SelectBox
+                  onClick={() => openSelectSheet("rentConversionPolicy", "تبدیل رهن و اجاره", rentConversionPolicyOptions)}
+                  placeholder="تبدیل رهن و اجاره"
+                  value={values.rentConversionPolicy}
+                />
+              </div>
 
-          <RentPriceConversion
-            enabled={values.rentConversionEnabled}
-            mortgagePrice={values.mortgagePrice}
-            onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
-            onMortgagePriceChange={(value) => setField("mortgagePrice", value)}
-            onRentPriceChange={(value) => setField("rentPrice", value)}
-            onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
-            rentPrice={values.rentPrice}
-            selectedMortgagePrice={values.rentConversionMortgagePrice}
-          />
+              <RentPriceConversion
+                enabled={values.rentConversionEnabled}
+                mortgagePrice={values.mortgagePrice}
+                onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
+                onMortgagePriceChange={(value) => setField("mortgagePrice", value)}
+                onRentPriceChange={(value) => setField("rentPrice", value)}
+                onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
+                rentPrice={values.rentPrice}
+                selectedMortgagePrice={values.rentConversionMortgagePrice}
+              />
+            </>
+          ) : null}
         </Section>
       );
     }

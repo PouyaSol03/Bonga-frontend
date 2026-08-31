@@ -537,6 +537,7 @@ export function buildPayload(values: NewAdFormValues) {
   const isPartnership = isProject && params.category === "project-partnership";
   const isRent = params.transaction === "rent";
   const isDailyRent = isRent && params.category.startsWith("daily-");
+  const isRentApartment = isRent && params.category === "apartment";
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const hideHeatingCooling = isPartnership || params.category === "land";
@@ -664,7 +665,9 @@ export function buildPayload(values: NewAdFormValues) {
   } else if (isRent) {
     addFeature(features, "mortgage_price", toNumber(values.mortgagePrice));
     addFeature(features, "rent_price", toNumber(values.rentPrice));
-    addFeature(features, "rent_conversion_policy", values.rentConversionPolicy);
+    if (!isRentApartment) {
+      addFeature(features, "rent_conversion_policy", values.rentConversionPolicy);
+    }
   } else if (isProject) {
     if (!isPartnership) {
       addFeature(features, "min_price", toNumber(values.minPrice));
@@ -740,6 +743,9 @@ export function buildNewAdFormData(
   const formCode =
     options.formCode?.trim() ||
     getAdvertiseFormCode(params.transaction, params.category);
+  const isRentApartment = formCode === "rent-apartment";
+  const isSale = params.transaction === "sale";
+  const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const heatingCooling = labels(
     getHeatingItemsForListing(params.transaction, params.category),
     values.heatingCooling,
@@ -778,6 +784,20 @@ export function buildNewAdFormData(
       typeof value === "boolean" ? (value ? "1" : "0") : String(value);
 
     formData.append(key, serializedValue);
+  };
+
+  // Facility counts are a first-class part of the ad payload. Some older
+  // advertise-form definitions omit these keys, which previously caused the
+  // selected counts to be silently dropped before the request was sent.
+  const appendFacilityCount = (key: string, value: unknown) => {
+    if (!hasFeatureValue(value)) return;
+
+    if (dynamicFieldKeys.has(key)) {
+      appendDynamicValue(key, value);
+      return;
+    }
+
+    appendBaseValue(key, value);
   };
 
   const appendDynamicAliasValue = (keys: string[], value: unknown) => {
@@ -845,7 +865,9 @@ export function buildNewAdFormData(
   appendDynamicValue("price", getPriceValue(values, params.transaction, params.category));
   appendDynamicValue("rent_price", toNumber(values.rentPrice));
   appendDynamicValue("mortgage_price", toNumber(values.mortgagePrice));
-  appendDynamicAliasValue(["rent_conversion_policy", "rent_convertibility", "conversion_policy"], values.rentConversionPolicy);
+  if (!isRentApartment) {
+    appendDynamicAliasValue(["rent_conversion_policy", "rent_convertibility", "conversion_policy"], values.rentConversionPolicy);
+  }
   // Updated daily forms use min/max. Keep daily_price only when the server form still exposes it.
   appendDynamicValue("daily_price", toNumber(values.minPrice));
   appendDynamicValue("meter_price", toNumber(values.minPrice));
@@ -878,8 +900,14 @@ export function buildNewAdFormData(
   appendDynamicValue("evacuation_guarantee", toNumber(values.evacuationGuarantee));
   appendDynamicValue("renovated", values.renovated);
   appendDynamicValue("furnished", values.furnished);
-  appendDynamicValue("loan_amount", values.loanEnabled ? toNumber(values.loanAmount) : null);
-  appendDynamicValue("loan_installment", values.loanEnabled ? toNumber(values.loanInstallment) : null);
+  appendDynamicValue(
+    "loan_amount",
+    isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanAmount) : null,
+  );
+  appendDynamicValue(
+    "loan_installment",
+    isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanInstallment) : null,
+  );
   appendDynamicValue("has_document", values.hasDocument || Boolean(values.documentType || values.officeDocumentType));
   appendDynamicValue("document_type", values.documentType);
   appendDynamicValue("total_floors", toNumber(pickFirstNumber(values.totalFloors)));
@@ -921,15 +949,15 @@ export function buildNewAdFormData(
   appendDynamicValue("separate_entrance", values.separateEntrance);
   appendDynamicValue("height", toNumber(values.ceilingHeight));
   appendDynamicAliasValue(["opening_count", "frontage_count", "openings"], toNumber(values.openingCount));
-  appendDynamicValue(
+  appendFacilityCount(
     "elevator_count",
     values.facilities.includes("elevator") ? toNumber(values.elevatorCount) : null,
   );
-  appendDynamicValue(
+  appendFacilityCount(
     "parking_count",
     values.facilities.includes("parking") ? toNumber(values.parkingCount) : null,
   );
-  appendDynamicValue(
+  appendFacilityCount(
     "terrace_count",
     values.facilities.includes("terrace") ? toNumber(values.terraceCount) : null,
   );

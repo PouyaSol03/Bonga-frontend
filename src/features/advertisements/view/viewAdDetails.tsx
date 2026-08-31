@@ -773,33 +773,6 @@ function buildPropertyInfoItem(label: string, rawValue: unknown) {
   };
 }
 
-const parkingFacilityFormCodes = new Set([
-  "sale-apartment",
-  "sale-villa-house",
-  "sale-garden-villa",
-  "sale-office",
-  "sale-commercial",
-  "sale-hotel",
-  "rent-apartment",
-  "rent-villa-house",
-  "rent-garden-villa",
-  "rent-office",
-  "rent-commercial",
-  "rent-hotel",
-  "daily-apartment-suite",
-  "daily-garden-villa",
-  "daily-hotel",
-  "daily-office-booth",
-  "presale-special",
-]);
-
-function supportsParkingFacility(
-  features: NonNullable<AdvertisementItem["features"]>,
-) {
-  const formCode = toText(getFeatureValue(features, "form_code"));
-  return parkingFacilityFormCodes.has(formCode);
-}
-
 function getElevatorCountText(
   features: NonNullable<AdvertisementItem["features"]>,
 ) {

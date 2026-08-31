@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import "./homeArtwork.css";
 
 
@@ -50,13 +50,6 @@ import {
   type CategoryKey,
   type TransactionType,
 } from "../search/SearchMapFilterPage";
-
-const categoryIconMap: Record<string, string> = {
-  sale: SaleCategoryIcon,
-  rent: RentCategoryIcon,
-  project: ProjectCategoryIcon,
-  consultants: ConsultantCategoryIcon,
-};
 
 function getCategorySelectionFormCode(category: CategoryOption | QuickAction | undefined, parent: QuickAction | null) {
   if (category?.formCode) return category.formCode;

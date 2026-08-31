@@ -278,26 +278,64 @@ export function DetailsStep({
   };
 
   const handleFacilityClick = (id: string) => {
-    if (id !== "elevator") {
-      setField("facilities", toggleArray(values.facilities, id));
+    if (id === "elevator") {
+      if (values.facilities.includes("elevator")) {
+        setField(
+          "facilities",
+          values.facilities.filter((facilityId) => facilityId !== "elevator"),
+        );
+        setField("elevatorCount", "");
+        return;
+      }
+
+      setSheet({
+        kind: "select",
+        key: "elevatorCount",
+        title: "تعداد آسانسور",
+        options: elevatorCountOptions,
+      });
       return;
     }
 
-    if (values.facilities.includes("elevator")) {
-      setField(
-        "facilities",
-        values.facilities.filter((facilityId) => facilityId !== "elevator"),
-      );
-      setField("elevatorCount", "");
+    if (id === "parking") {
+      if (values.facilities.includes("parking")) {
+        setField(
+          "facilities",
+          values.facilities.filter((facilityId) => facilityId !== "parking"),
+        );
+        setField("parkingCount", "");
+        return;
+      }
+
+      setSheet({
+        kind: "select",
+        key: "parkingCount",
+        title: "تعداد پارکینگ",
+        options: elevatorCountOptions,
+      });
       return;
     }
 
-    setSheet({
-      kind: "select",
-      key: "elevatorCount",
-      title: "تعداد آسانسور",
-      options: elevatorCountOptions,
-    });
+    if (id === "terrace") {
+      if (values.facilities.includes("terrace")) {
+        setField(
+          "facilities",
+          values.facilities.filter((facilityId) => facilityId !== "terrace"),
+        );
+        setField("terraceCount", "");
+        return;
+      }
+
+      setSheet({
+        kind: "select",
+        key: "terraceCount",
+        title: "تعداد تراس",
+        options: elevatorCountOptions,
+      });
+      return;
+    }
+
+    setField("facilities", toggleArray(values.facilities, id));
   };
 
   const removeMoreFeature = (key: MoreFeatureFormKey) => {
@@ -979,9 +1017,15 @@ export function DetailsStep({
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
               {visibleFacilities.map((item) => (
                 <Chip
-                  displayLabel={item.id === "elevator" && values.elevatorCount
-                    ? `${item.label} (${values.elevatorCount})`
-                    : undefined}
+                  displayLabel={
+                    item.id === "elevator" && values.elevatorCount
+                      ? `${item.label} (${values.elevatorCount})`
+                      : item.id === "parking" && values.parkingCount
+                        ? `${item.label} (${values.parkingCount})`
+                        : item.id === "terrace" && values.terraceCount
+                          ? `${item.label} (${values.terraceCount})`
+                          : undefined
+                  }
                   key={item.id}
                   item={item}
                   selected={values.facilities.includes(item.id)}
@@ -1134,6 +1178,16 @@ export function DetailsStep({
                 setField("elevatorCount", item.title);
                 if (!values.facilities.includes("elevator")) {
                   setField("facilities", [...values.facilities, "elevator"]);
+                }
+              } else if (sheet.key === "parkingCount") {
+                setField("parkingCount", item.title);
+                if (!values.facilities.includes("parking")) {
+                  setField("facilities", [...values.facilities, "parking"]);
+                }
+              } else if (sheet.key === "terraceCount") {
+                setField("terraceCount", item.title);
+                if (!values.facilities.includes("terrace")) {
+                  setField("facilities", [...values.facilities, "terrace"]);
                 }
               } else {
                 setField(sheet.key, item.title);

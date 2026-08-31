@@ -808,45 +808,111 @@ function getElevatorCountText(
   return text ? toPersianDigits(text) : "";
 }
 
+function getParkingCountText(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
+  const count = getFeatureValue(features, "parking_count");
+  const text = toText(count);
+  return text ? toPersianDigits(text) : "";
+}
+
+function getTerraceCountText(
+  features: NonNullable<AdvertisementItem["features"]>,
+) {
+  const count = getFeatureValue(features, "terrace_count");
+  const text = toText(count);
+  return text ? toPersianDigits(text) : "";
+}
+
 function buildFacilityItems(
   features: NonNullable<AdvertisementItem["features"]>,
 ) {
   const facilities = getFeatureValue(features, "facilities");
   const elevatorCount = getElevatorCountText(features);
-  const selectedFacilities: DetailItem[] = Array.isArray(facilities)
-    ? facilities
-    .map((facility) => toText(facility))
-    .filter(Boolean)
+  const parkingCount = getParkingCountText(features);
+  const terraceCount = getTerraceCountText(features);
+
+  const rawList = Array.isArray(facilities)
+    ? facilities.map((f) => toText(f).trim()).filter(Boolean)
+    : [];
+  const facilitySet = new Set(rawList);
+
+  const hasElevator = facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount);
+  const hasParking = facilitySet.has("پارکینگ") || facilitySet.has("parking") || Boolean(parkingCount);
+  const hasTerrace = facilitySet.has("تراس") || facilitySet.has("terrace") || Boolean(terraceCount);
+  const hasWarehouse = facilitySet.has("انباری") || facilitySet.has("warehouse") || facilitySet.has("storage");
+
+  const elevatorItem: DetailItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("آسانسور"),
+    label: "آسانسور",
+    value: "آسانسور",
+    inlineNote: hasElevator && elevatorCount ? `(${elevatorCount})` : undefined,
+    statusBadge: hasElevator ? undefined : "ندارد",
+    tone: "neutral",
+    featureIconLabel: "آسانسور",
+    hideFallbackIcon: true,
+  };
+
+  const parkingItem: DetailItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("پارکینگ"),
+    label: "پارکینگ",
+    value: "پارکینگ",
+    inlineNote: hasParking && parkingCount ? `(${parkingCount})` : undefined,
+    statusBadge: hasParking ? undefined : "ندارد",
+    tone: "neutral",
+    featureIconLabel: "پارکینگ",
+    hideFallbackIcon: true,
+  };
+
+  const terraceItem: DetailItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("تراس"),
+    label: "تراس",
+    value: "تراس",
+    inlineNote: hasTerrace && terraceCount ? `(${terraceCount})` : undefined,
+    statusBadge: hasTerrace ? undefined : "ندارد",
+    tone: "neutral",
+    featureIconLabel: "تراس",
+    hideFallbackIcon: true,
+  };
+
+  const warehouseItem: DetailItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("انباری"),
+    label: "انباری",
+    value: "انباری",
+    statusBadge: hasWarehouse ? undefined : "ندارد",
+    tone: "neutral",
+    featureIconLabel: "انباری",
+    hideFallbackIcon: true,
+  };
+
+  const mandatoryKeys = new Set([
+    "آسانسور",
+    "elevator",
+    "پارکینگ",
+    "parking",
+    "تراس",
+    "terrace",
+    "انباری",
+    "warehouse",
+    "storage",
+  ]);
+
+  const otherFacilities: DetailItem[] = rawList
+    .filter((name) => !mandatoryKeys.has(name))
     .map((facility) => ({
       icon: "apartment" as IconName,
       iconSrc: getFeatureIconSrc(facility),
       label: facility,
       value: facility,
-      inlineNote: facility === "آسانسور" && elevatorCount
-        ? `(${elevatorCount} لاین)`
-        : undefined,
       featureIconLabel: facility,
       hideFallbackIcon: true,
-    }))
-    : [];
+    }));
 
-  const hasParking = selectedFacilities.some((item) => item.label === "پارکینگ");
-  if (supportsParkingFacility(features) && !hasParking) {
-    const parkingItem: DetailItem = {
-      icon: "apartment" as IconName,
-      iconSrc: getFeatureIconSrc("پارکینگ"),
-      label: "پارکینگ",
-      value: "پارکینگ",
-      statusBadge: "ندارد",
-      tone: "neutral",
-      featureIconLabel: "پارکینگ",
-      hideFallbackIcon: true,
-    };
-    const elevatorIndex = selectedFacilities.findIndex((item) => item.label === "آسانسور");
-    selectedFacilities.splice(elevatorIndex >= 0 ? elevatorIndex + 1 : 0, 0, parkingItem);
-  }
-
-  return selectedFacilities;
+  return [elevatorItem, parkingItem, terraceItem, warehouseItem, ...otherFacilities];
 }
 
 function formatPricePerMeter(totalPrice: unknown, area: unknown) {
@@ -1061,6 +1127,12 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     status: toText(ad.status_label ?? ad.status),
     title,
     totalPrice: pricePresentation.primaryValue,
+    imagesBelongToAd:
+      toBooleanLike(
+        ad.images_belong_to_ad ??
+        featureMap.images_belong_to_ad ??
+        getFeatureValue(features, "images_belong_to_ad"),
+      ) === true,
   };
 }
 
@@ -1793,6 +1865,8 @@ export function buildFacilitiesDetailSections(
   const facilities = getFeatureValue(features, "facilities");
   const heatingCooling = getFeatureValue(features, "heating_cooling");
   const elevatorCount = getElevatorCountText(features);
+  const parkingCount = getParkingCountText(features);
+  const terraceCount = getTerraceCountText(features);
 
   const heatingItems = Array.isArray(heatingCooling)
     ? heatingCooling
@@ -1810,39 +1884,86 @@ export function buildFacilitiesDetailSections(
         }))
     : [];
 
-  const facilityItems = Array.isArray(facilities)
-    ? facilities
-        .map((facility) => toText(facility))
-        .filter(Boolean)
-        .map((facility) => ({
-          icon: "apartment" as IconName,
-          iconSrc: getFeatureIconSrc(facility),
-          label: facility,
-          value: facility === "آسانسور" && elevatorCount
-            ? `${elevatorCount} دستگاه`
-            : "دارد",
-          badge: true,
-          tone: "neutral" as DetailInfoTone,
-          featureIconLabel: facility,
-          hideFallbackIcon: true,
-        }))
+  const rawList = Array.isArray(facilities)
+    ? facilities.map((f) => toText(f).trim()).filter(Boolean)
     : [];
+  const facilitySet = new Set(rawList);
 
-  const hasParking = facilityItems.some((item) => item.label === "پارکینگ");
-  if (supportsParkingFacility(features) && !hasParking) {
-    const parkingItem = {
+  const hasElevator = facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount);
+  const hasParking = facilitySet.has("پارکینگ") || facilitySet.has("parking") || Boolean(parkingCount);
+  const hasTerrace = facilitySet.has("تراس") || facilitySet.has("terrace") || Boolean(terraceCount);
+  const hasWarehouse = facilitySet.has("انباری") || facilitySet.has("warehouse") || facilitySet.has("storage");
+
+  const elevatorItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("آسانسور"),
+    label: "آسانسور",
+    value: hasElevator ? (elevatorCount ? `${elevatorCount} دستگاه` : "دارد") : "ندارد",
+    badge: true,
+    tone: (hasElevator ? "neutral" : "danger") as DetailInfoTone,
+    featureIconLabel: "آسانسور",
+    hideFallbackIcon: true,
+  };
+
+  const parkingItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("پارکینگ"),
+    label: "پارکینگ",
+    value: hasParking ? (parkingCount ? `${parkingCount} فضا` : "دارد") : "ندارد",
+    badge: true,
+    tone: (hasParking ? "neutral" : "danger") as DetailInfoTone,
+    featureIconLabel: "پارکینگ",
+    hideFallbackIcon: true,
+  };
+
+  const terraceItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("تراس"),
+    label: "تراس",
+    value: hasTerrace ? (terraceCount ? `${terraceCount} عدد` : "دارد") : "ندارد",
+    badge: true,
+    tone: (hasTerrace ? "neutral" : "danger") as DetailInfoTone,
+    featureIconLabel: "تراس",
+    hideFallbackIcon: true,
+  };
+
+  const warehouseItem = {
+    icon: "apartment" as IconName,
+    iconSrc: getFeatureIconSrc("انباری"),
+    label: "انباری",
+    value: hasWarehouse ? "دارد" : "ندارد",
+    badge: true,
+    tone: (hasWarehouse ? "neutral" : "danger") as DetailInfoTone,
+    featureIconLabel: "انباری",
+    hideFallbackIcon: true,
+  };
+
+  const mandatoryKeys = new Set([
+    "آسانسور",
+    "elevator",
+    "پارکینگ",
+    "parking",
+    "تراس",
+    "terrace",
+    "انباری",
+    "warehouse",
+    "storage",
+  ]);
+
+  const otherFacilities = rawList
+    .filter((name) => !mandatoryKeys.has(name))
+    .map((facility) => ({
       icon: "apartment" as IconName,
-      iconSrc: getFeatureIconSrc("پارکینگ"),
-      label: "پارکینگ",
-      value: "ندارد",
+      iconSrc: getFeatureIconSrc(facility),
+      label: facility,
+      value: "دارد",
       badge: true,
-      tone: "danger" as DetailInfoTone,
-      featureIconLabel: "پارکینگ",
+      tone: "neutral" as DetailInfoTone,
+      featureIconLabel: facility,
       hideFallbackIcon: true,
-    };
-    const elevatorIndex = facilityItems.findIndex((item) => item.label === "آسانسور");
-    facilityItems.splice(elevatorIndex >= 0 ? elevatorIndex + 1 : 0, 0, parkingItem);
-  }
+    }));
+
+  const facilityItems = [elevatorItem, parkingItem, terraceItem, warehouseItem, ...otherFacilities];
 
   const sections: DetailInfoSection[] = [];
   if (heatingItems.length) {

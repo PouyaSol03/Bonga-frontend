@@ -920,6 +920,8 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("ceilingHeight", readFirstValue(ad, features, ["ceiling_height", "height"], ["ceiling_height", "ceilingHeight"]), numericInputText);
   setText("openingCount", readFirstValue(ad, features, ["opening_count", "frontage_count", "openings"], ["opening_count", "openingCount"]), numericInputText);
   setText("elevatorCount", readFirstValue(ad, features, ["elevator_count"], ["elevator_count", "elevatorCount"]), elevatorCountText);
+  setText("parkingCount", readFirstValue(ad, features, ["parking_count"], ["parking_count", "parkingCount"]), elevatorCountText);
+  setText("terraceCount", readFirstValue(ad, features, ["terrace_count"], ["terrace_count", "terraceCount"]), elevatorCountText);
   setText("singleRoomCount", readFirstValue(ad, features, ["single_room_count"], ["single_room_count", "singleRoomCount"]), selectText);
   setText("doubleRoomCount", readFirstValue(ad, features, ["double_room_count"], ["double_room_count", "doubleRoomCount"]), selectText);
   setText("suiteCount", readFirstValue(ad, features, ["suite_count"], ["suite_count", "suiteCount"]), selectText);
@@ -964,6 +966,15 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
     readFirstValue(ad, features, ["facilities"], ["facilities"]),
   );
   if (facilities.length) next.facilities = Array.from(new Set(facilities));
+  if (next.elevatorCount && !next.facilities.includes("elevator")) {
+    next.facilities.push("elevator");
+  }
+  if (next.parkingCount && !next.facilities.includes("parking")) {
+    next.facilities.push("parking");
+  }
+  if (next.terraceCount && !next.facilities.includes("terrace")) {
+    next.facilities.push("terrace");
+  }
 
   const exchangeWith = readFirstValue(ad, features, ["exchange_with"], ["exchange_with", "exchangeWith"]);
   const exchangeTargets = readArrayValue(exchangeWith);
@@ -982,6 +993,7 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setBool("exchangeEnabled", readFirstValue(ad, features, ["has_exchange"], ["has_exchange", "exchangeEnabled"]));
   setBool("hasVideo", readFirstValue(ad, features, ["has_video"], ["has_video"]));
   setBool("hasVirtualTour", readFirstValue(ad, features, ["has_virtual_tour"], ["has_virtual_tour"]));
+  setBool("images_belong_to_ad", readFirstValue(ad, features, ["images_belong_to_ad", "imagesBelongToAd"], ["images_belong_to_ad", "imagesBelongToAd"]));
 
   if (next.virtualTourLink) next.hasVirtualTour = true;
   if (readText(ad.video ?? ad.video_url ?? ad.video_path)) next.hasVideo = true;

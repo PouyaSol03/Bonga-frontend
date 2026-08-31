@@ -11,10 +11,6 @@ import { HomeStatsSection } from "./components/HomeStatsSection";
 import { TrustedPartnersSection } from "./components/TrustedPartnersSection";
 import { PopularAdsSection } from "./components/PopularAdsSection";
 
-import { getApiErrorMessage } from "../../shared/api/api";
-import { useCategoryListQuery } from "../categories/api/category.hooks";
-import type { CategoryItem } from "../categories/api/category.service";
-import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 
@@ -47,6 +43,14 @@ const HomeSearchScreen = lazy(() =>
   })),
 );
 
+import {
+  categoryGroupsByTransaction,
+  categoryLabels,
+  getAdvertiseFormCode,
+  type CategoryKey,
+  type TransactionType,
+} from "../search/SearchMapFilterPage";
+
 const categoryIconMap: Record<string, string> = {
   sale: SaleCategoryIcon,
   rent: RentCategoryIcon,
@@ -54,77 +58,15 @@ const categoryIconMap: Record<string, string> = {
   consultants: ConsultantCategoryIcon,
 };
 
-const categoryFormCodeLabelMap: Record<string, string> = {
-  "فروش:آپارتمان": "sale-apartment",
-  "فروش:خانه، ویلا": "sale-villa-house",
-  "فروش:خانه ویلایی": "sale-villa-house",
-  "فروش:زمین": "sale-land",
-  "فروش:زمین، ملک کلنگی": "sale-land",
-  "فروش:باغ، ویلا": "sale-garden-villa",
-  "فروش:ویلا، باغ": "sale-garden-villa",
-  "فروش:دفتر کار، اتاق اداری و مطب": "sale-office",
-  "فروش:اداری": "sale-office",
-  "فروش:واحد اداری": "sale-office",
-  "فروش:مغازه و غرفه": "sale-commercial",
-  "فروش:تجاری": "sale-commercial",
-  "فروش:واحد تجاری": "sale-commercial",
-  "فروش:صنعتی": "sale-factory",
-  "فروش:صنعتی، کشاورزی و تجاری": "sale-warehouse",
-  "فروش:انبار، سوله": "sale-warehouse",
-  "فروش:کارخانه، کارگاه": "sale-factory",
-  "فروش:واحد صنعتی": "sale-factory",
-  "فروش:اقامتگاه و هتل": "sale-hotel",
-  "فروش:هتل، اقامتگاه": "sale-hotel",
-  "فروش:هتل، هتل آپارتمان": "sale-hotel",
-  "اجاره:آپارتمان": "rent-apartment",
-  "اجاره:خانه، ویلا": "rent-villa-house",
-  "اجاره:خانه ویلایی": "rent-villa-house",
-  "اجاره:باغ، ویلا": "rent-garden-villa",
-  "اجاره:ویلا، باغ": "rent-garden-villa",
-  "اجاره:اتاق و سوییت": "daily-apartment-suite",
-  "اجاره:آپارتمان، سوئیت": "daily-apartment-suite",
-  "اجاره:دفتر کار، اتاق اداری و مطب": "rent-office",
-  "اجاره:اداری": "rent-office",
-  "اجاره:واحد اداری": "rent-office",
-  "اجاره:مغازه و غرفه": "rent-commercial",
-  "اجاره:تجاری": "rent-commercial",
-  "اجاره:واحد تجاری": "rent-commercial",
-  "اجاره:انبار و کارگاه": "rent-warehouse",
-  "اجاره:انبار، سوله": "rent-warehouse",
-  "اجاره:صنعتی": "rent-factory-workshop",
-  "اجاره:کارخانه، کارگاه": "rent-factory-workshop",
-  "اجاره:واحد صنعتی": "rent-factory-workshop",
-  "اجاره:اقامتگاه و هتل": "rent-hotel",
-  "اجاره:هتل، اقامتگاه": "rent-hotel",
-  "اجاره:هتل، هتل آپارتمان": "rent-hotel",
-  "اجاره:دفترکار، غرفه": "daily-office-booth",
-  "پروژه:مسکونی": "presale-special",
-  "پروژه:اداری و تجاری": "presale-special",
-  "پروژه:ویلایی": "presale-special",
-  "پروژه:زمین": "partnership",
-  "پروژه:پیش فروش، فروش پروژه": "presale-special",
-  "پروژه:پروژه": "presale-special",
-  "پروژه:مشارکت": "partnership",
-};
-
-const knownAdvertiseFormCodes = new Set(Object.values(categoryFormCodeLabelMap));
-
-function normalizeCategoryCodeAsFormCode(code?: string) {
-  if (!code) return "";
-  if (knownAdvertiseFormCodes.has(code)) return code;
-  if (/^(sale|rent|daily)-/.test(code) || code === "partnership" || code === "presale-special") return code;
-
-  return "";
-}
-
 function getCategorySelectionFormCode(category: CategoryOption | QuickAction | undefined, parent: QuickAction | null) {
-  const directFormCode = normalizeCategoryCodeAsFormCode(category?.formCode ?? category?.code);
-
-  if (directFormCode) return directFormCode;
-
+  if (category?.formCode) return category.formCode;
   if (!category || !parent) return "";
-
-  return categoryFormCodeLabelMap[`${parent.label}:${category.label}`] ?? "";
+  const transaction = (parent.code ?? "sale") as TransactionType;
+  const categoryKey = (category.code ?? category.id) as CategoryKey;
+  if (["sale", "rent", "project"].includes(transaction) && categoryKey) {
+    return getAdvertiseFormCode(transaction, categoryKey);
+  }
+  return "";
 }
 
 function isConsultantsCategory(item: QuickAction) {
@@ -141,31 +83,63 @@ const consultantCategory: QuickAction = {
   ],
 };
 
+const defaultQuickActions: QuickAction[] = [
+  {
+    code: "sale",
+    formCode: "",
+    id: "sale",
+    label: "فروش",
+    icon: SaleCategoryIcon,
+    options: categoryGroupsByTransaction.sale.map((group) => ({
+      id: group.title,
+      label: group.title,
+      children: group.items.map((key) => ({
+        id: key,
+        label: categoryLabels[key],
+        code: key,
+        formCode: getAdvertiseFormCode("sale", key),
+      })),
+    })),
+  },
+  {
+    code: "rent",
+    formCode: "",
+    id: "rent",
+    label: "اجاره",
+    icon: RentCategoryIcon,
+    options: categoryGroupsByTransaction.rent.map((group) => ({
+      id: group.title,
+      label: group.title,
+      children: group.items.map((key) => ({
+        id: key,
+        label: categoryLabels[key],
+        code: key,
+        formCode: getAdvertiseFormCode("rent", key),
+      })),
+    })),
+  },
+  {
+    code: "project",
+    formCode: "",
+    id: "project",
+    label: "پروژه",
+    icon: ProjectCategoryIcon,
+    options: categoryGroupsByTransaction.project.flatMap((group) =>
+      group.items.map((key) => ({
+        id: key,
+        label: categoryLabels[key],
+        code: key,
+        formCode: getAdvertiseFormCode("project", key),
+      })),
+    ),
+  },
+  consultantCategory,
+];
+
 type SelectedCity = {
   id?: string;
   name: string;
 };
-
-function mapCategoryToQuickAction(category: CategoryItem): QuickAction {
-  return {
-    code: category.code,
-    formCode: normalizeCategoryCodeAsFormCode(category.code),
-    id: category.id,
-    label: category.name,
-    icon: categoryIconMap[category.code] ?? SaleCategoryIcon,
-    options: category.children?.map(mapCategoryToOption) ?? [],
-  };
-}
-
-function mapCategoryToOption(category: CategoryItem): CategoryOption {
-  return {
-    code: category.code,
-    formCode: normalizeCategoryCodeAsFormCode(category.code),
-    id: category.id,
-    label: category.name,
-    children: category.children?.map(mapCategoryToOption) ?? [],
-  };
-}
 
 function getStoredCity(): SelectedCity {
   const storedCity = readStoredSelectedCity();
@@ -195,22 +169,8 @@ export function HomePage() {
   const [hasLoadedCategorySheet, setHasLoadedCategorySheet] = useState(false);
   const [hasLoadedSearchScreen, setHasLoadedSearchScreen] = useState(false);
   const [selectedCity] = useState(getStoredCity);
-  const {
-    data: categories = [],
-    error: categoryError,
-    isError: isCategoryError,
-    isLoading: isCategoryLoading,
-    refetch: refetchCategories,
-  } = useCategoryListQuery();
-  const quickActions = useMemo(() => {
-    const apiCategories = categories
-      .map(mapCategoryToQuickAction)
-      .filter((item) => !isConsultantsCategory(item));
-
-    return [...apiCategories, consultantCategory];
-  }, [categories]);
+  const quickActions = defaultQuickActions;
   const isCategorySheetOpen = selectedCategory !== null;
-  const PageErrorState = getRequestErrorState(categoryError);
 
   useEffect(() => {
     if (isCategorySheetOpen) setHasLoadedCategorySheet(true);
@@ -260,19 +220,6 @@ export function HomePage() {
     window.history.pushState({}, "", nextPath);
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
-
-  if (isCategoryError) {
-    return (
-      <div className="fixed inset-0 z-[999] bg-white">
-        <PageErrorState
-          className="h-full"
-          onRetry={async () => {
-            await refetchCategories();
-          }}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[#f0f0f0]" dir="rtl">
@@ -360,53 +307,35 @@ export function HomePage() {
             className="home-quick-actions grid grid-cols-4 gap-3 [direction:rtl] min-[390px]:gap-4"
             aria-label="دسته‌بندی‌ها"
           >
-            {isCategoryLoading &&
-              Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="flex min-h-[58px] flex-col items-center justify-start gap-1.5 bg-white p-0 min-[390px]:min-h-[70px] min-[390px]:gap-[7px]"
-                >
-                  <div className="h-8 w-8 rounded-full bg-[#f0f0f0] min-[390px]:h-10 min-[390px]:w-10" />
-                  <div className="h-3 w-10 rounded bg-[#f0f0f0]" />
-                </div>
-              ))}
+            {quickActions.map((item) => (
+              <Button unstyled
+                className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-0.5 bg-white p-0 text-xs! font-medium! leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  if (isConsultantsCategory(item)) {
+                    setSelectedCategory({
+                      ...consultantCategory,
+                      icon: item.icon,
+                      label: item.label,
+                    });
+                    return;
+                  }
 
-            {!isCategoryLoading &&
-              quickActions.map((item) => (
-                <Button unstyled
-                  className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-0.5 bg-white p-0 text-xs! font-medium! leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
-                  key={item.label}
-                  type="button"
-                  onClick={() => {
-                    if (isConsultantsCategory(item)) {
-                      setSelectedCategory({
-                        ...consultantCategory,
-                        icon: item.icon,
-                        label: item.label,
-                      });
-                      return;
-                    }
+                  setSelectedCategory(item);
+                }}
+              >
+                <img
+                  src={item.icon}
+                  alt=""
+                  className="h-8 w-8 shrink-0"
+                  aria-hidden="true"
+                />
 
-                    setSelectedCategory(item);
-                  }}
-                >
-                  <img
-                    src={item.icon}
-                    alt=""
-                    className="h-8 w-8 shrink-0"
-                    aria-hidden="true"
-                  />
-
-                  <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
-                </Button>
-              ))}
+                <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
+              </Button>
+            ))}
           </div>
-
-          {categoryError && (
-            <div className="rounded-lg bg-red-50 px-3 py-2 text-right text-xs font-medium text-red-600">
-              {getApiErrorMessage(categoryError, "دریافت دسته‌بندی‌ها با خطا مواجه شد.")}
-            </div>
-          )}
         </section>
 
         <BusinessFeatureSection />

@@ -140,7 +140,14 @@ export function MediaStep({
         <Section icon="image.svg" title="عکس آگهی" warning>
           <PhotoUploader onChange={() => onClearError?.("photos")} />
           <FieldError message={errors.photos} />
-          <div className="mt-5">
+          <div>
+            <Toggle
+              checked={values.images_belong_to_ad}
+              label="عکسها متعلق به آگهی میباشد"
+              onChange={(checked) => setField("images_belong_to_ad", checked)}
+            />
+          </div>
+          <div>
             <Toggle
               checked={values.hasVideo}
               label="فیلم"

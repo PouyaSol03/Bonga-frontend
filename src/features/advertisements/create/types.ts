@@ -221,6 +221,8 @@ export type SelectKey =
   | MoreFeatureSelectKey
   | MoreFeatureTimeKey
   | "elevatorCount"
+  | "parkingCount"
+  | "terraceCount"
   | "rentConversionPolicy";
 
 export type SheetState =
@@ -329,6 +331,9 @@ export type NewAdFormValues = {
   ceilingHeight: string;
   openingCount: string;
   elevatorCount: string;
+  parkingCount: string;
+  terraceCount: string;
+  images_belong_to_ad: boolean;
   singleRoomCount: string;
   doubleRoomCount: string;
   suiteCount: string;

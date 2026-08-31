@@ -149,11 +149,13 @@ function PriceRow({ label, value }: { label: string; value: string }) {
 
 function GalleryHero({
   hasTour3d = false,
+  imagesBelongToAd = false,
   mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
   tour3dUrl = "",
 }: {
   hasTour3d?: boolean;
+  imagesBelongToAd?: boolean;
   mediaItems?: AlbumMediaItem[];
   onOpenAlbum: (initialIndex?: number) => void;
   tour3dUrl?: string;
@@ -227,6 +229,14 @@ function GalleryHero({
             </SwiperSlide>
           ))}
         </Swiper>
+
+        {imagesBelongToAd ? (
+          <div className="absolute left-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-2.5 py-1 text-xs font-medium text-[#fafafa] backdrop-blur-xs [direction:rtl]">
+            <Typography as="span" variant="label" size="small" weight="medium">
+              عکسها متعلق به آگهی میباشد
+            </Typography>
+          </div>
+        ) : null}
 
         <div className="absolute right-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-1 text-sm font-medium leading-5 text-[#fafafa]">
           <GalleryMediaButton
@@ -702,6 +712,7 @@ function ViewAdContent({
       <section className="bg-white pb-4">
         <GalleryHero
           hasTour3d={hasTour3d}
+          imagesBelongToAd={details.imagesBelongToAd}
           mediaItems={mediaItems}
           onOpenAlbum={onOpenAlbum}
           tour3dUrl={tour3dUrl}

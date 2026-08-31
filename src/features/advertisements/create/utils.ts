@@ -626,6 +626,17 @@ export function buildPayload(values: NewAdFormValues) {
     "elevator_count",
     values.facilities.includes("elevator") ? toNumber(values.elevatorCount) : null,
   );
+  addFeature(
+    features,
+    "parking_count",
+    values.facilities.includes("parking") ? toNumber(values.parkingCount) : null,
+  );
+  addFeature(
+    features,
+    "terrace_count",
+    values.facilities.includes("terrace") ? toNumber(values.terraceCount) : null,
+  );
+  addFeature(features, "images_belong_to_ad", values.images_belong_to_ad);
   addFeature(features, "single_room_count", toNumber(pickFirstNumber(values.singleRoomCount)));
   addFeature(features, "double_room_count", toNumber(pickFirstNumber(values.doubleRoomCount)));
   addFeature(features, "suite_count", toNumber(pickFirstNumber(values.suiteCount)));
@@ -914,6 +925,16 @@ export function buildNewAdFormData(
     "elevator_count",
     values.facilities.includes("elevator") ? toNumber(values.elevatorCount) : null,
   );
+  appendDynamicValue(
+    "parking_count",
+    values.facilities.includes("parking") ? toNumber(values.parkingCount) : null,
+  );
+  appendDynamicValue(
+    "terrace_count",
+    values.facilities.includes("terrace") ? toNumber(values.terraceCount) : null,
+  );
+  appendBaseValue("images_belong_to_ad", values.images_belong_to_ad);
+  appendDynamicValue("images_belong_to_ad", values.images_belong_to_ad);
   appendDynamicValue("facade_material", values.facadeMaterial);
   appendDynamicValue("floor_material", values.floorMaterial);
   appendDynamicValue("cabinet_material", values.cabinetMaterial);

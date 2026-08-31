@@ -88,6 +88,7 @@ export type ViewAdDetails = {
   status: string;
   title: string;
   totalPrice: string;
+  imagesBelongToAd?: boolean;
   features: DetailItem[];
   equipmentSections: EquipmentSection[];
   propertyInfoPreview: DetailItem[];

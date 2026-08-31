@@ -53,7 +53,7 @@ export function ViewAdPropertyInfoPage() {
     <DetailInfoFullPage
       adId={adId}
       sections={buildPropertyDetailSections(resolvedAd)}
-      title={getDetailPageTitle(features)}
+      title={getDetailPageTitle(features, typeof resolvedAd.form_code === "string" ? resolvedAd.form_code : "")}
     />
   );
 }

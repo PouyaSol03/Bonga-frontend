@@ -12,6 +12,7 @@ import { parseAdIdFromPath } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../../shared/navigation/navigation";
 import type { DetailItem, IconName, ViewAdDetails } from "./viewAdTypes";
 import { Typography } from "../../../shared/ui/Typography";
+import LinearStar from "../../../shared/icons/LinearStar";
 
 export type AlbumMediaItem = {
   src: string;
@@ -434,9 +435,99 @@ const ignoredFeatureLabels = new Set([
 
 export type AdvertisementFeatureMap = Record<string, unknown>;
 
+function getResolvedAdvertisementFeatures(
+  ad: AdvertisementItem,
+): NonNullable<AdvertisementItem["features"]> {
+  const resolved = Array.isArray(ad.features) ? [...ad.features] : [];
+  const labels = new Set(
+    resolved
+      .map((item) => (typeof item.label === "string" ? item.label : ""))
+      .filter(Boolean),
+  );
+
+  const addRootValue = (label: string, value: unknown) => {
+    if (labels.has(label) || !isFilledValue(value)) return;
+    resolved.push({ label, value });
+    labels.add(label);
+  };
+
+  // Detail serializers in different API versions do not always place the same
+  // fields inside `features`. Promote known root-level values so the purchase
+  // detail UI does not silently lose data that the API did return.
+  addRootValue("form_code", ad.form_code);
+  addRootValue("area", ad.area);
+  addRootValue("rooms", ad.rooms);
+  addRootValue("building_age", ad.building_age ?? ad.year);
+
+  const rootKeys = new Set([
+    ...Object.keys(propertyInfoLabelMap),
+    "meterage",
+    "apartment_area",
+    "unit_area",
+    "room_count",
+    "bedrooms",
+    "age",
+    "construction_age",
+    "unit_floor",
+    "apartment_floor",
+    "unit_per_floor",
+    "units_per_floor",
+    "units_per_floor_count",
+    "building_position",
+    "building_direction",
+    "unit_direction",
+    "direction",
+    "unit_location",
+    "ground_position",
+    "plot_position",
+    "land_location",
+    "document",
+    "deed_type",
+    "floors",
+    "building_floors",
+    "apartment_floors",
+    "is_renovated",
+    "is_furnished",
+    "facilities",
+    "heating_cooling",
+    "elevator_count",
+    "elevatorCount",
+    "parking_count",
+    "parkingCount",
+    "terrace_count",
+    "terraceCount",
+    "has_exchange",
+    "exchange",
+    "is_exchangeable",
+    "exchange_items",
+    "exchange_types",
+    "loan_amount",
+    "mortgage_amount",
+    "loan_price",
+    "loan_value",
+    "loan_installment",
+    "installment_amount",
+    "loan_payment",
+    "monthly_installment",
+    "rent_conversion_enabled",
+    "rent_convertible",
+    "is_rent_convertible",
+    "rent_conversion_policy",
+    "rent_convertibility",
+    "conversion_policy",
+    "is_special",
+  ]);
+
+  for (const key of rootKeys) {
+    addRootValue(key, ad[key]);
+  }
+
+  return resolved;
+}
+
 export function buildAdvertisementFeatureMap(ad: AdvertisementItem): AdvertisementFeatureMap {
   return Object.fromEntries(
-    (ad.features ?? [])
+    getResolvedAdvertisementFeatures(ad)
       .filter((item) => typeof item.label === "string" && item.label.trim().length > 0)
       .map((item) => [item.label, item.value]),
   );
@@ -458,10 +549,10 @@ type PropertyPreviewField = {
 
 const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = {
   "sale-apartment": [
-    { labels: ["area", "meterage"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["floor", "unit_floor", "apartment_floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "sale-villa-house": [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
@@ -477,34 +568,34 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
   ],
   "sale-land": [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["land_use", "usage"], label: "کاربری" },
-    { labels: ["land_position"], label: "موقعیت زمین" },
-    { labels: ["document_type"], label: "نوع سند" },
+    { labels: ["document_type", "document", "deed_type"], label: "سند" },
+    { labels: ["land_width"], label: "عرض زمین", formatter: formatMeterDetailValue, icon: "area" },
+    { labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue, icon: "area" },
   ],
   "sale-office": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["building_age", "age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
   ],
   "sale-commercial": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["document_type", "document", "deed_type"], label: "سند" },
     { labels: ["commercial_position"], label: "موقعیت تجاری" },
-    { labels: ["document_type"], label: "سند" },
     { labels: ["ownership_status"], label: "وضعیت مالکیت" },
   ],
   "sale-warehouse": [
-    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["land_position"], label: "موقعیت زمین" },
-    { labels: ["suitable_for"], label: "مناسب برای" },
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position", "ground_position", "plot_position"], label: "موقعیت زمین" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["document_type", "document", "deed_type"], label: "سند" },
   ],
   "sale-hotel": [
-    { labels: ["accommodation_type"], label: "نوع اقامتگاه" },
     { labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" },
-    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["accommodation_type"], label: "نوع اقامتگاه" },
+    { labels: ["document_type", "document", "deed_type"], label: "نوع سند" },
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
     { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["document_type"], label: "سند" },
   ],
   "sale-factory": [
     { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
@@ -513,55 +604,53 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
     { labels: ["document_type"], label: "سند" },
   ],
   "rent-apartment": [
-    { labels: ["area", "meterage"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["floor", "unit_floor", "apartment_floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-villa-house": [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
     { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-garden-villa": [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["rooms"], label: "تعداد اتاق ها", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-office": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
-    { labels: ["rooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "rent-commercial": [
     { labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" },
     { labels: ["commercial_position"], label: "موقعیت تجاری" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
-    { labels: ["floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" },
   ],
   "rent-warehouse": [
-    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area", "area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["land_position"], label: "موقعیت زمین" },
-    { labels: ["height", "ceiling_height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue },
-    { labels: ["suitable_for"], label: "مناسب برای" },
-    { labels: ["commercial_permit", "commercial_license"], label: "مجوز تجاری" },
-  ],
-  "rent-hotel": [
-    { labels: ["accommodation_type"], label: "نوع اقامتگاه" },
-    { labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" },
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
     { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["land_position", "ground_position", "plot_position"], label: "موقعیت زمین" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+  ],
+  "rent-hotel": [
+    { labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" },
+    { labels: ["accommodation_type"], label: "نوع اقامتگاه" },
+    { labels: ["document_type", "document", "deed_type"], label: "نوع سند" },
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
   ],
   "rent-factory-workshop": [
-    { labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["building_area", "area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["land_position"], label: "موقعیت زمین" },
-    { labels: ["building_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["land_position", "ground_position", "plot_position"], label: "موقعیت زمین" },
+    { labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" },
   ],
   "presale-special": [
     { labels: ["builder_company_name", "builder_name", "developer_name"], label: "نام سازنده/شرکت" },
@@ -593,6 +682,30 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
     { labels: ["builder_share", "builder_share_percent"], label: "درصد مشارکت / درصد سهم", formatter: formatPercentDetailValue },
   ],
 };
+
+const propertyPreviewTitleByFormCode: Record<string, string> = {
+  "sale-apartment": "اطلاعات آپارتمان",
+  "sale-villa-house": "اطلاعات بنا",
+  "sale-garden-villa": "اطلاعات بنا",
+  "sale-land": "اطلاعات زمین",
+  "sale-office": "اطلاعات واحد اداری",
+  "sale-commercial": "اطلاعات واحد تجاری",
+  "sale-factory": "اطلاعات واحد صنعتی",
+  "sale-warehouse": "اطلاعات واحد صنعتی",
+  "sale-hotel": "اطلاعات هتل، اقامتگاه",
+  "rent-apartment": "اطلاعات آپارتمان",
+  "rent-villa-house": "اطلاعات خانه، ویلا",
+  "rent-garden-villa": "اطلاعات خانه، ویلا",
+  "rent-office": "اطلاعات واحد اداری",
+  "rent-commercial": "اطلاعات واحد تجاری",
+  "rent-factory-workshop": "اطلاعات واحد صنعتی",
+  "rent-warehouse": "اطلاعات واحد صنعتی",
+  "rent-hotel": "اطلاعات هتل، اقامتگاه",
+};
+
+export function getPropertyPreviewTitle(formCode: string) {
+  return propertyPreviewTitleByFormCode[formCode] ?? "اطلاعات ملک";
+}
 
 function buildPropertyPreviewItem(
   features: NonNullable<AdvertisementItem["features"]>,
@@ -785,12 +898,14 @@ const parkingFacilityFormCodes = new Set([
   "sale-office",
   "sale-commercial",
   "sale-hotel",
+  "sale-warehouse",
   "rent-apartment",
   "rent-villa-house",
   "rent-garden-villa",
   "rent-office",
   "rent-commercial",
   "rent-hotel",
+  "rent-warehouse",
   "daily-apartment-suite",
   "daily-garden-villa",
   "daily-hotel",
@@ -915,64 +1030,94 @@ function buildFacilityItems(
   features: NonNullable<AdvertisementItem["features"]>,
 ) {
   const facilities = getFeatureValue(features, "facilities") ?? ad.facilities;
+  const heatingCooling = getFeatureValue(features, "heating_cooling") ?? ad.heating_cooling;
   const elevatorCount = getElevatorCountText(features, ad);
   const parkingCount = getParkingCountText(features, ad);
   const terraceCount = getTerraceCountText(features, ad);
 
-  const rawList = parseFeatureList(facilities).map(normalizeFacilityDisplayLabel);
-  const facilitySet = new Set(rawList);
+  const rawFacilityList = parseFeatureList(facilities).map(normalizeFacilityDisplayLabel);
+  const heatingList = parseFeatureList(heatingCooling).map(normalizeFacilityDisplayLabel);
+  const facilitySet = new Set(rawFacilityList);
+  const formCode = toText(getFeatureValue(features, "form_code"), toText(ad.form_code));
+  const supportsStructuralFacilities = parkingFacilityFormCodes.has(formCode);
 
   const hasElevator = facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount);
   const hasParking = facilitySet.has("پارکینگ") || facilitySet.has("parking") || Boolean(parkingCount);
   const hasTerrace = facilitySet.has("تراس") || facilitySet.has("terrace") || Boolean(terraceCount);
   const hasWarehouse = facilitySet.has("انباری") || facilitySet.has("warehouse") || facilitySet.has("storage");
 
-  const elevatorItem: DetailItem = {
-    icon: "apartment" as IconName,
-    iconSrc: getFeatureIconSrc("آسانسور"),
-    label: "آسانسور",
-    value: "آسانسور",
-    inlineNote: hasElevator && elevatorCount ? `(${elevatorCount})` : undefined,
-    statusBadge: hasElevator ? undefined : "ندارد",
-    tone: "neutral",
-    featureIconLabel: "آسانسور",
+  const makeFeatureItem = (feature: string): DetailItem => ({
+    icon: "apartment",
+    iconSrc: getFeatureIconSrc(feature),
+    label: feature,
+    value: feature,
+    featureIconLabel: feature,
     hideFallbackIcon: true,
-  };
+  });
 
-  const parkingItem: DetailItem = {
-    icon: "apartment" as IconName,
-    iconSrc: getFeatureIconSrc("پارکینگ"),
-    label: "پارکینگ",
-    value: "پارکینگ",
-    inlineNote: hasParking && parkingCount ? `(${parkingCount})` : undefined,
-    statusBadge: hasParking ? undefined : "ندارد",
-    tone: "neutral",
-    featureIconLabel: "پارکینگ",
-    hideFallbackIcon: true,
-  };
+  if (formCode === "rent-factory-workshop" || formCode === "rent-warehouse") {
+    const utilityPriority = [
+      "امتیاز برق",
+      "برق تک فاز",
+      "برق سه فاز",
+      "امتیاز گاز",
+      "امتیاز آب",
+      "چاه آب",
+      "دور دیوار/حصار",
+      "دور دیوار",
+      "نگهبانی",
+      "امتیاز تلفن",
+    ];
+    const priorityIndex = new Map(utilityPriority.map((label, index) => [label, index]));
+    const orderedFacilities = [...rawFacilityList].sort((a, b) => {
+      const aIndex = priorityIndex.get(a) ?? Number.MAX_SAFE_INTEGER;
+      const bIndex = priorityIndex.get(b) ?? Number.MAX_SAFE_INTEGER;
+      return aIndex - bIndex;
+    });
+    const seenIndustrial = new Set<string>();
+    const makeIndustrialItem = (feature: string): DetailItem => {
+      const item = makeFeatureItem(feature);
+      if ((feature === "آسانسور" || feature === "elevator") && elevatorCount) item.inlineNote = `(${elevatorCount})`;
+      if ((feature === "پارکینگ" || feature === "parking") && parkingCount) item.inlineNote = `(${parkingCount})`;
+      if ((feature === "تراس" || feature === "terrace") && terraceCount) item.inlineNote = `(${terraceCount})`;
+      return item;
+    };
 
-  const terraceItem: DetailItem = {
-    icon: "apartment" as IconName,
-    iconSrc: getFeatureIconSrc("تراس"),
-    label: "تراس",
-    value: "تراس",
-    inlineNote: hasTerrace && terraceCount ? `(${terraceCount})` : undefined,
-    statusBadge: hasTerrace ? undefined : "ندارد",
-    tone: "neutral",
-    featureIconLabel: "تراس",
-    hideFallbackIcon: true,
-  };
+    return [...orderedFacilities, ...heatingList]
+      .filter((name) => {
+        if (!name || seenIndustrial.has(name)) return false;
+        seenIndustrial.add(name);
+        return true;
+      })
+      .map(makeIndustrialItem);
+  }
 
-  const warehouseItem: DetailItem = {
-    icon: "apartment" as IconName,
-    iconSrc: getFeatureIconSrc("انباری"),
-    label: "انباری",
-    value: "انباری",
-    statusBadge: hasWarehouse ? undefined : "ندارد",
-    tone: "neutral",
-    featureIconLabel: "انباری",
-    hideFallbackIcon: true,
-  };
+  const structuralItems: DetailItem[] = [];
+
+  if (supportsStructuralFacilities && hasElevator) {
+    structuralItems.push({
+      ...makeFeatureItem("آسانسور"),
+      inlineNote: elevatorCount ? `(${elevatorCount})` : undefined,
+    });
+  }
+
+  if (supportsStructuralFacilities && hasParking) {
+    structuralItems.push({
+      ...makeFeatureItem("پارکینگ"),
+      inlineNote: parkingCount ? `(${parkingCount})` : undefined,
+    });
+  }
+
+  if (supportsStructuralFacilities && hasTerrace) {
+    structuralItems.push({
+      ...makeFeatureItem("تراس"),
+      inlineNote: terraceCount ? `(${terraceCount})` : undefined,
+    });
+  }
+
+  if (supportsStructuralFacilities && hasWarehouse) {
+    structuralItems.push(makeFeatureItem("انباری"));
+  }
 
   const mandatoryKeys = new Set([
     "آسانسور",
@@ -986,18 +1131,34 @@ function buildFacilityItems(
     "storage",
   ]);
 
-  const otherFacilities: DetailItem[] = rawList
-    .filter((name) => !mandatoryKeys.has(name))
-    .map((facility) => ({
-      icon: "apartment" as IconName,
-      iconSrc: getFeatureIconSrc(facility),
-      label: facility,
-      value: facility,
-      featureIconLabel: facility,
-      hideFallbackIcon: true,
-    }));
+  const otherFacilityNames = rawFacilityList.filter((name) => !mandatoryKeys.has(name));
+  const seen = new Set<string>();
+  const uniqueHeatingNames = heatingList.filter((name) => {
+    if (!name || seen.has(name)) return false;
+    seen.add(name);
+    return true;
+  });
+  const uniqueOtherNames = otherFacilityNames.filter((name) => {
+    if (!name || seen.has(name)) return false;
+    seen.add(name);
+    return true;
+  });
 
-  return [elevatorItem, parkingItem, terraceItem, warehouseItem, ...otherFacilities];
+  const heatingItems = uniqueHeatingNames.map(makeFeatureItem);
+  const otherFacilities = uniqueOtherNames.map(makeFeatureItem);
+
+  // The sales reference alternates HVAC and building facilities in the first
+  // rows (e.g. کولر گازی / آسانسور, پکیج / پارکینگ, شوفاژ / تراس).
+  // Interleave those groups so the summary reads the same way while still
+  // working for forms that have only one of the groups.
+  const interleaved: DetailItem[] = [];
+  const maxCoreLength = Math.max(heatingItems.length, structuralItems.length);
+  for (let index = 0; index < maxCoreLength; index += 1) {
+    if (heatingItems[index]) interleaved.push(heatingItems[index]);
+    if (structuralItems[index]) interleaved.push(structuralItems[index]);
+  }
+
+  return [...interleaved, ...otherFacilities];
 }
 
 function formatPricePerMeter(totalPrice: unknown, area: unknown) {
@@ -1025,7 +1186,7 @@ function resolvePricePresentation(
     return {
       primaryLabel: "رهن",
       primaryValue: formatPrice(featureMap.mortgage_price),
-      secondaryLabel: "اجاره",
+      secondaryLabel: "اجاره ماهیانه",
       secondaryValue: formatPrice(featureMap.rent_price),
     };
   }
@@ -1146,6 +1307,38 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
   return null;
 }
 
+
+const saleCategoryLabelByFormCode: Record<string, string> = {
+  "sale-apartment": "فروش آپارتمان",
+  "sale-villa-house": "فروش خانه، ویلا",
+  "sale-garden-villa": "فروش باغ، ویلا",
+  "sale-land": "فروش زمین، ملک کلنگی",
+  "sale-office": "فروش واحد اداری",
+  "sale-commercial": "فروش واحد تجاری",
+  "sale-factory": "فروش واحد صنعتی",
+  "sale-warehouse": "فروش انبار، سوله",
+  "sale-hotel": "فروش هتل، اقامتگاه",
+};
+
+const rentCategoryLabelByFormCode: Record<string, string> = {
+  "rent-apartment": "اجاره آپارتمان",
+  "rent-villa-house": "اجاره خانه، ویلا",
+  "rent-garden-villa": "اجاره باغ، ویلا",
+  "rent-office": "اجاره واحد اداری",
+  "rent-commercial": "اجاره واحد تجاری",
+  "rent-factory-workshop": "اجاره واحد صنعتی",
+  "rent-warehouse": "اجاره انبار، سوله",
+  "rent-hotel": "اجاره هتل، اقامتگاه",
+};
+
+function buildCategoryNeighborhoodLabel(formCode: string, neighborhoodName: string, fallback: string) {
+  const listingCategory = saleCategoryLabelByFormCode[formCode] ?? rentCategoryLabelByFormCode[formCode];
+  if (listingCategory && neighborhoodName) {
+    return `${listingCategory} در محله ${neighborhoodName}`;
+  }
+  return listingCategory || fallback;
+}
+
 function iconForFeature(label: string): IconName {
   if (label.includes("متراژ")) return "area";
   if (label.includes("اتاق") || label.includes("خواب")) return "bed";
@@ -1153,14 +1346,61 @@ function iconForFeature(label: string): IconName {
   return "apartment";
 }
 
+function parseHotelStarCount(value: unknown) {
+  const text = toText(value);
+  if (!text) return undefined;
+  const english = text.replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit))).replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+  const match = english.match(/\d+/);
+  if (!match) return undefined;
+  const valueNumber = Number(match[0]);
+  if (!Number.isFinite(valueNumber)) return undefined;
+  return Math.min(5, Math.max(1, Math.round(valueNumber)));
+}
+
+function readRentConvertible(featureMap: AdvertisementFeatureMap, ad: AdvertisementItem, formCode: string) {
+  const explicit = toBooleanLike(
+    featureMap.rent_conversion_enabled ??
+    featureMap.rent_convertible ??
+    featureMap.is_rent_convertible ??
+    ad.rent_conversion_enabled ??
+    ad.rent_convertible ??
+    ad.is_rent_convertible,
+  );
+  if (explicit !== undefined) return explicit;
+
+  const policy = toText(
+    featureMap.rent_conversion_policy ??
+    featureMap.rent_convertibility ??
+    featureMap.conversion_policy ??
+    ad.rent_conversion_policy ??
+    ad.rent_convertibility ??
+    ad.conversion_policy,
+  );
+  if (policy) {
+    if (policy.includes("نیست") || policy.includes("غیر قابل") || policy.includes("غیرقابل")) return false;
+    if (policy.includes("قابل تبدیل") || policy.includes("تبدیل")) return true;
+  }
+
+  // The reference apartment UI exposes the conversion calculator whenever both
+  // rent figures are present. This fallback also keeps old apartment ads useful
+  // when older API payloads did not persist a dedicated conversion flag.
+  if (formCode === "rent-apartment") {
+    const mortgage = toNumber(featureMap.mortgage_price ?? ad.mortgage_price);
+    const rent = toNumber(featureMap.rent_price ?? ad.rent_price);
+    return Boolean((mortgage ?? 0) > 0 && (rent ?? 0) > 0);
+  }
+
+  return false;
+}
+
 export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
-  const features = Array.isArray(ad.features) ? ad.features : [];
+  const features = getResolvedAdvertisementFeatures(ad);
   const featureMap = buildAdvertisementFeatureMap(ad);
   const formCode = toText(ad.form_code ?? featureMap.form_code);
   const isRentalForm = formCode.startsWith("rent-") || formCode.startsWith("daily-");
   const propertyInfoRows = (features.length > 0 ? buildPropertyInfoItems(features) : [])
     .filter((item) => !(isRentalForm && item.label === "وام"))
-    .filter((item) => !(formCode === "rent-apartment" && item.label === "تبدیل رهن و اجاره"));
+    .filter((item) => !(isRentalForm && ["رهن", "اجاره", "تبدیل رهن و اجاره", "قابل معاوضه با"].includes(item.label)));
   const propertyInfoPreview = features.length > 0 ? buildPropertyInfoPreviewItems(features) : [];
   const facilities = features.length > 0 || ad.facilities !== undefined
     ? buildFacilityItems(ad, features)
@@ -1196,7 +1436,10 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
         : toText(featureMap.advertiser_type),
     agencyLocation,
     age,
-    categoryNeighborhood: toText(ad.category_neighborhood, locationTitle),
+    categoryNeighborhood: toText(
+      ad.category_neighborhood,
+      buildCategoryNeighborhoodLabel(formCode, neighborhoodName, locationTitle),
+    ),
     description: toText(description),
     equipmentSections: [],
     features: facilities,
@@ -1206,13 +1449,15 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     pricePerMeter: pricePresentation.secondaryValue,
     pricePrimaryLabel: pricePresentation.primaryLabel,
     priceSecondaryLabel: pricePresentation.secondaryLabel,
-    rentConversionPolicy: formCode === "rent-apartment"
-      ? ""
-      : toText(
-        featureMap.rent_conversion_policy ??
-        featureMap.rent_convertibility ??
-        featureMap.conversion_policy,
-      ),
+    rentConversionPolicy: toText(
+      featureMap.rent_conversion_policy ??
+      featureMap.rent_convertibility ??
+      featureMap.conversion_policy,
+    ),
+    rentMortgagePriceRaw: toNumber(featureMap.mortgage_price ?? ad.mortgage_price),
+    rentMonthlyPriceRaw: toNumber(featureMap.rent_price ?? ad.rent_price),
+    rentConvertible: readRentConvertible(featureMap, ad, formCode),
+    hotelStars: parseHotelStarCount(featureMap.hotel_stars ?? ad.hotel_stars),
     propertyInfoPreview,
     propertyInfoRows,
     rows: [
@@ -1223,11 +1468,17 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     status: toText(ad.status_label ?? ad.status),
     title,
     totalPrice: pricePresentation.primaryValue,
-    imagesBelongToAd:
+    imagesBelongToAd: toBooleanLike(
+      ad.images_belong_to_ad ??
+      featureMap.images_belong_to_ad ??
+      getFeatureValue(features, "images_belong_to_ad"),
+    ),
+    isSpecial:
       toBooleanLike(
-        ad.images_belong_to_ad ??
-        featureMap.images_belong_to_ad ??
-        getFeatureValue(features, "images_belong_to_ad"),
+        ad.is_special ??
+        ad.special ??
+        featureMap.is_special ??
+        getFeatureValue(features, "is_special"),
       ) === true,
   };
 }
@@ -1332,12 +1583,38 @@ export function goBackFromAd(fallbackPath: string) {
 
 export function getDetailPageTitle(
   features: NonNullable<AdvertisementItem["features"]>,
+  fallbackFormCode = "",
 ) {
-  const formCode = toText(getFeatureValue(features, "form_code"));
+  const formCode = toText(getFeatureValue(features, "form_code"), fallbackFormCode);
 
-  if (formCode.includes("garden-villa")) return "اطلاعات ملک";
+  const titles: Record<string, string> = {
+    "sale-apartment": "اطلاعات آپارتمان",
+    "sale-villa-house": "اطلاعات ویلا",
+    "sale-garden-villa": "اطلاعات ویلا",
+    "sale-land": "اطلاعات زمین",
+    "sale-office": "اطلاعات واحد اداری",
+    "sale-commercial": "اطلاعات واحد تجاری",
+    "sale-factory": "اطلاعات واحد صنعتی",
+    "sale-warehouse": "اطلاعات واحد صنعتی",
+    "sale-hotel": "اطلاعات هتل، اقامتگاه",
+    "rent-apartment": "اطلاعات آپارتمان",
+    "rent-villa-house": "اطلاعات خانه، ویلا",
+    "rent-garden-villa": "اطلاعات خانه، ویلا",
+    "rent-office": "اطلاعات واحد اداری",
+    "rent-commercial": "اطلاعات واحد تجاری",
+    "rent-factory-workshop": "اطلاعات واحد صنعتی",
+    "rent-warehouse": "اطلاعات واحد صنعتی",
+    "rent-hotel": "اطلاعات هتل، اقامتگاه",
+  };
+
+  if (titles[formCode]) return titles[formCode];
+  if (formCode.includes("garden-villa")) return "اطلاعات باغ، ویلا";
   if (formCode.includes("villa")) return "اطلاعات ویلا";
   if (formCode.includes("land")) return "اطلاعات زمین";
+  if (formCode.includes("office")) return "اطلاعات واحد اداری";
+  if (formCode.includes("commercial")) return "اطلاعات واحد تجاری";
+  if (formCode.includes("factory") || formCode.includes("warehouse")) return "اطلاعات واحد صنعتی";
+  if (formCode.includes("hotel")) return "اطلاعات هتل، اقامتگاه";
 
   return "اطلاعات ملک";
 }
@@ -1730,11 +2007,506 @@ function createExchangeRow(
   };
 }
 
+function filterDetailSections(sections: DetailInfoSection[]) {
+  return sections.filter(
+    (section) =>
+      section.items.length > 0 ||
+      Boolean(section.choiceRows && section.choiceRows.length > 0) ||
+      Boolean(section.badges && section.badges.length > 0),
+  );
+}
+
+function saleLoanExchangeSection(
+  ad: AdvertisementItem,
+  features: NonNullable<AdvertisementItem["features"]>,
+): DetailInfoSection {
+  return {
+    title: "وام و معاوضه",
+    items: [createLoanRow(ad, features), createExchangeRow(features)],
+    layout: "rows",
+  };
+}
+
+function saleFinishSection(
+  features: NonNullable<AdvertisementItem["features"]>,
+  options: { cabinet?: boolean; facade?: boolean; floor?: boolean; kitchen?: boolean } = {
+    cabinet: true,
+    facade: true,
+    floor: true,
+    kitchen: false,
+  },
+): DetailInfoSection {
+  const items = [
+    options.facade === false
+      ? null
+      : createGridItem({
+          features,
+          labels: ["facade_material", "facade", "building_facade"],
+          label: "جنس نما",
+        }),
+    options.kitchen === true
+      ? createGridItem({
+          features,
+          labels: ["kitchen_type", "kitchen_style"],
+          label: "نوع آشپزخانه",
+        })
+      : null,
+    options.floor === false
+      ? null
+      : createGridItem({
+          features,
+          labels: ["floor_material", "flooring", "floor_covering", "floor_type"],
+          label: "جنس کف",
+        }),
+    options.cabinet === false
+      ? null
+      : createGridItem({
+          features,
+          labels: ["cabinet_material", "cabinet", "kitchen_cabinet"],
+          label: "جنس کابینت",
+        }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  return {
+    title: "متریال و نازک‌کاری",
+    items,
+    layout: "grid",
+    columns: options.kitchen === true ? 2 : 3,
+  };
+}
+
+function buildSalePropertyDetailSections(
+  ad: AdvertisementItem,
+  features: NonNullable<AdvertisementItem["features"]>,
+  formCode: string,
+): DetailInfoSection[] | null {
+  if (!formCode.startsWith("sale-")) return null;
+
+  if (formCode === "sale-apartment") {
+    const mainItems = [
+      createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["floor", "unit_floor", "apartment_floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["unit_type", "building_position", "building_direction"], label: "موقعیت ساختمان" }),
+      createGridItem({ features, labels: ["unit_position", "unit_direction", "direction", "unit_location"], label: "موقعیت واحد" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors", "apartment_floors"], label: "تعداد طبقات آپارتمان", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["unit_per_floor", "units_per_floor", "units_per_floor_count"], label: "تعداد واحد در طبقه", formatter: formatUnitsPerFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "نوع سند" }),
+      createGridItem({ features, labels: ["occupancy_status", "residency_status", "occupancy"], label: "وضعیت سکونت" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 2, badges },
+      saleFinishSection(features, { kitchen: true }),
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  if (formCode === "sale-villa-house" || formCode === "sale-garden-villa") {
+    const mainItems = [
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_area"], label: "زیربنا", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["building_type", "house_building_type"], label: "نوع بنا" }),
+      createGridItem({ features, labels: ["villa_type", "house_type"], label: "تیپ بنا" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "سند" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors"], label: "تعداد طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 2, badges },
+      saleFinishSection(features, { kitchen: true }),
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  if (formCode === "sale-land") {
+    const mainItems = [
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["land_width"], label: "عرض زمین", formatter: formatMeterDetailValue, icon: "area" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["density"], label: "تراکم زمین" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "نوع سند" }),
+      createGridItem({ features, labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [
+      createChoiceRow(features, ["land_use", "usage"], "نوع کاربری"),
+      createChoiceRow(features, ["suitable_for"], "مناسب برای"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["build_permit", "construction_license", "construction_permit"], "مجوز ساخت"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 2, choiceRows, badges },
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  if (formCode === "sale-office") {
+    const mainItems = [
+      createGridItem({ features, labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+      createGridItem({ features, labels: ["office_position"], label: "موقعیت اداری" }),
+      createGridItem({ features, labels: ["office_document_type"], label: "سند اداری" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors"], label: "تعداد کل طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [createChoiceRow(features, ["suitable_for"], "مناسب برای")].filter((item): item is DetailInfoItem => item !== null);
+    const badges = [
+      createCheckBadge(features, ["management_room"], "اتاق مدیریت"),
+      createCheckBadge(features, ["conference_room"], "اتاق کنفرانس"),
+      createCheckBadge(features, ["reception_hall"], "سالن پذیرش"),
+      createCheckBadge(features, ["signboard"], "تابلو خور"),
+      createCheckBadge(features, ["separate_entrance"], "ورودی مجزا"),
+      createCheckBadge(features, ["kitchen"], "آشپزخانه"),
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, choiceRows, badges },
+      saleFinishSection(features),
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  if (formCode === "sale-commercial") {
+    const mainItems = [
+      createGridItem({ features, labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["commercial_position"], label: "موقعیت تجاری" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors"], label: "تعداد کل طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["opening_count", "frontage_count", "openings"], label: "تعداد دهنه" }),
+      createGridItem({ features, labels: ["commercial_license", "commercial_permit"], label: "مجوز تجاری" }),
+      createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "سند" }),
+      createGridItem({ features, labels: ["ownership_status"], label: "وضعیت مالکیت" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [createChoiceRow(features, ["suitable_for"], "مناسب برای")].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, choiceRows },
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  if (formCode === "sale-factory" || formCode === "sale-warehouse") {
+    const mainItems = [
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "سند" }),
+      createGridItem({ features, labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["height", "ceiling_height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue }),
+      createGridItem({ features, labels: ["industrial_property_type", "property_type"], label: "نوع ملک" }),
+      createGridItem({ features, labels: ["access_type", "access"], label: "دسترسی" }),
+      createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+      createGridItem({ features, labels: ["commercial_license", "commercial_permit"], label: "مجوز تجاری" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3 },
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  if (formCode === "sale-hotel") {
+    const mainItems = [
+      createGridItem({ features, labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" }),
+      createGridItem({ features, labels: ["accommodation_type"], label: "نوع اقامتگاه" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "نوع سند" }),
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors"], label: "تعداد طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["single_room_count"], label: "اتاق یک تخته" }),
+      createGridItem({ features, labels: ["double_room_count"], label: "اتاق دو تخته" }),
+      createGridItem({ features, labels: ["suite_count"], label: "تعداد سوییت" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, badges },
+      saleFinishSection(features, { cabinet: false, facade: false, floor: true }),
+      saleLoanExchangeSection(ad, features),
+    ]);
+  }
+
+  return null;
+}
+
+function buildRentPropertyDetailSections(
+  features: NonNullable<AdvertisementItem["features"]>,
+  formCode: string,
+): DetailInfoSection[] | null {
+  if (!formCode.startsWith("rent-")) return null;
+
+  const contractMonthsFormatter = (value: unknown) => {
+    const text = toText(value);
+    return text ? `${text} ماه` : "-";
+  };
+
+  if (formCode === "rent-apartment") {
+    const mainItems = [
+      createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["floor", "unit_floor", "apartment_floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["unit_type", "building_position", "building_direction"], label: "موقعیت ساختمان" }),
+      createGridItem({ features, labels: ["unit_position", "unit_direction", "direction", "unit_location"], label: "موقعیت واحد" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors", "apartment_floors"], label: "تعداد طبقات آپارتمان", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["unit_per_floor", "units_per_floor", "units_per_floor_count"], label: "تعداد واحد در طبقه", formatter: formatUnitsPerFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["occupancy_status", "residency_status", "occupancy"], label: "وضعیت سکونت" }),
+      createGridItem({ features, labels: ["min_contract_months", "minimum_contract_months", "contract_months"], label: "حداقل مدت قرارداد", formatter: contractMonthsFormatter }),
+      createGridItem({ features, labels: ["ready_delivery_date", "delivery_ready_date", "available_from"], label: "تاریخ آماده تحویل", icon: "calendar" }),
+      createGridItem({ features, labels: ["pet_policy", "pets_allowed", "pet_status"], label: "حیوان خانگی" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [
+      createChoiceRow(features, ["suitable_for"], "مناسب برای"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 2, choiceRows, badges },
+      saleFinishSection(features, { kitchen: true }),
+    ]);
+  }
+
+  if (formCode === "rent-villa-house" || formCode === "rent-garden-villa") {
+    const mainItems = [
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["building_type", "house_building_type"], label: "نوع بنا" }),
+      createGridItem({ features, labels: ["villa_type", "house_type"], label: "تیپ بنا" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors"], label: "تعداد طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue }),
+      createGridItem({ features, labels: ["pet_policy", "pets_allowed", "pet_status"], label: "حیوان خانگی" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [
+      createChoiceRow(features, ["suitable_for"], "مناسب برای"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 2, choiceRows, badges },
+      saleFinishSection(features, { kitchen: true }),
+    ]);
+  }
+
+  if (formCode === "rent-office") {
+    const mainItems = [
+      createGridItem({ features, labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["office_position"], label: "موقعیت اداری" }),
+      createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+      createGridItem({ features, labels: ["office_document_type"], label: "سند اداری" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["min_contract_months", "minimum_contract_months", "contract_months"], label: "حداقل مدت قرارداد", formatter: contractMonthsFormatter }),
+      createGridItem({ features, labels: ["ready_delivery_date", "delivery_ready_date", "available_from"], label: "تاریخ آماده تحویل", icon: "calendar" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [
+      createChoiceRow(features, ["suitable_for"], "مناسب برای"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["management_room"], "اتاق مدیریت"),
+      createCheckBadge(features, ["conference_room"], "اتاق کنفرانس"),
+      createCheckBadge(features, ["reception_hall"], "سالن پذیرش"),
+      createCheckBadge(features, ["signboard"], "تابلو خور"),
+      createCheckBadge(features, ["separate_entrance"], "ورودی مجزا"),
+      createCheckBadge(features, ["kitchen"], "آشپزخانه"),
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, choiceRows, badges },
+      saleFinishSection(features),
+    ]);
+  }
+
+  if (formCode === "rent-commercial") {
+    const mainItems = [
+      createGridItem({ features, labels: ["area", "meterage"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["commercial_position"], label: "موقعیت تجاری" }),
+      createGridItem({ features, labels: ["floor", "unit_floor"], label: "طبقه", formatter: formatFloorDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["opening_count", "frontage_count", "openings"], label: "تعداد دهنه" }),
+      createGridItem({ features, labels: ["ceiling_height", "height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue }),
+      createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+      createGridItem({ features, labels: ["min_contract_months", "minimum_contract_months", "contract_months"], label: "حداقل مدت قرارداد", formatter: contractMonthsFormatter }),
+      createGridItem({ features, labels: ["ready_delivery_date", "delivery_ready_date", "available_from"], label: "تاریخ آماده تحویل", icon: "calendar" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const choiceRows = [
+      createChoiceRow(features, ["suitable_for"], "مناسب برای"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, choiceRows },
+    ]);
+  }
+
+  if (formCode === "rent-factory-workshop" || formCode === "rent-warehouse") {
+    const mainItems = [
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق", formatter: formatRoomDetailValue, icon: "bed" }),
+      createGridItem({ features, labels: ["ceiling_height", "height"], label: "ارتفاع سقف", formatter: formatMeterDetailValue }),
+      createGridItem({ features, labels: ["industrial_property_type", "property_type"], label: "نوع ملک" }),
+      createGridItem({ features, labels: ["access_type", "access"], label: "دسترسی" }),
+      createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی" }),
+      createGridItem({ features, labels: ["commercial_permit", "commercial_license"], label: "مجوز تجاری" }),
+      createGridItem({ features, labels: ["min_contract_months", "minimum_contract_months", "contract_months"], label: "حداقل مدت قرارداد", formatter: contractMonthsFormatter }),
+      createGridItem({ features, labels: ["ready_delivery_date", "delivery_ready_date", "available_from"], label: "تاریخ آماده تحویل", icon: "calendar" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3 },
+    ]);
+  }
+
+  if (formCode === "rent-hotel") {
+    const mainItems = [
+      createGridItem({ features, labels: ["hotel_stars"], label: "رتبه اقامتگاه", formatter: formatHotelStarsDetailValue, icon: "star" }),
+      createGridItem({ features, labels: ["accommodation_type"], label: "نوع اقامتگاه" }),
+      createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "نوع سند" }),
+      createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+      createGridItem({ features, labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const buildingItems = [
+      createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["total_floors", "floors", "building_floors"], label: "تعداد طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["single_room_count"], label: "اتاق یک تخته" }),
+      createGridItem({ features, labels: ["double_room_count"], label: "اتاق دو تخته" }),
+      createGridItem({ features, labels: ["suite_count"], label: "تعداد سوییت" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const badges = [
+      createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+      createCheckBadge(features, ["renovated", "is_renovated"], "بازسازی شده"),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    return filterDetailSections([
+      { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+      { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, badges },
+      saleFinishSection(features, { cabinet: false, facade: false, floor: true }),
+    ]);
+  }
+
+  return null;
+}
+
 export function buildPropertyDetailSections(
   ad: AdvertisementItem,
 ): DetailInfoSection[] {
-  const features = Array.isArray(ad.features) ? ad.features : [];
-  const formCode = toText(getFeatureValue(features, "form_code"));
+  const features = getResolvedAdvertisementFeatures(ad);
+  const featureMap = buildAdvertisementFeatureMap(ad);
+  const formCode = toText(ad.form_code ?? featureMap.form_code ?? getFeatureValue(features, "form_code"));
+
+  const saleSections = buildSalePropertyDetailSections(ad, features, formCode);
+  if (saleSections) return saleSections;
+
+  const rentSections = buildRentPropertyDetailSections(features, formCode);
+  if (rentSections) return rentSections;
+
   const isApartment = formCode === "sale-apartment" || formCode === "rent-apartment";
   const isRentalForm = formCode.startsWith("rent-") || formCode.startsWith("daily-");
   const isOffice = formCode === "sale-office" || formCode === "rent-office";
@@ -1752,95 +2524,22 @@ export function buildPropertyDetailSections(
   const buildingAreaLabel = isHotel || isFactory ? "متراژ بنا" : "متراژ زیربنا";
 
   const mainItems = [
-    createGridItem({
-      features,
-      labels: ["land_area"],
-      label: "متراژ زمین",
-      formatter: formatAreaDetailValue,
-      icon: "area",
-    }),
-    createGridItem({
-      features,
-      labels: ["building_area"],
-      label: buildingAreaLabel,
-      formatter: formatAreaDetailValue,
-      icon: "area",
-    }),
-    createGridItem({
-      features,
-      labels: ["area", "apartment_area", "unit_area", "meterage"],
-      label: areaLabel,
-      formatter: formatAreaDetailValue,
-      icon: "area",
-    }),
-    createGridItem({
-      features,
-      labels: ["rooms", "room_count", "bedrooms"],
-      label: "تعداد اتاق‌ها",
-      formatter: formatRoomDetailValue,
-      icon: "bed",
-    }),
-    createGridItem({
-      features,
-      labels: ["building_age", "age", "construction_age"],
-      label: ageLabel,
-      formatter: formatAgeDetailValue,
-      icon: "building",
-    }),
-    createGridItem({
-      features,
-      labels: ["floor", "unit_floor", "apartment_floor"],
-      label: floorLabel,
-      formatter: formatFloorDetailValue,
-      icon: "building",
-    }),
+    createGridItem({ features, labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+    createGridItem({ features, labels: ["building_area"], label: buildingAreaLabel, formatter: formatAreaDetailValue, icon: "area" }),
+    createGridItem({ features, labels: ["area", "apartment_area", "unit_area", "meterage"], label: areaLabel, formatter: formatAreaDetailValue, icon: "area" }),
+    createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
+    createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: ageLabel, formatter: formatAgeDetailValue, icon: "building" }),
+    createGridItem({ features, labels: ["floor", "unit_floor", "apartment_floor"], label: floorLabel, formatter: formatFloorDetailValue, icon: "building" }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const buildingItems = [
-    createGridItem({
-      features,
-      labels: ["unit_direction", "unit_position", "direction", "unit_location"],
-      label: "موقعیت واحد",
-    }),
-    createGridItem({
-      features,
-      labels: [
-        "land_position",
-        "ground_position",
-        "plot_position",
-        "land_location",
-      ],
-      label: "موقعیت زمین",
-    }),
-    createGridItem({
-      features,
-      labels: ["unit_type", "building_position", "building_direction"],
-      label: "موقعیت ساختمان",
-    }),
-    createGridItem({
-      features,
-      labels: ["density"],
-      label: "تراکم زمین",
-    }),
-    createGridItem({
-      features,
-      labels: ["document_type", "document", "deed_type"],
-      label: "سند",
-    }),
-    createGridItem({
-      features,
-      labels: ["total_floors", "floors", "building_floors", "apartment_floors"],
-      label: totalFloorsLabel,
-      formatter: formatTotalFloorsDetailValue,
-      icon: "building",
-    }),
-    createGridItem({
-      features,
-      labels: ["unit_per_floor", "units_per_floor", "units_per_floor_count"],
-      label: "تعداد واحد در طبقه",
-      formatter: formatUnitsPerFloorDetailValue,
-      icon: "building",
-    }),
+    createGridItem({ features, labels: ["unit_direction", "unit_position", "direction", "unit_location"], label: "موقعیت واحد" }),
+    createGridItem({ features, labels: ["land_position", "ground_position", "plot_position", "land_location"], label: "موقعیت زمین" }),
+    createGridItem({ features, labels: ["unit_type", "building_position", "building_direction"], label: "موقعیت ساختمان" }),
+    createGridItem({ features, labels: ["density"], label: "تراکم زمین" }),
+    createGridItem({ features, labels: ["document_type", "document", "deed_type"], label: "سند" }),
+    createGridItem({ features, labels: ["total_floors", "floors", "building_floors", "apartment_floors"], label: totalFloorsLabel, formatter: formatTotalFloorsDetailValue, icon: "building" }),
+    createGridItem({ features, labels: ["unit_per_floor", "units_per_floor", "units_per_floor_count"], label: "تعداد واحد در طبقه", formatter: formatUnitsPerFloorDetailValue, icon: "building" }),
     createGridItem({ features, labels: ["commercial_position"], label: "موقعیت تجاری" }),
     createGridItem({ features, labels: ["office_position"], label: "موقعیت اداری" }),
     createGridItem({ features, labels: ["office_document_type"], label: "سند اداری" }),
@@ -1896,68 +2595,27 @@ export function buildPropertyDetailSections(
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const finishItems = [
-    createGridItem({
-      features,
-      labels: ["floor_material", "flooring", "floor_covering", "floor_type"],
-      label: "جنس کف",
-    }),
-    createGridItem({
-      features,
-      labels: ["facade_material", "facade", "building_facade"],
-      label: "جنس نما",
-    }),
-    createGridItem({
-      features,
-      labels: ["cabinet_material", "cabinet", "kitchen_cabinet"],
-      label: "جنس کابینت",
-    }),
+    createGridItem({ features, labels: ["floor_material", "flooring", "floor_covering", "floor_type"], label: "جنس کف" }),
+    createGridItem({ features, labels: ["facade_material", "facade", "building_facade"], label: "جنس نما" }),
+    createGridItem({ features, labels: ["cabinet_material", "cabinet", "kitchen_cabinet"], label: "جنس کابینت" }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const loanExchangeItems = isRentalForm
-    ? [createExchangeRow(features)]
+    ? []
     : [createLoanRow(ad, features), createExchangeRow(features)];
 
-  const sections: DetailInfoSection[] = [
-    {
-      title: "مشخصات اصلی",
-      items: mainItems,
-      layout: "grid",
-      columns: 2,
-      showIcons: true,
-    },
-    {
-      title: "موقعیت و ساختمان",
-      items: buildingItems,
-      layout: "grid",
-      columns: 3,
-      choiceRows: buildingChoiceRows,
-      badges: buildingBadges,
-    },
-    {
-      title: "متریال و نازک‌کاری",
-      items: finishItems,
-      layout: "grid",
-      columns: 3,
-    },
-    {
-      title: isRentalForm ? "معاوضه" : "وام و معاوضه",
-      items: loanExchangeItems,
-      layout: "rows",
-    },
-  ];
-
-  return sections.filter(
-    (section) =>
-      section.items.length > 0 ||
-      Boolean(section.choiceRows && section.choiceRows.length > 0) ||
-      Boolean(section.badges && section.badges.length > 0),
-  );
+  return filterDetailSections([
+    { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+    { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 3, choiceRows: buildingChoiceRows, badges: buildingBadges },
+    { title: "متریال و نازک‌کاری", items: finishItems, layout: "grid", columns: 3 },
+    { title: "وام و معاوضه", items: loanExchangeItems, layout: "rows" },
+  ]);
 }
 
 export function buildFacilitiesDetailSections(
   ad: AdvertisementItem,
 ): DetailInfoSection[] {
-  const features = Array.isArray(ad.features) ? ad.features : [];
+  const features = getResolvedAdvertisementFeatures(ad);
   const facilities = getFeatureValue(features, "facilities") ?? ad.facilities;
   const heatingCooling = getFeatureValue(features, "heating_cooling") ?? ad.heating_cooling;
   const elevatorCount = getElevatorCountText(features, ad);
@@ -2124,6 +2782,24 @@ function DetailInfoValueView({
         ))}
       </div>
     );
+  }
+
+  if (item.label === "رتبه اقامتگاه") {
+    const count = parseHotelStarCount(item.value);
+    if (count) {
+      return (
+        <div className="flex items-center gap-0.5 [direction:ltr]" aria-label={`${count} ستاره از ۵`}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <LinearStar
+              aria-hidden="true"
+              className={`h-5 w-5 ${star <= count ? "text-[#ffb100]" : "text-[#d9d9d9]"}`}
+              innerColor={star <= count ? "currentColor" : "transparent"}
+              key={star}
+            />
+          ))}
+        </div>
+      );
+    }
   }
 
   if (item.badge) {

@@ -1001,8 +1001,9 @@ export function buildNewAdFormData(
   appendDynamicArray("suitable_for", values.suitableFor);
   appendDynamicArray("heating_cooling", heatingCooling);
   appendDynamicArray("facilities", facilities);
-  appendDynamicValue("has_exchange", values.exchangeEnabled);
-  appendDynamicArray("exchange_with", values.exchangeEnabled ? values.exchangeTargets : []);
+  const exchangeAllowedForForm = !formCode.startsWith("rent-");
+  appendDynamicValue("has_exchange", exchangeAllowedForForm && values.exchangeEnabled);
+  appendDynamicArray("exchange_with", exchangeAllowedForForm && values.exchangeEnabled ? values.exchangeTargets : []);
 
   appendDynamicJson("project_details", buildProjectDetailFeatures(values));
   appendDynamicJson("extra_specs", extraSpecs);

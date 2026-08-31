@@ -85,10 +85,15 @@ export type ViewAdDetails = {
   pricePrimaryLabel: string;
   priceSecondaryLabel: string;
   rentConversionPolicy?: string;
+  rentMortgagePriceRaw?: number;
+  rentMonthlyPriceRaw?: number;
+  rentConvertible?: boolean;
+  hotelStars?: number;
   status: string;
   title: string;
   totalPrice: string;
   imagesBelongToAd?: boolean;
+  isSpecial?: boolean;
   features: DetailItem[];
   equipmentSections: EquipmentSection[];
   propertyInfoPreview: DetailItem[];

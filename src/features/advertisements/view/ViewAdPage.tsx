@@ -43,6 +43,7 @@ import {
   getAdvertiserPreview,
   getCurrentViewAdBasePath,
   getMapPosition,
+  getPropertyPreviewTitle,
   getVirtualTourUrl,
   goBackFromAd,
   hasTour3d,
@@ -64,6 +65,8 @@ import {
 } from "./pages/ViewAdViolationReportPage";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearStar from "../../../shared/icons/LinearStar";
+import { calculateRentPriceConversion, RENT_CONVERSION_MORTGAGE_UNIT } from "../create/rentPriceConversion";
 import {
   clearConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
@@ -147,9 +150,110 @@ function PriceRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+
+const viewMoneyFormatter = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
+
+function formatCompactRentAmount(value: number) {
+  const amount = Math.max(0, Math.round(value));
+  if (amount >= 1_000_000_000 && amount % 1_000_000_000 === 0) {
+    return `${viewMoneyFormatter.format(amount / 1_000_000_000)} میلیارد`;
+  }
+  if (amount >= 1_000_000 && amount % 1_000_000 === 0) {
+    return `${viewMoneyFormatter.format(amount / 1_000_000)} میلیون`;
+  }
+  return viewMoneyFormatter.format(amount);
+}
+
+function RentPriceConversionViewer({
+  mortgagePrice,
+  rentPrice,
+}: {
+  mortgagePrice: number;
+  rentPrice: number;
+}) {
+  const initial = calculateRentPriceConversion(mortgagePrice, rentPrice, mortgagePrice);
+  const [selectedMortgage, setSelectedMortgage] = useState(initial.convertedMortgage);
+
+  useEffect(() => {
+    setSelectedMortgage(calculateRentPriceConversion(mortgagePrice, rentPrice, mortgagePrice).convertedMortgage);
+  }, [mortgagePrice, rentPrice]);
+
+  const conversion = calculateRentPriceConversion(mortgagePrice, rentPrice, selectedMortgage);
+  const safePosition = Math.min(88, Math.max(12, conversion.positionPercent));
+
+  return (
+    <div className="mt-3 rounded-xl border border-[#e6e6e6] bg-white px-3 py-3 [direction:rtl]">
+      <Typography as="p" variant="label" size="medium" weight="semibold" className="m-0 text-right text-[#4d4d4d]">
+        رهن و اجاره قابل تبدیل است
+      </Typography>
+
+      <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+        <div className="min-w-0 text-right">
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#808080]">رهن</Typography>
+          <Typography as="p" variant="label" size="large" weight="semibold" className="m-0 mt-1 text-[#11a366]">
+            {formatCompactRentAmount(conversion.convertedMortgage)} تومان
+          </Typography>
+        </div>
+        <div className="min-w-0 text-left">
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#808080]">اجاره ماهیانه</Typography>
+          <Typography as="p" variant="label" size="large" weight="semibold" className="m-0 mt-1 text-[#ff7200]">
+            {formatCompactRentAmount(conversion.convertedRent)} تومان
+          </Typography>
+        </div>
+      </div>
+
+      <div className="relative mx-3 mt-4 h-9 select-none [direction:ltr]">
+        <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-[#ededed]">
+          <div className="absolute inset-y-0 left-0 bg-[#ff8d00]" style={{ width: `${conversion.positionPercent}%` }} />
+          <div className="absolute inset-y-0 right-0 bg-[#0faf73]" style={{ width: `${100 - conversion.positionPercent}%` }} />
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-white/90" />
+        </div>
+        <div className="absolute left-0 top-1/2 z-10 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#ff8d00] shadow-sm" />
+        <div className="absolute right-0 top-1/2 z-10 h-4 w-4 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#0faf73] shadow-sm" />
+        <div
+          className="pointer-events-none absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[#d9d9d9] bg-white px-3 py-1 text-xs font-semibold text-[#4d4d4d] shadow-[0_2px_8px_rgba(26,26,26,0.10)]"
+          style={{ left: `${safePosition}%` }}
+        >
+          تبدیل
+        </div>
+        <input
+          aria-label="تبدیل مبلغ رهن و اجاره"
+          className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0"
+          max={Math.max(0, Math.round(conversion.maximumMortgage))}
+          min={0}
+          onChange={(event) => setSelectedMortgage(Number(event.currentTarget.value))}
+          step={RENT_CONVERSION_MORTGAGE_UNIT}
+          type="range"
+          value={Math.round(conversion.convertedMortgage)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function HotelStarRating({ count }: { count: number }) {
+  return (
+    <div className="mt-3 flex min-h-11 items-center justify-between rounded-lg bg-[#fff7ed] px-3 [direction:rtl]">
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-[#4d4d4d]">
+        رتبه‌بندی اقامتگاه
+      </Typography>
+      <div className="flex items-center gap-0.5 [direction:ltr]" aria-label={`${count} ستاره از ۵`}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <LinearStar
+            aria-hidden="true"
+            className={`h-5 w-5 ${star <= count ? "text-[#ffb100]" : "text-[#d9d9d9]"}`}
+            innerColor={star <= count ? "currentColor" : "transparent"}
+            key={star}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function GalleryHero({
   hasTour3d = false,
-  imagesBelongToAd = false,
+  imagesBelongToAd,
   mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
   tour3dUrl = "",
@@ -230,10 +334,10 @@ function GalleryHero({
           ))}
         </Swiper>
 
-        {imagesBelongToAd ? (
+        {imagesBelongToAd === true ? (
           <div className="absolute left-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-2.5 py-1 text-xs font-medium text-[#fafafa] backdrop-blur-xs [direction:rtl]">
             <Typography as="span" variant="label" size="small" weight="medium">
-              عکسها متعلق به آگهی میباشد
+              تصاویر مربوط به این ملک است
             </Typography>
           </div>
         ) : null}
@@ -718,6 +822,14 @@ function ViewAdContent({
           tour3dUrl={tour3dUrl}
         />
 
+        {details.imagesBelongToAd === false ? (
+          <div className="px-4 pt-2 text-right">
+            <Typography as="p" variant="label" size="small" weight="medium" className="text-[#808080]">
+              تصاویر مربوط به این ملک نیست.
+            </Typography>
+          </div>
+        ) : null}
+
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
@@ -732,6 +844,20 @@ function ViewAdContent({
             </div>
           </div>
 
+          {details.isSpecial ? (
+            <div className="mt-3 flex justify-end">
+              <Typography
+                as="span"
+                variant="label"
+                size="small"
+                weight="semibold"
+                className="inline-flex min-h-7 items-center rounded-lg bg-[#E8F7EF] px-3 text-[#0FAF73]"
+              >
+                بروزرسانی ویژه
+              </Typography>
+            </div>
+          ) : null}
+
           <div className="mt-4 space-y-2 text-right">
             <Typography as="p" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">
               {details.categoryNeighborhood}
@@ -744,14 +870,25 @@ function ViewAdContent({
           <div className="mt-4 space-y-2">
             <PriceRow label={details.pricePrimaryLabel} value={details.totalPrice} />
             <PriceRow label={details.priceSecondaryLabel} value={details.pricePerMeter} />
-            {details.rentConversionPolicy ? (
+            {details.formCode === "rent-apartment" &&
+            details.rentConvertible &&
+            (details.rentMortgagePriceRaw ?? 0) > 0 &&
+            (details.rentMonthlyPriceRaw ?? 0) > 0 ? (
+              <RentPriceConversionViewer
+                mortgagePrice={details.rentMortgagePriceRaw ?? 0}
+                rentPrice={details.rentMonthlyPriceRaw ?? 0}
+              />
+            ) : details.rentConversionPolicy && details.formCode !== "rent-apartment" ? (
               <PriceRow label="تبدیل رهن و اجاره" value={details.rentConversionPolicy} />
+            ) : null}
+            {(details.formCode === "sale-hotel" || details.formCode === "rent-hotel") && details.hotelStars ? (
+              <HotelStarRating count={details.hotelStars} />
             ) : null}
           </div>
         </div>
       </section>
 
-      <DetailSection icon="apartment" title="اطلاعات ملک">
+      <DetailSection icon="apartment" title={getPropertyPreviewTitle(details.formCode)}>
         <PropertyGrid items={propertyInfoItems} />
         {hasMorePropertyInfo ? (
           <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>

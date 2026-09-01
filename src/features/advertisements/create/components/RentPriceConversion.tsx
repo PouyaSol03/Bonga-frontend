@@ -107,17 +107,10 @@ type ConversionBaseline = {
   rent: number;
 };
 
-type CommittedConversion = {
-  mortgage: number;
-  rent: number;
-};
-
 export function RentPriceConversion({
   enabled,
   mortgagePrice,
   onEnabledChange,
-  onMortgagePriceChange,
-  onRentPriceChange,
   onSelectedMortgageChange,
   rentPrice,
   selectedMortgagePrice,
@@ -125,20 +118,15 @@ export function RentPriceConversion({
   enabled: boolean;
   mortgagePrice: string;
   onEnabledChange: (checked: boolean) => void;
-  onMortgagePriceChange: (value: string) => void;
-  onRentPriceChange: (value: string) => void;
+  onMortgagePriceChange?: (value: string) => void;
+  onRentPriceChange?: (value: string) => void;
   onSelectedMortgageChange: (value: string) => void;
   rentPrice: string;
   selectedMortgagePrice: string;
 }) {
   const sourceMortgage = parseRentPriceValue(mortgagePrice);
   const sourceRent = parseRentPriceValue(rentPrice);
-  const sourceConversion = calculateRentPriceConversion(
-    sourceMortgage,
-    sourceRent,
-    sourceMortgage,
-  );
-  const sourceHasPrice = sourceConversion.maximumMortgage > 0;
+  const sourceHasPrice = sourceMortgage > 0 && sourceRent > 0;
 
   const [baseline, setBaseline] = useState<ConversionBaseline>(() => ({
     mortgage: sourceMortgage,
@@ -149,7 +137,6 @@ export function RentPriceConversion({
   );
 
   const draggingRef = useRef(false);
-  const lastCommittedRef = useRef<CommittedConversion | null>(null);
 
   const activeBaseline = enabled
     ? baseline
@@ -170,7 +157,6 @@ export function RentPriceConversion({
   useEffect(() => {
     if (enabled && !sourceHasPrice) {
       draggingRef.current = false;
-      lastCommittedRef.current = null;
       onEnabledChange(false);
       onSelectedMortgageChange("");
       return;
@@ -180,7 +166,6 @@ export function RentPriceConversion({
 
     setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
     setLiveMortgage(parseRentPriceValue(selectedMortgagePrice) || sourceMortgage);
-    lastCommittedRef.current = null;
   }, [
     enabled,
     onEnabledChange,
@@ -194,14 +179,6 @@ export function RentPriceConversion({
   useEffect(() => {
     if (!enabled || draggingRef.current) return;
 
-    const lastCommitted = lastCommittedRef.current;
-    const sourceMatchesLastCommit =
-      lastCommitted !== null &&
-      lastCommitted.mortgage === sourceMortgage &&
-      lastCommitted.rent === sourceRent;
-
-    if (sourceMatchesLastCommit) return;
-
     const sourceChangedOutsideSlider =
       sourceMortgage !== baseline.mortgage || sourceRent !== baseline.rent;
 
@@ -209,7 +186,6 @@ export function RentPriceConversion({
 
     setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
     setLiveMortgage(sourceMortgage);
-    lastCommittedRef.current = null;
 
     const normalized = String(sourceMortgage);
     if (normalized !== selectedMortgagePrice) {
@@ -229,7 +205,6 @@ export function RentPriceConversion({
     if (checked && !sourceHasPrice) return;
 
     draggingRef.current = false;
-    lastCommittedRef.current = null;
 
     if (checked) {
       const initialMortgage = parseRentPriceValue(selectedMortgagePrice) || sourceMortgage;
@@ -254,15 +229,8 @@ export function RentPriceConversion({
 
   const commitConversion = (value: string | number) => {
     const next = updateLiveConversion(value);
-
-    lastCommittedRef.current = {
-      mortgage: next.convertedMortgage,
-      rent: next.convertedRent,
-    };
-
+    // Sets only the limit without touching base mortgagePrice or rentPrice
     onSelectedMortgageChange(String(next.convertedMortgage));
-    onMortgagePriceChange(String(next.convertedMortgage));
-    onRentPriceChange(String(next.convertedRent));
   };
 
   return (
@@ -330,7 +298,7 @@ export function RentPriceConversion({
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-white px-4 py-1.5 text-[#4d4d4d] shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
-                  style={{ left: `${Math.min(88, Math.max(12, conversion.positionPercent))}%` }}
+                  style={{ left: `${12 + conversion.positionPercent * 0.76}%` }}
                 >
                   <LinearArrowLeft1 className="h-4 w-4" />
                   <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">تبدیل</Typography>
@@ -340,7 +308,8 @@ export function RentPriceConversion({
 
               <input
                 aria-label="تبدیل مبلغ رهن و اجاره"
-                className="absolute inset-0 z-20 h-full w-full cursor-ew-resize touch-pan-y opacity-0 disabled:cursor-not-allowed"
+                className="absolute z-20 h-full cursor-ew-resize touch-pan-y opacity-0 disabled:cursor-not-allowed"
+                style={{ left: '12%', width: '76%' }}
                 disabled={!hasPrice}
                 max={Math.max(0, Math.round(conversion.maximumMortgage))}
                 min={0}
@@ -350,7 +319,11 @@ export function RentPriceConversion({
                   }
                 }}
                 onInput={(event) => {
-                  updateLiveConversion(event.currentTarget.value);
+                  const raw = Number(event.currentTarget.value);
+                  const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                  const halfStep = RENT_CONVERSION_MORTGAGE_UNIT / 2;
+                  const snapped = Math.abs(raw - max) < halfStep ? max : raw;
+                  updateLiveConversion(snapped);
                 }}
                 onPointerCancel={(event) => {
                   draggingRef.current = false;

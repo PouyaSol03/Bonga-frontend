@@ -1618,17 +1618,6 @@ function goBackOrNavigate(fallbackPath: string, legacyBackTarget?: string | null
 }
 
 export function goBackFromAd(fallbackPath: string) {
-  const storedBackTarget = getStoredBackTarget();
-
-  // Preview/detail pages are opened as real navigation entries. When we have
-  // a stored back target, use the browser back stack so the user returns to
-  // the exact previous page (including its URL/state) instead of replacing
-  // the current entry with a guessed destination.
-  if (storedBackTarget && window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
   goBackOrNavigate(fallbackPath, getLegacyHistoryBackTarget());
 }
 

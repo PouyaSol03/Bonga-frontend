@@ -136,7 +136,7 @@ export function backRoute(fallbackPath: string, fallbackState?: unknown) {
   const storedBackTarget = getStoredBackTarget();
 
   if (storedBackTarget) {
-    replaceRoute(storedBackTarget.backTo, storedBackTarget.backState ?? fallbackState, { rememberCurrent: false });
+    window.history.back();
     return;
   }
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
@@ -37,10 +37,10 @@ import {
   elevatorCountOptions,
   projectFacilityItems,
   projectHeatingItems,
-  rentConversionPolicyOptions,
   dailyRentalPeriodOptions,
   rentPetPolicyOptions,
   timeOptions,
+  locationKey,
 } from "../data";
 import {
   formatUnitsPerFloorLabel,
@@ -64,6 +64,7 @@ import {
 } from "../components/NewAdControls";
 import { CrmTargetOwnerSelect } from "../components/CrmTargetOwnerSelect";
 import { RentPriceConversion } from "../components/RentPriceConversion";
+import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT, RENT_CONVERSION_RENT_PER_UNIT } from "../rentPriceConversion";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
@@ -175,6 +176,24 @@ export function DetailsStep({
   const showFacilitiesSection = !isPartnership;
 
   const values = watch();
+
+  // Real-time validation for rent prices: mortgage must be divisible by 1M, rent by 30K
+  const mortgagePriceNum = parseRentPriceValue(values.mortgagePrice);
+  const rentPriceNum = parseRentPriceValue(values.rentPrice);
+  const mortgageInlineError = isRent && mortgagePriceNum > 0 && mortgagePriceNum % RENT_CONVERSION_MORTGAGE_UNIT !== 0
+    ? "مبلغ رهن باید مضربی از یک میلیون تومان باشد."
+    : undefined;
+  const rentInlineError = isRent && rentPriceNum > 0 && rentPriceNum % RENT_CONVERSION_RENT_PER_UNIT !== 0
+    ? "مبلغ اجاره باید مضربی از ۳۰ هزار تومان باشد."
+    : undefined;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(locationKey)?.trim();
+    if (stored && !values.location) {
+      setValue("location", stored, { shouldDirty: false });
+    }
+  }, [setValue, values.location]);
   const moreFeatureFields = getMoreFeatureFields();
   const basicPropertyFields = getBasicPropertyFields();
   const registeredMoreFeatures = moreFeatureFields
@@ -485,22 +504,17 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             <InputBox
-              error={errors.mortgagePrice}
+              error={errors.mortgagePrice || mortgageInlineError}
               formatNumeric
               numeric
               leftText="تومان"
-              onChange={(value) => {
-                setField("mortgagePrice", value);
-                if (values.rentConversionEnabled) {
-                  setField("rentConversionMortgagePrice", value.replace(/,/g, ""));
-                }
-              }}
+              onChange={(value) => setField("mortgagePrice", value)}
               placeholder="رهن *"
               supportingText={moneySupportingText(values.mortgagePrice)}
               value={values.mortgagePrice}
             />
             <InputBox
-              error={errors.rentPrice}
+              error={errors.rentPrice || rentInlineError}
               formatNumeric
               numeric
               leftText="تومان"
@@ -511,28 +525,14 @@ export function DetailsStep({
             />
           </div>
 
-          {!isRentApartment ? (
-            <>
-              <div className="mt-4">
-                <SelectBox
-                  onClick={() => openSelectSheet("rentConversionPolicy", "تبدیل رهن و اجاره", rentConversionPolicyOptions)}
-                  placeholder="تبدیل رهن و اجاره"
-                  value={values.rentConversionPolicy}
-                />
-              </div>
-
-              <RentPriceConversion
-                enabled={values.rentConversionEnabled}
-                mortgagePrice={values.mortgagePrice}
-                onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
-                onMortgagePriceChange={(value) => setField("mortgagePrice", value)}
-                onRentPriceChange={(value) => setField("rentPrice", value)}
-                onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
-                rentPrice={values.rentPrice}
-                selectedMortgagePrice={values.rentConversionMortgagePrice}
-              />
-            </>
-          ) : null}
+          <RentPriceConversion
+            enabled={values.rentConversionEnabled}
+            mortgagePrice={values.mortgagePrice}
+            onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
+            onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
+            rentPrice={values.rentPrice}
+            selectedMortgagePrice={values.rentConversionMortgagePrice}
+          />
         </Section>
       );
     }
@@ -801,7 +801,10 @@ export function DetailsStep({
         ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
         : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"} dir="rtl">
         <Section icon="location.svg" title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}>
-          <LocationBox label={label} value={values.location} />
+          <LocationBox
+            label={label}
+            value={values.location || (typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() ?? "" : "")}
+          />
         </Section>
 
         {isProject ? (

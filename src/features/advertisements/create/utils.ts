@@ -537,7 +537,6 @@ export function buildPayload(values: NewAdFormValues) {
   const isPartnership = isProject && params.category === "project-partnership";
   const isRent = params.transaction === "rent";
   const isDailyRent = isRent && params.category.startsWith("daily-");
-  const isRentApartment = isRent && params.category === "apartment";
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const hideHeatingCooling = isPartnership || params.category === "land";
@@ -665,8 +664,13 @@ export function buildPayload(values: NewAdFormValues) {
   } else if (isRent) {
     addFeature(features, "mortgage_price", toNumber(values.mortgagePrice));
     addFeature(features, "rent_price", toNumber(values.rentPrice));
-    if (!isRentApartment) {
-      addFeature(features, "rent_conversion_policy", values.rentConversionPolicy);
+    addFeature(features, "rent_conversion_enabled", values.rentConversionEnabled);
+    addFeature(features, "rent_convertible", values.rentConversionEnabled);
+    if (values.rentConversionEnabled) {
+      addFeature(features, "rent_conversion_mortgage_price", toNumber(values.rentConversionMortgagePrice));
+      addFeature(features, "rent_conversion_policy", "قابل تبدیل");
+    } else {
+      addFeature(features, "rent_conversion_policy", "غیر قابل تبدیل");
     }
   } else if (isProject) {
     if (!isPartnership) {
@@ -743,7 +747,6 @@ export function buildNewAdFormData(
   const formCode =
     options.formCode?.trim() ||
     getAdvertiseFormCode(params.transaction, params.category);
-  const isRentApartment = formCode === "rent-apartment";
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const heatingCooling = labels(
@@ -865,8 +868,13 @@ export function buildNewAdFormData(
   appendDynamicValue("price", getPriceValue(values, params.transaction, params.category));
   appendDynamicValue("rent_price", toNumber(values.rentPrice));
   appendDynamicValue("mortgage_price", toNumber(values.mortgagePrice));
-  if (!isRentApartment) {
-    appendDynamicAliasValue(["rent_conversion_policy", "rent_convertibility", "conversion_policy"], values.rentConversionPolicy);
+  appendDynamicValue("rent_conversion_enabled", values.rentConversionEnabled);
+  appendDynamicValue("rent_convertible", values.rentConversionEnabled);
+  if (values.rentConversionEnabled) {
+    appendDynamicValue("rent_conversion_mortgage_price", toNumber(values.rentConversionMortgagePrice));
+    appendDynamicValue("rent_conversion_policy", "قابل تبدیل");
+  } else {
+    appendDynamicValue("rent_conversion_policy", "غیر قابل تبدیل");
   }
   // Updated daily forms use min/max. Keep daily_price only when the server form still exposes it.
   appendDynamicValue("daily_price", toNumber(values.minPrice));

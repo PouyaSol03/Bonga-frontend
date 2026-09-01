@@ -32,6 +32,7 @@ export type IconName =
   | "note"
   | "parking"
   | "payment"
+  | "profile"
   | "radiator"
   | "ranking"
   | "ruler"
@@ -87,8 +88,13 @@ export type ViewAdDetails = {
   rentConversionPolicy?: string;
   rentMortgagePriceRaw?: number;
   rentMonthlyPriceRaw?: number;
+  rentConversionMortgagePriceRaw?: number;
   rentConvertible?: boolean;
   hotelStars?: number;
+  normalDailyPrice?: string;
+  weekendDailyPrice?: string;
+  specialDailyPrice?: string;
+  extraPersonPrice?: string;
   status: string;
   title: string;
   totalPrice: string;

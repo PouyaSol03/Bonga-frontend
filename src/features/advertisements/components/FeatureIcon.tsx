@@ -5,7 +5,6 @@ import LinearApartment from "../../../shared/icons/LinearApartment";
 import LinearBathtub from "../../../shared/icons/LinearBathtub";
 import LinearBed from "../../../shared/icons/LinearBed";
 import LinearBms from "../../../shared/icons/LinearBms";
-import LinearBuilding from "../../../shared/icons/LinearBuilding";
 import LinearCamera from "../../../shared/icons/LinearCamera";
 import LinearCctvCamera from "../../../shared/icons/LinearCctvCamera";
 import LinearCoffee from "../../../shared/icons/LinearCoffee";

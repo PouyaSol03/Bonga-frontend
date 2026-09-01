@@ -42,6 +42,7 @@ import LinearStar from "../../../shared/icons/LinearStar";
 import LinearTerrace from "../../../shared/icons/LinearTerrace";
 import LinearTooman from "../../../shared/icons/LinearTooman";
 import LinearUnderfloorHeating from "../../../shared/icons/LinearUnderfloorHeating";
+import LinearUserAccount from "../../../shared/icons/LinearUserAccount";
 import LinearVideo from "../../../shared/icons/LinearVideo";
 import LinearWarehouse from "../../../shared/icons/LinearWarehouse";
 import LinearWaterCooler from "../../../shared/icons/LinearWaterCooler";
@@ -84,6 +85,7 @@ const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = 
   note: LinearNoteAdd,
   parking: LinearParking,
   payment: LinearPayment,
+  profile: LinearUserAccount,
   radiator: LinearRadiator,
   ranking: LinearRanking,
   ruler: LinearRuler,

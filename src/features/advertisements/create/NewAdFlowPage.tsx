@@ -54,6 +54,7 @@ import {
   propertySpecs,
 } from "./data";
 import { DetailsStep } from "./steps/DetailsStep";
+import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT, RENT_CONVERSION_RENT_PER_UNIT } from "./rentPriceConversion";
 import { MediaStep } from "./steps/MediaStep";
 import { AgencySelectionStep } from "./steps/AgencySelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
@@ -725,7 +726,9 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
     }
   } else if (isRent) {
     if (!hasRequiredText(values.mortgagePrice)) errors.mortgagePrice = "لطفا مبلغ رهن را وارد کنید.";
+    else if (parseRentPriceValue(values.mortgagePrice) % RENT_CONVERSION_MORTGAGE_UNIT !== 0) errors.mortgagePrice = "مبلغ رهن باید مضربی از یک میلیون تومان باشد.";
     if (!hasRequiredText(values.rentPrice)) errors.rentPrice = "لطفا مبلغ اجاره را وارد کنید.";
+    else if (parseRentPriceValue(values.rentPrice) % RENT_CONVERSION_RENT_PER_UNIT !== 0) errors.rentPrice = "مبلغ اجاره باید مضربی از ۳۰ هزار تومان باشد.";
   } else if (!hasRequiredText(values.price)) {
     errors.price = "لطفا قیمت آگهی را وارد کنید.";
   }
@@ -929,7 +932,9 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("price", readFirstValue(ad, features, ["price"], ["price"]), numericInputText);
   setText("mortgagePrice", readFirstValue(ad, features, ["mortgage_price"], ["mortgage_price", "mortgagePrice"]), numericInputText);
   setText("rentPrice", readFirstValue(ad, features, ["rent_price"], ["rent_price", "rentPrice"]), numericInputText);
+  setText("rentConversionMortgagePrice", readFirstValue(ad, features, ["rent_conversion_mortgage_price", "rent_conversion_mortgage"], ["rent_conversion_mortgage_price", "rentConversionMortgagePrice"]), numericInputText);
   setText("rentConversionPolicy", readFirstValue(ad, features, ["rent_conversion_policy", "rent_convertibility", "conversion_policy"], ["rent_conversion_policy", "rentConversionPolicy"]));
+  setBool("rentConversionEnabled", readFirstValue(ad, features, ["rent_conversion_enabled", "rent_convertible", "is_rent_convertible"], ["rent_conversion_enabled", "rentConversionEnabled"]));
   setText("minPrice", readFirstValue(ad, features, ["min_price", "daily_price", "meter_price"], ["min_price", "minPrice"]), numericInputText);
   setText("maxPrice", readFirstValue(ad, features, ["max_price"], ["max_price", "maxPrice"]), numericInputText);
   setText("normalDailyPrice", readFirstValue(ad, features, ["normal_daily_price"], ["normal_daily_price", "normalDailyPrice"]), numericInputText);
@@ -1146,17 +1151,28 @@ export function NewAdFlowPage() {
   useEffect(() => {
     if (isEditMode) return undefined;
 
+    const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
+    if (confirmedLocation && !methods.getValues("location")) {
+      methods.setValue("location", confirmedLocation, { shouldDirty: false });
+    }
+
     const persistDraft = () => {
       const values = methods.getValues();
+      const currentConfirmedLoc = window.localStorage.getItem(locationKey)?.trim();
+      const resolvedLoc = values.location || currentConfirmedLoc || "";
       const safeDraft = {
         ...values,
+        location: resolvedLoc,
         hasVideo: false,
         photos: [],
         video: null,
       };
 
-      saveNewAdFlowSession(values, step);
+      saveNewAdFlowSession({ ...values, location: resolvedLoc }, step);
       window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
+      if (resolvedLoc) {
+        window.localStorage.setItem(locationKey, resolvedLoc);
+      }
     };
 
     persistDraft();

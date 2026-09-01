@@ -243,12 +243,18 @@ export const propertySpecs: ChipItem[] = [
 ];
 
 export const heatingItems: ChipItem[] = [
-  { id: "gas-cooler", label: "کولر گازی" },
   { id: "water-cooler", label: "کولر آبی" },
-  { id: "package", label: "پکیج" },
+  { id: "gas-cooler", label: "کولر گازی" },
+  { id: "duct-split", label: "داکت اسپیلت" },
+  { id: "chiller", label: "چیلر" },
+  { id: "fan-coil", label: "فن کوئل" },
   { id: "heater", label: "بخاری" },
-  { id: "water-heater", label: "آبگرمکن" },
-  { id: "fireplace", label: "شوفاژ" },
+  { id: "radiator", label: "شوفاژ" },
+  { id: "floor-heating", label: "گرمایش ازکف" },
+  { id: "fireplace", label: "شومینه" },
+  { id: "water-heater", label: "آبگرم کن" },
+  { id: "package", label: "پکیج" },
+  { id: "central-boiler", label: "موتورخانه" },
 ];
 
 export const facilityItems: ChipItem[] = [
@@ -832,12 +838,16 @@ export const saleLandPositionOptions = [
 ];
 
 export const documentTypeOptions = [
-  "ملکی",
+  "تک برگ",
+  "منگوله‌دار",
   "آستانه",
-  "اوقاف",
+  "اوقافی",
   "موقوفه",
+  "وکالت محضری",
   "قولنامه",
-  "وکالت",
+  "مشاع",
+  "در دست اقدام",
+  "آماده انتقال",
 ];
 
 const saleLandDocumentTypeOptions = [
@@ -884,7 +894,7 @@ export const suitableForOptions = [
   "صنایع چوبی",
 ];
 
-export const hotelStarsOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
+export const hotelStarsOptions = ["۱", "۲", "۳", "۴", "۵"];
 const saleHotelStarsOptions = ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"];
 const saleAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"];
 
@@ -1104,7 +1114,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی", "ندارد"],
   landPosition: landPositionOptions,
   buildingType: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
-  villaType: ["فلت", "دوبلکس", "تریپلکس", "مدرن", "کلاسیک", "باغ‌ویلا"],
+  villaType: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ", "باغ‌ویلا"],
   commercialPosition: saleCommercialPositionOptions,
   ownershipStatus: saleCommercialOwnershipOptions,
   currentStatus: currentStatusOptions,

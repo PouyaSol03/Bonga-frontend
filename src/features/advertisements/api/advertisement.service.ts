@@ -577,11 +577,14 @@ function formatPrice(value: unknown) {
 
 function readFeatureValue(item: AdvertisementItem, labels: string[]) {
   const features = Array.isArray(item.features) ? item.features : [];
-  const feature = features.find((candidate) =>
-    labels.some((label) => candidate.label?.includes(label)),
-  );
+  for (const label of labels) {
+    const feature = features.find((candidate) => candidate.label === label);
+    if (feature?.value !== undefined && feature.value !== null && feature.value !== "") {
+      return feature.value;
+    }
+  }
 
-  return feature?.value;
+  return undefined;
 }
 
 function formatFeatureUnit(value: unknown, unit: string, fallback = "-") {

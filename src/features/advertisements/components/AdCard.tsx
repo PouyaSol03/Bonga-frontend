@@ -265,7 +265,7 @@ function AdCardImage({
           <Typography as="span" variant="label" size="small" weight="medium" className="">{ad.status}</Typography>
         </Typography>
       ) : null}
-      {showAgency && ad.agency ? (
+      {showAgency && ad.agency && ad.agency.trim() !== 'شخصی' ? (
         <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]">
           <AdCardOwnerIcon className="h-5 w-5 shrink-0" />
           <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{ad.agency}</Typography>
@@ -326,11 +326,19 @@ function PriceItem({ label, price }: { label: string; price: string }) {
 }
 
 function PropertyRow({ ad, className = '' }: { ad: AdCardData; className?: string }) {
+  const items = [
+    { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+    { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
+    { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+  ].filter((item) => item.value && item.value.trim() && item.value.trim() !== '-')
+
+  if (items.length === 0) return null
+
   return (
     <div className={`flex items-center justify-start font-medium leading-5 text-[#1a1a1a] [direction:rtl] ${className}`}>
-      <PropertyItem icon={<AdCardAreaIcon className="h-5 w-5" />} value={ad.area} />
-      <PropertyItem icon={<AdCardRoomsIcon className="h-5 w-5" />} value={ad.rooms} />
-      <PropertyItem icon={<AdCardYearIcon className="h-5 w-5" />} value={ad.year} />
+      {items.map((item, index) => (
+        <PropertyItem key={index} icon={item.icon} value={item.value} />
+      ))}
     </div>
   )
 }

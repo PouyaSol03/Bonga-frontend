@@ -1823,9 +1823,26 @@ function formatTotalFloorsDetailValue(value: unknown) {
 }
 
 function formatUnitsPerFloorDetailValue(value: unknown) {
-  const numericValue = toNumber(value);
-  if (numericValue === 8) return "هشت واحد بیشتر";
-  return appendSuffixIfNeeded(value, "واحد");
+  const normalized = toText(value);
+  const labelsByValue: Record<string, string> = {
+    "1": "تک واحدی",
+    "۱": "تک واحدی",
+    "2": "دو واحدی",
+    "۲": "دو واحدی",
+    "3": "سه واحدی",
+    "۳": "سه واحدی",
+    "4": "چهار واحدی",
+    "۴": "چهار واحدی",
+    "5": "پنج واحدی",
+    "۵": "پنج واحدی",
+    "6": "شش واحدی",
+    "۶": "شش واحدی",
+    "7": "هفت واحدی",
+    "۷": "هفت واحدی",
+    "8": "هشت واحد بیشتر",
+    "۸": "هشت واحد بیشتر",
+  };
+  return normalized ? labelsByValue[normalized] ?? appendSuffixIfNeeded(value, "واحد") : "-";
 }
 
 function formatTomanDetailValue(value: unknown) {

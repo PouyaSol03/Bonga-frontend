@@ -27,6 +27,7 @@ import type {
   AdvertisementItem,
 } from "../api/advertisement.service";
 import {
+  AccommodationRatingBanner,
   DetailSection,
   MoreLink,
   PropertyGrid,
@@ -65,8 +66,6 @@ import {
 } from "./pages/ViewAdViolationReportPage";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
-import LinearStar from "../../../shared/icons/LinearStar";
-import { calculateRentPriceConversion, RENT_CONVERSION_MORTGAGE_UNIT } from "../create/rentPriceConversion";
 import {
   clearConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
@@ -151,100 +150,247 @@ function PriceRow({ label, value }: { label: string; value: string }) {
 }
 
 
-const viewMoneyFormatter = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearArrowRight1 from "../../../shared/icons/LinearArrowRight1";
+import {
+  RENT_CONVERSION_MORTGAGE_UNIT,
+  RENT_CONVERSION_RENT_PER_UNIT,
+} from "../create/rentPriceConversion";
+import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 
-function formatCompactRentAmount(value: number) {
+function AdvertisementPriceBlock({ details }: { details: ViewAdDetails }) {
+  const showSlider = details.rentConvertible && (details.rentMortgagePriceRaw ?? 0) > 0;
+  return (
+    <div className="mt-4 space-y-2">
+      {!showSlider && (
+        <>
+          <PriceRow label={details.pricePrimaryLabel} value={details.totalPrice} />
+          <PriceRow label={details.priceSecondaryLabel} value={details.pricePerMeter} />
+        </>
+      )}
+      {showSlider ? (
+        <RentPriceConversionViewer
+          limitMortgagePrice={details.rentConversionMortgagePriceRaw}
+          mortgagePrice={details.rentMortgagePriceRaw ?? 0}
+          rentPrice={details.rentMonthlyPriceRaw ?? 0}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function formatRentNumberText(value: number) {
   const amount = Math.max(0, Math.round(value));
   if (amount >= 1_000_000_000 && amount % 1_000_000_000 === 0) {
-    return `${viewMoneyFormatter.format(amount / 1_000_000_000)} میلیارد`;
+    return `${toPersianDigits(amount / 1_000_000_000)} میلیارد`;
   }
   if (amount >= 1_000_000 && amount % 1_000_000 === 0) {
-    return `${viewMoneyFormatter.format(amount / 1_000_000)} میلیون`;
+    return `${toPersianDigits(amount / 1_000_000)} میلیون`;
   }
-  return viewMoneyFormatter.format(amount);
+  if (amount >= 1_000_000_000) {
+    const b = (amount / 1_000_000_000).toFixed(1).replace(/\.0$/, "");
+    return `${toPersianDigits(b)} میلیارد`;
+  }
+  if (amount >= 1_000_000) {
+    const m = (amount / 1_000_000).toFixed(1).replace(/\.0$/, "");
+    return `${toPersianDigits(m)} میلیون`;
+  }
+  if (amount === 0) return "۰";
+  return toPersianDigits(amount);
 }
 
 function RentPriceConversionViewer({
+  limitMortgagePrice,
   mortgagePrice,
   rentPrice,
 }: {
+  limitMortgagePrice?: number;
   mortgagePrice: number;
   rentPrice: number;
 }) {
-  const initial = calculateRentPriceConversion(mortgagePrice, rentPrice, mortgagePrice);
-  const [selectedMortgage, setSelectedMortgage] = useState(initial.convertedMortgage);
+  const baseMortgage = Math.max(0, mortgagePrice);
+  const baseRent = Math.max(0, rentPrice);
+
+  const defaultLimit = Math.max(
+    0,
+    baseMortgage >= 200_000_000 ? baseMortgage - 200_000_000 : Math.round(baseMortgage * 0.5),
+  );
+  const limitMortgage =
+    typeof limitMortgagePrice === "number" &&
+      limitMortgagePrice >= 0 &&
+      limitMortgagePrice < baseMortgage
+      ? limitMortgagePrice
+      : defaultLimit;
+
+  const mortgageDifference = baseMortgage - limitMortgage;
+  const limitRent = Math.max(
+    0,
+    baseRent + Math.round((mortgageDifference / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_RENT_PER_UNIT),
+  );
+
+  // Track actual mortgage value during drag (not percentage) to avoid rounding mismatch
+  const [liveMortgage, setLiveMortgage] = useState(baseMortgage);
 
   useEffect(() => {
-    setSelectedMortgage(calculateRentPriceConversion(mortgagePrice, rentPrice, mortgagePrice).convertedMortgage);
-  }, [mortgagePrice, rentPrice]);
+    setLiveMortgage(baseMortgage);
+  }, [baseMortgage, baseRent, limitMortgage]);
 
-  const conversion = calculateRentPriceConversion(mortgagePrice, rentPrice, selectedMortgage);
-  const safePosition = Math.min(88, Math.max(12, conversion.positionPercent));
+  const currentMortgage = liveMortgage;
+  const currentRent = Math.max(
+    0,
+    baseRent + Math.round(((baseMortgage - currentMortgage) / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_RENT_PER_UNIT),
+  );
+  // Compute slider percent from actual mortgage for thumb positioning
+  const range = baseMortgage - limitMortgage;
+  const sliderPercent = range > 0 ? Math.min(100, Math.max(0, ((currentMortgage - limitMortgage) / range) * 100)) : 100;
 
   return (
-    <div className="mt-3 rounded-xl border border-[#e6e6e6] bg-white px-3 py-3 [direction:rtl]">
-      <Typography as="p" variant="label" size="medium" weight="semibold" className="m-0 text-right text-[#4d4d4d]">
+    <div className="rounded-2xl bg-white [direction:rtl]">
+      <div className="h-px w-full mb-4 bg-surface-container-highest"></div>
+      <Typography
+        as="p"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="mb-3 text-right text-[#4D4D4D]"
+      >
         رهن و اجاره قابل تبدیل است
       </Typography>
 
-      <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-        <div className="min-w-0 text-right">
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#808080]">رهن</Typography>
-          <Typography as="p" variant="label" size="large" weight="semibold" className="m-0 mt-1 text-[#11a366]">
-            {formatCompactRentAmount(conversion.convertedMortgage)} تومان
+
+
+      {/* Two dynamic cards */}
+      <div className="grid grid-cols-2 gap-3 [direction:rtl]">
+        <div className="flex flex-col h-17 items-center rounded-lg bg-[#F8F9FA] border border-[#F0F0F0] p-2 gap-y-1">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4D4D4D]">
+            رهن
           </Typography>
+          <div className="flex items-center gap-1.5 [direction:rtl]">
+            <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+              {formatRentNumberText(currentMortgage)}
+            </Typography>
+            <AdCardTomanIcon className="h-6 w-6 text-[#4d4d4d]" />
+          </div>
         </div>
-        <div className="min-w-0 text-left">
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#808080]">اجاره ماهیانه</Typography>
-          <Typography as="p" variant="label" size="large" weight="semibold" className="m-0 mt-1 text-[#ff7200]">
-            {formatCompactRentAmount(conversion.convertedRent)} تومان
+        <div className="flex flex-col h-17 items-center rounded-lg bg-[#F8F9FA] border border-[#F0F0F0] gap-y-1 p-2">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4D4D4D]">
+            اجاره ماهیانه
           </Typography>
+          <div className="flex items-center gap-1.5 [direction:rtl]">
+            <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+              {formatRentNumberText(currentRent)}
+            </Typography>
+            <AdCardTomanIcon className="h-6 w-6 text-[#4d4d4d]" />
+          </div>
         </div>
       </div>
 
-      <div className="relative mx-3 mt-4 h-9 select-none [direction:ltr]">
-        <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-[#ededed]">
-          <div className="absolute inset-y-0 left-0 bg-[#ff8d00]" style={{ width: `${conversion.positionPercent}%` }} />
-          <div className="absolute inset-y-0 right-0 bg-[#0faf73]" style={{ width: `${100 - conversion.positionPercent}%` }} />
-          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-white/90" />
+      {/* Slider Track & Thumb */}
+      <div className="relative mx-1 mt-4 h-9 select-none [direction:ltr]">
+        {/* Blue dotted track */}
+        <div className="absolute left-0 right-0 top-1/2 flex h-3 -translate-y-1/2 items-center justify-between overflow-hidden rounded-full bg-[#8BB4F7] px-2.5">
+          {Array.from({ length: 28 }).map((_, i) => (
+            <span
+              key={i}
+              className="h-1 w-1 shrink-0 rounded-full bg-white/70"
+            />
+          ))}
         </div>
-        <div className="absolute left-0 top-1/2 z-10 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#ff8d00] shadow-sm" />
-        <div className="absolute right-0 top-1/2 z-10 h-4 w-4 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#0faf73] shadow-sm" />
+
+        {/* Pill thumb */}
         <div
-          className="pointer-events-none absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[#d9d9d9] bg-white px-3 py-1 text-xs font-semibold text-[#4d4d4d] shadow-[0_2px_8px_rgba(26,26,26,0.10)]"
-          style={{ left: `${safePosition}%` }}
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-[#D0D5DD] bg-white px-3 py-1 text-xs font-semibold text-[#1A1A1A] shadow-[0_2px_8px_rgba(26,26,26,0.12)]"
+          style={{ left: `${12 + sliderPercent * 0.76}%` }}
         >
-          تبدیل
+          <LinearArrowLeft1 className="h-4 w-4 text-[#4D4D4D]" />
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#1A1A1A]">
+            تبدیل
+          </Typography>
+          <LinearArrowRight1 className="h-4 w-4 text-[#4D4D4D]" />
         </div>
+
+        {/* Interactive range input */}
         <input
           aria-label="تبدیل مبلغ رهن و اجاره"
-          className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0"
-          max={Math.max(0, Math.round(conversion.maximumMortgage))}
-          min={0}
-          onChange={(event) => setSelectedMortgage(Number(event.currentTarget.value))}
+          className="absolute z-20 h-full cursor-ew-resize opacity-0"
+          style={{ left: '12%', width: '76%' }}
+          max={baseMortgage}
+          min={limitMortgage}
+          onInput={(event) => {
+            const raw = Number(event.currentTarget.value);
+            const stepped = Math.round(raw / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_MORTGAGE_UNIT;
+            const halfStep = RENT_CONVERSION_MORTGAGE_UNIT / 2;
+            const snapped = Math.abs(stepped - baseMortgage) < halfStep ? baseMortgage
+              : Math.abs(stepped - limitMortgage) < halfStep ? limitMortgage
+              : stepped;
+            const clamped = Math.min(baseMortgage, Math.max(limitMortgage, snapped));
+            setLiveMortgage(clamped);
+          }}
           step={RENT_CONVERSION_MORTGAGE_UNIT}
           type="range"
-          value={Math.round(conversion.convertedMortgage)}
+          value={currentMortgage}
         />
+      </div>
+
+      {/* Range endpoints below slider */}
+      <div className="mt-3 flex items-start justify-between text-xs font-medium leading-5 text-[#4D4D4D] [direction:rtl]">
+        <div className="text-right">
+          <div>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">رهن: </Typography>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(baseMortgage)}</Typography>
+          </div>
+          <div>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">اجاره: </Typography>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(baseRent)}</Typography>
+          </div>
+        </div>
+        <div className="text-left">
+          <div>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">رهن: </Typography>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(limitMortgage)}</Typography>
+          </div>
+          <div>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">اجاره: </Typography>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(limitRent)}</Typography>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function HotelStarRating({ count }: { count: number }) {
+function DailyRentalPriceList({ details }: { details: ViewAdDetails }) {
+  const items = [
+    { label: "روزهای عادی:", value: details.normalDailyPrice || details.totalPrice },
+    { label: "آخر هفته:", value: details.weekendDailyPrice },
+    { label: "روزهای خاص:", value: details.specialDailyPrice },
+    { label: "هزینه هر نفر اضافه:", value: details.extraPersonPrice },
+  ].filter((item) => Boolean(item.value && item.value !== "-"));
+
+  if (!items.length) return null;
+
   return (
-    <div className="mt-3 flex min-h-11 items-center justify-between rounded-lg bg-[#fff7ed] px-3 [direction:rtl]">
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-[#4d4d4d]">
-        رتبه‌بندی اقامتگاه
-      </Typography>
-      <div className="flex items-center gap-0.5 [direction:ltr]" aria-label={`${count} ستاره از ۵`}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <LinearStar
-            aria-hidden="true"
-            className={`h-5 w-5 ${star <= count ? "text-[#ffb100]" : "text-[#d9d9d9]"}`}
-            innerColor={star <= count ? "currentColor" : "transparent"}
-            key={star}
-          />
+    <div className="w-full">
+      <div className="my-4 h-px w-full bg-[#e5e5e5]" />
+      <div>
+        {items.map((item, index) => (
+          <div key={item.label}>
+            {index > 0 ? (
+              <div className="my-4 border-t border-dashed border-[#d9d9d9]" />
+            ) : null}
+            <div className="flex items-center gap-x-9 [direction:rtl]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline w-38">
+                {item.label}
+              </Typography>
+              <div className="flex items-center gap-1 [direction:rtl]">
+                <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface flex gap-x-1 items-center">
+                  {item.value}
+                  <AdCardTomanIcon className="h-5 w-5 text-on-surface-var" />
+                </Typography>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -336,6 +482,7 @@ function GalleryHero({
 
         {imagesBelongToAd === true ? (
           <div className="absolute left-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-2.5 py-1 text-xs font-medium text-[#fafafa] backdrop-blur-xs [direction:rtl]">
+            <LinearInfoCircle className=""/>
             <Typography as="span" variant="label" size="small" weight="medium">
               تصاویر مربوط به این ملک است
             </Typography>
@@ -767,7 +914,9 @@ function ViewAdContent({
     useState(false);
   const [areFacilitiesExpanded, setAreFacilitiesExpanded] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
-  const propertyInfoItems = details.propertyInfoPreview;
+  const propertyInfoItems = details.propertyInfoPreview.filter(
+    (item) => !(item.label.includes("رتبه") || item.icon === "star"),
+  );
   const FACILITIES_COLLAPSED_MAX_ITEMS = 4; // show the first four facilities, then expand inline
   const visibleFacilityCount = areFacilitiesExpanded
     ? details.features.length
@@ -822,14 +971,6 @@ function ViewAdContent({
           tour3dUrl={tour3dUrl}
         />
 
-        {details.imagesBelongToAd === false ? (
-          <div className="px-4 pt-2 text-right">
-            <Typography as="p" variant="label" size="small" weight="medium" className="text-[#808080]">
-              تصاویر مربوط به این ملک نیست.
-            </Typography>
-          </div>
-        ) : null}
-
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
             <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
@@ -867,29 +1008,18 @@ function ViewAdContent({
             </Typography>
           </div>
 
-          <div className="mt-4 space-y-2">
-            <PriceRow label={details.pricePrimaryLabel} value={details.totalPrice} />
-            <PriceRow label={details.priceSecondaryLabel} value={details.pricePerMeter} />
-            {details.formCode === "rent-apartment" &&
-            details.rentConvertible &&
-            (details.rentMortgagePriceRaw ?? 0) > 0 &&
-            (details.rentMonthlyPriceRaw ?? 0) > 0 ? (
-              <RentPriceConversionViewer
-                mortgagePrice={details.rentMortgagePriceRaw ?? 0}
-                rentPrice={details.rentMonthlyPriceRaw ?? 0}
-              />
-            ) : details.rentConversionPolicy && details.formCode !== "rent-apartment" ? (
-              <PriceRow label="تبدیل رهن و اجاره" value={details.rentConversionPolicy} />
-            ) : null}
-            {(details.formCode === "sale-hotel" || details.formCode === "rent-hotel") && details.hotelStars ? (
-              <HotelStarRating count={details.hotelStars} />
-            ) : null}
-          </div>
+          {details.formCode.startsWith("daily-") ? null : <AdvertisementPriceBlock details={details} />}
         </div>
       </section>
 
       <DetailSection icon="apartment" title={getPropertyPreviewTitle(details.formCode)}>
+        {details.hotelStars ? (
+          <AccommodationRatingBanner className="mt-6" count={details.hotelStars} label="رتبه اقامتگاه" />
+        ) : null}
         <PropertyGrid items={propertyInfoItems} />
+        {details.formCode.startsWith("daily-") ? (
+          <DailyRentalPriceList details={details} />
+        ) : null}
         {hasMorePropertyInfo ? (
           <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>
         ) : null}

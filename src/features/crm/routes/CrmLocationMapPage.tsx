@@ -74,7 +74,7 @@ const SUB_BOUNDARY_COLORS = [
   "#65a30d", // lime
   "#dc2626", // red
 ] as const;
-const MUTED_BOUNDARY_COLOR = "#7b8494";
+const MUTED_BOUNDARY_COLOR = "#7c3aed";
 const SNAP_DISTANCE_PX = 16;
 
 function getCityIdFromUrl() {

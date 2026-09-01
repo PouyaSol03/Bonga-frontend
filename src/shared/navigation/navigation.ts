@@ -133,8 +133,10 @@ export function replaceRoute(
  * Back click later.
  */
 export function backRoute(fallbackPath: string, fallbackState?: unknown) {
-  if (getStoredBackTarget()) {
-    window.history.back();
+  const storedBackTarget = getStoredBackTarget();
+
+  if (storedBackTarget) {
+    replaceRoute(storedBackTarget.backTo, storedBackTarget.backState ?? fallbackState, { rememberCurrent: false });
     return;
   }
 

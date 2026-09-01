@@ -2382,7 +2382,7 @@ export function AdvertisementFilterPage({
   };
 
   const applyFilters = () => {
-    window.history.pushState(
+    window.history.replaceState(
       window.history.state ?? {},
       "",
       buildSearchUrl(filters, applyBasePath),

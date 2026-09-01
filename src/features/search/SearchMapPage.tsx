@@ -315,10 +315,12 @@ function writeSearchParams(params: URLSearchParams, options: { replace?: boolean
 
   const currentHistoryState = window.history.state ?? {};
 
-  if (options.replace) {
-    window.history.replaceState(currentHistoryState, "", nextUrl);
-  } else {
+  // Default to replaceState so filter changes don't bloat the history stack.
+  // Only pushState when explicitly requested (e.g. first navigation into search).
+  if (options.replace === false) {
     window.history.pushState(currentHistoryState, "", nextUrl);
+  } else {
+    window.history.replaceState(currentHistoryState, "", nextUrl);
   }
 
   window.dispatchEvent(new PopStateEvent("popstate"));

@@ -2526,19 +2526,23 @@ function ChipSection({
   return (
     <FilterSection icon={icon} sectionId={sectionId} title={title}>
       <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-        {visibleOptions.map((option) => (
-          <FormChoiceChip
-            key={option.id}
-            icon={
-              showFeatureIcons ? (
-                <FeatureChipIcon label={option.label} />
-              ) : undefined
-            }
-            label={option.label}
-            onClick={() => onToggle(option.id)}
-            selected={selected.some((item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id))}
-          />
-        ))}
+        {visibleOptions.map((option) => {
+          const isSelected = selected.some((item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id));
+
+          return (
+            <FormChoiceChip
+              key={option.id}
+              icon={
+                showFeatureIcons ? (
+                  <FeatureChipIcon label={option.label} selected={isSelected} />
+                ) : undefined
+              }
+              label={option.label}
+              onClick={() => onToggle(option.id)}
+              selected={isSelected}
+            />
+          );
+        })}
       </div>
       {canExpand ? (
         <MoreButton
@@ -2639,8 +2643,17 @@ function ExchangeFilterSection({
   );
 }
 
-function FeatureChipIcon({ label }: { label: string }) {
-  return <FeatureIcon feature={label} className="h-5 w-5 shrink-0 text-[#4d4d4d]" />;
+function FeatureChipIcon({ label, selected }: { label: string; selected?: boolean }) {
+  return (
+    <FeatureIcon
+      feature={label}
+      className={`h-5 w-5 shrink-0 object-contain ${
+        selected
+          ? "[filter:brightness(0)_saturate(100%)_invert(20%)_sepia(95%)_saturate(2950%)_hue-rotate(211deg)_brightness(88%)_contrast(105%)]"
+          : "[filter:brightness(0)_saturate(100%)_invert(28%)_sepia(0%)_saturate(0%)_hue-rotate(178deg)_brightness(95%)_contrast(85%)]"
+      }`}
+    />
+  );
 }
 
 type SingleChoiceSectionProps = {

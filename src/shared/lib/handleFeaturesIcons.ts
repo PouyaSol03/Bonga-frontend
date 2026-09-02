@@ -107,19 +107,60 @@ const featureIconMap: Record<string, string> = {
   "چیلر": "chiller.svg",
   "داکت اسپلیت": "duct-split.svg",
   "داکت اسپیلت": "duct-split.svg",
+  "اسپیلت": "duct-split.svg",
   "فن کوئل": "fan-coil.svg",
   "فن‌کوئل": "fan-coil.svg",
   "گرمایش ازکف": "floor-heating.svg",
   "گرمایش از کف": "floor-heating.svg",
   "شومینه": "fireplace.svg",
   "موتورخانه": "central-boiler.svg",
+  "کرکره برقی": "door-electronic.svg",
+  "اجاق گاز مایکروفر": "gas_stove.svg",
+  "سالن": "reception.svg",
+  "لوازم آشپزی": "tableware.svg",
+  "ظرفشویی": "dishwasher.svg",
+  "سیستم امنیتی": "shield.svg",
+  "بالکن": "terrace.svg",
+  "سرویس": "toilet-iranian.svg",
+  "سرویس فرهنگی": "toilet-western.svg",
+  "آشپزخانه": "gas_stove.svg",
+  "اتاق جلسات": "meeting-room.svg",
+  "دستگاه تصفیه هوا": "air-conditioning-system.svg",
+  "voipمداربسته": "cctv-camera.svg",
+  "اتاق تلفن خصوصی": "phone_2.svg",
+  "سیستم تلفن": "phone_2.svg",
+  "هواساز": "air-conditioning-system.svg",
+  "دوربین مداربسته": "cctv-camera.svg",
+  "کامپیوتر/لپتاپ": "computer-laptop.svg",
+  "ویدئو پروژکتور": "video-projector.svg",
+  "میز ناهار خوری": "dining-table.svg",
+  "میز و صندلی اداری": "office-desk-chair.svg",
+  "قفسه و فایلینگ": "shelving-filing.svg",
+  "تختخواب": "bed.svg",
+  "اتاق خواب": "bed.svg",
+  "استخرسرپوشیده": "pool.svg",
+  "اینترنت پرسرعت": "high-speed-internet.svg",
+  "لباسشویی": "washing-machine.svg",
+  "قهوه ساز": "coffee-maker.svg",
+  "کپی": "copier.svg",
+  "فکس": "fax.svg",
+  "وایت برد": "whiteboard.svg",
+  "فضای سبز/باغ": "green-space-garden.svg",
+  "فضای سبز": "green-space-garden.svg",
+  "باغ": "green-space-garden.svg",
 };
 
 function normalizeFeatureLabel(value: string) {
-  return value.trim().replace(/\s+/g, " ");
+  return value
+    .trim()
+    .replace(/[\u200c\u200b\u200e\u200f]/g, " ")
+    .replace(/\s+/g, " ");
 }
 
 export function getFeatureIconSrc(feature: string) {
-  const iconName = featureIconMap[normalizeFeatureLabel(feature)];
+  if (!feature) return null;
+  const normalized = normalizeFeatureLabel(feature);
+  const iconName = featureIconMap[normalized] ?? featureIconMap[normalized.replace(/\s+/g, "")];
   return iconName ? `/icons/features/${iconName}` : null;
 }
+

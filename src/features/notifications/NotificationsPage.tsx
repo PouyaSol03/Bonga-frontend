@@ -461,7 +461,7 @@ function NotificationSettingsSheet({
       <div className="px-3">
         <div className="flex h-[72px] items-center gap-2 border-b border-[#f0f0f0] px-1 text-right [direction:rtl]">
           <LinearArrowRight2 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-          <Typography as="h2" variant="headline" size="large" className="m-0 font-medium leading-5 text-[#1a1a1a]">تنظیمات اعلان</Typography>
+          <Typography as="p" variant="label" size="large" weight="medium" className="m-0 font-medium leading-5 text-[#1a1a1a]">تنظیمات اعلان</Typography>
         </div>
 
         <div className="flex h-[72px] items-center justify-between border-b border-[#f0f0f0] px-1 [direction:ltr]">

@@ -113,6 +113,14 @@ export function pushRoute(
   state?: unknown,
   options?: { rememberCurrent?: boolean },
 ) {
+  const currentPath = getCurrentFullPath();
+
+  // Prevent accidental duplicate history entries when the same navigation is
+  // triggered twice from nested click handlers (for example card + link).
+  if (currentPath === path) {
+    return;
+  }
+
   window.history.pushState(createNavigationState(state, options), "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
@@ -136,7 +144,7 @@ export function backRoute(fallbackPath: string, fallbackState?: unknown) {
   const storedBackTarget = getStoredBackTarget();
 
   if (storedBackTarget) {
-    window.history.back();
+    window.history.go(-1);
     return;
   }
 

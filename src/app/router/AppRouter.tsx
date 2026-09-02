@@ -556,13 +556,15 @@ export function AppRouter() {
 
   useEffect(() => {
     function handleNavigation() {
-      const nextPath = getResolvedPath()
+      requestAnimationFrame(() => {
+        const nextPath = getResolvedPath()
 
-      if (nextPath === pathRef.current) return
+        if (nextPath === pathRef.current) return
 
-      pathRef.current = nextPath
-      setPath(nextPath)
-      window.scrollTo({ top: 0 })
+        pathRef.current = nextPath
+        setPath(nextPath)
+        window.scrollTo({ top: 0 })
+      })
     }
 
     window.addEventListener('popstate', handleNavigation)

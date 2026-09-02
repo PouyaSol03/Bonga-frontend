@@ -569,6 +569,7 @@ export function NoteCard({
   return (
     <article className="relative h-[137px] overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
       <Button unstyled
+        data-note-action
         aria-label="حذف یادداشت"
         className="absolute left-0 top-0 flex h-[136px] w-[59px] flex-col items-center justify-center gap-2 bg-[#ecdddd] text-[#c11004] disabled:opacity-50"
         disabled={disabled || !noteId}
@@ -584,13 +585,15 @@ export function NoteCard({
       <div
         className="relative z-10 h-[136px] touch-pan-y bg-white px-4 py-4 transition-transform duration-150 ease-out"
         onClick={(event) => {
+          const target = event.target as HTMLElement;
+          if (target.closest("button, a, [data-note-action]")) return;
+
           if (didDrag.current) {
             didDrag.current = false;
             return;
           }
 
-          const target = event.target as HTMLElement;
-          if (target.closest("button, a") || !advertiseId) return;
+          if (!advertiseId) return;
 
           pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
         }}
@@ -616,9 +619,16 @@ export function NoteCard({
       >
         <div className="flex items-center justify-end gap-4 py-2 [direction:ltr]">
           <Button unstyled
+            data-note-action
             aria-label="ویرایش یادداشت"
             className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d] disabled:opacity-50"
             disabled={!noteId || disabled}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
+            onPointerUp={(event) => {
+              event.stopPropagation();
+            }}
             onClick={(event) => {
               event.stopPropagation();
               onEdit(note);

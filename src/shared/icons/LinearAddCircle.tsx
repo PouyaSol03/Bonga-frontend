@@ -2,7 +2,7 @@ import React from 'react';
 
 interface LinearAddCircleProps extends React.SVGProps<SVGSVGElement> {}
 
-const LinearAddCircle: React.FC<LinearAddCircleProps> = (props) => (
+const LinearAddCircle: React.FC<LinearAddCircleProps> = ({ active: _active, ...props }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"

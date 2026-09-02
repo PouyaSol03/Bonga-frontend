@@ -97,13 +97,13 @@ function createSearchListingIcon(
   return new DivIcon({
     className: "search-map-marker-wrapper",
     html: `
-      <div class="${markerClasses}">
+      <div class="${markerClasses} search-map-marker-hit-area">
         <Typography as="span" variant="body" size="medium" weight="regular" class="search-map-dot search-map-listing-marker__dot"></Typography>
         ${priceMarkerHtml}
       </div>
     `,
     iconSize: [120, 42],
-    iconAnchor: [60, 24],
+    iconAnchor: [60, 42],
   });
 }
 

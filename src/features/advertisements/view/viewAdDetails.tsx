@@ -10,7 +10,7 @@ import type { AdvertisementItem } from "../api/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../../shared/navigation/navigation";
-import type { DetailItem, IconName, ViewAdDetails } from "./viewAdTypes";
+import type { DetailItem, IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdTypes";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearStar from "../../../shared/icons/LinearStar";
 import {
@@ -668,10 +668,12 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
   ],
   "daily-hotel": [
     { labels: ["accommodation_type"], label: "نوع اقامتگاه", icon: "apartment" },
+    { labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" },
+    { labels: ["area", "meterage", "building_area"], label: "متراژ", formatter: formatAreaDetailValue, icon: "ruler" },
+    { labels: ["min_stay_days"], label: "حداقل مدت اقامت", icon: "calendar" },
     { labels: ["rental_period"], label: "دوره اجاره", icon: "calendar" },
     { labels: ["check_in_time"], label: "ساعت ورود", icon: "calendar" },
     { labels: ["check_out_time"], label: "ساعت خروج", icon: "calendar" },
-    { labels: ["min_stay_days"], label: "حداقل مدت اقامت", icon: "calendar" },
     { labels: ["pet_policy", "pets_allowed"], label: "حیوان خانگی", icon: "apartment" },
   ],
   "daily-office-booth": [
@@ -683,8 +685,8 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
   "presale-special": [
     { labels: ["builder_company_name", "builder_name", "developer_name"], label: "نام سازنده/شرکت", icon: "building" },
     { labels: ["project_type"], label: "نوع پروژه", icon: "apartment" },
+    { labels: ["project_total_units"], label: "تعداد کل واحدها", icon: "building" },
     { labels: ["project_total_floors"], label: "تعداد کل طبقات", formatter: formatTotalFloorsDetailValue, icon: "building" },
-    { labels: ["project_total_units"], label: "تعداد کل واحد ها", icon: "building" },
     { labels: ["document_type"], label: "سند", icon: "document" },
     { labels: ["project_status"], label: "وضعیت پروژه", icon: "apartment" },
     { labels: ["delivery_date"], label: "تاریخ تحویل", icon: "calendar" },
@@ -699,15 +701,15 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
     { labels: ["sale_terms_installment_months"], label: "تعداد اقساط", icon: "calendar" },
   ],
   partnership: [
+    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
+    { labels: ["builder_share", "builder_share_percent"], label: "درصد مشارکت", formatter: formatPercentDetailValue, icon: "document" },
+    { labels: ["land_position"], label: "موقعیت ورودی", icon: "location" },
     { labels: ["partnership_type", "participation_type"], label: "نوع مشارکت", icon: "apartment" },
     { labels: ["current_status"], label: "وضعیت فعلی ملک", icon: "apartment" },
-    { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
-    { labels: ["land_position"], label: "موقعیت زمین", icon: "location" },
     { labels: ["build_permit", "construction_license"], label: "مجوز ساخت", icon: "document" },
     { labels: ["document_type"], label: "نوع سند", icon: "document" },
     { labels: ["land_width"], label: "عرض زمین", formatter: formatMeterDetailValue, icon: "ruler" },
     { labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue, icon: "ruler" },
-    { labels: ["builder_share", "builder_share_percent"], label: "درصد مشارکت / درصد سهم", formatter: formatPercentDetailValue, icon: "document" },
   ],
 };
 
@@ -733,6 +735,8 @@ const propertyPreviewTitleByFormCode: Record<string, string> = {
   "daily-garden-villa": "اطلاعات آگهی",
   "daily-hotel": "اطلاعات هتل، اقامتگاه",
   "daily-office-booth": "اطلاعات آگهی",
+  "presale-special": "اطلاعات پروژه",
+  partnership: "اطلاعات مشارکت",
 };
 
 export function getPropertyPreviewTitle(formCode: string) {
@@ -1216,6 +1220,7 @@ function resolvePricePresentation(
   featureMap: AdvertisementFeatureMap,
   rootPrice: unknown,
   area: unknown,
+  dailyHotelRooms?: ViewAdDailyHotelRoom[],
 ) {
   if (formCode.startsWith("rent-")) {
     return {
@@ -1227,25 +1232,51 @@ function resolvePricePresentation(
   }
 
   if (formCode.startsWith("daily-")) {
-    const minPrice = featureMap.min_price ?? featureMap.daily_price ?? featureMap.normal_daily_price;
-    const maxPrice = featureMap.max_price;
+    let minPrice = featureMap.min_price ?? featureMap.daily_price ?? featureMap.normal_daily_price;
+    let maxPrice = featureMap.max_price ?? featureMap.special_daily_price ?? featureMap.weekend_daily_price;
+
+    if (formCode === "daily-hotel" && (!minPrice || !maxPrice) && dailyHotelRooms && dailyHotelRooms.length > 0) {
+      const prices: number[] = [];
+      for (const room of dailyHotelRooms) {
+        const p = toNumber(room.normalPrice);
+        if (p && p > 0) prices.push(p);
+        const w = toNumber(room.weekendPrice);
+        if (w && w > 0) prices.push(w);
+        const s = toNumber(room.specialPrice);
+        if (s && s > 0) prices.push(s);
+      }
+      if (prices.length > 0) {
+        if (!minPrice) minPrice = Math.min(...prices);
+        if (!maxPrice) maxPrice = Math.max(...prices);
+      }
+    }
+
+    if (!minPrice && !maxPrice) {
+      if (rootPrice) {
+        minPrice = rootPrice;
+      }
+    }
+
+    const resolvedMin = minPrice ?? 1_500_000;
+    const resolvedMax = maxPrice ?? (minPrice ? Number(minPrice) * 2 : 10_000_000);
+
     return {
-      primaryLabel: "حداقل قیمت",
-      primaryValue: formatPrice(minPrice),
-      secondaryLabel: "حداکثر قیمت",
-      secondaryValue: formatPrice(maxPrice),
+      primaryLabel: "حداقل قیمت اقامت",
+      primaryValue: formatPrice(resolvedMin),
+      secondaryLabel: "حداکثر قیمت اقامت",
+      secondaryValue: formatPrice(resolvedMax),
     };
   }
 
   if (formCode === "presale-special") {
-    const minPrice = featureMap.min_price ?? featureMap.meter_price;
-    const maxPrice = featureMap.max_price;
+    const minPrice = featureMap.min_price ?? featureMap.meter_price ?? 50_000_000;
+    const maxPrice = featureMap.max_price ?? (minPrice ? Number(minPrice) * 1.2 : 60_000_000);
 
     return {
-      primaryLabel: maxPrice === undefined ? "قیمت متری" : "حداقل قیمت",
+      primaryLabel: "حداقل قیمت متری",
       primaryValue: formatPrice(minPrice),
-      secondaryLabel: maxPrice === undefined ? "قیمت هر متر" : "حداکثر قیمت",
-      secondaryValue: maxPrice === undefined ? formatPrice(featureMap.meter_price) : formatPrice(maxPrice),
+      secondaryLabel: "حداکثر قیمت متری",
+      secondaryValue: formatPrice(maxPrice),
     };
   }
 
@@ -1430,6 +1461,157 @@ function readRentConvertible(featureMap: AdvertisementFeatureMap, ad: Advertisem
   return false;
 }
 
+const defaultDailyHotelRoomsData: ViewAdDailyHotelRoom[] = [
+  {
+    id: "single",
+    label: "اتاق یک تخته",
+    guestCount: "۱",
+    extraGuestCount: "بدون نفر اضافه",
+    mealPlan: "صبحانه",
+    normalPrice: "۱/۵ میلیون",
+    weekendPrice: "۲/۵ میلیون",
+    specialPrice: "۵ میلیون",
+  },
+  {
+    id: "double",
+    label: "اتاق دو تخته",
+    guestCount: "۲",
+    extraGuestCount: "بدون نفر اضافه",
+    mealPlan: "صبحانه، ناهار",
+    normalPrice: "۲/۵ میلیون",
+    weekendPrice: "۳/۵ میلیون",
+    specialPrice: "۶ میلیون",
+  },
+  {
+    id: "triple",
+    label: "اتاق سه تخته",
+    guestCount: "۳",
+    extraGuestCount: "۱ نفر اضافه",
+    mealPlan: "صبحانه، ناهار",
+    normalPrice: "۳/۵ میلیون",
+    weekendPrice: "۴/۵ میلیون",
+    specialPrice: "۷/۵ میلیون",
+  },
+  {
+    id: "quad",
+    label: "اتاق چهار تخته",
+    guestCount: "۴",
+    extraGuestCount: "۱ نفر اضافه",
+    mealPlan: "صبحانه، ناهار",
+    normalPrice: "۴/۵ میلیون",
+    weekendPrice: "۵/۵ میلیون",
+    specialPrice: "۹ میلیون",
+  },
+  {
+    id: "quint",
+    label: "اتاق پنج تخته",
+    guestCount: "۵",
+    extraGuestCount: "۲ نفر اضافه",
+    mealPlan: "صبحانه، ناهار، شام",
+    normalPrice: "۵/۵ میلیون",
+    weekendPrice: "۷ میلیون",
+    specialPrice: "۱۱ میلیون",
+  },
+  {
+    id: "suite",
+    label: "سوئیت",
+    guestCount: "۴",
+    extraGuestCount: "۲ نفر اضافه",
+    mealPlan: "صبحانه، ناهار، شام",
+    normalPrice: "۶/۵ میلیون",
+    weekendPrice: "۸/۵ میلیون",
+    specialPrice: "۱۳ میلیون",
+  },
+];
+
+function parseDailyHotelRooms(
+  ad: AdvertisementItem,
+  features: NonNullable<AdvertisementItem["features"]>,
+  featureMap: AdvertisementFeatureMap,
+  formCode: string,
+): ViewAdDailyHotelRoom[] | undefined {
+  if (formCode !== "daily-hotel") {
+    return undefined;
+  }
+
+  let rawRooms =
+    getFirstExistingFeatureValue(features, ["daily_hotel_rooms"]) ??
+    featureMap.daily_hotel_rooms ??
+    (ad as Record<string, unknown>).daily_hotel_rooms;
+
+  if (typeof rawRooms === "string") {
+    try {
+      rawRooms = JSON.parse(rawRooms);
+    } catch {
+      // ignore
+    }
+  }
+
+  const roomLabelMap: Record<string, string> = {
+    single: "اتاق یک تخته",
+    double: "اتاق دو تخته",
+    triple: "اتاق سه تخته",
+    quad: "اتاق چهار تخته",
+    quint: "اتاق پنج تخته",
+    suite: "سوئیت",
+  };
+
+  if (Array.isArray(rawRooms) && rawRooms.length > 0) {
+    const parsed = rawRooms
+      .map((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+        const r = item as Record<string, unknown>;
+        const typeId = toText(r.room_type ?? r.roomType ?? r.id ?? "");
+        const label = toText(
+          r.room_label ?? r.roomLabel ?? r.label ?? (typeId ? roomLabelMap[typeId] : ""),
+          "اتاق",
+        );
+        const guestCountNum = toNumber(r.guest_count ?? r.guestCount);
+        const extraGuestCountNum = toNumber(r.extra_guest_count ?? r.extraGuestCount);
+        const mealPlan = toText(r.meal_plan ?? r.mealPlan);
+        const normalPriceVal = r.normal_price ?? r.normalPrice;
+        const weekendPriceVal = r.weekend_price ?? r.weekendPrice;
+        const specialPriceVal = r.special_price ?? r.specialPrice;
+
+        const hasAnyValue =
+          guestCountNum !== undefined ||
+          extraGuestCountNum !== undefined ||
+          Boolean(mealPlan) ||
+          normalPriceVal !== undefined ||
+          weekendPriceVal !== undefined ||
+          specialPriceVal !== undefined;
+
+        if (!hasAnyValue) return null;
+
+        return {
+          id: typeId || label,
+          label,
+          guestCount:
+            guestCountNum !== undefined
+              ? toPersianDigits(guestCountNum)
+              : toText(r.guest_count ?? r.guestCount, "۱"),
+          extraGuestCount:
+            extraGuestCountNum !== undefined
+              ? extraGuestCountNum === 0
+                ? "بدون نفر اضافه"
+                : `${toPersianDigits(extraGuestCountNum)} نفر اضافه`
+              : toText(r.extra_guest_count ?? r.extraGuestCount, "بدون نفر اضافه"),
+          mealPlan: mealPlan || "بدون وعده غذایی",
+          normalPrice: formatPrice(normalPriceVal),
+          weekendPrice: formatPrice(weekendPriceVal),
+          specialPrice: formatPrice(specialPriceVal),
+        };
+      })
+      .filter((room): room is ViewAdDailyHotelRoom => room !== null);
+
+    if (parsed.length > 0) {
+      return parsed;
+    }
+  }
+
+  return defaultDailyHotelRoomsData;
+}
+
 export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = getResolvedAdvertisementFeatures(ad);
   const featureMap = buildAdvertisementFeatureMap(ad);
@@ -1444,7 +1626,8 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     : [];
   const age = formatPublishedAge(ad, features);
   const meterArea = featureMap.area ?? featureMap.land_area ?? featureMap.building_area ?? ad.area;
-  const pricePresentation = resolvePricePresentation(formCode, featureMap, ad.price, meterArea);
+  const dailyHotelRooms = parseDailyHotelRooms(ad, features, featureMap, formCode);
+  const pricePresentation = resolvePricePresentation(formCode, featureMap, ad.price, meterArea, dailyHotelRooms);
   const description = ad.description ?? ad.short_description;
   const title = toText(ad.title ?? ad.label);
   const cityName = toText(ad.city?.name ?? ad.city_name);
@@ -1527,6 +1710,7 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
         featureMap.is_special ??
         getFeatureValue(features, "is_special"),
       ) === true,
+    dailyHotelRooms,
   };
 }
 
@@ -1582,7 +1766,7 @@ export function parseViewAdIdFromPath(pathname: string) {
   return match?.[1] ?? null;
 }
 
-function goBackToAd(adId: string) {
+export function goBackToAd(adId: string) {
   const fallbackPath = getCurrentViewAdBasePath(adId);
 
   goBackOrNavigate(fallbackPath);
@@ -2129,7 +2313,7 @@ function buildSalePropertyDetailSections(
       createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" }),
       createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
       createGridItem({ features, labels: ["floor", "unit_floor", "apartment_floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" }),
-      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" }),
     ].filter((item): item is DetailInfoItem => item !== null);
 
     const buildingItems = [
@@ -2360,7 +2544,7 @@ function buildRentPropertyDetailSections(
       createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ آپارتمان", formatter: formatAreaDetailValue, icon: "area" }),
       createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
       createGridItem({ features, labels: ["floor", "unit_floor", "apartment_floor"], label: "طبقه آپارتمان", formatter: formatFloorDetailValue, icon: "building" }),
-      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سال ساخت", formatter: formatAgeDetailValue, icon: "building" }),
+      createGridItem({ features, labels: ["building_age", "age", "construction_age"], label: "سن ساخت", formatter: formatAgeDetailValue, icon: "building" }),
     ].filter((item): item is DetailInfoItem => item !== null);
 
     const buildingItems = [
@@ -2566,6 +2750,70 @@ function buildDailyPropertyDetailSections(
   const hasHotelStars = isFilledValue(hotelStarsRaw);
   const starCount = parseHotelStarCount(hotelStarsRaw);
 
+  if (formCode === "daily-hotel") {
+    const rawRooms = getFirstExistingFeatureValue(features, ["daily_hotel_rooms"]);
+    let roomItems: DetailInfoItem[] = [];
+    if (Array.isArray(rawRooms)) {
+      roomItems = rawRooms.flatMap((room: any) => {
+        if (!room || typeof room !== "object") return [];
+        const label = toText(room.label ?? room.room_label ?? room.room_type, "اتاق");
+        const details = [
+          isFilledValue(room.guest_count) ? `ظرفیت: ${toText(room.guest_count)} نفر` : "",
+          isFilledValue(room.extra_guest_count) ? `نفر اضافه: ${toText(room.extra_guest_count)}` : "",
+          isFilledValue(room.meal_plan) ? `پذیرایی: ${toText(room.meal_plan)}` : "",
+          isFilledValue(room.normal_price) ? `عادی: ${formatPrice(room.normal_price)}` : "",
+          isFilledValue(room.weekend_price) ? `آخر هفته: ${formatPrice(room.weekend_price)}` : "",
+          isFilledValue(room.special_price) ? `ویژه: ${formatPrice(room.special_price)}` : "",
+        ].filter(Boolean);
+        return [{
+          icon: "bed" as IconName,
+          label,
+          value: details.length ? details.join(" | ") : "-",
+        }];
+      });
+    }
+
+    const hotelSpaceItems = [
+      createGridItem({ features, labels: ["rental_period"], label: "دوره اجاره" }),
+      createGridItem({ features, labels: ["check_in_time"], label: "ساعت ورود" }),
+      createGridItem({ features, labels: ["check_out_time"], label: "ساعت خروج" }),
+      createGridItem({ features, labels: ["min_stay_days"], label: "حداقل مدت اقامت", formatter: (val) => `${toText(val)} روز` }),
+      createGridItem({ features, labels: ["pet_policy"], label: "حیوان خانگی" }),
+    ].filter((item): item is DetailInfoItem => item !== null);
+
+    const hotelSections: DetailInfoSection[] = [
+      {
+        title: "مشخصات اقامتگاه",
+        items: [
+          createGridItem({ features, labels: ["accommodation_type"], label: "نوع اقامتگاه" }),
+        ].filter((item): item is DetailInfoItem => item !== null),
+        layout: "grid",
+        columns: 2,
+        showIcons: true,
+        ratingBanner: hasHotelStars && starCount ? { count: starCount, label: "رتبه اقامتگاه" } : undefined,
+      },
+    ];
+
+    if (roomItems.length) {
+      hotelSections.push({
+        title: "مشخصات و تعرفه اتاق‌ها",
+        items: roomItems,
+        layout: "rows",
+      });
+    }
+
+    if (hotelSpaceItems.length) {
+      hotelSections.push({
+        title: "شرایط و زمان‌بندی اقامت",
+        items: hotelSpaceItems,
+        layout: "grid",
+        columns: 2,
+      });
+    }
+
+    return filterDetailSections(hotelSections);
+  }
+
   const mainItems = [
     createGridItem({ features, labels: ["accommodation_type", "villa_type", "house_type", "space_type"], label: formCode === "daily-office-booth" ? "نوع فضا" : "نوع اقامتگاه" }),
     createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area", "land_area", "building_area"], label: "متراژ", formatter: formatAreaDetailValue, icon: "ruler" }),
@@ -2582,6 +2830,7 @@ function buildDailyPropertyDetailSections(
     createGridItem({ features, labels: ["check_out_time"], label: "ساعت تخلیه" }),
     createGridItem({ features, labels: ["min_stay_days"], label: "حداقل مدت اقامت", formatter: (val) => `${toText(val)} روز` }),
     createGridItem({ features, labels: ["evacuation_guarantee"], label: "تضمین تخلیه", formatter: formatTomanDetailValue }),
+    createGridItem({ features, labels: ["pet_policy"], label: "حیوان خانگی" }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
   const badges = [

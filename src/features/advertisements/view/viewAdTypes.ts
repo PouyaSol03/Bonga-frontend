@@ -72,6 +72,17 @@ export type EquipmentSection = {
   title: string;
 };
 
+export type ViewAdDailyHotelRoom = {
+  id: string;
+  label: string;
+  guestCount: string;
+  extraGuestCount: string;
+  mealPlan: string;
+  normalPrice: string;
+  weekendPrice: string;
+  specialPrice: string;
+};
+
 export type ViewAdDetails = {
   adCode: string;
   agency: string;
@@ -100,6 +111,7 @@ export type ViewAdDetails = {
   totalPrice: string;
   imagesBelongToAd?: boolean;
   isSpecial?: boolean;
+  dailyHotelRooms?: ViewAdDailyHotelRoom[];
   features: DetailItem[];
   equipmentSections: EquipmentSection[];
   propertyInfoPreview: DetailItem[];

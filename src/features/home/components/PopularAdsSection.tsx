@@ -26,15 +26,15 @@ function PopularAdCardSkeleton() {
       className="w-[300px] shrink-0"
       aria-hidden="true"
     >
-      <div className="aspect-[328/219.3] w-full rounded-2xl bg-surface-container-low" />
-      <div className="mt-3 h-6 w-40 rounded-full bg-surface-container-low" />
+      <div className="aspect-[328/219.3] w-full rounded-2xl bg-surface-container animate-pulse" />
+      <div className="mt-3 h-6 w-40 rounded-full bg-surface-container animate-pulse" />
       <div className="mt-3 flex gap-[22px]">
-        <div className="h-5 w-16 rounded-full bg-surface-container-low" />
-        <div className="h-5 w-16 rounded-full bg-surface-container-low" />
-        <div className="h-5 w-16 rounded-full bg-surface-container-low" />
+        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
+        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
+        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
       </div>
-      <div className="mt-3 h-5 w-56 rounded-full bg-surface-container-low" />
-      <div className="mt-3 h-6 w-44 rounded-full bg-surface-container-low" />
+      <div className="mt-3 h-5 w-56 rounded-full bg-surface-container animate-pulse" />
+      <div className="mt-3 h-6 w-44 rounded-full bg-surface-container animate-pulse" />
     </div>
   );
 }
@@ -159,7 +159,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
       >
         <div className="flex w-max min-w-full gap-4 px-4">
           {advertisementsQuery.isLoading
-            ? Array.from({ length: 2 }).map((_, index, skeletons) => (
+            ? Array.from({ length: 3 }).map((_, index, skeletons) => (
                 <div
                   key={index}
                   data-popular-ad-slide

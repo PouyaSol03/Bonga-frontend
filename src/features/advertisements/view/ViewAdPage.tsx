@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { SEO } from "../../../shared/components/SEO";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
@@ -34,7 +35,7 @@ import {
   ViewAdTopBar,
 } from "./viewAdComponents";
 import { ViewAdIcon } from "./ViewAdIcon";
-import type { IconName, ViewAdDetails } from "./viewAdTypes";
+import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { pushRoute } from "../../../shared/navigation/navigation";
@@ -152,6 +153,11 @@ function PriceRow({ label, value }: { label: string; value: string }) {
 
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearArrowRight1 from "../../../shared/icons/LinearArrowRight1";
+import LinearBed from "../../../shared/icons/LinearBed";
+import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
+import LinearUserAdd from "../../../shared/icons/LinearUserAdd";
+import LinearMeal from "../../../shared/icons/LinearMeal";
+import LinearTooman from "../../../shared/icons/LinearTooman";
 import {
   RENT_CONVERSION_MORTGAGE_UNIT,
   RENT_CONVERSION_RENT_PER_UNIT,
@@ -397,6 +403,115 @@ function DailyRentalPriceList({ details }: { details: ViewAdDetails }) {
   );
 }
 
+function HotelDailyRoomsSection({
+  rooms,
+  adId,
+}: {
+  rooms: ViewAdDailyHotelRoom[];
+  adId: string;
+}) {
+  if (!rooms || rooms.length === 0) return null;
+
+  const previewRoom = rooms[0];
+
+  return (
+    <DetailSection icon="apartment" title="اطلاعات اتاق‌ها">
+      <div className="mt-4">
+        {/* 2x2 Grid matching hotel_daily_rooms_moreInfo.svg */}
+        <div className="grid grid-cols-2 gap-x-4 [direction:rtl]">
+          {/* Right Column: Room Name */}
+          <div className="flex items-center gap-2">
+            <LinearBed className="h-6 w-6 text-[#4D4D4D] shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+              {previewRoom.label}
+            </Typography>
+          </div>
+
+          {/* Left Column: Standard capacity */}
+          <div className="flex items-center gap-2">
+            <LinearUserSolid className="h-6 w-6 text-[#4D4D4D] shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+              {previewRoom.guestCount} نفر
+            </Typography>
+          </div>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-x-4 [direction:rtl]">
+          {/* Right Column: Extra capacity */}
+          <div className="flex items-center gap-2">
+            <LinearUserAdd className="h-6 w-6 text-[#4D4D4D] shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+              {previewRoom.extraGuestCount}
+            </Typography>
+          </div>
+
+          {/* Left Column: Meal plan */}
+          <div className="flex items-center gap-2">
+            <LinearMeal className="h-6 w-6 text-[#4D4D4D] shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+              {previewRoom.mealPlan}
+            </Typography>
+          </div>
+        </div>
+
+        {/* Solid Divider */}
+        <div className="my-4 h-px w-full bg-[#E5E5E5]" />
+
+        {/* Price Rows: strictly aligned directly under top grid columns */}
+        <div className="space-y-3">
+          {/* Normal Price */}
+          <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+              روزهای عادی:
+            </Typography>
+            <div className="flex items-center gap-1">
+              <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+                {previewRoom.normalPrice}
+              </Typography>
+              <LinearTooman className="h-5 w-5 text-[#1A1A1A] shrink-0" />
+            </div>
+          </div>
+
+          <div className="border-b border-dashed border-[#E5E5E5]" />
+
+          {/* Weekend Price */}
+          <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+              آخر هفته:
+            </Typography>
+            <div className="flex items-center gap-1">
+              <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+                {previewRoom.weekendPrice}
+              </Typography>
+              <LinearTooman className="h-5 w-5 text-[#1A1A1A] shrink-0" />
+            </div>
+          </div>
+
+          <div className="border-b border-dashed border-[#E5E5E5]" />
+
+          {/* Special Price */}
+          <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+              روزهای خاص:
+            </Typography>
+            <div className="flex items-center gap-1">
+              <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+                {previewRoom.specialPrice}
+              </Typography>
+              <LinearTooman className="h-5 w-5 text-[#1A1A1A] shrink-0" />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Link: Navigate to full page for hotel rooms */}
+        <MoreLink to={`${getCurrentViewAdBasePath(adId)}/hotel-rooms`}>
+          اطلاعات سایر اتاق‌ها
+        </MoreLink>
+      </div>
+    </DetailSection>
+  );
+}
+
 function GalleryHero({
   hasTour3d = false,
   imagesBelongToAd,
@@ -480,14 +595,6 @@ function GalleryHero({
           ))}
         </Swiper>
 
-        {imagesBelongToAd === true ? (
-          <div className="absolute left-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-2.5 py-1 text-xs font-medium text-[#fafafa] backdrop-blur-xs [direction:rtl]">
-            <LinearInfoCircle className=""/>
-            <Typography as="span" variant="label" size="small" weight="medium">
-              تصاویر مربوط به این ملک است
-            </Typography>
-          </div>
-        ) : null}
 
         <div className="absolute right-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-1 text-sm font-medium leading-5 text-[#fafafa]">
           <GalleryMediaButton
@@ -534,6 +641,14 @@ function GalleryHero({
           </div>
         </div>
       </div>
+      {imagesBelongToAd === true ? (
+        <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">
+          <LinearInfoCircle className="h-4 w-4 shrink-0 text-[#0048c4]" />
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#4d4d4d]">
+            عکس‌ها متعلق به این آگهی است
+          </Typography>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -584,9 +699,11 @@ const DESCRIPTION_COLLAPSED_HEIGHT = 350;
 
 function InlineMoreButton({
   children,
+  isOpen = false,
   onClick,
 }: {
   children: ReactNode;
+  isOpen?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -599,7 +716,13 @@ function InlineMoreButton({
         {children}
       </Typography>
 
-      <ViewAdIcon className="h-3 w-3 shrink-0 text-[#0048c4]" name="arrowDown" />
+      <motion.div
+        animate={{ rotate: isOpen ? 180 : 0 }}
+        transition={{ duration: 0.24, ease: "easeInOut" }}
+        className="inline-flex items-center justify-center shrink-0"
+      >
+        <ViewAdIcon className="h-3 w-3 shrink-0 text-[#0048c4]" name="arrowDown" />
+      </motion.div>
     </Button>
   );
 }
@@ -1008,7 +1131,7 @@ function ViewAdContent({
             </Typography>
           </div>
 
-          {details.formCode.startsWith("daily-") ? null : <AdvertisementPriceBlock details={details} />}
+          {details.formCode === "partnership" ? null : <AdvertisementPriceBlock details={details} />}
         </div>
       </section>
 
@@ -1017,20 +1140,40 @@ function ViewAdContent({
           <AccommodationRatingBanner className="mt-6" count={details.hotelStars} label="رتبه اقامتگاه" />
         ) : null}
         <PropertyGrid items={propertyInfoItems} />
-        {details.formCode.startsWith("daily-") ? (
+        {details.formCode.startsWith("daily-") && details.formCode !== "daily-hotel" ? (
           <DailyRentalPriceList details={details} />
         ) : null}
-        {hasMorePropertyInfo ? (
+        {hasMorePropertyInfo && details.formCode !== "daily-hotel" ? (
           <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>
         ) : null}
       </DetailSection>
 
+      {details.formCode === "daily-hotel" && details.dailyHotelRooms && details.dailyHotelRooms.length > 0 ? (
+        <HotelDailyRoomsSection adId={adId} rooms={details.dailyHotelRooms} />
+      ) : null}
+
       <DetailSection icon="apartment" title="تجهیزات و امکانات">
         <div className="overflow-hidden">
-          <PropertyGrid items={facilityItems} withLabels={false} />
+          <PropertyGrid items={facilityItems.slice(0, FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
+          <AnimatePresence initial={false}>
+            {areFacilitiesExpanded && facilityItems.length > FACILITIES_COLLAPSED_MAX_ITEMS && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+                className="overflow-hidden"
+              >
+                <div className="pt-3">
+                  <PropertyGrid items={facilityItems.slice(FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         {hasMoreFacilities ? (
           <InlineMoreButton
+            isOpen={areFacilitiesExpanded}
             onClick={() => setAreFacilitiesExpanded((current) => !current)}
           >
             {areFacilitiesExpanded
@@ -1042,7 +1185,7 @@ function ViewAdContent({
 
       <DetailSection icon="apartment" title="توضیحات">
         <div
-          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a]"
+          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a] transition-all duration-300 ease-in-out"
           style={{
             height:
               shouldShowDescriptionMore && !isDescriptionExpanded
@@ -1059,6 +1202,7 @@ function ViewAdContent({
         </div>
         {shouldShowDescriptionMore ? (
           <InlineMoreButton
+            isOpen={isDescriptionExpanded}
             onClick={() => setIsDescriptionExpanded((current) => !current)}
           >
             {isDescriptionExpanded

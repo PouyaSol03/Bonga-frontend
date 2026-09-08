@@ -104,6 +104,10 @@ const ViewAdEquipmentFacilitiesPage = lazyNamed(
   () => import('../../features/advertisements/view/pages/ViewAdEquipmentFacilitiesPage'),
   'ViewAdEquipmentFacilitiesPage',
 )
+const ViewAdHotelRoomsPage = lazyNamed(
+  () => import('../../features/advertisements/view/pages/ViewAdHotelRoomsPage'),
+  'ViewAdHotelRoomsPage',
+)
 const PublicAgencyPreviewPage = lazyNamed(() => import('../../features/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const AgentPreviewPage = PublicAgencyPreviewPage
 
@@ -392,6 +396,10 @@ function getRoute(path: string): AppRoute {
     return { path, title: 'تجهیزات و امکانات', Component: ViewAdEquipmentFacilitiesPage }
   }
 
+  if (/^\/ads\/[^/]+\/hotel-rooms\/?$/.test(path)) {
+    return { path, title: 'اطلاعات هتل', Component: ViewAdHotelRoomsPage }
+  }
+
   if (/^\/ads\/[^/]+\/property-info\/?$/.test(path)) {
     return { path, title: 'اطلاعات ملک', Component: ViewAdPropertyInfoPage }
   }
@@ -406,6 +414,10 @@ function getRoute(path: string): AppRoute {
 
   if (/^\/preview-ad\/[^/]+\/property-info\/?$/.test(path)) {
     return { path, title: 'پیش‌نمایش اطلاعات ملک', Component: ViewAdPropertyInfoPage, requiresAuth: true }
+  }
+
+  if (/^\/preview-ad\/[^/]+\/hotel-rooms\/?$/.test(path)) {
+    return { path, title: 'پیش‌نمایش اطلاعات هتل', Component: ViewAdHotelRoomsPage, requiresAuth: true }
   }
 
   if (/^\/preview-ad\/[^/]+\/equipment-facilities\/?$/.test(path)) {

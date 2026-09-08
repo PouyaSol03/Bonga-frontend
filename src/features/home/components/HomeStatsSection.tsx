@@ -21,7 +21,7 @@ function StatsPieIcon() {
 }
 
 export function HomeStatsSection() {
-  const { data } = useHomeStatsQuery();
+  const { data, isLoading } = useHomeStatsQuery();
   const stats = [
     { value: formatCount(data?.activeAdvertises, true), label: "آگهی فعال" },
     { value: formatCount(data?.searchesThisMonth, true), label: "جستجو در ماه" },
@@ -68,15 +68,19 @@ export function HomeStatsSection() {
             key={stat.label}
             className="flex h-[78px] min-w-0 flex-col items-center justify-center rounded-2xl border border-surface-container-low bg-linear-to-b from-surface-container-lowest to-surface-container-low text-center"
           >
-            <Typography
-              as="p"
-              variant="title"
-              size="large"
-              weight="semibold"
-              className="m-0 text-on-surface"
-            >
-              <bdi dir="ltr">{stat.value}</bdi>
-            </Typography>
+            {isLoading ? (
+              <div className="mb-1.5 h-6 w-20 animate-pulse rounded-md bg-surface-container" />
+            ) : (
+              <Typography
+                as="p"
+                variant="title"
+                size="large"
+                weight="semibold"
+                className="m-0 text-on-surface"
+              >
+                <bdi dir="ltr">{stat.value}</bdi>
+              </Typography>
+            )}
 
             <Typography
               as="p"

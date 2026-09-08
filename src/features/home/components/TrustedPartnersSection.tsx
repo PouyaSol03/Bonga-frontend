@@ -142,7 +142,11 @@ export function TrustedPartnersSection() {
       >
         <div className="flex w-max min-w-full gap-4 px-4">
           {agenciesQuery.isLoading ? (
-            <DirectoryCardSkeleton layout="carousel" />
+            Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="shrink-0">
+                <DirectoryCardSkeleton layout="carousel" />
+              </div>
+            ))
           ) : (
             partners.map((partner, index) => (
               <div

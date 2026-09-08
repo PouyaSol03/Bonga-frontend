@@ -28,6 +28,10 @@ import {
   type CategoryKey,
   type TransactionType,
 } from "../SearchMapFilterPage";
+import { useAdvertisementListQuery } from "../../advertisements/api/advertisement.hooks";
+import { readSearchFilters } from "../SearchMapPage";
+import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import type { AdvertisementListParams } from "../../advertisements/api/advertisement.service";
 
 export type SearchMapQuickFilterId =
   | "category"
@@ -310,6 +314,97 @@ export function SearchMapQuickFilterBottomSheet({
 
     return () => window.clearTimeout(timer);
   }, [isNeighborhoodSheet, neighborhoodQuery]);
+
+  const draftParamsString = useMemo(() => {
+    if (!isOpen || !filterId) return null;
+
+    const params = new URLSearchParams(search);
+    params.delete("focus");
+
+    switch (filterId) {
+      case "category": {
+        const formCode = category ? getAdvertiseFormCode(transaction, category) : "";
+
+        if (formCode) {
+          params.set("form_code", formCode);
+          params.set("from_code", formCode);
+        } else {
+          params.delete("form_code");
+          params.delete("from_code");
+        }
+        break;
+      }
+      case "neighborhood": {
+        const value = selectedNeighborhoodIds.join("_");
+
+        if (value) {
+          params.set("neighborhood_id", value);
+          params.set("neighborhoods", value);
+        } else {
+          params.delete("neighborhood_id");
+          params.delete("neighborhoods");
+        }
+        break;
+      }
+      case "area":
+        areaMinimum ? params.set("area_min", areaMinimum) : params.delete("area_min");
+        areaMaximum ? params.set("area_max", areaMaximum) : params.delete("area_max");
+        break;
+      case "price":
+        priceMinimum ? params.set("price_min", priceMinimum) : params.delete("price_min");
+        priceMaximum ? params.set("price_max", priceMaximum) : params.delete("price_max");
+        break;
+      case "rooms": {
+        const value = selectedChoices.join("_");
+        value ? params.set("rooms", value) : params.delete("rooms");
+        break;
+      }
+      case "floor": {
+        const value = selectedChoices.join("_");
+        value ? params.set("floor", value) : params.delete("floor");
+        break;
+      }
+      case "building_age":
+        selectedChoices[0]
+          ? params.set("building_age", selectedChoices[0])
+          : params.delete("building_age");
+        break;
+    }
+
+    return params.toString();
+  }, [
+    isOpen,
+    filterId,
+    search,
+    category,
+    transaction,
+    selectedNeighborhoodIds,
+    areaMinimum,
+    areaMaximum,
+    priceMinimum,
+    priceMaximum,
+    selectedChoices,
+  ]);
+
+  const debouncedDraftParams = useDebouncedValue(draftParamsString, 300);
+  const isDraftDebouncing = draftParamsString !== debouncedDraftParams;
+
+  const quickCountQueryParams = useMemo<AdvertisementListParams | null>(() => {
+    if (!isOpen || !debouncedDraftParams) return null;
+    const params = new URLSearchParams(debouncedDraftParams);
+    const cityId = params.get("city_id") || selectedCity?.id || undefined;
+    const filters = readSearchFilters(params);
+    return {
+      cityId,
+      filters,
+      page: 1,
+      perPage: 1,
+    };
+  }, [isOpen, debouncedDraftParams, selectedCity?.id]);
+
+  const quickCountQuery = useAdvertisementListQuery(quickCountQueryParams);
+  const isCalculating = isOpen && (isDraftDebouncing || quickCountQuery.isLoading || quickCountQuery.isFetching);
+  const dynamicCount = quickCountQuery.data?.total ?? resultCount;
 
   const applyCurrentFilter = () => {
     if (!filterId) return;
@@ -723,11 +818,19 @@ export function SearchMapQuickFilterBottomSheet({
       >
         <Button
           unstyled
-          className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#0048c4] text-sm font-medium text-white"
+          className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#0048c4] text-sm font-medium text-white active:bg-[#00379a] transition-colors"
           onClick={applyCurrentFilter}
           type="button"
         >
-          نمایش {toPersianDigits(resultCount)} آگهی
+          {isCalculating ? (
+            <span className="inline-flex items-center justify-center gap-1.5">
+              <span>نمایش</span>
+              <span className="inline-flex items-center tracking-widest animate-pulse font-bold">...</span>
+              <span>آگهی</span>
+            </span>
+          ) : (
+            <span>نمایش {toPersianDigits(new Intl.NumberFormat("en-US").format(dynamicCount))} آگهی</span>
+          )}
         </Button>
       </footer>
     </BottomSheet>

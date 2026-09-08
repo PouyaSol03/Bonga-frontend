@@ -1,10 +1,10 @@
 import { useCallback, type ReactNode } from "react";
+import { motion } from "motion/react";
 
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowLeft2 from "../../../../shared/icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../../../../shared/icons/LinearArrowRight2";
-import LinearArrowUp1 from "../../../../shared/icons/LinearArrowUp1";
 import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
 import { Button } from "../../../../shared/ui/Button";
 import { Chip as UiChip } from "../../../../shared/ui/Chip";
@@ -359,11 +359,13 @@ export function MoreButton({
         {expanded ? "نمایش کمتر" : `نمایش ${count} مورد بیشتر`}
       </Typography>
 
-      {expanded ? (
-        <LinearArrowUp1 aria-hidden="true" className="h-5 w-5 shrink-0" />
-      ) : (
+      <motion.div
+        animate={{ rotate: expanded ? 180 : 0 }}
+        transition={{ duration: 0.24, ease: "easeInOut" }}
+        className="inline-flex items-center justify-center shrink-0"
+      >
         <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0" />
-      )}
+      </motion.div>
     </Button>
   );
 }

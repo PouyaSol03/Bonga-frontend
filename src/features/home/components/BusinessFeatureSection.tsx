@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
@@ -18,6 +19,7 @@ function CrmBadgeIcon() {
 }
 
 export function BusinessFeatureSection() {
+  const [imageLoaded, setImageLoaded] = useState(false);
   const handleBusinessClick = () => {
     const authSession = getStoredAuthSession();
     const hasBusinessRole = authSession?.roles.some((role) =>
@@ -59,17 +61,23 @@ export function BusinessFeatureSection() {
         </div>
       </div>
 
-      <img
-        src="/images/home/business-feature.webp"
-        alt="نمایی از پنل مدیریت کسب‌وکار املاک"
-        width={1312}
-        height={692}
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-        className="mt-4 aspect-328/173 w-full rounded-2xl object-cover"
-        draggable={false}
-      />
+      <div className="relative mt-4 aspect-328/173 w-full overflow-hidden rounded-2xl bg-surface-container">
+        {!imageLoaded && (
+          <div className="absolute inset-0 animate-pulse bg-surface-container rounded-2xl" />
+        )}
+        <img
+          src="/images/home/business-feature.webp"
+          alt="نمایی از پنل مدیریت کسب‌وکار املاک"
+          width={1312}
+          height={692}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          className={`aspect-328/173 w-full rounded-2xl object-cover transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+          draggable={false}
+        />
+      </div>
 
       <div className="mt-4 grid grid-cols-2 gap-4 [direction:ltr]">
         <Button

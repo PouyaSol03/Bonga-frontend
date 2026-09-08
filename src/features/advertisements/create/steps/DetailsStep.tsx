@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { AnimatePresence, motion } from "motion/react";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
@@ -225,13 +226,9 @@ export function DetailsStep({
     })
     .filter((item): item is { key: MoreFeatureFormKey; label: string } => Boolean(item));
   const initialVisibleMoreFeatureTagCount = 4;
-  const hiddenMoreFeatureCount = Math.max(
-    registeredMoreFeatures.length - initialVisibleMoreFeatureTagCount,
-    0,
-  );
-  const visibleMoreFeatureTags = showRegisteredMoreFeatures
-    ? registeredMoreFeatures
-    : registeredMoreFeatures.slice(0, initialVisibleMoreFeatureTagCount);
+  const initialMoreFeatureTags = registeredMoreFeatures.slice(0, initialVisibleMoreFeatureTagCount);
+  const extraMoreFeatureTags = registeredMoreFeatures.slice(initialVisibleMoreFeatureTagCount);
+  const hiddenMoreFeatureCount = extraMoreFeatureTags.length;
 
   const heatingItemsForListing = isProject
     ? projectHeatingItems
@@ -280,13 +277,11 @@ export function DetailsStep({
     [category, isProject, isDailyApartmentRent, isDailyHotelRent, isDailyVillaRent, isDailyWorkspaceRent, isRentApartment, isRentCommercial, isRentFactory, isRentHotel, isRentOffice, isRentVillaHouse, isSaleApartment, isSaleCommercial, isSaleFactory, isSaleHotel, isSaleLand, isSaleOffice, isSaleVillaHouse],
   );
 
-  const initialVisibleChipCount = 8;
-  const visibleHeating = showAllHeating
-    ? heatingItemsForListing
-    : heatingItemsForListing.slice(0, initialVisibleChipCount);
-  const visibleFacilities = showAllFacilities
-    ? facilityItemsForCategory
-    : facilityItemsForCategory.slice(0, initialVisibleChipCount);
+  const initialVisibleChipCount = 6;
+  const initialHeating = heatingItemsForListing.slice(0, initialVisibleChipCount);
+  const extraHeating = heatingItemsForListing.slice(initialVisibleChipCount);
+  const initialFacilities = facilityItemsForCategory.slice(0, initialVisibleChipCount);
+  const extraFacilities = facilityItemsForCategory.slice(initialVisibleChipCount);
 
   const setField = <T extends keyof NewAdFormValues>(
     key: T,
@@ -918,7 +913,7 @@ export function DetailsStep({
               {registeredMoreFeatures.length ? (
                 <div className="space-y-3 pt-2" dir="rtl">
                   <div className="flex flex-wrap justify-start gap-2">
-                    {visibleMoreFeatureTags.map((item) => (
+                    {initialMoreFeatureTags.map((item) => (
                       <Tag
                         key={item.key}
                         label={item.label}
@@ -927,9 +922,31 @@ export function DetailsStep({
                     ))}
                   </div>
 
+                  <AnimatePresence initial={false}>
+                    {showRegisteredMoreFeatures && extraMoreFeatureTags.length > 0 && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        className="overflow-hidden w-full"
+                      >
+                        <div className="flex flex-wrap justify-start gap-2 pt-1">
+                          {extraMoreFeatureTags.map((item) => (
+                            <Tag
+                              key={item.key}
+                              label={item.label}
+                              onRemove={() => removeMoreFeature(item.key)}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {hiddenMoreFeatureCount > 0 ? (
                     <Button unstyled
-                      className="flex h-8 items-start justify-start gap-1.5 text-sm font-normal leading-5 text-[#808080] active:text-[#0048c4]"
+                      className="flex h-8 items-center justify-start gap-1.5 text-sm font-normal leading-5 text-[#808080] active:text-[#0048c4]"
                       onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
                       type="button"
                     >
@@ -938,20 +955,26 @@ export function DetailsStep({
                           ? "نمایش کمتر"
                           : `${formatPersianCount(hiddenMoreFeatureCount)} مشخصات دیگر`}
                       </Typography>
-                      <svg
-                        aria-hidden="true"
-                        className="h-4 w-4 shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
+                      <motion.div
+                        animate={{ rotate: showRegisteredMoreFeatures ? 180 : 0 }}
+                        transition={{ duration: 0.24, ease: "easeInOut" }}
+                        className="inline-flex items-center justify-center shrink-0"
                       >
-                        <path
-                          d={showRegisteredMoreFeatures ? "M7 14l5-5 5 5" : "M7 10l5 5 5-5"}
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                        />
-                      </svg>
+                        <svg
+                          aria-hidden="true"
+                          className="h-4 w-4 shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M7 10l5 5 5-5"
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                      </motion.div>
                     </Button>
                   ) : null}
 
@@ -995,7 +1018,7 @@ export function DetailsStep({
         {!hideHeatingCooling ? (
           <Section icon="tempreture.svg" title="گرمایش و سرمایش">
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-              {visibleHeating.map((item) => (
+              {initialHeating.map((item) => (
                 <Chip
                   key={item.id}
                   item={item}
@@ -1009,6 +1032,33 @@ export function DetailsStep({
                 />
               ))}
             </div>
+            <AnimatePresence initial={false}>
+              {showAllHeating && extraHeating.length > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+                  className="overflow-hidden w-full"
+                >
+                  <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
+                    {extraHeating.map((item) => (
+                      <Chip
+                        key={item.id}
+                        item={item}
+                        selected={values.heatingCooling.includes(item.id)}
+                        onClick={() =>
+                          setField(
+                            "heatingCooling",
+                            toggleArray(values.heatingCooling, item.id),
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {heatingItemsForListing.length > initialVisibleChipCount ? (
               <MoreButton
                 count={heatingItemsForListing.length - initialVisibleChipCount}
@@ -1022,7 +1072,7 @@ export function DetailsStep({
         {showFacilitiesSection ? (
           <Section icon="features.svg" title="امکانات">
             <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-              {visibleFacilities.map((item) => (
+              {initialFacilities.map((item) => (
                 <Chip
                   displayLabel={
                     item.id === "elevator" && values.elevatorCount
@@ -1040,6 +1090,37 @@ export function DetailsStep({
                 />
               ))}
             </div>
+            <AnimatePresence initial={false}>
+              {showAllFacilities && extraFacilities.length > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+                  className="overflow-hidden w-full"
+                >
+                  <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
+                    {extraFacilities.map((item) => (
+                      <Chip
+                        displayLabel={
+                          item.id === "elevator" && values.elevatorCount
+                            ? `${item.label} (${values.elevatorCount})`
+                            : item.id === "parking" && values.parkingCount
+                              ? `${item.label} (${values.parkingCount})`
+                              : item.id === "terrace" && values.terraceCount
+                                ? `${item.label} (${values.terraceCount})`
+                                : undefined
+                        }
+                        key={item.id}
+                        item={item}
+                        selected={values.facilities.includes(item.id)}
+                        onClick={() => handleFacilityClick(item.id)}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {facilityItemsForCategory.length > initialVisibleChipCount ? (
               <MoreButton
                 count={facilityItemsForCategory.length - initialVisibleChipCount}

@@ -775,7 +775,7 @@ function roundCoordinate(value: number) {
   return Number(value.toFixed(6));
 }
 
-function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters {
+export function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters {
   const featureFilters = Object.fromEntries(
     Array.from(featureFilterParamKeys)
       .map((key) => [key, params.get(key)] as const)

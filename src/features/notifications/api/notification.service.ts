@@ -249,3 +249,25 @@ export async function deleteNotification(notificationId: string) {
 
   return notificationId;
 }
+
+export async function registerFcmToken(token: string, deviceType = "web") {
+  return api
+    .post("notifications/fcm-token", {
+      json: {
+        token,
+        device_type: deviceType,
+      },
+    })
+    .json<{ status?: boolean }>();
+}
+
+export async function unregisterFcmToken(token: string) {
+  return api
+    .delete("notifications/fcm-token", {
+      json: {
+        token,
+      },
+    })
+    .json<{ status?: boolean }>();
+}
+

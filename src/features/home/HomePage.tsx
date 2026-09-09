@@ -25,6 +25,7 @@ import { Button } from "../../shared/ui/Button";
 import { pushRoute } from "../../shared/navigation/navigation";
 import { SEO } from "../../shared/components/SEO";
 import { useCitySearchQuery } from "../cities/api/city.hooks";
+import { useFcm } from "../notifications/useFcm";
 
 const UnreadNotificationBadge = lazy(() =>
   import("../notifications/components/UnreadNotificationBadge").then((module) => ({
@@ -174,8 +175,29 @@ export function HomePage() {
   const [selectedCity, setSelectedCity] = useState(getStoredCity);
   const { data: apiCities } = useCitySearchQuery({ enabled: true, q: "" });
   const shouldHideCitySelector = apiCities !== undefined && apiCities.length <= 1;
+  const { requestToken, permission, isSupported, loading: isFcmLoading } = useFcm();
+  const [isPushBannerDismissed, setIsPushBannerDismissed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.sessionStorage.getItem("bonga-push-banner-dismissed") === "true";
+  });
+
   const quickActions = defaultQuickActions;
   const isCategorySheetOpen = selectedCategory !== null;
+
+  useEffect(() => {
+    if (hasAuthSession && isSupported && permission === "granted") {
+      requestToken().catch(() => {});
+    }
+  }, [hasAuthSession, isSupported, permission, requestToken]);
+
+  const handleEnablePush = async () => {
+    await requestToken();
+  };
+
+  const handleDismissPushBanner = () => {
+    setIsPushBannerDismissed(true);
+    window.sessionStorage.setItem("bonga-push-banner-dismissed", "true");
+  };
 
   useEffect(() => {
     if (apiCities && apiCities.length === 1) {
@@ -324,6 +346,43 @@ export function HomePage() {
             />
             <LinearSearch className="h-6 w-6 text-[#4d4d4d] ml-3"/>
           </label>
+
+          {hasAuthSession && isSupported && permission === "default" && !isPushBannerDismissed ? (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 text-right">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0048C4]/10 text-[#0048C4]">
+                  <LinearNotification className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <Typography as="p" variant="body" size="small" weight="medium" className="text-[#1a1a1a]">
+                    اعلان‌های سریع را فعال کنید
+                  </Typography>
+                  <Typography as="p" variant="body" size="small" className="text-[#666666] line-clamp-1">
+                    دریافت آنی پیام‌ها، تغییرات آگهی و پیگیری درخواست‌ها
+                  </Typography>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Button
+                  unstyled
+                  type="button"
+                  disabled={isFcmLoading}
+                  onClick={handleEnablePush}
+                  className="rounded-lg bg-[#0048C4] px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  {isFcmLoading ? "در حال فعال‌سازی..." : "فعال‌سازی"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={handleDismissPushBanner}
+                  aria-label="بستن"
+                  className="grid h-7 w-7 place-items-center rounded-full text-[#808080] hover:bg-black/5"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           <div
             className="home-quick-actions grid grid-cols-4 gap-3 [direction:rtl] min-[390px]:gap-4"

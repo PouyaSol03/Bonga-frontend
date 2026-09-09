@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getApiErrorMessage } from "../../shared/api/api";
 import { PageFrame } from "../../shared/layout/PageFrame";
-import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
 import LinearCancel from "../../shared/icons/LinearCancel";
 import LinearCity from "../../shared/icons/LinearCity";
 import LinearDelete from "../../shared/icons/LinearDelete";
@@ -10,7 +9,7 @@ import LinearEdit2 from "../../shared/icons/LinearEdit2";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
 import LinearRefresh from "../../shared/icons/LinearRefresh";
 import { BottomSheet } from "../../shared/components/BottomSheet";
-import { RadioIndicator } from "../../shared/components/RadioIndicator";
+import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -42,11 +41,6 @@ type RequestManagementViewProps = {
 
 type RequestTabItem = {
   id: RequestManagementTab;
-  label: string;
-};
-
-type RequestFilterOption = {
-  id: RequestFilterId;
   label: string;
 };
 
@@ -163,15 +157,6 @@ function getInitialRequestTab(showReceivedTab: boolean): RequestManagementTab {
   return showReceivedTab ? "results" : "requests";
 }
 
-function getRequestFilterOptions(
-  requests: PropertySearchRequest[],
-): RequestFilterOption[] {
-  return [
-    { id: "all", label: "همه" },
-    ...requests.map((request) => ({ id: request.id, label: request.title })),
-  ];
-}
-
 export function RequestManagementView({
   backTo,
   showReceivedTab = false,
@@ -206,7 +191,6 @@ export function RequestManagementView({
           title: "دریافت درخواست‌ها ناموفق بود",
         }
       : null;
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [toast, setToast] = useState<RequestToast | null>(null);
@@ -226,15 +210,7 @@ export function RequestManagementView({
     Record<string, PropertyRequestResultsStatus>
   >({});
   const tabs = useMemo(() => getTabs(showReceivedTab), [showReceivedTab]);
-  const requestFilterOptions = useMemo(
-    () => getRequestFilterOptions(requests),
-    [requests],
-  );
   const activeFilterId = filters[activeTab];
-  const activeFilterLabel =
-    requestFilterOptions.find((option) => option.id === activeFilterId)?.label ??
-    requestFilterOptions[0]?.label ??
-    "همه";
   const editingRequest =
     requests.find((request) => request.id === editingRequestId) ?? null;
   const filteredRequests = useMemo(
@@ -309,6 +285,10 @@ export function RequestManagementView({
     setFilters((current) => ({ ...current, [activeTab]: "all" }));
   }, [activeFilterId, activeTab, requests]);
 
+  const selectFilter = (filterId: RequestFilterId) => {
+    setFilters((current) => ({ ...current, [activeTab]: filterId }));
+  };
+
   const showToast = (
     message: string,
     title = "موفق",
@@ -336,7 +316,6 @@ export function RequestManagementView({
 
   const changeTab = (tab: RequestManagementTab) => {
     setActiveTab(tab);
-    setIsFilterSheetOpen(false);
 
     const params = new URLSearchParams(window.location.search);
     params.set("tab", tab);
@@ -487,12 +466,51 @@ export function RequestManagementView({
           />
 
           {activeTab === "results" && requests.length > 0 ? (
-            <section className="border-t border-[#f0f0f0] px-4 pb-3 pt-3">
-              <RequestFilterButton
-                label={activeFilterLabel}
-                onClick={() => setIsFilterSheetOpen(true)}
-              />
-            </section>
+            <HorizontalFilterBar
+              ariaLabel="فیلتر نتایج بر اساس درخواست"
+              className="border-t border-[#f0f0f0] bg-white py-2"
+            >
+              <Button
+                unstyled
+                className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+                  activeFilterId === "all"
+                    ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
+                    : "border-[#cccccc] bg-white text-[#1a1a1a] hover:bg-[#f5f5f5]"
+                }`}
+                onClick={() => selectFilter("all")}
+                type="button"
+              >
+                <Typography as="span" variant="label" size="medium" weight="medium">
+                  همه
+                </Typography>
+              </Button>
+              {requests.map((request) => {
+                const isSelected = activeFilterId === request.id;
+                return (
+                  <Button
+                    unstyled
+                    key={request.id}
+                    className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+                      isSelected
+                        ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
+                        : "border-[#cccccc] bg-white text-[#1a1a1a] hover:bg-[#f5f5f5]"
+                    }`}
+                    onClick={() => selectFilter(request.id)}
+                    type="button"
+                  >
+                    <Typography
+                      as="span"
+                      variant="label"
+                      size="medium"
+                      weight="medium"
+                      className="truncate"
+                    >
+                      {request.title}
+                    </Typography>
+                  </Button>
+                );
+              })}
+            </HorizontalFilterBar>
           ) : null}
         </div>
 
@@ -617,17 +635,6 @@ export function RequestManagementView({
         value={editTitle}
       />
 
-      <RequestFilterBottomSheet
-        activeFilterId={activeFilterId}
-        isOpen={isFilterSheetOpen}
-        onClose={() => setIsFilterSheetOpen(false)}
-        onSelect={(filterId) => {
-          setFilters((current) => ({ ...current, [activeTab]: filterId }));
-          setIsFilterSheetOpen(false);
-        }}
-        options={requestFilterOptions}
-      />
-
     </PageFrame>
   );
 }
@@ -695,27 +702,6 @@ function RequestTabs({
   );
 }
 
-function RequestFilterButton({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <Button unstyled
-      className="flex h-[34px] w-full items-center justify-between rounded-[10px] border border-[#cccccc] bg-white px-3 text-right text-xs font-normal leading-5 text-[#1a1a1a] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f8f8f8] [direction:ltr]"
-      onClick={onClick}
-      type="button"
-    >
-      <LinearArrowDown1 className="h-4 w-4 shrink-0 text-[#a6a6a6]" />
-      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-3 text-right [direction:rtl]">
-        {label}
-      </Typography>
-    </Button>
-  );
-}
-
 function RequestEditBottomSheet({
   isOpen,
   onClose,
@@ -773,60 +759,6 @@ function RequestEditBottomSheet({
           </Button>
         </div>
       </form>
-    </BottomSheet>
-  );
-}
-
-function RequestFilterBottomSheet({
-  activeFilterId,
-  isOpen,
-  onClose,
-  onSelect,
-  options,
-}: {
-  activeFilterId: RequestFilterId;
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (filterId: RequestFilterId) => void;
-  options: RequestFilterOption[];
-}) {
-  return (
-    <BottomSheet
-      ariaLabel="انتخاب درخواست"
-      contentClassName="px-4 pt-4"
-      heightClassName="h-auto max-h-[80dvh] pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]"
-      isOpen={isOpen}
-      onClose={onClose}
-      panelPaddingClassName="pt-3"
-      showHeaderDivider={false}
-      title="انتخاب درخواست"
-      titleAlign="center"
-    >
-      <div
-        aria-label="انتخاب درخواست"
-        className="max-h-[60dvh] space-y-1 overflow-y-auto"
-        role="radiogroup"
-      >
-        {options.map((option) => {
-          const isSelected = activeFilterId === option.id;
-
-          return (
-            <Button unstyled
-              aria-checked={isSelected}
-              className="flex h-12 w-full items-center justify-between rounded-[10px] px-1 text-sm font-normal leading-5 text-[#1a1a1a] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5] [direction:ltr]"
-              key={option.id}
-              onClick={() => onSelect(option.id)}
-              role="radio"
-              type="button"
-            >
-              <RadioIndicator checked={isSelected} />
-              <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right [direction:rtl]">
-                {option.label}
-              </Typography>
-            </Button>
-          );
-        })}
-      </div>
     </BottomSheet>
   );
 }

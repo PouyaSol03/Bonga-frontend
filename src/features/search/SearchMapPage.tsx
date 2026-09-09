@@ -10,7 +10,10 @@ import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../advertis
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { usePublisherOptions } from "../advertisements/api/publisher-options.hooks";
-import { useCreatePropertyRequestMutation } from "../property-requests/api/property-request.hooks";
+import {
+  useCreatePropertyRequestMutation,
+  usePropertyRequestsQuery,
+} from "../property-requests/api/property-request.hooks";
 import {
   useSavedSearchesQuery,
   useSaveSearchMutation,
@@ -940,6 +943,7 @@ export function SearchMapPage() {
   const { message, showNotice } = useTransientNotice();
   const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
   const createPropertyRequestMutation = useCreatePropertyRequestMutation();
+  const propertyRequestsQuery = usePropertyRequestsQuery(1, 10);
   const requestResultsPath =
     getPropertyRequestScope().ownerType === "agency"
       ? "/account/dashboard/requests?tab=results"
@@ -1369,6 +1373,17 @@ export function SearchMapPage() {
       return;
     }
 
+    const activeCount =
+      propertyRequestsQuery.data?.total ??
+      propertyRequestsQuery.data?.data?.length ??
+      0;
+    if (activeCount >= 3) {
+      showNotice(
+        "شما حداکثر می‌توانید ۳ درخواست فعال داشته باشید. برای ثبت درخواست جدید، لطفاً یکی از درخواست‌های قبلی را لغو نمایید.",
+      );
+      return;
+    }
+
     const params = getSearchParams();
     const requestFilters: Record<string, string> = {};
     params.forEach((value, key) => {
@@ -1382,10 +1397,22 @@ export function SearchMapPage() {
     };
 
     setPendingSearchRequest(request);
-  }, [currentSearchQuery, isAuthenticated]);
+  }, [currentSearchQuery, isAuthenticated, propertyRequestsQuery.data, showNotice]);
 
   const handleConfirmSearchRequest = useCallback((_senderId: string) => {
     if (!pendingSearchRequest || createPropertyRequestMutation.isPending) return;
+
+    const activeCount =
+      propertyRequestsQuery.data?.total ??
+      propertyRequestsQuery.data?.data?.length ??
+      0;
+    if (activeCount >= 3) {
+      showNotice(
+        "شما حداکثر می‌توانید ۳ درخواست فعال داشته باشید. برای ثبت درخواست جدید، لطفاً یکی از درخواست‌های قبلی را لغو نمایید.",
+      );
+      setPendingSearchRequest(null);
+      return;
+    }
 
     createPropertyRequestMutation.mutate(
       {
@@ -1406,7 +1433,7 @@ export function SearchMapPage() {
         },
       },
     );
-  }, [createPropertyRequestMutation, pendingSearchRequest, showNotice]);
+  }, [createPropertyRequestMutation, pendingSearchRequest, propertyRequestsQuery.data, showNotice]);
 
   const locateUser = useCallback(() => {
     if (isLocating) return;

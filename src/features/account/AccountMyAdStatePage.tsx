@@ -571,6 +571,8 @@ function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
   if (status === "published") return [preview, edit, remove, upgrade, stats, history];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
   if (status === "pending" || status === "wait_for_agency" || status === "needs_edit") return [preview, edit, remove, history];
+  if (status === "incomplete") return [edit, remove];
+  if (status === "expired") return [preview, history];
 
   return [preview, edit, history];
 }

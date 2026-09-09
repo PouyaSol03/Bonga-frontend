@@ -1,4 +1,14 @@
-export type MyAdStatusKey = "deleted" | "expired" | "needs_edit" | "pending" | "published" | "unknown" | "wait_for_agency" | "wait_for_payment";
+export type MyAdStatusKey =
+  | "deleted"
+  | "expired"
+  | "incomplete"
+  | "incomplete_deleted"
+  | "needs_edit"
+  | "pending"
+  | "published"
+  | "unknown"
+  | "wait_for_agency"
+  | "wait_for_payment";
 
 export type MyAdStatusInfo = {
   badgeClassName: string;
@@ -26,6 +36,16 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
     key: "expired",
     label: "منقضی شده",
+  },
+  incomplete: {
+    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
+    key: "incomplete",
+    label: "نیمه کاره",
+  },
+  incomplete_deleted: {
+    badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
+    key: "incomplete_deleted",
+    label: "نیمه کاره حذف شده",
   },
   wait_for_payment: {
     badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
@@ -91,6 +111,20 @@ function readCandidateStatus(source: unknown) {
 export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
   const rawStatus = readCandidateStatus(source);
   const status = normalizeStatusText(rawStatus);
+
+  if (
+    ["-6", "incomplete-deleted", "incomplete_deleted"].includes(status) ||
+    (status.includes("نیمه کاره") && (status.includes("حذف") || status.includes("پاک")))
+  ) {
+    return myAdStatusConfig.incomplete_deleted;
+  }
+
+  if (
+    ["-5", "incomplete", "draft"].includes(status) ||
+    (status.includes("نیمه کاره") && !status.includes("حذف") && !status.includes("پاک"))
+  ) {
+    return myAdStatusConfig.incomplete;
+  }
 
   if (["-2", "5", "delete", "deleted", "removed"].includes(status)) {
     return myAdStatusConfig.deleted;

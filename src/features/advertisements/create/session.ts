@@ -5,6 +5,7 @@ export const preserveNewAdDraftStateKey = "__bongaPreserveNewAdDraft";
 type NewAdFlowSession = {
   step: FlowStep;
   values: NewAdFormValues;
+  draftAdId?: string | null;
 };
 
 let activeSession: NewAdFlowSession | null = null;
@@ -30,10 +31,12 @@ function cloneValues(values: NewAdFormValues): NewAdFormValues {
 export function saveNewAdFlowSession(
   values: NewAdFormValues,
   step: FlowStep,
+  draftAdId?: string | null,
 ) {
   activeSession = {
     step,
     values: cloneValues(values),
+    draftAdId: draftAdId ?? activeSession?.draftAdId ?? null,
   };
 }
 
@@ -43,6 +46,7 @@ export function getNewAdFlowSession() {
   return {
     step: activeSession.step,
     values: cloneValues(activeSession.values),
+    draftAdId: activeSession.draftAdId ?? null,
   } satisfies NewAdFlowSession;
 }
 

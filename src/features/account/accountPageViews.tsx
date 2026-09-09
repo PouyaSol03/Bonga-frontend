@@ -55,6 +55,7 @@ const adFilters: Array<{ label: string; type: MyAdsType }> = [
   { label: "فعال", type: "active" },
   { label: "در انتظار", type: "pending" },
   { label: "در انتظار پرداخت", type: "wait_for_payment" },
+  { label: "نیمه کاره", type: "incomplete" },
   { label: "غیر فعال", type: "deactive" },
 ];
 

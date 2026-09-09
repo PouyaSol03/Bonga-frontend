@@ -140,6 +140,7 @@ function PriceToggleRow({
 
 export function DetailsStep({
   errors = {},
+  isPending = false,
   label,
   onClearError,
   onBack,
@@ -148,6 +149,7 @@ export function DetailsStep({
   onProjectDetails,
 }: {
   errors?: NewAdFieldErrors;
+  isPending?: boolean;
   label: string;
   onClearError?: (key: NewAdFieldErrorKey) => void;
   onBack?: () => void;
@@ -1269,9 +1271,10 @@ export function DetailsStep({
       </main>
 
       <Footer
+        disabled={isPending}
         onBack={onBack ?? (() => navigateTo(`/new-ad/category${window.location.search}`))}
         onPrimary={onNext}
-        primary="مرحله بعد"
+        primary={isPending ? "در حال ذخیره..." : "مرحله بعد"}
       />
 
       <BottomSheet

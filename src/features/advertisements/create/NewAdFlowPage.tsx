@@ -13,7 +13,13 @@ import {
 import { getCategoryList, type CategoryItem } from "../../categories/api/category.service";
 import type { PublicAgencyDto } from "../../agencies/api/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../crm/api/crm.service";
-import { useAdvertiseFormDefinitionQuery, useMyAdvertisementDetailQuery, useCreateAdvertisementMutation, useUpdateAdvertisementMutation } from "../api/advertisement.hooks";
+import {
+  useAdvertiseFormDefinitionQuery,
+  useMyAdvertisementDetailQuery,
+  useCreateAdvertisementMutation,
+  useUpdateAdvertisementMutation,
+  useSaveAdvertiseDraftMutation,
+} from "../api/advertisement.hooks";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import {
@@ -1061,8 +1067,11 @@ export function NewAdFlowPage() {
   const [step, setStep] = useState<FlowStep>(
     () => restoredSessionRef.current?.step ?? "details",
   );
+  const [draftAdId, setDraftAdId] = useState<string | null>(
+    () => restoredSessionRef.current?.draftAdId ?? (isEditMode ? editAdId : null),
+  );
   const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
-  const [, setSubmitError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const methods = useForm<NewAdFormValues>({
     defaultValues: initialValues,
     mode: "onChange",
@@ -1070,6 +1079,7 @@ export function NewAdFlowPage() {
   const queryClient = useQueryClient();
   const createAdvertisement = useCreateAdvertisementMutation();
   const updateAdvertisement = useUpdateAdvertisementMutation();
+  const saveDraftMutation = useSaveAdvertiseDraftMutation();
   const isCrmSource = isCrmAdvertiseSource();
   const isCrmEditMode = isEditMode && isCrmSource;
   const categoriesQuery = useQuery({
@@ -1168,7 +1178,7 @@ export function NewAdFlowPage() {
         video: null,
       };
 
-      saveNewAdFlowSession({ ...values, location: resolvedLoc }, step);
+      saveNewAdFlowSession({ ...values, location: resolvedLoc }, step, draftAdId);
       window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
       if (resolvedLoc) {
         window.localStorage.setItem(locationKey, resolvedLoc);
@@ -1179,7 +1189,7 @@ export function NewAdFlowPage() {
     const subscription = methods.watch(persistDraft);
 
     return () => subscription.unsubscribe();
-  }, [isEditMode, methods, step]);
+  }, [draftAdId, isEditMode, methods, step]);
 
 
   const clearFieldError = (key: NewAdFieldErrorKey) => {
@@ -1375,6 +1385,9 @@ export function NewAdFlowPage() {
     setFieldErrors({});
     setSubmitError("");
     submitLockRef.current = true;
+    if (draftAdId) {
+      formData.append("id", draftAdId);
+    }
     createAdvertisement.mutate(formData, {
       onError: (error) => {
         const agencyError = getApiFieldError(error, "agency_id");
@@ -1479,7 +1492,8 @@ export function NewAdFlowPage() {
   };
 
   const goToMedia = () => {
-    const validation = validateNewAdDetails(methods.getValues());
+    const values = methods.getValues();
+    const validation = validateNewAdDetails(values);
 
     if (validation) {
       setFieldErrors(validation.errors);
@@ -1489,7 +1503,53 @@ export function NewAdFlowPage() {
 
     setFieldErrors({});
     setSubmitError("");
-    setStep("media");
+
+    if (isCrmSource) {
+      setStep("media");
+      return;
+    }
+
+    const isEditingIncomplete =
+      isEditMode &&
+      (String(editAdData?.status) === "-5" ||
+        editAdData?.status === "incomplete" ||
+        String(editAdState.ad?.status) === "-5" ||
+        editAdState.ad?.status === "incomplete");
+
+    if (isEditMode && !isEditingIncomplete) {
+      setStep("media");
+      return;
+    }
+
+    const categoryId = findCategoryId(categoriesQuery.data ?? [], routeParams.category);
+    const resolvedFormCode = advertiseFormQuery.data?.code?.trim() || currentFormCode;
+    const formData = buildNewAdFormData(values, {
+      categoryId,
+      dynamicFieldKeys: advertiseFormQuery.data?.fields?.map((field) => field.key),
+      formCode: resolvedFormCode,
+    });
+
+    const activeDraftId = draftAdId || (isEditMode ? editAdId : null);
+    if (activeDraftId) {
+      formData.append("id", activeDraftId);
+    }
+
+    saveDraftMutation.mutate(formData, {
+      onSuccess: (savedAd) => {
+        const returnedId = savedAd?.id ?? savedAd?._id;
+        if (returnedId) {
+          const idStr = String(returnedId);
+          setDraftAdId(idStr);
+          saveNewAdFlowSession(values, "media", idStr);
+        }
+        setFieldErrors({});
+        setSubmitError("");
+        setStep("media");
+      },
+      onError: (error) => {
+        setSubmitError(getApiErrorMessage(error, "خطا در ذخیره پیش‌نویس آگهی"));
+      },
+    });
   };
   const headerTitle =
     step === "moreFeatures"
@@ -1517,6 +1577,18 @@ export function NewAdFlowPage() {
               />
             ) : null}
 
+            {submitError ? (
+              <div className="mx-4 mt-2 flex items-center justify-between rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3 text-right text-sm text-[#dc2626]">
+                <span>{submitError}</span>
+                <button
+                  type="button"
+                  onClick={() => setSubmitError("")}
+                  className="mr-2 text-xs font-bold text-[#dc2626] hover:opacity-75"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : null}
 
         {isCrmEditMode && editAdIsLoading ? (
           <div className="grid min-h-0 flex-1 place-items-center bg-[#f5f7fb] text-sm font-medium text-[#687386]">
@@ -1525,6 +1597,7 @@ export function NewAdFlowPage() {
         ) : step === "details" ? (
           <DetailsStep
             errors={fieldErrors}
+            isPending={saveDraftMutation.isPending}
             label={label}
             onBack={isCrmEditMode ? leaveCrmEditor : undefined}
             onClearError={clearFieldError}

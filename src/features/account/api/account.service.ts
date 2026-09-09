@@ -278,7 +278,7 @@ export type PaymentCallbackResult = {
   success: boolean;
 };
 
-export type MyAdsType = "all" | "active" | "deactive" | "pending" | "wait_for_payment";
+export type MyAdsType = "all" | "active" | "deactive" | "pending" | "wait_for_payment" | "incomplete";
 
 export type MyAdsPage = {
   data: AdvertisementItem[];

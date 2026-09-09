@@ -692,17 +692,22 @@ export function NewAdLocationPage() {
             disabled={
               isResolvingLocation ||
               locationByCoordinatesQuery.isFetching ||
-              neighborhoodInfoQuery.isFetching ||
-              !selectedLocation ||
-              !getNeighborhoodId(selectedNeighborhood)
+              neighborhoodInfoQuery.isFetching
             }
             onClick={() => {
-              if (!selectedNeighborhood) return;
-
-              const confirmedLocation = selectedNeighborhood.name.trim();
+              const confirmedLocation =
+                selectedNeighborhood?.name?.trim() ||
+                selectedLocation ||
+                query.trim() ||
+                "موقعیت انتخاب‌شده";
 
               window.localStorage.setItem(locationKey, confirmedLocation);
-              window.localStorage.setItem(neighborhoodIdKey, getNeighborhoodId(selectedNeighborhood));
+              const neighborhoodId = getNeighborhoodId(selectedNeighborhood);
+              if (neighborhoodId) {
+                window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
+              } else {
+                window.localStorage.removeItem(neighborhoodIdKey);
+              }
               const subNeighborhoodId = getSubNeighborhoodId(selectedSubNeighborhood);
               if (subNeighborhoodId) {
                 window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);

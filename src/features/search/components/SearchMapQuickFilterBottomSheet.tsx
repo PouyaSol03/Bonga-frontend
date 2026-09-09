@@ -390,8 +390,8 @@ export function SearchMapQuickFilterBottomSheet({
   const isDraftDebouncing = draftParamsString !== debouncedDraftParams;
 
   const quickCountQueryParams = useMemo<AdvertisementListParams | null>(() => {
-    if (!isOpen || !debouncedDraftParams) return null;
-    const params = new URLSearchParams(debouncedDraftParams);
+    if (!isOpen) return null;
+    const params = new URLSearchParams(debouncedDraftParams || search);
     const cityId = params.get("city_id") || selectedCity?.id || undefined;
     const filters = readSearchFilters(params);
     return {
@@ -400,7 +400,7 @@ export function SearchMapQuickFilterBottomSheet({
       page: 1,
       perPage: 1,
     };
-  }, [isOpen, debouncedDraftParams, selectedCity?.id]);
+  }, [isOpen, debouncedDraftParams, search, selectedCity?.id]);
 
   const quickCountQuery = useAdvertisementListQuery(quickCountQueryParams);
   const isCalculating = isOpen && (isDraftDebouncing || quickCountQuery.isLoading || quickCountQuery.isFetching);

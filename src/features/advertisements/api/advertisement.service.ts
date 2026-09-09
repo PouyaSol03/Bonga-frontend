@@ -140,9 +140,13 @@ type PaginationMeta = {
 type AdvertisementListResponse =
   | {
     data?: AdvertisementItem[];
+    has_more?: boolean;
     meta?: PaginationMeta;
+    page?: number;
     pagination?: PaginationMeta;
+    per_page?: number;
     status?: boolean;
+    total?: number;
   }
   | AdvertisementItem[];
 
@@ -717,25 +721,27 @@ export async function getAdvertisementList({
       }),
     })
     .json<AdvertisementListResponse>();
+  const rawResponse = Array.isArray(response) ? undefined : response;
   const data = Array.isArray(response) ? response : response.data ?? [];
-  const meta = Array.isArray(response)
-    ? undefined
-    : response.meta ?? response.pagination;
-  const currentPage = meta?.current_page ?? meta?.page ?? page;
+  const meta = rawResponse?.meta ?? rawResponse?.pagination;
+  const currentPage = rawResponse?.page ?? meta?.current_page ?? meta?.page ?? page;
   const lastPage = meta?.last_page ?? meta?.total_pages;
-  const total = meta?.total;
-  const resolvedPerPage = meta?.per_page ?? perPage;
+  const rawTotal = rawResponse?.total ?? meta?.total;
+  const total = typeof rawTotal === "number" ? rawTotal : data.length;
+  const resolvedPerPage = rawResponse?.per_page ?? meta?.per_page ?? perPage;
 
   return {
     data,
     hasNextPage:
-      typeof lastPage === "number"
-        ? currentPage < lastPage
-        : typeof total === "number"
-          ? currentPage * resolvedPerPage < total
-          : data.length >= perPage,
+      typeof rawResponse?.has_more === "boolean"
+        ? rawResponse.has_more
+        : typeof lastPage === "number"
+          ? currentPage < lastPage
+          : typeof total === "number"
+            ? currentPage * resolvedPerPage < total
+            : data.length >= perPage,
     page: currentPage,
-    total: typeof total === "number" ? total : data.length,
+    total,
   } satisfies AdvertisementPage;
 }
 

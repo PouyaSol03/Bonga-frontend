@@ -779,12 +779,29 @@ function roundCoordinate(value: number) {
   return Number(value.toFixed(6));
 }
 
+const standardSearchParamKeys = new Set([
+  "area_max", "area_min", "building_age", "category_id", "categoryId",
+  "floor", "form_code", "from_code", "has_image", "has_video",
+  "is_special", "neighborhood_id", "neighborhoods", "price_max",
+  "price_min", "published_at", "query", "q", "qsearch", "rooms",
+  "city_id", "page", "per_page", "view", "focus", "returnTo",
+]);
+
 export function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters {
-  const featureFilters = Object.fromEntries(
-    Array.from(featureFilterParamKeys)
-      .map((key) => [key, params.get(key)] as const)
-      .filter((entry): entry is readonly [string, string] => Boolean(entry[1])),
-  );
+  const featureFilters: Record<string, string> = {};
+
+  featureFilterParamKeys.forEach((key) => {
+    const value = params.get(key);
+    if (value) {
+      featureFilters[key] = value;
+    }
+  });
+
+  params.forEach((value, key) => {
+    if (!standardSearchParamKeys.has(key) && value && !featureFilters[key]) {
+      featureFilters[key] = value;
+    }
+  });
 
   return {
     areaMax: params.get("area_max") || undefined,

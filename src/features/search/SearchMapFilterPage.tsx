@@ -2581,8 +2581,6 @@ export function AdvertisementFilterPage({
   const isDebouncing = filters !== debouncedFilters;
 
   const countQueryParams = useMemo<AdvertisementListParams | null>(() => {
-    if (!debouncedFilters.category) return null;
-
     const searchUrl = buildSearchUrl(debouncedFilters, applyBasePath);
     const searchParams = new URL(searchUrl, window.location.origin).searchParams;
     const selectedCity = readStoredSelectedCity();

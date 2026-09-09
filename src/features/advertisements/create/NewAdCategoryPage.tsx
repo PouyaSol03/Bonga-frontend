@@ -109,7 +109,7 @@ const transactionConfigs: Record<TransactionType, TransactionConfig> = {
         id: "project-commercial",
         title: "اداری، تجاری، صنعتی، اقامتی",
         options: [
-          { id: "project-presale", label: "پروژه" },
+          { id: "project-presale", label: "پیش فروش، فروش پروژه" },
           { id: "project-partnership", label: "مشارکت" },
         ],
       },

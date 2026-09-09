@@ -265,6 +265,7 @@ function readPaymentStatusClassName(payment: AdPayment) {
 
   if (status === "پرداخت شده") return "text-[#11a366]";
   if (status === "ناموفق") return "text-[#ee3623]";
+  if (status === "در انتظار" || status === "در انتظار پرداخت") return "text-[#ff6d00]";
 
   return "text-[#1a1a1a]";
 }

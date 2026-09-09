@@ -13,12 +13,14 @@ type FormSegmentedControlProps<T extends string> = {
   onChange: (value: T) => void;
   options: SegmentOption<T>[];
   value: T;
+  showDividers?: boolean;
 };
 
 export function FormSegmentedControl<T extends string>({
   ariaLabel,
   onChange,
   options,
+  showDividers = false,
   value,
 }: FormSegmentedControlProps<T>) {
   return (
@@ -35,7 +37,7 @@ export function FormSegmentedControl<T extends string>({
           <Button unstyled
             aria-checked={selected}
             className={`flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
-              index < options.length - 1 ? "border-l" : ""
+              showDividers && index < options.length - 1 ? "border-l" : ""
             } ${
               selected ? "bg-[#edf0fb] text-[#0048c4]" : "bg-white text-[#4d4d4d] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
             }`}

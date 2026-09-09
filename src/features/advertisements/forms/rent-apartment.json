@@ -1,0 +1,762 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "rent-apartment",
+  "title": "اجاره آپارتمان",
+  "transaction": "rent",
+  "category": "apartment",
+  "create": {
+    "specsTitle": "مشخصات آپارتمان",
+    "basicFields": [
+      {
+        "key": "meterage",
+        "title": "متراژ آپارتمان",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۸۵",
+        "required": true
+      },
+      {
+        "key": "floor",
+        "title": "طبقه",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "required": true,
+        "options": [
+          "همکف",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
+        ]
+      },
+      {
+        "key": "rooms",
+        "title": "تعداد اتاق",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "required": true,
+        "options": [
+          "بدون اتاق",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵+"
+        ]
+      },
+      {
+        "key": "age",
+        "title": "سن ساخت",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "required": true,
+        "options": [
+          "نوساز",
+          "۱ سال",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۵ سال",
+          "۶ سال",
+          "۷ سال",
+          "۸ سال",
+          "۹ سال",
+          "۱۰ سال",
+          "۱۱ سال",
+          "۱۲ سال",
+          "۱۳ سال",
+          "۱۴ سال",
+          "۱۵ سال",
+          "۱۶ سال",
+          "۱۷ سال",
+          "۱۸ سال",
+          "۱۹ سال",
+          "۲۰ سال",
+          "بیشتر از ۲۰ سال"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "rent",
+      "rentConversion": true
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "elevator",
+          "label": "آسانسور"
+        },
+        {
+          "id": "parking",
+          "label": "پارکینگ"
+        },
+        {
+          "id": "warehouse",
+          "label": "انباری"
+        },
+        {
+          "id": "terrace",
+          "label": "تراس"
+        },
+        {
+          "id": "yard",
+          "label": "حیاط"
+        },
+        {
+          "id": "iranian-toilet",
+          "label": "سرویس ایرانی"
+        },
+        {
+          "id": "western-toilet",
+          "label": "سرویس فرنگی"
+        },
+        {
+          "id": "wardrobe",
+          "label": "کمد دیواری"
+        },
+        {
+          "id": "security-door",
+          "label": "درب ضد سرقت"
+        },
+        {
+          "id": "video-intercom",
+          "label": "آیفون تصویری"
+        },
+        {
+          "id": "gas-stove",
+          "label": "گاز رومیزی"
+        },
+        {
+          "id": "hood",
+          "label": "هود"
+        },
+        {
+          "id": "oven",
+          "label": "فرتوکار"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "cctv",
+          "label": "دوربین امنیتی"
+        },
+        {
+          "id": "smart-home",
+          "label": "سیستم هوشمند"
+        },
+        {
+          "id": "lobby",
+          "label": "لابی"
+        },
+        {
+          "id": "roof-garden",
+          "label": "روف گاردن"
+        },
+        {
+          "id": "pool",
+          "label": "استخر"
+        },
+        {
+          "id": "jacuzzi",
+          "label": "جکوزی"
+        },
+        {
+          "id": "sauna",
+          "label": "سونا"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "suitableFor",
+          "title": "مناسب برای",
+          "input": "multiSelect",
+          "ui": "bottomSheet",
+          "options": [
+            "خانواده",
+            "مجرد",
+            "دانشجو",
+            "زوج"
+          ]
+        },
+        {
+          "key": "totalFloors",
+          "title": "تعداد طبقات آپارتمان",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "۱ طبقه",
+            "۲ طبقه",
+            "۳ طبقه",
+            "۴ طبقه",
+            "۵ طبقه",
+            "۶ طبقه",
+            "۷ طبقه",
+            "۸ طبقه و بیشتر"
+          ]
+        },
+        {
+          "key": "unitsPerFloor",
+          "title": "تعداد واحد در طبقه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "تک واحدی",
+            "دو واحدی",
+            "سه واحدی",
+            "چهار واحدی",
+            "پنج واحدی",
+            "شش واحدی",
+            "هفت واحدی",
+            "هشت واحد بیشتر"
+          ]
+        },
+        {
+          "key": "unitType",
+          "title": "موقعیت ساختمان",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "شمالی",
+            "جنوبی",
+            "شرقی",
+            "غربی",
+            "دونبش",
+            "سه نبش",
+            "دوممر"
+          ]
+        },
+        {
+          "key": "unitPosition",
+          "title": "موقعیت واحد",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "جلو",
+            "عقب",
+            "وسط",
+            "کنج",
+            "دوبلکس",
+            "پنت هاوس"
+          ]
+        },
+        {
+          "key": "occupancyStatus",
+          "title": "وضعیت سکونت",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "تخلیه",
+            "مالک",
+            "مستاجر دارد"
+          ]
+        },
+        {
+          "key": "readyDeliveryDate",
+          "title": "تاریخ آماده تحویل",
+          "input": "date"
+        },
+        {
+          "key": "minContractMonths",
+          "title": "حداقل مدت قرارداد (ماه)",
+          "input": "number",
+          "leftText": "ماه",
+          "numeric": true
+        },
+        {
+          "key": "petPolicy",
+          "title": "حیوان خانگی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "مجاز",
+            "غیر مجاز"
+          ]
+        },
+        {
+          "key": "kitchenType",
+          "title": "نوع آشپزخانه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "اپن",
+            "جزیره",
+            "بسته",
+            "نیمه اپن"
+          ]
+        },
+        {
+          "key": "renovated",
+          "title": "بازسازی",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
+          "key": "furnished",
+          "title": "با لوازم و مبله",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
+          "key": "facadeMaterial",
+          "title": "جنس نما",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "سنگ",
+            "آجر",
+            "سیمان",
+            "کامپوزیت",
+            "شیشه",
+            "رومی",
+            "ترکیبی"
+          ]
+        },
+        {
+          "key": "floorMaterial",
+          "title": "جنس کف",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "سرامیک",
+            "سنگ",
+            "پارکت",
+            "لمینت",
+            "موزاییک",
+            "کفپوش"
+          ]
+        },
+        {
+          "key": "cabinetMaterial",
+          "title": "جنس کابینت",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "MDF",
+            "های‌گلاس",
+            "ممبران",
+            "فلزی",
+            "چوبی",
+            "ندارد"
+          ]
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "meterage",
+        "title": "متراژ آپارتمان",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "rentPrice",
+        "title": "مبلغ اجاره",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "range",
+        "id": "mortgagePrice",
+        "title": "مبلغ رهن",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "multi",
+        "id": "floor",
+        "title": "طبقه",
+        "icon": "floor",
+        "options": [
+          "همکف",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
+        ],
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "مشاهده همه طبقات",
+        "moreIcon": "left"
+      },
+      {
+        "kind": "multi",
+        "id": "rooms",
+        "title": "تعداد اتاق",
+        "icon": "bed",
+        "options": [
+          "بدون اتاق",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵ و بیشتر"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "age",
+        "title": "سن ساخت",
+        "icon": "year",
+        "options": [
+          "۱ سال",
+          "نوساز",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۱۰ سال",
+          "۱۵ سال",
+          "۲۰ سال",
+          "بیشتر از ۳۰ سال"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "suitableFor",
+        "title": "مناسب برای",
+        "icon": "suitable",
+        "options": [
+          "شرکت‌ها",
+          "مهندسین",
+          "بیمه",
+          "وکلا",
+          "آموزشگاه",
+          "خانواده",
+          "مجرد",
+          "دانشجو",
+          "زوج",
+          "مطب",
+          "موسسه",
+          "آتلیه",
+          "مزون",
+          "اسناد رسمی",
+          "دفاتر دولت"
+        ],
+        "more": true,
+        "moreLimit": 5,
+        "moreLabel": "مشاهده ۱۰ مورد دیگر",
+        "moreIcon": "down"
+      },
+      {
+        "kind": "single",
+        "id": "totalFloors",
+        "title": "تعداد طبقات آپارتمان",
+        "icon": "floor",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
+        ],
+        "more": true,
+        "moreLimit": 7,
+        "moreLabel": "مشاهده همه طبقات",
+        "moreIcon": "left"
+      },
+      {
+        "kind": "single",
+        "id": "unitsPerFloor",
+        "title": "تعداد واحد در طبقه",
+        "icon": "floor",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "+۸"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "unitType",
+        "title": "موقعیت ساختمان",
+        "icon": "orientation",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "شرقی",
+          "غربی",
+          "دونبش",
+          "سه نبش",
+          "دوممر"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "unitPosition",
+        "title": "موقعیت واحد",
+        "icon": "orientation",
+        "options": [
+          "جلو",
+          "عقب",
+          "وسط",
+          "کنج",
+          "دوبلکس",
+          "پنت هاوس"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "unitLayout",
+        "title": "تیپ واحد",
+        "icon": "city02",
+        "options": [
+          "تک طبقه",
+          "دو طبقه",
+          "سه طبقه",
+          "دوبلکس",
+          "فورلکس",
+          "پنت هاوس"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 15 مورد دیگر",
+        "options": [
+          {
+            "id": "elevator",
+            "label": "آسانسور"
+          },
+          {
+            "id": "parking",
+            "label": "پارکینگ"
+          },
+          {
+            "id": "warehouse",
+            "label": "انباری"
+          },
+          {
+            "id": "terrace",
+            "label": "تراس"
+          },
+          {
+            "id": "yard",
+            "label": "حیاط"
+          },
+          {
+            "id": "iranian-toilet",
+            "label": "سرویس ایرانی"
+          },
+          {
+            "id": "western-toilet",
+            "label": "سرویس فرنگی"
+          },
+          {
+            "id": "wardrobe",
+            "label": "کمد دیواری"
+          },
+          {
+            "id": "security-door",
+            "label": "درب ضد سرقت"
+          },
+          {
+            "id": "video-intercom",
+            "label": "آیفون تصویری"
+          },
+          {
+            "id": "gas-stove",
+            "label": "گاز رومیزی"
+          },
+          {
+            "id": "hood",
+            "label": "هود"
+          },
+          {
+            "id": "oven",
+            "label": "فرتوکار"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "cctv",
+            "label": "دوربین امنیتی"
+          },
+          {
+            "id": "smart-home",
+            "label": "سیستم هوشمند"
+          },
+          {
+            "id": "lobby",
+            "label": "لابی"
+          },
+          {
+            "id": "roof-garden",
+            "label": "روف گاردن"
+          },
+          {
+            "id": "pool",
+            "label": "استخر"
+          },
+          {
+            "id": "jacuzzi",
+            "label": "جکوزی"
+          },
+          {
+            "id": "sauna",
+            "label": "سونا"
+          }
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

@@ -1,0 +1,335 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "rent-warehouse",
+  "title": "اجاره انبار و سوله",
+  "transaction": "rent",
+  "category": "warehouse",
+  "create": {
+    "specsTitle": "مشخصات انبار و سوله",
+    "basicFields": [
+      {
+        "key": "landArea",
+        "title": "متراژ زمین",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۱۰۰۰",
+        "required": true
+      },
+      {
+        "key": "buildingArea",
+        "title": "متراژ بنا",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۴۰۰",
+        "required": true
+      },
+      {
+        "key": "ceilingHeight",
+        "title": "ارتفاع سقف",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر",
+        "placeholder": "مثلا ۵"
+      },
+      {
+        "key": "age",
+        "title": "سال ساخت",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "نوساز",
+          "۱ سال",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۵ سال",
+          "۶ سال",
+          "۷ سال",
+          "۸ سال",
+          "۹ سال",
+          "۱۰ سال",
+          "۱۱ سال",
+          "۱۲ سال",
+          "۱۳ سال",
+          "۱۴ سال",
+          "۱۵ سال",
+          "۱۶ سال",
+          "۱۷ سال",
+          "۱۸ سال",
+          "۱۹ سال",
+          "۲۰ سال",
+          "بیشتر از ۲۰ سال"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "rent",
+      "rentConversion": true
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "single-phase-power",
+          "label": "برق تک فاز"
+        },
+        {
+          "id": "three-phase-power",
+          "label": "برق سه فاز"
+        },
+        {
+          "id": "water",
+          "label": "امتیاز آب"
+        },
+        {
+          "id": "gas",
+          "label": "امتیاز گاز"
+        },
+        {
+          "id": "telephone",
+          "label": "امتیاز تلفن"
+        },
+        {
+          "id": "walled",
+          "label": "دور دیوار/حصار"
+        },
+        {
+          "id": "old-building",
+          "label": "بنا کلنگی"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "well",
+          "label": "چاه آب"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "rooms",
+          "title": "تعداد اتاق",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "بدون اتاق",
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵+"
+          ]
+        },
+        {
+          "key": "accessType",
+          "title": "دست رسی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "جاده آسفالت",
+            "جاده خاکی",
+            "نزدیک بزرگراه"
+          ]
+        },
+        {
+          "key": "currentStatus",
+          "title": "وضعیت فعلی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "تخلیه",
+            "فعال"
+          ]
+        },
+        {
+          "key": "readyDeliveryDate",
+          "title": "تاریخ آماده تحویل",
+          "input": "date"
+        },
+        {
+          "key": "minContractMonths",
+          "title": "حداقل مدت قرارداد (ماه)",
+          "input": "number",
+          "leftText": "ماه",
+          "numeric": true
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "buildingArea",
+        "title": "متراژ بنا",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "rentPrice",
+        "title": "مبلغ اجاره",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "range",
+        "id": "mortgagePrice",
+        "title": "مبلغ رهن",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "multi",
+        "id": "suitableFor",
+        "title": "مناسب برای",
+        "icon": "suitable",
+        "options": [
+          "صنایع پلاستیک",
+          "صنایع چوب",
+          "کارگاه",
+          "انبار",
+          "تولیدی",
+          "سایر"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "commercialLicense",
+        "title": "مجوز تجاری",
+        "icon": "agreement",
+        "options": [
+          "دائم",
+          "موقت",
+          "ندارد"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 3 مورد دیگر",
+        "options": [
+          {
+            "id": "single-phase-power",
+            "label": "برق تک فاز"
+          },
+          {
+            "id": "three-phase-power",
+            "label": "برق سه فاز"
+          },
+          {
+            "id": "water",
+            "label": "امتیاز آب"
+          },
+          {
+            "id": "gas",
+            "label": "امتیاز گاز"
+          },
+          {
+            "id": "telephone",
+            "label": "امتیاز تلفن"
+          },
+          {
+            "id": "walled",
+            "label": "دور دیوار/حصار"
+          },
+          {
+            "id": "old-building",
+            "label": "بنا کلنگی"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "well",
+            "label": "چاه آب"
+          }
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

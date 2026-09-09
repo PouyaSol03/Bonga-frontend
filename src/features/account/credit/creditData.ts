@@ -5,5 +5,5 @@ export type CreditPayment = {
   paidAt: string;
   service: string;
   status: string;
-  statusTone: "error" | "success";
+  statusTone: "error" | "success" | "warning";
 };

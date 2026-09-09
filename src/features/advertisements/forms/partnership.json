@@ -1,0 +1,200 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "partnership",
+  "title": "مشارکت",
+  "transaction": "project",
+  "category": "project-partnership",
+  "create": {
+    "specsTitle": "مشخصات مشارکت",
+    "basicFields": [
+      {
+        "key": "participationType",
+        "title": "نوع مشارکت",
+        "input": "select",
+        "ui": "bottomSheet",
+        "options": [
+          "مشارکت در ساخت",
+          "تهاتر",
+          "سرمایه گذاری در خرید",
+          "سرمایه گذاری مشترک در ساخت"
+        ]
+      },
+      {
+        "key": "currentStatus",
+        "title": "وضعیت فعلی ملک",
+        "input": "select",
+        "ui": "bottomSheet",
+        "options": [
+          "بنا قدیمی",
+          "زمین خالی",
+          "درحال ساخت",
+          "ساختمان نوساز"
+        ]
+      },
+      {
+        "key": "landArea",
+        "title": "متراژ زمین",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۴۰۰",
+        "required": true
+      },
+      {
+        "key": "landPosition",
+        "title": "موقعیت زمین",
+        "input": "select",
+        "ui": "bottomSheet",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دوممر",
+          "دونبش",
+          "سه نبش",
+          "چهارنبش"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "partnership"
+    },
+    "heatingCooling": {
+      "enabled": false
+    },
+    "facilities": {
+      "enabled": false
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "documentType",
+          "title": "نوع سند",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "تک برگ",
+            "منگوله دار",
+            "آستانه",
+            "اوقافی",
+            "موقوفه",
+            "وکالت محضری",
+            "قولنامه",
+            "مشاع",
+            "در دست اقدام",
+            "آماده انتقال"
+          ]
+        },
+        {
+          "key": "landWidth",
+          "title": "عرض زمین",
+          "input": "number",
+          "leftText": "متر",
+          "numeric": true
+        },
+        {
+          "key": "streetWidth",
+          "title": "عرض گذر",
+          "input": "number",
+          "leftText": "متر",
+          "numeric": true
+        },
+        {
+          "key": "constructionPermit",
+          "title": "مجوز ساخت",
+          "input": "toggle",
+          "ui": "toggle"
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "landArea",
+        "title": "متراژ زمین",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "single",
+        "id": "participationType",
+        "title": "نوع مشارکت",
+        "icon": "agreement",
+        "options": [
+          "مشارکت در ساخت",
+          "سرمایه گذاری",
+          "معاوضه با ملک",
+          "پیش خرید"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "currentStatus",
+        "title": "وضعیت فعلی ملک",
+        "icon": "settings",
+        "options": [
+          "بنا قدیمی",
+          "زمین خالی",
+          "درحال ساخت",
+          "ساختمان نوساز"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "landPosition",
+        "title": "موقعیت ورودی",
+        "icon": "orientation",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دو ممر",
+          "دونبش",
+          "سه نبش",
+          "چهار نبش"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "documentType",
+        "title": "نوع سند",
+        "icon": "agreement",
+        "options": [
+          "ملکی",
+          "آستانه",
+          "اوقاف",
+          "موقوفه",
+          "قولنامه، وکالت"
+        ]
+      },
+      {
+        "kind": "toggle",
+        "id": "constructionPermit",
+        "title": "مجوز ساخت",
+        "icon": "agreement"
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

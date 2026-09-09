@@ -79,7 +79,7 @@ const editRouteParamsByFormCode: Record<string, EditRouteParams> = {
   "daily-hotel": { category: "daily-hotel-apartment", label: "هتل، اقامتگاه", transaction: "rent" },
   "daily-office-booth": { category: "daily-workspace", label: "دفترکار، غرفه", transaction: "rent" },
   partnership: { category: "project-partnership", label: "مشارکت", transaction: "project" },
-  "presale-special": { category: "project-presale", label: "پروژه", transaction: "project" },
+  "presale-special": { category: "project-presale", label: "پیش فروش، فروش پروژه", transaction: "project" },
   "rent-apartment": { category: "apartment", label: "آپارتمان", transaction: "rent" },
   "rent-commercial": { category: "commercial-unit", label: "تجاری", transaction: "rent" },
   "rent-factory-workshop": { category: "factory-workshop", label: "صنعتی", transaction: "rent" },

@@ -441,8 +441,6 @@ function getDynamicFilterChips(search: string): SearchFilterChip[] {
       isActive: true,
       removable: true,
     });
-  } else {
-    chips.push({ id: "area", label: "متراژ" });
   }
 
   if (params.get("price_min") || params.get("price_max")) {
@@ -452,8 +450,6 @@ function getDynamicFilterChips(search: string): SearchFilterChip[] {
       isActive: true,
       removable: true,
     });
-  } else {
-    chips.push({ id: "price", label: "قیمت" });
   }
 
   if (params.get("rooms")) {
@@ -465,7 +461,12 @@ function getDynamicFilterChips(search: string): SearchFilterChip[] {
   }
 
   if (params.get("building_age")) {
-    chips.push({ id: "building_age", label: `سن ساخت: ${toPersianDigits(params.get("building_age") ?? "")}`, isActive: true, removable: true });
+    chips.push({
+      id: "building_age",
+      label: `سن ساخت: ${toPersianDigits((params.get("building_age") ?? "").split("_").join("، "))}`,
+      isActive: true,
+      removable: true,
+    });
   }
 
   return orderResultHeaderChips(chips);

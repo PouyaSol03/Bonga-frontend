@@ -1,0 +1,532 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "presale-special",
+  "title": "پیش فروش، فروش پروژه",
+  "transaction": "project",
+  "category": "project-presale",
+  "create": {
+    "specsTitle": "مشخصات پیش فروش، فروش پروژه",
+    "basicFields": [
+      {
+        "key": "builderCompanyName",
+        "title": "نام سازنده/شرکت",
+        "input": "text",
+        "ui": "input",
+        "placeholder": "نام شرکت یا سازنده"
+      },
+      {
+        "key": "projectType",
+        "title": "نوع پروژه",
+        "input": "select",
+        "ui": "bottomSheet",
+        "options": [
+          "مسکونی",
+          "تجاری",
+          "اداری"
+        ]
+      },
+      {
+        "key": "projectTotalFloors",
+        "title": "تعداد کل طبقات",
+        "input": "select",
+        "ui": "bottomSheet",
+        "options": [
+          "۱ طبقه",
+          "۲ طبقه",
+          "۳ طبقه",
+          "۴ طبقه",
+          "۵ طبقه",
+          "۶ طبقه",
+          "۷ طبقه",
+          "۸ طبقه و بیشتر"
+        ]
+      },
+      {
+        "key": "projectTotalUnits",
+        "title": "تعداد کل واحد ها",
+        "input": "number",
+        "numeric": true,
+        "placeholder": "مثلا ۲۰"
+      },
+      {
+        "key": "documentType",
+        "title": "سند",
+        "input": "select",
+        "ui": "bottomSheet",
+        "options": [
+          "تک برگ",
+          "منگوله دار",
+          "آستانه",
+          "اوقافی",
+          "موقوفه",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "project",
+      "saleTerms": true,
+      "exchange": true
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "elevator",
+          "label": "آسانسور"
+        },
+        {
+          "id": "parking",
+          "label": "پارکینگ"
+        },
+        {
+          "id": "warehouse",
+          "label": "انباری"
+        },
+        {
+          "id": "terrace",
+          "label": "تراس"
+        },
+        {
+          "id": "yard",
+          "label": "حیاط"
+        },
+        {
+          "id": "iranian",
+          "label": "سرویس ایرانی"
+        },
+        {
+          "id": "western",
+          "label": "سرویس فرنگی"
+        },
+        {
+          "id": "wardrobe",
+          "label": "کمد دیواری"
+        },
+        {
+          "id": "door",
+          "label": "درب ضد سرقت"
+        },
+        {
+          "id": "video",
+          "label": "آیفون تصویری"
+        },
+        {
+          "id": "gas-stove",
+          "label": "گاز رومیزی"
+        },
+        {
+          "id": "hood",
+          "label": "هود"
+        },
+        {
+          "id": "oven",
+          "label": "فر توکار"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "camera",
+          "label": "دوربین امنیتی"
+        },
+        {
+          "id": "bms",
+          "label": "سیستم هوشمند"
+        },
+        {
+          "id": "lobby",
+          "label": "لابی"
+        },
+        {
+          "id": "roof",
+          "label": "روف گاردن"
+        },
+        {
+          "id": "pool",
+          "label": "استخر"
+        },
+        {
+          "id": "jacuzzi",
+          "label": "جکوزی"
+        },
+        {
+          "id": "sauna",
+          "label": "سونا"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "projectStatus",
+          "title": "وضعیت پروژه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "در حال ساخت",
+            "آماده تحویل"
+          ]
+        },
+        {
+          "key": "projectDeliveryDate",
+          "title": "تاریخ تحویل",
+          "input": "date"
+        },
+        {
+          "key": "kitchenType",
+          "title": "نوع آشپزخانه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "اپن",
+            "جزیره",
+            "بسته",
+            "نیمه اپن"
+          ]
+        },
+        {
+          "key": "furnished",
+          "title": "با لوازم و مبله",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
+          "key": "facadeMaterial",
+          "title": "جنس نما",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "سنگ",
+            "آجر",
+            "سیمان",
+            "کامپوزیت",
+            "شیشه",
+            "رومی",
+            "ترکیبی"
+          ]
+        },
+        {
+          "key": "floorMaterial",
+          "title": "جنس کف",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "سرامیک",
+            "سنگ",
+            "پارکت",
+            "لمینت",
+            "موزاییک",
+            "کفپوش"
+          ]
+        },
+        {
+          "key": "cabinetMaterial",
+          "title": "جنس کابینت",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "MDF",
+            "های‌گلاس",
+            "ممبران",
+            "فلزی",
+            "چوبی",
+            "ندارد"
+          ]
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "meterage",
+        "title": "متراژ",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "projectPrice",
+        "title": "قیمت متری",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "single",
+        "id": "projectType",
+        "title": "نوع پروژه",
+        "icon": "building",
+        "options": [
+          "مسکونی",
+          "تجاری",
+          "اداری",
+          "ویلایی",
+          "صنعتی",
+          "زمین"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "projectStatus",
+        "title": "وضعیت پروژه",
+        "icon": "settings",
+        "options": [
+          "گودبرداری",
+          "فونداسیون",
+          "اسکلت",
+          "سفت کاری",
+          "نازک کاری",
+          "تکمیل شده"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 15 مورد دیگر",
+        "options": [
+          {
+            "id": "elevator",
+            "label": "آسانسور"
+          },
+          {
+            "id": "parking",
+            "label": "پارکینگ"
+          },
+          {
+            "id": "warehouse",
+            "label": "انباری"
+          },
+          {
+            "id": "terrace",
+            "label": "تراس"
+          },
+          {
+            "id": "yard",
+            "label": "حیاط"
+          },
+          {
+            "id": "iranian-toilet",
+            "label": "سرویس ایرانی"
+          },
+          {
+            "id": "western-toilet",
+            "label": "سرویس فرنگی"
+          },
+          {
+            "id": "wardrobe",
+            "label": "کمد دیواری"
+          },
+          {
+            "id": "security-door",
+            "label": "درب ضد سرقت"
+          },
+          {
+            "id": "video-intercom",
+            "label": "آیفون تصویری"
+          },
+          {
+            "id": "gas-stove",
+            "label": "گاز رومیزی"
+          },
+          {
+            "id": "hood",
+            "label": "هود"
+          },
+          {
+            "id": "oven",
+            "label": "فرتوکار"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "cctv",
+            "label": "دوربین امنیتی"
+          },
+          {
+            "id": "smart-home",
+            "label": "سیستم هوشمند"
+          },
+          {
+            "id": "lobby",
+            "label": "لابی"
+          },
+          {
+            "id": "roof-garden",
+            "label": "روف گاردن"
+          },
+          {
+            "id": "pool",
+            "label": "استخر"
+          },
+          {
+            "id": "jacuzzi",
+            "label": "جکوزی"
+          },
+          {
+            "id": "sauna",
+            "label": "سونا"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "exchangeWith",
+        "title": "معاوضه با",
+        "icon": "exchange",
+        "options": [
+          "ویلا",
+          "خودرو",
+          "آپارتمان",
+          "خانه ویلایی",
+          "زمین",
+          "دفتر کار / اداری",
+          "مغازه و تجاری",
+          "سایر"
+        ]
+      },
+      {
+        "kind": "toggle",
+        "id": "saleTermsEnabled",
+        "title": "فروش شرایطی"
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

@@ -2,7 +2,7 @@
   width: 100%;
   box-sizing: border-box;
   background: #ffffff;
-  padding: 0 4px 24px;
+  padding: 0 4px 4px;
   direction: rtl;
 }
 
@@ -27,7 +27,6 @@
   margin: 0 !important;
 }
 
-/* بعضی نسخه‌ها این لایه را دارند */
 .jalali-date-sheet .rmdp-top-class {
   width: 100% !important;
   max-width: 100% !important;
@@ -40,9 +39,11 @@
 
 /* Calendar */
 .jalali-date-sheet .rmdp-calendar {
+  position: relative !important;
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
+  min-height: 290px !important;
   display: block !important;
   box-sizing: border-box !important;
   border: 0 !important;
@@ -61,10 +62,9 @@
   display: block !important;
   box-sizing: border-box !important;
   padding: 0 !important;
-  margin: 0 0 10px !important;
+  margin: 0 0 12px !important;
 }
 
-/* لایه داخلی هدر، مشکل اصلی همین بود */
 .jalali-date-sheet .rmdp-header > div {
   width: 100% !important;
   max-width: 100% !important;
@@ -92,20 +92,22 @@
   text-align: center !important;
   color: #1a1a1a !important;
   font-size: 16px !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   line-height: 24px !important;
   padding: 0 !important;
   margin: 0 !important;
   direction: rtl !important;
+  cursor: pointer !important;
 }
 
 .jalali-date-sheet .rmdp-header-values span {
   color: #1a1a1a !important;
   font-size: 16px !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   line-height: 24px !important;
   padding: 0 !important;
   margin: 0 !important;
+  cursor: pointer !important;
 }
 
 /* کانتینر فلش‌ها */
@@ -123,6 +125,7 @@
   margin: 0 !important;
   position: static !important;
   transform: none !important;
+  cursor: pointer !important;
 }
 
 .jalali-date-sheet .rmdp-arrow-container.rmdp-left {
@@ -148,7 +151,6 @@
   margin: 0 !important;
 }
 
-/* جهت فلش‌ها */
 .jalali-date-sheet .rmdp-arrow-container.rmdp-left .rmdp-arrow {
   transform: rotate(135deg) !important;
 }
@@ -179,7 +181,7 @@
   margin: 0 !important;
 }
 
-/* هر ردیف تقویم، ۷ ستون مساوی */
+/* ردیف‌های تقویم */
 .jalali-date-sheet .rmdp-week {
   width: 100% !important;
   max-width: 100% !important;
@@ -195,7 +197,7 @@
 /* عنوان روزهای هفته */
 .jalali-date-sheet .rmdp-week-day {
   width: 100% !important;
-  height: 38px !important;
+  height: 40px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -208,83 +210,176 @@
   margin: 0 !important;
 }
 
-/* سلول هر روز */
-.jalali-date-sheet .rmdp-day {
+/* سلول روز */
+.jalali-date-sheet .rmdp-day-picker .rmdp-day {
   width: 100% !important;
-  height: 42px !important;
+  height: 44px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   box-sizing: border-box !important;
   padding: 0 !important;
   margin: 0 !important;
+  cursor: pointer !important;
 }
 
 /* عدد روزها */
-.jalali-date-sheet .rmdp-day span {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+.jalali-date-sheet .rmdp-day-picker .rmdp-day span {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  display: block !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  line-height: 35px !important;
   box-sizing: border-box !important;
-  border-radius: 999px !important;
-  border: 1px solid transparent !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid transparent !important;
   background: transparent !important;
   box-shadow: none !important;
   color: #1a1a1a !important;
   font-size: 16px !important;
   font-weight: 400 !important;
-  line-height: 24px !important;
   padding: 0 !important;
-  margin: 0 !important;
+  transition: all 0.15s ease-in-out !important;
 }
 
 /* روز امروز */
-.jalali-date-sheet .rmdp-day.rmdp-today span {
+.jalali-date-sheet .rmdp-day-picker .rmdp-day.rmdp-today span {
   background: #ffffff !important;
   color: #0048c4 !important;
-  border-color: #0048c4 !important;
+  border: 1.5px solid #0048c4 !important;
 }
 
 /* روز انتخاب‌شده */
-.jalali-date-sheet .rmdp-day.rmdp-selected span,
-.jalali-date-sheet .rmdp-day.rmdp-selected span:hover {
+.jalali-date-sheet .rmdp-day-picker .rmdp-day.rmdp-selected span,
+.jalali-date-sheet .rmdp-day-picker .rmdp-day.rmdp-selected span:hover {
   background: #0048c4 !important;
   color: #ffffff !important;
   border-color: #0048c4 !important;
   box-shadow: none !important;
 }
 
-/* روزهای غیرفعال یا ماه قبل/بعد */
-.jalali-date-sheet .rmdp-day.rmdp-disabled span,
-.jalali-date-sheet .rmdp-day.rmdp-deactive span {
-  color: #cccccc !important;
+/* روزهای غیرفعال یا خارج از ماه جاری */
+.jalali-date-sheet .rmdp-day-picker .rmdp-day.rmdp-disabled span,
+.jalali-date-sheet .rmdp-day-picker .rmdp-day.rmdp-deactive span {
+  color: #b8b8b8 !important;
   background: transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
 
-/* Hover */
-.jalali-date-sheet
-  .rmdp-day:not(.rmdp-disabled):not(.rmdp-selected)
-  span:hover {
-  background: #ffffff !important;
-  color: #0048c4 !important;
-  border-color: #0048c4 !important;
-  box-shadow: none !important;
-}
-
-/* حذف سایه‌های پیش‌فرض */
-.jalali-date-sheet .rmdp-selected span {
-  box-shadow: none !important;
-}
-
+/* Month and Year Pickers */
 .jalali-date-sheet .rmdp-month-picker,
 .jalali-date-sheet .rmdp-year-picker {
+  display: none !important;
+}
+
+.jalali-date-sheet .rmdp-month-picker[data-active="true"],
+.jalali-date-sheet .rmdp-year-picker[data-active="true"] {
+  position: absolute !important;
+  top: 50px !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-around !important;
+  padding: 8px 0 !important;
+  box-sizing: border-box !important;
+  z-index: 10 !important;
   box-shadow: none !important;
+  border: 0 !important;
+}
+
+.jalali-date-sheet .rmdp-month-picker > div,
+.jalali-date-sheet .rmdp-year-picker > div {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.jalali-date-sheet .rmdp-month-picker .rmdp-ym,
+.jalali-date-sheet .rmdp-year-picker .rmdp-ym {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  height: 52px !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.jalali-date-sheet .rmdp-month-picker .rmdp-day,
+.jalali-date-sheet .rmdp-year-picker .rmdp-day {
+  width: auto !important;
+  flex: 1 !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.jalali-date-sheet .rmdp-month-picker .rmdp-day span {
+  width: auto !important;
+  min-width: 72px !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important;
+  display: block !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  color: #1a1a1a !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 38px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.jalali-date-sheet .rmdp-month-picker .rmdp-day.rmdp-selected span {
+  background: #0048c4 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.jalali-date-sheet .rmdp-year-picker .rmdp-day span {
+  width: auto !important;
+  min-width: 72px !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important;
+  display: block !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  color: #1a1a1a !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 38px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.jalali-date-sheet .rmdp-year-picker .rmdp-day.rmdp-selected span {
+  background: #0048c4 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Deactive / out-of-decade years */
+.jalali-date-sheet .rmdp-year-picker .rmdp-day.rmdp-deactive span,
+.jalali-date-sheet .rmdp-year-picker .rmdp-day.rmdp-disabled span {
+  color: #b8b8b8 !important;
+  background: transparent !important;
 }
 
 /* Actions */
@@ -292,39 +387,48 @@
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 11px;
+  gap: 12px;
   box-sizing: border-box;
-  margin-top: 8px;
+  margin-top: 16px;
   direction: rtl;
 }
 
 /* Buttons */
 .jalali-date-action {
   width: 100%;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid #0048c4;
+  height: 48px;
+  border-radius: 12px;
   box-sizing: border-box;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 24px;
   cursor: pointer;
   outline: none;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease-in-out;
 }
 
 .jalali-date-cancel {
   background: #ffffff;
+  border: 1.5px solid #0048c4;
   color: #0048c4;
+}
+
+.jalali-date-cancel:active {
+  background: #f0f4ff;
 }
 
 .jalali-date-confirm {
   background: #0048c4;
+  border: 1.5px solid #0048c4;
   color: #ffffff;
 }
 
 .jalali-date-confirm:active {
   background: #003ba1;
+  border-color: #003ba1;
 }
 
 .jalali-date-action:disabled {

@@ -16,6 +16,7 @@ import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
 import { ChoiceIndicator } from "../../../../shared/ui/Choice";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
+import LinearCalendar from "../../../../shared/icons/LinearCalendar";
 
 export function MoreFeaturesStep({
   onConfirm,
@@ -117,6 +118,17 @@ export function MoreFeaturesStep({
                 );
               }
 
+              if (field.control === "input") {
+                return (
+                  <InputBox
+                    key={field.key}
+                    onChange={(value) => setDraftField(field.key, value)}
+                    placeholder={field.label}
+                    value={getDraftString(field.key)}
+                  />
+                );
+              }
+
               if (field.control === "number") {
                 return (
                   <InputBox
@@ -166,6 +178,9 @@ export function MoreFeaturesStep({
                 return (
                   <SelectBox
                     key={field.key}
+                    leadingSlot={
+                      <LinearCalendar aria-hidden="true" className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+                    }
                     onClear={() => setDraftField(field.key, "")}
                     onClick={() => setDateField(field.key as MoreFeatureDateKey)}
                     placeholder={field.label}
@@ -201,7 +216,7 @@ export function MoreFeaturesStep({
           if (dateField) setDraftField(dateField, date);
           setDateField(null);
         }}
-        title={dateField === "projectDeliveryDate" ? "تاریخ تحویل" : "تاریخ آماده تحویل"}
+        title={dateField === "projectDeliveryDate" ? "تاریخ آماده تحویل" : "تاریخ تحویل"}
         value={dateField ? getDraftString(dateField) : ""}
       />
 

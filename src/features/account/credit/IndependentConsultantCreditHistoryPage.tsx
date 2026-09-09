@@ -68,7 +68,7 @@ function mapPaymentHistoryItem(item: PaymentHistoryItem): CreditPayment {
     paidAt: formatPaymentDate(item.created_at),
     service: paymentForLabels[item.payment_for] ?? paymentForLabels.unknown,
     status: paymentStatusLabels[item.status] ?? paymentStatusLabels.unknown,
-    statusTone: item.status === "paid" ? "success" : "error",
+    statusTone: item.status === "paid" ? "success" : item.status === "registered" ? "warning" : "error",
   };
 }
 
@@ -152,7 +152,13 @@ function PaymentHistoryCard({
       <PaymentHistoryRow
         label="وضعیت"
         value={payment.status}
-        valueClassName={payment.statusTone === "success" ? "text-[#11a366]" : "text-[#ee3623]"}
+        valueClassName={
+          payment.statusTone === "success"
+            ? "text-[#11a366]"
+            : payment.statusTone === "warning"
+              ? "text-[#ff6d00]"
+              : "text-[#ee3623]"
+        }
       />
       <PaymentHistoryRow label="نوع سرویس" value={payment.service} />
       <PaymentHistoryRow label="هزینه" value={payment.amount} />

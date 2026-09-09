@@ -1,0 +1,583 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "daily-hotel",
+  "title": "اجاره روزانه هتل، اقامتگاه",
+  "transaction": "rent",
+  "category": "daily-hotel-apartment",
+  "create": {
+    "specsTitle": "مشخصات هتل و اقامتگاه",
+    "basicFields": [
+      {
+        "key": "accommodationType",
+        "title": "نوع اقامتگاه",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "هتل",
+          "هتل آپارتمان",
+          "متل",
+          "مسافر خونه"
+        ]
+      },
+      {
+        "key": "hotelStars",
+        "title": "رتبه اقامتگاه",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "۱ ستاره",
+          "۲ ستاره",
+          "۳ ستاره",
+          "۴ ستاره",
+          "۵ ستاره"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "dailyRent"
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "elevator",
+          "label": "آسانسور"
+        },
+        {
+          "id": "parking",
+          "label": "پارکینگ"
+        },
+        {
+          "id": "terrace",
+          "label": "تراس"
+        },
+        {
+          "id": "iranian",
+          "label": "سرویس ایرانی"
+        },
+        {
+          "id": "western",
+          "label": "سرویس فرنگی"
+        },
+        {
+          "id": "lobby",
+          "label": "لابی"
+        },
+        {
+          "id": "roof",
+          "label": "روف گاردن"
+        },
+        {
+          "id": "heated-pool",
+          "label": "استخر آب گرم"
+        },
+        {
+          "id": "outdoor-pool",
+          "label": "استخرروباز"
+        },
+        {
+          "id": "covered-pool",
+          "label": "استخر پوشیده"
+        },
+        {
+          "id": "jacuzzi",
+          "label": "جکوزی"
+        },
+        {
+          "id": "sauna",
+          "label": "سونا"
+        },
+        {
+          "id": "gym",
+          "label": "سالن ورزشی"
+        },
+        {
+          "id": "playground",
+          "label": "زمین بازی"
+        },
+        {
+          "id": "cinema",
+          "label": "سینما"
+        },
+        {
+          "id": "coffee-shop",
+          "label": "کافی شاپ"
+        },
+        {
+          "id": "restaurant",
+          "label": "رستوران"
+        },
+        {
+          "id": "shop",
+          "label": "فروشگاه"
+        },
+        {
+          "id": "gas-stove",
+          "label": "گازرومیزی"
+        },
+        {
+          "id": "hood",
+          "label": "هود"
+        },
+        {
+          "id": "oven",
+          "label": "فرتوکار"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "camera",
+          "label": "دوربین امنیتی"
+        },
+        {
+          "id": "bms",
+          "label": "سیستم هوشمند"
+        },
+        {
+          "id": "internet",
+          "label": "اینترنت پر سرعت"
+        },
+        {
+          "id": "tv",
+          "label": "تلویزیون"
+        },
+        {
+          "id": "audio",
+          "label": "سیستم صوتی"
+        },
+        {
+          "id": "washing-machine",
+          "label": "ماشین لباسشویی"
+        },
+        {
+          "id": "fridge",
+          "label": "یخچال"
+        },
+        {
+          "id": "stove-microwave",
+          "label": "اجاق گاز مایکروفر"
+        },
+        {
+          "id": "cookware",
+          "label": "لوازم آشپزی"
+        },
+        {
+          "id": "clean-linen",
+          "label": "ملحفه و حوله تمیز"
+        },
+        {
+          "id": "hairdryer",
+          "label": "سشوار"
+        },
+        {
+          "id": "iron",
+          "label": "اتو"
+        },
+        {
+          "id": "dishwasher",
+          "label": "ظرفشویی"
+        },
+        {
+          "id": "outdoor-space",
+          "label": "فضا بیرونی"
+        },
+        {
+          "id": "ventilation",
+          "label": "سیستم تهویه مطبوع"
+        },
+        {
+          "id": "coffee-maker",
+          "label": "دستگاه قهوه ساز"
+        },
+        {
+          "id": "security-system",
+          "label": "سیستم امنیتی"
+        },
+        {
+          "id": "workspace",
+          "label": "فضا کار"
+        },
+        {
+          "id": "bedding",
+          "label": "سرویس خواب"
+        },
+        {
+          "id": "bed",
+          "label": "تخت خواب"
+        },
+        {
+          "id": "furniture",
+          "label": "مبلمان"
+        },
+        {
+          "id": "hygiene-pack",
+          "label": "پک بهداشتی"
+        },
+        {
+          "id": "serving-items",
+          "label": "ظروف و لوازم پذیرایی"
+        },
+        {
+          "id": "dining-table",
+          "label": "میزناهار خوری"
+        },
+        {
+          "id": "kitchen",
+          "label": "آشپزخانه"
+        },
+        {
+          "id": "master-room",
+          "label": "اتاق مستر"
+        },
+        {
+          "id": "barbecue",
+          "label": "باربیکیو"
+        },
+        {
+          "id": "gazebo",
+          "label": "آلاچیق"
+        },
+        {
+          "id": "garden",
+          "label": "فضا سبز/باغ"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "rentalPeriod",
+          "title": "دوره اجاره",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "روزانه",
+            "هفتگی",
+            "ماهانه",
+            "نصف روز",
+            "بلند مدت"
+          ]
+        },
+        {
+          "key": "checkInTime",
+          "title": "ساعت ورود",
+          "input": "time",
+          "ui": "bottomSheet"
+        },
+        {
+          "key": "minStayDays",
+          "title": "حداقل مدت اقامت (روز)",
+          "input": "number",
+          "leftText": "روز",
+          "numeric": true
+        },
+        {
+          "key": "checkOutTime",
+          "title": "ساعت خروج",
+          "input": "time",
+          "ui": "bottomSheet"
+        },
+        {
+          "key": "petPolicy",
+          "title": "حیوان خانگی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "مجاز",
+            "غیر مجاز"
+          ]
+        },
+        {
+          "key": "extraPeopleCapacity",
+          "title": "ظرفیت اضافه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵",
+            "۶",
+            "۷",
+            "۸",
+            "۹",
+            "۱۰",
+            "۱۲",
+            "۱۵",
+            "۲۰",
+            "۳۰",
+            "۴۰",
+            "۵۰+"
+          ]
+        },
+        {
+          "key": "floor",
+          "title": "طبقه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "همکف",
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵",
+            "۶",
+            "۷",
+            "۸ و بیشتر"
+          ]
+        },
+        {
+          "key": "evacuationGuarantee",
+          "title": "تضمین تخلیه (تومان)",
+          "input": "number",
+          "ui": "input",
+          "numeric": true,
+          "leftText": "تومان"
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "dailyPrice",
+        "title": "قیمت روزانه",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "single",
+        "id": "accommodationType",
+        "title": "نوع اقامتگاه",
+        "icon": "building",
+        "options": [
+          "هتل",
+          "هتل آپارتمان",
+          "متل",
+          "مسافر خونه"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "hotelStars",
+        "title": "رتبه اقامتگاه",
+        "icon": "star",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 10 مورد دیگر",
+        "options": [
+          {
+            "id": "elevator",
+            "label": "آسانسور"
+          },
+          {
+            "id": "parking",
+            "label": "پارکینگ"
+          },
+          {
+            "id": "terrace",
+            "label": "تراس"
+          },
+          {
+            "id": "iranian-toilet",
+            "label": "سرویس ایرانی"
+          },
+          {
+            "id": "western-toilet",
+            "label": "سرویس فرنگی"
+          },
+          {
+            "id": "lobby",
+            "label": "لابی"
+          },
+          {
+            "id": "roof-garden",
+            "label": "روف گاردن"
+          },
+          {
+            "id": "outdoor-pool",
+            "label": "استخر روباز"
+          },
+          {
+            "id": "indoor-pool",
+            "label": "استخر سرپوشیده"
+          },
+          {
+            "id": "jacuzzi",
+            "label": "جکوزی"
+          },
+          {
+            "id": "sauna",
+            "label": "سونا"
+          },
+          {
+            "id": "gym",
+            "label": "سالن ورزشی"
+          },
+          {
+            "id": "cinema",
+            "label": "سینما"
+          },
+          {
+            "id": "coffee-shop",
+            "label": "کافی شاپ"
+          },
+          {
+            "id": "restaurant",
+            "label": "رستوران"
+          },
+          {
+            "id": "shop",
+            "label": "فروشگاه"
+          }
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

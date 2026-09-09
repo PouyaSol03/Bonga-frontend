@@ -31,6 +31,7 @@ export type AdCardData = {
   imageClassName: string
   imageUrl?: string
   badges: string[]
+  statusBadgeClassName?: string
 }
 
 type AdCardVariant = 'standard' | 'dashboard' | 'requestResult' | 'mapPreview' | 'carousel'
@@ -261,7 +262,7 @@ function AdCardImage({
         </div>
       ) : null}
       {showStatusBadge && ad.status ? (
-        <Typography as="span" variant="label" size="small" weight="medium" className={`absolute left-2 top-2 z-2 inline-flex h-7 items-center rounded-lg py-1.5 px-4 text-xs font-medium ${getStatusBadgeClassName(ad.status)}`}>
+        <Typography as="span" variant="label" size="small" weight="medium" className={`absolute left-2 top-2 z-2 inline-flex h-7 items-center rounded-lg py-1.5 px-4 text-xs font-medium ${ad.statusBadgeClassName ?? getStatusBadgeClassName(ad.status)}`}>
           <Typography as="span" variant="label" size="small" weight="medium" className="">{ad.status}</Typography>
         </Typography>
       ) : null}
@@ -392,34 +393,59 @@ function MapPreviewImages({
 function getStatusBadgeClassName(status: string) {
   const normalizedStatus = status
     .trim()
+    .toLowerCase()
     .replace(/ي/g, 'ی')
     .replace(/ك/g, 'ک')
     .replace(/\u200c/g, ' ')
 
+  // 1. قرمز (رد شده، حذف شده، منقضی شده، غیرفعال) - مطمئن می‌شویم شامل پرداخت نیست
   if (
-    normalizedStatus.includes('رد') ||
-    normalizedStatus.includes('حذف') ||
-    normalizedStatus.includes('انقضا') ||
-    normalizedStatus.includes('منقض') ||
-    normalizedStatus.includes('غیر فعال') ||
-    normalizedStatus.includes('غیرفعال')
+    !normalizedStatus.includes('پرداخت') &&
+    !normalizedStatus.includes('payment') &&
+    (
+      normalizedStatus.includes('رد') ||
+      normalizedStatus.includes('حذف') ||
+      normalizedStatus.includes('انقضا') ||
+      normalizedStatus.includes('منقض') ||
+      normalizedStatus.includes('غیر فعال') ||
+      normalizedStatus.includes('غیرفعال') ||
+      normalizedStatus.includes('reject') ||
+      normalizedStatus.includes('delete') ||
+      normalizedStatus.includes('expire') ||
+      normalizedStatus === '-1' ||
+      normalizedStatus === '-2' ||
+      normalizedStatus === '-3'
+    )
   ) {
     return 'bg-[#FFEBED] text-[#EE3623]'
   }
 
+  // 2. نارنجی (در انتظار پرداخت، در انتظار تایید، بررسی، ویرایش، اصلاح)
   if (
+    normalizedStatus.includes('پرداخت') ||
+    normalizedStatus.includes('payment') ||
     normalizedStatus.includes('انتظار') ||
     normalizedStatus.includes('بررسی') ||
     normalizedStatus.includes('ویرایش') ||
-    normalizedStatus.includes('اصلاح')
+    normalizedStatus.includes('اصلاح') ||
+    normalizedStatus.includes('pending') ||
+    normalizedStatus.includes('wait') ||
+    normalizedStatus === '0' ||
+    normalizedStatus === '1' ||
+    normalizedStatus === '2'
   ) {
     return 'bg-[#FFF8E1] text-[#FF6D00]'
   }
 
+  // 3. سبز (تایید شده، تایید، منتشر شده، فعال)
   if (
     normalizedStatus.includes('منتشر') ||
     normalizedStatus.includes('فعال') ||
-    normalizedStatus.includes('تایید شده')
+    normalizedStatus.includes('تایید') ||
+    normalizedStatus.includes('publish') ||
+    normalizedStatus.includes('approved') ||
+    normalizedStatus === 'accepted' ||
+    normalizedStatus === '3'
   ) {
     return 'bg-[#E6F6ED] text-[#11A366]'
   }

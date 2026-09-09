@@ -1,0 +1,541 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "sale-factory",
+  "title": "فروش واحد صنعتی",
+  "transaction": "sale",
+  "category": "factory-workshop",
+  "create": {
+    "specsTitle": "مشخصات کارخانه و کارگاه",
+    "basicFields": [
+      {
+        "key": "landArea",
+        "title": "متراژ زمین",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۲۰۰۰",
+        "required": true
+      },
+      {
+        "key": "landPosition",
+        "title": "موقعیت زمین",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دوممر",
+          "دونبش",
+          "سه نبش",
+          "چهارنبش"
+        ]
+      },
+      {
+        "key": "age",
+        "title": "سال ساخت",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "نوساز",
+          "۱ سال",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۵ سال",
+          "۶ سال",
+          "۷ سال",
+          "۸ سال",
+          "۹ سال",
+          "۱۰ سال",
+          "۱۱ سال",
+          "۱۲ سال",
+          "۱۳ سال",
+          "۱۴ سال",
+          "۱۵ سال",
+          "۱۶ سال",
+          "۱۷ سال",
+          "۱۸ سال",
+          "۱۹ سال",
+          "۲۰ سال",
+          "بیشتر از ۲۰ سال"
+        ]
+      },
+      {
+        "key": "documentType",
+        "title": "سند",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "تک برگ",
+          "منگوله دار",
+          "آستانه",
+          "اوقافی",
+          "موقوفه",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "sale",
+      "loan": true,
+      "exchange": true
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن‌کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "single-phase-power",
+          "label": "برق تک فاز"
+        },
+        {
+          "id": "three-phase-power",
+          "label": "برق سه فاز"
+        },
+        {
+          "id": "water",
+          "label": "امتیاز آب"
+        },
+        {
+          "id": "gas",
+          "label": "امتیاز گاز"
+        },
+        {
+          "id": "telephone",
+          "label": "امتیاز تلفن"
+        },
+        {
+          "id": "walled",
+          "label": "دور دیوار/حصار"
+        },
+        {
+          "id": "old-building",
+          "label": "بنا کلنگی"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "well",
+          "label": "چاه آب"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "rooms",
+          "title": "تعداد اتاق",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "بدون اتاق",
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵+"
+          ]
+        },
+        {
+          "key": "meterage",
+          "title": "متراژ بنا",
+          "input": "number",
+          "leftText": "متر مربع",
+          "numeric": true
+        },
+        {
+          "key": "ceilingHeight",
+          "title": "ارتفاع سقف",
+          "input": "number",
+          "leftText": "متر",
+          "numeric": true
+        },
+        {
+          "key": "industrialPropertyType",
+          "title": "نوع ملک",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "سوله",
+            "انبار",
+            "کارگاه",
+            "کارخانه",
+            "گلخانه",
+            "گاوداری",
+            "مرغداری"
+          ]
+        },
+        {
+          "key": "accessType",
+          "title": "دست رسی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "جاده آسفالت",
+            "جاده خاکی",
+            "نزدیک بزرگراه"
+          ]
+        },
+        {
+          "key": "currentStatus",
+          "title": "وضعیت فعلی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "تخلیه",
+            "فعال"
+          ]
+        },
+        {
+          "key": "commercialLicense",
+          "title": "مجوز تجاری",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "دائم",
+            "موقت"
+          ]
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "landArea",
+        "title": "متراژ زمین",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "buildingArea",
+        "title": "متراژ بنا",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "price",
+        "title": "قیمت",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "single",
+        "id": "landPosition",
+        "title": "موقعیت زمین",
+        "icon": "orientation",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دوممر",
+          "دونبش",
+          "سه نبش",
+          "چهارنبش"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "age",
+        "title": "سن ساخت",
+        "icon": "year",
+        "options": [
+          "۱ سال",
+          "نوساز",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۱۰ سال",
+          "۱۵ سال",
+          "۲۰ سال",
+          "بیشتر از ۳۰ سال"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "documentType",
+        "title": "نوع سند",
+        "icon": "agreement",
+        "options": [
+          "تک برگ",
+          "منگوله‌دار",
+          "آستانه",
+          "اوقافی",
+          "موقوفه",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "rooms",
+        "title": "تعداد اتاق",
+        "icon": "bed",
+        "options": [
+          "بدون اتاق",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵ و بیشتر"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "industrialPropertyType",
+        "title": "نوع ملک",
+        "icon": "building",
+        "options": [
+          "سوله",
+          "انبار",
+          "کارگاه",
+          "کارخانه",
+          "گلخانه",
+          "گاوداری",
+          "مرغداری"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "accessType",
+        "title": "دسترسی",
+        "icon": "orientation",
+        "options": [
+          "جاده آسفالت",
+          "جاده خاکی",
+          "نزدیک بزرگراه"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "currentStatus",
+        "title": "وضعیت فعلی",
+        "icon": "settings",
+        "options": [
+          "تخلیه",
+          "فعال"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "commercialLicense",
+        "title": "مجوز تجاری",
+        "icon": "agreement",
+        "options": [
+          "دائم",
+          "موقت"
+        ]
+      },
+      {
+        "kind": "loan"
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 3 مورد دیگر",
+        "options": [
+          {
+            "id": "single-phase-power",
+            "label": "برق تک فاز"
+          },
+          {
+            "id": "three-phase-power",
+            "label": "برق سه فاز"
+          },
+          {
+            "id": "water",
+            "label": "امتیاز آب"
+          },
+          {
+            "id": "gas",
+            "label": "امتیاز گاز"
+          },
+          {
+            "id": "telephone",
+            "label": "امتیاز تلفن"
+          },
+          {
+            "id": "walled",
+            "label": "دور دیوار/حصار"
+          },
+          {
+            "id": "old-building",
+            "label": "بنا کلنگی"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "well",
+            "label": "چاه آب"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "exchangeWith",
+        "title": "معاوضه با",
+        "icon": "exchange",
+        "options": [
+          "ویلا",
+          "خودرو",
+          "آپارتمان",
+          "خانه ویلایی",
+          "زمین",
+          "دفتر کار / اداری",
+          "مغازه و تجاری",
+          "سایر"
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

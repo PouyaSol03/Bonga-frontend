@@ -310,6 +310,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
           const cardWithStatus: AdCardData = {
             ...card,
             status: statusInfo.label,
+            statusBadgeClassName: statusInfo.badgeClassName,
           };
 
           return (

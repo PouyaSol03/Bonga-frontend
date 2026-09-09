@@ -1,0 +1,438 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "sale-land",
+  "title": "فروش زمین، ملک کلنگی",
+  "transaction": "sale",
+  "category": "land",
+  "create": {
+    "specsTitle": "مشخصات ملک",
+    "basicFields": [
+      {
+        "key": "meterage",
+        "title": "متراژ زمین",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۳۰۰",
+        "required": true
+      },
+      {
+        "key": "documentType",
+        "title": "سند",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "required": true,
+        "options": [
+          "تک برگ",
+          "منگوله دار",
+          "آستانه",
+          "اوقافی",
+          "موقوفه",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "sale",
+      "loan": true,
+      "exchange": true
+    },
+    "heatingCooling": {
+      "enabled": false
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "power",
+          "label": "امتیاز برق"
+        },
+        {
+          "id": "water",
+          "label": "امتیاز آب"
+        },
+        {
+          "id": "gas",
+          "label": "امتیاز گاز"
+        },
+        {
+          "id": "telephone",
+          "label": "امتیاز تلفن"
+        },
+        {
+          "id": "walled",
+          "label": "دور دیوار/حصار"
+        },
+        {
+          "id": "old-building",
+          "label": "بنا کلنگی"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "well",
+          "label": "چاه آب"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "usageType",
+          "title": "نوع کاربری",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "مسکونی",
+            "اداری",
+            "تجاری",
+            "صنعتی",
+            "کشاورزی",
+            "باغی",
+            "آموزشی",
+            "درمانی",
+            "مذهبی",
+            "ورزشی",
+            "خدماتی",
+            "گردشگری و توریستی",
+            "پارکینگ",
+            "حریم",
+            "فاقد کاربری"
+          ]
+        },
+        {
+          "key": "landPosition",
+          "title": "موقعیت زمین",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "شمالی",
+            "جنوبی",
+            "غربی",
+            "شرقی",
+            "دوممر",
+            "دونبش",
+            "سه نبش",
+            "چهارنبش"
+          ]
+        },
+        {
+          "key": "density",
+          "title": "تراکم زمین",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "کم",
+            "متوسط",
+            "زیاد"
+          ]
+        },
+        {
+          "key": "suitableFor",
+          "title": "مناسب برای",
+          "input": "multiSelect",
+          "ui": "bottomSheet",
+          "options": [
+            "ساخت آپارتمان",
+            "ساخت ویلا",
+            "سرمایه گذاری",
+            "تجمیع با ملک مجاور"
+          ]
+        },
+        {
+          "key": "landWidth",
+          "title": "عرض زمین",
+          "input": "number",
+          "leftText": "متر",
+          "numeric": true
+        },
+        {
+          "key": "streetWidth",
+          "title": "عرض گذر",
+          "input": "number",
+          "leftText": "متر",
+          "numeric": true
+        },
+        {
+          "key": "constructionPermit",
+          "title": "مجوز ساخت",
+          "input": "toggle",
+          "ui": "toggle"
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "landArea",
+        "title": "متراژ زمین",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "landWidth",
+        "title": "عرض زمین",
+        "variant": "number",
+        "unit": "متر",
+        "showUnitInTitle": true,
+        "icon": "houseDimensions"
+      },
+      {
+        "kind": "range",
+        "id": "price",
+        "title": "قیمت",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "single",
+        "id": "documentType",
+        "title": "نوع سند",
+        "icon": "agreement",
+        "options": [
+          "تک برگ",
+          "منگوله‌دار",
+          "آستانه",
+          "اوقافی",
+          "موقوفه",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "usageType",
+        "title": "نوع کاربری",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 10,
+        "moreLabel": "مشاهده ۵ مورد دیگر",
+        "moreIcon": "left",
+        "options": [
+          "مسکونی",
+          "اداری",
+          "تجاری",
+          "صنعتی",
+          "کشاورزی",
+          "باغی",
+          "آموزشی",
+          "درمانی",
+          "مذهبی",
+          "ورزشی",
+          "خدماتی",
+          "گردشگری و توریستی",
+          "پارکینگ",
+          "حریم",
+          "فاقد کاربری"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "landPosition",
+        "title": "موقعیت زمین",
+        "icon": "orientation",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دوممر",
+          "دونبش",
+          "سه نبش",
+          "چهارنبش"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "age",
+        "title": "سن ساخت",
+        "icon": "year",
+        "options": [
+          "۱ سال",
+          "نوساز",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۱۰ سال",
+          "۱۵ سال",
+          "۲۰ سال",
+          "بیشتر از ۳۰ سال"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "density",
+        "title": "تراکم زمین",
+        "icon": "building",
+        "options": [
+          "کم",
+          "متوسط",
+          "زیاد"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "suitableFor",
+        "title": "مناسب برای",
+        "icon": "suitable",
+        "options": [
+          "ساخت آپارتمان",
+          "ساخت ویلا",
+          "سرمایه‌گذاری",
+          "تجمیع با ملک مجاور"
+        ]
+      },
+      {
+        "kind": "toggle",
+        "id": "constructionPermit",
+        "title": "مجوز ساخت",
+        "icon": "agreement"
+      },
+      {
+        "kind": "loan"
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش ۵ مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "options": [
+          {
+            "id": "power",
+            "label": "امتیاز برق"
+          },
+          {
+            "id": "water",
+            "label": "امتیاز آب"
+          },
+          {
+            "id": "gas",
+            "label": "امتیاز گاز"
+          },
+          {
+            "id": "telephone",
+            "label": "امتیاز تلفن"
+          },
+          {
+            "id": "walled",
+            "label": "دور دیوار/حصار"
+          },
+          {
+            "id": "old-building",
+            "label": "بنا کلنگی"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "well",
+            "label": "چاه آب"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "exchangeWith",
+        "title": "معاوضه با",
+        "icon": "exchange",
+        "options": [
+          "ویلا",
+          "خودرو",
+          "آپارتمان",
+          "خانه ویلایی",
+          "زمین",
+          "دفتر کار / اداری",
+          "مغازه و تجاری",
+          "سایر"
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

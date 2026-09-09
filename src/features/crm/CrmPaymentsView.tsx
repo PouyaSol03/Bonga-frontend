@@ -500,7 +500,7 @@ function buildPaymentMetrics(payments: CrmRecord[], total: number) {
     {
       caption: "در صفحه فعلی",
       icon: <ClockIcon />,
-      iconClassName: "bg-[#fff7df] text-[#a06a00]",
+      iconClassName: "bg-[#fff3e8] text-[#ff6d00]",
       label: "در انتظار پرداخت",
       value: formatNumber(pending.length),
     },
@@ -693,7 +693,7 @@ function PaymentStatusBadge({ payment }: { payment: CrmRecord }) {
   const status = readPaymentStatus(payment);
   const config = {
     failed: "bg-[#fff0f0] text-[#cc3342]",
-    pending: "bg-[#fff7df] text-[#a06a00]",
+    pending: "bg-[#fff3e8] text-[#ff6d00]",
     success: "bg-[#ebfaf3] text-[#0b8b55]",
     unknown: "bg-[#f1f3f6] text-[#697587]",
   }[status];

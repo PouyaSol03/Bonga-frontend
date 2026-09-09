@@ -452,6 +452,7 @@ function advertiseStatusLabel(status: unknown) {
 function statusTone(status: unknown) {
   const value = String(status ?? "").trim().toLowerCase();
   if (value === "accepted" || value === "3") return "bg-[#eaf8f1] text-[#087d4b]";
+  if (value === "wait_for_payment" || value === "0") return "bg-[#fff3e8] text-[#ff6d00]";
   if (["needs_edit", "rejected", "deleted", "expired", "-4", "-1", "-2", "-3"].includes(value)) {
     return "bg-[#fff0f1] text-[#c63242]";
   }
@@ -612,10 +613,31 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
   const address = savedAddress || locationTitle || "آدرس ثبت نشده است";
   const description = readText(advertise, ["description", "short_description"], "توضیحی برای این آگهی ثبت نشده است.");
   const adminNote = readText(advertise, ["admin_note"]);
-  const visibleFeatures = features.filter((feature) => {
-    const key = getFeatureKey(feature);
-    return key && !technicalFeatureKeys.has(key) && feature.value !== undefined && feature.value !== null && feature.value !== "";
-  });
+  const visibleFeatures = features
+    .filter((feature) => {
+      const key = getFeatureKey(feature);
+      return key && !technicalFeatureKeys.has(key) && feature.value !== undefined && feature.value !== null && feature.value !== "";
+    })
+    .sort((a, b) => {
+      const order = [
+        "area",
+        "land_area",
+        "building_area",
+        "price",
+        "building_age",
+        "rooms",
+        "floor",
+        "document_type",
+        "land_use",
+        "land_position",
+        "building_type",
+        "villa_type",
+        "heatingCooling",
+        "facilities",
+      ];
+      const index = new Map(order.map((key, position) => [key, position]));
+      return (index.get(getFeatureKey(a)) ?? Number.MAX_SAFE_INTEGER) - (index.get(getFeatureKey(b)) ?? Number.MAX_SAFE_INTEGER);
+    });
 
   return (
     <div className="pb-6" dir="rtl">

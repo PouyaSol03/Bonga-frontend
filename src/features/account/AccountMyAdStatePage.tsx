@@ -549,7 +549,7 @@ function NeedsEditNotice({
 
 function WaitForPaymentNotice() {
   return (
-    <div className="mt-4 rounded-xl bg-[#0048c40d] px-3 py-3 text-sm leading-6 text-[#0048c4]">
+    <div className="mt-4 rounded-xl bg-[#ff6d0014] px-3 py-3 text-sm leading-6 text-[#ff6d00]">
       برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.
     </div>
   );
@@ -570,9 +570,9 @@ function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
 
   if (status === "published") return [preview, edit, remove, upgrade, stats, history];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
-  if (status === "pending") return [preview, edit, remove, history];
+  if (status === "pending" || status === "wait_for_agency" || status === "needs_edit") return [preview, edit, remove, history];
 
-  return [preview, history];
+  return [preview, edit, history];
 }
 
 function StateAdAction({

@@ -13,37 +13,37 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     label: "وضعیت نامشخص",
   },
   published: {
-    badgeClassName: "bg-[#11a36614] text-[#11a366]",
+    badgeClassName: "bg-[#E6F6ED] text-[#11A366]",
     key: "published",
     label: "منتشر شده",
   },
   deleted: {
-    badgeClassName: "bg-[#ee362314] text-[#d22335]",
+    badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
     key: "deleted",
     label: "حذف شده",
   },
   expired: {
-    badgeClassName: "bg-[#ee362314] text-[#ee3623]",
+    badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
     key: "expired",
     label: "منقضی شده",
   },
   wait_for_payment: {
-    badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
+    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
     key: "wait_for_payment",
     label: "در انتظار پرداخت",
   },
   pending: {
-    badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
+    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
     key: "pending",
     label: "در انتظار تایید انتشار",
   },
   wait_for_agency: {
-    badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
+    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
     key: "wait_for_agency",
     label: "در انتظار آژانس",
   },
   needs_edit: {
-    badgeClassName: "bg-[#ff6d0014] text-[#ff6d00]",
+    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
     key: "needs_edit",
     label: "نیازمند ویرایش",
   },
@@ -108,6 +108,22 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.expired;
   }
 
+  if (
+    ["0", "wait-for-payment", "wait_for_payment", "payment"].includes(status) ||
+    (status.includes("پرداخت") && !status.includes("پرداخت شده")) ||
+    status.includes("انتظار پرداخت")
+  ) {
+    return myAdStatusConfig.wait_for_payment;
+  }
+
+  if (["2", "wait-for-agency"].includes(status)) {
+    return myAdStatusConfig.wait_for_agency;
+  }
+
+  if (status.includes("انتظار آژانس") || status.includes("تایید آژانس")) {
+    return myAdStatusConfig.wait_for_agency;
+  }
+
   if (["-4", "-1", "edit", "need-edit", "needs-edit", "rejected", "stopped"].includes(status)) {
     return myAdStatusConfig.needs_edit;
   }
@@ -115,23 +131,13 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
   if (
     status.includes("اصلاح") ||
     status.includes("ویرایش") ||
-    status.includes("رد") ||
+    status.includes("رد شده") ||
+    status.includes("ردشده") ||
+    /(^|\s)رد(\s|$)/.test(status) ||
     status.includes("توقف") ||
     status.includes("مجاز نیست")
   ) {
     return myAdStatusConfig.needs_edit;
-  }
-
-  if (["2", "wait-for-agency"].includes(status)) {
-    return myAdStatusConfig.wait_for_agency;
-  }
-
-  if (status.includes("انتظار آژانس")) {
-    return myAdStatusConfig.wait_for_agency;
-  }
-
-  if (["0", "wait-for-payment"].includes(status) || status.includes("انتظار پرداخت")) {
-    return myAdStatusConfig.wait_for_payment;
   }
 
   if ([

@@ -72,7 +72,7 @@ export const adManagementPropertyTypeLabels: Record<AdManagementPropertyType, st
   "daily-garden-villa": "ویلا، باغ",
   "daily-hotel-apartment": "هتل، اقامتگاه",
   "daily-workspace": "دفترکار، غرفه",
-  "project-presale": "پروژه",
+  "project-presale": "پیش فروش، فروش پروژه",
   "project-partnership": "مشارکت",
 };
 

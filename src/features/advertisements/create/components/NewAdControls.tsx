@@ -21,6 +21,9 @@ import { Typography } from "../../../../shared/ui/Typography";
 import LinearInformation from "../../../../shared/icons/LinearInformation";
 import LinearImage from "../../../../shared/icons/LinearImage";
 import LinearMoney from "../../../../shared/icons/LinearMoney";
+import LinearLocation from "../../../../shared/icons/LinearLocation";
+import LinearTemperature from "../../../../shared/icons/LinearTemperature";
+import LinearSettingBuilding from "../../../../shared/icons/LinearSettingBuilding";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 
 export function Header({
@@ -71,10 +74,16 @@ export function Section({
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          {icon === "image.svg" ? (
+          {icon === "image.svg" || icon === "image" ? (
             <LinearImage className="h-6 w-6 text-on-surface-var" />
-          ) : icon === "money.svg" ? (
+          ) : icon === "money.svg" || icon === "money" ? (
             <LinearMoney className="h-6 w-6 text-on-surface-var" />
+          ) : icon === "location.svg" || icon === "location" ? (
+            <LinearLocation className="h-6 w-6 text-on-surface-var" />
+          ) : icon === "tempreture.svg" || icon === "temperature.svg" || icon === "temperature" ? (
+            <LinearTemperature className="h-6 w-6 text-on-surface-var" />
+          ) : icon === "features.svg" || icon === "facilities" || icon === "settings" ? (
+            <LinearSettingBuilding className="h-6 w-6 text-on-surface-var" />
           ) : (
             <LinearInformation className="h-6 w-6 text-on-surface-var" />
           )}
@@ -173,12 +182,14 @@ export function InputBox({
 
 export function SelectBox({
   error,
+  leadingSlot,
   onClick,
   onClear,
   placeholder,
   value,
 }: {
   error?: string;
+  leadingSlot?: ReactNode;
   onClick: () => void;
   onClear?: () => void;
   placeholder: string;
@@ -187,7 +198,7 @@ export function SelectBox({
   return (
     <SelectField
       error={error}
-      leadingSlot={value && onClear ? <ClearFieldButton onClick={onClear} /> : undefined}
+      leadingSlot={leadingSlot ?? (value && onClear ? <ClearFieldButton onClick={onClear} /> : undefined)}
       onClick={onClick}
       placeholder={placeholder}
       value={value}
@@ -349,22 +360,25 @@ export function MoreButton({
   expanded: boolean;
   onClick: () => void;
 }) {
+  const countLabel = new Intl.NumberFormat("fa-IR").format(count);
+
   return (
     <Button unstyled
       className="mx-auto mt-4 flex items-center justify-center gap-1.5 rounded-full py-2.5 !text-sm !font-medium leading-5 text-[#0048C4] active:bg-[#0048c40f]"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="label" size="medium">
-        {expanded ? "نمایش کمتر" : `نمایش ${count} مورد بیشتر`}
+      <Typography as="span" variant="label" size="medium" className="text-[#0048c4]" style={{ color: "#0048c4" }}>
+        {expanded ? "مشاهده کمتر" : `مشاهده ${countLabel} مورد بیشتر`}
       </Typography>
 
       <motion.div
         animate={{ rotate: expanded ? 180 : 0 }}
         transition={{ duration: 0.24, ease: "easeInOut" }}
-        className="inline-flex items-center justify-center shrink-0"
+        className="inline-flex items-center justify-center shrink-0 text-[#0048c4]"
+        style={{ color: "#0048c4" }}
       >
-        <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0" />
+        <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0 text-[#0048c4]" style={{ color: "#0048c4" }} />
       </motion.div>
     </Button>
   );

@@ -1,0 +1,705 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "daily-garden-villa",
+  "title": "اجاره روزانه ویلا، باغ",
+  "transaction": "rent",
+  "category": "daily-garden-villa",
+  "create": {
+    "specsTitle": "مشخصات ویلا",
+    "basicFields": [
+      {
+        "key": "landArea",
+        "title": "متراژ زمین",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۵۰۰",
+        "required": true
+      },
+      {
+        "key": "buildingArea",
+        "title": "متراژ بنا",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۱۲۰",
+        "required": true
+      },
+      {
+        "key": "rooms",
+        "title": "تعداد اتاق",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "required": true,
+        "options": [
+          "بدون اتاق",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵+"
+        ]
+      },
+      {
+        "key": "standardCapacity",
+        "title": "ظرفیت استاندارد",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸",
+          "۹",
+          "۱۰",
+          "۱۲",
+          "۱۵",
+          "۲۰",
+          "۳۰",
+          "۴۰",
+          "۵۰+"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "dailyRent"
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "elevator",
+          "label": "آسانسور"
+        },
+        {
+          "id": "parking",
+          "label": "پارکینگ"
+        },
+        {
+          "id": "warehouse",
+          "label": "انباری"
+        },
+        {
+          "id": "terrace",
+          "label": "تراس"
+        },
+        {
+          "id": "yard",
+          "label": "حیاط"
+        },
+        {
+          "id": "iranian",
+          "label": "سرویس ایرانی"
+        },
+        {
+          "id": "western",
+          "label": "سرویس فرنگی"
+        },
+        {
+          "id": "door",
+          "label": "درب ضد سرقت"
+        },
+        {
+          "id": "video",
+          "label": "آیفون تصویری"
+        },
+        {
+          "id": "gas-stove",
+          "label": "گاز رومیزی"
+        },
+        {
+          "id": "hood",
+          "label": "هود"
+        },
+        {
+          "id": "oven",
+          "label": "فرتوکار"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "camera",
+          "label": "دوربین امنیتی"
+        },
+        {
+          "id": "bms",
+          "label": "سیستم هوشمند"
+        },
+        {
+          "id": "lobby",
+          "label": "لابی"
+        },
+        {
+          "id": "roof",
+          "label": "روف گاردن"
+        },
+        {
+          "id": "heated-pool",
+          "label": "استخر آب گرم"
+        },
+        {
+          "id": "outdoor-pool",
+          "label": "استخرروباز"
+        },
+        {
+          "id": "covered-pool",
+          "label": "استخر پوشیده"
+        },
+        {
+          "id": "jacuzzi",
+          "label": "جکوزی"
+        },
+        {
+          "id": "sauna",
+          "label": "سونا"
+        },
+        {
+          "id": "gym",
+          "label": "سالن ورزشی"
+        },
+        {
+          "id": "playground",
+          "label": "زمین بازی"
+        },
+        {
+          "id": "internet",
+          "label": "اینترنت پر سرعت"
+        },
+        {
+          "id": "tv",
+          "label": "تلویزیون"
+        },
+        {
+          "id": "audio",
+          "label": "سیستم صوتی"
+        },
+        {
+          "id": "washing-machine",
+          "label": "ماشین لباسشویی"
+        },
+        {
+          "id": "fridge",
+          "label": "یخچال"
+        },
+        {
+          "id": "stove-microwave",
+          "label": "اجاق گاز مایکروفر"
+        },
+        {
+          "id": "hall",
+          "label": "سالن"
+        },
+        {
+          "id": "cookware",
+          "label": "لوازم آشپزی"
+        },
+        {
+          "id": "clean-linen",
+          "label": "ملحفه و حوله تمیز"
+        },
+        {
+          "id": "hairdryer",
+          "label": "سشوار"
+        },
+        {
+          "id": "iron",
+          "label": "اتو"
+        },
+        {
+          "id": "dishwasher",
+          "label": "ظرفشویی"
+        },
+        {
+          "id": "outdoor-space",
+          "label": "فضا بیرونی"
+        },
+        {
+          "id": "ventilation",
+          "label": "سیستم تهویه مطبوع"
+        },
+        {
+          "id": "coffee-maker",
+          "label": "دستگاه قهوه ساز"
+        },
+        {
+          "id": "security-system",
+          "label": "سیستم امنیتی"
+        },
+        {
+          "id": "workspace",
+          "label": "فضا کار"
+        },
+        {
+          "id": "balcony",
+          "label": "بالکن"
+        },
+        {
+          "id": "service",
+          "label": "سرویس"
+        },
+        {
+          "id": "bedding",
+          "label": "سرویس خواب"
+        },
+        {
+          "id": "bed",
+          "label": "تخت خواب"
+        },
+        {
+          "id": "furniture",
+          "label": "مبلمان"
+        },
+        {
+          "id": "hygiene-pack",
+          "label": "پک بهداشتی"
+        },
+        {
+          "id": "serving-items",
+          "label": "ظروف و لوازم پذیرایی"
+        },
+        {
+          "id": "dining-table",
+          "label": "میزناهار خوری"
+        },
+        {
+          "id": "kitchen",
+          "label": "آشپزخانه"
+        },
+        {
+          "id": "master-room",
+          "label": "اتاق مستر"
+        },
+        {
+          "id": "barbecue",
+          "label": "باربیکیو"
+        },
+        {
+          "id": "gazebo",
+          "label": "آلاچیق"
+        },
+        {
+          "id": "garden",
+          "label": "فضا سبز/باغ"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "extraPeopleCapacity",
+          "title": "ظرفیت اضافه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵",
+            "۶",
+            "۷",
+            "۸",
+            "۹",
+            "۱۰",
+            "۱۲",
+            "۱۵",
+            "۲۰",
+            "۳۰",
+            "۴۰",
+            "۵۰+"
+          ]
+        },
+        {
+          "key": "viewType",
+          "title": "چشم انداز",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "جنگلی",
+            "کوهستان",
+            "دریا",
+            "رودخانه",
+            "شهر",
+            "دشت",
+            "باغ",
+            "بیابان"
+          ]
+        },
+        {
+          "key": "villaType",
+          "title": "تیپ بنا",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "فلت",
+            "تک طبقه",
+            "دوبلکس",
+            "تریبلکس",
+            "خونه باغ"
+          ]
+        },
+        {
+          "key": "rentalPeriod",
+          "title": "دوره اجاره",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "روزانه",
+            "هفتگی",
+            "ماهانه",
+            "نصف روز",
+            "بلند مدت"
+          ]
+        },
+        {
+          "key": "checkInTime",
+          "title": "ساعت ورود",
+          "input": "time",
+          "ui": "bottomSheet"
+        },
+        {
+          "key": "checkOutTime",
+          "title": "ساعت خروج",
+          "input": "time",
+          "ui": "bottomSheet"
+        },
+        {
+          "key": "minStayDays",
+          "title": "حداقل مدت اقامت (روز)",
+          "input": "number",
+          "leftText": "روز",
+          "numeric": true
+        },
+        {
+          "key": "evacuationGuarantee",
+          "title": "تضمین تخلیه (تومان)",
+          "input": "currency",
+          "leftText": "تومان",
+          "numeric": true
+        },
+        {
+          "key": "petPolicy",
+          "title": "حیوان خانگی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "مجاز",
+            "غیر مجاز"
+          ]
+        },
+        {
+          "key": "furnished",
+          "title": "با لوازم و مبله",
+          "input": "toggle",
+          "ui": "toggle"
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "landArea",
+        "title": "متراژ زمین",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "buildingArea",
+        "title": "متراژ بنا",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "dailyPrice",
+        "title": "قیمت روزانه",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "multi",
+        "id": "rooms",
+        "title": "تعداد اتاق",
+        "icon": "bed",
+        "options": [
+          "بدون اتاق",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵ و بیشتر"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "standardCapacity",
+        "title": "ظرفیت استاندارد",
+        "icon": "unitBed",
+        "options": [
+          "۱ نفر",
+          "۲ نفر",
+          "۳ نفر",
+          "۴ نفر",
+          "۵ نفر",
+          "۶ نفر",
+          "۷ نفر",
+          "۸ نفر",
+          "۹ نفر",
+          "۱۰ نفر",
+          "۱۲ نفر",
+          "۱۵ نفر",
+          "۲۰ نفر",
+          "۳۰ نفر",
+          "۴۰ نفر",
+          "۵۰+ نفر"
+        ],
+        "more": true,
+        "moreLimit": 5,
+        "moreLabel": "مشاهده همه ظرفیتها",
+        "moreIcon": "left"
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 17 مورد دیگر",
+        "options": [
+          {
+            "id": "elevator",
+            "label": "آسانسور"
+          },
+          {
+            "id": "parking",
+            "label": "پارکینگ"
+          },
+          {
+            "id": "warehouse",
+            "label": "انباری"
+          },
+          {
+            "id": "terrace",
+            "label": "تراس"
+          },
+          {
+            "id": "yard",
+            "label": "حیاط"
+          },
+          {
+            "id": "iranian-toilet",
+            "label": "سرویس ایرانی"
+          },
+          {
+            "id": "western-toilet",
+            "label": "سرویس فرنگی"
+          },
+          {
+            "id": "wardrobe",
+            "label": "کمد دیواری"
+          },
+          {
+            "id": "security-door",
+            "label": "درب ضد سرقت"
+          },
+          {
+            "id": "video-intercom",
+            "label": "آیفون تصویری"
+          },
+          {
+            "id": "gas-stove",
+            "label": "گاز رومیزی"
+          },
+          {
+            "id": "hood",
+            "label": "هود"
+          },
+          {
+            "id": "oven",
+            "label": "فرتوکار"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "cctv",
+            "label": "دوربین امنیتی"
+          },
+          {
+            "id": "smart-home",
+            "label": "سیستم هوشمند"
+          },
+          {
+            "id": "lobby",
+            "label": "لابی"
+          },
+          {
+            "id": "roof-garden",
+            "label": "روف گاردن"
+          },
+          {
+            "id": "pool",
+            "label": "استخر"
+          },
+          {
+            "id": "jacuzzi",
+            "label": "جکوزی"
+          },
+          {
+            "id": "sauna",
+            "label": "سونا"
+          },
+          {
+            "id": "gym",
+            "label": "سالن ورزشی"
+          },
+          {
+            "id": "playground",
+            "label": "زمین بازی"
+          }
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

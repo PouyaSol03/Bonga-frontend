@@ -149,18 +149,21 @@ export type MoreFeatureToggleKey =
   | "separateEntrance"
   | "hasDocument";
 
+export type MoreFeatureInputKey = "builderCompanyName";
+
 export type MoreFeatureFormKey =
   | MoreFeatureSelectKey
   | MoreFeatureMultiSelectKey
   | MoreFeatureNumberKey
   | MoreFeatureDateKey
   | MoreFeatureTimeKey
-  | MoreFeatureToggleKey;
+  | MoreFeatureToggleKey
+  | MoreFeatureInputKey;
 
 export type MoreFeatureField = {
   key: MoreFeatureFormKey;
   label: string;
-  control: "select" | "multiSelect" | "number" | "date" | "time" | "toggle";
+  control: "select" | "multiSelect" | "number" | "date" | "time" | "toggle" | "input";
   leftText?: string;
   options?: string[];
 };

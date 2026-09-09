@@ -1653,7 +1653,7 @@ export function StatusBadge({ status }: { status: unknown }) {
   const tone = key === "accepted" || key === "3"
     ? "bg-[#ebfaf3] text-[#0b8b55]"
     : key === "wait_for_payment" || key === "0"
-      ? "bg-[#eef4ff] text-[#0048c4]"
+      ? "bg-[#fff3e8] text-[#ff6d00]"
       : key === "wait_for_admin" || key === "wait_for_agency" || key === "1" || key === "2"
         ? "bg-[#fff7df] text-[#a06a00]"
         : "bg-[#fff0f0] text-[#cc3342]";

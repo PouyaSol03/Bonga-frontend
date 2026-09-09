@@ -1,5 +1,5 @@
 import type { NewAdFieldErrors, NewAdFormValues } from "../../types";
-import { InputBox, Toggle } from "../../components/NewAdControls";
+import { CompactToggle, InputBox } from "../../components/NewAdControls";
 
 type ProjectSaleTermsFieldsProps = {
   errors?: NewAdFieldErrors;
@@ -17,7 +17,7 @@ export function ProjectSaleTermsFields({
 }: ProjectSaleTermsFieldsProps) {
   return (
     <>
-      <Toggle
+      <CompactToggle
         checked={values.saleTermsEnabled}
         label="شرایط فروش"
         onChange={(checked) => setField("saleTermsEnabled", checked)}

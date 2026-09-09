@@ -45,7 +45,15 @@ export type IconName =
   | "warehouse"
   | "waterCooler"
   | "waterHeater"
-  | "yard";
+  | "yard"
+  | "agreement"
+  | "houseDimensions"
+  | "suitable"
+  | "typeBuilding"
+  | "city02"
+  | "temperature"
+  | "year"
+  | "settings";
 
 export type DetailItem = {
   icon: IconName;

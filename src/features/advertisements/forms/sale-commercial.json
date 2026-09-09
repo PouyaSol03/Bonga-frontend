@@ -1,0 +1,690 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "sale-commercial",
+  "title": "فروش واحد تجاری",
+  "transaction": "sale",
+  "category": "commercial-unit",
+  "create": {
+    "specsTitle": "مشخصات تجاری",
+    "basicFields": [
+      {
+        "key": "meterage",
+        "title": "متراژ",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۴۰",
+        "required": true
+      },
+      {
+        "key": "commercialPosition",
+        "title": "موقعیت تجاری",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "برخیابان اصلی",
+          "داخل پاساژ",
+          "داخل کوچه",
+          "بازار محله",
+          "غرفه"
+        ]
+      },
+      {
+        "key": "documentType",
+        "title": "سند",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "تک برگ",
+          "منگوله دار",
+          "سرقفلی",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      },
+      {
+        "key": "ownershipStatus",
+        "title": "وضعیت مالکیت",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "مالکیت کامل",
+          "فقط سرقفلی",
+          "فقط مالکیت",
+          "مالکیت مشترک"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "sale",
+      "loan": true,
+      "exchange": true
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن‌کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "elevator",
+          "label": "آسانسور"
+        },
+        {
+          "id": "parking",
+          "label": "پارکینگ"
+        },
+        {
+          "id": "warehouse",
+          "label": "انباری"
+        },
+        {
+          "id": "terrace",
+          "label": "تراس"
+        },
+        {
+          "id": "iranian-toilet",
+          "label": "سرویس ایرانی"
+        },
+        {
+          "id": "western-toilet",
+          "label": "سرویس فرنگی"
+        },
+        {
+          "id": "security-door",
+          "label": "درب ضد سرقت"
+        },
+        {
+          "id": "video-intercom",
+          "label": "آیفون تصویری"
+        },
+        {
+          "id": "guard",
+          "label": "نگهبانی"
+        },
+        {
+          "id": "cctv",
+          "label": "دوربین امنیتی"
+        },
+        {
+          "id": "smart-home",
+          "label": "سیستم هوشمند"
+        },
+        {
+          "id": "yard",
+          "label": "حیاط"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "age",
+          "title": "سال ساخت",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "نوساز",
+            "۱ سال",
+            "۲ سال",
+            "۳ سال",
+            "۴ سال",
+            "۵ سال",
+            "۶ سال",
+            "۷ سال",
+            "۸ سال",
+            "۹ سال",
+            "۱۰ سال",
+            "۱۱ سال",
+            "۱۲ سال",
+            "۱۳ سال",
+            "۱۴ سال",
+            "۱۵ سال",
+            "۱۶ سال",
+            "۱۷ سال",
+            "۱۸ سال",
+            "۱۹ سال",
+            "۲۰ سال",
+            "بیشتر از ۲۰ سال"
+          ]
+        },
+        {
+          "key": "floor",
+          "title": "طبقه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "همکف",
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵",
+            "۶",
+            "۷",
+            "۸ و بیشتر"
+          ]
+        },
+        {
+          "key": "totalFloors",
+          "title": "تعداد کل طبقات",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "۱ طبقه",
+            "۲ طبقه",
+            "۳ طبقه",
+            "۴ طبقه",
+            "۵ طبقه",
+            "۶ طبقه",
+            "۷ طبقه",
+            "۸ طبقه و بیشتر"
+          ]
+        },
+        {
+          "key": "rooms",
+          "title": "تعداد اتاق",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "بدون اتاق",
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵+"
+          ]
+        },
+        {
+          "key": "suitableFor",
+          "title": "مناسب برای",
+          "input": "multiSelect",
+          "ui": "bottomSheet",
+          "options": [
+            "فروشگاه",
+            "تجاری",
+            "خدماتی",
+            "اداری",
+            "صنعتی",
+            "آموزشی",
+            "درمانی",
+            "انباری",
+            "همه مشاغل"
+          ]
+        },
+        {
+          "key": "commercialLicense",
+          "title": "مجوز تجاری",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "دائم",
+            "موقت"
+          ]
+        },
+        {
+          "key": "currentStatus",
+          "title": "وضعیت فعلی",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "تخلیه",
+            "فعال"
+          ]
+        },
+        {
+          "key": "openingCount",
+          "title": "تعداد دهنه",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵",
+            "۶",
+            "۷",
+            "۸",
+            "۹",
+            "۱۰",
+            "۱۱",
+            "۱۲",
+            "۱۳",
+            "۱۴",
+            "۱۵",
+            "۱۶",
+            "۱۷",
+            "۱۸",
+            "۱۹",
+            "۲۰"
+          ]
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "meterage",
+        "title": "متراژ",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "price",
+        "title": "قیمت",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "single",
+        "id": "documentType",
+        "title": "نوع سند",
+        "icon": "agreement",
+        "options": [
+          "تک برگ",
+          "منگوله دار",
+          "سرقفلی",
+          "وکالت محضری",
+          "قولنامه",
+          "مشاع",
+          "در دست اقدام",
+          "آماده انتقال"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "commercialPosition",
+        "title": "موقعیت تجاری",
+        "icon": "orientation",
+        "options": [
+          "بر خیابان اصلی",
+          "داخل پاساژ",
+          "داخل کوچه",
+          "غرفه",
+          "مالکیت مشترک",
+          "بازار محله"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "ownershipStatus",
+        "title": "وضعیت مالکیت",
+        "icon": "settings",
+        "options": [
+          "مالکیت کامل",
+          "فقط سرقفلی",
+          "فقط مالکیت",
+          "مالکیت مشترک"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "age",
+        "title": "سن ساخت",
+        "icon": "year",
+        "options": [
+          "۱ سال",
+          "نوساز",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۱۰ سال",
+          "۱۵ سال",
+          "۲۰ سال",
+          "بیشتر از ۳۰ سال"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "floor",
+        "title": "طبقه",
+        "icon": "floor",
+        "options": [
+          "همکف",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
+        ],
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "مشاهده همه طبقات",
+        "moreIcon": "left"
+      },
+      {
+        "kind": "single",
+        "id": "totalFloors",
+        "title": "تعداد کل طبقات",
+        "icon": "floor",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
+        ],
+        "more": true,
+        "moreLimit": 7,
+        "moreLabel": "مشاهده همه طبقات",
+        "moreIcon": "left"
+      },
+      {
+        "kind": "multi",
+        "id": "rooms",
+        "title": "تعداد اتاق",
+        "icon": "bed",
+        "options": [
+          "بدون اتاق",
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵ و بیشتر"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "suitableFor",
+        "title": "مناسب برای",
+        "icon": "suitable",
+        "options": [
+          "پوشاک",
+          "متفرقه",
+          "کترینگ",
+          "ابزار آلات",
+          "آشپزخانه",
+          "کیف و کفش",
+          "سوپر مارکت",
+          "موبایل و لوازم جانبی",
+          "لوازم خانگی",
+          "طلا و جواهر",
+          "ساعت",
+          "عطر و ادکلن",
+          "آرایشی و بهداشتی",
+          "داروخانه",
+          "تجهیزات پزشکی",
+          "عینک",
+          "کتاب و لوازم تحریر",
+          "اسباب بازی",
+          "لوازم ورزشی",
+          "دوچرخه و موتورسیکلت",
+          "قطعات خودرو",
+          "لوازم یدکی",
+          "خدمات خودرو",
+          "رستوران",
+          "کافه",
+          "فست فود",
+          "نانوایی",
+          "قنادی",
+          "میوه و تره بار",
+          "پروتئینی",
+          "لبنیات",
+          "خشکبار",
+          "گل فروشی",
+          "مبلمان",
+          "فرش و موکت",
+          "دکوراسیون",
+          "پرده",
+          "روشنایی",
+          "الکتریکی",
+          "تاسیسات",
+          "مصالح ساختمانی",
+          "ابزارآلات صنعتی",
+          "چاپ و تبلیغات",
+          "آتلیه",
+          "سالن زیبایی",
+          "خیاطی",
+          "آموزشگاه",
+          "دفتر خدماتی",
+          "بیمه",
+          "بانک و موسسه مالی",
+          "املاک",
+          "وکلا",
+          "مطب"
+        ],
+        "more": true,
+        "moreLimit": 7,
+        "moreLabel": "مشاهده ۴۶ مورد دیگر",
+        "moreIcon": "left"
+      },
+      {
+        "kind": "single",
+        "id": "commercialLicense",
+        "title": "مجوز تجاری",
+        "icon": "agreement",
+        "options": [
+          "دائم",
+          "موقت"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "currentStatus",
+        "title": "وضعیت فعلی",
+        "icon": "settings",
+        "options": [
+          "تخلیه",
+          "فعال"
+        ]
+      },
+      {
+        "kind": "loan"
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 6 مورد دیگر",
+        "options": [
+          {
+            "id": "elevator",
+            "label": "آسانسور"
+          },
+          {
+            "id": "parking",
+            "label": "پارکینگ"
+          },
+          {
+            "id": "warehouse",
+            "label": "انباری"
+          },
+          {
+            "id": "terrace",
+            "label": "تراس"
+          },
+          {
+            "id": "iranian-toilet",
+            "label": "سرویس ایرانی"
+          },
+          {
+            "id": "western-toilet",
+            "label": "سرویس فرنگی"
+          },
+          {
+            "id": "security-door",
+            "label": "درب ضد سرقت"
+          },
+          {
+            "id": "video-intercom",
+            "label": "آیفون تصویری"
+          },
+          {
+            "id": "guard",
+            "label": "نگهبانی"
+          },
+          {
+            "id": "cctv",
+            "label": "دوربین امنیتی"
+          },
+          {
+            "id": "smart-home",
+            "label": "سیستم هوشمند"
+          },
+          {
+            "id": "yard",
+            "label": "حیاط"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "exchangeWith",
+        "title": "معاوضه با",
+        "icon": "exchange",
+        "options": [
+          "ویلا",
+          "خودرو",
+          "آپارتمان",
+          "خانه ویلایی",
+          "زمین",
+          "دفتر کار / اداری",
+          "مغازه و تجاری",
+          "سایر"
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

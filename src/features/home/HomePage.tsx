@@ -24,6 +24,7 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { pushRoute } from "../../shared/navigation/navigation";
 import { SEO } from "../../shared/components/SEO";
+import { useCitySearchQuery } from "../cities/api/city.hooks";
 
 const UnreadNotificationBadge = lazy(() =>
   import("../notifications/components/UnreadNotificationBadge").then((module) => ({
@@ -40,6 +41,12 @@ const CategoryBottomSheet = lazy(() =>
 const HomeSearchScreen = lazy(() =>
   import("./components/HomeSearchScreen").then((module) => ({
     default: module.HomeSearchScreen,
+  })),
+);
+
+const CitySelectionScreen = lazy(() =>
+  import("./components/CitySelectionScreen").then((module) => ({
+    default: module.CitySelectionScreen,
   })),
 );
 
@@ -160,11 +167,26 @@ export function HomePage() {
     null,
   );
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCityOpen, setIsCityOpen] = useState(false);
   const [hasLoadedCategorySheet, setHasLoadedCategorySheet] = useState(false);
   const [hasLoadedSearchScreen, setHasLoadedSearchScreen] = useState(false);
-  const [selectedCity] = useState(getStoredCity);
+  const [hasLoadedCityScreen, setHasLoadedCityScreen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState(getStoredCity);
+  const { data: apiCities } = useCitySearchQuery({ enabled: true, q: "" });
+  const shouldHideCitySelector = apiCities !== undefined && apiCities.length <= 1;
   const quickActions = defaultQuickActions;
   const isCategorySheetOpen = selectedCategory !== null;
+
+  useEffect(() => {
+    if (apiCities && apiCities.length === 1) {
+      const singleCity = apiCities[0];
+      const cityId = String(singleCity.id ?? singleCity.code ?? "");
+      const cityName = singleCity.name ?? "";
+      if (cityName && selectedCity.name !== cityName) {
+        setSelectedCity({ id: cityId, name: cityName });
+      }
+    }
+  }, [apiCities, selectedCity.name]);
 
   useEffect(() => {
     if (isCategorySheetOpen) setHasLoadedCategorySheet(true);
@@ -173,6 +195,10 @@ export function HomePage() {
   useEffect(() => {
     if (isSearchOpen) setHasLoadedSearchScreen(true);
   }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (isCityOpen) setHasLoadedCityScreen(true);
+  }, [isCityOpen]);
 
   const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
@@ -252,14 +278,16 @@ export function HomePage() {
               ) : null}
             </Button>
 
-            <Button unstyled
-              className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4]"
-              type="button"
-              onClick={() => pushRoute("/?city=1")}
-            >
-              <ArrowDown size={20} />
-              <Typography as="span" variant="body" size="medium" weight="regular">{selectedCity.name}</Typography>
-            </Button>
+            {!shouldHideCitySelector ? (
+              <Button unstyled
+                className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4]"
+                type="button"
+                onClick={() => setIsCityOpen(true)}
+              >
+                <ArrowDown size={20} />
+                <Typography as="span" variant="body" size="medium" weight="regular">{selectedCity.name}</Typography>
+              </Button>
+            ) : null}
           </div>
 
           <div
@@ -372,6 +400,21 @@ export function HomePage() {
                 query: item.title,
               })
             }
+          />
+        </Suspense>
+      ) : null}
+
+      {hasLoadedCityScreen || isCityOpen ? (
+        <Suspense fallback={null}>
+          <CitySelectionScreen
+            currentCity={selectedCity.name}
+            isOpen={isCityOpen}
+            onClose={() => setIsCityOpen(false)}
+            onConfirm={(city) => {
+              setSelectedCity(city);
+              window.sessionStorage.setItem("bonga-selected-city", city.name);
+              setIsCityOpen(false);
+            }}
           />
         </Suspense>
       ) : null}

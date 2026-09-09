@@ -44,11 +44,25 @@ import {
   propertySpecs,
   subNeighborhoodIdKey,
 } from "./data";
-import type { ChipItem, MoreFeaturesFormValues, NewAdFormValues } from "./types";
+import type { BasicPropertyField, BasicPropertyFieldKey, ChipItem, MoreFeatureField, MoreFeatureFormKey, MoreFeaturesFormValues, NewAdFormValues } from "./types";
 import { clearNewAdFlowSession } from "./session";
+import { getFormSchemaByListing } from "../forms";
 
-export function getBasicPropertyFields() {
+export function getBasicPropertyFields(): BasicPropertyField[] {
   const { transaction, category } = getParams();
+  const schema = getFormSchemaByListing(transaction, category);
+  if (schema?.create?.basicFields) {
+    return schema.create.basicFields.map((field) => ({
+      key: field.key as BasicPropertyFieldKey,
+      label: field.title,
+      control: field.input === "multiSelect" ? "multiSelect" : (field.input === "select" || field.ui === "bottomSheet") ? "select" : "input",
+      numeric: field.numeric,
+      required: field.required,
+      leftText: field.leftText,
+      options: field.options,
+    }));
+  }
+
   const listingKey = `${transaction}:${category}`;
 
   return (
@@ -57,8 +71,19 @@ export function getBasicPropertyFields() {
   );
 }
 
-export function getMoreFeatureFields() {
+export function getMoreFeatureFields(): MoreFeatureField[] {
   const { transaction, category } = getParams();
+  const schema = getFormSchemaByListing(transaction, category);
+  if (schema?.create?.moreFeatures?.fields) {
+    return schema.create.moreFeatures.fields.map((field) => ({
+      key: field.key as MoreFeatureFormKey,
+      label: field.title,
+      control: field.input === "toggle" || field.ui === "toggle" ? "toggle" : field.input === "time" ? "time" : field.input === "date" ? "date" : field.input === "number" ? "number" : field.input === "multiSelect" ? "multiSelect" : "select",
+      options: field.options,
+      leftText: field.leftText,
+    }));
+  }
+
   const listingKey = `${transaction}:${category}`;
 
   return (
@@ -70,6 +95,7 @@ export function getMoreFeatureFields() {
 
 export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValues {
   return {
+    builderCompanyName: values.builderCompanyName,
     age: values.age,
     buildingArea: values.buildingArea,
     floor: values.floor,

@@ -18,8 +18,6 @@ import LinearCalendar from "../../../shared/icons/LinearCalendar";
 import LinearCeramic from "../../../shared/icons/LinearCeramic";
 import LinearChat from "../../../shared/icons/LinearChat";
 import LinearCooler from "../../../shared/icons/LinearCooler";
-import LinearDimensions from "../../../shared/icons/LinearDimensions";
-import LinearDocument from "../../../shared/icons/LinearDocument";
 import LinearEvalator from "../../../shared/icons/LinearEvalator";
 import LinearExchange from "../../../shared/icons/LinearExchange";
 import LinearFloor from "../../../shared/icons/LinearFloor";
@@ -48,6 +46,14 @@ import LinearWarehouse from "../../../shared/icons/LinearWarehouse";
 import LinearWaterCooler from "../../../shared/icons/LinearWaterCooler";
 import LinearWaterHeater from "../../../shared/icons/LinearWaterHeater";
 import LinearYard from "../../../shared/icons/LinearYard";
+import LinearAgreement from "../../../shared/icons/LinearAgreement";
+import LinearHouseDimensions from "../../../shared/icons/LinearHouseDimensions";
+import LinearSuitable from "../../../shared/icons/LinearSuitable";
+import LinearTypeBuilding from "../../../shared/icons/LinearTypeBuilding";
+import LinearCity02 from "../../../shared/icons/LinearCity02";
+import LinearTemperature from "../../../shared/icons/LinearTemperature";
+import LinearApartmentAge from "../../../shared/icons/LinearApartmentAge";
+import LinearSettingBuilding from "../../../shared/icons/LinearSettingBuilding";
 import type { IconName } from "./viewAdTypes";
 
 type SvgIconComponent = ComponentType<SVGProps<SVGSVGElement>>;
@@ -57,7 +63,7 @@ const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = 
   addToList: LinearAddToList,
   album: LinearAlbum,
   apartment: LinearApartment,
-  area: LinearDimensions,
+  area: LinearRuler,
   attachment: LinearAttachment,
   arrowLeft: LinearArrowLeft1,
   arrowDown: LinearArrowDown1,
@@ -71,10 +77,12 @@ const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = 
   chat: LinearChat,
   checklist: LinearRequestList,
   cooler: LinearCooler,
-  document: LinearDocument,
+  document: LinearAgreement,
+  agreement: LinearAgreement,
   elevator: LinearEvalator,
   exchange: LinearExchange,
   floor: LinearFloor,
+  houseDimensions: LinearHouseDimensions,
   info: LinearInformation,
   informationDiamond: LinearInformationDiamond,
   loan: LinearSaveMoney,
@@ -89,16 +97,22 @@ const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = 
   radiator: LinearRadiator,
   ranking: LinearRanking,
   ruler: LinearRuler,
+  settings: LinearSettingBuilding,
   share: LinearShare,
   star: LinearStar,
+  suitable: LinearSuitable,
+  temperature: LinearTemperature,
   terrace: LinearTerrace,
   tooman: LinearTooman,
+  typeBuilding: LinearTypeBuilding,
+  city02: LinearCity02,
   underfloorHeating: LinearUnderfloorHeating,
   video: LinearVideo,
   warehouse: LinearWarehouse,
   waterCooler: LinearWaterCooler,
   waterHeater: LinearWaterHeater,
   yard: LinearYard,
+  year: LinearApartmentAge,
 };
 
 export function ViewAdIcon({

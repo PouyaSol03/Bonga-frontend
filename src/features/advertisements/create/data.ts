@@ -695,6 +695,7 @@ export const rentConversionPolicyOptions = [
 ];
 
 export const moreFeatureKeys: MoreFeatureFormKey[] = [
+  "builderCompanyName",
   "age",
   "buildingArea",
   "floor",
@@ -1181,9 +1182,9 @@ const saleApartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "unitPosition", label: "موقعیت واحد", control: "select", options: saleApartmentUnitPositionOptions },
   { key: "documentType", label: "سند", control: "select", options: saleApartmentDocumentTypeOptions },
   { key: "occupancyStatus", label: "وضعیت سکونت", control: "select", options: saleApartmentOccupancyStatusOptions },
+  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
@@ -1224,9 +1225,9 @@ const rentApartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "minContractMonths", label: "حداقل مدت قرارداد", control: "number", leftText: "ماه" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
+  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
@@ -1242,9 +1243,9 @@ const saleVillaHouseMoreFeatureFields: MoreFeatureField[] = [
   { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions },
   { key: "totalFloors", label: "تعداد طبقات", control: "select" },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
+  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
@@ -1470,13 +1471,14 @@ const rentHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const projectPresaleMoreFeatureFields: MoreFeatureField[] = [
+  { key: "builderCompanyName", label: "نام سازنده/شرکت", control: "input" },
   { key: "projectStatus", label: "وضعیت پروژه", control: "select", options: projectStatusOptions },
-  { key: "projectDeliveryDate", label: "تاریخ تحویل", control: "date" },
+  { key: "projectDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
+  { key: "furnished", label: "مبله با لوازم", control: "toggle" },
   { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
-  { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
 ];
 
 const projectPartnershipMoreFeatureFields: MoreFeatureField[] = [

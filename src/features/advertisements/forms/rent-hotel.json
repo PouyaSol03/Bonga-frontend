@@ -1,0 +1,554 @@
+{
+  "$schema": "./types.ts",
+  "formCode": "rent-hotel",
+  "title": "اجاره هتل، اقامتگاه",
+  "transaction": "rent",
+  "category": "hotel-apartment",
+  "create": {
+    "specsTitle": "مشخصات هتل و اقامتگاه",
+    "basicFields": [
+      {
+        "key": "accommodationType",
+        "title": "نوع اقامتگاه",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "هتل",
+          "هتل آپارتمان",
+          "متل",
+          "مسافر خونه",
+          "مجتمع توریستی"
+        ]
+      },
+      {
+        "key": "hotelStars",
+        "title": "رتبه اقامتگاه",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "۱ ستاره",
+          "۲ ستاره",
+          "۳ ستاره",
+          "۴ ستاره",
+          "۵ ستاره"
+        ]
+      },
+      {
+        "key": "landArea",
+        "title": "متراژ زمین",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۱۰۰۰",
+        "required": true
+      },
+      {
+        "key": "buildingArea",
+        "title": "متراژ بنا",
+        "input": "text",
+        "ui": "input",
+        "numeric": true,
+        "leftText": "متر مربع",
+        "placeholder": "مثلا ۲۰۰۰",
+        "required": true
+      },
+      {
+        "key": "age",
+        "title": "سن ساخت",
+        "input": "select",
+        "ui": "bottomSheet",
+        "placeholder": "انتخاب کنید",
+        "options": [
+          "نوساز",
+          "۱ سال",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۵ سال",
+          "۶ سال",
+          "۷ سال",
+          "۸ سال",
+          "۹ سال",
+          "۱۰ سال",
+          "۱۱ سال",
+          "۱۲ سال",
+          "۱۳ سال",
+          "۱۴ سال",
+          "۱۵ سال",
+          "۱۶ سال",
+          "۱۷ سال",
+          "۱۸ سال",
+          "۱۹ سال",
+          "۲۰ سال",
+          "بیشتر از ۲۰ سال"
+        ]
+      }
+    ],
+    "pricing": {
+      "mode": "rent",
+      "rentConversion": true
+    },
+    "heatingCooling": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "water-cooler",
+          "label": "کولر آبی"
+        },
+        {
+          "id": "gas-cooler",
+          "label": "کولر گازی"
+        },
+        {
+          "id": "duct-split",
+          "label": "داکت اسپیلت"
+        },
+        {
+          "id": "chiller",
+          "label": "چیلر"
+        },
+        {
+          "id": "fan-coil",
+          "label": "فن کوئل"
+        },
+        {
+          "id": "heater",
+          "label": "بخاری"
+        },
+        {
+          "id": "radiator",
+          "label": "شوفاژ"
+        },
+        {
+          "id": "floor-heating",
+          "label": "گرمایش ازکف"
+        },
+        {
+          "id": "fireplace",
+          "label": "شومینه"
+        },
+        {
+          "id": "water-heater",
+          "label": "آبگرم کن"
+        },
+        {
+          "id": "package",
+          "label": "پکیج"
+        },
+        {
+          "id": "central-boiler",
+          "label": "موتورخانه"
+        }
+      ]
+    },
+    "facilities": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "elevator",
+          "label": "آسانسور"
+        },
+        {
+          "id": "parking",
+          "label": "پارکینگ"
+        },
+        {
+          "id": "terrace",
+          "label": "تراس"
+        },
+        {
+          "id": "iranian-toilet",
+          "label": "سرویس ایرانی"
+        },
+        {
+          "id": "western-toilet",
+          "label": "سرویس فرنگی"
+        },
+        {
+          "id": "lobby",
+          "label": "لابی"
+        },
+        {
+          "id": "roof-garden",
+          "label": "روف گاردن"
+        },
+        {
+          "id": "outdoor-pool",
+          "label": "استخر روباز"
+        },
+        {
+          "id": "indoor-pool",
+          "label": "استخر سرپوشیده"
+        },
+        {
+          "id": "jacuzzi",
+          "label": "جکوزی"
+        },
+        {
+          "id": "sauna",
+          "label": "سونا"
+        },
+        {
+          "id": "gym",
+          "label": "سالن ورزشی"
+        },
+        {
+          "id": "cinema",
+          "label": "سینما"
+        },
+        {
+          "id": "cafe",
+          "label": "کافی شاپ"
+        },
+        {
+          "id": "restaurant",
+          "label": "رستوران"
+        },
+        {
+          "id": "shop",
+          "label": "فروشگاه"
+        }
+      ]
+    },
+    "moreFeatures": {
+      "enabled": true,
+      "fields": [
+        {
+          "key": "landPosition",
+          "title": "موقعیت زمین",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "شمالی",
+            "جنوبی",
+            "غربی",
+            "شرقی",
+            "دوممر",
+            "دونبش",
+            "سه نبش",
+            "چهارنبش"
+          ]
+        },
+        {
+          "key": "totalFloors",
+          "title": "تعداد طبقات",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "۱ طبقه",
+            "۲ طبقه",
+            "۳ طبقه",
+            "۴ طبقه",
+            "۵ طبقه",
+            "۶ طبقه",
+            "۷ طبقه",
+            "۸ طبقه و بیشتر"
+          ]
+        },
+        {
+          "key": "singleRoomCount",
+          "title": "تعداد اتاق یک تخته",
+          "input": "number",
+          "numeric": true
+        },
+        {
+          "key": "doubleRoomCount",
+          "title": "تعداد اتاق دو تخته",
+          "input": "number",
+          "numeric": true
+        },
+        {
+          "key": "suiteCount",
+          "title": "تعداد سوییت ها",
+          "input": "number",
+          "numeric": true
+        },
+        {
+          "key": "renovated",
+          "title": "بازسازی شده",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
+          "key": "furnished",
+          "title": "با لوازم و مبله",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
+          "key": "floorMaterial",
+          "title": "جنس کف",
+          "input": "select",
+          "ui": "bottomSheet",
+          "options": [
+            "سرامیک",
+            "سنگ",
+            "پارکت",
+            "لمینت",
+            "موزاییک",
+            "کفپوش"
+          ]
+        }
+      ]
+    }
+  },
+  "view": {
+    "sections": []
+  },
+  "filter": {
+    "sections": [
+      {
+        "kind": "neighborhood"
+      },
+      {
+        "kind": "range",
+        "id": "buildingArea",
+        "title": "متراژ بنا",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "range",
+        "id": "landArea",
+        "title": "متراژ زمین",
+        "variant": "area",
+        "unit": "متر مربع",
+        "showUnitInTitle": true
+      },
+      {
+        "kind": "single",
+        "id": "hotelStars",
+        "title": "رتبه اقامتگاه",
+        "icon": "star",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "accommodationType",
+        "title": "نوع اقامتگاه",
+        "icon": "building",
+        "options": [
+          "هتل",
+          "هتل آپارتمان",
+          "متل",
+          "مسافر خونه",
+          "مجتمع توریستی"
+        ]
+      },
+      {
+        "kind": "range",
+        "id": "rentPrice",
+        "title": "مبلغ اجاره",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "range",
+        "id": "mortgagePrice",
+        "title": "مبلغ رهن",
+        "variant": "money",
+        "unit": "تومان"
+      },
+      {
+        "kind": "multi",
+        "id": "age",
+        "title": "سن ساخت",
+        "icon": "year",
+        "options": [
+          "۱ سال",
+          "نوساز",
+          "۲ سال",
+          "۳ سال",
+          "۴ سال",
+          "۱۰ سال",
+          "۱۵ سال",
+          "۲۰ سال",
+          "بیشتر از ۳۰ سال"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "totalFloors",
+        "title": "تعداد طبقات",
+        "icon": "floor",
+        "options": [
+          "۱",
+          "۲",
+          "۳",
+          "۴",
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
+        ]
+      },
+      {
+        "kind": "single",
+        "id": "landPosition",
+        "title": "موقعیت زمین",
+        "icon": "orientation",
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دوممر",
+          "دونبش",
+          "سه نبش",
+          "چهارنبش"
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "heatingCooling",
+        "title": "سرمایش و گرمایش",
+        "icon": "temperature",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 5 مورد دیگر",
+        "options": [
+          {
+            "id": "gas-cooler",
+            "label": "کولر گازی"
+          },
+          {
+            "id": "water-cooler",
+            "label": "کولر آبی"
+          },
+          {
+            "id": "package",
+            "label": "پکیج"
+          },
+          {
+            "id": "water-heater",
+            "label": "آبگرمکن"
+          },
+          {
+            "id": "heater",
+            "label": "بخاری"
+          },
+          {
+            "id": "radiator",
+            "label": "شوفاژ"
+          },
+          {
+            "id": "duct-split",
+            "label": "داکت اسپیلت"
+          },
+          {
+            "id": "chiller",
+            "label": "چیلر"
+          },
+          {
+            "id": "fan-coil",
+            "label": "فن کوئل"
+          },
+          {
+            "id": "floor-heating",
+            "label": "گرمایش ازکف"
+          },
+          {
+            "id": "fireplace",
+            "label": "شومینه"
+          }
+        ]
+      },
+      {
+        "kind": "multi",
+        "id": "facilities",
+        "title": "امکانات",
+        "icon": "settings",
+        "more": true,
+        "moreLimit": 6,
+        "moreLabel": "نمایش 10 مورد دیگر",
+        "options": [
+          {
+            "id": "elevator",
+            "label": "آسانسور"
+          },
+          {
+            "id": "parking",
+            "label": "پارکینگ"
+          },
+          {
+            "id": "terrace",
+            "label": "تراس"
+          },
+          {
+            "id": "iranian-toilet",
+            "label": "سرویس ایرانی"
+          },
+          {
+            "id": "western-toilet",
+            "label": "سرویس فرنگی"
+          },
+          {
+            "id": "lobby",
+            "label": "لابی"
+          },
+          {
+            "id": "roof-garden",
+            "label": "روف گاردن"
+          },
+          {
+            "id": "outdoor-pool",
+            "label": "استخر روباز"
+          },
+          {
+            "id": "indoor-pool",
+            "label": "استخر سرپوشیده"
+          },
+          {
+            "id": "jacuzzi",
+            "label": "جکوزی"
+          },
+          {
+            "id": "sauna",
+            "label": "سونا"
+          },
+          {
+            "id": "gym",
+            "label": "سالن ورزشی"
+          },
+          {
+            "id": "cinema",
+            "label": "سینما"
+          },
+          {
+            "id": "coffee-shop",
+            "label": "کافی شاپ"
+          },
+          {
+            "id": "restaurant",
+            "label": "رستوران"
+          },
+          {
+            "id": "shop",
+            "label": "فروشگاه"
+          }
+        ]
+      },
+      {
+        "kind": "advertiser"
+      },
+      {
+        "kind": "publicationTime"
+      },
+      {
+        "kind": "adFlags"
+      }
+    ]
+  }
+}

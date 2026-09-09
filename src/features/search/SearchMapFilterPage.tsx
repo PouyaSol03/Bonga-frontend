@@ -21,6 +21,7 @@ import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
 import { useAdvertisementListQuery } from "../advertisements/api/advertisement.hooks";
 import { readSearchFilters } from "./SearchMapPage";
 import type { AdvertisementListParams } from "../advertisements/api/advertisement.service";
+import { getFormSchemaByListing, type AdFormFilterSectionConfig } from "../advertisements/forms";
 import {
   basicPropertyFieldsByListingType,
   defaultBasicPropertyFields,
@@ -81,12 +82,18 @@ import LinearBuilding from "../../shared/icons/LinearBuilding";
 import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
 import LinearCategory from "../../shared/icons/LinearCategory";
 import LinearFloor from "../../shared/icons/LinearFloor";
+import LinearHouseDimensions from "../../shared/icons/LinearHouseDimensions";
 import LinearLocation from "../../shared/icons/LinearLocation";
 import LinearMoney from "../../shared/icons/LinearMoney";
 import LinearNavigation from "../../shared/icons/LinearNavigation";
 import LinearRuler from "../../shared/icons/LinearRuler";
 import LinearSettingBuilding from "../../shared/icons/LinearSettingBuilding";
 import LinearTemperature from "../../shared/icons/LinearTemperature";
+import LinearSuitable from "../../shared/icons/LinearSuitable";
+import LinearTypeBuilding from "../../shared/icons/LinearTypeBuilding";
+import LinearCity02 from "../../shared/icons/LinearCity02";
+import LinearStar from "../../shared/icons/LinearStar";
+import { useTwoRowVisibleCount } from "../../shared/lib/useTwoRowVisibleCount";
 
 export type TransactionType = "sale" | "rent" | "project";
 
@@ -120,7 +127,12 @@ type IconName =
   | "year"
   | "exchange"
   | "agreement"
-  | "unitBed";
+  | "unitBed"
+  | "suitable"
+  | "typeBuilding"
+  | "city02"
+  | "houseDimensions"
+  | "star";
 
 type RangeBlock = {
   id: string;
@@ -177,9 +189,16 @@ type LoanBlock = {
   kind: "loan";
 };
 
+type RangeGroupBlock = {
+  blocks: RangeBlock[];
+  id: string;
+  kind: "range-group";
+};
+
 type FilterBlock =
   | { kind: "neighborhood" }
   | RangeBlock
+  | RangeGroupBlock
   | SingleChoiceBlock
   | MultiChoiceBlock
   | ToggleBlock
@@ -433,6 +452,26 @@ export const areaRangeOptions = [
   "۵۰۰",
 ];
 
+export const landWidthRangeOptions = [
+  customRangeOptionLabel,
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
+  "۱۰",
+  "۱۲",
+  "۱۴",
+  "۱۵",
+  "۱۶",
+  "۱۸",
+  "۲۰",
+  "۲۵",
+  "۳۰",
+  "۴۰",
+  "۵۰",
+];
+
 function getRange(filters: FilterState, ids: string[]) {
   for (const id of ids) {
     const range = filters.ranges[id];
@@ -497,13 +536,16 @@ function readInitialFiltersFromUrl(): FilterState {
 
   const floorValues = (params.get("floor") ?? "").split(/[_،,]/).filter(Boolean);
   const roomValues = (params.get("rooms") ?? "").split(/[_،,]/).filter(Boolean);
-  const buildingAge = params.get("building_age") ?? "";
+  const buildingAgeValues = (params.get("building_age") ?? "").split(/[_،,]/).filter(Boolean);
   const exchangeValues = (params.get("exchange_with") ?? "").split(/[_،,]/).filter(Boolean);
 
   if (floorValues.length > 0) nextFilters.multis.floor = floorValues;
   if (roomValues.length > 0) nextFilters.multis.rooms = roomValues;
   if (exchangeValues.length > 0) nextFilters.multis.exchangeWith = exchangeValues;
-  if (buildingAge) nextFilters.singles.age = buildingAge;
+  if (buildingAgeValues.length > 0) {
+    nextFilters.multis.age = buildingAgeValues;
+    nextFilters.singles.age = buildingAgeValues[0];
+  }
 
   const neighborhoods = (params.get("neighborhood_id") || params.get("neighborhoods") || "")
     .split(/[_،,]/)
@@ -572,7 +614,9 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
     normalizeMultiExactFilterValue(filters.multis.floor) ||
     normalizeExactFilterValue(filters.singles.floor) ||
     normalizeMultiExactFilterValue(filters.multis.projectFloors);
-  const buildingAge = normalizeExactFilterValue(filters.singles.age);
+  const buildingAge =
+    normalizeMultiExactFilterValue(filters.multis.age) ||
+    normalizeExactFilterValue(filters.singles.age);
   const exchangeWith = normalizeMultiExactFilterValue(filters.multis.exchangeWith);
 
   const setOrDelete = (key: string, value: string) => {
@@ -649,7 +693,7 @@ export const categoryLabels: Record<CategoryKey, string> = {
   "daily-garden-villa": "ویلا، باغ",
   "daily-hotel-apartment": "هتل، اقامتگاه",
   "daily-workspace": "دفترکار، غرفه",
-  "project-presale": "پروژه",
+  "project-presale": "پیش فروش، فروش پروژه",
   "project-partnership": "مشارکت",
 };
 
@@ -716,7 +760,7 @@ function getApprovedSelectedCategoryLabel(transaction: TransactionType, category
   }
 
   if (transaction === "project") {
-    if (category === "project-presale") return "پروژه";
+    if (category === "project-presale") return "پیش فروش، فروش پروژه";
     if (category === "project-partnership") return "مشارکت";
   }
 
@@ -958,12 +1002,44 @@ function isProjectCategory(category: CategoryKey) {
 }
 
 function getFieldIcon(key: string): IconName {
-  if (key === "floor" || key === "totalFloors" || key === "projectTotalFloors") return "floor";
+  if (key === "floor" || key === "totalFloors" || key === "projectTotalFloors" || key === "unitsPerFloor") return "floor";
   if (key === "rooms" || key === "singleRoomCount" || key === "doubleRoomCount" || key === "suiteCount") return "bed";
-  if (key === "documentType") return "agreement";
-  if (key === "unitType") return "unitBed";
-  if (key === "age") return "year";
-  if (key === "landPosition" || key === "unitPosition") return "orientation";
+  if (
+    key === "documentType" ||
+    key === "constructionPermit" ||
+    key === "commercialPermit" ||
+    key === "commercialLicense" ||
+    key === "buildPermit" ||
+    key === "officeDocumentType" ||
+    key === "hasDocument" ||
+    key === "participationType"
+  ) return "agreement";
+  if (
+    key === "unitType" ||
+    key === "landPosition" ||
+    key === "unitPosition" ||
+    key === "buildingPosition" ||
+    key === "officePosition" ||
+    key === "commercialPosition" ||
+    key.toLowerCase().includes("position") ||
+    key === "accessType"
+  ) return "orientation";
+  if (key === "age" || key === "buildingAge") return "year";
+  if (
+    key === "density" ||
+    key === "projectType" ||
+    key === "spaceType" ||
+    key === "accommodationType" ||
+    key === "industrialPropertyType"
+  ) return "building";
+  if (key === "suitableFor") return "suitable";
+  if (key === "buildingType") return "typeBuilding";
+  if (key === "buildingStyle" || key === "buildingTip" || key === "villaType" || key === "unitLayout") return "city02";
+  if (key === "heatingCooling") return "temperature";
+  if (key === "facilities" || key === "usageType") return "settings";
+  if (key === "landWidth" || key === "width") return "houseDimensions";
+  if (key === "meterage" || key === "landArea" || key === "buildingArea" || key === "projectMeterage") return "ruler";
+  if (key === "hotelStars" || key === "stars") return "star";
 
   return "settings";
 }
@@ -1494,11 +1570,29 @@ export function approvedGenericFacilitiesBlock(): MultiChoiceBlock {
 }
 
 function approvedRentBusinessHeatingBlock(): MultiChoiceBlock {
-  return approvedHeatingBlock(approvedRentBusinessHeatingItems);
+  return {
+    icon: "temperature",
+    id: "heatingCooling",
+    kind: "multi",
+    options: approvedRentBusinessHeatingItems,
+    title: "سرمایش و گرمایش",
+    more: true,
+    moreLimit: 3,
+    moreLabel: "نمایش ۱۲ مورد دیگر",
+  };
 }
 
 function approvedRentBusinessFacilitiesBlock(): MultiChoiceBlock {
-  return approvedFacilitiesBlock(approvedRentBusinessFacilities);
+  return {
+    icon: "settings",
+    id: "facilities",
+    kind: "multi",
+    options: approvedRentBusinessFacilities,
+    title: "امکانات",
+    more: true,
+    moreLimit: 3,
+    moreLabel: "نمایش ۱۲ مورد دیگر",
+  };
 }
 
 function approvedExchangeBlock(): MultiChoiceBlock {
@@ -1559,7 +1653,7 @@ function getApprovedSaleApartmentFilterBlocks(): FilterBlock[] {
     createRangeBlock("meterage", "متراژ آپارتمان", "area", "متر مربع", true),
     approvedFloorBlock(),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     approvedTotalFloorsBlock("تعداد طبقات آپارتمان"),
     { icon: "floor", id: "unitsPerFloor", kind: "single", options: approvedSaleFilterUnitsPerFloorOptions, title: "تعداد واحد در طبقه", more: false },
     { icon: "orientation", id: "unitType", kind: "single", options: approvedSaleFilterBuildingPositionOptions, title: "موقعیت ساختمان", more: false },
@@ -1600,8 +1694,8 @@ function getApprovedSaleLandFilterBlocks(): FilterBlock[] {
       moreIcon: "left",
     },
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین", more: false },
-    { icon: "settings", id: "density", kind: "single", options: ["کم", "متوسط", "زیاد"], title: "تراکم زمین", more: false },
-    { icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleFilterSuitableForOptions), title: "مناسب برای" },
+    { icon: "building", id: "density", kind: "single", options: ["کم", "متوسط", "زیاد"], title: "تراکم زمین", more: false },
+    { icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleFilterSuitableForOptions), title: "مناسب برای" },
     createRangeBlock("landWidth", "عرض زمین", "number", "متر", true),
     createRangeBlock("streetWidth", "عرض گذر", "number", "متر", true),
     { id: "constructionPermit", kind: "toggle", title: "مجوز ساخت" },
@@ -1621,10 +1715,10 @@ function getApprovedSaleGardenVillaFilterBlocks(): FilterBlock[] {
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ زیربنا", "area", "متر مربع", true),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین", more: false },
-    { icon: "building", id: "buildingType", kind: "single", options: approvedSaleFilterVillaBuildingTypeOptions, title: "نوع بنا", more: false },
-    { icon: "building", id: "villaType", kind: "single", options: approvedSaleFilterVillaTypeOptions, title: "تیپ بنا", more: false },
+    { icon: "typeBuilding", id: "buildingType", kind: "single", options: approvedSaleFilterVillaBuildingTypeOptions, title: "نوع بنا", more: false },
+    { icon: "city02", id: "villaType", kind: "single", options: approvedSaleFilterVillaTypeOptions, title: "تیپ بنا", more: false },
     { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند", more: false },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("streetWidth", "عرض گذر", "number", "متر", true),
@@ -1651,10 +1745,10 @@ function getApprovedSaleOfficeFilterBlocks(): FilterBlock[] {
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     approvedFloorBlock(),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     approvedTotalFloorsBlock("تعداد کل طبقات"),
     {
-      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleOfficeSuitableOptions), title: "مناسب برای",
+      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleOfficeSuitableOptions), title: "مناسب برای",
       more: true, moreLimit: 5, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
     },
     { icon: "settings", id: "currentStatus", kind: "single", options: approvedOfficeCurrentStatusOptions, title: "وضعیت فعلی" },
@@ -1686,15 +1780,15 @@ function getApprovedSaleCommercialFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
-    { icon: "location", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
+    { icon: "orientation", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
     { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند" },
     { icon: "settings", id: "ownershipStatus", kind: "single", options: approvedCommercialOwnershipOptions, title: "وضعیت مالکیت" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     approvedFloorBlock(),
     approvedTotalFloorsBlock("تعداد کل طبقات"),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
     {
-      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleCommercialSuitableOptions), title: "مناسب برای",
+      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleCommercialSuitableOptions), title: "مناسب برای",
       more: true, moreLimit: 7, moreLabel: "مشاهده ۴۶ مورد دیگر", moreIcon: "left",
     },
     { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedCommercialLicenseOptions, title: "مجوز تجاری" },
@@ -1716,7 +1810,7 @@ function getApprovedSaleIndustrialFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند" },
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
@@ -1740,12 +1834,12 @@ function getApprovedSaleHotelFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     { icon: "building", id: "accommodationType", kind: "single", options: approvedHotelAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "settings", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "رتبه اقامتگاه" },
+    { icon: "star", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "رتبه اقامتگاه" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
     { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند" },
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("singleRoomCount", "اتاق ۱ تخته", "number", "اتاق", true),
     createRangeBlock("doubleRoomCount", "اتاق ۲ تخته", "number", "اتاق", true),
@@ -1770,9 +1864,9 @@ function getApprovedRentApartmentFilterBlocks(): FilterBlock[] {
     createRangeBlock("meterage", "متراژ آپارتمان", "area", "متر مربع", true),
     approvedFloorBlock(),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     {
-      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentApartmentSuitableOptions), title: "مناسب برای",
+      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentApartmentSuitableOptions), title: "مناسب برای",
       more: true, moreLimit: 5, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
     },
     approvedTotalFloorsBlock("تعداد طبقات آپارتمان"),
@@ -1806,14 +1900,14 @@ function getApprovedRentVillaHouseFilterBlocks(): FilterBlock[] {
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     {
-      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentVillaSuitableOptions), title: "مناسب برای",
+      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentVillaSuitableOptions), title: "مناسب برای",
       more: true, moreLimit: 3, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
     },
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedRentVillaLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "building", id: "buildingType", kind: "single", options: approvedRentVillaBuildingTypeOptions, title: "نوع بنا" },
-    { icon: "building", id: "villaType", kind: "single", options: approvedRentVillaTypeOptions, title: "تیپ بنا" },
+    { icon: "typeBuilding", id: "buildingType", kind: "single", options: approvedRentVillaBuildingTypeOptions, title: "نوع بنا" },
+    { icon: "city02", id: "villaType", kind: "single", options: approvedRentVillaTypeOptions, title: "تیپ بنا" },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("streetWidth", "عرض گذر", "number", "متر", true),
     approvedPetPolicyBlock(),
@@ -1840,13 +1934,13 @@ function getApprovedRentOfficeFilterBlocks(): FilterBlock[] {
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     approvedFloorBlock(),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     approvedTotalFloorsBlock("تعداد کل طبقات"),
     {
-      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentOfficeSuitableOptions), title: "مناسب برای",
+      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentOfficeSuitableOptions), title: "مناسب برای",
       more: true, moreLimit: 5, moreLabel: "مشاهده ۱۵ مورد دیگر", moreIcon: "down",
     },
-    { icon: "location", id: "officePosition", kind: "single", options: approvedOfficePositionOptions, title: "موقعیت اداری" },
+    { icon: "orientation", id: "officePosition", kind: "single", options: approvedOfficePositionOptions, title: "موقعیت اداری" },
     { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
     { id: "readyDeliveryDate", kind: "date", title: "تاریخ تحویل" },
     createRangeBlock("minContractMonths", "حداقل مدت قرارداد", "number", "ماه", true),
@@ -1878,7 +1972,7 @@ function getApprovedRentCommercialFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     { icon: "location", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     approvedFloorBlock(),
     approvedTotalFloorsBlock("تعداد کل طبقات"),
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
@@ -1909,7 +2003,7 @@ function getApprovedRentIndustrialFilterBlocks(): FilterBlock[] {
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
     createRangeBlock("ceilingHeight", "ارتفاع سقف", "number", "متر", true),
     { icon: "building", id: "industrialPropertyType", kind: "single", options: approvedIndustrialPropertyOptions, title: "نوع ملک" },
@@ -1933,10 +2027,10 @@ function getApprovedRentHotelFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     { icon: "building", id: "accommodationType", kind: "single", options: approvedHotelAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "settings", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "رتبه اقامتگاه" },
+    { icon: "star", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "رتبه اقامتگاه" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
-    { icon: "year", id: "age", kind: "single", options: approvedSaleFilterAgeOptions, title: "سن ساخت" },
+    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("singleRoomCount", "اتاق ۱ تخته", "number", "اتاق", true),
@@ -1994,7 +2088,7 @@ function getApprovedDailyHotelFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
     { icon: "building", id: "accommodationType", kind: "single", options: approvedDailyHotelAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "settings", id: "hotelStars", kind: "single", options: approvedDailyHotelRankOptions, title: "رتبه اقامتگاه" },
+    { icon: "star", id: "hotelStars", kind: "single", options: approvedDailyHotelRankOptions, title: "رتبه اقامتگاه" },
     approvedHeatingBlock(dailyRentHeatingItems),
     approvedFacilitiesBlock(dailyHotelFacilityItems),
     { kind: "advertiser" },
@@ -2082,8 +2176,104 @@ function getPriceBlocks(transaction: TransactionType, category: CategoryKey): Fi
   return [createRangeBlock("price", "قیمت", "money", "تومان")];
 }
 
+function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): FilterBlock[] {
+  return sections.map((section): FilterBlock => {
+    switch (section.kind) {
+      case "neighborhood":
+        return { kind: "neighborhood" };
+      case "loan":
+        return { kind: "loan" };
+      case "advertiser":
+        return { kind: "advertiser" };
+      case "publicationTime":
+        return { kind: "publicationTime" };
+      case "adFlags":
+        return { kind: "adFlags" };
+      case "range":
+        return createRangeBlock(
+          section.id!,
+          section.title!,
+          section.variant ?? "number",
+          section.unit,
+          section.showUnitInTitle ?? (section.variant === "area" || section.variant === "number"),
+        );
+      case "toggle":
+        return {
+          id: section.id!,
+          kind: "toggle",
+          title: section.title!,
+        };
+      case "date":
+        return {
+          id: section.id!,
+          kind: "date",
+          title: section.title!,
+        };
+      case "time":
+        return {
+          id: section.id!,
+          kind: "time",
+          title: section.title!,
+        };
+      case "single": {
+        const icon = (section.icon ? section.icon : getFieldIcon(section.id!)) as IconName;
+        const isAge = section.id === "age" || section.id === "buildingAge";
+        if (isAge) {
+          return {
+            icon,
+            id: section.id!,
+            kind: "multi",
+            options: (section.options ?? []).map((opt) =>
+              typeof opt === "string" ? { id: opt, label: opt } : opt,
+            ),
+            title: section.title!,
+            more: section.more,
+            moreLimit: section.moreLimit,
+            moreLabel: section.moreLabel,
+            moreIcon: section.moreIcon,
+          };
+        }
+        return {
+          icon,
+          id: section.id!,
+          kind: "single",
+          options: (section.options ?? []).map((opt) => (typeof opt === "string" ? opt : opt.label)),
+          title: section.title!,
+          more: section.more,
+          moreLimit: section.moreLimit,
+          moreLabel: section.moreLabel,
+          moreIcon: section.moreIcon,
+        };
+      }
+      case "multi": {
+        const icon = (section.icon ? section.icon : getFieldIcon(section.id!)) as IconName;
+        return {
+          icon,
+          id: section.id!,
+          kind: "multi",
+          options: (section.options ?? []).map((opt) =>
+            typeof opt === "string" ? { id: opt, label: opt } : opt,
+          ),
+          title: section.title!,
+          more: section.more,
+          moreLimit: section.moreLimit,
+          moreLabel: section.moreLabel,
+          moreIcon: section.moreIcon,
+        };
+      }
+      default:
+        return { kind: "neighborhood" };
+    }
+  });
+}
+
 export function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): FilterBlock[] {
   if (!category) return [];
+
+  const schema = getFormSchemaByListing(transaction, category);
+  if (schema?.filter?.sections && schema.filter.sections.length > 0) {
+    return buildFilterBlocksFromSchema(schema.filter.sections);
+  }
 
   if (transaction === "rent" && category === "daily-apartment-suite") {
     return getApprovedDailyApartmentFilterBlocks();
@@ -2202,11 +2392,23 @@ export function getFilterBlocks(transaction: TransactionType, category?: Categor
   }
 
   if (!hideHeatingCooling) {
-    blocks.push(approvedHeatingBlock(getHeatingItems(transaction, category)));
+    blocks.push({
+      icon: "temperature",
+      id: "heatingCooling",
+      kind: "multi",
+      options: getHeatingItems(transaction, category),
+      title: "سرمایش و گرمایش",
+    });
   }
 
   if (showFacilitiesSection) {
-    blocks.push(approvedFacilitiesBlock(getFacilityItems(transaction, category)));
+    blocks.push({
+      icon: "settings",
+      id: "facilities",
+      kind: "multi",
+      options: getFacilityItems(transaction, category),
+      title: "امکانات",
+    });
   }
 
   blocks.push({ kind: "advertiser" }, { kind: "publicationTime" }, { kind: "adFlags" });
@@ -2215,6 +2417,10 @@ export function getFilterBlocks(transaction: TransactionType, category?: Categor
 
   if (transaction === "sale" && category === "apartment") {
     return sortSaleApartmentBlocks(dedupedBlocks);
+  }
+
+  if (transaction === "sale" && ["villa-house", "land"].includes(category)) {
+    return sortSaleResidentialBlocks(dedupedBlocks, category);
   }
 
   return dedupedBlocks;
@@ -2263,6 +2469,34 @@ function sortSaleApartmentBlocks(blocks: FilterBlock[]) {
     });
 }
 
+function sortSaleResidentialBlocks(blocks: FilterBlock[], _category: CategoryKey) {
+  const commonOrder = [
+    "neighborhood",
+    "meterage",
+    "price",
+    "age",
+    "rooms",
+    "floor",
+    "documentType",
+    "buildingType",
+    "villaType",
+    "landPosition",
+    "hasLoan",
+    "heatingCooling",
+    "facilities",
+    "exchangeWith",
+    "advertiser",
+    "publicationTime",
+    "adFlags",
+  ];
+
+  const orderMap = new Map(commonOrder.map((key, index) => [key, index]));
+  return [...blocks].sort((a, b) =>
+    (orderMap.get(getBlockOrderKey(a)) ?? Number.MAX_SAFE_INTEGER) -
+    (orderMap.get(getBlockOrderKey(b)) ?? Number.MAX_SAFE_INTEGER),
+  );
+}
+
 function dedupeBlocks(blocks: FilterBlock[]) {
   const seen = new Set<string>();
 
@@ -2303,6 +2537,16 @@ function getIcon(icon: IconName) {
       return <AgreementIcon />;
     case "unitBed":
       return <UnitBedIcon />;
+    case "suitable":
+      return <LinearSuitable aria-hidden="true" className="h-6 w-6 shrink-0" />;
+    case "typeBuilding":
+      return <LinearTypeBuilding aria-hidden="true" className="h-6 w-6 shrink-0" />;
+    case "city02":
+      return <LinearCity02 aria-hidden="true" className="h-6 w-6 shrink-0" />;
+    case "houseDimensions":
+      return <HouseDimensionsIcon />;
+    case "star":
+      return <LinearStar aria-hidden="true" className="h-6 w-6 shrink-0" />;
     default:
       return <SettingsIcon />;
   }
@@ -2328,10 +2572,10 @@ export function AdvertisementFilterPage({
   );
   const contentRef = useRef<HTMLElement | null>(null);
 
-  const filterBlocks = useMemo(
-    () => getFilterBlocks(filters.transaction, filters.category),
-    [filters.transaction, filters.category],
-  );
+  const filterBlocks = useMemo(() => {
+    const rawBlocks = getFilterBlocks(filters.transaction, filters.category);
+    return groupFilterBlocks(rawBlocks);
+  }, [filters.transaction, filters.category]);
 
   const debouncedFilters = useDebouncedValue(filters, 300);
   const isDebouncing = filters !== debouncedFilters;
@@ -2575,9 +2819,14 @@ type FilterSectionProps = {
   title: ReactNode;
 };
 
-function FilterSection({ children, icon, sectionId, title }: FilterSectionProps) {
+function FilterSection({
+  children,
+  icon,
+  sectionId,
+  title,
+}: FilterSectionProps) {
   return (
-    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4" data-filter-section={sectionId} dir="rtl">
+    <section className="relative scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4" data-filter-section={sectionId} dir="rtl">
       <div className="mb-2 flex h-8 items-center justify-start gap-2 text-[#4d4d4d]">
         {icon}
         <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
@@ -2607,40 +2856,58 @@ function ChipSection({
   icon,
   sectionId,
   showFeatureIcons = false,
-  more = false,
-  moreLimit = 8,
-  moreLabel,
-  moreIcon,
   onToggle,
   options,
   selected,
   title,
 }: ChipSectionProps) {
   const [expanded, setExpanded] = useState(false);
-  const canExpand = more && options.length > moreLimit;
-  const initialOptions = canExpand ? options.slice(0, moreLimit) : options;
-  const extraOptions = canExpand ? options.slice(moreLimit) : [];
+  const measureRef = useRef<HTMLDivElement>(null);
+  const twoRowCount = useTwoRowVisibleCount(measureRef, options.length);
+  const canExpand = options.length > twoRowCount;
+  const initialOptions = canExpand ? options.slice(0, twoRowCount) : options;
+  const extraOptions = canExpand ? options.slice(twoRowCount) : [];
 
   return (
     <FilterSection icon={icon} sectionId={sectionId} title={title}>
-      <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-        {initialOptions.map((option) => {
-          const isSelected = selected.some((item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id));
-
-          return (
+      <div className="relative w-full">
+        <div
+          ref={measureRef}
+          className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+          aria-hidden="true"
+          dir="rtl"
+        >
+          {options.map((option) => (
             <FormChoiceChip
               key={option.id}
               icon={
                 showFeatureIcons ? (
-                  <FeatureChipIcon label={option.label} selected={isSelected} />
+                  <FeatureChipIcon label={option.label} selected={false} />
                 ) : undefined
               }
               label={option.label}
-              onClick={() => onToggle(option.id)}
-              selected={isSelected}
             />
-          );
-        })}
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+          {initialOptions.map((option) => {
+            const isSelected = selected.some((item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id));
+
+            return (
+              <FormChoiceChip
+                key={option.id}
+                icon={
+                  showFeatureIcons ? (
+                    <FeatureChipIcon label={option.label} selected={isSelected} />
+                  ) : undefined
+                }
+                label={option.label}
+                onClick={() => onToggle(option.id)}
+                selected={isSelected}
+              />
+            );
+          })}
+        </div>
       </div>
       <AnimatePresence initial={false}>
         {expanded && extraOptions.length > 0 && (
@@ -2675,10 +2942,8 @@ function ChipSection({
       </AnimatePresence>
       {canExpand ? (
         <MoreButton
-          count={options.length - moreLimit}
+          count={options.length - twoRowCount}
           expanded={expanded}
-          label={moreLabel}
-          icon={moreIcon}
           onClick={() => setExpanded((current) => !current)}
         />
       ) : null}
@@ -2695,8 +2960,6 @@ type ExchangeFilterSectionProps = {
   title: string;
 };
 
-const exchangePreviewLabels = ["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"];
-
 function ExchangeFilterSection({
   icon,
   onToggle,
@@ -2706,25 +2969,15 @@ function ExchangeFilterSection({
   title,
 }: ExchangeFilterSectionProps) {
   const [expanded, setExpanded] = useState(false);
-  const orderedOptions = useMemo(() => {
-    const optionByLabel = new Map(options.map((option) => [option.label, option]));
-    const previewOptions = exchangePreviewLabels
-      .map((label) => optionByLabel.get(label))
-      .filter((option): option is ChipItem => Boolean(option));
-    const previewIds = new Set(previewOptions.map((option) => option.id));
-
-    return [
-      ...previewOptions,
-      ...options.filter((option) => !previewIds.has(option.id)),
-    ];
-  }, [options]);
-  const initialOptions = orderedOptions.slice(0, exchangePreviewLabels.length);
-  const extraOptions = orderedOptions.slice(exchangePreviewLabels.length);
-  const canExpand = orderedOptions.length > exchangePreviewLabels.length;
+  const measureRef = useRef<HTMLDivElement>(null);
+  const twoRowCount = useTwoRowVisibleCount(measureRef, options.length);
+  const canExpand = options.length > twoRowCount;
+  const initialOptions = canExpand ? options.slice(0, twoRowCount) : options;
+  const extraOptions = canExpand ? options.slice(twoRowCount) : [];
 
   return (
     <section
-      className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 pb-2 pt-4"
+      className="relative scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 pb-2 pt-4"
       data-filter-section={sectionId}
       dir="rtl"
     >
@@ -2741,19 +2994,33 @@ function ExchangeFilterSection({
         </Typography>
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-start gap-2" dir="rtl">
-        {initialOptions.map((option) => (
-          <Chip
-            className="h-9"
-            key={option.id}
-            onClick={() => onToggle(option.id)}
-            selected={selected.some(
-              (item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
-            )}
-          >
-            {option.label}
-          </Chip>
-        ))}
+      <div className="relative w-full mt-4">
+        <div
+          ref={measureRef}
+          className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+          aria-hidden="true"
+          dir="rtl"
+        >
+          {options.map((option) => (
+            <Chip className="h-9" key={option.id}>
+              {option.label}
+            </Chip>
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+          {initialOptions.map((option) => (
+            <Chip
+              className="h-9"
+              key={option.id}
+              onClick={() => onToggle(option.id)}
+              selected={selected.some(
+                (item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
+              )}
+            >
+              {option.label}
+            </Chip>
+          ))}
+        </div>
       </div>
 
       <AnimatePresence initial={false}>
@@ -2784,17 +3051,11 @@ function ExchangeFilterSection({
       </AnimatePresence>
 
       {canExpand ? (
-        <Button
-          unstyled
-          className="mx-auto mt-4 flex items-center justify-center gap-1 py-2.5 text-sm font-medium leading-5 text-[#0048c4]"
+        <MoreButton
+          count={options.length - twoRowCount}
+          expanded={expanded}
           onClick={() => setExpanded((current) => !current)}
-          type="button"
-        >
-          <Typography as="span" variant="label" size="medium" weight="medium">
-            {expanded ? "نمایش کمتر" : "مشاهده همه معاوضه‌ها"}
-          </Typography>
-          <ChevronDownIcon isOpen={expanded} />
-        </Button>
+        />
       ) : null}
     </section>
   );
@@ -2829,39 +3090,72 @@ type SingleChoiceSectionProps = {
 function SingleChoiceSection({
   icon,
   sectionId,
-  more = false,
-  moreLimit = 8,
-  moreLabel,
-  moreIcon,
   onSelect,
   options,
   selected,
   title,
 }: SingleChoiceSectionProps) {
   const [expanded, setExpanded] = useState(false);
-  const canExpand = more && options.length > moreLimit;
-  const visibleOptions = canExpand && !expanded ? options.slice(0, moreLimit) : options;
+  const measureRef = useRef<HTMLDivElement>(null);
+  const twoRowCount = useTwoRowVisibleCount(measureRef, options.length);
+  const canExpand = options.length > twoRowCount;
+  const initialOptions = canExpand ? options.slice(0, twoRowCount) : options;
+  const extraOptions = canExpand ? options.slice(twoRowCount) : [];
 
   return (
     <FilterSection icon={icon} sectionId={sectionId} title={title}>
-      <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-        {visibleOptions.map((option) => (
-          <FormChoiceChip
-            key={option}
-            label={option}
-            onClick={() => onSelect(option)}
-            selected={
-              selected !== undefined && normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
-            }
-          />
-        ))}
+      <div className="relative w-full">
+        <div
+          ref={measureRef}
+          className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+          aria-hidden="true"
+          dir="rtl"
+        >
+          {options.map((option) => (
+            <FormChoiceChip key={option} label={option} />
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+          {initialOptions.map((option) => (
+            <FormChoiceChip
+              key={option}
+              label={option}
+              onClick={() => onSelect(option)}
+              selected={
+                selected !== undefined && normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
+              }
+            />
+          ))}
+        </div>
       </div>
+      <AnimatePresence initial={false}>
+        {expanded && extraOptions.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+            className="overflow-hidden w-full"
+          >
+            <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
+              {extraOptions.map((option) => (
+                <FormChoiceChip
+                  key={option}
+                  label={option}
+                  onClick={() => onSelect(option)}
+                  selected={
+                    selected !== undefined && normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
+                  }
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {canExpand ? (
         <MoreButton
-          count={options.length - moreLimit}
+          count={options.length - twoRowCount}
           expanded={expanded}
-          label={moreLabel}
-          icon={moreIcon}
           onClick={() => setExpanded((current) => !current)}
         />
       ) : null}
@@ -2872,26 +3166,42 @@ function SingleChoiceSection({
 function MoreButton({
   count,
   expanded,
-  icon = "down",
-  label,
   onClick,
 }: {
   count: number;
   expanded: boolean;
-  icon?: "down" | "left";
-  label?: string;
   onClick: () => void;
 }) {
   return (
-    <Button unstyled
-      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 pt-2.5 pb-0.5 px-3 text-sm font-medium leading-5 text-[#0048c4]"
+    <Button
+      unstyled
+      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 pt-2.5 pb-0.5 px-3 text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40f]"
       onClick={onClick}
+      style={{ color: "#0048c4" }}
       type="button"
     >
-      <Typography as="span" variant="label" size="medium" weight="medium">
-        {expanded ? "نمایش کمتر" : label ?? `نمایش ${toPersianDigits(count)} مورد بیشتر`}
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-[#0048c4]"
+        style={{ color: "#0048c4" }}
+      >
+        {expanded ? "مشاهده کمتر" : `مشاهده ${toPersianDigits(count)} مورد بیشتر`}
       </Typography>
-      {icon === "left" && !expanded ? <ChevronLeftIcon /> : <ChevronDownIcon isOpen={expanded} />}
+      <motion.div
+        animate={{ rotate: expanded ? 180 : 0 }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
+        className="inline-flex items-center justify-center shrink-0 text-[#0048c4]"
+        style={{ color: "#0048c4" }}
+      >
+        <LinearArrowDown1
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 text-[#0048c4]"
+          style={{ color: "#0048c4" }}
+        />
+      </motion.div>
     </Button>
   );
 }
@@ -2902,6 +3212,10 @@ function LocationIcon() {
 
 function RulerIcon() {
   return <LinearRuler aria-hidden="true" className="h-6 w-6 shrink-0" />;
+}
+
+function HouseDimensionsIcon() {
+  return <LinearHouseDimensions aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
 function MoneyIcon() {
@@ -2991,6 +3305,7 @@ function CategorySelectionScreen({
               setDraftCategory(undefined);
             }}
             options={transactionTabs}
+            showDividers={false}
             value={draftTransaction}
           />
         </div>
@@ -3036,6 +3351,9 @@ function CategorySelectionScreen({
 
 function getFilterSectionAnchor(block: FilterBlock) {
   if (block.kind === "neighborhood") return "neighborhood";
+  if (block.kind === "range-group") {
+    return getFilterSectionAnchor(block.blocks[0]);
+  }
   if (block.kind === "range") {
     if (["meterage", "landArea", "buildingArea", "projectMeterage"].includes(block.id)) return "area";
     if (["price", "projectPrice", "dailyPrice", "rentPrice", "mortgagePrice"].includes(block.id)) return "price";
@@ -3045,6 +3363,55 @@ function getFilterSectionAnchor(block: FilterBlock) {
   if ("id" in block) return block.id;
 
   return block.kind;
+}
+
+function isSameRangeTopic(a?: FilterBlock, b?: FilterBlock): boolean {
+  if (!a || !b || a.kind !== "range" || b.kind !== "range") return false;
+
+  const isDimensionA = a.variant === "area" || a.variant === "number";
+  const isDimensionB = b.variant === "area" || b.variant === "number";
+  if (isDimensionA && isDimensionB) return true;
+
+  const isRentPriceA = a.id === "rentPrice" || a.id === "mortgagePrice";
+  const isRentPriceB = b.id === "rentPrice" || b.id === "mortgagePrice";
+  if (isRentPriceA && isRentPriceB) return true;
+
+  return false;
+}
+
+function groupFilterBlocks(blocks: FilterBlock[]): FilterBlock[] {
+  const result: FilterBlock[] = [];
+  let i = 0;
+
+  while (i < blocks.length) {
+    const current = blocks[i];
+    if (current.kind === "range") {
+      const group: RangeBlock[] = [current];
+      while (
+        i + 1 < blocks.length &&
+        blocks[i + 1].kind === "range" &&
+        isSameRangeTopic(group[group.length - 1], blocks[i + 1] as RangeBlock)
+      ) {
+        group.push(blocks[i + 1] as RangeBlock);
+        i++;
+      }
+
+      if (group.length > 1) {
+        result.push({
+          blocks: group,
+          id: group.map((b) => b.id).join("-"),
+          kind: "range-group",
+        });
+      } else {
+        result.push(current);
+      }
+    } else {
+      result.push(current);
+    }
+    i++;
+  }
+
+  return result;
 }
 
 type FilterBlockRendererProps = {
@@ -3091,49 +3458,23 @@ function FilterBlockRenderer({
         />
       );
 
-    case "range": {
-      const value = filters.ranges[block.id] ?? { minimum: "", maximum: "" };
-
-      if (block.variant === "money") {
-        return (
-          <MoneyRangeSection
-            sectionId={getFilterSectionAnchor(block)}
-            title={block.title}
-            minimum={value.minimum}
-            maximum={value.maximum}
-            onMinimumChange={(nextValue) => setRangeValue(block.id, "minimum", nextValue)}
-            onMaximumChange={(nextValue) => setRangeValue(block.id, "maximum", nextValue)}
-          />
-        );
-      }
-
-      if (block.variant === "area") {
-        return (
-          <AreaRangeSection
-            sectionId={getFilterSectionAnchor(block)}
-            title={block.title}
-            unit={block.unit}
-            showUnitInTitle={block.showUnitInTitle}
-            minimum={value.minimum}
-            maximum={value.maximum}
-            onMinimumChange={(nextValue) => setRangeValue(block.id, "minimum", nextValue)}
-            onMaximumChange={(nextValue) => setRangeValue(block.id, "maximum", nextValue)}
-          />
-        );
-      }
-
+    case "range-group":
       return (
-        <NumberRangeSection
-          sectionId={getFilterSectionAnchor(block)}
-          title={block.title}
-          unit={block.unit}
-          minimum={value.minimum}
-          maximum={value.maximum}
-          onMinimumChange={(nextValue) => setRangeValue(block.id, "minimum", nextValue)}
-          onMaximumChange={(nextValue) => setRangeValue(block.id, "maximum", nextValue)}
+        <RangeGroupSection
+          block={block}
+          filters={filters}
+          setRangeValue={setRangeValue}
         />
       );
-    }
+
+    case "range":
+      return (
+        <SingleRangeSection
+          block={block}
+          filters={filters}
+          setRangeValue={setRangeValue}
+        />
+      );
 
     case "time":
       return (
@@ -3165,10 +3506,6 @@ function FilterBlockRenderer({
         <SingleChoiceSection
           icon={getIcon(block.icon)}
           sectionId={getFilterSectionAnchor(block)}
-          more={block.more ?? (block.id !== "age" && block.options.length > 8)}
-          moreLimit={block.moreLimit}
-          moreLabel={block.moreLabel}
-          moreIcon={block.moreIcon}
           onSelect={(value) => setSingleValue(block.id, value)}
           options={block.options}
           selected={filters.singles[block.id]}
@@ -3195,10 +3532,6 @@ function FilterBlockRenderer({
           icon={getIcon(block.icon)}
           sectionId={getFilterSectionAnchor(block)}
           showFeatureIcons={block.id === "heatingCooling" || block.id === "facilities"}
-          more={block.more ?? (block.id === "facilities" && block.options.length > 6)}
-          moreLimit={block.moreLimit ?? (block.id === "facilities" ? 6 : 8)}
-          moreLabel={block.moreLabel}
-          moreIcon={block.moreIcon}
           onToggle={(value) => toggleMultiValue(block.id, value)}
           options={block.options}
           selected={filters.multis[block.id] ?? []}
@@ -3367,9 +3700,9 @@ function NeighborhoodFilterSection({
           <LinearLocation className="w-6 h-6" />
           <Typography as="span" variant="label" size="large" weight="medium">محله</Typography>
         </div>
-        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]">
-          <Typography as="span" variant="label" size="medium" weight="medium">انتخاب</Typography>
-          <LinearArrowLeft1 className="w-5 h-5" />
+        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]" style={{ color: "#0048c4" }}>
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#0048c4]" style={{ color: "#0048c4" }}>انتخاب</Typography>
+          <LinearArrowLeft1 className="w-5 h-5 text-[#0048c4]" style={{ color: "#0048c4" }} />
         </div>
       </Button>
 
@@ -3511,97 +3844,16 @@ function NeighborhoodFilterSection({
   );
 }
 
-function ChevronDownIcon({ isOpen }: { isOpen: boolean }) {
-  return (
-    <motion.div
-      animate={{ rotate: isOpen ? 180 : 0 }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="inline-flex items-center justify-center shrink-0"
-    >
-      <LinearArrowDown1
-        aria-hidden="true"
-        className="h-5 w-5 shrink-0 text-[#4d4d4d]"
-      />
-    </motion.div>
-  );
+function ChevronDownIcon({ className }: { className?: string } = {}) {
+  return <LinearArrowDown1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-[#4d4d4d]"} />;
 }
 
-function ChevronLeftIcon() {
-  return <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5 shrink-0" />;
+function ChevronLeftIcon({ className }: { className?: string } = {}) {
+  return <LinearArrowLeft1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-[#0048c4]"} />;
 }
 
 function ClearCircleIcon() {
-  return <LinearCancelCircle aria-hidden="true" className="h-5 w-5" />;
-}
-
-type RangeSectionProps = {
-  sectionId?: string;
-  title: string;
-  unit?: string;
-  minimum: string;
-  maximum: string;
-  onMinimumChange: (value: string) => void;
-  onMaximumChange: (value: string) => void;
-};
-
-function AreaRangeSection({
-  sectionId,
-  title,
-  unit,
-  minimum,
-  maximum,
-  onMinimumChange,
-  onMaximumChange,
-  showUnitInTitle = false,
-}: RangeSectionProps & { showUnitInTitle?: boolean }) {
-  const titleUnit = (unit ?? "متر").replace(/\s+/g, "");
-  const normalizedTitle = showUnitInTitle ? (
-    <>
-      {title}
-      {" "}
-      <Typography
-        as="span"
-        variant="label"
-        size="medium"
-        weight="medium"
-        className="text-[#4d4d4d]"
-      >
-        ({titleUnit})
-      </Typography>
-    </>
-  ) : title.includes("متراژ") ? (
-    <>
-      متراژ
-      {" "}
-      <Typography
-        as="span"
-        variant="label"
-        size="medium"
-        weight="medium"
-        className="text-[#4d4d4d]"
-      >
-        (متر)
-      </Typography>
-    </>
-  ) : title;
-
-  return (
-    <FilterSection icon={<RulerIcon />} sectionId={sectionId} title={normalizedTitle}>
-      <div className="flex items-center gap-3" dir="rtl">
-        <RangeSelectField
-          label="حداقل"
-          onChange={onMinimumChange}
-          value={minimum}
-        />
-
-        <RangeSelectField
-          label="حداکثر"
-          onChange={onMaximumChange}
-          value={maximum}
-        />
-      </div>
-    </FilterSection>
-  );
+  return <LinearCancelCircle aria-hidden="true" className="h-4 w-4 shrink-0 text-[#0048c4]" />;
 }
 
 function TimeFilterSection({
@@ -3633,10 +3885,10 @@ function TimeFilterSection({
 }
 
 function DateFilterSection({
+  onChange,
   sectionId,
   title,
   value,
-  onChange,
 }: {
   sectionId?: string;
   title: string;
@@ -3672,49 +3924,17 @@ function DateFilterSection({
   );
 }
 
-function NumberRangeSection({
-  sectionId,
-  title,
-  unit,
-  minimum,
-  maximum,
-  onMinimumChange,
-  onMaximumChange,
-}: RangeSectionProps) {
-  return (
-    <FilterSection icon={<RulerIcon />} sectionId={sectionId} title={title}>
-      <div className="flex items-center gap-3" dir="rtl">
-        <FormTextField
-          badge={unit}
-          className="flex-1"
-          label="حداقل"
-          onChange={(event) => onMinimumChange(formatPersianPlainNumber(event.target.value))}
-          onClear={() => onMinimumChange("")}
-          placeholder="حداقل"
-          value={formatPersianPlainNumber(minimum)}
-        />
-
-        <FormTextField
-          badge={unit}
-          className="flex-1"
-          label="حداکثر"
-          onChange={(event) => onMaximumChange(formatPersianPlainNumber(event.target.value))}
-          onClear={() => onMaximumChange("")}
-          placeholder="حداکثر"
-          value={formatPersianPlainNumber(maximum)}
-        />
-      </div>
-    </FilterSection>
-  );
-}
-
 export function RangeSelectField({
   label,
   onChange,
+  options = areaRangeOptions,
+  unit = "متر",
   value,
 }: {
   label: string;
   onChange: (value: string) => void;
+  options?: readonly string[];
+  unit?: string;
   value: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -3740,7 +3960,7 @@ export function RangeSelectField({
         onClick={() => setIsOpen(true)}
         type="button"
       >
-        <ChevronDownIcon isOpen={isOpen} />
+        <ChevronDownIcon />
         <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
           {displayValue || label}
         </Typography>
@@ -3759,7 +3979,7 @@ export function RangeSelectField({
         {isCustomInputVisible ? (
           <div className="space-y-4 pt-2" dir="rtl">
             <FormTextField
-              badge="متر"
+              badge={unit}
               label="مقدار دلخواه"
               onChange={(event) => setCustomValue(formatPersianPlainNumber(event.target.value))}
               onClear={() => setCustomValue("")}
@@ -3797,7 +4017,7 @@ export function RangeSelectField({
               </Button>
             ) : null}
 
-            {areaRangeOptions.map((option) => {
+            {options.map((option) => {
               const normalizedOption = normalizeRangeNumber(option);
               const selected = Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
 
@@ -3830,38 +4050,212 @@ export function RangeSelectField({
   );
 }
 
-function MoneyRangeSection({
-  sectionId,
-  title,
-  minimum,
+function RangeItemContent({
+  block,
   maximum,
-  onMinimumChange,
+  minimum,
   onMaximumChange,
-}: RangeSectionProps) {
-  return (
-    <FilterSection icon={<MoneyIcon />} sectionId={sectionId} title={title}>
-      <div className="flex flex-col gap-4">
-        <FormTextField
-          badge="تومان"
-          label="حداقل"
-          onChange={(event) => onMinimumChange(normalizeRangeNumber(event.target.value))}
-          onClear={() => onMinimumChange("")}
-          placeholder="حداقل"
-          supportingText={getMoneySupportingText(minimum)}
-          value={formatMoneyInputValue(minimum)}
-        />
+  onMinimumChange,
+}: {
+  block: RangeBlock;
+  maximum: string;
+  minimum: string;
+  onMaximumChange: (value: string) => void;
+  onMinimumChange: (value: string) => void;
+}) {
+  const isWidth =
+    block.id === "landWidth" ||
+    block.id === "width" ||
+    block.title.includes("عرض");
+  const isHouseDimensions =
+    isWidth ||
+    block.id === "buildingArea" ||
+    block.title.includes("بنا");
+  const isArea = block.variant === "area";
+  const isMoney = block.variant === "money";
+  const icon = isMoney ? (
+    <MoneyIcon />
+  ) : isHouseDimensions ? (
+    <HouseDimensionsIcon />
+  ) : (
+    <RulerIcon />
+  );
 
-        <FormTextField
-          badge="تومان"
-          label="حداکثر"
-          onChange={(event) => onMaximumChange(normalizeRangeNumber(event.target.value))}
-          onClear={() => onMaximumChange("")}
-          placeholder="حداکثر"
-          supportingText={getMoneySupportingText(maximum)}
-          value={formatMoneyInputValue(maximum)}
-        />
+  const titleUnit = (block.unit ?? (isArea ? "مترمربع" : isWidth ? "متر" : "")).replace(/\s+/g, "");
+  const showUnit = block.showUnitInTitle || isArea || isWidth || (block.variant === "number" && Boolean(titleUnit));
+  const normalizedTitle = showUnit && titleUnit ? (
+    <>
+      {block.title}{" "}
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-[#808080]"
+      >
+        ({titleUnit})
+      </Typography>
+    </>
+  ) : (
+    block.title
+  );
+
+  return (
+    <div>
+      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-[#4d4d4d]">
+        {icon}
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="medium"
+          className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]"
+        >
+          {normalizedTitle}
+        </Typography>
       </div>
-    </FilterSection>
+
+      {isMoney ? (
+        <div className="flex flex-col gap-4">
+          <FormTextField
+            badge="تومان"
+            label="حداقل"
+            onChange={(event) => onMinimumChange(normalizeRangeNumber(event.target.value))}
+            onClear={() => onMinimumChange("")}
+            placeholder="حداقل"
+            supportingText={getMoneySupportingText(minimum)}
+            value={formatMoneyInputValue(minimum)}
+          />
+          <FormTextField
+            badge="تومان"
+            label="حداکثر"
+            onChange={(event) => onMaximumChange(normalizeRangeNumber(event.target.value))}
+            onClear={() => onMaximumChange("")}
+            placeholder="حداکثر"
+            supportingText={getMoneySupportingText(maximum)}
+            value={formatMoneyInputValue(maximum)}
+          />
+        </div>
+      ) : isWidth ? (
+        <div className="flex items-center gap-3" dir="rtl">
+          <RangeSelectField
+            label="حداقل"
+            onChange={onMinimumChange}
+            options={landWidthRangeOptions}
+            unit="متر"
+            value={minimum}
+          />
+          <RangeSelectField
+            label="حداکثر"
+            onChange={onMaximumChange}
+            options={landWidthRangeOptions}
+            unit="متر"
+            value={maximum}
+          />
+        </div>
+      ) : isArea ? (
+        <div className="flex items-center gap-3" dir="rtl">
+          <RangeSelectField
+            label="حداقل"
+            onChange={onMinimumChange}
+            options={areaRangeOptions}
+            unit="متر"
+            value={minimum}
+          />
+          <RangeSelectField
+            label="حداکثر"
+            onChange={onMaximumChange}
+            options={areaRangeOptions}
+            unit="متر"
+            value={maximum}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center gap-3" dir="rtl">
+          <FormTextField
+            badge={block.unit}
+            className="flex-1"
+            label="حداقل"
+            onChange={(event) => onMinimumChange(formatPersianPlainNumber(event.target.value))}
+            onClear={() => onMinimumChange("")}
+            placeholder="حداقل"
+            value={formatPersianPlainNumber(minimum)}
+          />
+          <FormTextField
+            badge={block.unit}
+            className="flex-1"
+            label="حداکثر"
+            onChange={(event) => onMaximumChange(formatPersianPlainNumber(event.target.value))}
+            onClear={() => onMaximumChange("")}
+            placeholder="حداکثر"
+            value={formatPersianPlainNumber(maximum)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SingleRangeSection({
+  block,
+  filters,
+  setRangeValue,
+}: {
+  block: RangeBlock;
+  filters: FilterState;
+  setRangeValue: (id: string, key: "minimum" | "maximum", value: string) => void;
+}) {
+  const value = filters.ranges[block.id] ?? { minimum: "", maximum: "" };
+
+  return (
+    <section
+      className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4"
+      data-filter-section={getFilterSectionAnchor(block)}
+      dir="rtl"
+    >
+      <RangeItemContent
+        block={block}
+        maximum={value.maximum}
+        minimum={value.minimum}
+        onMaximumChange={(nextValue) => setRangeValue(block.id, "maximum", nextValue)}
+        onMinimumChange={(nextValue) => setRangeValue(block.id, "minimum", nextValue)}
+      />
+    </section>
+  );
+}
+
+function RangeGroupSection({
+  block,
+  filters,
+  setRangeValue,
+}: {
+  block: RangeGroupBlock;
+  filters: FilterState;
+  setRangeValue: (id: string, key: "minimum" | "maximum", value: string) => void;
+}) {
+  return (
+    <section
+      className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4"
+      data-filter-section={getFilterSectionAnchor(block)}
+      dir="rtl"
+    >
+      {block.blocks.map((rangeBlock, index) => {
+        const value = filters.ranges[rangeBlock.id] ?? { minimum: "", maximum: "" };
+
+        return (
+          <div key={rangeBlock.id}>
+            {index > 0 ? <div className="my-4 border-t border-[#f0f0f0]" /> : null}
+            <RangeItemContent
+              block={rangeBlock}
+              maximum={value.maximum}
+              minimum={value.minimum}
+              onMaximumChange={(nextValue) => setRangeValue(rangeBlock.id, "maximum", nextValue)}
+              onMinimumChange={(nextValue) => setRangeValue(rangeBlock.id, "minimum", nextValue)}
+            />
+          </div>
+        );
+      })}
+    </section>
   );
 }
 
@@ -3897,22 +4291,30 @@ function SwitchOnlySection({
 
 function LoanFilterSection({
   checked,
-  groupStart,
   onChange,
 }: {
   checked: boolean;
-  groupStart: boolean;
+  groupStart?: boolean;
   onChange: (checked: boolean) => void;
 }) {
   return (
     <section
-      className={`border-b-8 border-[#f0f0f0] bg-white px-4 pb-[7.5px] ${
-        groupStart ? "pt-[7.5px]" : ""
-      }`}
+      className="border-b-8 border-[#f0f0f0] bg-white px-4"
       data-filter-section="hasLoan"
       dir="rtl"
     >
-      <CheckboxRow checked={checked} label="با وام" onChange={onChange} />
+      <Button
+        unstyled
+        aria-pressed={checked}
+        className="flex h-[56px] w-full items-center justify-between gap-3 bg-white pl-3 text-right"
+        onClick={() => onChange(!checked)}
+        type="button"
+      >
+        <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-[#1a1a1a]">
+          با وام
+        </Typography>
+        <ChoiceIndicator checked={checked} className="rounded" />
+      </Button>
     </section>
   );
 }

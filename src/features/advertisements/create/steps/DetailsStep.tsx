@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -6,6 +6,7 @@ import { BottomSheet, BottomSheetActionList } from "../../../../shared/component
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import { ChoiceIndicator } from "../../../../shared/ui/Choice";
 import { formatBigNumber } from "../../../../shared/lib/MoneyHandler";
+import { useTwoRowVisibleCount } from "../../../../shared/lib/useTwoRowVisibleCount";
 import {
   exchangeTargets,
   facilityItems,
@@ -50,6 +51,7 @@ import {
   getParams,
   navigateTo,
 } from "../utils";
+import { getFormSchemaByListing } from "../../forms";
 import type { MoreFeatureFormKey, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, SelectKey, SheetState } from "../types";
 import {
   Chip,
@@ -92,6 +94,19 @@ function moneySupportingText(value: string, includeCurrency = true) {
 function formatPersianCount(value: number) {
   return new Intl.NumberFormat("fa-IR").format(value);
 }
+
+function formatFacilityChipLabel(label: string, countStr?: string) {
+  if (!countStr) return undefined;
+  const num = parseInt(
+    countStr.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))),
+    10
+  );
+  if (num > 1) {
+    return `${label} (${formatPersianCount(num)})`;
+  }
+  return label;
+}
+
 
 function ExchangeCheckIcon({ checked }: { checked: boolean }) {
   return <ChoiceIndicator checked={checked} />;
@@ -149,10 +164,11 @@ export function DetailsStep({
   const isCrm = new URLSearchParams(window.location.search).get("editSource") === "crm";
 
   const { transaction, category } = getParams();
+  const formSchema = getFormSchemaByListing(transaction, category);
   const isProject = transaction === "project";
   const isPartnership = isProject && category === "project-partnership";
-  const isRent = transaction === "rent";
-  const isDailyRent = isRent && category.startsWith("daily-");
+  const isRent = formSchema?.create?.pricing?.mode === "rent" || transaction === "rent";
+  const isDailyRent = formSchema?.create?.pricing?.mode === "dailyRent" || (isRent && category.startsWith("daily-"));
   const isDailyHotelRent = isRent && category === "daily-hotel-apartment";
   const isDailyApartmentRent = isRent && category === "daily-apartment-suite";
   const isDailyVillaRent = isRent && category === "daily-garden-villa";
@@ -173,8 +189,11 @@ export function DetailsStep({
   const isRentFactory = transaction === "rent" && category === "factory-workshop";
   const isSaleResidential = transaction === "sale" && ["apartment", "villa-house", "land"].includes(category);
   const isRentResidential = transaction === "rent" && ["apartment", "villa-house", "garden-villa"].includes(category);
-  const hideHeatingCooling = isPartnership || category === "land";
-  const showFacilitiesSection = !isPartnership;
+  const hideHeatingCooling = formSchema?.create?.heatingCooling?.enabled === false || isPartnership || category === "land";
+  const showFacilitiesSection = formSchema?.create?.facilities?.enabled !== false && !isPartnership;
+  const allowLoan = formSchema?.create?.pricing?.loan ?? !isSaleGardenVilla;
+  const allowExchange = formSchema?.create?.pricing?.exchange ?? true;
+  const allowRentConversion = formSchema?.create?.pricing?.rentConversion !== false && !isPartnership && isRent;
 
   const values = watch();
 
@@ -230,28 +249,33 @@ export function DetailsStep({
   const extraMoreFeatureTags = registeredMoreFeatures.slice(initialVisibleMoreFeatureTagCount);
   const hiddenMoreFeatureCount = extraMoreFeatureTags.length;
 
-  const heatingItemsForListing = isProject
-    ? projectHeatingItems
-    : isSaleApartment
-    ? saleApartmentHeatingItems
-    : isSaleVillaHouse
-      ? saleVillaHouseHeatingItems
-      : isSaleOffice
-        ? saleOfficeHeatingItems
-      : isSaleCommercial
-        ? saleCommercialHeatingItems
-        : isSaleFactory
-          ? saleFactoryHeatingItems
-          : isSaleHotel
-            ? saleHotelHeatingItems
-              : isDailyRent
-                ? dailyRentHeatingItems
-              : isRentApartment || isRentVillaHouse || isRentOffice || isRentHotel || isRentCommercial || isRentFactory
-                ? rentHeatingItems
-            : heatingItems;
+  const heatingItemsForListing = formSchema?.create?.heatingCooling?.items ?? (
+    isProject
+      ? projectHeatingItems
+      : isSaleApartment
+      ? saleApartmentHeatingItems
+      : isSaleVillaHouse
+        ? saleVillaHouseHeatingItems
+        : isSaleOffice
+          ? saleOfficeHeatingItems
+        : isSaleCommercial
+          ? saleCommercialHeatingItems
+          : isSaleFactory
+            ? saleFactoryHeatingItems
+            : isSaleHotel
+              ? saleHotelHeatingItems
+                : isDailyRent
+                  ? dailyRentHeatingItems
+                : isRentApartment || isRentVillaHouse || isRentOffice || isRentHotel || isRentCommercial || isRentFactory
+                  ? rentHeatingItems
+              : heatingItems
+  );
 
   const facilityItemsForCategory = useMemo(
     () => {
+      if (formSchema?.create?.facilities?.items) {
+        return formSchema.create.facilities.items;
+      }
       if (isProject) return projectFacilityItems;
       if (isSaleApartment) return saleApartmentFacilityItems;
       if (isSaleVillaHouse) return saleVillaHouseFacilityItems;
@@ -274,14 +298,26 @@ export function DetailsStep({
         ? landFacilityItems
         : facilityItems;
     },
-    [category, isProject, isDailyApartmentRent, isDailyHotelRent, isDailyVillaRent, isDailyWorkspaceRent, isRentApartment, isRentCommercial, isRentFactory, isRentHotel, isRentOffice, isRentVillaHouse, isSaleApartment, isSaleCommercial, isSaleFactory, isSaleHotel, isSaleLand, isSaleOffice, isSaleVillaHouse],
+    [formSchema, category, isProject, isDailyApartmentRent, isDailyHotelRent, isDailyVillaRent, isDailyWorkspaceRent, isRentApartment, isRentCommercial, isRentFactory, isRentHotel, isRentOffice, isRentVillaHouse, isSaleApartment, isSaleCommercial, isSaleFactory, isSaleHotel, isSaleLand, isSaleOffice, isSaleVillaHouse],
   );
 
-  const initialVisibleChipCount = 6;
-  const initialHeating = heatingItemsForListing.slice(0, initialVisibleChipCount);
-  const extraHeating = heatingItemsForListing.slice(initialVisibleChipCount);
-  const initialFacilities = facilityItemsForCategory.slice(0, initialVisibleChipCount);
-  const extraFacilities = facilityItemsForCategory.slice(initialVisibleChipCount);
+  const heatingMeasureRef = useRef<HTMLDivElement>(null);
+  const facilitiesMeasureRef = useRef<HTMLDivElement>(null);
+
+  const visibleHeatingCount = useTwoRowVisibleCount(
+    heatingMeasureRef,
+    heatingItemsForListing.length,
+  );
+  const visibleFacilitiesCount = useTwoRowVisibleCount(
+    facilitiesMeasureRef,
+    facilityItemsForCategory.length,
+    `${values.elevatorCount}-${values.parkingCount}-${values.terraceCount}`,
+  );
+
+  const initialHeating = heatingItemsForListing.slice(0, visibleHeatingCount);
+  const extraHeating = heatingItemsForListing.slice(visibleHeatingCount);
+  const initialFacilities = facilityItemsForCategory.slice(0, visibleFacilitiesCount);
+  const extraFacilities = facilityItemsForCategory.slice(visibleFacilitiesCount);
 
   const setField = <T extends keyof NewAdFormValues>(
     key: T,
@@ -407,7 +443,7 @@ export function DetailsStep({
               numeric
               leftText="تومان"
               onChange={(value) => setField("minPrice", value)}
-              placeholder="حداقل قیمت متری *"
+              placeholder="حداقل قیمت(متری) *"
               supportingText={moneySupportingText(values.minPrice)}
               value={values.minPrice}
             />
@@ -417,17 +453,21 @@ export function DetailsStep({
               numeric
               leftText="تومان"
               onChange={(value) => setField("maxPrice", value)}
-              placeholder="حداکثر قیمت متری *"
+              placeholder="حداکثر قیمت(متری) *"
               supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
-            <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
+            <div className="border-t border-[#f0f0f0]">
+              <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
+            </div>
 
-            <Toggle
-              checked={values.exchangeEnabled}
-              label="معاوضه"
-              onChange={(checked) => setField("exchangeEnabled", checked)}
-            />
+            <div className="border-t border-[#f0f0f0]">
+              <PriceToggleRow
+                checked={values.exchangeEnabled}
+                label="معاوضه"
+                onChange={(checked) => setField("exchangeEnabled", checked)}
+              />
+            </div>
 
             {values.exchangeEnabled ? (
               <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
@@ -476,20 +516,17 @@ export function DetailsStep({
             <InputBox error={errors.maxPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("maxPrice", value)} placeholder="حداکثر قیمت *" supportingText={moneySupportingText(values.maxPrice)} value={values.maxPrice} />
           </div>
 
-          <div className="my-5 border-t border-dashed border-[#cccccc]" />
-
-          {isDailyHotelRent ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-right text-sm leading-6 text-[#808080]">
-              قیمت روزهای عادی، آخر هفته و روزهای خاص برای هر نوع اتاق در بخش «مشخصات اتاق‌ها» ثبت می‌شود.
-            </Typography>
-          ) : (
-            <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-              <InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} />
-              <InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} />
-              <InputBox error={errors.specialDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("specialDailyPrice", value)} placeholder="روزهای خاص (تعطیلات و مناسبت ها) *" supportingText={moneySupportingText(values.specialDailyPrice)} value={values.specialDailyPrice} />
-              <InputBox error={errors.extraPersonPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("extraPersonPrice", value)} placeholder="هزینه هر نفر اضافه" supportingText={moneySupportingText(values.extraPersonPrice)} value={values.extraPersonPrice} />
-            </div>
-          )}
+          {!isDailyHotelRent ? (
+            <>
+              <div className="my-5 border-t border-dashed border-[#cccccc]" />
+              <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
+                <InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} />
+                <InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} />
+                <InputBox error={errors.specialDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("specialDailyPrice", value)} placeholder="روزهای خاص (تعطیلات و مناسبت ها) *" supportingText={moneySupportingText(values.specialDailyPrice)} value={values.specialDailyPrice} />
+                <InputBox error={errors.extraPersonPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("extraPersonPrice", value)} placeholder="هزینه هر نفر اضافه" supportingText={moneySupportingText(values.extraPersonPrice)} value={values.extraPersonPrice} />
+              </div>
+            </>
+          ) : null}
         </Section>
       );
     }
@@ -520,14 +557,18 @@ export function DetailsStep({
             />
           </div>
 
-          <RentPriceConversion
-            enabled={values.rentConversionEnabled}
-            mortgagePrice={values.mortgagePrice}
-            onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
-            onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
-            rentPrice={values.rentPrice}
-            selectedMortgagePrice={values.rentConversionMortgagePrice}
-          />
+          {allowRentConversion ? (
+            <div className="mt-4">
+              <RentPriceConversion
+                enabled={values.rentConversionEnabled}
+                mortgagePrice={values.mortgagePrice}
+                onEnabledChange={(checked) => setField("rentConversionEnabled", checked)}
+                onSelectedMortgageChange={(value) => setField("rentConversionMortgagePrice", value)}
+                rentPrice={values.rentPrice}
+                selectedMortgagePrice={values.rentConversionMortgagePrice}
+              />
+            </div>
+          ) : null}
         </Section>
       );
     }
@@ -550,7 +591,7 @@ export function DetailsStep({
               value={values.price}
             />
 
-            {!isSaleGardenVilla ? (
+            {allowLoan ? (
               <>
                 <Toggle
                   checked={values.loanEnabled}
@@ -586,13 +627,15 @@ export function DetailsStep({
               </>
             ) : null}
 
-            <Toggle
-              checked={values.exchangeEnabled}
-              label="معاوضه می‌شود"
-              onChange={(checked) => setField("exchangeEnabled", checked)}
-            />
+            {allowExchange ? (
+              <Toggle
+                checked={values.exchangeEnabled}
+                label="معاوضه می‌شود"
+                onChange={(checked) => setField("exchangeEnabled", checked)}
+              />
+            ) : null}
 
-            {values.exchangeEnabled ? (
+            {allowExchange && values.exchangeEnabled ? (
               <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
                 <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
                   <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
@@ -661,7 +704,7 @@ export function DetailsStep({
           value={values.price}
         />
 
-        {!isSaleGardenVilla ? (
+        {allowLoan ? (
           <>
             <div
               className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-[#cccccc]`}
@@ -705,25 +748,27 @@ export function DetailsStep({
           </>
         ) : null}
 
-        <div
-          className={`${
-            isSaleGardenVilla
-              ? priceHasSupportingText
-                ? "mt-4"
-                : "mt-5"
-              : values.loanEnabled
-                ? "mt-4"
-                : ""
-          } border-t border-[#cccccc]`}
-        >
-          <PriceToggleRow
-            checked={values.exchangeEnabled}
-            label="معاوضه می‌شود"
-            onChange={(checked) => setField("exchangeEnabled", checked)}
-          />
-        </div>
+        {allowExchange ? (
+          <div
+            className={`${
+              !allowLoan
+                ? priceHasSupportingText
+                  ? "mt-4"
+                  : "mt-5"
+                : values.loanEnabled
+                  ? "mt-4"
+                  : ""
+            } border-t border-[#cccccc]`}
+          >
+            <PriceToggleRow
+              checked={values.exchangeEnabled}
+              label="معاوضه می‌شود"
+              onChange={(checked) => setField("exchangeEnabled", checked)}
+            />
+          </div>
+        ) : null}
 
-        {values.exchangeEnabled ? (
+        {allowExchange && values.exchangeEnabled ? (
           <div className="mt-3 rounded-2xl border border-[#f0f0f0] px-4 py-6">
             <div className="mb-4 flex items-center justify-between [direction:rtl]">
               <Typography
@@ -813,8 +858,28 @@ export function DetailsStep({
             onOpenMoreFeatures={onMoreFeatures}
           />
         ) : (
-          <Section icon="info.svg" title={isDailyVillaRent ? "مشخصات ویلا" : isDailyRent ? "مشخصات آگهی" : isSaleApartment || isRentApartment ? "مشخصات آپارتمان" : isSaleVillaHouse || isRentVillaHouse ? "مشخصات بنا" : isSaleOffice || isRentOffice ? "مشخصات اداری" : isSaleCommercial || isRentCommercial ? "مشخصات تجاری" : isSaleFactory || isSaleHotel || isRentHotel || isRentFactory ? "مشخصات آگهی" : "مشخصات ملک"}>
-            <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
+          <Section
+            icon="info.svg"
+            title={
+              formSchema?.create?.specsTitle ??
+              (formSchema?.title
+                ? `مشخصات ${formSchema.title.replace(/^(فروش|اجاره روزانه|اجاره)\s+/, "")}`
+                : isDailyVillaRent
+                  ? "مشخصات ویلا"
+                  : isSaleApartment || isRentApartment
+                    ? "مشخصات آپارتمان"
+                    : isSaleVillaHouse || isRentVillaHouse
+                      ? "مشخصات خانه و ویلا"
+                      : isSaleOffice || isRentOffice
+                        ? "مشخصات اداری"
+                        : isSaleCommercial || isRentCommercial
+                          ? "مشخصات تجاری"
+                          : label
+                            ? `مشخصات ${label}`
+                            : "مشخصات ملک")
+            }
+          >
+            <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-6"}>
               {basicPropertyFields.map((field) => {
                 const placeholder = `${field.label}${field.required ? " *" : ""}`;
                 const value = values[field.key];
@@ -1016,21 +1081,33 @@ export function DetailsStep({
         ) : null}
 
         {!hideHeatingCooling ? (
-          <Section icon="tempreture.svg" title="گرمایش و سرمایش">
-            <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-              {initialHeating.map((item) => (
-                <Chip
-                  key={item.id}
-                  item={item}
-                  selected={values.heatingCooling.includes(item.id)}
-                  onClick={() =>
-                    setField(
-                      "heatingCooling",
-                      toggleArray(values.heatingCooling, item.id),
-                    )
-                  }
-                />
-              ))}
+          <Section icon="tempreture.svg" title={isProject ? "سرمایش و گرمایش" : "گرمایش و سرمایش"}>
+            <div className="relative w-full">
+              <div
+                ref={heatingMeasureRef}
+                className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+                aria-hidden="true"
+                dir="rtl"
+              >
+                {heatingItemsForListing.map((item) => (
+                  <Chip key={item.id} item={item} selected={false} onClick={() => {}} />
+                ))}
+              </div>
+              <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+                {initialHeating.map((item) => (
+                  <Chip
+                    key={item.id}
+                    item={item}
+                    selected={values.heatingCooling.includes(item.id)}
+                    onClick={() =>
+                      setField(
+                        "heatingCooling",
+                        toggleArray(values.heatingCooling, item.id),
+                      )
+                    }
+                  />
+                ))}
+              </div>
             </div>
             <AnimatePresence initial={false}>
               {showAllHeating && extraHeating.length > 0 && (
@@ -1059,9 +1136,9 @@ export function DetailsStep({
                 </motion.div>
               )}
             </AnimatePresence>
-            {heatingItemsForListing.length > initialVisibleChipCount ? (
+            {heatingItemsForListing.length > visibleHeatingCount ? (
               <MoreButton
-                count={heatingItemsForListing.length - initialVisibleChipCount}
+                count={heatingItemsForListing.length - visibleHeatingCount}
                 expanded={showAllHeating}
                 onClick={() => setShowAllHeating((current) => !current)}
               />
@@ -1071,24 +1148,50 @@ export function DetailsStep({
 
         {showFacilitiesSection ? (
           <Section icon="features.svg" title="امکانات">
-            <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-              {initialFacilities.map((item) => (
-                <Chip
-                  displayLabel={
-                    item.id === "elevator" && values.elevatorCount
-                      ? `${item.label} (${values.elevatorCount})`
-                      : item.id === "parking" && values.parkingCount
-                        ? `${item.label} (${values.parkingCount})`
-                        : item.id === "terrace" && values.terraceCount
-                          ? `${item.label} (${values.terraceCount})`
-                          : undefined
-                  }
-                  key={item.id}
-                  item={item}
-                  selected={values.facilities.includes(item.id)}
-                  onClick={() => handleFacilityClick(item.id)}
-                />
-              ))}
+            <div className="relative w-full">
+              <div
+                ref={facilitiesMeasureRef}
+                className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+                aria-hidden="true"
+                dir="rtl"
+              >
+                {facilityItemsForCategory.map((item) => (
+                  <Chip
+                    displayLabel={
+                      item.id === "elevator" && values.elevatorCount
+                        ? formatFacilityChipLabel(item.label, values.elevatorCount)
+                        : item.id === "parking" && values.parkingCount
+                          ? formatFacilityChipLabel(item.label, values.parkingCount)
+                          : item.id === "terrace" && values.terraceCount
+                            ? formatFacilityChipLabel(item.label, values.terraceCount)
+                            : undefined
+                    }
+                    key={item.id}
+                    item={item}
+                    selected={false}
+                    onClick={() => {}}
+                  />
+                ))}
+              </div>
+              <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+                {initialFacilities.map((item) => (
+                  <Chip
+                    displayLabel={
+                      item.id === "elevator" && values.elevatorCount
+                        ? formatFacilityChipLabel(item.label, values.elevatorCount)
+                        : item.id === "parking" && values.parkingCount
+                          ? formatFacilityChipLabel(item.label, values.parkingCount)
+                          : item.id === "terrace" && values.terraceCount
+                            ? formatFacilityChipLabel(item.label, values.terraceCount)
+                            : undefined
+                    }
+                    key={item.id}
+                    item={item}
+                    selected={values.facilities.includes(item.id)}
+                    onClick={() => handleFacilityClick(item.id)}
+                  />
+                ))}
+              </div>
             </div>
             <AnimatePresence initial={false}>
               {showAllFacilities && extraFacilities.length > 0 && (
@@ -1104,11 +1207,11 @@ export function DetailsStep({
                       <Chip
                         displayLabel={
                           item.id === "elevator" && values.elevatorCount
-                            ? `${item.label} (${values.elevatorCount})`
+                            ? formatFacilityChipLabel(item.label, values.elevatorCount)
                             : item.id === "parking" && values.parkingCount
-                              ? `${item.label} (${values.parkingCount})`
+                              ? formatFacilityChipLabel(item.label, values.parkingCount)
                               : item.id === "terrace" && values.terraceCount
-                                ? `${item.label} (${values.terraceCount})`
+                                ? formatFacilityChipLabel(item.label, values.terraceCount)
                                 : undefined
                         }
                         key={item.id}
@@ -1121,9 +1224,9 @@ export function DetailsStep({
                 </motion.div>
               )}
             </AnimatePresence>
-            {facilityItemsForCategory.length > initialVisibleChipCount ? (
+            {facilityItemsForCategory.length > visibleFacilitiesCount ? (
               <MoreButton
-                count={facilityItemsForCategory.length - initialVisibleChipCount}
+                count={facilityItemsForCategory.length - visibleFacilitiesCount}
                 expanded={showAllFacilities}
                 onClick={() => setShowAllFacilities((current) => !current)}
               />

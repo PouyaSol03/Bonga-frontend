@@ -26,7 +26,7 @@ export function IndependentConsultantAdAllocationPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-6">
         <div className="px-4">
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#0048c414] px-2 text-sm font-medium leading-5 text-[#0048c4]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#fff3e8] px-2 text-sm font-medium leading-5 text-[#ff6d00]">
               در انتظار پرداخت
             </Typography>
           </div>

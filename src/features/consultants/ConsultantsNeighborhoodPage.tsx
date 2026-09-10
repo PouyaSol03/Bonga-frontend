@@ -8,7 +8,7 @@ import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { getStoredBackTarget, pushRoute } from "../../shared/navigation/navigation";
-import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
+import { getNeighborhoodDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
 import {
   readConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
@@ -18,34 +18,6 @@ import { Button } from "../../shared/ui/Button";
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? "");
-}
-
-function getChildName(value: unknown) {
-  if (typeof value === "string") return value.trim();
-  if (!value || typeof value !== "object") return "";
-
-  const record = value as Record<string, unknown>;
-  const name = record.name ?? record.title ?? record.label;
-
-  return typeof name === "string" ? name.trim() : "";
-}
-
-function getNeighborhoodDescription(neighborhood: NeighborhoodDto) {
-  const value = neighborhood.sub_neighbors;
-
-  if (Array.isArray(value)) {
-    return value.map(getChildName).filter(Boolean).join("، ");
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/[،,|]/)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join("، ");
-  }
-
-  return "";
 }
 
 function leaveNeighborhoodPage() {

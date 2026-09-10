@@ -15,6 +15,7 @@ import {
 import { JalaliDatePickerSheet } from "../advertisements/create/steps/project/JalaliDatePickerSheet";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { formatNumber } from "../../shared/lib/numberUtils";
 
 type CrmPaymentsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -743,10 +744,6 @@ function PaymentTableSkeleton({ columns }: { columns: number }) {
       ))}
     </>
   );
-}
-
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("fa-IR").format(value);
 }
 
 function SvgIcon({ children, size = 20 }: { children: ReactNode; size?: number }) {

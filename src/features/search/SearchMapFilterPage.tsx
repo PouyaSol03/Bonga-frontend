@@ -17,7 +17,9 @@ import { FeatureIcon } from "../advertisements/components/FeatureIcon";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { formatBigNumber, formatPrice } from "../../shared/lib/MoneyHandler";
-import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
+import { getNeighborhoodDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
+import { toEnglishDigits } from "../../shared/lib/numberUtils";
+import { goBackOrNavigate } from "../../shared/navigation/navigation";
 import { useAdvertisementListQuery } from "../advertisements/api/advertisement.hooks";
 import { readSearchFilters } from "./SearchMapPage";
 import type { AdvertisementListParams } from "../advertisements/api/advertisement.service";
@@ -343,27 +345,6 @@ function getBackToSearchPath(backBasePath = "/search") {
   const queryString = params.toString();
 
   return queryString ? `${backBasePath}?${queryString}` : backBasePath;
-}
-
-function goBackOrNavigate(fallbackPath: string) {
-  if (window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
-  window.history.replaceState(window.history.state ?? {}, "", fallbackPath);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
-function toEnglishDigits(value: string) {
-  return value.replace(/[۰-۹٠-٩]/g, (digit) => {
-    const code = digit.charCodeAt(0);
-
-    if (code >= 0x06f0 && code <= 0x06f9) return String(code - 0x06f0);
-    if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
-
-    return digit;
-  });
 }
 
 function normalizeExactFilterValue(value: string | undefined) {
@@ -897,34 +878,6 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
     id: getNeighborhoodOptionId(neighborhood),
     name: neighborhood.name,
   };
-}
-
-function getNeighborhoodChildName(value: unknown) {
-  if (typeof value === "string") return value.trim();
-  if (!value || typeof value !== "object") return "";
-
-  const record = value as Record<string, unknown>;
-  const name = record.name ?? record.title ?? record.label;
-
-  return typeof name === "string" ? name.trim() : "";
-}
-
-function getNeighborhoodDescription(neighborhood: NeighborhoodDto) {
-  const value = neighborhood.sub_neighbors;
-
-  if (Array.isArray(value)) {
-    return value.map(getNeighborhoodChildName).filter(Boolean).join("، ");
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/[،,|]/)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join("، ");
-  }
-
-  return "";
 }
 
 function getListingKey(transaction: TransactionType, category: CategoryKey) {

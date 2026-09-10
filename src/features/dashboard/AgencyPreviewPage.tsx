@@ -43,6 +43,7 @@ import type {
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { toEnglishDigits } from "../../shared/lib/numberUtils";
 import LinearAddToList from "../../shared/icons/LinearAddToList";
 import TonalInstagram from "../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../shared/icons/TonalTelegram";
@@ -1461,12 +1462,6 @@ function AgencyMiniMap({ lat, lng }: { lat: number; lng: number }) {
       />
     </MapContainer>
   );
-}
-
-function toEnglishDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
 }
 
 function normalizeSocialUrl(type: "instagram" | "telegram" | "whatsapp", value: string) {

@@ -7,14 +7,7 @@ import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearMedalFirst from "../../../shared/icons/LinearMedalFirst";
 
-const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-
-function toPersianNumber(value: number | string) {
-  return String(value).replace(
-    /\d/g,
-    (digit) => persianDigits[Number(digit)] ?? digit,
-  );
-}
+import { toPersianNumber } from "../../../shared/lib/numberUtils";
 
 function TrustedBadgeIcon() {
   return (
@@ -201,7 +194,7 @@ export function TrustedPartnersSection() {
                 key={partner.id}
                 aria-label={`نمایش آژانس ${index + 1}`}
                 aria-current={index === activeIndex ? "true" : undefined}
-                className={`${sizeClass} shrink-0 rounded-full ${
+                className={`${sizeClass} shrink-0 rounded-full transition-all duration-300 ease-out ${
                   index === activeIndex ? "bg-on-surface-var" : "bg-on-surface-var/16"
                 }`}
                 onClick={() => scrollToPartner(index)}

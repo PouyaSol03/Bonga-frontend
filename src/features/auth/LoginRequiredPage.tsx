@@ -8,6 +8,7 @@ import {
 } from "../../shared/auth/auth-storage";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { goBackOrNavigate } from "../../shared/navigation/navigation";
 
 const defaultReturnPath = "/home";
 
@@ -34,15 +35,6 @@ function getSafeReturnPath() {
   }
 
   return defaultReturnPath;
-}
-
-function goBackOrNavigate(fallbackPath: string) {
-  if (window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
-  navigateTo(fallbackPath);
 }
 
 export function LoginRequiredPage() {

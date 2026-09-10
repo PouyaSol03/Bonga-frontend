@@ -18,7 +18,8 @@ import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import { formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import { ageOptions, floorOptions, roomOptions } from "../../advertisements/create/data";
-import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
+import { getNeighborhoodDescription, type NeighborhoodDto } from "../../locations/api/neighborhood.service";
+import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import {
   categoryGroupsByTransaction,
   categoryLabels,
@@ -52,21 +53,6 @@ type SearchMapQuickFilterBottomSheetProps = {
 };
 
 const neighborhoodSearchDebounceMs = 250;
-
-function toEnglishDigits(value: string) {
-  return value.replace(/[۰-۹٠-٩]/g, (digit) => {
-    const code = digit.charCodeAt(0);
-
-    if (code >= 0x06f0 && code <= 0x06f9) return String(code - 0x06f0);
-    if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
-
-    return digit;
-  });
-}
-
-function toPersianDigits(value: string | number) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
-}
 
 function normalizeNumber(value: string) {
   return toEnglishDigits(value).replace(/[^\d.]/g, "");
@@ -102,35 +88,6 @@ function normalizeChoiceValue(value: string) {
 
 function getNeighborhoodId(neighborhood: Pick<NeighborhoodDto, "_id" | "id" | "name">) {
   return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
-}
-
-function getNeighborhoodDescription(neighborhood: NeighborhoodDto) {
-  const value = neighborhood.sub_neighbors;
-
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => {
-        if (typeof item === "string") return item.trim();
-        if (!item || typeof item !== "object") return "";
-
-        const record = item as Record<string, unknown>;
-        const name = record.name ?? record.title ?? record.label;
-
-        return typeof name === "string" ? name.trim() : "";
-      })
-      .filter(Boolean)
-      .join("، ");
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/[،,|]/)
-      .map((item) => item.trim())
-      .filter(Boolean)
-      .join("، ");
-  }
-
-  return "";
 }
 
 function splitParam(value: string | null) {

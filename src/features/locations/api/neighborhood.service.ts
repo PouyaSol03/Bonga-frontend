@@ -272,3 +272,28 @@ function normalizeSubNeighborhood(value: unknown, index: number): SubNeighborhoo
     polygon: record.polygon,
   }];
 }
+
+function getChildName(child: unknown): string {
+  if (typeof child === "string") return child;
+  if (!child || typeof child !== "object") return "";
+  const item = child as { name?: string; title?: string };
+  return item.name || item.title || "";
+}
+
+export function getNeighborhoodDescription(neighborhood: NeighborhoodDto): string {
+  const value = neighborhood.sub_neighbors;
+
+  if (Array.isArray(value)) {
+    return value.map(getChildName).filter(Boolean).join("، ");
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/[،,|]/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join("، ");
+  }
+
+  return "";
+}

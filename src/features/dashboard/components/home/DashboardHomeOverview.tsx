@@ -35,8 +35,7 @@ import {
 } from "./dashboardHomeData";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
-
-const numberFormatter = new Intl.NumberFormat("fa-IR");
+import { formatNumber } from "../../../../shared/lib/numberUtils";
 
 const metricIcons: Record<
   DashboardMetric["icon"],
@@ -105,12 +104,6 @@ const progressChartAxisWidth = 28;
 const progressChartVisibleMonths = 9;
 const progressChartViewportWidth =
   progressChartAxisWidth + progressChartVisibleMonths * progressChartMonthWidth;
-
-
-
-function formatNumber(value: number | string) {
-  return numberFormatter.format(Number(value));
-}
 
 function formatOptionalNumber(value: number | null | undefined) {
   return value === null || value === undefined ? "—" : formatNumber(value);

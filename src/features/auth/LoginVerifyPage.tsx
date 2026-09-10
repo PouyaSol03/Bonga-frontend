@@ -9,6 +9,7 @@ import {
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { goBackOrNavigate } from "../../shared/navigation/navigation";
 import LoginOTPbackground from "../../shared/assets/images/LoginOTPBackground.svg";
 import { useResendOtpMutation, useVerifyOtpMutation } from "./api/auth.hooks";
 import {
@@ -51,16 +52,6 @@ async function ensureSelectedCityAfterLogin() {
   } catch {
     // Keep the existing router fallback: without a stored city, the user is sent to city selection.
   }
-}
-
-function goBackOrNavigate(fallbackPath: string) {
-  if (window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
-  window.history.pushState({}, "", fallbackPath);
-  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 export function LoginVerifyPage() {

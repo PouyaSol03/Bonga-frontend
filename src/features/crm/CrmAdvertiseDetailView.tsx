@@ -25,6 +25,7 @@ import { AdLocationMap } from "../advertisements/components/AdLocationMap";
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { backRoute } from "../../shared/navigation/navigation";
+import { formatNumber, toNumericValue } from "../../shared/lib/numberUtils";
 import {
   getCrmAdvertise,
   getCrmRecordId,
@@ -260,28 +261,9 @@ function getFormName(formCode: string) {
   return formCodeLabels[formCode] ?? "فرم آگهی ثبت‌شده";
 }
 
-function toNumericValue(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (typeof value !== "string" || !value.trim()) return null;
-
-  const normalized = value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
-    .replace(/[٬،,\s]/g, "")
-    .replace(/[^0-9.-]/g, "");
-  const number = Number(normalized);
-
-  return Number.isFinite(number) ? number : null;
-}
-
-function formatNumber(value: unknown) {
-  const number = toNumericValue(value);
-  return number === null ? "-" : new Intl.NumberFormat("fa-IR").format(number);
-}
-
 function formatMoney(value: unknown) {
   const formatted = formatNumber(value);
-  return formatted === "-" ? formatted : `${formatted} تومان`;
+  return !formatted ? "-" : `${formatted} تومان`;
 }
 
 function resolvePricePresentation(
@@ -340,7 +322,7 @@ function resolvePricePresentation(
 
 function formatArea(value: unknown) {
   const formatted = formatNumber(value);
-  return formatted === "-" ? formatted : `${formatted} متر مربع`;
+  return !formatted ? "-" : `${formatted} متر مربع`;
 }
 
 function formatDate(value: unknown) {

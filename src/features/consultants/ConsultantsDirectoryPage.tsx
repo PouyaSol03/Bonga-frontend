@@ -10,6 +10,7 @@ import { TopBar } from "../../shared/components/TopBar";
 import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../agencies/api/agency.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { pushRoute } from "../../shared/navigation/navigation";
+import { toPersianNumber } from "../../shared/lib/numberUtils";
 import type { AgencySort, PublicAgencyDto, PublicAgentListDto } from "../agencies/api/agency.service";
 import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
 import {
@@ -49,17 +50,9 @@ const sortOptions: SortOption[] = [
   { id: "oldest", label: "قدیمی‌ترین" },
 ];
 
-const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
 const agencyPageSize = 20;
 const loadMoreRemainingItemCount = 10;
 const searchDebounceMs = 350;
-
-function toPersianNumber(value: number | string) {
-  return String(value).replace(
-    /\d/g,
-    (digit) => persianDigits[Number(digit)] ?? digit,
-  );
-}
 
 function useDebouncedValue<T>(value: T, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);

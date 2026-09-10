@@ -7,16 +7,7 @@ import { useRequestOtpMutation } from "./api/auth.hooks";
 import { getAuthErrorMessage, normalizeMobile } from "./api/auth.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
-
-function goBackOrNavigate(fallbackPath: string) {
-  if (window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
-  window.history.pushState({}, "", fallbackPath);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
+import { goBackOrNavigate } from "../../shared/navigation/navigation";
 
 export function LoginPhonePage() {
   const [phoneNumber, setPhoneNumber] = useState("");

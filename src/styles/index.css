@@ -616,3 +616,78 @@ input[type="search"]::-webkit-search-results-decoration {
   background: transparent;
   filter: drop-shadow(0 8px 14px rgba(26, 26, 26, 0.18));
 }
+
+/* Recharts focus and outline cleanup to prevent black outline artifacts on click */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface,
+.recharts-surface:focus,
+.recharts-surface:focus-visible,
+.recharts-bar-rectangle,
+.recharts-bar-rectangle:focus,
+.recharts-bar-rectangle:focus-visible,
+.recharts-bar-rectangles,
+.recharts-layer,
+.recharts-layer:focus,
+.recharts-layer:focus-visible,
+.recharts-sector:focus,
+.recharts-sector:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Skeleton Loading Shimmer Animation */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-skeleton {
+  background: linear-gradient(90deg, #ececec 0%, #f7f7f7 50%, #ececec 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+/* Soft tactile check and radio indicator animations */
+@keyframes check-pop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes radio-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-check-pop {
+  animation: check-pop 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-radio-pop {
+  animation: radio-pop 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

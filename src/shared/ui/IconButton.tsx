@@ -31,7 +31,7 @@ export function IconButton({
   return (
     <Button unstyled
       className={cn(
-        "grid shrink-0 place-items-center disabled:cursor-not-allowed disabled:opacity-50",
+        "grid shrink-0 place-items-center select-none cursor-pointer will-change-transform active:scale-[0.94] transition-[transform,background-color,border-color,color,box-shadow,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:duration-100 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100",
         size === "dense" ? "h-10 w-10 rounded-xl" : "h-12 w-12 rounded-[12px]",
         variantClasses[variant],
         focusRing,

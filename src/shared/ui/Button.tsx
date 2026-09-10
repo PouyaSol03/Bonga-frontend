@@ -96,7 +96,7 @@ const isTextContent = (children: ReactNode) =>
   typeof children === "string" || typeof children === "number";
 
 const interactionClasses =
-  "select-none transition-[background-color,border-color,color,box-shadow] duration-150 ease-out disabled:cursor-not-allowed disabled:transition-none";
+  "select-none cursor-pointer will-change-transform active:scale-[0.98] transition-[transform,background-color,border-color,color,box-shadow,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:duration-100 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:transition-none";
 
 export function Button({
   bgColor,

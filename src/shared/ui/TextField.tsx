@@ -77,7 +77,7 @@ export function TextField({
     <label className={cn("block min-w-0", containerClassName)}>
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
-          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition-[border-color,box-shadow] duration-200 ease-out [direction:rtl]",
+          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:rtl]",
           error
             ? "border-[#ee3623]"
             : hasHighlightedBorder
@@ -98,7 +98,7 @@ export function TextField({
               exit={{ opacity: 0, scale: 0.96, y: 4 }}
               initial={{ opacity: 0, scale: 0.96, y: 4 }}
               key="floating-label"
-              transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <Typography
                 as="span"

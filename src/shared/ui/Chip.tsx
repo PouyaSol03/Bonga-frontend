@@ -26,10 +26,10 @@ export function Chip({
     <Button unstyled
       aria-pressed={selected}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center min-w-9 gap-1.5 rounded-lg border p-2 text-sm font-medium leading-5 transition [direction:rtl]",
-        selected ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]",
+        "inline-flex shrink-0 items-center justify-center min-w-9 gap-1.5 rounded-lg border p-2 text-sm font-medium leading-5 cursor-pointer will-change-transform active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:duration-100 [direction:rtl]",
+        selected ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4] shadow-[0_0_0_1px_rgba(0,72,196,0.2)]" : "border-[#cccccc] bg-white text-[#4d4d4d] hover:border-[#999999] hover:bg-[#fafafa]",
         focusRing,
-        "disabled:cursor-not-allowed disabled:border-[#e5e5e5] disabled:bg-[#f2f2f2] disabled:text-[#b3b3b3]",
+        "disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:border-[#e5e5e5] disabled:bg-[#f2f2f2] disabled:text-[#b3b3b3]",
         className,
       )}
       type={type}

@@ -21,10 +21,10 @@ export function Switch({
     <Button unstyled
       aria-checked={checked}
       className={cn(
-        "relative h-6 w-11 shrink-0 rounded-full transition [direction:ltr]",
-        checked ? "bg-[#0048c4]" : "bg-[#d1d1d1]",
+        "relative h-6 w-11 shrink-0 rounded-full cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:ltr] active:scale-[0.96]",
+        checked ? "bg-[#0048c4] shadow-[0_0_0_2px_rgba(0,72,196,0.14)]" : "bg-[#d1d1d1] hover:bg-[#c6c6c6]",
         focusRing,
-        "disabled:cursor-not-allowed disabled:opacity-60",
+        "disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100",
         className,
       )}
       disabled={disabled}
@@ -35,8 +35,8 @@ export function Switch({
     >
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
-          "absolute top-1 h-4 w-4 rounded-full transition-transform",
-          checked ? "left-1 translate-x-5 bg-white" : "left-1 translate-x-0 bg-[#808080]",
+          "absolute top-1 h-4 w-4 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          checked ? "left-1 translate-x-5 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)]" : "left-1 translate-x-0 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15)]",
         )}
       />
     </Button>

@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'motion/react'
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../shared/auth/auth-storage'
 import { MobileAppShell } from '../layout/MobileAppShell'
 import { PageFrame } from '../../shared/layout/PageFrame'
@@ -568,15 +569,13 @@ export function AppRouter() {
 
   useEffect(() => {
     function handleNavigation() {
-      requestAnimationFrame(() => {
-        const nextPath = getResolvedPath()
+      const nextPath = getResolvedPath()
 
-        if (nextPath === pathRef.current) return
+      if (nextPath === pathRef.current) return
 
-        pathRef.current = nextPath
-        setPath(nextPath)
-        window.scrollTo({ top: 0 })
-      })
+      pathRef.current = nextPath
+      setPath(nextPath)
+      window.scrollTo({ top: 0 })
     }
 
     window.addEventListener('popstate', handleNavigation)
@@ -645,7 +644,15 @@ export function AppRouter() {
           contentKey={route.path}
           renderContent={(viewProps: CrmRoutePageProps) => (
             <Suspense fallback={<div className="h-full min-h-80 rounded-xl bg-white" />}>
-              <ActivePage {...viewProps} />
+              <motion.div
+                key={route.path}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full w-full"
+              >
+                <ActivePage {...viewProps} />
+              </motion.div>
             </Suspense>
           )}
           section={route.crmSection ?? 'overview'}
@@ -661,7 +668,20 @@ export function AppRouter() {
   if (isCrmAdvertiseFlowRoute) {
     return (
       <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
-        <CrmLayout embeddedContent={page} section="advertises" />
+        <CrmLayout
+          embeddedContent={
+            <motion.div
+              key={path}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="h-full w-full"
+            >
+              {page}
+            </motion.div>
+          }
+          section="advertises"
+        />
       </Suspense>
     )
   }
@@ -692,5 +712,17 @@ export function AppRouter() {
     )
   }
 
-  return <MobileAppShell>{content}</MobileAppShell>
+  return (
+    <MobileAppShell>
+      <motion.div
+        key={path}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="flex min-h-0 flex-1 flex-col h-full w-full"
+      >
+        {content}
+      </motion.div>
+    </MobileAppShell>
+  )
 }

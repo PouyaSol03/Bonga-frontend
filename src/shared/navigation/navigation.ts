@@ -150,3 +150,14 @@ export function backRoute(fallbackPath: string, fallbackState?: unknown) {
 
   replaceRoute(fallbackPath, fallbackState, { rememberCurrent: false });
 }
+
+/**
+ * Navigate back if browser history exists, otherwise navigate to fallback path.
+ */
+export function goBackOrNavigate(fallbackPath: string) {
+  if (typeof window !== "undefined" && window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+  replaceRoute(fallbackPath, undefined, { rememberCurrent: false });
+}

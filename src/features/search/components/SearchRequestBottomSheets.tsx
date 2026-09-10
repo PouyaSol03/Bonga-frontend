@@ -60,7 +60,7 @@ function RequestSuccessContent({
         <img src="/vectors/SavedRequest.svg" alt="" />
       </div>
 
-      <Typography as="h2" variant="headline" size="large" className="m-0 mt-8 text-center font-semibold text-[#00a66b]">
+      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 mt-8 text-center text-[#00a66b]">
         شما یک قدم به یافتن ملک دلخواه نزدیک‌تر شدید!
       </Typography>
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-center text-sm text-[#4d4d4d]">

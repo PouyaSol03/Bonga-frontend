@@ -84,9 +84,10 @@ export const propertyRequestFilterLabels: Record<string, string> = {
   building_age: "سن بنا",
   category_id: "دسته‌بندی",
   city_id: "شهر",
+  exchange_with: "معاوضه با",
   floor: "طبقه",
-  form_code: "نوع آگهی",
-  from_code: "نوع آگهی",
+  form_code: "نوع معامله",
+  from_code: "نوع معامله",
   has_image: "دارای تصویر",
   has_video: "دارای ویدئو",
   is_special: "آگهی ویژه",
@@ -697,14 +698,58 @@ function formatCompactToman(value: string) {
   return `${toPersianDigits(new Intl.NumberFormat("en-US").format(amount))} تومان`;
 }
 
+export const propertyRequestCategoryLabels: Record<string, string> = {
+  apartment: "آپارتمان",
+  "villa-house": "خانه و ویلا",
+  "garden-villa": "ویلا، باغ",
+  land: "زمین، ملک کلنگی",
+  office: "اداری",
+  "commercial-unit": "تجاری",
+  commercial: "تجاری",
+  warehouse: "انبار، سوله",
+  "hotel-apartment": "هتل، اقامتگاه",
+  "factory-workshop": "صنعتی، کارگاه",
+  "daily-apartment-suite": "آپارتمان، سوئیت",
+  "daily-garden-villa": "ویلا، باغ",
+  "daily-hotel-apartment": "هتل، اقامتگاه",
+  "daily-workspace": "دفترکار، غرفه",
+  "project-presale": "پیش فروش",
+  "project-partnership": "مشارکت",
+  residential: "مسکونی",
+  store: "مغازه",
+};
+
+export function formatCategory(value: string) {
+  const normalized = value.trim().toLowerCase();
+  return propertyRequestCategoryLabels[normalized] ?? formatPropertyRequestValue(value);
+}
+
 function formatFormCode(value: string) {
   const normalized = value.trim().toLowerCase();
   const labels: Record<string, string> = {
     "rent-apartment": "اجاره آپارتمان",
     "sale-apartment": "فروش آپارتمان",
     "sale-garden-villa": "فروش باغ ویلا",
+    "rent-garden-villa": "اجاره باغ ویلا",
     "rent-villa": "اجاره ویلا",
     "sale-villa": "فروش ویلا",
+    "sale-villa-house": "فروش خانه و ویلا",
+    "rent-villa-house": "اجاره خانه و ویلا",
+    "sale-land": "فروش زمین و کلنگی",
+    "rent-land": "اجاره زمین",
+    "sale-office": "فروش اداری",
+    "rent-office": "اجاره اداری",
+    "sale-commercial": "فروش تجاری",
+    "rent-commercial": "اجاره تجاری",
+    "sale-commercial-unit": "فروش تجاری",
+    "rent-commercial-unit": "اجاره تجاری",
+    "rent-daily": "اجاره روزانه",
+    sale: "فروش",
+    rent: "اجاره",
+    daily: "اجاره روزانه",
+    presale: "پیش‌فروش",
+    partnership: "مشارکت",
+    exchange: "معاوضه",
   };
 
   return labels[normalized] ?? formatPropertyRequestValue(value);
@@ -740,9 +785,26 @@ export function getPropertyRequestDetails(request: PropertySearchRequest) {
   const filters = request.filters;
   const details: string[] = [];
   const formCode = filters.form_code || filters.from_code;
+  const categoryId = filters.category_id;
   const neighborhood = filters.neighborhood_id || filters.neighborhoods;
 
-  if (formCode) details.push(formatFormCode(formCode));
+  if (formCode && categoryId) {
+    const formattedForm = formatFormCode(formCode);
+    const formattedCat = formatCategory(categoryId);
+    if (["فروش", "اجاره", "پیش‌فروش", "مشارکت", "معاوضه", "اجاره روزانه"].includes(formattedForm)) {
+      details.push(`${formattedForm} ${formattedCat}`);
+    } else if (formattedForm.includes(formattedCat)) {
+      details.push(formattedForm);
+    } else {
+      details.push(formattedForm);
+      details.push(formattedCat);
+    }
+  } else if (formCode) {
+    details.push(formatFormCode(formCode));
+  } else if (categoryId) {
+    details.push(formatCategory(categoryId));
+  }
+
   if (neighborhood) details.push(`محله ${formatPropertyRequestValue(neighborhood)}`);
   if (filters.building_age) details.push(`سال ساخت ${formatPropertyRequestValue(filters.building_age)}`);
 
@@ -779,6 +841,7 @@ export function getPropertyRequestDetails(request: PropertySearchRequest) {
     "area_max",
     "area_min",
     "building_age",
+    "category_id",
     "city_id",
     "form_code",
     "from_code",

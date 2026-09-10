@@ -108,10 +108,17 @@ export function useFcm() {
 
     try {
       setLoading(true);
+      console.log('[FCM] Calling Notification.requestPermission()...');
       const perm = await Notification.requestPermission();
+      console.log('[FCM] Permission result:', perm);
       setPermission(perm);
 
       if (perm !== 'granted') {
+        if (perm === 'denied') {
+          console.warn(
+            '[FCM] دسترسی نوتیفیکیشن در مرورگر مسدود (Block / Denied) است. برای تست مجدد، روی آیکون کنار آدرس سایت در مرورگر کلیک کنید و Notifications را ریست یا مجاز (Allow) کنید.',
+          );
+        }
         setLoading(false);
         return null;
       }

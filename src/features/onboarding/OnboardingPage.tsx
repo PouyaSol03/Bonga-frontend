@@ -18,6 +18,7 @@ import {
 import { Button } from "../../shared/ui/Button";
 import { Typography } from "../../shared/ui/Typography";
 import LinearArrowRight2 from "../../shared/icons/LinearArrowRight2";
+import { useFcm } from "../notifications/useFcm";
 
 const onboardingSteps = [
   {
@@ -112,6 +113,14 @@ export function OnboardingPage() {
     () => new URLSearchParams(window.location.search).get("city") === "1",
   );
   const shouldReduceMotion = useReducedMotion();
+  const { requestToken, permission, isSupported } = useFcm();
+
+  useEffect(() => {
+    // Directly request notification permission right upon entering onboarding
+    if (isSupported && permission === "default") {
+      void requestToken().catch(() => undefined);
+    }
+  }, [isSupported, permission, requestToken]);
 
   useEffect(() => {
     const sources = [...onboardingSteps.map((step) => step.image), citySelectionImage];

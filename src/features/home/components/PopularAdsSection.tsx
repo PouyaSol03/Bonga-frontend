@@ -260,7 +260,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
                 key={ad.id}
                 aria-label={`نمایش آگهی ${index + 1}`}
                 aria-current={index === activeIndex ? "true" : undefined}
-                className={`${sizeClass} shrink-0 rounded-full ${
+                className={`${sizeClass} shrink-0 rounded-full transition-all duration-300 ease-out ${
                   index === activeIndex
                     ? "bg-on-surface-var"
                     : "bg-on-surface-var/16"

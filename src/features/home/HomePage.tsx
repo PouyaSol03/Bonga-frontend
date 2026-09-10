@@ -311,7 +311,7 @@ export function HomePage() {
           <div className="flex items-center justify-center gap-2">
             <Button unstyled
               aria-label="اعلان‌ها"
-              className="relative grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              className="relative grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] transition-all duration-200 ease-out hover:bg-black/5 active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
               onClick={navigateToNotifications}
               type="button"
             >
@@ -327,7 +327,7 @@ export function HomePage() {
 
             {!shouldHideCitySelector ? (
               <Button unstyled
-                className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4]"
+                className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4] transition-all duration-200 ease-out hover:bg-[#0048c40d] active:scale-95"
                 type="button"
                 onClick={() => setIsCityOpen(true)}
               >
@@ -354,7 +354,7 @@ export function HomePage() {
           aria-label="جستجوی ملک"
         >
           <label
-            className="relative flex h-12 items-center rounded-xl bg-[#f0f0f0]"
+            className="relative flex h-12 items-center rounded-xl bg-[#f0f0f0] cursor-pointer transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#e8e8e8] active:scale-[0.99] focus-within:ring-2 focus-within:ring-[#0048c4]/20"
             onClick={() => setIsSearchOpen(true)}
             onPointerDown={(event) => {
               event.preventDefault();
@@ -378,7 +378,7 @@ export function HomePage() {
           >
             {quickActions.map((item) => (
               <Button unstyled
-                className="flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-0.5 bg-white p-0 text-xs! font-medium! leading-4 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                className="group flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1 bg-white p-1 rounded-xl text-xs! font-medium! leading-4 text-[#1a1a1a] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#f8f9fa] hover:-translate-y-0.5 active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
                 key={item.label}
                 type="button"
                 onClick={() => {
@@ -397,7 +397,7 @@ export function HomePage() {
                 <img
                   src={item.icon}
                   alt=""
-                  className="h-8 w-8 shrink-0"
+                  className="h-8 w-8 shrink-0 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95"
                   aria-hidden="true"
                 />
 

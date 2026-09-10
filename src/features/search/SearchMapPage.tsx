@@ -5,6 +5,7 @@ import {
   getApiErrorMessage,
   isUnauthorizedApiError,
 } from "../../shared/api/api";
+import { NoConnectionState, isNoConnectionError } from "../../shared/components/ErrorState";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../advertisements/api/advertisement.hooks";
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
@@ -931,7 +932,23 @@ function getInitialMapCenter(): SearchMapCenter {
 }
 
 export function SearchMapPage() {
-  const [selectedListingId, setSelectedListingId] = useState<SearchMapListingId | null>(null);
+  const [selectedListingId, setSelectedListingId] = useState<string | number | null>(null);
+  const [isOffline, setIsOffline] = useState(() => typeof window !== "undefined" && !window.navigator.onLine);
+
+  useEffect(() => {
+    function handleOnline() {
+      setIsOffline(false);
+    }
+    function handleOffline() {
+      setIsOffline(true);
+    }
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
   const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
     () => new Set(),
   );
@@ -1062,6 +1079,16 @@ export function SearchMapPage() {
   const listingSource = mode === "list" ? apiListListings : apiListings;
   const isMapLoading = !mapQueryParams || (mapQuery.isFetching && apiListings.length === 0);
   const isListLoading = listQuery.isFetching && apiListListings.length === 0;
+
+  const [hasInitialMapLoaded, setHasInitialMapLoaded] = useState(false);
+
+  useEffect(() => {
+    if (mapQuery.data !== undefined) {
+      setHasInitialMapLoaded(true);
+    }
+  }, [mapQuery.data]);
+
+  const isInitialMapLoading = !hasInitialMapLoaded && (mapQuery.isLoading || isMapLoading);
   const visibleListings = useMemo(
     () => filterListings(listingSource),
     [listingSource],
@@ -1609,6 +1636,40 @@ export function SearchMapPage() {
     !showCurrentEmptyState &&
     (isDrawMode || drawingState === "preview" || drawingState === "invalid");
 
+  if (isOffline || (mapQuery.isError && isNoConnectionError(mapQuery.error))) {
+    return (
+      <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
+        <SEO
+          title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین"
+          description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه."
+        />
+        <SearchMapHeader
+          savedCount={savedSearchesQuery.data?.length ?? 0}
+          isCurrentSearchSaved={isCurrentSearchSaved}
+          isSavingSearch={saveSearchMutation.isPending}
+          isSaveSearchDisabled={!saveSearchInput}
+          chips={chips}
+          onChipClick={toggleChip}
+          onChipRemove={handleRemoveChip}
+          queryLabel={queryLabel}
+          onSearchClick={openSearch}
+          onSavedClick={handleSaveSearch}
+          onBack={handleBack}
+        />
+        <div className="flex min-h-0 flex-1 items-center justify-center p-4">
+          <NoConnectionState
+            onRetry={() => {
+              setIsOffline(!window.navigator.onLine);
+              void mapQuery.refetch();
+              void listQuery.refetch();
+            }}
+          />
+        </div>
+        <TransientNotice message={message} />
+      </div>
+    );
+  }
+
   return (
     <div
       className={
@@ -1617,6 +1678,14 @@ export function SearchMapPage() {
           : "relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]"
       }
     >
+      {mode === "map" && isInitialMapLoading ? (
+        <div className="pointer-events-none absolute inset-0 z-[450] flex items-center justify-center bg-black/10 backdrop-blur-[1px] transition-opacity">
+          <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 shadow-lg [direction:rtl]">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#0048c4] border-t-transparent" />
+            <span className="text-sm font-medium text-[#1a1a1a]">در حال بارگذاری نقشه...</span>
+          </div>
+        </div>
+      ) : null}
       <SEO 
         title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین" 
         description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه. به راحتی آپارتمان، خانه ویلایی، زمین و مغازه مورد نظر خود را در محله دلخواه برای خرید یا اجاره پیدا کنید."
@@ -1687,7 +1756,7 @@ export function SearchMapPage() {
         <SearchMapResultsSummary
           count={mapQuery.data?.length ?? 0}
           hasGeofence={isGeofenceConfirmed}
-          isLoading={isMapLoading || mapQuery.isFetching}
+          isLoading={isInitialMapLoading}
           onRemoveGeofence={clearConfirmedGeofence}
         />
       ) : null}

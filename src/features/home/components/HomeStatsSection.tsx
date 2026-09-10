@@ -66,7 +66,7 @@ export function HomeStatsSection() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex h-[78px] min-w-0 flex-col items-center justify-center rounded-2xl border border-surface-container-low bg-linear-to-b from-surface-container-lowest to-surface-container-low text-center"
+            className="flex h-[78px] min-w-0 flex-col items-center justify-center rounded-2xl border border-surface-container-low bg-linear-to-b from-surface-container-lowest to-surface-container-low text-center transition-all duration-200 ease-out hover:scale-[1.02] hover:border-[#0048c4]/30 hover:shadow-xs select-none"
           >
             {isLoading ? (
               <div className="mb-1.5 h-6 w-20 animate-pulse rounded-md bg-surface-container" />

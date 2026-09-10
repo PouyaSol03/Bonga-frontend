@@ -24,12 +24,12 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import { pushRoute } from "../../../../shared/navigation/navigation";
 import { preserveNewAdDraftStateKey } from "../session";
+import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
 type SelectedAgency = Pick<PublicAgencyDto, "id" | "name">;
 
 const pageSize = 20;
 const loadMoreRemainingCount = 10;
-const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
 
 const sortOptions: Array<{ id: AgencySort; title: string }> = [
   { id: "score", title: "امتیاز" },
@@ -37,10 +37,6 @@ const sortOptions: Array<{ id: AgencySort; title: string }> = [
   { id: "newest", title: "جدیدترین" },
   { id: "oldest", title: "با سابقه‌ترین" },
 ];
-
-function toPersianNumber(value: number | string) {
-  return String(value).replace(/\d/g, (digit) => persianDigits[Number(digit)] ?? digit);
-}
 
 function useDebouncedValue(value: string, delay = 350) {
   const [debounced, setDebounced] = useState(value);

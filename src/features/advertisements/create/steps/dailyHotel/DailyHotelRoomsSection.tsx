@@ -4,6 +4,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { BottomSheet, BottomSheetActionList } from "../../../../../shared/components/BottomSheet";
 import LinearCancelCircle from "../../../../../shared/icons/LinearCancelCircle";
 import { formatBigNumber } from "../../../../../shared/lib/MoneyHandler";
+import { formatNumber } from "../../../../../shared/lib/numberUtils";
 import {
   dailyHotelMealPlanOptions,
   dailyHotelRoomTypes,
@@ -114,15 +115,6 @@ function hasConfiguredRoom(room?: DailyHotelRoomConfig) {
     room.weekendPrice,
     room.specialPrice,
   ].some((value) => value.trim().length > 0);
-}
-
-function formatNumber(value: string) {
-  const normalized = value.replace(/,/g, "");
-  const parsed = Number(normalized);
-
-  if (!Number.isFinite(parsed) || !normalized) return value;
-
-  return new Intl.NumberFormat("fa-IR").format(parsed);
 }
 
 function moneySupportingText(value: string) {

@@ -11,12 +11,13 @@ import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../../shared/navigation/navigation";
 import type { DetailItem, IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdTypes";
-import { Typography } from "../../../shared/ui/Typography";
 import LinearStar from "../../../shared/icons/LinearStar";
 import {
   AccommodationRatingBanner,
   FormattedDetailValueView,
 } from "./viewAdComponents";
+import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
+import { Typography } from "../../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
   src: string;
@@ -34,63 +35,6 @@ export type AdvertiserPreview = {
   ratingScore?: string;
   subtitle: string;
 };
-
-
-
-
-const persianDigitMap: Record<string, string> = {
-  "0": "۰",
-  "1": "۱",
-  "2": "۲",
-  "3": "۳",
-  "4": "۴",
-  "5": "۵",
-  "6": "۶",
-  "7": "۷",
-  "8": "۸",
-  "9": "۹",
-  "٠": "۰",
-  "١": "۱",
-  "٢": "۲",
-  "٣": "۳",
-  "٤": "۴",
-  "٥": "۵",
-  "٦": "۶",
-  "٧": "۷",
-  "٨": "۸",
-  "٩": "۹",
-};
-
-const englishDigitMap: Record<string, string> = {
-  "۰": "0",
-  "۱": "1",
-  "۲": "2",
-  "۳": "3",
-  "۴": "4",
-  "۵": "5",
-  "۶": "6",
-  "۷": "7",
-  "۸": "8",
-  "۹": "9",
-  "٠": "0",
-  "١": "1",
-  "٢": "2",
-  "٣": "3",
-  "٤": "4",
-  "٥": "5",
-  "٦": "6",
-  "٧": "7",
-  "٨": "8",
-  "٩": "9",
-};
-
-function toPersianDigits(value: unknown) {
-  return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
-}
-
-function toEnglishDigits(value: unknown) {
-  return String(value).replace(/[۰-۹٠-٩]/g, (digit) => englishDigitMap[digit] ?? digit);
-}
 
 function toNumber(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -1184,7 +1128,6 @@ function buildFacilityItems(
         : {
             ...makeFeatureItem("آسانسور"),
             statusBadge: "ندارد",
-            tone: "danger",
           },
     );
 
@@ -1197,7 +1140,6 @@ function buildFacilityItems(
         : {
             ...makeFeatureItem("پارکینگ"),
             statusBadge: "ندارد",
-            tone: "danger",
           },
     );
 
@@ -1210,7 +1152,6 @@ function buildFacilityItems(
         : {
             ...makeFeatureItem("انباری"),
             statusBadge: "ندارد",
-            tone: "danger",
           },
     );
 
@@ -1223,7 +1164,6 @@ function buildFacilityItems(
         : {
             ...makeFeatureItem("تراس"),
             statusBadge: "ندارد",
-            tone: "danger",
           },
     );
   }

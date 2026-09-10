@@ -39,6 +39,7 @@ import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdType
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { pushRoute } from "../../../shared/navigation/navigation";
+import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import type { ChatThread } from "../../chat/api/chat.service";
 import {
   buildGalleryMediaItems,
@@ -79,60 +80,6 @@ type ActionToast = {
 };
 
 type GalleryMediaKind = "album" | "video" | "tour3d";
-
-const persianDigitMap: Record<string, string> = {
-  "0": "۰",
-  "1": "۱",
-  "2": "۲",
-  "3": "۳",
-  "4": "۴",
-  "5": "۵",
-  "6": "۶",
-  "7": "۷",
-  "8": "۸",
-  "9": "۹",
-  "٠": "۰",
-  "١": "۱",
-  "٢": "۲",
-  "٣": "۳",
-  "٤": "۴",
-  "٥": "۵",
-  "٦": "۶",
-  "٧": "۷",
-  "٨": "۸",
-  "٩": "۹",
-};
-
-const englishDigitMap: Record<string, string> = {
-  "۰": "0",
-  "۱": "1",
-  "۲": "2",
-  "۳": "3",
-  "۴": "4",
-  "۵": "5",
-  "۶": "6",
-  "۷": "7",
-  "۸": "8",
-  "۹": "9",
-  "٠": "0",
-  "١": "1",
-  "٢": "2",
-  "٣": "3",
-  "٤": "4",
-  "٥": "5",
-  "٦": "6",
-  "٧": "7",
-  "٨": "8",
-  "٩": "9",
-};
-
-function toPersianDigits(value: unknown) {
-  return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
-}
-
-function toEnglishDigits(value: unknown) {
-  return String(value).replace(/[۰-۹٠-٩]/g, (digit) => englishDigitMap[digit] ?? digit);
-}
 
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (

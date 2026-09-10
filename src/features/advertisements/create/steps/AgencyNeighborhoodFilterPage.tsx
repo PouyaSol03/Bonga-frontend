@@ -1,4 +1,4 @@
-import type { NeighborhoodDto } from "../../../locations/api/neighborhood.service";
+import { getNeighborhoodDescription, type NeighborhoodDto } from "../../../locations/api/neighborhood.service";
 import { RadioIndicator } from "../../../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -18,32 +18,7 @@ function BackIcon() {
   );
 }
 
-function getChildName(value: unknown) {
-  if (typeof value === "string") return value.trim();
-  if (!value || typeof value !== "object") return "";
 
-  const record = value as Record<string, unknown>;
-  const name = record.name ?? record.title ?? record.label;
-  return typeof name === "string" ? name.trim() : "";
-}
-
-function getNeighborhoodDescription(item: NeighborhoodDto) {
-  const value = item.sub_neighbors;
-
-  if (Array.isArray(value)) {
-    return value.map(getChildName).filter(Boolean).join("، ");
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/[،,|]/)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join("، ");
-  }
-
-  return "";
-}
 
 function getNeighborhoodId(item: NeighborhoodDto) {
   return String(item.id ?? item._id ?? "");

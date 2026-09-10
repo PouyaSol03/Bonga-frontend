@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
@@ -264,6 +264,7 @@ export function useSubmitAgencyAdvertisementCheckoutMutation() {
 export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) {
   return useQuery({
     enabled: Boolean(params),
+    placeholderData: keepPreviousData,
     // Previous map-result caching is temporarily disabled.
     // gcTime: 2 * 60_000,
 

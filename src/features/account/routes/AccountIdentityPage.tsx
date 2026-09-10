@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTransientNotice } from "../../../shared/hooks/useTransientNotice";
-import { useAuthorizeMeMutation, useMyProfileQuery } from "../api/account.hooks";
-import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { useAuthorizeMeMutation, useMyProfileQuery, useTransferSimOwnershipMutation } from "../api/account.hooks";
+import { getStoredAuthSession, clearStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { isUserIdentityVerified } from "../api/account.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
@@ -17,6 +17,7 @@ export function AccountIdentityPage() {
   const [isOwnershipWarningOpen, setIsOwnershipWarningOpen] = useState(false);
   const { message, showNotice } = useTransientNotice();
   const authorize = useAuthorizeMeMutation();
+  const transferOwnership = useTransferSimOwnershipMutation();
   const { data: profile } = useMyProfileQuery();
   const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
   const mobile = getStoredAuthSession()?.mobile ?? "-";
@@ -87,7 +88,7 @@ export function AccountIdentityPage() {
         contentClassName="flex min-h-0 flex-1 flex-col"
         handleClassName="h-1 w-[60px] rounded-full bg-[#808080]"
         isOpen={isOwnershipWarningOpen}
-        onClose={() => setIsOwnershipWarningOpen(false)}
+        onClose={() => !transferOwnership.isPending && setIsOwnershipWarningOpen(false)}
         panelPaddingClassName="pt-1.5"
         showHeader={false}
         variant="confirm"
@@ -112,14 +113,32 @@ export function AccountIdentityPage() {
         <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
           <Button
             className="h-10"
+            disabled={transferOwnership.isPending}
             fullWidth
             onClick={() => {
-              setIsOwnershipWarningOpen(false);
-              showNotice("تغییر مالکیت سیم‌کارت هنوز به سرویس مربوطه متصل نشده است");
+              transferOwnership.mutate(
+                {
+                  reason: "sim_ownership_changed",
+                  description: "تغییر مالکیت سیم‌کارت و حذف حساب کاربری",
+                },
+                {
+                  onSuccess: (data) => {
+                    setIsOwnershipWarningOpen(false);
+                    clearStoredAuthSession();
+                    showNotice(data?.message || "تغییر مالکیت سیم‌کارت با موفقیت ثبت شد");
+                    setTimeout(() => {
+                      window.location.assign("/");
+                    }, 1200);
+                  },
+                  onError: (error) => {
+                    showNotice(getApiErrorMessage(error, "خطایی در ثبت تغییر مالکیت سیم‌کارت رخ داد"));
+                  },
+                },
+              );
             }}
             size="sm"
           >
-            ثبت
+            {transferOwnership.isPending ? "در حال ثبت..." : "ثبت"}
           </Button>
         </div>
       </BottomSheet>

@@ -74,7 +74,7 @@ export function AccountBookmarksPage() {
     >
       <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
         <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
-          {isLoading ? <AccountAdCardsSkeleton /> : null}
+          {isLoading ? <AccountAdCardsSkeleton showDeleteButton /> : null}
           {isError ? (
             <AccountRetryState
               error={error}
@@ -94,7 +94,7 @@ export function AccountBookmarksPage() {
               />
             </div>
           ))}
-          {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} /> : null}
+          {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} showDeleteButton /> : null}
           {!isLoading && !isError && bookmarks.length === 0 ? (
             <EmptyAccountState
               description="آگهی‌های موردعلاقه خود را نشان کنید تا در این بخش نمایش داده شوند."

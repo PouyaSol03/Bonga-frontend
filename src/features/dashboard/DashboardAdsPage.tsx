@@ -3,6 +3,7 @@ import { SwitchButton } from "../../shared/components/SwitchButton";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard } from "./DashboardAdCard";
+import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { useMyAdsInfiniteQuery } from "../account/api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { getMyAdStatusInfo } from "../account/myAdsStatus";
@@ -132,8 +133,10 @@ export function DashboardAdsPage() {
 
       <div className="mt-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pl-1">
         {adsQuery.isPending ? (
-          <div className="grid h-full place-items-center text-sm text-[#808080]">
-            در حال دریافت آگهی‌ها...
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3" aria-label="در حال دریافت آگهی‌ها">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <AdCardSkeleton key={index} />
+            ))}
           </div>
         ) : visibleAds.length > 0 ? (
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3">

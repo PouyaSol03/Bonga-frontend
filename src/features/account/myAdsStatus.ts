@@ -142,12 +142,29 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.expired;
   }
 
+function isAssignedAd(source: unknown): boolean {
+  if (!source || typeof source !== "object") return false;
+  const record = source as Record<string, unknown>;
+  return Boolean(
+    record.assignment_id ||
+    record.assignmentId ||
+    record.assigned_agency_id ||
+    record.assignedAgencyId ||
+    record.assignment ||
+    record.is_assigned ||
+    record.isAssigned,
+  );
+}
+
   if (
     ["0", "wait-for-payment", "wait_for_payment", "payment"].includes(status) ||
     (status.includes("پرداخت") && !status.includes("پرداخت شده")) ||
     status.includes("انتظار پرداخت")
   ) {
-    return myAdStatusConfig.wait_for_payment;
+    if (isAssignedAd(source)) {
+      return myAdStatusConfig.wait_for_payment;
+    }
+    return myAdStatusConfig.incomplete;
   }
 
   if (["2", "wait-for-agency"].includes(status)) {

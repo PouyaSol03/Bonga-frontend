@@ -515,10 +515,15 @@ export function RequestManagementView({
         </div>
 
         {activeTab === "requests" ? (
-          requestLoadState ? (
+          requestsQuery.isLoading ? (
+            <CriteriaRequestsSkeleton />
+          ) : requestsQuery.isError ? (
             <EmptyRequestState
-              description={requestLoadState.description}
-              title={requestLoadState.title}
+              description={
+                requestLoadState?.description ??
+                "دریافت درخواست‌ها با خطا مواجه شد. از دکمه بروزرسانی استفاده کنید."
+              }
+              title={requestLoadState?.title ?? "دریافت درخواست‌ها ناموفق بود"}
               variant={variant}
             />
           ) : (
@@ -547,10 +552,15 @@ export function RequestManagementView({
             </div>
           )
         ) : activeTab === "results" ? (
-          requestLoadState ? (
+          requestsQuery.isLoading ? (
+            <CriteriaRequestsSkeleton />
+          ) : requestsQuery.isError ? (
             <EmptyRequestState
-              description={requestLoadState.description}
-              title={requestLoadState.title}
+              description={
+                requestLoadState?.description ??
+                "دریافت درخواست‌ها با خطا مواجه شد. از دکمه بروزرسانی استفاده کنید."
+              }
+              title={requestLoadState?.title ?? "دریافت درخواست‌ها ناموفق بود"}
               variant={variant}
             />
           ) : (
@@ -925,6 +935,30 @@ function ReceivedRequestCard({
   );
 }
 
+function CriteriaRequestsSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-2 bg-[#f5f5f5]" aria-label="در حال دریافت درخواست‌ها">
+      {Array.from({ length: count }).map((_, index) => (
+        <article key={index} className="min-h-[148px] overflow-hidden bg-white p-4 text-right">
+          <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
+            <div className="h-6 w-12 rounded-lg animate-skeleton" />
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-32 rounded-md animate-skeleton" />
+              <div className="h-5 w-5 rounded-md animate-skeleton" />
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2 [direction:rtl]">
+            <div className="h-8 w-20 rounded-[10px] animate-skeleton" />
+            <div className="h-8 w-28 rounded-[10px] animate-skeleton" />
+            <div className="h-8 w-24 rounded-[10px] animate-skeleton" />
+            <div className="h-8 w-32 rounded-[10px] animate-skeleton" />
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 function ReceivedRequestsSkeleton() {
   return (
     <div aria-label="در حال بارگذاری درخواست‌های دریافتی" aria-live="polite">
@@ -934,18 +968,18 @@ function ReceivedRequestsSkeleton() {
           key={index}
         >
           <div className="flex items-start justify-between gap-4 [direction:ltr]">
-            <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-[#eeeeee]" />
+            <div className="h-10 w-10 shrink-0 rounded-lg animate-skeleton" />
             <div className="min-w-0 flex-1 [direction:rtl]">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 shrink-0 animate-pulse rounded bg-[#eeeeee]" />
-                <div className="h-6 w-36 animate-pulse rounded bg-[#eeeeee]" />
-                <div className="h-8 w-16 animate-pulse rounded-[10px] bg-[#f1f1f1]" />
+                <div className="h-6 w-6 shrink-0 rounded animate-skeleton" />
+                <div className="h-6 w-36 rounded animate-skeleton" />
+                <div className="h-8 w-16 rounded-[10px] animate-skeleton" />
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <div className="h-8 w-24 animate-pulse rounded-[9px] bg-[#eeeeee]" />
-                <div className="h-8 w-32 animate-pulse rounded-[9px] bg-[#eeeeee]" />
-                <div className="h-8 w-28 animate-pulse rounded-[9px] bg-[#eeeeee]" />
-                <div className="h-8 w-40 animate-pulse rounded-[9px] bg-[#eeeeee]" />
+                <div className="h-8 w-24 rounded-[9px] animate-skeleton" />
+                <div className="h-8 w-32 rounded-[9px] animate-skeleton" />
+                <div className="h-8 w-28 rounded-[9px] animate-skeleton" />
+                <div className="h-8 w-40 rounded-[9px] animate-skeleton" />
               </div>
             </div>
           </div>

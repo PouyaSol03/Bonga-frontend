@@ -425,6 +425,23 @@ export function authorizeMe(payload: AuthorizePayload) {
   return api.post("me/authorize", { json: payload }).json<ApiDataResponse<unknown>>();
 }
 
+export interface TransferSimOwnershipPayload {
+  reason?: string;
+  description?: string;
+}
+
+export function transferSimOwnership(payload?: TransferSimOwnershipPayload) {
+  return api
+    .post("me/sim-card-ownership/transfer", {
+      json: payload ?? {
+        reason: "sim_ownership_changed",
+        description: "تغییر مالکیت سیم‌کارت و حذف حساب کاربری",
+      },
+    })
+    .json<{ success: boolean; message: string }>();
+}
+
+
 export function createMyAgency(payload: CreateMyAgencyPayload) {
   return api
     .post("me/agency/create", {

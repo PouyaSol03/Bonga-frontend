@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
-import { getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../shared/constants/roles.constants";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../advertisements/api/advertisement.service";
 import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
@@ -238,7 +243,20 @@ export function AccountMyAdsEmptyState({
 }
 
 export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
-  const [activeFilter, setActiveFilter] = useState(adFilters[0]);
+  const authSession = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(authSession);
+  const isConsultantOrAgency =
+    activeRole === REAL_ESTATE_CONSULTANT ||
+    activeRole === INDEPENDENT_CONSULTANT ||
+    activeRole === REAL_ESTATE_MANAGER;
+  const availableFilters = useMemo(
+    () =>
+      isConsultantOrAgency
+        ? adFilters
+        : adFilters.filter((f) => f.type !== "wait_for_payment"),
+    [isConsultantOrAgency],
+  );
+  const [activeFilter, setActiveFilter] = useState(availableFilters[0]);
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const {
     data: adsPages,
@@ -291,7 +309,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
 
   return (
     <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-white" : "bg-[#f0f0f0]"}`}>
-      <AdFilterTabs activeFilter={activeFilter} onSelect={setActiveFilter} />
+      <AdFilterTabs activeFilter={activeFilter} filters={availableFilters} onSelect={setActiveFilter} />
       <div className={`${showEmptyState ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
         {isLoading ? <MyAdsAdCardsSkeleton /> : null}
         {isError ? (
@@ -376,9 +394,11 @@ export function AccountPageShell({ action, children, onBack, title }: React.Prop
 
 function AdFilterTabs({
   activeFilter,
+  filters = adFilters,
   onSelect,
 }: {
   activeFilter: { label: string; type: MyAdsType };
+  filters?: Array<{ label: string; type: MyAdsType }>;
   onSelect: (filter: { label: string; type: MyAdsType }) => void;
 }) {
   return (
@@ -387,7 +407,7 @@ function AdFilterTabs({
       className="h-[52px] bg-[#f0f0f0]"
       contentClassName="h-9"
     >
-      {adFilters.map((filter) => {
+      {filters.map((filter) => {
         const isActive = activeFilter.label === filter.label;
 
         return (
@@ -911,9 +931,8 @@ export function AccountProfileSkeleton() {
 
 function ProfileFieldSkeleton() {
   return (
-    <div className="space-y-2">
-      <AccountSkeletonBlock className="ml-auto h-4 w-20" />
-      <AccountSkeletonBlock className="h-12 w-full" />
+    <div className="relative">
+      <AccountSkeletonBlock className="h-14 w-full rounded-xl" />
     </div>
   );
 }
@@ -929,26 +948,81 @@ export function AccountLoadingState({ text }: { text: string }) {
 }
 
 function AccountSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`animate-skeleton rounded-lg ${className}`} />;
 }
 
-export function AccountAdCardsSkeleton({ count = 3 }: { count?: number }) {
+export function AccountAdCardsSkeleton({
+  count = 3,
+  showDeleteButton = false,
+}: {
+  count?: number;
+  showDeleteButton?: boolean;
+}) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <article className="bg-white px-4 py-4" key={index}>
-          <div className="flex gap-3 [direction:rtl]">
-            <AccountSkeletonBlock className="h-[104px] w-[136px] shrink-0 rounded-xl" />
-            <div className="min-w-0 flex-1 space-y-3">
-              <AccountSkeletonBlock className="ml-auto h-5 w-3/4" />
-              <AccountSkeletonBlock className="ml-auto h-4 w-1/2" />
-              <AccountSkeletonBlock className="ml-auto h-4 w-full" />
-              <AccountSkeletonBlock className="ml-auto h-4 w-2/3" />
-            </div>
-          </div>
-        </article>
+        <AdCardSkeleton key={index} showDeleteButton={showDeleteButton} />
       ))}
     </>
+  );
+}
+
+export function WalletPageSkeleton() {
+  return (
+    <section className="space-y-5 px-3 pt-4 text-right" aria-label="در حال بارگذاری کیف پول">
+      {/* Credit Card */}
+      <div className="flex items-center justify-between rounded-xl border border-primary/8 bg-primary-container p-4 [direction:rtl]">
+        <div className="space-y-2">
+          <AccountSkeletonBlock className="h-4 w-28" />
+          <AccountSkeletonBlock className="h-7 w-36" />
+        </div>
+        <AccountSkeletonBlock className="h-14 w-14 rounded-full" />
+      </div>
+
+      <div className="-mx-3 border-t border-[#f0f0f0]" />
+
+      {/* Increase credit header */}
+      <div className="flex items-center gap-2">
+        <AccountSkeletonBlock className="h-5 w-5 rounded-full" />
+        <AccountSkeletonBlock className="h-5 w-24" />
+      </div>
+
+      {/* Input box */}
+      <AccountSkeletonBlock className="h-14 w-full rounded-xl" />
+
+      {/* Suggested amounts header */}
+      <AccountSkeletonBlock className="h-4 w-28" />
+
+      {/* 6 buttons grid */}
+      <div className="grid grid-cols-3 gap-3 [direction:rtl]">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <AccountSkeletonBlock key={index} className="h-10 w-full rounded-lg" />
+        ))}
+      </div>
+
+      {/* History button */}
+      <AccountSkeletonBlock className="mt-8 h-14 w-full rounded-xl" />
+    </section>
+  );
+}
+
+export function PaymentHistorySkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="space-y-2" aria-label="در حال دریافت تاریخچه پرداخت">
+      {Array.from({ length: count }).map((_, index) => (
+        <article
+          key={index}
+          className="border-b border-[#f0f0f0] bg-white p-4 flex flex-col gap-y-3 text-right"
+        >
+          {Array.from({ length: 4 }).map((_, rowIndex) => (
+            <div key={rowIndex} className="flex items-center justify-between py-1.5 gap-4">
+              <AccountSkeletonBlock className="h-4 w-20" />
+              <AccountSkeletonBlock className="h-4 w-28" />
+            </div>
+          ))}
+        </article>
+      ))}
+    </div>
   );
 }
 

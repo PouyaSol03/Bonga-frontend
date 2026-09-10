@@ -345,13 +345,30 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                 barCategoryGap={isUserMode ? 26 : 20}
                 data={visibleChartData}
                 margin={{ bottom: 0, left: 0, right: 0, top: 38 }}
+                style={{ outline: "none" }}
               >
                 <CartesianGrid stroke="#e6e6e6" strokeDasharray="4 4" vertical={false} />
                 <XAxis axisLine={{ stroke: "#cccccc" }} dataKey="date" height={24} interval={0} tick={{ fill: "#4d4d4d", fontSize: 12 }} tickLine={false} />
                 <YAxis axisLine={false} domain={[0, 100]} tick={{ fill: "#808080", fontSize: 12 }} tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)} tickLine={false} ticks={createYAxisTicks(chart.yAxisLabels)} width={34} />
-                <Bar dataKey="value" fill="#12a36a" isAnimationActive={false} maxBarSize={6} minPointSize={2} onClick={(_, index) => setSelectedIndex(index)} radius={[999, 999, 0, 0]}>
+                <Bar
+                  dataKey="value"
+                  fill="#12a36a"
+                  isAnimationActive={false}
+                  maxBarSize={6}
+                  minPointSize={2}
+                  onClick={(_, index) => setSelectedIndex(index)}
+                  radius={[999, 999, 0, 0]}
+                  style={{ outline: "none" }}
+                >
                   {visibleChartData.map((column, index) => (
-                    <Cell cursor="pointer" fill={index === selectedIndex ? "#0f9464" : "#12a36a"} key={column.date} onClick={() => setSelectedIndex(index)} />
+                    <Cell
+                      cursor="pointer"
+                      fill={index === selectedIndex ? "#0f9464" : "#12a36a"}
+                      key={column.date}
+                      onClick={() => setSelectedIndex(index)}
+                      style={{ outline: "none" }}
+                      tabIndex={-1}
+                    />
                   ))}
                   <LabelList
                     content={(props) => {

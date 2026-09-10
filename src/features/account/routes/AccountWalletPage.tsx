@@ -5,7 +5,7 @@ import { AdCardTomanIcon } from "../../advertisements/components/AdCardIcons";
 import { formatPrice, formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
-import { AccountLoadingState, AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, formatMoney, normalizeWalletAmount } from "../accountPageViews";
+import { AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, WalletPageSkeleton, formatMoney, normalizeWalletAmount } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import { TextField } from "../../../shared/ui/TextField";
@@ -30,7 +30,7 @@ export function AccountWalletPage() {
   return (
     <AccountPageShell title="کیف پول">
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
-        {isLoading ? <AccountLoadingState text="در حال دریافت اعتبار..." /> : null}
+        {isLoading ? <WalletPageSkeleton /> : null}
 
         {isError ? (
           <AccountRetryState

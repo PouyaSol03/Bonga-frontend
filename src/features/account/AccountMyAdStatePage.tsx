@@ -74,6 +74,10 @@ export function AccountMyAdStatePage() {
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
+  if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
+    return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
+  }
+
   if (activeRole === REAL_ESTATE_MANAGER) {
     return (
       <RealEstateManagerAdStatePage
@@ -437,7 +441,7 @@ function StateAdSummary({
   const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
-    <div className="mt-4 flex h-[80px] items-center rounded-2xl border border-[#e6e6e6] bg-[#fafafa] px-3 [direction:ltr]">
+    <div className="mt-4 flex h-[80px] items-center gap-4 rounded-2xl border border-[#e6e6e6] bg-[#fafafa] px-3 [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
         <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-[#808080]">
           {subtitle}
@@ -566,12 +570,12 @@ function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
   const upgrade: StateAction = { icon: "upgrade", label: "افزایش بازدید", to: getAdIncreaseVisitsPath(adId) };
   const stats: StateAction = { icon: "stats", label: "آمار بازدید", to: getAdVisitStatisticsPath(adId) };
   const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
-  const payment: StateAction = { icon: "payment", label: "تکمیل پرداخت", to: getAdPaymentPath(adId) };
+  const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
 
   if (status === "published") return [preview, edit, remove, upgrade, stats, history];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
   if (status === "pending" || status === "wait_for_agency" || status === "needs_edit") return [preview, edit, remove, history];
-  if (status === "incomplete") return [edit, remove];
+  if (status === "incomplete") return [edit, payment, remove];
   if (status === "expired") return [preview, history];
 
   return [preview, edit, history];
@@ -822,4 +826,58 @@ function readText(value: unknown) {
   if (typeof value === "number") return String(value);
 
   return "";
+}
+
+function MyAdStateSkeleton({
+  backState,
+  backTo,
+}: {
+  backState?: Record<string, unknown>;
+  backTo: string;
+}) {
+  return (
+    <PageFrame
+      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      variant="flush"
+    >
+      <TopBar
+        backState={backState}
+        backTo={backTo}
+        className="[&_a]:text-[#1a1a1a]"
+        title="مدیریت آگهی"
+      />
+
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+        <section className="shrink-0 space-y-3 bg-white px-4 pb-4 pt-4" aria-label="در حال بارگذاری وضعیت آگهی">
+          <div className="h-8 w-24 rounded-lg animate-skeleton" />
+          <div className="flex gap-3 [direction:rtl]">
+            <div className="h-[90px] w-[120px] shrink-0 rounded-xl animate-skeleton" />
+            <div className="min-w-0 flex-1 space-y-2.5">
+              <div className="h-5 w-3/4 rounded-md animate-skeleton" />
+              <div className="h-4 w-1/2 rounded-md animate-skeleton" />
+              <div className="h-4 w-2/3 rounded-md animate-skeleton" />
+            </div>
+          </div>
+          <div className="flex justify-between border-t border-[#f0f0f0] pt-2">
+            <div className="h-4 w-28 rounded-md animate-skeleton" />
+            <div className="h-4 w-20 rounded-md animate-skeleton" />
+          </div>
+        </section>
+
+        <div className="h-2 shrink-0 bg-[#f0f0f0]" aria-hidden="true" />
+
+        <section className="min-h-[300px] flex-1 space-y-6 bg-white p-4" aria-label="در حال بارگذاری عملیات آگهی">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-5 w-5 rounded-md animate-skeleton" />
+                <div className="h-4 w-28 rounded-md animate-skeleton" />
+              </div>
+              <div className="h-4 w-4 rounded-md animate-skeleton" />
+            </div>
+          ))}
+        </section>
+      </main>
+    </PageFrame>
+  );
 }

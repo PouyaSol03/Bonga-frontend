@@ -1110,6 +1110,10 @@ function DisabledUpgradeOptionsSection({
           const checked = Boolean(
             checkoutItem && selectedProducts.includes(checkoutItem.product),
           );
+          const itemPrice =
+            checkoutItem?.price !== undefined
+              ? toSafeNumber(checkoutItem.price)
+              : 30000;
           const unavailableWarning = enabled
             ? "این قابلیت در حال حاضر در دسترس نیست."
             : disabledWarning;
@@ -1129,11 +1133,11 @@ function DisabledUpgradeOptionsSection({
               type="button"
             >
               <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${optionEnabled ? "text-[#1a1a1a]" : "text-[#c2c2c2]"
+                <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${optionEnabled ? "text-[#1a1a1a]" : "text-[#808080]"
                   }`}>
-                  {checkoutItem?.price !== undefined && optionEnabled ? (
+                  {itemPrice !== undefined ? (
                     <>
-                      {formatTariffToman(toSafeNumber(checkoutItem.price))}
+                      {formatTariffToman(itemPrice)}
                       <LinearTooman className="h-5 w-5" />
                     </>
                   ) : (

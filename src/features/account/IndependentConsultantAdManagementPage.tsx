@@ -15,6 +15,7 @@ import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-
 import { getAdvertisementPublisherName, mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";
+import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import {
   adManagementPaths,
   adManagementPropertyTypeLabels,
@@ -419,7 +420,11 @@ export function IndependentConsultantAdManagementPage() {
         >
           {assignedTab ? (
             assignmentsQuery.isLoading ? (
-              <AssignmentStatusMessage>در حال دریافت آگهی‌های تخصیصی...</AssignmentStatusMessage>
+              <>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <AdCardSkeleton key={index} variant="assigned" />
+                ))}
+              </>
             ) : assignmentsQuery.isError ? (
               <AssignmentStatusMessage>
                 دریافت آگهی‌های تخصیصی با خطا مواجه شد.
@@ -445,7 +450,11 @@ export function IndependentConsultantAdManagementPage() {
               <AssignmentStatusMessage>آگهی تخصیصی در انتظار بررسی وجود ندارد.</AssignmentStatusMessage>
             )
           ) : adsQuery.isLoading ? (
-            <AssignmentStatusMessage>در حال دریافت آگهی‌ها...</AssignmentStatusMessage>
+            <>
+              {Array.from({ length: 3 }).map((_, index) => (
+                <AdCardSkeleton key={index} />
+              ))}
+            </>
           ) : adsQuery.isError ? (
             <AssignmentStatusMessage>
               دریافت آگهی‌ها با خطا مواجه شد.
@@ -477,7 +486,7 @@ export function IndependentConsultantAdManagementPage() {
           )}
 
           {(assignedTab ? assignmentsQuery.isFetchingNextPage : adsQuery.isFetchingNextPage) ? (
-            <AssignmentStatusMessage>در حال دریافت موارد بیشتر...</AssignmentStatusMessage>
+            <AdCardSkeleton variant={assignedTab ? "assigned" : "standard"} />
           ) : null}
         </div>
       </main>

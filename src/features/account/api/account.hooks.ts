@@ -5,6 +5,7 @@ import { queryKeys } from "../../../shared/api/query-keys";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
   authorizeMe,
+  transferSimOwnership,
   chargeWallet,
   createMyAgency,
   createMyAgent,
@@ -79,6 +80,16 @@ export function useAuthorizeMeMutation() {
     },
   });
 }
+
+export function useTransferSimOwnershipMutation() {
+  return useMutation({
+    mutationFn: transferSimOwnership,
+    onSuccess: () => {
+      void queryClient.clear();
+    },
+  });
+}
+
 
 export function useCreateMyAgencyMutation() {
   return useMutation({

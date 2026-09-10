@@ -1,6 +1,6 @@
 import { useWalletPaymentsQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { AccountLoadingState, AccountPageShell, AccountRetryState, PaymentHistoryCard } from "../accountPageViews";
+import { AccountPageShell, AccountRetryState, PaymentHistoryCard, PaymentHistorySkeleton } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountWalletHistoryPage() {
@@ -15,7 +15,7 @@ export function AccountWalletHistoryPage() {
           isEmpty ? "bg-white" : "bg-[#F0F0F0]"
         }`}
       >
-        {isLoading ? <AccountLoadingState text="در حال دریافت تاریخچه پرداخت..." /> : null}
+        {isLoading ? <PaymentHistorySkeleton count={4} /> : null}
 
         {isError ? (
           <AccountRetryState

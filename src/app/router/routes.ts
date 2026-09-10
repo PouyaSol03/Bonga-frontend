@@ -18,11 +18,26 @@ function lazyNamed<TModule extends Record<string, unknown>>(
   loader: () => Promise<TModule>,
   exportName: keyof TModule,
 ) {
-  return lazy(() =>
-    loader().then((module) => ({
-      default: module[exportName] as ComponentType<any>,
-    })),
-  )
+  let loadPromise: Promise<{ default: ComponentType<any> }> | null = null
+  const load = () => {
+    if (!loadPromise) {
+      loadPromise = loader().then((module) => ({
+        default: module[exportName] as ComponentType<any>,
+      }))
+    }
+    return loadPromise
+  }
+  const LazyComponent = lazy(load)
+  ;(LazyComponent as any).preload = load
+  return LazyComponent
+}
+
+export function preloadRoute(path: string) {
+  const normalizedPath = path.split('?')[0].split('#')[0]
+  const route = routes.find((candidate) => candidate.path === normalizedPath)
+  if (route?.Component && typeof (route.Component as any).preload === 'function') {
+    void (route.Component as any).preload()
+  }
 }
 
 const HomePage = lazyNamed(() => import('../../features/home/HomePage'), 'HomePage')

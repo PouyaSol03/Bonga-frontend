@@ -108,6 +108,17 @@ export function createNavigationState(
   };
 }
 
+type RoutePrefetcher = (path: string) => void;
+let activeRoutePrefetcher: RoutePrefetcher | null = null;
+
+export function setRoutePrefetcher(prefetcher: RoutePrefetcher) {
+  activeRoutePrefetcher = prefetcher;
+}
+
+export function prefetchRoute(path: string) {
+  activeRoutePrefetcher?.(path);
+}
+
 export function pushRoute(
   path: string,
   state?: unknown,
@@ -121,6 +132,7 @@ export function pushRoute(
     return;
   }
 
+  prefetchRoute(path);
   window.history.pushState(createNavigationState(state, options), "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }

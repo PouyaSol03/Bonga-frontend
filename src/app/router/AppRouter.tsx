@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../shared/auth/auth-storage'
 import { MobileAppShell } from '../layout/MobileAppShell'
 import { PageFrame } from '../../shared/layout/PageFrame'
@@ -21,15 +21,22 @@ import {
   DASHBOARD_PATH,
   getDefaultCrmPath,
   LEGACY_DASHBOARD_PATH,
+  preloadRoute,
   routes,
   type AppRoute,
 } from './routes'
 import type { CrmRoutePageProps } from '../../features/crm/CrmLayout'
-import { historyRouteChangeEvent, installHistoryNavigationBridge, replaceRoute } from '../../shared/navigation/navigation'
+import {
+  historyRouteChangeEvent,
+  installHistoryNavigationBridge,
+  replaceRoute,
+  setRoutePrefetcher,
+} from '../../shared/navigation/navigation'
 import { getAppChromeConfig } from './routeChrome'
 import { selectedCityStorageKeys } from '../../shared/lib/selectedCityStorage'
 
 installHistoryNavigationBridge();
+setRoutePrefetcher(preloadRoute);
 
 
 function RouteNotFoundPage() {
@@ -517,6 +524,8 @@ function getRoute(path: string): AppRoute {
 export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
   const pathRef = useRef(path)
+  const [isPending, startTransition] = useTransition()
+  const shouldReduceMotion = useReducedMotion()
   const [isOffline, setIsOffline] = useState(() => !window.navigator.onLine)
   const route = useMemo(() => getRoute(path), [path])
   const ActivePage = route.Component
@@ -574,7 +583,10 @@ export function AppRouter() {
       if (nextPath === pathRef.current) return
 
       pathRef.current = nextPath
-      setPath(nextPath)
+      preloadRoute(nextPath)
+      startTransition(() => {
+        setPath(nextPath)
+      })
       window.scrollTo({ top: 0 })
     }
 
@@ -585,7 +597,7 @@ export function AppRouter() {
       window.removeEventListener('popstate', handleNavigation)
       window.removeEventListener(historyRouteChangeEvent, handleNavigation)
     }
-  }, [])
+  }, [startTransition])
 
   useEffect(() => {
     function handleOnline() {
@@ -644,15 +656,7 @@ export function AppRouter() {
           contentKey={route.path}
           renderContent={(viewProps: CrmRoutePageProps) => (
             <Suspense fallback={<div className="h-full min-h-80 rounded-xl bg-white" />}>
-              <motion.div
-                key={route.path}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="h-full w-full"
-              >
-                <ActivePage {...viewProps} />
-              </motion.div>
+              <ActivePage {...viewProps} />
             </Suspense>
           )}
           section={route.crmSection ?? 'overview'}
@@ -669,17 +673,7 @@ export function AppRouter() {
     return (
       <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
         <CrmLayout
-          embeddedContent={
-            <motion.div
-              key={path}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="h-full w-full"
-            >
-              {page}
-            </motion.div>
-          }
+          embeddedContent={page}
           section="advertises"
         />
       </Suspense>
@@ -714,15 +708,32 @@ export function AppRouter() {
 
   return (
     <MobileAppShell>
-      <motion.div
-        key={path}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="flex min-h-0 flex-1 flex-col h-full w-full"
-      >
-        {content}
-      </motion.div>
+      <div className="relative grid h-full w-full grid-cols-1 grid-rows-1 overflow-hidden bg-white">
+        {isPending ? (
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-[100] h-0.5 overflow-hidden bg-transparent">
+            <div className="h-full w-full bg-[#0048c4] animate-pulse" />
+          </div>
+        ) : null}
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={path}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.996 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={
+              shouldReduceMotion
+                ? { opacity: 0 }
+                : { opacity: 0, scale: 0.996, pointerEvents: 'none' as const }
+            }
+            transition={{
+              duration: shouldReduceMotion ? 0.1 : 0.22,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="col-start-1 row-start-1 flex h-full w-full min-h-0 flex-col overflow-hidden"
+          >
+            {content}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </MobileAppShell>
   )
 }

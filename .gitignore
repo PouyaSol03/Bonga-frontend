@@ -38,3 +38,6 @@ audit/performance-urls.txt
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Storybook
+/storybook-static/

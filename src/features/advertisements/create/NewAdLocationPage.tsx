@@ -692,9 +692,13 @@ export function NewAdLocationPage() {
             disabled={
               isResolvingLocation ||
               locationByCoordinatesQuery.isFetching ||
-              neighborhoodInfoQuery.isFetching
+              neighborhoodInfoQuery.isFetching ||
+              !getNeighborhoodId(selectedNeighborhood)
             }
             onClick={() => {
+              const neighborhoodId = getNeighborhoodId(selectedNeighborhood);
+              if (!neighborhoodId) return;
+
               const confirmedLocation =
                 selectedNeighborhood?.name?.trim() ||
                 selectedLocation ||
@@ -702,12 +706,7 @@ export function NewAdLocationPage() {
                 "موقعیت انتخاب‌شده";
 
               window.localStorage.setItem(locationKey, confirmedLocation);
-              const neighborhoodId = getNeighborhoodId(selectedNeighborhood);
-              if (neighborhoodId) {
-                window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
-              } else {
-                window.localStorage.removeItem(neighborhoodIdKey);
-              }
+              window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
               const subNeighborhoodId = getSubNeighborhoodId(selectedSubNeighborhood);
               if (subNeighborhoodId) {
                 window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);

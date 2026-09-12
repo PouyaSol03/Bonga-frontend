@@ -17,10 +17,10 @@ import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
 import { useQuery } from "@tanstack/react-query";
+import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
   countCrmAdvertisesByStatus,
   getCrmRecordId,
-  listCrmAdvertises,
   listCrmAgencies,
   listCrmAgents,
   listCrmUsers,
@@ -480,7 +480,7 @@ export function CrmLayout({
     .join(" ") || "مدیر سامانه";
 
   const { isDark, toggleTheme } = useAppTheme();
-  const isSuperAdmin = crmRoleSlugs.includes("superadmin") || crmRoleSlugs.includes(SUPER_ADMIN);
+  const isSuperAdmin = crmRoleSlugs.includes(SUPER_ADMIN);
 
   const { data: pendingAdsCount } = useQuery({
     enabled: isSuperAdmin || allowedSections.has("advertises"),
@@ -541,7 +541,7 @@ export function CrmLayout({
     }
 
     return counts;
-  }, [crmAds, crmUsers, crmAgencies, crmConsultants]);
+  }, [pendingAdsCount, crmUsers, crmAgencies, crmConsultants]);
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-[#f3f3f3] text-[#1a1a1a]" dir="rtl">

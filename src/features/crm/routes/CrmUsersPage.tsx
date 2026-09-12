@@ -1,6 +1,6 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleCrmUserAuthorization, updateCrmUserAuthorization, getCrmRecordId } from "../api/crm.service";
+import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, updateCrmUserAuthorization, getCrmRecordId } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, UserStatusBadge, formatMoney, fullName, ghostButtonClassName, inputClassName, normalizeCrmUserRoleSlug, readText, useQueryErrorToast, userRoleOptions, userRoleSlugs } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
@@ -49,17 +49,9 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
     },
   });
 
-  const authorizationMutation = useMutation({
-    mutationFn: toggleCrmUserAuthorization,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
-      notify("وضعیت تایید کد ملی کاربر تغییر کرد.");
-    },
-  });
-
   const setAuthorizationMutation = useMutation({
     mutationFn: ({ id, reason, status }: { id: string | number; reason?: string; status: "accept" | "reject" }) =>
-      updateCrmUserAuthorization(id, status, reason),
+      updateCrmUserAuthorization(String(id), status, reason),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
       notify(variables.status === "accept" ? "احراز هویت کاربر تایید شد." : "احراز هویت کاربر رد شد.");
@@ -112,7 +104,6 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   };
 
   const handleToggleStatus = (id: string) => statusMutation.mutateAsync(id);
-  const handleToggleAuthorization = (id: string) => authorizationMutation.mutateAsync(id);
 
   const renderUsersTable = (users: CrmRecord[], emptyMessage: string) => (
     <div className="overflow-x-auto">

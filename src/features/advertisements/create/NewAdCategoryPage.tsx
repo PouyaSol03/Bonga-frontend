@@ -220,6 +220,8 @@ export function TransactionSelector({
   );
 }
 
+export const TransactionSegmentedControl = TransactionSelector;
+
 function CategoryChip({
   isSelected,
   label,

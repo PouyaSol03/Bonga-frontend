@@ -733,7 +733,7 @@ export function IdentityPendingState({
       {!isAuthenticated ? (
         <section className="px-4 pt-3">
           <div className="rounded-xl border border-[#0048c4] bg-[#f0f5ff] p-4 text-right">
-            <Typography as="p" variant="body" size="medium" weight="semibold" className="m-0 text-sm font-semibold text-[#0048c4]">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold text-[#0048c4]">
               برای تایید هویت، ابتدا وارد شوید
             </Typography>
             <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-[#4d4d4d] leading-5">
@@ -760,7 +760,7 @@ export function IdentityPendingState({
           <div className="rounded-xl border border-[#ee3623] bg-[#fff5f5] p-4 text-right">
             <div className="flex items-center gap-2 text-[#ee3623]">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
-              <Typography as="p" variant="body" size="medium" weight="semibold" className="m-0 text-sm font-semibold">
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">
                 احراز هویت شما تایید نشد
               </Typography>
             </div>
@@ -776,7 +776,7 @@ export function IdentityPendingState({
           <div className="rounded-xl border border-[#ff9800] bg-[#fff8e1] p-4 text-right">
             <div className="flex items-center gap-2 text-[#e65100]">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
-              <Typography as="p" variant="body" size="medium" weight="semibold" className="m-0 text-sm font-semibold">
+              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">
                 در انتظار تایید ادمین
               </Typography>
             </div>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getToken, onMessage } from 'firebase/messaging';
-import { messaging } from '../../shared/config/firebase';
+import { getFirebaseMessaging, isMessagingSupported } from '../../shared/config/firebase';
 import { registerFcmToken, unregisterFcmToken } from './api/notification.service';
 import { getStoredAuthSession } from '../../shared/auth/auth-storage';
 
@@ -20,19 +20,32 @@ export function useFcm() {
     }
     return Notification.permission;
   });
+  const [isSupported, setIsSupported] = useState<boolean>(false);
 
-  const isSupported =
-    typeof window !== 'undefined' &&
-    'Notification' in window &&
-    'serviceWorker' in navigator &&
-    messaging !== null;
+  useEffect(() => {
+    let isMounted = true;
+    void isMessagingSupported().then((supported) => {
+      if (isMounted) {
+        setIsSupported(supported);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Foreground message listener
   useEffect(() => {
-    if (!isSupported || !messaging) return;
+    if (!isSupported) return;
 
-    try {
-      const unsubscribe = onMessage(messaging, (payload) => {
+    let isMounted = true;
+    let unsubscribe: (() => void) | undefined;
+
+    void getFirebaseMessaging().then((messagingInstance) => {
+      if (!isMounted || !messagingInstance) return;
+
+      try {
+        unsubscribe = onMessage(messagingInstance, (payload) => {
         const title =
           payload.notification?.title ||
           payload.data?.title ||
@@ -86,15 +99,28 @@ export function useFcm() {
           }
         }
       });
-
-      return () => unsubscribe();
     } catch (error) {
-      console.warn('خطا در تنظیم گوش‌دهنده پیام‌های پیش‌زمینه FCM:', error);
-    }
+        console.warn('خطا در تنظیم گوش‌دهنده پیام‌های پیش‌زمینه FCM:', error);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [isSupported]);
 
   const requestToken = useCallback(async () => {
-    if (!isSupported || !messaging) {
+    const supported = await isMessagingSupported();
+    if (!supported) {
+      console.warn('پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.');
+      return null;
+    }
+
+    const messagingInstance = await getFirebaseMessaging();
+    if (!messagingInstance) {
       console.warn('پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.');
       return null;
     }
@@ -129,7 +155,7 @@ export function useFcm() {
       );
       await navigator.serviceWorker.ready;
 
-      const currentToken = await getToken(messaging, {
+      const currentToken = await getToken(messagingInstance, {
         vapidKey: vapidKey || undefined,
         serviceWorkerRegistration: registration,
       });
@@ -156,7 +182,7 @@ export function useFcm() {
       setLoading(false);
       return null;
     }
-  }, [isSupported]);
+  }, []);
 
   const unregisterToken = useCallback(async () => {
     const savedToken = token || window.localStorage.getItem(FCM_TOKEN_STORAGE_KEY);

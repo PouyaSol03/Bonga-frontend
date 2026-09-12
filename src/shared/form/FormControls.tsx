@@ -1,4 +1,5 @@
 import type { ChangeEventHandler, FocusEventHandler, ReactNode, Ref } from "react";
+import { motion } from "motion/react";
 import { Chip } from "../ui/Chip";
 import { TextField } from "../ui/TextField";
 import { Button } from "../ui/Button";
@@ -26,7 +27,7 @@ export function FormSegmentedControl<T extends string>({
   return (
     <div
       aria-label={ariaLabel}
-      className="flex h-10 w-full overflow-hidden rounded-xl border border-[#808080] bg-white"
+      className="relative flex h-10 w-full overflow-hidden rounded-xl border border-[#808080] bg-white"
       dir="rtl"
       role="radiogroup"
     >
@@ -36,17 +37,24 @@ export function FormSegmentedControl<T extends string>({
         return (
           <Button unstyled
             aria-checked={selected}
-            className={`flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+            className={`relative flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
               showDividers && index < options.length - 1 ? "border-l" : ""
             } ${
-              selected ? "bg-[#edf0fb] text-[#0048c4]" : "bg-white text-[#4d4d4d] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
+              selected ? "text-[#0048c4]" : "text-[#4d4d4d] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
             }`}
             key={option.value}
             onClick={() => onChange(option.value)}
             role="radio"
             type="button"
           >
-            {option.label}
+            {selected && (
+              <motion.div
+                className="absolute inset-0 bg-[#edf0fb]"
+                layoutId={`form-segmented-indicator-${ariaLabel}`}
+                transition={{ damping: 35, stiffness: 450, type: "spring" }}
+              />
+            )}
+            <span className="relative z-10">{option.label}</span>
           </Button>
         );
       })}
@@ -60,6 +68,7 @@ type FormChoiceChipProps = {
   onClick?: () => void;
   removable?: boolean;
   selected?: boolean;
+  showCheck?: boolean;
 };
 
 export function FormChoiceChip({
@@ -68,6 +77,7 @@ export function FormChoiceChip({
   onClick,
   removable = false,
   selected = false,
+  showCheck = false,
 }: FormChoiceChipProps) {
   return (
     <Chip
@@ -76,6 +86,7 @@ export function FormChoiceChip({
       onClick={onClick}
       removable={removable}
       selected={selected}
+      showCheck={showCheck}
     >
       {label}
     </Chip>

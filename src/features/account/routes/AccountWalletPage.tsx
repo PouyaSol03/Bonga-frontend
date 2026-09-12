@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useChargeWalletMutation, useWalletQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { AdCardTomanIcon } from "../../advertisements/components/AdCardIcons";
@@ -82,11 +83,21 @@ export function AccountWalletPage() {
                 setAmount(normalizeWalletAmount(event.target.value));
               }}
             />
-            {Number(amount) > 0 && (
-              <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-[#808080]">
-                {formatBigNumber(Number(amount))} تومان
-              </Typography>
-            )}
+            <AnimatePresence mode="wait">
+              {Number(amount) > 0 && (
+                <motion.div
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  initial={{ opacity: 0, y: -4 }}
+                  key={amount}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                >
+                  <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-[#808080]">
+                    {formatBigNumber(Number(amount))} تومان
+                  </Typography>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
               مبالغ پیشنهادی
@@ -97,19 +108,24 @@ export function AccountWalletPage() {
                 const isActive = amount === amountOption.value;
 
                 return (
-                  <Button
-                    className={isActive ? "text-primary" : "text-on-surface"}
+                  <motion.div
                     key={amountOption.value}
-                    onClick={() => setAmount(amountOption.value)}
-                    radius="small"
-                    size="small"
-                    type="button"
-                    variant={isActive ? "secondary" : "neutral-outline"}
+                    transition={{ duration: 0.1 }}
+                    whileTap={{ scale: 0.94 }}
                   >
-                    <Typography variant="label" size="small" weight="medium">
-                      {amountOption.label}
-                    </Typography>
-                  </Button>
+                    <Button
+                      className={`w-full transition-all duration-200 ${isActive ? "text-primary" : "text-on-surface"}`}
+                      onClick={() => setAmount(amountOption.value)}
+                      radius="small"
+                      size="small"
+                      type="button"
+                      variant={isActive ? "secondary" : "neutral-outline"}
+                    >
+                      <Typography variant="label" size="small" weight="medium">
+                        {amountOption.label}
+                      </Typography>
+                    </Button>
+                  </motion.div>
                 );
               })}
             </div>

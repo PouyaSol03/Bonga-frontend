@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { cn } from "../../design-system/classes";
-import LinearTick from "../icons/LinearTick";
 import { Typography } from "./Typography";
 
 type ChoiceIndicatorProps = HTMLAttributes<HTMLSpanElement> & {
@@ -32,15 +32,17 @@ export function ChoiceIndicator({
         )}
         {...props}
       >
-        {checked && !disabled ? (
-          <Typography
-            as="span"
-            variant="body"
-            size="medium"
-            weight="regular"
-            className="h-2 w-2 rounded-full bg-white animate-radio-pop transform"
-          />
-        ) : null}
+        <AnimatePresence initial={false}>
+          {checked && !disabled && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              transition={{ duration: 0.2, ease: "backOut" }}
+              className="h-2 w-2 rounded-full bg-white"
+            />
+          )}
+        </AnimatePresence>
       </Typography>
     );
   }
@@ -61,11 +63,30 @@ export function ChoiceIndicator({
       )}
       {...props}
     >
-      {checked ? (
-        <span className="flex items-center justify-center animate-check-pop transform">
-          <LinearTick aria-hidden="true" className="h-3.5 w-3.5" />
-        </span>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {checked && (
+          <motion.span
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.5, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "backOut" }}
+            className="flex items-center justify-center text-white"
+          >
+            <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" viewBox="0 0 14 14">
+              <motion.path
+                d="M2.5 7.5L5.5 10.5L11.5 3.5"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.22, delay: 0.04, ease: "easeOut" }}
+              />
+            </svg>
+          </motion.span>
+        )}
+      </AnimatePresence>
     </Typography>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "motion/react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
@@ -191,15 +192,22 @@ function TransactionSegmentedControl({
           return (
             <Button unstyled
               aria-selected={isActive}
-              className={`min-w-0 py-2 text-center text-base font-medium leading-7 transition focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
-                isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"
+              className={`relative min-w-0 py-2 text-center text-base font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
+                isActive ? "text-[#002099]" : "bg-white text-[#1a1a1a]"
               }`}
               key={type}
               onClick={() => onChange(type)}
               role="tab"
               type="button"
             >
-              {config.label}
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 bg-[#0048c41f]"
+                  layoutId="new-ad-transaction-indicator"
+                  transition={{ damping: 35, stiffness: 450, type: "spring" }}
+                />
+              )}
+              <span className="relative z-10">{config.label}</span>
             </Button>
           );
         })}
@@ -222,6 +230,7 @@ function CategoryChip({
       className="h-9"
       onClick={onClick}
       selected={isSelected}
+      showCheck
     >
       {label}
     </Chip>

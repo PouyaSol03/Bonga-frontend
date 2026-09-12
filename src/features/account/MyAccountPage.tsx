@@ -1,4 +1,5 @@
 import { useEffect, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { TopBarNavigationLayout } from "../../shared/layout/TopBarNavigationLayout";
 import { BottomSheet } from "../../shared/components/BottomSheet";
@@ -189,16 +190,30 @@ export function MyAccountPage() {
     />
   );
 
-  if (authSession && isBusinessAccount(activeRole)) {
-    return (
-      <IndependentConsultantAccountPage
-        authSession={authSession}
-        businessSuccessSheet={businessSuccessSheet}
-      />
-    );
-  }
-
-  return <StandardAccountPage authSession={authSession} businessSuccessSheet={businessSuccessSheet} />;
+  return (
+    <AnimatePresence initial={false} mode="wait">
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="h-full w-full"
+        exit={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 20 }}
+        key={authSession && isBusinessAccount(activeRole) ? activeRole : "standard"}
+        transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+      >
+        {authSession && isBusinessAccount(activeRole) ? (
+          <IndependentConsultantAccountPage
+            authSession={authSession}
+            businessSuccessSheet={businessSuccessSheet}
+          />
+        ) : (
+          <StandardAccountPage
+            authSession={authSession}
+            businessSuccessSheet={businessSuccessSheet}
+          />
+        )}
+      </motion.div>
+    </AnimatePresence>
+  );
 }
 
 function isBusinessAccount(role: string | null) {

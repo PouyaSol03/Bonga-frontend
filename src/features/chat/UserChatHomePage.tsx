@@ -12,6 +12,7 @@ import {
 } from "./api/chat-socket";
 import { BottomSheet, BottomSheetActionList } from "../../shared/components/BottomSheet";
 import { Button } from "../../shared/ui/Button";
+import { Chip } from "../../shared/ui/Chip";
 import { TransientNotice } from "../../shared/components/TransientNotice";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
@@ -891,18 +892,14 @@ const FilterTabs = memo(function FilterTabs({
       contentClassName="h-9"
     >
       {filters.map((filter) => (
-        <Button unstyled
-          aria-pressed={activeFilter === filter.value}
-          className={`flex shrink-0 items-center justify-center rounded-lg border p-2 text-sm! font-medium! focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${activeFilter === filter.value
-            ? "border-[#0048c4] bg-[#0048c414] text-[#0048c4]"
-            : "border-[#cccccc] bg-white text-[#4d4d4d]"
-            }`}
+        <Chip
           key={filter.value}
           onClick={() => onSelect(filter.value)}
-          type="button"
+          selected={activeFilter === filter.value}
+          showCheck
         >
           {filter.label}
-        </Button>
+        </Chip>
       ))}
     </HorizontalFilterBar>
   );

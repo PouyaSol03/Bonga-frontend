@@ -3276,6 +3276,7 @@ function CategorySelectionScreen({
                   label={categoryLabels[item]}
                   onClick={() => setDraftCategory(item)}
                   selected={draftCategory === item}
+                  showCheck
                 />
               ))}
             </div>

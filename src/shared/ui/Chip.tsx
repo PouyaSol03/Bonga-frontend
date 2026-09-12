@@ -38,7 +38,7 @@ export function Chip({
   removable = false,
   removeIcon,
   selected = false,
-  showCheck = true,
+  showCheck = false,
   type = "button",
   ...props
 }: ChipProps) {

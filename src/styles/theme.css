@@ -1,34 +1,34 @@
 :root {
     --primary: var(--primary-400);
-    --on-primary: var(--primary-0);
+    --on-primary: #FFFFFF;
     --primary-container: var(--primary-950);
     --on-primary-container: var(--primary-100);
 
     --secondary: var(--secondary-400);
-    --on-secondary: var(--secondary-0);
+    --on-secondary: #FFFFFF;
     --secondary-container: var(--secondary-950);
     --on-secondary-container: var(--secondary-100);
 
     --tertiary: var(--tertiary-400);
-    --on-tertiary: var(--tertiary-0);
+    --on-tertiary: #FFFFFF;
     --tertiary-container: var(--tertiary-950);
     --on-tertiary-container: var(--tertiary-100);
 
     --error: var(--error-400);
-    --on-error: var(--error-0);
+    --on-error: #FFFFFF;
     --error-container: var(--error-950);
     --on-error-container: var(--error-100);
 
-    --warning: var(--warning-400);
-    --on-warning: var(--warning-0);
+    --warning: var(--warning-100);
+    --on-warning: #FFFFFF;
     --warning-container: var(--warning-950);
     --on-warning-container: var(--warning-100);
 
     --surface: #FAFAFA;
     --on-surface: var(--neutral-100);
-    --on-surface-var: var(--netural-300);
-    --outline: var(--netural-500);
-    --outline-var: var(--netural-800);
+    --on-surface-var: var(--neutral-300);
+    --outline: var(--neutral-500);
+    --outline-var: var(--neutral-800);
     --surface-container-lowest: #FFFFFF;
     --surface-container-low: #F5F5F5;
     --surface-container: #F0F0F0;
@@ -36,40 +36,237 @@
     --surface-container-highest: #E5E5E5;
 }
 
-.dark{
-    --primary: var(--primary-900);
-    --on-primary: var(--primary-200);
-    --primary-container: var(--primary-300);
-    --on-primary-container: var(--primary-950);
+.dark {
+    color-scheme: dark;
 
-    --secondary: var(--secondary-900);
-    --on-secondary: var(--secondary-200);
-    --secondary-container: var(--secondary-300);
-    --on-secondary-container: var(--secondary-950);
+    /* Primary */
+    --primary: #5c8cf5;
+    --on-primary: #001b66;
+    --primary-container: #10244f;
+    --on-primary-container: #d7ddf8;
 
-    --tertiary: var(--tertiary-900);
-    --on-tertiary: var(--tertiary-200);
-    --tertiary-container: var(--tertiary-300);
-    --on-tertiary-container: var(--tertiary-950);
+    /* Secondary */
+    --secondary: var(--secondary-700);
+    --on-secondary: #ffffff;
+    --secondary-container: var(--secondary-200);
+    --on-secondary-container: var(--secondary-900);
 
-    --error: var(--error-900);
-    --on-error: var(--error-200);
-    --error-container: var(--error-300);
-    --on-error-container: var(--error-950);
+    /* Tertiary (Success) */
+    --tertiary: #2dd489;
+    --on-tertiary: #003820;
+    --tertiary-container: #0d3824;
+    --on-tertiary-container: #c1e7d3;
 
-    --warning: var(--warning-900);
-    --on-warning: var(--warning-200);
-    --warning-container: var(--warning-200);
-    --on-warning-container: var(--warning-950);
+    /* Error */
+    --error: #ff6b5c;
+    --on-error: #450000;
+    --error-container: #421412;
+    --on-error-container: #ffcdcf;
 
-    --surface: #050505;
+    /* Warning */
+    --warning: #ffaa33;
+    --on-warning: #421c00;
+    --warning-container: #4a2c00;
+    --on-warning-container: #ffe099;
+
+    /* Surfaces & Backgrounds */
+    --surface: #121212;
     --on-surface: var(--neutral-900);
-    --on-surface-var: var(--netural-800);
-    --outline: var(--netural-600);
-    --outline-var: var(--netural-300);
-    --surface-container-lowest: #1A1A1A;
-    --surface-container-low: #242424;
-    --surface-container: #292929;
-    --surface-container-high: #2E2E2E;
-    --surface-container-highest: #333333;
+    --on-surface-var: var(--neutral-800);
+    --outline: var(--neutral-600);
+    --outline-var: #2e2e2e;
+    --surface-container-lowest: #1e1e1e;
+    --surface-container-low: #181818;
+    --surface-container: #121212;
+    --surface-container-high: #242424;
+    --surface-container-highest: #2a2a2a;
+}
+
+/* ============================================================
+   Bonga Automated Dark Mode Utility Token Mappings
+   Maps Tailwind utility classes to semantic design tokens in .dark
+   ============================================================ */
+
+/* Background mappings */
+.dark .bg-white,
+.dark .bg-\[\#ffffff\],
+.dark .bg-\[\#FFFFFF\] {
+    background-color: var(--surface-container-lowest) !important;
+}
+
+.dark .bg-\[\#f0f0f0\],
+.dark .bg-\[\#F0F0F0\],
+.dark .bg-\[\#f3f3f3\],
+.dark .bg-\[\#f4f6f8\] {
+    background-color: var(--surface-container) !important;
+}
+
+.dark .bg-\[\#f5f5f5\],
+.dark .bg-\[\#F5F5F5\],
+.dark .bg-\[\#fafafa\],
+.dark .bg-\[\#FAFAFA\],
+.dark .bg-\[\#f7f7f7\],
+.dark .bg-\[\#f7f8fa\] {
+    background-color: var(--surface-container-low) !important;
+}
+
+/* Hover / Active backgrounds */
+.dark .hover\:bg-\[\#f5f5f5\]:hover,
+.dark .hover\:bg-\[\#fafafa\]:hover,
+.dark .hover\:bg-\[\#f7f7f7\]:hover,
+.dark .active\:bg-\[\#e5e5e5\]:active,
+.dark .active\:bg-\[\#f7f7f7\]:active {
+    background-color: var(--surface-container-high) !important;
+}
+
+/* Container backgrounds (tinted badges, banners, highlighted fields) */
+.dark .bg-\[\#edf0fb\],
+.dark .bg-\[\#EDF0FB\],
+.dark .bg-\[\#eaf1ff\],
+.dark .bg-\[\#eef4ff\],
+.dark .bg-\[\#f0f5ff\],
+.dark .bg-\[\#0048c40d\],
+.dark .bg-\[\#0048c414\],
+.dark .bg-\[\#0048c41f\],
+.dark .bg-\[\#dce6f7\],
+.dark .bg-\[\#dbe8ff\] {
+    background-color: var(--primary-container) !important;
+}
+
+.dark .bg-\[\#e6f6ed\],
+.dark .bg-\[\#E6F6ED\],
+.dark .bg-\[\#e9f8f0\],
+.dark .bg-\[\#11a36614\],
+.dark .bg-\[\#11A36614\] {
+    background-color: var(--tertiary-container) !important;
+}
+
+.dark .bg-\[\#ffebed\],
+.dark .bg-\[\#FFEBED\],
+.dark .bg-\[\#fff5f5\] {
+    background-color: var(--error-container) !important;
+}
+
+.dark .bg-\[\#fff8e1\],
+.dark .bg-\[\#FFF8E1\],
+.dark .bg-\[\#fff7df\],
+.dark .bg-\[\#fff7f0\],
+.dark .bg-\[\#fff3e8\] {
+    background-color: var(--warning-container) !important;
+}
+
+/* Text mappings */
+.dark .text-\[\#1a1a1a\],
+.dark .text-\[\#1A1A1A\],
+.dark .text-\[\#303030\],
+.dark .text-\[\#333333\] {
+    color: var(--on-surface) !important;
+}
+
+.dark .text-\[\#4d4d4d\],
+.dark .text-\[\#4D4D4D\],
+.dark .text-\[\#525252\],
+.dark .text-\[\#596477\],
+.dark .text-\[\#5d4037\] {
+    color: var(--on-surface-var) !important;
+}
+
+.dark .text-\[\#666666\],
+.dark .text-\[\#7b8494\],
+.dark .text-\[\#808080\],
+.dark .text-\[\#919aa8\],
+.dark .text-\[\#999999\],
+.dark .text-\[\#a0a0a0\],
+.dark .text-\[\#a6a6a6\] {
+    color: var(--outline) !important;
+}
+
+/* Text Brand & Semantic accents */
+.dark .text-\[\#0048c4\],
+.dark .text-\[\#0048C4\],
+.dark .text-\[\#002099\],
+.dark .text-\[\#0d50ce\] {
+    color: var(--primary) !important;
+}
+
+.dark .text-\[\#11a366\],
+.dark .text-\[\#11A366\],
+.dark .text-\[\#0b8b55\],
+.dark .text-\[\#006038\] {
+    color: var(--tertiary) !important;
+}
+
+.dark .text-\[\#ee3623\],
+.dark .text-\[\#EE3623\],
+.dark .text-\[\#c11004\],
+.dark .text-\[\#b91c1c\] {
+    color: var(--error) !important;
+}
+
+.dark .text-\[\#ff6d00\],
+.dark .text-\[\#FF6D00\],
+.dark .text-\[\#e65100\],
+.dark .text-\[\#c2410c\] {
+    color: var(--warning) !important;
+}
+
+/* Border and line mappings */
+.dark .border-\[\#cccccc\],
+.dark .border-\[\#CCCCCC\],
+.dark .border-\[\#d9d9d9\],
+.dark .border-\[\#dce3ef\],
+.dark .border-\[\#e1e7f0\],
+.dark .border-\[\#e2e6eb\],
+.dark .border-\[\#e5e5e5\],
+.dark .border-\[\#E5E5E5\],
+.dark .border-\[\#e6e6e6\],
+.dark .border-\[\#e8e8e8\],
+.dark .border-\[\#f0f0f0\],
+.dark .border-\[\#F0F0F0\] {
+    border-color: var(--outline-var) !important;
+}
+
+/* Tinted semantic borders */
+.dark .border-\[\#cbd8ed\],
+.dark .border-\[\#cfe4ff\],
+.dark .border-\[\#0048c4\],
+.dark .border-\[\#0048C4\] {
+    border-color: rgba(92, 140, 245, 0.4) !important;
+}
+
+.dark .border-\[\#a3e4c4\],
+.dark .border-\[\#11a366\],
+.dark .border-\[\#11A366\] {
+    border-color: rgba(45, 212, 137, 0.4) !important;
+}
+
+.dark .border-\[\#f7b0b6\],
+.dark .border-\[\#ee3623\],
+.dark .border-\[\#EE3623\] {
+    border-color: rgba(255, 107, 92, 0.4) !important;
+}
+
+.dark .border-\[\#ffe099\],
+.dark .border-\[\#ff6d00\],
+.dark .border-\[\#FF6D00\] {
+    border-color: rgba(255, 170, 51, 0.4) !important;
+}
+
+/* Divides */
+.dark .divide-\[\#f0f0f0\] > :not([hidden]) ~ :not([hidden]),
+.dark .divide-\[\#e5e5e5\] > :not([hidden]) ~ :not([hidden]),
+.dark .divide-\[\#e6e6e6\] > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--outline-var) !important;
+}
+
+/* Inputs & Form controls in dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+    color: var(--on-surface);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: var(--outline) !important;
 }

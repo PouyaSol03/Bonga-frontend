@@ -5,6 +5,9 @@ import { createRoot } from 'react-dom/client'
 import './styles/index.css'
 import App from './app/App'
 import { queryClient } from './shared/api/query-client'
+import { initTheme } from './shared/theme/themeStorage'
+
+initTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

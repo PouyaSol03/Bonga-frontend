@@ -37,6 +37,7 @@ import {
 
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { useAppTheme } from "../../shared/theme/themeStorage";
 
 const CRM_BLUE = "#0048c4";
 export const DEFAULT_COUNTRY_ID = 2;
@@ -478,6 +479,7 @@ export function CrmLayout({
     .filter(Boolean)
     .join(" ") || "مدیر سامانه";
 
+  const { isDark, toggleTheme } = useAppTheme();
   const isSuperAdmin = crmRoleSlugs.includes("superadmin") || crmRoleSlugs.includes(SUPER_ADMIN);
 
   const { data: pendingAdsCount } = useQuery({
@@ -547,6 +549,16 @@ export function CrmLayout({
         <img className="h-[32px] w-[146px] object-contain" src="/images/logo/logo-dashboard.png" alt="بنگاه" />
 
         <div className="flex items-center gap-3">
+          <Button unstyled
+            aria-label={isDark ? "حالت روشن" : "حالت تاریک"}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#e4e4e4] bg-white text-base transition hover:border-[#0048c4]"
+            onClick={toggleTheme}
+            title={isDark ? "تغییر به حالت روشن" : "تغییر به حالت تاریک"}
+            type="button"
+          >
+            {isDark ? "☀️" : "🌙"}
+          </Button>
+
           <Button unstyled
             className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#e4e4e4] bg-white px-4 text-sm font-semibold text-[#4d4d4d] transition hover:border-[#0048c4] hover:text-[#0048c4]"
             onClick={() => setRefreshNonce((value) => value + 1)}

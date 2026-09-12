@@ -57,6 +57,7 @@ import LinearLogout from "../../shared/icons/LinearLogout";
 import LinearLock from "../../shared/icons/LinearLock";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { ThemeToggleRow } from "../../shared/components/ThemeToggle";
 
 const MANAGE_ADS_PATH = "/account/manage-ads";
 
@@ -314,6 +315,9 @@ function IndependentConsultantAccountPage({
             className=" pt-0.5"
             spacedDividers
           />
+          <section className="bg-white px-4 py-1">
+            <ThemeToggleRow />
+          </section>
           <AccountSection
             actions={[
               { icon: "trash", label: "حذف کسب و کار", tone: "danger", to: "/account/delete-user" },
@@ -604,6 +608,12 @@ function StandardAccountPage({
           <div className="h-4 bg-[#f0f0f0]" />
 
           <AccountSection actions={secondaryActions} />
+
+          <div className="h-4 bg-[#f0f0f0]" />
+
+          <section className="bg-white px-4 py-1">
+            <ThemeToggleRow />
+          </section>
 
           {isLoggedIn ? (
             <>

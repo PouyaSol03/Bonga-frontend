@@ -64,7 +64,7 @@
     --warning-900: #FFEBB2;
     --warning-950: #FFF8E1;
     --warning-990: #FFFDF8;
-    /* Netural */
+    /* Netural / Neutral */
     --netural-0: #000000;
     --netural-100: #1A1A1A;
     --netural-200: #333333;
@@ -77,4 +77,17 @@
     --netural-900: #E5E5E5;
     --netural-950: #F2F2F2;
     --netural-990: #FCFCFC;
+
+    --neutral-0: var(--netural-0);
+    --neutral-100: var(--netural-100);
+    --neutral-200: var(--netural-200);
+    --neutral-300: var(--netural-300);
+    --neutral-400: var(--netural-400);
+    --neutral-500: var(--netural-500);
+    --neutral-600: var(--netural-600);
+    --neutral-700: var(--netural-700);
+    --neutral-800: var(--netural-800);
+    --neutral-900: var(--netural-900);
+    --neutral-950: var(--netural-950);
+    --neutral-990: var(--netural-990);
 }

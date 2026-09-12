@@ -48,7 +48,7 @@ function RequestSuccessContent({
     <div className="text-right [direction:rtl]">
       <IconButton
         aria-label="بستن"
-        className="text-[#444444]"
+        className="text-on-surface-var"
         onClick={onClose}
         size="dense"
       >
@@ -60,10 +60,10 @@ function RequestSuccessContent({
         <img src="/vectors/SavedRequest.svg" alt="" />
       </div>
 
-      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 mt-8 text-center text-[#00a66b]">
+      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 mt-8 text-center text-tertiary">
         شما یک قدم به یافتن ملک دلخواه نزدیک‌تر شدید!
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-center text-sm text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-center text-sm text-on-surface-var">
         یافته‌های جدید به محض ثبت، در بخش نتایج درخواست‌های من در مدیریت درخواست‌های پنل کاربری برایتان نمایش داده خواهد شد.
       </Typography>
 
@@ -100,7 +100,7 @@ export function SearchRequestSenderBottomSheet({
       >
         {options.map((option) => (
           <ListItem
-            className="border-b border-[#f0f0f0] last:border-b-0"
+            className="border-b border-outline-var last:border-b-0"
             description={option.description}
             key={option.id}
             leading={<RequestSenderIcon type={option.icon} />}

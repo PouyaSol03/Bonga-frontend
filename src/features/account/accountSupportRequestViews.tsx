@@ -66,15 +66,15 @@ const statusPresentation: Record<
 > = {
   open: {
     label: "باز",
-    className: "bg-[#e6f8ef] text-[#079455]",
+    className: "bg-tertiary-container/30 text-tertiary",
   },
   in_progress: {
     label: "در حال بررسی",
-    className: "bg-[#eaf1ff] text-[#0048c4]",
+    className: "bg-primary-container text-primary",
   },
   closed: {
     label: "بسته شده",
-    className: "bg-[#f1f1f1] text-[#808080]",
+    className: "bg-surface-container text-outline",
   },
 };
 
@@ -128,13 +128,13 @@ function SupportRequestStatusChip({ status }: { status: SupportRequestStatus }) 
 
 export function SupportRequestCard({ request }: { request: SupportRequest }) {
   const card = (
-    <article className="rounded-2xl border border-[#e1e1e1] bg-white px-4 py-3.5 text-right shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+    <article className="rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-3.5 text-right shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-5 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-5 text-on-surface-var">
             {request.category}
           </Typography>
-          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 text-sm font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 text-sm font-semibold leading-6 text-on-surface">
             {request.title}
           </Typography>
         </div>
@@ -142,7 +142,7 @@ export function SupportRequestCard({ request }: { request: SupportRequest }) {
         <SupportRequestStatusChip status={request.status} />
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-3 text-[10px] font-normal leading-4 text-[#808080]">
+      <div className="mt-3 flex items-center justify-between gap-3 text-[10px] font-normal leading-4 text-outline">
         <Typography as="span" variant="body" size="medium" weight="regular">{request.createdAt}</Typography>
         <Typography as="span" variant="body" size="medium" weight="regular" className="truncate" dir="rtl">
           شماره درخواست {request.requestNumber}
@@ -172,11 +172,11 @@ export function SupportRequestsEmptyState() {
         src="/vectors/NoSupportRequest.svg"
       />
 
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-on-surface">
         درخواستی ثبت نشده است!
       </Typography>
 
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-[#666666]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-on-surface-var">
         اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم
         پشتیبانی ثبت کنید.
       </Typography>
@@ -194,7 +194,7 @@ export function SupportRequestTabs({
   return (
     <nav
       aria-label="فیلتر وضعیت درخواست‌ها"
-      className="flex h-[52px] shrink-0 gap-2 overflow-x-auto border-b border-[#e6e6e6] bg-white px-3 py-2 [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex h-[52px] shrink-0 gap-2 overflow-x-auto border-b border-outline-var bg-surface-container-lowest px-3 py-2 [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {filters.map((filter) => {
         const isActive = activeFilter === filter.id;
@@ -202,10 +202,10 @@ export function SupportRequestTabs({
         return (
           <Button unstyled
             aria-pressed={isActive}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-[#0048c440] ${
+            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-primary/40 ${
               isActive
-                ? "border-[#1268d8] bg-[#eaf1ff] text-[#0048c4]"
-                : "border-[#d6d6d6] bg-white text-[#4d4d4d] active:bg-[#f5f5f5]"
+                ? "border-primary bg-primary-container text-primary"
+                : "border-outline-var bg-surface-container-lowest text-on-surface-var active:bg-surface-container"
             }`}
             key={filter.id}
             onClick={() => onChange(filter.id)}
@@ -221,9 +221,9 @@ export function SupportRequestTabs({
 
 export function RequiredLabel({ children }: { children: string }) {
   return (
-    <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1 text-sm font-medium leading-5 text-[#1a1a1a]">
+    <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1 text-sm font-medium leading-5 text-on-surface">
       <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="text-[#d92d20]">
+      <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="text-error">
         *
       </Typography>
     </Typography>
@@ -245,13 +245,13 @@ export function RequestSelectField({
     <label className="block">
       <RequiredLabel>{label}</RequiredLabel>
       <Button unstyled
-        className={`mt-2 flex h-12 w-full items-center justify-between rounded-xl border border-[#d0d0d0] bg-white px-3 text-right text-sm font-normal leading-5 outline-none transition focus-visible:border-[#0048c4] focus-visible:ring-3 focus-visible:ring-[#0048c420] [direction:ltr] ${
-          value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
+        className={`mt-2 flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface-container-lowest px-3 text-right text-sm font-normal leading-5 outline-none transition focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/20 [direction:ltr] ${
+          value ? "text-on-surface" : "text-outline"
         }`}
         onClick={onClick}
         type="button"
       >
-        <LinearArrowDown1 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+        <LinearArrowDown1 className="h-5 w-5 shrink-0 text-on-surface-var" />
         <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]">
           {value || placeholder}
         </Typography>
@@ -298,8 +298,8 @@ export function RequestOptionBottomSheet({
               <div key={option.id}>
                 <Button unstyled
                   aria-pressed={isSelected}
-                  className={`relative flex min-h-12 w-full items-center justify-center bg-white px-10 py-2.5 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440] ${
-                    isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
+                  className={`relative flex min-h-12 w-full items-center justify-center bg-surface-container-lowest px-10 py-2.5 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-primary/40 ${
+                    isSelected ? "text-primary" : "text-on-surface"
                   }`}
                   onClick={() => onSelect(option.value)}
                   tabIndex={isOpen ? 0 : -1}
@@ -317,7 +317,7 @@ export function RequestOptionBottomSheet({
                       {option.title}
                     </Typography>
                     {option.description ? (
-                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 max-w-[360px] text-xs font-normal leading-5 text-[#808080]">
+                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 max-w-[360px] text-xs font-normal leading-5 text-outline">
                         {option.description}
                       </Typography>
                     ) : null}
@@ -326,7 +326,7 @@ export function RequestOptionBottomSheet({
 
                 {index < options.length - 1 ? (
                   <div className="px-4 py-2">
-                    <div className="h-px bg-[#f0f0f0]" />
+                    <div className="h-px bg-outline-var" />
                   </div>
                 ) : null}
               </div>

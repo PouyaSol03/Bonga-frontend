@@ -57,7 +57,7 @@ export function JalaliDatePickerSheet({
       panelPaddingClassName="p-0"
       showBackButton
       showHandle
-      handleClassName="h-1 w-10 rounded-full bg-[#cccccc]"
+      handleClassName="h-1 w-10 rounded-full bg-outline-var"
       showHeader
       showHeaderDivider={false}
       title={title}

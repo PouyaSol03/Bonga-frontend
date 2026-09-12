@@ -110,7 +110,7 @@ export function AdCard({
     return (
       <RouteLink
         aria-current={isSelected ? 'true' : undefined}
-        className={`flex h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)] ${className}`}
+        className={`flex h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-surface-container-lowest p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)] ${className}`}
         data-map-slider-card={mapSliderCardId === undefined ? undefined : String(mapSliderCardId)}
         dir="rtl"
         state={linkState}
@@ -122,14 +122,14 @@ export function AdCard({
         />
 
         <div className="mt-2 flex min-h-5 items-baseline justify-start [direction:rtl]">
-          <strong className="truncate text-base font-semibold leading-6 text-[#0048c4]">
+          <strong className="truncate text-base font-semibold leading-6 text-primary">
             {ad.pricePrimary}
           </strong>
         </div>
 
         <PropertyRow className="mt-1.5 min-h-6 flex-wrap gap-3 text-[13px]" ad={ad} />
 
-        <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-on-surface">
           {truncateAdCardText(ad.title)}
         </Typography>
       </RouteLink>
@@ -138,13 +138,13 @@ export function AdCard({
 
   if (variant === 'requestResult') {
     return (
-      <article className={`relative bg-white px-4 pb-4 pt-3 text-right [direction:rtl] ${className}`}>
+      <article className={`relative bg-surface-container-lowest px-4 pb-4 pt-3 text-right [direction:rtl] ${className}`}>
         {topBadge}
 
         <div className="relative">
           <RouteLink
             aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
-            className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25"
             state={linkState}
             to={to}
           >
@@ -163,7 +163,7 @@ export function AdCard({
 
         <RouteLink
           aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
-          className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+          className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25"
           state={linkState}
           to={to}
         >
@@ -183,7 +183,7 @@ export function AdCard({
   return (
     <RouteLink
       aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
-      className={`block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${isDashboard ? 'min-w-0' : ''} ${className}`}
+      className={`block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25 ${isDashboard ? 'min-w-0' : ''} ${className}`}
       state={linkState}
       to={to}
     >
@@ -193,7 +193,7 @@ export function AdCard({
             ? 'flex min-w-0 flex-col gap-4 text-right'
             : isCarousel
               ? 'flex min-w-0 flex-col text-right [direction:rtl]'
-              : 'flex flex-col bg-white px-4 py-4 text-right [direction:rtl]'
+              : 'flex flex-col bg-surface-container-lowest px-4 py-4 text-right [direction:rtl]'
         }
       >
         <AdCardImage
@@ -235,9 +235,9 @@ function AdCardImage({
 }) {
   return (
     <div
-      className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-[#dbe5ff] bg-cover bg-center ${ad.imageClassName} ${className}`}
+      className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-primary-container bg-cover bg-center ${ad.imageClassName} ${className}`}
     >
-      <div className="absolute inset-0 grid place-items-center text-[#9aabc2]" aria-hidden="true">
+      <div className="absolute inset-0 grid place-items-center text-outline" aria-hidden="true">
         <LinearImage className="h-12 w-12" />
       </div>
       {ad.imageUrl ? (
@@ -256,7 +256,7 @@ function AdCardImage({
       ) : null}
       {imageMeta}
       {showImageCount ? (
-        <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]" aria-label={`${ad.imageCount} تصویر`}>
+        <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-black/60 px-2 text-sm font-medium leading-5 text-white" aria-label={`${ad.imageCount} تصویر`}>
           <AdCardAlbumIcon className="h-5 w-5 shrink-0" />
           <Typography as="span" variant="body" size="medium" weight="regular">{ad.imageCount}</Typography>
         </div>
@@ -267,7 +267,7 @@ function AdCardImage({
         </Typography>
       ) : null}
       {showAgency && ad.agency && ad.agency.trim() !== 'شخصی' ? (
-        <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-[#1a1a1a99] px-2 text-sm font-medium leading-5 text-[#fafafa]">
+        <div className="absolute bottom-2 right-2 z-[1] inline-flex h-7 max-w-[calc(100%-16px)] items-center gap-2 rounded-lg bg-black/60 px-2 text-sm font-medium leading-5 text-white">
           <AdCardOwnerIcon className="h-5 w-5 shrink-0" />
           <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{ad.agency}</Typography>
         </div>
@@ -291,7 +291,7 @@ function AdCardBody({
     <div className={`flex flex-col pt-3 ${className}`}>
       <div className="flex h-6 items-center justify-start gap-2">
         <PriceItem label={ad.priceLabelPrimary} price={ad.pricePrimary} />
-        {hasSecondaryPrice ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
+        {hasSecondaryPrice ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" /> : null}
         {hasSecondaryPrice ? (
           <PriceItem label={ad.priceLabelSecondary} price={ad.priceSecondary} />
         ) : null}
@@ -299,18 +299,18 @@ function AdCardBody({
 
       <PropertyRow className="mt-3 h-5 gap-[22px] text-sm" ad={ad} />
 
-      <Typography as="p" variant="body" size="medium" weight="medium" className="mt-3 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="mt-3 text-on-surface">
         {truncateAdCardText(ad.title)}
       </Typography>
 
       <div className="mt-3 flex h-6 items-center justify-start gap-2">
         {showBadges ? ad.badges.map((badge) => (
-          <Typography as="span" variant="label" size="small" weight="medium" className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-[#FF6D00] bg-[#FFF8E1] text-[#FF6D00]' : 'border-[#11A366] bg-[#E6F6ED] text-[#11a366]'}`} key={badge}>
+          <Typography as="span" variant="label" size="small" weight="medium" className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-warning bg-warning-container text-warning' : 'border-tertiary bg-tertiary-container text-tertiary'}`} key={badge}>
             {badge}
           </Typography>
         )) : null}
-        {showBadges && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" /> : null}
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">{ad.timeAndLocation}</Typography>
+        {showBadges && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" /> : null}
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">{ad.timeAndLocation}</Typography>
       </div>
     </div>
   )
@@ -319,9 +319,9 @@ function AdCardBody({
 function PriceItem({ label, price }: { label: string; price: string }) {
   return (
     <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex min-w-0 items-center gap-0.5">
-      {label ? <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#808080]">{label}</Typography> : null}
-      <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-[#0048c4]">{price}</Typography>
-      <AdCardTomanIcon className="h-5 w-5 shrink-0 text-[#0048c4]" />
+      {label ? <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-outline">{label}</Typography> : null}
+      <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-primary">{price}</Typography>
+      <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
     </Typography>
   )
 }
@@ -336,7 +336,7 @@ function PropertyRow({ ad, className = '' }: { ad: AdCardData; className?: strin
   if (items.length === 0) return null
 
   return (
-    <div className={`flex items-center justify-start font-medium leading-5 text-[#1a1a1a] [direction:rtl] ${className}`}>
+    <div className={`flex items-center justify-start font-medium leading-5 text-on-surface [direction:rtl] ${className}`}>
       {items.map((item, index) => (
         <PropertyItem key={index} icon={item.icon} value={item.value} />
       ))}
@@ -346,9 +346,9 @@ function PropertyRow({ ad, className = '' }: { ad: AdCardData; className?: strin
 
 function PropertyItem({ icon, value }: { icon: ReactNode; value: string }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="medium" className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#4d4d4d]">
+    <Typography as="span" variant="body" size="medium" weight="medium" className="inline-flex items-center gap-1.5 whitespace-nowrap text-on-surface-var">
       {icon}
-      <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#1a1a1a]">{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="medium" className="text-on-surface">{value}</Typography>
     </Typography>
   )
 }
@@ -367,9 +367,9 @@ function MapPreviewImages({
       {visibleImages.map((src, index) => (
         <div
           key={src ? `${src}-${index}` : `no-image-${index}`}
-          className="relative h-[92px] w-[140px] shrink-0 overflow-hidden rounded-xl bg-[#dbe5ff]"
+          className="relative h-[92px] w-[140px] shrink-0 overflow-hidden rounded-xl bg-primary-container"
         >
-          <div className="absolute inset-0 grid place-items-center text-[#9aabc2]" aria-hidden="true">
+          <div className="absolute inset-0 grid place-items-center text-outline" aria-hidden="true">
             <LinearImage className="h-8 w-8" />
           </div>
           {src ? (
@@ -417,7 +417,7 @@ function getStatusBadgeClassName(status: string) {
       normalizedStatus === '-3'
     )
   ) {
-    return 'bg-[#FFEBED] text-[#EE3623]'
+    return 'bg-error-container text-error'
   }
 
   // 2. نارنجی (در انتظار پرداخت، در انتظار تایید، بررسی، ویرایش، اصلاح)
@@ -436,7 +436,7 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus === '1' ||
     normalizedStatus === '2'
   ) {
-    return 'bg-[#FFF8E1] text-[#FF6D00]'
+    return 'bg-warning-container text-warning'
   }
 
   // 3. سبز (تایید شده، تایید، منتشر شده، فعال)
@@ -449,8 +449,8 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus === 'accepted' ||
     normalizedStatus === '3'
   ) {
-    return 'bg-[#E6F6ED] text-[#11A366]'
+    return 'bg-tertiary-container text-tertiary'
   }
 
-  return 'bg-[#4d4d4d] text-white'
+  return 'bg-surface-container-high text-on-surface'
 }

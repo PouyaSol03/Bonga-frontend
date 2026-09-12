@@ -44,7 +44,7 @@ function ConfirmCheckIcon({ checked }: { checked: boolean }) {
   return (
     <Typography as="span" variant="body" size="medium" weight="regular"
       aria-hidden="true"
-      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[4px] border ${checked ? "border-[#0048C4] bg-[#0048C4]" : "border-[#808080] bg-white"
+      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[4px] border ${checked ? "border-primary bg-primary" : "border-outline bg-surface-container-lowest"
         }`}
     >
       {checked ? (
@@ -67,28 +67,28 @@ export function AccountDeleteUserPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account" title="حذف حساب کاربری" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[92px] pt-6">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[92px] pt-6">
         <section className="px-4 text-right">
-          <Typography as="h1" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6 text-on-surface">
             آیا از حذف این کسب‌وکار مطمئن هستید؟
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal mb-2.5 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal mb-2.5 text-on-surface-var">
             برای حذف این کسب و کار همه موارد زیر را به دقت مطالعه کنید:
           </Typography>
 
-          <div className="rounded-2xl border border-[#808080] bg-[#80808014] p-4">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm text-[#1A1A1A]">
+          <div className="rounded-2xl border border-outline bg-outline/10 p-4">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm text-on-surface">
               با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های مرتبط با این کسب‌وکار به‌صورت دائمی حذف خواهند شد و امکان بازیابی آن‌ها وجود نخواهد داشت.
             </Typography>
           </div>
 
           <Button unstyled
-            className="mt-4 flex w-full items-center gap-3 text-right !text-sm font-medium leading-6 text-[#1a1a1a]"
+            className="mt-4 flex w-full items-center gap-3 text-right !text-sm font-medium leading-6 text-on-surface"
             onClick={() => setIsConfirmed((value) => !value)}
             type="button"
           >
@@ -98,10 +98,10 @@ export function AccountDeleteUserPage() {
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4" dir="ltr">
           <Button unstyled
-            className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#C11004] bg-white px-4 text-sm font-semibold leading-5 text-[#C11004] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center rounded-[10px] border border-error bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-error disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!isConfirmed}
             onClick={downgradeBusinessToUser}
             type="button"
@@ -109,7 +109,7 @@ export function AccountDeleteUserPage() {
             تایید حذف
           </Button>
           <Button unstyled
-            className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#CCCCCC] bg-white px-4 text-sm font-semibold leading-5 text-[#1a1a1a]"
+            className="inline-flex h-10 items-center justify-center rounded-[10px] border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-on-surface"
             onClick={() => navigateTo("/account")}
             type="button"
           >

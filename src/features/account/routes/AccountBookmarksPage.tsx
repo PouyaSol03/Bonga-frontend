@@ -62,7 +62,7 @@ export function AccountBookmarksPage() {
       action={
         <Button unstyled
           aria-label="حذف همه نشان‌ها"
-          className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
+          className="grid h-12 w-12 place-items-center text-on-surface disabled:opacity-40"
           disabled={bookmarks.length === 0 || deleteBadge.isPending}
           onClick={() => setIsConfirmDeleteAllOpen(true)}
           type="button"
@@ -72,8 +72,8 @@ export function AccountBookmarksPage() {
       }
       title="نشان‌ها"
     >
-      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
-        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
+      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
+        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest" : "space-y-2 bg-surface-container"}`}>
           {isLoading ? <AccountAdCardsSkeleton showDeleteButton /> : null}
           {isError ? (
             <AccountRetryState
@@ -114,7 +114,7 @@ export function AccountBookmarksPage() {
         showHeader={false}
         variant="confirm"
       >
-        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-on-surface">
           آیا از حذف همه نشان‌ها مطمئن هستید؟
         </Typography>
         <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">

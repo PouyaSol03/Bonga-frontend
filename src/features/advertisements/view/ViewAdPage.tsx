@@ -83,14 +83,14 @@ type GalleryMediaKind = "album" | "video" | "tour3d";
 
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-[#f5f5f5] p-4 [direction:ltr]">
+    <div className="flex items-center justify-between rounded-lg bg-surface-container p-4 [direction:ltr]">
       <div className="flex items-center gap-1">
-        <AdCardTomanIcon className="h-6 w-6 text-[#4D4D4D]" />
-        <Typography as="p" variant="label" size="large" weight="semibold" className="text-[#1A1A1A] [direction:rtl]">
+        <AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />
+        <Typography as="p" variant="label" size="large" weight="semibold" className="text-on-surface [direction:rtl]">
           {value}
         </Typography>
       </div>
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4D4D4D]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
         {label}
       </Typography>
     </div>
@@ -205,7 +205,7 @@ function RentPriceConversionViewer({
         variant="label"
         size="medium"
         weight="medium"
-        className="mb-3 text-right text-[#4D4D4D]"
+        className="mb-3 text-right text-on-surface-var"
       >
         رهن و اجاره قابل تبدیل است
       </Typography>
@@ -214,26 +214,26 @@ function RentPriceConversionViewer({
 
       {/* Two dynamic cards */}
       <div className="grid grid-cols-2 gap-3 [direction:rtl]">
-        <div className="flex flex-col h-17 items-center rounded-lg bg-[#F8F9FA] border border-[#F0F0F0] p-2 gap-y-1">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4D4D4D]">
+        <div className="flex flex-col h-17 items-center rounded-lg bg-surface-container-low border border-outline-var p-2 gap-y-1">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
             رهن
           </Typography>
           <div className="flex items-center gap-1.5 [direction:rtl]">
-            <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+            <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
               {formatRentNumberText(currentMortgage)}
             </Typography>
-            <AdCardTomanIcon className="h-6 w-6 text-[#4d4d4d]" />
+            <AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />
           </div>
         </div>
-        <div className="flex flex-col h-17 items-center rounded-lg bg-[#F8F9FA] border border-[#F0F0F0] gap-y-1 p-2">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4D4D4D]">
+        <div className="flex flex-col h-17 items-center rounded-lg bg-surface-container-low border border-outline-var gap-y-1 p-2">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
             اجاره ماهیانه
           </Typography>
           <div className="flex items-center gap-1.5 [direction:rtl]">
-            <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+            <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
               {formatRentNumberText(currentRent)}
             </Typography>
-            <AdCardTomanIcon className="h-6 w-6 text-[#4d4d4d]" />
+            <AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />
           </div>
         </div>
       </div>
@@ -241,11 +241,11 @@ function RentPriceConversionViewer({
       {/* Slider Track & Thumb */}
       <div className="relative mx-1 mt-4 h-9 select-none [direction:ltr]">
         {/* Blue dotted track */}
-        <div className="absolute left-0 right-0 top-1/2 flex h-3 -translate-y-1/2 items-center justify-between overflow-hidden rounded-full bg-[#8BB4F7] px-2.5">
+        <div className="absolute left-0 right-0 top-1/2 flex h-3 -translate-y-1/2 items-center justify-between overflow-hidden rounded-full bg-primary-container px-2.5">
           {Array.from({ length: 28 }).map((_, i) => (
             <span
               key={i}
-              className="h-1 w-1 shrink-0 rounded-full bg-white/70"
+              className="h-1 w-1 shrink-0 rounded-full bg-surface-container-lowest/70"
             />
           ))}
         </div>
@@ -253,14 +253,14 @@ function RentPriceConversionViewer({
         {/* Pill thumb */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-[#D0D5DD] bg-white px-3 py-1 text-xs font-semibold text-[#1A1A1A] shadow-[0_2px_8px_rgba(26,26,26,0.12)]"
+          className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-surface-container-lowest px-3 py-1 text-xs font-semibold text-on-surface shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
           style={{ left: `${12 + sliderPercent * 0.76}%` }}
         >
-          <LinearArrowLeft1 className="h-4 w-4 text-[#4D4D4D]" />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#1A1A1A]">
+          <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">
             تبدیل
           </Typography>
-          <LinearArrowRight1 className="h-4 w-4 text-[#4D4D4D]" />
+          <LinearArrowRight1 className="h-4 w-4 text-on-surface-var" />
         </div>
 
         {/* Interactive range input */}
@@ -287,7 +287,7 @@ function RentPriceConversionViewer({
       </div>
 
       {/* Range endpoints below slider */}
-      <div className="mt-3 flex items-start justify-between text-xs font-medium leading-5 text-[#4D4D4D] [direction:rtl]">
+      <div className="mt-3 flex items-start justify-between text-xs font-medium leading-5 text-on-surface-var [direction:rtl]">
         <div className="text-right">
           <div>
             <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">رهن: </Typography>
@@ -325,12 +325,12 @@ function DailyRentalPriceList({ details }: { details: ViewAdDetails }) {
 
   return (
     <div className="w-full">
-      <div className="my-4 h-px w-full bg-[#e5e5e5]" />
+      <div className="my-4 h-px w-full bg-outline-var" />
       <div>
         {items.map((item, index) => (
           <div key={item.label}>
             {index > 0 ? (
-              <div className="my-4 border-t border-dashed border-[#d9d9d9]" />
+              <div className="my-4 border-t border-dashed border-outline-var" />
             ) : null}
             <div className="flex items-center gap-x-9 [direction:rtl]">
               <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline w-38">
@@ -368,16 +368,16 @@ function HotelDailyRoomsSection({
         <div className="grid grid-cols-2 gap-x-4 [direction:rtl]">
           {/* Right Column: Room Name */}
           <div className="flex items-center gap-2">
-            <LinearBed className="h-6 w-6 text-[#4D4D4D] shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+            <LinearBed className="h-6 w-6 text-on-surface-var shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
               {previewRoom.label}
             </Typography>
           </div>
 
           {/* Left Column: Standard capacity */}
           <div className="flex items-center gap-2">
-            <LinearUserSolid className="h-6 w-6 text-[#4D4D4D] shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+            <LinearUserSolid className="h-6 w-6 text-on-surface-var shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
               {previewRoom.guestCount} نفر
             </Typography>
           </div>
@@ -386,66 +386,66 @@ function HotelDailyRoomsSection({
         <div className="mt-3 grid grid-cols-2 gap-x-4 [direction:rtl]">
           {/* Right Column: Extra capacity */}
           <div className="flex items-center gap-2">
-            <LinearUserAdd className="h-6 w-6 text-[#4D4D4D] shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+            <LinearUserAdd className="h-6 w-6 text-on-surface-var shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
               {previewRoom.extraGuestCount}
             </Typography>
           </div>
 
           {/* Left Column: Meal plan */}
           <div className="flex items-center gap-2">
-            <LinearMeal className="h-6 w-6 text-[#4D4D4D] shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1A1A1A]">
+            <LinearMeal className="h-6 w-6 text-on-surface-var shrink-0" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
               {previewRoom.mealPlan}
             </Typography>
           </div>
         </div>
 
         {/* Solid Divider */}
-        <div className="my-4 h-px w-full bg-[#E5E5E5]" />
+        <div className="my-4 h-px w-full bg-outline-var" />
 
         {/* Price Rows: strictly aligned directly under top grid columns */}
         <div className="space-y-3">
           {/* Normal Price */}
           <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
               روزهای عادی:
             </Typography>
             <div className="flex items-center gap-1">
-              <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+              <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
                 {previewRoom.normalPrice}
               </Typography>
-              <LinearTooman className="h-5 w-5 text-[#1A1A1A] shrink-0" />
+              <LinearTooman className="h-5 w-5 text-on-surface-var shrink-0" />
             </div>
           </div>
 
-          <div className="border-b border-dashed border-[#E5E5E5]" />
+          <div className="border-b border-dashed border-outline-var" />
 
           {/* Weekend Price */}
           <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
               آخر هفته:
             </Typography>
             <div className="flex items-center gap-1">
-              <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+              <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
                 {previewRoom.weekendPrice}
               </Typography>
-              <LinearTooman className="h-5 w-5 text-[#1A1A1A] shrink-0" />
+              <LinearTooman className="h-5 w-5 text-on-surface-var shrink-0" />
             </div>
           </div>
 
-          <div className="border-b border-dashed border-[#E5E5E5]" />
+          <div className="border-b border-dashed border-outline-var" />
 
           {/* Special Price */}
           <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
               روزهای خاص:
             </Typography>
             <div className="flex items-center gap-1">
-              <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1A1A1A]">
+              <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
                 {previewRoom.specialPrice}
               </Typography>
-              <LinearTooman className="h-5 w-5 text-[#1A1A1A] shrink-0" />
+              <LinearTooman className="h-5 w-5 text-on-surface-var shrink-0" />
             </div>
           </div>
         </div>
@@ -504,7 +504,7 @@ function GalleryHero({
 
   return (
     <div className="px-4 pt-4">
-      <div className="relative block w-full overflow-hidden rounded-2xl bg-[#ebebeb] focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-[#0048c440]">
+      <div className="relative block w-full overflow-hidden rounded-2xl bg-surface-container focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-primary/40">
         <Swiper
           className="w-full"
           dir="rtl"
@@ -543,7 +543,7 @@ function GalleryHero({
         </Swiper>
 
 
-        <div className="absolute right-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-[#1a1a1a99] px-1 text-sm font-medium leading-5 text-[#fafafa]">
+        <div className="absolute right-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-black/60 px-1 text-sm font-medium leading-5 text-white">
           <GalleryMediaButton
             iconSrc="/icons/iconAlbum.svg"
             isSelected={galleryItems[activeIndex]?.type === "image"}
@@ -590,8 +590,8 @@ function GalleryHero({
       </div>
       {imagesBelongToAd === true ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">
-          <LinearInfoCircle className="h-4 w-4 shrink-0 text-[#0048c4]" />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#4d4d4d]">
+          <LinearInfoCircle className="h-4 w-4 shrink-0 text-primary" />
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">
             عکس‌ها متعلق به این آگهی است
           </Typography>
         </div>
@@ -655,11 +655,11 @@ function InlineMoreButton({
 }) {
   return (
     <Button unstyled
-      className="mx-auto mt-3 flex w-fit items-center justify-center gap-1 p-0 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      className="mx-auto mt-3 flex w-fit items-center justify-center gap-1 p-0 text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-[#0048c4]">
+      <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-primary">
         {children}
       </Typography>
 
@@ -668,7 +668,7 @@ function InlineMoreButton({
         transition={{ duration: 0.24, ease: "easeInOut" }}
         className="inline-flex items-center justify-center shrink-0"
       >
-        <ViewAdIcon className="h-3 w-3 shrink-0 text-[#0048c4]" name="arrowDown" />
+        <ViewAdIcon className="h-3 w-3 shrink-0 text-primary" name="arrowDown" />
       </motion.div>
     </Button>
   );
@@ -851,11 +851,11 @@ function ContactInfoBottomSheet({
       {phoneHref ? (
         <>
           <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-on-surface">
               {phoneDisplay}
             </Typography>
             <a
-              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+              className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var no-underline [direction:rtl]"
               href={`tel:${phoneHref}`}
               tabIndex={isOpen ? 0 : -1}
             >
@@ -863,13 +863,13 @@ function ContactInfoBottomSheet({
               <Typography as="span" variant="body" size="medium" weight="regular">تماس با</Typography>
             </a>
           </div>
-          <div className="h-px bg-[#cccccc]" />
+          <div className="h-px bg-outline-var" />
           <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-[#1a1a1a]">
+            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-on-surface">
               {phoneDisplay}
             </Typography>
             <a
-              className="flex items-center gap-2 text-base font-medium leading-6 text-[#4d4d4d] no-underline [direction:rtl]"
+              className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var no-underline [direction:rtl]"
               href={`sms:${phoneHref}`}
               tabIndex={isOpen ? 0 : -1}
             >
@@ -877,7 +877,7 @@ function ContactInfoBottomSheet({
               <Typography as="span" variant="body" size="medium" weight="regular">ارسال پیامک</Typography>
             </a>
           </div>
-          {socialLinks.length ? <div className="h-px bg-[#cccccc]" /> : null}
+          {socialLinks.length ? <div className="h-px bg-outline-var" /> : null}
         </>
       ) : null}
 
@@ -898,14 +898,14 @@ function ContactInfoBottomSheet({
               </a>
             ))}
           </div>
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#4d4d4d]">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-on-surface-var">
             شبکه‌های اجتماعی
           </Typography>
         </div>
       ) : null}
 
       {!hasAnyVisibleContact ? (
-        <div className="rounded-xl bg-[#f5f5f5] px-4 py-5 text-center text-sm font-medium leading-6 text-[#4d4d4d]">
+        <div className="rounded-xl bg-surface-container px-4 py-5 text-center text-sm font-medium leading-6 text-on-surface-var">
           شماره تماس یا شبکه اجتماعی برای این آگهی ثبت نشده است.
         </div>
       ) : null}
@@ -1043,13 +1043,13 @@ function ViewAdContent({
 
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
-            <div className="flex items-center gap-1 text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
+            <div className="flex items-center gap-1 text-xs font-medium leading-4 text-on-surface-var [direction:ltr]">
               <Typography as="span" variant="label" size="small" weight="medium" dir="rtl">{details.age}</Typography>
               <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-sm leading-5 [direction:rtl]">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d]">کد آگهی:</Typography>
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#1a1a1a]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">کد آگهی:</Typography>
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
                 {details.adCode}
               </Typography>
             </div>
@@ -1062,7 +1062,7 @@ function ViewAdContent({
                 variant="label"
                 size="small"
                 weight="semibold"
-                className="inline-flex min-h-7 items-center rounded-lg bg-[#E8F7EF] px-3 text-[#0FAF73]"
+                className="inline-flex min-h-7 items-center rounded-lg bg-tertiary-container px-3 text-tertiary"
               >
                 بروزرسانی ویژه
               </Typography>
@@ -1070,10 +1070,10 @@ function ViewAdContent({
           ) : null}
 
           <div className="mt-4 space-y-2 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="text-on-surface-var">
               {details.categoryNeighborhood}
             </Typography>
-            <Typography as="p" variant="title" size="medium" weight="semibold" className="mt-2 text-[#1a1a1a]">
+            <Typography as="p" variant="title" size="medium" weight="semibold" className="mt-2 text-on-surface">
               {details.headline}
             </Typography>
           </div>
@@ -1132,7 +1132,7 @@ function ViewAdContent({
 
       <DetailSection icon="apartment" title="توضیحات">
         <div
-          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-[#1a1a1a] transition-all duration-300 ease-in-out"
+          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-on-surface transition-all duration-300 ease-in-out"
           style={{
             height:
               shouldShowDescriptionMore && !isDescriptionExpanded
@@ -1144,7 +1144,7 @@ function ViewAdContent({
             {details.description}
           </Typography>
           {shouldShowDescriptionMore && !isDescriptionExpanded ? (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-white/0 to-white" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-surface-container-lowest/0 to-surface-container-lowest" />
           ) : null}
         </div>
         {shouldShowDescriptionMore ? (
@@ -1167,21 +1167,21 @@ function ViewAdContent({
 
       {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
-      <section className="border-t-8 border-[#f0f0f0] bg-white">
+      <section className="border-t-8 border-surface-container bg-surface-container-lowest">
         {visibleRows.map((row) => (
           <Button unstyled
-            className="flex w-full items-center justify-between border-b-8 border-[#f0f0f0] p-4 text-right last:border-b-[16px] last:border-white focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+            className="flex w-full items-center justify-between border-b-8 border-surface-container p-4 text-right last:border-b-[16px] last:border-surface-container-lowest focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
             key={row.label}
             onClick={() => onRowAction(row.label)}
             type="button"
           >
             <div className="flex min-w-0 items-center gap-2">
-              <ViewAdIcon className="text-[#808080]" name={row.icon} />
-              <Typography as="span" variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
+              <ViewAdIcon className="text-outline" name={row.icon} />
+              <Typography as="span" variant="label" size="large" weight="medium" className="text-on-surface">
                 {row.label}
               </Typography>
             </div>
-            <ViewAdIcon className="text-[#4d4d4d]" name="arrowLeft" />
+            <ViewAdIcon className="text-on-surface-var" name="arrowLeft" />
           </Button>
         ))}
       </section>
@@ -1197,24 +1197,24 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
   const initial = preview.name.trim().charAt(0) || "م";
 
   return (
-    <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-6 text-center">
+    <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-6 text-center">
       <RouteLink
-        className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-[#f7f7f7] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+        className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
         to={preview.href}
       >
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-lg border border-[#cccccc] bg-gradient-to-br from-[#f6d8bc] to-[#c78a5c]">
-          <Typography as="span" variant="headline" size="small" className="text-2xl font-bold leading-none text-white">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-lg border border-outline-var bg-primary-container">
+          <Typography as="span" variant="headline" size="small" className="text-2xl font-bold leading-none text-on-primary-container">
             {initial}
           </Typography>
         </div>
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="mt-4 text-base font-semibold leading-6 text-[#4d4d4d]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="mt-4 text-base font-semibold leading-6 text-on-surface-var">
           {preview.name}
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">
+        <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-outline">
           {preview.subtitle}
         </Typography>
         {preview.location ? (
-          <div className="mt-2 flex items-center justify-center gap-1 text-[#0048c4]">
+          <div className="mt-2 flex items-center justify-center gap-1 text-primary">
             <ViewAdIcon className="h-4 w-4" name="location" />
             <Typography as="span" variant="body" size="medium" weight="regular">{preview.location}</Typography>
           </div>
@@ -1244,12 +1244,12 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
   };
 
   return (
-    <section className="border-t-8 border-[#f0f0f0] bg-white text-center">
+    <section className="border-t-8 border-surface-container bg-surface-container-lowest text-center">
       <RouteLink
-        className="block px-4 pb-3 pt-4 text-inherit no-underline transition active:bg-[#f7f7f7] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+        className="block px-4 pb-3 pt-4 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
         to={preview.href}
       >
-        <div className="mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-lg bg-white">
+        <div className="mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-lg bg-surface-container-lowest">
           {logoUrl ? (
             <img
               alt={preview.name}
@@ -1257,8 +1257,8 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
               src={logoUrl}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center rounded-lg border border-[#e0e0e0] bg-white">
-              <Typography as="span" variant="headline" size="small" className="text-[#b6823a]">
+            <div className="grid h-full w-full place-items-center rounded-lg border border-outline-var bg-surface-container-lowest">
+              <Typography as="span" variant="headline" size="small" className="text-warning">
                 {initial}
               </Typography>
             </div>
@@ -1270,15 +1270,15 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
           variant="title"
           size="medium"
           weight="medium"
-          className="mt-2 text-[#4d4d4d]"
+          className="mt-2 text-on-surface-var"
         >
           {preview.name}
         </Typography>
 
         {location ? (
           <div className="mt-1 flex items-center justify-center gap-1">
-            <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="location" />
-            <Typography as="span" variant="body" size="small" weight="medium" className="text-[#0048c4]">
+            <ViewAdIcon className="h-4 w-4 text-on-surface-var" name="location" />
+            <Typography as="span" variant="body" size="small" weight="medium" className="text-primary">
               {location}
             </Typography>
           </div>
@@ -1301,24 +1301,24 @@ function AdvertiserMetrics({
 
   if (agencyStyle) {
     return (
-      <div className="mx-auto mt-4 flex items-center justify-center gap-4 text-[#4d4d4d] [direction:rtl]">
+      <div className="mx-auto mt-4 flex items-center justify-center gap-4 text-on-surface-var [direction:rtl]">
         {preview.ratingScore ? (
           <div className="flex items-center gap-1 [direction:rtl]">
-            <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="star" />
+            <ViewAdIcon className="h-4 w-4 text-on-surface-var" name="star" />
             <Typography as="span" variant="body" size="small" weight="medium">امتیاز</Typography>
-            <Typography as="span" variant="title" size="small" weight="semibold" className=" mr-2 text-[#11a366]">
+            <Typography as="span" variant="title" size="small" weight="semibold" className=" mr-2 text-tertiary">
               {preview.ratingScore}
             </Typography>
           </div>
         ) : null}
 
-        {preview.ratingScore && preview.rank ? <div className="h-5 w-px rounded-full bg-[#cccccc]" /> : null}
+        {preview.ratingScore && preview.rank ? <div className="h-5 w-px rounded-full bg-outline-var" /> : null}
 
         {preview.rank ? (
           <div className="flex items-center gap-1 [direction:rtl]">
-            <ViewAdIcon className="h-4 w-4 text-[#4d4d4d]" name="ranking" />
+            <ViewAdIcon className="h-4 w-4 text-on-surface-var" name="ranking" />
             <Typography as="span" variant="body" size="small" weight="medium">رتبه</Typography>
-            <Typography as="span" variant="title" size="small" weight="semibold" className="mr-2 text-[#11a366]">
+            <Typography as="span" variant="title" size="small" weight="semibold" className="mr-2 text-tertiary">
               {preview.rank}
             </Typography>
           </div>
@@ -1328,18 +1328,18 @@ function AdvertiserMetrics({
   }
 
   return (
-    <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-[#4d4d4d] [direction:ltr]">
+    <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-on-surface-var [direction:ltr]">
       {preview.ratingScore ? (
         <div className="flex items-center gap-1">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">{preview.ratingScore}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-tertiary">{preview.ratingScore}</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography>
           <img alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" src="/icons/star.svg" />
         </div>
       ) : <span />}
-      {preview.ratingScore && preview.rank ? <div className="h-4 w-px bg-[#e0e0e0]" /> : null}
+      {preview.ratingScore && preview.rank ? <div className="h-4 w-px bg-outline-var" /> : null}
       {preview.rank ? (
         <div className="flex items-center gap-1">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#0faf73]">{preview.rank}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-tertiary">{preview.rank}</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography>
           <img alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" src="/icons/ranking.svg" />
         </div>
@@ -1737,7 +1737,7 @@ export function ViewAdPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <SEO
@@ -1756,7 +1756,7 @@ export function ViewAdPage() {
       />
 
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-surface-container">
         <ViewAdContent
           adId={adId}
           ad={resolvedAd}
@@ -1774,12 +1774,12 @@ export function ViewAdPage() {
         />
       </main>
 
-      <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_8px_rgba(26,26,26,0.08)]">
+      <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
         {contactActionCount > 0 ? (
           <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
             {hasContactSheetData ? (
               <Button unstyled
-                className=" rounded-[10px] bg-[#0048c4] py-2.5 flex-1 text-sm! font-medium! text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                className=" rounded-[10px] bg-primary py-2.5 flex-1 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
                 onClick={() => setIsContactSheetOpen(true)}
                 type="button"
               >
@@ -1788,7 +1788,7 @@ export function ViewAdPage() {
             ) : null}
             {hasChatContact ? (
               <Button unstyled
-                className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-[#0048c4] bg-white text-sm font-medium text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-wait disabled:opacity-60"
+                className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
                 disabled={createAdvertiseChat.isPending}
                 onClick={openAdvertiseChat}
                 type="button"
@@ -1799,7 +1799,7 @@ export function ViewAdPage() {
             ) : null}
           </div>
         ) : (
-          <div className="rounded-[10px] bg-[#f5f5f5] px-4 py-3 text-center text-sm font-medium leading-5 text-[#808080]">
+          <div className="rounded-[10px] bg-surface-container px-4 py-3 text-center text-sm font-medium leading-5 text-outline">
             {usesPublicAdPresentation
               ? "راه ارتباطی برای این آگهی ثبت نشده است."
               : "این آگهی برای شماست"}

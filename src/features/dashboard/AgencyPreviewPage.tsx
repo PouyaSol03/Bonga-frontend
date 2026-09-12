@@ -67,10 +67,10 @@ type AgencyPreviewContactInfo = {
 type AgencyPreviewTab = "info" | "ads" | "consultants";
 
 const consultantAvatarClasses = [
-  "from-[#f7c59f] to-[#e6a078]",
-  "from-[#b6dcc0] to-[#68a987]",
-  "from-[#d7c1ab] to-[#a87556]",
-  "from-[#f0d0a7] to-[#b98457]",
+  "from-warning-container to-warning/50",
+  "from-tertiary-container to-tertiary/50",
+  "from-surface-container-high to-surface-container-highest",
+  "from-primary-container to-primary/40",
 ];
 
 const agencyTabs: { id: AgencyPreviewTab; label: string }[] = [
@@ -606,7 +606,7 @@ export function AgencyPreviewPage() {
   };
 
   return (
-    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface [direction:rtl]">
       <SEO
         title={seoTitle}
         description={seoDescription}
@@ -775,29 +775,29 @@ export function AgencyQrCodePage() {
   }
 
   return (
-    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]">
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]">
       <TopBar
         backTo={agencyPreviewPath}
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container-low"
         contentClassName="px-2"
         title="کیوآرکد آژانس"
         titleClassName="text-base font-semibold leading-6"
       />
 
-      <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-white px-4 pb-14">
+      <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-surface-container-lowest px-4 pb-14">
         <AgencyQrCard agencyUrl={agencyUrl} qrLabel={qrLabel} />
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-2">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-2">
         <Button
-          className="flex w-full items-center justify-center gap-2 border border-[#0048c4] bg-white text-[#0048c4] transition-colors active:bg-[#0048c414]"
+          className="flex w-full items-center justify-center gap-2 border border-primary bg-surface-container-lowest text-primary transition-colors active:bg-primary/10"
           onClick={() => void handleShareClick()}
           type="button"
           size="x-medium"
           radius="medium"
         >
-          <LinearShare className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#0048c4]">
+          <LinearShare className="h-5 w-5 shrink-0 text-on-surface-var" />
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">
             اشتراک گذاری
           </Typography>
         </Button>
@@ -815,11 +815,11 @@ function AgencyQrCard({
 }) {
   return (
     <section className="flex w-full flex-col items-center justify-center text-center">
-      <div className="relative h-[240px] w-[240px] overflow-hidden bg-white">
+      <div className="relative h-[240px] w-[240px] overflow-hidden bg-surface-container-lowest">
         <QRCodeSVG
-          bgColor="#ffffff"
+          bgColor="var(--surface-container-lowest)"
           className="block h-[240px] w-[240px]"
-          fgColor="#000000"
+          fgColor="var(--on-surface)"
           level="M"
           marginSize={0}
           size={240}
@@ -828,11 +828,11 @@ function AgencyQrCard({
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#002099] to-[#4b5070] mix-blend-screen"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary to-secondary mix-blend-screen"
         />
       </div>
 
-      <Typography as="p" variant="headline" size="small" className="m-0 mt-2 text-center text-[28px] font-medium leading-9 text-[#4b5070] [direction:ltr]">
+      <Typography as="p" variant="headline" size="small" className="m-0 mt-2 text-center text-[28px] font-medium leading-9 text-secondary [direction:ltr]">
         {qrLabel}
       </Typography>
     </section>
@@ -842,18 +842,18 @@ function AgencyQrCard({
 function PublicPreviewLoadingState() {
   return (
     <div className="animate-pulse space-y-2">
-      <section className="bg-white px-4 pb-5 pt-5 text-center">
-        <div className="mx-auto h-20 w-20 rounded-full bg-[#e6e9ef]" />
-        <div className="mx-auto mt-4 h-7 w-40 rounded-lg bg-[#e6e9ef]" />
-        <div className="mx-auto mt-3 h-6 w-28 rounded-full bg-[#eef0f4]" />
+      <section className="bg-surface-container-lowest px-4 pb-5 pt-5 text-center">
+        <div className="mx-auto h-20 w-20 rounded-full bg-surface-container-high" />
+        <div className="mx-auto mt-4 h-7 w-40 rounded-lg bg-surface-container-high" />
+        <div className="mx-auto mt-3 h-6 w-28 rounded-full bg-surface-container" />
         <div className="mt-6 grid grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div className="h-12 rounded-lg bg-[#eef0f4]" key={index} />
+            <div className="h-12 rounded-lg bg-surface-container" key={index} />
           ))}
         </div>
       </section>
-      <div className="h-14 bg-white" />
-      <div className="h-48 bg-white" />
+      <div className="h-14 bg-surface-container-lowest" />
+      <div className="h-48 bg-surface-container-lowest" />
     </div>
   );
 }
@@ -867,11 +867,11 @@ function PublicPreviewErrorState({
 }) {
   return (
     <div className="mx-auto flex min-h-[420px] w-full flex-col items-center justify-center px-6 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-full bg-[#fff0ef] text-2xl text-[#d93645]">!</div>
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-[#1a1a1a]">دریافت اطلاعات ناموفق بود</Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-sm text-sm leading-6 text-[#808080]">{message}</Typography>
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-error-container/20 text-2xl text-error">!</div>
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-on-surface">دریافت اطلاعات ناموفق بود</Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-sm text-sm leading-6 text-outline">{message}</Typography>
       <Button unstyled
-        className="mt-5 h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-semibold text-white"
+        className="mt-5 h-10 rounded-xl bg-primary px-6 text-sm font-semibold text-on-primary"
         onClick={onRetry}
         type="button"
       >
@@ -897,7 +897,7 @@ function AgencyHero({
   levelSlug?: string;
 }) {
   return (
-    <section className="bg-white px-4 pb-4 pt-3 text-center">
+    <section className="bg-surface-container-lowest px-4 pb-4 pt-3 text-center">
       {agencyLogo ? (
         <img
           alt={agencyName}
@@ -905,28 +905,28 @@ function AgencyHero({
           src={agencyLogo}
         />
       ) : (
-        <div className="mx-auto grid h-19 w-19 place-items-center rounded-full bg-[#eef0f4] text-[#808080]">
+        <div className="mx-auto grid h-19 w-19 place-items-center rounded-full bg-surface-container text-outline">
           <LinearBuilding2 className="h-10 w-10" />
         </div>
       )}
-      <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 mt-2 text-[#4d4d4d]">{agencyName}</Typography>
+      <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 mt-2 text-on-surface-var">{agencyName}</Typography>
       <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
         {agencyLocation ? (
-          <div className="inline-flex items-center gap-1 rounded-full bg-[#e7e8ed] px-2 py-0.5 text-[#4B5070]">
-            <LinearLocation className="h-4 w-4 text-[#4B5070]" />
+          <div className="inline-flex items-center gap-1 rounded-full bg-surface-container-high px-2 py-0.5 text-on-surface-var">
+            <LinearLocation className="h-4 w-4 text-on-surface-var" />
             <Typography variant="body" size="small" weight="medium">
             {agencyLocation}
             </Typography>
           </div>
         ) : null}
         {levelSlug ? (
-          <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex min-h-7 items-center rounded-full bg-[#eef4ff] px-2.5 py-1 text-xs font-semibold text-[#0048c4]">
+          <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex min-h-7 items-center rounded-full bg-primary-container px-2.5 py-1 text-xs font-semibold text-primary">
             سطح {levelSlug.replace(/[-_]/g, " ")}
           </Typography>
         ) : null}
       </div>
 
-      <div className="mt-4 flex items-center text-[#4d4d4d]">
+      <div className="mt-4 flex items-center text-on-surface-var">
         {agencyStats.map((item, index) => (
           <div className="contents" key={item.label}>
             <div className="grid flex-1 gap-1 text-center">
@@ -939,7 +939,7 @@ function AgencyHero({
               </Typography>
             </div>
             {index < agencyStats.length - 1 ? (
-              <div aria-hidden="true" className="h-7 w-px shrink-0 bg-[#dddddd]" />
+              <div aria-hidden="true" className="h-7 w-px shrink-0 bg-outline-var" />
             ) : null}
           </div>
         ))}
@@ -958,9 +958,9 @@ function AgencySegmentedTabs({
   tabs?: Array<{ id: AgencyPreviewTab; label: string }>;
 }) {
   return (
-    <div className="relative z-10 bg-white px-4 pb-4 shadow-[0_4px_12px_rgba(0,0,0,0.10)]">
+    <div className="relative z-10 bg-surface-container-lowest px-4 pb-4 shadow-[0_4px_12px_rgba(0,0,0,0.10)]">
       <div
-        className="grid h-10 overflow-hidden rounded-xl border border-[#808080] bg-white text-sm font-semibold leading-5 text-[#4d4d4d]"
+        className="grid h-10 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-sm font-semibold leading-5 text-on-surface-var"
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         {tabs.map((tab) => {
@@ -969,7 +969,7 @@ function AgencySegmentedTabs({
           return (
             <Button unstyled
               aria-pressed={isActive}
-              className={`h-full transition-colors ${isActive ? "bg-[#dfe8fa] text-[#0048c4]" : "bg-white text-[#4d4d4d]"}`}
+              className={`h-full transition-colors ${isActive ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
@@ -1007,24 +1007,24 @@ function AgencyInfoTab({
   const aboutText = aboutUs || `توضیحی برای این ${entityLabel} ثبت نشده است.`;
 
   return (
-    <div className="space-y-2 bg-[#f0f0f0]">
-      <section className="bg-white px-4 py-4">
+    <div className="space-y-2 bg-surface-container-low">
+      <section className="bg-surface-container-lowest px-4 py-4">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right">نشان‌ها</Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-[#808080]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-outline">
           اطلاعات نشان‌ها از سرور دریافت نشده است.
         </Typography>
       </section>
 
-      <section className="bg-white p-4">
+      <section className="bg-surface-container-lowest p-4">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">محدوده فعالیت</Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-7 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-7 text-on-surface-var">
           {activityAreaText}
         </Typography>
       </section>
 
       {agentAgency?.name ? (
         <Button unstyled
-          className="flex w-full items-center gap-3 bg-white p-4 text-right"
+          className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right"
           onClick={() => {
             if (agentAgency.id) {
               navigateTo(`/agencies/${encodeURIComponent(agentAgency.id)}`);
@@ -1039,40 +1039,40 @@ function AgencyInfoTab({
               src={agentAgency.logo}
             />
           ) : (
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#eef0f4] text-[#808080]">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-surface-container text-outline">
               <LinearUserSolid className="h-6 w-6" />
             </div>
           )}
           <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-            <strong className="block truncate text-sm text-[#1a1a1a]">{agentAgency.name}</strong>
+            <strong className="block truncate text-sm text-on-surface">{agentAgency.name}</strong>
             {agentAgency.address ? (
-              <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-[#808080]">{agentAgency.address}</Typography>
+              <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-outline">{agentAgency.address}</Typography>
             ) : null}
           </Typography>
-          {agentAgency.id ? <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" /> : null}
+          {agentAgency.id ? <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" /> : null}
         </Button>
       ) : null}
 
       {workingHours ? (
-        <section className="bg-white p-4">
+        <section className="bg-surface-container-lowest p-4">
           <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">ساعات کاری</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm leading-6 text-[#4d4d4d]">{workingHours}</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm leading-6 text-on-surface-var">{workingHours}</Typography>
         </section>
       ) : null}
 
       <AgencyActionRow icon={<LinearAdd className="h-6 w-6 text-on-surface-var" />} title="ثبت آگهی رایگان" />
       <AgencyActionRow icon={<LinearAddToList className="h-6 w-6 text-on-surface-var" />} title="ثبت بازخورد" />
 
-      <section className="bg-white p-4 text-center">
+      <section className="bg-surface-container-lowest p-4 text-center">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">درباره {agencyName}</Typography>
         <img alt="" src="/vectors/Bonga.svg" />
-        <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-5 text-right font-normal leading-8 text-[#4d4d4d] ${isAboutExpanded ? "" : "line-clamp-5"}`}>
+        <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-5 text-right font-normal leading-8 text-on-surface-var ${isAboutExpanded ? "" : "line-clamp-5"}`}>
           {aboutText}
         </Typography>
         {aboutText.length > 220 ? (
           <Button unstyled
             aria-expanded={isAboutExpanded}
-            className="mx-auto mt-2 inline-flex items-center gap-1 text-xs font-semibold leading-4 text-[#0048c4]"
+            className="mx-auto mt-2 inline-flex items-center gap-1 text-xs font-semibold leading-4 text-primary"
             onClick={() => setIsAboutExpanded((prev) => !prev)}
             type="button"
           >
@@ -1088,10 +1088,10 @@ function AgencyInfoTab({
 
 function AgencyActionRow({ icon, title }: { icon: ReactNode; title: string }) {
   return (
-    <Button unstyled className="flex w-full items-center gap-3 bg-white p-4 text-right" type="button">
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 place-items-center text-[#4d4d4d]">{icon}</Typography>
-      <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 text-[#1a1a1a]">{title}</Typography>
-      <LinearArrowLeft1 className="h-6 w-6 text-[#4d4d4d]" />
+    <Button unstyled className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right" type="button">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 place-items-center text-on-surface-var">{icon}</Typography>
+      <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 text-on-surface">{title}</Typography>
+      <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
     </Button>
   );
 }
@@ -1127,17 +1127,17 @@ function AgencyAdsTab({
         {showFilter ? (
           <Button unstyled
             aria-label="فیلتر آگهی‌ها"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-primary bg-[#eaf2ff] text-primary"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-primary bg-primary-container text-primary"
             onClick={() => navigateTo(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
             type="button"
           >
             <LinearFilterHorizontal className="h-6 w-6" />
           </Button>
         ) : null}
-        <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-[#a6a6a6] bg-white px-3 [direction:rtl]">
-          <LinearSearch className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+        <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-outline-var bg-surface-container-lowest px-3 [direction:rtl]">
+          <LinearSearch className="h-6 w-6 shrink-0 text-on-surface-var" />
           <input
-            className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+            className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="جستجو در آگهی‌ها"
             type="search"
@@ -1152,7 +1152,7 @@ function AgencyAdsTab({
         ) : normalizedQuery ? (
           <SearchEmptyState />
         ) : (
-          <div className="bg-white px-4 py-12 text-center text-sm text-[#808080]">
+          <div className="bg-surface-container-lowest px-4 py-12 text-center text-sm text-outline">
             آگهی فعالی برای نمایش وجود ندارد.
           </div>
         )}
@@ -1166,7 +1166,7 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
     <section className="flex flex-col gap-y-2">
       {consultants.map((consultant, index) => (
         <Button unstyled
-          className={`flex w-full items-center justify-center gap-4 bg-white px-4 py-4 text-center transition active:bg-[#fafafa] ${index < consultants.length - 1 ? "border-b border-[#f0f0f0]" : ""}`}
+          className={`flex w-full items-center justify-center gap-4 bg-surface-container-lowest px-4 py-4 text-center transition active:bg-surface-container-low ${index < consultants.length - 1 ? "border-b border-outline-var" : ""}`}
           key={consultant.agentId ?? consultant.userId}
           onClick={() => {
             if (consultant.agentId === undefined) return;
@@ -1180,19 +1180,19 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
               name={consultant.name}
               src={consultant.avatar}
             />
-            <Typography as="h3" variant="title" size="medium" weight="medium" className="m-0 mt-2 text-[#4D4D4D]">{consultant.name}</Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 px-2 py-0.5 rounded-lg bg-[#80808014] text-[#808080]">{getAgencyConsultantRoleLabel(consultant.role)}</Typography>
-            <div className="mt-4 flex items-center justify-center gap-5 text-xs font-medium leading-4 text-[#4d4d4d]">
+            <Typography as="h3" variant="title" size="medium" weight="medium" className="m-0 mt-2 text-on-surface-var">{consultant.name}</Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 px-2 py-0.5 rounded-lg bg-surface-container text-outline">{getAgencyConsultantRoleLabel(consultant.role)}</Typography>
+            <div className="mt-4 flex items-center justify-center gap-5 text-xs font-medium leading-4 text-on-surface-var">
               <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
                 <LinearStar className="h-4 w-4" />
-                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-[#1A1A1A]">امتیاز</Typography>
-                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-[#11A366]">{toPersianDigits(consultant.metrics.rankingScore)}</Typography>
+                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-on-surface">امتیاز</Typography>
+                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-tertiary">{toPersianDigits(consultant.metrics.rankingScore)}</Typography>
               </Typography>
-              <div className="h-4.75 w-px bg-[#CCCCCC]"></div>
+              <div className="h-4.75 w-px bg-outline-var"></div>
               <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
                 <LinearRanking className="h-4 w-4" />
-                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-[#1A1A1A]">رتبه</Typography>
-                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-[#11A366]">—</Typography>
+                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-on-surface">رتبه</Typography>
+                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-tertiary">—</Typography>
               </Typography>
             </div>
           </div>
@@ -1226,7 +1226,7 @@ function ConsultantAvatar({
           src={src}
         />
       ) : (
-        <LinearUserSolid className="h-9 w-9 text-[#808080]" />
+        <LinearUserSolid className="h-9 w-9 text-outline" />
       )}
     </div>
   );
@@ -1297,7 +1297,7 @@ function AgencyContactBottomSheet({
       </div>
 
       {hasMap ? (
-        <div className={`${contactRowCount ? "mt-4" : "mt-2"} overflow-hidden rounded-2xl bg-[#f6f6f3]`}>
+        <div className={`${contactRowCount ? "mt-4" : "mt-2"} overflow-hidden rounded-2xl bg-surface-container-low`}>
           <AgencyMiniMap lat={contactInfo.lat as number} lng={contactInfo.lng as number} />
         </div>
       ) : null}
@@ -1309,7 +1309,7 @@ function AgencyContactBottomSheet({
             variant="label"
             size="medium"
             weight="medium"
-            className="m-0 text-right text-sm font-medium leading-5 text-[#4d4d4d]"
+            className="m-0 text-right text-sm font-medium leading-5 text-on-surface-var"
           >
             شبکه‌های اجتماعی
           </Typography>
@@ -1336,7 +1336,7 @@ function AgencyContactBottomSheet({
           variant="body"
           size="medium"
           weight="regular"
-          className="m-0 py-6 text-center text-sm text-[#808080]"
+          className="m-0 py-6 text-center text-sm text-outline"
         >
           اطلاعات تماسی ثبت نشده است.
         </Typography>
@@ -1393,7 +1393,7 @@ function ContactRow({
 }) {
   return (
     <a
-      className="flex h-14 items-center justify-between gap-3 border-b border-[#dedede] text-[#1a1a1a] no-underline [direction:ltr]"
+      className="flex h-14 items-center justify-between gap-3 border-b border-outline-var text-on-surface no-underline [direction:ltr]"
       href={href}
     >
       <Typography
@@ -1401,22 +1401,22 @@ function ContactRow({
         variant="label"
         size="large"
         weight="medium"
-        className="text-left text-base font-medium leading-6 text-[#1a1a1a]"
+        className="text-left text-base font-medium leading-6 text-on-surface"
       >
         {toPersianDigits(value)}
       </Typography>
       <span className="inline-flex min-w-0 items-center gap-2 [direction:rtl]">
         {icon === "message" ? (
-          <ContactMessageIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <ContactMessageIcon className="h-6 w-6 shrink-0 text-on-surface-var" />
         ) : (
-          <ContactPhoneIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <ContactPhoneIcon className="h-6 w-6 shrink-0 text-on-surface-var" />
         )}
         <Typography
           as="span"
           variant="body"
           size="medium"
           weight="regular"
-          className="text-right text-sm font-normal leading-5 text-[#808080]"
+          className="text-right text-sm font-normal leading-5 text-outline"
         >
           {label}
         </Typography>
@@ -1430,9 +1430,9 @@ function createAgencyContactMapMarkerIcon() {
     className: "agency-contact-map-marker-wrapper",
     html: `
       <svg aria-hidden="true" width="31" height="42" viewBox="0 0 31 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="15.5" cy="40.5" rx="6" ry="1.5" fill="#1A1A1A" fill-opacity="0.12"/>
-        <path d="M20.738 30.061C26.721 27.916 31 22.199 31 15.484C31 6.932 24.06 0 15.5 0S0 6.932 0 15.484c0 6.715 4.279 12.431 10.261 14.577 2.136.868 3.947 2.591 3.947 4.778v3.87a1.292 1.292 0 0 0 2.584 0v-3.87c0-2.187 1.811-3.91 3.946-4.778Z" fill="#11A366"/>
-        <circle cx="15.5" cy="15" r="6" fill="white"/>
+        <ellipse cx="15.5" cy="40.5" rx="6" ry="1.5" fill="var(--on-surface)" fill-opacity="0.12"/>
+        <path d="M20.738 30.061C26.721 27.916 31 22.199 31 15.484C31 6.932 24.06 0 15.5 0S0 6.932 0 15.484c0 6.715 4.279 12.431 10.261 14.577 2.136.868 3.947 2.591 3.947 4.778v3.87a1.292 1.292 0 0 0 2.584 0v-3.87c0-2.187 1.811-3.91 3.946-4.778Z" fill="var(--tertiary)"/>
+        <circle cx="15.5" cy="15" r="6" fill="var(--surface-container-lowest)"/>
       </svg>
     `,
     iconAnchor: [15.5, 42],
@@ -1494,16 +1494,16 @@ function AgencyPreviewFooter({
   onContactClick: () => void;
 }) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+    <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
       <div className="grid h-10 grid-cols-2 gap-4 [direction:ltr]">
         <Button unstyled
-          className="cursor-pointer rounded-lg bg-[#0048c4] text-sm font-semibold leading-5 text-white"
+          className="cursor-pointer rounded-lg bg-primary text-sm font-semibold leading-5 text-on-primary"
           onClick={onContactClick}
           type="button"
         >
           تماس با {entityLabel}
         </Button>
-        <Button unstyled className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4]" type="button">
+        <Button unstyled className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary" type="button">
           چت با {entityLabel}
           <LinearChat className="h-5 w-5" />
         </Button>

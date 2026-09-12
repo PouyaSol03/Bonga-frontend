@@ -37,28 +37,28 @@ export function SupportMenuItem({
 }: SupportMenuItemProps) {
   const content = (
     <>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#eef3fd] text-[#5f6673]">
-        <Icon className="h-6 w-6 text-[#4D4D4D]" />
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-container text-primary">
+        <Icon className="h-6 w-6 text-on-surface-var" />
       </Typography>
 
       <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 text-right">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-[#1a1a1a]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-on-surface">
           {title}
         </Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-sm font-normal leading-none text-[#a6a6a6]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-sm font-normal leading-none text-outline">
           {description}
         </Typography>
       </Typography>
 
-      <LinearArrowLeft1 className="ml-5 h-6 w-6 shrink-0 text-[#4D4D4D]" />
+      <LinearArrowLeft1 className="ml-5 h-6 w-6 shrink-0 text-on-surface-var" />
       {showDivider ? (
-        <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute inset-x-4 bottom-0 h-px bg-[#d6d6d6]" />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="pointer-events-none absolute inset-x-4 bottom-0 h-px bg-outline-var" />
       ) : null}
     </>
   );
 
   const className =
-    "relative flex py-5.5 w-full items-center gap-3 bg-white px-4 text-right outline-none transition-colors active:bg-[#fafafa] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0048c440]";
+    "relative flex py-5.5 w-full items-center gap-3 bg-surface-container-lowest px-4 text-right outline-none transition-colors active:bg-surface-container focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/20";
 
   if (to) {
     return (
@@ -133,14 +133,14 @@ function SupportAgents() {
 
 export function WelcomeCard() {
   return (
-    <section className="rounded-2xl bg-[#edf9f4] px-4 py-4" aria-labelledby="support-welcome-title">
+    <section className="rounded-2xl bg-tertiary-container/30 px-4 py-4" aria-labelledby="support-welcome-title">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#d7eee6] text-[#4d6660]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-tertiary-container/50 text-tertiary">
             <LinearWavingHand className="h-6 w-6" />
           </Typography>
           <Typography as="h2" variant="title" size="medium" weight="semibold"
-            className="m-0 text-base font-semibold leading-none text-[#006038]"
+            className="m-0 text-base font-semibold leading-none text-tertiary"
             id="support-welcome-title"
           >
             خوش آمدید
@@ -150,7 +150,7 @@ export function WelcomeCard() {
         <SupportAgents />
       </div>
 
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2.5 text-right text-sm font-normal text-[#1A1A1A]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2.5 text-right text-sm font-normal text-on-surface">
         تیم پشتیبانی آماده پاسخگویی به شماست.
         <br />
         پیام خود را ارسال کنید، در کوتاه‌ترین زمان پاسخ
@@ -171,11 +171,11 @@ export function SupportChatsEmptyState() {
         src="/vectors/NoSupportChat.svg"
       />
 
-      <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-on-surface">
         هنوز گفتگویی ندارید!
       </Typography>
 
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[270px] text-sm font-normal leading-6 text-[#666666]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[270px] text-sm font-normal leading-6 text-on-surface-var">
         اگر سوال یا مشکلی دارید، پیام خود را برای پشتیبان ارسال کنید.
       </Typography>
     </div>
@@ -185,26 +185,26 @@ export function SupportChatsEmptyState() {
 export function ConversationCard({ conversation }: { conversation: Conversation }) {
   return (
     <RouteLink
-      className="block w-full rounded-2xl border border-[#dedede] bg-white px-4 py-5 text-right outline-none active:bg-[#fafafa] focus-visible:ring-2 focus-visible:ring-[#0048c440]"
+      className="block w-full rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-5 text-right outline-none active:bg-surface-container focus-visible:ring-2 focus-visible:ring-primary/20"
       state={{ thread: conversation.thread, threadId: conversation.id }}
       to={`${SUPPORT_NEW_CHAT_PATH}?thread_id=${encodeURIComponent(conversation.id)}`}
     >
       <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center justify-between gap-3">
-        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-none text-[#808080]">
+        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal leading-none text-outline">
           {conversation.date}
         </Typography>
         <Typography as="span" variant="label" size="small" weight="medium"
           className={`inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium leading-none ${
             conversation.isOpen
-              ? "bg-[#e5f7ef] text-[#11a366]"
-              : "bg-[#f3f3f3] text-[#808080]"
+              ? "bg-tertiary-container/40 text-tertiary"
+              : "bg-surface-container text-outline"
           }`}
         >
           {conversation.isOpen ? "باز" : "بسته شده"}
         </Typography>
       </Typography>
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-3 block truncate text-sm font-normal leading-4 text-[#4d4d4d]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-3 block truncate text-sm font-normal leading-4 text-on-surface-var">
         {conversation.message}
       </Typography>
     </RouteLink>
@@ -475,13 +475,13 @@ export function SupportMessageBubble({ message }: { message: SupportChatMessage 
       <article
         className={`min-w-[82px] max-w-[78%] px-3 py-2.5 text-right ${
           isOutgoing
-            ? "rounded-[10px] rounded-tr-[2px] bg-[#eef3fb]"
-            : "rounded-[10px] rounded-tl-[2px] border border-[#dedede] bg-white"
+            ? "rounded-[10px] rounded-tr-[2px] bg-primary-container"
+            : "rounded-[10px] rounded-tl-[2px] border border-outline-var bg-surface-container-lowest"
         }`}
         dir="rtl"
       >
         {message.sender ? (
-          <Typography as="p" variant="body" size="small" weight="medium" className="mb-1 text-[11px] font-medium leading-4 text-[#0048c4]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="mb-1 text-[11px] font-medium leading-4 text-primary">
             {message.sender}
           </Typography>
         ) : null}
@@ -497,7 +497,7 @@ export function SupportMessageBubble({ message }: { message: SupportChatMessage 
             </a>
           ) : (
             <a
-              className="mb-2 block break-all text-xs font-medium text-[#0048c4] underline"
+              className="mb-2 block break-all text-xs font-medium text-primary underline"
               href={message.attachmentUrl}
               rel="noreferrer"
               target="_blank"
@@ -508,7 +508,7 @@ export function SupportMessageBubble({ message }: { message: SupportChatMessage 
         ) : null}
 
         {message.text ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="whitespace-pre-line text-[12px] font-normal leading-[19px] text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="whitespace-pre-line text-[12px] font-normal leading-[19px] text-on-surface">
             {message.text}
           </Typography>
         ) : null}
@@ -516,8 +516,8 @@ export function SupportMessageBubble({ message }: { message: SupportChatMessage 
         <div
           className={`mt-1 flex items-center gap-1 text-[10px] leading-4 ${
             isOutgoing
-              ? "justify-start text-[#0048c4] [direction:ltr]"
-              : "justify-end text-[#a6a6a6]"
+              ? "justify-start text-primary [direction:ltr]"
+              : "justify-end text-outline"
           }`}
         >
           <Typography as="span" variant="body" size="medium" weight="regular">{message.time}</Typography>
@@ -531,7 +531,7 @@ export function SupportMessageBubble({ message }: { message: SupportChatMessage 
 export function SupportChatDateChip() {
   return (
     <div className="flex justify-center py-0.5">
-      <Typography as="span" variant="body" size="small" weight="regular" className="rounded-md bg-[#f5f5f5] px-2.5 py-1 text-[10px] font-normal leading-4 text-[#808080]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="rounded-md bg-surface-container px-2.5 py-1 text-[10px] font-normal leading-4 text-outline">
         امروز
       </Typography>
     </div>
@@ -561,12 +561,12 @@ export function SupportChatComposer({
 
   return (
     <form
-      className="flex items-center gap-1.5 rounded-full bg-[#f7f7f7] p-1.5 shadow-[0_1px_5px_rgba(0,0,0,0.08)] [direction:ltr]"
+      className="flex items-center gap-1.5 rounded-full bg-surface-container p-1.5 shadow-[0_1px_5px_rgba(0,0,0,0.08)] [direction:ltr]"
       onSubmit={submitMessage}
     >
       <Button unstyled
         aria-label="افزودن فایل"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#666] outline-none active:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#0048c440] disabled:cursor-not-allowed disabled:opacity-50"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface-var outline-none active:bg-black/5 focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={isSending}
         onClick={onAttachmentClick}
         type="button"
@@ -578,7 +578,7 @@ export function SupportChatComposer({
         <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
         <input
           ref={inputRef}
-          className="h-10 w-full border-0 bg-transparent px-2 text-right text-xs leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:ring-0"
+          className="h-10 w-full border-0 bg-transparent px-2 text-right text-xs leading-5 text-on-surface outline-none placeholder:text-outline focus:ring-0"
           dir="rtl"
           onChange={(event) => onChange(event.target.value)}
           placeholder="پیام خود را بنویسید"
@@ -589,7 +589,7 @@ export function SupportChatComposer({
 
       <Button unstyled
         aria-label="ارسال پیام"
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1268d8] text-white outline-none active:bg-[#0758bd] focus-visible:ring-3 focus-visible:ring-[#1268d840] disabled:cursor-not-allowed disabled:opacity-50"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-on-primary outline-none active:opacity-80 focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={isSending || !message.trim()}
         type="submit"
       >

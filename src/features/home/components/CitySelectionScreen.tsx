@@ -131,7 +131,7 @@ export function CitySelectionScreen({
   if (isError) {
     return (
       <section
-        className={"absolute inset-0 z-40 overflow-hidden bg-white " + (isOpen ? "visible" : "invisible")}
+        className={"absolute inset-0 z-40 overflow-hidden bg-surface-container-lowest " + (isOpen ? "visible" : "invisible")}
         aria-hidden={!isOpen}
       >
         <CityErrorState
@@ -144,7 +144,7 @@ export function CitySelectionScreen({
 
   return (
     <section
-      className={"absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] transition-all duration-200 " + (isOpen ? "visible translate-y-0 opacity-100" : "invisible pointer-events-none translate-y-3 opacity-0")}
+      className={"absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl] transition-all duration-200 " + (isOpen ? "visible translate-y-0 opacity-100" : "invisible pointer-events-none translate-y-3 opacity-0")}
       aria-hidden={!isOpen}
     >
       <TopBar
@@ -175,13 +175,13 @@ export function CitySelectionScreen({
         title={isSearching ? undefined : "انتخاب شهر"}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {isSearching ? (
           isLoading ? (
             <div className="flex flex-col gap-4 px-4 py-4">
               {Array.from({ length: 5 }).map((_, index) => (
                 <div
-                  className="h-12 w-full rounded-xl bg-[#f0f0f0]"
+                  className="h-12 w-full rounded-xl bg-surface-container"
                   key={index}
                 />
               ))}
@@ -200,21 +200,21 @@ export function CitySelectionScreen({
           ) : normalizedQuery.length > 0 ? (
             <SearchErrors variant="not-found" />
           ) : (
-            <div className="h-full bg-white" />
+            <div className="h-full bg-surface-container-lowest" />
           )
         ) : (
           <div className="flex flex-col gap-2 px-4 pt-4">
             {isLoading &&
               Array.from({ length: 6 }).map((_, index) => (
                 <div
-                  className="h-14 w-full rounded-xl bg-[#f0f0f0]"
+                  className="h-14 w-full rounded-xl bg-surface-container"
                   key={index}
                 />
               ))}
 
             {!isLoading &&
               isError && (
-                <Typography as="p" variant="body" size="small" weight="medium" className="px-2 py-3 text-right text-xs font-medium text-red-600">
+                <Typography as="p" variant="body" size="small" weight="medium" className="px-2 py-3 text-right text-xs font-medium text-error">
                   دریافت شهرها با خطا مواجه شد.
                 </Typography>
               )}
@@ -232,10 +232,10 @@ export function CitySelectionScreen({
         )}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-12px_24px_rgba(26,26,26,0.06)] min-[390px]:py-3.5">
+      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 py-3 shadow-[0_-12px_24px_rgba(26,26,26,0.06)] min-[390px]:py-3.5">
         <Button
           unstyled
-          className="h-10 w-full rounded-[10px] bg-[#0048c4] text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="h-10 w-full rounded-[10px] bg-primary text-sm font-medium leading-5 text-on-primary active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
           type="button"
           tabIndex={isOpen ? 0 : -1}
           onClick={confirmCity}
@@ -262,7 +262,7 @@ function CitySearchField({
     <input
       ref={inputRef}
       aria-label="جستجوی شهر"
-      className="home-search-input h-12 w-full appearance-none border-0 bg-transparent px-2 text-right text-base font-semibold leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none"
+      className="home-search-input h-12 w-full appearance-none border-0 bg-transparent px-2 text-right text-base font-semibold leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
       type="search"
       value={query}
       tabIndex={isOpen ? 0 : -1}
@@ -298,7 +298,7 @@ function CityOptionRow({
     <Button
       unstyled
       aria-pressed={isSelected}
-      className="flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl bg-white pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr]"
+      className="flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl bg-surface-container-lowest pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr] hover:bg-surface-container/50"
       type="button"
       onClick={onSelect}
     >
@@ -311,7 +311,7 @@ function CityOptionRow({
         aria-hidden="true"
       />
 
-      <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-on-surface [direction:rtl]">
         {city.name}
       </Typography>
     </Button>

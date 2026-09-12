@@ -237,7 +237,7 @@ export function LoginVerifyPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
       <form className="contents" noValidate onSubmit={handleSubmit} ref={formRef}>
@@ -247,9 +247,9 @@ export function LoginVerifyPage() {
           title="ورود به حساب کاربری"
         />
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest pt-4">
           <section
-            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-white"
+            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-surface-container-lowest"
             aria-hidden="true"
           >
             <img
@@ -266,16 +266,16 @@ export function LoginVerifyPage() {
           >
             <div className="flex w-full flex-col gap-4">
               <Typography as="h2" variant="title" size="medium" weight="semibold"
-                className="m-0 text-right font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
+                className="m-0 text-right font-semibold leading-5 text-on-surface min-[390px]:text-base min-[390px]:leading-6"
                 id="login-verify-title"
               >
                 ورود کد ارسالی
               </Typography>
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:gap-2 min-[390px]:text-sm">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-on-surface-var min-[390px]:gap-2 min-[390px]:text-sm">
                 <Typography as="span" variant="body" size="medium" weight="regular">کد ارسال شده به </Typography>
                 <RouteLink
                   dir="ltr"
-                  className="font-medium text-[#0048c4] underline underline-offset-3"
+                  className="font-medium text-primary underline underline-offset-3"
                   to="/login/phone"
                 >
                   {phoneNumber}
@@ -300,7 +300,7 @@ export function LoginVerifyPage() {
                   <input
                     aria-invalid={notice?.variant === "error" ? "true" : undefined}
                     autoComplete={index === 0 ? "one-time-code" : "off"}
-                    className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-3 py-1 text-center !text-[22px] font-medium leading-none text-[#1a1a1a] outline-none caret-[#0048c4] placeholder:!text-sm placeholder:text-[#1a1a1a] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)] [:-webkit-autofill]:[box-shadow:0_0_0_1000px_white_inset] [:-webkit-autofill]:[-webkit-text-fill-color:#1a1a1a] min-[390px]:h-14"
+                    className="h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-1 text-center !text-[22px] font-medium leading-none text-on-surface outline-none caret-primary placeholder:!text-sm placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-container)] [:-webkit-autofill]:[box-shadow:0_0_0_1000px_var(--color-surface-container-lowest)_inset] [:-webkit-autofill]:[-webkit-text-fill-color:var(--color-on-surface)] min-[390px]:h-14"
                     aria-label={`رقم ${index + 1}`}
                     inputMode="numeric"
                     maxLength={1}
@@ -321,7 +321,7 @@ export function LoginVerifyPage() {
 
             {resendSeconds > 0 ? (
               <div
-                className="flex py-2 px-6 items-center justify-center gap-2 mt-12 rounded-2xl bg-[#f5f5f5] text-sm font-medium leading-5 text-[#1a1a1a]"
+                className="flex py-2 px-6 items-center justify-center gap-2 mt-12 rounded-2xl bg-surface-container text-sm font-medium leading-5 text-on-surface"
                 aria-live="polite"
               >
                 <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{formatCountdownSeconds(resendSeconds)}</Typography>
@@ -334,21 +334,21 @@ export function LoginVerifyPage() {
               </div>
             ) : (
               <Button unstyled
-                className="flex py-2 px-6 cursor-pointer flex-row-reverse items-center mt-12 justify-center gap-2 rounded-2xl bg-[#f5f5f5] px-6 text-sm font-medium leading-5 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex py-2 px-6 cursor-pointer flex-row-reverse items-center mt-12 justify-center gap-2 rounded-2xl bg-surface-container px-6 text-sm font-medium leading-5 text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isResending || isSubmitting}
                 onClick={handleResend}
                 type="button"
               >
                 <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</Typography>
-                <LinearArrowRight2 className="w-5 h-5 text-[#4d4d4d]" />
+                <LinearArrowRight2 className="w-5 h-5 text-on-surface-var" />
               </Button>
             )}
           </section>
         </main>
 
-        <footer className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+        <footer className="shrink-0 bg-surface-container-lowest px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
           <Button unstyled
-            className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-[#0048c4] px-4 py-2.5 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-primary px-4 py-2.5 text-sm font-medium leading-5 text-on-primary focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting || isResending}
             type="submit"
           >

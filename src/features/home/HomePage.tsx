@@ -289,7 +289,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[#f0f0f0]" dir="rtl">
+    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-surface-container" dir="rtl">
       <SEO 
         title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک بنگاه" 
         description="سامانه هوشمند املاک بنگاه؛ مرجع تخصصی خرید، فروش، رهن و اجاره آپارتمان، خانه ویلایی، زمین و مغازه. جدیدترین آگهی‌های املاک را در بنگاه جستجو کنید."
@@ -303,15 +303,15 @@ export function HomePage() {
         }}
       />
       <h1 className="sr-only">سامانه هوشمند املاک بنگاه برای خرید، فروش، رهن و اجاره ملک</h1>
-      <header className="shrink-0 bg-white">
+      <header className="shrink-0 bg-surface-container-lowest">
         <section
-          className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-white px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
+          className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-surface-container-lowest px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
           aria-label="سربرگ"
         >
           <div className="flex items-center justify-center gap-2">
             <Button unstyled
               aria-label="اعلان‌ها"
-              className="relative grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] transition-all duration-200 ease-out hover:bg-black/5 active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              className="relative grid h-12 w-12 place-items-center rounded-full text-on-surface transition-all duration-200 ease-out hover:bg-black/5 active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
               onClick={navigateToNotifications}
               type="button"
             >
@@ -319,7 +319,7 @@ export function HomePage() {
               {hasAuthSession ? (
                 <Suspense fallback={null}>
                   <UnreadNotificationBadge
-                    className="absolute right-3.5 top-3 h-2 w-2 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+                    className="absolute right-3.5 top-3 h-2 w-2 rounded-full bg-error ring-2 ring-surface-container-lowest"
                   />
                 </Suspense>
               ) : null}
@@ -327,7 +327,7 @@ export function HomePage() {
 
             {!shouldHideCitySelector ? (
               <Button unstyled
-                className="flex items-center justify-center gap-1 rounded-[10px] border border-[#0048C4] px-2 py-2.5 h-10 text-sm font-medium leading-5! text-[#0048C4] transition-all duration-200 ease-out hover:bg-[#0048c40d] active:scale-95"
+                className="flex items-center justify-center gap-1 rounded-[10px] border border-primary px-2 py-2.5 h-10 text-sm font-medium leading-5! text-primary transition-all duration-200 ease-out hover:bg-primary/8 active:scale-95"
                 type="button"
                 onClick={() => setIsCityOpen(true)}
               >
@@ -348,13 +348,13 @@ export function HomePage() {
         </section>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[64px] [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[64px] [-webkit-overflow-scrolling:touch]">
         <section
-          className="flex w-full flex-col gap-5 bg-white px-4 pb-5 pt-2 min-[390px]:gap-7 min-[390px]:pb-6"
+          className="flex w-full flex-col gap-5 bg-surface-container-lowest px-4 pb-5 pt-2 min-[390px]:gap-7 min-[390px]:pb-6"
           aria-label="جستجوی ملک"
         >
           <label
-            className="relative flex h-12 items-center rounded-xl bg-[#f0f0f0] cursor-pointer transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#e8e8e8] active:scale-[0.99] focus-within:ring-2 focus-within:ring-[#0048c4]/20"
+            className="relative flex h-12 items-center rounded-xl bg-surface-container cursor-pointer transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-surface-container-high active:scale-[0.99] focus-within:ring-2 focus-within:ring-primary/20"
             onClick={() => setIsSearchOpen(true)}
             onPointerDown={(event) => {
               event.preventDefault();
@@ -362,14 +362,14 @@ export function HomePage() {
             }}
           >
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pr-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] "
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pr-4 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
               type="search"
               placeholder="جستجو در آگهی‌ها"
               onFocus={() => setIsSearchOpen(true)}
               onClick={() => setIsSearchOpen(true)}
               readOnly
             />
-            <LinearSearch className="h-6 w-6 text-[#4d4d4d] ml-3"/>
+            <LinearSearch className="h-6 w-6 text-on-surface-var ml-3"/>
           </label>
 
           <div
@@ -378,7 +378,7 @@ export function HomePage() {
           >
             {quickActions.map((item) => (
               <Button unstyled
-                className="group flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1 bg-white p-1 rounded-xl text-xs! font-medium! leading-4 text-[#1a1a1a] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#f8f9fa] hover:-translate-y-0.5 active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+                className="group flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1 bg-surface-container-lowest p-1 rounded-xl text-xs! font-medium! leading-4 text-on-surface transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-surface-container hover:-translate-y-0.5 active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
                 key={item.label}
                 type="button"
                 onClick={() => {

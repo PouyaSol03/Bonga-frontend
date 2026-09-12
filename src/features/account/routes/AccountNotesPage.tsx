@@ -87,7 +87,7 @@ export function AccountNotesPage() {
       action={
         <Button unstyled
           aria-label="حذف همه یادداشت‌ها"
-          className="grid h-12 w-12 place-items-center text-[#1a1a1a] disabled:opacity-40"
+          className="grid h-12 w-12 place-items-center text-on-surface disabled:opacity-40"
           disabled={notes.length === 0 || deleteNote.isPending}
           onClick={() => setIsConfirmDeleteAllOpen(true)}
           type="button"
@@ -98,8 +98,8 @@ export function AccountNotesPage() {
       title="یادداشت ها"
     >
 
-      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
-        <div className={`${!isLoading && !isError && notes.length === 0 ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-0 bg-white"}`}>
+      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
+        <div className={`${!isLoading && !isError && notes.length === 0 ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest" : "space-y-0 bg-surface-container-lowest"}`}>
           {isLoading ? <AccountNotesSkeleton count={6} /> : null}
           {isError ? (
             <AccountRetryState
@@ -136,7 +136,7 @@ export function AccountNotesPage() {
         showHeader={false}
         variant="confirm"
       >
-        <Typography as="p" variant="label" size="large" weight="medium" className="m-0 text-center text-[#1a1a1a]">
+        <Typography as="p" variant="label" size="large" weight="medium" className="m-0 text-center text-on-surface">
           آیا از حذف همه یادداشت‌ها مطمئن هستید؟
         </Typography>
         <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">
@@ -174,7 +174,7 @@ export function AccountNotesPage() {
       >
         <textarea
           aria-label="متن یادداشت"
-          className="h-40 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-4 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:border-[#0048c4] focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
+          className="h-40 w-full resize-none rounded-xl border border-outline-var bg-surface-container-lowest px-4 py-3 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
           onChange={(event) => setNoteDraft(event.target.value)}
           placeholder="یادداشت شما"
           value={noteDraft}

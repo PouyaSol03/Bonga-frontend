@@ -121,13 +121,13 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <CreditTopBar />
       <CreditTabs activeTab={isPackages ? "packages" : "panel"} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-4">
         {packagesQuery.isLoading ? (
           <CreditPlansSkeleton count={3} />
         ) : packagesQuery.isError ? (
@@ -185,7 +185,7 @@ function CreditTopBar() {
       backTo="/account"
       startSlot={
         <RouteLink
-          className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-[#0048c4] no-underline"
+          className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
           to="/account/credit/history"
         >
           تاریخچه پرداخت
@@ -198,19 +198,19 @@ function CreditTopBar() {
 
 function CreditTabs({ activeTab }: { activeTab: "packages" | "panel" }) {
   return (
-    <nav className="shrink-0 bg-white px-4 py-4" aria-label="نوع افزایش اعتبار">
-      <div className="flex h-11 overflow-hidden rounded-xl border border-[#0048c4] [direction:ltr]">
+    <nav className="shrink-0 bg-surface-container-lowest px-4 py-4" aria-label="نوع افزایش اعتبار">
+      <div className="flex h-11 overflow-hidden rounded-xl border border-primary [direction:ltr]">
         <RouteLink
           className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "panel" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
+            activeTab === "panel" ? "bg-primary-container text-primary font-semibold" : "bg-surface-container-lowest text-on-surface-var"
           }`}
           to="/account/credit/panel"
         >
           اعتبار پنل
         </RouteLink>
         <RouteLink
-          className={`flex flex-1 items-center justify-center border-l border-[#0048c4] text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "packages" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
+          className={`flex flex-1 items-center justify-center border-l border-primary text-base font-medium leading-6 [direction:rtl] ${
+            activeTab === "packages" ? "bg-primary-container text-primary font-semibold" : "bg-surface-container-lowest text-on-surface-var"
           }`}
           to="/account/credit/packages"
         >
@@ -234,8 +234,8 @@ function CreditPlanCard({
 }) {
   return (
     <article
-      className={`rounded-2xl border bg-gradient-to-b from-white to-[#edf1fa] p-4 ${
-        plan.selected ? "border-[#0048c4]" : "border-[#cccccc]"
+      className={`rounded-2xl border bg-surface-container-lowest p-4 ${
+        plan.selected ? "border-primary" : "border-outline-var"
       }`}
     >
       {isPackage ? (
@@ -247,7 +247,7 @@ function CreditPlanCard({
       )}
 
       <Button unstyled
-        className="mt-4 h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+        className="mt-4 h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary"
         onClick={onPay}
         type="button"
       >
@@ -282,11 +282,11 @@ function PackageCardContent({ plan }: { plan: CreditPlan }) {
       <div className="h-[108px]">
         <CreditPrice plan={plan} />
       </div>
-      <div className="my-4 h-px border-t border-dashed border-[#cccccc]" />
+      <div className="my-4 h-px border-t border-dashed border-outline-var" />
       <ul className="space-y-4">
         {(plan.benefits ?? []).map((benefit) => (
           <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
-            <CheckSealIcon className="h-5 w-5 shrink-0 text-[#11a366]" />
+            <CheckSealIcon className="h-5 w-5 shrink-0 text-tertiary" />
             <Typography as="span" variant="body" size="medium" weight="regular">{benefit}</Typography>
           </li>
         ))}
@@ -299,21 +299,21 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
   return (
     <>
       <div className="flex h-6 items-center justify-end">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">{plan.name}</Typography>
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-primary [direction:rtl]">{plan.name}</Typography>
       </div>
       <div className="mt-4 flex h-[68px] items-end justify-between">
         {plan.discountPercent > 0 ? (
-          <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-normal leading-4 text-[#ee3623]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-error bg-surface-container-lowest px-2 py-1 text-xs font-normal leading-4 text-error">
             {formatCreditNumber(plan.discountPercent)}٪ تخفیف
           </Typography>
         ) : (
           <span />
         )}
         <div className="text-right [direction:rtl]">
-          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">{plan.originalPrice}</Typography>
+          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-outline line-through">{plan.originalPrice}</Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
-            <strong className="text-[22px] font-semibold leading-7 text-[#1a1a1a]">{plan.currentPrice}</strong>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-[#1a1a1a]">تومان</Typography>
+            <strong className="text-[22px] font-semibold leading-7 text-on-surface">{plan.currentPrice}</strong>
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-on-surface">تومان</Typography>
           </div>
         </div>
       </div>
@@ -323,15 +323,15 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
 
 function GiftBenefits({ benefits }: { benefits: string[] }) {
   return (
-    <div className="h-16 rounded-lg border border-[#11a366] bg-[#11a36614] px-4 py-2 text-[#006038]">
-      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-[#11a366]">
+    <div className="h-16 rounded-lg border border-tertiary bg-tertiary-container/30 px-4 py-2 text-tertiary">
+      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-tertiary">
         <GiftIcon className="h-5 w-5" />
         <Typography as="span" variant="body" size="medium" weight="regular">بسته هدیه</Typography>
       </div>
       <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
         {benefits.map((benefit, index) => (
           <Typography as="span" variant="body" size="medium" weight="regular"
-            className={`${index < benefits.length - 1 ? "border-l border-[#00603829] pl-4" : ""}`}
+            className={`${index < benefits.length - 1 ? "border-l border-tertiary/20 pl-4" : ""}`}
             key={benefit}
           >
             {benefit}
@@ -347,7 +347,7 @@ function CreditPlansSkeleton({ count }: { count: number }) {
     <div className="space-y-4" aria-label="در حال دریافت بسته‌های اعتبار" role="status">
       {Array.from({ length: count }, (_, index) => (
         <div
-          className="h-[204px] animate-pulse rounded-2xl border border-[#e0e0e0] bg-[#f7f9fe]"
+          className="h-[204px] animate-pulse rounded-2xl border border-outline-var bg-surface-container"
           key={index}
         />
       ))}
@@ -365,14 +365,14 @@ function CreditPlansStatus({
   onAction?: () => void;
 }) {
   return (
-    <div className="mx-auto w-full rounded-2xl border border-dashed border-[#d9d9d9] px-4 py-10 text-center">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-[#808080]">
+    <div className="mx-auto w-full rounded-2xl border border-dashed border-outline-var px-4 py-10 text-center">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-outline">
         {message}
       </Typography>
       {actionLabel && onAction ? (
         <Button
           unstyled
-          className="mt-4 h-10 rounded-lg border border-[#0048c4] px-5 text-sm font-medium text-[#0048c4]"
+          className="mt-4 h-10 rounded-lg border border-primary px-5 text-sm font-medium text-primary"
           onClick={onAction}
           type="button"
         >
@@ -387,7 +387,7 @@ function CheckSealIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
       <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
-      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="currentColor" className="text-on-primary" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
     </svg>
   );
 }

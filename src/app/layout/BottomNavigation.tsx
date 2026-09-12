@@ -93,7 +93,7 @@ function BottomNavigationComponent({
   return (
     <>
       <nav
-        className="sticky bottom-0 z-10 h-16 shrink-0 bg-white shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
+        className="sticky bottom-0 z-10 h-16 shrink-0 bg-surface-container-lowest shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
         aria-label="ناوبری اصلی"
       >
         <div className="grid h-full w-full grid-cols-5 px-1 [direction:rtl]">
@@ -123,8 +123,8 @@ function BottomNavigationComponent({
                   setHasLoadedCreateAdSheet(true);
                   setIsCreateAdOpen(true);
                 }}
-                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] gap-1 py-2
-                  ${isActive ? "text-[#0048c4]" : "text-[#999999]"}`}
+                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 gap-1 py-2
+                  ${isActive ? "text-primary" : "text-outline"}`}
               >
                 <Typography as="p" variant="body" size="small" weight="medium" className="relative grid h-6 w-6 shrink-0 place-items-center">
                   <Icon
@@ -132,11 +132,11 @@ function BottomNavigationComponent({
                     aria-hidden="true"
                     className="h-6 w-6 shrink-0"
                     size={24}
-                    color={isActive ? "#0048c4" : "#999999"}
+                    color={isActive ? "var(--primary)" : "var(--outline)"}
                     {...(isNewAd
                       ? {}
                       : {
-                          solidColor: isActive ? "#0048c4" : undefined,
+                          solidColor: isActive ? "var(--primary)" : undefined,
                           solidOpacity: 0.16,
                         })}
                   />

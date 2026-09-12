@@ -105,20 +105,20 @@ export function IndependentConsultantAdRejectPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={reviewState}
         backTo={reviewPath}
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         contentClassName="px-2"
         heightClassName="h-14"
         title="رد ثبت آگهی"
         titleClassName="text-base font-semibold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pt-4">
         <section aria-labelledby="reject-confirmation-title">
           <Typography
             as="h2"
@@ -126,7 +126,7 @@ export function IndependentConsultantAdRejectPage() {
             variant="body"
             size="large"
             weight="regular"
-            className="m-0 text-right text-[#1a1a1a]"
+            className="m-0 text-right text-on-surface"
           >
             آیا از عدم تأیید این آگهی مطمئن هستید؟
           </Typography>
@@ -135,7 +135,7 @@ export function IndependentConsultantAdRejectPage() {
             variant="body"
             size="medium"
             weight="regular"
-            className="m-0 mt-2 text-right text-[#808080]"
+            className="m-0 mt-2 text-right text-outline"
           >
             با انجام این کار، درخواست کاربر رد شده و به او اطلاع‌رسانی خواهد شد.
           </Typography>
@@ -143,7 +143,7 @@ export function IndependentConsultantAdRejectPage() {
 
         <div
           aria-hidden="true"
-          className="mt-4 h-px w-full border-t border-dashed border-[#cccccc]"
+          className="mt-4 h-px w-full border-t border-dashed border-outline-var"
         />
 
         <section className="pt-4" aria-labelledby="reject-reason-title">
@@ -153,7 +153,7 @@ export function IndependentConsultantAdRejectPage() {
             variant="label"
             size="large"
             weight="medium"
-            className="m-0 text-right text-[#1a1a1a]"
+            className="m-0 text-right text-on-surface"
           >
             دلیل عدم تأیید
           </Typography>
@@ -163,7 +163,7 @@ export function IndependentConsultantAdRejectPage() {
             <div className="flex flex-col" role="radiogroup" aria-label="دلیل عدم تأیید">
               {rejectReasons.map((reason) => (
                 <label
-                  className="flex h-16 cursor-pointer items-center justify-between pl-5 text-[#1a1a1a] [direction:ltr]"
+                  className="flex h-16 cursor-pointer items-center justify-between pl-5 text-on-surface [direction:ltr]"
                   key={reason}
                 >
                   <RadioIndicator checked={selectedReason === reason} />
@@ -194,10 +194,10 @@ export function IndependentConsultantAdRejectPage() {
         </section>
       </main>
 
-      <footer className="flex h-[68px] shrink-0 items-center gap-4 bg-white px-4 py-[14px] shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:ltr]">
+      <footer className="flex h-[68px] shrink-0 items-center gap-4 bg-surface-container-lowest px-4 py-[14px] shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:ltr]">
         <Button
           unstyled
-          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border border-[#0048c4] bg-[#0048c4] px-4 text-[#ffffff] transition-colors active:bg-[#003aa0] disabled:cursor-not-allowed"
+          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border border-primary bg-primary px-4 text-on-primary transition-colors active:opacity-80 disabled:cursor-not-allowed"
           disabled={rejectAssignmentMutation.isPending}
           onClick={handleConfirm}
           type="button"
@@ -208,7 +208,7 @@ export function IndependentConsultantAdRejectPage() {
         </Button>
         <Button
           unstyled
-          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border border-[#0048c4] bg-white px-4 text-[#0048c4] transition-colors active:bg-[#0048c414]"
+          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-primary transition-colors active:bg-primary-container"
           onClick={navigateBackToReview}
           type="button"
         >

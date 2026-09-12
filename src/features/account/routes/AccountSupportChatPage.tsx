@@ -39,7 +39,7 @@ export function AccountSupportChatPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
       <TopBar
@@ -58,7 +58,7 @@ export function AccountSupportChatPage() {
         titleClassName="text-center text-base font-semibold leading-6"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-4 pb-[88px] pt-4">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest px-4 pb-[88px] pt-4">
         <WelcomeCard />
 
         <section
@@ -66,14 +66,14 @@ export function AccountSupportChatPage() {
           className="mt-6 flex min-h-0 flex-1 flex-col"
         >
           <Typography as="h2" variant="title" size="medium" weight="semibold"
-            className="m-0 text-right text-base font-semibold leading-6 text-[#4d4d4d]"
+            className="m-0 text-right text-base font-semibold leading-6 text-on-surface-var"
             id="recent-support-conversations"
           >
             گفتگوهای اخیر
           </Typography>
 
           {supportChatsQuery.isLoading ? (
-            <Typography as="p" variant="body" size="medium" weight="regular" className="py-12 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="py-12 text-center text-sm text-outline">در حال دریافت گفتگوها...</Typography>
           ) : conversations.length === 0 ? (
             <SupportChatsEmptyState />
           ) : (
@@ -86,9 +86,9 @@ export function AccountSupportChatPage() {
         </section>
       </main>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3">
         <RouteLink
-          className="pointer-events-auto flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white no-underline outline-none active:bg-[#003da7] focus-visible:ring-3 focus-visible:ring-[#0048c440]"
+          className="pointer-events-auto flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary no-underline outline-none active:opacity-80 focus-visible:ring-3 focus-visible:ring-primary/20"
           to={SUPPORT_NEW_CHAT_PATH}
         >
           شروع گفتگوی جدید

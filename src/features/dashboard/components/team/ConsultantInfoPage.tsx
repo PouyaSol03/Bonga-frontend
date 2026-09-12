@@ -24,6 +24,7 @@ import { Button } from "../../../../shared/ui/Button";
 type ConsultantPieDatum = {
   agencyPercent: number;
   badge: string;
+  badgeClassName: string;
   color: string;
   lightColor: string;
   subtitle: string;
@@ -32,12 +33,14 @@ type ConsultantPieDatum = {
 };
 
 function createConsultantPieDatum({
+  badgeClassName,
   color,
   consultantValue,
   lightColor,
   title,
   total,
 }: {
+  badgeClassName: string;
   color: string;
   consultantValue: number;
   lightColor: string;
@@ -55,6 +58,7 @@ function createConsultantPieDatum({
   return {
     agencyPercent: safeTotal > 0 ? 100 - consultantPercent : 0,
     badge: hasTotal ? formatter.format(safeValue) : "—",
+    badgeClassName,
     color,
     lightColor,
     subtitle: hasTotal
@@ -94,32 +98,35 @@ export function ConsultantInfoPage() {
     : undefined;
   const consultantPieCards: ConsultantPieDatum[] = [
     createConsultantPieDatum({
-      color: "#0048c4",
+      badgeClassName: "bg-primary-container text-primary",
+      color: "var(--primary)",
       consultantValue:
         periodActivity?.publishedAdvertises ??
         dashboardConsultantActivity?.advertiseCount ??
         consultant.scores.ads,
-      lightColor: "#d7ddf7",
+      lightColor: "var(--primary-container)",
       title: "آگهی منتشر شده در آژانس",
       total: agencyDashboard?.publishedAdvertises.total,
     }),
     createConsultantPieDatum({
-      color: "#11a366",
+      badgeClassName: "bg-tertiary-container text-tertiary",
+      color: "var(--tertiary)",
       consultantValue:
         periodActivity?.renewUsed ??
         dashboardConsultantActivity?.renewCount ??
         consultant.scores.steps,
-      lightColor: "#bfe8d2",
+      lightColor: "var(--tertiary-container)",
       title: "بروزرسانی منتشر شده در آژانس",
       total: totalRenewals,
     }),
     createConsultantPieDatum({
-      color: "#ffb100",
+      badgeClassName: "bg-warning-container text-warning",
+      color: "var(--warning)",
       consultantValue:
         periodActivity?.specialUsed ??
         dashboardConsultantActivity?.specialCount ??
         consultant.scores.rocket,
-      lightColor: "#ffe9aa",
+      lightColor: "var(--warning-container)",
       title: "ویژه منتشر شده در آژانس",
       total: totalSpecials,
     }),
@@ -127,7 +134,7 @@ export function ConsultantInfoPage() {
 
   return (
     <section
-      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]"
+      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
       dir="rtl"
     >
       <TopBar
@@ -142,12 +149,12 @@ export function ConsultantInfoPage() {
         <ConsultantProfileSummary consultant={consultant} />
 
         <section className="mt-5 grid gap-4">
-          <article className="flex flex-col gap-12 rounded-2xl bg-white px-4 py-7">
+          <article className="flex flex-col gap-12 rounded-2xl bg-surface-container-lowest px-4 py-7">
             <InfoStatRow label="آگهی‌های فعال" value={formatValue(consultant.scores.ads)} />
             <InfoStatRow label="درخواست فعال" value="—" />
           </article>
 
-          <article className="flex flex-col gap-8 rounded-2xl bg-white px-4 py-5">
+          <article className="flex flex-col gap-8 rounded-2xl bg-surface-container-lowest px-4 py-5">
             <InfoStatRow
               icon={<LinearStar className="h-6 w-6" />}
               label="امتیاز"
@@ -160,25 +167,25 @@ export function ConsultantInfoPage() {
             />
           </article>
 
-          <article className="flex flex-col gap-4 rounded-2xl bg-white px-4 py-5">
+          <article className="flex flex-col gap-4 rounded-2xl bg-surface-container-lowest px-4 py-5">
             <InfoStatRow
               icon={<LinearTag className="h-6 w-6" />}
-              iconClassName="bg-[#dfe8ff] text-[#0048c4] w-12 h-12"
-              labelClassName="text-sm font-medium text-[#4D4D4D]"
+              iconClassName="bg-primary-container text-primary w-12 h-12"
+              labelClassName="text-sm font-medium text-on-surface-var"
               label="مانده اعتبار آگهی"
               value={formatValue(consultant.adQuota)}
             />
             <InfoStatRow
               icon={<LinearStairs className="h-5 w-5" />}
-              iconClassName="bg-[#d9f7ea] text-[#11a366] w-12 h-12"
-              labelClassName="text-sm font-medium text-[#4D4D4D]"
+              iconClassName="bg-tertiary-container text-tertiary w-12 h-12"
+              labelClassName="text-sm font-medium text-on-surface-var"
               label="مانده بروزرسانی"
               value={formatValue(consultant.renewQuota)}
             />
             <InfoStatRow
               icon={<LinearStartup className="h-5 w-5" />}
-              iconClassName="bg-[#fff0dc] text-[#ff7a00] w-12 h-12"
-              labelClassName="text-sm font-medium text-[#4D4D4D]"
+              iconClassName="bg-warning-container text-warning w-12 h-12"
+              labelClassName="text-sm font-medium text-on-surface-var"
               label="مانده ویژه"
               value={formatValue(consultant.specialQuota)}
             />
@@ -200,7 +207,7 @@ export function ConsultantInfoPage() {
 }
 
 function ConsultantInfoSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-[#e2e2e2] ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
 }
 
 function ConsultantInfoPageSkeleton() {
@@ -208,7 +215,7 @@ function ConsultantInfoPageSkeleton() {
     <section
       aria-busy="true"
       aria-label="در حال دریافت اطلاعات مشاور"
-      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]"
+      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
       dir="rtl"
       role="status"
     >
@@ -221,7 +228,7 @@ function ConsultantInfoPageSkeleton() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-        <article className="mt-4 rounded-2xl bg-white p-4">
+        <article className="mt-4 rounded-2xl bg-surface-container-lowest p-4">
           <div className="flex items-center gap-4">
             <ConsultantInfoSkeletonBlock className="h-16 w-16 shrink-0 rounded-full" />
             <div className="min-w-0 flex-1 space-y-3">
@@ -241,7 +248,7 @@ function ConsultantInfoPageSkeleton() {
           <ConsultantInfoRowsSkeleton rows={3} />
 
           {Array.from({ length: 3 }, (_, index) => (
-            <article className="rounded-2xl bg-white p-4" key={index}>
+            <article className="rounded-2xl bg-surface-container-lowest p-4" key={index}>
               <div className="flex items-center justify-between">
                 <ConsultantInfoSkeletonBlock className="h-5 w-40" />
                 <ConsultantInfoSkeletonBlock className="h-7 w-16" />
@@ -258,7 +265,7 @@ function ConsultantInfoPageSkeleton() {
             </article>
           ))}
 
-          <article className="rounded-2xl bg-white p-4">
+          <article className="rounded-2xl bg-surface-container-lowest p-4">
             <ConsultantInfoSkeletonBlock className="ml-auto h-5 w-40" />
             <ConsultantInfoSkeletonBlock className="mt-7 h-[220px] w-full" />
           </article>
@@ -272,7 +279,7 @@ function ConsultantInfoPageSkeleton() {
 
 function ConsultantInfoRowsSkeleton({ rows }: { rows: number }) {
   return (
-    <article className="rounded-2xl bg-white px-4 py-5">
+    <article className="rounded-2xl bg-surface-container-lowest px-4 py-5">
       <div className="grid gap-8">
         {Array.from({ length: rows }, (_, index) => (
           <div className="flex items-center justify-between" key={index}>
@@ -338,22 +345,22 @@ function ConsultantPieCard({
   }, [selectedIndex]);
 
   return (
-    <article className="rounded-2xl bg-white p-4">
+    <article className="rounded-2xl bg-surface-container-lowest p-4">
       <div className="mb-7 grid gap-3">
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
             {card.title}
           </Typography>
-          <Button unstyled className="flex h-7 items-center gap-1 rounded-lg bg-transparent px-2 py-1 text-xs font-medium text-[#1a1a1a]" type="button">
+          <Button unstyled className="flex h-7 items-center gap-1 rounded-lg bg-transparent px-2 py-1 text-xs font-medium text-on-surface" type="button">
             در ماه
-            <ChevronDownIcon className="h-4 w-4 text-[#4d4d4d]" />
+            <ChevronDownIcon className="h-4 w-4 text-on-surface-var" />
           </Button>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold" style={{ color: card.color, backgroundColor: `${card.color}1a` }}>
+          <Typography as="span" variant="label" size="large" weight="semibold" className={`rounded px-2 py-0.5 text-base font-semibold ${card.badgeClassName}`}>
             {card.badge}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#808080]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-outline">
             {card.subtitle}
           </Typography>
         </div>
@@ -372,19 +379,19 @@ function ConsultantPieCard({
                 y1={selectedGeometry.lineStartY}
                 x2={selectedGeometry.lineEndX}
                 y2={selectedGeometry.lineEndY}
-                stroke="#1a1a1a"
+                stroke="var(--on-surface)"
                 strokeLinecap="round"
                 strokeWidth="1.6"
               />
               <circle
                 cx={selectedGeometry.dotX}
                 cy={selectedGeometry.dotY}
-                fill="#1a1a1a"
+                fill="var(--on-surface)"
                 r="7"
               />
             </svg>
             <div
-              className="absolute z-20 grid place-items-center rounded-lg bg-[#333333] text-center text-xs font-semibold leading-4 text-white shadow-[0_8px_18px_rgba(26,26,26,0.18)]"
+              className="absolute z-20 grid place-items-center rounded-lg bg-inverse-surface text-center text-xs font-semibold leading-4 text-inverse-on-surface shadow-md"
               style={{
                 height: pieTooltipHeight,
                 left: selectedGeometry.tooltipLeft,
@@ -546,11 +553,11 @@ function PieLegendItem({
 }) {
   return (
     <div className="grid justify-items-center gap-1">
-      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1.5 text-sm font-medium leading-5 text-[#4d4d4d]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1.5 text-sm font-medium leading-5 text-on-surface-var">
         <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
         {label}
       </Typography>
-      <strong className="text-base font-semibold leading-6 text-[#1a1a1a]">
+      <strong className="text-base font-semibold leading-6 text-on-surface">
         {value}
       </strong>
     </div>

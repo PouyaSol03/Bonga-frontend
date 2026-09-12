@@ -23,24 +23,24 @@ const toastStyles: Record<
   { background: string; border: string; text: string }
 > = {
   success: {
-    background: "bg-[#E2F4ED]",
-    border: "border-[#11A366]",
-    text: "text-[#11A366]",
+    background: "bg-tertiary-container/40",
+    border: "border-tertiary",
+    text: "text-tertiary",
   },
   error: {
-    background: "bg-[#FCEBEB]",
-    border: "border-[#D32F2F]",
-    text: "text-[#D32F2F]",
+    background: "bg-error-container/40",
+    border: "border-error",
+    text: "text-error",
   },
   info: {
-    background: "bg-[#E6EDF9]",
-    border: "border-[#0048C4]",
-    text: "text-[#0048C4]",
+    background: "bg-primary-container/40",
+    border: "border-primary",
+    text: "text-primary",
   },
   warning: {
-    background: "bg-[#F9F2E6]",
-    border: "border-[#C47A00]",
-    text: "text-[#C47A00]",
+    background: "bg-warning-container/40",
+    border: "border-warning",
+    text: "text-warning",
   },
 };
 

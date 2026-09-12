@@ -16,7 +16,6 @@ import LinearArrowRight2 from "../icons/LinearArrowRight2";
 import BoldBookmarkSolid from "../icons/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../icons/LinearBookmarkSolid";
 import SearchBarSearchIcon from "../icons/SearchBarSearchIcon";
-import { IconButton } from "../ui/IconButton";
 import { SearchBar } from "../ui/SearchBar";
 import { Typography } from "../ui/Typography";
 import { Button } from "../ui/Button";
@@ -90,7 +89,7 @@ function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" 
 
 function TopBarIconButton({ action }: { action: TopBarAction }) {
   const className =
-    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]";
+    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 hover:bg-surface-container-low active:bg-surface-container-high";
 
   if (action.to) {
     return (
@@ -101,28 +100,36 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
   }
 
   return (
-    <IconButton
+    <Button unstyled
       aria-label={action.label}
-      className="rounded-full text-[#1a1a1a]"
+      className={className}
       onClick={action.onClick}
-      size="dense"
+      type="button"
     >
       {action.icon}
-    </IconButton>
+    </Button>
   );
 }
 
 function TopBarBackButton({
-  backIconDirection,
-  backLabel = "بازگشت",
+  backIconDirection = "right",
+  backLabel,
   backState,
   backTo,
   onBack,
-}: Pick<TopBarProps, "backIconDirection" | "backLabel" | "backState" | "backTo" | "onBack">) {
+}: {
+  backIconDirection?: "left" | "right";
+  backLabel?: string;
+  backState?: unknown;
+  backTo?: string;
+  onBack?: () => void;
+}) {
+  const label = backLabel ?? "بازگشت";
+
   return (
     <Button unstyled
-      aria-label={backLabel}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-transparent text-[#1a1a1a] outline-none [-webkit-tap-highlight-color:transparent] hover:bg-transparent active:bg-transparent focus:bg-transparent focus:outline-none focus-visible:bg-transparent focus-visible:outline-none"
+      aria-label={label}
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 hover:bg-surface-container-low active:bg-surface-container-high"
       onClick={() => {
         if (onBack) {
           onBack();
@@ -168,17 +175,17 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
 
   return (
     <div
-      className="relative flex h-12 w-full min-w-0 items-center overflow-hidden rounded-xl border border-[#808080] bg-white text-right text-sm font-normal leading-5 text-[#a6a6a6] focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440]"
+      className="relative flex h-12 w-full min-w-0 items-center overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-right text-sm font-normal leading-5 text-outline focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25"
       dir="rtl"
     >
       <Button unstyled
         aria-label={search.label}
-        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 bg-transparent py-0 pe-3 ps-0 text-right text-sm font-normal leading-5 text-[#a6a6a6]"
+        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 bg-transparent py-0 pe-3 ps-0 text-right text-sm font-normal leading-5 text-outline"
         onClick={search.onClick}
         type="button"
       >
-        <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#808080]" />
-        <span aria-hidden="true" className="h-6 w-px shrink-0 bg-[#cccccc]" />
+        <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-outline" />
+        <span aria-hidden="true" className="h-6 w-px shrink-0 bg-outline-var" />
         <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right">
           {search.label}
         </Typography>
@@ -188,7 +195,7 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
         <Button unstyled
           aria-label={search.savedLabel ?? "جستجوی ذخیره شده"}
           aria-pressed={search.isSaved}
-          className="relative grid h-12 w-12 shrink-0 place-items-center bg-transparent text-[#1a1a1a] transition-colors [-webkit-tap-highlight-color:transparent] active:bg-transparent focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          className="relative grid h-12 w-12 shrink-0 place-items-center bg-transparent text-on-surface transition-colors [-webkit-tap-highlight-color:transparent] active:bg-transparent focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
           disabled={search.isSaving || search.isSavedDisabled}
           onClick={(event) => {
             event.stopPropagation();
@@ -198,7 +205,7 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
         >
           <TopBarBookmarkIcon filled={Boolean(search.isSaved)} />
           {search.savedCount && search.savedCount > 0 ? (
-            <Typography as="span" variant="label" size="small" weight="semibold" className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-[#0048c4] px-1 text-[10px] font-bold leading-4 text-white">
+            <Typography as="span" variant="label" size="small" weight="semibold" className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-on-primary">
               {search.savedCount > 99
                 ? "۹۹+"
                 : new Intl.NumberFormat("fa-IR").format(search.savedCount)}
@@ -235,7 +242,7 @@ function TopBarView({
 
   return (
     <header
-      className={`shrink-0 bg-[#f0f0f0] ${heightClassName} ${className}`}
+      className={`shrink-0 bg-surface-container ${heightClassName} ${className}`}
       dir="rtl"
     >
       <div className={`flex h-full min-w-0 items-center [direction:ltr] ${contentClassName}`}>
@@ -255,7 +262,7 @@ function TopBarView({
             <TopBarSearchButton search={search} />
           ) : title ? (
             <Typography as="h1" variant="title" size="large" weight="semibold"
-              className={`m-0 truncate text-right text-[#1a1a1a] ${titleClassName}`}
+              className={`m-0 truncate text-right text-on-surface ${titleClassName}`}
             >
               {title}
             </Typography>

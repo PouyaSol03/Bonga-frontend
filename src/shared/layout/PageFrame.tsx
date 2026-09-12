@@ -13,7 +13,7 @@ export function PageFrame({
   dir = 'rtl',
   variant = 'standard',
 }: PageFrameProps) {
-  const baseClasses = 'h-full min-h-0 w-full bg-white'
+  const baseClasses = 'h-full min-h-0 w-full bg-surface-container-lowest text-on-surface'
   const variantClasses = variant === 'standard' ? 'flex flex-col px-4 py-6' : 'p-0'
   const classes = [baseClasses, variantClasses, className].filter(Boolean).join(' ')
 

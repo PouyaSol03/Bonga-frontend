@@ -114,18 +114,18 @@ export function AccountProfileForm({
   return (
     <>
       <section className="flex flex-col items-center px-4 pt-4">
-        <div className="relative grid h-[100px] w-[100px] place-items-center overflow-visible text-[#808080]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#e0e0e0]">
+        <div className="relative grid h-[100px] w-[100px] place-items-center overflow-visible text-outline">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-surface-container">
             {avatarSrc ? (
               <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
             ) : (
-              <UserIcon className="h-10 w-10" />
+              <UserIcon className="h-10 w-10 text-outline" />
             )}
           </Typography>
 
           <label
             aria-label="ویرایش تصویر"
-            className="absolute -bottom-1 -left-1 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white"
+            className="absolute -bottom-1 -left-1 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4 border-surface-container-lowest bg-primary text-on-primary"
             htmlFor="profile-avatar-upload"
           >
             <EditIcon className="h-4 w-4" />
@@ -146,25 +146,25 @@ export function AccountProfileForm({
         <ReadonlyField label="کد ملی" value={form.nationalnumber || "-"} />
       </section>
 
-      <div className="mt-4 h-4 bg-[#f0f0f0]" />
+      <div className="mt-4 h-4 bg-surface-container" />
 
       <section className="space-y-6 px-4 pt-4">
         <TextField
-          className="text-sm text-[#808080] placeholder:text-[#808080]"
+          className="text-sm text-outline placeholder:text-outline"
           label="نام خود را وارد کنید"
           placeholder="نام خود را وارد کنید"
           value={form.name}
           onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
         />
         <TextField
-          className="text-sm text-[#808080] placeholder:text-[#808080]"
+          className="text-sm text-outline placeholder:text-outline"
           label="نام خانوادگی خود را وارد کنید"
           placeholder="نام خانوادگی خود را وارد کنید"
           value={form.family}
           onChange={(event) => setForm((current) => ({ ...current, family: event.target.value }))}
         />
         <TextField
-          className="text-sm text-[#808080] placeholder:text-[#808080]"
+          className="text-sm text-outline placeholder:text-outline"
           label="پست الکترونیکی"
           placeholder="پست الکترونیکی"
           value={form.email}
@@ -172,9 +172,9 @@ export function AccountProfileForm({
         />
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button unstyled
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
+          className="h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary disabled:opacity-50"
           disabled={isSubmitting}
           type="button"
           onClick={() => {
@@ -223,15 +223,15 @@ export function AccountMyAdsEmptyState({
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
+      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-on-surface-var">
         {description}
       </Typography>
       {isAllFilter ? (
         <RouteLink
-          className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+          className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
           to="/new-ad/category"
         >
           <PlusIcon className="h-5 w-5" />
@@ -308,9 +308,9 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
   const showEmptyState = !isLoading && !isError && !hasAds;
 
   return (
-    <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-white" : "bg-[#f0f0f0]"}`}>
+    <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
       <AdFilterTabs activeFilter={activeFilter} filters={availableFilters} onSelect={setActiveFilter} />
-      <div className={`${showEmptyState ? "flex min-h-0 flex-1 flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
+      <div className={`${showEmptyState ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest" : "space-y-2 bg-surface-container"}`}>
         {isLoading ? <MyAdsAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
@@ -372,7 +372,7 @@ export type AccountToast = {
 export function AccountPageShell({ action, children, onBack, title }: React.PropsWithChildren<TopBarProps>) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -404,7 +404,7 @@ function AdFilterTabs({
   return (
     <HorizontalFilterBar
       ariaLabel="فیلتر آگهی‌های من"
-      className="h-[52px] bg-[#f0f0f0]"
+      className="h-[52px] bg-surface-container"
       contentClassName="h-9"
     >
       {filters.map((filter) => {
@@ -436,10 +436,10 @@ export function EmptyAccountState({
   return (
     <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-9 text-center">
       <img alt="" aria-hidden="true" className="mb-5 h-[66px] w-[66px]" src={iconSrc} />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-on-surface">
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-on-surface-var">
         {description}
       </Typography>
     </section>
@@ -485,12 +485,12 @@ export function BookmarkAdCard({
   } satisfies AdCardData;
 
   return (
-    <div className="relative bg-white">
+    <div className="relative bg-surface-container-lowest">
       <AdCard ad={card} />
 
       <Button unstyled
         aria-label="حذف نشان"
-        className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-white text-[#1a1a1a] shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
+        className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-surface-container-lowest text-on-surface shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
         disabled={disabled || !advertiseId}
         onClick={(event) => {
           event.preventDefault();
@@ -589,23 +589,23 @@ export function NoteCard({
   };
 
   return (
-    <article className="relative h-[137px] overflow-hidden border-b border-[#f0f0f0] bg-white text-right [direction:rtl]">
+    <article className="relative h-[137px] overflow-hidden border-b border-outline-var bg-surface-container-lowest text-right [direction:rtl]">
       <Button unstyled
         data-note-action
         aria-label="حذف یادداشت"
-        className="absolute left-0 top-0 flex h-[136px] w-[59px] flex-col items-center justify-center gap-2 bg-[#ecdddd] text-[#c11004] disabled:opacity-50"
+        className="absolute left-0 top-0 flex h-[136px] w-[59px] flex-col items-center justify-center gap-2 bg-error-container text-error disabled:opacity-50"
         disabled={disabled || !noteId}
         onClick={() => noteId && onDelete(noteId)}
         type="button"
       >
         <LinearDelete className="h-6 w-6" />
-        <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#c11004]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-error">
           حذف
         </Typography>
       </Button>
 
       <div
-        className="relative z-10 h-[136px] touch-pan-y bg-white px-4 py-4 transition-transform duration-150 ease-out"
+        className="relative z-10 h-[136px] touch-pan-y bg-surface-container-lowest px-4 py-4 transition-transform duration-150 ease-out"
         onClick={(event) => {
           const target = event.target as HTMLElement;
           if (target.closest("button, a, [data-note-action]")) return;
@@ -643,7 +643,7 @@ export function NoteCard({
           <Button unstyled
             data-note-action
             aria-label="ویرایش یادداشت"
-            className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d] disabled:opacity-50"
+            className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var disabled:opacity-50"
             disabled={!noteId || disabled}
             onPointerDown={(event) => {
               event.stopPropagation();
@@ -659,7 +659,7 @@ export function NoteCard({
           >
             <LinearEdit className="h-5 w-5" />
           </Button>
-          <Typography as="h2" variant="body" size="large" weight="regular" className="m-0 min-w-0 text-right text-[#1a1a1a] [direction:rtl]">
+          <Typography as="h2" variant="body" size="large" weight="regular" className="m-0 min-w-0 text-right text-on-surface [direction:rtl]">
             {noteText}
           </Typography>
         </div>
@@ -667,16 +667,16 @@ export function NoteCard({
         <div className="mt-2 py-2 gap-x-2 flex min-w-0 items-center [direction:rtl]">
           <RouteLink
             aria-label={`مشاهده آگهی ${mappedAd.title}`}
-            className={`relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-[#ebebeb] bg-cover bg-center ${mappedAd.imageClassName}`}
+            className={`relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-surface-container bg-cover bg-center ${mappedAd.imageClassName}`}
             style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}
             to={advertiseId ? `/ads/${advertiseId}` : "/search"}
           />
 
           <div className="min-w-0 flex-1 text-right">
-            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-[#1a1a1a]">
+            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-on-surface">
               {adTitle}
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-[#808080]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-outline">
               {dateText}
             </Typography>
           </div>
@@ -719,7 +719,7 @@ export function IdentityPendingState({
     <>
       {showRequiredNotice ? (
         <section className="px-2 pt-3">
-          <div className="rounded-xl border border-[#ff6d00] bg-[#fff7f0] px-4 py-3 text-right text-[#ff6d00]">
+          <div className="rounded-xl border border-warning bg-warning-container px-4 py-3 text-right text-warning">
             <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-6">
               احراز هویت مورد نیاز است!
             </Typography>
@@ -732,11 +732,11 @@ export function IdentityPendingState({
 
       {!isAuthenticated ? (
         <section className="px-4 pt-3">
-          <div className="rounded-xl border border-[#0048c4] bg-[#f0f5ff] p-4 text-right">
-            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold text-[#0048c4]">
+          <div className="rounded-xl border border-primary bg-primary-container p-4 text-right">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold text-primary">
               برای تایید هویت، ابتدا وارد شوید
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-[#4d4d4d] leading-5">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-on-surface-var leading-5">
               برای ثبت و اعتبارسنجی کد ملی، لازم است ابتدا با شماره همراه خود وارد حساب کاربری شوید.
             </Typography>
             <div className="mt-3">
@@ -757,14 +757,14 @@ export function IdentityPendingState({
 
       {isRejected && !isPending ? (
         <section className="px-4 pt-3">
-          <div className="rounded-xl border border-[#ee3623] bg-[#fff5f5] p-4 text-right">
-            <div className="flex items-center gap-2 text-[#ee3623]">
+          <div className="rounded-xl border border-error bg-error-container p-4 text-right">
+            <div className="flex items-center gap-2 text-error">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
               <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">
                 احراز هویت شما تایید نشد
               </Typography>
             </div>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-[#b91c1c] leading-5">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-on-error-container leading-5">
               اطلاعات احراز هویت قبلی شما تایید نشد. لطفاً کد ملی صحیح متعلق به مالک این شماره همراه را وارد و مجدداً ارسال فرمایید.
             </Typography>
           </div>
@@ -773,14 +773,14 @@ export function IdentityPendingState({
 
       {isVerifying && !isRejected && !isPending ? (
         <section className="px-4 pt-3">
-          <div className="rounded-xl border border-[#ff9800] bg-[#fff8e1] p-4 text-right">
-            <div className="flex items-center gap-2 text-[#e65100]">
+          <div className="rounded-xl border border-warning bg-warning-container p-4 text-right">
+            <div className="flex items-center gap-2 text-on-warning-container">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
               <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">
                 در انتظار تایید ادمین
               </Typography>
             </div>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-[#5d4037] leading-5">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-on-surface-var leading-5">
               کد ملی شما ({initialNationalnumber}) با موفقیت ثبت شده و در انتظار بررسی و تایید توسط ادمین است.
             </Typography>
           </div>
@@ -789,8 +789,8 @@ export function IdentityPendingState({
 
       {isPending ? (
         <section className="px-4 pt-3">
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#0048C4] bg-[#0048C40D] p-4 text-[#0048C4]">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#0048C4] border-t-transparent shrink-0" />
+          <div className="flex items-center gap-2.5 rounded-xl border border-primary bg-primary-container p-4 text-primary">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent shrink-0" />
             <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm">
               در حال اعتبارسنجی شما هستیم...
             </Typography>
@@ -799,21 +799,21 @@ export function IdentityPendingState({
       ) : null}
 
       <section className="p-4 pb-0">
-        <div className="rounded-xl border border-[#0048C4] bg-[#0048C414] p-6">
-          <div className="flex items-center justify-start gap-2.5 text-[#0048C4]">
+        <div className="rounded-xl border border-primary bg-primary-container p-6">
+          <div className="flex items-center justify-start gap-2.5 text-primary">
             <LinearUserAccount className="h-6 w-6" />
             <Typography as="p" variant="body" size="large" className="m-0 font-medium">
               ملاحظات در تایید هویت
             </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
             برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
           </Typography>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
             شماره همراه فعال:{" "}
-            <Typography as="span" variant="body" size="large" weight="medium" dir="ltr" className="text-[#11A366]">
+            <Typography as="span" variant="body" size="large" weight="medium" dir="ltr" className="text-tertiary">
               {mobile}
             </Typography>
           </Typography>
@@ -821,11 +821,11 @@ export function IdentityPendingState({
       </section>
 
       <section className="p-4">
-        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-on-surface">
           تایید با کد ملی
         </Typography>
 
-        <div className="mt-2 flex gap-1 text-[#808080]">
+        <div className="mt-2 flex gap-1 text-outline">
           <LinearInfoCircle className="h-4.5 w-4.5 shrink-0" />
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs">
             کد ملی باید متعلق به مالک همین شماره همراه باشد.
@@ -833,7 +833,7 @@ export function IdentityPendingState({
         </div>
 
         <TextField
-          className="text-sm text-[#1a1a1a]"
+          className="text-sm text-on-surface"
           containerClassName="mt-4"
           disabled={isPending}
           inputMode="numeric"
@@ -845,7 +845,7 @@ export function IdentityPendingState({
         />
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button
           disabled={!isAuthenticated || !isNationalnumberComplete || isPending}
           fullWidth
@@ -874,15 +874,15 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
   return (
     <>
       <section className="p-4">
-        <div className="rounded-xl border border-[#11A366] bg-[#11A36614] p-5">
-          <div className="flex gap-2 text-[#11A366]">
+        <div className="rounded-xl border border-tertiary bg-tertiary-container p-5">
+          <div className="flex gap-2 text-tertiary">
             <LinearUserConfirmation className="h-6 w-6" />
             <Typography as="p" variant="body" size="large" className="m-0">
               هویت شما تایید شده است
             </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-on-surface-var">
             احراز هویت شما در
             {" "}<Typography as="span" variant="body" size="large" weight="medium" className="">بهمن 1401</Typography> {" "}
             با موفقیت انجام شده است.
@@ -890,15 +890,15 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
         </div>
       </section>
 
-      <div className="mt-3 h-0.5 bg-[#f0f0f0]" />
+      <div className="mt-3 h-px bg-outline-var" />
 
       <section className="p-4">
-        <Typography as="h2" variant="title" size="medium" className="m-0 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" className="m-0 text-on-surface">
           مالکیت سیم‌کارت
         </Typography>
 
-        <div className="mt-2 flex items-start gap-1 text-[#808080]">
-          <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-[#4D4D4D]" />
+        <div className="mt-2 flex items-start gap-1 text-outline">
+          <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-on-surface-var" />
           <Typography as="p" variant="body" size="small" weight="regular" className="">
             در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
             <br />
@@ -939,7 +939,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
             return (
               <label
-                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-[#0048c440]"
+                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-primary/25"
                 key={reason.id}
               >
                 <input
@@ -951,7 +951,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
                   value={reason.id}
                 />
 
-                <Typography as="span" variant="body" size="large" weight="regular" className="text-[#1a1a1a]">
+                <Typography as="span" variant="body" size="large" weight="regular" className="text-on-surface">
                   {reason.label}
                 </Typography>
 
@@ -962,7 +962,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
         </div>
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
         <Button
           fullWidth
           onClick={onSubmit}
@@ -979,7 +979,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
 export function EmptyMessage({ text }: { text: string }) {
   return (
-    <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 flex min-h-0 w-full flex-1 items-center justify-center bg-white px-4 text-center text-sm font-medium text-[#808080]">
+    <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 flex min-h-0 w-full flex-1 items-center justify-center bg-surface-container-lowest px-4 text-center text-sm font-medium text-outline">
       {text}
     </Typography>
   );
@@ -987,7 +987,7 @@ export function EmptyMessage({ text }: { text: string }) {
 
 export function AccountProfileSkeleton() {
   return (
-    <div aria-label="در حال دریافت مشخصات" className="bg-white pb-24">
+    <div aria-label="در حال دریافت مشخصات" className="bg-surface-container-lowest pb-24">
       <section className="flex flex-col items-center px-4 pt-4">
         <AccountSkeletonBlock className="h-[100px] w-[100px] rounded-full" />
         <AccountSkeletonBlock className="mt-3 h-4 w-28" />
@@ -998,7 +998,7 @@ export function AccountProfileSkeleton() {
         <ProfileFieldSkeleton />
       </section>
 
-      <div className="mt-4 h-4 bg-[#f0f0f0]" />
+      <div className="mt-4 h-4 bg-surface-container" />
 
       <section className="space-y-6 px-4 pt-4">
         <ProfileFieldSkeleton />
@@ -1006,7 +1006,7 @@ export function AccountProfileSkeleton() {
         <ProfileFieldSkeleton />
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <AccountSkeletonBlock className="h-10 w-full rounded-lg" />
       </div>
     </div>
@@ -1023,7 +1023,7 @@ function ProfileFieldSkeleton() {
 
 export function AccountLoadingState({ text }: { text: string }) {
   return (
-    <div className="space-y-3 bg-white px-4 py-5" aria-label={text}>
+    <div className="space-y-3 bg-surface-container-lowest px-4 py-5" aria-label={text}>
       <AccountSkeletonBlock className="ml-auto h-5 w-32" />
       <AccountSkeletonBlock className="h-14 w-full" />
       <AccountSkeletonBlock className="h-14 w-full" />
@@ -1063,7 +1063,7 @@ export function WalletPageSkeleton() {
         <AccountSkeletonBlock className="h-14 w-14 rounded-full" />
       </div>
 
-      <div className="-mx-3 border-t border-[#f0f0f0]" />
+      <div className="-mx-3 border-t border-outline-var" />
 
       {/* Increase credit header */}
       <div className="flex items-center gap-2">
@@ -1096,7 +1096,7 @@ export function PaymentHistorySkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, index) => (
         <article
           key={index}
-          className="border-b border-[#f0f0f0] bg-white p-4 flex flex-col gap-y-3 text-right"
+          className="border-b border-outline-var bg-surface-container-lowest p-4 flex flex-col gap-y-3 text-right"
         >
           {Array.from({ length: 4 }).map((_, rowIndex) => (
             <div key={rowIndex} className="flex items-center justify-between py-1.5 gap-4">
@@ -1124,7 +1124,7 @@ export function AccountNotesSkeleton({ count = 3 }: { count?: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <article className="h-[137px] border-b border-[#f0f0f0] bg-white px-4 py-4" key={index}>
+        <article className="h-[137px] border-b border-outline-var bg-surface-container-lowest px-4 py-4" key={index}>
           <div className="flex h-10 items-center justify-end gap-3">
             <AccountSkeletonBlock className="h-5 w-5 shrink-0" />
             <AccountSkeletonBlock className="h-5 w-36" />
@@ -1158,7 +1158,7 @@ export function AccountRetryState({
 
   return (
     <>
-      <div className="fixed inset-0 z-[999] bg-white">
+      <div className="fixed inset-0 z-[999] bg-surface-container-lowest">
         <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
       </div>
       <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
@@ -1203,15 +1203,15 @@ function readPaymentStatus(payment: WalletPayment) {
 function readPaymentStatusColor(payment: WalletPayment) {
   const status = String(payment.status ?? "");
 
-  if (["1", "paid", "success"].includes(status)) {
-    return "#11a366";
+  if (["1", "success", "paid", "ok"].includes(status)) {
+    return "var(--tertiary)";
   }
 
   if (["0", "failed", "error"].includes(status)) {
-    return "#EE3623";
+    return "var(--error)";
   }
 
-  return "#1a1a1a";
+  return "var(--on-surface)";
 }
 
 function formatPaymentDate(value?: string) {
@@ -1230,7 +1230,7 @@ function formatPaymentDate(value?: string) {
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <TextField
-      className="text-sm text-[#b3b3b3] disabled:cursor-default"
+      className="text-sm text-outline disabled:cursor-default"
       disabled
       forceLabel
       highlightWhenFilled={false}
@@ -1242,7 +1242,7 @@ function ReadonlyField({ label, value }: { label: string; value: string }) {
 
 export function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
   return (
-    <article className="border-b border-[#f0f0f0] bg-white p-4 flex flex-col gap-y-2 text-right">
+    <article className="border-b border-outline-var bg-surface-container-lowest p-4 flex flex-col gap-y-2 text-right">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
@@ -1250,7 +1250,7 @@ export function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
       />
 
       <PaymentHistoryRow
-        icon={<AdCardTomanIcon className="h-6 w-6 text-[#4D4D4D]" />}
+        icon={<AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />}
         label="هزینه"
         value={formatMoney(payment.price ?? 0)}
       />
@@ -1273,7 +1273,7 @@ function PaymentHistoryRow({
   icon,
   label,
   value,
-  valueColor = "#1a1a1a",
+  valueColor = "var(--on-surface)",
 }: {
   icon?: React.ReactNode;
   isLast?: boolean;
@@ -1283,7 +1283,7 @@ function PaymentHistoryRow({
 }) {
   return (
     <div className={`flex items-center justify-between py-2 gap-4`}>
-      <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 font-medium leading-5 text-[#808080]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 font-medium leading-5 text-outline">
         {label}
       </Typography>
 

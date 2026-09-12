@@ -19,21 +19,21 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo={adManagementPaths.statistics}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="جزییات آمار آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <section className="h-[104px] bg-white px-4 py-4" aria-label={ad.title}>
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
+        <section className="h-[104px] bg-surface-container-lowest px-4 py-4" aria-label={ad.title}>
           <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
               <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5">{ad.title}</Typography>
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs font-normal leading-4 text-[#808080]">{ad.timeAndLocation}</Typography>
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs font-normal leading-4 text-outline">{ad.timeAndLocation}</Typography>
             </div>
             <div
               aria-hidden="true"
@@ -43,10 +43,10 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
           </div>
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
         {chartSections.map((section, index) => (
           <div key={section.title}>
-            {index > 0 ? <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" /> : null}
+            {index > 0 ? <div className="h-2 bg-surface-container" aria-hidden="true" /> : null}
             <StatisticsChart
               label={section.label}
               title={section.title}
@@ -61,21 +61,21 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
 
 function StatisticsChart({ label, title, value }: { label: string; title: string; value: string }) {
   return (
-    <section className="h-[283px] bg-[#fafafa] px-4 py-4" aria-label={title}>
+    <section className="h-[283px] bg-surface-container-low px-4 py-4" aria-label={title}>
       <div className="flex h-12 items-center justify-end [direction:ltr]">
         <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-          <TrendIcon className="h-6 w-6 text-[#4d4d4d]" />
+          <TrendIcon className="h-6 w-6 text-on-surface-var" />
           {title}
         </Typography>
       </div>
 
       <div className="mt-4 h-[187px]">
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{label}</Typography>
-          <strong className="rounded bg-[#edf0fb] px-2 text-base font-medium leading-6 text-[#002099]">{value}</strong>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-on-surface-var">{label}</Typography>
+          <strong className="rounded bg-primary-container px-2 text-base font-medium leading-6 text-primary">{value}</strong>
         </div>
-        <div className="mx-auto mt-2 flex h-[155px] w-full items-center justify-center border-b border-[#cccccc] text-center">
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+        <div className="mx-auto mt-2 flex h-[155px] w-full items-center justify-center border-b border-outline-var text-center">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
             داده نموداری از سرور دریافت نشده است.
           </Typography>
         </div>

@@ -53,5 +53,5 @@
   width: 1px;
   height: 16px;
   margin: 0 8px -3px;
-  background: #cccccc;
+  background: var(--color-outline-var);
 }

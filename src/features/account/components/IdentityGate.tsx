@@ -24,21 +24,21 @@ function IdentityRequiredIcon() {
 function IdentityRequiredPage({ title }: { title: string }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account" title={title} />
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center bg-white px-6 pb-20 text-center">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center bg-surface-container-lowest px-6 pb-20 text-center">
         <IdentityRequiredIcon />
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-on-surface">
           احراز هویت مورد نیاز است!
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[310px] text-sm font-normal leading-6 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[310px] text-sm font-normal leading-6 text-on-surface-var">
           برای دسترسی به این بخش، ابتدا باید احراز هویت خود را تکمیل کنید. احراز هویت به افزایش امنیت حساب کاربری و فعال‌سازی امکانات سامانه کمک می‌کند.
         </Typography>
         <Button
           unstyled
-          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
+          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary"
           onClick={() => navigateTo("/account/identity?required=1")}
           type="button"
         >

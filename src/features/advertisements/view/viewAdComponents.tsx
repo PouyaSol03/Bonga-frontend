@@ -64,7 +64,7 @@ export function ViewAdTopBar({
       actions={actionIcons.map((icon) => ({
         icon: (
           <ViewAdIcon
-            className={icon === "bookmark" && bookmarked ? "text-[#1a1a1a]" : ""}
+            className={icon === "bookmark" && bookmarked ? "text-on-surface" : ""}
             filled={icon === "bookmark" && bookmarked}
             name={icon}
           />
@@ -106,10 +106,10 @@ export function DetailSection({
   title: string;
 }) {
   return (
-    <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
+    <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4">
       <div className="flex h-6 items-center justify-end [direction:ltr]">
         <Typography as="h2" variant="title" size="medium" weight="semibold"
-          className={`m-0 text-right text-lg font-semibold leading-6 ${mutedTitle ? "text-[#808080]" : "text-[#1a1a1a]"
+          className={`m-0 text-right text-lg font-semibold leading-6 ${mutedTitle ? "text-outline" : "text-on-surface"
             }`}
         >
           {title}
@@ -129,7 +129,7 @@ export function MoreLink({
 }) {
   return (
     <RouteLink
-      className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-1 px-4 text-xs font-medium leading-4 text-[#0048c4] no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-1 px-4 text-xs font-medium leading-4 text-primary no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
       to={to}
     >
       <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
@@ -149,7 +149,7 @@ export function MoreButton({
 }) {
   return (
     <Button unstyled
-      className="mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      className="mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
       onClick={onClick}
       type="button"
     >
@@ -208,7 +208,7 @@ export function AccommodationRatingBanner({
         {[1, 2, 3, 4, 5].map((star) => (
           <LinearStar
             aria-hidden="true"
-            className={`h-5 w-5 ${star <= normalizedCount ? "text-[#ffb100]" : "text-[#d9d9d9]"}`}
+            className={`h-5 w-5 ${star <= normalizedCount ? "text-warning" : "text-outline-var"}`}
             innerColor={star <= normalizedCount ? "currentColor" : "transparent"}
             key={star}
           />
@@ -240,7 +240,7 @@ export function FormattedDetailValueView({
           variant="label"
           size="large"
           weight="semibold"
-          className={tone === "danger" ? "text-[#ff3b30]" : "text-[#1a1a1a]"}
+          className={tone === "danger" ? "text-error" : "text-on-surface"}
         >
           {numPart}
         </Typography>
@@ -249,7 +249,7 @@ export function FormattedDetailValueView({
           variant="label"
           size="small"
           weight="medium"
-          className={tone === "danger" ? "text-[#ff3b30]" : "text-[#1a1a1a]"}
+          className={tone === "danger" ? "text-error" : "text-on-surface"}
         >
           {unitPart}
         </Typography>
@@ -263,7 +263,7 @@ export function FormattedDetailValueView({
       variant="label"
       size="large"
       weight="semibold"
-      className={`${tone === "danger" ? "text-[#ff3b30]" : "text-[#1a1a1a]"} ${className}`}
+      className={`${tone === "danger" ? "text-error" : "text-on-surface"} ${className}`}
     >
       {text}
     </Typography>
@@ -305,7 +305,7 @@ export function PropertyGrid({
         return (
           <div className="flex min-w-0 items-start gap-2" key={`${item.icon}-${item.label}-${item.value}`}>
             <DetailItemIcon
-              className="h-6 w-6 shrink-0 text-[#4D4D4D]"
+              className="h-6 w-6 shrink-0 text-on-surface-var"
               item={item}
             />
             <div className="min-w-0 text-right">
@@ -315,7 +315,7 @@ export function PropertyGrid({
                     {[1, 2, 3, 4, 5].map((star) => (
                       <LinearStar
                         aria-hidden="true"
-                        className={`h-4 w-4 ${star <= starCount ? "text-[#ffb100]" : "text-[#d9d9d9]"}`}
+                        className={`h-4 w-4 ${star <= starCount ? "text-warning" : "text-outline-var"}`}
                         innerColor={star <= starCount ? "currentColor" : "transparent"}
                         key={star}
                       />
@@ -333,7 +333,7 @@ export function PropertyGrid({
                     variant="label"
                     size="small"
                     weight="medium"
-                    className="text-[#808080]"
+                    className="text-outline"
                   >
                     {item.inlineNote}
                   </Typography>
@@ -344,14 +344,14 @@ export function PropertyGrid({
                     variant="label"
                     size="small"
                     weight="medium"
-                    className="rounded-md bg-[#FF3B3014] px-2 py-1 text-[#FF3B30]"
+                    className="rounded-md bg-error-container px-2 py-1 text-error"
                   >
                     {item.statusBadge}
                   </Typography>
                 ) : null}
               </div>
               {withLabels ? (
-                <Typography variant="label" size="small" weight="medium" className="text-[#808080]">
+                <Typography variant="label" size="small" weight="medium" className="text-outline">
                   {item.label}
                 </Typography>
               ) : null}

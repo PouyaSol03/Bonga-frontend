@@ -46,7 +46,7 @@ function BaseErrorState({
     return (
         <div
             dir="rtl"
-            className={`mx-auto flex h-full min-h-0 w-full items-center justify-center bg-white px-6 ${className}`}
+            className={`mx-auto flex h-full min-h-0 w-full items-center justify-center bg-surface-container-lowest px-6 ${className}`}
         >
             <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
                 <img
@@ -55,11 +55,11 @@ function BaseErrorState({
                     className={`mb-4 object-contain ${iconClassName}`}
                 />
 
-                <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-2 text-[#1A1A1A]">
+                <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-2 text-on-surface">
                     {title}
                 </Typography>
 
-                <Typography as="p" variant="body" size="medium" weight="regular" className="mb-6 text-[#4D4D4D]">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="mb-6 text-on-surface-var">
                     {description}
                 </Typography>
 
@@ -69,8 +69,8 @@ function BaseErrorState({
                     disabled={isRetrying}
                     className="
             inline-flex h-10 min-w-[124px] items-center justify-center gap-2 rounded-[10px]
-            bg-[#0048C4] px-5 text-[14px] font-medium text-white
-            transition hover:bg-[#003FAE]
+            bg-primary px-5 text-[14px] font-medium text-on-primary
+            transition hover:opacity-90
             disabled:cursor-not-allowed disabled:opacity-60
           "
                 >
@@ -182,15 +182,16 @@ function AccessDeniedIcon() {
         >
             <path
                 d="M33 4.5 54 12v16.2c0 14.5-8.8 25.2-21 32.1C20.8 53.4 12 42.7 12 28.2V12l21-7.5Z"
-                fill="#E5E7EC"
+                fill="currentColor"
+                className="text-secondary-container"
             />
             <path
                 d="M25.5 29.5v-4.2a7.5 7.5 0 0 1 15 0v4.2"
-                stroke="white"
+                stroke="var(--color-surface-container-lowest)"
                 strokeLinecap="round"
                 strokeWidth="3"
             />
-            <rect x="21" y="28" width="24" height="17" rx="3" fill="white" />
+            <rect x="21" y="28" width="24" height="17" rx="3" fill="var(--color-surface-container-lowest)" />
         </svg>
     );
 }
@@ -198,7 +199,7 @@ function AccessDeniedIcon() {
 export function AccessDeniedState({ onBack }: { onBack: () => void }) {
     return (
         <div
-            className="mx-auto flex h-full min-h-0 w-full items-center justify-center bg-white px-6"
+            className="mx-auto flex h-full min-h-0 w-full items-center justify-center bg-surface-container-lowest px-6"
             dir="rtl"
         >
             <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
@@ -206,18 +207,18 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
                     <AccessDeniedIcon />
                 </div>
 
-                <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+                <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
                     دسترسی به این بخش امکان‌پذیر نیست
                 </Typography>
 
-                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-6 text-[#4d4d4d]">
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-6 text-on-surface-var">
                     شما مجوز استفاده از این بخش را ندارید.
                     <br />
                     در صورت نیاز، با حساب کاربری دارای دسترسی مناسب وارد شوید یا از مدیر سامانه درخواست دسترسی کنید.
                 </Typography>
 
                 <Button unstyled
-                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-medium text-white transition hover:bg-[#003fae]"
+                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-medium text-on-primary transition hover:opacity-90"
                     onClick={onBack}
                     type="button"
                 >

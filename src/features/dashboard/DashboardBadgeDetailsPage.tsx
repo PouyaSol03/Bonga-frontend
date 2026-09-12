@@ -73,28 +73,28 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account/dashboard/ranking"
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         contentClassName="px-1"
         title="جزئیات نشان"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-6 pt-8">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-6 pt-8">
         <div className="mx-auto flex w-[152px] flex-col items-center">
           <img alt="" className="h-[120px] w-[120px] object-contain" src={badgeImage} />
 
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-[#0048c41f] px-3 font-semibold text-[#0048c4]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-primary-container px-3 font-semibold text-primary">
             {badgeName}
           </Typography>
 
           <div className="mt-2 flex h-6 items-center justify-center [direction:ltr]">
             {[0, 1, 2].map((star) => (
               <LinearStar
-                className={`h-6 w-6 ${star < starCount ? "text-[#ffb100]" : "text-[#d8d8d8]"}`}
+                className={`h-6 w-6 ${star < starCount ? "text-warning" : "text-outline"}`}
                 innerColor="currentColor"
                 key={star}
               />
@@ -103,14 +103,14 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
         </div>
 
         <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1A1A1A] text-sm">پیشرفت نشان</Typography>
-          <strong className="text-2xl font-medium text-[#1a1a1a]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface text-sm">پیشرفت نشان</Typography>
+          <strong className="text-2xl font-medium text-on-surface">
             {metricValue}
           </strong>
         </Typography>
 
         {badgesQuery.isLoading ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">در حال دریافت جزئیات نشان...</Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-outline">در حال دریافت جزئیات نشان...</Typography>
         ) : levels.length > 0 ? (
           <div className="mt-4 space-y-4">
             {levels.map((level) => (
@@ -118,7 +118,7 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
             ))}
           </div>
         ) : (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 mt-6 w-full rounded-2xl border border-[#f0f0f0] px-4 py-6 text-center text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 mt-6 w-full rounded-2xl border border-outline-var px-4 py-6 text-center text-outline">
             جزئیات پیشرفت این نشان از سرور دریافت نشده است.
           </Typography>
         )}
@@ -136,39 +136,39 @@ function BadgeLevelCard({
 }: BadgeProgressLevel) {
   const progressClassName =
     variant === "complete"
-      ? "bg-[#11a366]"
+      ? "bg-tertiary"
       : variant === "current"
-        ? "bg-[#ffb100]"
-        : "bg-[#a6a6a6]";
+        ? "bg-warning"
+        : "bg-surface-container-high";
 
   const trackClassName =
     variant === "complete"
-      ? "bg-[#11a36629]"
+      ? "bg-tertiary-container/30"
       : variant === "current"
-        ? "bg-[#ff8d0029]"
-        : "bg-[#e5e5e5]";
+        ? "bg-warning-container/30"
+        : "bg-surface-container";
 
   const doneClassName =
     variant === "complete"
-      ? "text-[#11a366]"
+      ? "text-tertiary"
       : variant === "current"
-        ? "text-[#FFB100]"
-        : "text-[#808080]";
+        ? "text-warning"
+        : "text-outline";
 
   return (
-    <section className="h-[72px] rounded-2xl border border-[#f0f0f0] bg-white px-4 py-4">
+    <section className="h-[72px] rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-4">
       <div className="flex h-5 items-center justify-between text-sm font-medium leading-5 [direction:ltr]">
         {total ? (
           <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1 [direction:ltr]">
             <Typography as="span" variant="body" size="medium" weight="regular" className={doneClassName}>{done}</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">/</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080]">{total}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">/</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">{total}</Typography>
           </Typography>
         ) : (
           <Typography as="span" variant="body" size="medium" weight="regular" className={doneClassName}>{done}</Typography>
         )}
 
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d] [direction:rtl]">{title}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var [direction:rtl]">{title}</Typography>
       </div>
 
       <div className={`relative mt-4 h-1 w-full overflow-hidden rounded-full ${trackClassName}`}>

@@ -69,8 +69,8 @@ export function Section({
   return (
     <section
       className={desktop
-        ? "rounded-xl border border-[#e1e7f0] bg-white p-4 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
-        : "border-b-[10px] border-[#f0f0f0] bg-white p-4 text-right last:border-b-0 [direction:rtl]"}
+        ? "rounded-xl border border-outline-var bg-surface-container-lowest p-4 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
+        : "border-b-[10px] border-outline-var bg-surface-container-lowest p-4 text-right last:border-b-0 [direction:rtl]"}
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
@@ -88,7 +88,7 @@ export function Section({
             <LinearInformation className="h-6 w-6 text-on-surface-var" />
           )}
 
-          <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
+          <Typography variant="label" size="large" weight="medium" className="text-on-surface">
             {title}
           </Typography>
         </div>
@@ -109,7 +109,7 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
   return (
     <Button unstyled
       aria-label="پاک کردن"
-      className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
+      className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 hover:bg-surface-container active:bg-surface-container-high"
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -216,7 +216,7 @@ export function LocationBox({ value, label }: { value: string; label: string }) 
       placeholder="تعیین مکان"
       value={value}
       leadingSlot={
-        <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+        <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5 shrink-0 text-on-surface-var" />
       }
     />
   );
@@ -297,12 +297,12 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between border-t border-[#cccccc] py-5 [direction:ltr]">
+    <div className="flex items-center justify-between border-t border-outline-var py-5 [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
       <div className="flex gap-2">
         <LinearInfoCircle className="w-6 h-6 text-on-surface-var" />
-        <Typography as="span" variant="title" size="medium" weight="medium" className="text-[#1a1a1a] [direction:rtl]">
+        <Typography as="span" variant="title" size="medium" weight="medium" className="text-on-surface [direction:rtl]">
           {label}
         </Typography>
       </div>
@@ -325,8 +325,8 @@ export function Footer({
 
   return (
     <footer className={desktop
-      ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
-      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]"}>
+      ? "flex shrink-0 justify-end gap-3 border-t border-outline-var bg-surface-container-lowest px-6 py-4 [direction:ltr]"
+      : "grid shrink-0 grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]"}>
       <Button
         className={desktop ? "w-48" : ""}
         disabled={disabled}
@@ -364,21 +364,20 @@ export function MoreButton({
 
   return (
     <Button unstyled
-      className="mx-auto mt-4 flex items-center justify-center gap-1.5 rounded-full py-2.5 !text-sm !font-medium leading-5 text-[#0048C4] active:bg-[#0048c40f]"
+      className="mx-auto mt-4 flex items-center justify-center gap-1.5 rounded-full py-2.5 !text-sm !font-medium leading-5 text-primary active:bg-primary-container/20"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="label" size="medium" className="text-[#0048c4]" style={{ color: "#0048c4" }}>
+      <Typography as="span" variant="label" size="medium" className="text-primary">
         {expanded ? "مشاهده کمتر" : `مشاهده ${countLabel} مورد بیشتر`}
       </Typography>
 
       <motion.div
         animate={{ rotate: expanded ? 180 : 0 }}
         transition={{ duration: 0.24, ease: "easeInOut" }}
-        className="inline-flex items-center justify-center shrink-0 text-[#0048c4]"
-        style={{ color: "#0048c4" }}
+        className="inline-flex items-center justify-center shrink-0 text-primary"
       >
-        <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0 text-[#0048c4]" style={{ color: "#0048c4" }} />
+        <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 shrink-0 text-primary" />
       </motion.div>
     </Button>
   );
@@ -397,7 +396,7 @@ export function CompactToggle({
     <div className="flex h-14 items-center justify-between [direction:ltr]">
       <SwitchButton checked={checked} onChange={onChange} />
 
-      <Typography as="span" variant="label" size="large" weight="semibold" className="text-right text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="label" size="large" weight="semibold" className="text-right text-base font-semibold leading-6 text-on-surface [direction:rtl]">
         {label}
       </Typography>
     </div>
@@ -415,8 +414,8 @@ export function MoreFeaturesFooter({
 
   return (
     <footer className={desktop
-      ? "flex shrink-0 justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
-      : "grid shrink-0 grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]"}>
+      ? "flex shrink-0 justify-end gap-3 border-t border-outline-var bg-surface-container-lowest px-6 py-4 [direction:ltr]"
+      : "grid shrink-0 grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)] [direction:ltr]"}>
       <Button
         className={desktop ? "w-48" : ""}
         fullWidth={!desktop}

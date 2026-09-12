@@ -163,13 +163,13 @@ export function AdIncreaseVisitsPage() {
   }
 
   return (
-    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
-      <TopBar backTo={backTo} className="bg-[#f0f0f0]" title="افزایش بازدید" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[76px]">
+    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]" variant="flush">
+      <TopBar backTo={backTo} className="bg-surface-container" title="افزایش بازدید" />
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[76px]">
         <AdTariffOptionsList onToggle={toggleTariff} options={tariffOptions} selectedIds={selectedTariffs} />
       </main>
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <Button unstyled className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-60" disabled={selectedProducts.length === 0} onClick={() => setStep("checkout")} type="button">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <Button unstyled className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary disabled:opacity-60" disabled={selectedProducts.length === 0} onClick={() => setStep("checkout")} type="button">
           تکمیل خرید
         </Button>
       </footer>
@@ -249,11 +249,11 @@ function readEntityId(entity: unknown) {
 
 function StatusPage({ backTo, message, onRetry }: { backTo: string; message: string; onRetry?: () => void }) {
   return (
-    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]" variant="flush">
+    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]" variant="flush">
       <TopBar backTo={backTo} title="افزایش بازدید" />
       <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
-        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
-        {onRetry ? <Button unstyled className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white" onClick={onRetry} type="button">تلاش دوباره</Button> : <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />}
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-on-surface-var">{message}</Typography>
+        {onRetry ? <Button unstyled className="mt-4 h-10 rounded-lg bg-primary px-5 text-sm font-medium text-on-primary" onClick={onRetry} type="button">تلاش دوباره</Button> : <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-primary-container border-t-primary" />}
       </main>
     </PageFrame>
   );

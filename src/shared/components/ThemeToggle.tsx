@@ -46,18 +46,18 @@ export function ThemeToggleRow() {
 
   return (
     <div className="flex items-center justify-between py-2 px-1">
-      <div className="flex items-center gap-2.5 text-[#1a1a1a]">
+      <div className="flex items-center gap-2.5 text-on-surface">
         {isDark ? (
-          <MoonIcon className="h-5 w-5 text-[#ffaa33]" />
+          <MoonIcon className="h-5 w-5 text-warning" />
         ) : (
-          <SunIcon className="h-5 w-5 text-[#ffaa33]" />
+          <SunIcon className="h-5 w-5 text-warning" />
         )}
         <Typography as="span" variant="body" size="medium" weight="medium">
           حالت نمایش
         </Typography>
       </div>
 
-      <div className="inline-flex rounded-lg border border-[#e5e5e5] bg-[#f5f5f5] p-0.5" dir="rtl">
+      <div className="inline-flex rounded-lg border border-outline-var bg-surface-container p-0.5" dir="rtl">
         {options.map((opt) => {
           const isSelected = theme === opt.id;
           return (
@@ -67,8 +67,8 @@ export function ThemeToggleRow() {
               onClick={() => setTheme(opt.id)}
               className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
                 isSelected
-                  ? "bg-white text-[#0048c4] shadow-sm"
-                  : "text-[#666666] hover:text-[#1a1a1a]"
+                  ? "bg-surface-container-lowest text-primary shadow-sm"
+                  : "text-on-surface-var hover:text-on-surface"
               }`}
               type="button"
             >

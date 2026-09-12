@@ -52,31 +52,31 @@ const toneClasses: Record<
   { bg: string; icon: string; ring: string }
 > = {
   amber: {
-    bg: "bg-[#ffead3]",
-    icon: "text-[#ff6b1a]",
-    ring: "ring-[#ffead3]",
+    bg: "bg-warning-container/40",
+    icon: "text-warning",
+    ring: "ring-warning-container/40",
   },
   blue: {
-    bg: "bg-[#d9defb]",
-    icon: "text-[#0048c4]",
-    ring: "ring-[#d9defb]",
+    bg: "bg-primary-container",
+    icon: "text-primary",
+    ring: "ring-primary-container",
   },
   green: {
-    bg: "bg-[#d7f5e9]",
-    icon: "text-[#11a366]",
-    ring: "ring-[#d7f5e9]",
+    bg: "bg-tertiary-container/30",
+    icon: "text-tertiary",
+    ring: "ring-tertiary-container/30",
   },
   neutral: {
-    bg: "bg-[#e7e9f2]",
-    icon: "text-[#334466]",
-    ring: "ring-[#e7e9f2]",
+    bg: "bg-surface-container-high",
+    icon: "text-on-surface-var",
+    ring: "ring-surface-container-high",
   },
 };
 
 const trendClasses = {
-  negative: "text-[#c11004]",
-  neutral: "text-[#808080]",
-  positive: "text-[#11a366]",
+  negative: "text-error",
+  neutral: "text-outline",
+  positive: "text-tertiary",
 };
 
 const chartNameMap: Record<string, string> = {
@@ -287,10 +287,10 @@ export function DashboardHomeOverview({
   );
 
   return (
-    <div className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4">
+    <div className="grid min-w-0 gap-4 overflow-x-hidden bg-surface-container-low p-4">
       {dashboardError ? (
         <div
-          className="rounded-xl border border-[#f3c5c1] bg-[#fff3f2] px-4 py-3 text-sm text-[#c11004]"
+          className="rounded-xl border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error"
           role="alert"
         >
           {dashboardError}
@@ -394,7 +394,7 @@ export function DashboardHomeOverview({
 }
 
 function DashboardSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
 }
 
 function DashboardHomeOverviewSkeleton() {
@@ -402,12 +402,12 @@ function DashboardHomeOverviewSkeleton() {
     <div
       aria-busy="true"
       aria-label="در حال دریافت اطلاعات داشبورد"
-      className="grid min-w-0 gap-4 overflow-x-hidden bg-[#f0f0f0] p-4"
+      className="grid min-w-0 gap-4 overflow-x-hidden bg-surface-container-low p-4"
       role="status"
     >
       <section className="grid gap-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <article className="rounded-2xl bg-white p-4" key={index}>
+          <article className="rounded-2xl bg-surface-container-lowest p-4" key={index}>
             <div className="flex items-start gap-3">
               <DashboardSkeletonBlock className="h-12 w-12 shrink-0 rounded-xl" />
               <div className="min-w-0 flex-1 space-y-3 pt-1">
@@ -415,7 +415,7 @@ function DashboardHomeOverviewSkeleton() {
                 <DashboardSkeletonBlock className="ml-auto h-7 w-16" />
               </div>
             </div>
-            <div className="mt-5 flex items-center justify-between border-t border-[#f0f0f0] pt-4">
+            <div className="mt-5 flex items-center justify-between border-t border-outline-var pt-4">
               <DashboardSkeletonBlock className="h-4 w-32" />
               <DashboardSkeletonBlock className="h-4 w-12" />
             </div>
@@ -431,7 +431,7 @@ function DashboardHomeOverviewSkeleton() {
       <section className="grid gap-4">
         <DashboardChartSkeleton chartClassName="h-[220px]" />
         <DashboardChartSkeleton chartClassName="h-[220px]" />
-        <article className="rounded-2xl bg-white p-4">
+        <article className="rounded-2xl bg-surface-container-lowest p-4">
           <DashboardSkeletonBlock className="ml-auto h-5 w-36" />
           <div className="mt-6 grid grid-cols-2 gap-4">
             <DashboardSkeletonBlock className="h-20 w-full rounded-xl" />
@@ -452,7 +452,7 @@ function DashboardHomeOverviewSkeleton() {
 
 function DashboardChartSkeleton({ chartClassName }: { chartClassName: string }) {
   return (
-    <article className="rounded-2xl bg-white p-4">
+    <article className="rounded-2xl bg-surface-container-lowest p-4">
       <div className="flex items-center justify-between">
         <DashboardSkeletonBlock className="h-5 w-36" />
         <DashboardSkeletonBlock className="h-7 w-16" />
@@ -480,8 +480,8 @@ function AgencyRankingScoreCard({
   const rankingRows = dashboard?.ranking.topEntities ?? [];
 
   return (
-    <article className="rounded-2xl bg-white p-4">
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-[#1a1a1a]">
+    <article className="rounded-2xl bg-surface-container-lowest p-4">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-on-surface">
         رتبه و امتیاز آژانس
       </Typography>
 
@@ -499,29 +499,29 @@ function AgencyRankingScoreCard({
       </div>
 
       <div className="mt-5 grid gap-2">
-        <div className="flex justify-between items-center text-[#4D4D4D] px-2">
+        <div className="flex justify-between items-center text-on-surface-var px-2">
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">۱۰ آژانس برتر</Typography>
           <Typography as="span" variant="body" size="small" weight="regular" className="text-xs">امتیاز</Typography>
         </div>
 
-        <div className="w-[95%] bg-[#CCCCCC] h-px mx-auto" />
+        <div className="w-[95%] bg-outline-var h-px mx-auto" />
 
         {rankingRows.map((agency, index) => (
           <div
-            className="flex p-2 items-center justify-between rounded-xl bg-transparent odd:bg-[#CCCCCC1F] px-3 text-sm font-semibold leading-6"
+            className="flex p-2 items-center justify-between rounded-xl bg-transparent odd:bg-surface-container px-3 text-sm font-semibold leading-6"
             key={agency.entityId || `${agency.rank}-${agency.name}-${index}`}
           >
-            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-right text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-right text-on-surface">
               {formatOptionalNumber(agency.rank)}. {agency.name}
             </Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-sm text-[#11a366]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-sm text-tertiary">
               {formatNumber(agency.totalScore)}
             </Typography>
           </div>
         ))}
 
         {!isLoading && rankingRows.length === 0 ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-outline">
             اطلاعاتی برای آژانس‌های برتر ثبت نشده است.
           </Typography>
         ) : null}
@@ -540,12 +540,12 @@ function AgencyRankMetric({
   value: string;
 }) {
   return (
-    <div className="flex p-4 items-center justify-between gap-2 rounded-2xl bg-[#f7f7f7] px-4">
-      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-[#1a1a1a]">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography>
+    <div className="flex p-4 items-center justify-between gap-2 rounded-2xl bg-surface-container px-4">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-on-surface">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">{icon}</Typography>
         <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{label}</Typography>
       </Typography>
-      <strong className="font-semibold leading-7 text-[#11a366]">
+      <strong className="font-semibold leading-7 text-tertiary">
         {value}
       </strong>
     </div>
@@ -570,9 +570,9 @@ export function ProgressLineChartCard({
   valueSuffix?: string;
 }) {
   return (
-    <article className="overflow-hidden rounded-2xl bg-white p-6">
+    <article className="overflow-hidden rounded-2xl bg-surface-container-lowest p-6">
       <div className="flex items-start justify-between gap-4">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-on-surface">
           {title}
         </Typography>
         <DashboardPeriodControl
@@ -611,8 +611,8 @@ function ScrollableProgressLineChart({
 
   if (data.length === 0) {
     return (
-      <div className="mx-auto mt-7 flex h-[252px] w-full items-center justify-center border-b border-[#e6e6e6] px-6 text-center">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+      <div className="mx-auto mt-7 flex h-[252px] w-full items-center justify-center border-b border-outline-var px-6 text-center">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
           {isLoading
             ? "در حال دریافت اطلاعات نمودار..."
             : "داده نموداری از سرور دریافت نشده است."}
@@ -640,7 +640,7 @@ function ScrollableProgressLineChart({
           <CartesianGrid
             horizontal
             vertical={false}
-            stroke="#d9d9d9"
+            stroke="var(--outline-var)"
             strokeDasharray="4 5"
           />
 
@@ -659,7 +659,7 @@ function ScrollableProgressLineChart({
             axisLine={false}
             tickLine={false}
             tick={{
-              fill: "#808080",
+              fill: "var(--outline)",
               fontSize: 10,
             }}
           />
@@ -667,7 +667,7 @@ function ScrollableProgressLineChart({
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#0048c4"
+            stroke="var(--primary)"
             strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -715,7 +715,7 @@ function ProgressChartDot(props: any) {
             y1={cy + 7}
             x2={cx}
             y2={progressChartMonthGuideY}
-            stroke="#0048c4"
+            stroke="var(--primary)"
             strokeDasharray="5 4"
           />
 
@@ -732,13 +732,13 @@ function ProgressChartDot(props: any) {
               h-11
               a8 8 0 0 1-8-8
               v-14Z`}
-            fill="#4d4d4d"
+            fill="var(--on-surface-var)"
           />
 
           <text
             x={cx}
             y={cy - 35}
-            fill="#ffffff"
+            fill="var(--surface-container-lowest)"
             fontSize="11"
             textAnchor="middle"
           >
@@ -751,8 +751,8 @@ function ProgressChartDot(props: any) {
         cx={cx}
         cy={cy}
         r={isSelected ? 6 : 5}
-        fill={isSelected ? "#0048c4" : "#ffffff"}
-        stroke="#0048c4"
+        fill={isSelected ? "var(--primary)" : "var(--surface-container-lowest)"}
+        stroke="var(--primary)"
         strokeWidth="2"
         tabIndex={-1}
         focusable="false"
@@ -774,7 +774,7 @@ function ProgressMonthTick(props: any) {
   return (
     <g transform={`translate(${x}, ${y + 28})`}>
       <text
-        fill="#4d4d4d"
+        fill="var(--on-surface-var)"
         fontSize="12"
         fontWeight="500"
         textAnchor="start"
@@ -803,7 +803,7 @@ function DashboardPeriodControl({
         variant="label"
         size="small"
         weight="medium"
-        className="text-xs font-medium text-[#1a1a1a]"
+        className="text-xs font-medium text-on-surface"
       >
         {selectedPeriod === "year" ? "در سال" : "در ماه"}
       </Typography>
@@ -811,10 +811,10 @@ function DashboardPeriodControl({
   }
 
   return (
-    <label className="relative flex h-7 items-center rounded-lg bg-transparent transition hover:bg-[#f5f7fb]">
+    <label className="relative flex h-7 items-center rounded-lg bg-transparent transition hover:bg-surface-container-high">
       <select
         aria-label="بازه زمانی داشبورد آژانس"
-        className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-[#1a1a1a] outline-none"
+        className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-on-surface outline-none"
         onChange={(event) => onChange(event.target.value as DashboardPeriod)}
         value={selectedPeriod}
       >
@@ -823,7 +823,7 @@ function DashboardPeriodControl({
       </select>
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute left-2 h-4 w-4 text-[#4d4d4d]"
+        className="pointer-events-none absolute left-2 h-4 w-4 text-on-surface-var"
         fill="none"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
@@ -854,14 +854,14 @@ function PublishedAgencyAdsCard({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const pieContainerRef = useRef<HTMLDivElement | null>(null);
   const typeColors: Record<string, string> = {
-    sale: "#4C6BD8",
-    rent: "#7F98E6",
-    partnership: "#B2C0F4",
+    partnership: "var(--primary-800)",
+    rent: "var(--primary-700)",
+    sale: "var(--primary-600)",
   };
   const pieData: DashboardAdTypeDatum[] =
     (dashboard?.publishedAdvertises.total ?? 0) > 0
       ? (dashboard?.publishedAdvertises.breakdown ?? []).map((item, index) => ({
-          color: typeColors[item.type] ?? ["#4C6BD8", "#7F98E6", "#B2C0F4"][index % 3],
+          color: typeColors[item.type] ?? ["var(--primary-600)", "var(--primary-700)", "var(--primary-800)"][index % 3],
           name:
             item.label ||
             (item.type === "sale"
@@ -915,10 +915,10 @@ function PublishedAgencyAdsCard({
   }, [selectedIndex]);
 
   return (
-    <article className="rounded-2xl bg-white p-4">
+    <article className="rounded-2xl bg-surface-container-lowest p-4">
       <div className="mb-7 grid gap-3">
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
             آگهی منتشر شده در آژانس
           </Typography>
           <DashboardPeriodControl
@@ -927,10 +927,10 @@ function PublishedAgencyAdsCard({
           />
         </div>
         <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-primary">
             {isLoading ? "—" : dashboard ? formatNumber(dashboard.publishedAdvertises.total) : "—"}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-on-surface-var">
             آگهی منتشر شده
           </Typography>
         </div>
@@ -942,8 +942,8 @@ function PublishedAgencyAdsCard({
         ref={pieContainerRef}
       >
         {pieData.length === 0 ? (
-          <div className="flex h-full items-center justify-center rounded-full border border-[#e6e6e6] px-5 text-center [direction:rtl]">
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+          <div className="flex h-full items-center justify-center rounded-full border border-outline-var px-5 text-center [direction:rtl]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
               {isLoading ? "در حال دریافت اطلاعات..." : "داده‌ای دریافت نشده است."}
             </Typography>
           </div>
@@ -960,19 +960,19 @@ function PublishedAgencyAdsCard({
                 y1={selectedGeometry.lineStartY}
                 x2={selectedGeometry.lineEndX}
                 y2={selectedGeometry.lineEndY}
-                stroke="#1a1a1a"
+                stroke="var(--on-surface)"
                 strokeLinecap="round"
                 strokeWidth="1.6"
               />
               <circle
                 cx={selectedGeometry.dotX}
                 cy={selectedGeometry.dotY}
-                fill="#1a1a1a"
+                fill="var(--on-surface)"
                 r="6"
               />
             </svg>
             <div
-              className="absolute z-20 grid place-items-center rounded-lg bg-[#333333] text-center text-xs font-semibold leading-4 text-white shadow-[0_8px_18px_rgba(26,26,26,0.18)]"
+              className="absolute z-20 grid place-items-center rounded-lg bg-inverse-surface text-center text-xs font-semibold leading-4 text-inverse-on-surface shadow-md"
               style={{
                 height: dashboardPieTooltipHeight,
                 left: selectedGeometry.tooltipLeft,
@@ -1143,7 +1143,7 @@ function ConsultantBarTooltip({ active, payload }: any) {
   const label = chartNameMap[String(item.dataKey)] ?? item.name;
 
   return (
-    <div className="rounded-lg bg-[#595959] px-2.5 py-2 text-center text-xs font-bold leading-4 text-white shadow-none [direction:rtl]">
+    <div className="rounded-lg bg-inverse-surface px-2.5 py-2 text-center text-xs font-bold leading-4 text-inverse-on-surface shadow-none [direction:rtl]">
       {formatNumber(String(item.value))} {label}
     </div>
   );
@@ -1220,12 +1220,12 @@ function ConsultantBarShape(props: any) {
               h-19
               a8 8 0 0 1-8-8
               v-14Z`}
-            fill="#595959"
+            fill="var(--on-surface-var)"
           />
           <text
             x={centerX}
             y={tooltipY + 13}
-            fill="#ffffff"
+            fill="var(--surface-container-lowest)"
             fontSize="11"
             fontWeight="700"
             textAnchor="middle"
@@ -1287,10 +1287,10 @@ function ConsultantActivityCard({
   }
 
   return (
-    <article className="overflow-hidden rounded-2xl bg-white p-4">
+    <article className="overflow-hidden rounded-2xl bg-surface-container-lowest p-4">
       <div className="mb-7 grid gap-2">
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
             فعالیت مشاورین
           </Typography>
           <DashboardPeriodControl
@@ -1299,10 +1299,10 @@ function ConsultantActivityCard({
           />
         </div>
         <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-[#0048c4]">
+          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-primary">
             {isLoading ? "—" : dashboard ? formatNumber(registeredAds) : "—"}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-[#4d4d4d]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-on-surface-var">
             آگهی ثبت شده
           </Typography>
         </div>
@@ -1311,7 +1311,7 @@ function ConsultantActivityCard({
       <div className="mb-4 flex items-center justify-between px-1">
         <Button unstyled
           aria-label="قبلی"
-          className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition hover:bg-[#f5f7fb]"
+          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition hover:bg-surface-container-high"
           onClick={() => scrollConsultantChart("previous")}
           type="button"
         >
@@ -1321,7 +1321,7 @@ function ConsultantActivityCard({
         </Button>
         <Button unstyled
           aria-label="بعدی"
-          className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition hover:bg-[#f5f7fb]"
+          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition hover:bg-surface-container-high"
           onClick={() => scrollConsultantChart("next")}
           type="button"
         >
@@ -1332,11 +1332,11 @@ function ConsultantActivityCard({
       </div>
 
       {isLoading && chartData.length === 0 ? (
-        <div className="grid h-[240px] place-items-center text-sm text-[#808080]">
+        <div className="grid h-[240px] place-items-center text-sm text-outline">
           در حال دریافت فعالیت مشاورین...
         </div>
       ) : chartData.length === 0 ? (
-        <div className="grid h-[240px] place-items-center text-sm text-[#808080]">
+        <div className="grid h-[240px] place-items-center text-sm text-outline">
           فعالیتی برای مشاوران در این دوره ثبت نشده است.
         </div>
       ) : (
@@ -1357,7 +1357,7 @@ function ConsultantActivityCard({
               >
               <CartesianGrid
                 horizontal
-                stroke="#d9d9d9"
+                stroke="var(--outline-var)"
                 strokeDasharray="5 6"
                 vertical={false}
               />
@@ -1365,7 +1365,7 @@ function ConsultantActivityCard({
                 axisLine={false}
                 dataKey="name"
                 interval={0}
-                tick={{ fill: "#1a1a1a", fontSize: 13, fontWeight: 500 }}
+                tick={{ fill: "var(--on-surface)", fontSize: 13, fontWeight: 500 }}
                 tickLine={false}
                 tickMargin={10}
               />
@@ -1373,7 +1373,7 @@ function ConsultantActivityCard({
                 allowDecimals={false}
                 axisLine={false}
                 domain={[0, "auto"]}
-                tick={{ fill: "#8a8a8a", fontSize: 12 }}
+                tick={{ fill: "var(--outline)", fontSize: 12 }}
                 tickFormatter={(value) => formatNumber(value)}
                 tickLine={false}
                 width={50}
@@ -1393,7 +1393,7 @@ function ConsultantActivityCard({
               <Bar
                 barSize={10}
                 dataKey="ads"
-                fill="#0048c4"
+                fill="var(--primary)"
                 radius={[6, 6, 0, 0]}
                 shape={(props: any) => (
                   <ConsultantBarShape
@@ -1407,7 +1407,7 @@ function ConsultantActivityCard({
               <Bar
                 barSize={10}
                 dataKey="renewals"
-                fill="#11a366"
+                fill="var(--tertiary)"
                 radius={[6, 6, 0, 0]}
                 shape={(props: any) => (
                   <ConsultantBarShape
@@ -1421,7 +1421,7 @@ function ConsultantActivityCard({
               <Bar
                 barSize={10}
                 dataKey="specials"
-                fill="#ffb100"
+                fill="var(--warning)"
                 radius={[6, 6, 0, 0]}
                 shape={(props: any) => (
                   <ConsultantBarShape
@@ -1439,9 +1439,9 @@ function ConsultantActivityCard({
       )}
 
       <div className="mt-7 grid grid-cols-3 gap-4 text-center" dir="rtl">
-        <ConsultantActivityLegendItem color="#0048c4" label="آگهی" />
-        <ConsultantActivityLegendItem color="#11a366" label="بروزرسانی" />
-        <ConsultantActivityLegendItem color="#ffb100" label="ویژه" />
+        <ConsultantActivityLegendItem color="var(--primary)" label="آگهی" />
+        <ConsultantActivityLegendItem color="var(--tertiary)" label="بروزرسانی" />
+        <ConsultantActivityLegendItem color="var(--warning)" label="ویژه" />
       </div>
     </article>
   );
@@ -1452,7 +1452,7 @@ function DashboardMetricCard({ metric }: { metric: DashboardMetric }) {
   const tone = toneClasses[metric.tone];
 
   return (
-    <article className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-none">
+    <article className="flex items-center gap-3 rounded-2xl bg-surface-container-lowest p-4 shadow-none">
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1 ${tone.bg} ${tone.icon} ${tone.ring}`}
       >
@@ -1461,18 +1461,18 @@ function DashboardMetricCard({ metric }: { metric: DashboardMetric }) {
 
       <div className="w-full">
         <div className="flex w-full justify-between items-center">
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-medium leading-6 text-[#4D4D4D]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-medium leading-6 text-on-surface-var">
             {metric.title}
           </Typography>
-          <strong className="font-semibold leading-none text-[#1A1A1A]">
+          <strong className="font-semibold leading-none text-on-surface">
             {metric.value}
           </strong>
         </div>
 
         <div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs font-medium leading-5 text-[#8a8a8a]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs font-medium leading-5 text-outline">
             {metric.descriptionIcon === "clock" ? (
-              <LinearClock className="h-4 w-4 text-[#334466]" />
+              <LinearClock className="h-4 w-4 text-on-surface-var" />
             ) : null}
             {metric.trend ? (
               <Typography as="span" variant="label" size="medium" weight="semibold"
@@ -1508,11 +1508,11 @@ function PublishedAdsLegendItem({
           className="h-2.5 w-2.5 rounded-full"
           style={{ backgroundColor: color }}
         />
-        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-[#4d4d4d] text-nowrap">
+        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-on-surface-var text-nowrap">
           {label}
         </Typography>
       </div>
-      <strong className="text-base font-semibold text-[#1a1a1a]">
+      <strong className="text-base font-semibold text-on-surface">
         {value}
       </strong>
     </div>
@@ -1527,7 +1527,7 @@ function ConsultantActivityLegendItem({
   label: string;
 }) {
   return (
-    <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center justify-center gap-2 text-base font-medium leading-6 text-[#4d4d4d]">
+    <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center justify-center gap-2 text-base font-medium leading-6 text-on-surface-var">
       {label}
       <Typography as="span" variant="body" size="medium" weight="regular"
         aria-hidden="true"

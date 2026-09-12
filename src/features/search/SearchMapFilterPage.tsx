@@ -2695,26 +2695,26 @@ export function AdvertisementFilterPage({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
-      <div className="shrink-0 bg-[#f0f0f0]">
+      <div className="shrink-0 bg-surface-container">
         <TopBar
           backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
-          className="bg-[#f0f0f0]"
+          className="bg-surface-container"
           onBack={() => goBackOrNavigate(getBackToSearchPath(backBasePath))}
           title={title}
         />
 
-        <div className="border-b-8 border-[#f0f0f0] bg-white px-4 py-3">
+        <div className="border-b-8 border-surface-container bg-surface-container-lowest px-4 py-3">
           <Button unstyled
             className="flex w-full items-center justify-between gap-3 text-right"
             dir="rtl"
             onClick={openCategoryPicker}
             type="button"
           >
-            <div className="flex items-center gap-2 text-sm font-medium text-[#1a1a1a]">
+            <div className="flex items-center gap-2 text-sm font-medium text-on-surface">
               <LinearCategory className="w-6 h-6" />
               <Typography as="span" variant="label" size="large" weight="medium">انتخاب دسته</Typography>
             </div>
@@ -2728,7 +2728,7 @@ export function AdvertisementFilterPage({
         </div>
       </div>
 
-      <main ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-0">
+      <main ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-0">
         {filterBlocks.map((block, index) => (
           <FilterBlockRenderer
             key={"id" in block ? `${block.kind}-${block.id}` : block.kind}
@@ -2748,10 +2748,10 @@ export function AdvertisementFilterPage({
         ))}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+      <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
         <div dir="rtl">
           <Button unstyled
-            className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline active:bg-[#00379a] transition-colors"
+            className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline active:opacity-90 transition-colors"
             onClick={applyFilters}
             type="button"
           >
@@ -2777,10 +2777,10 @@ function FilterSection({
   title,
 }: FilterSectionProps) {
   return (
-    <section className="relative scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4" data-filter-section={sectionId} dir="rtl">
-      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-[#4d4d4d]">
+    <section className="relative scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest p-4" data-filter-section={sectionId} dir="rtl">
+      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-on-surface-var">
         {icon}
-        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-on-surface">
           {title}
         </Typography>
       </div>
@@ -2928,18 +2928,18 @@ function ExchangeFilterSection({
 
   return (
     <section
-      className="relative scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 pb-2 pt-4"
+      className="relative scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest px-4 pb-2 pt-4"
       data-filter-section={sectionId}
       dir="rtl"
     >
-      <div className="flex h-6 items-center justify-start gap-2 text-[#4d4d4d]">
+      <div className="flex h-6 items-center justify-start gap-2 text-on-surface-var">
         {icon}
         <Typography
           as="h2"
           variant="title"
           size="medium"
           weight="medium"
-          className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]"
+          className="m-0 text-right text-base font-medium leading-6 text-on-surface"
         >
           {title}
         </Typography>
@@ -3126,9 +3126,8 @@ function MoreButton({
   return (
     <Button
       unstyled
-      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 pt-2.5 pb-0.5 px-3 text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40f]"
+      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 pt-2.5 pb-0.5 px-3 text-sm font-medium leading-5 text-primary active:bg-primary-container"
       onClick={onClick}
-      style={{ color: "#0048c4" }}
       type="button"
     >
       <Typography
@@ -3136,21 +3135,18 @@ function MoreButton({
         variant="label"
         size="medium"
         weight="medium"
-        className="text-[#0048c4]"
-        style={{ color: "#0048c4" }}
+        className="text-primary"
       >
         {expanded ? "مشاهده کمتر" : `مشاهده ${toPersianDigits(count)} مورد بیشتر`}
       </Typography>
       <motion.div
         animate={{ rotate: expanded ? 180 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="inline-flex items-center justify-center shrink-0 text-[#0048c4]"
-        style={{ color: "#0048c4" }}
+        className="inline-flex items-center justify-center shrink-0 text-primary"
       >
         <LinearArrowDown1
           aria-hidden="true"
-          className="h-5 w-5 shrink-0 text-[#0048c4]"
-          style={{ color: "#0048c4" }}
+          className="h-5 w-5 shrink-0 text-primary"
         />
       </motion.div>
     </Button>
@@ -3236,19 +3232,19 @@ function CategorySelectionScreen({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
-      <div className="shrink-0 bg-[#f0f0f0]">
+      <div className="shrink-0 bg-surface-container">
         <TopBar
           backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
-          className="bg-[#f0f0f0]"
+          className="bg-surface-container"
           onBack={() => goBackOrNavigate(getBackToSearchPath(backBasePath))}
           title="انتخاب دسته‌بندی"
         />
 
-        <div className="bg-[#f0f0f0] px-4 py-2">
+        <div className="bg-surface-container px-4 py-2">
           <FormSegmentedControl
             ariaLabel="نوع معامله"
             onChange={(transaction) => {
@@ -3262,10 +3258,10 @@ function CategorySelectionScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-0 pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-0 pt-4">
         {categoryGroupsByTransaction[draftTransaction].map((group) => (
           <section key={group.title} className="mb-6 last:mb-0">
-            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
+            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-outline-var pb-2 text-right text-base font-medium text-outline">
               {group.title}
             </Typography>
 
@@ -3284,9 +3280,9 @@ function CategorySelectionScreen({
         ))}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+      <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
         <Button unstyled
-          className="flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!draftCategory}
           onClick={() => {
             if (!draftCategory) return;
@@ -3550,7 +3546,7 @@ function FilterBlockRenderer({
 
     case "adFlags":
       return (
-        <section className="bg-white px-4 pb-2" dir="rtl">
+        <section className="bg-surface-container-lowest px-4 pb-2" dir="rtl">
           <CheckboxRow
             bottomFilter
             checked={filters.featured}
@@ -3642,19 +3638,19 @@ function NeighborhoodFilterSection({
   };
 
   return (
-    <section className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white px-4 py-2" data-filter-section={sectionId} dir="rtl">
+    <section className="scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest px-4 py-2" data-filter-section={sectionId} dir="rtl">
       <Button unstyled
         className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
         onClick={() => setIsPickerOpen(true)}
         type="button"
       >
-        <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
+        <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-on-surface">
           <LinearLocation className="w-6 h-6" />
           <Typography as="span" variant="label" size="large" weight="medium">محله</Typography>
         </div>
-        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]" style={{ color: "#0048c4" }}>
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#0048c4]" style={{ color: "#0048c4" }}>انتخاب</Typography>
-          <LinearArrowLeft1 className="w-5 h-5 text-[#0048c4]" style={{ color: "#0048c4" }} />
+        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-primary">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">انتخاب</Typography>
+          <LinearArrowLeft1 className="w-5 h-5 text-primary" />
         </div>
       </Button>
 
@@ -3673,19 +3669,19 @@ function NeighborhoodFilterSection({
       ) : null}
 
       {isPickerOpen ? (
-        <div className="fixed inset-0 z-[1100] flex justify-center bg-[#f0f0f0]">
+        <div className="fixed inset-0 z-[1100] flex justify-center bg-surface-container">
           <PageFrame
-            className="relative flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+            className="relative flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
             variant="flush"
           >
-            <div className="shrink-0 bg-[#f0f0f0]">
+            <div className="shrink-0 bg-surface-container">
               <TopBar
                 centerClassName="px-0"
                 centerSlot={
-                  <label className="flex h-12 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white px-4 focus-within:border-[#0048c4]" dir="rtl">
+                  <label className="flex h-12 w-full min-w-0 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary" dir="rtl">
                     <input
                       autoFocus
-                      className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [&::-webkit-search-cancel-button]:hidden"
+                      className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline [&::-webkit-search-cancel-button]:hidden"
                       onChange={(event) => setQuery(event.target.value)}
                       placeholder="جستجو محله"
                       type="search"
@@ -3693,7 +3689,7 @@ function NeighborhoodFilterSection({
                     />
                   </label>
                 }
-                className="bg-[#f0f0f0]"
+                className="bg-surface-container"
                 contentClassName="pl-4 pr-2"
                 onBack={() => setIsPickerOpen(false)}
                 placement="inline"
@@ -3701,7 +3697,7 @@ function NeighborhoodFilterSection({
 
               {selectedNeighborhoods.length > 0 ? (
                 <div
-                  className="flex min-h-12 shrink-0 items-center justify-start gap-2 overflow-x-auto bg-[#f0f0f0] px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="flex min-h-12 shrink-0 items-center justify-start gap-2 overflow-x-auto bg-surface-container px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   dir="rtl"
                 >
                   {selectedNeighborhoods.map((item) => (
@@ -3717,9 +3713,9 @@ function NeighborhoodFilterSection({
               ) : null}
             </div>
 
-            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-4" dir="rtl">
+            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-surface-container-lowest px-4" dir="rtl">
               {!cityId ? (
-                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-[#808080]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-outline">
                   برای انتخاب محله، ابتدا شهر را انتخاب کنید.
                 </Typography>
               ) : neighborhoodsQuery.isLoading ? (
@@ -3727,17 +3723,17 @@ function NeighborhoodFilterSection({
                   {Array.from({ length: 7 }, (_, index) => (
                     <div className="flex min-h-[88px] animate-pulse items-center justify-between gap-5 py-3" key={index}>
                       <div className="min-w-0 flex-1 space-y-3">
-                        <div className="mr-auto h-5 w-28 rounded bg-[#f0f0f0]" />
-                        <div className="mr-auto h-4 w-4/5 rounded bg-[#f4f4f4]" />
+                        <div className="mr-auto h-5 w-28 rounded bg-surface-container" />
+                        <div className="mr-auto h-4 w-4/5 rounded bg-surface-container-high" />
                       </div>
-                      <div className="h-[18px] w-[18px] rounded-sm bg-[#eeeeee]" />
+                      <div className="h-[18px] w-[18px] rounded-sm bg-surface-container-high" />
                     </div>
                   ))}
                 </div>
               ) : neighborhoodsQuery.isError ? (
-                <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
+                <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-error">
                   دریافت محله‌ها با خطا مواجه شد.
-                  <Button unstyled className="mt-3 font-semibold text-[#0048c4]" onClick={() => void neighborhoodsQuery.refetch()} type="button">
+                  <Button unstyled className="mt-3 font-semibold text-primary" onClick={() => void neighborhoodsQuery.refetch()} type="button">
                     تلاش دوباره
                   </Button>
                 </div>
@@ -3751,17 +3747,17 @@ function NeighborhoodFilterSection({
                     return (
                       <Button unstyled
                         aria-pressed={isSelected}
-                        className="flex min-h-[88px] w-full items-center justify-between gap-5 bg-white py-3 text-right text-[#1a1a1a] outline-none [-webkit-tap-highlight-color:transparent] hover:bg-white active:bg-white focus:bg-white focus:outline-none focus-visible:bg-white focus-visible:outline-none"
+                        className="flex min-h-[88px] w-full items-center justify-between gap-5 bg-surface-container-lowest py-3 text-right text-on-surface outline-none [-webkit-tap-highlight-color:transparent]"
                         key={neighborhoodId}
                         onClick={() => toggleNeighborhood(neighborhood)}
                         type="button"
                       >
                         <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-                          <Typography as="span" variant="body" size="medium" weight="regular" className="block text-base font-normal leading-6 text-[#1a1a1a]">
+                          <Typography as="span" variant="body" size="medium" weight="regular" className="block text-base font-normal leading-6 text-on-surface">
                             {neighborhood.name}
                           </Typography>
                           {description ? (
-                            <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
+                            <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-outline">
                               {description}
                             </Typography>
                           ) : null}
@@ -3774,15 +3770,15 @@ function NeighborhoodFilterSection({
               ) : query.trim() ? (
                 <SearchEmptyState compact />
               ) : (
-                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-[#808080]">
+                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-outline">
                   محله‌ای برای این شهر ثبت نشده است.
                 </Typography>
               )}
             </main>
 
-            <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+            <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
               <Button unstyled
-                className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
+                className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
                 onClick={onApply}
                 type="button"
               >
@@ -3797,15 +3793,15 @@ function NeighborhoodFilterSection({
 }
 
 function ChevronDownIcon({ className }: { className?: string } = {}) {
-  return <LinearArrowDown1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-[#4d4d4d]"} />;
+  return <LinearArrowDown1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-on-surface-var"} />;
 }
 
 function ChevronLeftIcon({ className }: { className?: string } = {}) {
-  return <LinearArrowLeft1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-[#0048c4]"} />;
+  return <LinearArrowLeft1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-primary"} />;
 }
 
 function ClearCircleIcon() {
-  return <LinearCancelCircle aria-hidden="true" className="h-4 w-4 shrink-0 text-[#0048c4]" />;
+  return <LinearCancelCircle aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />;
 }
 
 function TimeFilterSection({
@@ -3854,12 +3850,12 @@ function DateFilterSection({
       <FilterSection icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />} sectionId={sectionId} title={title}>
         <Button
           unstyled
-          className="flex h-12 w-full items-center justify-between rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm text-[#1a1a1a]"
+          className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-sm text-on-surface"
           onClick={() => setIsOpen(true)}
           type="button"
         >
           <span>{value || "انتخاب تاریخ"}</span>
-          <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 text-[#666666]" />
+          <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 text-on-surface-var" />
         </Button>
       </FilterSection>
       <JalaliDatePickerSheet
@@ -3908,12 +3904,12 @@ export function RangeSelectField({
   return (
     <div className="min-w-0 flex-1">
       <Button unstyled
-        className="flex h-12 w-full items-center justify-between rounded-xl border border-[#d9d9d9] bg-white px-3 text-sm font-normal leading-5 [direction:ltr]"
+        className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface-container-lowest px-3 text-sm font-normal leading-5 [direction:ltr]"
         onClick={() => setIsOpen(true)}
         type="button"
       >
         <ChevronDownIcon />
-        <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}`}>
+        <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-on-surface" : "text-outline"}`}>
           {displayValue || label}
         </Typography>
       </Button>
@@ -3958,7 +3954,7 @@ export function RangeSelectField({
           <div className="space-y-1" dir="rtl">
             {value ? (
               <Button unstyled
-                className="flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
+                className="flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 text-primary active:bg-primary-container"
                 onClick={() => {
                   onChange("");
                   closeSheet();
@@ -3977,7 +3973,7 @@ export function RangeSelectField({
                 <Button unstyled
                   aria-pressed={selected}
                   className={`flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 ${
-                    selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
+                    selected ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface"
                   }`}
                   key={option}
                   onClick={() => {
@@ -4043,7 +4039,7 @@ function RangeItemContent({
         variant="label"
         size="medium"
         weight="medium"
-        className="text-[#808080]"
+        className="text-outline"
       >
         ({titleUnit})
       </Typography>
@@ -4054,14 +4050,14 @@ function RangeItemContent({
 
   return (
     <div>
-      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-[#4d4d4d]">
+      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-on-surface-var">
         {icon}
         <Typography
           as="h2"
           variant="title"
           size="medium"
           weight="medium"
-          className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]"
+          className="m-0 text-right text-base font-medium leading-6 text-on-surface"
         >
           {normalizedTitle}
         </Typography>
@@ -4161,7 +4157,7 @@ function SingleRangeSection({
 
   return (
     <section
-      className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4"
+      className="scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest p-4"
       data-filter-section={getFilterSectionAnchor(block)}
       dir="rtl"
     >
@@ -4187,7 +4183,7 @@ function RangeGroupSection({
 }) {
   return (
     <section
-      className="scroll-mt-4 border-b-8 border-[#f0f0f0] bg-white p-4"
+      className="scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest p-4"
       data-filter-section={getFilterSectionAnchor(block)}
       dir="rtl"
     >
@@ -4196,7 +4192,7 @@ function RangeGroupSection({
 
         return (
           <div key={rangeBlock.id}>
-            {index > 0 ? <div className="my-4 border-t border-[#f0f0f0]" /> : null}
+            {index > 0 ? <div className="my-4 border-t border-outline-var" /> : null}
             <RangeItemContent
               block={rangeBlock}
               maximum={value.maximum}
@@ -4226,8 +4222,8 @@ function SwitchOnlySection({
 }) {
   return (
     <section
-      className={`bg-white px-4 ${groupStart ? "pt-[7.5px]" : ""} ${
-        groupEnd ? "border-b-8 border-[#f0f0f0] pb-[7.5px]" : ""
+      className={`bg-surface-container-lowest px-4 ${groupStart ? "pt-[7.5px]" : ""} ${
+        groupEnd ? "border-b-8 border-surface-container pb-[7.5px]" : ""
       }`}
       dir="rtl"
     >
@@ -4251,18 +4247,18 @@ function LoanFilterSection({
 }) {
   return (
     <section
-      className="border-b-8 border-[#f0f0f0] bg-white px-4"
+      className="border-b-8 border-surface-container bg-surface-container-lowest px-4"
       data-filter-section="hasLoan"
       dir="rtl"
     >
       <Button
         unstyled
         aria-pressed={checked}
-        className="flex h-[56px] w-full items-center justify-between gap-3 bg-white pl-3 text-right"
+        className="flex h-[56px] w-full items-center justify-between gap-3 bg-surface-container-lowest pl-3 text-right"
         onClick={() => onChange(!checked)}
         type="button"
       >
-        <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-[#1a1a1a]">
+        <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-on-surface">
           با وام
         </Typography>
         <ChoiceIndicator checked={checked} className="rounded" />
@@ -4286,13 +4282,13 @@ function CheckboxRow({
   return (
     <Button unstyled
       aria-pressed={checked}
-      className={`flex h-[59px] w-full items-center justify-between gap-3 bg-white pl-3 text-right ${
-        divider ? "border-b border-[#f0f0f0]" : ""
+      className={`flex h-[59px] w-full items-center justify-between gap-3 bg-surface-container-lowest pl-3 text-right ${
+        divider ? "border-b border-outline-var" : ""
       }`}
       onClick={() => onChange(!checked)}
       type="button"
     >
-      <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-[#1a1a1a]">
+      <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-on-surface">
         {label}
       </Typography>
       <ChoiceIndicator checked={checked} className="rounded" />
@@ -4319,18 +4315,18 @@ function SelectOnlySection({
 
   return (
     <section
-      className={`bg-white px-4 ${topPadding ? "pt-2" : ""}`}
+      className={`bg-surface-container-lowest px-4 ${topPadding ? "pt-2" : ""}`}
       data-filter-section={sectionId}
       dir="rtl"
     >
-      <div className="flex h-[59px] w-full items-center justify-between gap-3 border-b border-[#f0f0f0] text-right">
+      <div className="flex h-[59px] w-full items-center justify-between gap-3 border-b border-outline-var text-right">
         <Button
           unstyled
           className="flex h-full min-w-0 flex-1 items-center text-right"
           onClick={() => setIsOpen(true)}
           type="button"
         >
-          <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-on-surface">
             {label}
           </Typography>
         </Button>
@@ -4338,7 +4334,7 @@ function SelectOnlySection({
         {value ? (
           <Chip
             aria-label={`حذف ${value}`}
-            className="h-9 max-w-[55%] bg-[#edf0fb] px-2 py-2 [&_svg]:h-4 [&_svg]:w-4"
+            className="h-9 max-w-[55%] bg-primary-container text-on-primary-container px-2 py-2 [&_svg]:h-4 [&_svg]:w-4"
             onClick={() => onChange(undefined)}
             removable
             selected
@@ -4348,7 +4344,7 @@ function SelectOnlySection({
         ) : (
           <Button
             unstyled
-            className="flex h-full shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4]"
+            className="flex h-full shrink-0 items-center gap-1 text-sm font-medium leading-5 text-primary"
             onClick={() => setIsOpen(true)}
             type="button"
           >
@@ -4372,7 +4368,7 @@ function SelectOnlySection({
         <div className="space-y-1" dir="rtl">
           {value ? (
             <Button unstyled
-              className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-[#0048c4] active:bg-[#0048c40a]"
+              className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-primary active:bg-primary-container"
               onClick={() => {
                 onChange(undefined);
                 setIsOpen(false);
@@ -4391,7 +4387,7 @@ function SelectOnlySection({
               <Button unstyled
                 aria-pressed={selected}
                 className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
-                  selected ? "bg-[#0048c40a] text-[#0048c4]" : "bg-white text-[#1a1a1a]"
+                  selected ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface"
                 }`}
                 key={option}
                 onClick={() => {

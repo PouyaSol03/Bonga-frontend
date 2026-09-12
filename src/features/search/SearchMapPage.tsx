@@ -1640,7 +1640,7 @@ export function SearchMapPage() {
 
   if (isOffline || (mapQuery.isError && isNoConnectionError(mapQuery.error))) {
     return (
-      <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
+      <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]">
         <SEO
           title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین"
           description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه."
@@ -1676,15 +1676,15 @@ export function SearchMapPage() {
     <div
       className={
         isGeofenceEditorOpen
-          ? "fixed inset-y-0 left-1/2 z-[900] h-[100svh] w-full max-w-[500px] -translate-x-1/2 overflow-hidden bg-[#f0f0f0]"
-          : "relative h-full min-h-0 overflow-hidden bg-[#f0f0f0]"
+          ? "fixed inset-y-0 left-1/2 z-[900] h-[100svh] w-full max-w-[500px] -translate-x-1/2 overflow-hidden bg-surface-container"
+          : "relative h-full min-h-0 overflow-hidden bg-surface-container"
       }
     >
       {mode === "map" && isInitialMapLoading ? (
         <div className="pointer-events-none absolute inset-0 z-[450] flex items-center justify-center bg-black/10 backdrop-blur-[1px] transition-opacity">
-          <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 shadow-lg [direction:rtl]">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#0048c4] border-t-transparent" />
-            <span className="text-sm font-medium text-[#1a1a1a]">در حال بارگذاری نقشه...</span>
+          <div className="flex items-center gap-2 rounded-xl bg-surface-container-lowest px-4 py-2.5 shadow-lg [direction:rtl]">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-sm font-medium text-on-surface">در حال بارگذاری نقشه...</span>
           </div>
         </div>
       ) : null}

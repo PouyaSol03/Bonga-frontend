@@ -37,10 +37,10 @@ function NeighborhoodSearchField({
   value: string;
 }) {
   return (
-    <label className="flex py-2 w-full min-w-0 items-center rounded-xl border border-[#808080] bg-white px-4 focus:border-[#0048C4]">
+    <label className="flex py-2 w-full min-w-0 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary">
       <input
         autoFocus
-        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base font-normal text-[#1a1a1a] outline-none placeholder:font-normal! placeholder:text-[#a6a6a6]"
+        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base font-normal text-on-surface outline-none placeholder:font-normal! placeholder:text-outline"
         onChange={(event) => onChange(event.target.value)}
         placeholder="جستجو محله"
         type="search"
@@ -55,14 +55,14 @@ function NeighborhoodListSkeleton() {
     <div className="px-4">
       {Array.from({ length: 7 }, (_, index) => (
         <div
-          className="flex min-h-[88px] animate-pulse items-center justify-between gap-5 border-b border-[#f0f0f0] py-3"
+          className="flex min-h-[88px] animate-pulse items-center justify-between gap-5 border-b border-outline-var py-3"
           key={index}
         >
           <div className="min-w-0 flex-1 space-y-3">
-            <div className="mr-auto h-5 w-28 rounded bg-[#f0f0f0]" />
-            <div className="mr-auto h-4 w-4/5 rounded bg-[#f4f4f4]" />
+            <div className="mr-auto h-5 w-28 rounded bg-surface-container" />
+            <div className="mr-auto h-4 w-4/5 rounded bg-surface-container" />
           </div>
-          <div className="h-5 w-5 rounded-full bg-[#eeeeee]" />
+          <div className="h-5 w-5 rounded-full bg-surface-container" />
         </div>
       ))}
     </div>
@@ -98,7 +98,7 @@ export function ConsultantsNeighborhoodPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -106,24 +106,24 @@ export function ConsultantsNeighborhoodPage() {
         centerSlot={
           <NeighborhoodSearchField onChange={setSearch} value={search} />
         }
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         contentClassName="pl-4 pr-2"
         onBack={leaveNeighborhoodPage}
         placement="inline"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3 [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-3 [-webkit-overflow-scrolling:touch]">
         {!cityId ? (
-          <div className="mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center text-sm leading-7 text-[#808080]">
+          <div className="mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center text-sm leading-7 text-outline">
             ابتدا شهر خود را از صفحه خانه انتخاب کنید.
           </div>
         ) : neighborhoodsQuery.isLoading ? (
           <NeighborhoodListSkeleton />
         ) : neighborhoodsQuery.isError ? (
-          <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-[#a43232]">
+          <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-error">
             دریافت محله‌ها با خطا مواجه شد.
             <Button unstyled
-              className="mt-3 font-semibold text-[#0048c4]"
+              className="mt-3 font-semibold text-primary"
               onClick={() => void neighborhoodsQuery.refetch()}
               type="button"
             >
@@ -145,17 +145,17 @@ export function ConsultantsNeighborhoodPage() {
               return (
                 <Button unstyled
                   aria-pressed={checked}
-                  className="flex w-full items-center justify-between gap-5 py-3.5 text-right active:bg-[#fafafa]"
+                  className="flex w-full items-center justify-between gap-5 py-3.5 text-right active:bg-surface-container"
                   key={neighborhoodId}
                   onClick={() => setSelectedNeighborhood(neighborhood)}
                   type="button"
                 >
                   <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-                    <strong className="block text-base font-normal text-[#1a1a1a]">
+                    <strong className="block text-base font-normal text-on-surface">
                       {neighborhood.name}
                     </strong>
                     {description ? (
-                      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-[#a6a6a6]">
+                      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-outline">
                         {description}
                       </Typography>
                     ) : null}
@@ -168,9 +168,9 @@ export function ConsultantsNeighborhoodPage() {
         )}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom,0px))] pt-3">
+      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom,0px))] pt-3">
         <Button unstyled
-          className="h-12 w-full rounded-xl bg-[#0048c4] text-base font-semibold text-white active:bg-[#003fae] disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
+          className="h-12 w-full rounded-xl bg-primary text-base font-semibold text-on-primary active:opacity-80 disabled:bg-surface-container-high disabled:text-outline"
           disabled={!selectedNeighborhood}
           onClick={confirmSelection}
           type="button"

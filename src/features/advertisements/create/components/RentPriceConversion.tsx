@@ -68,14 +68,14 @@ function ConversionSummaryCard({
         variant="label"
         size="medium"
         weight="medium"
-        className="mb-2 text-[#1a1a1a]"
+        className="mb-2 text-on-surface"
       >
         {label}
       </Typography>
 
       <div
         className={`flex flex-col items-center justify-center rounded-2xl py-2 ${
-          isMortgage ? "bg-[#eaf8f1]" : "bg-[#fff5e8]"
+          isMortgage ? "bg-tertiary-container/30" : "bg-warning-container/30"
         }`}
       >
         <Typography
@@ -84,7 +84,7 @@ function ConversionSummaryCard({
           size="large"
           weight="semibold"
           dir="ltr"
-          className={`${isMortgage ? "text-[#11a366]" : "text-[#ff7200]"} [unicode-bidi:isolate]`}
+          className={`${isMortgage ? "text-tertiary" : "text-warning"} [unicode-bidi:isolate]`}
         >
           {formatted.value}
         </Typography>
@@ -93,7 +93,7 @@ function ConversionSummaryCard({
           variant="label"
           size="small"
           weight="medium"
-          className="mt-2 text-[#4d4d4d]"
+          className="mt-2 text-on-surface-var"
         >
           {formatted.unit}
         </Typography>
@@ -234,7 +234,7 @@ export function RentPriceConversion({
   };
 
   return (
-    <div className="mt-5 border-t border-[#cccccc] pt-1">
+    <div className="mt-5 border-t border-outline-var pt-1">
       <div className="flex h-16 items-center justify-between [direction:ltr]">
         <SwitchButton checked={enabled} disabled={!sourceHasPrice} onChange={handleToggle} />
 
@@ -243,7 +243,7 @@ export function RentPriceConversion({
           variant="title"
           size="medium"
           weight="semibold"
-          className="text-right text-[#1a1a1a] [direction:rtl]"
+          className="text-right text-on-surface [direction:rtl]"
         >
           تبدیل رهن و اجاره
         </Typography>
@@ -251,7 +251,7 @@ export function RentPriceConversion({
 
       {enabled ? (
         <div className="pb-2 pt-2 [direction:rtl]">
-          <div className="flex items-start gap-2 rounded-2xl bg-[#edf3ff] px-4 py-3 text-[#0048c4]">
+          <div className="flex items-start gap-2 rounded-2xl bg-primary-container/20 px-4 py-3 text-primary">
             <LinearInfoCircle aria-hidden="true" className="mt-0.5 h-6 w-6 shrink-0" />
             <Typography
               as="p"
@@ -266,16 +266,16 @@ export function RentPriceConversion({
 
           <div className="mt-4 py-4">
             <div className="flex items-center justify-between gap-4 px-0.5">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d]">
-                رهن <span className="text-[#11a366]">{formatMoney(conversion.convertedMortgage)}</span>
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+                رهن <span className="text-tertiary">{formatMoney(conversion.convertedMortgage)}</span>
               </Typography>
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#4d4d4d]">
-                اجاره <span className="text-[#ff7200]">{formatMoney(conversion.convertedRent)}</span>
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+                اجاره <span className="text-warning">{formatMoney(conversion.convertedRent)}</span>
               </Typography>
             </div>
 
             <div className="relative mx-2 mt-1 h-[28px] select-none [direction:ltr]">
-              <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-[#f2f2f2]">
+              <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-surface-container">
                 <div
                   className="absolute bottom-0 left-0 top-0 bg-warning"
                   style={{ width: `${conversion.positionPercent}%` }}
@@ -284,20 +284,20 @@ export function RentPriceConversion({
                   className="absolute bottom-0 right-0 top-0 bg-tertiary"
                   style={{ width: `${100 - conversion.positionPercent}%` }}
                 />
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-white" />
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-surface-container-lowest" />
               </div>
 
-              <div className="absolute left-0 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-warning">
-                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
+              <div className="absolute left-0 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface-container-lowest bg-warning">
+                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-container-lowest" />
               </div>
-              <div className="absolute right-0 top-1/2 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-tertiary">
-                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
+              <div className="absolute right-0 top-1/2 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface-container-lowest bg-tertiary">
+                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-container-lowest" />
               </div>
 
               {hasPrice ? (
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-white px-4 py-1.5 text-[#4d4d4d] shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
+                  className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-surface-container-lowest px-4 py-1.5 text-on-surface-var shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
                   style={{ left: `${12 + conversion.positionPercent * 0.76}%` }}
                 >
                   <LinearArrowLeft1 className="h-4 w-4" />

@@ -39,20 +39,20 @@ const sectionItems = {
 
 function AboutSection({ children, description, items, title }: AboutSectionProps) {
   return (
-    <section className="mx-4 border-b border-dashed border-[#d2d2d2] px-1 pb-4 pt-6 last:border-b-0 last:pb-7">
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center justify-start gap-2 text-[16px] font-semibold leading-6 text-[#0052c8]">
-        <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="h-[13px] w-[13px] shrink-0 rounded-full bg-[#11a366]" />
+    <section className="mx-4 border-b border-dashed border-outline-var px-1 pb-4 pt-6 last:border-b-0 last:pb-7">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center justify-start gap-2 text-[16px] font-semibold leading-6 text-primary">
+        <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="h-[13px] w-[13px] shrink-0 rounded-full bg-tertiary" />
         <Typography as="span" variant="body" size="medium" weight="regular">{title}</Typography>
       </Typography>
 
       {description ? (
-        <div className="mt-2 text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
+        <div className="mt-2 text-[14px] font-normal leading-[29px] text-on-surface-var">
           {description}
         </div>
       ) : null}
 
       {items?.length ? (
-        <ul className="m-0 mt-1 list-disc space-y-0 pr-5 text-[14px] font-normal leading-[28px] text-[#4d4d4d] marker:text-[#666666]">
+        <ul className="m-0 mt-1 list-disc space-y-0 pr-5 text-[14px] font-normal leading-[28px] text-on-surface-var marker:text-outline">
           {items.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -60,7 +60,7 @@ function AboutSection({ children, description, items, title }: AboutSectionProps
       ) : null}
 
       {children ? (
-        <div className="mt-1 text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
+        <div className="mt-1 text-[14px] font-normal leading-[29px] text-on-surface-var">
           {children}
         </div>
       ) : null}
@@ -70,7 +70,7 @@ function AboutSection({ children, description, items, title }: AboutSectionProps
 
 function AboutIntroCard() {
   return (
-    <section className="relative p-4 mx-4 mt-4 overflow-hidden rounded-2xl bg-[#ebf0fa]">
+    <section className="relative p-4 mx-4 mt-4 overflow-hidden rounded-2xl bg-primary-container">
       <div className="relative">
         <img
           alt="تصویری از خدمات بنگاه در بازار املاک"
@@ -81,12 +81,10 @@ function AboutIntroCard() {
           width={624}
         />
 
-        {/* <h1 className="absolute bottom-0 right-2 m-0 text-[16px] font-semibold leading-6 text-[#0052c8]">
-          درباره ما
-        </h1> */}
+
       </div>
 
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-[8px] text-justify text-[14px] font-normal leading-[29px] text-on-surface-var">
         ما بیش از ۱۰ سال است که در دنیای املاک همراه خریداران، فروشندگان و آژانس‌های املاک هستیم. در این سال‌ها هدف ما همیشه یک چیز بوده؛ ساده‌تر کردن مسیر معامله ملک و ایجاد بستری مطمئن برای همه کسانی که در بازار املاک فعالیت دارند.
       </Typography>
     </section>
@@ -96,7 +94,7 @@ function AboutIntroCard() {
 export function AccountAboutPage() {
   return (
     <AccountPageShell title="درباره ما">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         <div className="mx-auto w-full pb-1">
           <AboutIntroCard />
 

@@ -30,11 +30,11 @@ export function ListItem({
     <Button
       unstyled
       className={cn(
-        "relative flex w-full items-center gap-2 bg-white px-4 py-4 first:pt-4 last:pb-0 text-right transition [direction:rtl]",
+        "relative flex w-full items-center gap-2 bg-surface-container-lowest px-4 py-4 first:pt-4 last:pb-0 text-right transition [direction:rtl]",
         // description ? "min-h-[72px]" : "min-h-[72px]",
         isCenter && "justify-center text-center",
-        selected ? "text-[#0048c4]" : "text-[#1a1a1a]",
-        "hover:bg-[#f8f9fd] active:bg-[#edf0fb]",
+        selected ? "text-primary" : "text-on-surface",
+        "hover:bg-surface-container active:bg-surface-container-high",
         focusRing,
         className,
       )}
@@ -47,7 +47,7 @@ export function ListItem({
           variant="body"
           size="medium"
           weight="regular"
-          className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+          className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
         >
           {leading}
         </Typography>
@@ -70,7 +70,7 @@ export function ListItem({
           weight="regular"
           className={cn(
             "block pt-1.5",
-            selected ? "text-[#0048c4]" : "text-[#1a1a1a]",
+            selected ? "text-primary" : "text-on-surface",
             isCenter ? "text-center" : "text-right",
           )}
         >
@@ -84,7 +84,7 @@ export function ListItem({
             size="medium"
             weight="regular"
             className={cn(
-              "mt-0 block pb-1.5 truncate text-[#b3b3b3]",
+              "mt-0 block pb-1.5 truncate text-outline",
               isCenter ? "text-center" : "text-right",
             )}
           >
@@ -99,7 +99,7 @@ export function ListItem({
           variant="body"
           size="medium"
           weight="regular"
-          className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+          className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
         >
           {trailing}
         </Typography>

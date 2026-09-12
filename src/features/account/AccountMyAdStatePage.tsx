@@ -95,18 +95,18 @@ export function AccountMyAdStatePage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={backState}
         backTo={backTo}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="مدیریت آگهی"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <section className="shrink-0 bg-white px-4 pb-4 pt-4" aria-label={card.title}>
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
+        <section className="shrink-0 bg-surface-container-lowest px-4 pb-4 pt-4" aria-label={card.title}>
           <div className="flex justify-start">
             <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
               {statusInfo.label}
@@ -123,9 +123,9 @@ export function AccountMyAdStatePage() {
           ) : null}
         </section>
 
-        <div className="h-2 shrink-0 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
 
-        <section className="min-h-[300px] flex-1 bg-white" aria-label="عملیات آگهی">
+        <section className="min-h-[300px] flex-1 bg-surface-container-lowest" aria-label="عملیات آگهی">
           {actions.map((action, index) => (
             <div key={action.label}>
               <StateAdAction
@@ -200,18 +200,18 @@ function RealEstateManagerAdStatePage({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={backState}
         backTo={backTo}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="تخصیص و انتشار"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-4">
-        <section className="bg-white px-4 pb-4 pt-4" aria-label={card.title}>
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-4">
+        <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label={card.title}>
           <div className="flex justify-start">
             <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
               {statusInfo.label}
@@ -223,23 +223,23 @@ function RealEstateManagerAdStatePage({
           <PublishedMeta ad={ad} />
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
 
-        <section className="bg-white px-4 pb-4 pt-4" aria-label="مسئول انتشار آگهی">
-          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-[#1a1a1a]">مسئول انتشار آگهی</Typography>
+        <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول انتشار آگهی">
+          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول انتشار آگهی</Typography>
           <div className="mt-3">
-            <div className="flex items-center bg-[#fafafa] rounded-xl p-3 justify-end gap-3 [direction:rtl]">
-              {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#f0f0f0] text-[#808080]"><LinearUserSolid className="h-6 w-6" /></div>}
+            <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
+              {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
               <div className="flex-1 flex gap-1 flex-col justify-center text-right">
-                <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-[#4D4D4D]">{publisher?.name ?? "منتشرکننده مشخص نیست"}</Typography>
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-[#808080]">
+                <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "منتشرکننده مشخص نیست"}</Typography>
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
                   {publisher ? (publisher.type === "agency" ? "آژانس" : "مشاور") : "—"}
                 </Typography>
               </div>
             </div>
 
             <Button unstyled
-              className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-[#0048c4] bg-white text-sm font-medium text-[#0048c4] active:bg-[#e6efff]"
+              className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
               onClick={() => setIsPublisherPickerOpen(true)}
               type="button"
             >
@@ -249,9 +249,9 @@ function RealEstateManagerAdStatePage({
           </div>
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
 
-        <section className="min-h-[244px] bg-white" aria-label="عملیات آگهی">
+        <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
           <StateAdAction action={{ icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
           <ActionDivider />
           <StateAdAction action={{ icon: "edit", label: "ویرایش", to: getAdEditPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
@@ -289,10 +289,10 @@ function ManagerAdSummary({
   const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
-    <div className="mt-4 flex h-[68px] items-center rounded-2xl bg-[#fafafa] px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
+    <div className="mt-4 flex h-[68px] items-center rounded-2xl bg-surface px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-4 text-[#4d4d4d]">{subtitle}</Typography>
-        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">{card.title}</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-4 text-on-surface-var">{subtitle}</Typography>
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-on-surface">{card.title}</Typography>
       </div>
       <div
         aria-hidden="true"
@@ -326,23 +326,23 @@ function ManagerPublisherPickerPage({
     <section
       aria-label="تغییر منتشرکننده"
       aria-modal="true"
-      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       role="dialog"
     >
       <TopBar
         placement="inline"
         centerClassName="px-0"
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         onBack={onClose}
         reserveStartSpace
         title="تغییر منتشرکننده"
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-3">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-24 pt-3">
         <SearchInputBar
           aria-label="جستجوی مشاور"
-          containerClassName="rounded-lg border-[#d9d9d9]"
+          containerClassName="rounded-lg border-outline-var"
           inputClassName="text-xs leading-5"
           onClear={() => setSearchValue("")}
           onValueChange={setSearchValue}
@@ -359,7 +359,7 @@ function ManagerPublisherPickerPage({
             return (
               <Button unstyled
                 aria-checked={selected}
-                className="flex w-full py-2 px-4 items-center justify-between gap-3 rounded-lg bg-white text-right [direction:ltr] active:bg-[#f7f7f7]"
+                className="flex w-full py-2 px-4 items-center justify-between gap-3 rounded-lg bg-surface-container-lowest text-right [direction:ltr] active:bg-surface-container"
                 key={publisher.id}
                 onClick={() => setDraftPublisherId(publisher.id)}
                 role="radio"
@@ -368,7 +368,7 @@ function ManagerPublisherPickerPage({
                 <RadioIndicator checked={selected} />
                 <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]">
                   <PublisherAvatar publisher={publisher} size="large" />
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a]">{publisher.name}</Typography>
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface">{publisher.name}</Typography>
                 </Typography>
               </Button>
             );
@@ -376,9 +376,9 @@ function ManagerPublisherPickerPage({
         </div>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <Button unstyled
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white active:bg-[#003aa0]"
+          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary active:opacity-90"
           disabled={!draftPublisher}
           onClick={() => { if (draftPublisher) onConfirm(draftPublisher); }}
           type="button"
@@ -441,12 +441,12 @@ function StateAdSummary({
   const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
-    <div className="mt-4 flex h-[80px] items-center gap-4 rounded-2xl border border-[#e6e6e6] bg-[#fafafa] px-3 [direction:ltr]">
+    <div className="mt-4 flex h-[80px] items-center gap-4 rounded-2xl border border-outline-var bg-surface px-3 [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-[#808080]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-outline">
           {subtitle}
         </Typography>
-        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-on-surface">
           {card.title}
         </Typography>
       </div>
@@ -469,7 +469,7 @@ function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
   return (
     <div className="mt-4 text-sm font-medium leading-5">
       <MetaRow label="انتشار" value={published} />
-      <div className="border-t border-dashed border-[#cccccc]" aria-hidden="true" />
+      <div className="border-t border-dashed border-outline-var" aria-hidden="true" />
       <MetaRow label="انقضا" value={expires} />
     </div>
   );
@@ -478,26 +478,26 @@ function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex h-12 items-center justify-between gap-4 [direction:ltr]">
-      <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">{value}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">{label}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface [direction:rtl]">{value}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">{label}</Typography>
     </div>
   );
 }
 
 function PendingReviewNotice() {
   return (
-    <div className="mt-4 rounded-lg border border-[#ffb15d] bg-[#fff7ed] px-4 py-3 text-right">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
+    <div className="mt-4 rounded-lg border border-warning bg-warning-container px-4 py-3 text-right">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface">
         این آگهی در صف بررسی سامانه قرار دارد.
       </Typography>
       <Typography as="p" variant="body" size="medium" weight="regular">
         پس از تایید، آگهی به صورت خودکار منتشر می‌شود.
       </Typography>
 
-      <div className="mt-3 border-t border-dashed border-[#cccccc] pt-3">
+      <div className="mt-3 border-t border-dashed border-outline-var pt-3">
         <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#1a1a1a] [direction:rtl]">بین 1 تا 6 ساعت</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-[#4d4d4d] [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface [direction:rtl]">بین 1 تا 6 ساعت</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-on-surface-var [direction:rtl]">
             <ClockIcon className="h-5 w-5" />
             زمان تقریبی بررسی:
           </Typography>
@@ -517,24 +517,24 @@ function NeedsEditNotice({
   returnTo: string;
 }) {
   return (
-    <div className="mt-4 rounded-2xl border border-[#ffd19c] bg-[#fff7ed] p-4 text-right">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#1a1a1a]">
+    <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface">
         برای انتشار مجدد آگهی، لطفا موارد زیر را اصلاح کنید.
       </Typography>
 
-      <div className="mt-3 rounded-lg border border-[#ff6d00] bg-white px-3 py-3">
-        <div className="flex items-center justify-start gap-2 text-[#ff6d00]">
+      <div className="mt-3 rounded-lg border border-warning bg-surface-container-lowest px-3 py-3">
+        <div className="flex items-center justify-start gap-2 text-warning">
           <AlertIcon className="h-5 w-5 shrink-0" />
           <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">دلیل توقف انتشار</Typography>
         </div>
 
-        <ul className="m-0 mt-2 list-disc space-y-2 pr-5 text-xs font-normal leading-6 text-[#1a1a1a] marker:text-[#808080]">
+        <ul className="m-0 mt-2 list-disc space-y-2 pr-5 text-xs font-normal leading-6 text-on-surface marker:text-outline">
           {readModerationReasons(ad).map((reason) => <li key={reason}>{reason}</li>)}
         </ul>
       </div>
 
       <RouteLink
-        className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
+        className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
         state={{
           ad,
           card,
@@ -553,7 +553,7 @@ function NeedsEditNotice({
 
 function WaitForPaymentNotice() {
   return (
-    <div className="mt-4 rounded-xl bg-[#ff6d0014] px-3 py-3 text-sm leading-6 text-[#ff6d00]">
+    <div className="mt-4 rounded-xl bg-warning-container px-3 py-3 text-sm leading-6 text-warning">
       برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.
     </div>
   );
@@ -596,7 +596,7 @@ function StateAdAction({
 }) {
   const content = (
     <>
-      <ChevronLeftIcon className="h-6 w-6 text-[#4d4d4d]" />
+      <ChevronLeftIcon className="h-6 w-6 text-on-surface-var" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex gap-2 [direction:rtl]">
         <StateIcon icon={action.icon} />
         {action.label}
@@ -607,7 +607,7 @@ function StateAdAction({
   if (action.to) {
     return (
       <RouteLink
-        className="flex h-14 w-full items-center justify-between px-4 text-[#4d4d4d] no-underline [direction:ltr]"
+        className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
         state={{
           ad: action.icon === "upgrade" && !ad ? card : ad,
           card,
@@ -634,7 +634,7 @@ function StateAdAction({
 
   return (
     <Button unstyled
-      className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] [direction:ltr]"
+      className="flex h-14 w-full items-center justify-between px-4 text-on-surface [direction:ltr]"
       type="button"
     >
       {content}
@@ -645,7 +645,7 @@ function StateAdAction({
 function ActionDivider() {
   return (
     <div className="flex h-[5px] items-center px-4" aria-hidden="true">
-      <div className="h-px w-full bg-[#cccccc]" />
+      <div className="h-px w-full bg-outline-var" />
     </div>
   );
 }
@@ -733,7 +733,7 @@ function PublisherAvatar({ publisher, size }: { publisher: ManagerPublisher; siz
   }
 
   return (
-    <div className={`grid ${sizeClass} shrink-0 place-items-center bg-[#f0f0f0] text-[#808080] ${radiusClass}`}>
+    <div className={`grid ${sizeClass} shrink-0 place-items-center bg-surface-container text-outline ${radiusClass}`}>
       {publisher.type === "agency" ? <LinearBuilding2 className="h-6 w-6" /> : <LinearUserSolid className="h-6 w-6" />}
     </div>
   );
@@ -837,18 +837,18 @@ function MyAdStateSkeleton({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={backState}
         backTo={backTo}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="مدیریت آگهی"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <section className="shrink-0 space-y-3 bg-white px-4 pb-4 pt-4" aria-label="در حال بارگذاری وضعیت آگهی">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
+        <section className="shrink-0 space-y-3 bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="در حال بارگذاری وضعیت آگهی">
           <div className="h-8 w-24 rounded-lg animate-skeleton" />
           <div className="flex gap-3 [direction:rtl]">
             <div className="h-[90px] w-[120px] shrink-0 rounded-xl animate-skeleton" />
@@ -858,15 +858,15 @@ function MyAdStateSkeleton({
               <div className="h-4 w-2/3 rounded-md animate-skeleton" />
             </div>
           </div>
-          <div className="flex justify-between border-t border-[#f0f0f0] pt-2">
+          <div className="flex justify-between border-t border-outline-var pt-2">
             <div className="h-4 w-28 rounded-md animate-skeleton" />
             <div className="h-4 w-20 rounded-md animate-skeleton" />
           </div>
         </section>
 
-        <div className="h-2 shrink-0 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
 
-        <section className="min-h-[300px] flex-1 space-y-6 bg-white p-4" aria-label="در حال بارگذاری عملیات آگهی">
+        <section className="min-h-[300px] flex-1 space-y-6 bg-surface-container-lowest p-4" aria-label="در حال بارگذاری عملیات آگهی">
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center gap-3">

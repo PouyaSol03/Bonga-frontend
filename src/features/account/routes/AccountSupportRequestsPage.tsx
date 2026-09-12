@@ -34,12 +34,12 @@ export function AccountSupportRequestsPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
       <TopBar
         backTo={SUPPORT_PATH}
-        className="border-b border-[#e6e6e6]"
+        className="border-b border-outline-var"
         heightClassName="h-[52px]"
        
         reserveStartSpace
@@ -53,12 +53,12 @@ export function AccountSupportRequestsPage() {
       />
 
       <main
-        className={`flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-3 pb-[76px] ${
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest px-3 pb-[76px] ${
           requests.length === 0 ? "pt-0" : "pt-3"
         }`}
       >
         {requestsQuery.isLoading ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="w-full py-16 text-center text-sm text-[#808080]">در حال دریافت درخواست‌ها...</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="w-full py-16 text-center text-sm text-outline">در حال دریافت درخواست‌ها...</Typography>
         ) : RequestErrorState ? (
           <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
         ) : requests.length === 0 ? (
@@ -78,9 +78,9 @@ export function AccountSupportRequestsPage() {
         )}
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 z-20 bg-white px-3 pb-2.5 pt-2">
+      <div className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-3 pb-2.5 pt-2">
         <RouteLink
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#0759cf] px-4 text-sm font-semibold leading-5 text-white no-underline outline-none active:bg-[#0048b5] focus-visible:ring-3 focus-visible:ring-[#0759cf40]"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary no-underline outline-none active:opacity-80 focus-visible:ring-3 focus-visible:ring-primary/20"
           to={NEW_REQUEST_PATH}
         >
           <LinearAdd className="h-4.5 w-4.5" />

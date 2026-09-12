@@ -3109,7 +3109,7 @@ export function buildFacilitiesDetailSections(
 
 function DetailInfoIcon({
   item,
-  className = "h-6 w-6 shrink-0 text-[#4D4D4D]",
+  className = "h-6 w-6 shrink-0 text-on-surface-var",
 }: {
   item: DetailInfoItem;
   className?: string;
@@ -3153,7 +3153,7 @@ function DetailInfoValueView({
       <div className={`flex flex-wrap gap-2 ${alignClassName}`}>
         {item.value.map((value) => (
           <Typography as="span" variant="label" size="large" weight="semibold"
-            className="rounded-md bg-[#edeff3] px-2.5 py-1.5 text-base font-semibold leading-6 text-[#1A1A1A]"
+            className="rounded-md bg-surface-container-high px-2.5 py-1.5 text-base font-semibold leading-6 text-on-surface"
             key={value}
           >
             {value}
@@ -3171,7 +3171,7 @@ function DetailInfoValueView({
           {[1, 2, 3, 4, 5].map((star) => (
             <LinearStar
               aria-hidden="true"
-              className={`h-5 w-5 ${star <= count ? "text-[#ffb100]" : "text-[#d9d9d9]"}`}
+              className={`h-5 w-5 ${star <= count ? "text-warning" : "text-outline-var"}`}
               innerColor={star <= count ? "currentColor" : "transparent"}
               key={star}
             />
@@ -3184,12 +3184,12 @@ function DetailInfoValueView({
   if (item.badge) {
     const badgeClassName =
       item.tone === "success"
-        ? "bg-[#0FAF7314] text-[#0FAF73]"
+        ? "bg-tertiary-container text-tertiary"
         : item.tone === "danger"
-          ? "bg-[#FF3B3014] text-[#FF3B30] border border-[#FF3B30]"
+          ? "bg-error-container text-error border border-error"
         : item.tone === "warning"
-          ? "bg-[#FF8D0014] text-[#FF6D00] border border-[#FF6D00]"
-          : "bg-[#edeff3] text-[#4d4d4d]";
+          ? "bg-warning-container text-warning border border-warning"
+          : "bg-surface-container-high text-on-surface-var";
 
     return (
       <Typography as="span" variant="label" size="medium" weight="semibold"
@@ -3217,12 +3217,12 @@ function DetailInfoItemCard({
       <div className="flex min-h-7 w-full items-center justify-start gap-2 text-right text-base font-semibold [direction:rtl]">
         {showIcon ? <DetailInfoIcon item={item} /> : null}
 
-        <div className="text-base font-semibold text-[#1A1A1A]">
+        <div className="text-base font-semibold text-on-surface">
           <DetailInfoValueView align="start" item={item} />
         </div>
       </div>
 
-      <Typography variant="label" size="small" weight="medium" className={`text-[#808080] ${labelPaddingClassName}`}>
+      <Typography variant="label" size="small" weight="medium" className={`text-outline ${labelPaddingClassName}`}>
         {item.label}
       </Typography>
     </div>
@@ -3238,10 +3238,10 @@ function DetailInfoChoiceRows({ rows }: { rows: DetailInfoItem[] }) {
     <div>
       {rows.map((row) => (
         <div
-          className="flex flex-wrap items-center justify-start gap-2 border-t border-dashed border-[#d9d9d9] py-4 [direction:rtl]"
+          className="flex flex-wrap items-center justify-start gap-2 border-t border-dashed border-outline-var py-4 [direction:rtl]"
           key={row.label}
         >
-          <div className="inline-flex shrink-0 items-center gap-1 text-[#808080]">
+          <div className="inline-flex shrink-0 items-center gap-1 text-outline">
             <ColorableSvgIcon
               className="h-5 w-5 shrink-0"
               src={row.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
@@ -3263,11 +3263,11 @@ function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
   }
 
   return (
-    <div className="border-t border-dashed border-[#d9d9d9]">
+    <div className="border-t border-dashed border-outline-var">
       <div className="flex flex-wrap justify-start gap-2 pb-4 pt-4 [direction:rtl]">
         {badges.map((badge) => (
           <Typography as="span" variant="label" size="medium" weight="semibold"
-            className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-[#E9EAEE] p-2 text-sm font-semibold leading-5 text-[#4d4d4d]"
+            className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-surface-container-high p-2 text-sm font-semibold leading-5 text-on-surface-var"
             key={badge.label}
           >
             <ColorableSvgIcon
@@ -3293,10 +3293,10 @@ function DetailInfoRowCard({
     <div>
       <div className="flex items-center justify-start h-9 my-4 text-right [direction:rtl]">
         {item.iconSrc ? (
-          <ColorableSvgIcon className="h-6 w-6 shrink-0 text-[#4D4D4D]" src={item.iconSrc} />
+          <ColorableSvgIcon className="h-6 w-6 shrink-0 text-on-surface-var" src={item.iconSrc} />
         ) : null}
 
-        <Typography as="span" variant="label" size="large" weight="medium" className="text-base mr-1 font-medium text-[#808080]">
+        <Typography as="span" variant="label" size="large" weight="medium" className="text-base mr-1 font-medium text-outline">
           {item.label}
         </Typography>
 
@@ -3312,10 +3312,10 @@ function DetailInfoRowCard({
               className="flex items-center justify-start gap-2 text-sm font-medium leading-5 [direction:rtl]"
               key={row.label}
             >
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#808080]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-outline">
                 {row.label}
               </Typography>
-              <strong className="text-sm font-semibold leading-5 text-[#1A1A1A]">
+              <strong className="text-sm font-semibold leading-5 text-on-surface">
                 {row.value}
               </strong>
             </div>
@@ -3324,7 +3324,7 @@ function DetailInfoRowCard({
       ) : null}
 
       {showDivider ? (
-        <div aria-hidden="true" className="h-px w-full bg-[#e5e5e5]" />
+        <div aria-hidden="true" className="h-px w-full bg-outline-var" />
       ) : null}
     </div>
   );
@@ -3341,14 +3341,14 @@ function DetailInfoSectionBlock({
 
   return (
     <section
-      className={`bg-white px-4 ${separated ? "border-t-8 border-[#f0f0f0]" : ""}`}
+      className={`bg-surface-container-lowest px-4 ${separated ? "border-t-8 border-surface-container" : ""}`}
     >
       <div className="py-4">
-        <Typography variant="label" size="medium" weight="medium" className="text-[#808080]">
+        <Typography variant="label" size="medium" weight="medium" className="text-outline">
           {section.title}
         </Typography>
       </div>
-      <div aria-hidden="true" className="h-px w-full bg-[#e5e5e5]" />
+      <div aria-hidden="true" className="h-px w-full bg-outline-var" />
 
       {section.ratingBanner ? (
         <div className="pt-4">
@@ -3399,12 +3399,12 @@ export function DetailInfoFullPage({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar onBack={() => goBackToAd(adId)} title={title} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {sections.length > 0 ? (
           sections.map((section, index) => (
             <DetailInfoSectionBlock
@@ -3414,7 +3414,7 @@ export function DetailInfoFullPage({
             />
           ))
         ) : (
-          <div className="mx-auto w-full bg-white px-4 py-10 text-center text-sm font-medium leading-5 text-[#808080]">
+          <div className="mx-auto w-full bg-surface-container-lowest px-4 py-10 text-center text-sm font-medium leading-5 text-outline">
             اطلاعاتی برای نمایش وجود ندارد.
           </div>
         )}

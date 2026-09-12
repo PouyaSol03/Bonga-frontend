@@ -130,7 +130,7 @@ function PriceToggleRow({
         variant="label"
         size="large"
         weight="semibold"
-        className="text-right text-[#1a1a1a] [direction:rtl]"
+        className="text-right text-on-surface [direction:rtl]"
       >
         {label}
       </Typography>
@@ -459,11 +459,11 @@ export function DetailsStep({
               supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
-            <div className="border-t border-[#f0f0f0]">
+            <div className="border-t border-outline-var">
               <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
             </div>
 
-            <div className="border-t border-[#f0f0f0]">
+            <div className="border-t border-outline-var">
               <PriceToggleRow
                 checked={values.exchangeEnabled}
                 label="معاوضه"
@@ -472,12 +472,12 @@ export function DetailsStep({
             </div>
 
             {values.exchangeEnabled ? (
-              <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
+              <div className="rounded-[14px] border border-outline-var px-4 py-4">
                 <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
                   <Typography as="span" variant="body" size="medium" weight="regular">معاوضه با</Typography>
                   <Button
                     unstyled
-                    className="flex items-center gap-1 text-[#0048c4]"
+                    className="flex items-center gap-1 text-primary"
                     onClick={() => setSheet({ kind: "exchange", title: "معاوضه با", options: exchangeTargets })}
                     type="button"
                   >
@@ -499,7 +499,7 @@ export function DetailsStep({
                 ) : null}
 
                 {errors.exchangeTargets ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs text-[#ff3b30]">
+                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs text-error">
                     {errors.exchangeTargets}
                   </Typography>
                 ) : null}
@@ -520,7 +520,7 @@ export function DetailsStep({
 
           {!isDailyHotelRent ? (
             <>
-              <div className="my-5 border-t border-dashed border-[#cccccc]" />
+              <div className="my-5 border-t border-dashed border-outline-var" />
               <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
                 <InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} />
                 <InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} />
@@ -638,13 +638,13 @@ export function DetailsStep({
             ) : null}
 
             {allowExchange && values.exchangeEnabled ? (
-              <div className="rounded-[14px] border border-[#e0e0e0] px-4 py-4">
+              <div className="rounded-[14px] border border-outline-var px-4 py-4">
                 <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
                   <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
 
                   <Button
                     unstyled
-                    className="flex items-center gap-1 text-[#0048c4]"
+                    className="flex items-center gap-1 text-primary"
                     onClick={() =>
                       setSheet({
                         kind: "exchange",
@@ -676,7 +676,7 @@ export function DetailsStep({
                   </div>
                 ) : null}
                 {errors.exchangeTargets ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-5 text-[#ff3b30]">
+                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-5 text-error">
                     {errors.exchangeTargets}
                   </Typography>
                 ) : null}
@@ -709,7 +709,7 @@ export function DetailsStep({
         {allowLoan ? (
           <>
             <div
-              className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-[#cccccc]`}
+              className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-outline-var`}
             >
               <PriceToggleRow
                 checked={values.loanEnabled}
@@ -760,7 +760,7 @@ export function DetailsStep({
                 : values.loanEnabled
                   ? "mt-4"
                   : ""
-            } border-t border-[#cccccc]`}
+            } border-t border-outline-var`}
           >
             <PriceToggleRow
               checked={values.exchangeEnabled}
@@ -771,21 +771,21 @@ export function DetailsStep({
         ) : null}
 
         {allowExchange && values.exchangeEnabled ? (
-          <div className="mt-3 rounded-2xl border border-[#f0f0f0] px-4 py-6">
+          <div className="mt-3 rounded-2xl border border-outline-var px-4 py-6">
             <div className="mb-4 flex items-center justify-between [direction:rtl]">
               <Typography
                 as="span"
                 variant="label"
                 size="large"
                 weight="medium"
-                className="text-[#1a1a1a] [direction:rtl]"
+                className="text-on-surface [direction:rtl]"
               >
                 معاوضه با
               </Typography>
 
               <Button
                 unstyled
-                className="flex items-center gap-1 text-[#0048c4]"
+                className="flex items-center gap-1 text-primary"
                 onClick={() =>
                   setSheet({
                     kind: "exchange",
@@ -826,7 +826,7 @@ export function DetailsStep({
                 variant="body"
                 size="small"
                 weight="regular"
-                className="m-0 mt-3 text-right text-[#ff3b30]"
+                className="m-0 mt-3 text-right text-error"
               >
                 {errors.exchangeTargets}
               </Typography>
@@ -840,8 +840,8 @@ export function DetailsStep({
   return (
     <>
       <main className={desktop
-        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
-        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"} dir="rtl">
+        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-3"} dir="rtl">
         <Section icon="location.svg" title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}>
           <LocationBox
             label={label}
@@ -1013,7 +1013,7 @@ export function DetailsStep({
 
                   {hiddenMoreFeatureCount > 0 ? (
                     <Button unstyled
-                      className="flex h-8 items-center justify-start gap-1.5 text-sm font-normal leading-5 text-[#808080] active:text-[#0048c4]"
+                      className="flex h-8 items-center justify-start gap-1.5 text-sm font-normal leading-5 text-outline active:text-primary"
                       onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
                       type="button"
                     >
@@ -1046,28 +1046,28 @@ export function DetailsStep({
                   ) : null}
 
                   <Button unstyled
-                    className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
+                    className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
                     onClick={onMoreFeatures}
                     type="button"
                   >
                     <Typography variant="label" size="medium" weight="medium">ویرایش مشخصات</Typography>
                     <Typography as="span" variant="title" size="large" weight="medium" className="text-lg leading-none">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#0048c4" />
+                        <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="currentColor" />
                       </svg>
                     </Typography>
                   </Button>
                 </div>
               ) : moreFeatureFields.length ? (
                 <Button unstyled
-                  className="mx-auto py-2.5 flex items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
+                  className="mx-auto py-2.5 flex items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
                   onClick={onMoreFeatures}
                   type="button"
                 >
                   <Typography variant="label" size="medium" weight="medium">ثبت {formatPersianCount(moreFeatureFields.length)} مشخصات دیگر</Typography>
                   <Typography as="span" variant="title" size="large" weight="medium" className="text-lg leading-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="#0048c4" />
+                      <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="currentColor" />
                     </svg>
                   </Typography>
                 </Button>
@@ -1239,16 +1239,16 @@ export function DetailsStep({
         {isCrm && (
           <Section icon="personal-card.svg" title="انتخاب مالک آگهی (پنل مدیریت)">
             <div className="flex flex-col gap-4">
-              <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#cccccc]" dir="ltr">
+              <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-outline-var" dir="ltr">
                 <Button unstyled
-                  className={`text-sm font-bold transition ${values.targetOwnerType === "agency" ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"}`}
+                  className={`text-sm font-bold transition ${values.targetOwnerType === "agency" ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
                   onClick={() => setValue("targetOwnerType", "agency")}
                   type="button"
                 >
                   آژانس املاک
                 </Button>
                 <Button unstyled
-                  className={`border-r border-[#cccccc] text-sm font-bold transition ${values.targetOwnerType === "user" ? "bg-[#0048c4] text-white" : "bg-white text-[#4d4d4d]"}`}
+                  className={`border-r border-outline-var text-sm font-bold transition ${values.targetOwnerType === "user" ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
                   onClick={() => setValue("targetOwnerType", "user")}
                   type="button"
                 >
@@ -1287,8 +1287,8 @@ export function DetailsStep({
         }
         handleClassName={
           sheet?.kind === "exchange"
-            ? "h-1 w-[56px] rounded-full bg-[#cccccc]"
-            : "h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+            ? "h-1 w-[56px] rounded-full bg-outline-var"
+            : "h-1 w-[42px] rounded-full bg-outline-var"
         }
         headerButtonAriaLabel="بازگشت"
         headerClassName={sheet?.kind === "exchange" ? "!gap-0 !px-2" : ""}
@@ -1315,7 +1315,7 @@ export function DetailsStep({
 
               return (
                 <Button unstyled
-                  className="flex h-[72px] w-full items-center justify-between gap-3 pl-5 pr-4 text-right text-[#1a1a1a]"
+                  className="flex h-[72px] w-full items-center justify-between gap-3 pl-5 pr-4 text-right text-on-surface"
                   key={option}
                   onClick={() =>
                     setField(
@@ -1341,7 +1341,7 @@ export function DetailsStep({
               return (
                 <Button
                   unstyled
-                  className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-[#1a1a1a]"
+                  className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-on-surface"
                   key={option}
                   onClick={() =>
                     setField(sheet.key, toggleArray(values[sheet.key], option))

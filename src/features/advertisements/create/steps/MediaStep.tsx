@@ -14,7 +14,7 @@ function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]" data-field-error="true">
+    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-error" data-field-error="true">
       {message}
     </Typography>
   );
@@ -132,8 +132,8 @@ export function MediaStep({
       <main
         className={
           desktop
-            ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
-            : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-3"
+            ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+            : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-3"
         }
         dir="rtl"
       >

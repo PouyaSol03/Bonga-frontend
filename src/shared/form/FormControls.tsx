@@ -30,13 +30,13 @@ export function FormSegmentedControl<T extends string>({
   return (
     <div
       aria-label={ariaLabel}
-      className="relative flex h-10 w-full overflow-hidden rounded-xl border border-[#808080] bg-white"
+      className="relative flex h-10 w-full overflow-hidden rounded-xl border border-outline bg-surface-container-lowest"
       dir="rtl"
       role="radiogroup"
     >
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 bg-[#edf0fb]"
+        className="pointer-events-none absolute inset-y-0 right-0 bg-primary-container"
         style={{ width: `${100 / count}%` }}
         animate={{ x: `${-activeIndex * 100}%` }}
         transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
@@ -47,10 +47,10 @@ export function FormSegmentedControl<T extends string>({
         return (
           <Button unstyled
             aria-checked={selected}
-            className={`relative flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+            className={`relative flex min-w-0 flex-1 items-center justify-center border-outline text-base font-medium leading-6 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 ${
               showDividers && index < options.length - 1 ? "border-l" : ""
             } ${
-              selected ? "text-[#0048c4] font-semibold" : "text-[#4d4d4d] hover:bg-[#f5f5f5]/50"
+              selected ? "text-primary font-semibold" : "text-on-surface-var hover:bg-surface-container/50"
             }`}
             key={option.value}
             onClick={() => onChange(option.value)}

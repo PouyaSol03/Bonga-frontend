@@ -37,10 +37,12 @@
   --color-surface: var(--surface);
   --color-on-surface: var(--on-surface);
   --color-on-surface-var: var(--on-surface-var);
+  --color-on-surface-variant: var(--on-surface-var);
 
   /* Outline */
   --color-outline: var(--outline);
   --color-outline-var: var(--outline-var);
+  --color-outline-variant: var(--outline-var);
 
   /* Surface containers */
   --color-surface-container-lowest: var(--surface-container-lowest);

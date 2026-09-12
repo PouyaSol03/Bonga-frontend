@@ -104,41 +104,41 @@ function AgencyCard({
 
   return (
     <article
-      className={`mx-4 overflow-hidden rounded-[13px] border transition-colors ${selected ? "border-[#0b55d4] bg-[#eef4ff]" : "border-[#d0d0d0] bg-white"}`}
+      className={`mx-4 overflow-hidden rounded-[13px] border transition-colors ${selected ? "border-primary bg-primary-container/20" : "border-outline-var bg-surface-container-lowest"}`}
       ref={loadMoreRef}
     >
       <Button unstyled className="flex w-full gap-4 px-4 pb-4 pt-4 text-right" onClick={onSelect} type="button">
         {image ? (
           <img alt="" className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover" src={image} />
         ) : (
-          <Typography as="span" variant="headline" size="small" className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-[#edf3ff] text-2xl font-bold text-[#0048c4]">
+          <Typography as="span" variant="headline" size="small" className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-primary-container text-2xl font-bold text-primary">
             {agency.name.trim().charAt(0) || "آ"}
           </Typography>
         )}
 
         <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col justify-between py-1.5">
-          <strong className="truncate text-base font-medium text-[#4d4d4d]">{agency.name}</strong>
-          <Typography as="span" variant="body" size="small" weight="regular" className="flex items-center justify-between text-xs text-[#1a1a1a]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearStar  className="w-4 h-4 text-[#4D4D4D]"/><Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography><b className="font-semibold text-[#00a66a] px-2">{agency.score}</b></Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="font-semibold text-[#00a66a] px-2">{agency.rank}</b></Typography>
+          <strong className="truncate text-base font-medium text-on-surface-var">{agency.name}</strong>
+          <Typography as="span" variant="body" size="small" weight="regular" className="flex items-center justify-between text-xs text-on-surface">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearStar className="w-4 h-4 text-on-surface-var"/><Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography><b className="font-semibold text-tertiary px-2">{agency.score}</b></Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-on-surface-var"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="font-semibold text-tertiary px-2">{agency.rank}</b></Typography>
           </Typography>
         </Typography>
       </Button>
 
-      <div className="mx-4 h-px bg-[#d9d9d9]" />
+      <div className="mx-4 h-px bg-outline-var" />
 
       <div className="flex h-[58px] items-center justify-between gap-3 px-4" dir="rtl">
-        <Button unstyled className="flex items-center gap-3 text-[#4d4d4d]" onClick={onSelect} type="button">
+        <Button unstyled className="flex items-center gap-3 text-on-surface-var" onClick={onSelect} type="button">
           <RadioIndicator checked={selected} />
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">انتخاب</Typography>
         </Button>
         <Button unstyled
-          className={`flex h-10 px-4 py-2.5 items-center justify-center gap-2 rounded-xl border ${selected ? "border-[#0b55d4] text-[#0b55d4]" : "border-[#cccccc] text-[#1a1a1a]"}`}
+          className={`flex h-10 px-4 py-2.5 items-center justify-center gap-2 rounded-xl border ${selected ? "border-primary text-primary" : "border-outline-var text-on-surface"}`}
           onClick={onOpenProfile}
           type="button"
         >
           <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">مشاهده پروفایل آژانس</Typography>
-          <LinearArrowLeft2 className="text-[#4D4D4D] w-5 h-5"/>
+          <LinearArrowLeft2 className="text-on-surface-var w-5 h-5"/>
         </Button>
       </div>
     </article>
@@ -147,9 +147,9 @@ function AgencyCard({
 
 function Notice({ onClose }: { onClose: () => void }) {
   return (
-    <aside className="mx-4 rounded-[13px] border border-[#ff6a00] bg-[#fff8ef] px-4 py-4 text-[#4d4d4d]">
+    <aside className="mx-4 rounded-[13px] border border-warning bg-warning-container/30 px-4 py-4 text-on-surface-var">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[#ff6a00]">
+        <div className="flex items-center gap-2 text-warning">
           <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 w-5 place-items-center rounded-full border border-current text-xs font-bold">!</Typography>
           <strong className="text-base">توجه!</strong>
         </div>
@@ -165,9 +165,9 @@ function Notice({ onClose }: { onClose: () => void }) {
 
 function LoadingCard() {
   return (
-    <div className="mx-4 h-[164px] animate-pulse rounded-[13px] border border-[#e4e4e4] bg-white p-4">
-      <div className="flex gap-4"><div className="h-[72px] w-[72px] rounded-xl bg-[#f0f0f0]" /><div className="flex-1"><div className="h-5 w-2/3 rounded bg-[#f0f0f0]" /><div className="mt-5 h-4 w-full rounded bg-[#f0f0f0]" /></div></div>
-      <div className="mt-4 h-px bg-[#ededed]" /><div className="mt-3 h-9 rounded-xl bg-[#f0f0f0]" />
+    <div className="mx-4 h-[164px] animate-pulse rounded-[13px] border border-outline-var bg-surface-container-lowest p-4">
+      <div className="flex gap-4"><div className="h-[72px] w-[72px] rounded-xl bg-surface-container" /><div className="flex-1"><div className="h-5 w-2/3 rounded bg-surface-container" /><div className="mt-5 h-4 w-full rounded bg-surface-container" /></div></div>
+      <div className="mt-4 h-px bg-outline-var" /><div className="mt-3 h-9 rounded-xl bg-surface-container" />
     </div>
   );
 }
@@ -333,27 +333,27 @@ export function AgencySelectionStep({
   return (
     <>
       <TopBar onBack={onBack} title="ثبت آگهی / انتخاب آژانس" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-28" dir="rtl">
-        <div className="sticky top-0 z-20 bg-[#f4f4f4] px-4 pb-3 pt-4 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
-          <label className="flex h-12 items-center gap-3 rounded-xl border border-[#808080] bg-white px-4 text-[#4d4d4d] focus-within:border-[#0048c4]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-28" dir="rtl">
+        <div className="sticky top-0 z-20 bg-surface-container px-4 pb-3 pt-4 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
+          <label className="flex h-12 items-center gap-3 rounded-xl border border-outline bg-surface-container-lowest px-4 text-on-surface-var focus-within:border-primary">
             <SearchIcon />
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-right text-base outline-none placeholder:text-[#a6a6a6]"
+              className="min-w-0 flex-1 border-0 bg-transparent text-right text-base outline-none placeholder:text-outline"
               onChange={(event) => setSearch(event.target.value)}
               placeholder="جستجوی آژانس"
               value={search}
             />
           </label>
           <div className="mt-2 flex items-center justify-start gap-2">
-            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${selectedNeighborhood ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => {
+            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${selectedNeighborhood ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`} onClick={() => {
                 setPendingNeighborhood(selectedNeighborhood);
                 setNeighborhoodSearch("");
                 setIsNeighborhoodOpen(true);
               }} type="button">
               <LocationIcon /><Typography as="span" variant="body" size="medium" weight="regular" className="max-w-28 truncate">{selectedNeighborhood?.name ?? "محله"}</Typography>
             </Button>
-            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-[#0048c4] bg-[#eaf2ff] text-[#0048c4]" : "border-[#cccccc] bg-white text-[#4d4d4d]"}`} onClick={() => setIsSortOpen(true)} type="button">
-              <SortIcon className="h-5 w-5 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</Typography>
+            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`} onClick={() => setIsSortOpen(true)} type="button">
+              <SortIcon className="h-5 w-5 text-on-surface-var" /><Typography as="span" variant="body" size="medium" weight="regular">{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</Typography>
             </Button>
           </div>
         </div>
@@ -364,9 +364,9 @@ export function AgencySelectionStep({
           {agenciesQuery.isLoading ? (
             <><LoadingCard /><LoadingCard /><LoadingCard /></>
           ) : agenciesQuery.isError ? (
-            <div className="mx-4 rounded-xl border border-[#ffd1d1] bg-[#fff7f7] px-4 py-6 text-center text-sm leading-6 text-[#a43232]">
+            <div className="mx-4 rounded-xl border border-error/30 bg-error-container/30 px-4 py-6 text-center text-sm leading-6 text-error">
               دریافت فهرست آژانس‌ها با خطا مواجه شد.
-              <Button unstyled className="mt-3 block w-full font-semibold text-[#0048c4]" onClick={() => void agenciesQuery.refetch()} type="button">تلاش دوباره</Button>
+              <Button unstyled className="mt-3 block w-full font-semibold text-primary" onClick={() => void agenciesQuery.refetch()} type="button">تلاش دوباره</Button>
             </div>
           ) : agencies.length === 0 ? (
             <SearchEmptyState />
@@ -387,12 +387,12 @@ export function AgencySelectionStep({
         </div>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t border-[#eeeeee] bg-white px-4" dir="rtl">
-        <Button unstyled className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]" onClick={() => setView("map")} type="button">
-          <LinearMapsLocation className="w-6 h-6 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
+      <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t border-outline-var bg-surface-container-lowest px-4" dir="rtl">
+        <Button unstyled className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest text-base font-semibold text-on-surface active:bg-surface-container" onClick={() => setView("map")} type="button">
+          <LinearMapsLocation className="w-6 h-6 text-on-surface-var" /><Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
         </Button>
         <Button unstyled
-          className="h-12 min-w-0 flex-1 rounded-xl bg-[#0b55d4] px-4 text-base font-semibold text-white disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
+          className="h-12 min-w-0 flex-1 rounded-xl bg-primary px-4 text-base font-semibold text-on-primary disabled:bg-surface-container-high disabled:text-outline"
           disabled={!selectedAgency || submitDisabled}
           onClick={() => {
             if (!submitDisabled && selectedAgency) onConfirm(selectedAgency);
@@ -416,13 +416,13 @@ export function AgencySelectionStep({
           <div className="flex h-14 items-center gap-2">
             <Button unstyled
               aria-label="بازگشت"
-              className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+              className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"
               onClick={() => setIsSortOpen(false)}
               type="button"
             >
               <LinearArrowRight2 aria-hidden="true" className="h-6 w-6" />
             </Button>
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold leading-7 text-[#1a1a1a]">مرتب سازی بر اساس:</Typography>
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold leading-7 text-on-surface">مرتب سازی بر اساس:</Typography>
           </div>
 
           <div className="pt-1">
@@ -430,7 +430,7 @@ export function AgencySelectionStep({
               const checked = sort === item.id;
               return (
                 <Button unstyled
-                  className="flex h-[64px] w-full items-center justify-between text-right text-base font-normal text-[#1a1a1a] active:bg-[#fafafa]"
+                  className="flex h-[64px] w-full items-center justify-between text-right text-base font-normal text-on-surface active:bg-surface-container"
                   key={item.id}
                   onClick={() => {
                     setSort(item.id);

@@ -30,7 +30,7 @@ export function AccountWalletPage() {
 
   return (
     <AccountPageShell title="کیف پول">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
         {isLoading ? <WalletPageSkeleton /> : null}
 
         {isError ? (
@@ -57,14 +57,14 @@ export function AccountWalletPage() {
                 </div>
               </div>
 
-              <div className="grid p-4 shrink-0 place-items-center rounded-full bg-primary/8 text-[#002099]">
+              <div className="grid p-4 shrink-0 place-items-center rounded-full bg-primary/8 text-on-primary-container">
                 <img src="/icons/walletPlus.svg" alt="" />
               </div>
             </div>
 
-            <div className="-mx-3 mt-5 border-t border-[#f0f0f0]" />
+            <div className="-mx-3 mt-5 border-t border-outline-var" />
 
-            <div className="mt-5 flex items-center gap-2 text-[#1a1a1a]">
+            <div className="mt-5 flex items-center gap-2 text-on-surface">
               <PlusIcon className="h-5 w-5" />
               <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6">
                 افزایش اعتبار
@@ -92,14 +92,14 @@ export function AccountWalletPage() {
                   key={amount}
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
-                  <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-[#808080]">
+                  <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pt-1 text-xs text-outline">
                     {formatBigNumber(Number(amount))} تومان
                   </Typography>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-6 text-sm font-medium leading-5 text-[#1a1a1a]">
+            <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 mt-6 text-sm font-medium leading-5 text-on-surface">
               مبالغ پیشنهادی
             </Typography>
 
@@ -131,18 +131,18 @@ export function AccountWalletPage() {
             </div>
 
             <RouteLink
-              className="relative mt-8 flex gap-2 p-4 w-full items-center justify-center rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-medium leading-5 text-[#1a1a1a] no-underline"
+              className="relative mt-8 flex gap-2 p-4 w-full items-center justify-center rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-on-surface no-underline"
               to="/account/wallet/history"
             >
               <img src="/icons/walletHistory.svg" alt="" />
               <Typography as="span" variant="body" size="large" weight="regular" className="text-base flex-1">تاریخچه پرداخت</Typography>
-              <ChevronLeftIcon className="h-4 w-4 text-[#4d4d4d]" />
+              <ChevronLeftIcon className="h-4 w-4 text-on-surface-var" />
             </RouteLink>
           </section>
         ) : null}
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button
           disabled={!canCharge || chargeWalletMutation.isPending}
           fullWidth

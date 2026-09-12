@@ -135,20 +135,20 @@ export function IndependentConsultantAdAllocationReviewPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={{ tab: "status" }}
         backTo={adManagementPaths.root}
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         title="تخصیص و انتشار"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-4">
         <section className="px-4 pb-4 pt-4" aria-label="خلاصه آگهی">
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#fff3e8] px-3 text-sm font-medium leading-5 text-[#ff6d00]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-warning-container/30 px-3 text-sm font-medium leading-5 text-warning">
               در انتظار پرداخت
             </Typography>
           </div>
@@ -156,7 +156,7 @@ export function IndependentConsultantAdAllocationReviewPage() {
           <CompactAdSummary ad={ad} />
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
 
         <section className="px-4" aria-label="عملیات آگهی">
           <ReviewAction
@@ -192,11 +192,11 @@ export function IndependentConsultantAdAllocationReviewPage() {
           />
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
 
         <section className="px-4 pb-6 pt-5" aria-label="منتشرکننده آگهی">
-          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 mb-4 text-[#1a1a1a]">
-            منتشرکننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ee3623] text-sm">*</Typography>
+          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 mb-4 text-on-surface">
+            منتشرکننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error text-sm">*</Typography>
           </Typography>
 
           <div className="space-y-3" role="radiogroup" aria-label="انتخاب منتشرکننده آگهی">
@@ -234,9 +234,9 @@ export function IndependentConsultantAdAllocationReviewPage() {
         />
       ) : null}
 
-      <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <Button unstyled
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white transition-colors active:bg-[#003aa0]"
+          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary transition-colors active:opacity-80"
           onClick={handlePrimaryAction}
           type="button"
         >
@@ -259,13 +259,13 @@ function CompactAdSummary({ ad }: { ad: ConsultantAd }) {
   return (
     <section
       aria-label={ad.title}
-      className="mt-4 flex h-[68px] items-center justify-between gap-2 rounded-2xl border border-[#e5e5e5] bg-[#fafafa] px-3 py-2 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]"
+      className="mt-4 flex h-[68px] items-center justify-between gap-2 rounded-2xl border border-outline-var bg-surface-container-low px-3 py-2 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]"
     >
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-4 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-4 text-on-surface-var">
           فروش مسکونی / فروش آپارتمان
         </Typography>
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 truncate text-sm font-semibold leading-5 text-on-surface">
           {ad.title}
         </Typography>
       </div>
@@ -279,7 +279,7 @@ function CompactAdSummary({ ad }: { ad: ConsultantAd }) {
 }
 
 function ActionDivider() {
-  return <div className="h-px bg-[#cccccc]" aria-hidden="true" />;
+  return <div className="h-px bg-outline-var" aria-hidden="true" />;
 }
 
 function ReviewAction({
@@ -295,13 +295,13 @@ function ReviewAction({
 }) {
   return (
     <RouteLink
-      className="flex h-[52px] w-full items-center justify-between text-[#1a1a1a] no-underline [direction:ltr] active:bg-[#1a1a1a0a]"
+      className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
       state={state}
       to={to}
     >
-      <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#4d4d4d]">{icon}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">{icon}</Typography>
         {label}
       </Typography>
     </RouteLink>
@@ -311,13 +311,13 @@ function ReviewAction({
 function RejectAction({ state, to }: { state?: unknown; to: string }) {
   return (
     <RouteLink
-      className="flex h-[52px] w-full items-center justify-between bg-white p-0 text-[#1a1a1a] no-underline [direction:ltr] active:bg-[#1a1a1a0a]"
+      className="flex h-[52px] w-full items-center justify-between bg-surface-container-lowest p-0 text-on-surface no-underline [direction:ltr] active:bg-black/5"
       state={state}
       to={to}
     >
-      <LinearArrowLeft1 className="h-5 w-5 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-        <LinearCancel className="h-6 w-6 text-[#4d4d4d]" />
+        <LinearCancel className="h-6 w-6 text-on-surface-var" />
         رد ثبت آگهی
       </Typography>
     </RouteLink>
@@ -351,7 +351,7 @@ function PublisherOptionCard({
         stiffness: 400,
         damping: 30,
       }}
-      className={`w-full rounded-xl border p-4 text-right ${selected ? "border-[#0048c4]" : "border-[#cccccc]"
+      className={`w-full rounded-xl border p-4 text-right ${selected ? "border-primary" : "border-outline-var"
         }`}
     >
       <Button unstyled
@@ -363,12 +363,12 @@ function PublisherOptionCard({
       >
         <RadioIndicator className="m-3" checked={selected} />
         <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
-          <PublisherIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" icon={option.icon} />
+          <PublisherIcon className="h-6 w-6 shrink-0 text-on-surface-var" icon={option.icon} />
           <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-            <Typography as="p" variant="body" size="large" weight="regular" className="block text-[#1a1a1a]">
+            <Typography as="p" variant="body" size="large" weight="regular" className="block text-on-surface">
               {option.label}
             </Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="block text-[#a6a6a6]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="block text-outline">
               {option.description}
             </Typography>
           </Typography>
@@ -386,19 +386,19 @@ function PublisherOptionCard({
               duration: 0.25,
               ease: "easeInOut",
             }}
-            className="overflow-hidden rounded-lg border border-[#0048c4] bg-white"
+            className="overflow-hidden rounded-lg border border-primary bg-surface-container-lowest"
           >
               {assignedConsultant ? (
                 <div className="mb-2 flex items-center justify-center gap-2 px-1 py-1 text-right [direction:rtl]">
                   <ConsultantAvatar consultant={assignedConsultant} className="h-10 w-10" />
-                  <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+                  <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-on-surface">
                     {assignedConsultant.name}
                   </Typography>
                 </div>
               ) : null}
             <div className="py-4">
               <Button unstyled
-                className="inline-flex items-center justify-center w-full gap-1 rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4]"
+                className="inline-flex items-center justify-center w-full gap-1 rounded-lg bg-surface-container-lowest text-sm font-medium leading-5 text-primary"
                 onClick={onAssignConsultant}
                 type="button"
               >
@@ -451,39 +451,39 @@ function ConsultantPickerPage({
     <section
       aria-label="انتخاب مشاور"
       aria-modal="true"
-      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       role="dialog"
     >
       <TopBar
         placement="inline"
         centerClassName="px-0"
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         onBack={onClose}
         reserveStartSpace
         title="انتخاب مشاور"
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-24 pt-3">
-        <label className="flex items-center gap-2 rounded-xl border border-[#808080] bg-white p-3 focus-within:border-[#0048c4] ">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-24 pt-3">
+        <label className="flex items-center gap-2 rounded-xl border border-outline bg-surface-container-lowest p-3 focus-within:border-primary">
           <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#808080]"
+            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
             onChange={(event) => setSearchValue(event.target.value)}
             placeholder="جستجوی مشاور"
             type="search"
             value={searchValue}
           />
-          <LinearSearch className="h-6 w-6 text-[#4D4D4D]"/>
+          <LinearSearch className="h-6 w-6 text-on-surface-var"/>
         </label>
 
         <div className="mt-6 grid gap-1">
           {isLoading ? (
-            <Typography as="p" variant="body" size="medium" weight="regular" className="py-10 text-center text-sm text-[#808080]">در حال دریافت مشاوران...</Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular" className="py-10 text-center text-sm text-outline">در حال دریافت مشاوران...</Typography>
           ) : isError ? (
-            <div className="py-8 text-center text-sm leading-6 text-[#808080]">
+            <div className="py-8 text-center text-sm leading-6 text-outline">
               دریافت فهرست مشاوران با خطا مواجه شد.
               <Button unstyled
-                className="mt-3 block w-full font-semibold text-[#0048c4]"
+                className="mt-3 block w-full font-semibold text-primary"
                 onClick={onRetry}
                 type="button"
               >
@@ -499,7 +499,7 @@ function ConsultantPickerPage({
               return (
                 <Button unstyled
                   aria-checked={selected}
-                  className="flex w-full items-center justify-between gap-3 rounded-lg bg-white px-6 text-right [direction:ltr] active:bg-[#f7f7f7]"
+                  className="flex w-full items-center justify-between gap-3 rounded-lg bg-surface-container-lowest px-6 text-right [direction:ltr] active:bg-surface-container"
                   key={consultant.id}
                   onClick={() => setDraftConsultantId(consultant.id)}
                   role="radio"
@@ -508,7 +508,7 @@ function ConsultantPickerPage({
                   <RadioIndicator checked={selected} />
                   <Typography as="span" variant="body" size="medium" weight="regular" className="flex flex-1 items-center gap-3 [direction:rtl]">
                     <ConsultantAvatar consultant={consultant} className="h-14 w-14" />
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="leading-5 text-[#1a1a1a]">
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="leading-5 text-on-surface">
                       {consultant.name}
                     </Typography>
                   </Typography>
@@ -519,9 +519,9 @@ function ConsultantPickerPage({
         </div>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <Button unstyled
-          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 ${draftConsultant ? "bg-[#0048c4] text-white" : "bg-[#e5e5e5] text-[#b8b8b8]"
+          className={`inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium leading-5 ${draftConsultant ? "bg-primary text-on-primary" : "bg-surface-container-high text-outline"
             }`}
           disabled={!draftConsultant}
           onClick={() => {
@@ -557,7 +557,7 @@ function ConsultantAvatar({
   return (
     <Typography as="span" variant="label" size="small" weight="semibold"
       aria-hidden="true"
-      className={`${className} grid shrink-0 place-items-center rounded-full bg-[#edf3ff] text-xs font-semibold text-[#0048c4]`}
+      className={`${className} grid shrink-0 place-items-center rounded-full bg-primary-container text-xs font-semibold text-primary`}
     >
       {consultant.name.trim().charAt(0) || "م"}
     </Typography>

@@ -8,7 +8,7 @@ import { Typography } from "../../shared/ui/Typography";
 
 export function RequestResultImageMeta({ imageCount }: { imageCount: string }) {
   return (
-    <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center overflow-hidden rounded-[9px] bg-[#1a1a1aaa] text-[#fafafa] shadow-sm">
+    <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center overflow-hidden rounded-[9px] bg-black/65 text-white shadow-sm">
       <ImageMetaIcon
         icon={
           <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-0.5">

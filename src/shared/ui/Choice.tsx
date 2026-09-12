@@ -24,10 +24,10 @@ export function ChoiceIndicator({
         className={cn(
           "grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] select-none active:scale-[0.94]",
           disabled
-            ? "border-[#cccccc] bg-white"
+            ? "border-outline-var bg-surface-container"
             : checked
-              ? "border-[#0048c4] bg-[#0048c4] shadow-[0_0_0_2px_rgba(0,72,196,0.15)]"
-              : "border-[#808080] bg-white hover:border-[#0048c4]/70",
+              ? "border-primary bg-primary shadow-[0_0_0_2px_rgba(0,72,196,0.15)]"
+              : "border-outline bg-surface-container-lowest hover:border-primary/70",
           className,
         )}
         {...props}
@@ -39,7 +39,7 @@ export function ChoiceIndicator({
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
               transition={{ duration: 0.2, ease: "backOut" }}
-              className="h-2 w-2 rounded-full bg-white"
+              className="h-2 w-2 rounded-full bg-on-primary"
             />
           )}
         </AnimatePresence>
@@ -54,11 +54,11 @@ export function ChoiceIndicator({
         "grid h-4.5 w-4.5 shrink-0 place-items-center rounded-[4px] border-[1.5px] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] select-none active:scale-[0.92]",
         disabled
           ? checked
-            ? "border-[#b8b8b8] bg-[#b8b8b8] text-white"
-            : "border-[#b8b8b8] bg-white text-transparent"
+            ? "border-outline/50 bg-outline/50 text-on-primary"
+            : "border-outline/50 bg-surface-container text-transparent"
           : checked
-            ? "border-[#0048c4] bg-[#0048c4] text-white shadow-[0_0_0_2px_rgba(0,72,196,0.15)]"
-            : "border-[#808080] bg-white text-transparent hover:border-[#0048c4]/70",
+            ? "border-primary bg-primary text-on-primary shadow-[0_0_0_2px_rgba(0,72,196,0.15)]"
+            : "border-outline bg-surface-container-lowest text-transparent hover:border-primary/70",
         className,
       )}
       {...props}
@@ -70,7 +70,7 @@ export function ChoiceIndicator({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ duration: 0.2, ease: "backOut" }}
-            className="flex items-center justify-center text-white"
+            className="flex items-center justify-center text-on-primary"
           >
             <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" viewBox="0 0 14 14">
               <motion.path

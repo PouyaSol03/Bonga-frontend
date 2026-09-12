@@ -57,18 +57,18 @@ export function IndependentConsultantAdSearchPage() {
     : activeAdsQuery.isError;
 
   return (
-    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-white" variant="flush">
+    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest" variant="flush">
       <TopBar
         backState={{ tab }}
         backTo={adManagementPaths.root}
-        className="[&_a]:text-[#4d4d4d]"
+        className="[&_a]:text-on-surface-var"
         centerSlot={
           <SearchInputBar
             aria-label="جستجوی آگهی"
             autoFocus
             compact
             containerClassName="border-0 bg-transparent px-0"
-            inputClassName="text-base font-semibold caret-[#0048c4]"
+            inputClassName="text-base font-semibold caret-primary"
             inputMode="search"
             onValueChange={setQuery}
             showSearchIcon={false}
@@ -78,14 +78,14 @@ export function IndependentConsultantAdSearchPage() {
         }
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
         {normalizedQuery.length > 0 ? (
           isLoading ? (
-            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-[#808080]">
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-outline">
               در حال دریافت آگهی‌ها...
             </div>
           ) : isError ? (
-            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-[#808080]">
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-outline">
               دریافت آگهی‌ها با خطا مواجه شد.
             </div>
           ) : matchedAds.length > 0 ? (

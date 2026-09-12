@@ -14,7 +14,7 @@ function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-[#ff3b30]" data-field-error="true">
+    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-error" data-field-error="true">
       {message}
     </Typography>
   );
@@ -24,10 +24,10 @@ function FieldError({ message }: { message?: string }) {
 function SectionHeading({ required = false, title }: { required?: boolean; title: string }) {
   return (
     <div className="mb-2 flex items-center justify-between gap-3">
-      <Typography variant="label" size="large" className="text-[#1a1a1a]">
-        {title} {required ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography> : null}
+      <Typography variant="label" size="large" className="text-on-surface">
+        {title} {required ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography> : null}
       </Typography>
-      <LinearInfoCircle className="w-6 h-6 text-[#4D4D4D]!" />
+      <LinearInfoCircle className="w-6 h-6 text-on-surface-var" />
     </div>
   );
 }
@@ -45,8 +45,8 @@ function RegistrantTypeFields({
 }) {
   return (
     <div>
-      <div className="mb-3 text-right text-base font-medium leading-7 text-[#1a1a1a]">
-        ثبت کننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
+      <div className="mb-3 text-right text-base font-medium leading-7 text-on-surface">
+        ثبت کننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
       </div>
 
       <div className="space-y-3">
@@ -89,7 +89,7 @@ function PersonalContactFields({
   phoneEnabled: boolean;
 }) {
   return (
-    <div className="border-t border-dashed border-[#cccccc] pt-5">
+    <div className="border-t border-dashed border-outline-var pt-5">
       <SectionHeading required title="روش‌های ارتباطی" />
 
       <CheckRow
@@ -125,13 +125,13 @@ function AgencyContactFields({
   ownerFullName: string;
 }) {
   return (
-    <div className="border-t border-[#cccccc] pt-5">
+    <div className="border-t border-outline-var pt-5">
       <SectionHeading title="روش‌های ارتباطی" />
 
-      <div className="space-y-1 text-right text-sm font-normal leading-6 text-[#808080]">
+      <div className="space-y-1 text-right text-sm font-normal leading-6 text-outline">
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
           شما با شماره{" "}
-          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#11a366] [direction:ltr]" dir="ltr">
+          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-tertiary [direction:ltr]" dir="ltr">
             {mobile || "شماره ثبت‌شده شما"}
           </Typography>{" "}
           وارد شده‌اید.
@@ -149,8 +149,8 @@ function AgencyContactFields({
 
       <div className="mt-5 space-y-4">
         <div>
-          <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-            نام و نام خانوادگی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
+          <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+            نام و نام خانوادگی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
           </div>
           <InputBox
             error={errors.ownerFullName}
@@ -161,8 +161,8 @@ function AgencyContactFields({
         </div>
 
         <div>
-          <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-            آدرس دقیق منزل <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
+          <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+            آدرس دقیق منزل <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
           </div>
           <InputBox
             error={errors.ownerExactAddress}
@@ -187,7 +187,7 @@ function SocialFields({
 }) {
   return (
     <div>
-      <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
+      <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
         شبکه‌های اجتماعی
       </div>
       <div className="space-y-3">
@@ -274,9 +274,9 @@ export function AdInformationFields({
         />
       ) : null}
 
-      <div className="border-t border-dashed border-[#cccccc] pt-5">
-        <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-          عنوان آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
+      <div className="border-t border-dashed border-outline-var pt-5">
+        <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+          عنوان آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
         </div>
         <InputBox
           error={errors.title}
@@ -288,17 +288,17 @@ export function AdInformationFields({
       </div>
 
       <div>
-        <div className="mb-3 text-right text-base font-semibold leading-7 text-[#1a1a1a]">
-          توضیحات آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
+        <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+          توضیحات آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
         </div>
         <label
-          className={`block min-h-32 w-full rounded-[12px] border bg-white px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] focus-within:border-[#0048c4] ${
-            errors.description ? "border-[#ff3b30]" : "border-[#cccccc]"
+          className={`block min-h-32 w-full rounded-[12px] border bg-surface-container-lowest px-4 py-3 text-right text-base font-normal leading-6 text-on-surface focus-within:border-primary ${
+            errors.description ? "border-error" : "border-outline-var"
           }`}
         >
           <textarea
             aria-invalid={Boolean(errors.description)}
-            className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-[#a6a6a6]"
+            className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-outline"
             maxLength={500}
             onChange={(event) => onSetField("description", event.target.value.slice(0, 500))}
             placeholder="اطلاعات بیشتر را وارد کنید..."

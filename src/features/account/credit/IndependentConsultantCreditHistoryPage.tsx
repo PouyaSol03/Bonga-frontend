@@ -112,12 +112,12 @@ export function IndependentConsultantCreditHistoryPage() {
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account/credit/panel" title="تاریخچه پرداخت" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
         {payments.map((payment, index) => {
           const shouldAttachLoadMoreRef =
             index === loadMoreTriggerIndex &&
@@ -146,7 +146,7 @@ function PaymentHistoryCard({
 }) {
   return (
     <section
-      className="mb-2 flex h-[224px] flex-col justify-between bg-white px-4 py-4 last:mb-0"
+      className="mb-2 flex h-[224px] flex-col justify-between bg-surface-container-lowest px-4 py-4 last:mb-0"
       ref={ref}
     >
       <PaymentHistoryRow
@@ -154,10 +154,10 @@ function PaymentHistoryCard({
         value={payment.status}
         valueClassName={
           payment.statusTone === "success"
-            ? "text-[#11a366]"
+            ? "text-tertiary"
             : payment.statusTone === "warning"
-              ? "text-[#ff6d00]"
-              : "text-[#ee3623]"
+              ? "text-warning"
+              : "text-error"
         }
       />
       <PaymentHistoryRow label="نوع سرویس" value={payment.service} />
@@ -172,7 +172,7 @@ function PaymentHistoryCard({
 function PaymentHistoryRow({
   label,
   value,
-  valueClassName = "text-[#1a1a1a]",
+  valueClassName = "text-on-surface",
 }: {
   label: string;
   value: ReactNode;
@@ -181,7 +181,7 @@ function PaymentHistoryRow({
   return (
     <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
       <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-right text-outline [direction:rtl]">{label}</Typography>
     </div>
   );
 }

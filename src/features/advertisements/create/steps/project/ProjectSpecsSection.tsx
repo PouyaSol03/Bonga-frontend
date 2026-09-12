@@ -75,7 +75,7 @@ export function ProjectSpecsSection({
             />
 
             <Button unstyled
-              className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
+              className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
               onClick={onOpenMoreFeatures}
               type="button"
             >
@@ -121,18 +121,18 @@ export function ProjectSpecsSection({
           />
 
           <Button unstyled
-            className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-[#0048c4] active:text-[#00379a]"
+            className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
             onClick={onOpenMoreFeatures}
             type="button"
           >
             <Typography as="span" variant="label" size="medium" weight="medium">ثبت ۸ مشخصات دیگر</Typography>
-            <LinearArrowLeft2 className="h-4 w-4 text-[#0048c4]" />
+            <LinearArrowLeft2 className="h-4 w-4 text-primary" />
           </Button>
         </div>
       </Section>
 
       <section
-        className="border-b-[10px] border-[#f0f0f0] bg-white p-4 text-right last:border-b-0 [direction:rtl]"
+        className="border-b-[10px] border-surface-container bg-surface-container-lowest p-4 text-right last:border-b-0 [direction:rtl]"
       >
         <button
           className="flex w-full items-center justify-between transition active:opacity-70"
@@ -141,16 +141,16 @@ export function ProjectSpecsSection({
         >
           <div className="flex items-center gap-2">
             <LinearBuilding className="h-6 w-6 text-on-surface-var" />
-            <Typography variant="label" size="large" weight="medium" className="text-[#1a1a1a]">
+            <Typography variant="label" size="large" weight="medium" className="text-on-surface">
               جزییات پروژه
             </Typography>
           </div>
 
-          <div className="flex items-center gap-1 text-[#0048c4]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#0048c4]">
+          <div className="flex items-center gap-1 text-primary">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">
               انتخاب
             </Typography>
-            <LinearArrowLeft2 className="h-4 w-4 text-[#0048c4]" />
+            <LinearArrowLeft2 className="h-4 w-4 text-primary" />
           </div>
         </button>
 
@@ -161,7 +161,7 @@ export function ProjectSpecsSection({
               .map((item, index) => (
                 <Typography as="span" variant="label" size="medium" weight="medium"
                   key={item.id}
-                  className="flex h-9 items-center rounded-[7px] border border-[#0048c4] bg-[#0048c41f] px-3 text-sm font-medium leading-5 text-[#0048c4]"
+                  className="flex h-9 items-center rounded-[7px] border border-primary bg-primary-container px-3 text-sm font-medium leading-5 text-primary"
                 >
                   {`جزئیات ${index + 1}: ${item.meterage || item.minMeterage || "-"} متر`}
                 </Typography>
@@ -170,7 +170,7 @@ export function ProjectSpecsSection({
         ) : null}
 
         {projectDetailsError ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-right text-xs text-[#ff3b30]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-right text-xs text-error">
             {projectDetailsError}
           </Typography>
         ) : null}

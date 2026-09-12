@@ -145,40 +145,40 @@ function UserAdVisitStatisticsView({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={{ ad, card, returnTo, tab: "status" }}
         backTo={backTo}
-        className="bg-[#f0f0f0] [&_a]:text-[#1a1a1a]"
+        className="bg-surface-container [&_a]:text-on-surface"
         title="آمار بازدید"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[92px]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[92px]">
         {isLoading ? <InlineNotice text="در حال دریافت آمار آگهی..." /> : null}
         {isError ? <ErrorNotice onRetry={onRetry} /> : null}
 
-        <section className="bg-white p-4" aria-label="آمار بازدید">
+        <section className="bg-surface-container-lowest p-4" aria-label="آمار بازدید">
           <VisitBarChart chart={chart} mode="user" />
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
 
-        <section className="flex min-h-[292px] flex-col bg-white px-7 pb-8 pt-8">
+        <section className="flex min-h-[292px] flex-col bg-surface-container-lowest px-7 pb-8 pt-8">
           <Typography as="h2" variant="headline" size="small" className="m-0 text-[26px] font-extrabold leading-10 tracking-[-0.04em]">
-            <Typography as="span" variant="title" size="large" className="font-black text-[#11a366]">دیده شو، </Typography>
-            <Typography as="span" variant="title" size="large" className="font-black text-[#0048c4]">سریع‌تر بفروش!</Typography>
+            <Typography as="span" variant="title" size="large" className="font-black text-tertiary">دیده شو، </Typography>
+            <Typography as="span" variant="title" size="large" className="font-black text-primary">سریع‌تر بفروش!</Typography>
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-[#4d4d4d]">
-            با بسته‌های <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#0048c4]">«بروزرسانی»</Typography> و <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#0048c4]">«ویژه»</Typography>، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-on-surface-var">
+            با بسته‌های <Typography as="span" variant="body" size="medium" weight="medium" className="text-primary">«بروزرسانی»</Typography> و <Typography as="span" variant="body" size="medium" weight="medium" className="text-primary">«ویژه»</Typography>، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
           </Typography>
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <RouteLink
-          className="flex h-14 w-full items-center justify-between rounded-xl bg-[#0048c4] px-5 text-base font-medium leading-6 text-white no-underline shadow-[0_4px_10px_rgba(0,72,196,0.22)] [direction:ltr]"
+          className="flex h-14 w-full items-center justify-between rounded-xl bg-primary px-5 text-base font-medium leading-6 text-on-primary no-underline shadow-md [direction:ltr]"
           state={{
             ad,
             card,
@@ -218,25 +218,25 @@ function ManagerAdVisitStatisticsView({
 }) {
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={{ returnTo, tab: "status" }}
         backTo={backTo}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="جزییات آمار آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
         <AdSummaryHeader summary={summary} />
         {isLoading ? <InlineNotice text="در حال دریافت آمار آگهی..." /> : null}
         {isError ? <ErrorNotice onRetry={onRetry} /> : null}
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
         {charts.map((chart, index) => (
           <div key={chart.title}>
-            {index > 0 ? <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" /> : null}
+            {index > 0 ? <div className="h-2 bg-surface-container" aria-hidden="true" /> : null}
             <VisitBarChart chart={chart} mode="manager" />
           </div>
         ))}
@@ -247,11 +247,11 @@ function ManagerAdVisitStatisticsView({
 
 function AdSummaryHeader({ summary }: { summary: AdSummary }) {
   return (
-    <section className="h-[104px] bg-white px-4 py-4" aria-label={summary.title}>
+    <section className="h-[104px] bg-surface-container-lowest px-4 py-4" aria-label={summary.title}>
       <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
         <div className="min-w-0 flex-1 text-right [direction:rtl]">
-          <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5 text-[#1a1a1a]">{summary.title}</Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 truncate text-xs font-normal leading-4 text-[#808080]">
+          <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5 text-on-surface">{summary.title}</Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 truncate text-xs font-normal leading-4 text-outline">
             {summary.timeAndLocation || summary.category}
           </Typography>
         </div>
@@ -305,17 +305,17 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
 
   return (
     <section
-      className={`${isUserMode ? "bg-white" : "h-[283px] bg-[#fafafa] px-4 py-4"}`}
+      className={`${isUserMode ? "bg-surface-container-lowest" : "h-[283px] bg-surface-container-low px-4 py-4"}`}
       aria-label={chart.title}
     >
       <div className="flex h-12 items-center justify-between [direction:ltr]">
         {chartData.length > rangeSize ? <ChartRangeControls maxOffset={maxOffset} offset={offset} setOffset={setOffset} /> : <div className="h-12 w-24" aria-hidden="true" />}
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-on-surface [direction:rtl]">
           <LinearAnalytics className="h-6 w-6 text-on-surface-var" />
           {chart.title}
           <Button unstyled
             aria-label={`توضیحات ${chart.title}`}
-            className="grid h-4 w-4 place-items-center rounded-full text-[#4d4d4d] transition-colors hover:bg-[#f5f5f5] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+            className="grid h-4 w-4 place-items-center rounded-full text-on-surface-var transition-colors hover:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/20"
             onClick={() => setIsInfoSheetOpen(true)}
             type="button"
           >
@@ -326,16 +326,16 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
 
       <div className={`${isUserMode ? "mt-3" : "mt-4"}`}>
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#4d4d4d]">{chart.label}</Typography>
-          <strong className="text-base font-semibold leading-6 text-[#002099]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-on-surface-var">{chart.label}</Typography>
+          <strong className="text-base font-semibold leading-6 text-primary">
             {chart.total}
           </strong>
         </div>
 
         <div className={`${isUserMode ? "mt-3 h-[190px]" : "mt-2 h-[155px]"} [direction:ltr]`}>
           {visibleChartData.length === 0 ? (
-            <div className="flex h-full items-center justify-center border-b border-[#cccccc] px-6 text-center [direction:rtl]">
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-[#808080]">
+            <div className="flex h-full items-center justify-center border-b border-outline-var px-6 text-center [direction:rtl]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
                 داده نموداری از سرور دریافت نشده است.
               </Typography>
             </div>
@@ -347,12 +347,12 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                 margin={{ bottom: 0, left: 0, right: 0, top: 38 }}
                 style={{ outline: "none" }}
               >
-                <CartesianGrid stroke="#e6e6e6" strokeDasharray="4 4" vertical={false} />
-                <XAxis axisLine={{ stroke: "#cccccc" }} dataKey="date" height={24} interval={0} tick={{ fill: "#4d4d4d", fontSize: 12 }} tickLine={false} />
-                <YAxis axisLine={false} domain={[0, 100]} tick={{ fill: "#808080", fontSize: 12 }} tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)} tickLine={false} ticks={createYAxisTicks(chart.yAxisLabels)} width={34} />
+                <CartesianGrid stroke="var(--outline-var)" strokeDasharray="4 4" vertical={false} />
+                <XAxis axisLine={{ stroke: "var(--outline-var)" }} dataKey="date" height={24} interval={0} tick={{ fill: "var(--on-surface-var)", fontSize: 12 }} tickLine={false} />
+                <YAxis axisLine={false} domain={[0, 100]} tick={{ fill: "var(--outline)", fontSize: 12 }} tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)} tickLine={false} ticks={createYAxisTicks(chart.yAxisLabels)} width={34} />
                 <Bar
                   dataKey="value"
-                  fill="#12a36a"
+                  fill="var(--tertiary)"
                   isAnimationActive={false}
                   maxBarSize={6}
                   minPointSize={2}
@@ -363,7 +363,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                   {visibleChartData.map((column, index) => (
                     <Cell
                       cursor="pointer"
-                      fill={index === selectedIndex ? "#0f9464" : "#12a36a"}
+                      fill={index === selectedIndex ? "var(--tertiary)" : "var(--tertiary)"}
                       key={column.date}
                       onClick={() => setSelectedIndex(index)}
                       style={{ outline: "none" }}
@@ -394,7 +394,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
         showBackButton={false}
         title={chartInfo.title}
       >
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface-var">
           {chartInfo.description}
         </Typography>
       </BottomSheet>
@@ -415,7 +415,7 @@ function ChartRangeControls({
     <div className="flex items-center">
       <Button unstyled
         aria-label="بازه قبلی"
-        className={`grid h-12 w-12 place-items-center ${offset >= maxOffset ? "text-[#cccccc]" : "text-[#4d4d4d]"}`}
+        className={`grid h-12 w-12 place-items-center ${offset >= maxOffset ? "text-outline-var" : "text-on-surface-var"}`}
         disabled={offset >= maxOffset}
         onClick={() => setOffset((current) => Math.min(current + 1, maxOffset))}
         type="button"
@@ -424,7 +424,7 @@ function ChartRangeControls({
       </Button>
       <Button unstyled
         aria-label="بازه بعدی"
-        className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-[#cccccc]" : "text-[#4d4d4d]"}`}
+        className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-outline-var" : "text-on-surface-var"}`}
         disabled={offset === 0}
         onClick={() => setOffset((current) => Math.max(current - 1, 0))}
         type="button"
@@ -460,12 +460,12 @@ function SelectedVisitBarLabel({
 
   return (
     <g aria-hidden="true" pointerEvents="none">
-      <rect fill="#4d4d4d" height={labelHeight} rx={6} width={labelWidth} x={labelX} y={labelY} />
-      <path d={`M ${centerX - 5} ${labelY + labelHeight - 1} L ${centerX} ${labelY + labelHeight + 6} L ${centerX + 5} ${labelY + labelHeight - 1} Z`} fill="#4d4d4d" />
+      <rect fill="var(--on-surface-var)" height={labelHeight} rx={6} width={labelWidth} x={labelX} y={labelY} />
+      <path d={`M ${centerX - 5} ${labelY + labelHeight - 1} L ${centerX} ${labelY + labelHeight + 6} L ${centerX + 5} ${labelY + labelHeight - 1} Z`} fill="var(--on-surface-var)" />
       <text
         direction="rtl"
         dominantBaseline="middle"
-        fill="#ffffff"
+        fill="var(--surface-container-lowest)"
         fontSize="12"
         fontWeight="500"
         textAnchor="middle"
@@ -672,7 +672,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function InlineNotice({ text }: { text: string }) {
   return (
-    <div className="bg-white px-4 py-3 text-center text-xs font-medium leading-5 text-[#808080]">
+    <div className="bg-surface-container-lowest px-4 py-3 text-center text-xs font-medium leading-5 text-outline">
       {text}
     </div>
   );
@@ -680,9 +680,9 @@ function InlineNotice({ text }: { text: string }) {
 
 function ErrorNotice({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="mx-4 my-3 rounded-lg bg-[#fff5db] px-3 py-2 text-center text-xs font-medium leading-5 text-[#ff6d00]">
+    <div className="mx-4 my-3 rounded-lg bg-warning-container/30 px-3 py-2 text-center text-xs font-medium leading-5 text-warning">
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">دریافت آمار آگهی با خطا مواجه شد.</Typography>
-      <Button unstyled className="mt-1 border-0 text-xs font-semibold text-[#0048c4]" onClick={onRetry} type="button">
+      <Button unstyled className="mt-1 border-0 text-xs font-semibold text-primary" onClick={onRetry} type="button">
         تلاش دوباره
       </Button>
     </div>

@@ -50,7 +50,7 @@ export function LoginPhonePage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
       <form className="contents" noValidate onSubmit={handleSubmit}>
@@ -60,7 +60,7 @@ export function LoginPhonePage() {
           title="ورود به حساب کاربری"
         />
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white pt-4">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest pt-4">
           <section
             className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden min-[390px]:min-h-60"
             aria-hidden="true"
@@ -78,19 +78,19 @@ export function LoginPhonePage() {
             aria-labelledby="login-phone-title"
           >
             <Typography as="h2" variant="title" size="medium" weight="semibold"
-              className="m-0 text-right font-semibold leading-5 text-[#1a1a1a] min-[390px]:text-base min-[390px]:leading-6"
+              className="m-0 text-right font-semibold leading-5 text-on-surface min-[390px]:text-base min-[390px]:leading-6"
               id="login-phone-title"
             >
               شماره موبایل خود را وارد کنید
             </Typography>
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 w-full text-right text-sm font-normal leading-5 text-[#4d4d4d] min-[390px]:text-sm">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 w-full text-right text-sm font-normal leading-5 text-on-surface-var min-[390px]:text-sm">
               برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
             </Typography>
 
             <label className="block w-full" htmlFor="mobileNumber">
               <input
                 aria-invalid={notice?.variant === "error" ? "true" : undefined}
-                className="w-full rounded-xl border border-[#cccccc] bg-white px-3 py-4.5 text-right text-sm font-normal h-14 text-[#1a1a1a] outline-none placeholder:text-[#1a1a1a] caret-[#0048c4] focus:border-[#0048c4] focus:border-2 [:-webkit-autofill]:[box-shadow:0_0_0_1000px_white_inset] [:-webkit-autofill]:[-webkit-text-fill-color:#1a1a1a]"
+                className="w-full rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-4.5 text-right text-sm font-normal h-14 text-on-surface outline-none placeholder:text-outline caret-primary focus:border-primary focus:border-2 [:-webkit-autofill]:[box-shadow:0_0_0_1000px_var(--color-surface-container-lowest)_inset] [:-webkit-autofill]:[-webkit-text-fill-color:var(--color-on-surface)]"
                 autoComplete="tel-national"
                 dir="ltr"
                 id="mobileNumber"
@@ -110,7 +110,7 @@ export function LoginPhonePage() {
             <Typography as="p" variant="body" size="medium" weight="regular" className="flex max-w-full flex-wrap items-center justify-start py-1 text-sm font-normal leading-5 min-[390px]:text-xs">
               <Typography as="span" variant="body" size="medium" weight="regular" className="ml-0.5">با ثبت‌نام،</Typography>
               <RouteLink
-                className="text-[#0048c4] underline underline-offset-6"
+                className="text-primary underline underline-offset-6"
                 to="/"
               >
                 قوانین ایران شناسا
@@ -120,9 +120,9 @@ export function LoginPhonePage() {
           </section>
         </main>
 
-        <footer className="shrink-0 bg-white px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+        <footer className="shrink-0 bg-surface-container-lowest px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
           <Button unstyled
-            className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-[#0048c4] px-4 py-2.5 text-sm font-medium leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-primary px-4 py-2.5 text-sm font-medium leading-5 text-on-primary focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting}
             type="submit"
           >

@@ -129,7 +129,7 @@ function AgencyDashboardRankingPage() {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -142,25 +142,25 @@ function AgencyDashboardRankingPage() {
           },
         ]}
         backTo="/account/dashboard"
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         contentClassName="px-1"
         title="نشان‌ها و رتبه"
       />
 
-      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] px-4 pb-6 pt-4">
+      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 pb-6 pt-4">
         <LevelSummaryCard
           levelTitle={ranking?.current.levelTitle || ranking?.current.levelSlug || "—"}
           score={formatOptionalNumber(ranking?.current.totalScore)}
         />
         <MetricSummaryCard
-          icon={<LinearRanking className="h-6 w-6 text-[#11a366]" />}
-          iconClassName="bg-[#11a3661f]"
+          icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
+          iconClassName="bg-tertiary-container/30"
           label="رتبه آژانس"
           value={formatOptionalNumber(ranking?.rank ?? ranking?.current.rank)}
         />
         <MetricSummaryCard
-          icon={<LinearStar className="h-6 w-6 text-[#ff6d00]" />}
-          iconClassName="bg-[#ff8d0029]"
+          icon={<LinearStar className="h-6 w-6 text-warning" />}
+          iconClassName="bg-warning-container/30"
           label="امتیاز آژانس"
           value={formatOptionalNumber(ranking?.current.totalScore)}
         />
@@ -176,20 +176,20 @@ function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: st
   return (
     <section
       aria-label="سطح پیشرفت آژانس"
-      className="flex min-h-22 items-center justify-between gap-3 rounded-2xl bg-white px-4 py-4 [direction:ltr]"
+      className="flex min-h-22 items-center justify-between gap-3 rounded-2xl bg-surface-container-lowest px-4 py-4 [direction:ltr]"
     >
       <div className="min-w-0 flex-1">
         <div className="flex h-6 items-center justify-between gap-2 [direction:ltr]">
           <GuidePill ariaLabel="راهنمای سطح پیشرفت آژانس" to={DASHBOARD_LEVELS_GUIDE_PATH} />
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-right text-sm font-semibold leading-5 text-on-surface-var [direction:rtl]">
             {levelTitle}
           </Typography>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-end gap-x-1 gap-y-1 text-xs leading-4 [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">
             امتیاز فعلی
           </Typography>
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-[#0048c4] [direction:rtl]">{score}</Typography>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-primary [direction:rtl]">{score}</Typography>
         </div>
       </div>
       <AgencyPreviewVector />
@@ -199,8 +199,8 @@ function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: st
 
 function AgencyPreviewVector() {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#f3f4f6]">
-      <LinearStartup className="h-9 w-9 text-[#4b5070]" />
+    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-container">
+      <LinearStartup className="h-9 w-9 text-on-surface-var" />
     </Typography>
   );
 }
@@ -219,14 +219,14 @@ function MetricSummaryCard({
   return (
     <section
       aria-label={label}
-      className="flex min-h-20 justify-between gap-3 rounded-2xl bg-white px-4 py-4 [direction:ltr]"
+      className="flex min-h-20 justify-between gap-3 rounded-2xl bg-surface-container-lowest px-4 py-4 [direction:ltr]"
     >
-      <strong className="w-12 shrink-0 text-left text-base font-semibold leading-6 text-[#1a1a1a] [direction:rtl]">
+      <strong className="w-12 shrink-0 text-left text-base font-semibold leading-6 text-on-surface [direction:rtl]">
         {value}
       </strong>
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-5 text-[#4d4d4d]">{label}</Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-4 text-[#808080]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-5 text-on-surface-var">{label}</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-4 text-outline">
           مقایسه روزانه از سرور دریافت نشده است
         </Typography>
       </div>
@@ -242,13 +242,13 @@ function AgencyBadgesPanel() {
   const badges = (badgesQuery.data ?? []).map(mapBadgeItemToBadge);
 
   return (
-    <section className="rounded-2xl bg-white p-4" aria-label="نشان‌ها">
+    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="نشان‌ها">
       <SectionHeader guideTo={DASHBOARD_BADGES_GUIDE_PATH} title="نشان‌ها" />
       {badgesQuery.isLoading ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-[#808080]">در حال دریافت نشان‌ها...</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-outline">در حال دریافت نشان‌ها...</Typography>
       ) : null}
       {!badgesQuery.isLoading && badges.length === 0 ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-[#808080]">نشانی از سرور دریافت نشده است.</Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-outline">نشانی از سرور دریافت نشده است.</Typography>
       ) : null}
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">
         {badges.map((badge) => (
@@ -261,12 +261,12 @@ function AgencyBadgesPanel() {
 
 function BadgeCard({ badge }: { badge: AgencyBadge }) {
   const isActive = badge.tone === "active";
-  const className = `flex h-[186px] flex-col items-center rounded-lg border border-[#f5f5f5] bg-white pt-6 text-inherit no-underline transition active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-[#0048c440] ${!isActive ? "grayscale" : ""}`;
+  const className = `flex h-[186px] flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6 text-inherit no-underline transition active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-primary/40 ${!isActive ? "grayscale" : ""}`;
 
   const content = (
     <>
       <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`grid h-[72px] w-[72px] place-items-center ${isActive ? "text-[#d69832]" : "text-[#d6d6d6]"}`}
+        className={`grid h-[72px] w-[72px] place-items-center ${isActive ? "text-warning" : "text-outline"}`}
       >
         {badge.src ? (
           <img src={badge.src} className="h-full w-full object-contain" alt="" />
@@ -277,7 +277,7 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
 
       <Typography as="span" variant="label" size="medium" weight="semibold"
         className={`mt-2 inline-flex h-6 min-w-[92px] items-center justify-center rounded-lg px-2 text-sm font-semibold leading-5 ${
-          isActive ? "bg-[#0048c41f] text-[#0048c4]" : "bg-[#4d4d4d14] text-[#b8b8b8]"
+          isActive ? "bg-primary-container text-primary" : "bg-surface-container text-outline"
         }`}
       >
         {badge.label}
@@ -286,16 +286,16 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
       <div className="mt-0.5 flex h-3 items-center justify-center [direction:ltr]">
         {[0, 1, 2].map((star) => (
           <LinearStar
-            className={`h-3 w-3 ${isActive && star === 0 ? "text-[#ffb100]" : "text-[#d8d8d8]"}`}
+            className={`h-3 w-3 ${isActive && star === 0 ? "text-warning" : "text-outline"}`}
             innerColor="currentColor"
             key={star}
           />
         ))}
       </div>
 
-      <div className="mt-4 h-1 w-[92px] rounded-full bg-[#ff8d0029]">
+      <div className="mt-4 h-1 w-[92px] rounded-full bg-warning-container/30">
         <div
-          className="h-1 rounded-full bg-[#ffb100]"
+          className="h-1 rounded-full bg-warning"
           style={{ width: `${badge.progress}%` }}
         />
       </div>
@@ -327,14 +327,14 @@ function RankingIndicatorsPanel({
   setPeriod: (period: RankingPeriod) => void;
 }) {
   return (
-    <section className="rounded-2xl bg-white p-4" aria-label="شاخص‌های رتبه‌بندی">
+    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="شاخص‌های رتبه‌بندی">
       <div className="flex h-7 items-center justify-between [direction:ltr]">
         <Button unstyled
-          className="inline-flex h-7 items-center gap-2 rounded-lg px-1 text-xs font-medium leading-4 text-[#1a1a1a] transition active:bg-[#1a1a1a0a]"
+          className="inline-flex h-7 items-center gap-2 rounded-lg px-1 text-xs font-medium leading-4 text-on-surface transition active:bg-surface-container"
           onClick={() => setPeriod(period === "هفته" ? "ماه" : "هفته")}
           type="button"
         >
-          <LinearArrowDown1 className="h-4 w-4 text-[#4d4d4d]" />
+          <LinearArrowDown1 className="h-4 w-4 text-on-surface-var" />
           <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{period}</Typography>
         </Button>
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">شاخص‌های رتبه‌بندی</Typography>
@@ -352,14 +352,14 @@ function RankIndicatorRow({ indicator }: { indicator: AgencyIndicator }) {
   const Icon = indicator.Icon;
 
   return (
-    <div className="flex min-h-20 items-center gap-3 rounded-lg border border-[#f5f5f5] px-4 py-3 [direction:ltr]">
-      <strong className="w-12 shrink-0 text-left text-base font-semibold leading-6 text-[#0048c4] [direction:rtl]">
+    <div className="flex min-h-20 items-center gap-3 rounded-lg border border-outline-var px-4 py-3 [direction:ltr]">
+      <strong className="w-12 shrink-0 text-left text-base font-semibold leading-6 text-primary [direction:rtl]">
         {indicator.value}
       </strong>
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 flex-1 px-2 text-right text-sm font-semibold leading-5 text-[#4d4d4d] [direction:rtl]">
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 flex-1 px-2 text-right text-sm font-semibold leading-5 text-on-surface-var [direction:rtl]">
         {indicator.label}
       </Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#0048c414] text-[#4b5070]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-container text-primary">
         <Icon className="h-6 w-6" />
       </Typography>
     </div>
@@ -368,35 +368,35 @@ function RankIndicatorRow({ indicator }: { indicator: AgencyIndicator }) {
 
 function TopAgenciesPanel({ agencies, isLoading }: { agencies: DashboardRankingEntity[]; isLoading: boolean }) {
   return (
-    <section className="rounded-2xl bg-white p-4" aria-label="۱۰ آژانس برتر">
+    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="۱۰ آژانس برتر">
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">
         ۱۰ آژانس برتر
       </Typography>
 
       <div className="mt-4">
-        <div className="grid h-7 grid-cols-[56px_1fr] items-center px-2 text-sm font-normal leading-5 text-[#808080] [direction:ltr]">
+        <div className="grid h-7 grid-cols-[56px_1fr] items-center px-2 text-sm font-normal leading-5 text-outline [direction:ltr]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-center [direction:rtl]">امتیاز</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-right [direction:rtl]">۱۰ آژانس برتر</Typography>
         </div>
 
-        <div className="h-px bg-[#cccccc]" aria-hidden="true" />
+        <div className="h-px bg-outline-var" aria-hidden="true" />
 
         {agencies.map((agency, index) => (
           <div
-            className={`grid h-10 grid-cols-[56px_1fr] items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${index % 2 === 1 ? "bg-[#cccccc1f]" : ""}`}
+            className={`grid h-10 grid-cols-[56px_1fr] items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${index % 2 === 1 ? "bg-surface-container/50" : ""}`}
             key={agency.entityId || `${agency.name}-${index}`}
           >
             <Typography as="span" variant="label" size="medium" weight="semibold" className="text-center font-semibold [direction:rtl]">
               {formatOptionalNumber(agency.totalScore)}
             </Typography>
 
-            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-[#4d4d4d] [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-on-surface-var [direction:rtl]">
               {formatOptionalNumber(agency.rank)}. {agency.name}
             </Typography>
           </div>
         ))}
         {!isLoading && agencies.length === 0 ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-outline">
             اطلاعات آژانس‌های برتر از سرور دریافت نشده است.
           </Typography>
         ) : null}
@@ -416,7 +416,7 @@ function SectionHeader({ guideTo, title }: { guideTo?: string; title: string }) 
 
 function GuidePill({ ariaLabel = "راهنما", to }: { ariaLabel?: string; to?: string }) {
   const className =
-    "inline-flex h-6 items-center gap-1 rounded-full bg-[#0048c414] px-2 text-xs font-medium leading-4 text-[#0048c4] no-underline transition active:bg-[#0048c424] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] [direction:ltr]";
+    "inline-flex h-6 items-center gap-1 rounded-full bg-primary-container px-2 text-xs font-medium leading-4 text-primary no-underline transition active:bg-primary-container/80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 [direction:ltr]";
   const content = (
     <>
       <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">راهنما</Typography>

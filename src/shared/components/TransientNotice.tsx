@@ -15,7 +15,7 @@ export function TransientNotice({
       } ${className}`}
       role="status"
     >
-      <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-xl bg-[#1a1a1a] px-4 py-2.5 text-center text-sm font-medium leading-5 text-white shadow-[0_6px_18px_rgba(26,26,26,0.22)]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-xl bg-inverse-surface px-4 py-2.5 text-center text-sm font-medium leading-5 text-inverse-on-surface shadow-[0_6px_18px_rgba(0,0,0,0.22)]">
         {message ?? ""}
       </Typography>
     </div>

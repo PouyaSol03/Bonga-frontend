@@ -139,7 +139,7 @@ function AgencyDirectoryCard({
 }) {
   return (
     <Button unstyled
-      className="absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border border-[#e6e6e6] bg-white p-4 text-right shadow-[0_-4px_16px_rgba(26,26,26,0.08)] active:bg-[#fafafa]"
+      className="absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border border-outline-var bg-surface-container-lowest p-4 text-right shadow-[0_-4px_16px_rgba(26,26,26,0.08)] active:bg-surface-container"
       dir="rtl"
       onClick={onClick}
       type="button"
@@ -160,7 +160,7 @@ function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
   ) : (
     <Typography as="span" variant="headline" size="small"
       aria-hidden="true"
-      className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-[#e9f1ff] text-2xl font-bold text-[#0048c4]"
+      className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-primary-container text-2xl font-bold text-primary"
     >
       {item.name.trim().charAt(0) || "آ"}
     </Typography>
@@ -170,13 +170,13 @@ function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
 function AgencySummary({ item }: { item: AgencyDirectoryMapItem }) {
   return (
     <Typography as="span" variant="body" size="medium" weight="regular" className="flex flex-1 flex-col h-full gap-y-4">
-      <strong className="truncate text-base font-medium text-[#4d4d4d]">{item.name}</strong>
+      <strong className="truncate text-base font-medium text-on-surface">{item.name}</strong>
       {item.address ? (
-        <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 truncate text-[10px] font-normal text-[#808080]">{item.address}</Typography>
+        <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 truncate text-[10px] font-normal text-outline">{item.address}</Typography>
       ) : null}
-      <Typography as="span" variant="label" size="small" weight="medium" className="flex items-center justify-between text-xs font-medium leading-5 text-[#1a1a1a]">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1.5"><LinearStar className="w-4 h-4 text-[#4D4D4D]" /><Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography><b className="text-sm font-semibold text-[#00a66a] px-2">{item.score}</b></Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1.5"><LinearRanking className="w-4 h-4 text-[#4D4D4D]"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="text-sm font-semibold text-[#00a66a] px-2">{item.rank}</b></Typography>
+      <Typography as="span" variant="label" size="small" weight="medium" className="flex items-center justify-between text-xs font-medium leading-5 text-on-surface">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1.5"><LinearStar className="w-4 h-4 text-on-surface-var" /><Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography><b className="text-sm font-semibold text-tertiary px-2">{item.score}</b></Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1.5"><LinearRanking className="w-4 h-4 text-on-surface-var"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="text-sm font-semibold text-tertiary px-2">{item.rank}</b></Typography>
       </Typography>
     </Typography>
   );
@@ -192,28 +192,28 @@ function AgencySelectionCard({
   profileLabel: string;
 }) {
   return (
-    <div className="absolute inset-x-0 bottom-[76px] z-[500] rounded-t-[22px] bg-white px-4 pb-3 pt-4 shadow-[0_-8px_26px_rgba(26,26,26,0.08)]" dir="rtl">
-      <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="mx-auto mb-3 block h-1 w-[42px] rounded-full bg-[#d8d8d8]" />
-      <article className="flex flex-col gap-y-2 rounded-2xl border-2 border-[#0b55d4] bg-[#eef4ff] p-4">
+    <div className="absolute inset-x-0 bottom-[76px] z-[500] rounded-t-[22px] bg-surface-container-lowest px-4 pb-3 pt-4 shadow-[0_-8px_26px_rgba(26,26,26,0.08)]" dir="rtl">
+      <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="mx-auto mb-3 block h-1 w-[42px] rounded-full bg-outline-var" />
+      <article className="flex flex-col gap-y-2 rounded-2xl border-2 border-primary bg-primary-container/20 p-4">
         <div className="flex gap-4">
           <AgencyImage item={item} />
           <AgencySummary item={item} />
         </div>
 
-        <div className="h-px bg-[#cbdcff]" />
+        <div className="h-px bg-outline-var" />
 
         <div className="flex items-center justify-between gap-3">
-          <Typography as="span" variant="label" size="large" weight="medium" className="flex items-center gap-2 text-base font-medium text-[#4d4d4d]">
+          <Typography as="span" variant="label" size="large" weight="medium" className="flex items-center gap-2 text-base font-medium text-on-surface">
             <RadioIndicator checked />
             <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
           </Typography>
           <Button unstyled
-            className="flex items-center justify-center gap-2 rounded-xl border border-[#0b55d4] bg-white/35 px-4 py-2.5 text-[#0b55d4] active:bg-white"
+            className="flex items-center justify-center gap-2 rounded-xl border border-primary bg-surface-container-lowest/50 px-4 py-2.5 text-primary active:bg-surface-container-lowest"
             onClick={onOpen}
             type="button"
           >
             <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{profileLabel}</Typography>
-            <LinearArrowLeft2 className="w-5 h-5 text-[#0048C4]"/>
+            <LinearArrowLeft2 className="w-5 h-5 text-primary"/>
           </Button>
         </div>
       </article>
@@ -235,9 +235,9 @@ function SelectionFooter({
   onOpenList: () => void;
 }) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-[550] flex h-[76px] items-center gap-3 border-t border-[#eeeeee] bg-white px-4" dir="rtl">
+    <footer className="absolute inset-x-0 bottom-0 z-[550] flex h-[76px] items-center gap-3 border-t border-outline-var bg-surface-container-lowest px-4" dir="rtl">
       <Button unstyled
-        className="flex h-12 w-[104px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[#cccccc] bg-white text-base font-semibold text-[#1a1a1a] active:bg-[#f7f7f7]"
+        className="flex h-12 w-[104px] shrink-0 items-center justify-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest text-base font-semibold text-on-surface active:bg-surface-container"
         onClick={onOpenList}
         type="button"
       >
@@ -245,7 +245,7 @@ function SelectionFooter({
         <Typography as="span" variant="body" size="medium" weight="regular">{listLabel}</Typography>
       </Button>
       <Button unstyled
-        className="h-12 min-w-0 flex-1 rounded-xl bg-[#0048c4] px-4 text-base font-semibold text-white active:bg-[#003fae] disabled:bg-[#e3e3e3] disabled:text-[#b3b3b3]"
+        className="h-12 min-w-0 flex-1 rounded-xl bg-primary px-4 text-base font-semibold text-on-primary active:opacity-80 disabled:bg-surface-container-high disabled:text-outline"
         disabled={confirmDisabled}
         onClick={onConfirm}
         type="button"
@@ -305,14 +305,14 @@ export function AgencyDirectoryMapView({
   const isSelection = variant === "selection";
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#f0f0f0] [direction:rtl]">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container [direction:rtl]">
       <TopBar onBack={onBack} title={title} />
 
       <main className="relative min-h-0 flex-1 overflow-hidden">
         <MapContainer
           attributionControl={false}
           center={[initialCenter.latitude, initialCenter.longitude]}
-          className="h-full min-h-[320px] w-full bg-[#f5f5f5]"
+          className="h-full min-h-[320px] w-full bg-surface-container"
           maxZoom={searchMapTileConfig.maxZoom}
           minZoom={searchMapTileConfig.minZoom}
           preferCanvas
@@ -353,24 +353,24 @@ export function AgencyDirectoryMapView({
         </MapContainer>
 
         {isSelection ? (
-          <label className="absolute inset-x-4 top-4 z-[500] flex h-12 items-center gap-3 rounded-xl border border-[#808080] bg-white px-4 text-[#4d4d4d] shadow-[0_3px_12px_rgba(26,26,26,0.08)] focus-within:border-[#0048c4]">
+          <label className="absolute inset-x-4 top-4 z-[500] flex h-12 items-center gap-3 rounded-xl border border-outline bg-surface-container-lowest px-4 text-on-surface-var shadow-[0_3px_12px_rgba(26,26,26,0.08)] focus-within:border-primary">
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base leading-6 text-on-surface outline-none placeholder:text-outline"
               onChange={(event) => onSearchChange?.(event.target.value)}
               placeholder={searchPlaceholder}
               type="search"
               value={searchValue}
             />
-            <LinearSearch className="w-6 h-6 text-[#4D4D4D]" />
+            <LinearSearch className="w-6 h-6 text-on-surface-var" />
           </label>
         ) : null}
 
         {isSelection && searchValue.trim() && items.length === 0 ? (
-          <div className="absolute inset-x-0 bottom-0 top-16 z-[450] overflow-y-auto bg-white">
+          <div className="absolute inset-x-0 bottom-0 top-16 z-[450] overflow-y-auto bg-surface-container-lowest">
             <SearchEmptyState />
           </div>
         ) : mappableItems.length === 0 ? (
-          <div className={`pointer-events-none absolute inset-x-6 z-[400] rounded-xl bg-white/95 px-4 py-3 text-center text-sm font-medium leading-6 text-[#4d4d4d] shadow-sm ${isSelection ? "top-20" : "top-6"}`}>
+          <div className={`pointer-events-none absolute inset-x-6 z-[400] rounded-xl bg-surface-container-lowest/95 px-4 py-3 text-center text-sm font-medium leading-6 text-on-surface-var shadow-sm ${isSelection ? "top-20" : "top-6"}`}>
             برای آژانس‌های دریافت‌شده هنوز موقعیت مکانی ثبت نشده است.
           </div>
         ) : null}
@@ -388,7 +388,7 @@ export function AgencyDirectoryMapView({
         ) : !isSelection ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[500] flex justify-center">
             <Button unstyled
-              className="pointer-events-auto flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 text-xl font-bold leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+              className="pointer-events-auto flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-xl font-bold leading-6 text-on-primary shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-80"
               onClick={onOpenList}
               type="button"
             >

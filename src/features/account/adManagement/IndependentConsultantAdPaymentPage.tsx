@@ -862,23 +862,23 @@ function AgencyCombinedCheckoutView({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
-        className="bg-[#f0f0f0] [&_button]:text-[#1a1a1a]"
+        className="bg-surface-container [&_button]:text-on-surface"
         onBack={onBack ?? (() => window.history.back())}
         title={title}
       />
 
       {children}
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[76px]">
         {showPurchaseDetails ? (
           <>
-            <section className="bg-white px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
+            <section className="bg-surface-container-lowest px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
               <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-on-surface [direction:rtl]">
                   {publishCostLabel}
                 </Typography>
 
@@ -888,16 +888,16 @@ function AgencyCombinedCheckoutView({
                 </Typography>
               </div>
 
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-6 text-[#666666]">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-6 text-on-surface-var">
                 برای ثبت آگهی، باید هزینه انتشار را پرداخت کنید.
               </Typography>
             </section>
 
-            <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+            <div className="h-2 bg-surface-container" aria-hidden="true" />
           </>
         ) : null}
 
-        <section className="bg-white px-4 pb-4 pt-6" aria-label="روش پرداخت">
+        <section className="bg-surface-container-lowest px-4 pb-4 pt-6" aria-label="روش پرداخت">
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">
             روش پرداخت
           </Typography>
@@ -916,7 +916,7 @@ function AgencyCombinedCheckoutView({
                     : "این روش در دسترس نیست"
                 }
               />
-              <div className="my-2 border-t border-[#f0f0f0]" />
+              <div className="my-2 border-t border-outline-var" />
             </>
           ) : null}
 
@@ -931,8 +931,8 @@ function AgencyCombinedCheckoutView({
                 subLabel={creditBalanceLabel}
                 subLabelClassName={
                   selectedCreditShortage > 0 || !selectedCreditAvailable
-                    ? "text-[#c11004]"
-                    : "text-[#11a366]"
+                    ? "text-error"
+                    : "text-tertiary"
                 }
               />
 
@@ -940,7 +940,7 @@ function AgencyCombinedCheckoutView({
                 <ApiCreditDeficitBox deficit={selectedCreditShortage} />
               ) : null}
 
-              <div className="my-2 border-t border-[#f0f0f0]" />
+              <div className="my-2 border-t border-outline-var" />
             </>
           ) : null}
 
@@ -956,7 +956,7 @@ function AgencyCombinedCheckoutView({
                 : "این روش پرداخت در دسترس نیست"
             }
             subLabelClassName={
-              !walletMethod || walletDeficit > 0 ? "text-[#c11004]" : "text-[#11a366]"
+              !walletMethod || walletDeficit > 0 ? "text-error" : "text-tertiary"
             }
           />
 
@@ -964,7 +964,7 @@ function AgencyCombinedCheckoutView({
             <ApiWalletDeficitBox deficit={walletDeficit} />
           ) : null}
 
-          <div className="mt-2 border-t border-[#f0f0f0] pt-2">
+          <div className="mt-2 border-t border-outline-var pt-2">
             <PaymentMethodOption
               active={method === "gateway"}
               disabled={!gatewayAvailable}
@@ -978,7 +978,7 @@ function AgencyCombinedCheckoutView({
 
         {showPurchaseDetails ? (
           <>
-            <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+            <div className="h-2 bg-surface-container" aria-hidden="true" />
             <DisabledUpgradeOptionsSection
               disabledWarning={consultantUpgradeDisabledWarning}
               enabled={upgradeSelectionEnabled}
@@ -990,9 +990,9 @@ function AgencyCombinedCheckoutView({
         ) : null}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
         <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!selectedMethodAvailable || pending}
           onClick={() =>
             onSubmit(upgradeSelectionEnabled ? selectedUpgradeProducts : [])
@@ -1025,21 +1025,21 @@ function CheckoutTariffView({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo={backTo}
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         title="هزینه ثبت آگهی"
       />
 
       {children}
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[76px]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[76px]">
         <section className="px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
           <div className="flex items-start justify-between gap-5 [direction:ltr]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-on-surface [direction:rtl]">
               {hasFreeQuota ? "رایگان" : (
                 <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
                   {formatTariffToman(price)}
@@ -1055,7 +1055,7 @@ function CheckoutTariffView({
           </div>
 
           {hasFreeQuota ? (
-            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-4 flex min-h-9 items-center gap-2 rounded-lg bg-[#edf3ff] px-3 py-2 text-right text-xs font-medium leading-5 text-[#0048c4]">
+            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-4 flex min-h-9 items-center gap-2 rounded-lg bg-primary-container px-3 py-2 text-right text-xs font-medium leading-5 text-primary">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
               <Typography as="span" variant="body" size="medium" weight="regular">
                 {new Intl.NumberFormat("fa-IR").format(freeQuotaRemaining)} تعرفه رایگان باقی مانده است
@@ -1064,14 +1064,14 @@ function CheckoutTariffView({
           ) : null}
         </section>
 
-        <div className="h-2 bg-[#f0f0f0]" aria-hidden="true" />
+        <div className="h-2 bg-surface-container" aria-hidden="true" />
 
         <DisabledUpgradeOptionsSection />
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
         <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
           disabled={pending}
           onClick={onComplete}
           type="button"
@@ -1097,13 +1097,13 @@ function DisabledUpgradeOptionsSection({
   upgradeItems?: AdvertisementCheckoutItem[];
 }) {
   return (
-    <section className="bg-white" aria-label="امکانات ارتقای آگهی">
+    <section className="bg-surface-container-lowest" aria-label="امکانات ارتقای آگهی">
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center gap-2 px-4 pb-2 pt-5 text-right text-base font-semibold leading-6">
         <LinearChartUp className="h-5 w-5" />
         امکانات ارتقای آگهی
       </Typography>
 
-      <div className="divide-y divide-[#e6e6e6] px-4">
+      <div className="divide-y divide-outline-var px-4">
         {disabledUpgradeOptions.map((option) => {
           const checkoutItem = resolveUpgradeCheckoutItem(option.id, upgradeItems);
           const optionEnabled = Boolean(enabled && checkoutItem);
@@ -1122,7 +1122,7 @@ function DisabledUpgradeOptionsSection({
             <Button unstyled
               aria-disabled={!optionEnabled}
               aria-pressed={checked}
-              className={`block w-full border-0 bg-white py-4 text-inherit ${optionEnabled ? "cursor-pointer" : "cursor-not-allowed"
+              className={`block w-full border-0 bg-surface-container-lowest py-4 text-inherit ${optionEnabled ? "cursor-pointer" : "cursor-not-allowed"
                 }`}
               key={option.id}
               onClick={() => {
@@ -1133,7 +1133,7 @@ function DisabledUpgradeOptionsSection({
               type="button"
             >
               <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${optionEnabled ? "text-[#1a1a1a]" : "text-[#808080]"
+                <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${optionEnabled ? "text-on-surface" : "text-outline"
                   }`}>
                   {itemPrice !== undefined ? (
                     <>
@@ -1146,7 +1146,7 @@ function DisabledUpgradeOptionsSection({
                 </Typography>
 
                 <div className="min-w-0 flex-1 text-right [direction:rtl]">
-                  <div className={`flex items-center justify-start gap-2 text-base font-medium leading-6 ${optionEnabled ? "text-[#1a1a1a]" : "text-[#808080]"
+                  <div className={`flex items-center justify-start gap-2 text-base font-medium leading-6 ${optionEnabled ? "text-on-surface" : "text-outline"
                     }`}>
                     <ChoiceIndicator
                       checked={checked}
@@ -1155,7 +1155,7 @@ function DisabledUpgradeOptionsSection({
                     />
                     {option.title}
                   </div>
-                  <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-4 text-sm font-normal leading-6 ${optionEnabled ? "text-[#4d4d4d]" : "text-[#808080]"
+                  <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-4 text-sm font-normal leading-6 ${optionEnabled ? "text-on-surface-var" : "text-outline"
                     }`}>
                     {getUpgradeDescription(option.id, checkoutItem)}
                   </Typography>
@@ -1163,7 +1163,7 @@ function DisabledUpgradeOptionsSection({
               </div>
 
               {!optionEnabled ? (
-                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-[#fff8e8] px-3 py-2 text-right text-xs font-medium leading-5 text-[#ff6d00]">
+                <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-warning-container/30 px-3 py-2 text-right text-xs font-medium leading-5 text-warning">
                   <LinearInfoCircle className="h-5 w-5 shrink-0" />
                   <Typography as="span" variant="body" size="medium" weight="regular">
                     {unavailableWarning}
@@ -1225,15 +1225,15 @@ export function ApiPaymentCheckoutView({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
-      <TopBar className="[&_button]:text-[#1a1a1a]" onBack={onBack} title="پرداخت" />
+      <TopBar className="[&_button]:text-on-surface" onBack={onBack} title="پرداخت" />
 
       {children}
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[76px]">
-        <section className="bg-white px-4 pb-2 pt-6" aria-label="روش پرداخت">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[76px]">
+        <section className="bg-surface-container-lowest px-4 pb-2 pt-6" aria-label="روش پرداخت">
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</Typography>
           <PaymentMethodOption
             active={method === "wallet"}
@@ -1247,7 +1247,7 @@ export function ApiPaymentCheckoutView({
                 : "این روش پرداخت در دسترس نیست"
             }
             subLabelClassName={
-              !walletAvailable || walletDeficit > 0 ? "text-[#e11900]" : "text-[#11a366]"
+              !walletAvailable || walletDeficit > 0 ? "text-error" : "text-tertiary"
             }
           />
 
@@ -1255,7 +1255,7 @@ export function ApiPaymentCheckoutView({
             <ApiWalletDeficitBox deficit={walletDeficit} />
           ) : null}
 
-          <div className="border-t border-[#e6e6e6]">
+          <div className="border-t border-outline-var">
             <PaymentMethodOption
               active={method === "online"}
               disabled={!gatewayAvailable}
@@ -1267,10 +1267,10 @@ export function ApiPaymentCheckoutView({
           </div>
         </section>
 
-        <section className="mt-2 bg-white px-4 py-4" aria-label="کد تخفیف">
+        <section className="mt-2 bg-surface-container-lowest px-4 py-4" aria-label="کد تخفیف">
           <div className="flex items-center gap-2 [direction:ltr]">
             <Button unstyled
-              className="h-12 shrink-0 rounded-xl bg-[#e5e5e5] px-4 text-sm font-medium leading-5 text-[#a6a6a6]"
+              className="h-12 shrink-0 rounded-xl bg-surface-container-high px-4 text-sm font-medium leading-5 text-outline"
               disabled
               type="button"
             >
@@ -1279,7 +1279,7 @@ export function ApiPaymentCheckoutView({
             <label className="min-w-0 flex-1">
               <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
               <input
-                className="h-12 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
+                className="h-12 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary"
                 placeholder="کد تخفیف را وارد کنید"
                 type="text"
               />
@@ -1287,24 +1287,24 @@ export function ApiPaymentCheckoutView({
           </div>
         </section>
 
-        <section className="mt-2 bg-white px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">
+        <section className="mt-2 bg-surface-container-lowest px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">خلاصه پرداخت</Typography>
           <SummaryRow label="قیمت" value={formatTariffToman(totalPrice)} />
           <SummaryRow label="تخفیف" value={formatTariffToman(discount)} />
-          <div className="my-4 border-t border-dashed border-[#cccccc]" aria-hidden="true" />
+          <div className="my-4 border-t border-dashed border-outline-var" aria-hidden="true" />
           <SummaryRow
             iconClassName="h-7 w-7"
             label="جمع پرداختی"
-            labelClassName="text-right text-base font-semibold text-[#4d4d4d]"
+            labelClassName="text-right text-base font-semibold text-on-surface-var"
             value={formatTariffToman(payableAmount)}
-            valueClassName="text-base font-semibold text-[#0048c4]"
+            valueClassName="text-base font-semibold text-primary"
           />
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-white px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
         <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white shadow-[0_4px_10px_rgba(0,72,196,0.22)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!selectedMethodAvailable || pending}
           onClick={onSubmit}
           type="button"
@@ -1333,22 +1333,22 @@ function CheckoutStatusPage({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo={backTo} title={title} />
       <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
-        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#4d4d4d]">{message}</Typography>
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-on-surface-var">{message}</Typography>
         {onRetry ? (
           <Button unstyled
-            className="mt-4 h-10 rounded-lg bg-[#0048c4] px-5 text-sm font-medium text-white"
+            className="mt-4 h-10 rounded-lg bg-primary px-5 text-sm font-medium text-on-primary"
             onClick={onRetry}
             type="button"
           >
             تلاش دوباره
           </Button>
         ) : isLoading ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-[#d9e5fb] border-t-[#0048c4]" />
+          <Typography as="span" variant="body" size="medium" weight="regular" className="mt-4 h-8 w-8 animate-spin rounded-full border-2 border-primary-container border-t-primary" />
         ) : null}
       </main>
     </PageFrame>
@@ -1364,9 +1364,9 @@ function ApiCreditDeficitBox({ deficit }: { deficit: number }) {
   }
 
   return (
-    <div className="flex h-[60px] items-center justify-between rounded-lg border border-[rgba(255,141,0,0.16)] bg-[rgba(255,141,0,0.08)] px-4 [direction:ltr]">
+    <div className="flex h-[60px] items-center justify-between rounded-lg border border-warning/20 bg-warning-container/20 px-4 [direction:ltr]">
       <Button unstyled
-        className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#11a366] px-4 py-1.5 text-xs font-semibold leading-5 text-white"
+        className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-tertiary px-4 py-1.5 text-xs font-semibold leading-5 text-on-primary"
         onClick={openCreditPackages}
         type="button"
 
@@ -1377,7 +1377,7 @@ function ApiCreditDeficitBox({ deficit }: { deficit: number }) {
         <LinearAdd className="h-4 w-4" />
       </Button>
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="text-right text-[#1a1a1a] [direction:rtl]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="text-right text-on-surface [direction:rtl]">
         کسری:{" "}
         <Typography as="span" variant="body" size="medium">
           {new Intl.NumberFormat("fa-IR").format(deficit)} اعتبار
@@ -1414,9 +1414,9 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
 
   return (
     <div>
-      <div className="flex h-[60px] items-center justify-between rounded-lg border border-[rgba(255,141,0,0.16)] bg-[rgba(255,141,0,0.08)] px-4 [direction:ltr]">
+      <div className="flex h-[60px] items-center justify-between rounded-lg border border-warning/20 bg-warning-container/20 px-4 [direction:ltr]">
         <Button unstyled
-          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-[#11a366] px-4 py-1.5 text-xs font-semibold leading-5 text-white disabled:opacity-60"
+          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-tertiary px-4 py-1.5 text-xs font-semibold leading-5 text-on-primary disabled:opacity-60"
           disabled={chargeWalletMutation.isPending}
           onClick={chargeWallet}
           type="button"
@@ -1427,7 +1427,7 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
           <LinearAdd className="h-4 w-4" />
         </Button>
 
-        <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-on-surface [direction:rtl]">
           کسری: {formatTariffToman(deficit)} تومان
         </Typography>
       </div>
@@ -1442,7 +1442,7 @@ function PaymentMethodOption({
   label,
   onClick,
   subLabel,
-  subLabelClassName = "text-[rgba(26,26,26,0.4)]",
+  subLabelClassName = "text-outline",
 }: {
   active: boolean;
   disabled?: boolean;
@@ -1455,7 +1455,7 @@ function PaymentMethodOption({
   return (
     <Button unstyled
       aria-pressed={active}
-      className={`flex h-[72px] w-full items-center justify-between border-0 bg-white px-4 text-inherit [direction:ltr] ${disabled ? "cursor-not-allowed opacity-50" : ""
+      className={`flex h-[72px] w-full items-center justify-between border-0 bg-surface-container-lowest px-4 text-inherit [direction:ltr] ${disabled ? "cursor-not-allowed opacity-50" : ""
         }`}
       disabled={disabled}
       onClick={onClick}
@@ -1463,14 +1463,14 @@ function PaymentMethodOption({
     >
       <ChoiceIndicator
         checked={active}
-        className={`ml-1 ${!active && !disabled ? "!border-[rgba(77,77,77,0.3)]" : ""}`}
+        className={`ml-1 ${!active && !disabled ? "!border-outline-var" : ""}`}
         disabled={disabled}
         type="radio"
       />
       <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-right [direction:rtl]">
-        <PaymentOptionIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" icon={icon} />
+        <PaymentOptionIcon className="h-6 w-6 shrink-0 text-on-surface-var" icon={icon} />
         <Typography as="span" variant="body" size="medium" weight="regular" className="block">
-          <strong className="block text-base font-normal leading-6 text-[#1a1a1a]">
+          <strong className="block text-base font-normal leading-6 text-on-surface">
             {label}
           </strong>
           <Typography as="span" variant="body" size="medium" weight="regular" className={`block text-sm font-normal leading-5 ${subLabelClassName}`}>
@@ -1483,11 +1483,11 @@ function PaymentMethodOption({
 }
 
 function SummaryRow({
-  iconClassName = "mr-0.5 h-5 w-5 text-[#4d4d4d]",
+  iconClassName = "mr-0.5 h-5 w-5 text-on-surface-var",
   label,
-  labelClassName = "text-right font-medium text-[#4d4d4d]",
+  labelClassName = "text-right font-medium text-on-surface-var",
   value,
-  valueClassName = "font-medium text-[#1a1a1a]",
+  valueClassName = "font-medium text-on-surface",
 }: {
   iconClassName?: string;
   label: string;

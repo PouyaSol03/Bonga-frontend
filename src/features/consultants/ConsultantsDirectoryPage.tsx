@@ -214,8 +214,8 @@ function FilterChip({
   );
 
   const chipClassName = `inline-flex items-center justify-center gap-1 rounded-lg border p-2 text-sm! font-medium! transition-colors ${active
-      ? "border-[#0048C4] bg-[#0048C416] text-[#0048c4]"
-      : "border-[#cccccc] bg-white text-[#4d4d4d]"
+      ? "border-primary bg-primary/10 text-primary"
+      : "border-outline-var bg-surface-container-lowest text-on-surface-var"
     }`;
 
   if (onRemove) {
@@ -231,7 +231,7 @@ function FilterChip({
 
         <Button unstyled
           aria-label={`حذف ${label}`}
-          className="grid h-full shrink-0 place-items-center text-inherit active:bg-[#0048c414]"
+          className="grid h-full shrink-0 place-items-center text-inherit active:bg-primary/10"
           onClick={onRemove}
           type="button"
         >
@@ -435,7 +435,7 @@ export function ConsultantsDirectoryPage() {
 
     return (
       <PageFrame
-        className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+        className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
         variant="flush"
       >
         {directorySeo}
@@ -461,29 +461,29 @@ export function ConsultantsDirectoryPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       {directorySeo}
       <h1 className="sr-only">{seoTitle}</h1>
-      <div className="shrink-0 bg-[#f0f0f0]">
+      <div className="shrink-0 bg-surface-container">
         <TopBar
-          className="bg-[#f0f0f0]"
+          className="bg-surface-container"
           onBack={navigateBack}
           placement="inline"
           title="مشاورین"
         />
 
         <div className="px-4 pt-2">
-          <label className="relative flex items-center rounded-xl border border-[#808080] bg-white text-[#808080]">
+          <label className="relative flex items-center rounded-xl border border-outline bg-surface-container-lowest text-outline">
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent px-4 py-3 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent px-4 py-3 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={searchPlaceholder}
               type="search"
               value={search}
             />
-            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-5 top-1/2 -translate-y-1/2 text-[#808080]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-5 top-1/2 -translate-y-1/2 text-outline">
               <SearchIcon />
             </Typography>
           </label>
@@ -569,14 +569,14 @@ export function ConsultantsDirectoryPage() {
 
       {mode === "agency" ? (
         <Button unstyled
-          className="absolute bottom-[16px] left-1/2 z-10 inline-flex -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-[#0048c4] px-4 py-2 leading-6 text-white shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="absolute bottom-[16px] left-1/2 z-10 inline-flex -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2 leading-6 text-on-primary shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-80"
           onClick={() => {
             setSelectedMapAgencyId(null);
             setIsMapOpen(true);
           }}
           type="button"
         >
-          <LinearMapsLocation className="w-6 h-6 text-white" />
+          <LinearMapsLocation className="w-6 h-6 text-on-primary" />
           <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">نقشه</Typography>
         </Button>
       ) : null}
@@ -602,8 +602,8 @@ export function ConsultantsDirectoryPage() {
               <Button unstyled
                 aria-pressed={checked}
                 className={`flex w-full px-4 py-6 items-center justify-between text-right font-medium leading-5 ${checked
-                    ? "text-[#0048c4]"
-                    : "bg-white text-[#1a1a1a]"
+                    ? "bg-surface-container-lowest text-primary"
+                    : "bg-surface-container-lowest text-on-surface"
                   }`}
                 key={option.id}
                 onClick={() => handleModeChange(option.id)}
@@ -635,8 +635,8 @@ export function ConsultantsDirectoryPage() {
               <Button unstyled
                 aria-pressed={checked}
                 className={`flex w-full items-center justify-between py-6 px-4 text-right text-sm font-medium leading-5 ${checked
-                    ? "text-[#0048c4]"
-                    : "bg-white text-[#1a1a1a]"
+                    ? "bg-surface-container-lowest text-primary"
+                    : "bg-surface-container-lowest text-on-surface"
                   }`}
                 key={option.id}
                 onClick={() => {

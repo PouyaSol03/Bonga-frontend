@@ -26,7 +26,7 @@ export function SearchBar({
   return (
     <Button unstyled
       className={cn(
-        "flex w-full items-center gap-3 rounded-[12px] border border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] transition",
+        "flex w-full items-center gap-3 rounded-[12px] border border-outline-var bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface transition",
         compact ? "h-12" : "h-14",
         focusRing,
         className,
@@ -34,9 +34,9 @@ export function SearchBar({
       type={type}
       {...props}
     >
-      {leadingIcon ?? <SearchBarSearchIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-[#4d4d4d]" />}
+      {leadingIcon ?? <SearchBarSearchIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var" />}
       <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{text}</Typography>
-      {saved ? <LinearBookmarkSolid aria-hidden="true" className="h-5 w-5 shrink-0 text-[#0048c4]" /> : null}
+      {saved ? <LinearBookmarkSolid aria-hidden="true" className="h-5 w-5 shrink-0 text-primary" /> : null}
     </Button>
   );
 }
@@ -84,9 +84,9 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
   return (
     <form
       className={cn(
-        "flex w-full min-w-0 items-center rounded-[12px] border bg-white px-3 text-right transition [direction:ltr]",
+        "flex w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest px-3 text-right transition [direction:ltr]",
         resolvedSize === "dense" ? "h-10" : resolvedSize === "compact" ? "h-12" : "h-14",
-        hasValue ? "border-[#0048c4]" : "border-[#cccccc]",
+        hasValue ? "border-primary" : "border-outline-var",
         focusRing,
         containerClassName,
       )}
@@ -95,15 +95,15 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
       {savedSlot ? (
         <>
           {savedSlot}
-          <div className="me-3 h-6 w-px shrink-0 bg-[#cccccc]" />
+          <div className="me-3 h-6 w-px shrink-0 bg-outline-var" />
         </>
       ) : null}
 
-      {showSearchIcon ? <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#4d4d4d]" /> : null}
+      {showSearchIcon ? <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-on-surface-var" /> : null}
 
       <input
         className={cn(
-          "min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [direction:rtl]",
+          "min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline [direction:rtl]",
           showSearchIcon ? "pr-2" : "",
           inputClassName,
           className,
@@ -120,7 +120,7 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
       {hasValue && onClear ? (
         <Button unstyled
           aria-label="پاک کردن جستجو"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#808080] transition active:bg-[#f0f0f0]"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
           onClick={onClear}
           tabIndex={tabIndex}
           type="button"

@@ -30,7 +30,7 @@ export function BusinessCreationPage() {
       bottomBar={
         <div className="flex items-center justify-end px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
           <Button unstyled
-            className="inline-flex h-10 min-w-[156px] items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-5 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex h-10 min-w-[156px] items-center justify-center gap-2 rounded-[10px] bg-primary px-5 text-sm font-semibold leading-5 text-on-primary disabled:opacity-40 disabled:cursor-not-allowed"
             disabled={isAgencyPending}
             onClick={handleNext}
             type="button"
@@ -44,13 +44,13 @@ export function BusinessCreationPage() {
       <BusinessHero infoType={selectedType} showInfoButton />
 
       {isAgencyPending ? (
-        <div className="mx-4 mt-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-right">
-          <LinearInformation className="h-6 w-6 shrink-0 text-amber-600 mt-0.5" />
+        <div className="mx-4 mt-4 flex items-start gap-3 rounded-2xl border border-warning-container bg-warning-container/20 p-4 text-right">
+          <LinearInformation className="h-6 w-6 shrink-0 text-warning mt-0.5" />
           <div className="min-w-0 flex-1">
-            <Typography as="p" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold text-amber-800">
+            <Typography as="p" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold text-warning">
               در انتظار ادمین برای تایید کسب و کار شما
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs leading-5 text-amber-700">
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs leading-5 text-on-surface-var">
               درخواست قبلی شما برای ثبت کسب‌وکار ثبت شده و در صف بررسی ادمین قرار دارد. تا زمان بررسی و تایید آن، امکان ایجاد کسب‌وکار جدید وجود ندارد.
             </Typography>
           </div>
@@ -58,7 +58,7 @@ export function BusinessCreationPage() {
       ) : null}
 
       <section className="mt-14 px-4">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-on-surface">
           انتخاب کسب و کار
         </Typography>
 

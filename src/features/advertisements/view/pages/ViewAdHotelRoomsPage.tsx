@@ -63,18 +63,18 @@ export function ViewAdHotelRoomsPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#F0F0F0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar onBack={() => goBackToAd(adId)} title="اطلاعات هتل" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#F0F0F0] divide-y-8 divide-[#F0F0F0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container divide-y-8 divide-surface-container">
         {rooms.length > 0 ? (
           rooms.map((room, idx) => {
             const isExpanded = expandedIndex === idx;
 
             return (
-              <div key={room.id || idx} className="bg-white">
+              <div key={room.id || idx} className="bg-surface-container-lowest">
                 <button
                   type="button"
                   onClick={() => setExpandedIndex(isExpanded ? null : idx)}
@@ -85,7 +85,7 @@ export function ViewAdHotelRoomsPage() {
                     variant="label"
                     size="large"
                     weight="semibold"
-                    className="text-[#1A1A1A]"
+                    className="text-on-surface"
                   >
                     {room.label}
                   </Typography>
@@ -94,7 +94,7 @@ export function ViewAdHotelRoomsPage() {
                     transition={{ duration: 0.25, ease: "easeInOut" }}
                     className="inline-flex items-center justify-center shrink-0"
                   >
-                    <LinearArrowDown1 className="h-5 w-5 text-[#4D4D4D] shrink-0" />
+                    <LinearArrowDown1 className="h-5 w-5 text-on-surface-var shrink-0" />
                   </motion.div>
                 </button>
 
@@ -108,18 +108,18 @@ export function ViewAdHotelRoomsPage() {
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4">
-                        <div className="mb-4 h-px w-full bg-[#E5E5E5]" />
+                        <div className="mb-4 h-px w-full bg-outline-var" />
 
                     {/* Metadata items */}
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <LinearUserSolid className="h-5 w-5 text-[#4D4D4D] shrink-0" />
+                        <LinearUserSolid className="h-5 w-5 text-on-surface-var shrink-0" />
                         <Typography
                           as="span"
                           variant="label"
                           size="medium"
                           weight="medium"
-                          className="text-[#808080]"
+                          className="text-outline"
                         >
                           ظرفیت:
                         </Typography>
@@ -128,20 +128,20 @@ export function ViewAdHotelRoomsPage() {
                           variant="label"
                           size="medium"
                           weight="semibold"
-                          className="text-[#1A1A1A]"
+                          className="text-on-surface"
                         >
                           {room.guestCount} نفر
                         </Typography>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <LinearUserAdd className="h-5 w-5 text-[#4D4D4D] shrink-0" />
+                        <LinearUserAdd className="h-5 w-5 text-on-surface-var shrink-0" />
                         <Typography
                           as="span"
                           variant="label"
                           size="medium"
                           weight="medium"
-                          className="text-[#808080]"
+                          className="text-outline"
                         >
                           ظرفیت اضافه:
                         </Typography>
@@ -150,20 +150,20 @@ export function ViewAdHotelRoomsPage() {
                           variant="label"
                           size="medium"
                           weight="semibold"
-                          className="text-[#1A1A1A]"
+                          className="text-on-surface"
                         >
                           {room.extraGuestCount}
                         </Typography>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <LinearMeal className="h-5 w-5 text-[#4D4D4D] shrink-0" />
+                        <LinearMeal className="h-5 w-5 text-on-surface-var shrink-0" />
                         <Typography
                           as="span"
                           variant="label"
                           size="medium"
                           weight="medium"
-                          className="text-[#808080]"
+                          className="text-outline"
                         >
                           وعده غذایی:
                         </Typography>
@@ -172,14 +172,14 @@ export function ViewAdHotelRoomsPage() {
                           variant="label"
                           size="medium"
                           weight="semibold"
-                          className="text-[#1A1A1A]"
+                          className="text-on-surface"
                         >
                           {room.mealPlan}
                         </Typography>
                       </div>
                     </div>
 
-                    <div className="my-3 border-b border-dashed border-[#E5E5E5]" />
+                    <div className="my-3 border-b border-dashed border-outline-var" />
 
                     {/* Price items */}
                     <div className="space-y-3">
@@ -189,7 +189,7 @@ export function ViewAdHotelRoomsPage() {
                           variant="label"
                           size="medium"
                           weight="medium"
-                          className="text-[#808080]"
+                          className="text-outline"
                         >
                           روزهای عادی:
                         </Typography>
@@ -199,15 +199,15 @@ export function ViewAdHotelRoomsPage() {
                             variant="label"
                             size="large"
                             weight="semibold"
-                            className="text-[#1A1A1A]"
+                            className="text-on-surface"
                           >
                             {room.normalPrice}
                           </Typography>
-                          <LinearTooman className="h-4 w-4 text-[#1A1A1A] shrink-0" />
+                          <LinearTooman className="h-4 w-4 text-on-surface-var shrink-0" />
                         </div>
                       </div>
 
-                      <div className="border-b border-dashed border-[#E5E5E5]" />
+                      <div className="border-b border-dashed border-outline-var" />
 
                       <div className="flex items-center justify-between">
                         <Typography
@@ -215,7 +215,7 @@ export function ViewAdHotelRoomsPage() {
                           variant="label"
                           size="medium"
                           weight="medium"
-                          className="text-[#808080]"
+                          className="text-outline"
                         >
                           آخر هفته:
                         </Typography>
@@ -225,15 +225,15 @@ export function ViewAdHotelRoomsPage() {
                             variant="label"
                             size="large"
                             weight="semibold"
-                            className="text-[#1A1A1A]"
+                            className="text-on-surface"
                           >
                             {room.weekendPrice}
                           </Typography>
-                          <LinearTooman className="h-4 w-4 text-[#1A1A1A] shrink-0" />
+                          <LinearTooman className="h-4 w-4 text-on-surface-var shrink-0" />
                         </div>
                       </div>
 
-                      <div className="border-b border-dashed border-[#E5E5E5]" />
+                      <div className="border-b border-dashed border-outline-var" />
 
                       <div className="flex items-center justify-between">
                         <Typography
@@ -241,7 +241,7 @@ export function ViewAdHotelRoomsPage() {
                           variant="label"
                           size="medium"
                           weight="medium"
-                          className="text-[#808080]"
+                          className="text-outline"
                         >
                           روزهای خاص:
                         </Typography>
@@ -251,11 +251,11 @@ export function ViewAdHotelRoomsPage() {
                             variant="label"
                             size="large"
                             weight="semibold"
-                            className="text-[#1A1A1A]"
+                            className="text-on-surface"
                           >
                             {room.specialPrice}
                           </Typography>
-                          <LinearTooman className="h-4 w-4 text-[#1A1A1A] shrink-0" />
+                          <LinearTooman className="h-4 w-4 text-on-surface-var shrink-0" />
                         </div>
                       </div>
                     </div>
@@ -267,7 +267,7 @@ export function ViewAdHotelRoomsPage() {
         );
       })
         ) : (
-          <div className="mx-auto w-full bg-white px-4 py-10 text-center text-sm font-medium leading-5 text-[#808080]">
+          <div className="mx-auto w-full bg-surface-container-lowest px-4 py-10 text-center text-sm font-medium leading-5 text-outline">
             اطلاعاتی برای نمایش وجود ندارد.
           </div>
         )}

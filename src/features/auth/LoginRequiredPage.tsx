@@ -53,7 +53,7 @@ export function LoginRequiredPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -62,7 +62,7 @@ export function LoginRequiredPage() {
         title=""
       />
 
-      <main className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-white px-4">
+      <main className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-surface-container-lowest px-4">
         <section
           aria-labelledby="login-required-title"
           className="relative max-h-full max-w-full flex flex-col items-center gap-y-4"
@@ -71,13 +71,13 @@ export function LoginRequiredPage() {
           <div className="flex flex-col gap-y-2 items-center">
 
           <Typography as="h2" variant="title" size="medium" weight="semibold">دسترسی محدود!</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="font-normal text-sm text-[#4D4D4D] text-center">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="font-normal text-sm text-on-surface-var text-center">
             این قابلیت فقط برای کاربران ثبت‌نام‌شده <br/>
             در دسترس است.
           </Typography>
           </div>
           <Button unstyled
-            className="text-sm font-medium text-white bg-[#0048C4] py-2.5 px-4 rounded-xl"
+            className="text-sm font-medium text-on-primary bg-primary py-2.5 px-4 rounded-xl"
             onClick={handleLogin}
             type="button"
           >

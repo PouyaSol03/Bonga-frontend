@@ -81,17 +81,17 @@ export function PaymentVerifyPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f6f8fc] px-5 text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest px-5 text-on-surface [direction:rtl]"
       variant="flush"
     >
       <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-5 py-8 text-center">
         <div
           className={`grid h-24 w-24 place-items-center rounded-full ${
             isChecking
-              ? "bg-[#e8efff] text-[#0048c4]"
+              ? "bg-primary-container text-primary"
               : isSuccess
-                ? "bg-[#eaf8f2] text-[#11a366]"
-                : "bg-[#fff1ef] text-[#e13b2d]"
+                ? "bg-tertiary-container/30 text-tertiary"
+                : "bg-error-container/30 text-error"
           }`}
         >
           {isChecking ? <LoadingIcon /> : isSuccess ? <SuccessIcon /> : <FailedIcon />}
@@ -101,7 +101,7 @@ export function PaymentVerifyPage() {
           {isChecking ? "در حال بررسی پرداخت" : isSuccess ? "پرداخت موفق" : "پرداخت ناموفق"}
         </Typography>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 max-w-[330px] text-sm font-normal leading-7 text-[#666666]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 max-w-[330px] text-sm font-normal leading-7 text-on-surface-var">
           {isChecking
             ? "لطفاً این صفحه را نبندید؛ نتیجه پرداخت در حال ثبت و بررسی است."
             : detail}
@@ -109,7 +109,7 @@ export function PaymentVerifyPage() {
 
         {!isChecking ? (
           <Button unstyled
-            className="mt-8 h-11 w-full max-w-[340px] rounded-xl bg-[#0048c4] px-5 text-sm font-semibold leading-5 text-white"
+            className="mt-8 h-11 w-full max-w-[340px] rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary active:opacity-80"
             onClick={() => {
               clearPaymentReturnTarget();
               replaceRoute(returnTarget.path, undefined, { rememberCurrent: false });

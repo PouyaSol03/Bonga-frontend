@@ -106,8 +106,8 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
   return (
     <div className="overflow-hidden" dir="rtl">
-      <div className="mb-3 text-right text-base font-medium leading-6 text-[#1a1a1a]">
-        انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ff3b30]">*</Typography>
+      <div className="mb-3 text-right text-base font-medium leading-6 text-on-surface">
+        انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
       </div>
 
       <input
@@ -124,7 +124,7 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
       <div className="flex gap-3 overflow-x-auto pb-2" dir="rtl">
         <Button unstyled
-          className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border border-[#0048c4] bg-white text-[#0048c4]"
+          className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border border-primary bg-surface-container-lowest text-primary"
           onClick={() => inputRef.current?.click()}
           type="button"
         >
@@ -145,7 +145,7 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
             <Button unstyled
               aria-label="حذف عکس"
-              className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white text-[#4d4d4d] shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
+              className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-surface-container-lowest text-on-surface-var shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
               onClick={() => removePhoto(photo.id)}
               type="button"
             >
@@ -240,7 +240,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
 
       {!video ? (
         <Button unstyled
-          className="flex p-4 mb-4 w-full items-center justify-between rounded-[10px] border border-[#0048c4] bg-white px-4 font-medium leading-5 text-[#0048c4]"
+          className="flex p-4 mb-4 w-full items-center justify-between rounded-[10px] border border-primary bg-surface-container-lowest px-4 font-medium leading-5 text-primary"
           onClick={() => inputRef.current?.click()}
           type="button"
         >
@@ -265,30 +265,30 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
           </svg>
         </Button>
       ) : (
-        <div className="rounded-[10px] border border-[#CCCCCC] bg-white px-4 py-6">
+        <div className="rounded-[10px] border border-outline-var bg-surface-container-lowest px-4 py-6">
           <div className="flex items-center justify-between gap-3 [direction:ltr]">
             <Button unstyled
               aria-label="حذف فیلم"
-              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[#ff3b30]"
+              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-error"
               onClick={removeVideo}
               type="button"
             >
-              <LinearCancelCircle aria-hidden="true" className="h-6 w-6 text-[#4d4d4d]" />
+              <LinearCancelCircle aria-hidden="true" className="h-6 w-6 text-on-surface-var" />
             </Button>
 
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <div className="truncate text-sm font-semibold leading-5 text-[#1a1a1a]">
+              <div className="truncate text-sm font-semibold leading-5 text-on-surface">
                 {isUploading ? "در حال آپلود..." : video.name}
               </div>
 
-              <div className="text-xs leading-4 text-[#808080]">
+              <div className="text-xs leading-4 text-outline">
                 {formatFileSize(video.size)}
               </div>
 
               {isUploading ? (
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#e6e6e6]">
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-container-high">
                   <div
-                    className="h-full rounded-full bg-[#0048c4]"
+                    className="h-full rounded-full bg-primary"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -298,12 +298,12 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
             {!isUploading ? (
               <Button unstyled
                 aria-label="نمایش فیلم"
-                className="grid p-2 shrink-0 place-items-center rounded-full bg-[#0048c414] text-[#0048c4]"
+                className="grid p-2 shrink-0 place-items-center rounded-full bg-primary-container/20 text-primary"
                 onClick={() => window.open(video.previewUrl, "_blank")}
                 type="button"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6 6.54075C6 5.33729 7.32537 4.59989 8.35477 5.23063L17.2647 10.6899C18.2451 11.2906 18.2451 12.7095 17.2647 13.3101L8.35477 18.7693C7.32537 19.4001 6 18.6627 6 17.4592V6.54075Z" fill="#0048C4" />
+                  <path fillRule="evenodd" clipRule="evenodd" d="M6 6.54075C6 5.33729 7.32537 4.59989 8.35477 5.23063L17.2647 10.6899C18.2451 11.2906 18.2451 12.7095 17.2647 13.3101L8.35477 18.7693C7.32537 19.4001 6 18.6627 6 17.4592V6.54075Z" fill="currentColor" />
                 </svg>
               </Button>
             ) : null}

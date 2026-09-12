@@ -31,20 +31,20 @@ export function IndependentConsultantAdPublishedPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={{ tab: "status" }}
         backTo={backTo}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title={isSuccessOpen ? "وضعیت آگهی" : "مدیریت آگهی"}
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
-        <section className="shrink-0 bg-white px-4 pb-2 pt-4" aria-label={ad.title}>
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
+        <section className="shrink-0 bg-surface-container-lowest px-4 pb-2 pt-4" aria-label={ad.title}>
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-[#11a36614] px-3 text-sm font-medium leading-5 text-[#11a366]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-tertiary-container/30 px-3 text-sm font-medium leading-5 text-tertiary">
               منتشر شده
             </Typography>
           </div>
@@ -52,7 +52,7 @@ export function IndependentConsultantAdPublishedPage() {
           <div className="mt-4 flex h-[68px] items-center justify-between gap-2 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
               <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 truncate text-base font-medium leading-6">{ad.title}</Typography>
-              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-[#808080]">{ad.timeAndLocation}</Typography>
+              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-outline">{ad.timeAndLocation}</Typography>
             </div>
             <div
               aria-hidden="true"
@@ -62,12 +62,12 @@ export function IndependentConsultantAdPublishedPage() {
 
           <div className="mt-4 flex h-10 items-center justify-between py-2 text-sm font-medium leading-5 [direction:ltr]">
             <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{expirationLabel}</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#808080] [direction:rtl]">انقضا</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">انقضا</Typography>
           </div>
         </section>
 
-        <div className="h-2 shrink-0 bg-[#f0f0f0]" aria-hidden="true" />
-        <div className="min-h-[300px] flex-1 bg-white">
+        <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
+        <div className="min-h-[300px] flex-1 bg-surface-container-lowest">
           <PublishedAction icon="preview" label="پیش‌نمایش" returnTo={backTo} to={getAdPreviewPath(ad.id)} />
           <PublishedActionDivider />
           <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id)} />
@@ -102,10 +102,10 @@ export function IndependentConsultantAdPublishedPage() {
           className="mx-auto h-[104px] w-[104px] object-contain"
           src="/figma/account/consultant-payment-success.png"
         />
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-[#11a366]">
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-tertiary">
           پرداخت موفق
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 text-sm font-normal leading-5 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 text-sm font-normal leading-5 text-on-surface-var">
           پرداخت موفق و آگهی منتشر شد
         </Typography>
       </BottomSheet>
@@ -158,9 +158,9 @@ function PublishedAction({
 }) {
   const content = (
     <>
-      <LinearArrowLeft1 className="h-6 w-6 text-[#4d4d4d]" />
+      <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-        <PublishedActionIcon className="h-6 w-6 text-[#4d4d4d]" icon={icon} />
+        <PublishedActionIcon className="h-6 w-6 text-on-surface-var" icon={icon} />
         {label}
       </Typography>
     </>
@@ -169,7 +169,7 @@ function PublishedAction({
   if (to) {
     return (
       <RouteLink
-        className="flex h-14 w-full items-center justify-between px-4 text-[#4d4d4d] no-underline [direction:ltr]"
+        className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
         state={{
           ad,
           card: ad,
@@ -192,7 +192,7 @@ function PublishedAction({
 
   return (
     <Button unstyled
-      className="flex h-14 w-full items-center justify-between px-4 text-[#1a1a1a] [direction:ltr]"
+      className="flex h-14 w-full items-center justify-between px-4 text-on-surface [direction:ltr]"
       onClick={onClick}
       type="button"
     >
@@ -204,7 +204,7 @@ function PublishedAction({
 function PublishedActionDivider() {
   return (
     <div className="flex h-[5px] items-center px-4" aria-hidden="true">
-      <div className="h-px w-full bg-[#cccccc]" />
+      <div className="h-px w-full bg-outline-var" />
     </div>
   );
 }

@@ -26,12 +26,12 @@ export function AccountRecentViewsPage() {
   return (
     <AccountPageShell
       action={
-        <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
+        <RouteLink className="grid h-12 w-12 place-items-center text-on-surface" to="/search">
         </RouteLink>
       }
       title="بازدیدهای اخیر"
     >
-      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!recentViewsQuery.isLoading && !recentViewsQuery.isError && recentAdvertises.length === 0 ? "bg-white" : "bg-[#f0f0f0]"}`}>
+      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!recentViewsQuery.isLoading && !recentViewsQuery.isError && recentAdvertises.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
         {recentViewsQuery.isLoading ? <AccountAdCardsSkeleton /> : null}
         {recentViewsQuery.isError ? (
           <AccountRetryState
@@ -41,7 +41,7 @@ export function AccountRecentViewsPage() {
           />
         ) : null}
         {!recentViewsQuery.isLoading && !recentViewsQuery.isError ? (
-          <div className={`min-h-0 flex-1 ${recentAdvertises.length === 0 ? "flex flex-col bg-white" : "space-y-2 bg-[#f0f0f0]"}`}>
+          <div className={`min-h-0 flex-1 ${recentAdvertises.length === 0 ? "flex flex-col bg-surface-container-lowest" : "space-y-2 bg-surface-container"}`}>
             {recentAdvertises.map((advertise, index) => {
               const ad = mapAdvertisementToAdCard(advertise, index);
 

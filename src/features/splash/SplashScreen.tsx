@@ -48,9 +48,9 @@ export function SplashScreen({ onFinish, videoSrc = '/splash.mp4' }: SplashScree
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#024ac3] overflow-hidden select-none"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-primary overflow-hidden select-none"
         >
-          <div className="relative w-full h-full max-w-[500px] flex items-center justify-center bg-[#024ac3] overflow-hidden">
+          <div className="relative w-full h-full max-w-[500px] flex items-center justify-center bg-primary overflow-hidden">
             <video
               ref={videoRef}
               src={videoSrc}

@@ -92,7 +92,7 @@ export function CategoryBottomSheet({
         <Button
           unstyled
           aria-label="بازگشت"
-          className="grid h-10 w-10 shrink-0 place-items-center bg-transparent text-[#4D4D4D] outline-none focus:bg-transparent focus:outline-none focus-visible:bg-transparent focus-visible:outline-none active:bg-transparent"
+          className="grid h-10 w-10 shrink-0 place-items-center bg-transparent text-on-surface-var outline-none focus:bg-transparent focus:outline-none focus-visible:bg-transparent focus-visible:outline-none active:bg-transparent"
           onClick={handleBack}
           type="button"
         >
@@ -104,7 +104,7 @@ export function CategoryBottomSheet({
           variant="title"
           size="medium"
           weight="semibold"
-          className="m-0 min-w-0 flex-1 text-right text-[#1A1A1A]"
+          className="m-0 min-w-0 flex-1 text-right text-on-surface"
         >
           {title}
         </Typography>
@@ -120,7 +120,7 @@ export function CategoryBottomSheet({
             <div className="relative" key={option.label}>
               <Button
                 unstyled
-                className="flex h-[72px] w-full items-center gap-3 bg-white px-4 text-right outline-none focus:outline-none focus-visible:outline-none"
+                className="flex h-[72px] w-full items-center gap-3 bg-surface-container-lowest px-4 text-right outline-none focus:outline-none focus-visible:outline-none"
                 data-category-sheet-row={option.label}
                 tabIndex={isOpen ? 0 : -1}
                 onClick={() => {
@@ -139,18 +139,18 @@ export function CategoryBottomSheet({
                   variant="body"
                   size="large"
                   weight="regular"
-                  className="min-w-0 flex-1 text-right text-[#1A1A1A] [direction:rtl]"
+                  className="min-w-0 flex-1 text-right text-on-surface [direction:rtl]"
                 >
                   {displayLabel}
                 </Typography>
 
-                <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4D4D4D]">
+                <span className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var">
                   <LinearArrowLeft1 className="h-6 w-6" />
                 </span>
               </Button>
 
               {index < options.length - 1 ? (
-                <div className="absolute inset-x-4 bottom-0 h-px bg-[#F0F0F0]" />
+                <div className="absolute inset-x-4 bottom-0 h-px bg-outline-var" />
               ) : null}
             </div>
           )

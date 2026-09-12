@@ -40,21 +40,21 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
  */
 const variantClasses: Record<ButtonVariant, string> = {
   danger:
-    "border border-[#ee3623] bg-[#ee3623] text-white hover:bg-[#dd2b1e] focus:bg-[#c11004] active:bg-[#c11004] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d]",
+    "border border-error bg-error text-on-primary hover:bg-error/90 focus:bg-error/90 active:bg-error/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   ghost:
-    "border border-transparent bg-transparent text-[#0048c4] hover:bg-[#0048c414] focus:bg-[#0048c429] active:bg-[#0048c429] disabled:border-transparent disabled:bg-transparent disabled:text-[#4d4d4d]",
+    "border border-transparent bg-transparent text-primary hover:bg-primary/10 focus:bg-primary/20 active:bg-primary/20 disabled:border-transparent disabled:bg-transparent disabled:text-outline",
   neutral:
-    "border border-transparent bg-[#e9eaee] text-[#2e2d3e] hover:bg-[#ecedf1] focus:bg-[#ebecf0] active:bg-[#ebecf0] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d]",
+    "border border-transparent bg-secondary-container text-on-secondary-container hover:bg-secondary-container/80 focus:bg-secondary-container/80 active:bg-secondary-container/80 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   "neutral-outline":
-    "border border-[#cccccc] bg-transparent text-[#1a1a1a] hover:border-[#0048c4] hover:bg-[#0048c414] hover:text-[#0048c4] focus:border-[#0048c4] focus:bg-[#0048c429] focus:text-[#0048c4] active:border-[#0048c4] active:bg-[#0048c429] active:text-[#0048c4] disabled:border-[#1a1a1a1f] disabled:bg-transparent disabled:text-[#4d4d4d]",
+    "border border-outline-var bg-transparent text-on-surface hover:border-primary hover:bg-primary/10 hover:text-primary focus:border-primary focus:bg-primary/20 focus:text-primary active:border-primary active:bg-primary/20 active:text-primary disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
   "neutral-text":
-    "border border-transparent bg-transparent text-[#4d4d4d] hover:text-[#0048c4] focus:text-[#0048c4] active:text-[#0048c4] disabled:bg-transparent disabled:text-[#4d4d4d]",
+    "border border-transparent bg-transparent text-on-surface-var hover:text-primary focus:text-primary active:text-primary disabled:bg-transparent disabled:text-outline",
   primary:
-    "border border-[#0048c4] bg-[#0048c4] text-white hover:border-[#2865cd] hover:bg-[#2865cd] focus:border-[#1456c9] focus:bg-[#1456c9] active:border-[#1456c9] active:bg-[#1456c9] disabled:border-transparent disabled:bg-[#1a1a1a1f] disabled:text-[#4d4d4d]",
+    "border border-primary bg-primary text-on-primary hover:bg-primary/90 focus:bg-primary/90 active:bg-primary/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   secondary:
-    "border border-[#0048c4] bg-transparent text-[#0048c4] hover:bg-[#0048c414] focus:bg-[#0048c429] active:bg-[#0048c429] disabled:border-[#1a1a1a1f] disabled:bg-transparent disabled:text-[#4d4d4d]",
+    "border border-primary bg-transparent text-primary hover:bg-primary/10 focus:bg-primary/20 active:bg-primary/20 disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
   text:
-    "border border-transparent bg-transparent text-[#0048c4] hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-[#4d4d4d]",
+    "border border-transparent bg-transparent text-primary hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-outline",
 };
 
 /* Keep the old sizing contract unchanged for existing screens. */
@@ -228,8 +228,8 @@ export function Button({
       style={
         hasCustomColors
           ? {
-              backgroundColor: bgColor ?? "#0048c4",
-              color: color ?? "#ffffff",
+              backgroundColor: bgColor ?? "var(--color-primary)",
+              color: color ?? "var(--color-on-primary)",
               ...style,
             }
           : style

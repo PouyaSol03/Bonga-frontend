@@ -331,7 +331,7 @@ export function AccountSupportNewChatPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -344,7 +344,7 @@ export function AccountSupportNewChatPage() {
         ]}
         backLabel="بازگشت به گفتگوهای پشتیبانی"
         backTo={SUPPORT_CHAT_PATH}
-        className="border-b border-[#e6e6e6]"
+        className="border-b border-outline-var"
         contentClassName="px-0"
         heightClassName="h-[52px]"
         reserveStartSpace
@@ -353,16 +353,16 @@ export function AccountSupportNewChatPage() {
       />
 
       <main
-        className="min-h-0 flex-1 overflow-y-auto bg-white px-2.5 pb-[92px] pt-3"
+        className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-2.5 pb-[92px] pt-3"
         onScroll={handleScroll}
         ref={scrollAreaRef}
       >
         {messagesQuery.isFetchingNextPage ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="pb-3 text-center text-xs text-[#808080]">در حال دریافت پیام‌های قبلی...</Typography>
+          <Typography as="p" variant="body" size="small" weight="regular" className="pb-3 text-center text-xs text-outline">در حال دریافت پیام‌های قبلی...</Typography>
         ) : null}
 
         {isStarting ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">در حال شروع گفتگو...</Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-outline">در حال شروع گفتگو...</Typography>
         ) : (
           <div className="space-y-2.5">
             {messages.slice(0, 2).map((message) => (
@@ -376,7 +376,7 @@ export function AccountSupportNewChatPage() {
             ))}
 
             {isAgentTyping ? (
-              <Typography as="p" variant="body" size="small" weight="regular" className="px-3 py-1 text-right text-xs text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="px-3 py-1 text-right text-xs text-outline">
                 پشتیبان در حال نوشتن است...
               </Typography>
             ) : null}
@@ -385,9 +385,9 @@ export function AccountSupportNewChatPage() {
         )}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-white px-2 pb-3 pt-2">
+      <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-2 pb-3 pt-2">
         {errorMessage ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-2 px-2 text-center text-xs leading-5 text-[#d92d20]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-2 px-2 text-center text-xs leading-5 text-error">
             {errorMessage}
           </Typography>
         ) : null}

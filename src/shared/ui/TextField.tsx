@@ -77,16 +77,16 @@ export function TextField({
     <label className={cn("block min-w-0", containerClassName)}>
       <Typography as="span" variant="body" size="medium" weight="regular"
         className={cn(
-          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-white px-4 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:rtl]",
+          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-surface-container-lowest px-4 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:rtl]",
           error
-            ? "border-[#ee3623]"
+            ? "border-error"
             : hasHighlightedBorder
-              ? "border-[#0048c4]"
-              : "border-[#cccccc]",
+              ? "border-primary"
+              : "border-outline-var",
           hasFocusedStyle
             ? error
-              ? "shadow-[inset_0_0_0_1px_#ee3623]"
-              : "shadow-[inset_0_0_0_1px_#0048c4]"
+              ? "shadow-[inset_0_0_0_1px_var(--error)]"
+              : "shadow-[inset_0_0_0_1px_var(--primary)]"
             : "shadow-none",
         )}
       >
@@ -106,8 +106,8 @@ export function TextField({
                 size="small"
                 weight="regular"
                 className={cn(
-                  "block truncate bg-white px-1",
-                  error ? "text-[#ee3623]" : hasFocusedStyle ? "text-[#0048c4]" : "text-[#808080]",
+                  "block truncate bg-surface-container-lowest px-1",
+                  error ? "text-error" : hasFocusedStyle ? "text-primary" : "text-outline",
                 )}
               >
                 {label}
@@ -120,7 +120,7 @@ export function TextField({
           ref={inputRef}
           aria-invalid={Boolean(error)}
           className={cn(
-            "min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6] placeholder:transition-colors placeholder:duration-150 [direction:rtl]",
+            "min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-on-surface caret-primary outline-none placeholder:text-outline placeholder:transition-colors placeholder:duration-150 [direction:rtl]",
             label && "focus:placeholder:text-transparent",
             className,
           )}
@@ -158,7 +158,7 @@ export function TextField({
                 variant="body"
                 size="medium"
                 weight="regular"
-                className="whitespace-nowrap text-sm font-normal leading-5 text-[#a6a6a6]"
+                className="whitespace-nowrap text-sm font-normal leading-5 text-outline"
               >
                 {badge}
               </Typography>
@@ -177,7 +177,7 @@ export function TextField({
             >
               <Button unstyled
                 aria-label="پاک کردن"
-                className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[#4d4d4d] opacity-40 transition-colors duration-150 hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
+                className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 hover:bg-surface-container-low active:bg-surface-container-high"
                 onClick={(event) => {
                   event.preventDefault();
                   onClear();
@@ -194,7 +194,7 @@ export function TextField({
         {trailingSlot}
       </Typography>
       {helperText ? (
-        <Typography as="span" variant="body" size="small" weight="regular" className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-[#ee3623]" : "text-[#808080]")}>
+        <Typography as="span" variant="body" size="small" weight="regular" className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-error" : "text-outline")}>
           {helperText}
         </Typography>
       ) : null}

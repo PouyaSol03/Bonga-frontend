@@ -7,7 +7,7 @@ type SearchMapGeofenceConfirmedLayerProps = {
   isVisible: boolean;
 };
 
-const CONFIRMED_MASK_COLOR = "#0048c4";
+const CONFIRMED_MASK_COLOR = "var(--primary)";
 const CONFIRMED_MASK_OPACITY = 0x29 / 0xff;
 
 const WORLD_MASK_RING: LatLngExpression[] = [

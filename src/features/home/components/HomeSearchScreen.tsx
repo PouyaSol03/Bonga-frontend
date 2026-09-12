@@ -220,7 +220,7 @@ export function HomeSearchScreen({
 
     return (
       <section
-        className={`absolute inset-0 z-[600] overflow-hidden bg-white ${isOpen ? "visible" : "invisible"}`}
+        className={`absolute inset-0 z-[600] overflow-hidden bg-surface-container-lowest ${isOpen ? "visible" : "invisible"}`}
         aria-hidden={!isOpen}
       >
         <ActiveErrorState
@@ -233,13 +233,13 @@ export function HomeSearchScreen({
 
   return (
     <section
-      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen
+      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl] ${isOpen
         ? "visible"
         : "invisible"
         }`}
       aria-hidden={!isOpen}
     >
-      <div className="shrink-0 bg-[#f0f0f0]">
+      <div className="shrink-0 bg-surface-container">
         <TopBar
           centerClassName="pr-1"
           centerSlot={
@@ -253,12 +253,12 @@ export function HomeSearchScreen({
           onBack={closeSearch}
         />
         <div className="flex h-11 items-center justify-between gap-4 px-4">
-          <Typography as="p" variant="title" size="medium" weight="semibold" className="text-[#1a1a1a]">
+          <Typography as="p" variant="title" size="medium" weight="semibold" className="text-on-surface">
             {isResultsView ? "نتایج جستجو" : "جستجوهای اخیر"}
           </Typography>
 
           <Button unstyled
-            className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-[#0048c4] [direction:ltr]"
+            className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-primary [direction:ltr]"
             onClick={() => setIsSavedView(true)}
             type="button"
           >
@@ -268,11 +268,11 @@ export function HomeSearchScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#fafafa]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {isResultsView ? (
           !hasEnoughSearchQueryLength ? (
             <div className="flex flex-col">
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 px-4 py-3 text-right text-xs font-normal leading-5 text-outline">
                 برای دریافت نتایج، حداقل {toPersianDigits(String(minSearchQueryLength))} کاراکتر وارد کنید.
               </Typography>
             </div>
@@ -284,7 +284,7 @@ export function HomeSearchScreen({
               onRetry={() => void refetchQuickSearch()}
             />
           ) : quickSearchResults.length > 0 ? (
-            <div className="flex flex-col bg-[#fafafa] pt-4">
+            <div className="flex flex-col bg-surface-container-lowest pt-4">
               {quickSearchResults.map((item) => (
                 <QuickSearchResultRow
                   item={item}
@@ -309,7 +309,7 @@ export function HomeSearchScreen({
             onRetry={() => void savedSearchesQuery.refetch()}
           />
         ) : visibleRecentSearches.length > 0 ? (
-          <div className="flex flex-col bg-[#fafafa]">
+          <div className="flex flex-col bg-surface-container-lowest">
             {visibleRecentSearches.map((item) => (
               <SearchRecordRow
                 item={item}
@@ -364,7 +364,7 @@ function SavedSearchesView({
 
   return (
     <section
-      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${isOpen
+      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl] ${isOpen
         ? "visible"
         : "invisible"
         }`}
@@ -372,19 +372,19 @@ function SavedSearchesView({
     >
       <TopBar onBack={onBack} title="جستجوی ذخیره شده" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#fafafa]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {isLoading ? (
           <SearchRowsSkeleton variant="records" />
         ) : isError ? (
           <Button unstyled
-            className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
+            className="mx-4 my-8 rounded-xl border border-primary px-4 py-3 text-sm font-medium text-primary"
             onClick={onRetry}
             type="button"
           >
             دریافت جستجوهای ذخیره‌شده ناموفق بود؛ تلاش دوباره
           </Button>
         ) : savedSearches.length > 0 ? (
-          <div className="flex flex-col bg-[#fafafa]">
+          <div className="flex flex-col bg-surface-container-lowest">
             {savedSearches.map((item) => (
               <SearchRecordRow
                 item={item}
@@ -408,35 +408,35 @@ function SearchRowsSkeleton({ variant }: { variant: "records" | "results" }) {
 
   return (
     <div
-      className={`flex flex-col bg-[#fafafa] ${isRecords ? "" : "pt-4"}`}
+      className={`flex flex-col bg-surface-container-lowest ${isRecords ? "" : "pt-4"}`}
       aria-hidden="true"
     >
       {Array.from({ length: 6 }).map((_, index) => (
-        <div className="bg-[#fafafa]" key={index}>
+        <div className="bg-surface-container-lowest" key={index}>
           {isRecords ? (
             <div className="flex h-[118px] flex-col justify-center px-4 py-4">
               <div className="flex items-center justify-end gap-2">
-                <div className="h-6 w-6 animate-pulse rounded bg-[#f0f0f0]" />
-                <div className="h-5 w-32 animate-pulse rounded-full bg-[#f0f0f0]" />
+                <div className="h-6 w-6 animate-pulse rounded bg-surface-container" />
+                <div className="h-5 w-32 animate-pulse rounded-full bg-surface-container" />
               </div>
               <div className="mt-2 flex flex-wrap justify-end gap-2 pr-8">
-                <div className="h-6 w-24 animate-pulse rounded-md bg-[#f0f0f0]" />
-                <div className="h-6 w-28 animate-pulse rounded-md bg-[#f0f0f0]" />
-                <div className="h-6 w-20 animate-pulse rounded-md bg-[#f0f0f0]" />
+                <div className="h-6 w-24 animate-pulse rounded-md bg-surface-container" />
+                <div className="h-6 w-28 animate-pulse rounded-md bg-surface-container" />
+                <div className="h-6 w-20 animate-pulse rounded-md bg-surface-container" />
               </div>
             </div>
           ) : (
             <div className="flex h-[72px] items-center justify-between gap-4 px-4">
-              <div className="h-4 w-16 animate-pulse rounded-full bg-[#f0f0f0]" />
+              <div className="h-4 w-16 animate-pulse rounded-full bg-surface-container" />
               <div className="flex flex-1 flex-col items-end gap-2">
-                <div className="h-4 w-16 animate-pulse rounded-full bg-[#f0f0f0]" />
-                <div className="h-4 w-28 animate-pulse rounded-full bg-[#f0f0f0]" />
+                <div className="h-4 w-16 animate-pulse rounded-full bg-surface-container" />
+                <div className="h-4 w-28 animate-pulse rounded-full bg-surface-container" />
               </div>
             </div>
           )}
           {index < 5 ? (
             <div
-              className={isRecords ? "h-px bg-[#f0f0f0]" : "mx-4 h-px bg-[#f0f0f0]"}
+              className={isRecords ? "h-px bg-outline-var" : "mx-4 h-px bg-outline-var"}
             />
           ) : null}
         </div>
@@ -523,7 +523,7 @@ function SearchRecordRow({
 
   return (
     <article
-      className={`relative h-[119px] overflow-hidden bg-[#fafafa] ${isDeleting ? "opacity-60" : ""}`}
+      className={`relative h-[119px] overflow-hidden bg-surface-container-lowest ${isDeleting ? "opacity-60" : ""}`}
       onPointerCancel={finishSwipe}
       onPointerDown={(event) => {
         if (isDeleting) return;
@@ -545,22 +545,22 @@ function SearchRecordRow({
       onPointerUp={finishSwipe}
       style={{ touchAction: "pan-y" }}
     >
-      <div className="relative h-[118px] overflow-hidden bg-[#fdecec]">
+      <div className="relative h-[118px] overflow-hidden bg-error-container/30">
         <Button unstyled
           aria-label={`حذف ${item.title}`}
-          className="absolute inset-y-0 left-0 flex w-[59px] flex-col items-center justify-center gap-1 bg-[#fdecec] text-[#d92d20]"
+          className="absolute inset-y-0 left-0 flex w-[59px] flex-col items-center justify-center gap-1 bg-error-container/30 text-error"
           disabled={isDeleting}
           onClick={onDelete}
           type="button"
         >
           <LinearDelete className="h-6 w-6" />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-[#d92d20]">
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-error">
             حذف
           </Typography>
         </Button>
 
         <Button unstyled
-          className="relative flex h-[118px] w-full flex-col bg-[#fafafa] px-4 py-4 text-right transition-transform duration-150 ease-out"
+          className="relative flex h-[118px] w-full flex-col bg-surface-container-lowest px-4 py-4 text-right transition-transform duration-150 ease-out"
           disabled={isDeleting}
           onClick={() => {
             if (didSwipeRef.current) return;
@@ -574,7 +574,7 @@ function SearchRecordRow({
           type="button"
         >
           <span className="flex w-full items-center gap-2 [direction:rtl]">
-            <span className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]">
+            <span className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var">
               <ApartmentIcon />
             </span>
             <Typography
@@ -582,7 +582,7 @@ function SearchRecordRow({
               variant="body"
               size="large"
               weight="medium"
-              className="min-w-0 flex-1 whitespace-normal break-words text-right leading-6 text-[#1a1a1a]"
+              className="min-w-0 flex-1 whitespace-normal break-words text-right leading-6 text-on-surface"
             >
               {item.title}
             </Typography>
@@ -596,7 +596,7 @@ function SearchRecordRow({
                   variant="body"
                   size="small"
                   weight="regular"
-                  className="inline-flex h-6 max-w-full items-center rounded-[6px] bg-[#f0f0f0] px-2 text-right text-[#4d4d4d]"
+                  className="inline-flex h-6 max-w-full items-center rounded-[6px] bg-surface-container px-2 text-right text-on-surface-var"
                   key={tag}
                 >
                   {tag}
@@ -607,7 +607,7 @@ function SearchRecordRow({
         </Button>
       </div>
 
-      <div aria-hidden="true" className="h-px bg-[#f0f0f0]" />
+      <div aria-hidden="true" className="h-px bg-outline-var" />
     </article>
   );
 }
@@ -625,9 +625,9 @@ function QuickSearchResultRow({
       : `${toPersianDigits(item.count)} آگهی`;
 
   return (
-    <div className="bg-[#fafafa]">
+    <div className="bg-surface-container-lowest">
       <Button unstyled
-        className="flex h-[72px] w-full cursor-pointer items-center justify-between gap-4 bg-[#fafafa] px-4 text-right [direction:ltr]"
+        className="flex h-[72px] w-full cursor-pointer items-center justify-between gap-4 bg-surface-container-lowest px-4 text-right [direction:ltr]"
         onClick={onSelect}
         type="button"
       >
@@ -636,7 +636,7 @@ function QuickSearchResultRow({
           variant="body"
           size="small"
           weight="regular"
-          className="inline-flex shrink-0 text-[#a6a6a6] [direction:rtl]"
+          className="inline-flex shrink-0 text-outline [direction:rtl]"
         >
           {formattedCount}
         </Typography>
@@ -647,7 +647,7 @@ function QuickSearchResultRow({
             variant="label"
             size="medium"
             weight="semibold"
-            className="max-w-full truncate text-[#1a1a1a]"
+            className="max-w-full truncate text-on-surface"
           >
             {item.title}
           </Typography>
@@ -657,14 +657,14 @@ function QuickSearchResultRow({
               variant="body"
               size="medium"
               weight="regular"
-              className="max-w-full truncate text-[#a6a6a6]"
+              className="max-w-full truncate text-outline"
             >
               {item.category}
             </Typography>
           ) : null}
         </span>
       </Button>
-      <div aria-hidden="true" className="mx-4 h-px bg-[#f0f0f0]" />
+      <div aria-hidden="true" className="mx-4 h-px bg-outline-var" />
     </div>
   );
 }
@@ -680,10 +680,10 @@ function ApartmentIcon() {
     >
       <path
         d="M17.9492 21V5C17.9492 4.00589 16.9492 3 15.9492 3H7.94922C6.94922 3 5.94922 4.00589 5.94922 5V21M4 21H20M14 21V17C14 16.5 13.5 16 13 16H11C10.5 16 10 16.5 10 17V21M14 7H10M14 10H10M14 13H10"
-        stroke="#4D4D4D"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

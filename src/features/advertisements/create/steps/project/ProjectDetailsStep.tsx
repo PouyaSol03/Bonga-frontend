@@ -53,12 +53,12 @@ function MultiSelectRow({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#1a1a1a]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-on-surface">
           {title}
         </Typography>
 
         <Button unstyled
-          className="text-sm font-medium leading-5 text-[#0048c4]"
+          className="text-sm font-medium leading-5 text-primary"
           onClick={onOpen}
           type="button"
         >
@@ -74,7 +74,7 @@ function MultiSelectRow({
         </div>
       ) : (
         <Button unstyled
-          className="flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cccccc] bg-white text-sm font-normal leading-5 text-[#808080]"
+          className="flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed border-outline-var bg-surface-container-lowest text-sm font-normal leading-5 text-outline"
           onClick={onOpen}
           type="button"
         >
@@ -113,7 +113,7 @@ function ProjectDetailCard({
   };
 
   return (
-    <div className="space-y-4 border-b border-[#e0e0e0] pb-5 last:border-b-0">
+    <div className="space-y-4 border-b border-outline-var pb-5 last:border-b-0">
       <InputBox
         numeric
         leftText="متر مربع"
@@ -165,7 +165,7 @@ function ProjectDetailCard({
       />
 
       <Button unstyled
-        className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-[#cccccc] bg-white text-sm font-medium leading-5 text-[#1a1a1a]"
+        className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-outline-var bg-surface-container-lowest text-sm font-medium leading-5 text-on-surface"
         onClick={onRemove}
         type="button"
       >
@@ -216,8 +216,8 @@ export function ProjectDetailsStep({
   return (
     <>
       <main className={desktop
-        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5"
-        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-3 pt-4"} dir="rtl">
+        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5"
+        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-3 pt-4"} dir="rtl">
         <div className={desktop ? "mx-auto max-w-[1120px] space-y-5" : "space-y-5"}>
           {fields.map((field, index) => (
             <ProjectDetailCard
@@ -240,10 +240,10 @@ export function ProjectDetailsStep({
       </main>
 
       <footer className={desktop
-        ? "flex justify-end gap-3 border-t border-[#e1e7f0] bg-white px-6 py-4 [direction:ltr]"
-        : "grid grid-cols-2 gap-3 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)]"}>
+        ? "flex justify-end gap-3 border-t border-outline-var bg-surface-container-lowest px-6 py-4 [direction:ltr]"
+        : "grid grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)]"}>
         <Button unstyled
-          className={`h-12 rounded-[10px] border border-[#0048c4] bg-white text-base font-medium leading-6 text-[#0048c4] ${desktop ? "w-40" : ""}`}
+          className={`h-12 rounded-[10px] border border-primary bg-surface-container-lowest text-base font-medium leading-6 text-primary ${desktop ? "w-40" : ""}`}
           onClick={onBack}
           type="button"
         >
@@ -251,7 +251,7 @@ export function ProjectDetailsStep({
         </Button>
 
         <Button unstyled
-          className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] text-base font-medium leading-6 text-white active:bg-[#003ba1] ${desktop ? "w-48" : ""}`}
+          className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-primary text-base font-medium leading-6 text-on-primary active:bg-primary/90 ${desktop ? "w-48" : ""}`}
           onClick={() => append(createProjectDetailItem())}
           type="button"
         >
@@ -264,7 +264,7 @@ export function ProjectDetailsStep({
         ariaLabel={sheet?.title ?? "انتخاب"}
         className="rounded-t-[14px]"
         contentClassName="pt-0 pb-6"
-        handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+        handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
         heightClassName="h-auto max-h-[calc(100dvh-102px)]"
         isOpen={Boolean(sheet)}
         headerButtonAriaLabel="بازگشت"
@@ -284,7 +284,7 @@ export function ProjectDetailsStep({
 
             return (
               <Button unstyled
-                className="flex h-12 w-full items-center justify-between bg-white px-5 text-sm font-normal leading-5 text-[#1a1a1a]"
+                className="flex h-12 w-full items-center justify-between bg-surface-container-lowest px-5 text-sm font-normal leading-5 text-on-surface"
                 key={option}
                 onClick={() => toggleSheetValue(option)}
                 type="button"
@@ -293,8 +293,8 @@ export function ProjectDetailsStep({
                 <Typography as="span" variant="body" size="medium" weight="regular"
                   className={`grid h-4 w-4 place-items-center rounded-[3px] border ${
                     checked
-                      ? "border-[#0048c4] bg-[#0048c4] text-white"
-                      : "border-[#808080] bg-white text-transparent"
+                      ? "border-primary bg-primary text-on-primary"
+                      : "border-outline bg-surface-container-lowest text-transparent"
                   }`}
                 >
                   <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 12 12">

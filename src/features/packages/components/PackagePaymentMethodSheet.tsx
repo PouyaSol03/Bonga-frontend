@@ -66,14 +66,14 @@ export function PackagePaymentMethodSheet({
       variant="form"
     >
       <div className="px-4 pb-4 pt-4">
-        <div className="rounded-xl bg-[#f7f8fb] px-4 py-3">
+        <div className="rounded-xl bg-surface-container px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <Typography
               as="span"
               variant="body"
               size="medium"
               weight="regular"
-              className="min-w-0 flex-1 truncate text-right text-[#4d4d4d]"
+              className="min-w-0 flex-1 truncate text-right text-on-surface-var"
             >
               {packageTitle}
             </Typography>
@@ -82,14 +82,14 @@ export function PackagePaymentMethodSheet({
               variant="label"
               size="medium"
               weight="semibold"
-              className="shrink-0 text-[#1a1a1a]"
+              className="shrink-0 text-on-surface"
             >
               {formatMoney(packagePrice)} تومان
             </Typography>
           </div>
         </div>
 
-        <div className="mt-4 overflow-hidden rounded-xl border border-[#e6e6e6] bg-white">
+        <div className="mt-4 overflow-hidden rounded-xl border border-outline-var bg-surface-container-lowest">
           <PaymentMethodRow
             active={paymentType === 1}
             description={
@@ -104,7 +104,7 @@ export function PackagePaymentMethodSheet({
             onClick={() => setPaymentType(1)}
           />
 
-          <div className="mx-4 h-px bg-[#f0f0f0]" />
+          <div className="mx-4 h-px bg-outline-var" />
 
           <PaymentMethodRow
             active={paymentType === 0}
@@ -116,18 +116,18 @@ export function PackagePaymentMethodSheet({
         </div>
 
         {paymentType === 1 && walletReady && walletShortage > 0 ? (
-          <div className="mt-3 rounded-xl border border-[#f3c5bf] bg-[#fff5f3] px-4 py-3 text-right">
+          <div className="mt-3 rounded-xl border border-error/30 bg-error-container/30 px-4 py-3 text-right">
             <Typography
               as="p"
               variant="body"
               size="small"
               weight="regular"
-              className="m-0 text-[#c11004]"
+              className="m-0 text-error"
             >
               موجودی کیف پول برای این خرید {formatMoney(walletShortage)} تومان کم است.
             </Typography>
             <RouteLink
-              className="mt-2 inline-flex text-sm font-medium text-[#0048c4] no-underline"
+              className="mt-2 inline-flex text-sm font-medium text-primary no-underline"
               to="/account/wallet"
             >
               شارژ کیف پول
@@ -181,7 +181,7 @@ function PaymentMethodRow({
       <ChoiceIndicator checked={active} type="radio" />
 
       <span className="inline-flex min-w-0 flex-1 items-center justify-end gap-3 [direction:rtl]">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#f2f5fb] text-[#4d4d4d]">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface-container text-on-surface-var">
           {icon}
         </span>
 
@@ -191,7 +191,7 @@ function PaymentMethodRow({
             variant="body"
             size="medium"
             weight="medium"
-            className="block text-[#1a1a1a]"
+            className="block text-on-surface"
           >
             {label}
           </Typography>
@@ -200,7 +200,7 @@ function PaymentMethodRow({
             variant="body"
             size="small"
             weight="regular"
-            className="mt-1 block text-[#808080]"
+            className="mt-1 block text-outline"
           >
             {description}
           </Typography>

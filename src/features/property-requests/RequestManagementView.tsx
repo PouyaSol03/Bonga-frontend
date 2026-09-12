@@ -423,7 +423,7 @@ export function RequestManagementView({
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -438,8 +438,8 @@ export function RequestManagementView({
         backTo={backTo}
         className={
           variant === "account"
-            ? "border-b border-[#e8e8e8] bg-[#f0f0f0]"
-            : "bg-[#f0f0f0]"
+            ? "border-b border-outline-var bg-surface-container"
+            : "bg-surface-container"
         }
         contentClassName="px-2"
         heightClassName={variant === "account" ? "h-14" : "h-12"}
@@ -449,15 +449,15 @@ export function RequestManagementView({
             variant="title"
             size="medium"
             weight="semibold"
-            className="m-0 truncate text-right text-[#1a1a1a]"
+            className="m-0 truncate text-right text-on-surface"
           >
             درخواست‌ها
           </Typography>
         }
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
-        <div className={variant === "account" ? "bg-[#f0f0f0]" : "bg-white"}>
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+        <div className={variant === "account" ? "bg-surface-container" : "bg-surface-container-lowest"}>
           <RequestTabs
             activeTab={activeTab}
             hasReceivedIndicator={hasNewReceivedRequests}
@@ -469,14 +469,14 @@ export function RequestManagementView({
           {activeTab === "results" && requests.length > 0 ? (
             <HorizontalFilterBar
               ariaLabel="فیلتر نتایج بر اساس درخواست"
-              className="border-t border-[#f0f0f0] bg-white py-2"
+              className="border-t border-outline-var bg-surface-container-lowest py-2"
             >
               <Button
                 unstyled
-                className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+                className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
                   activeFilterId === "all"
-                    ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
-                    : "border-[#cccccc] bg-white text-[#1a1a1a] hover:bg-[#f5f5f5]"
+                    ? "border-primary bg-primary-container text-primary"
+                    : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
                 }`}
                 onClick={() => selectFilter("all")}
                 type="button"
@@ -491,10 +491,10 @@ export function RequestManagementView({
                   <Button
                     unstyled
                     key={request.id}
-                    className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+                    className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
                       isSelected
-                        ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
-                        : "border-[#cccccc] bg-white text-[#1a1a1a] hover:bg-[#f5f5f5]"
+                        ? "border-primary bg-primary-container text-primary"
+                        : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
                     }`}
                     onClick={() => selectFilter(request.id)}
                     type="button"
@@ -531,8 +531,8 @@ export function RequestManagementView({
             <div
               className={
                 requests.length > 0
-                  ? "space-y-2 bg-[#f5f5f5]"
-                  : "bg-white"
+                  ? "space-y-2 bg-surface-container"
+                  : "bg-surface-container-lowest"
               }
             >
               {requests.map((request) => (
@@ -568,14 +568,14 @@ export function RequestManagementView({
             <div
               className={
                 showResultsEmpty
-                  ? "bg-white"
-                  : "space-y-2 bg-[#f5f5f5]"
+                  ? "bg-surface-container-lowest"
+                  : "space-y-2 bg-surface-container"
               }
             >
               {filteredRequests.map((request) => (
                 <PropertyRequestResults
                   bare
-                  className="bg-white pb-5"
+                  className="bg-surface-container-lowest pb-5"
                   compact
                   hideWhenEmpty
                   key={request.id}
@@ -600,7 +600,7 @@ export function RequestManagementView({
             </div>
           )
         ) : (
-          <div className="bg-[#f0f0f0]">
+          <div className="bg-surface-container">
             {isReceivedGuideVisible ? (
               <ReceivedRequestsGuide onClose={dismissReceivedGuide} />
             ) : null}
@@ -667,9 +667,9 @@ function RequestTabs({
   const count = tabs.length || 1;
 
   return (
-    <section className={variant === "account" ? "px-4 py-2" : "bg-[#f5f5f5] px-4 py-4"}>
+    <section className={variant === "account" ? "px-4 py-2" : "bg-surface-container px-4 py-4"}>
       <div
-        className={`relative grid overflow-hidden border border-[#808080] bg-white [direction:rtl] ${
+        className={`relative grid overflow-hidden border border-outline bg-surface-container-lowest [direction:rtl] ${
           variant === "account"
             ? "h-10 rounded-xl"
             : "h-10 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.18)]"
@@ -678,7 +678,7 @@ function RequestTabs({
       >
         <motion.div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 bg-[#dce6f7]"
+          className="pointer-events-none absolute inset-y-0 right-0 bg-primary-container"
           style={{ width: `${100 / count}%` }}
           animate={{ x: `${-activeIndex * 100}%` }}
           transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
@@ -689,14 +689,14 @@ function RequestTabs({
           return (
             <Button unstyled
               aria-current={isActive ? "page" : undefined}
-              className={`relative inline-flex min-w-0 items-center justify-center px-2 leading-5 transition-colors duration-200 focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+              className={`relative inline-flex min-w-0 items-center justify-center px-2 leading-5 transition-colors duration-200 focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 ${
                 variant === "account"
                   ? "text-sm font-medium"
                   : "text-base font-semibold"
               } ${
                 isActive
-                  ? "text-[#002099] font-semibold"
-                  : "text-[#4d4d4d] hover:bg-[#f7f7f7]/50"
+                  ? "text-primary font-semibold"
+                  : "text-on-surface-var hover:bg-surface-container/50"
               }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
@@ -706,7 +706,7 @@ function RequestTabs({
                 {tab.id === "received" && hasReceivedIndicator ? (
                   <Typography as="span" variant="body" size="medium" weight="regular"
                     aria-hidden="true"
-                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ef3326]"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-error"
                   />
                 ) : null}
                 <Typography as="span" variant="label" size="large" weight="medium">{tab.label}</Typography>
@@ -753,7 +753,7 @@ function RequestEditBottomSheet({
         <input
           aria-label="نام درخواست"
           autoFocus
-          className="h-14 w-full rounded-xl border-2 border-[#0048c4] bg-white px-3 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none transition placeholder:text-[#a6a6a6] focus:ring-3 focus:ring-[#0048c424]"
+          className="h-14 w-full rounded-xl border-2 border-primary bg-surface-container-lowest px-3 text-right text-base font-normal leading-6 text-on-surface outline-none transition placeholder:text-outline focus:ring-3 focus:ring-primary/20"
           onChange={(event) => onValueChange(event.target.value)}
           placeholder="نام درخواست"
           type="text"
@@ -762,14 +762,14 @@ function RequestEditBottomSheet({
 
         <div className="grid grid-cols-2 gap-4">
           <Button unstyled
-            className="h-10 rounded-xl border border-[#0048c4] bg-white text-sm font-semibold leading-5 text-[#0048c4] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
+            className="h-10 rounded-xl border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container"
             onClick={onClose}
             type="button"
           >
             انصراف
           </Button>
           <Button unstyled
-            className="h-10 rounded-xl bg-[#0048c4] text-sm font-semibold leading-5 text-white transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#003ca3]"
+            className="h-10 rounded-xl bg-primary text-sm font-semibold leading-5 text-on-primary transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-80"
             type="submit"
           >
             تایید
@@ -795,25 +795,25 @@ function CriteriaRequestCard({
   );
 
   return (
-    <article className="min-h-[148px] overflow-hidden bg-white p-4 text-right">
+    <article className="min-h-[148px] overflow-hidden bg-surface-container-lowest p-4 text-right">
       <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
         <Button unstyled
-          className="inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-lg px-0.5 font-medium leading-4 text-[#c11004] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c1100440] active:bg-[#fff0f0]"
+          className="inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-lg px-0.5 font-medium leading-4 text-error focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-error/40 active:bg-error-container/30"
           onClick={onCancel}
           type="button"
         >
           <Typography as="span" variant="label" size="medium" weight="medium">لغو</Typography>
-          <LinearCancel className="h-5 w-5 text-[#4d4d4d]" />
+          <LinearCancel className="h-5 w-5 text-on-surface-var" />
         </Button>
 
         <Button unstyled
           aria-label={`ویرایش ${request.title}`}
-          className="flex min-w-0 flex-1 items-center justify-end gap-1.5 rounded-lg text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#0048c440] [direction:ltr]"
+          className="flex min-w-0 flex-1 items-center justify-end gap-1.5 rounded-lg text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-primary/40 [direction:ltr]"
           onClick={onEdit}
           type="button"
         >
-          <LinearEdit2 className="h-4 w-4 text-[#4d4d4d]" />
-          <Typography as="span" variant="title" size="medium" weight="semibold" className="text-right text-[#1a1a1a] [direction:rtl]">
+          <LinearEdit2 className="h-4 w-4 text-on-surface-var" />
+          <Typography as="span" variant="title" size="medium" weight="semibold" className="text-right text-on-surface [direction:rtl]">
             {request.title}
           </Typography>
         </Button>
@@ -823,7 +823,7 @@ function CriteriaRequestCard({
         <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
           {visibleDetails.map((detail) => (
             <Typography as="span" variant="label" size="medium" weight="semibold"
-              className="inline-flex max-w-full items-center rounded-lg border border-[#CCCCCC] bg-white text-sm font-semibold leading-4 text-[#4D4D4D]"
+              className="inline-flex max-w-full items-center rounded-lg border border-outline-var bg-surface-container-lowest text-sm font-semibold leading-4 text-on-surface-var"
               title={detail}
               key={detail}
             >
@@ -831,7 +831,7 @@ function CriteriaRequestCard({
             </Typography>
           ))}
           {hiddenCount > 0 ? (
-            <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-[25px] items-center rounded-[7px] border border-[#d4d4d4] bg-[#f7f7f7] px-2 text-[11px] font-medium leading-4 text-[#4d4d4d]">
+            <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-[25px] items-center rounded-[7px] border border-outline-var bg-surface-container px-2 text-[11px] font-medium leading-4 text-on-surface-var">
               و {toPersianDigits(hiddenCount)} مورد بیشتر
             </Typography>
           ) : null}
@@ -843,19 +843,19 @@ function CriteriaRequestCard({
 
 function ReceivedRequestsGuide({ onClose }: { onClose: () => void }) {
   return (
-    <section className="border-b-8 border-[#f0f0f0] bg-white px-4 py-4">
-      <div className="rounded-2xl bg-[#eaf1ff] px-4 pb-4 pt-5 text-[#0054c8]">
+    <section className="border-b-8 border-surface-container bg-surface-container-lowest px-4 py-4">
+      <div className="rounded-2xl bg-primary-container px-4 pb-4 pt-5 text-primary">
         <div className="flex items-center justify-between [direction:ltr]">
           <Button unstyled
             aria-label="بستن راهنما"
-            className="grid h-8 w-8 place-items-center rounded-full text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-white/60"
+            className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container-lowest/60"
             onClick={onClose}
             type="button"
           >
             <LinearCancel className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center gap-2 text-[#0054c8] [direction:rtl]">
+          <div className="flex items-center gap-2 text-primary [direction:rtl]">
             <LinearInfoCircle className="h-6 w-6 shrink-0" />
             <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">راهنما</Typography>
           </div>
@@ -885,9 +885,9 @@ function ReceivedRequestCard({
   const requestDate = formatReceivedRequestDate(request);
 
   return (
-    <article className="relative border-b-8 border-[#f0f0f0] bg-white px-4 pb-6 pt-7 text-right">
+    <article className="relative border-b-8 border-surface-container bg-surface-container-lowest px-4 pb-6 pt-7 text-right">
       {isNew ? (
-        <Typography as="span" variant="label" size="small" weight="medium" className="absolute left-4 top-2 inline-flex h-6 items-center rounded-full bg-[#ef3326] px-2.5 text-xs font-medium leading-6 text-white">
+        <Typography as="span" variant="label" size="small" weight="medium" className="absolute left-4 top-2 inline-flex h-6 items-center rounded-full bg-error px-2.5 text-xs font-medium leading-6 text-on-error">
           جدید
         </Typography>
       ) : null}
@@ -895,7 +895,7 @@ function ReceivedRequestCard({
       <div className="flex items-start justify-between gap-4 [direction:ltr]">
         <Button unstyled
           aria-label={`حذف ${request.title}`}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-[#4d4d4d] transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] active:bg-[#f5f5f5]"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-on-surface-var transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container"
           onClick={onDelete}
           type="button"
         >
@@ -904,13 +904,13 @@ function ReceivedRequestCard({
 
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex min-h-10 flex-wrap items-center gap-2">
-            <LinearCity className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 text-[17px] font-bold leading-7 text-[#1a1a1a]">
+            <LinearCity className="h-6 w-6 shrink-0 text-on-surface-var" />
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 text-[17px] font-bold leading-7 text-on-surface">
               {request.title}
             </Typography>
             {requestDate ? (
               <time
-                className="inline-flex h-8 shrink-0 items-center rounded-[10px] bg-[#f5f5f5] px-3 text-xs font-normal leading-5 text-[#1a1a1a]"
+                className="inline-flex h-8 shrink-0 items-center rounded-[10px] bg-surface-container px-3 text-xs font-normal leading-5 text-on-surface"
                 dateTime={request.createdAt}
               >
                 {requestDate}
@@ -922,7 +922,7 @@ function ReceivedRequestCard({
             <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
               {visibleDetails.map((detail) => (
                 <Typography as="span" variant="label" size="medium" weight="semibold"
-                  className="inline-flex max-w-full items-center rounded-[9px] border border-[#cccccc] bg-white px-2.5 py-1.5 text-sm font-semibold leading-5 text-[#4d4d4d]"
+                  className="inline-flex max-w-full items-center rounded-[9px] border border-outline-var bg-surface-container-lowest px-2.5 py-1.5 text-sm font-semibold leading-5 text-on-surface-var"
                   key={detail}
                   title={detail}
                 >
@@ -930,7 +930,7 @@ function ReceivedRequestCard({
                 </Typography>
               ))}
               {hiddenCount > 0 ? (
-                <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex items-center rounded-[9px] border border-[#cccccc] bg-[#f7f7f7] px-2.5 py-1.5 text-xs font-medium leading-5 text-[#4d4d4d]">
+                <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex items-center rounded-[9px] border border-outline-var bg-surface-container px-2.5 py-1.5 text-xs font-medium leading-5 text-on-surface-var">
                   و {toPersianDigits(hiddenCount)} مورد بیشتر
                 </Typography>
               ) : null}
@@ -944,9 +944,9 @@ function ReceivedRequestCard({
 
 function CriteriaRequestsSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="space-y-2 bg-[#f5f5f5]" aria-label="در حال دریافت درخواست‌ها">
+    <div className="space-y-2 bg-surface-container" aria-label="در حال دریافت درخواست‌ها">
       {Array.from({ length: count }).map((_, index) => (
-        <article key={index} className="min-h-[148px] overflow-hidden bg-white p-4 text-right">
+        <article key={index} className="min-h-[148px] overflow-hidden bg-surface-container-lowest p-4 text-right">
           <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
             <div className="h-6 w-12 rounded-lg animate-skeleton" />
             <div className="flex items-center gap-2">
@@ -971,7 +971,7 @@ function ReceivedRequestsSkeleton() {
     <div aria-label="در حال بارگذاری درخواست‌های دریافتی" aria-live="polite">
       {Array.from({ length: 3 }, (_, index) => (
         <article
-          className="border-b-8 border-[#f0f0f0] bg-white px-4 pb-6 pt-7"
+          className="border-b-8 border-surface-container bg-surface-container-lowest px-4 pb-6 pt-7"
           key={index}
         >
           <div className="flex items-start justify-between gap-4 [direction:ltr]">
@@ -1009,7 +1009,7 @@ function EmptyRequestState({
 
   return (
     <section
-      className={`mx-auto flex w-full flex-col items-center justify-center bg-white text-center ${
+      className={`mx-auto flex w-full flex-col items-center justify-center bg-surface-container-lowest text-center ${
         isAccount
           ? "min-h-[calc(100dvh-112px)] px-5 pb-10"
           : "min-h-[calc(100dvh-183px)] px-8 pb-16"
@@ -1021,10 +1021,10 @@ function EmptyRequestState({
         alt=""
         aria-hidden="true"
       />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-4 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-4 text-on-surface">
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[320px] text-sm font-normal text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[320px] text-sm font-normal text-on-surface-var">
         {description}
       </Typography>
     </section>

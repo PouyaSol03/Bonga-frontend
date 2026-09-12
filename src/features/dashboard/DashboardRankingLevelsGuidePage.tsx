@@ -41,18 +41,18 @@ const agencyLevels: AgencyLevel[] = [
 export function DashboardRankingLevelsGuidePage() {
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account/dashboard/ranking"
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         contentClassName="px-1"
         title="سطح پیشرفت آژانس"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        <div className="grid h-12 grid-cols-3 items-center border-b border-[#e5e5e5] text-base font-normal leading-6 text-[#4d4d4d] [direction:rtl]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
+        <div className="grid h-12 grid-cols-3 items-center border-b border-outline-var text-base font-normal leading-6 text-on-surface-var [direction:rtl]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4">امتیاز</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="">نماد</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4">عنوان</Typography>
@@ -68,14 +68,14 @@ export function DashboardRankingLevelsGuidePage() {
 
 function AgencyLevelRow({ level }: { level: AgencyLevel }) {
   return (
-    <div className="grid h-[88px] grid-cols-3 items-center border-b border-[#e5e5e5] text-sm leading-5 [direction:rtl] last:border-b-0">
-      <strong className="pr-4 text-right text-sm font-semibold text-[#1a1a1a]">
+    <div className="grid h-[88px] grid-cols-3 items-center border-b border-outline-var text-sm leading-5 [direction:rtl] last:border-b-0">
+      <strong className="pr-4 text-right text-sm font-semibold text-on-surface">
         {level.points}
       </strong>
 
       <LevelImage src={level.image} />
 
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#1a1a1a]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-on-surface">
         {level.title}
       </Typography>
     </div>

@@ -40,7 +40,7 @@ export function AdPaymentHistoryPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -52,11 +52,11 @@ export function AdPaymentHistoryPage() {
           tab: routeState.tab,
         }}
         backTo={backTo}
-        className="bg-[#f0f0f0] [&_a]:text-[#1a1a1a]"
+        className="bg-surface-container [&_a]:text-on-surface"
         title="تاریخچه پرداخت"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {paymentsQuery.isLoading && fallbackPayments.length === 0 ? <PaymentHistoryLoading /> : null}
 
         {paymentsQuery.isError && payments.length === 0 ? (
@@ -64,7 +64,7 @@ export function AdPaymentHistoryPage() {
         ) : null}
 
         {!paymentsQuery.isLoading && payments.length > 0 ? (
-          <div className="bg-[#f0f0f0]">
+          <div className="bg-surface-container">
             {payments.map((payment, index) => (
               <PaymentHistoryCard
                 key={`${readPaymentTrackingCode(payment)}-${index}`}
@@ -143,7 +143,7 @@ function firstArray<T>(values: unknown[]) {
 
 function PaymentHistoryLoading() {
   return (
-    <div className="flex h-full min-h-0 flex-1 items-center justify-center px-4 text-sm font-medium leading-5 text-[#808080]">
+    <div className="flex h-full min-h-0 flex-1 items-center justify-center px-4 text-sm font-medium leading-5 text-outline">
       در حال دریافت تاریخچه پرداخت...
     </div>
   );
@@ -152,11 +152,11 @@ function PaymentHistoryLoading() {
 function PaymentHistoryError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-8 text-center">
-      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-on-surface">
         دریافت تاریخچه پرداخت با خطا مواجه شد.
       </Typography>
       <Button unstyled
-        className="mt-4 h-10 rounded-lg bg-[#0048c4] px-6 text-sm font-medium leading-5 text-white"
+        className="mt-4 h-10 rounded-lg bg-primary px-6 text-sm font-medium leading-5 text-on-primary"
         onClick={onRetry}
         type="button"
       >
@@ -180,15 +180,15 @@ function EmptyPaymentHistory({
   return (
     <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-8 text-center">
       <img src="/vectors/NoPaymentHistory.svg" alt="" />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-on-surface">
         هیچ تراکنشی برای نمایش وجود ندارد
       </Typography>
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 max-w-[260px] text-xs font-normal leading-5 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 max-w-[260px] text-xs font-normal leading-5 text-on-surface-var">
         پس از اولین پرداخت برای این آگهی، سابقه‌ها در این بخش نمایش داده می‌شود
       </Typography>
 
       <RouteLink
-        className="mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white no-underline"
+        className="mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary no-underline"
         state={{
           ad: card ?? ad,
           card,
@@ -209,7 +209,7 @@ function EmptyPaymentHistory({
 
 function PaymentHistoryCard({ payment }: { payment: AdPayment }) {
   return (
-    <article className="mb-2 flex min-h-[224px] flex-col justify-between bg-white gap-y-2 p-4 text-right last:mb-0">
+    <article className="mb-2 flex min-h-[224px] flex-col justify-between bg-surface-container-lowest gap-y-2 p-4 text-right last:mb-0">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
@@ -227,7 +227,7 @@ function PaymentHistoryCard({ payment }: { payment: AdPayment }) {
 function PaymentHistoryRow({
   label,
   value,
-  valueClassName = "text-[#1a1a1a]",
+  valueClassName = "text-on-surface",
 }: {
   label: string;
   value: ReactNode;
@@ -236,7 +236,7 @@ function PaymentHistoryRow({
   return (
     <div className="flex py-2 shrink-0 items-center justify-between [direction:ltr]">
       <Typography as="span" variant="label" size="large" weight="medium" className={`min-w-0 text-left ${valueClassName}`}>{value}</Typography>
-      <Typography as="span" variant="label" size="large" weight="medium" className="shrink-0 text-right text-[#808080] [direction:rtl]">{label}</Typography>
+      <Typography as="span" variant="label" size="large" weight="medium" className="shrink-0 text-right text-outline [direction:rtl]">{label}</Typography>
     </div>
   );
 }
@@ -263,11 +263,11 @@ function readPaymentStatus(payment: AdPayment) {
 function readPaymentStatusClassName(payment: AdPayment) {
   const status = readPaymentStatus(payment);
 
-  if (status === "پرداخت شده") return "text-[#11a366]";
-  if (status === "ناموفق") return "text-[#ee3623]";
-  if (status === "در انتظار" || status === "در انتظار پرداخت") return "text-[#ff6d00]";
+  if (status === "پرداخت شده") return "text-tertiary";
+  if (status === "ناموفق") return "text-error";
+  if (status === "در انتظار" || status === "در انتظار پرداخت") return "text-warning";
 
-  return "text-[#1a1a1a]";
+  return "text-on-surface";
 }
 
 const paymentItemLabels: Record<string, string> = {

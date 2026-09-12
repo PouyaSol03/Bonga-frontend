@@ -1551,7 +1551,7 @@ export function NewAdFlowPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <FormProvider {...methods}>
@@ -1565,12 +1565,12 @@ export function NewAdFlowPage() {
             ) : null}
 
             {submitError ? (
-              <div className="mx-4 mt-2 flex items-center justify-between rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3 text-right text-sm text-[#dc2626]">
+              <div className="mx-4 mt-2 flex items-center justify-between rounded-lg border border-error/30 bg-error-container p-3 text-right text-sm text-error">
                 <span>{submitError}</span>
                 <button
                   type="button"
                   onClick={() => setSubmitError("")}
-                  className="mr-2 text-xs font-bold text-[#dc2626] hover:opacity-75"
+                  className="mr-2 text-xs font-bold text-error hover:opacity-75"
                 >
                   ✕
                 </button>
@@ -1578,7 +1578,7 @@ export function NewAdFlowPage() {
             ) : null}
 
         {isCrmEditMode && editAdIsLoading ? (
-          <div className="grid min-h-0 flex-1 place-items-center bg-[#f5f7fb] text-sm font-medium text-[#687386]">
+          <div className="grid min-h-0 flex-1 place-items-center bg-surface-container text-sm font-medium text-on-surface-var">
             در حال دریافت اطلاعات آگهی...
           </div>
         ) : step === "details" ? (

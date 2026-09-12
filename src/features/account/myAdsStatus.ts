@@ -18,52 +18,52 @@ export type MyAdStatusInfo = {
 
 export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
   unknown: {
-    badgeClassName: "bg-[#f0f0f0] text-[#808080]",
+    badgeClassName: "bg-surface-container text-outline",
     key: "unknown",
     label: "وضعیت نامشخص",
   },
   published: {
-    badgeClassName: "bg-[#E6F6ED] text-[#11A366]",
+    badgeClassName: "bg-tertiary-container/40 text-tertiary",
     key: "published",
     label: "منتشر شده",
   },
   deleted: {
-    badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
+    badgeClassName: "bg-error-container/40 text-error",
     key: "deleted",
     label: "حذف شده",
   },
   expired: {
-    badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
+    badgeClassName: "bg-error-container/40 text-error",
     key: "expired",
     label: "منقضی شده",
   },
   incomplete: {
-    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
+    badgeClassName: "bg-warning-container/40 text-warning",
     key: "incomplete",
     label: "نیمه کاره",
   },
   incomplete_deleted: {
-    badgeClassName: "bg-[#FFEBED] text-[#EE3623]",
+    badgeClassName: "bg-error-container/40 text-error",
     key: "incomplete_deleted",
     label: "نیمه کاره حذف شده",
   },
   wait_for_payment: {
-    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
+    badgeClassName: "bg-warning-container/40 text-warning",
     key: "wait_for_payment",
     label: "در انتظار پرداخت",
   },
   pending: {
-    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
+    badgeClassName: "bg-warning-container/40 text-warning",
     key: "pending",
     label: "در انتظار تایید انتشار",
   },
   wait_for_agency: {
-    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
+    badgeClassName: "bg-warning-container/40 text-warning",
     key: "wait_for_agency",
     label: "در انتظار آژانس",
   },
   needs_edit: {
-    badgeClassName: "bg-[#FFF8E1] text-[#FF6D00]",
+    badgeClassName: "bg-warning-container/40 text-warning",
     key: "needs_edit",
     label: "نیازمند ویرایش",
   },

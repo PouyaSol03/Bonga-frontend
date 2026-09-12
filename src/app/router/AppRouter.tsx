@@ -666,7 +666,7 @@ export function AppRouter() {
   }
 
   const activePage = (
-    <Suspense fallback={<div className="min-h-0 flex-1 bg-[#f0f0f0]" />}>
+    <Suspense fallback={<div className="min-h-0 flex-1 bg-surface-container" />}>
       <ActivePage />
     </Suspense>
   )
@@ -683,11 +683,11 @@ export function AppRouter() {
 
   if (route.layout === 'crm') {
     return (
-      <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
+      <Suspense fallback={<div className="h-screen w-full bg-surface-container" />}>
         <CrmLayout
           contentKey={route.path}
           renderContent={(viewProps: CrmRoutePageProps) => (
-            <Suspense fallback={<div className="h-full min-h-80 rounded-xl bg-white" />}>
+            <Suspense fallback={<div className="h-full min-h-80 rounded-xl bg-surface-container-lowest" />}>
               <ActivePage {...viewProps} />
             </Suspense>
           )}
@@ -703,7 +703,7 @@ export function AppRouter() {
 
   if (isCrmAdvertiseFlowRoute) {
     return (
-      <Suspense fallback={<div className="h-screen w-full bg-[#f3f3f3]" />}>
+      <Suspense fallback={<div className="h-screen w-full bg-surface-container" />}>
         <CrmLayout
           embeddedContent={page}
           section="advertises"
@@ -740,7 +740,7 @@ export function AppRouter() {
 
   return (
     <MobileAppShell>
-      <div className="relative grid h-full w-full grid-cols-1 grid-rows-1 overflow-hidden bg-white">
+      <div className="relative grid h-full w-full grid-cols-1 grid-rows-1 overflow-hidden bg-surface-container-lowest">
         <AnimatePresence initial={false}>
           <motion.div
             key={path}

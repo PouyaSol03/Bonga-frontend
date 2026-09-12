@@ -6,11 +6,11 @@ import { Typography } from "../../../shared/ui/Typography";
 export function NotFoundState() {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest">
         <NotFoundErrorState />
       </main>
     </PageFrame>
@@ -20,11 +20,11 @@ export function NotFoundState() {
 export function LoadingState() {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
         <ViewAdPageSkeleton />
       </main>
     </PageFrame>
@@ -32,13 +32,13 @@ export function LoadingState() {
 }
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`rounded-lg bg-surface-container-high ${className}`} />;
 }
 
 function ViewAdPageSkeleton() {
   return (
     <>
-      <section className="bg-white px-4 pb-4 pt-4">
+      <section className="bg-surface-container-lowest px-4 pb-4 pt-4">
         <SkeletonBlock className="aspect-[328/219] w-full rounded-2xl" />
         <div className="mt-4 flex items-center justify-between">
           <SkeletonBlock className="h-5 w-20" />
@@ -55,7 +55,7 @@ function ViewAdPageSkeleton() {
       </section>
       <ViewAdSectionSkeleton rows={4} />
       <ViewAdSectionSkeleton rows={6} />
-      <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
+      <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4">
         <SkeletonBlock className="ml-auto h-5 w-24" />
         <div className="mt-6 space-y-3">
           <SkeletonBlock className="ml-auto h-4 w-full" />
@@ -69,7 +69,7 @@ function ViewAdPageSkeleton() {
 
 function ViewAdSectionSkeleton({ rows }: { rows: number }) {
   return (
-    <section className="border-t-8 border-[#f0f0f0] bg-white px-4 py-4">
+    <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4">
       <SkeletonBlock className="ml-auto h-5 w-28" />
       <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
         {Array.from({ length: rows }).map((_, index) => (
@@ -101,8 +101,8 @@ export function ViewAdErrorState({
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-white">
-      <div className="h-full min-h-0 bg-white">
+    <div className="fixed inset-0 z-[999] bg-surface-container-lowest">
+      <div className="h-full min-h-0 bg-surface-container-lowest">
         <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
         <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
       </div>

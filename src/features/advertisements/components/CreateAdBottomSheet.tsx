@@ -54,7 +54,7 @@ export function CreateAdBottomSheet({
     >
       {options.map((option) => (
         <ListItem
-          className="after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-[#f0f0f0] last:after:hidden"
+          className="after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-outline-var last:after:hidden"
           description={option.description}
           key={option.id}
           leading={<CreateAdIcon type={option.icon} />}

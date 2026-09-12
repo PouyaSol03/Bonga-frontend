@@ -79,7 +79,7 @@ export function AdTariffOptionsList({
   onToggle: (id: AdTariffOptionId) => void;
 }) {
   return (
-    <div className="divide-y divide-[#e6e6e6] bg-white">
+    <div className="divide-y divide-outline-var bg-surface-container-lowest">
       {options.map((option) => (
         <AdTariffOptionRow
           checked={selectedIds.includes(option.id)}
@@ -102,10 +102,10 @@ function AdTariffOptionRow({
   option: AdTariffOption;
 }) {
   const isDisabled = Boolean(option.disabled);
-  const rowClassName = checked ? "bg-[#f3f5ff]" : "bg-white";
-  const priceClassName = isDisabled ? "text-[#c2c2c2]" : "text-[#1a1a1a]";
-  const titleClassName = isDisabled ? "text-[#b8b8b8]" : checked ? "text-[#1a1a1a]" : "text-[#4d4d4d]";
-  const descriptionClassName = isDisabled ? "text-[#b8b8b8]" : "text-[#4d4d4d]";
+  const rowClassName = checked ? "bg-primary-container/20" : "bg-surface-container-lowest";
+  const priceClassName = isDisabled ? "text-outline/60" : "text-on-surface";
+  const titleClassName = isDisabled ? "text-outline/60" : checked ? "text-on-surface" : "text-on-surface-var";
+  const descriptionClassName = isDisabled ? "text-outline/60" : "text-on-surface-var";
 
   return (
     <Button unstyled
@@ -145,7 +145,7 @@ function AdTariffOptionRow({
 
 function TariffNotice({ children }: { children: ReactNode }) {
   return (
-    <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-[#fff5db] px-3 py-2 text-right text-xs font-medium leading-5 text-[#ff6d00]">
+    <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-warning-container/30 px-3 py-2 text-right text-xs font-medium leading-5 text-warning">
       <CircleInfoIcon className="h-5 w-5 shrink-0" />
       <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
     </Typography>
@@ -165,11 +165,11 @@ function SelectionBox({
       className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${
         checked
           ? disabled
-            ? "bg-[#b8b8b8] text-white"
-            : "bg-[#0048c4] text-white"
+            ? "bg-outline/60 text-surface-container-lowest"
+            : "bg-primary text-on-primary"
           : disabled
-            ? "border border-[#c2c2c2] bg-white text-transparent"
-            : "border border-[#808080] bg-white text-transparent"
+            ? "border border-outline/40 bg-surface-container-lowest text-transparent"
+            : "border border-outline bg-surface-container-lowest text-transparent"
       }`}
     >
       <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16">

@@ -124,7 +124,7 @@ export function ConsultantEditPage() {
 
   return (
     <section
-      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       dir="rtl"
     >
       <TopBar
@@ -139,7 +139,7 @@ export function ConsultantEditPage() {
         <ConsultantProfilePill consultant={consultant} />
 
         <section className="mt-5">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-on-surface">
             انتخاب سمت
           </Typography>
 
@@ -164,7 +164,7 @@ export function ConsultantEditPage() {
                 <Button unstyled
                   aria-pressed={checked}
                   className={`flex items-center gap-2 text-right text-sm font-medium leading-5 ${
-                    isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"
+                    isManager ? "text-on-surface-var" : "text-outline"
                   }`}
                   disabled={!isManager}
                   key={item.id}
@@ -183,28 +183,28 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه آگهی"
             remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
-            remainingClassName="text-[#0048c4]"
+            remainingClassName="text-primary"
             setValue={setAdQuota}
             value={adQuota}
           />
           <QuotaStepper
             label="سهمیه بروزرسانی"
             remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`} 
-            remainingClassName="text-[#11a366]"
+            remainingClassName="text-tertiary"
             setValue={setUpdateQuota}
             value={updateQuota}
           />
           <QuotaStepper
             label="سهمیه ویژه"
             remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`} 
-            remainingClassName="text-[#ff6d00]"
+            remainingClassName="text-warning"
             setValue={setSpecialQuota}
             value={specialQuota}
           />
         </section>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
         <Button
           fullWidth
           loading={updateConsultantMutation.isPending}

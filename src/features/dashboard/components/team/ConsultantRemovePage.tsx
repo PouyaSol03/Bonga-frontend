@@ -60,7 +60,7 @@ export function ConsultantRemovePage() {
 
   return (
     <section
-      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       dir="rtl"
     >
       <TopBar
@@ -74,22 +74,22 @@ export function ConsultantRemovePage() {
       <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-28">
         <ConsultantProfilePill consultant={consultant} />
 
-        <section className="mt-4 rounded-2xl border border-[#ff6d00] bg-[#fff6ed] p-4">
-          <div className="flex items-center gap-2 text-[#ff6d00]">
-            <LinearDanger className="h-6 w-6 text-[#ff6d00]" />
+        <section className="mt-4 rounded-2xl border border-warning bg-warning-container/30 p-4">
+          <div className="flex items-center gap-2 text-warning">
+            <LinearDanger className="h-6 w-6 text-warning" />
             <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">توجه!</Typography>
           </div>
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-4 text-sm font-medium leading-6 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-4 text-sm font-medium leading-6 text-on-surface-var">
             در صورت حذف تمامی اطلاعات ثبت شده به مشاور جایگزین منتقل می‌گردد.
           </Typography>
         </section>
 
         <section className="mt-7">
-          <label className="block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
-            انتخاب مشاور جایگزین <Typography as="span" variant="body" size="medium" weight="regular" className="text-[#ef1f1f]">*</Typography>
+          <label className="block text-right text-base font-semibold leading-6 text-on-surface">
+            انتخاب مشاور جایگزین <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
           </label>
           <Button unstyled
-            className="mt-3 flex h-14 w-full items-center justify-between rounded-xl border border-[#808080] bg-white px-4 text-sm font-medium leading-5 text-[#1a1a1a]"
+            className="mt-3 flex h-14 w-full items-center justify-between rounded-xl border border-outline bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-on-surface"
             onClick={() => setIsReplacementPickerOpen(true)}
             type="button"
           >
@@ -103,7 +103,7 @@ export function ConsultantRemovePage() {
         </section>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
         <Button
           fullWidth
           onClick={() => window.history.back()}
@@ -208,7 +208,7 @@ function ReplacementPicker({
     <section
       aria-label="انتخاب مشاور جایگزین"
       aria-modal="true"
-      className="fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-[#f5f5f5] text-[#1a1a1a]"
+      className="fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container text-on-surface"
       dir="rtl"
       role="dialog"
     >
@@ -222,21 +222,21 @@ function ReplacementPicker({
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-24">
-        <div className="bg-white px-4 pb-5 pt-3">
-          <label className="flex h-12 items-center gap-2 rounded-lg border border-[#d9d9d9] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
+        <div className="bg-surface-container-lowest px-4 pb-5 pt-3">
+          <label className="flex h-12 items-center gap-2 rounded-lg border border-outline-var bg-surface-container-lowest px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-[#1a1a1a] outline-none placeholder:text-[#bdbdbd]"
+              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-on-surface outline-none placeholder:text-outline"
               onChange={(event) => setSearchValue(event.target.value)}
               placeholder="جستجوی مشاور"
               type="search"
               value={searchValue}
             />
-            <LinearSearch className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+            <LinearSearch className="h-5 w-5 shrink-0 text-on-surface-var" />
           </label>
         </div>
 
-        <section className="bg-white px-4 py-4">
-          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-[#1a1a1a]">
+        <section className="bg-surface-container-lowest px-4 py-4">
+          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-on-surface">
             نتیجه جستجو
           </Typography>
 
@@ -258,14 +258,14 @@ function ReplacementPicker({
           ) : normalizedSearch ? (
             <SearchEmptyState compact />
           ) : (
-            <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 w-full px-2 py-8 text-center text-sm font-medium leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 w-full px-2 py-8 text-center text-sm font-medium leading-6 text-outline">
               مشاور دیگری برای جایگزینی وجود ندارد.
             </Typography>
           )}
         </section>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
         <Button
           fullWidth
           disabled={!draftTarget}
@@ -296,24 +296,24 @@ function ReplacementOption({
     <Button unstyled
       aria-pressed={isSelected}
       className={`flex h-[76px] w-full items-center gap-3 rounded-xl border px-3 text-right transition ${
-        isSelected ? "border-[#0048c4] bg-[#eaf1ff]" : "border-[#e6e6e6] bg-white"
+        isSelected ? "border-primary bg-primary-container" : "border-outline-var bg-surface-container-lowest"
       }`}
       onClick={onSelect}
       type="button"
     >
       <div className="flex min-w-0 flex-1 gap-x-2">
         {target.kind === "agency" ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-[#0048c4]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container text-primary">
             <LinearBuilding3 className="h-6 w-6" />
           </Typography>
         ) : (
           <ConsultantAvatar consultant={target.consultant} sizeClassName="h-11 w-11" />
         )}
         <div className="flex min-w-0 flex-col justify-center">
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-[#1a1a1a]">
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-on-surface">
             {getReplacementLabel(target)}
           </Typography>
-          <Typography as="span" variant="label" size="small" weight="medium" className="block truncate text-xs font-medium text-[#808080]">
+          <Typography as="span" variant="label" size="small" weight="medium" className="block truncate text-xs font-medium text-outline">
             {target.kind === "agency" ? target.subtitle : target.consultant.phone}
           </Typography>
         </div>

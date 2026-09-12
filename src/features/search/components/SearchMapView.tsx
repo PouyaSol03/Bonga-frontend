@@ -215,7 +215,7 @@ function SearchMapViewComponent({
 
   return (
     <MapContainer
-      className="relative z-0 h-full min-h-[320px] w-full bg-[#f5f5f5]"
+      className="relative z-0 h-full min-h-[320px] w-full bg-surface-container-low"
       center={[center.latitude, center.longitude]}
       zoom={center.zoom}
       minZoom={tileConfig.minZoom}
@@ -244,8 +244,8 @@ function SearchMapViewComponent({
           key={`selected-neighborhood-${index}`}
           interactive={false}
           pathOptions={{
-            color: "#0048c4",
-            fillColor: "#0048c4",
+            color: "var(--primary)",
+            fillColor: "var(--primary)",
             fillOpacity: 0.18,
             opacity: 0.9,
             weight: 2,
@@ -305,8 +305,8 @@ function SearchMapViewComponent({
             <Circle
               center={[userLocation.latitude, userLocation.longitude]}
               pathOptions={{
-                color: "#0048c4",
-                fillColor: "#0048c4",
+                color: "var(--primary)",
+                fillColor: "var(--primary)",
                 fillOpacity: 0.08,
                 opacity: 0.18,
                 weight: 1,

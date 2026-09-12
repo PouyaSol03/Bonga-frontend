@@ -79,12 +79,12 @@ const badgeGuides: BadgeGuide[] = [
 export function IndependentConsultantBadgesGuidePage() {
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account/ranking" title="راهنمای نشان‌ها" />
 
-      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-[#f0f0f0]">
+      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container">
         {badgeGuides.map((badge) => (
           <BadgeGuideSection badge={badge} key={badge.name} />
         ))}
@@ -95,10 +95,10 @@ export function IndependentConsultantBadgesGuidePage() {
 
 function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
   return (
-    <section className="bg-white p-4">
-      <div className="flex h-22 items-center justify-center gap-4 rounded-2xl border border-[#f5f5f5] bg-linear-to-b from-on-surface/40 to-on-surface/0">
+    <section className="bg-surface-container-lowest p-4">
+      <div className="flex h-22 items-center justify-center gap-4 rounded-2xl border border-outline-var bg-linear-to-b from-on-surface/40 to-on-surface/0">
         <img alt="" className="h-14 w-14 object-contain" src={badge.image} />
-        <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">{badge.name}</Typography>
+        <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-primary">{badge.name}</Typography>
       </div>
 
       <div className="mt-6">
@@ -115,8 +115,8 @@ function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
       </div>
 
       <div className="mt-12">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="flex items-center gap-1 text-base font-semibold leading-6 text-[#0048c4]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 ml-2 rounded-full bg-[#0048c4]" />
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="flex items-center gap-1 text-base font-semibold leading-6 text-primary">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 ml-2 rounded-full bg-primary" />
           {badge.indicatorTitle}
         </Typography>
         <Typography as="p" variant="body" size="large" weight="regular" className="mt-2 text-base font-normal leading-6">{badge.indicatorDescription}</Typography>
@@ -125,7 +125,7 @@ function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
         <ul className="mt-2 mr-4 space-y-2 text-base font-normal leading-6">
           {badge.points.map((point) => (
             <li className="flex items-start gap-3.5" key={point}>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary" />
               <Typography as="span" variant="body" size="large" weight="regular">{point}</Typography>
             </li>
           ))}
@@ -142,7 +142,7 @@ function LevelStars({ count }: { count: number }) {
       {[0, 1, 2].map((star) => (
         <svg
           aria-hidden="true"
-          className={`h-3 w-3 ${star < count ? "text-[#ffb100]" : "text-[#e5e5e5]"}`}
+          className={`h-3 w-3 ${star < count ? "text-warning" : "text-outline-var"}`}
           fill="currentColor"
           key={star}
           viewBox="0 0 12 12"

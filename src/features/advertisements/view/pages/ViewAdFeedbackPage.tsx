@@ -46,13 +46,13 @@ function FeedbackIconButton({
 }) {
   const activeClassName =
     type === "positive"
-      ? "bg-[#11A36629] text-[#11A366]"
-      : "bg-[#DD2B1E29] text-[#EE3623]";
+      ? "bg-tertiary-container text-tertiary"
+      : "bg-error-container text-error";
 
   return (
     <Button unstyled
       aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
-      className={`grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${active ? activeClassName : "bg-transparent text-[#cccccc]"}`}
+      className={`grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${active ? activeClassName : "bg-transparent text-outline-var"}`}
       onClick={onClick}
       type="button"
     >
@@ -103,17 +103,17 @@ export function ViewAdFeedbackPage({
   };
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col bg-white text-[#1a1a1a] [direction:rtl]">
+    <div className="absolute inset-0 z-40 flex flex-col bg-surface-container-lowest text-on-surface [direction:rtl]">
       <ViewAdActionPageTopBar onBack={onClose} title="ثبت بازخورد" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pt-2">
-        <div className="divide-y divide-[#e0e0e0]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pt-2">
+        <div className="divide-y divide-outline-var">
           {feedbackOptions.map((option) => (
             <div
               className="flex min-h-[60px] items-center justify-between gap-4 text-right [direction:rtl]"
               key={option.key}
             >
-              <Typography as="span" variant="body" size="large" weight="regular" className="text-[#1a1a1a]">
+              <Typography as="span" variant="body" size="large" weight="regular" className="text-on-surface">
                 {option.label}
               </Typography>
 

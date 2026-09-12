@@ -33,17 +33,17 @@ const consultantLevels = [
 export function IndependentConsultantRankingLevelsPage() {
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account/ranking"
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="سطح پیشرفت مشاور"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
-        <div className="grid h-12 grid-cols-3 items-center border-b border-[#e5e5e5] text-base font-normal leading-6 text-[#4d4d4d] [direction:rtl]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
+        <div className="grid h-12 grid-cols-3 items-center border-b border-outline-var text-base font-normal leading-6 text-on-surface-var [direction:rtl]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4 text-right">امتیاز</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="text-center">نماد</Typography>
           <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4 text-left">عنوان</Typography>
@@ -62,10 +62,10 @@ function LevelTableRow({
   level: (typeof consultantLevels)[number];
 }) {
   return (
-    <div className="grid h-[89px] grid-cols-3 items-center border-b border-[#e5e5e5] text-sm leading-5 [direction:rtl] last:border-b-0">
-      <strong className="pr-4 text-right text-sm font-semibold text-[#1a1a1a]">{level.points}</strong>
+    <div className="grid h-[89px] grid-cols-3 items-center border-b border-outline-var text-sm leading-5 [direction:rtl] last:border-b-0">
+      <strong className="pr-4 text-right text-sm font-semibold text-on-surface">{level.points}</strong>
       <img alt="" className="mx-auto h-14 w-14 object-contain" src={level.image} />
-      <Typography as="span" variant="label" size="medium" weight="medium" className="pl-4 text-left text-sm font-medium text-[#1a1a1a] [direction:rtl]">{level.title}</Typography>
+      <Typography as="span" variant="label" size="medium" weight="medium" className="pl-4 text-left text-sm font-medium text-on-surface [direction:rtl]">{level.title}</Typography>
     </div>
   );
 }

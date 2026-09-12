@@ -21,7 +21,7 @@ export function SearchMapResultsSummary({
       aria-live="polite"
       dir="rtl"
     >
-      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 min-w-0 rounded-full bg-white/95 px-4 py-1 text-center text-[13px] font-semibold leading-5 text-[#4d4d4d] shadow-[0_4px_14px_rgba(26,26,26,0.13)] backdrop-blur-sm min-[400px]:px-5 min-[400px]:text-sm">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 min-w-0 rounded-full bg-surface-container-lowest/95 px-4 py-1 text-center text-[13px] font-semibold leading-5 text-on-surface-var shadow-[0_4px_14px_rgba(26,26,26,0.13)] backdrop-blur-sm min-[400px]:px-5 min-[400px]:text-sm">
         {isLoading
           ? "در حال دریافت تعداد آگهی‌ها..."
           : `${count.toLocaleString("fa-IR")} آگهی در این محدوده`}
@@ -29,7 +29,7 @@ export function SearchMapResultsSummary({
 
       {hasGeofence ? (
         <Button unstyled
-          className="pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#0048c4] px-4 py-2 leading-5 text-white shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors hover:bg-[#003da8] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
+          className="pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 leading-5 text-on-primary shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors hover:opacity-90 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
           type="button"
           onClick={onRemoveGeofence}
         >

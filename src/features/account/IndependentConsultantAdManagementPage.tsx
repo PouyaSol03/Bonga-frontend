@@ -294,22 +294,22 @@ export function IndependentConsultantAdManagementPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account"
         centerClassName="px-0"
         centerSlot={
-          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-on-surface">
             مدیریت آگهی‌ها
           </Typography>
         }
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         startSlot={
           <Button unstyled
             aria-label="جستجو"
-            className="grid h-12 w-12 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+            className="grid h-12 w-12 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40"
             type="button"
           >
             <SearchIcon className="h-6 w-6" />
@@ -318,12 +318,12 @@ export function IndependentConsultantAdManagementPage() {
       />
 
       {canAccessAssignments ? (
-        <section className="shrink-0 bg-[#f0f0f0] px-4 py-2" aria-label="بخش‌های مدیریت آگهی">
-          <div className="grid h-10 grid-cols-2 overflow-hidden rounded-xl border border-[#808080] bg-white [direction:rtl]">
+        <section className="shrink-0 bg-surface-container px-4 py-2" aria-label="بخش‌های مدیریت آگهی">
+          <div className="grid h-10 grid-cols-2 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest [direction:rtl]">
             <Button unstyled
               aria-current={activeTab === "active" ? "page" : undefined}
               className={`text-base font-medium leading-6 [direction:rtl] ${
-                activeTab === "active" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
+                activeTab === "active" ? "bg-primary-container text-primary font-semibold" : "text-on-surface-var"
               }`}
               onClick={() => setActiveTab("active")}
               type="button"
@@ -333,7 +333,7 @@ export function IndependentConsultantAdManagementPage() {
             <Button unstyled
               aria-current={activeTab === "status" ? "page" : undefined}
               className={`text-base font-medium leading-6 [direction:rtl] ${
-                activeTab === "status" ? "bg-[#0048c41f] text-[#002099]" : "text-[#4d4d4d]"
+                activeTab === "status" ? "bg-primary-container text-primary font-semibold" : "text-on-surface-var"
               }`}
               onClick={() => setActiveTab("status")}
               type="button"
@@ -346,14 +346,14 @@ export function IndependentConsultantAdManagementPage() {
 
       <section
         aria-label="فیلترهای مدیریت آگهی"
-        className={`flex h-14 shrink-0 items-center bg-white px-4 [direction:ltr] ${
+        className={`flex h-14 shrink-0 items-center bg-surface-container-lowest px-4 [direction:ltr] ${
           assignedTab ? "justify-end" : "justify-between"
         }`}
       >
         {!assignedTab ? (
           <div className="flex items-center gap-2 [direction:rtl]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-[#cccccc]" aria-hidden="true" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#4d4d4d]">آگهی من</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" />
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-on-surface-var">آگهی من</Typography>
             <SwitchButton
               ariaLabel="نمایش آگهی‌های من"
               checked={showMineOnly}
@@ -365,8 +365,8 @@ export function IndependentConsultantAdManagementPage() {
         <RouteLink
           className={`relative inline-flex items-center gap-1 rounded-lg border p-2 text-sm font-normal no-underline ${
             hasFilters
-              ? "border-[#0048c4] bg-[#e6efff] text-[#0048c4]"
-              : "border-[#cccccc] bg-white text-[#4d4d4d]"
+              ? "border-primary bg-primary-container text-primary"
+              : "border-outline-var bg-surface-container-lowest text-on-surface-var"
           }`}
           state={{ filters: scopedFilters, onlyMine: assignedTab ? false : showMineOnly, tab: activeTab }}
           to={adManagementPaths.filter}
@@ -374,13 +374,13 @@ export function IndependentConsultantAdManagementPage() {
           <Typography as="span" variant="body" size="medium" weight="regular">{filterLabel}</Typography>
           <LinearFilterHorizontal className="h-5 w-5" />
           {hasFilters ? (
-            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#0048c4] ring-2 ring-white" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-surface-container-lowest" />
           ) : null}
         </RouteLink>
       </section>
 
       {hasFilters ? (
-        <section className="flex shrink-0 gap-2 overflow-x-auto bg-white px-4 pb-3 [direction:rtl]">
+        <section className="flex shrink-0 gap-2 overflow-x-auto bg-surface-container-lowest px-4 pb-3 [direction:rtl]">
           {scopedFilters.neighborhoods.map((neighborhood) => (
             <ActiveFilterChip key={neighborhood.id} label={neighborhood.name} />
           ))}
@@ -402,8 +402,8 @@ export function IndependentConsultantAdManagementPage() {
           !adsQuery.isLoading &&
           !adsQuery.isError &&
           activeAdvertisements.length === 0
-            ? "bg-white"
-            : "bg-[#f0f0f0] pt-4"
+            ? "bg-surface-container-lowest"
+            : "bg-surface-container pt-4"
         }`}
       >
         <div
@@ -412,7 +412,7 @@ export function IndependentConsultantAdManagementPage() {
             !adsQuery.isLoading &&
             !adsQuery.isError &&
             activeAdvertisements.length === 0
-              ? "flex min-h-0 flex-1 flex-col bg-white"
+              ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest"
               : assignedTab
                 ? "space-y-3 pb-4"
                 : "space-y-2"
@@ -429,7 +429,7 @@ export function IndependentConsultantAdManagementPage() {
               <AssignmentStatusMessage>
                 دریافت آگهی‌های تخصیصی با خطا مواجه شد.
                 <Button unstyled
-                  className="mt-3 block w-full font-semibold text-[#0048c4]"
+                  className="mt-3 block w-full font-semibold text-primary"
                   onClick={() => void assignmentsQuery.refetch()}
                   type="button"
                 >
@@ -460,7 +460,7 @@ export function IndependentConsultantAdManagementPage() {
               دریافت آگهی‌ها با خطا مواجه شد.
               <Button
                 unstyled
-                className="mt-3 block w-full font-semibold text-[#0048c4]"
+                className="mt-3 block w-full font-semibold text-primary"
                 onClick={() => void adsQuery.refetch()}
                 type="button"
               >
@@ -516,7 +516,7 @@ function AssignedConsultantAdCard({
 
   return (
     <article
-      className="overflow-hidden bg-white shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl]"
+      className="overflow-hidden bg-surface-container-lowest shadow-[0_4px_16px_rgba(0,0,0,0.06)] [direction:rtl]"
       ref={loadMoreRef}
     >
       <div
@@ -537,7 +537,7 @@ function AssignedConsultantAdCard({
 
       <div className="px-4 pb-4 pt-1">
         <RouteLink
-          className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium leading-5 text-[#0048c4] no-underline border border-[#0048c4] active:bg-[#003aa0]"
+          className="flex h-11 w-full items-center justify-center rounded-lg bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline border border-primary active:bg-primary/10"
           state={routeState}
           to={getAllocationReviewPath(ad.id)}
         >
@@ -551,7 +551,7 @@ function AssignedConsultantAdCard({
 
 function AssignmentStatusMessage({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-4 rounded-2xl bg-white px-4 py-8 text-center text-sm font-normal leading-6 text-[#808080]">
+    <div className="mx-4 rounded-2xl bg-surface-container-lowest px-4 py-8 text-center text-sm font-normal leading-6 text-outline">
       {children}
     </div>
   );
@@ -562,10 +562,10 @@ function formatAllocationCountdown({ hours, minutes }: { hours: number; minutes:
 }
 
 function getAllocationCountdownClassName(hours?: number) {
-  if (hours !== undefined && hours < 3) return "bg-[#ffebed] text-[#ee3623]";
-  if (hours !== undefined && hours < 12) return "bg-[#fff8e1] text-[#ff6d00]";
+  if (hours !== undefined && hours < 3) return "bg-error-container/40 text-error";
+  if (hours !== undefined && hours < 12) return "bg-warning-container/40 text-warning";
 
-  return "bg-[#e6efff] text-[#0048c4]";
+  return "bg-primary-container text-primary";
 }
 
 function toPersianDigits(value: number | string) {
@@ -574,7 +574,7 @@ function toPersianDigits(value: number | string) {
 
 function ActiveFilterChip({ label }: { label: string }) {
   return (
-    <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-8 shrink-0 items-center rounded-lg border border-[#0048c4] bg-[#e6efff] px-2 text-xs font-medium leading-4 text-[#0048c4]">
+    <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-8 shrink-0 items-center rounded-lg border border-primary bg-primary-container px-2 text-xs font-medium leading-4 text-primary">
       {label}
     </Typography>
   );

@@ -60,12 +60,12 @@ const notificationFilterOptions: FilterOption[] = [
 ];
 
 const categoryColorClassNames: Record<NotificationCategory, string> = {
-  advertise: "bg-[#00a66a]",
-  chats: "bg-[#0048c4]",
-  requests: "bg-[#f97316]",
-  support: "bg-[#11a366]",
-  systems: "bg-[#64748b]",
-  trades: "bg-[#8b5cf6]",
+  advertise: "bg-tertiary",
+  chats: "bg-primary",
+  requests: "bg-warning",
+  support: "bg-tertiary",
+  systems: "bg-outline",
+  trades: "bg-primary",
 };
 
 const allPreferenceCategories = notificationFilterOptions.map((option) => option.id);
@@ -99,7 +99,7 @@ function MoreVerticalIcon({ className = "" }: { className?: string }) {
 function RefreshIcon({ className = "" }: { className?: string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none">
-      <path d="M4.84961 20V16.7998C4.84971 16.3857 5.18546 16.0498 5.59961 16.0498H8.44434C8.85848 16.0498 9.19423 16.3857 9.19434 16.7998C9.19434 17.214 8.85855 17.5498 8.44434 17.5498H7.33594C8.59714 18.611 10.2237 19.25 12 19.25C16.0041 19.25 19.25 16.0041 19.25 12C19.25 11.5858 19.5858 11.25 20 11.25C20.4142 11.25 20.75 11.5858 20.75 12C20.75 16.8325 16.8325 20.75 12 20.75C9.84562 20.75 7.87375 19.9701 6.34961 18.6797V20C6.34961 20.4142 6.01375 20.7499 5.59961 20.75C5.1854 20.75 4.84961 20.4142 4.84961 20ZM3.25 12C3.25 7.16751 7.16751 3.25 12 3.25C14.1542 3.25 16.1263 4.02916 17.6504 5.31934V4C17.6504 3.58584 17.9863 3.25009 18.4004 3.25C18.8146 3.25 19.1504 3.58579 19.1504 4V7.2002C19.1503 7.61432 18.8145 7.9502 18.4004 7.9502H15.5557C15.1415 7.9502 14.8058 7.61432 14.8057 7.2002C14.8057 6.78598 15.1415 6.4502 15.5557 6.4502H16.6641C15.4029 5.38902 13.7763 4.75 12 4.75C7.99593 4.75 4.75 7.99593 4.75 12C4.75 12.4142 4.41421 12.75 4 12.75C3.58579 12.75 3.25 12.4142 3.25 12Z" fill="#1A1A1A" />
+      <path d="M4.84961 20V16.7998C4.84971 16.3857 5.18546 16.0498 5.59961 16.0498H8.44434C8.85848 16.0498 9.19423 16.3857 9.19434 16.7998C9.19434 17.214 8.85855 17.5498 8.44434 17.5498H7.33594C8.59714 18.611 10.2237 19.25 12 19.25C16.0041 19.25 19.25 16.0041 19.25 12C19.25 11.5858 19.5858 11.25 20 11.25C20.4142 11.25 20.75 11.5858 20.75 12C20.75 16.8325 16.8325 20.75 12 20.75C9.84562 20.75 7.87375 19.9701 6.34961 18.6797V20C6.34961 20.4142 6.01375 20.7499 5.59961 20.75C5.1854 20.75 4.84961 20.4142 4.84961 20ZM3.25 12C3.25 7.16751 7.16751 3.25 12 3.25C14.1542 3.25 16.1263 4.02916 17.6504 5.31934V4C17.6504 3.58584 17.9863 3.25009 18.4004 3.25C18.8146 3.25 19.1504 3.58579 19.1504 4V7.2002C19.1503 7.61432 18.8145 7.9502 18.4004 7.9502H15.5557C15.1415 7.9502 14.8058 7.61432 14.8057 7.2002C14.8057 6.78598 15.1415 6.4502 15.5557 6.4502H16.6641C15.4029 5.38902 13.7763 4.75 12 4.75C7.99593 4.75 4.75 7.99593 4.75 12C4.75 12.4142 4.41421 12.75 4 12.75C3.58579 12.75 3.25 12.4142 3.25 12Z" fill="currentColor" />
     </svg>
   );
 }
@@ -107,7 +107,7 @@ function RefreshIcon({ className = "" }: { className?: string }) {
 function FilterSlidersIcon({ className = "" }: { className?: string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="none">
-      <path d="M14.6688 12.5002C14.6688 12.4183 14.5879 12.2918 14.4116 12.2918H10.8822C10.706 12.2919 10.625 12.4183 10.625 12.5002V15.8335C10.625 15.9154 10.706 16.0417 10.8822 16.0418H14.4116C14.5879 16.0418 14.6688 15.9154 14.6688 15.8335V12.5002ZM6.91162 13.5418C7.2568 13.5418 7.53662 13.8217 7.53662 14.1668C7.53662 14.512 7.2568 14.7918 6.91162 14.7918H2.5C2.15482 14.7918 1.875 14.512 1.875 14.1668C1.875 13.8217 2.15482 13.5418 2.5 13.5418H6.91162ZM9.375 4.16683C9.375 4.08497 9.29398 3.95859 9.11784 3.9585H5.58838C5.41211 3.9585 5.33122 4.08495 5.33122 4.16683V7.50016C5.33122 7.58204 5.41211 7.7085 5.58838 7.7085H9.11784C9.29398 7.7084 9.375 7.58202 9.375 7.50016V4.16683ZM17.5 5.2085C17.8452 5.2085 18.125 5.48832 18.125 5.8335C18.125 6.17867 17.8452 6.4585 17.5 6.4585H13.0884C12.7432 6.4585 12.4634 6.17867 12.4634 5.8335C12.4634 5.48832 12.7432 5.2085 13.0884 5.2085H17.5ZM15.9188 13.5418H17.5C17.8452 13.5418 18.125 13.8217 18.125 14.1668C18.125 14.512 17.8452 14.7918 17.5 14.7918H15.9188V15.8335C15.9188 16.6721 15.21 17.2918 14.4116 17.2918H10.8822C10.0839 17.2917 9.375 16.672 9.375 15.8335V12.5002C9.375 11.6616 10.0839 11.0419 10.8822 11.0418H14.4116C15.21 11.0418 15.9188 11.6616 15.9188 12.5002V13.5418ZM10.625 7.50016C10.625 8.33868 9.91613 8.9584 9.11784 8.9585H5.58838C4.79003 8.9585 4.08122 8.33875 4.08122 7.50016V6.4585H2.5C2.15482 6.4585 1.875 6.17867 1.875 5.8335C1.875 5.48832 2.15482 5.2085 2.5 5.2085H4.08122V4.16683C4.08122 3.32824 4.79003 2.7085 5.58838 2.7085H9.11784C9.91613 2.70859 10.625 3.32832 10.625 4.16683V7.50016Z" fill="#4D4D4D" />
+      <path d="M14.6688 12.5002C14.6688 12.4183 14.5879 12.2918 14.4116 12.2918H10.8822C10.706 12.2919 10.625 12.4183 10.625 12.5002V15.8335C10.625 15.9154 10.706 16.0417 10.8822 16.0418H14.4116C14.5879 16.0418 14.6688 15.9154 14.6688 15.8335V12.5002ZM6.91162 13.5418C7.2568 13.5418 7.53662 13.8217 7.53662 14.1668C7.53662 14.512 7.2568 14.7918 6.91162 14.7918H2.5C2.15482 14.7918 1.875 14.512 1.875 14.1668C1.875 13.8217 2.15482 13.5418 2.5 13.5418H6.91162ZM9.375 4.16683C9.375 4.08497 9.29398 3.95859 9.11784 3.9585H5.58838C5.41211 3.9585 5.33122 4.08495 5.33122 4.16683V7.50016C5.33122 7.58204 5.41211 7.7085 5.58838 7.7085H9.11784C9.29398 7.7084 9.375 7.58202 9.375 7.50016V4.16683ZM17.5 5.2085C17.8452 5.2085 18.125 5.48832 18.125 5.8335C18.125 6.17867 17.8452 6.4585 17.5 6.4585H13.0884C12.7432 6.4585 12.4634 6.17867 12.4634 5.8335C12.4634 5.48832 12.7432 5.2085 13.0884 5.2085H17.5ZM15.9188 13.5418H17.5C17.8452 13.5418 18.125 13.8217 18.125 14.1668C18.125 14.512 17.8452 14.7918 17.5 14.7918H15.9188V15.8335C15.9188 16.6721 15.21 17.2918 14.4116 17.2918H10.8822C10.0839 17.2917 9.375 16.672 9.375 15.8335V12.5002C9.375 11.6616 10.0839 11.0419 10.8822 11.0418H14.4116C15.21 11.0418 15.9188 11.6616 15.9188 12.5002V13.5418ZM10.625 7.50016C10.625 8.33868 9.91613 8.9584 9.11784 8.9585H5.58838C4.79003 8.9585 4.08122 8.33875 4.08122 7.50016V6.4585H2.5C2.15482 6.4585 1.875 6.17867 1.875 5.8335C1.875 5.48832 2.15482 5.2085 2.5 5.2085H4.08122V4.16683C4.08122 3.32824 4.79003 2.7085 5.58838 2.7085H9.11784C9.91613 2.70859 10.625 3.32832 10.625 4.16683V7.50016Z" fill="currentColor" />
     </svg>
   );
 }
@@ -323,14 +323,14 @@ function NotificationHeader({
 function NotificationFilterButton({ count, onClick }: { count: number; onClick: () => void }) {
   return (
     <Button unstyled
-      className="relative flex shrink-0 items-center gap-1 rounded-xl border border-[#2E2D3E29] bg-white px-2.5 py-2 text-sm font-medium leading-5 text-[#4d4d4d] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
+      className="relative flex shrink-0 items-center gap-1 rounded-xl border border-outline-var bg-surface-container-lowest px-2.5 py-2 text-sm font-medium leading-5 text-on-surface-var focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:bg-surface-container"
       onClick={onClick}
       type="button"
     >
       <FilterSlidersIcon className="h-5 w-5" />
       <Typography as="span" variant="body" size="medium" weight="regular">فیلتر</Typography>
       {count > 0 ? (
-        <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 min-w-5 place-items-center rounded-full bg-[#0048c4] px-1 text-xs font-semibold leading-5 text-white">
+        <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-xs font-semibold leading-5 text-on-primary">
           {count}
         </Typography>
       ) : null}
@@ -350,14 +350,14 @@ function NotificationFilterBar({
   return (
     <HorizontalFilterBar
       ariaLabel="فیلتر اعلان‌ها"
-      className="bg-[#f0f0f0]"
+      className="bg-surface-container"
       contentClassName="min-h-10"
     >
       <NotificationFilterButton count={selectedFilters.length} onClick={onOpenFilters} />
       {selectedFilters.map((filter) => (
         <Button unstyled
           aria-label={`حذف فیلتر ${filter.label}`}
-          className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#0048C4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4] transition-all duration-200 active:scale-[0.97] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-primary bg-primary/10 px-3 text-sm font-medium leading-5 text-primary transition-all duration-200 active:scale-[0.97] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
           key={filter.id}
           onClick={() => onRemoveFilter(filter.id)}
           type="button"
@@ -390,7 +390,7 @@ function NotificationFilterSheet({
       isOpen={isOpen}
       onClose={onClose}
       panelPaddingClassName="pt-3"
-      scrimClassName="bg-[#1a1a1a]/60"
+      scrimClassName="bg-black/60"
       title="فیلتر"
       showHeaderDivider={false}
     >
@@ -401,7 +401,7 @@ function NotificationFilterSheet({
           return (
             <Button unstyled
               aria-pressed={isSelected}
-              className="flex h-[64px] w-full items-center justify-between text-right text-base font-medium leading-6 text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440]"
+              className="flex h-[64px] w-full items-center justify-between text-right text-base font-medium leading-6 text-on-surface focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
               key={option.id}
               onClick={() => onToggle(option.id)}
               type="button"
@@ -410,8 +410,8 @@ function NotificationFilterSheet({
               <Typography as="span" variant="body" size="medium" weight="regular"
                 className={`grid h-[18px] w-[18px] place-items-center rounded border ${
                   isSelected
-                    ? "border-[#0048c4] bg-[#0048c4] text-white"
-                    : "border-[#808080] bg-white text-transparent"
+                    ? "border-primary bg-primary text-on-primary"
+                    : "border-outline bg-surface-container-lowest text-transparent"
                 }`}
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
@@ -450,60 +450,60 @@ function NotificationSettingsSheet({
       ariaLabel="تنظیمات اعلان"
       className="rounded-t-[16px]"
       contentClassName="mt-2"
-      handleClassName="h-[3px] w-[42px] rounded-full bg-[#e0e0e0]"
+      handleClassName="h-[3px] w-[42px] rounded-full bg-outline-var"
       heightClassName=""
       isOpen={isOpen}
       onClose={onClose}
       panelPaddingClassName="pt-2.5"
-      scrimClassName="bg-[#1a1a1a]/70"
+      scrimClassName="bg-black/70"
       showHeader={false}
     >
       <div className="px-3">
-        <div className="flex h-[72px] items-center gap-2 border-b border-[#f0f0f0] px-1 text-right [direction:rtl]">
-          <LinearArrowRight2 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
-          <Typography as="p" variant="label" size="large" weight="medium" className="m-0 font-medium leading-5 text-[#1a1a1a]">تنظیمات اعلان</Typography>
+        <div className="flex h-[72px] items-center gap-2 border-b border-outline-var px-1 text-right [direction:rtl]">
+          <LinearArrowRight2 className="h-6 w-6 shrink-0 text-on-surface-var" />
+          <Typography as="p" variant="label" size="large" weight="medium" className="m-0 font-medium leading-5 text-on-surface">تنظیمات اعلان</Typography>
         </div>
 
-        <div className="flex h-[72px] items-center justify-between border-b border-[#f0f0f0] px-1 [direction:ltr]">
+        <div className="flex h-[72px] items-center justify-between border-b border-outline-var px-1 [direction:ltr]">
           <SwitchButton
             ariaLabel="علامت‌گذاری همه به‌عنوان خوانده‌نشده"
             checked={markAllUnread}
             onChange={onMarkAllUnreadChange}
           />
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-right font-normal leading-4 text-[#1a1a1a]" dir="rtl">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-right font-normal leading-4 text-on-surface" dir="rtl">
             علامت‌گذاری همه به‌عنوان خوانده‌نشده
           </Typography>
         </div>
 
         <Button unstyled
-          className="flex h-[72px] w-full items-center justify-between border-b border-[#f0f0f0] px-1 text-[#1a1a1a] [direction:ltr]"
+          className="flex h-[72px] w-full items-center justify-between border-b border-outline-var px-1 text-on-surface [direction:ltr]"
           onClick={onManage}
           type="button"
         >
-          <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-on-surface-var" />
           <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-2 font-normal leading-4 [direction:rtl]">
-            <LinearNotification className="h-6 w-6 text-[#4D4D4D]" />
+            <LinearNotification className="h-6 w-6 text-on-surface-var" />
             مدیریت اعلان‌ها
           </Typography>
         </Button>
 
         <Button unstyled
-          className="flex h-[72px] w-full items-center gap-2 border-b border-[#f0f0f0] px-1 text-[11px] font-normal leading-4 text-[#1a1a1a] disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
+          className="flex h-[72px] w-full items-center gap-2 border-b border-outline-var px-1 text-[11px] font-normal leading-4 text-on-surface disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
           disabled={isMarkingAllRead}
           onClick={onMarkAllRead}
           type="button"
         >
-          <LinearTickDouble className="h-6 w-6 text-[#4D4D4D]" />
+          <LinearTickDouble className="h-6 w-6 text-on-surface-var" />
           <Typography as="span" variant="body" size="medium" weight="regular">{isMarkingAllRead ? "در حال ثبت..." : "علامت‌گذاری همه به‌عنوان خوانده شده"}</Typography>
         </Button>
 
         <Button unstyled
-          className="flex h-[72px] w-full items-center gap-2 px-1 text-[11px] font-normal leading-4 text-[#1a1a1a] disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
+          className="flex h-[72px] w-full items-center gap-2 px-1 text-[11px] font-normal leading-4 text-on-surface disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
           disabled={isClearingRead}
           onClick={onClearRead}
           type="button"
         >
-          <LinearDelete className="h-6 w-6 text-[#4D4D4D]" />
+          <LinearDelete className="h-6 w-6 text-on-surface-var" />
           <Typography as="span" variant="body" size="medium" weight="regular">{isClearingRead ? "در حال پاک کردن..." : "پاک کردن اعلان‌های خوانده شده"}</Typography>
         </Button>
       </div>
@@ -521,10 +521,10 @@ function NotificationsEmptyState() {
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoNotification.svg"
       />
-      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-on-surface">
         هنوز اعلانی دریافت نکرده‌اید
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal leading-6 text-[#4d4d4d]">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal leading-6 text-on-surface-var">
         تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود.
       </Typography>
     </section>
@@ -540,7 +540,7 @@ function NotificationActionButton({
 }) {
   return (
     <Button unstyled
-      className="flex items-center gap-1 rounded-lg border border-[#d9d9d9] bg-white px-4 py-1.5 !text-xs !font-medium leading-4 text-[#333333] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] active:bg-[#f7f7f7]"
+      className="flex items-center gap-1 rounded-lg border border-outline-var bg-surface-container-lowest px-4 py-1.5 !text-xs !font-medium leading-4 text-on-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:bg-surface-container"
       onClick={onClick}
       type="button"
     >
@@ -588,7 +588,7 @@ function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }
         variant="body"
         size="small"
         weight="regular"
-        className="m-0 truncate text-xs font-normal leading-5 text-[#4d4d4d]"
+        className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var"
       >
         {displayDescription}
       </Typography>
@@ -603,10 +603,10 @@ function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }
       variant="body"
       size="small"
       weight="regular"
-      className="m-0 truncate text-xs font-normal leading-5 text-[#4d4d4d]"
+      className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var"
     >
       {beforeAgency}
-      <Typography as="span" variant="body" size="small" weight="regular" className="text-[#0048c4]">
+      <Typography as="span" variant="body" size="small" weight="regular" className="text-primary">
         {agencyNameInDescription}
       </Typography>
       {afterAgency}
@@ -632,7 +632,7 @@ function AgencyConsultantRequestCardContent({
   return (
     <>
       <div className="flex items-start justify-between gap-3 [direction:ltr]">
-        <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-[#999999]">
+        <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-outline">
           {formatNotificationTime(item.created_at)}
         </time>
 
@@ -641,7 +641,7 @@ function AgencyConsultantRequestCardContent({
           variant="title"
           size="small"
           weight="semibold"
-          className="m-0 min-w-0 truncate text-right text-sm font-semibold leading-5 text-[#1a1a1a] [direction:rtl]"
+          className="m-0 min-w-0 truncate text-right text-sm font-semibold leading-5 text-on-surface [direction:rtl]"
         >
           {item.title || "دعوت همکاری جدید"}
         </Typography>
@@ -654,7 +654,7 @@ function AgencyConsultantRequestCardContent({
       <div className="mt-auto flex items-center justify-start gap-2 [direction:rtl]">
         <Button
           unstyled
-          className="h-7 w-[106px] shrink-0 rounded-lg bg-[#0048c4] px-2 text-center text-xs font-medium leading-4 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-7 w-[106px] shrink-0 rounded-lg bg-primary px-2 text-center text-xs font-medium leading-4 text-on-primary active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isResponding || isResolved}
           onClick={() => onDecision("accept")}
           onPointerDown={(event) => event.stopPropagation()}
@@ -673,7 +673,7 @@ function AgencyConsultantRequestCardContent({
 
         <Button
           unstyled
-          className="h-7 w-[76px] shrink-0 rounded-lg border border-[#0048c4] bg-white px-2 text-center text-xs font-medium leading-4 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-7 w-[76px] shrink-0 rounded-lg border border-primary bg-surface-container-lowest px-2 text-center text-xs font-medium leading-4 text-primary active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isResponding || isResolved}
           onClick={() => onDecision("reject")}
           onPointerDown={(event) => event.stopPropagation()}
@@ -742,14 +742,14 @@ function SwipeableNotificationCard({
 
   return (
     <div
-      className={`relative w-full max-w-full overflow-hidden border-b border-[#eeeeee] bg-[#f9d9d9] [contain:paint] ${
+      className={`relative w-full max-w-full overflow-hidden border-b border-outline-var bg-error-container/30 [contain:paint] ${
         isDeleting ? "opacity-60" : ""
       }`}
       style={{ touchAction: "pan-y" }}
     >
       <Button unstyled
         aria-label={`حذف اعلان ${item.title || ""}`.trim()}
-        className="absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-[#f9d9d9] text-[#ef1f1f] disabled:cursor-not-allowed"
+        className="absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-error-container/30 text-error disabled:cursor-not-allowed"
         disabled={isInteractionLocked}
         onClick={onDelete}
         type="button"
@@ -760,7 +760,7 @@ function SwipeableNotificationCard({
 
       <article
         className={`relative z-10 flex w-full max-w-full touch-pan-y select-none flex-col overflow-hidden px-4 py-4 text-right will-change-transform ${
-          isAgencyConsultantRequest ? "h-[120px] gap-y-2 bg-white" : `h-full gap-y-4 ${isUnread ? "bg-[#f7faff]" : "bg-white"}`
+          isAgencyConsultantRequest ? "h-[120px] gap-y-2 bg-surface-container-lowest" : `h-full gap-y-4 ${isUnread ? "bg-surface-container-low" : "bg-surface-container-lowest"}`
         } ${isDragging ? "" : "transition-transform duration-200 ease-out"}`}
         style={{ transform: `translateX(${dragOffset}px)` }}
         onPointerDown={(event) => {
@@ -855,7 +855,7 @@ function SwipeableNotificationCard({
         ) : (
           <>
         <div className="flex items-start justify-between gap-3 [direction:ltr]">
-          <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-[#999999]">
+          <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-outline">
             {formatNotificationTime(item.created_at)}
           </time>
 
@@ -868,17 +868,17 @@ function SwipeableNotificationCard({
               />
               <Typography as="h2" variant="title" size="small" weight="semibold"
                 className={`m-0 truncate text-sm leading-6 ${
-                  isUnread ? "font-bold text-[#1a1a1a]" : "font-semibold text-[#4D4D4D]"
+                  isUnread ? "font-bold text-on-surface" : "font-semibold text-on-surface-var"
                 }`}
               >
                 {item.title || "اعلان جدید"}
               </Typography>
               {isUnread ? (
-                <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 shrink-0 rounded-full bg-[#ef1f1f]" aria-label="خوانده نشده" />
+                <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 shrink-0 rounded-full bg-error" aria-label="خوانده نشده" />
               ) : null}
             </div>
 
-            <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 line-clamp-2 text-xs font-normal leading-5 text-[#4D4D4D]">
+            <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 line-clamp-2 text-xs font-normal leading-5 text-on-surface-var">
               {item.description || "برای مشاهده جزئیات اعلان را باز کنید."}
             </Typography>
           </div>
@@ -1284,7 +1284,7 @@ export function NotificationsPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <NotificationHeader
@@ -1297,9 +1297,9 @@ export function NotificationsPage() {
         selectedFilters={selectedFilters}
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white pb-5 [-webkit-overflow-scrolling:touch]">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-5 [-webkit-overflow-scrolling:touch]">
         {notificationsQuery.isLoading ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-outline">
             در حال دریافت اعلان‌ها...
           </Typography>
         ) : null}
@@ -1356,7 +1356,7 @@ export function NotificationsPage() {
         ) : null}
 
         {notificationsQuery.isFetchingNextPage ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="py-4 text-center text-xs text-[#808080]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="py-4 text-center text-xs text-outline">
             در حال دریافت اعلان‌های بیشتر...
           </Typography>
         ) : null}
@@ -1520,7 +1520,7 @@ export function NotificationManagementPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -1531,7 +1531,7 @@ export function NotificationManagementPage() {
         titleClassName="text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-6">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest pb-6">
         <section className="flex  items-center justify-between px-4 py-3 [direction:ltr]">
           <SwitchButton
             ariaLabel="فعال‌سازی اعلان‌ها"
@@ -1540,17 +1540,17 @@ export function NotificationManagementPage() {
             onChange={(enabled) => void updateAllCategories(enabled)}
           />
           <div className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
-            <LinearNotification className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+            <LinearNotification className="h-6 w-6 shrink-0 text-on-surface-var" />
             <div className="min-w-0">
-              <Typography as="h2" variant="headline" size="large" className="m-0 text-[#1a1a1a]">فعال‌سازی اعلان‌ها</Typography>
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 max-w-[220px] text-sm text-[#a6a6a6]">
+              <Typography as="h2" variant="headline" size="large" className="m-0 text-on-surface">فعال‌سازی اعلان‌ها</Typography>
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 max-w-[220px] text-sm text-outline">
                 با غیرفعال کردن این گزینه، همه اعلان‌ها متوقف می‌شوند.
               </Typography>
             </div>
           </div>
         </section>
 
-        <div className="h-1.5 bg-[#f5f5f5]" />
+        <div className="h-1.5 bg-surface-container" />
 
         <section aria-label="دسته‌بندی اعلان‌ها">
           {notificationManagementOptions.map((option) => {
@@ -1558,7 +1558,7 @@ export function NotificationManagementPage() {
 
             return (
               <div
-                className="flex items-center justify-between border-b border-[#f0f0f0] px-4 py-3.5 [direction:ltr] last:border-b-0"
+                className="flex items-center justify-between border-b border-outline-var px-4 py-3.5 [direction:ltr] last:border-b-0"
                 key={option.category}
               >
                 <SwitchButton
@@ -1568,8 +1568,8 @@ export function NotificationManagementPage() {
                   onChange={(nextEnabled) => void updateCategory(option.category, nextEnabled)}
                 />
                 <div className="min-w-0 flex-1 text-right" dir="rtl">
-                  <Typography as="h2" variant="headline" size="large" className="m-0 text-[#1a1a1a]">{option.label}</Typography>
-                  <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal text-[#a6a6a6]">
+                  <Typography as="h2" variant="headline" size="large" className="m-0 text-on-surface">{option.label}</Typography>
+                  <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal text-outline">
                     {option.description}
                   </Typography>
                 </div>

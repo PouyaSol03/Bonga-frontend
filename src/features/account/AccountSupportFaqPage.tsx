@@ -139,10 +139,10 @@ function FaqCategoryTabs({
         return (
           <Button unstyled
             aria-pressed={isActive}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-[#0048c440] ${
+            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-primary/25 ${
               isActive
-                ? "border-[#1268d8] bg-[#eaf1ff] text-[#0048c4]"
-                : "border-[#d6d6d6] bg-white text-[#4d4d4d] active:bg-[#f5f5f5]"
+                ? "border-primary bg-primary-container text-primary"
+                : "border-outline-var bg-surface-container-lowest text-on-surface-var active:bg-surface-container-low"
             }`}
             key={category.id}
             onClick={() => onChange(category.id)}
@@ -166,23 +166,23 @@ function FaqAccordionItem({
   onToggle: () => void;
 }) {
   return (
-    <article className="overflow-hidden rounded-xl border border-[#e1e1e1] bg-white p-4">
+    <article className="overflow-hidden rounded-xl border border-outline-var bg-surface-container-lowest p-4">
       <Button unstyled
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-3 text-right outline-none transition-colors active:bg-[#fafafa] focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-[#0048c440]"
+        className="flex w-full items-center justify-between gap-3 text-right outline-none transition-colors active:bg-surface-container-low focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-primary/25"
         onClick={onToggle}
         type="button"
       >
         <Typography as="span" variant="label" size="medium" weight="semibold"
           className={`min-w-0 flex-1 text-sm font-semibold ${
-            isOpen ? "text-[#0048c4]" : "text-[#1a1a1a]"
+            isOpen ? "text-primary" : "text-on-surface"
           }`}
         >
           {item.question}
         </Typography>
 
         <LinearArrowDown1
-          className={`h-5 w-5 shrink-0 text-[#4d4d4d] transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          className={`h-5 w-5 shrink-0 text-on-surface-var transition-transform duration-300 ease-out motion-reduce:transition-none ${
             isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
@@ -197,7 +197,7 @@ function FaqAccordionItem({
         }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-4 text-right text-sm font-normal leading-6 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-4 text-right text-sm font-normal leading-6 text-on-surface-var">
             {item.answer}
           </Typography>
         </div>
@@ -228,12 +228,12 @@ export function AccountSupportFaqPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
       <TopBar
         backTo={SUPPORT_PATH}
-        className="border-b border-[#e6e6e6]"
+        className="border-b border-outline-var"
         heightClassName="h-[52px]"
        
         reserveStartSpace
@@ -241,11 +241,11 @@ export function AccountSupportFaqPage() {
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <section className="shrink-0 border-b border-[#e6e6e6] bg-white pt-3">
-        <label className="mx-3 mb-2 flex h-12 items-center gap-2 rounded-xl border border-[#808080] bg-white px-3 text-[#808080] focus-within:border-[#0048c4] focus-within:ring-3 focus-within:ring-[#0048c420]">
+      <section className="shrink-0 border-b border-outline-var bg-surface-container-lowest pt-3">
+        <label className="mx-3 mb-2 flex h-12 items-center gap-2 rounded-xl border border-outline bg-surface-container-lowest px-3 text-outline focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20">
           <input
             aria-label="جستجو در سوالات متداول"
-            className="min-w-0 flex-1 bg-transparent text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+            className="min-w-0 flex-1 bg-transparent text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="دنبال چه چیزی هستید؟"
             type="search"
@@ -263,7 +263,7 @@ export function AccountSupportFaqPage() {
         />
       </section>
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white px-3 pb-24 pt-3">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest px-3 pb-24 pt-3">
         <div className="space-y-2.5">
           {visibleItems.map((item) => (
             <FaqAccordionItem
@@ -286,7 +286,7 @@ export function AccountSupportFaqPage() {
 
       <RouteLink
         aria-label="گفتگو با پشتیبانی"
-        className="absolute bottom-5 right-4 z-20 grid h-12 w-12 place-items-center rounded-full bg-[#0759cf] text-white shadow-[0_6px_16px_rgba(0,72,196,0.24)] outline-none active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0759cf]"
+        className="absolute bottom-5 right-4 z-20 grid h-12 w-12 place-items-center rounded-full bg-primary text-on-primary shadow-[0_6px_16px_rgba(0,72,196,0.24)] outline-none active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-surface-container-lowest focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         to={SUPPORT_CHAT_PATH}
       >
         <LinearChat className="h-5.5 w-5.5" />

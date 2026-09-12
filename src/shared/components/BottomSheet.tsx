@@ -82,7 +82,7 @@ export function BottomSheet({
   children,
   className = "",
   contentClassName = "",
-  handleClassName = "h-1 w-[56px] rounded-full bg-[#e0e0e0]",
+  handleClassName = "h-1 w-[56px] rounded-full bg-outline-var",
   headerClassName = "",
   headerButtonAriaLabel = "بازگشت",
   headerButtonIcon,
@@ -138,7 +138,7 @@ export function BottomSheet({
             animate={{ y: 0 }}
             aria-label={ariaLabel}
             aria-modal="true"
-            className={`relative z-10 flex w-full max-w-[500px] flex-col overflow-hidden rounded-t-[20px] bg-white ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
+            className={`relative z-10 flex w-full max-w-[500px] flex-col overflow-hidden rounded-t-[20px] bg-surface-container-lowest ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
             style={{ maxHeight: "calc(100dvh - 56px)" }}
             exit={{ y: "100%" }}
             initial={{ y: "100%" }}
@@ -175,24 +175,24 @@ export function BottomSheet({
                   {showBackButton ? (
                     <IconButton
                       aria-label={headerButtonAriaLabel}
-                      className="text-[#4d4d4d]"
+                      className="text-on-surface-var"
                       onClick={onBack ?? onClose}
                       size="dense"
                     >
                       {headerButtonIcon ?? (
-                        <LinearArrowRight2 className="h-6 w-6 text-[#4D4D4D]" />
+                        <LinearArrowRight2 className="h-6 w-6 text-on-surface-var" />
                       )}
                     </IconButton>
                   ) : null}
 
                   {titleIcon ? (
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center text-[#4d4d4d]">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center text-on-surface-var">
                       {titleIcon}
                     </span>
                   ) : null}
 
                   <Typography as="h2" variant="label" size="large" weight="medium"
-                    className={`m-0 min-w-0 flex-1 text-[#1a1a1a] ${isCenterTitle ? "text-center" : "text-right"
+                    className={`m-0 min-w-0 flex-1 text-on-surface ${isCenterTitle ? "text-center" : "text-right"
                       }`}
                   >
                     {title ?? ariaLabel}
@@ -205,7 +205,7 @@ export function BottomSheet({
 
                 {showHeaderDivider ? (
                   <div className="shrink-0 px-4 pt-3">
-                    <div className="h-px bg-[#f0f0f0]" />
+                    <div className="h-px bg-outline-var" />
                   </div>
                 ) : null}
               </>
@@ -254,14 +254,14 @@ export function BottomSheetActionList<TItem extends BottomSheetAction>({
               selected={isSelected}
               tabIndex={isOpen && isInteractive ? 0 : -1}
               title={item.title}
-              leading={Icon ? <Icon className="h-6 w-6 shrink-0 text-[#4d4d4d]" /> : undefined}
-              trailing={showCheckIcon && isSelected ? <LinearTick aria-hidden="true" className="h-5 w-5" /> : undefined}
+              leading={Icon ? <Icon className="h-6 w-6 shrink-0 text-on-surface-var" /> : undefined}
+              trailing={showCheckIcon && isSelected ? <LinearTick aria-hidden="true" className="h-5 w-5 text-primary" /> : undefined}
             >
             </ListItem>
 
             {showDividers && index < items.length - 1 ? (
               <div className="px-4 py-2">
-                <div className="h-px bg-[#F0F0F0]" />
+                <div className="h-px bg-outline-var" />
               </div>
             ) : null}
           </div>

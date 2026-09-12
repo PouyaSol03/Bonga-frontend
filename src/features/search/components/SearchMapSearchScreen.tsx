@@ -167,11 +167,11 @@ export function SearchMapSearchScreen({
   return (
     <section
       aria-hidden={!isOpen}
-      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl] ${
+      className={`absolute inset-0 z-[600] flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl] ${
         isOpen ? "visible" : "invisible pointer-events-none"
       }`}
     >
-      <div className="shrink-0 bg-[#f0f0f0] py-2.5">
+      <div className="shrink-0 bg-surface-container py-2.5">
         <TopBar
           centerClassName="px-2"
           centerSlot={
@@ -190,7 +190,7 @@ export function SearchMapSearchScreen({
           onBack={view === "saved" ? () => setView("search") : handleBack}
         />
         <div className="flex h-11 items-center justify-start px-4">
-          <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-[#1a1a1a]">
+          <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-on-surface">
             {view === "saved"
               ? "جستجوهای ذخیره شده"
               : normalizedQuery
@@ -200,13 +200,13 @@ export function SearchMapSearchScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pt-4">
         {view === "saved" ? (
           <div className="flex flex-col">
             {saveInput ? (
-              <div className="border-b border-[#e6e6e6] px-4 pb-4">
+              <div className="border-b border-outline-var px-4 pb-4">
                 <Button unstyled
-                  className="flex h-11 w-full items-center justify-center rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white disabled:bg-[#a6b8d8]"
+                  className="flex h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-bold text-on-primary disabled:opacity-50"
                   disabled={saveMutation.isPending || isCurrentSearchSaved}
                   onClick={() => saveMutation.mutate(saveInput)}
                   type="button"
@@ -218,7 +218,7 @@ export function SearchMapSearchScreen({
                       : "ذخیره جستجوی فعلی"}
                 </Button>
                 {saveMutation.isError ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 pt-2 text-center text-xs text-[#d92d20]">
+                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 pt-2 text-center text-xs text-error">
                     ذخیره جستجو انجام نشد. دوباره تلاش کنید.
                   </Typography>
                 ) : null}
@@ -228,12 +228,12 @@ export function SearchMapSearchScreen({
             {isSavedSearchLoading ? (
               <div className="flex flex-col gap-4 px-4 py-4">
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <div className="h-20 rounded-xl bg-[#f0f0f0]" key={index} />
+                  <div className="h-20 rounded-xl bg-surface-container" key={index} />
                 ))}
               </div>
             ) : isSavedSearchError ? (
               <Button unstyled
-                className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
+                className="mx-4 my-8 rounded-xl border border-primary px-4 py-3 text-sm font-medium text-primary"
                 onClick={() => void refetchSavedSearches()}
                 type="button"
               >
@@ -259,32 +259,32 @@ export function SearchMapSearchScreen({
         ) : normalizedQuery ? (
           <div className="flex flex-col">
             <Button unstyled
-              className="flex min-h-[72px] w-full items-center justify-between gap-4 border-b border-[#cccccc] bg-white px-4 py-3 text-right [direction:ltr]"
+              className="flex min-h-[72px] w-full items-center justify-between gap-4 border-b border-outline-var bg-surface-container-lowest px-4 py-3 text-right [direction:ltr]"
               onClick={() => publishQuery(query, true)}
               type="button"
             >
-              <Typography as="span" variant="label" size="small" weight="medium" className="shrink-0 rounded-full bg-[#0048c414] px-2.5 py-1 text-xs font-medium leading-4 text-[#0048c4] [direction:rtl]">
+              <Typography as="span" variant="label" size="small" weight="medium" className="shrink-0 rounded-full bg-primary-container px-2.5 py-1 text-xs font-medium leading-4 text-primary [direction:rtl]">
                 جستجو
               </Typography>
               <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col items-start [direction:rtl]">
-                <strong className="text-base font-normal leading-6 text-[#1a1a1a]">
+                <strong className="text-base font-normal leading-6 text-on-surface">
                   جستجوی «{normalizedQuery}»
                 </strong>
-                <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-[#a6a6a6]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-outline">
                   عبارت مستقیماً به جستجوی آگهی‌های نقشه ارسال می‌شود
                 </Typography>
               </Typography>
             </Button>
           </div>
         ) : isRecentSearchLoading ? (
-          <div className="flex flex-col bg-[#f0f0f0]" aria-hidden="true">
+          <div className="flex flex-col bg-surface-container" aria-hidden="true">
             {Array.from({ length: 4 }).map((_, index) => (
               <AdCardSkeleton key={index} />
             ))}
           </div>
         ) : isRecentSearchError ? (
           <Button unstyled
-            className="mx-4 my-8 rounded-xl border border-[#0048c4] px-4 py-3 text-sm font-medium text-[#0048c4]"
+            className="mx-4 my-8 rounded-xl border border-primary px-4 py-3 text-sm font-medium text-primary"
             onClick={() => void refetchRecentSearches()}
             type="button"
           >
@@ -345,7 +345,7 @@ function SavedSearchRow({
 
   return (
     <article
-      className={`relative min-h-[92px] overflow-hidden border-b border-[#e6e6e6] bg-[#fdecec] last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
+      className={`relative min-h-[92px] overflow-hidden border-b border-outline-var bg-error-container last:border-b-0 ${isDeleting ? "opacity-60" : ""}`}
       onPointerCancel={finishSwipe}
       onPointerDown={(event) => {
         if (isDeleting) return;
@@ -364,7 +364,7 @@ function SavedSearchRow({
     >
       <Button unstyled
         aria-label={`حذف ${item.title}`}
-        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-[#fdecec] text-sm font-medium text-[#d92d20]"
+        className="absolute inset-y-0 left-0 flex w-20 items-center justify-center bg-error-container text-sm font-medium text-error"
         disabled={isDeleting}
         onClick={onDelete}
         type="button"
@@ -372,7 +372,7 @@ function SavedSearchRow({
         حذف
       </Button>
       <Button unstyled
-        className="relative flex min-h-[92px] w-full flex-col justify-center bg-white px-4 py-4 text-right transition-transform duration-150 ease-out"
+        className="relative flex min-h-[92px] w-full flex-col justify-center bg-surface-container-lowest px-4 py-4 text-right transition-transform duration-150 ease-out"
         disabled={isDeleting}
         onClick={() => {
           if (!didSwipeRef.current) onSelect();
@@ -380,14 +380,14 @@ function SavedSearchRow({
         style={{ transform: `translateX(${dragOffset}px)` }}
         type="button"
       >
-        <strong className="block text-base font-medium leading-6 text-[#1a1a1a]">
+        <strong className="block text-base font-medium leading-6 text-on-surface">
           {item.title}
         </strong>
         {item.content.length > 0 ? (
           <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 flex flex-wrap gap-2">
             {item.content.map((tag) => (
               <Typography as="span" variant="label" size="small" weight="medium"
-                className="rounded-md bg-[#e9eaee] px-2 py-1 text-xs font-medium leading-4 text-[#4d4d4d]"
+                className="rounded-md bg-surface-container-high px-2 py-1 text-xs font-medium leading-4 text-on-surface-var"
                 key={tag}
               >
                 {tag}
@@ -421,8 +421,8 @@ function SearchMapField({
 }) {
   return (
     <form
-      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-white text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-[#0048c440] ${
-        query ? "border-[#0048c4]" : "border-[#808080]"
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
+        query ? "border-primary" : "border-outline"
       }`}
       dir="rtl"
       onSubmit={(event) => {
@@ -435,8 +435,8 @@ function SearchMapField({
         aria-pressed={isSaved}
         className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
           isSaved || isSaving
-            ? "text-[#1a1a1a]"
-            : "text-[#4d4d4d] active:bg-[#0048c414]"
+            ? "text-on-surface"
+            : "text-on-surface-var active:bg-primary-container"
         }`}
         disabled={isSaveDisabled || isSaving || isSaved}
         onClick={onSavedClick}
@@ -449,11 +449,11 @@ function SearchMapField({
           <LinearBookmarkSolid className="h-6 w-6" />
         )}
       </Button>
-      <div aria-hidden="true" className="me-3 h-6 w-px shrink-0 bg-[#cccccc]" />
+      <div aria-hidden="true" className="me-3 h-6 w-px shrink-0 bg-outline-var" />
       <input
         aria-label="جستجو در آگهی‌های نقشه"
         autoFocus={isOpen}
-        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] caret-[#0048c4] outline-none placeholder:text-[#a6a6a6]"
+        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
         onChange={(event) => onQueryChange(event.target.value)}
         placeholder="جستجو در آگهی‌ها"
         tabIndex={isOpen ? 0 : -1}
@@ -463,7 +463,7 @@ function SearchMapField({
       {query ? (
         <Button unstyled
           aria-label="پاک کردن جستجو"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#808080] transition active:bg-[#f0f0f0]"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
           onClick={() => onQueryChange("")}
           tabIndex={isOpen ? 0 : -1}
           type="button"

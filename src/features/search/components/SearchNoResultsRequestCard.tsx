@@ -24,7 +24,7 @@ export function SearchNoResultsRequestCard({
 
   return (
     <form
-      className={`mx-auto flex ${showEmptyHeader ? "min-h-[444px]" : ""} w-full flex-col rounded-2xl border border-[#cccccc] bg-white px-4 pb-4 pt-8 text-right [direction:rtl] ${className}`}
+      className={`mx-auto flex ${showEmptyHeader ? "min-h-[444px]" : ""} w-full flex-col rounded-2xl border border-outline-var bg-surface-container-lowest px-4 pb-4 pt-8 text-right [direction:rtl] ${className}`}
       onSubmit={submit}
     >
       <div>
@@ -40,14 +40,14 @@ export function SearchNoResultsRequestCard({
               />
             </div>
 
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-center text-base font-bold leading-6 text-[#1a1a1a]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-center text-base font-bold leading-6 text-on-surface">
               ملک مورد علاقه‌م یافت نشد!
             </Typography>
           </>
         ) : null}
 
         <ul
-          className={`m-0 list-disc space-y-0.5 pl-1 pr-5 text-sm font-normal leading-6 text-[#333333] marker:text-[#333333] ${
+          className={`m-0 list-disc space-y-0.5 pl-1 pr-5 text-sm font-normal leading-6 text-on-surface marker:text-on-surface ${
             showEmptyHeader ? "mt-1" : "mt-0"
           }`}
         >
@@ -59,11 +59,11 @@ export function SearchNoResultsRequestCard({
 
       <div className="mt-auto pt-7">
         <label className="block">
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-semibold leading-5 text-[#1a1a1a]">
-            عنوان درخواست <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-[#808080]">(اختیاری)</Typography>
+          <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-semibold leading-5 text-on-surface">
+            عنوان درخواست <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-outline">(اختیاری)</Typography>
           </Typography>
           <input
-            className="h-14 w-full rounded-xl border border-[#cccccc] bg-white px-3 text-right text-sm text-[#1a1a1a] outline-none transition placeholder:text-sm placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10"
+            className="h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-3 text-right text-sm text-on-surface outline-none transition placeholder:text-sm placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/10"
             onChange={(event) => setTitle(event.target.value)}
             placeholder="یک نام برای درخواست خود وارد کنید"
             type="text"
@@ -72,7 +72,7 @@ export function SearchNoResultsRequestCard({
         </label>
 
         <Button unstyled
-          className="mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border border-[#0066ff] bg-[#edf4ff] text-sm font-semibold text-[#0048c4] transition hover:bg-[#e3eeff] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border border-primary bg-primary-container text-sm font-semibold text-primary transition hover:opacity-90 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
           type="submit"
         >
           ثبت درخواست

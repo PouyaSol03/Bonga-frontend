@@ -5,7 +5,7 @@ export function AccountMyAdsPage() {
   return (
     <AccountPageShell
       action={
-        <RouteLink className="grid h-12 w-12 place-items-center text-[#1a1a1a]" to="/search">
+        <RouteLink className="grid h-12 w-12 place-items-center text-on-surface" to="/search">
         </RouteLink>
       }
       title="آگهی‌های من"

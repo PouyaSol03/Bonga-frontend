@@ -157,7 +157,7 @@ export function getAppChromeConfig(
           contentClassName: isDashboardRoute
             ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
             : "min-h-0 flex-1 overflow-hidden",
-          frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]",
+          frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
           topBar,
           wrapInShell: true,
         }
@@ -168,7 +168,7 @@ export function getAppChromeConfig(
     return {
       bottomNavigationKey,
       contentClassName: "min-h-0 flex-1 overflow-hidden",
-      frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a]",
+      frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface",
       topBar,
       wrapInShell: true,
     };
@@ -177,7 +177,7 @@ export function getAppChromeConfig(
   return {
     bottomNavigationKey,
     contentClassName: "min-h-0 flex-1 overflow-hidden",
-    frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]",
+    frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
     topBar,
     wrapInShell: true,
   };

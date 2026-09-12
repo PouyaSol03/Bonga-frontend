@@ -167,20 +167,20 @@ export function IndependentConsultantAdFilterPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={{ filters: initialFilters, onlyMine: isAssignedTab ? false : previousOnlyMine, tab }}
         backTo={adManagementPaths.root}
-        className="bg-[#f0f0f0]"
+        className="bg-surface-container"
         title="فیلتر"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f0f0f0] pb-6 [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-6 [-webkit-overflow-scrolling:touch]">
         {!isAssignedTab ? (
-          <section className="flex items-center justify-between bg-white p-4" aria-label="نمایش آگهی من">
-            <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-[#1a1a1a]">
+          <section className="flex items-center justify-between bg-surface-container-lowest p-4" aria-label="نمایش آگهی من">
+            <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">
               آگهی من
             </Typography>
             <SwitchButton
@@ -196,9 +196,9 @@ export function IndependentConsultantAdFilterPage() {
           selectedNeighborhoods={selectedNeighborhoods}
         />
 
-        <section className="mt-2 bg-white px-4 pb-4 pt-4" aria-label="نوع معامله">
-          <div className="mb-4 flex items-center justify-start gap-2 text-base font-medium leading-6 text-[#1a1a1a]">
-            <LinearApartment className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+        <section className="mt-2 bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="نوع معامله">
+          <div className="mb-4 flex items-center justify-start gap-2 text-base font-medium leading-6 text-on-surface">
+            <LinearApartment className="h-6 w-6 shrink-0 text-on-surface-var" />
             <Typography as="p" variant="label" size="large" className="m-0">نوع معامله</Typography>
           </div>
 
@@ -210,8 +210,8 @@ export function IndependentConsultantAdFilterPage() {
                 <Button unstyled
                   aria-pressed={isSelected}
                   className={`py-2.5 rounded-xl border text-sm font-medium transition-colors ${isSelected
-                      ? "border-[#0048c4] bg-[#e6efff] text-[#0048c4]"
-                      : "border-[#cccccc] bg-white text-[#1a1a1a]"
+                      ? "border-primary bg-primary-container text-primary"
+                      : "border-outline-var bg-surface-container-lowest text-on-surface"
                     }`}
                   key={option.id}
                   onClick={() => selectTransaction(option.id)}
@@ -226,12 +226,12 @@ export function IndependentConsultantAdFilterPage() {
             })}
           </div>
 
-          <div className="mt-4 h-px bg-[#cccccc]" />
+          <div className="mt-4 h-px bg-outline-var" />
 
           <Button unstyled
             aria-disabled={!transaction}
             className={`mt-4 flex h-10 w-full items-center justify-between [direction:ltr] ${transaction
-                ? "active:bg-[#0048c40a]"
+                ? "active:bg-primary-container/20"
                 : "cursor-not-allowed"
               }`}
             disabled={!transaction}
@@ -242,13 +242,13 @@ export function IndependentConsultantAdFilterPage() {
             type="button"
           >
             <Typography as="span" variant="label" size="medium" weight="medium"
-              className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${transaction ? "text-[#0048c4]" : "text-[#cccccc]"
+              className={`flex min-w-0 items-center gap-1 text-sm font-medium leading-5 ${transaction ? "text-primary" : "text-outline-var"
                 }`}
             >
               <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
             </Typography>
             <Typography as="span" variant="label" size="large" weight="medium"
-              className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${transaction ? "text-[#1a1a1a]" : "text-[#cccccc]"
+              className={`flex shrink-0 items-center gap-2 text-base font-medium leading-6 [direction:rtl] ${transaction ? "text-on-surface" : "text-outline-var"
                 }`}
             >
               <Typography as="span" variant="label" size="large" weight="medium">نوع ملک</Typography>
@@ -271,7 +271,7 @@ export function IndependentConsultantAdFilterPage() {
         </section>
 
         {!isAssignedTab ? (
-          <section className="mt-2 space-y-6 bg-white px-4 py-6" aria-label="فیلترهای تکمیلی">
+          <section className="mt-2 space-y-6 bg-surface-container-lowest px-4 py-6" aria-label="فیلترهای تکمیلی">
             <SingleSelectField
               indicator="radio"
               label="وضعیت آگهی"
@@ -287,17 +287,17 @@ export function IndependentConsultantAdFilterPage() {
         ) : null}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
           <RouteLink
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white no-underline"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
             state={{ filters, onlyMine: isAssignedTab ? false : onlyMine, tab }}
             to={adManagementPaths.root}
           >
             اعمال
           </RouteLink>
           <Button unstyled
-            className="h-10 rounded-lg border border-[#0048c4] bg-white text-sm font-medium leading-5 text-[#0048c4]"
+            className="h-10 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary"
             onClick={resetFilters}
             type="button"
           >
@@ -335,22 +335,22 @@ function PropertyTypeSelectionScreen({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       variant="flush"
     >
-      <div className="shrink-0 bg-[#f0f0f0]">
+      <div className="shrink-0 bg-surface-container">
         <TopBar
           centerClassName="px-0"
-          className="bg-[#f0f0f0]"
+          className="bg-surface-container"
           onBack={onBack}
           title="انتخاب دسته‌بندی"
         />
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-0 pt-4">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-0 pt-4">
         {adManagementPropertyGroupsByTransaction[transaction].map((group) => (
           <section key={group.title} className="mb-6 last:mb-0">
-            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-[#e6e6e6] pb-2 text-right text-base font-medium text-[#808080]">
+            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-outline-var pb-2 text-right text-base font-medium text-outline">
               {group.title}
             </Typography>
 
@@ -368,9 +368,9 @@ function PropertyTypeSelectionScreen({
         ))}
       </main>
 
-      <footer className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+      <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
         <Button unstyled
-          className="flex h-11 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!draftPropertyTypes.length}
           onClick={() => {
             if (!draftPropertyTypes.length) return;
@@ -428,17 +428,17 @@ function NeighborhoodPickerRow({
   };
 
   return (
-    <section className="mt-2 bg-white p-4" aria-label="محله">
+    <section className="mt-2 bg-surface-container-lowest p-4" aria-label="محله">
       <Button unstyled
         className="flex w-full items-center justify-between gap-4 text-right [direction:ltr]"
         onClick={() => setIsPickerOpen(true)}
         type="button"
       >
-        <Typography as="span" variant="label" size="medium" weight="medium" className="flex items-center gap-1 text-sm font-medium text-[#0048c4]">
+        <Typography as="span" variant="label" size="medium" weight="medium" className="flex items-center gap-1 text-sm font-medium text-primary">
           <LinearArrowLeft1 className="h-5 w-5" />
           <Typography as="span" variant="label" size="medium" weight="medium">{selectionLabel}</Typography>
         </Typography>
-        <Typography as="span" variant="label" size="large" weight="medium" className="flex items-center gap-2 text-base font-medium text-[#1a1a1a]">
+        <Typography as="span" variant="label" size="large" weight="medium" className="flex items-center gap-2 text-base font-medium text-on-surface">
           <Typography as="span" variant="label" size="large" weight="medium">محله</Typography>
           <LinearLocation className="h-6 w-6 shrink-0 text-on-surface-var" />
         </Typography>
@@ -470,10 +470,10 @@ function NeighborhoodPickerRow({
       >
         <div className="shrink-0 px-3 pb-2 pt-3">
           <div className="flex h-11 items-center gap-2 [direction:ltr]">
-            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-[#a6a6a6] bg-white px-3 focus-within:border-[#0048c4]" dir="rtl">
-              <SearchIcon className="h-5 w-5 shrink-0 text-[#a6a6a6]" />
+            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-outline bg-surface-container-lowest px-3 focus-within:border-primary" dir="rtl">
+              <SearchIcon className="h-5 w-5 shrink-0 text-outline" />
               <input
-                className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+                className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="جستجو محله"
                 type="search"
@@ -482,7 +482,7 @@ function NeighborhoodPickerRow({
               {query ? (
                 <Button unstyled
                   aria-label="پاک کردن جستجوی محله"
-                  className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+                  className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
                   onClick={() => setQuery("")}
                   type="button"
                 >
@@ -493,7 +493,7 @@ function NeighborhoodPickerRow({
 
             <Button unstyled
               aria-label="بازگشت"
-              className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+              className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"
               onClick={() => setIsPickerOpen(false)}
               type="button"
             >
@@ -518,7 +518,7 @@ function NeighborhoodPickerRow({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-2" dir="rtl">
           {!cityId ? (
-            <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-outline">
               برای انتخاب محله، ابتدا شهر را انتخاب کنید.
             </Typography>
           ) : neighborhoodsQuery.isLoading ? (
@@ -532,17 +532,17 @@ function NeighborhoodPickerRow({
                 return (
                   <Button unstyled
                     aria-pressed={isSelected}
-                    className="flex min-h-[72px] w-full items-center justify-between gap-4 rounded-[10px] bg-white py-2 pl-3 pr-0 text-right transition-colors active:bg-[#0048c40a] [direction:ltr]"
+                    className="flex min-h-[72px] w-full items-center justify-between gap-4 rounded-[10px] bg-surface-container-lowest py-2 pl-3 pr-0 text-right transition-colors active:bg-primary-container/20 [direction:ltr]"
                     key={neighborhoodId}
                     onClick={() => toggleNeighborhood(neighborhood)}
                     type="button"
                   >
                     <SelectionCheckIndicator checked={isSelected} />
                     <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
-                      <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-sm font-medium leading-5 text-[#1a1a1a]">
+                      <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-sm font-medium leading-5 text-on-surface">
                         {neighborhood.name}
                       </Typography>
-                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-[#808080]">
+                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-outline">
                         {getNeighborhoodHierarchyDescription(neighborhood) || selectedCity?.name || "شهر انتخاب‌شده"}
                       </Typography>
                     </Typography>
@@ -553,15 +553,15 @@ function NeighborhoodPickerRow({
           ) : query.trim() ? (
             <SearchEmptyState compact />
           ) : (
-            <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-[#808080]">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-outline">
               محله‌ای برای این شهر ثبت نشده است.
             </Typography>
           )}
         </div>
 
-        <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
+        <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
           <Button unstyled
-            className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+            className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary"
             onClick={() => setIsPickerOpen(false)}
             type="button"
           >
@@ -657,30 +657,30 @@ function PublisherSelectField({
 
   return (
     <>
-      <div className="relative flex h-14 w-full items-center rounded-xl border border-[#cccccc] bg-white px-4 [direction:ltr]">
+      <div className="relative flex h-14 w-full items-center rounded-xl border border-outline-var bg-surface-container-lowest px-4 [direction:ltr]">
         {value ? (
-          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-3 bg-white px-1 text-xs font-normal leading-4 text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 right-3 bg-surface-container-lowest px-1 text-xs font-normal leading-4 text-outline [direction:rtl]">
             نشر دهنده
           </Typography>
         ) : null}
         {value ? (
           <Button unstyled
             aria-label="پاک کردن انتخاب نشر دهنده"
-            className="grid h-5 w-5 shrink-0 place-items-center text-[#a6a6a6]"
+            className="grid h-5 w-5 shrink-0 place-items-center text-outline"
             onClick={() => onChange(undefined)}
             type="button"
           >
             <ClearCircleIcon />
           </Button>
         ) : (
-          <LinearArrowDown1 className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+          <LinearArrowDown1 className="h-5 w-5 shrink-0 text-on-surface-var" />
         )}
         <Button unstyled
           className="min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 [direction:rtl]"
           onClick={openPicker}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-on-surface" : "text-outline"}>
             {selectedPublisher?.name ?? value ?? "نشر دهنده"}
           </Typography>
         </Button>
@@ -690,27 +690,27 @@ function PublisherSelectField({
         <section
           aria-label="انتخاب نشر دهنده"
           aria-modal="true"
-          className="fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+          className="fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
           role="dialog"
         >
           <TopBar
             placement="inline"
             centerClassName="px-0"
             centerSlot={
-              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-[#1a1a1a]">
+              <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-on-surface">
                 نشر دهنده
               </Typography>
             }
-            className="bg-[#f0f0f0]"
+            className="bg-surface-container"
             onBack={closePicker}
             reserveStartSpace
           />
 
-          <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-28 pt-4 [-webkit-overflow-scrolling:touch]">
-            <label className="flex h-[46px] items-center gap-2 rounded-[10px] border border-[#808080] bg-white px-3 focus-within:border-[#0048c4] [direction:ltr]">
-              <SearchIcon className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+          <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-28 pt-4 [-webkit-overflow-scrolling:touch]">
+            <label className="flex h-[46px] items-center gap-2 rounded-[10px] border border-outline bg-surface-container-lowest px-3 focus-within:border-primary [direction:ltr]">
+              <SearchIcon className="h-6 w-6 shrink-0 text-on-surface-var" />
               <input
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [direction:rtl]"
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline [direction:rtl]"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="جستجو"
                 type="search"
@@ -719,7 +719,7 @@ function PublisherSelectField({
               {query ? (
                 <Button unstyled
                   aria-label="پاک کردن جستجو"
-                  className="grid h-6 w-6 shrink-0 place-items-center text-[#a6a6a6]"
+                  className="grid h-6 w-6 shrink-0 place-items-center text-outline"
                   onClick={() => setQuery("")}
                   type="button"
                 >
@@ -736,7 +736,7 @@ function PublisherSelectField({
                   return (
                     <Button unstyled
                       aria-pressed={isSelected}
-                      className={`flex min-h-16 w-full items-center px-4 gap-5 rounded-xl py-2 text-right transition-colors ${isSelected ? "bg-primary/12" : "text-[#1a1a1a]"
+                      className={`flex min-h-16 w-full items-center px-4 gap-5 rounded-xl py-2 text-right transition-colors ${isSelected ? "bg-primary-container text-primary" : "text-on-surface"
                         }`}
                       key={publisherOption.id}
                       onClick={() =>
@@ -745,7 +745,7 @@ function PublisherSelectField({
                       type="button"
                     >
                       <Typography as="span" variant="body" size="large" weight="regular"
-                        className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-white`}
+                        className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-surface-container-lowest`}
                       >
                         {publisherOption.image ? (
                           <img
@@ -754,7 +754,7 @@ function PublisherSelectField({
                             src={publisherOption.image}
                           />
                         ) : (
-                          <LinearRealestate className="h-7 w-7 text-[#808080]" />
+                          <LinearRealestate className="h-7 w-7 text-outline" />
                         )}
                       </Typography>
                       <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 truncate text-base font-normal leading-6">
@@ -765,7 +765,7 @@ function PublisherSelectField({
                 })}
               </div>
             ) : agencyQuery.isLoading || consultantsQuery.isLoading ? (
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-8 text-center text-[#808080]">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-8 text-center text-outline">
                 در حال دریافت نشر دهنده‌ها...
               </Typography>
             ) : (
@@ -773,9 +773,9 @@ function PublisherSelectField({
             )}
           </main>
 
-          <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+          <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
             <Button unstyled
-              className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+              className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary"
               onClick={confirmSelection}
               type="button"
             >
@@ -805,30 +805,30 @@ function SingleSelectField({
 
   return (
     <>
-      <div className="relative flex h-14 w-full items-center rounded-xl border border-[#cccccc] bg-white px-3 [direction:ltr]">
+      <div className="relative flex h-14 w-full items-center rounded-xl border border-outline-var bg-surface-container-lowest px-3 [direction:ltr]">
         {value ? (
-          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 bg-white text-[#808080] [direction:rtl]">
+          <Typography as="span" variant="body" size="small" weight="regular" className="absolute -top-2 bg-surface-container-lowest text-outline [direction:rtl]">
             {label}
           </Typography>
         ) : null}
         {value ? (
           <Button unstyled
             aria-label="پاک کردن انتخاب"
-            className="grid h-5 w-5 shrink-0 place-items-center text-[#a6a6a6]"
+            className="grid h-5 w-5 shrink-0 place-items-center text-outline"
             onClick={() => onChange(undefined)}
             type="button"
           >
             <ClearCircleIcon />
           </Button>
         ) : (
-          <LinearArrowDown1 className="h-5 w-5 text-[#4d4d4d]" />
+          <LinearArrowDown1 className="h-5 w-5 text-on-surface-var" />
         )}
         <Button unstyled
           className="min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 [direction:rtl]"
           onClick={() => setIsOpen(true)}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"}>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-on-surface" : "text-outline"}>
             {value ?? label}
           </Typography>
         </Button>
@@ -849,7 +849,7 @@ function SingleSelectField({
             return (
               <Button unstyled
                 aria-pressed={isSelected}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-1 text-right text-sm font-normal leading-5 [direction:ltr] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-1 text-right text-sm font-normal leading-5 [direction:ltr] ${isSelected ? "text-primary" : "text-on-surface"
                   }`}
                 key={option}
                 onClick={() => {
@@ -877,9 +877,9 @@ function SingleSelectField({
 function NeighborhoodSkeleton() {
   return (
     <div className="space-y-2">
-      <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-      <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-      <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
+      <div className="h-12 rounded-[10px] bg-surface-container" />
+      <div className="h-12 rounded-[10px] bg-surface-container" />
+      <div className="h-12 rounded-[10px] bg-surface-container" />
     </div>
   );
 }

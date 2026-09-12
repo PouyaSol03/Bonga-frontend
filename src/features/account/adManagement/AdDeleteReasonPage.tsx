@@ -51,17 +51,17 @@ export function AdDeleteReasonPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backState={{ ad: routeState.ad, card: routeState.card, returnTo: routeState.returnTo, tab: routeState.tab }}
         backTo={backTo}
-        className="[&_a]:text-[#1a1a1a]"
+        className="[&_a]:text-on-surface"
         title="حذف آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
         <fieldset className="m-0 border-0 px-4 pb-6 pt-6">
           <legend className="sr-only">دلیل حذف آگهی</legend>
 
@@ -72,7 +72,7 @@ export function AdDeleteReasonPage() {
                 key={reason.id}
               >
                 <RadioIndicator checked={selectedReason === reason.id} />
-                <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-[#1a1a1a] [direction:rtl]">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-on-surface [direction:rtl]">
                   {reason.label}
                 </Typography>
                 <input
@@ -89,9 +89,9 @@ export function AdDeleteReasonPage() {
         </fieldset>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button unstyled
-          className="h-10 w-full rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white disabled:opacity-50"
+          className="h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary disabled:opacity-50"
           onClick={handleConfirm}
           type="button"
         >

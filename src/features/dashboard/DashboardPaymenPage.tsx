@@ -7,10 +7,7 @@ import { getApiErrorMessage } from "../../shared/api/api";
 import { storePaymentReturnTarget } from "../../shared/utils/payment-return";
 import { TopBar } from "../../shared/components/TopBar";
 import PricingCard from "./components/addWallet/PricingCard";
-import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
-import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { usePackagePaymentMutation, usePackagesQuery } from "../packages/api/package.hooks";
-import { useTransientNotice } from "../../shared/hooks/useTransientNotice";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
@@ -80,13 +77,13 @@ function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: count }).map((_, index) => (
         <div
-          className="h-[238px] rounded-xl border border-[#D9DDE7] bg-white p-5"
+          className="h-[238px] rounded-xl border border-outline-var bg-surface-container-lowest p-5"
           key={index}
         >
-          <div className="mb-8 h-6 w-28 rounded-md bg-[#E8E8E8]" />
-          <div className="mb-4 h-4 w-20 rounded-md bg-[#E8E8E8]" />
-          <div className="mb-10 h-8 w-36 rounded-md bg-[#E8E8E8]" />
-          <div className="mt-auto h-11 w-full rounded-lg bg-[#E8E8E8]" />
+          <div className="mb-8 h-6 w-28 rounded-md bg-surface-container-high" />
+          <div className="mb-4 h-4 w-20 rounded-md bg-surface-container-high" />
+          <div className="mb-10 h-8 w-36 rounded-md bg-surface-container-high" />
+          <div className="mt-auto h-11 w-full rounded-lg bg-surface-container-high" />
         </div>
       ))}
     </div>
@@ -95,7 +92,7 @@ function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
 
 function EmptyPackagesState({ className = "" }: { className?: string }) {
   return (
-    <div className={`mx-auto w-full rounded-xl border border-dashed border-[#D9DDE7] bg-[#F8FAFF] px-4 py-10 text-center text-sm font-medium text-[#666666] ${className}`}>
+    <div className={`mx-auto w-full rounded-xl border border-dashed border-outline-var bg-surface-container-low px-4 py-10 text-center text-sm font-medium text-on-surface-var ${className}`}>
       بسته‌ای برای نمایش وجود ندارد.
     </div>
   );
@@ -143,11 +140,11 @@ function mapMobilePackagePlan(plan: PackageItem, index: number): MobileCreditPla
 
 function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab; onChange: (tab: MobilePaymentTab) => void }) {
   return (
-    <nav className="shrink-0 bg-white px-4 py-4" aria-label="نوع افزایش اعتبار">
-      <div className="flex h-11 overflow-hidden rounded-xl border border-[#0048c4] [direction:ltr]">
+    <nav className="shrink-0 bg-surface-container-lowest px-4 py-4" aria-label="نوع افزایش اعتبار">
+      <div className="flex h-11 overflow-hidden rounded-xl border border-primary [direction:ltr]">
         <Button unstyled
           className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "panel" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
+            activeTab === "panel" ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"
           }`}
           onClick={() => onChange("panel")}
           type="button"
@@ -155,8 +152,8 @@ function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab
           اعتبار پنل
         </Button>
         <Button unstyled
-          className={`flex flex-1 items-center justify-center border-l border-[#0048c4] text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "packages" ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#4d4d4d]"
+          className={`flex flex-1 items-center justify-center border-l border-primary text-base font-medium leading-6 [direction:rtl] ${
+            activeTab === "packages" ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"
           }`}
           onClick={() => onChange("packages")}
           type="button"
@@ -182,17 +179,17 @@ function MobilePrice({ plan }: { plan: MobileCreditPlan }) {
   return (
     <>
       <div className="flex h-6 items-center">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#0048c4] [direction:rtl]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-primary [direction:rtl]">
           {plan.title}
         </Typography>
       </div>
       <div className="mt-8 flex items-end gap-x-6">
         <div className="text-right">
-          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-[#a6a6a6] line-through">
+          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-outline line-through">
             {toFaNumber(plan.originalPrice)}
           </Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
-            <strong className="text-[22px] font-semibold leading-7 text-[#1a1a1a]">
+            <strong className="text-[22px] font-semibold leading-7 text-on-surface">
               {toFaNumber(plan.currentPrice)}
             </strong>
             <LinearTooman className="h-6 w-6 text-on-surface-var"/>
@@ -208,7 +205,7 @@ function MobileCheckSealIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
       <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
-      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="var(--surface-container-lowest)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
     </svg>
   );
 }
@@ -228,11 +225,11 @@ function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
       <div className="">
         <MobilePrice plan={plan} />
       </div>
-      <div className="my-4 h-px border-t border-dashed border-[#cccccc]" />
+      <div className="my-4 h-px border-t border-dashed border-outline-var" />
       <ul className="space-y-4">
         {(plan.benefits ?? []).map((benefit) => (
           <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
-            <MobileCheckSealIcon className="h-5 w-5 shrink-0 text-[#11a366]" />
+            <MobileCheckSealIcon className="h-5 w-5 shrink-0 text-tertiary" />
             <Typography as="span" variant="body" size="medium" weight="regular">{benefit}</Typography>
           </li>
         ))}
@@ -243,15 +240,15 @@ function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
 
 function MobileGiftBenefits({ benefits }: { benefits: string[] }) {
   return (
-    <div className="h-16 rounded-lg border border-[#11a366] bg-[#11a36614] px-4 py-2 text-[#006038]">
-      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-[#11a366]">
+    <div className="h-16 rounded-lg border border-tertiary bg-tertiary-container/20 px-4 py-2 text-tertiary">
+      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-tertiary">
         <MobileGiftIcon className="h-5 w-5" />
         <Typography as="span" variant="body" size="medium" weight="regular">بسته هدیه</Typography>
       </div>
       <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
         {benefits.map((benefit, index) => (
           <Typography as="span" variant="body" size="medium" weight="regular"
-            className={index < benefits.length - 1 ? "border-l border-[#00603829] pl-4" : ""}
+            className={index < benefits.length - 1 ? "border-l border-tertiary/20 pl-4" : ""}
             key={benefit}
           >
             {benefit}
@@ -290,8 +287,8 @@ function MobilePlanCard({
 }) {
   return (
     <article
-      className={`rounded-2xl border bg-gradient-to-b from-white to-[#edf1fa] p-4 ${
-        plan.selected ? "border-[#0048c4]" : "border-[#cccccc]"
+      className={`rounded-2xl border bg-gradient-to-b from-surface-container-lowest to-surface-container-low p-4 ${
+        plan.selected ? "border-primary" : "border-outline-var"
       }`}
     >
       {isPackage ? (
@@ -301,7 +298,7 @@ function MobilePlanCard({
       )}
 
       <Button
-        className="mt-8 bg-[#0048c4] text-white disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-8 bg-primary text-on-primary disabled:cursor-not-allowed disabled:opacity-60"
         disabled={paymentPending}
         onClick={onPay}
         size="x-medium"
@@ -320,12 +317,12 @@ function MobilePlansSkeleton({ showGift = false }: { showGift?: boolean }) {
     <div className="space-y-4">
       {Array.from({ length: 3 }).map((_, index) => (
         <div
-          className={`${showGift ? "h-[284px]" : "h-[204px]"} animate-pulse rounded-2xl border border-[#cccccc] bg-[#f7f9fe] p-4`}
+          className={`${showGift ? "h-[284px]" : "h-[204px]"} animate-pulse rounded-2xl border border-outline-var bg-surface-container-low p-4`}
           key={index}
         >
-          <div className="mr-auto h-5 w-16 rounded bg-[#e6eaf3]" />
-          <div className="mt-7 mr-auto h-6 w-28 rounded bg-[#e6eaf3]" />
-          <div className="mt-9 h-10 rounded-lg bg-[#e6eaf3]" />
+          <div className="mr-auto h-5 w-16 rounded bg-surface-container-high" />
+          <div className="mt-7 mr-auto h-6 w-28 rounded bg-surface-container-high" />
+          <div className="mt-9 h-10 rounded-lg bg-surface-container-high" />
         </div>
       ))}
     </div>
@@ -349,25 +346,28 @@ function DashboardPaymentMobilePage({
     window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>(initialPaymentTab);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-  const { message, showNotice } = useTransientNotice();
+  const [message, setMessage] = useState<string | null>(null);
   const packagePaymentMutation = usePackagePaymentMutation();
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  const isManager = activeRole === REAL_ESTATE_MANAGER;
-  const panelPlans = useMemo(
-    () => packages
-      .filter((plan) => plan.kind === "panel_subscription")
-      .map((plan, index) => mapMobilePanelPlan(plan, index, isManager)),
-    [isManager, packages],
-  );
-  const packagePlans = useMemo(
-    () => packages
+  const showGift = activeTab === "panel";
+  const shownPlans = useMemo(() => {
+    if (activeTab === "panel") {
+      return packages
+        .filter((plan) => plan.kind === "panel_subscription")
+        .map((plan, index) => mapMobilePanelPlan(plan, index, true));
+    }
+
+    return packages
       .filter((plan) => plan.kind === "credit_bundle")
-      .map(mapMobilePackagePlan),
-    [packages],
-  );
+      .map((plan, index) => mapMobilePackagePlan(plan, index));
+  }, [activeTab, packages]);
+
   const ErrorState = getRequestErrorState(error);
-  const shownPlans = activeTab === "packages" ? packagePlans : panelPlans;
-  const showGift = activeTab === "panel" && isManager;
+
+  function showNotice(text: string) {
+    setMessage(null);
+    window.setTimeout(() => setMessage(text), 10);
+  }
+
   function handlePay(packageId: string) {
     if (packagePaymentMutation.isPending) return;
 
@@ -375,18 +375,11 @@ function DashboardPaymentMobilePage({
     packagePaymentMutation.mutate(
       { packageId, paymentType: 0 },
       {
-        onError: (paymentError) => {
-          setSelectedPackageId(null);
-          showNotice(
-            getApiErrorMessage(
-              paymentError,
-              "اتصال به درگاه پرداخت با خطا مواجه شد.",
-            ),
-          );
+        onError: (requestError) => {
+          showNotice(getApiErrorMessage(requestError, "اتصال به درگاه پرداخت با خطا مواجه شد."));
         },
         onSuccess: ({ paymentUrl }) => {
           if (!paymentUrl) {
-            setSelectedPackageId(null);
             showNotice("آدرس درگاه پرداخت از سرور دریافت نشد.");
             return;
           }
@@ -404,14 +397,14 @@ function DashboardPaymentMobilePage({
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account/dashboard"
         startSlot={
           <RouteLink
-            className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-[#0048c4] no-underline"
+            className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
             to="/account/credit/history"
           >
             تاریخچه پرداخت
@@ -421,7 +414,7 @@ function DashboardPaymentMobilePage({
       />
       <MobileCreditTabs activeTab={activeTab} onChange={setActiveTab} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 pb-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-4">
         {isError ? <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
 
         {!isError && isLoading ? <MobilePlansSkeleton showGift={showGift} /> : null}
@@ -505,22 +498,22 @@ function DashboardPaymentDesktopPage({
   }
 
   return (
-    <div dir="rtl" className="rounded-xl bg-white p-6">
+    <div dir="rtl" className="rounded-xl bg-surface-container-lowest p-6">
       {paymentError ? <TransientNotice message={paymentError} /> : null}
 
-      <div className="mb-6 flex items-center justify-between border-b border-dashed border-[#D9DDE7] pb-5">
+      <div className="mb-6 flex items-center justify-between border-b border-dashed border-outline-var pb-5">
         <div className="flex items-center gap-2">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-full bg-[#DBE6FF]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-full bg-primary-container">
             <img className="h-5 w-5" src="/icons/walletPlus.svg" alt="" />
           </Typography>
 
-          <Typography as="h1" variant="display" size="large" className="text-[22px] font-medium text-[#1F2937]">
+          <Typography as="h1" variant="display" size="large" className="text-[22px] font-medium text-on-surface">
             افزایش اعتبار
           </Typography>
         </div>
 
         <RouteLink
-          className="rounded-lg border border-[#0048C4] px-3 py-2 text-xs font-medium text-[#0048C4] no-underline"
+          className="rounded-lg border border-primary px-3 py-2 text-xs font-medium text-primary no-underline"
           to="/account/credit/history"
         >
           تاریخچه پرداخت
@@ -534,7 +527,7 @@ function DashboardPaymentDesktopPage({
       {!isError ? (
         <>
           <section>
-            <Typography as="h2" variant="title" size="large" weight="medium" className="mb-4 text-[22px] font-medium text-[#1F2937]">
+            <Typography as="h2" variant="title" size="large" weight="medium" className="mb-4 text-[22px] font-medium text-on-surface">
               اعتبار پنل
             </Typography>
 
@@ -561,7 +554,7 @@ function DashboardPaymentDesktopPage({
           </section>
 
           <section className="mt-10">
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-4 text-right text-base font-semibold text-[#1F2937]">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-4 text-right text-base font-semibold text-on-surface">
               بسته‌ها
             </Typography>
 

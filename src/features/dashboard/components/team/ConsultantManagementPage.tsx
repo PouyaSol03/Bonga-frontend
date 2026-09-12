@@ -174,7 +174,7 @@ export function ConsultantManagementPage() {
 
   return (
     <section
-      className="mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       dir="rtl"
     >
       <TopBar
@@ -186,20 +186,20 @@ export function ConsultantManagementPage() {
       />
 
       <div
-        className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${showConsultantControls ? "bg-[#f5f5f5]" : "bg-white"
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${showConsultantControls ? "bg-surface-container" : "bg-surface-container-lowest"
           }`}
       >
         {showConsultantControls ? (
           <div className="shrink-0 bg-surface-container px-4 py-2">
-            <label className="flex h-12 items-center gap-2 rounded-xl border border-[#bdbdbd] bg-white px-3 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a]">
+            <label className="flex h-12 items-center gap-2 rounded-xl border border-outline bg-surface-container-lowest px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
               <input
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-[#1a1a1a] outline-none placeholder:text-[#bdbdbd]"
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-on-surface outline-none placeholder:text-outline"
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder="جستجوی مشاور"
                 type="search"
                 value={searchValue}
               />
-              <LinearSearch className="h-5 w-5 shrink-0 text-[#4d4d4d]" />
+              <LinearSearch className="h-5 w-5 shrink-0 text-on-surface-var" />
             </label>
 
             <div className="mt-3 flex items-center gap-2">
@@ -232,7 +232,7 @@ export function ConsultantManagementPage() {
         )}
       </div>
 
-      <div className="shrink-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="shrink-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-sm">
         <Button
           fullWidth
           leadingIcon={<LinearUserAdd className="h-5 w-5" />}
@@ -346,7 +346,7 @@ export function AddConsultantPage() {
 
   return (
     <section
-      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-[#f5f5f5] text-[#1a1a1a]"
+      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface"
       dir="rtl"
     >
       <TopBar
@@ -359,7 +359,7 @@ export function AddConsultantPage() {
 
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-14">
-        <div className="bg-white px-4 pb-2.5 pt-4">
+        <div className="bg-surface-container-lowest px-4 pb-2.5 pt-4">
           <TextField
             onChange={(event) => {
               setSearchValue(event.target.value);
@@ -371,18 +371,18 @@ export function AddConsultantPage() {
             value={searchValue}
           />
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 flex items-start gap-1 text-right text-sm text-[#808080]">
-            <LinearInfoCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#4d4d4d]" />
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 flex items-start gap-1 text-right text-sm text-outline">
+            <LinearInfoCircle className="mt-0.5 h-4 w-4 shrink-0 text-on-surface-var" />
             <Typography as="span" variant="body" size="medium" weight="regular">
               برای یافتن مشاور، لازم است قبلاً به عنوان مشاور مستقل در سایت فعالیت کرده باشد.
             </Typography>
           </Typography>
         </div>
 
-        <div className="bg-white">
+        <div className="bg-surface-container-lowest">
           {hasSearch && visibleResults.length > 0 ? (
-            <section className="bg-white px-4 py-4">
-              <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-[#1a1a1a]">
+            <section className="bg-surface-container-lowest px-4 py-4">
+              <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-on-surface">
                 نتیجه جستجو
               </Typography>
               <div className="mt-3 space-y-2">
@@ -393,8 +393,8 @@ export function AddConsultantPage() {
                     <Button unstyled
                       aria-pressed={isSelected}
                       className={`flex h-[76px] w-full items-center gap-3 rounded-xl border px-3 text-right transition ${isSelected
-                        ? "border-[#0048c4] bg-[#eaf1ff]"
-                        : "border-[#e6e6e6] bg-white"
+                        ? "border-primary bg-primary-container"
+                        : "border-outline-var bg-surface-container-lowest"
                         }`}
                       key={consultant.id}
                       onClick={() => setSelectedAgentId(consultant.id)}
@@ -409,15 +409,15 @@ export function AddConsultantPage() {
                             src={consultant.avatar}
                           />
                         ) : (
-                          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#e0e0e0] text-[#808080]">
+                          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-container-high text-outline">
                             <LinearUserSolid className="h-6 w-6" />
                           </Typography>
                         )}
                         <div className="flex flex-col justify-center">
-                          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-[#1a1a1a]">
+                          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-on-surface">
                             {consultant.fullName}
                           </Typography>
-                          <Typography as="span" variant="label" size="small" weight="medium" className="block text-xs font-medium text-[#808080]">
+                          <Typography as="span" variant="label" size="small" weight="medium" className="block text-xs font-medium text-outline">
                             {consultant.mobile ?? ""}
                           </Typography>
                         </div>
@@ -434,8 +434,8 @@ export function AddConsultantPage() {
             <AddConsultantEmptyState />
           )}
 
-          <section className="border-t-[8px] border-[#f5f5f5] bg-white px-4 py-5">
-            <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
+          <section className="border-t-[8px] border-surface-container bg-surface-container-lowest px-4 py-5">
+            <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
               انتخاب سمت
             </Typography>
 
@@ -465,7 +465,7 @@ export function AddConsultantPage() {
                 return (
                   <Button unstyled
                     aria-pressed={isChecked}
-                    className={`flex items-center gap-2 text-right leading-4 ${isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"
+                    className={`flex items-center gap-2 text-right leading-4 ${isManager ? "text-on-surface-var" : "text-outline"
                       }`}
                     disabled={!isManager}
                     key={item.id}
@@ -476,37 +476,37 @@ export function AddConsultantPage() {
                       className={`h-4.5 w-4.5 rounded-sm ${isChecked
                           ? ""
                           : isManager
-                            ? "!border-[#4d4d4d]"
-                            : "!border-[#bdbdbd]"
+                            ? "!border-on-surface-var"
+                            : "!border-outline"
                         }`}
                       checked={isChecked}
                     />
-                    <Typography as="span" variant="label" size="medium" weight="medium" className={`${isManager ? "text-[#4d4d4d]" : "text-[#bdbdbd]"}`}>{item.label}</Typography>
+                    <Typography as="span" variant="label" size="medium" weight="medium" className={`${isManager ? "text-on-surface-var" : "text-outline"}`}>{item.label}</Typography>
                   </Button>
                 );
               })}
             </div>
           </section>
 
-          <section className="grid gap-4 border-t-[8px] border-[#f5f5f5] bg-white px-4 py-5">
+          <section className="grid gap-4 border-t-[8px] border-surface-container bg-surface-container-lowest px-4 py-5">
             <QuotaStepper
               label="سهمیه آگهی"
               remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`}
-              remainingClassName="text-[#0048c4]"
+              remainingClassName="text-primary"
               setValue={setAdQuota}
               value={adQuota}
             />
             <QuotaStepper
               label="سهمیه بروزرسانی"
               remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`}
-              remainingClassName="text-[#11a366]"
+              remainingClassName="text-tertiary"
               setValue={setUpdateQuota}
               value={updateQuota}
             />
             <QuotaStepper
               label="سهمیه ویژه"
               remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`}
-              remainingClassName="text-[#ff6d00]"
+              remainingClassName="text-warning"
               setValue={setSpecialQuota}
               value={specialQuota}
             />
@@ -514,7 +514,7 @@ export function AddConsultantPage() {
         </div>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
         <Button
           fullWidth
           leadingIcon={
@@ -537,9 +537,9 @@ export function AddConsultantPage() {
 
 function AddConsultantEmptyState() {
   return (
-    <div className="mx-auto flex h-[104px] w-full items-center justify-center gap-3 bg-white px-4 text-center">
+    <div className="mx-auto flex h-[104px] w-full items-center justify-center gap-3 bg-surface-container-lowest px-4 text-center">
       <img src={NoSearchIcon} alt="" className="h-[40px] w-[40px]" />
-      <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-[#808080]">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-outline">
         مشاوری برای نمایش نیست!
       </Typography>
     </div>
@@ -558,7 +558,7 @@ export function AddConsultantRoleOption({
   return (
     <Button unstyled
       aria-checked={checked}
-      className="flex w-full items-center py-2.25 gap-3.5 text-[#1a1a1a]"
+      className="flex w-full items-center py-2.25 gap-3.5 text-on-surface"
       onClick={onClick}
       role="radio"
       type="button"
@@ -577,7 +577,7 @@ export function ConsultantProfileSummary({ consultant }: { consultant: TeamConsu
         <Typography as="h1" variant="body" size="large" weight="regular" className="m-0 text-on-surface">
           {consultant.name} (مشاور)
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-[#1a1a1a]/40">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-on-surface/40">
           {consultant.phone}
         </Typography>
       </div>
@@ -587,7 +587,7 @@ export function ConsultantProfileSummary({ consultant }: { consultant: TeamConsu
 
 export function ConsultantProfilePill({ consultant }: { consultant: TeamConsultant }) {
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[#cccccc] bg-white px-4 py-2">
+    <div className="mt-4 flex items-center gap-3 rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-2">
       <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
       <div className="flex flex-col justify-center">
         <Typography as="h1" variant="body" size="large" weight="regular" className="m-0 text-on-surface">
@@ -613,7 +613,7 @@ export function ConsultantAvatar({
 
   return (
     <Typography as="span" variant="body" size="medium" weight="regular"
-      className={`${sizeClassName} grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#e0e0e0] text-[#808080]`}
+      className={`${sizeClassName} grid shrink-0 place-items-center overflow-hidden rounded-full bg-surface-container-high text-outline`}
     >
       {showAvatar ? (
         <img
@@ -649,15 +649,15 @@ export function InfoStatRow({
     <div className={`flex items-center justify-between gap-4 ${className}`}>
       <div className="flex items-center gap-4">
         {icon ? (
-          <Typography as="span" variant="body" size="large" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-[#808080]"}`}>
+          <Typography as="span" variant="body" size="large" weight="regular" className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-outline"}`}>
             {icon}
           </Typography>
         ) : null}
-        <Typography as="span" variant="body" size="large" weight="regular" className={`text-[#1a1a1a] ${labelClassName}`}>
+        <Typography as="span" variant="body" size="large" weight="regular" className={`text-on-surface ${labelClassName}`}>
           {label}
         </Typography>
       </div>
-      <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#1a1a1a]">
+      <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
         {value}
       </Typography>
     </div>
@@ -679,29 +679,29 @@ export function QuotaStepper({
 }) {
   return (
     <div>
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-on-surface">
         {label}
       </Typography>
-      <div className="mt-3 grid h-14 grid-cols-[80px_1fr_80px] overflow-hidden rounded-xl border border-[#cccccc] bg-white">
+      <div className="mt-3 grid h-14 grid-cols-[80px_1fr_80px] overflow-hidden rounded-xl border border-outline-var bg-surface-container-lowest">
         <Button unstyled
-          className="grid place-items-center border-r border-[#cccccc] bg-[#e9eaee] text-2xl font-normal text-[#4d4d4d]"
+          className="grid place-items-center border-r border-outline-var bg-surface-container text-2xl font-normal text-on-surface-var"
           onClick={() => setValue((current) => Math.max(0, current - 1))}
           type="button"
         >
           -
         </Button>
-        <Typography as="span" variant="label" size="large" weight="medium" className="grid place-items-center text-base font-medium leading-6 text-[#1a1a1a]">
+        <Typography as="span" variant="label" size="large" weight="medium" className="grid place-items-center text-base font-medium leading-6 text-on-surface">
           {new Intl.NumberFormat("fa-IR").format(value)}
         </Typography>
         <Button unstyled
-          className="grid place-items-center border-l border-[#cccccc] bg-[#e9eaee] text-2xl font-normal text-[#4d4d4d]"
+          className="grid place-items-center border-l border-outline-var bg-surface-container text-2xl font-normal text-on-surface-var"
           onClick={() => setValue((current) => current + 1)}
           type="button"
         >
           +
         </Button>
       </div>
-      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 pr-3 text-xs font-medium leading-5 text-[#808080]">
+      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 pr-3 text-xs font-medium leading-5 text-outline">
         <Typography as="span" variant="body" size="medium" weight="regular">باقیمانده سهمیه آژانس: </Typography>
         <Typography as="span" variant="body" size="medium" weight="regular" className={remainingClassName}>{remaining.split(": ")[1]}</Typography>
       </Typography>
@@ -751,15 +751,15 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
   };
 
   return (
-    <article className="bg-white px-4 pb-4 pt-5">
+    <article className="bg-surface-container-lowest px-4 pb-4 pt-5">
       {isPending && (
         <div className="mb-4">
           <div className="flex items-center justify-between">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-[#fff5ed] px-4 py-2 text-[#FF6D00]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-warning-container/30 px-4 py-2 text-warning">
               در انتظار تایید انتشار
             </Typography>
             <Button unstyled
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-1 !text-sm font-medium text-on-error-container disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-surface-container-lowest px-1 !text-sm font-medium text-on-error-container disabled:opacity-50"
               disabled={!consultant.agentId || cancelRequestMutation.isPending}
               onClick={cancelRequest}
               type="button"
@@ -777,10 +777,10 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
       )}
 
       <div className="flex items-center gap-2">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
           {consultant.name}
         </Typography>
-        <Typography as="span" variant="body" size="small" weight="medium" className="rounded-lg px-2 py-0.5 text-xs text-[#808080] bg-[#80808014] font-medium">
+        <Typography as="span" variant="body" size="small" weight="medium" className="rounded-lg px-2 py-0.5 text-xs text-outline bg-surface-container font-medium">
           {consultant.roleLabel || "مشاور"}
         </Typography>
       </div>
@@ -805,9 +805,9 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             />
           </div>
 
-          <div className="mt-4 grid h-10 py-2 grid-cols-3 overflow-hidden rounded-lg bg-[#f5f5f5] text-xs font-medium text-[#4d4d4d]">
+          <div className="mt-4 grid h-10 py-2 grid-cols-3 overflow-hidden rounded-lg bg-surface-container text-xs font-medium text-on-surface-var">
             <RouteLink
-              className="flex justify-center items-center gap-2 border-l border-[#e0e0e0]"
+              className="flex justify-center items-center gap-2 border-l border-outline-var"
               state={{ consultant }}
               to={`${consultantTeamPaths.info}/${consultant.agentId ?? consultant.id}`}
             >
@@ -815,7 +815,7 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
               اطلاعات
             </RouteLink>
             <RouteLink
-              className="flex justify-center items-center gap-2 border-l border-[#e0e0e0]"
+              className="flex justify-center items-center gap-2 border-l border-outline-var"
               state={{ consultant }}
               to={`${consultantTeamPaths.edit}/${consultant.agentId ?? consultant.id}`}
             >
@@ -847,9 +847,9 @@ function ConsultantStat({
   value: number;
 }) {
   const toneClassNames = {
-    blue: "bg-[#dfe8ff] text-[#0048c4]",
-    green: "bg-[#d9f7ea] text-[#11a366]",
-    orange: "bg-[#fff0dc] text-[#ff7a00]",
+    blue: "bg-primary-container text-primary",
+    green: "bg-tertiary-container/30 text-tertiary",
+    orange: "bg-warning-container/30 text-warning",
   };
 
   return (
@@ -859,7 +859,7 @@ function ConsultantStat({
       >
         {icon}
       </Typography>
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold leading-5 text-[#1a1a1a]">
+      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold leading-5 text-on-surface">
         {value}
       </Typography>
     </div>
@@ -869,13 +869,13 @@ function ConsultantStat({
 
 function ConsultantEmptyState() {
   return (
-    <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center bg-white px-8 py-8 text-center">
+    <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center bg-surface-container-lowest px-8 py-8 text-center">
       <div className="mx-auto grid w-full max-w-[260px] justify-items-center">
         <img src="/vectors/NoAgent.svg" alt="" className="h-[66px] w-[66px]" />
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="mt-4 text-sm font-semibold leading-5 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="mt-4 text-sm font-semibold leading-5 text-on-surface">
           هیچ مشاوری برای مدیریت وجود ندارد!
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="mt-2 text-sm text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="mt-2 text-sm text-on-surface-var">
           برای افزودن مشاورین جدید،<br />
           از گزینه «افزودن مشاور»<br />
           استفاده کنید.

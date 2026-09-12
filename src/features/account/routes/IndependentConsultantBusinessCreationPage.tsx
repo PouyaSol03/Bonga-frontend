@@ -77,7 +77,7 @@ export function IndependentConsultantBusinessCreationPage() {
           <div>
             <RequiredLabel>نام و نام خانوادگی مشاور</RequiredLabel>
             <input
-              className="mt-2 h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
+              className="mt-2 h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline focus:border-primary"
               onChange={(event) => setFullName(event.target.value)}
               placeholder="مثال: املاک نوروزیان"
               value={fullName}
@@ -87,7 +87,7 @@ export function IndependentConsultantBusinessCreationPage() {
           <div>
             <RequiredLabel>شماره همراه</RequiredLabel>
             <input
-              className="mt-2 h-14 w-full rounded-xl border border-[#cccccc] bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4]"
+              className="mt-2 h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline focus:border-primary"
               inputMode="tel"
               onChange={(event) => setMobile(event.target.value)}
               placeholder="مثال: ۰۹۱۵۵۲۱۴۰۶۲"

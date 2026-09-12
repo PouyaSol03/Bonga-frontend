@@ -153,7 +153,7 @@ function QuickAreaRangeField({
       }}
     >
       <FormTextField
-        className={`w-full [&_input]:placeholder:text-[#8c8c8c] ${active ? "[&>span]:border-2" : ""}`}
+        className={`w-full [&_input]:placeholder:text-outline ${active ? "[&>span]:border-2" : ""}`}
         forceHighlight={active}
         forceLabel={active}
         inputRef={inputRef}
@@ -171,7 +171,7 @@ function QuickAreaRangeField({
         trailingSlot={
           <LinearArrowDown1
             aria-hidden="true"
-            className={`h-5 w-5 shrink-0 ${active ? "text-[#b8b8b8]" : "text-[#4d4d4d]"}`}
+            className={`h-5 w-5 shrink-0 ${active ? "text-outline" : "text-on-surface-var"}`}
           />
         }
         value={displayedValue}
@@ -446,7 +446,7 @@ export function SearchMapQuickFilterBottomSheet({
           : ""
       }`}
       contentClassName="flex min-h-0 flex-1 flex-col"
-      handleClassName={isAreaSheet ? "h-1 w-[56px] rounded-full bg-[#cccccc]" : undefined}
+      handleClassName={isAreaSheet ? "h-1 w-[56px] rounded-full bg-outline-var" : undefined}
       heightClassName={
         isAreaSheet
           ? isAreaValueListOpen
@@ -494,7 +494,7 @@ export function SearchMapQuickFilterBottomSheet({
                   variant="title"
                   size="medium"
                   weight="medium"
-                  className="mb-3 border-b border-[#f0f0f0] pb-2 text-right text-[#808080]"
+                  className="mb-3 border-b border-outline-var pb-2 text-right text-outline"
                 >
                   {group.title}
                 </Typography>
@@ -515,9 +515,9 @@ export function SearchMapQuickFilterBottomSheet({
 
         {filterId === "neighborhood" ? (
           <div className="flex min-h-full flex-col" dir="rtl">
-            <label className="mb-3 flex h-12 shrink-0 items-center rounded-xl border border-[#808080] bg-white px-4 focus-within:border-[#0048c4]">
+            <label className="mb-3 flex h-12 shrink-0 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary">
               <input
-                className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] [&::-webkit-search-cancel-button]:hidden"
+                className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline [&::-webkit-search-cancel-button]:hidden"
                 onChange={(event) => setNeighborhoodQuery(event.target.value)}
                 placeholder="جستجو محله"
                 type="search"
@@ -546,25 +546,25 @@ export function SearchMapQuickFilterBottomSheet({
             ) : null}
 
             {!cityId ? (
-              <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-4 text-center text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-4 text-center text-outline">
                 برای انتخاب محله، ابتدا شهر را انتخاب کنید.
               </Typography>
             ) : neighborhoodsQuery.isLoading ? (
               <div>
                 {Array.from({ length: 5 }, (_, index) => (
-                  <div className="flex min-h-[72px] animate-pulse items-center justify-between gap-5 border-b border-[#f0f0f0] py-3" key={index}>
+                  <div className="flex min-h-[72px] animate-pulse items-center justify-between gap-5 border-b border-outline-var py-3" key={index}>
                     <div className="min-w-0 flex-1 space-y-2">
-                      <div className="mr-auto h-5 w-28 rounded bg-[#f0f0f0]" />
-                      <div className="mr-auto h-4 w-3/4 rounded bg-[#f4f4f4]" />
+                      <div className="mr-auto h-5 w-28 rounded bg-surface-container" />
+                      <div className="mr-auto h-4 w-3/4 rounded bg-surface-container-high" />
                     </div>
-                    <div className="h-[18px] w-[18px] rounded-sm bg-[#eeeeee]" />
+                    <div className="h-[18px] w-[18px] rounded-sm bg-surface-container-high" />
                   </div>
                 ))}
               </div>
             ) : neighborhoodsQuery.isError ? (
-              <div className="mx-auto flex min-h-52 w-full flex-col items-center justify-center text-center text-sm leading-7 text-[#a43232]">
+              <div className="mx-auto flex min-h-52 w-full flex-col items-center justify-center text-center text-sm leading-7 text-error">
                 دریافت محله‌ها با خطا مواجه شد.
-                <Button unstyled className="mt-2 font-semibold text-[#0048c4]" onClick={() => void neighborhoodsQuery.refetch()} type="button">
+                <Button unstyled className="mt-2 font-semibold text-primary" onClick={() => void neighborhoodsQuery.refetch()} type="button">
                   تلاش دوباره
                 </Button>
               </div>
@@ -579,7 +579,7 @@ export function SearchMapQuickFilterBottomSheet({
                     <Button
                       unstyled
                       aria-pressed={selected}
-                      className="flex min-h-[72px] w-full items-center justify-between gap-5 border-b border-[#f0f0f0] bg-white py-3 text-right"
+                      className="flex min-h-[72px] w-full items-center justify-between gap-5 border-b border-outline-var bg-surface-container-lowest py-3 text-right"
                       key={id}
                       onClick={() =>
                         setSelectedNeighborhoodIds((current) =>
@@ -591,11 +591,11 @@ export function SearchMapQuickFilterBottomSheet({
                       type="button"
                     >
                       <span className="min-w-0 flex-1">
-                        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-[#1a1a1a]">
+                        <Typography as="span" variant="body" size="medium" weight="regular" className="block text-on-surface">
                           {neighborhood.name}
                         </Typography>
                         {description ? (
-                          <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-1 text-[#a6a6a6]">
+                          <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-1 text-outline">
                             {description}
                           </Typography>
                         ) : null}
@@ -608,7 +608,7 @@ export function SearchMapQuickFilterBottomSheet({
             ) : neighborhoodQuery.trim() ? (
               <SearchEmptyState compact />
             ) : (
-              <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-4 text-center text-[#808080]">
+              <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-4 text-center text-outline">
                 محله‌ای برای این شهر ثبت نشده است.
               </Typography>
             )}
@@ -617,12 +617,12 @@ export function SearchMapQuickFilterBottomSheet({
 
         {filterId === "area" ? (
           <div className="flex h-full min-h-0 flex-col" dir="rtl">
-            <div className="flex items-center gap-2 text-[#1a1a1a]">
-              <LinearRuler aria-hidden="true" className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+            <div className="flex items-center gap-2 text-on-surface">
+              <LinearRuler aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var" />
               <Typography as="span" variant="title" size="medium" weight="medium">
                 متراژ
               </Typography>
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-[#808080]">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
                 (متر)
               </Typography>
             </div>
@@ -658,7 +658,7 @@ export function SearchMapQuickFilterBottomSheet({
               {activeAreaBound ? (
                 <motion.div
                   animate={{ opacity: 1 }}
-                  className="mt-4 flex min-h-0 flex-1 flex-col border-t border-[#e5e5e5] pt-[17px]"
+                  className="mt-4 flex min-h-0 flex-1 flex-col border-t border-outline-var pt-[17px]"
                   exit={{ opacity: 0 }}
                   initial={shouldReduceMotion ? false : { opacity: 0 }}
                   key="area-value-list"
@@ -670,7 +670,7 @@ export function SearchMapQuickFilterBottomSheet({
                 >
                   <Button
                     unstyled
-                    className="flex h-[72px] w-full shrink-0 items-center justify-center bg-white px-2 text-center text-[#1a1a1a]"
+                    className="flex h-[72px] w-full shrink-0 items-center justify-center bg-surface-container-lowest px-2 text-center text-on-surface"
                     onClick={() => setCustomAreaBound(activeAreaBound)}
                     type="button"
                   >
@@ -686,7 +686,7 @@ export function SearchMapQuickFilterBottomSheet({
                       return (
                         <Button
                           unstyled
-                          className="flex h-[72px] w-full shrink-0 items-center justify-center bg-white px-2 text-center text-[#1a1a1a]"
+                          className="flex h-[72px] w-full shrink-0 items-center justify-center bg-surface-container-lowest px-2 text-center text-on-surface"
                           key={option}
                           onClick={() => {
                             if (activeAreaBound === "minimum") {
@@ -700,7 +700,7 @@ export function SearchMapQuickFilterBottomSheet({
                           }}
                           type="button"
                         >
-                          <Typography as="span" variant="body" size="medium" weight="regular">
+                          <Typography as="span" variant="body" size="large" weight="regular">
                             {option}
                           </Typography>
                         </Button>
@@ -720,8 +720,8 @@ export function SearchMapQuickFilterBottomSheet({
               label="حداقل"
               onChange={(event) => setPriceMinimum(normalizeNumber(event.target.value))}
               onClear={() => setPriceMinimum("")}
-              placeholder="حداقل"
-              supportingText={priceMinimum ? formatBigNumber(Number(priceMinimum)) : undefined}
+              placeholder="حداقل قیمت"
+              supportingText={priceMinimum ? `${formatBigNumber(Number(priceMinimum))} تومان` : undefined}
               value={formatGroupedNumber(priceMinimum)}
             />
             <FormTextField
@@ -729,8 +729,8 @@ export function SearchMapQuickFilterBottomSheet({
               label="حداکثر"
               onChange={(event) => setPriceMaximum(normalizeNumber(event.target.value))}
               onClear={() => setPriceMaximum("")}
-              placeholder="حداکثر"
-              supportingText={priceMaximum ? formatBigNumber(Number(priceMaximum)) : undefined}
+              placeholder="حداکثر قیمت"
+              supportingText={priceMaximum ? `${formatBigNumber(Number(priceMaximum))} تومان` : undefined}
               value={formatGroupedNumber(priceMaximum)}
             />
           </div>
@@ -769,13 +769,13 @@ export function SearchMapQuickFilterBottomSheet({
       </div>
 
       <footer
-        className={`shrink-0 bg-white px-4 ${
-          isAreaSheet ? "pb-3 pt-0" : "border-t border-[#f0f0f0] py-3"
+        className={`shrink-0 bg-surface-container-lowest px-4 ${
+          isAreaSheet ? "pb-3 pt-0" : "border-t border-outline-var py-3"
         }`}
       >
         <Button
           unstyled
-          className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#0048c4] text-sm font-medium text-white active:bg-[#00379a] transition-colors"
+          className="flex h-10 w-full items-center justify-center rounded-[10px] bg-primary text-sm font-medium text-on-primary active:opacity-90 transition-colors"
           onClick={applyCurrentFilter}
           type="button"
         >

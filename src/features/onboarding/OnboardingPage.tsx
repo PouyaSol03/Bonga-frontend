@@ -60,8 +60,8 @@ const onboardingSteps = [
 
 const ONBOARDING_STEP_COUNT = onboardingSteps.length;
 const citySelectionImage = "/images/onboarding/sixth_image.webp";
-const ONBOARDING_SECOND_LAYER = "#c5d6f2";
-const ONBOARDING_THIRD_LAYER = "#ebf1fa";
+const ONBOARDING_SECOND_LAYER = "var(--color-primary-container)";
+const ONBOARDING_THIRD_LAYER = "var(--color-surface-container-high)";
 
 type SelectableCity = StoredSelectedCity & {
   key: string;
@@ -159,7 +159,7 @@ export function OnboardingPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       dir="rtl"
       variant="flush"
     >
@@ -182,7 +182,7 @@ export function OnboardingPage() {
                 <motion.div
                   key={stepIndex}
                   aria-hidden="true"
-                  className="relative z-20 h-full w-full origin-top overflow-hidden rounded-3xl bg-white [backface-visibility:hidden] will-change-[transform,opacity]"
+                  className="relative z-20 h-full w-full origin-top overflow-hidden rounded-3xl bg-surface-container-lowest [backface-visibility:hidden] will-change-[transform,opacity]"
                   initial={
                     shouldReduceMotion
                       ? false
@@ -226,22 +226,39 @@ export function OnboardingPage() {
             </div>
           </div>
 
-          <div className="relative my-6 min-h-[136px] w-full shrink-0 text-center">
+          <div className="my-auto flex w-full max-w-[328px] min-h-[168px] items-center justify-center text-center">
             <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={stepIndex}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                initial={
+                  shouldReduceMotion
+                    ? false
+                    : {
+                        opacity: 0,
+                        y: 12,
+                      }
+                }
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                exit={
+                  shouldReduceMotion
+                    ? { opacity: 0 }
+                    : {
+                        opacity: 0,
+                        y: -12,
+                      }
+                }
                 transition={{
-                  duration: shouldReduceMotion ? 0.01 : 0.18,
-                  ease: [0.25, 0.8, 0.25, 1],
+                  duration: shouldReduceMotion ? 0.01 : 0.24,
+                  ease: [0.22, 1, 0.36, 1],
                 }}
                 className="flex w-full flex-col items-center [backface-visibility:hidden] [transform:translateZ(0)] will-change-[transform,opacity]"
               >
                 <Typography
                   as="p"
-                  className="m-0 text-[#1a1a1a]"
+                  className="m-0 text-on-surface"
                   variant="title"
                   size="medium"
                   weight="semibold"
@@ -251,7 +268,7 @@ export function OnboardingPage() {
 
                 <Typography
                   as="h1"
-                  className="m-0 mt-1.5 text-[#0048c4]"
+                  className="m-0 mt-1.5 text-primary"
                   variant="title"
                   size="large"
                   weight="semibold"
@@ -286,8 +303,8 @@ export function OnboardingPage() {
                   aria-current={isActive ? "step" : undefined}
                   className={
                     isActive
-                      ? "h-2 cursor-pointer rounded-full border-0 bg-[#0048c4] p-0 outline-none focus-visible:ring-2 focus-visible:ring-[#0048c4]/30 focus-visible:ring-offset-2"
-                      : "h-2 cursor-pointer rounded-full border-0 bg-[#d8e3f7] p-0 outline-none focus-visible:ring-2 focus-visible:ring-[#0048c4]/30 focus-visible:ring-offset-2"
+                      ? "h-2 cursor-pointer rounded-full border-0 bg-primary p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                      : "h-2 cursor-pointer rounded-full border-0 bg-primary-container p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
                   }
                   animate={{ width: isActive ? 24 : 8 }}
                   whileHover={shouldReduceMotion ? undefined : { scale: 1.12 }}
@@ -303,7 +320,7 @@ export function OnboardingPage() {
         </div>
       </main>
 
-      <footer className="shrink-0 bg-white px-4 pb-4 pt-3">
+      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-4 pt-3">
         <div className="mx-auto flex w-full max-w-[500px] justify-center">
           <div className="flex w-full gap-4 [direction:rtl]">
             <Button
@@ -406,7 +423,7 @@ function OnboardingCitySelectionPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       dir="rtl"
       variant="flush"
     >
@@ -427,7 +444,7 @@ function OnboardingCitySelectionPage() {
 
               <div
                 aria-hidden="true"
-                className="relative z-20 h-full w-full overflow-hidden rounded-3xl bg-white"
+                className="relative z-20 h-full w-full overflow-hidden rounded-3xl bg-surface-container-lowest"
               >
                 <img
                   alt=""
@@ -443,7 +460,7 @@ function OnboardingCitySelectionPage() {
           <div className="my-6 w-full text-center">
             <Typography
               as="h1"
-              className="m-0 text-[#1a1a1a]"
+              className="m-0 text-on-surface"
               size="large"
               variant="label"
               weight="semibold"
@@ -452,7 +469,7 @@ function OnboardingCitySelectionPage() {
             </Typography>
             <Typography
               as="p"
-              className="m-0 mt-2 text-[#808080]"
+              className="m-0 mt-2 text-outline"
               size="medium"
               variant="body"
               weight="regular"
@@ -469,19 +486,19 @@ function OnboardingCitySelectionPage() {
             </Typography>
             <input
               autoComplete="off"
-              className="h-12 w-full rounded-[12px] border-0 bg-[#f0f0f0] py-0 pl-12 pr-4 text-right text-[#1a1a1a] outline-none placeholder:text-[#808080] focus:ring-2 focus:ring-[#0048c429]"
+              className="h-12 w-full rounded-[12px] border-0 bg-surface-container py-0 pl-12 pr-4 text-right text-on-surface outline-none placeholder:text-outline focus:ring-2 focus:ring-primary/20"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="جستجوی شهر..."
               type="search"
               value={query}
             />
-            <LinearSearch className="pointer-events-none absolute left-3.5 top-1/2 h-6 w-6 -translate-y-1/2 text-[#1a1a1a]" />
+            <LinearSearch className="pointer-events-none absolute left-3.5 top-1/2 h-6 w-6 -translate-y-1/2 text-on-surface" />
           </label>
 
           <div className="mt-8 w-full">
             <Typography
               as="h2"
-              className="m-0 text-right text-[#1a1a1a]"
+              className="m-0 text-right text-on-surface"
               size="medium"
               variant="label"
               weight="medium"
@@ -492,7 +509,7 @@ function OnboardingCitySelectionPage() {
             <div className="mt-2 grid grid-cols-3 gap-2">
               {isCityListLoading
                 ? Array.from({ length: 6 }).map((_, index) => (
-                  <span className="h-9 animate-pulse rounded-[8px] bg-[#f0f0f0]" key={index} />
+                  <span className="h-9 animate-pulse rounded-[8px] bg-surface-container" key={index} />
                 ))
                 : visibleCities.map((city) => {
                   const isSelected = Boolean(
@@ -508,8 +525,8 @@ function OnboardingCitySelectionPage() {
                       aria-pressed={isSelected}
                       className={
                         isSelected
-                          ? "flex h-9 min-w-0 items-center justify-center rounded-[8px] border border-[#0048c4] bg-[#0048c40a] px-2 text-[#0048c4]"
-                          : "flex h-9 min-w-0 items-center justify-center rounded-[8px] border border-[#cccccc] bg-white px-2 text-[#4d4d4d]"
+                          ? "flex h-9 min-w-0 items-center justify-center rounded-[8px] border border-primary bg-primary/10 px-2 text-primary"
+                          : "flex h-9 min-w-0 items-center justify-center rounded-[8px] border border-outline-var bg-surface-container-lowest px-2 text-on-surface-var"
                       }
                       key={city.key}
                       onClick={() => selectCity(city)}
@@ -526,7 +543,7 @@ function OnboardingCitySelectionPage() {
             {!isCityListLoading && visibleCities.length === 0 ? (
               <Typography
                 as="p"
-                className="m-0 mt-4 text-center text-[#808080]"
+                className="m-0 mt-4 text-center text-outline"
                 size="small"
                 variant="body"
                 weight="regular"
@@ -538,7 +555,7 @@ function OnboardingCitySelectionPage() {
         </div>
       </main>
 
-      <footer className="shrink-0 bg-white px-4 pb-4 pt-3">
+      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-4 pt-3">
         <div className="mx-auto flex w-full max-w-[500px] justify-center">
           <Button
             className="h-10 w-full rounded-[10px]"

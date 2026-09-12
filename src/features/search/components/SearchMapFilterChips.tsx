@@ -22,10 +22,10 @@ export function SearchMapFilterChips({
         <Button unstyled
           key={chip.id}
           dir="rtl"
-          className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${
+          className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 ${
             chip.isActive
-              ? "border-[#0048c4] bg-[#dbe8ff] text-[#0048c4]"
-              : "border-[#cccccc] bg-white text-[#1a1a1a]"
+              ? "border-primary bg-primary-container text-primary"
+              : "border-outline-var bg-surface-container-lowest text-on-surface"
           }`}
           type="button"
           onClick={() => onChipClick?.(chip)}

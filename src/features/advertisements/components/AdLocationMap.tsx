@@ -15,7 +15,7 @@ export function AdLocationMap({
 
   return (
     <div
-      className={`relative h-[198px] overflow-hidden rounded-2xl border border-[#ebebeb] bg-[#fafafa] ${className}`}
+      className={`relative h-[198px] overflow-hidden rounded-2xl border border-outline-var bg-surface-container ${className}`}
     >
       <iframe
         allowFullScreen

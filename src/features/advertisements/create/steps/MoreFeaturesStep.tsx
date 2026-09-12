@@ -98,13 +98,13 @@ export function MoreFeaturesStep({
     <>
       <main
         className={desktop
-          ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fb] px-6 py-5"
-          : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white px-4 py-6"}
+          ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5"
+          : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 py-6"}
         dir="rtl"
       >
         {fields.length ? (
           <div className={desktop
-            ? "mx-auto grid max-w-[1120px] grid-cols-2 gap-5 rounded-xl border border-[#e1e7f0] bg-white p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]"
+            ? "mx-auto grid max-w-[1120px] grid-cols-2 gap-5 rounded-xl border border-outline-var bg-surface-container-lowest p-6 shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
             : "space-y-5"}>
             {fields.map((field) => {
               if (field.control === "toggle") {
@@ -179,7 +179,7 @@ export function MoreFeaturesStep({
                   <SelectBox
                     key={field.key}
                     leadingSlot={
-                      <LinearCalendar aria-hidden="true" className="h-6 w-6 shrink-0 text-[#4d4d4d]" />
+                      <LinearCalendar aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var" />
                     }
                     onClear={() => setDraftField(field.key, "")}
                     onClick={() => setDateField(field.key as MoreFeatureDateKey)}
@@ -201,7 +201,7 @@ export function MoreFeaturesStep({
             })}
           </div>
         ) : (
-          <div className="rounded-[12px] bg-[#f5f5f5] px-4 py-5 text-center text-sm leading-6 text-[#4d4d4d]">
+          <div className="rounded-[12px] bg-surface-container px-4 py-5 text-center text-sm leading-6 text-on-surface-var">
             برای این دسته‌بندی مشخصات بیشتری تعریف نشده است.
           </div>
         )}
@@ -224,7 +224,7 @@ export function MoreFeaturesStep({
         ariaLabel={multiSelectSheet?.title ?? "انتخاب چند گزینه"}
         className="rounded-t-[14px]"
         contentClassName="pt-0 pb-4"
-        handleClassName="h-1 w-[42px] rounded-full bg-[#cccccc]"
+        handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
         heightClassName="h-auto max-h-[calc(100dvh-24px)]"
         isOpen={Boolean(multiSelectSheet)}
         headerButtonAriaLabel="بازگشت"
@@ -247,7 +247,7 @@ export function MoreFeaturesStep({
             return (
               <Button
                 unstyled
-                className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-[#1a1a1a]"
+                className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-on-surface"
                 key={option}
                 onClick={() => {
                   if (!multiSelectSheet) return;
@@ -269,7 +269,7 @@ export function MoreFeaturesStep({
         ariaLabel={sheet?.title ?? "انتخاب"}
         className="rounded-t-[14px]"
         contentClassName="pt-0 pb-6"
-        handleClassName="h-1 w-[42px] rounded-full bg-[#e0e0e0]"
+        handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
         heightClassName="h-auto max-h-[calc(100dvh-102px)]"
         isOpen={Boolean(sheet)}
         headerButtonAriaLabel="بازگشت"

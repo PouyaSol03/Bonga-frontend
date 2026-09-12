@@ -56,10 +56,10 @@ function NeighborhoodSkeleton() {
           className="flex min-h-[88px] items-center gap-5 px-9 py-2 [direction:ltr]"
           key={index}
         >
-          <div className="h-[18px] w-[18px] shrink-0 animate-pulse rounded-[4px] bg-[#eeeeee]" />
+          <div className="h-[18px] w-[18px] shrink-0 animate-pulse rounded-[4px] bg-surface-container-high" />
           <div className="min-w-0 flex-1 space-y-2 [direction:rtl]">
-            <div className="mr-auto h-5 w-28 animate-pulse rounded bg-[#eeeeee]" />
-            <div className="mr-auto h-4 w-4/5 animate-pulse rounded bg-[#f3f3f3]" />
+            <div className="mr-auto h-5 w-28 animate-pulse rounded bg-surface-container-high" />
+            <div className="mr-auto h-4 w-4/5 animate-pulse rounded bg-surface-container" />
           </div>
         </div>
       ))}
@@ -117,14 +117,14 @@ export function AgencyNeighborhoodSelectionPage() {
 
   return (
     <div
-      className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white text-[#1a1a1a]"
+      className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
       dir="rtl"
     >
-      <header className={`${pendingNeighborhoods.length > 0 ? "h-28" : "h-14"} shrink-0 bg-[#f0f0f0]`}>
+      <header className={`${pendingNeighborhoods.length > 0 ? "h-28" : "h-14"} shrink-0 bg-surface-container`}>
         <div className="flex h-14 items-end gap-2 pl-4 pr-2 [direction:ltr]">
           <SearchInputBar
             aria-label="جستجو محله"
-            containerClassName="h-12 flex-1 border-[#808080] px-4 [&_input::placeholder]:text-[#808080]"
+            containerClassName="h-12 flex-1 border-outline px-4 [&_input::placeholder]:text-outline"
             onValueChange={setQuery}
             placeholder="جستجو محله"
             showSearchIcon={false}
@@ -135,7 +135,7 @@ export function AgencyNeighborhoodSelectionPage() {
           <Button
             unstyled
             aria-label="بازگشت"
-            className="grid h-12 w-8 shrink-0 place-items-center text-[#1a1a1a] [-webkit-tap-highlight-color:transparent]"
+            className="grid h-12 w-8 shrink-0 place-items-center text-on-surface [-webkit-tap-highlight-color:transparent]"
             onClick={returnToAgencyForm}
             type="button"
           >
@@ -167,14 +167,14 @@ export function AgencyNeighborhoodSelectionPage() {
         ) : null}
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-[68px] pt-2 [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[68px] pt-2 [-webkit-overflow-scrolling:touch]">
         {!cityId ? (
           <Typography
             as="p"
             variant="body"
             size="medium"
             weight="regular"
-            className="mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center text-[#808080]"
+            className="mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center text-outline"
           >
             ابتدا شهر خود را از صفحه خانه انتخاب کنید.
           </Typography>
@@ -187,13 +187,13 @@ export function AgencyNeighborhoodSelectionPage() {
               variant="body"
               size="medium"
               weight="regular"
-              className="m-0 text-[#a43232]"
+              className="m-0 text-error"
             >
               دریافت محله‌ها با خطا مواجه شد.
             </Typography>
             <Button
               unstyled
-              className="mt-3 text-[#0048c4]"
+              className="mt-3 text-primary"
               onClick={() => void neighborhoodsQuery.refetch()}
               type="button"
             >
@@ -211,7 +211,7 @@ export function AgencyNeighborhoodSelectionPage() {
               variant="body"
               size="medium"
               weight="regular"
-              className="mx-auto m-0 w-full px-8 py-10 text-center text-[#808080]"
+              className="mx-auto m-0 w-full px-8 py-10 text-center text-outline"
             >
               محله‌ای برای این شهر ثبت نشده است.
             </Typography>
@@ -227,7 +227,7 @@ export function AgencyNeighborhoodSelectionPage() {
                 <Button
                   unstyled
                   aria-pressed={isSelected}
-                  className="flex min-h-[88px] w-full items-center gap-5 px-9 py-2 text-right [-webkit-tap-highlight-color:transparent] active:bg-[#fafafa] [direction:ltr]"
+                  className="flex min-h-[88px] w-full items-center gap-5 px-9 py-2 text-right [-webkit-tap-highlight-color:transparent] active:bg-surface-container [direction:ltr]"
                   key={neighborhoodId}
                   onClick={() => toggleNeighborhood(neighborhood)}
                   type="button"
@@ -243,7 +243,7 @@ export function AgencyNeighborhoodSelectionPage() {
                       variant="body"
                       size="large"
                       weight="regular"
-                      className="block truncate text-right text-[#1a1a1a]"
+                      className="block truncate text-right text-on-surface"
                     >
                       {neighborhood.name}
                     </Typography>
@@ -253,7 +253,7 @@ export function AgencyNeighborhoodSelectionPage() {
                         variant="body"
                         size="medium"
                         weight="regular"
-                        className="mt-1 block line-clamp-2 text-right text-[#808080]"
+                        className="mt-1 block line-clamp-2 text-right text-outline"
                       >
                         {description}
                       </Typography>
@@ -266,7 +266,7 @@ export function AgencyNeighborhoodSelectionPage() {
         )}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 h-[68px] bg-white px-4 py-[14px] shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <footer className="absolute inset-x-0 bottom-0 z-20 h-[68px] bg-surface-container-lowest px-4 py-[14px] shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
         <Button
           fullWidth
           onClick={handleConfirm}

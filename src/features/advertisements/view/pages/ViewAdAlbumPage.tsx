@@ -51,13 +51,13 @@ export function ViewAdAlbumPage({
   const indicatorWidth = indicatorContentWidth + 24;
 
   return (
-    <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-[#1a1a1a] text-[#fafafa]">
-      <header className="flex h-14 shrink-0 items-center justify-between bg-[#1a1a1a] px-1 [direction:ltr]">
+    <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-black text-white">
+      <header className="flex h-14 shrink-0 items-center justify-between bg-black px-1 [direction:ltr]">
         <div className="h-12 w-40 shrink-0" />
         <div className="min-w-0 flex-1" />
         <Button unstyled
           aria-label="بستن آلبوم"
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#fafafa] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff66]"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white/40"
           onClick={onClose}
           type="button"
         >
@@ -65,7 +65,7 @@ export function ViewAdAlbumPage({
         </Button>
       </header>
 
-      <main className="relative min-h-0 flex-1 overflow-hidden bg-[#1a1a1a]">
+      <main className="relative min-h-0 flex-1 overflow-hidden bg-black">
         <Swiper
           className="h-full w-full"
           dir="rtl"
@@ -106,7 +106,7 @@ export function ViewAdAlbumPage({
               {mediaItems.map((item, index) => (
                 <Button unstyled
                   aria-label={`نمایش رسانه ${index + 1}`}
-                  className={`block h-2 rounded-full ${index === activeIndex ? "bg-[#fafafa]" : "bg-[#fafafa29]"}`}
+                  className={`block h-2 rounded-full ${index === activeIndex ? "bg-white" : "bg-white/20"}`}
                   key={`${item.type}-${index}`}
                   onClick={() => swiperRef.current?.slideTo(index)}
                   style={{ width: dotSizes[index] }}

@@ -271,8 +271,8 @@ function IndependentConsultantAccountPage({
   return (
     <TopBarNavigationLayout
       activeKey="account"
-      contentClassName="flex flex-col gap-4 bg-[#f0f0f0]"
-      frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      contentClassName="flex flex-col gap-4 bg-surface-container"
+      frameClassName="relative bg-surface-container text-on-surface [direction:rtl]"
       overlay={accountOverlay}
       topBar={<TopBar
         backTo="/home"
@@ -285,12 +285,12 @@ function IndependentConsultantAccountPage({
         <BusinessAccountSkeleton />
       ) : (
         <>
-          <section className="shrink-0 bg-white" aria-label={businessHeader.ariaLabel}>
+          <section className="shrink-0 bg-surface-container-lowest" aria-label={businessHeader.ariaLabel}>
             <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
               <AccountProfileAvatar
                 avatarUrl={businessHeader.imageSrc}
                 className="h-[72px] w-[72px]"
-                iconClassName="h-8 w-8"
+                iconClassName="h-8 w-8 text-outline"
                 label={businessHeader.name}
               />
               <div className="min-w-0 flex-1 text-right">
@@ -300,7 +300,7 @@ function IndependentConsultantAccountPage({
                 >
                   {businessHeader.name}
                 </Typography>
-                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080]">
+                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-outline">
                   {businessHeader.subtitle}
                 </Typography>
               </div>
@@ -315,7 +315,7 @@ function IndependentConsultantAccountPage({
             className=" pt-0.5"
             spacedDividers
           />
-          <section className="bg-white px-4 py-1">
+          <section className="bg-surface-container-lowest px-4 py-1">
             <ThemeToggleRow />
           </section>
           <AccountSection
@@ -346,7 +346,7 @@ function getBusinessAccountHeader(
   if (role === REAL_ESTATE_MANAGER) {
     return {
       ariaLabel: "اطلاعات آژانس",
-      color: "#0048C4",
+      color: "var(--primary)",
       imageSrc: agencyAvatarUrl,
       name: agencyName,
       subtitle: "آژانس املاک",
@@ -562,8 +562,8 @@ function StandardAccountPage({
   return (
     <TopBarNavigationLayout
       activeKey="account"
-      contentClassName="bg-[#f0f0f0] pb-4"
-      frameClassName="relative bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      contentClassName="bg-surface-container pb-4"
+      frameClassName="relative bg-surface-container text-on-surface [direction:rtl]"
       overlay={accountOverlay}
       topBar={accountTopBar}
     >
@@ -572,12 +572,12 @@ function StandardAccountPage({
       ) : (
         <>
           {isLoggedIn ? (
-            <section className="shrink-0 bg-white" aria-label="وضعیت حساب">
+            <section className="shrink-0 bg-surface-container-lowest" aria-label="وضعیت حساب">
               <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
                 <AccountProfileAvatar
                   avatarUrl={accountHeader.avatarUrl}
                   className="h-[72px] w-[72px]"
-                  iconClassName="h-8 w-8 text-[#cccccc]"
+                  iconClassName="h-8 w-8 text-outline"
                   label={accountHeader.label}
                 />
 
@@ -588,7 +588,7 @@ function StandardAccountPage({
                   >
                     {accountHeader.label}
                   </Typography>
-                  <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-[#808080] [direction:ltr]">
+                  <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-outline [direction:ltr]">
                     {formatMobileForDisplay(displayMobile)}
                   </Typography>
                 </div>
@@ -601,23 +601,23 @@ function StandardAccountPage({
 
           <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession, profile, agencyProfile, activeRole) : loggedOutBusinessActions} />
 
-          <div className="h-4 bg-[#f0f0f0]" />
+          <div className="h-4 bg-surface-container" />
 
           <AccountSection actions={isLoggedIn ? primaryAccountActions : loggedOutPrimaryActions} />
 
-          <div className="h-4 bg-[#f0f0f0]" />
+          <div className="h-4 bg-surface-container" />
 
           <AccountSection actions={secondaryActions} />
 
-          <div className="h-4 bg-[#f0f0f0]" />
+          <div className="h-4 bg-surface-container" />
 
-          <section className="bg-white px-4 py-1">
+          <section className="bg-surface-container-lowest px-4 py-1">
             <ThemeToggleRow />
           </section>
 
           {isLoggedIn ? (
             <>
-              <div className="h-4 bg-[#f0f0f0]" />
+              <div className="h-4 bg-surface-container" />
               <AccountSection
                 actions={[
                   {
@@ -640,9 +640,9 @@ function StandardAccountSkeleton() {
     <>
       <AccountHeaderSkeleton />
       <AccountMenuSkeleton count={1} />
-      <div className="h-4 bg-[#f0f0f0]" />
+      <div className="h-4 bg-surface-container" />
       <AccountMenuSkeleton count={6} />
-      <div className="h-4 bg-[#f0f0f0]" />
+      <div className="h-4 bg-surface-container" />
       <AccountMenuSkeleton count={3} />
     </>
   );
@@ -653,7 +653,7 @@ function BusinessAccountSkeleton() {
     <>
       <AccountHeaderSkeleton />
       <AccountMenuSkeleton count={3} />
-      <div className="h-4 bg-[#f0f0f0]" />
+      <div className="h-4 bg-surface-container" />
       <AccountMenuSkeleton count={6} />
     </>
   );
@@ -661,7 +661,7 @@ function BusinessAccountSkeleton() {
 
 function AccountHeaderSkeleton() {
   return (
-    <section className="bg-white" aria-label="در حال دریافت اطلاعات حساب">
+    <section className="bg-surface-container-lowest" aria-label="در حال دریافت اطلاعات حساب">
       <div className="flex h-32 items-center gap-4 px-4 [direction:rtl]">
         <AccountSkeletonBlock className="h-[72px] w-[72px] shrink-0 rounded-full" />
         <div className="min-w-0 flex-1 space-y-3 text-right">
@@ -676,7 +676,7 @@ function AccountHeaderSkeleton() {
 
 function AccountMenuSkeleton({ count }: { count: number }) {
   return (
-    <section className="bg-white" aria-label="در حال دریافت گزینه‌های حساب">
+    <section className="bg-surface-container-lowest" aria-label="در حال دریافت گزینه‌های حساب">
       {Array.from({ length: count }).map((_, index) => (
         <div key={index}>
           <div className="flex h-14 items-center gap-2 px-4 [direction:ltr]">
@@ -692,7 +692,7 @@ function AccountMenuSkeleton({ count }: { count: number }) {
 }
 
 function AccountSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-[#e8e8e8] ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
 }
 
 function clearBusinessSuccessQuery() {
@@ -727,25 +727,25 @@ function AccountBusinessSuccessSheet({
         <div className="mx-auto grid h-[132px] w-[132px] place-items-center rounded-full">
           <img src="/vectors/States.svg" alt="" />
         </div>
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-2 text-sm font-semibold leading-5 text-[#11A366]">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-2 text-sm font-semibold leading-5 text-tertiary">
           حساب شما با موفقیت ثبت شد
         </Typography>
-        <div className="flex flex-col gap-2.5 mt-2 space-y-1 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
+        <div className="flex flex-col gap-2.5 mt-2 space-y-1 text-right text-sm font-normal leading-5 text-on-surface-var">
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex gap-2">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-tertiary" />
             <Typography as="span" variant="body" size="medium" weight="regular">برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</Typography>
           </Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex gap-2">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-[#11A366]" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-tertiary" />
             <Typography as="span" variant="body" size="medium" weight="regular">سپس یکی از بسته‌های اعتباری را خریداری کنید.</Typography>
           </Typography>
         </div>
         <Button unstyled
-          className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white"
+          className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-primary px-4 text-sm font-semibold leading-5 text-on-primary"
           onClick={() => navigateTo("/account/credit/panel")}
           type="button"
         >
-          <LinearWalletAdd color="white" className="w-5 h-5 text-white" />
+          <LinearWalletAdd color="white" className="w-5 h-5 text-on-primary" />
           <Typography as="span" variant="body" size="medium" weight="regular">افزایش اعتبار</Typography>
         </Button>
       </div>
@@ -776,7 +776,7 @@ function AccountLogoutConfirmSheet({
       ariaLabel="خروج از حساب"
       className="rounded-t-[16px]"
       contentClassName="px-4 pt-[18px] pb-6"
-      handleClassName="h-1 w-10 rounded-full bg-[#cccccc]"
+      handleClassName="h-1 w-10 rounded-full bg-outline-var"
       heightClassName=""
       isOpen={isOpen}
       onClose={handleClose}
@@ -785,13 +785,13 @@ function AccountLogoutConfirmSheet({
       showHeaderDivider={false}
       zIndexClassName="z-[1001]"
     >
-      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-center font-medium leading-5 text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-center font-medium leading-5 text-on-surface">
         مایل به خروج از حساب خود هستید؟
       </Typography>
 
       <div className="mt-3 grid grid-cols-2 gap-3 [direction:ltr]">
         <Button unstyled
-          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
+          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest px-4 text-xs font-semibold leading-4 text-primary disabled:opacity-60"
           disabled={isPending}
           onClick={onConfirm}
           type="button"
@@ -799,7 +799,7 @@ function AccountLogoutConfirmSheet({
           {isPending ? "..." : "بله"}
         </Button>
         <Button unstyled
-          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-[#0048c4] bg-white px-4 text-xs font-semibold leading-4 text-[#0048c4] disabled:opacity-60"
+          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest px-4 text-xs font-semibold leading-4 text-primary disabled:opacity-60"
           disabled={isPending}
           onClick={handleClose}
           type="button"
@@ -828,12 +828,12 @@ function getAccountHeader(profile?: UserProfile) {
   const avatarUrl = profile?.avatar ? getApiAssetUrl(profile.avatar) : "";
 
   if (!isIdentityVerified) {
-    return { avatarUrl, color: "#C11004", label: "احراز هویت نشده" };
+    return { avatarUrl, color: "var(--error)", label: "احراز هویت نشده" };
   }
 
   return {
     avatarUrl,
-    color: "#0048C4",
+    color: "var(--primary)",
     label: fullName || "کاربر شناسا",
   };
 }
@@ -865,7 +865,7 @@ function AccountProfileAvatar({
 
   return (
     <div className={`relative shrink-0 overflow-visible ${className}`}>
-      <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#F0F0F0] text-[#CCCCCC]">
+      <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-surface-container text-outline">
         {showAvatar ? (
           <img
             alt={label}
@@ -936,10 +936,10 @@ function useLogoutAccount() {
 
 function LoggedOutAccountHeader() {
   return (
-    <section className="bg-white pt-4" aria-label="ورود به حساب">
+    <section className="bg-surface-container-lowest pt-4" aria-label="ورود به حساب">
       <div className="px-4 pb-2 pt-2">
         <RouteLink
-          className="flex h-14 w-full items-center gap-2 rounded-xl border border-[#0048c4] px-4 text-[#0048c4] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          className="flex h-14 w-full items-center gap-2 rounded-xl border border-primary px-4 text-primary [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
           to="/login/phone"
         >
           <ChevronLeftIcon className="h-6 w-6 shrink-0" />
@@ -949,7 +949,7 @@ function LoggedOutAccountHeader() {
           <LinearLock className="w-5 h-5" />
         </RouteLink>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-5 text-[#4d4d4d]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-5 text-on-surface-var">
           برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
         </Typography>
       </div>
@@ -972,7 +972,7 @@ function AccountSection({
   }
 
   return (
-    <section className={`bg-white ${className}`} aria-label="گزینه‌های حساب">
+    <section className={`bg-surface-container-lowest ${className}`} aria-label="گزینه‌های حساب">
       {actions.map((action, index) => (
         <AccountMenuRow
           action={action}
@@ -1008,7 +1008,7 @@ function AccountMenuRow({
         ) : null
       ) : (
         <ChevronLeftIcon
-          className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : isWarning ? "text-amber-500" : "text-[#4d4d4d]"}`}
+          className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : isWarning ? "text-amber-500" : "text-on-surface-var"}`}
         />
       )}
       <Typography
@@ -1023,7 +1023,7 @@ function AccountMenuRow({
         {action.label}
       </Typography>
       <AccountIcon
-        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : isWarning ? "text-amber-600" : "text-[#4d4d4d]"}`}
+        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : isWarning ? "text-amber-600" : "text-on-surface-var"}`}
         name={action.icon}
       />
     </>
@@ -1034,7 +1034,7 @@ function AccountMenuRow({
       <>
         <div
           aria-disabled="true"
-          className="flex h-14 w-full cursor-not-allowed items-center gap-2 bg-amber-50/50 px-4 text-[#1a1a1a] [direction:ltr]"
+          className="flex h-14 w-full cursor-not-allowed items-center gap-2 bg-amber-50/50 px-4 text-on-surface [direction:ltr]"
         >
           {content}
         </div>
@@ -1047,7 +1047,7 @@ function AccountMenuRow({
     <>
       {action.to ? (
         <RouteLink
-          className="flex w-full cursor-pointer items-center gap-2 bg-white p-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          className="flex w-full cursor-pointer items-center gap-2 bg-surface-container-lowest p-4 text-on-surface [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
           onClick={(event) => {
             if (action.requiresAuth && !getStoredAuthSession()) {
               event.preventDefault();
@@ -1068,7 +1068,7 @@ function AccountMenuRow({
         </RouteLink>
       ) : (
         <Button unstyled
-          className="flex h-14 w-full cursor-pointer items-center gap-2 bg-white px-4 text-[#1a1a1a] [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440]"
+          className="flex h-14 w-full cursor-pointer items-center gap-2 bg-surface-container-lowest px-4 text-on-surface [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
           onClick={action.onClick}
           type="button"
         >
@@ -1083,7 +1083,7 @@ function AccountMenuRow({
 function Divider({ spaced = false }: { spaced?: boolean }) {
   return (
     <div className={spaced ? "py-0.5" : ""} aria-hidden="true">
-      <div className="mx-4 h-px bg-[#cccccc]" />
+      <div className="mx-4 h-px bg-outline-var" />
     </div>
   );
 }
@@ -1100,14 +1100,14 @@ function AccountNotificationButton() {
   return (
     <RouteLink
       aria-label="اعلان‌ها"
-      className="relative grid h-10 w-10 place-items-center rounded-full text-[#1a1a1a] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+      className="relative grid h-10 w-10 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
       to="/notifications"
     >
       <LinearNotification className="h-6 w-6" />
       {unreadNotificationsCount > 0 ? (
         <Typography as="span" variant="body" size="medium" weight="regular"
           aria-hidden="true"
-          className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-white"
+          className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container-lowest"
         />
       ) : null}
     </RouteLink>

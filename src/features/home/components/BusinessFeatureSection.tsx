@@ -31,7 +31,7 @@ export function BusinessFeatureSection() {
 
   return (
     <section
-      className="border-t-[16px] border-[#f0f0f0] bg-white px-4 pb-4 pt-4"
+      className="border-t-[16px] border-outline-var bg-surface-container-lowest px-4 pb-4 pt-4"
       aria-labelledby="business-feature-title"
     >
       <div className="flex items-start gap-2">

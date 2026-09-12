@@ -40,7 +40,7 @@ export function AccountIdentityPage() {
         : "ثبت تغییر مالکیت سیم‌کارت";
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]">
       <TopBar
         backTo="/account"
         onBack={
@@ -53,7 +53,7 @@ export function AccountIdentityPage() {
         }
         title={title}
       />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
         {step === "pending" ? (
           <IdentityPendingState
             initialNationalnumber={profile?.nationalnumber ?? ""}
@@ -93,7 +93,7 @@ export function AccountIdentityPage() {
         ariaLabel="هشدار تغییر مالکیت سیم‌کارت"
         className="!rounded-t-[16px] flex flex-col"
         contentClassName="flex min-h-0 flex-1 flex-col"
-        handleClassName="h-1 w-[60px] rounded-full bg-[#808080]"
+        handleClassName="h-1 w-[60px] rounded-full bg-outline-var"
         isOpen={isOwnershipWarningOpen}
         onClose={() => !transferOwnership.isPending && setIsOwnershipWarningOpen(false)}
         panelPaddingClassName="pt-1.5"
@@ -101,15 +101,15 @@ export function AccountIdentityPage() {
         variant="confirm"
       >
         <div className="min-h-0 flex-1 px-4 pt-4">
-          <div className="flex items-center justify-start gap-2 text-[#1a1a1a]">
+          <div className="flex items-center justify-start gap-2 text-on-surface">
             <WarningTriangleIcon className="h-6 w-6 shrink-0" />
             <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">هشدار</Typography>
           </div>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-right text-base font-normal leading-8 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-right text-base font-normal leading-8 text-on-surface">
             با اعلام «تغییر مالکیت سیم‌کارت»، همهٔ آگهی‌های این حساب کاربری
             {" "}
-            <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr" className="whitespace-nowrap text-[#1a1a1a]">
+            <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr" className="whitespace-nowrap text-on-surface">
               ({mobile})
             </Typography>
             {" "}
@@ -117,7 +117,7 @@ export function AccountIdentityPage() {
           </Typography>
         </div>
 
-        <div className="shrink-0 bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
+        <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
           <Button
             className="h-10"
             disabled={transferOwnership.isPending}

@@ -8,8 +8,8 @@ type SearchMapGeofencePreviewLayerProps = {
 };
 
 const PREVIEW_POLYGON_OPTIONS = {
-  color: "#0048c4",
-  fillColor: "#0048c4",
+  color: "var(--primary)",
+  fillColor: "var(--primary)",
   fillOpacity: 0.24,
   interactive: false,
   lineCap: "round" as const,

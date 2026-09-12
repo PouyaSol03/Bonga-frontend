@@ -355,7 +355,7 @@ export function BusinessFormPage({
       bottomBar={
         <div className="grid grid-cols-2 gap-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
           <Button unstyled
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#0048c4] bg-white px-4 text-sm font-semibold leading-5 text-[#0048c4]"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-primary"
             onClick={() => navigateTo("/account/business/create")}
             type="button"
           >
@@ -363,7 +363,7 @@ export function BusinessFormPage({
             <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
           </Button>
           <Button unstyled
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-semibold leading-5 text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitting || disabledSubmit}
             onClick={handleSubmit}
             type="button"
@@ -406,8 +406,8 @@ export function BusinessFormPage({
 
           {fields}
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-6 text-[#4d4d4d]">
-            با ثبت‌نام در کسب‌وکار ایران شناسا <RouteLink className="font-semibold text-[#0048c4] underline" to="/account/about">قوانین و مقررات</RouteLink> سایت را قبول کرده‌اید.
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-6 text-on-surface-var">
+            با ثبت‌نام در کسب‌وکار ایران شناسا <RouteLink className="font-semibold text-primary underline" to="/account/about">قوانین و مقررات</RouteLink> سایت را قبول کرده‌اید.
           </Typography>
         </div>
       </form>
@@ -445,13 +445,13 @@ export function AgencyFields({
         <RequiredLabel>نام آژانس املاک</RequiredLabel>
         <input
           aria-invalid={Boolean(agencyNameError)}
-          className={`mt-2 h-14 w-full rounded-xl border bg-white px-4 text-right text-base font-normal leading-6 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] ${agencyNameError ? "border-[#c11004]" : "border-[#cccccc]"}`}
+          className={`mt-2 h-14 w-full rounded-xl border bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline focus:border-primary ${agencyNameError ? "border-error" : "border-outline-var"}`}
           onChange={(event) => setAgencyName(event.target.value)}
           placeholder="مثال: املاک نوروزیان"
           value={agencyName}
         />
         {agencyNameError ? (
-          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-error">
             {agencyNameError}
           </Typography>
         ) : null}
@@ -469,7 +469,7 @@ export function AgencyFields({
           />
         </div>
         {neighborhoodsError ? (
-          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-[#c11004]">
+          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-error">
             {neighborhoodsError}
           </Typography>
         ) : null}
@@ -498,7 +498,7 @@ function ActivityAreaSelect({
   return (
     <div
       aria-invalid={Boolean(error)}
-      className={`flex min-h-14 w-full cursor-pointer items-center gap-2 rounded-[16px] border bg-white py-3 pl-3 pr-4 text-base font-normal leading-6 transition focus-within:border-[#0048c4] focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-[#0048c440] ${error ? "border-[#c11004]" : "border-[#808080]"
+      className={`flex min-h-14 w-full cursor-pointer items-center gap-2 rounded-[16px] border bg-surface-container-lowest py-3 pl-3 pr-4 text-base font-normal leading-6 transition focus-within:border-primary focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-primary/40 ${error ? "border-error" : "border-outline"
         }`}
       onClick={onClick}
       onKeyDown={(event) => {
@@ -518,7 +518,7 @@ function ActivityAreaSelect({
             return (
               <Button unstyled
                 aria-label={`حذف ${neighborhood.name}`}
-                className="inline-flex h-9 max-w-[132px] shrink-0 items-center gap-2 rounded-[8px] bg-[#f2f4fa] px-3 text-sm font-semibold leading-5 text-[#0048c4] active:bg-[#e8edf8]"
+                className="inline-flex h-9 max-w-[132px] shrink-0 items-center gap-2 rounded-[8px] bg-primary-container px-3 text-sm font-semibold leading-5 text-primary active:bg-primary-container/80"
                 key={neighborhoodId}
                 onClick={(event) => {
                   event.preventDefault();
@@ -528,24 +528,24 @@ function ActivityAreaSelect({
                 type="button"
               >
                 <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{neighborhood.name}</Typography>
-                <LinearCancelSmall className="w-5 h-5 text-[#4D4D4D]" />
+                <LinearCancelSmall className="w-5 h-5 text-on-surface-var" />
               </Button>
             );
           })
         ) : (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right text-[#a6a6a6]">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right text-outline">
             {placeholder}
           </Typography>
         )}
       </div>
 
       {hasValue ? (
-        <Typography as="span" variant="label" size="large" weight="semibold" className="grid w-8 h-8 shrink-0 place-items-center rounded-[8px] bg-[#0048c4] text-base font-semibold leading-6 text-white">
+        <Typography as="span" variant="label" size="large" weight="semibold" className="grid w-8 h-8 shrink-0 place-items-center rounded-[8px] bg-primary text-base font-semibold leading-6 text-on-primary">
           {selectedNeighborhoods.length}
         </Typography>
       ) : null}
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center text-[#4d4d4d]">
+      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center text-on-surface-var">
         <LinearArrowLeft1 className="h-5 w-5" />
       </Typography>
     </div>
@@ -561,14 +561,14 @@ export function BusinessCreationShell({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account" title="ایجاد کسب و کار" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-4 pt-4 [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-4 pt-4 [-webkit-overflow-scrolling:touch]">
         {children}
       </main>
-      <div className="relative z-20 shrink-0 bg-white shadow-[0_-8px_26px_rgba(26,26,26,0.08)]">
+      <div className="relative z-20 shrink-0 bg-surface-container-lowest shadow-sm">
         {bottomBar}
       </div>
     </PageFrame>
@@ -583,23 +583,23 @@ export function BusinessHero({
   showInfoButton?: boolean;
 }) {
   return (
-    <section className="mx-4 rounded-[24px] bg-white px-6 pb-6 pt-7 shadow-[0_14px_35px_rgba(26,26,26,0.06)]">
+    <section className="mx-4 rounded-[24px] bg-surface-container-lowest px-6 pb-6 pt-7 shadow-sm">
       <div className="relative overflow-hidden pb-1 text-right">
         <div
           aria-hidden="true"
-          className="absolute bottom-2 left-1 h-8 w-44 opacity-80 [background-image:radial-gradient(#cccccc_1.4px,transparent_1.4px)] [background-size:8px_8px]"
+          className="absolute bottom-2 left-1 h-8 w-44 opacity-80 [background-image:radial-gradient(var(--outline-var)_1.4px,transparent_1.4px)] [background-size:8px_8px]"
         />
         <Typography
           as="p"
           variant="headline"
           size="large"
-          className="relative m-0 flex items-baseline justify-start gap-2 text-[32px] font-black tracking-[-0.04em] text-[#0048c4]"
+          className="relative m-0 flex items-baseline justify-start gap-2 text-[32px] font-black tracking-[-0.04em] text-primary"
         >
           <Typography
             as="span"
             variant="headline"
             size="large"
-            className="rounded-sm bg-[#e6fff1] px-1 text-[32px] font-black text-[#11a366]"
+            className="rounded-sm bg-tertiary-container/30 px-1 text-[32px] font-black text-tertiary"
           >
             کسب و کار
           </Typography>
@@ -607,7 +607,7 @@ export function BusinessHero({
             as="span"
             variant="headline"
             size="large"
-            className="text-[32px] font-black text-[#0048c4]"
+            className="text-[32px] font-black text-primary"
           >
             خودتو
           </Typography>
@@ -616,7 +616,7 @@ export function BusinessHero({
           as="p"
           variant="headline"
           size="large"
-          className="relative m-0 mt-1 text-[32px] font-black tracking-[-0.04em] text-[#0048c4]"
+          className="relative m-0 mt-1 text-[32px] font-black tracking-[-0.04em] text-primary"
         >
           راه بنداز!
         </Typography>
@@ -624,7 +624,7 @@ export function BusinessHero({
 
       {showInfoButton && infoType ? (
         <Button unstyled
-          className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-[#0048c4] bg-white px-3 text-[#0048c4]"
+          className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-primary bg-surface-container-lowest px-3 text-primary"
           onClick={() => navigateTo(getBusinessInfoPath(infoType))}
           type="button"
         >
@@ -655,8 +655,8 @@ export function BusinessTypeCard({
     <Button unstyled
       aria-pressed={isSelected}
       className={`flex h-[76px] w-full items-center rounded-2xl border px-4 text-right transition-colors ${isSelected
-        ? "border-[#0048c4] bg-[#eef3ff] text-[#0048c4]"
-        : "border-[#cccccc] bg-white text-[#4d4d4d]"
+        ? "border-primary bg-primary-container text-primary"
+        : "border-outline-var bg-surface-container-lowest text-on-surface-var"
         }`}
       onClick={onClick}
       type="button"
@@ -664,7 +664,7 @@ export function BusinessTypeCard({
       <ChoiceIndicator checked={isSelected} className="h-[18px] w-[18px]" type="radio" />
       <span
         aria-hidden="true"
-        className={`mx-4 h-10 w-px shrink-0 ${isSelected ? "bg-[#b7c9ec]" : "bg-[#dedede]"}`}
+        className={`mx-4 h-10 w-px shrink-0 ${isSelected ? "bg-primary-container" : "bg-outline-var"}`}
       />
       <span className="flex min-w-0 flex-1 items-center gap-2">
         {icon}
@@ -673,7 +673,7 @@ export function BusinessTypeCard({
           variant="label"
           size="large"
           weight="medium"
-          className={`min-w-0 truncate ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}
+          className={`min-w-0 truncate ${isSelected ? "text-primary" : "text-on-surface"}`}
         >
           {label}
         </Typography>
@@ -683,7 +683,7 @@ export function BusinessTypeCard({
             variant="label"
             size="small"
             weight="medium"
-            className="shrink-0 rounded-md border border-[#11a366] bg-[#eafff3] px-2 py-1 text-[#11a366]"
+            className="shrink-0 rounded-md border border-tertiary bg-tertiary-container/30 px-2 py-1 text-tertiary"
           >
             {badge}
           </Typography>
@@ -703,20 +703,20 @@ function ActivationNotice({
   const isAgency = businessType === "agency";
 
   return (
-    <section className="rounded-2xl border border-[#11a366] bg-[#effff7] p-4 text-right text-[#008a57]">
+    <section className="rounded-2xl border border-tertiary bg-tertiary-container/20 p-4 text-right text-tertiary">
       <div className="flex items-start gap-3 [direction:ltr]">
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex items-center justify-between gap-2">
             <div className="flex gap-2.5">
               <Dashboard className="w-6 h-6"/>
-              <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-[#00a66a]">
+              <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-tertiary">
                 پنل شما آماده فعال‌سازی است!
               </Typography>
             </div>
 
             <Button unstyled
               aria-label="بستن پیام"
-              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[#4d4d4d] active:bg-[#1a1a1a0a]"
+              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var active:bg-surface-container"
               onClick={onClose}
               type="button"
             >
@@ -724,12 +724,12 @@ function ActivationNotice({
             </Button>
           </div>
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm font-normal leading-6 text-[#00784e]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm font-normal leading-6 text-tertiary">
             {isAgency
               ? "پس از ورود به پنل آژانس، پرداخت اشتراک پنل آژانس خود را به مدت ۱ سال فعال کنید و از بسته‌های پیش‌فرض حرفه‌ای بهره‌مند شوید."
               : "با ایجاد کسب‌وکار مشاور، پروفایل حرفه‌ای خود را فعال کنید و به ابزارهای تخصصی مدیریت فایل‌ها، مشتریان و فعالیت‌های روزانه دسترسی داشته باشید."}
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-[#00784e]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-tertiary">
             {isAgency
               ? "همین حالا ثبت‌نام را انجام دهید و وارد دنیای حرفه‌ای املاک شوید!"
               : "همین حالا کسب‌وکار خود را ایجاد کنید و فعالیت حرفه‌ای خود را در بازار املاک آغاز کنید!"}
@@ -755,22 +755,22 @@ export function BusinessInfoCard({
   const Icon = card.Icon;
 
   return (
-    <article className="bg-white px-4 pb-5 pt-6 text-right">
+    <article className="bg-surface-container-lowest px-4 pb-5 pt-6 text-right">
       <div className="flex items-start gap-2.5">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] bg-[#0048c4] text-white">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] bg-primary text-on-primary">
           <Icon aria-hidden="true" className="h-6 w-6" />
         </Typography>
         <div className="min-w-0">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#0048c4]">
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-primary">
             {card.title}
           </Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-[#4d4d4d]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-on-surface-var">
             {card.subtitle}
           </Typography>
         </div>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-2xl bg-[#f5f5f5]">
+      <div className="mt-4 overflow-hidden rounded-2xl bg-surface-container">
         <img
           alt=""
           className="h-[250px] w-full object-cover object-center"
@@ -789,7 +789,7 @@ export function BusinessInfoCard({
                   variant="label"
                   size="large"
                   weight="semibold"
-                  className="m-0 text-[#1a1a1a]"
+                  className="m-0 text-on-surface"
                 >
                   {section.title}
                 </Typography>
@@ -801,14 +801,14 @@ export function BusinessInfoCard({
                   variant="body"
                   size="large"
                   weight="regular"
-                  className={`m-0 text-[#1a1a1a] ${section.title ? "mt-1" : ""}`}
+                  className={`m-0 text-on-surface ${section.title ? "mt-1" : ""}`}
                 >
                   {section.description}
                 </Typography>
               ) : null}
 
               {section.bullets?.length ? (
-                <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-[#1a1a1a] marker:text-[#11A366]">
+                <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-on-surface marker:text-tertiary">
                   {section.bullets.map((bullet) => (
                     <li key={bullet} className="pr-1">
                       {bullet}
@@ -823,7 +823,7 @@ export function BusinessInfoCard({
                   variant="body"
                   size="large"
                   weight="regular"
-                  className="m-0 mt-1 text-[#1a1a1a]"
+                  className="m-0 mt-1 text-on-surface"
                 >
                   {section.afterBullets}
                 </Typography>
@@ -834,13 +834,13 @@ export function BusinessInfoCard({
       ) : (
         <>
           {card.description ? (
-            <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+            <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
               {card.description}
             </Typography>
           ) : null}
 
           {card.bullets?.length ? (
-            <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-[#1a1a1a] marker:text-[#11A366]">
+            <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-on-surface marker:text-tertiary">
               {card.bullets.map((bullet) => (
                 <li key={bullet} className="pr-1">
                   {bullet}
@@ -856,9 +856,9 @@ export function BusinessInfoCard({
 
 export function RequiredLabel({ children }: { children: ReactNode }) {
   return (
-    <label className="block text-right text-base font-semibold leading-6 text-[#1a1a1a]">
+    <label className="block text-right text-base font-semibold leading-6 text-on-surface">
       {children}
-      <Typography as="span" variant="body" size="medium" weight="regular" className="mr-1 text-[#c11004]">*</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="mr-1 text-error">*</Typography>
     </label>
   );
 }

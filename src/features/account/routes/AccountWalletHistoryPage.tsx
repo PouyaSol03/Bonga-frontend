@@ -12,7 +12,7 @@ export function AccountWalletHistoryPage() {
     <AccountPageShell title="تاریخچه پرداخت کیف پول">
       <main
         className={`min-h-0 flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden ${
-          isEmpty ? "bg-white" : "bg-[#F0F0F0]"
+          isEmpty ? "bg-surface-container-lowest" : "bg-surface-container"
         }`}
       >
         {isLoading ? <PaymentHistorySkeleton count={4} /> : null}
@@ -40,7 +40,7 @@ export function AccountWalletHistoryPage() {
 
 function WalletHistoryEmptyState() {
   return (
-    <section className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center bg-white px-6 text-center">
+    <section className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center bg-surface-container-lowest px-6 text-center">
       <img
         alt=""
         aria-hidden="true"
@@ -53,7 +53,7 @@ function WalletHistoryEmptyState() {
         variant="title"
         size="medium"
         weight="semibold"
-        className="m-0 mt-4 text-base font-semibold leading-6 text-[#1a1a1a]"
+        className="m-0 mt-4 text-base font-semibold leading-6 text-on-surface"
       >
         هیچ تراکنشی برای نمایش وجود ندارد!
       </Typography>
@@ -63,7 +63,7 @@ function WalletHistoryEmptyState() {
         variant="body"
         size="small"
         weight="regular"
-        className="m-0 mt-2 max-w-[290px] text-xs font-normal leading-5 text-[#4d4d4d]"
+        className="m-0 mt-2 max-w-[290px] text-xs font-normal leading-5 text-on-surface-var"
       >
         پس از اولین پرداخت، سوابق تراکنش‌های شما در این بخش نمایش داده خواهد شد.
       </Typography>

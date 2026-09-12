@@ -108,12 +108,12 @@ const badgeGuides: BadgeGuide[] = [
 export function DashboardBadgesGuidePage() {
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-[#f0f0f0] text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account/dashboard/ranking" title="راهنمای نشان‌ها" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {badgeGuides.map((badge, index) => (
           <BadgeGuideSection badge={badge} key={badge.id} sectionIndex={index} />
         ))}
@@ -124,25 +124,25 @@ export function DashboardBadgesGuidePage() {
 
 function BadgeGuideSection({ badge, sectionIndex }: { badge: BadgeGuide; sectionIndex: number }) {
   return (
-    <section className="bg-white px-4 py-4 text-right">
-      {sectionIndex > 0 ? <div className="-mx-4 mb-4 h-5 bg-[#f0f0f0]" aria-hidden="true" /> : null}
+    <section className="bg-surface-container-lowest px-4 py-4 text-right">
+      {sectionIndex > 0 ? <div className="-mx-4 mb-4 h-5 bg-surface-container" aria-hidden="true" /> : null}
 
-      <div className="flex h-[88px] items-center justify-center gap-4 rounded-2xl border border-[#f5f5f5] bg-linear-to-b from-blue-50 to-white px-5">
+      <div className="flex h-[88px] items-center justify-center gap-4 rounded-2xl border border-outline-var bg-linear-to-b from-primary-container/40 to-surface-container-lowest px-5">
         <img alt="" className="h-14 w-14 shrink-0 object-contain" src={badge.image} />
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-[#0048c4]">
+        <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-primary">
           {badge.title}
         </Typography>
       </div>
 
       <div className="mt-6">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
           سطوح نشان
         </Typography>
-        <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-3 text-[#1a1a1a]">
+        <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-3 text-on-surface">
           {badge.levelsIntro}
         </Typography>
 
-        <div className="mt-2 space-y-1 text-sm font-normal leading-6 text-[#1A1A1A]">
+        <div className="mt-2 space-y-1 text-sm font-normal leading-6 text-on-surface">
           {badge.levels.map((level, index) => (
             <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex items-center gap-2" key={level}>
               <StarRating count={index + 1} />
@@ -153,28 +153,28 @@ function BadgeGuideSection({ badge, sectionIndex }: { badge: BadgeGuide; section
         </div>
 
         <div className="mt-12">
-          <Typography as="h2" variant="headline" size="large" className="m-0 flex items-center gap-2 font-semibold leading-6 text-[#0048c4]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#0048c4]" />
+          <Typography as="h2" variant="headline" size="large" className="m-0 flex items-center gap-2 font-semibold leading-6 text-primary">
+            <Typography as="span" variant="body" size="medium" weight="regular" className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
             <Typography as="span" variant="title" size="medium" weight="semibold">{badge.indicatorTitle}</Typography>
           </Typography>
-          <Typography as="p" variant="body" size="large" weight="regular" className="mt-2 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="mt-2 text-on-surface">
             {badge.indicatorDescription}
           </Typography>
         </div>
 
         <div className="mt-4">
-          <Typography as="h3" variant="label" size="large" weight="semibold" className="m-0 text-[#1a1a1a]">
+          <Typography as="h3" variant="label" size="large" weight="semibold" className="m-0 text-on-surface">
             {badge.factorsTitle}
           </Typography>
-          <ul className="m-0 mt-2 space-y-2 pr-4 text-sm font-normal leading-6 text-[#1A1A1A]">
+          <ul className="m-0 mt-2 space-y-2 pr-4 text-sm font-normal leading-6 text-on-surface">
             {badge.factors.map((factor) => (
               <li className="flex items-start gap-3" key={factor}>
-                <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#11a366]" />
+                <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary" />
                 <Typography as="span" variant="body" size="large" weight="regular">{factor}</Typography>
               </li>
             ))}
           </ul>
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-[#1a1a1a]">
+          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
             {badge.summary}
           </Typography>
         </div>
@@ -191,7 +191,7 @@ function StarRating({ count }: { count: number }) {
 
         return (
           <LinearStar
-            className={`h-3 w-3 ${isActive ? "text-[#ffb100]" : "text-[#d8d8d8]"}`}
+            className={`h-3 w-3 ${isActive ? "text-warning" : "text-outline"}`}
             innerColor="currentColor"
             key={star}
           />

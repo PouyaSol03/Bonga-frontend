@@ -32,7 +32,7 @@ function SearchMapHeaderComponent({
   onBack,
 }: SearchMapHeaderProps) {
   return (
-    <header className="absolute inset-x-0 top-0 z-[500] bg-[#f0f0f0]">
+    <header className="absolute inset-x-0 top-0 z-[500] bg-surface-container">
       <TopBar
         backTo="/home"
         onBack={onBack}

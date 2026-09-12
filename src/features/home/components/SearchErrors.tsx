@@ -60,11 +60,11 @@ export default function SearchErrors({
           draggable={false}
         />
 
-        <Typography as="p" variant="title" size="medium" weight="semibold" className="mb-2 text-[#1a1a1a]">
+        <Typography as="p" variant="title" size="medium" weight="semibold" className="mb-2 text-on-surface">
           {content.title}
         </Typography>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="text-[#4D4D4D]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="text-on-surface-var">
           {content.description}
         </Typography>
       </div>

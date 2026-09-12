@@ -74,6 +74,7 @@ export type CrmAdvertisePayload = {
 export type CrmUserFilters = {
   mobile?: string;
   name?: string;
+  nationalnumber?: string;
 };
 
 export type CrmAgencyFilters = {
@@ -467,6 +468,7 @@ export async function listCrmUsers(filters: CrmUserFilters = {}) {
     per_page: 50,
     mobile: filters.mobile?.trim(),
     name: filters.name?.trim(),
+    nationalnumber: filters.nationalnumber?.trim(),
   };
 
   return normalizeRows(

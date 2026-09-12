@@ -11,9 +11,14 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
   const [mobile, setMobile] = useState("");
   const [name, setName] = useState("");
+  const [nationalnumber, setNationalnumber] = useState("");
   const filters = useMemo(
-    () => ({ mobile: mobile.trim(), name: name.trim() }),
-    [mobile, name],
+    () => ({
+      mobile: mobile.trim(),
+      name: name.trim(),
+      nationalnumber: nationalnumber.trim(),
+    }),
+    [mobile, name, nationalnumber],
   );
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
@@ -58,7 +63,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
       fields: [
         { label: "نام", name: "name", value: user.name },
         { label: "نام خانوادگی", name: "family", value: user.family },
-        ...(!id ? [{ label: "کد ملی", name: "nationalnumber", value: user.nationalnumber }] : []),
+        { label: "کد ملی", name: "nationalnumber", value: user.nationalnumber },
         { label: "شماره موبایل", name: "mobile", value: user.mobile },
         { label: "ایمیل", name: "email", type: "email", value: user.email },
         {
@@ -83,12 +88,9 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
           family: values.family ?? "",
           mobile: values.mobile ?? "",
           name: values.name ?? "",
+          nationalnumber: values.nationalnumber ? values.nationalnumber.trim() : "",
           roles: selectedRoleSlugs,
         };
-
-        if (!id) {
-          payload.nationalnumber = values.nationalnumber ?? "";
-        }
 
         await saveMutation.mutateAsync({ id, payload });
       },
@@ -101,11 +103,12 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
   const renderUsersTable = (users: CrmRecord[], emptyMessage: string) => (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[980px] border-separate border-spacing-0 text-right">
+      <table className="w-full min-w-[1040px] border-separate border-spacing-0 text-right">
         <thead>
           <tr className="text-sm font-bold text-[#4d4d4d]">
             <TableHead>نام</TableHead>
             <TableHead>موبایل</TableHead>
+            <TableHead>کد ملی</TableHead>
             <TableHead>نقش‌ها</TableHead>
             <TableHead>وضعیت</TableHead>
             <TableHead>تایید کد ملی</TableHead>
@@ -120,22 +123,51 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
               const isActive = Number(user.status) === 1;
               const isAuthorized = Number(user.authorized) === 1;
               const roles = userRoleSlugs(user);
+              const nationalCode = readText(user, ["nationalnumber", "national_code", "national_id"]).trim();
+              const hasNationalCode = Boolean(nationalCode);
+              const isValidNationalCode = hasNationalCode && /^\d{10}$/.test(nationalCode);
 
               return (
                 <tr key={id}>
                   <TableCell><Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{fullName(user)}</Typography></TableCell>
                   <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(user, ["mobile"])}</Typography></TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1.5">
-                        {roles.length > 0 ? roles.map((role) => (
-                          <Typography as="span" variant="label" size="small" weight="semibold"
-                            className="rounded-lg border border-[#cbd8ed] bg-[#f6f9ff] px-2 py-1 text-xs font-bold text-[#0048c4]"
-                            key={role}
-                          >
-                            {userRoleOptions.find((option) => option.value === role)?.label ?? role}
-                          </Typography>
-                        )) : <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#919aa8]">بدون نقش</Typography>}
-                      </div>
+                  <TableCell>
+                    <div className="flex flex-col gap-1 items-start">
+                      <Typography as="span" variant="body" size="medium" weight="medium" dir="ltr" className="font-mono text-sm text-[#1a1a1a]">
+                        {hasNationalCode ? nationalCode : "-"}
+                      </Typography>
+                      <Typography
+                        as="span"
+                        variant="label"
+                        size="small"
+                        weight="semibold"
+                        className={`inline-flex rounded-md px-1.5 py-0.5 text-[11px] font-medium ${
+                          hasNationalCode
+                            ? isValidNationalCode
+                              ? "bg-[#e9f8f0] text-[#0b8b55]"
+                              : "bg-[#fff7ed] text-[#c2410c]"
+                            : "bg-[#f4f6f8] text-[#7b8494]"
+                        }`}
+                      >
+                        {hasNationalCode
+                          ? isValidNationalCode
+                            ? "ثبت شده"
+                            : "فرمت نامعتبر"
+                          : "ثبت نشده"}
+                      </Typography>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1.5">
+                      {roles.length > 0 ? roles.map((role) => (
+                        <Typography as="span" variant="label" size="small" weight="semibold"
+                          className="rounded-lg border border-[#cbd8ed] bg-[#f6f9ff] px-2 py-1 text-xs font-bold text-[#0048c4]"
+                          key={role}
+                        >
+                          {userRoleOptions.find((option) => option.value === role)?.label ?? role}
+                        </Typography>
+                      )) : <Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#919aa8]">بدون نقش</Typography>}
+                    </div>
                   </TableCell>
                   <TableCell><UserStatusBadge status={user.status} /></TableCell>
                   <TableCell>
@@ -183,7 +215,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
               );
             })
           ) : (
-            <TableEmptyRow columns={7} message={emptyMessage} />
+            <TableEmptyRow columns={8} message={emptyMessage} />
           )}
         </tbody>
       </table>
@@ -209,12 +241,16 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
           <FilterField label="نام کاربر">
             <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="نام یا نام خانوادگی" value={name} />
           </FilterField>
-          {(mobile || name) ? (
+          <FilterField label="کد ملی">
+            <input className={inputClassName} onChange={(event) => setNationalnumber(event.target.value)} placeholder="0012345678" value={nationalnumber} />
+          </FilterField>
+          {(mobile || name || nationalnumber) ? (
             <Button unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setMobile("");
                 setName("");
+                setNationalnumber("");
               }}
               type="button"
             >

@@ -687,16 +687,29 @@ export function NoteCard({
 }
 
 export function IdentityPendingState({
+  initialNationalnumber = "",
   isPending,
+  isAuthenticated = true,
+  isVerifying = false,
   showRequiredNotice = false,
   onVerify,
 }: {
+  initialNationalnumber?: string;
   isPending: boolean;
+  isAuthenticated?: boolean;
+  isVerifying?: boolean;
   showRequiredNotice?: boolean;
   onVerify: (nationalnumber: string) => void;
 }) {
   const mobile = getStoredAuthSession()?.mobile ?? "-";
-  const [nationalnumber, setNationalnumber] = useState("");
+  const [nationalnumber, setNationalnumber] = useState(initialNationalnumber);
+
+  useEffect(() => {
+    if (initialNationalnumber && !nationalnumber) {
+      setNationalnumber(initialNationalnumber);
+    }
+  }, [initialNationalnumber]);
+
   const normalizedNationalnumber = nationalnumber.trim();
   const isNationalnumberComplete = normalizedNationalnumber.length === 10;
 
@@ -710,6 +723,42 @@ export function IdentityPendingState({
             </Typography>
             <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs font-normal leading-5">
               برای ادامه استفاده از حساب، ابتدا کد ملی مالک شماره همراه را تایید کنید.
+            </Typography>
+          </div>
+        </section>
+      ) : null}
+
+      {!isAuthenticated ? (
+        <section className="px-4 pt-3">
+          <div className="rounded-xl border border-[#0048c4] bg-[#f0f5ff] p-4 text-right">
+            <Typography as="p" variant="body" size="medium" weight="semibold" className="m-0 text-sm font-semibold text-[#0048c4]">
+              برای تایید هویت، ابتدا وارد شوید
+            </Typography>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-[#4d4d4d] leading-5">
+              برای ثبت و اعتبارسنجی کد ملی، لازم است ابتدا با شماره همراه خود وارد حساب کاربری شوید.
+            </Typography>
+            <div className="mt-3">
+              <Button
+                onClick={() => {
+                  window.location.assign(`/login/phone?returnTo=${encodeURIComponent("/account/identity")}`);
+                }}
+                size="sm"
+                type="button"
+                variant="primary"
+              >
+                ورود با شماره همراه
+              </Button>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {isVerifying || isPending ? (
+        <section className="px-4 pt-3">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#0048C4] bg-[#0048C40D] p-4 text-[#0048C4]">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#0048C4] border-t-transparent shrink-0" />
+            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm">
+              در حال اعتبارسنجی شما هستیم...
             </Typography>
           </div>
         </section>
@@ -752,6 +801,7 @@ export function IdentityPendingState({
         <TextField
           className="text-sm text-[#1a1a1a]"
           containerClassName="mt-4"
+          disabled={isPending}
           inputMode="numeric"
           label="کد ملی مالک شماره همراه"
           maxLength={10}
@@ -763,7 +813,7 @@ export function IdentityPendingState({
 
       <div className="absolute inset-x-0 bottom-0 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button
-          disabled={!isNationalnumberComplete}
+          disabled={!isAuthenticated || !isNationalnumberComplete || isPending}
           fullWidth
           loading={isPending}
           onClick={() => onVerify(normalizedNationalnumber)}
@@ -772,7 +822,7 @@ export function IdentityPendingState({
           type="button"
           variant="primary"
         >
-          {isPending ? "در حال بررسی..." : "بررسی و تایید هویت"}
+          {isPending ? "در حال اعتبارسنجی شما هستیم..." : "بررسی و تایید هویت"}
         </Button>
       </div>
     </>

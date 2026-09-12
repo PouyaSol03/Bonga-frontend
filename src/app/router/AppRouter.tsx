@@ -278,6 +278,7 @@ function getResolvedPath() {
     route.Component !== RouteNotFoundPage &&
     path.startsWith('/account') &&
     path !== '/account' &&
+    path !== '/account/identity' &&
     !getStoredAuthSession()
   ) {
     storeLoginRedirectPath(returnTo)

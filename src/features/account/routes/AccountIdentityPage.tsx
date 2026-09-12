@@ -20,7 +20,9 @@ export function AccountIdentityPage() {
   const transferOwnership = useTransferSimOwnershipMutation();
   const { data: profile } = useMyProfileQuery();
   const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
-  const mobile = getStoredAuthSession()?.mobile ?? "-";
+  const authSession = getStoredAuthSession();
+  const isAuthenticated = Boolean(authSession);
+  const mobile = authSession?.mobile ?? "-";
 
   useEffect(() => {
     if (isUserIdentityVerified(profile) && step === "pending") {
@@ -52,7 +54,10 @@ export function AccountIdentityPage() {
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
         {step === "pending" ? (
           <IdentityPendingState
+            initialNationalnumber={profile?.nationalnumber ?? ""}
+            isAuthenticated={isAuthenticated}
             isPending={authorize.isPending}
+            isVerifying={Boolean(profile?.nationalnumber && !isUserIdentityVerified(profile))}
             showRequiredNotice={isAuthRequired}
             onVerify={(nationalnumber) => {
               authorize.mutate(

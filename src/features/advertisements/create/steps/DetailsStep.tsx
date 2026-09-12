@@ -428,7 +428,7 @@ export function DetailsStep({
                 setField("builderSharePercent", normalizedPercent);
               }
             }}
-            placeholder="درصد مشارکت / درصد سهم *"
+            placeholder="درصد مشارکت / درصد سهم"
             value={values.builderSharePercent}
           />
         </Section>

@@ -700,26 +700,13 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
     if (!hasRequiredText(values.landArea)) errors.landArea = "لطفا متراژ زمین را وارد کنید.";
     if (!hasRequiredText(values.landPosition)) errors.landPosition = "لطفا موقعیت زمین را انتخاب کنید.";
 
-    if (!hasRequiredText(values.documentType)) errors.documentType = "لطفا نوع سند را انتخاب کنید.";
-    if (!hasRequiredText(values.landWidth)) errors.landWidth = "لطفا عرض زمین را وارد کنید.";
-    if (!hasRequiredText(values.streetWidth)) errors.streetWidth = "لطفا عرض گذر را وارد کنید.";
-
-    if (!hasRequiredText(values.builderSharePercent)) {
-      errors.builderSharePercent = "لطفا درصد مشارکت / سهم را وارد کنید.";
-    } else if (Number(values.builderSharePercent.replace(/,/g, "")) > 100) {
+    if (values.builderSharePercent && Number(values.builderSharePercent.replace(/,/g, "")) > 100) {
       errors.builderSharePercent = "درصد مشارکت / سهم نمی‌تواند بیشتر از ۱۰۰ درصد باشد.";
     }
   } else if (isProject) {
-    if (!hasRequiredText(values.builderCompanyName)) errors.builderCompanyName = "لطفا نام سازنده/شرکت را وارد کنید.";
     if (!hasRequiredText(values.projectType)) errors.projectType = "لطفا نوع پروژه را انتخاب کنید.";
     if (!hasRequiredText(values.projectTotalFloors)) errors.projectTotalFloors = "لطفا تعداد کل طبقات را وارد کنید.";
     if (!hasRequiredText(values.projectTotalUnits)) errors.projectTotalUnits = "لطفا تعداد کل واحدها را وارد کنید.";
-    if (!hasRequiredText(values.documentType)) errors.documentType = "لطفا سند را انتخاب کنید.";
-    if (!hasRequiredText(values.projectStatus)) errors.projectStatus = "لطفا وضعیت پروژه را انتخاب کنید.";
-    if (!hasRequiredText(values.projectDeliveryDate)) errors.projectDeliveryDate = "لطفا تاریخ تحویل را انتخاب کنید.";
-    if (!values.projectDetails.some((item) => hasRequiredText(item.meterage || item.minMeterage))) {
-      errors.projectDetails = "حداقل یک مورد از جزییات پروژه را تکمیل کنید.";
-    }
     if (!hasRequiredText(values.minPrice)) errors.minPrice = "لطفا حداقل قیمت متری را وارد کنید.";
     if (!hasRequiredText(values.maxPrice)) errors.maxPrice = "لطفا حداکثر قیمت متری را وارد کنید.";
   } else if (isDailyRent) {

@@ -82,12 +82,6 @@ export function ProjectSpecsSection({
               <Typography as="span" variant="label" size="medium" weight="medium">ثبت ۴ مشخصات دیگر</Typography>
               <Typography as="span" variant="title" size="large" weight="medium">‹</Typography>
             </Button>
-
-            {errors.documentType || errors.landWidth || errors.streetWidth ? (
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-right text-xs text-[#ff3b30]">
-                لطفا مشخصات بیشتر مشارکت را تکمیل کنید.
-              </Typography>
-            ) : null}
           </div>
         </Section>
       </>
@@ -122,7 +116,7 @@ export function ProjectSpecsSection({
           <SelectBox
             onClick={() => onOpenSelect("documentType", "سند", documentTypeOptions)}
             error={errors.documentType}
-            placeholder="سند *"
+            placeholder="سند"
             value={values.documentType}
           />
 
@@ -134,12 +128,6 @@ export function ProjectSpecsSection({
             <Typography as="span" variant="label" size="medium" weight="medium">ثبت ۸ مشخصات دیگر</Typography>
             <LinearArrowLeft2 className="h-4 w-4 text-[#0048c4]" />
           </Button>
-
-          {errors.builderCompanyName || errors.projectStatus || errors.projectDeliveryDate ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-right text-xs text-[#ff3b30]">
-              لطفا مشخصات بیشتر را تکمیل کنید.
-            </Typography>
-          ) : null}
         </div>
       </Section>
 

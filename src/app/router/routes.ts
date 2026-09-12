@@ -49,7 +49,7 @@ const AccessDeniedPage = lazyNamed(() => import('../../features/system/AccessDen
 const MyAccountPage = lazyNamed(() => import('../../features/account/MyAccountPage'), 'MyAccountPage')
 const NewAdCategoryPage = lazyNamed(() => import('../../features/advertisements/create/NewAdCategoryPage'), 'NewAdCategoryPage')
 const NewAdFlowPage = lazyNamed(() => import('../../features/advertisements/create/NewAdFlowPage'), 'NewAdFlowPage')
-const NewAdLocationPage = lazyNamed(() => import('../../features/advertisements/create/NewAdFlowPage'), 'NewAdLocationPage')
+const NewAdLocationPage = lazyNamed(() => import('../../features/advertisements/create/NewAdLocationPage'), 'NewAdLocationPage')
 const OnboardingPage = lazyNamed(() => import('../../features/onboarding/OnboardingPage'), 'OnboardingPage')
 const CrmOverviewPage = lazyNamed(() => import('../../features/crm/routes/CrmOverviewPage'), 'CrmOverviewPage')
 const CrmAdvertisesPage = lazyNamed(() => import('../../features/crm/routes/CrmAdvertisesPage'), 'CrmAdvertisesPage')

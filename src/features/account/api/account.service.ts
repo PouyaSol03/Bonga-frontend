@@ -13,6 +13,7 @@ import type { AdvertisementItem } from "../../advertisements/api/advertisement.s
 export type UserProfile = {
   _id?: string;
   agency_id?: string | number | null;
+  agency_status?: number | string | null;
   authorized?: number;
   authorize_date?: string | null;
   avatar?: string | null;

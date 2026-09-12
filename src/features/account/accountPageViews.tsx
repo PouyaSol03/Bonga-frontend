@@ -753,7 +753,23 @@ export function IdentityPendingState({
         </section>
       ) : null}
 
-      {isVerifying || isPending ? (
+      {isVerifying && !isPending ? (
+        <section className="px-4 pt-3">
+          <div className="rounded-xl border border-[#ff9800] bg-[#fff8e1] p-4 text-right">
+            <div className="flex items-center gap-2 text-[#e65100]">
+              <LinearInfoCircle className="h-5 w-5 shrink-0" />
+              <Typography as="p" variant="body" size="medium" weight="semibold" className="m-0 text-sm font-semibold">
+                در انتظار تایید ادمین
+              </Typography>
+            </div>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-[#5d4037] leading-5">
+              کد ملی شما ({initialNationalnumber}) با موفقیت ثبت شده و در انتظار بررسی و تایید توسط ادمین است.
+            </Typography>
+          </div>
+        </section>
+      ) : null}
+
+      {isPending ? (
         <section className="px-4 pt-3">
           <div className="flex items-center gap-2.5 rounded-xl border border-[#0048C4] bg-[#0048C40D] p-4 text-[#0048C4]">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#0048C4] border-t-transparent shrink-0" />
@@ -822,7 +838,7 @@ export function IdentityPendingState({
           type="button"
           variant="primary"
         >
-          {isPending ? "در حال اعتبارسنجی شما هستیم..." : "بررسی و تایید هویت"}
+          {isPending ? "در حال اعتبارسنجی شما هستیم..." : isVerifying ? "ویرایش و ثبت مجدد کد ملی" : "بررسی و تایید هویت"}
         </Button>
       </div>
     </>

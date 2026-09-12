@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
-import { useCreateMyAgentMutation } from "../api/account.hooks";
+import { useCreateMyAgentMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BusinessFormPage, RequiredLabel, normalizePhoneDigits } from "../businessCreationShared";
 import type { BusinessToast } from "../businessCreationShared";
 
 export function IndependentConsultantBusinessCreationPage() {
+  const { data: profile } = useMyProfileQuery();
+  const isAgencyPending = Boolean(
+    profile?.agency_id &&
+      (profile?.agency_status === 0 ||
+        profile?.agency_status === "0" ||
+        profile?.agency_status === "wait" ||
+        String(profile?.agency_status).toLowerCase() === "wait"),
+  );
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [toast, setToast] = useState<BusinessToast | null>(null);
@@ -63,6 +71,7 @@ export function IndependentConsultantBusinessCreationPage() {
   return (
     <BusinessFormPage
       businessType="independent-consultant"
+      disabledSubmit={isAgencyPending}
       fields={
         <>
           <div>
@@ -88,6 +97,7 @@ export function IndependentConsultantBusinessCreationPage() {
         </>
       }
       isSubmitting={createAgentMutation.isPending}
+      lockedMessage={isAgencyPending ? "در انتظار ادمین برای تایید کسب و کار شما" : undefined}
       onDismissToast={() => setToast(null)}
       onSubmit={handleSubmitAgent}
       toast={toast}

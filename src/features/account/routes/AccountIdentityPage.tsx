@@ -67,8 +67,7 @@ export function AccountIdentityPage() {
                     showNotice(getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"));
                   },
                   onSuccess: () => {
-                    setStep("verified");
-                    showNotice("کد ملی با موفقیت تایید شد");
+                    showNotice("کد ملی با موفقیت ثبت شد و در انتظار تایید ادمین است");
                   },
                 },
               );

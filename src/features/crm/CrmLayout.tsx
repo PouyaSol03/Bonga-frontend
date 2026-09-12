@@ -16,8 +16,16 @@ import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/se
 import { searchMapTileConfig } from "../search/searchMapData";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
-import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
-import { getCrmRecordId, type CrmConsultantStatus, type CrmRecord } from "./api/crm.service";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getCrmRecordId,
+  listCrmAdvertises,
+  listCrmAgencies,
+  listCrmAgents,
+  listCrmUsers,
+  type CrmConsultantStatus,
+  type CrmRecord,
+} from "./api/crm.service";
 import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../shared/auth/auth-storage";
 import {
   CRM_ADVERTISE_MANAGER,
@@ -467,6 +475,78 @@ export function CrmLayout({
     .filter(Boolean)
     .join(" ") || "مدیر سامانه";
 
+  const isSuperAdmin = crmRoleSlugs.includes("superadmin") || crmRoleSlugs.includes(SUPER_ADMIN);
+
+  const { data: crmAds } = useQuery({
+    enabled: isSuperAdmin || allowedSections.has("advertises"),
+    queryFn: () => listCrmAdvertises(),
+    queryKey: ["crm", "badges", "advertises", refreshNonce],
+    staleTime: 30_000,
+  });
+
+  const { data: crmUsers } = useQuery({
+    enabled: isSuperAdmin || allowedSections.has("users"),
+    queryFn: () => listCrmUsers(),
+    queryKey: ["crm", "badges", "users", refreshNonce],
+    staleTime: 30_000,
+  });
+
+  const { data: crmAgencies } = useQuery({
+    enabled: isSuperAdmin || allowedSections.has("agencies"),
+    queryFn: () => listCrmAgencies(),
+    queryKey: ["crm", "badges", "agencies", refreshNonce],
+    staleTime: 30_000,
+  });
+
+  const { data: crmConsultants } = useQuery({
+    enabled: isSuperAdmin || allowedSections.has("consultants"),
+    queryFn: () => listCrmAgents(),
+    queryKey: ["crm", "badges", "consultants", refreshNonce],
+    staleTime: 30_000,
+  });
+
+  const pendingCounts = useMemo<Partial<Record<CrmSection, number>>>(() => {
+    const counts: Partial<Record<CrmSection, number>> = {};
+
+    if (crmAds) {
+      counts.advertises = crmAds.filter((ad) => {
+        const s = String(ad.status ?? "").trim().toLowerCase();
+        return (
+          s === "wait_for_admin" ||
+          s === "review_requested" ||
+          s === "wait" ||
+          s === "1" ||
+          s === "0"
+        );
+      }).length;
+    }
+
+    if (crmUsers) {
+      counts.users = crmUsers.filter((u) => {
+        const hasNational = Boolean(u.nationalnumber && String(u.nationalnumber).trim());
+        const isAuth =
+          u.authorized === true ||
+          u.authorized === 1 ||
+          u.authorized === "1" ||
+          Number(u.authorized) === 1;
+        return hasNational && !isAuth;
+      }).length;
+    }
+
+    if (crmAgencies) {
+      counts.agencies = crmAgencies.filter((a) => normalizeAgencyStatus(a.status) === "wait").length;
+    }
+
+    if (crmConsultants) {
+      counts.consultants = crmConsultants.filter((c) => {
+        const s = String(c.status ?? "").trim().toLowerCase();
+        return s === "pending" || s === "wait" || s === "0";
+      }).length;
+    }
+
+    return counts;
+  }, [crmAds, crmUsers, crmAgencies, crmConsultants]);
+
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-[#f3f3f3] text-[#1a1a1a]" dir="rtl">
       <header className="flex h-[80px] shrink-0 items-center justify-between bg-white px-6">
@@ -542,6 +622,7 @@ export function CrmLayout({
             {visibleNavigationItems.map((item) => {
               const itemMeta = sectionMeta[item.section];
               const isActive = section === item.section;
+              const pendingCount = pendingCounts[item.section] ?? 0;
 
               return (
                 <RouteLink
@@ -553,9 +634,25 @@ export function CrmLayout({
                   title={isSidebarCollapsed ? itemMeta.title : undefined}
                   to={itemMeta.path}
                 >
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0"><CrmIcon name={item.icon} /></Typography>
+                  <span className="relative flex shrink-0 items-center justify-center">
+                    <CrmIcon name={item.icon} />
+                    {isSidebarCollapsed && pendingCount > 0 ? (
+                      <span className="absolute -left-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#e53935] px-1 text-[10px] font-bold text-white shadow-sm">
+                        {pendingCount > 99 ? "+99" : pendingCount}
+                      </span>
+                    ) : null}
+                  </span>
                   {!isSidebarCollapsed ? (
-                    <Typography as="span" variant="label" size="medium" weight="semibold" className={isActive ? "font-bold" : "font-medium"}>{itemMeta.title}</Typography>
+                    <div className="flex min-w-0 flex-1 items-center justify-between">
+                      <Typography as="span" variant="label" size="medium" weight="semibold" className={`truncate ${isActive ? "font-bold" : "font-medium"}`}>
+                        {itemMeta.title}
+                      </Typography>
+                      {pendingCount > 0 ? (
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#e53935] px-1.5 text-xs font-bold text-white shadow-sm">
+                          {pendingCount > 99 ? "+99" : pendingCount}
+                        </span>
+                      ) : null}
+                    </div>
                   ) : isActive ? (
                     <Typography as="span" variant="body" size="medium" weight="regular" className="absolute mt-8 h-1 w-1 rounded-full bg-[#0048c4]" />
                   ) : null}
@@ -1664,11 +1761,21 @@ export function StatusBadge({ status }: { status: unknown }) {
 export function normalizeAgencyStatus(status: unknown): "wait" | "accept" | "reject" {
   const normalized = String(status ?? "").trim().toLowerCase();
 
-  if (normalized === "accept" || normalized === "accepted" || normalized === "approved") {
+  if (
+    normalized === "accept" ||
+    normalized === "accepted" ||
+    normalized === "approved" ||
+    normalized === "1"
+  ) {
     return "accept";
   }
 
-  if (normalized === "reject" || normalized === "rejected" || normalized === "denied") {
+  if (
+    normalized === "reject" ||
+    normalized === "rejected" ||
+    normalized === "denied" ||
+    normalized === "2"
+  ) {
     return "reject";
   }
 

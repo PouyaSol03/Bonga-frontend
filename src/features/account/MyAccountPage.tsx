@@ -62,9 +62,11 @@ const MANAGE_ADS_PATH = "/account/manage-ads";
 
 type AccountAction = {
   activeRole?: AuthRoleSlug;
+  badge?: string;
+  disabled?: boolean;
   icon: AccountIconName;
   label: string;
-  tone?: "default" | "danger";
+  tone?: "default" | "danger" | "warning";
   onClick?: () => void;
   requiresAuth?: boolean;
   to?: string;
@@ -472,6 +474,26 @@ function getCreatedBusinessActions(
   activeRole?: string | null,
 ) {
   if (!authSession) return userBusinessActions;
+
+  const isAgencyPending = Boolean(
+    profile?.agency_id &&
+      (profile?.agency_status === 0 ||
+        profile?.agency_status === "0" ||
+        profile?.agency_status === "wait" ||
+        String(profile?.agency_status).toLowerCase() === "wait"),
+  );
+
+  if (isAgencyPending) {
+    return [
+      {
+        badge: "در انتظار",
+        disabled: true,
+        icon: "info" as const,
+        label: "در انتظار ادمین برای تایید کسب و کار شما",
+        tone: "warning" as const,
+      },
+    ];
+  }
 
   const actions = getAccountSwitchActions(authSession, activeRole ?? USER, profile, agencyProfile);
 
@@ -963,28 +985,53 @@ function AccountMenuRow({
   spacedDivider?: boolean;
 }) {
   const isDanger = action.tone === "danger";
+  const isWarning = action.tone === "warning";
+  const isDisabled = Boolean(action.disabled);
+
   const content = (
     <>
-      <ChevronLeftIcon
-        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : "text-[#4d4d4d]"}`}
-      />
+      {isDisabled ? (
+        action.badge ? (
+          <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+            {action.badge}
+          </span>
+        ) : null
+      ) : (
+        <ChevronLeftIcon
+          className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : isWarning ? "text-amber-500" : "text-[#4d4d4d]"}`}
+        />
+      )}
       <Typography
         as="span"
         variant="label"
         size="large"
         weight="medium"
         className={`flex-1 text-right text-base font-medium [direction:rtl] ${
-          isDanger ? "text-on-error-container" : ""
+          isDanger ? "text-on-error-container" : isWarning ? "text-amber-800" : ""
         }`}
       >
         {action.label}
       </Typography>
       <AccountIcon
-        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : "text-[#4d4d4d]"}`}
+        className={`h-6 w-6 shrink-0 ${isDanger ? "text-error" : isWarning ? "text-amber-600" : "text-[#4d4d4d]"}`}
         name={action.icon}
       />
     </>
   );
+
+  if (isDisabled) {
+    return (
+      <>
+        <div
+          aria-disabled="true"
+          className="flex h-14 w-full cursor-not-allowed items-center gap-2 bg-amber-50/50 px-4 text-[#1a1a1a] [direction:ltr]"
+        >
+          {content}
+        </div>
+        {hasDivider ? <Divider spaced={spacedDivider} /> : null}
+      </>
+    );
+  }
 
   return (
     <>

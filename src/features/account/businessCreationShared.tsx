@@ -21,6 +21,7 @@ import LinearCity from "../../shared/icons/LinearCity";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearTick from "../../shared/icons/LinearTick";
 import LinearArrowRight1 from "../../shared/icons/LinearArrowRight1";
+import LinearInformation from "../../shared/icons/LinearInformation";
 
 export type BusinessType = "agency" | "independent-consultant";
 
@@ -320,13 +321,17 @@ export function navigateTo(path: string, state?: unknown) {
 
 export function BusinessFormPage({
   businessType,
+  disabledSubmit = false,
   fields,
   isSubmitting = false,
+  lockedMessage,
   onSubmit,
 }: {
   businessType: BusinessType;
+  disabledSubmit?: boolean;
   fields: ReactNode;
   isSubmitting?: boolean;
+  lockedMessage?: string;
   onDismissToast?: () => void;
   onSubmit?: () => boolean | Promise<boolean>;
   toast?: BusinessToast | null;
@@ -334,7 +339,7 @@ export function BusinessFormPage({
   const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || disabledSubmit) return;
 
     const canContinue = onSubmit ? await onSubmit() : true;
 
@@ -358,8 +363,8 @@ export function BusinessFormPage({
             <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
           </Button>
           <Button unstyled
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef]"
-            disabled={isSubmitting}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[#0048c4] px-4 text-sm font-semibold leading-5 text-white disabled:bg-[#b3c8ef] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting || disabledSubmit}
             onClick={handleSubmit}
             type="button"
           >
@@ -379,6 +384,19 @@ export function BusinessFormPage({
         />
 
         <div className="mt-4 space-y-6 px-4 pb-32">
+          {lockedMessage ? (
+            <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-right">
+              <LinearInformation className="h-6 w-6 shrink-0 text-amber-600 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <Typography as="p" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold text-amber-800">
+                  {lockedMessage}
+                </Typography>
+                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs leading-5 text-amber-700">
+                  درخواست قبلی شما برای ثبت کسب‌وکار در انتظار تایید ادمین است. تا زمان تایید، امکان ارسال فرم جدید وجود ندارد.
+                </Typography>
+              </div>
+            </div>
+          ) : null}
           {isNoticeVisible ? (
             <ActivationNotice
               businessType={businessType}

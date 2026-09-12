@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
-import { useCreateMyAgencyMutation } from "../api/account.hooks";
+import { useCreateMyAgencyMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationShared";
@@ -12,6 +12,14 @@ import {
 } from "../agencyCreationDraft";
 
 export function AgencyBusinessCreationPage() {
+  const { data: profile } = useMyProfileQuery();
+  const isAgencyPending = Boolean(
+    profile?.agency_id &&
+      (profile?.agency_status === 0 ||
+        profile?.agency_status === "0" ||
+        profile?.agency_status === "wait" ||
+        String(profile?.agency_status).toLowerCase() === "wait"),
+  );
   const initialDraft = useMemo(() => readAgencyCreationDraft(), []);
   const [agencyName, setAgencyName] = useState(initialDraft.agencyName);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -73,6 +81,7 @@ export function AgencyBusinessCreationPage() {
   return (
     <BusinessFormPage
       businessType="agency"
+      disabledSubmit={isAgencyPending}
       fields={
         <AgencyFields
           agencyName={agencyName}
@@ -88,6 +97,7 @@ export function AgencyBusinessCreationPage() {
         />
       }
       isSubmitting={createAgencyMutation.isPending}
+      lockedMessage={isAgencyPending ? "در انتظار ادمین برای تایید کسب و کار شما" : undefined}
       onDismissToast={() => setToast(null)}
       onSubmit={handleSubmitAgency}
       toast={toast}

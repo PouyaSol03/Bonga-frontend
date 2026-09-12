@@ -72,6 +72,7 @@ export function getNotificationSocket() {
         token,
       },
       autoConnect: false,
+      withCredentials: true,
     });
   }
 

@@ -151,15 +151,6 @@ export const DASHBOARD_PATH = '/account/dashboard'
 export const CRM_PATH = '/crm'
 export const LEGACY_DASHBOARD_PATH = '/dashboard'
 
-function LoginRedirect() {
-  useEffect(() => {
-    window.history.replaceState({}, '', LOGIN_PATH)
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  }, [])
-
-  return null
-}
-
 function DashboardMessagesRedirect() {
   useEffect(() => {
     window.history.replaceState({}, '', '/chat')
@@ -255,8 +246,8 @@ export const routes: AppRoute[] = [
   },
   {
     path: '/login',
-    title: 'حساب من',
-    Component: LoginRedirect,
+    title: 'ورود به حساب کاربری',
+    Component: LoginPhonePage,
   },
   {
     path: '/account',

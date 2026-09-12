@@ -12,10 +12,15 @@ import {
   type PropertyRequestCreateInput,
 } from "./property-request.service";
 
-export function usePropertyRequestsQuery(page = 1, perPage = 20) {
+export function usePropertyRequestsQuery(
+  page = 1,
+  perPage = 20,
+  options?: { enabled?: boolean },
+) {
   const scope = getPropertyRequestScope();
 
   return useQuery({
+    enabled: options?.enabled ?? true,
     queryFn: () => getPropertyRequests(page, perPage),
     queryKey: queryKeys.propertyRequests.list(scope.ownerType, page, perPage),
   });

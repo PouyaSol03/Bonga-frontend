@@ -977,12 +977,14 @@ export function SearchMapPage() {
   const { message, showNotice } = useTransientNotice();
   const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
   const createPropertyRequestMutation = useCreatePropertyRequestMutation();
-  const propertyRequestsQuery = usePropertyRequestsQuery(1, 10);
+  const isAuthenticated = Boolean(getStoredAuthSession());
+  const propertyRequestsQuery = usePropertyRequestsQuery(1, 10, {
+    enabled: isAuthenticated,
+  });
   const requestResultsPath =
     getPropertyRequestScope().ownerType === "agency"
       ? "/account/dashboard/requests?tab=results"
       : "/account/requests?tab=results";
-  const isAuthenticated = Boolean(getStoredAuthSession());
   const savedSearchesQuery = useSavedSearchesQuery(isAuthenticated);
   const saveSearchMutation = useSaveSearchMutation();
   const currentSearch = searchSnapshot;

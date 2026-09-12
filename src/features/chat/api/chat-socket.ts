@@ -117,7 +117,8 @@ export function getChatSocket(category: ChatCategory = "advertise") {
         token: token ? `Bearer ${token}` : "",
       },
       autoConnect: false,
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
+      withCredentials: true,
     });
     chatSockets.set(category, chatSocket);
   }

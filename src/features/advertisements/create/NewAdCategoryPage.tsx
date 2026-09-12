@@ -6,6 +6,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { Chip } from "../../../shared/ui/Chip";
 
 type TransactionType = "sale" | "rent" | "project";
 type RegistrantType = "" | "personal" | "agency";
@@ -183,15 +184,16 @@ function TransactionSegmentedControl({
         className={`grid grid-cols-3 overflow-hidden border border-[#808080] bg-white [direction:rtl] ${desktop ? "mx-auto max-w-[720px] rounded-xl" : "rounded-[17px]"}`}
         role="tablist"
       >
-        {transactionTabs.map((type, index) => {
+        {transactionTabs.map((type) => {
           const config = transactionConfigs[type];
           const isActive = type === activeType;
 
           return (
             <Button unstyled
               aria-selected={isActive}
-              className={`min-w-0 py-2 text-center text-base font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${index > 0 ? "border-r border-[#cccccc]" : ""
-                } ${isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"}`}
+              className={`min-w-0 py-2 text-center text-base font-medium leading-7 transition focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
+                isActive ? "bg-[#0048c41f] text-[#002099]" : "bg-white text-[#1a1a1a]"
+              }`}
               key={type}
               onClick={() => onChange(type)}
               role="tab"
@@ -206,20 +208,6 @@ function TransactionSegmentedControl({
   );
 }
 
-function SelectedCheckIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path
-        d="M4.5 10.2l3.4 3.4 7.6-8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
-
 function CategoryChip({
   isSelected,
   label,
@@ -230,17 +218,13 @@ function CategoryChip({
   onClick: () => void;
 }) {
   return (
-    <Button unstyled
-      className={`flex items-center justify-center gap-1 rounded-[10px] border p-2 max-h-9 !text-sm !font-medium leading-7 [direction:rtl] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440] ${isSelected
-        ? "border-[#0048c4] bg-[#0048c41f] text-[#0048c4]"
-        : "border-[#cccccc] bg-white text-[#1a1a1a]"
-        }`}
+    <Chip
+      className="h-9"
       onClick={onClick}
-      type="button"
+      selected={isSelected}
     >
-      {isSelected ? <SelectedCheckIcon /> : null}
-      <Typography as="span" variant="body" size="medium" weight="regular">{label}</Typography>
-    </Button>
+      {label}
+    </Chip>
   );
 }
 

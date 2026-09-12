@@ -54,6 +54,7 @@ export type AuthSession = {
   mobile: string;
   role: AuthRoleSlug;
   roles: AuthRole[];
+  userId?: string;
 };
 
 const authSessionKey = "bonga-auth-session";
@@ -68,7 +69,7 @@ export const authSessionChangedEventName = authSessionChangedEvent;
 export function setStoredAuthSession(session: AuthSession) {
   const role = normalizeAuthRoleSlug(session.role);
   const activeRole = normalizeAuthRoleSlug(session.activeRole ?? role);
-  const roles = session.roles
+  const roles = ((Array.isArray(session.roles) ? session.roles : []) as AuthRole[])
     .map((item, index): AuthRole => ({
       id: String(item.id ?? index + 1),
       name: item.name || normalizeAuthRoleSlug(item.slug),
@@ -83,10 +84,14 @@ export function setStoredAuthSession(session: AuthSession) {
   }
 
   const normalizedSession: AuthSession = {
-    ...session,
+    accessToken: session.accessToken ?? "",
+    accountType: String(session.accountType ?? role),
     activeRole,
+    expiresAt: typeof session.expiresAt === "number" ? session.expiresAt : null,
+    mobile: String(session.mobile ?? ""),
     role,
     roles,
+    userId: session.userId ? String(session.userId) : undefined,
   };
 
   window.localStorage.setItem(authSessionKey, JSON.stringify(normalizedSession));
@@ -102,6 +107,11 @@ export function getStoredAuthSession() {
     const parsed = JSON.parse(value) as AuthSession;
 
     if (parsed.expiresAt !== null && parsed.expiresAt <= Date.now()) {
+      clearStoredAuthSession();
+      return null;
+    }
+
+    if (!parsed.accessToken || typeof parsed.accessToken !== "string" || !parsed.accessToken.trim()) {
       clearStoredAuthSession();
       return null;
     }
@@ -134,10 +144,14 @@ export function getStoredAuthSession() {
     }
 
     const session: AuthSession = {
-      ...parsed,
+      accessToken: String(parsed.accessToken ?? ""),
+      accountType: String(parsed.accountType ?? role),
       activeRole,
+      expiresAt: typeof parsed.expiresAt === "number" ? parsed.expiresAt : null,
+      mobile: String(parsed.mobile ?? ""),
       role,
       roles,
+      userId: parsed.userId ? String(parsed.userId) : undefined,
     };
 
     if (JSON.stringify(parsed) !== JSON.stringify(session)) {

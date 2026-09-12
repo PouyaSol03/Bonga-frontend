@@ -76,12 +76,14 @@ function SearchMapController({
   center,
   centerSignal = 0,
   resizeSignal = 0,
+  selectedListing,
   onBoundsChange,
   onMapClick,
 }: {
   center: SearchMapCenter;
   centerSignal?: number;
   resizeSignal?: number;
+  selectedListing?: SearchMapListing | null;
   onBoundsChange: (bounds: SearchMapBounds) => void;
   onMapClick: () => void;
 }) {
@@ -91,10 +93,75 @@ function SearchMapController({
   }, [map, onBoundsChange]);
 
   useMapEvents({
-    click: onMapClick,
+    click: (event) => {
+      const originalEvent = event.originalEvent;
+      const target = originalEvent?.target as HTMLElement | null;
+      if (
+        target?.closest(".leaflet-marker-icon") ||
+        target?.closest(".search-map-marker-wrapper") ||
+        target?.closest(".search-map-dot-hit-area") ||
+        target?.closest(".search-map-price-hit-area") ||
+        target?.closest(".search-map-marker") ||
+        target?.closest(".search-map-dot") ||
+        target?.closest("[data-map-slider-card]")
+      ) {
+        return;
+      }
+      onMapClick();
+    },
     moveend: emitBounds,
     zoomend: emitBounds,
   });
+
+  const lastPannedListingIdRef = useRef<SearchMapListingId | null>(null);
+
+  useEffect(() => {
+    if (!selectedListing) {
+      lastPannedListingIdRef.current = null;
+      return;
+    }
+
+    if (String(lastPannedListingIdRef.current) === String(selectedListing.id)) {
+      return;
+    }
+    lastPannedListingIdRef.current = selectedListing.id;
+
+    const timer = window.setTimeout(() => {
+      const latLng: [number, number] = [selectedListing.latitude, selectedListing.longitude];
+      const containerPoint = map.latLngToContainerPoint(latLng);
+      const containerSize = map.getSize();
+
+      const minX = 70;
+      const maxX = containerSize.x - 70;
+      const minY = 90;
+      const maxY = containerSize.y - 250;
+
+      let deltaX = 0;
+      let deltaY = 0;
+
+      if (containerPoint.x < minX) {
+        deltaX = containerPoint.x - minX;
+      } else if (containerPoint.x > maxX) {
+        deltaX = containerPoint.x - maxX;
+      }
+
+      if (containerPoint.y < minY) {
+        deltaY = containerPoint.y - minY;
+      } else if (containerPoint.y > maxY) {
+        deltaY = containerPoint.y - maxY;
+      }
+
+      if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+        map.panBy([deltaX, deltaY], {
+          animate: true,
+          duration: 0.35,
+          easeLinearity: 0.25,
+        });
+      }
+    }, 50);
+
+    return () => window.clearTimeout(timer);
+  }, [map, selectedListing]);
 
   useEffect(() => {
     map.invalidateSize();
@@ -141,36 +208,10 @@ function SearchMapViewComponent({
   onMapClick,
   onSelectListing,
 }: SearchMapViewProps) {
-  const visibleMarkerIdsRef = useRef<Set<string>>(new Set());
-  const currentMarkerIds = useMemo(() => {
-    const markerIds = new Set<string>();
-
-    dotMarkers.forEach((marker) => {
-      markerIds.add(`dot:${String(marker.id)}`);
-    });
-
-    listings.forEach((listing) => {
-      markerIds.add(`listing:${String(listing.id)}`);
-    });
-
-    return markerIds;
-  }, [dotMarkers, listings]);
-  const newlyRenderedMarkerIds = useMemo(() => {
-    const previouslyVisibleIds = visibleMarkerIdsRef.current;
-    const freshIds = new Set<string>();
-
-    currentMarkerIds.forEach((markerId) => {
-      if (!previouslyVisibleIds.has(markerId)) {
-        freshIds.add(markerId);
-      }
-    });
-
-    return freshIds;
-  }, [currentMarkerIds]);
-
-  useEffect(() => {
-    visibleMarkerIdsRef.current = currentMarkerIds;
-  }, [currentMarkerIds]);
+  const selectedListing = useMemo(() => {
+    if (selectedListingId == null) return null;
+    return listings.find((listing) => String(listing.id) === String(selectedListingId)) ?? null;
+  }, [listings, selectedListingId]);
 
   return (
     <MapContainer
@@ -193,6 +234,7 @@ function SearchMapViewComponent({
         center={center}
         centerSignal={centerSignal}
         resizeSignal={resizeSignal}
+        selectedListing={selectedListing}
         onBoundsChange={onBoundsChange}
         onMapClick={onMapClick}
       />
@@ -233,17 +275,12 @@ function SearchMapViewComponent({
         isVisible={geofenceDisplayMode === "confirmed"}
       />
 
-      {dotMarkers.map((marker) => {
-        const markerId = `dot:${String(marker.id)}`;
-
-        return (
-          <SearchMapMarker
-            key={marker.id}
-            marker={marker}
-            shouldAnimate={newlyRenderedMarkerIds.has(markerId)}
-          />
-        );
-      })}
+      {dotMarkers.map((marker) => (
+        <SearchMapMarker
+          key={marker.id}
+          marker={marker}
+        />
+      ))}
 
       {listings.map((listing) => {
         const isSelected =
@@ -257,7 +294,6 @@ function SearchMapViewComponent({
             isPriceVisible={isSelected || priceMarkerListingIds.has(listing.id)}
             isSeen={seenListingIds.has(listing.id)}
             isSelected={isSelected}
-            shouldAnimate={newlyRenderedMarkerIds.has(`listing:${String(listing.id)}`)}
             onSelect={onSelectListing}
           />
         );

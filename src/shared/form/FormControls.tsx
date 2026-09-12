@@ -71,7 +71,7 @@ export function FormChoiceChip({
 }: FormChoiceChipProps) {
   return (
     <Chip
-      className="h-10 gap-2"
+      className="h-9"
       icon={icon}
       onClick={onClick}
       removable={removable}

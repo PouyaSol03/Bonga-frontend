@@ -23,6 +23,21 @@ type SearchMapListingSliderProps = {
 
 const previewCardWidth = "min(360px, calc(100vw - 28px))";
 
+function scrollCardToCenter(scrollEl: HTMLElement, card: HTMLElement) {
+  const scrollRect = scrollEl.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+  const currentCenter = cardRect.left + cardRect.width / 2;
+  const targetCenter = scrollRect.left + scrollRect.width / 2;
+  const diff = currentCenter - targetCenter;
+
+  if (Math.abs(diff) > 1) {
+    scrollEl.scrollBy({
+      left: diff,
+      behavior: "auto",
+    });
+  }
+}
+
 function SearchMapListingSliderComponent({
   isLoading = false,
   isOpen,
@@ -31,13 +46,21 @@ function SearchMapListingSliderComponent({
   selectedListingId,
 }: SearchMapListingSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | null>(null);
-  const dragScrollHandlers = useDragScroll(scrollRef);
+  const isProgrammaticScrollRef = useRef(false);
+  const isUserInteractingRef = useRef(false);
+  const programmaticScrollTimerRef = useRef<number | null>(null);
+  const userScrollSettledTimerRef = useRef<number | null>(null);
   const lastActiveIdRef = useRef<SearchMapListingId | null>(selectedListingId);
-  const scrollSyncedActiveIdRef = useRef<SearchMapListingId | null>(null);
+
+  const markUserInteraction = useCallback(() => {
+    isProgrammaticScrollRef.current = false;
+    isUserInteractingRef.current = true;
+  }, []);
+
+  const dragScrollHandlers = useDragScroll(scrollRef, markUserInteraction);
 
   const syncActiveCard = useCallback(() => {
-    if (!isOpen) return;
+    if (!isOpen || isProgrammaticScrollRef.current) return;
 
     const scrollEl = scrollRef.current;
     if (!scrollEl || listings.length === 0) return;
@@ -54,26 +77,26 @@ function SearchMapListingSliderComponent({
     if (!activeListing) return;
 
     lastActiveIdRef.current = activeListing.id;
-    scrollSyncedActiveIdRef.current = activeListing.id;
     onActiveListingChange?.(activeListing);
   }, [isOpen, listings, onActiveListingChange]);
 
-  const scheduleActiveSync = useCallback(() => {
-    if (rafRef.current !== null) return;
+  const handleScroll = useCallback(() => {
+    if (isProgrammaticScrollRef.current) return;
+    if (!isUserInteractingRef.current) return;
 
-    rafRef.current = window.requestAnimationFrame(() => {
-      rafRef.current = null;
+    if (userScrollSettledTimerRef.current !== null) {
+      window.clearTimeout(userScrollSettledTimerRef.current);
+    }
+
+    userScrollSettledTimerRef.current = window.setTimeout(() => {
       syncActiveCard();
-    });
+      isUserInteractingRef.current = false;
+      userScrollSettledTimerRef.current = null;
+    }, 120);
   }, [syncActiveCard]);
 
   useLayoutEffect(() => {
     if (!isOpen || selectedListingId == null) return;
-
-    if (String(scrollSyncedActiveIdRef.current) === String(selectedListingId)) {
-      scrollSyncedActiveIdRef.current = null;
-      return;
-    }
 
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
@@ -82,12 +105,30 @@ function SearchMapListingSliderComponent({
     if (!card) return;
 
     lastActiveIdRef.current = selectedListingId;
+    isProgrammaticScrollRef.current = true;
+    isUserInteractingRef.current = false;
 
-    card.scrollIntoView({
-      behavior: "auto",
-      block: "nearest",
-      inline: "center",
+    if (programmaticScrollTimerRef.current !== null) {
+      window.clearTimeout(programmaticScrollTimerRef.current);
+    }
+
+    scrollCardToCenter(scrollEl, card);
+
+    const frameId = window.requestAnimationFrame(() => {
+      const activeCard = getSliderCardById(scrollEl, selectedListingId);
+      if (activeCard) {
+        scrollCardToCenter(scrollEl, activeCard);
+      }
     });
+
+    programmaticScrollTimerRef.current = window.setTimeout(() => {
+      isProgrammaticScrollRef.current = false;
+      programmaticScrollTimerRef.current = null;
+    }, 300);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
   }, [isOpen, selectedListingId, listings]);
 
   useEffect(() => {
@@ -96,8 +137,11 @@ function SearchMapListingSliderComponent({
 
   useEffect(() => {
     return () => {
-      if (rafRef.current !== null) {
-        window.cancelAnimationFrame(rafRef.current);
+      if (programmaticScrollTimerRef.current !== null) {
+        window.clearTimeout(programmaticScrollTimerRef.current);
+      }
+      if (userScrollSettledTimerRef.current !== null) {
+        window.clearTimeout(userScrollSettledTimerRef.current);
       }
     };
   }, []);
@@ -119,7 +163,9 @@ function SearchMapListingSliderComponent({
           paddingInline: `max(8px, calc((100% - ${previewCardWidth}) / 2))`,
           scrollPaddingInline: `max(8px, calc((100% - ${previewCardWidth}) / 2))`,
         }}
-        onScroll={scheduleActiveSync}
+        onTouchStart={markUserInteraction}
+        onWheel={markUserInteraction}
+        onScroll={handleScroll}
         {...dragScrollHandlers}
       >
         {isLoading
@@ -184,7 +230,10 @@ function findCenteredCardId(scrollEl: HTMLDivElement) {
   return nearestCard.dataset.mapSliderCard ?? null;
 }
 
-function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>) {
+function useDragScroll(
+  scrollRef: RefObject<HTMLDivElement | null>,
+  onDragStart?: () => void,
+) {
   const dragStateRef = useRef({
     didDrag: false,
     isDragging: false,
@@ -217,6 +266,8 @@ function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>) {
 
       const scrollEl = scrollRef.current;
       if (!scrollEl) return;
+
+      onDragStart?.();
 
       dragStateRef.current = {
         didDrag: false,

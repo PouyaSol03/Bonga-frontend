@@ -29,16 +29,18 @@ export type RequestOtpResponse = StatusResponse & {
 };
 
 export type VerifyOtpResponse = StatusResponse & {
-  access_token: string;
+  access_token?: string;
   account_type: string;
   expires_in: number;
   role?: string;
   roles?: Array<AuthRole | string>;
   role_slugs?: string[];
-  token: string;
-  tokens: {
-    access_token: string;
+  token?: string;
+  tokens?: {
+    access_token?: string;
   };
+  userId?: string;
+  user_id?: string;
 };
 
 
@@ -108,7 +110,7 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
       .json<VerifyOtpResponse>(),
   );
   const accessToken =
-    response.access_token || response.tokens?.access_token || response.token;
+    response.access_token || response.tokens?.access_token || response.token || "";
 
   if (!accessToken) {
     throw new ApiError(200, "توکن ورود از سرور دریافت نشد.");
@@ -116,6 +118,8 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
 
   const roles = normalizeAuthRoles(response);
   const role = normalizeAuthRoleSlug(response.role ?? roles[0]?.slug ?? response.account_type);
+  const rawUserId = response.userId ?? response.user_id;
+  const userId = rawUserId ? String(rawUserId) : undefined;
 
   setStoredAuthSession({
     accessToken,
@@ -127,6 +131,7 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
     mobile,
     role,
     roles,
+    userId,
   });
   clearPendingOtpState();
 

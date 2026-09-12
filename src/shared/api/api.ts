@@ -47,8 +47,8 @@ function getRequestPathname(request: Request) {
   }
 }
 
-function isPublicApiRequest(request: Request, options: Options) {
-  if (options.context?.authenticated === false) return true;
+function isPublicApiRequest(request: Request, options?: Options) {
+  if (options?.context?.authenticated === false) return true;
 
   return /(?:^|\/)public(?:\/|$)/i.test(getRequestPathname(request));
 }
@@ -83,12 +83,51 @@ const allowedApiUserTypes = new Set<ApiUserType>([
   "support",
 ]);
 
-function getApiUserType(): ApiUserType {
+function isCrmOrAdminContext(request?: Request): boolean {
+  if (typeof window !== "undefined" && window.location?.pathname) {
+    const pagePath = window.location.pathname.toLowerCase();
+    if (
+      pagePath.startsWith("/crm") ||
+      pagePath.startsWith("/super-admin") ||
+      pagePath.startsWith("/superadmin")
+    ) {
+      return true;
+    }
+  }
+
+  if (request) {
+    const requestPath = getRequestPathname(request).toLowerCase();
+    if (
+      requestPath.startsWith("/crm") ||
+      requestPath.startsWith("/panel") ||
+      requestPath.startsWith("/super-admin") ||
+      requestPath.startsWith("/superadmin")
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getApiUserType(request?: Request): ApiUserType {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
   // The frontend uses `super-admin` internally, while the backend header
   // contract expects `superadmin`. Keep that translation at the API boundary.
   const candidate = activeRole === "super-admin" ? "superadmin" : activeRole;
+
+  if (
+    candidate === "superadmin" ||
+    candidate === "crm_advertise_manager" ||
+    candidate === "crm_finance_manager" ||
+    candidate === "support"
+  ) {
+    if (isCrmOrAdminContext(request)) {
+      return candidate as ApiUserType;
+    }
+    return "user";
+  }
 
   if (candidate && allowedApiUserTypes.has(candidate as ApiUserType)) {
     return candidate as ApiUserType;
@@ -111,17 +150,14 @@ function redirectForAuthError(status: number) {
   if (typeof window === "undefined") return;
 
   if (status === 401) {
+    const hasSession = Boolean(getStoredAccessToken());
     clearStoredAuthSession();
-    if (!window.location.pathname.startsWith("/login")) {
+    if (hasSession && !window.location.pathname.startsWith("/login")) {
       const returnTo = `${window.location.pathname}${window.location.search}`;
       window.sessionStorage.setItem("bonga-login-redirect-path", returnTo);
-      window.location.assign("/login");
+      window.location.assign("/login/phone");
     }
     return;
-  }
-
-  if (status === 403 && window.location.pathname !== "/403") {
-    // window.location.assign("/403");
   }
 }
 
@@ -205,7 +241,11 @@ const apiOptions: Options = {
           /\bapplication\/[a-z0-9.+-]+\+json\b/.test(contentType);
 
         if (!isJsonResponse) {
-          if (response.status === 401 || response.status === 403) {
+          if (
+            response.status === 401 &&
+            !isAuthApiRequest(request) &&
+            !isPublicApiRequest(request, options)
+          ) {
             redirectForAuthError(response.status);
           }
 
@@ -218,9 +258,11 @@ const apiOptions: Options = {
       },
     ],
     beforeError: [
-      async ({ error }) => {
+      async ({ error, request }) => {
         if (error instanceof HTTPError) {
-          if (error.response.status === 401 || error.response.status === 403) {
+          const isAuth = request ? isAuthApiRequest(request) : false;
+          const isPublic = request ? isPublicApiRequest(request) : false;
+          if (error.response.status === 401 && !isAuth && !isPublic) {
             redirectForAuthError(error.response.status);
           }
 
@@ -254,7 +296,7 @@ const apiOptions: Options = {
           // Public and authentication flows must never receive the active account type.
           request.headers.delete("user-type");
         } else {
-          request.headers.set("user-type", getApiUserType());
+          request.headers.set("user-type", getApiUserType(request));
         }
 
         if (options.context.authenticated === false) return;

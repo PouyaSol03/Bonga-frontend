@@ -1,4 +1,5 @@
-import { DivIcon } from "leaflet";
+import { memo, useMemo } from "react";
+import { DivIcon, DomEvent } from "leaflet";
 import { Marker } from "react-leaflet";
 
 import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
@@ -8,13 +9,11 @@ type SearchMapListingMarkerProps = {
   isPriceVisible: boolean;
   isSeen: boolean;
   isSelected: boolean;
-  shouldAnimate: boolean;
   onSelect: (listing: SearchMapListing) => void;
 };
 
 type SearchMapDotMarkerProps = {
   marker: SearchMapDotMarker;
-  shouldAnimate: boolean;
   listing?: never;
   isSeen?: never;
   isSelected?: never;
@@ -23,42 +22,51 @@ type SearchMapDotMarkerProps = {
 
 type SearchMapMarkerProps = SearchMapListingMarkerProps | SearchMapDotMarkerProps;
 
-export function SearchMapMarker(props: SearchMapMarkerProps) {
-  if ("marker" in props) {
-    const markerIcon = createSearchStaticDotIcon(props.shouldAnimate);
+const staticDotIcon = new DivIcon({
+  className: "search-map-marker-wrapper search-map-marker-wrapper--static",
+  html: '<div class="search-map-dot search-map-dot--static"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
 
+function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
+  if ("marker" in props) {
     return (
       <Marker
         position={[props.marker.latitude, props.marker.longitude]}
-        icon={markerIcon}
+        icon={staticDotIcon}
+        interactive={false}
         zIndexOffset={0}
       />
     );
   }
 
-  const { listing, isSeen, isSelected, onSelect, shouldAnimate } = props;
-  const markerIcon = createSearchListingIcon(
-    props.isPriceVisible ? listing.priceValue : "",
-    props.isPriceVisible,
-    isSelected,
-    isSeen,
-    shouldAnimate,
-  );
+  const { listing, isSeen, isSelected, onSelect } = props;
+  const isPrice = props.isPriceVisible || isSelected;
+  const markerIcon = useMemo(() => {
+    return isPrice
+      ? createSearchPricePillIcon(listing.priceValue, isSelected, isSeen)
+      : createSearchDotIcon(isSelected, isSeen);
+  }, [isPrice, listing.priceValue, isSelected, isSeen]);
 
   return (
     <Marker
       position={[listing.latitude, listing.longitude]}
       icon={markerIcon}
-      zIndexOffset={isSelected ? 10_000 : props.isPriceVisible ? 5_000 : 1_000}
+      zIndexOffset={isSelected ? 100_000 : isPrice ? 5_000 : 1_000}
       eventHandlers={{
         click: (event) => {
+          if (event.originalEvent) {
+            DomEvent.stop(event.originalEvent);
+          }
           onSelect(listing);
-          event.originalEvent?.stopPropagation?.();
         },
       }}
     />
   );
 }
+
+export const SearchMapMarker = memo(SearchMapMarkerComponent);
 
 function escapeMarkerText(value: string) {
   return value
@@ -69,53 +77,55 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function createSearchListingIcon(
-  priceValue: string,
-  isPriceVisible: boolean,
+function createSearchDotIcon(
   isSelected: boolean,
   isSeen: boolean,
-  shouldAnimate: boolean,
 ) {
-  const safePriceValue = escapeMarkerText(priceValue);
-  const priceMarkerHtml = isPriceVisible
-    ? `
-        <Typography as="span" variant="body" size="medium" weight="regular" class="search-map-marker">
-          ${safePriceValue}
-        </Typography>
-      `
-    : "";
-  const markerClasses = [
-    "search-map-listing-marker",
-    isSelected ? "search-map-listing-marker--selected" : "",
-    isPriceVisible ? "search-map-listing-marker--price-visible" : "",
-    isSeen ? "search-map-listing-marker--seen" : "",
-    shouldAnimate ? "search-map-listing-marker--animate" : "",
+  const dotClasses = [
+    "search-map-dot",
+    isSelected ? "search-map-dot--selected" : "",
+    isSeen ? "search-map-dot--seen" : "",
   ]
     .filter(Boolean)
     .join(" ");
 
   return new DivIcon({
-    className: "search-map-marker-wrapper",
+    className: "search-map-marker-wrapper search-map-marker-wrapper--dot",
     html: `
-      <div class="${markerClasses} search-map-marker-hit-area">
-        <Typography as="span" variant="body" size="medium" weight="regular" class="search-map-dot search-map-listing-marker__dot"></Typography>
-        ${priceMarkerHtml}
+      <div class="search-map-dot-hit-area">
+        <span class="${dotClasses}"></span>
       </div>
     `,
-    iconSize: [120, 42],
-    iconAnchor: [60, 42],
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
   });
 }
 
-function createSearchStaticDotIcon(shouldAnimate: boolean) {
-  const dotClassName = ["search-map-dot", "search-map-dot--static", shouldAnimate ? "search-map-dot--animate" : ""]
+function createSearchPricePillIcon(
+  priceValue: string,
+  isSelected: boolean,
+  isSeen: boolean,
+) {
+  const safePriceValue = escapeMarkerText(priceValue);
+  const pillClasses = [
+    "search-map-marker",
+    isSelected ? "search-map-marker--selected" : "",
+    isSeen ? "search-map-marker--seen" : "",
+  ]
     .filter(Boolean)
     .join(" ");
 
   return new DivIcon({
-    className: "search-map-marker-wrapper",
-    html: `<div class="${dotClassName}"></div>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
+    className: "search-map-marker-wrapper search-map-marker-wrapper--price",
+    html: `
+      <div class="search-map-price-hit-area">
+        <div class="${pillClasses}">
+          <span>${safePriceValue}</span>
+          <span class="search-map-marker__arrow"></span>
+        </div>
+      </div>
+    `,
+    iconSize: [100, 40],
+    iconAnchor: [50, 40],
   });
 }

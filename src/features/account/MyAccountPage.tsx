@@ -4,6 +4,7 @@ import { TopBarNavigationLayout } from "../../shared/layout/TopBarNavigationLayo
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { replaceRoute } from "../../shared/navigation/navigation";
 import { DASHBOARD_PATH } from "../../app/router/routes";
 import { useMyAgencyProfileQuery, useMyProfileQuery } from "./api/account.hooks";
 import { useLogoutMutation } from "../auth/api/auth.hooks";
@@ -453,10 +454,11 @@ function getCreatedBusinessActions(
   authSession: AuthSession | null,
   profile?: UserProfile,
   agencyProfile?: MyAgencyProfile,
+  activeRole?: string | null,
 ) {
   if (!authSession) return userBusinessActions;
 
-  const actions = getAccountSwitchActions(authSession, USER, profile, agencyProfile);
+  const actions = getAccountSwitchActions(authSession, activeRole ?? USER, profile, agencyProfile);
 
   if (actions.length > 0) return actions;
 
@@ -474,6 +476,7 @@ function StandardAccountPage({
   const hasManagerRole = Boolean(
     authSession?.roles.some((role) => role.slug === REAL_ESTATE_MANAGER),
   );
+  const activeRole = getActiveAuthRole(authSession);
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({ enabled: isLoggedIn });
   const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({ enabled: isLoggedIn && hasManagerRole });
   const {
@@ -555,7 +558,7 @@ function StandardAccountPage({
             <LoggedOutAccountHeader />
           )}
 
-          <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession, profile, agencyProfile) : loggedOutBusinessActions} />
+          <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession, profile, agencyProfile, activeRole) : loggedOutBusinessActions} />
 
           <div className="h-4 bg-[#f0f0f0]" />
 
@@ -870,6 +873,7 @@ function useLogoutAccount() {
     logoutMutation.mutate(undefined, {
       onSettled: () => {
         setIsLogoutConfirmOpen(false);
+        replaceRoute("/home", undefined, { rememberCurrent: false });
       },
     });
   };

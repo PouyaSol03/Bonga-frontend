@@ -347,12 +347,15 @@ function readChatMessageTime(message: ChatMessage) {
 }
 
 function readCurrentUserId() {
-  const token = getStoredAuthSession()?.accessToken;
+  const session = getStoredAuthSession();
+  if (session?.userId) return readText(session.userId);
 
+  const token = session?.accessToken;
   if (!token) return "";
 
   try {
     const [, payload] = token.split(".");
+    if (!payload) return "";
     const normalizedPayload = payload
       .replace(/-/g, "+")
       .replace(/_/g, "/")

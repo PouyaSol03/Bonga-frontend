@@ -336,11 +336,17 @@ function readSupportMessageSenderId(message: ChatMessage) {
 }
 
 export function readCurrentAccountUserId() {
-  const token = getStoredAuthSession()?.accessToken;
+  const session = getStoredAuthSession();
+  if (session?.userId) {
+    return session.userId;
+  }
+
+  const token = session?.accessToken;
   if (!token) return "";
 
   try {
     const [, payload = ""] = token.split(".");
+    if (!payload) return "";
     const normalizedPayload = payload
       .replace(/-/g, "+")
       .replace(/_/g, "/")

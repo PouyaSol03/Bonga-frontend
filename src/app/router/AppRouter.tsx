@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../shared/auth/auth-storage'
+import { authSessionChangedEventName, getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from '../../shared/auth/auth-storage'
 import { MobileAppShell } from '../layout/MobileAppShell'
 import { PageFrame } from '../../shared/layout/PageFrame'
 import { BottomNavigation } from '../layout/BottomNavigation'
@@ -21,6 +21,7 @@ import {
   DASHBOARD_PATH,
   getDefaultCrmPath,
   LEGACY_DASHBOARD_PATH,
+  LOGIN_PATH,
   preloadRoute,
   routes,
   type AppRoute,
@@ -251,6 +252,11 @@ function getResolvedPath() {
   if (session && isLoginFlowPath(path)) {
     window.history.replaceState(window.history.state ?? {}, '', '/account')
     return '/account'
+  }
+
+  if (path === '/login') {
+    window.history.replaceState(window.history.state ?? {}, '', LOGIN_PATH)
+    return LOGIN_PATH
   }
 
   const route = getRoute(path)
@@ -524,7 +530,7 @@ function getRoute(path: string): AppRoute {
 export function AppRouter() {
   const [path, setPath] = useState(getResolvedPath)
   const pathRef = useRef(path)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const shouldReduceMotion = useReducedMotion()
   const [isOffline, setIsOffline] = useState(() => !window.navigator.onLine)
   const route = useMemo(() => getRoute(path), [path])
@@ -596,6 +602,31 @@ export function AppRouter() {
     return () => {
       window.removeEventListener('popstate', handleNavigation)
       window.removeEventListener(historyRouteChangeEvent, handleNavigation)
+    }
+  }, [startTransition])
+
+  useEffect(() => {
+    function handleAuthChanged() {
+      const nextPath = getResolvedPath()
+
+      if (nextPath !== pathRef.current) {
+        pathRef.current = nextPath
+        preloadRoute(nextPath)
+        startTransition(() => {
+          setPath(nextPath)
+        })
+        window.scrollTo({ top: 0 })
+      } else {
+        startTransition(() => {
+          setPath((current) => current)
+        })
+      }
+    }
+
+    window.addEventListener(authSessionChangedEventName, handleAuthChanged)
+
+    return () => {
+      window.removeEventListener(authSessionChangedEventName, handleAuthChanged)
     }
   }, [startTransition])
 
@@ -709,24 +740,18 @@ export function AppRouter() {
   return (
     <MobileAppShell>
       <div className="relative grid h-full w-full grid-cols-1 grid-rows-1 overflow-hidden bg-white">
-        {isPending ? (
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-[100] h-0.5 overflow-hidden bg-transparent">
-            <div className="h-full w-full bg-[#0048c4] animate-pulse" />
-          </div>
-        ) : null}
         <AnimatePresence initial={false}>
           <motion.div
             key={path}
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.996 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={
-              shouldReduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, scale: 0.996, pointerEvents: 'none' as const }
-            }
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+              pointerEvents: 'none' as const,
+            }}
             transition={{
-              duration: shouldReduceMotion ? 0.1 : 0.22,
-              ease: [0.16, 1, 0.3, 1],
+              duration: shouldReduceMotion ? 0.1 : 0.2,
+              ease: 'easeInOut',
             }}
             className="col-start-1 row-start-1 flex h-full w-full min-h-0 flex-col overflow-hidden"
           >

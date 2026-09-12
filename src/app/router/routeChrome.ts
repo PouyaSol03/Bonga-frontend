@@ -43,7 +43,6 @@ export function getBottomNavigationKey(path: string) {
   ) {
     return undefined;
   }
-  if (path === "/login") return "account";
 
   return undefined;
 }
@@ -94,10 +93,6 @@ export function getRouteTopBar(
 ): TopBarProps | undefined {
   if (path === "/account/business/create/agency/neighborhoods") {
     return undefined;
-  }
-
-  if (path === "/login") {
-    return { showBack: false, title };
   }
 
   if (path === "/chat" || path === "/search") {

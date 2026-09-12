@@ -896,7 +896,6 @@ const FilterTabs = memo(function FilterTabs({
           key={filter.value}
           onClick={() => onSelect(filter.value)}
           selected={activeFilter === filter.value}
-          showCheck
         >
           {filter.label}
         </Chip>

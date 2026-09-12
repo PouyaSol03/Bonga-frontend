@@ -357,7 +357,7 @@ function NotificationFilterBar({
       {selectedFilters.map((filter) => (
         <Button unstyled
           aria-label={`حذف فیلتر ${filter.label}`}
-          className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#0048C4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
+          className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#0048C4] bg-[#0048c414] px-3 text-sm font-medium leading-5 text-[#0048c4] transition-all duration-200 active:scale-[0.97] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#0048c440]"
           key={filter.id}
           onClick={() => onRemoveFilter(filter.id)}
           type="button"

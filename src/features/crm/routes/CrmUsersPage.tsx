@@ -1,6 +1,7 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleCrmUserAuthorization, getCrmRecordId } from "../api/crm.service";
+import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, toggleCrmUserAuthorization, updateCrmUserAuthorization, getCrmRecordId } from "../api/crm.service";
+import { getApiErrorMessage } from "../../../shared/api/api";
 import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, UserStatusBadge, formatMoney, fullName, ghostButtonClassName, inputClassName, normalizeCrmUserRoleSlug, readText, useQueryErrorToast, userRoleOptions, userRoleSlugs } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
@@ -53,6 +54,18 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
       notify("وضعیت تایید کد ملی کاربر تغییر کرد.");
+    },
+  });
+
+  const setAuthorizationMutation = useMutation({
+    mutationFn: ({ id, reason, status }: { id: string | number; reason?: string; status: "accept" | "reject" }) =>
+      updateCrmUserAuthorization(id, status, reason),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
+      notify(variables.status === "accept" ? "احراز هویت کاربر تایید شد." : "احراز هویت کاربر رد شد.");
+    },
+    onError: (error) => {
+      notify(getApiErrorMessage(error, "خطا در تغییر وضعیت احراز هویت."), "error");
     },
   });
 
@@ -121,7 +134,9 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
             users.map((user) => {
               const id = getCrmRecordId(user);
               const isActive = Number(user.status) === 1;
-              const isAuthorized = Number(user.authorized) === 1;
+              const authVal = Number(user.authorized);
+              const isAuthorized = authVal === 1;
+              const isRejected = authVal === 2;
               const roles = userRoleSlugs(user);
               const nationalCode = readText(user, ["nationalnumber", "national_code", "national_id"]).trim();
               const hasNationalCode = Boolean(nationalCode);
@@ -172,13 +187,23 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   <TableCell><UserStatusBadge status={user.status} /></TableCell>
                   <TableCell>
                     <Typography as="span" variant="label" size="small" weight="semibold"
-                      className={`inline-flex rounded-lg px-2.5 py-1 text-xs font-bold ${
+                      className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${
                         isAuthorized
-                          ? "bg-[#e9f8f0] text-[#0b8b55]"
-                          : "bg-[#f4f6f8] text-[#7b8494]"
+                          ? "border-[#a3e4c4] bg-[#e9f8f0] text-[#0b8b55]"
+                          : isRejected
+                          ? "border-[#f7b0b6] bg-[#ffebed] text-[#ee3623]"
+                          : hasNationalCode
+                          ? "border-[#ffe099] bg-[#fff7df] text-[#ff6d00]"
+                          : "border-[#e2e6eb] bg-[#f4f6f8] text-[#7b8494]"
                       }`}
                     >
-                      {isAuthorized ? "تایید شده" : "تایید نشده"}
+                      {isAuthorized
+                        ? "تایید شده"
+                        : isRejected
+                        ? "رد شده"
+                        : hasNationalCode
+                        ? "در انتظار"
+                        : "ثبت نشده"}
                     </Typography>
                   </TableCell>
                   <TableCell>{formatMoney(user.credit)}</TableCell>
@@ -197,18 +222,40 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
                         })}
                         tone={isActive ? "danger" : "success"}
                       />
-                      <SmallActionButton
-                        label={isAuthorized ? "لغو تایید کد ملی" : "تایید کد ملی"}
-                        onClick={() => setConfirm({
-                          body: isAuthorized
-                            ? "تایید کد ملی این کاربر لغو می‌شود و وضعیت احراز هویت او به تایید نشده تغییر می‌کند."
-                            : "کد ملی این کاربر به عنوان تایید شده ثبت می‌شود.",
-                          confirmLabel: isAuthorized ? "لغو تایید" : "تایید کن",
-                          onConfirm: async () => { await handleToggleAuthorization(id); },
-                          title: isAuthorized ? "لغو تایید کد ملی" : "تایید کد ملی",
-                        })}
-                        tone={isAuthorized ? "danger" : "success"}
-                      />
+                      {!isAuthorized ? (
+                        <SmallActionButton
+                          disabled={setAuthorizationMutation.isPending}
+                          label="تایید کد ملی"
+                          onClick={() => setConfirm({
+                            body: `کد ملی «${nationalCode || fullName(user)}» به عنوان تایید شده ثبت می‌شود و اعلان تایید برای کاربر ارسال خواهد شد.`,
+                            confirmLabel: "تایید کد ملی",
+                            onConfirm: async () => {
+                              await setAuthorizationMutation.mutateAsync({ id, status: "accept" });
+                            },
+                            title: "تایید احراز هویت کاربر",
+                          })}
+                          tone="success"
+                        />
+                      ) : null}
+                      {!isRejected && (hasNationalCode || isAuthorized) ? (
+                        <SmallActionButton
+                          disabled={setAuthorizationMutation.isPending}
+                          label={isAuthorized ? "لغو / رد تایید" : "رد کد ملی"}
+                          onClick={() => setConfirm({
+                            body: `آیا از رد احراز هویت «${fullName(user)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد و امکان ثبت مجدد اطلاعات را خواهد داشت.`,
+                            confirmLabel: "رد احراز هویت",
+                            prompt: {
+                              label: "دلیل رد احراز هویت (اختیاری جهت درج در اعلان کاربر)",
+                              placeholder: "مثال: اطلاعات نامعتبر یا ناخوانا",
+                            },
+                            onConfirm: async (reason) => {
+                              await setAuthorizationMutation.mutateAsync({ id, reason, status: "reject" });
+                            },
+                            title: "رد احراز هویت کاربر",
+                          })}
+                          tone="danger"
+                        />
+                      ) : null}
                     </div>
                   </TableCell>
                 </tr>

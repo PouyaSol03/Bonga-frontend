@@ -691,6 +691,7 @@ export function IdentityPendingState({
   isPending,
   isAuthenticated = true,
   isVerifying = false,
+  isRejected = false,
   showRequiredNotice = false,
   onVerify,
 }: {
@@ -698,6 +699,7 @@ export function IdentityPendingState({
   isPending: boolean;
   isAuthenticated?: boolean;
   isVerifying?: boolean;
+  isRejected?: boolean;
   showRequiredNotice?: boolean;
   onVerify: (nationalnumber: string) => void;
 }) {
@@ -753,7 +755,23 @@ export function IdentityPendingState({
         </section>
       ) : null}
 
-      {isVerifying && !isPending ? (
+      {isRejected && !isPending ? (
+        <section className="px-4 pt-3">
+          <div className="rounded-xl border border-[#ee3623] bg-[#fff5f5] p-4 text-right">
+            <div className="flex items-center gap-2 text-[#ee3623]">
+              <LinearInfoCircle className="h-5 w-5 shrink-0" />
+              <Typography as="p" variant="body" size="medium" weight="semibold" className="m-0 text-sm font-semibold">
+                احراز هویت شما تایید نشد
+              </Typography>
+            </div>
+            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-[#b91c1c] leading-5">
+              اطلاعات احراز هویت قبلی شما تایید نشد. لطفاً کد ملی صحیح متعلق به مالک این شماره همراه را وارد و مجدداً ارسال فرمایید.
+            </Typography>
+          </div>
+        </section>
+      ) : null}
+
+      {isVerifying && !isRejected && !isPending ? (
         <section className="px-4 pt-3">
           <div className="rounded-xl border border-[#ff9800] bg-[#fff8e1] p-4 text-right">
             <div className="flex items-center gap-2 text-[#e65100]">
@@ -838,7 +856,7 @@ export function IdentityPendingState({
           type="button"
           variant="primary"
         >
-          {isPending ? "در حال اعتبارسنجی شما هستیم..." : isVerifying ? "ویرایش و ثبت مجدد کد ملی" : "بررسی و تایید هویت"}
+          {isPending ? "در حال اعتبارسنجی شما هستیم..." : isRejected ? "ثبت مجدد کد ملی" : isVerifying ? "ویرایش و ثبت مجدد کد ملی" : "بررسی و تایید هویت"}
         </Button>
       </div>
     </>

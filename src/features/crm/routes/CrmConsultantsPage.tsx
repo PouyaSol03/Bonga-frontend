@@ -3,11 +3,10 @@ import { useState, useMemo } from "react";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { createCrmConsultant, listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, getCrmRecordId } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { SwitchButton } from "../../../shared/components/SwitchButton";
 import { motion } from "motion/react";
 import LinearEdit2 from "../../../shared/icons/LinearEdit2";
-import { CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
-import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
+import { ConfirmModal, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
+import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
@@ -28,6 +27,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
     [agencyIdFilter, agencyOnly, debouncedSearch, statusFilter],
   );
   const [editor, setEditor] = useState<EditorState | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
 
   const usersQuery = useQuery({
     queryFn: () => listCrmAgents({
@@ -294,28 +294,56 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <SwitchButton
-                              ariaLabel={`تغییر وضعیت ${fullName(consultant)}`}
-                              checked={status === "accept"}
-                              onChange={() => statusMutation.mutate({
-                                consultant,
-                                status: status === "accept" ? "reject" : "accept",
-                              })}
-                            />
-                            <Typography as="span" variant="label" size="small" weight="semibold" className={`text-xs font-bold ${consultantStatusTone(status)}`}>
-                              {consultantStatusLabel(status)}
-                            </Typography>
-                          </div>
+                          <Typography
+                            as="span"
+                            variant="label"
+                            size="small"
+                            weight="semibold"
+                            className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${consultantStatusTone(status)}`}
+                          >
+                            {consultantStatusLabel(status)}
+                          </Typography>
                         </TableCell>
                         <TableCell>
-                          <SmallActionButton
-                            disabled={saveMutation.isPending || statusMutation.isPending}
-                            icon={<LinearEdit2 className="h-4 w-4" />}
-                            label="ویرایش"
-                            onClick={() => openConsultantEditor(consultant)}
-                            tone="primary"
-                          />
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <SmallActionButton
+                              disabled={saveMutation.isPending || statusMutation.isPending}
+                              icon={<LinearEdit2 className="h-4 w-4" />}
+                              label="ویرایش"
+                              onClick={() => openConsultantEditor(consultant)}
+                              tone="primary"
+                            />
+                            {status !== "accept" ? (
+                              <SmallActionButton
+                                disabled={saveMutation.isPending || statusMutation.isPending}
+                                label="تایید"
+                                onClick={() => setConfirm({
+                                  body: `آیا از تأیید مشاور «${fullName(consultant)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد.`,
+                                  confirmLabel: "تایید مشاور",
+                                  onConfirm: async () => {
+                                    await statusMutation.mutateAsync({ consultant, status: "accept" });
+                                  },
+                                  title: "تایید مشاور",
+                                })}
+                                tone="success"
+                              />
+                            ) : null}
+                            {status !== "reject" ? (
+                              <SmallActionButton
+                                disabled={saveMutation.isPending || statusMutation.isPending}
+                                label="رد"
+                                onClick={() => setConfirm({
+                                  body: `آیا از رد درخواست مشاور «${fullName(consultant)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد.`,
+                                  confirmLabel: "رد درخواست",
+                                  onConfirm: async () => {
+                                    await statusMutation.mutateAsync({ consultant, status: "reject" });
+                                  },
+                                  title: "رد مشاور",
+                                })}
+                                tone="danger"
+                              />
+                            ) : null}
+                          </div>
                         </TableCell>
                       </motion.tr>
                     );
@@ -330,6 +358,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
       </Panel>
 
       <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+      <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
     </>
   );
 }

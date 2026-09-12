@@ -424,6 +424,8 @@ function getStatusBadgeClassName(status: string) {
   if (
     normalizedStatus.includes('پرداخت') ||
     normalizedStatus.includes('payment') ||
+    normalizedStatus.includes('نیمه') ||
+    normalizedStatus.includes('incomplete') ||
     normalizedStatus.includes('انتظار') ||
     normalizedStatus.includes('بررسی') ||
     normalizedStatus.includes('ویرایش') ||

@@ -185,6 +185,7 @@ const crmRoleLabels: Record<string, { subtitle: string; title: string }> = {
 export const advertiseStatusOptions = [
   { label: "در انتظار پرداخت", value: "wait_for_payment" },
   { label: "در انتظار مدیر", value: "wait_for_admin" },
+  { label: "نیمه کاره", value: "incomplete" },
   { label: "در انتظار آژانس", value: "wait_for_agency" },
   { label: "تأیید شده", value: "accepted" },
   { label: "رد شده", value: "rejected" },
@@ -268,6 +269,7 @@ function advertiseStatusLabel(status: unknown) {
       wait_for_admin: "در انتظار بررسی",
       wait_for_agency: "در انتظار آژانس",
       wait_for_payment: "در انتظار پرداخت",
+      incomplete: "نیمه کاره",
       "-3": "منقضی شده",
       "-2": "حذف شده",
       "-1": "رد شده",
@@ -511,13 +513,7 @@ export function CrmLayout({
     if (crmAds) {
       counts.advertises = crmAds.filter((ad) => {
         const s = String(ad.status ?? "").trim().toLowerCase();
-        return (
-          s === "wait_for_admin" ||
-          s === "review_requested" ||
-          s === "wait" ||
-          s === "1" ||
-          s === "0"
-        );
+        return s === "wait_for_admin" || s === "1";
       }).length;
     }
 
@@ -778,9 +774,9 @@ export function consultantStatusLabel(status: CrmConsultantStatus) {
 }
 
 export function consultantStatusTone(status: CrmConsultantStatus) {
-  if (status === "accept") return "text-[#0b8b55]";
-  if (status === "reject") return "text-[#cc3342]";
-  return "text-[#a06a00]";
+  if (status === "accept") return "bg-[#e9f8f0] text-[#0b8b55] border border-[#a3e4c4]";
+  if (status === "reject") return "bg-[#ffebed] text-[#ee3623] border border-[#f7b0b6]";
+  return "bg-[#fff7df] text-[#ff6d00] border border-[#ffe099]";
 }
 
 export function consultantApiIdentifier(value: string) {
@@ -1749,7 +1745,7 @@ export function StatusBadge({ status }: { status: unknown }) {
   const key = String(status ?? "").trim().toLowerCase();
   const tone = key === "accepted" || key === "3"
     ? "bg-[#ebfaf3] text-[#0b8b55]"
-    : key === "wait_for_payment" || key === "0"
+    : key === "wait_for_payment" || key === "0" || key === "incomplete" || key === "نیمه کاره"
       ? "bg-[#fff3e8] text-[#ff6d00]"
       : key === "wait_for_admin" || key === "wait_for_agency" || key === "1" || key === "2"
         ? "bg-[#fff7df] text-[#a06a00]"

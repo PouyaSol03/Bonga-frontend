@@ -15,7 +15,8 @@ export type AdvertiseStatus =
   | "needs_edit"
   | "rejected"
   | "deleted"
-  | "expired";
+  | "expired"
+  | "incomplete";
 
 export type CrmReportKind = "advertise" | "user";
 
@@ -490,6 +491,16 @@ export function toggleCrmUserStatus(id: string) {
 
 export function toggleCrmUserAuthorization(id: string) {
   return api.get(`panel/user/authorize/${id}`).json<unknown>();
+}
+
+export function updateCrmUserAuthorization(
+  id: string,
+  status: "accept" | "reject" | "toggle",
+  reason?: string,
+) {
+  return api
+    .post(`panel/user/authorize/${id}`, { json: { reason, status } })
+    .json<unknown>();
 }
 
 export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {

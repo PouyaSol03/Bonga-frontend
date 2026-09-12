@@ -23,6 +23,8 @@ export function AccountIdentityPage() {
   const authSession = getStoredAuthSession();
   const isAuthenticated = Boolean(authSession);
   const mobile = authSession?.mobile ?? "-";
+  const isRejected = Number(profile?.authorized) === 2;
+  const isPendingReview = Boolean(profile?.nationalnumber && !isUserIdentityVerified(profile) && !isRejected);
 
   useEffect(() => {
     if (isUserIdentityVerified(profile) && step === "pending") {
@@ -57,7 +59,8 @@ export function AccountIdentityPage() {
             initialNationalnumber={profile?.nationalnumber ?? ""}
             isAuthenticated={isAuthenticated}
             isPending={authorize.isPending}
-            isVerifying={Boolean(profile?.nationalnumber && !isUserIdentityVerified(profile))}
+            isVerifying={isPendingReview}
+            isRejected={isRejected}
             showRequiredNotice={isAuthRequired}
             onVerify={(nationalnumber) => {
               authorize.mutate(

@@ -24,6 +24,9 @@ export function FormSegmentedControl<T extends string>({
   showDividers = false,
   value,
 }: FormSegmentedControlProps<T>) {
+  const activeIndex = Math.max(0, options.findIndex((option) => option.value === value));
+  const count = options.length || 1;
+
   return (
     <div
       aria-label={ariaLabel}
@@ -31,29 +34,29 @@ export function FormSegmentedControl<T extends string>({
       dir="rtl"
       role="radiogroup"
     >
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 bg-[#edf0fb]"
+        style={{ width: `${100 / count}%` }}
+        animate={{ x: `${-activeIndex * 100}%` }}
+        transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
+      />
       {options.map((option, index) => {
         const selected = option.value === value;
 
         return (
           <Button unstyled
             aria-checked={selected}
-            className={`relative flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+            className={`relative flex min-w-0 flex-1 items-center justify-center border-[#808080] text-base font-medium leading-6 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
               showDividers && index < options.length - 1 ? "border-l" : ""
             } ${
-              selected ? "text-[#0048c4]" : "text-[#4d4d4d] hover:bg-[#f5f5f5] active:bg-[#e5e5e5]"
+              selected ? "text-[#0048c4] font-semibold" : "text-[#4d4d4d] hover:bg-[#f5f5f5]/50"
             }`}
             key={option.value}
             onClick={() => onChange(option.value)}
             role="radio"
             type="button"
           >
-            {selected && (
-              <motion.div
-                className="absolute inset-0 bg-[#edf0fb]"
-                layoutId={`form-segmented-indicator-${ariaLabel}`}
-                transition={{ damping: 35, stiffness: 450, type: "spring" }}
-              />
-            )}
             <span className="relative z-10">{option.label}</span>
           </Button>
         );

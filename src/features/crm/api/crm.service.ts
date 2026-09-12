@@ -403,6 +403,21 @@ export async function listCrmAdvertises(filters: CrmAdvertiseFilters = {}) {
   );
 }
 
+export async function countCrmAdvertisesByStatus(status: AdvertiseStatus | string): Promise<number> {
+  try {
+    const res = await api.post("panel/advertise/list", {
+      json: {
+        page: 1,
+        per_page: 1,
+        status,
+      },
+    }).json<{ total?: number; count?: number }>();
+    return Number(res.total ?? res.count ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
 export async function getCrmAdvertise(id: string) {
   return unwrapRecord(
     await api.get(`panel/advertise/show/${id}`).json<unknown>(),

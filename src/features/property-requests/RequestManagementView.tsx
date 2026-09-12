@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { motion } from "motion/react";
 
 import { getApiErrorMessage } from "../../shared/api/api";
 import { PageFrame } from "../../shared/layout/PageFrame";
@@ -662,47 +663,53 @@ function RequestTabs({
   tabs: RequestTabItem[];
   variant: "account" | "default";
 }) {
+  const activeIndex = Math.max(0, tabs.findIndex((tab) => tab.id === activeTab));
+  const count = tabs.length || 1;
+
   return (
     <section className={variant === "account" ? "px-4 py-2" : "bg-[#f5f5f5] px-4 py-4"}>
       <div
-        className={`grid overflow-hidden border border-[#808080] bg-white [direction:ltr] ${
+        className={`relative grid overflow-hidden border border-[#808080] bg-white [direction:rtl] ${
           variant === "account"
             ? "h-10 rounded-xl"
             : "h-10 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.18)]"
         }`}
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
-        {tabs.map((tab, index) => {
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 bg-[#dce6f7]"
+          style={{ width: `${100 / count}%` }}
+          animate={{ x: `${-activeIndex * 100}%` }}
+          transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
+        />
+        {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
           return (
             <Button unstyled
               aria-current={isActive ? "page" : undefined}
-              className={`inline-flex min-w-0 items-center justify-center border-[#d9d9d9] px-2 leading-5 transition focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
+              className={`relative inline-flex min-w-0 items-center justify-center px-2 leading-5 transition-colors duration-200 focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${
                 variant === "account"
                   ? "text-sm font-medium"
                   : "text-base font-semibold"
               } ${
-                index === 0 ? "" : "border-l"
-              } ${
                 isActive
-                  ? variant === "account"
-                    ? "bg-[#dce6f7] text-[#002099]"
-                    : "bg-[#dce6f7] text-[#002099]"
-                  : "bg-white text-[#4d4d4d] active:bg-[#f7f7f7]"
+                  ? "text-[#002099] font-semibold"
+                  : "text-[#4d4d4d] hover:bg-[#f7f7f7]/50"
               }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
             >
-              <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex min-w-0 items-center justify-center gap-1 [direction:ltr]">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="relative z-10 inline-flex min-w-0 items-center justify-center gap-1">
                 {tab.id === "received" && hasReceivedIndicator ? (
                   <Typography as="span" variant="body" size="medium" weight="regular"
                     aria-hidden="true"
                     className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ef3326]"
                   />
                 ) : null}
-                <Typography as="span" variant="label" size="large" weight="medium" className="[direction:rtl]">{tab.label}</Typography>
+                <Typography as="span" variant="label" size="large" weight="medium">{tab.label}</Typography>
               </Typography>
             </Button>
           );

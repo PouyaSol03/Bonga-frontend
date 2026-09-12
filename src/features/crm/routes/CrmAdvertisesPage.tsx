@@ -1,6 +1,6 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmAdvertises, updateCrmAdvertiseStatus, getCrmRecordId, type AdvertiseStatus } from "../api/crm.service";
+import { listCrmAdvertises, countCrmAdvertisesByStatus, updateCrmAdvertiseStatus, getCrmRecordId, type AdvertiseStatus } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "../crmAdvertiseNavigation";
@@ -35,7 +35,14 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
     queryKey: ["crm", "advertises", filters, refreshNonce],
   });
 
-  useQueryErrorToast([query.error], notify);
+  const pendingAdsCountQuery = useQuery({
+    queryFn: () => countCrmAdvertisesByStatus("wait_for_admin"),
+    queryKey: ["crm", "badges", "advertises", refreshNonce],
+    staleTime: 30_000,
+  });
+  const pendingCount = pendingAdsCountQuery.data ?? 0;
+
+  useQueryErrorToast([query.error, pendingAdsCountQuery.error], notify);
 
   const statusMutation = useMutation({
     mutationFn: ({ id, nextStatus, reason }: { id: string; nextStatus: AdvertiseStatus; reason?: string }) =>
@@ -90,12 +97,17 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 return (
                   <Button unstyled
                     aria-current={isActive ? "page" : undefined}
-                    className={`relative h-10 whitespace-nowrap bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
+                    className={`relative inline-flex items-center gap-1.5 h-10 whitespace-nowrap bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
                     key={option.value || "all"}
                     onClick={() => setStatus(option.value)}
                     type="button"
                   >
-                    {option.label}
+                    <span>{option.label}</span>
+                    {option.value === "wait_for_admin" && pendingCount > 0 ? (
+                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#e53935] px-1.5 text-[11px] font-bold text-white">
+                        {new Intl.NumberFormat("fa-IR").format(pendingCount)}
+                      </span>
+                    ) : null}
                     {isActive ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" /> : null}
                   </Button>
                 );

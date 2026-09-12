@@ -169,22 +169,33 @@ function PageHeader({ title }: { title: string }) {
     <TopBar onBack={handleBack} title={title} />
   );
 }
-function TransactionSegmentedControl({
+
+export function TransactionSelector({
   activeType,
-  desktop = false,
+  desktop,
   onChange,
 }: {
   activeType: TransactionType;
   desktop?: boolean;
   onChange: (type: TransactionType) => void;
 }) {
+  const activeIndex = Math.max(0, transactionTabs.indexOf(activeType));
+  const count = transactionTabs.length || 1;
+
   return (
     <div className={desktop ? "border-b border-[#e1e7f0] bg-white px-6 py-4" : "bg-[#f0f0f0] px-4 pb-4"}>
       <div
         aria-label="نوع معامله"
-        className={`grid grid-cols-3 overflow-hidden border border-[#808080] bg-white [direction:rtl] ${desktop ? "mx-auto max-w-[720px] rounded-xl" : "rounded-[17px]"}`}
+        className={`relative grid grid-cols-3 overflow-hidden border border-[#808080] bg-white [direction:rtl] ${desktop ? "mx-auto max-w-[720px] rounded-xl" : "rounded-[17px]"}`}
         role="tablist"
       >
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 bg-[#0048c41f]"
+          style={{ width: `${100 / count}%` }}
+          animate={{ x: `${-activeIndex * 100}%` }}
+          transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
+        />
         {transactionTabs.map((type) => {
           const config = transactionConfigs[type];
           const isActive = type === activeType;
@@ -192,21 +203,14 @@ function TransactionSegmentedControl({
           return (
             <Button unstyled
               aria-selected={isActive}
-              className={`relative min-w-0 py-2 text-center text-base font-medium leading-7 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
-                isActive ? "text-[#002099]" : "bg-white text-[#1a1a1a]"
+              className={`relative min-w-0 py-2 text-center text-base font-medium leading-7 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-[#0048c440] ${
+                isActive ? "text-[#002099] font-semibold" : "text-[#1a1a1a]"
               }`}
               key={type}
               onClick={() => onChange(type)}
               role="tab"
               type="button"
             >
-              {isActive && (
-                <motion.div
-                  className="absolute inset-0 bg-[#0048c41f]"
-                  layoutId="new-ad-transaction-indicator"
-                  transition={{ damping: 35, stiffness: 450, type: "spring" }}
-                />
-              )}
               <span className="relative z-10">{config.label}</span>
             </Button>
           );

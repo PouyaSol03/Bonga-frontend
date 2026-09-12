@@ -18,6 +18,7 @@ import { RouteLink } from "../../shared/navigation/RouteLink";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
 import { useQuery } from "@tanstack/react-query";
 import {
+  countCrmAdvertisesByStatus,
   getCrmRecordId,
   listCrmAdvertises,
   listCrmAgencies,
@@ -184,7 +185,7 @@ const crmRoleLabels: Record<string, { subtitle: string; title: string }> = {
 
 export const advertiseStatusOptions = [
   { label: "در انتظار پرداخت", value: "wait_for_payment" },
-  { label: "در انتظار مدیر", value: "wait_for_admin" },
+  { label: "در انتظار بررسی", value: "wait_for_admin" },
   { label: "نیمه کاره", value: "incomplete" },
   { label: "در انتظار آژانس", value: "wait_for_agency" },
   { label: "تأیید شده", value: "accepted" },
@@ -479,9 +480,9 @@ export function CrmLayout({
 
   const isSuperAdmin = crmRoleSlugs.includes("superadmin") || crmRoleSlugs.includes(SUPER_ADMIN);
 
-  const { data: crmAds } = useQuery({
+  const { data: pendingAdsCount } = useQuery({
     enabled: isSuperAdmin || allowedSections.has("advertises"),
-    queryFn: () => listCrmAdvertises(),
+    queryFn: () => countCrmAdvertisesByStatus("wait_for_admin"),
     queryKey: ["crm", "badges", "advertises", refreshNonce],
     staleTime: 30_000,
   });
@@ -510,11 +511,8 @@ export function CrmLayout({
   const pendingCounts = useMemo<Partial<Record<CrmSection, number>>>(() => {
     const counts: Partial<Record<CrmSection, number>> = {};
 
-    if (crmAds) {
-      counts.advertises = crmAds.filter((ad) => {
-        const s = String(ad.status ?? "").trim().toLowerCase();
-        return s === "wait_for_admin" || s === "1";
-      }).length;
+    if (pendingAdsCount !== undefined) {
+      counts.advertises = pendingAdsCount;
     }
 
     if (crmUsers) {

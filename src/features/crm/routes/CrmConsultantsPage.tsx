@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { createCrmConsultant, listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, getCrmRecordId } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { SwitchButton } from "../../../shared/components/SwitchButton";
 import { motion } from "motion/react";
 import LinearEdit2 from "../../../shared/icons/LinearEdit2";
 import { ConfirmModal, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";

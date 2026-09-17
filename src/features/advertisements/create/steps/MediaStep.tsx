@@ -129,6 +129,10 @@ export function MediaStep({
       ? "انتخاب آژانس"
       : "ثبت اطلاعات";
 
+  const isPersonalFlow = values.registrantType === "personal";
+  const hasContactMethod = Boolean(values.chatEnabled || values.phoneEnabled);
+  const isButtonDisabled = submitDisabled || (isPersonalFlow && !hasContactMethod);
+
   return (
     <>
       <main
@@ -204,7 +208,7 @@ export function MediaStep({
       </main>
 
       <Footer
-        disabled={submitDisabled}
+        disabled={isButtonDisabled}
         onBack={onBack}
         onPrimary={onSubmit}
         primary={primaryLabel}

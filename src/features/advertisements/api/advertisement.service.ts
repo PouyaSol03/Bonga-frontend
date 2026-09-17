@@ -1032,6 +1032,27 @@ export async function updateAdvertisement({
   return updatedAdvertise;
 }
 
+export async function deleteAdvertisement({
+  advertiseId,
+  deleteReasonId,
+  description,
+}: {
+  advertiseId: string | number;
+  deleteReasonId?: string;
+  description?: string;
+}) {
+  const response = await api
+    .post(`me/advertise/delete/${encodeURIComponent(String(advertiseId))}`, {
+      json: {
+        delete_reason_id: deleteReasonId,
+        description,
+      },
+    })
+    .json();
+
+  return response;
+}
+
 function unwrapAdvertisementCheckoutResponse(
   response: AdvertisementCheckoutResponse,
 ): AdvertisementCheckout {

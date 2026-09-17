@@ -265,7 +265,7 @@ function RealEstateManagerAdStatePage({
           <ActionDivider />
           <StateAdAction action={{ icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
           <ActionDivider />
-          <StateAdAction action={{ icon: "stats", label: "آمار", to: getAdVisitStatisticsPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
+          <StateAdAction action={{ icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
           <ActionDivider />
           <StateAdAction action={{ icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
         </section>
@@ -579,24 +579,25 @@ function WaitForPaymentNotice() {
 
 function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
-  const edit: StateAction = { icon: "edit", label: "ویرایش آگهی", to: getAdEditPath(adId) };
+  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
   const remove: StateAction = {
     icon: "delete",
     label: "حذف",
     to: `${adManagementPaths.delete}?adId=${encodeURIComponent(adId)}`,
   };
-  const upgrade: StateAction = { icon: "upgrade", label: "افزایش بازدید", to: getAdIncreaseVisitsPath(adId) };
+  const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
   const stats: StateAction = { icon: "stats", label: "آمار بازدید", to: getAdVisitStatisticsPath(adId) };
   const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
 
   if (status === "published") return [preview, edit, remove, upgrade, stats, history];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
-  if (status === "pending" || status === "wait_for_agency" || status === "needs_edit") return [preview, edit, remove, history];
+  if (status === "pending" || status === "wait_for_agency") return [preview, edit, remove, history];
+  if (status === "needs_edit") return [edit, preview, history];
   if (status === "incomplete") return [edit, payment, remove];
-  if (status === "expired") return [preview, history];
+  if (status === "expired" || status === "deleted" || status === "incomplete_deleted") return [preview, history];
 
-  return [preview, edit, history];
+  return [preview, history];
 }
 
 function StateAdAction({

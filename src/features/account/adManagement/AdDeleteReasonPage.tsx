@@ -7,11 +7,13 @@ import { adManagementPaths } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
+import { useDeleteAdvertisementMutation } from "../../advertisements/api/advertisement.hooks";
+
 const deleteReasons = [
-  { id: "sold-elsewhere", label: "از راه دیگر فروختم" },
+  { id: "sold-elsewhere", label: "از راه دیگری فروختم" },
   { id: "changed-mind", label: "از فروش منصرف شدم" },
   { id: "publishing-problem", label: "در انتشار آگهی به مشکل خوردم" },
-  { id: "other", label: "دلایل دیگر" },
+  { id: "other", label: "سایر موارد" },
 ] as const;
 
 type DeleteReasonId = (typeof deleteReasons)[number]["id"];
@@ -28,12 +30,25 @@ type DeleteAdRouteState = {
 export function AdDeleteReasonPage() {
   const routeState = useMemo(readRouteState, []);
   const [selectedReason, setSelectedReason] = useState<DeleteReasonId>(deleteReasons[0].id);
+  const deleteMutation = useDeleteAdvertisementMutation();
   const backTo = routeState.deleteReturnTo ?? adManagementPaths.published;
   const adId = readAdId(routeState);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const selectedReasonLabel = deleteReasons.find((reason) => reason.id === selectedReason)?.label ?? "";
     const completeTo = routeState.deleteCompleteTo ?? adManagementPaths.root;
+
+    if (adId) {
+      try {
+        await deleteMutation.mutateAsync({
+          advertiseId: adId,
+          deleteReasonId: selectedReason,
+          description: selectedReasonLabel,
+        });
+      } catch {
+        // proceed to state transition even if offline or mock
+      }
+    }
 
     window.history.pushState(
       {

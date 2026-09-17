@@ -58,7 +58,8 @@ type AgencyPaymentMethod =
   | "wallet";
 
 const checkoutItems = ["advertise_publish"];
-const unavailableAfterPublishWarning = "این قابلیت پس از انتشار آگهی فعال می‌شود.";
+const unavailableAfterPublishWarning =
+  "در زمان ثبت اولیه، امکانات ارتقا تا زمان ثبت و تأیید آگهی غیرفعال هستند.";
 const consultantUpgradeDisabledWarning =
   "امکانات ارتقای آگهی هنگام «ارسال به مشاور» قابل انتخاب نیست.";
 
@@ -1054,14 +1055,31 @@ function CheckoutTariffView({
             </Typography>
           </div>
 
-          {hasFreeQuota ? (
-            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-4 flex min-h-9 items-center gap-2 rounded-lg bg-primary-container px-3 py-2 text-right text-xs font-medium leading-5 text-primary">
-              <LinearInfoCircle className="h-5 w-5 shrink-0" />
-              <Typography as="span" variant="body" size="medium" weight="regular">
-                {new Intl.NumberFormat("fa-IR").format(freeQuotaRemaining)} تعرفه رایگان باقی مانده است
+          <div className="mt-4 rounded-xl border border-outline-var bg-surface-container-low p-4 space-y-3 text-right [direction:rtl]">
+            <div className="flex items-center justify-between text-sm">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">هزینه ثبت آگهی:</Typography>
+              <Typography as="span" variant="body" size="medium" weight="medium" className="inline-flex items-center gap-1">
+                {formatTariffToman(price)} <LinearTooman className="h-4 w-4" />
               </Typography>
-            </Typography>
-          ) : null}
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">اعتبار رایگان:</Typography>
+              <Typography as="span" variant="body" size="medium" weight="medium" className={hasFreeQuota ? "text-primary" : "text-outline"}>
+                {hasFreeQuota ? `${new Intl.NumberFormat("fa-IR").format(freeQuotaRemaining)} از ۳ تعرفه باقی مانده` : "تمام شده"}
+              </Typography>
+            </div>
+            <div className="border-t border-dashed border-outline-var pt-3 flex items-center justify-between text-base font-semibold">
+              <Typography as="span" variant="title" size="small" weight="semibold" className="text-on-surface">مبلغ قابل پرداخت:</Typography>
+              <Typography as="span" variant="title" size="small" weight="semibold" className="text-primary inline-flex items-center gap-1">
+                {hasFreeQuota ? "۰ تومان" : (
+                  <>
+                    {formatTariffToman(price)}
+                    <LinearTooman className="h-5 w-5" />
+                  </>
+                )}
+              </Typography>
+            </div>
+          </div>
         </section>
 
         <div className="h-2 bg-surface-container" aria-hidden="true" />
@@ -1076,7 +1094,11 @@ function CheckoutTariffView({
           onClick={onComplete}
           type="button"
         >
-          {pending ? "در حال انتشار آگهی..." : "تکمیل خرید"}
+          {pending
+            ? "در حال پردازش..."
+            : hasFreeQuota
+              ? "تکمیل خرید (کسر از اعتبار رایگان)"
+              : "انتخاب روش پرداخت"}
         </Button>
       </footer>
     </PageFrame>

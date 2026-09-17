@@ -1,4 +1,5 @@
 export type MyAdStatusKey =
+  | "archived"
   | "deleted"
   | "expired"
   | "incomplete"
@@ -6,9 +7,13 @@ export type MyAdStatusKey =
   | "needs_edit"
   | "pending"
   | "published"
+  | "rejected_by_agency"
   | "unknown"
   | "wait_for_agency"
-  | "wait_for_payment";
+  | "wait_for_deal_confirmation"
+  | "wait_for_payment"
+  | "wait_for_repost"
+  | "wait_for_stop";
 
 export type MyAdStatusInfo = {
   badgeClassName: string;
@@ -60,7 +65,32 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
   wait_for_agency: {
     badgeClassName: "bg-warning-container/40 text-warning",
     key: "wait_for_agency",
-    label: "در انتظار آژانس",
+    label: "در انتظار تأیید آژانس",
+  },
+  wait_for_repost: {
+    badgeClassName: "bg-warning-container/40 text-warning",
+    key: "wait_for_repost",
+    label: "در انتظار ثبت مجدد",
+  },
+  archived: {
+    badgeClassName: "bg-surface-container text-outline",
+    key: "archived",
+    label: "بایگانی‌شده",
+  },
+  rejected_by_agency: {
+    badgeClassName: "bg-error-container/40 text-error",
+    key: "rejected_by_agency",
+    label: "رد شده توسط آژانس",
+  },
+  wait_for_stop: {
+    badgeClassName: "bg-warning-container/40 text-warning",
+    key: "wait_for_stop",
+    label: "در انتظار توقف انتشار",
+  },
+  wait_for_deal_confirmation: {
+    badgeClassName: "bg-warning-container/40 text-warning",
+    key: "wait_for_deal_confirmation",
+    label: "در انتظار تأیید نتیجه معامله",
   },
   needs_edit: {
     badgeClassName: "bg-warning-container/40 text-warning",
@@ -111,6 +141,67 @@ function readCandidateStatus(source: unknown) {
 export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
   const rawStatus = readCandidateStatus(source);
   const status = normalizeStatusText(rawStatus);
+  const record = source && typeof source === "object" ? (source as Record<string, unknown>) : undefined;
+  const deleteReason = (record?.delete_reason ?? record?.deleteReason) as Record<string, unknown> | undefined;
+  const assignmentStatus = String(record?.assignment_status ?? record?.assignmentStatus ?? "").toLowerCase();
+
+  if (
+    deleteReason?.status === "pending_user_confirmation" ||
+    status === "wait-for-deal-confirmation" ||
+    status === "wait_for_deal_confirmation" ||
+    status.includes("تایید نتیجه") ||
+    status.includes("تأیید نتیجه")
+  ) {
+    return myAdStatusConfig.wait_for_deal_confirmation;
+  }
+
+  if (
+    (record?.stop_request as { status?: string } | undefined)?.status === "pending" ||
+    Boolean(record?.pending_stop_request) ||
+    Boolean(record?.has_pending_stop_request) ||
+    status === "wait-for-stop" ||
+    status === "wait_for_stop" ||
+    status === "stop_requested" ||
+    status.includes("توقف انتشار")
+  ) {
+    return myAdStatusConfig.wait_for_stop;
+  }
+
+  if (
+    assignmentStatus === "rejected" ||
+    deleteReason?.source === "agency_rejected" ||
+    status === "rejected-by-agency" ||
+    status === "rejected_by_agency" ||
+    status.includes("رد شده توسط آژانس") ||
+    status.includes("رد آژانس")
+  ) {
+    return myAdStatusConfig.rejected_by_agency;
+  }
+
+  if (
+    assignmentStatus === "cancelled" ||
+    deleteReason?.source === "assignment_cancelled" ||
+    status === "wait-for-repost" ||
+    status === "wait_for_repost" ||
+    status.includes("ثبت مجدد")
+  ) {
+    const repostDeadline = deleteReason?.repost_deadline ? Date.parse(String(deleteReason.repost_deadline)) : NaN;
+    const archiveDeadline = deleteReason?.archive_deadline ? Date.parse(String(deleteReason.archive_deadline)) : NaN;
+    if (!Number.isNaN(repostDeadline)) {
+      if (Date.now() <= repostDeadline) {
+        return myAdStatusConfig.wait_for_repost;
+      } else if (!Number.isNaN(archiveDeadline) && Date.now() <= archiveDeadline) {
+        return myAdStatusConfig.archived;
+      } else {
+        return myAdStatusConfig.deleted;
+      }
+    }
+    return myAdStatusConfig.wait_for_repost;
+  }
+
+  if (status === "archived" || status.includes("بایگانی")) {
+    return myAdStatusConfig.archived;
+  }
 
   if (
     ["-6", "incomplete-deleted", "incomplete_deleted"].includes(status) ||

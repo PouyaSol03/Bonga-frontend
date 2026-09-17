@@ -8,12 +8,14 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import LinearDanger from "../../../shared/icons/LinearDanger";
 
-type CloseResultReason = "done" | "not-done" | "expired";
+import { useSubmitAdvertiseDealResultMutation } from "../../advertisements/api/agency-advertise-assignment.hooks";
+
+type CloseResultReason = "successful" | "failed" | "unresponsive";
 
 const closeResultReasons: { label: string; value: CloseResultReason }[] = [
-  { label: "معامله انجام شد", value: "done" },
-  { label: "معامله انجام نشد", value: "not-done" },
-  { label: "مدت‌زمان پیشفرض بود", value: "expired" },
+  { label: "معامله انجام شد", value: "successful" },
+  { label: "معامله انجام نشد", value: "failed" },
+  { label: "مشتری پاسخگو نبود", value: "unresponsive" },
 ];
 
 export function AdCloseResultPage() {
@@ -25,6 +27,7 @@ export function AdCloseResultPage() {
       ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad`
       : adManagementPaths.root);
   const [selectedReason, setSelectedReason] = useState<CloseResultReason | null>(null);
+  const submitMutation = useSubmitAdvertiseDealResultMutation();
 
   function goBack() {
     window.history.pushState({ ...routeState, tab: routeState.tab ?? "active" }, "", returnTo);
@@ -32,19 +35,29 @@ export function AdCloseResultPage() {
   }
 
   function handleSubmit() {
-    if (!selectedReason) return;
+    if (!selectedReason || !adId) return;
 
-    window.history.pushState(
+    submitMutation.mutate(
       {
-        ...routeState,
-        closeResultReason: selectedReason,
-        closeResultSubmitted: true,
-        tab: routeState.tab ?? "active",
+        advertiseId: adId,
+        result: selectedReason,
       },
-      "",
-      returnTo,
+      {
+        onSuccess: () => {
+          window.history.pushState(
+            {
+              ...routeState,
+              closeResultReason: selectedReason,
+              closeResultSubmitted: true,
+              tab: routeState.tab ?? "active",
+            },
+            "",
+            returnTo,
+          );
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        },
+      },
     );
-    window.dispatchEvent(new PopStateEvent("popstate"));
   }
 
   return (

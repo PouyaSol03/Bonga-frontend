@@ -267,3 +267,93 @@ export async function changeAgencyAdvertiseConsultant({
   return response;
 }
 
+export async function cancelUserAdvertiseAssignment(advertiseId: string | number, reason?: string) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment/cancel`, {
+      json: { cancel_reason: reason ?? "لغو واگذاری توسط کاربر" },
+    })
+    .json();
+}
+
+export async function restoreArchivedAdvertise(advertiseId: string | number) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment/restore`)
+    .json();
+}
+
+export type CreateStopPublishRequestPayload = {
+  advertiseId: string | number;
+  reason: string;
+  description?: string;
+};
+
+export async function createStopPublishRequest({
+  advertiseId,
+  reason,
+  description,
+}: CreateStopPublishRequestPayload) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/stop-request`, {
+      json: { reason, description },
+    })
+    .json();
+}
+
+export async function cancelStopPublishRequest(advertiseId: string | number) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/stop-request/cancel`)
+    .json();
+}
+
+export async function approveAgencyStopRequest(
+  payload: string | number | { requestId: string | number; agencyResponse?: string },
+  maybeResponse?: string,
+) {
+  const requestId = typeof payload === "object" ? payload.requestId : payload;
+  const agencyResponse = typeof payload === "object" ? payload.agencyResponse : maybeResponse;
+  return api
+    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(requestId))}/approve`, {
+      json: { agency_response: agencyResponse },
+    })
+    .json();
+}
+
+export async function rejectAgencyStopRequest(
+  payload: string | number | { requestId: string | number; agencyResponse?: string },
+  maybeResponse?: string,
+) {
+  const requestId = typeof payload === "object" ? payload.requestId : payload;
+  const agencyResponse = typeof payload === "object" ? payload.agencyResponse : maybeResponse;
+  return api
+    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(requestId))}/reject`, {
+      json: { agency_response: agencyResponse },
+    })
+    .json();
+}
+
+export type SubmitDealResultPayload = {
+  advertiseId: string | number;
+  result: "successful" | "failed" | "unresponsive";
+  description?: string;
+};
+
+export async function submitAdvertiseDealResult({
+  advertiseId,
+  result,
+  description,
+}: SubmitDealResultPayload) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/result`, {
+      json: { result, description },
+    })
+    .json();
+}
+
+export async function confirmUserDealResult(advertiseId: string | number, confirmed: boolean) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/result/confirm`, {
+      json: { confirmed },
+    })
+    .json();
+}
+

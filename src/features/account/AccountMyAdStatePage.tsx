@@ -2,7 +2,16 @@ import { useMemo, useState } from "react";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useMyAdvertisementDetailQuery } from "../advertisements/api/advertisement.hooks";
-import { useChangeAgencyAdvertiseConsultantMutation } from "../advertisements/api/agency-advertise-assignment.hooks";
+import {
+  useApproveAgencyStopRequestMutation,
+  useCancelStopPublishRequestMutation,
+  useCancelUserAssignmentMutation,
+  useChangeAgencyAdvertiseConsultantMutation,
+  useConfirmUserDealResultMutation,
+  useCreateStopPublishRequestMutation,
+  useRejectAgencyStopRequestMutation,
+  useRestoreArchivedAdMutation,
+} from "../advertisements/api/agency-advertise-assignment.hooks";
 import { useAgencyConsultantsQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
@@ -39,6 +48,9 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearFactor from "../../shared/icons/LinearFactor";
 import LinearPayment from "../../shared/icons/LinearPayment";
+import LinearCall from "../../shared/icons/LinearCall";
+import LinearChat from "../../shared/icons/LinearChat";
+import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
 
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
@@ -50,11 +62,23 @@ type MyAdRouteState = {
   returnTo?: string;
 };
 
-type StateActionKey = "delete" | "edit" | "history" | "payment" | "preview" | "result" | "stats" | "upgrade";
+type StateActionKey =
+  | "call"
+  | "chat"
+  | "delete"
+  | "edit"
+  | "history"
+  | "payment"
+  | "preview"
+  | "result"
+  | "stats"
+  | "stop_publish"
+  | "upgrade";
 
 type StateAction = {
   icon: StateActionKey;
   label: string;
+  onClick?: () => void;
   to?: string;
 };
 
@@ -75,6 +99,24 @@ export function AccountMyAdStatePage() {
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
+  const [isCancelAssignmentModalOpen, setIsCancelAssignmentModalOpen] = useState(false);
+  const [isRepostChoiceModalOpen, setIsRepostChoiceModalOpen] = useState(false);
+  const [isStopPublishModalOpen, setIsStopPublishModalOpen] = useState(false);
+
+  const cancelAssignmentMutation = useCancelUserAssignmentMutation();
+  const restoreArchivedMutation = useRestoreArchivedAdMutation();
+  const createStopRequestMutation = useCreateStopPublishRequestMutation();
+  const cancelStopRequestMutation = useCancelStopPublishRequestMutation();
+  const confirmDealResultMutation = useConfirmUserDealResultMutation();
+
+  const isAssigned = Boolean(
+    sourceAd?.assigned_agency_id ||
+    sourceAd?.assignedAgencyId ||
+    sourceAd?.assignment_id ||
+    sourceAd?.assignmentId ||
+    sourceAd?.agency_id,
+  );
+
   if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
   }
@@ -92,7 +134,13 @@ export function AccountMyAdStatePage() {
     );
   }
 
-  const actions = getStateActions(statusInfo.key, adId ?? String(card.id));
+  const actions = getStateActions(
+    statusInfo.key,
+    adId ?? String(card.id),
+    isAssigned,
+    sourceAd,
+    () => setIsStopPublishModalOpen(true),
+  );
 
   return (
     <PageFrame
@@ -117,6 +165,59 @@ export function AccountMyAdStatePage() {
           <StateAdSummary ad={sourceAd} card={card} />
 
           {statusInfo.key === "published" ? <PublishedMeta ad={sourceAd} /> : null}
+          {statusInfo.key === "wait_for_agency" ? (
+            <WaitForAgencyNotice
+              ad={sourceAd}
+              onCancelAssignment={() => setIsCancelAssignmentModalOpen(true)}
+            />
+          ) : null}
+          {statusInfo.key === "wait_for_repost" ? (
+            <WaitForRepostNotice
+              ad={sourceAd}
+              onRepost={() => setIsRepostChoiceModalOpen(true)}
+            />
+          ) : null}
+          {statusInfo.key === "archived" ? (
+            <ArchivedNotice
+              ad={sourceAd}
+              isPending={restoreArchivedMutation.isPending}
+              onRestore={async () => {
+                if (adId) {
+                  await restoreArchivedMutation.mutateAsync(adId);
+                  void detailQuery.refetch();
+                }
+              }}
+            />
+          ) : null}
+          {statusInfo.key === "rejected_by_agency" ? (
+            <RejectedByAgencyNotice
+              ad={sourceAd}
+              onRepost={() => setIsRepostChoiceModalOpen(true)}
+            />
+          ) : null}
+          {statusInfo.key === "wait_for_stop" ? (
+            <WaitForStopNotice
+              isPending={cancelStopRequestMutation.isPending}
+              onCancelStop={async () => {
+                if (adId) {
+                  await cancelStopRequestMutation.mutateAsync(adId);
+                  void detailQuery.refetch();
+                }
+              }}
+            />
+          ) : null}
+          {statusInfo.key === "wait_for_deal_confirmation" ? (
+            <WaitForDealConfirmationNotice
+              ad={sourceAd}
+              isPending={confirmDealResultMutation.isPending}
+              onConfirm={async (confirmed: boolean) => {
+                if (adId) {
+                  await confirmDealResultMutation.mutateAsync({ advertiseId: adId, confirmed });
+                  void detailQuery.refetch();
+                }
+              }}
+            />
+          ) : null}
           {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice /> : null}
           {statusInfo.key === "pending" ? <PendingReviewNotice /> : null}
           {statusInfo.key === "needs_edit" ? (
@@ -141,6 +242,41 @@ export function AccountMyAdStatePage() {
           ))}
         </section>
       </main>
+
+      {isCancelAssignmentModalOpen ? (
+        <CancelAssignmentModal
+          isPending={cancelAssignmentMutation.isPending}
+          onCancel={() => setIsCancelAssignmentModalOpen(false)}
+          onConfirm={async () => {
+            if (adId) {
+              await cancelAssignmentMutation.mutateAsync({ advertiseId: adId });
+              setIsCancelAssignmentModalOpen(false);
+              void detailQuery.refetch();
+            }
+          }}
+        />
+      ) : null}
+
+      {isRepostChoiceModalOpen ? (
+        <RepostChoiceModal
+          adId={adId ?? String(card.id)}
+          onClose={() => setIsRepostChoiceModalOpen(false)}
+        />
+      ) : null}
+
+      {isStopPublishModalOpen ? (
+        <StopPublishModal
+          isPending={createStopRequestMutation.isPending}
+          onClose={() => setIsStopPublishModalOpen(false)}
+          onConfirm={async (reason: string) => {
+            if (adId) {
+              await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason });
+              setIsStopPublishModalOpen(false);
+              void detailQuery.refetch();
+            }
+          }}
+        />
+      ) : null}
     </PageFrame>
   );
 }
@@ -196,6 +332,8 @@ function RealEstateManagerAdStatePage({
     return options;
   }, [agencyQuery.data, consultantsQuery.data]);
   const changeConsultantMutation = useChangeAgencyAdvertiseConsultantMutation();
+  const approveStopMutation = useApproveAgencyStopRequestMutation();
+  const rejectStopMutation = useRejectAgencyStopRequestMutation();
   const rawConsultantId = ad?.assigned_consultant_id ?? ad?.assignedConsultantId ?? ad?.consultant_id ?? ad?.consultantId;
   const assignedConsultantId = typeof rawConsultantId === "object" ? readEntityId(rawConsultantId) : (rawConsultantId ? String(rawConsultantId) : undefined);
   const [publisherId, setPublisherId] = useState(() => {
@@ -228,6 +366,65 @@ function RealEstateManagerAdStatePage({
           <ManagerAdSummary ad={ad} card={card} />
 
           <PublishedMeta ad={ad} />
+
+          {statusInfo.key === "wait_for_stop" ? (
+            <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
+              <div className="flex items-center gap-2 text-warning">
+                <AlertIcon className="h-5 w-5 shrink-0" />
+                <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+                  درخواست توقف انتشار توسط آگهی‌دهنده
+                </Typography>
+              </div>
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+                کاربر درخواست توقف انتشار این آگهی را ثبت کرده است.
+              </Typography>
+              {ad?.delete_reason && typeof ad.delete_reason === "object" && (ad.delete_reason as Record<string, unknown>).reason ? (
+                <div className="mt-2 rounded-lg bg-surface p-2.5 text-xs font-medium text-on-surface border border-outline-var">
+                  علت درخواست: {String((ad.delete_reason as Record<string, unknown>).reason)}
+                </div>
+              ) : null}
+              <div className="mt-3 flex gap-2">
+                <Button
+                  unstyled
+                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90 disabled:opacity-50"
+                  disabled={approveStopMutation.isPending}
+                  onClick={async () => {
+                    await approveStopMutation.mutateAsync(adId);
+                    window.location.reload();
+                  }}
+                  type="button"
+                >
+                  {approveStopMutation.isPending ? "در حال ثبت..." : "موافقت با توقف انتشار"}
+                </Button>
+                <Button
+                  unstyled
+                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-error bg-surface text-xs font-medium text-error active:bg-error-container disabled:opacity-50"
+                  disabled={rejectStopMutation.isPending}
+                  onClick={async () => {
+                    await rejectStopMutation.mutateAsync(adId);
+                    window.location.reload();
+                  }}
+                  type="button"
+                >
+                  {rejectStopMutation.isPending ? "در حال ثبت..." : "رد درخواست توقف"}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {statusInfo.key === "wait_for_deal_confirmation" ? (
+            <div className="mt-4 rounded-2xl border border-primary bg-primary-container/20 p-4 text-right">
+              <div className="flex items-center gap-2 text-primary">
+                <ClockIcon className="h-5 w-5 shrink-0" />
+                <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+                  در انتظار تایید معامله توسط مشتری
+                </Typography>
+              </div>
+              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+                نتیجه معامله ثبت شده و پیام تایید برای مشتری ارسال شده است (مهلت پاسخ مشتری: ۳ روز).
+              </Typography>
+            </div>
+          ) : null}
         </section>
 
         <div className="h-2 bg-surface-container" aria-hidden="true" />
@@ -577,7 +774,13 @@ function WaitForPaymentNotice() {
   );
 }
 
-function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
+function getStateActions(
+  status: MyAdStatusKey,
+  adId: string,
+  isAssigned?: boolean,
+  ad?: Record<string, unknown>,
+  onStopPublish?: () => void,
+): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
   const remove: StateAction = {
@@ -590,9 +793,53 @@ function getStateActions(status: MyAdStatusKey, adId: string): StateAction[] {
   const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
 
-  if (status === "published") return [preview, edit, remove, upgrade, stats, history];
+  const rawPhone =
+    ad?.agency_phone ??
+    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).phone : undefined) ??
+    ad?.consultant_phone ??
+    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).phone : undefined) ??
+    ad?.phone;
+  const contactPhone = readText(rawPhone);
+
+  const callAgency: StateAction = {
+    icon: "call",
+    label: "تماس با مسئول آگهی",
+    onClick: () => {
+      if (contactPhone) {
+        window.location.href = `tel:${contactPhone}`;
+      } else {
+        alert("شماره تماس مسئول آگهی در دسترس نیست.");
+      }
+    },
+  };
+
+  const chatAgency: StateAction = {
+    icon: "chat",
+    label: "چت با مسئول آگهی",
+    onClick: () => {
+      window.location.href = `/messages?adId=${encodeURIComponent(adId)}`;
+    },
+  };
+
+  const stopPublish: StateAction = {
+    icon: "stop_publish",
+    label: "درخواست توقف انتشار",
+    onClick: onStopPublish,
+  };
+
+  if (status === "published") {
+    if (isAssigned) {
+      return [preview, stopPublish, callAgency, chatAgency, history];
+    }
+    return [preview, edit, remove, upgrade, stats, history];
+  }
+  if (status === "wait_for_agency") return [preview, history];
+  if (status === "wait_for_stop") return [preview, callAgency, chatAgency, history];
+  if (status === "wait_for_deal_confirmation") return [preview, history];
+  if (status === "wait_for_repost" || status === "rejected_by_agency") return [preview, remove, history];
+  if (status === "archived") return [preview, remove];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
-  if (status === "pending" || status === "wait_for_agency") return [preview, edit, remove, history];
+  if (status === "pending") return [preview, edit, remove, history];
   if (status === "needs_edit") return [edit, preview, history];
   if (status === "incomplete") return [edit, payment, remove];
   if (status === "expired" || status === "deleted" || status === "incomplete_deleted") return [preview, history];
@@ -622,6 +869,19 @@ function StateAdAction({
       </Typography>
     </>
   );
+
+  if (action.onClick) {
+    return (
+      <Button
+        unstyled
+        className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var active:bg-surface-container [direction:ltr]"
+        onClick={action.onClick}
+        type="button"
+      >
+        {content}
+      </Button>
+    );
+  }
 
   if (action.to) {
     return (
@@ -670,52 +930,506 @@ function ActionDivider() {
 }
 
 function StateIcon({ icon }: { icon: StateActionKey }) {
-  if (icon === "preview") {
-    return (
-      <LinearPreview className="h-6 w-6"/>
-    );
-  }
+  if (icon === "preview") return <LinearPreview className="h-6 w-6"/>;
+  if (icon === "edit") return <LinearEdit2 className="h-6 w-6"/>;
+  if (icon === "delete") return <LinearDelete className="h-6 w-6"/>;
+  if (icon === "upgrade") return <LinearChartUp className="h-6 w-6"/>;
+  if (icon === "payment") return <LinearPayment className="h-6 w-6"/>;
+  if (icon === "result") return <LinearFlag className="w-6 h-6"/>;
+  if (icon === "stats") return <LinearAnalytics className="h-6 w-6"/>;
+  if (icon === "call") return <LinearCall className="h-6 w-6"/>;
+  if (icon === "chat") return <LinearChat className="h-6 w-6"/>;
+  if (icon === "stop_publish") return <LinearCancelCircle className="h-6 w-6 text-error"/>;
 
-  if (icon === "edit") {
-    return (
-      <LinearEdit2 className="h-6 w-6"/>
-    );
-  }
+  return <LinearFactor className="h-6 w-6"/>;
+}
 
-  if (icon === "delete") {
-    return (
-      <LinearDelete className="h-6 w-6"/>
-    );
-  }
-
-  if (icon === "upgrade") {
-    return (
-      <LinearChartUp className="h-6 w-6"/>
-    );
-  }
-
-  if (icon === "payment") {
-    return (
-      <LinearPayment className="h-6 w-6"/>
-    );
-  }
-
-  if (icon === "result") {
-    return (
-      <LinearFlag className="w-6 h-6"/>
-    );
-  }
-
-  if (icon === "stats") {
-    return (
-      <LinearAnalytics className="h-6 w-6"/>
-    );
-  }
+function WaitForAgencyNotice({
+  ad,
+  onCancelAssignment,
+}: {
+  ad?: Record<string, unknown>;
+  onCancelAssignment: () => void;
+}) {
+  const agencyName = readText(ad?.assigned_agency_name ?? ad?.agency_name ?? (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).name : undefined)) || "آژانس املاک";
+  const deadlineRemaining = readAgencyDeadlineRemaining(ad?.created_at ?? ad?.createdAt);
 
   return (
-    <LinearFactor className="h-6 w-6"/>
+    <div className="mt-4 rounded-2xl border border-warning bg-warning-container/30 p-4 text-right">
+      <div className="flex items-center gap-2 text-warning">
+        <ClockIcon className="h-5 w-5 shrink-0" />
+        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+          در انتظار بررسی و تایید {agencyName}
+        </Typography>
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+        آگهی شما با موفقیت برای این آژانس ارسال شده است. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در صورت تمایل می‌توانید پیش از تایید آژانس، واگذاری را لغو کنید.
+      </Typography>
+
+      <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
+        <Typography as="span" variant="body" size="small" weight="medium" className="text-on-surface [direction:rtl]">
+          {deadlineRemaining}
+        </Typography>
+        <span className="[direction:rtl]">مهلت باقی‌مانده تایید آژانس:</span>
+      </div>
+
+      <Button
+        unstyled
+        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
+        onClick={onCancelAssignment}
+        type="button"
+      >
+        لغو واگذاری به آژانس
+      </Button>
+    </div>
   );
 }
+
+function WaitForRepostNotice({
+  ad,
+  onRepost,
+}: {
+  ad?: Record<string, unknown>;
+  onRepost: () => void;
+}) {
+  const repostRemaining = readDeadlineRemaining(
+    ad?.delete_reason && typeof ad.delete_reason === "object"
+      ? (ad.delete_reason as Record<string, unknown>).repost_deadline
+      : undefined,
+    7,
+    ad?.updated_at ?? ad?.updatedAt
+  );
+
+  return (
+    <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
+      <div className="flex items-center gap-2 text-warning">
+        <AlertIcon className="h-5 w-5 shrink-0" />
+        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+          در انتظار انتشار مجدد
+        </Typography>
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+        واگذاری این آگهی لغو شده است. شما ۷ روز فرصت دارید تا این آگهی را به آژانس دیگری واگذار کنید یا با پرداخت هزینه، مستقیماً منتشر نمایید.
+      </Typography>
+
+      <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
+        <Typography as="span" variant="body" size="small" weight="medium" className="text-on-surface [direction:rtl]">
+          {repostRemaining}
+        </Typography>
+        <span className="[direction:rtl]">مهلت انتشار مجدد:</span>
+      </div>
+
+      <Button
+        unstyled
+        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90"
+        onClick={onRepost}
+        type="button"
+      >
+        انتشار مجدد آگهی
+      </Button>
+    </div>
+  );
+}
+
+function ArchivedNotice({
+  ad,
+  isPending,
+  onRestore,
+}: {
+  ad?: Record<string, unknown>;
+  isPending: boolean;
+  onRestore: () => void;
+}) {
+  const archiveRemaining = readDeadlineRemaining(
+    ad?.delete_reason && typeof ad.delete_reason === "object"
+      ? (ad.delete_reason as Record<string, unknown>).archive_deadline
+      : undefined,
+    30,
+    ad?.updated_at ?? ad?.updatedAt
+  );
+
+  return (
+    <div className="mt-4 rounded-2xl border border-outline-var bg-surface p-4 text-right">
+      <div className="flex items-center gap-2 text-outline">
+        <ClockIcon className="h-5 w-5 shrink-0" />
+        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5 text-on-surface">
+          آگهی بایگانی شده
+        </Typography>
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+        مهلت انتشار مجدد این آگهی به پایان رسیده و آگهی به بایگانی منتقل شده است. تا ۱ ماه می‌توانید آگهی را بازیابی کنید. پس از آن برای همیشه حذف خواهد شد.
+      </Typography>
+
+      <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
+        <Typography as="span" variant="body" size="small" weight="medium" className="text-on-surface [direction:rtl]">
+          {archiveRemaining}
+        </Typography>
+        <span className="[direction:rtl]">مهلت بازیابی از بایگانی:</span>
+      </div>
+
+      <Button
+        unstyled
+        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg border border-primary bg-surface-container-lowest text-xs font-medium text-primary active:bg-primary-container disabled:opacity-50"
+        disabled={isPending}
+        onClick={onRestore}
+        type="button"
+      >
+        {isPending ? "در حال بازیابی..." : "بازیابی و بازگشت به آگهی‌های در انتظار"}
+      </Button>
+    </div>
+  );
+}
+
+function RejectedByAgencyNotice({
+  ad,
+  onRepost,
+}: {
+  ad?: Record<string, unknown>;
+  onRepost: () => void;
+}) {
+  const reason = (ad?.delete_reason && typeof ad.delete_reason === "object"
+    ? (ad.delete_reason as Record<string, unknown>).reason
+    : undefined) ?? ad?.reject_reason ?? ad?.rejection_reason ?? "عدم توافق در شرایط انتشار";
+
+  return (
+    <div className="mt-4 rounded-2xl border border-error bg-error-container/30 p-4 text-right">
+      <div className="flex items-center gap-2 text-error">
+        <AlertIcon className="h-5 w-5 shrink-0" />
+        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+          رد درخواست توسط آژانس
+        </Typography>
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+        آژانس انتخابی درخواست واگذاری این آگهی را با دلیل زیر رد کرده است:
+      </Typography>
+
+      <div className="mt-2 rounded-lg bg-surface p-2.5 text-xs font-medium text-on-surface border border-outline-var">
+        علت رد: {String(reason)}
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+        می‌توانید آگهی را به آژانس دیگری واگذار نمایید یا مستقیماً به عنوان آگهی شخصی منتشر کنید.
+      </Typography>
+
+      <Button
+        unstyled
+        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90"
+        onClick={onRepost}
+        type="button"
+      >
+        انتخاب مجدد روش انتشار
+      </Button>
+    </div>
+  );
+}
+
+function WaitForStopNotice({
+  isPending,
+  onCancelStop,
+}: {
+  isPending: boolean;
+  onCancelStop: () => void;
+}) {
+  return (
+    <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
+      <div className="flex items-center gap-2 text-warning">
+        <ClockIcon className="h-5 w-5 shrink-0" />
+        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+          در انتظار تایید توقف انتشار
+        </Typography>
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+        درخواست توقف انتشار این آگهی برای آژانس ارسال شده و آگهی پس از بررسی آژانس از حالت انتشار خارج خواهد شد.
+      </Typography>
+
+      <Button
+        unstyled
+        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container disabled:opacity-50"
+        disabled={isPending}
+        onClick={onCancelStop}
+        type="button"
+      >
+        {isPending ? "در حال انصراف..." : "انصراف از درخواست توقف"}
+      </Button>
+    </div>
+  );
+}
+
+function WaitForDealConfirmationNotice({
+  ad: _ad,
+  isPending,
+  onConfirm,
+}: {
+  ad?: Record<string, unknown>;
+  isPending: boolean;
+  onConfirm: (confirmed: boolean) => void;
+}) {
+  return (
+    <div className="mt-4 rounded-2xl border-2 border-primary bg-primary-container/20 p-4 text-right shadow-sm">
+      <div className="flex items-center gap-2 text-primary">
+        <LinearFlag className="h-5 w-5 shrink-0" />
+        <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 text-sm leading-5">
+          آیا معامله این ملک با موفقیت انجام شد؟
+        </Typography>
+      </div>
+
+      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+        آژانس وضعیت این آگهی را «معامله انجام شده» ثبت کرده است. لطفا جهت تایید نهایی و پایان فرایند، نتیجه را مشخص نمایید (مهلت پاسخ: ۳ روز).
+      </Typography>
+
+      <div className="mt-4 flex gap-2">
+        <Button
+          unstyled
+          className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-on-primary active:opacity-90 disabled:opacity-50"
+          disabled={isPending}
+          onClick={() => onConfirm(true)}
+          type="button"
+        >
+          بله، معامله انجام شد
+        </Button>
+        <Button
+          unstyled
+          className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-error bg-surface text-xs font-semibold text-error active:bg-error-container disabled:opacity-50"
+          disabled={isPending}
+          onClick={() => onConfirm(false)}
+          type="button"
+        >
+          خیر، معامله انجام نشد
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function CancelAssignmentModal({
+  isPending,
+  onCancel,
+  onConfirm,
+}: {
+  isPending: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/50 p-4 [direction:rtl]"
+      role="dialog"
+    >
+      <div className="w-full max-w-sm rounded-2xl bg-surface p-5 text-right shadow-xl">
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
+          لغو واگذاری به آژانس
+        </Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-xs leading-6 text-on-surface-var">
+          آیا از لغو واگذاری این آگهی به آژانس اطمینان دارید؟ پس از لغو، ۷ روز مهلت خواهید داشت تا آن را به آژانس دیگری واگذار کنید یا مستقیماً منتشر نمایید.
+        </Typography>
+
+        <div className="mt-5 flex gap-2">
+          <Button
+            unstyled
+            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-error text-xs font-medium text-white active:opacity-90 disabled:opacity-50"
+            disabled={isPending}
+            onClick={onConfirm}
+            type="button"
+          >
+            {isPending ? "در حال لغو..." : "بله، لغو واگذاری"}
+          </Button>
+          <Button
+            unstyled
+            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
+            disabled={isPending}
+            onClick={onCancel}
+            type="button"
+          >
+            انصراف
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RepostChoiceModal({
+  adId,
+  onClose,
+}: {
+  adId: string;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-[1200] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 [direction:rtl]"
+      role="dialog"
+    >
+      <div className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-surface p-5 text-right shadow-xl">
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
+          انتخاب روش انتشار مجدد
+        </Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+          تمایل دارید آگهی را به چه صورت مجدداً منتشر نمایید؟
+        </Typography>
+
+        <div className="mt-4 space-y-2.5">
+          <RouteLink
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface no-underline active:bg-surface-container"
+            to={getAdPaymentPath(adId)}
+          >
+            <span>انتشار شخصی و مستقیم (پرداخت آنلاین)</span>
+            <ChevronLeftIcon className="h-5 w-5 text-outline" />
+          </RouteLink>
+
+          <RouteLink
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface no-underline active:bg-surface-container"
+            to={`/new-ad?step=agency&reassignAdId=${encodeURIComponent(adId)}`}
+          >
+            <span>ارسال و واگذاری به آژانس املاک دیگر</span>
+            <ChevronLeftIcon className="h-5 w-5 text-outline" />
+          </RouteLink>
+        </div>
+
+        <Button
+          unstyled
+          className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-lg border border-outline-var bg-transparent text-xs font-medium text-outline active:bg-surface-container"
+          onClick={onClose}
+          type="button"
+        >
+          بستن
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+const STOP_PUBLISH_REASONS = [
+  "معامله انجام شده",
+  "دیگر تمایلی به انتشار ندارم",
+  "سایر دلایل",
+] as const;
+
+function StopPublishModal({
+  isPending,
+  onClose,
+  onConfirm,
+}: {
+  isPending: boolean;
+  onClose: () => void;
+  onConfirm: (reason: string) => void;
+}) {
+  const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_REASONS[0]);
+  const [customReason, setCustomReason] = useState("");
+
+  const handleSubmit = () => {
+    const finalReason = selectedReason === "سایر دلایل" && customReason.trim()
+      ? customReason.trim()
+      : selectedReason;
+    onConfirm(finalReason);
+  };
+
+  return (
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-[1200] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 [direction:rtl]"
+      role="dialog"
+    >
+      <div className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-surface p-5 text-right shadow-xl">
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
+          درخواست توقف انتشار
+        </Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+          لطفا دلیل درخواست توقف انتشار را انتخاب کنید:
+        </Typography>
+
+        <div className="mt-4 space-y-2">
+          {STOP_PUBLISH_REASONS.map((reason) => (
+            <label
+              key={reason}
+              className="flex items-center justify-between rounded-xl border border-outline-var p-3 cursor-pointer hover:bg-surface-container"
+            >
+              <div className="flex items-center gap-2.5">
+                <input
+                  type="radio"
+                  name="stopReason"
+                  value={reason}
+                  checked={selectedReason === reason}
+                  onChange={() => setSelectedReason(reason)}
+                  className="accent-primary h-4 w-4"
+                />
+                <span className="text-xs font-medium text-on-surface">{reason}</span>
+              </div>
+            </label>
+          ))}
+        </div>
+
+        {selectedReason === "سایر دلایل" ? (
+          <textarea
+            className="mt-3 w-full rounded-xl border border-outline-var bg-surface p-3 text-xs text-on-surface focus:outline-primary"
+            placeholder="توضیح کوتاه دلیل توقف..."
+            rows={2}
+            value={customReason}
+            onChange={(e) => setCustomReason(e.target.value)}
+          />
+        ) : null}
+
+        <div className="mt-5 flex gap-2">
+          <Button
+            unstyled
+            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90 disabled:opacity-50"
+            disabled={isPending}
+            onClick={handleSubmit}
+            type="button"
+          >
+            {isPending ? "در حال ثبت..." : "ثبت درخواست"}
+          </Button>
+          <Button
+            unstyled
+            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
+            disabled={isPending}
+            onClick={onClose}
+            type="button"
+          >
+            انصراف
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function readAgencyDeadlineRemaining(createdAt: unknown) {
+  if (typeof createdAt !== "string" || !createdAt.trim()) return "۲۴ ساعت";
+  const start = Date.parse(createdAt);
+  if (!Number.isFinite(start)) return "۲۴ ساعت";
+  const deadline = start + 24 * 60 * 60 * 1000;
+  const diff = deadline - Date.now();
+  if (diff <= 0) return "منقضی شده";
+  const hours = Math.floor(diff / (60 * 60 * 1000));
+  const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
+}
+
+function readDeadlineRemaining(deadlineDate: unknown, defaultDays: number, fallbackDate: unknown) {
+  let targetTimestamp: number | null = null;
+  if (typeof deadlineDate === "string" && deadlineDate.trim()) {
+    const t = Date.parse(deadlineDate);
+    if (Number.isFinite(t)) targetTimestamp = t;
+  }
+  if (!targetTimestamp && typeof fallbackDate === "string" && fallbackDate.trim()) {
+    const t = Date.parse(fallbackDate);
+    if (Number.isFinite(t)) targetTimestamp = t + defaultDays * 24 * 60 * 60 * 1000;
+  }
+  if (!targetTimestamp) return `${toPersianDigits(defaultDays)} روز`;
+  const diff = targetTimestamp - Date.now();
+  if (diff <= 0) return "مهلت به پایان رسیده است";
+  const days = Math.ceil(diff / (24 * 60 * 60 * 1000));
+  return `${toPersianDigits(days)} روز دیگر`;
+}
+
 
 function ChevronLeftIcon({ className = "" }: { className?: string }) {
   return (

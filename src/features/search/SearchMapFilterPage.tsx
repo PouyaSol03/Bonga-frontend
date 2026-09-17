@@ -3012,15 +3012,11 @@ function ExchangeFilterSection({
   );
 }
 
-function FeatureChipIcon({ label, selected }: { label: string; selected?: boolean }) {
+function FeatureChipIcon({ label }: { label: string; selected?: boolean }) {
   return (
     <FeatureIcon
       feature={label}
-      className={`h-5 w-5 shrink-0 object-contain ${
-        selected
-          ? "[filter:brightness(0)_saturate(100%)_invert(20%)_sepia(95%)_saturate(2950%)_hue-rotate(211deg)_brightness(88%)_contrast(105%)]"
-          : "[filter:brightness(0)_saturate(100%)_invert(28%)_sepia(0%)_saturate(0%)_hue-rotate(178deg)_brightness(95%)_contrast(85%)]"
-      }`}
+      className="h-5 w-5 shrink-0 object-contain"
     />
   );
 }

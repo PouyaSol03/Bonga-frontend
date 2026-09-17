@@ -36,7 +36,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
  * - filled focus/pressed: 8% white state layer
  * - outlined/ghost hover: 8% primary state layer
  * - outlined/ghost focus/pressed: 16% primary state layer
- * - disabled surface: 12% #1A1A1A with 30% disabled content
+ * - disabled surface: 12% on-surface with 30% disabled content
  */
 const variantClasses: Record<ButtonVariant, string> = {
   danger:

@@ -177,11 +177,11 @@ function BottomNavigationComponent({
               }
 
               if (option.id === "agency-manager") {
-                navigateTo("/new-ad/agency?registrantType=personal");
+                navigateTo("/new-ad/agency?registrantType=personal&publisherType=agency");
                 return;
               }
 
-              navigateTo("/new-ad/agency-consultant?registrantType=personal");
+              navigateTo("/new-ad/agency-consultant?registrantType=personal&publisherType=agent");
             }}
           />
         </Suspense>

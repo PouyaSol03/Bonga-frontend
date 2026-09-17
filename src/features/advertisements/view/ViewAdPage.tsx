@@ -37,6 +37,9 @@ import {
 import { ViewAdIcon } from "./ViewAdIcon";
 import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
+import TonalInstagram from "../../../shared/icons/TonalInstagram";
+import TonalTelegram from "../../../shared/icons/TonalTelegram";
+import TonalWhatsapp from "../../../shared/icons/TonalWhatsapp";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
@@ -198,7 +201,7 @@ function RentPriceConversionViewer({
   const sliderPercent = range > 0 ? Math.min(100, Math.max(0, ((currentMortgage - limitMortgage) / range) * 100)) : 100;
 
   return (
-    <div className="rounded-2xl bg-white [direction:rtl]">
+    <div className="rounded-2xl bg-surface-container-lowest [direction:rtl]">
       <div className="h-px w-full mb-4 bg-surface-container-highest"></div>
       <Typography
         as="p"
@@ -728,27 +731,9 @@ function ClockIcon({ className = "" }: { className?: string }) {
 }
 
 function SocialIcon({ type }: { type: "instagram" | "telegram" | "whatsapp" }) {
-  const styles = {
-    instagram:
-      "bg-[linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)] text-white",
-    telegram: "bg-[#34aadf] text-white",
-    whatsapp: "bg-[#20c363] text-white",
-  };
-
-  const label = {
-    instagram: "I",
-    telegram: "T",
-    whatsapp: "W",
-  };
-
-  return (
-    <Typography as="span" variant="label" size="small" weight="semibold"
-      aria-hidden="true"
-      className={`grid h-8 w-8 place-items-center rounded-full text-xs font-semibold ${styles[type]}`}
-    >
-      {label[type]}
-    </Typography>
-  );
+  if (type === "instagram") return <TonalInstagram className="h-8 w-8" />;
+  if (type === "telegram") return <TonalTelegram className="h-8 w-8" />;
+  return <TonalWhatsapp className="h-8 w-8" />;
 }
 
 type SingleAdContactInfo = {
@@ -1032,7 +1017,7 @@ function ViewAdContent({
 
   return (
     <>
-      <section className="bg-white pb-4">
+      <section className="bg-surface-container-lowest pb-4">
         <GalleryHero
           hasTour3d={hasTour3d}
           imagesBelongToAd={details.imagesBelongToAd}

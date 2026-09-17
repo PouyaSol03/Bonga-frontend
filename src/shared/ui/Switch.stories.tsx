@@ -42,27 +42,27 @@ export const InteractiveSettingsList: Story = {
     };
 
     return (
-      <div className="max-w-md p-4 bg-white rounded-xl border border-[#e5e5e5] divide-y divide-[#f0f0f0]">
+      <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var divide-y divide-outline-var">
         <div className="flex items-center justify-between py-3">
           <div>
-            <div className="text-sm font-medium text-[#1a1a1a]">اعلان‌های درون‌برنامه‌ای (Push)</div>
-            <div className="text-xs text-[#808080]">دریافت پیام‌ها و وضعیت بررسی آگهی‌ها</div>
+            <div className="text-sm font-medium text-on-surface">اعلان‌های درون‌برنامه‌ای (Push)</div>
+            <div className="text-xs text-outline">دریافت پیام‌ها و وضعیت بررسی آگهی‌ها</div>
           </div>
           <Switch checked={settings.push} onChange={() => update("push")} />
         </div>
 
         <div className="flex items-center justify-between py-3">
           <div>
-            <div className="text-sm font-medium text-[#1a1a1a]">ارسال پیامک (SMS)</div>
-            <div className="text-xs text-[#808080]">اطلاع‌رسانی پیام‌های ضروری چت از طریق پیامک</div>
+            <div className="text-sm font-medium text-on-surface">ارسال پیامک (SMS)</div>
+            <div className="text-xs text-outline">اطلاع‌رسانی پیام‌های ضروری چت از طریق پیامک</div>
           </div>
           <Switch checked={settings.sms} onChange={() => update("sms")} />
         </div>
 
         <div className="flex items-center justify-between py-3">
           <div>
-            <div className="text-sm font-medium text-[#1a1a1a]">هشدار کاهش قیمت آگهی‌های نشان‌شده</div>
-            <div className="text-xs text-[#808080]">هنگام تخفیف یا کاهش قیمت توسط مالک</div>
+            <div className="text-sm font-medium text-on-surface">هشدار کاهش قیمت آگهی‌های نشان‌شده</div>
+            <div className="text-xs text-outline">هنگام تخفیف یا کاهش قیمت توسط مالک</div>
           </div>
           <Switch checked={settings.priceDrop} onChange={() => update("priceDrop")} />
         </div>
@@ -74,20 +74,20 @@ export const InteractiveSettingsList: Story = {
 export const States: Story = {
   name: "حالت‌های روشن، خاموش و غیرفعال",
   render: () => (
-    <div className="flex items-center gap-8 p-4 bg-white rounded-xl border border-[#e5e5e5]">
+    <div className="flex items-center gap-8 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
       <div className="flex items-center gap-2">
         <Switch checked onChange={() => {}} />
-        <span className="text-sm text-[#1a1a1a]">روشن (Active)</span>
+        <span className="text-sm text-on-surface">روشن (Active)</span>
       </div>
 
       <div className="flex items-center gap-2">
         <Switch checked={false} onChange={() => {}} />
-        <span className="text-sm text-[#1a1a1a]">خاموش (Inactive)</span>
+        <span className="text-sm text-on-surface">خاموش (Inactive)</span>
       </div>
 
       <div className="flex items-center gap-2">
         <Switch checked disabled onChange={() => {}} />
-        <span className="text-sm text-[#808080]">غیرفعال (Disabled)</span>
+        <span className="text-sm text-outline">غیرفعال (Disabled)</span>
       </div>
     </div>
   ),

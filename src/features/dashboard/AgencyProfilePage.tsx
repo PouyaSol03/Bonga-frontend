@@ -375,7 +375,7 @@ export function AgencyProfilePage() {
 
   return (
     <PageFrame
-      className="relative mx-auto flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-[#f5f5f5] text-[#1a1a1a] [direction:rtl]"
+      className="relative mx-auto flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -390,7 +390,7 @@ export function AgencyProfilePage() {
 
       <main className="min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pb-28">
         {agencyProfileQuery.isLoading ? (
-          <div className="bg-white px-4 py-3 text-center text-sm font-medium text-[#808080]">
+          <div className="bg-surface-container-lowest px-4 py-3 text-center text-sm font-medium text-outline">
             در حال دریافت اطلاعات آژانس...
           </div>
         ) : null}
@@ -491,7 +491,7 @@ function OwnerInfoSection({
       <div className="mt-4 grid gap-3">
         <Field onChange={onAgencyNameChange} placeholder="نام آژانس" value={agencyName} />
         {agencyNameError ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 -mt-1 text-right text-xs font-normal leading-5 text-[#c11004]">
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 -mt-1 text-right text-xs font-normal leading-5 text-error">
             {agencyNameError}
           </Typography>
         ) : null}
@@ -507,9 +507,9 @@ function OwnerInfoSection({
 
 function LogoHelpText() {
   return (
-    <div className="flex gap-1 text-right text-xs font-normal text-[#808080]">
+    <div className="flex gap-1 text-right text-xs font-normal text-outline">
       <div className="flex">
-        <LinearInfoCircle className="h-4.5 w-4.5 text-[#4d4d4d]" />
+        <LinearInfoCircle className="h-4.5 w-4.5 text-on-surface-var" />
       </div>
       <div>
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex items-center gap-1.5">حجم عکس کمتر از 1MB باشد</Typography>
@@ -542,11 +542,11 @@ function AgencyLogoUpload({
       <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mb-3 text-sm font-semibold leading-5">لوگوی آژانس</Typography>
       <Button unstyled
         aria-label="بارگذاری لوگوی آژانس"
-        className="relative mx-auto mr-3 grid h-22 w-22 place-items-center overflow-visible rounded-full text-[#4d4d4d]"
+        className="relative mx-auto mr-3 grid h-22 w-22 place-items-center overflow-visible rounded-full text-on-surface-var"
         onClick={() => inputRef.current?.click()}
         type="button"
       >
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#f0f0f0]">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-surface-container">
           {imageUrl ? (
             <img alt="لوگوی آژانس" className="h-full w-full object-cover" src={imageUrl} />
           ) : (
@@ -554,7 +554,7 @@ function AgencyLogoUpload({
           )}
         </Typography>
 
-        <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-white bg-[#0048c4] text-white">
+        <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-surface-container-lowest bg-primary text-on-primary">
           <LinearEdit2 className="h-4 w-4" />
         </Typography>
       </Button>
@@ -603,7 +603,7 @@ function ContactInfoSection({
   return (
     <Section title="اطلاعات تماس">
       <div className="grid gap-3">
-        <Typography as="p" variant="body" size="medium" weight="medium" className="mt-4 text-right font-medium leading-5 text-[#1a1a1a]">شماره تماس</Typography>
+        <Typography as="p" variant="body" size="medium" weight="medium" className="mt-4 text-right font-medium leading-5 text-on-surface">شماره تماس</Typography>
         <Field onChange={onPhone1Change} placeholder="شماره تماس اول" value={phone1} />
         <Field onChange={onPhone2Change} placeholder="شماره تماس دوم" value={phone2} />
         <Field onChange={onPhone3Change} placeholder="شماره همراه" value={phone3} />
@@ -650,12 +650,12 @@ function ActivityAreaSection({
       <div className="flex items-center justify-between gap-3">
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">محدوده فعالیت</Typography>
         <Button unstyled
-          className="inline-flex h-8 shrink-0 items-center gap-1.5 text-sm font-semibold leading-5 text-[#0048c4]"
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 text-sm font-semibold leading-5 text-primary"
           onClick={onOpenPicker}
           type="button"
         >
           {activityAreas.length ? `${activityAreas.length} انتخاب` : "انتخاب"}
-          <LinearArrowLeft1 className="h-5 w-5 text-[#4D4D4D]" />
+          <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
         </Button>
       </div>
 
@@ -672,12 +672,12 @@ function ActivityAreaSection({
           ))}
         </div>
       ) : (
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-6 text-[#808080]">
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-6 text-outline">
           برای نمایش محدوده فعالیت آژانس، محله‌ها را انتخاب کنید.
         </Typography>
       )}
       {error ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-right text-xs font-normal leading-5 text-[#c11004]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-right text-xs font-normal leading-5 text-error">
           {error}
         </Typography>
       ) : null}
@@ -695,14 +695,14 @@ function AboutSection({
   return (
     <Section title="درباره ما">
       <Button unstyled
-        className="mr-auto mt-3 inline-flex px-4 py-1.5 items-center gap-2 rounded-lg bg-[#e7e8ed] text-xs! font-medium! leading-5 text-[#2E2D3E]"
+        className="mr-auto mt-3 inline-flex px-4 py-1.5 items-center gap-2 rounded-lg bg-surface-container-high text-xs! font-medium! leading-5 text-on-surface"
         type="button"
       >
-        <LinearAiContent className="h-4 w-4 text-[#4D4D4D]" />
+        <LinearAiContent className="h-4 w-4 text-on-surface-var" />
         تولید با هوش مصنوعی
       </Button>
       <textarea
-        className="mt-3 h-24 w-full resize-none rounded-xl border border-[#cccccc] bg-white px-3 py-3 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6] focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c41a]"
+        className="mt-3 h-24 w-full resize-none rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-3 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/10"
         onChange={(event) => onAboutUsChange(event.target.value)}
         placeholder="یک توضیح درباره آژانس خود بنویس"
         value={aboutUs}
@@ -720,14 +720,14 @@ function LocationSection({
 }) {
   return (
     <Section title="موقعیت">
-      <Typography as="p" variant="body" size="medium" weight="medium" className="mt-4 text-right text-sm font-medium text-[#1a1a1a]">
+      <Typography as="p" variant="body" size="medium" weight="medium" className="mt-4 text-right text-sm font-medium text-on-surface">
         برای تعیین موقعیت بر روی نقشه لمس کنید:
       </Typography>
-      <div className="relative mt-3 h-[220px] w-full overflow-hidden rounded-xl bg-[#e8edf2]">
+      <div className="relative mt-3 h-[220px] w-full overflow-hidden rounded-xl bg-surface-container-low">
         <MapContainer
           attributionControl={false}
           center={[mapCenter.lat, mapCenter.lng]}
-          className="z-0 h-full w-full bg-[#e8edf2]"
+          className="z-0 h-full w-full bg-surface-container-low"
           maxZoom={searchMapTileConfig.maxZoom}
           minZoom={searchMapTileConfig.minZoom}
           preferCanvas
@@ -749,7 +749,7 @@ function LocationSection({
         </Typography>
 
         <div className="pointer-events-none absolute inset-x-3 bottom-3 z-[450] flex justify-end">
-          <Typography as="span" variant="label" size="small" weight="medium" className="rounded-lg bg-white/95 px-2.5 py-1 text-xs font-medium leading-5 text-[#4d4d4d] shadow-[0_4px_14px_rgba(26,26,26,0.12)]">
+          <Typography as="span" variant="label" size="small" weight="medium" className="rounded-lg bg-surface-container-lowest/95 px-2.5 py-1 text-xs font-medium leading-5 text-on-surface-var shadow-sm">
             {mapCenter.lat.toFixed(5)}, {mapCenter.lng.toFixed(5)}
           </Typography>
         </div>
@@ -803,9 +803,9 @@ function Section({
   title?: string;
 }) {
   return (
-    <section className="bg-white px-4 py-4">
+    <section className="bg-surface-container-lowest px-4 py-4">
       {title ? (
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold text-[#1a1a1a]">
+        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold text-on-surface">
           {title}
         </Typography>
       ) : null}
@@ -832,18 +832,18 @@ function Field({
   return (
     <label className="block text-right">
       <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`relative flex w-full items-center rounded-xl border border-[#cccccc] bg-white px-3 py-4.5 focus-within:border-[#0048c4] focus-within:ring-2 focus-within:ring-[#0048c41a] ${className}`}
+        className={`relative flex w-full items-center rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-4.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 ${className}`}
       >
         {multiline ? (
           <textarea
-            className="h-full min-w-0 flex-1 resize-none border-0 bg-transparent py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-sm placeholder:text-[#a6a6a6]"
+            className="h-full min-w-0 flex-1 resize-none border-0 bg-transparent py-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-sm placeholder:text-outline"
             onChange={(event) => onChange?.(event.target.value)}
             placeholder={placeholder}
             value={value}
           />
         ) : (
           <input
-            className="h-full min-w-0 flex-1 border-0 bg-transparent py-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-sm placeholder:text-[#a6a6a6]"
+            className="h-full min-w-0 flex-1 border-0 bg-transparent py-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-sm placeholder:text-outline"
             onChange={(event) => onChange?.(event.target.value)}
             placeholder={placeholder}
             type="text"
@@ -867,18 +867,18 @@ function SelectField({
 }) {
   return (
     <Button unstyled
-      className={`relative flex w-full items-center rounded-xl border bg-white px-3 py-4.5 text-right focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#0048c440] ${value ? "border-[#0048c4]" : "border-[#cccccc]"
+      className={`relative flex w-full items-center rounded-xl border bg-surface-container-lowest px-3 py-4.5 text-right focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 ${value ? "border-primary" : "border-outline-var"
         }`}
       onClick={onClick}
       type="button"
     >
       <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 ${value ? "text-[#1a1a1a]" : "text-[#a6a6a6]"
+        className={`min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 ${value ? "text-on-surface" : "text-outline"
           }`}
       >
         {value ?? placeholder}
       </Typography>
-      <LinearArrowDown1 className="h-5 w-5 text-[#4d4d4d]" />
+      <LinearArrowDown1 className="h-5 w-5 text-on-surface-var" />
     </Button>
   );
 }
@@ -969,10 +969,10 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
     >
       <div className="shrink-0 px-3 pb-2 pt-3">
         <div className="flex h-11 items-center gap-2 [direction:ltr]">
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-[#a6a6a6] bg-white px-3 focus-within:border-[#0048c4]" dir="rtl">
-            <LinearSearch className="h-5 w-5 shrink-0 text-[#a6a6a6]" />
+          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-outline bg-surface-container-lowest px-3 focus-within:border-primary" dir="rtl">
+            <LinearSearch className="h-5 w-5 shrink-0 text-outline" />
             <input
-              className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-[#1a1a1a] outline-none placeholder:text-[#a6a6a6]"
+              className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="جستجوی محله"
               type="search"
@@ -981,7 +981,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
             {query ? (
               <Button unstyled
                 aria-label="پاک کردن جستجو"
-                className="grid h-6 w-6 shrink-0 place-items-center text-[#4d4d4d]"
+                className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
                 onClick={() => setQuery("")}
                 type="button"
               >
@@ -992,7 +992,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
 
           <Button unstyled
             aria-label="بازگشت"
-            className="grid h-10 w-10 shrink-0 place-items-center text-[#4d4d4d]"
+            className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"
             onClick={onClose}
             type="button"
           >
@@ -1001,9 +1001,9 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
         </div>
 
         <div className="mt-3 flex items-center justify-between px-1">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-[#1a1a1a]">{title}</Typography>
+          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">{title}</Typography>
           {selectedItems.length > 0 ? (
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-[#0048c4]">
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-primary">
               {mode === "single" ? selectedItems[0]?.name : `${selectedItems.length} انتخاب`}
             </Typography>
           ) : null}
@@ -1026,7 +1026,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-2" dir="rtl">
         {!cityId ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-outline">
             برای انتخاب محله، ابتدا شهر را انتخاب کنید.
           </Typography>
         ) : neighborhoodsQuery.isLoading ? (
@@ -1040,7 +1040,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
               return (
                 <Button unstyled
                   aria-pressed={isSelected}
-                  className={`flex min-h-[64px] w-full items-center justify-between gap-4 rounded-[10px] bg-white py-2 pl-3 pr-0 text-right transition-colors active:bg-[#0048c40a] [direction:ltr] ${isSelected ? "text-[#0048c4]" : "text-[#1a1a1a]"
+                  className={`flex min-h-[64px] w-full items-center justify-between gap-4 rounded-[10px] bg-surface-container-lowest py-2 pl-3 pr-0 text-right transition-colors active:bg-primary/5 [direction:ltr] ${isSelected ? "text-primary" : "text-on-surface"
                     }`}
                   key={neighborhoodId}
                   onClick={() => toggleNeighborhood(neighborhood)}
@@ -1055,7 +1055,7 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
                     <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-sm font-medium leading-5">
                       {neighborhood.name}
                     </Typography>
-                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-[#808080]">
+                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block line-clamp-2 text-xs font-normal leading-5 text-outline">
                       {getNeighborhoodHierarchyDescription(neighborhood) || selectedCity?.name || "شهر انتخاب‌شده"}
                     </Typography>
                   </Typography>
@@ -1066,16 +1066,16 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
         ) : query.trim() ? (
           <SearchEmptyState compact />
         ) : (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-[#808080]">
+          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-outline">
             محله‌ای برای این شهر ثبت نشده است.
           </Typography>
         )}
       </div>
 
       {mode === "multiple" ? (
-        <footer className="shrink-0 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
+        <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
           <Button unstyled
-            className="flex h-10 w-full items-center justify-center rounded-lg bg-[#0048c4] text-sm font-medium leading-5 text-white"
+            className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary"
             onClick={onClose}
             type="button"
           >
@@ -1090,9 +1090,9 @@ function NeighborhoodSelectionSheet(props: NeighborhoodSelectionSheetProps) {
 function NeighborhoodSkeleton() {
   return (
     <div className="space-y-2">
-      <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-      <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
-      <div className="h-12 rounded-[10px] bg-[#f0f0f0]" />
+      <div className="h-12 rounded-[10px] bg-surface-container-high" />
+      <div className="h-12 rounded-[10px] bg-surface-container-high" />
+      <div className="h-12 rounded-[10px] bg-surface-container-high" />
     </div>
   );
 }
@@ -1106,21 +1106,21 @@ function MapPickerPinIcon() {
       viewBox="0 0 31 42"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <ellipse cx="15" cy="40.5" fill="#1A1A1A" fillOpacity="0.12" rx="6" ry="1.5" />
+      <ellipse cx="15" cy="40.5" fill="currentColor" className="text-on-surface" fillOpacity="0.12" rx="6" ry="1.5" />
       <path
         d="M20.7379 30.0613C26.7208 27.9158 31 22.199 31 15.4839C31 6.93237 24.0604 0 15.5 0C6.93959 0 0 6.93237 0 15.4839C0 22.1987 4.27872 27.9152 10.2612 30.061C12.3965 30.9288 14.2083 32.6522 14.2083 34.8387V38.7097C14.2083 39.4223 14.7866 40 15.5 40C16.2133 40 16.7916 39.4223 16.7916 38.7097V34.8387C16.7916 32.6525 18.6029 30.9292 20.7379 30.0613Z"
-        fill="#11A366"
+        className="fill-tertiary"
       />
       <path
         d="M15.5 21C17.16 21 18.575 20.415 19.745 19.245C20.915 18.075 21.5 16.66 21.5 15C21.5 13.34 20.915 11.925 19.745 10.755C18.575 9.585 17.16 9 15.5 9C13.84 9 12.425 9.585 11.255 10.755C10.085 11.925 9.5 13.34 9.5 15C9.5 16.66 10.085 18.075 11.255 19.245C12.425 20.415 13.84 21 15.5 21Z"
-        fill="white"
+        className="fill-on-tertiary"
       />
     </svg>
   );
 }
 
 function Separator() {
-  return <div className="my-4 h-px bg-[#e6e6e6]" />;
+  return <div className="my-4 h-px bg-outline-var" />;
 }
 
 function AgencyFooterActions({
@@ -1131,10 +1131,10 @@ function AgencyFooterActions({
   onSave: () => void;
 }) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-10 bg-white px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+    <footer className="absolute inset-x-0 bottom-0 z-10 border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3">
       <div className="grid h-10 grid-cols-2 gap-3 [direction:ltr]">
         <Button unstyled
-          className="rounded-lg bg-[#0048c4] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-lg bg-primary text-sm font-medium text-on-primary disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isSaving}
           onClick={onSave}
           type="button"
@@ -1142,7 +1142,7 @@ function AgencyFooterActions({
           {isSaving ? "در حال ذخیره..." : "ذخیره اطلاعات"}
         </Button>
         <RouteLink
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0048c4] bg-white text-xs font-semibold leading-5 text-[#0048c4] no-underline"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-xs font-semibold leading-5 text-primary no-underline"
           to="/account/dashboard/agency/preview"
         >
           پیش نمایش

@@ -39,18 +39,18 @@ export const InteractiveRadioGroup: Story = {
     ];
 
     return (
-      <div className="max-w-md p-4 bg-white rounded-xl border border-[#e5e5e5] space-y-3">
-        <h4 className="text-sm font-bold text-[#1a1a1a]">نحوه پرداخت را انتخاب کنید:</h4>
+      <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var space-y-3">
+        <h4 className="text-sm font-bold text-on-surface">نحوه پرداخت را انتخاب کنید:</h4>
         {options.map((opt) => (
           <label
             key={opt.id}
-            className="flex items-start gap-3 p-3 rounded-lg border border-[#e5e5e5] cursor-pointer hover:border-[#0048c4] transition-all duration-200 ease-out active:scale-[0.99] select-none"
+            className="flex items-start gap-3 p-3 rounded-lg border border-outline-var cursor-pointer hover:border-primary transition-all duration-200 ease-out active:scale-[0.99] select-none"
             onClick={() => setSelected(opt.id)}
           >
             <ChoiceIndicator checked={selected === opt.id} type="radio" className="mt-0.5" />
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-[#1a1a1a]">{opt.label}</span>
-              <span className="text-xs text-[#808080] mt-0.5">{opt.sub}</span>
+              <span className="text-sm font-medium text-on-surface">{opt.label}</span>
+              <span className="text-xs text-outline mt-0.5">{opt.sub}</span>
             </div>
           </label>
         ))}
@@ -77,17 +77,17 @@ export const InteractiveCheckboxes: Story = {
     };
 
     return (
-      <div className="max-w-md p-4 bg-white rounded-xl border border-[#e5e5e5] space-y-3">
-        <h4 className="text-sm font-bold text-[#1a1a1a]">امکانات ضروری ملک:</h4>
+      <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var space-y-3">
+        <h4 className="text-sm font-bold text-on-surface">امکانات ضروری ملک:</h4>
         <div className="grid grid-cols-2 gap-3">
           {items.map((item) => (
             <label
               key={item.id}
-              className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer hover:bg-[#f5f5f5] transition-all duration-200 ease-out active:scale-[0.98] select-none"
+              className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer hover:bg-surface-container-high transition-all duration-200 ease-out active:scale-[0.98] select-none"
               onClick={() => toggle(item.id)}
             >
               <ChoiceIndicator checked={checkedItems.includes(item.id)} type="checkbox" />
-              <span className="text-sm text-[#1a1a1a]">{item.label}</span>
+              <span className="text-sm text-on-surface">{item.label}</span>
             </label>
           ))}
         </div>
@@ -99,36 +99,36 @@ export const InteractiveCheckboxes: Story = {
 export const AllStatesOverview: Story = {
   name: "بررسی تمام حالات در یک نما",
   render: () => (
-    <div className="flex flex-wrap gap-8 p-4 bg-white rounded-xl border border-[#e5e5e5]">
+    <div className="flex flex-wrap gap-8 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
       <div className="space-y-3">
-        <h5 className="text-xs font-bold text-[#666666]">چک‌باکس‌ها:</h5>
+        <h5 className="text-xs font-bold text-on-surface-var">چک‌باکس‌ها:</h5>
         <div className="flex items-center gap-2">
           <ChoiceIndicator checked type="checkbox" />
-          <span className="text-sm text-[#1a1a1a]">انتخاب شده (Checked)</span>
+          <span className="text-sm text-on-surface">انتخاب شده (Checked)</span>
         </div>
         <div className="flex items-center gap-2">
           <ChoiceIndicator checked={false} type="checkbox" />
-          <span className="text-sm text-[#1a1a1a]">انتخاب نشده (Unchecked)</span>
+          <span className="text-sm text-on-surface">انتخاب نشده (Unchecked)</span>
         </div>
         <div className="flex items-center gap-2">
           <ChoiceIndicator checked disabled type="checkbox" />
-          <span className="text-sm text-[#808080]">غیرفعال انتخاب شده</span>
+          <span className="text-sm text-outline">غیرفعال انتخاب شده</span>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h5 className="text-xs font-bold text-[#666666]">رادیوباتن‌ها:</h5>
+        <h5 className="text-xs font-bold text-on-surface-var">رادیوباتن‌ها:</h5>
         <div className="flex items-center gap-2">
           <ChoiceIndicator checked type="radio" />
-          <span className="text-sm text-[#1a1a1a]">فعال (Selected)</span>
+          <span className="text-sm text-on-surface">فعال (Selected)</span>
         </div>
         <div className="flex items-center gap-2">
           <ChoiceIndicator checked={false} type="radio" />
-          <span className="text-sm text-[#1a1a1a]">غیرفعال (Unselected)</span>
+          <span className="text-sm text-on-surface">غیرفعال (Unselected)</span>
         </div>
         <div className="flex items-center gap-2">
           <ChoiceIndicator checked disabled type="radio" />
-          <span className="text-sm text-[#808080]">غیرفعال شده</span>
+          <span className="text-sm text-outline">غیرفعال شده</span>
         </div>
       </div>
     </div>

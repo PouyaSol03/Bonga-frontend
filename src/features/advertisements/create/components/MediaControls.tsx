@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import { ChoiceIndicator } from "../../../../shared/ui/Choice";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -19,8 +20,9 @@ export function RadioCard({
   return (
     <Button unstyled
       aria-pressed={checked}
-      className={`w-full rounded-[12px] border px-4 py-3.5 text-right [direction:ltr] ${checked ? "border-primary bg-primary-container/20" : "border-outline-var"
-        }`}
+      className={`w-full rounded-[12px] border px-4 py-3.5 text-right transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] [direction:ltr] ${
+        checked ? "border-primary bg-primary-container/20 shadow-sm" : "border-outline-var hover:border-outline hover:bg-surface-container-low"
+      }`}
       onClick={onClick}
       type="button"
     >
@@ -28,7 +30,7 @@ export function RadioCard({
         <ChoiceIndicator checked={checked} className="h-4.5 w-4.5" type="radio" />
 
         <Typography as="span" variant="label" size="medium" weight="medium" className="flex items-center gap-2 font-medium text-on-surface [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className={`${checked && 'text-primary'}`}>{label}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className={`transition-colors duration-200 ${checked ? "text-primary font-semibold" : ""}`}>{label}</Typography>
 
           {badge ? (
             <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-[4px] border border-tertiary px-2 py-0.5 text-sm font-medium text-tertiary">
@@ -38,21 +40,26 @@ export function RadioCard({
         </Typography>
       </div>
 
-      <div
-        className={`grid ${checked && description
-          ? "mt-3 grid-rows-[1fr] opacity-100"
-          : "grid-rows-[0fr] opacity-0"
-          }`}
-      >
-        <div className="overflow-hidden">
-          <div className="flex items-start gap-2 [direction:rtl]">
-            <LinearInfoCircle className="w-4 h-4 text-on-surface-var"/>
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal text-on-surface-var">
-              {description}
-            </Typography>
-          </div>
-        </div>
-      </div>
+      <AnimatePresence initial={false}>
+        {checked && description ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="pt-3">
+              <div className="flex items-start gap-2 [direction:rtl]">
+                <LinearInfoCircle className="w-4 h-4 shrink-0 text-on-surface-var mt-0.5" />
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex-1 whitespace-pre-line rounded-[10px] text-right text-sm font-normal text-on-surface-var leading-5">
+                  {description}
+                </Typography>
+              </div>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </Button>
   );
 }

@@ -102,8 +102,10 @@ export function MediaStep({
     setField("publisherName", "");
     setField("agencyId", "");
     setField("chatEnabled", true);
-    setField("phoneEnabled", false);
-    setField("phoneNumber", "");
+    setField("phoneEnabled", true);
+    if (profileMobile && !values.phoneNumber) {
+      setField("phoneNumber", profileMobile);
+    }
   };
 
   const selectAgency = () => {
@@ -177,6 +179,7 @@ export function MediaStep({
             <div className="mt-3">
               <InputBox
                 error={errors.virtualTourLink}
+                floatingLabel="لینک تور مجازی"
                 onChange={(value) => setField("virtualTourLink", value)}
                 placeholder="لینک تور مجازی را وارد کنید"
                 value={values.virtualTourLink}

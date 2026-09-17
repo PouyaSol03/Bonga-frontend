@@ -1,5 +1,6 @@
 import LinearApartment from "../../../shared/icons/LinearApartment";
 import { getFeatureIconSrc } from "../../../shared/lib/handleFeaturesIcons";
+import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
 
 export function FeatureIcon({
   feature,
@@ -11,7 +12,7 @@ export function FeatureIcon({
   const src = getFeatureIconSrc(feature);
 
   if (src) {
-    return <img aria-hidden="true" alt="" className={className} src={src} />;
+    return <ColorableSvgIcon className={className} src={src} />;
   }
 
   return <LinearApartment aria-hidden="true" className={className} />;

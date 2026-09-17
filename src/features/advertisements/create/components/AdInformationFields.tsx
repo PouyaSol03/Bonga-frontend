@@ -154,6 +154,7 @@ function AgencyContactFields({
           </div>
           <InputBox
             error={errors.ownerFullName}
+            floatingLabel="نام و نام خانوادگی *"
             onChange={(value) => onSetField("ownerFullName", value)}
             placeholder="نام و نام خانوادگی خودتان را وارد کنید"
             value={ownerFullName}
@@ -166,6 +167,7 @@ function AgencyContactFields({
           </div>
           <InputBox
             error={errors.ownerExactAddress}
+            floatingLabel="آدرس دقیق منزل *"
             onChange={(value) => onSetField("ownerExactAddress", value)}
             placeholder="مثال: بلوار هاشمیه، هاشمیه ۲۰، پلاک ۲۰، طبقه ۲"
             value={ownerExactAddress}
@@ -192,7 +194,7 @@ function SocialFields({
       </div>
       <div className="space-y-3">
         <TextField
-          label="آیدی تلگرام خود را وارد کنید"
+          label="آیدی تلگرام"
           onChange={(event) => onSetField("telegram", event.target.value)}
           placeholder="آیدی تلگرام خود را وارد کنید"
           trailingSlot={<img src="/icons/socials/telegram.svg" alt="" />}
@@ -200,7 +202,7 @@ function SocialFields({
         />
         <TextField
           inputMode="numeric"
-          label="شماره واتساپ خود را بدون صفر وارد کنید"
+          label="شماره واتساپ"
           onChange={(event) => onSetField("whatsapp", event.target.value)}
           placeholder="شماره واتساپ خود را بدون صفر وارد کنید"
           trailingSlot={<img src="/icons/socials/whatsApp.svg" alt="" />}
@@ -280,9 +282,10 @@ export function AdInformationFields({
         </div>
         <InputBox
           error={errors.title}
+          floatingLabel="عنوان آگهی *"
           maxLength={50}
           onChange={(value) => onSetField("title", value.slice(0, 50))}
-          placeholder={`مثال: ${label} ۱۲۰ متری، ۲ خوابه، طبقه اول`}
+          placeholder={`مثال: ${label || "آپارتمان"} ۱۲۰ متری، ۲ خوابه، طبقه اول`}
           value={values.title}
         />
       </div>

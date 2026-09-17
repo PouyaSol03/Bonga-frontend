@@ -45,7 +45,7 @@ export const InteractiveFilterGroup: Story = {
     };
 
     return (
-      <div className="flex flex-wrap gap-2 p-4 bg-white rounded-xl border border-[#e5e5e5]">
+      <div className="flex flex-wrap gap-2 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
         {filters.map((filter) => {
           const isSelected = selectedFilters.includes(filter);
           return (
@@ -69,8 +69,8 @@ export const RemovableChips: Story = {
     const [chips, setChips] = useState(["تهران، نیاوران", "حداقل ۱۰۰ متر", "۳ خواب"]);
 
     return (
-      <div className="flex flex-wrap items-center gap-2 p-4 bg-white rounded-xl border border-[#e5e5e5]">
-        <span className="text-xs text-[#666666] ml-2">فیلترهای اعمال‌شده:</span>
+      <div className="flex flex-wrap items-center gap-2 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
+        <span className="text-xs text-on-surface-var ml-2">فیلترهای اعمال‌شده:</span>
         {chips.map((item) => (
           <Chip
             key={item}
@@ -81,7 +81,7 @@ export const RemovableChips: Story = {
             {item}
           </Chip>
         ))}
-        {chips.length === 0 && <span className="text-xs text-[#808080]">هیچ فیلتری فعال نیست.</span>}
+        {chips.length === 0 && <span className="text-xs text-outline">هیچ فیلتری فعال نیست.</span>}
       </div>
     );
   },
@@ -90,7 +90,7 @@ export const RemovableChips: Story = {
 export const WithIconsAndStates: Story = {
   name: "حالت‌ها و آیکون‌ها",
   render: () => (
-    <div className="flex flex-wrap items-center gap-3 p-4 bg-white rounded-xl border border-[#e5e5e5]">
+    <div className="flex flex-wrap items-center gap-3 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
       <Chip icon={<LinearLocation className="h-4 w-4" />} selected={false}>
         انتخاب لوکیشن
       </Chip>

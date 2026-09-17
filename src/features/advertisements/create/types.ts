@@ -373,6 +373,7 @@ export type NewAdFormValues = {
   registrantType: RegistrantType;
   publisherName: string;
   agencyId: string;
+  consultantId: string;
   chatEnabled: boolean;
   phoneEnabled: boolean;
   phoneNumber: string;

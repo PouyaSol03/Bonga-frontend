@@ -241,3 +241,29 @@ export async function rejectAgencyAdvertiseAssignment({
 
   return rawAssignment ? normalizeAssignment(rawAssignment as AssignmentApiItem) : null;
 }
+
+export type ChangeAgencyAdvertiseConsultantPayload = {
+  advertiseId: string | number;
+  consultantId: string | number | null;
+};
+
+export async function changeAgencyAdvertiseConsultant({
+  advertiseId,
+  consultantId,
+}: ChangeAgencyAdvertiseConsultantPayload): Promise<unknown> {
+  const response = await api
+    .post(
+      `me/agency/advertise/assignments/advertise/${encodeURIComponent(String(advertiseId))}/change-consultant`,
+      {
+        json: {
+          consultant_id: consultantId !== null && consultantId !== undefined && String(consultantId).trim() !== ""
+            ? String(consultantId).trim()
+            : null,
+        },
+      },
+    )
+    .json();
+
+  return response;
+}
+

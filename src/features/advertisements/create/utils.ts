@@ -181,15 +181,18 @@ export function clearNewAdDraftStorage() {
 export function getParams(): {
   category: string;
   label: string;
+  publisherType?: string;
   registrantType: NewAdFormValues["registrantType"];
   transaction: string;
 } {
   const params = new URLSearchParams(window.location.search);
   const registrantType = params.get("registrantType");
+  const publisherType = params.get("publisherType") ?? undefined;
 
   return {
     category: params.get("category") ?? "",
     label: params.get("label") ?? "آگهی ملک",
+    publisherType,
     registrantType:
       registrantType === "personal" || registrantType === "agency"
         ? registrantType
@@ -339,6 +342,7 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     price,
     publisherName,
     agencyId: readText(ad.agency_id, ad.agencyId),
+    consultantId: readText(ad.consultant_id, ad.consultantId, ad.assigned_consultant_id),
     registrantType: publisherName ? "agency" : "personal",
     rentPrice,
     rooms: pickFirstNumber(readText(card.rooms, ad.rooms)),
@@ -721,6 +725,7 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "advertiser_type", values.registrantType);
   addFeature(features, "publisher", values.registrantType === "agency" ? values.publisherName : "");
   addFeature(features, "agency_id", values.registrantType === "agency" ? values.agencyId : "");
+  addFeature(features, "consultant_id", values.consultantId ? values.consultantId : "");
 
   if (isProject && !isPartnership) {
     addFeature(features, "project_total_floors", toNumber(values.projectTotalFloors));
@@ -868,10 +873,17 @@ export function buildNewAdFormData(
     values.hasVirtualTour ? values.virtualTourLink.trim() : "",
   );
   appendBaseValue("owner_type", values.registrantType);
+  if (params.publisherType) {
+    appendBaseValue("publisher_type", params.publisherType);
+  }
   appendBaseValue(
     "agency_id",
     values.registrantType === "agency" ? values.agencyId.trim() : "",
   );
+  if (values.consultantId) {
+    appendBaseValue("consultant_id", values.consultantId.trim());
+    appendBaseValue("assigned_consultant_id", values.consultantId.trim());
+  }
   appendBaseValue("owner_phone", values.phoneNumber);
   appendBaseValue("owner_name", values.ownerFullName);
   appendBaseValue("owner_address", values.ownerExactAddress);

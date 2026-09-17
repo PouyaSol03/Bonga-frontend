@@ -37,7 +37,7 @@ const LinearHome3: React.FC<LinearHome3Props> = ({
 
           <path
             d="M13.7778 14.5443C13.7778 15.5487 12.9818 16.3629 12 16.3629C11.0182 16.3629 10.2222 15.5487 10.2222 14.5443C10.2222 13.5399 11.0182 12.7257 12 12.7257C12.9818 12.7257 13.7778 13.5399 13.7778 14.5443Z"
-            fill="white"
+            fill="var(--surface-container-lowest, white)"
           />
 
           <path

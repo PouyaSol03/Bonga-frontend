@@ -149,7 +149,7 @@ function NotificationTopBarIcon() {
       {hasAuthSession ? (
         <Suspense fallback={null}>
           <UnreadNotificationBadge
-            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#ef1f1f] ring-2 ring-[#f0f0f0]"
+            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container-high"
           />
         </Suspense>
       ) : null}
@@ -217,11 +217,11 @@ function navigateTo(path: string) {
 function IdentityGateLoadingPage({ title }: { title: string }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-white text-[#1a1a1a] [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account" title={title} />
-      <main className="flex min-h-0 flex-1 items-center justify-center bg-white px-6 pb-20 text-center text-sm font-medium text-[#808080]">
+      <main className="flex min-h-0 flex-1 items-center justify-center bg-surface-container-lowest px-6 pb-20 text-center text-sm font-medium text-outline">
         در حال بررسی وضعیت احراز هویت...
       </main>
     </PageFrame>

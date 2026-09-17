@@ -64,15 +64,6 @@ export function SplashScreen({ onFinish, videoSrc = '/splash.mp4' }: SplashScree
               onError={handleComplete}
               className="w-full h-full object-cover"
             />
-
-            {/* Skip button for optimal UX */}
-            <button
-              type="button"
-              onClick={handleComplete}
-              className="absolute top-6 left-6 z-10 text-xs font-medium text-white/80 bg-black/20 hover:bg-black/40 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 transition-all active:scale-95"
-            >
-              رد کردن
-            </button>
           </div>
         </motion.div>
       )}

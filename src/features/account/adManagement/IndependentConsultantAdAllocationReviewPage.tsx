@@ -44,15 +44,15 @@ const publisherOptions: {
   value: PublisherType;
 }[] = [
     {
-      description: "انتشار و مدیریت آگهی توسط حساب آژانس انجام می‌شود.",
+      description: "آگهی به نام آژانس منتشر شده و مسئولیت و پیگیری آن مستقیماً بر عهده آژانس خواهد بود.",
       icon: "agency",
-      label: "آژانس",
+      label: "مدیریت مستقیم توسط آژانس",
       value: "agency",
     },
     {
-      description: "انتشار و مدیریت آگهی توسط یکی از مشاوران انجام می‌شود.",
+      description: "آگهی به نام آژانس منتشر می‌شود ولی مسئولیت و پیگیری آن به مشاور منتخب تخصیص داده می‌شود.",
       icon: "consultant",
-      label: "توسط مشاور",
+      label: "تخصیص به مشاور مسئول",
       value: "consultant",
     },
   ];
@@ -194,12 +194,12 @@ export function IndependentConsultantAdAllocationReviewPage() {
 
         <div className="h-2 bg-surface-container" aria-hidden="true" />
 
-        <section className="px-4 pb-6 pt-5" aria-label="منتشرکننده آگهی">
+        <section className="px-4 pb-6 pt-5" aria-label="تعیین مسئول آگهی">
           <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 mb-4 text-on-surface">
-            منتشرکننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error text-sm">*</Typography>
+            تعیین مسئول آگهی (منتشرکننده: آژانس) <Typography as="span" variant="body" size="medium" weight="regular" className="text-error text-sm">*</Typography>
           </Typography>
 
-          <div className="space-y-3" role="radiogroup" aria-label="انتخاب منتشرکننده آگهی">
+          <div className="space-y-3" role="radiogroup" aria-label="انتخاب مسئول آگهی">
             {publisherOptions.map((option) => (
               <PublisherOptionCard
                 assignedConsultant={assignedConsultant}

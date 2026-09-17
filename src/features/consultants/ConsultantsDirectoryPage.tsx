@@ -461,14 +461,14 @@ export function ConsultantsDirectoryPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
       {directorySeo}
       <h1 className="sr-only">{seoTitle}</h1>
-      <div className="shrink-0 bg-surface-container">
+      <div className="shrink-0 bg-surface-container-lowest">
         <TopBar
-          className="bg-surface-container"
+          className="bg-surface-container-lowest"
           onBack={navigateBack}
           placement="inline"
           title="مشاورین"
@@ -518,7 +518,7 @@ export function ConsultantsDirectoryPage() {
         </HorizontalFilterBar>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white py-4 [-webkit-overflow-scrolling:touch]">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest py-4 [-webkit-overflow-scrolling:touch]">
         {activeQuery.isLoading ? (
           <div className="space-y-4 pb-20">
             {Array.from({ length: 5 }, (_, index) => (

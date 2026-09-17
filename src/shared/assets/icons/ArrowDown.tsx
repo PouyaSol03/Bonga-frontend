@@ -7,7 +7,7 @@ type ArrowDownProps = SVGProps<SVGSVGElement> & {
 
 export default function ArrowDown({
   size = 20,
-  stroke = "#0048C4",
+  stroke = "currentColor",
   strokeWidth = 1.5,
   ...props
 }: ArrowDownProps) {

@@ -60,7 +60,7 @@ export function DashboardAdsPage() {
   }, [activeTab, adsQuery.data, searchTerm, showMineOnly]);
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-white px-6 pb-6 pt-3 text-[#1a1a1a] [direction:rtl]">
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-surface-container-lowest px-6 pb-6 pt-3 text-on-surface [direction:rtl]">
       <div className="shrink-0">
         <nav aria-label="بخش‌های مدیریت آگهی‌ها" className="flex justify-end">
           <div className="inline-flex items-center gap-12">
@@ -70,7 +70,7 @@ export function DashboardAdsPage() {
               return (
                 <Button unstyled
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative h-10 whitespace-nowrap border-0 bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"
+                  className={`relative h-10 whitespace-nowrap border-0 bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-primary" : "text-on-surface-var hover:text-on-surface"
                     }`}
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -78,7 +78,7 @@ export function DashboardAdsPage() {
                 >
                   {tab.label}
                   {isActive ? (
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-[#0048c4]" />
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-primary" />
                   ) : null}
                 </Button>
               );
@@ -89,7 +89,7 @@ export function DashboardAdsPage() {
         <div className="mt-9 flex items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <Button unstyled
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] transition hover:border-[#0048c4] hover:text-[#0048c4]"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold text-on-surface transition hover:border-primary hover:text-primary"
               type="button"
             >
               <FilterIcon className="h-5 w-5" />
@@ -97,9 +97,9 @@ export function DashboardAdsPage() {
             </Button>
 
             <label className="relative block h-10 w-[360px]">
-              <SearchIcon className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#4d4d4d]" />
+              <SearchIcon className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-var" />
               <input
-                className="h-full w-full rounded-xl border border-[#cccccc] bg-white pr-4 pl-12 text-right text-sm font-medium text-[#303030] outline-none transition placeholder:text-[#999999] focus:border-[#0048c4]"
+                className="h-full w-full rounded-xl border border-outline-var bg-surface-container-lowest pr-4 pl-12 text-right text-sm font-medium text-on-surface outline-none transition placeholder:text-outline focus:border-primary"
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="جستجو"
                 type="search"
@@ -110,16 +110,16 @@ export function DashboardAdsPage() {
 
           <div className="flex items-center gap-4">
             <RouteLink
-              className="inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:bg-[#f5f5f5]"
+              className="inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-on-surface no-underline transition hover:bg-surface-container-high"
               to="/account/ad-management/statistics"
             >
-              <AnalyticsIcon className="h-5 w-5 text-[#4d4d4d]" />
+              <AnalyticsIcon className="h-5 w-5 text-on-surface-var" />
               <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آمار آگهی‌ها</Typography>
             </RouteLink>
 
-            <Typography as="span" variant="body" size="medium" weight="regular" className="h-8 w-px bg-[#cccccc]" />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="h-8 w-px bg-outline-var" />
 
-            <label className="inline-flex h-10 items-center gap-3 text-sm font-semibold text-[#1a1a1a]">
+            <label className="inline-flex h-10 items-center gap-3 text-sm font-semibold text-on-surface">
               <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آگهی‌های من</Typography>
               <SwitchButton
                 ariaLabel="نمایش آگهی های من"
@@ -161,7 +161,7 @@ function DashboardAdsEmptyState() {
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-[#1a1a1a]">
+      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-on-surface">
         هیچ آگهی‌ای برای نمایش وجود ندارد!
       </Typography>
       <Typography
@@ -169,12 +169,12 @@ function DashboardAdsEmptyState() {
         variant="body"
         size="medium"
         weight="regular"
-        className="m-0 mt-2 text-sm font-normal text-[#4d4d4d]"
+        className="m-0 mt-2 text-sm font-normal text-on-surface-var"
       >
         می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید.
       </Typography>
       <RouteLink
-        className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0048c4] px-4 text-sm font-medium leading-5 text-white"
+        className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
         to="/new-ad/category"
       >
         <PlusIcon className="h-5 w-5" />

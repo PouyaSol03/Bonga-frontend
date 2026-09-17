@@ -71,7 +71,7 @@ export const WithStartSlot: Story = {
     title: "داشبورد مشاور",
     startSlot: (
       <button
-        className="flex h-10 w-10 items-center justify-center rounded-xl text-[#4d4d4d] hover:bg-[#f0f0f0] transition"
+        className="flex h-10 w-10 items-center justify-center rounded-xl text-on-surface-var hover:bg-surface-container-high transition"
         onClick={() => alert("اعلانات")}
       >
         <LinearNotification className="h-5 w-5" />

@@ -149,7 +149,6 @@ export function InputBox({
   type?: "text" | "time";
   value: string;
 }) {
-  const hasValue = Boolean(value);
   const displayValue = numeric && formatNumeric && value
     ? formatPrice(Number(normalizeNumberInput(value).replace(/,/g, "")))
     : value;
@@ -172,7 +171,7 @@ export function InputBox({
       maxLength={maxLength}
       onChange={(event) => onChange(numeric ? normalizeNumberInput(event.target.value) : event.target.value)}
       onClear={() => onChange("")}
-      placeholder={hasValue ? "" : placeholder}
+      placeholder={placeholder}
       supportingText={supportingText}
       type={type}
       value={displayValue}
@@ -257,14 +256,10 @@ export function Chip({
 }) {
   return (
     <UiChip
-      className="flex-row-reverse"
       icon={
         <FeaturesIcons
           feature={item.label}
-          className={`h-5 w-5 shrink-0 object-contain ${selected
-            ? "[filter:brightness(0)_saturate(100%)_invert(20%)_sepia(95%)_saturate(2950%)_hue-rotate(211deg)_brightness(88%)_contrast(105%)]"
-            : "[filter:brightness(0)_saturate(100%)_invert(28%)_sepia(0%)_saturate(0%)_hue-rotate(178deg)_brightness(95%)_contrast(85%)]"
-            }`}
+          className="h-5 w-5 shrink-0 object-contain"
         />
       }
       onClick={onClick}

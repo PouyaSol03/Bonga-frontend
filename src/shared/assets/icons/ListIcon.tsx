@@ -7,7 +7,7 @@ type ListIconProps = SVGProps<SVGSVGElement> & {
 
 export default function ListIcon({
   size = 24,
-  stroke = "#FAFAFA",
+  stroke = "currentColor",
   strokeWidth = 1.5,
   ...props
 }: ListIconProps) {

@@ -49,6 +49,8 @@ export function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
+export const MAX_PHOTO_COUNT = 10;
+
 export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -73,7 +75,13 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
     if (!validFiles.length) return;
 
-    const newPhotos = validFiles.map((file) => {
+    const remainingSlots = Math.max(0, MAX_PHOTO_COUNT - photos.length);
+    if (remainingSlots <= 0) return;
+
+    const filesToProcess = validFiles.slice(0, remainingSlots);
+    if (!filesToProcess.length) return;
+
+    const newPhotos = filesToProcess.map((file) => {
       const mediaFile = createUploadedMediaFile(file);
       createdPreviewUrls.current.push(mediaFile.previewUrl);
       return mediaFile;
@@ -104,10 +112,17 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
     onChange?.();
   };
 
+  const isMaxReached = photos.length >= MAX_PHOTO_COUNT;
+
   return (
     <div className="overflow-hidden" dir="rtl">
-      <div className="mb-3 text-right text-base font-medium leading-6 text-on-surface">
-        انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+      <div className="mb-3 flex items-center justify-between text-right text-base font-medium leading-6 text-on-surface">
+        <div>
+          انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+        </div>
+        <Typography as="span" variant="label" size="small" weight="medium" className="text-outline text-xs">
+          ({photos.length} از {MAX_PHOTO_COUNT} عکس)
+        </Typography>
       </div>
 
       <input
@@ -123,14 +138,16 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
       />
 
       <div className="flex gap-3 overflow-x-auto pb-2" dir="rtl">
-        <Button unstyled
-          className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border border-primary bg-surface-container-lowest text-primary"
-          onClick={() => inputRef.current?.click()}
-          type="button"
-        >
-          <Typography as="span" variant="display" size="small" className="text-4xl font-light leading-none">+</Typography>
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
-        </Button>
+        {!isMaxReached ? (
+          <Button unstyled
+            className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border border-primary bg-surface-container-lowest text-primary"
+            onClick={() => inputRef.current?.click()}
+            type="button"
+          >
+            <Typography as="span" variant="display" size="small" className="text-4xl font-light leading-none">+</Typography>
+            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
+          </Button>
+        ) : null}
 
         {photos.map((photo, index) => (
           <div

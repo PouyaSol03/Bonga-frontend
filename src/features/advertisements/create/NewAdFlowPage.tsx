@@ -760,6 +760,8 @@ function getMediaValidationErrors(
 
   if (values.photos.length === 0) {
     errors.photos = "لطفا حداقل یک عکس برای آگهی انتخاب کنید.";
+  } else if (values.photos.length > 10) {
+    errors.photos = "حداکثر ۱۰ عکس برای آگهی مجاز است.";
   }
 
   if (values.hasVideo && !values.video) {

@@ -94,7 +94,7 @@ export function TextField({
           {showFloatingLabel && label ? (
             <motion.span
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="pointer-events-none absolute -top-[10px] right-4 max-w-[calc(100%-4rem)] origin-right text-right"
+              className="pointer-events-none absolute -top-[10px] right-4 z-10 max-w-[calc(100%-2rem)] origin-right text-right"
               exit={{ opacity: 0, scale: 0.96, y: 4 }}
               initial={{ opacity: 0, scale: 0.96, y: 4 }}
               key="floating-label"
@@ -106,8 +106,8 @@ export function TextField({
                 size="small"
                 weight="regular"
                 className={cn(
-                  "block truncate bg-surface-container-lowest px-1",
-                  error ? "text-error" : hasFocusedStyle ? "text-primary" : "text-outline",
+                  "block truncate bg-surface-container-lowest px-1.5 rounded",
+                  error ? "text-error" : hasFocusedStyle ? "text-primary font-medium" : "text-outline",
                 )}
               >
                 {label}
@@ -139,7 +139,7 @@ export function TextField({
             setIsFocused(true);
             onFocus?.(event);
           }}
-          placeholder={placeholder}
+          placeholder={showFloatingLabel ? "" : placeholder}
           value={formatNumber ? displayValue : value}
           {...props}
         />

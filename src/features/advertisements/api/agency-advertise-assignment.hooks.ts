@@ -3,10 +3,12 @@ import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
 import {
+  changeAgencyAdvertiseConsultant,
   getMyAgencyAdvertiseAssignments,
   rejectAgencyAdvertiseAssignment,
   type AgencyAdvertiseAssignmentsPage,
   type AgencyAdvertiseAssignmentsParams,
+  type ChangeAgencyAdvertiseConsultantPayload,
 } from "./agency-advertise-assignment.service";
 
 export function useAgencyAdvertiseAssignmentsInfiniteQuery({
@@ -64,3 +66,22 @@ export function useRejectAgencyAdvertiseAssignmentMutation() {
     },
   });
 }
+
+export function useChangeAgencyAdvertiseConsultantMutation() {
+  return useMutation({
+    mutationFn: (payload: ChangeAgencyAdvertiseConsultantPayload) =>
+      changeAgencyAdvertiseConsultant(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencyAdvertiseAssignments.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+    },
+  });
+}
+

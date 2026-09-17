@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://192.168.1.242:4173/ads/123</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/122</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/121</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/118</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/117</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/116</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/115</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/114</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/112</loc>
+  </url>
+  <url>
+    <loc>http://192.168.1.242:4173/ads/110</loc>
+  </url>
+  <url>
     <loc>http://192.168.1.242:4173/ads/109</loc>
   </url>
   <url>
@@ -74,17 +104,5 @@
   </url>
   <url>
     <loc>http://192.168.1.242:4173/ads/71</loc>
-  </url>
-  <url>
-    <loc>http://192.168.1.242:4173/ads/67</loc>
-  </url>
-  <url>
-    <loc>http://192.168.1.242:4173/ads/66</loc>
-  </url>
-  <url>
-    <loc>http://192.168.1.242:4173/ads/65</loc>
-  </url>
-  <url>
-    <loc>http://192.168.1.242:4173/ads/64</loc>
   </url>
 </urlset>

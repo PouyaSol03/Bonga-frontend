@@ -392,6 +392,11 @@ export function NewAdCategoryPage() {
             params.set("registrantType", registrantType);
           }
 
+          const publisherType = new URLSearchParams(window.location.search).get("publisherType");
+          if (publisherType) {
+            params.set("publisherType", publisherType);
+          }
+
           if (new URLSearchParams(window.location.search).get("editSource") === "crm") {
             params.set("editSource", "crm");
           }

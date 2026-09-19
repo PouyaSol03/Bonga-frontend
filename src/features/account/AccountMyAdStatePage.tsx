@@ -22,6 +22,7 @@ import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
+import { BottomSheet } from "../../shared/components/BottomSheet";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
@@ -249,56 +250,51 @@ export function AccountMyAdStatePage() {
         </section>
       </main>
 
-      {isCancelAssignmentModalOpen ? (
-        <CancelAssignmentModal
-          isPending={cancelAssignmentMutation.isPending}
-          onCancel={() => setIsCancelAssignmentModalOpen(false)}
-          onConfirm={async () => {
-            if (adId) {
-              await cancelAssignmentMutation.mutateAsync({ advertiseId: adId });
-              setIsCancelAssignmentModalOpen(false);
-              void detailQuery.refetch();
-            }
-          }}
-        />
-      ) : null}
-
-      {isRepostChoiceModalOpen ? (
-        <RepostChoiceModal
-          isOpen={isRepostChoiceModalOpen}
-          isPersonalPending={republishPersonalMutation.isPending}
-          onClose={() => setIsRepostChoiceModalOpen(false)}
-          onSelectPersonal={async () => {
-            const currentAdId = adId ?? String(card.id);
-            if (!currentAdId) return;
-            await republishPersonalMutation.mutateAsync(currentAdId);
-            setIsRepostChoiceModalOpen(false);
-            pushRoute(getAdPaymentPath(currentAdId));
-          }}
-          onSelectAgency={() => {
-            setIsRepostChoiceModalOpen(false);
-            setIsReassignAgencyModalOpen(true);
-          }}
-        />
-      ) : null}
-
-      {isReassignAgencyModalOpen ? (
-        <AgencyReassignModal
-          isPending={reassignAgencyMutation.isPending}
-          isOpen={isReassignAgencyModalOpen}
-          onClose={() => setIsReassignAgencyModalOpen(false)}
-          onConfirm={async (agencyId) => {
-            const currentAdId = adId ?? String(card.id);
-            if (!currentAdId) return;
-            await reassignAgencyMutation.mutateAsync({
-              advertiseId: currentAdId,
-              agencyId,
-            });
-            setIsReassignAgencyModalOpen(false);
+      <CancelAssignmentBottomSheet
+        isOpen={isCancelAssignmentModalOpen}
+        isPending={cancelAssignmentMutation.isPending}
+        onCancel={() => setIsCancelAssignmentModalOpen(false)}
+        onConfirm={async () => {
+          if (adId) {
+            await cancelAssignmentMutation.mutateAsync({ advertiseId: adId });
+            setIsCancelAssignmentModalOpen(false);
             void detailQuery.refetch();
-          }}
-        />
-      ) : null}
+          }
+        }}
+      />
+
+      <RepostChoiceBottomSheet
+        isOpen={isRepostChoiceModalOpen}
+        isPersonalPending={republishPersonalMutation.isPending}
+        onClose={() => setIsRepostChoiceModalOpen(false)}
+        onSelectPersonal={async () => {
+          const currentAdId = adId ?? String(card.id);
+          if (!currentAdId) return;
+          await republishPersonalMutation.mutateAsync(currentAdId);
+          setIsRepostChoiceModalOpen(false);
+          pushRoute(getAdPaymentPath(currentAdId));
+        }}
+        onSelectAgency={() => {
+          setIsRepostChoiceModalOpen(false);
+          setIsReassignAgencyModalOpen(true);
+        }}
+      />
+
+      <AgencyReassignBottomSheet
+        isPending={reassignAgencyMutation.isPending}
+        isOpen={isReassignAgencyModalOpen}
+        onClose={() => setIsReassignAgencyModalOpen(false)}
+        onConfirm={async (agencyId) => {
+          const currentAdId = adId ?? String(card.id);
+          if (!currentAdId) return;
+          await reassignAgencyMutation.mutateAsync({
+            advertiseId: currentAdId,
+            agencyId,
+          });
+          setIsReassignAgencyModalOpen(false);
+          void detailQuery.refetch();
+        }}
+      />
 
       {isStopPublishModalOpen ? (
         <StopPublishModal
@@ -988,7 +984,8 @@ function WaitForAgencyNotice({
   onCancelAssignment: () => void;
 }) {
   const agencyName = readText(ad?.assigned_agency_name ?? ad?.agency_name ?? (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).name : undefined)) || "آژانس املاک";
-  const deadlineRemaining = readAgencyDeadlineRemaining(ad?.created_at ?? ad?.createdAt);
+  const agencyStartDate = getAgencyAssignmentStartDate(ad);
+  const deadlineRemaining = readAgencyDeadlineRemaining(agencyStartDate);
 
   return (
     <div className="mt-4 rounded-2xl border border-warning bg-warning-container/30 p-4 text-right">
@@ -1242,26 +1239,28 @@ function WaitForDealConfirmationNotice({
   );
 }
 
-function CancelAssignmentModal({
+function CancelAssignmentBottomSheet({
+  isOpen,
   isPending,
   onCancel,
   onConfirm,
 }: {
+  isOpen: boolean;
   isPending: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
   return (
-    <div
-      aria-modal="true"
-      className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/50 p-4 [direction:rtl]"
-      role="dialog"
+    <BottomSheet
+      ariaLabel="لغو واگذاری به آژانس"
+      isOpen={isOpen}
+      onClose={onCancel}
+      showBackButton={false}
+      title="لغو واگذاری به آژانس"
+      variant="confirm"
     >
-      <div className="w-full max-w-sm rounded-2xl bg-surface p-5 text-right shadow-xl">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
-          لغو واگذاری به آژانس
-        </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-xs leading-6 text-on-surface-var">
+      <div className="px-4 pb-2 text-right [direction:rtl]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-6 text-on-surface-var">
           آیا از لغو واگذاری این آگهی به آژانس اطمینان دارید؟ پس از لغو، ۷ روز مهلت خواهید داشت تا آن را به آژانس دیگری واگذار کنید یا مستقیماً منتشر نمایید.
         </Typography>
 
@@ -1286,11 +1285,11 @@ function CancelAssignmentModal({
           </Button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 
-function RepostChoiceModal({
+function RepostChoiceBottomSheet({
   isOpen,
   onClose,
   onSelectAgency,
@@ -1303,43 +1302,41 @@ function RepostChoiceModal({
   onSelectPersonal: () => void;
   isPersonalPending: boolean;
 }) {
-  if (!isOpen) return null;
-
   return (
-    <div
-      aria-modal="true"
-      className="fixed inset-0 z-[1200] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 [direction:rtl]"
-      role="dialog"
+    <BottomSheet
+      ariaLabel="انتخاب روش انتشار مجدد"
+      isOpen={isOpen}
+      onClose={onClose}
+      showBackButton={false}
+      title="انتخاب روش انتشار مجدد"
+      variant="actions"
     >
-      <div className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-surface p-5 text-right shadow-xl">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
-          انتخاب روش انتشار مجدد
-        </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+      <div className="px-4 pb-4 text-right [direction:rtl]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-4 text-xs leading-5 text-on-surface-var">
           تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک حفظ می‌شود.
         </Typography>
 
-        <div className="mt-4 space-y-2.5">
+        <div className="space-y-2.5">
           <Button
             unstyled
             disabled={isPersonalPending}
             onClick={onSelectPersonal}
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container"
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container [direction:ltr]"
             type="button"
           >
-            <span>{isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}</span>
             <ChevronLeftIcon className="h-5 w-5 text-outline" />
+            <span className="[direction:rtl]">{isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}</span>
           </Button>
 
           <Button
             unstyled
             disabled={isPersonalPending}
             onClick={onSelectAgency}
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container"
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container [direction:ltr]"
             type="button"
           >
-            <span>ارسال و واگذاری به آژانس املاک دیگر</span>
             <ChevronLeftIcon className="h-5 w-5 text-outline" />
+            <span className="[direction:rtl]">ارسال و واگذاری به آژانس املاک دیگر</span>
           </Button>
         </div>
 
@@ -1352,11 +1349,11 @@ function RepostChoiceModal({
           انصراف
         </Button>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 
-function AgencyReassignModal({
+function AgencyReassignBottomSheet({
   isOpen,
   onClose,
   onConfirm,
@@ -1380,29 +1377,19 @@ function AgencyReassignModal({
     return data?.pages.flatMap((page) => page.data) ?? [];
   }, [data]);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      aria-modal="true"
-      className="fixed inset-0 z-[1250] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 [direction:rtl]"
-      role="dialog"
+    <BottomSheet
+      ariaLabel="انتخاب آژانس املاک جدید"
+      className="max-h-[85svh]"
+      heightClassName="h-[min(100svh,640px)]"
+      isOpen={isOpen}
+      onClose={onClose}
+      showBackButton={false}
+      title="انتخاب آژانس املاک جدید"
+      variant="full-height"
     >
-      <div className="flex max-h-[85vh] w-full max-w-md flex-col rounded-t-2xl sm:rounded-2xl bg-surface-container-lowest text-right shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between border-b border-outline-var/30 px-4 py-3.5 bg-surface">
-          <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-sm font-semibold text-on-surface">
-            انتخاب آژانس املاک جدید
-          </Typography>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-outline hover:bg-surface-container active:bg-surface-container"
-            type="button"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="p-4 pb-2 bg-surface">
+      <div className="flex flex-col flex-1 min-h-0 [direction:rtl]">
+        <div className="px-4 pb-3">
           <SearchInputBar
             aria-label="جستجوی آژانس"
             containerClassName="rounded-xl border-outline-var/60"
@@ -1416,9 +1403,9 @@ function AgencyReassignModal({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 min-h-[200px]">
+        <div className="flex-1 overflow-y-auto px-4 py-1 space-y-2 min-h-[220px]">
           {isLoading ? (
-            <div className="flex h-40 items-center justify-center text-xs text-outline">
+            <div className="flex h-36 items-center justify-center text-xs text-outline">
               در حال بارگذاری آژانس‌ها...
             </div>
           ) : agencies.length === 0 ? (
@@ -1467,7 +1454,7 @@ function AgencyReassignModal({
           )}
         </div>
 
-        <div className="border-t border-outline-var/30 p-4 bg-surface">
+        <div className="border-t border-outline-var/30 p-4 bg-surface-container-lowest mt-auto">
           <Button
             unstyled
             disabled={!selectedAgencyId || isPending}
@@ -1481,7 +1468,7 @@ function AgencyReassignModal({
           </Button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -1581,15 +1568,47 @@ function StopPublishModal({
   );
 }
 
-function readAgencyDeadlineRemaining(createdAt: unknown) {
-  if (typeof createdAt !== "string" || !createdAt.trim()) return "۲۴ ساعت";
-  const start = Date.parse(createdAt);
+function getAgencyAssignmentStartDate(ad?: Record<string, unknown>): string | undefined {
+  if (!ad) return undefined;
+  if (Array.isArray(ad.status_logs)) {
+    const logs = [...ad.status_logs].reverse();
+    const waitLog = logs.find(
+      (l) =>
+        l &&
+        typeof l === "object" &&
+        ((l as Record<string, unknown>).status === "wait_for_agency" ||
+          (l as Record<string, unknown>).status === 1 ||
+          String((l as Record<string, unknown>).status) === "1" ||
+          String((l as Record<string, unknown>).description ?? "").includes("agency") ||
+          String((l as Record<string, unknown>).description ?? "").includes("آژانس"))
+    );
+    if (waitLog && typeof waitLog === "object") {
+      const logDate = (waitLog as Record<string, unknown>).date || (waitLog as Record<string, unknown>).created_at;
+      if (logDate) return String(logDate);
+    }
+  }
+  const updatedAt = ad.updated_at ?? ad.updatedAt;
+  if (typeof updatedAt === "string" && updatedAt.trim()) {
+    return updatedAt;
+  }
+  const createdAt = ad.created_at ?? ad.createdAt;
+  if (typeof createdAt === "string" && createdAt.trim()) {
+    return createdAt;
+  }
+  return undefined;
+}
+
+function readAgencyDeadlineRemaining(startDate: unknown) {
+  if (typeof startDate !== "string" || !startDate.trim()) return "۲۴ ساعت";
+  const start = Date.parse(startDate);
   if (!Number.isFinite(start)) return "۲۴ ساعت";
   const deadline = start + 24 * 60 * 60 * 1000;
   const diff = deadline - Date.now();
-  if (diff <= 0) return "منقضی شده";
+  if (diff <= 0) return "مهلت ۲۴ ساعته به پایان رسیده است";
   const hours = Math.floor(diff / (60 * 60 * 1000));
   const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  if (hours <= 0 && minutes <= 0) return "کمتر از ۱ دقیقه";
+  if (hours <= 0) return `${toPersianDigits(minutes)} دقیقه`;
   return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
 }
 

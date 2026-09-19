@@ -281,6 +281,29 @@ export async function restoreArchivedAdvertise(advertiseId: string | number) {
     .json();
 }
 
+export async function republishAdAsPersonal(advertiseId: string | number) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment/republish-personal`)
+    .json();
+}
+
+export async function reassignAdToAgency({
+  advertiseId,
+  agencyId,
+}: {
+  advertiseId: string | number;
+  agencyId: string | number;
+}) {
+  return api
+    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment`, {
+      json: {
+        target_type: "agency",
+        agency_id: Number(agencyId),
+      },
+    })
+    .json();
+}
+
 export type CreateStopPublishRequestPayload = {
   advertiseId: string | number;
   reason: string;

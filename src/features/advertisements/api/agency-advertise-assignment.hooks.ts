@@ -10,8 +10,10 @@ import {
   confirmUserDealResult,
   createStopPublishRequest,
   getMyAgencyAdvertiseAssignments,
+  reassignAdToAgency,
   rejectAgencyAdvertiseAssignment,
   rejectAgencyStopRequest,
+  republishAdAsPersonal,
   restoreArchivedAdvertise,
   submitAdvertiseDealResult,
   type AgencyAdvertiseAssignmentsPage,
@@ -179,4 +181,33 @@ export function useConfirmUserDealResultMutation() {
     },
   });
 }
+
+export function useRepublishAdAsPersonalMutation() {
+  return useMutation({
+    mutationFn: (advertiseId: string | number) => republishAdAsPersonal(advertiseId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agencyAdvertiseAssignments.all });
+    },
+  });
+}
+
+export function useReassignAdToAgencyMutation() {
+  return useMutation({
+    mutationFn: ({
+      advertiseId,
+      agencyId,
+    }: {
+      advertiseId: string | number;
+      agencyId: string | number;
+    }) => reassignAdToAgency({ advertiseId, agencyId }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agencyAdvertiseAssignments.all });
+    },
+  });
+}
+
 

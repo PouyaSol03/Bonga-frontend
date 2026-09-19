@@ -9,10 +9,12 @@ import {
   useChangeAgencyAdvertiseConsultantMutation,
   useConfirmUserDealResultMutation,
   useCreateStopPublishRequestMutation,
+  useReassignAdToAgencyMutation,
   useRejectAgencyStopRequestMutation,
+  useRepublishAdAsPersonalMutation,
   useRestoreArchivedAdMutation,
 } from "../advertisements/api/agency-advertise-assignment.hooks";
-import { useAgencyConsultantsQuery } from "../agencies/api/agency.hooks";
+import { useAgencyConsultantsQuery, useAgencyInfiniteQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
@@ -25,6 +27,7 @@ import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
 import type { AdCardData } from "../advertisements/components/AdCard";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { pushRoute } from "../../shared/navigation/navigation";
 import {
   adManagementPaths,
   getAdCloseResultPath,
@@ -101,10 +104,13 @@ export function AccountMyAdStatePage() {
 
   const [isCancelAssignmentModalOpen, setIsCancelAssignmentModalOpen] = useState(false);
   const [isRepostChoiceModalOpen, setIsRepostChoiceModalOpen] = useState(false);
+  const [isReassignAgencyModalOpen, setIsReassignAgencyModalOpen] = useState(false);
   const [isStopPublishModalOpen, setIsStopPublishModalOpen] = useState(false);
 
   const cancelAssignmentMutation = useCancelUserAssignmentMutation();
   const restoreArchivedMutation = useRestoreArchivedAdMutation();
+  const republishPersonalMutation = useRepublishAdAsPersonalMutation();
+  const reassignAgencyMutation = useReassignAdToAgencyMutation();
   const createStopRequestMutation = useCreateStopPublishRequestMutation();
   const cancelStopRequestMutation = useCancelStopPublishRequestMutation();
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
@@ -259,8 +265,38 @@ export function AccountMyAdStatePage() {
 
       {isRepostChoiceModalOpen ? (
         <RepostChoiceModal
-          adId={adId ?? String(card.id)}
+          isOpen={isRepostChoiceModalOpen}
+          isPersonalPending={republishPersonalMutation.isPending}
           onClose={() => setIsRepostChoiceModalOpen(false)}
+          onSelectPersonal={async () => {
+            const currentAdId = adId ?? String(card.id);
+            if (!currentAdId) return;
+            await republishPersonalMutation.mutateAsync(currentAdId);
+            setIsRepostChoiceModalOpen(false);
+            pushRoute(getAdPaymentPath(currentAdId));
+          }}
+          onSelectAgency={() => {
+            setIsRepostChoiceModalOpen(false);
+            setIsReassignAgencyModalOpen(true);
+          }}
+        />
+      ) : null}
+
+      {isReassignAgencyModalOpen ? (
+        <AgencyReassignModal
+          isPending={reassignAgencyMutation.isPending}
+          isOpen={isReassignAgencyModalOpen}
+          onClose={() => setIsReassignAgencyModalOpen(false)}
+          onConfirm={async (agencyId) => {
+            const currentAdId = adId ?? String(card.id);
+            if (!currentAdId) return;
+            await reassignAgencyMutation.mutateAsync({
+              advertiseId: currentAdId,
+              agencyId,
+            });
+            setIsReassignAgencyModalOpen(false);
+            void detailQuery.refetch();
+          }}
         />
       ) : null}
 
@@ -1255,12 +1291,20 @@ function CancelAssignmentModal({
 }
 
 function RepostChoiceModal({
-  adId,
+  isOpen,
   onClose,
+  onSelectAgency,
+  onSelectPersonal,
+  isPersonalPending,
 }: {
-  adId: string;
+  isOpen: boolean;
   onClose: () => void;
+  onSelectAgency: () => void;
+  onSelectPersonal: () => void;
+  isPersonalPending: boolean;
 }) {
+  if (!isOpen) return null;
+
   return (
     <div
       aria-modal="true"
@@ -1272,25 +1316,31 @@ function RepostChoiceModal({
           انتخاب روش انتشار مجدد
         </Typography>
         <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
-          تمایل دارید آگهی را به چه صورت مجدداً منتشر نمایید؟
+          تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک حفظ می‌شود.
         </Typography>
 
         <div className="mt-4 space-y-2.5">
-          <RouteLink
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface no-underline active:bg-surface-container"
-            to={getAdPaymentPath(adId)}
+          <Button
+            unstyled
+            disabled={isPersonalPending}
+            onClick={onSelectPersonal}
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container"
+            type="button"
           >
-            <span>انتشار شخصی و مستقیم (پرداخت آنلاین)</span>
+            <span>{isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}</span>
             <ChevronLeftIcon className="h-5 w-5 text-outline" />
-          </RouteLink>
+          </Button>
 
-          <RouteLink
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface no-underline active:bg-surface-container"
-            to={`/new-ad?step=agency&reassignAdId=${encodeURIComponent(adId)}`}
+          <Button
+            unstyled
+            disabled={isPersonalPending}
+            onClick={onSelectAgency}
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container"
+            type="button"
           >
             <span>ارسال و واگذاری به آژانس املاک دیگر</span>
             <ChevronLeftIcon className="h-5 w-5 text-outline" />
-          </RouteLink>
+          </Button>
         </div>
 
         <Button
@@ -1299,12 +1349,142 @@ function RepostChoiceModal({
           onClick={onClose}
           type="button"
         >
-          بستن
+          انصراف
         </Button>
       </div>
     </div>
   );
 }
+
+function AgencyReassignModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  isPending,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (agencyId: string | number) => void;
+  isPending: boolean;
+}) {
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(null);
+
+  const { data, isLoading } = useAgencyInfiniteQuery({
+    search: searchValue.trim(),
+    enabled: isOpen,
+    perPage: 20,
+  });
+
+  const agencies = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) ?? [];
+  }, [data]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-[1250] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 [direction:rtl]"
+      role="dialog"
+    >
+      <div className="flex max-h-[85vh] w-full max-w-md flex-col rounded-t-2xl sm:rounded-2xl bg-surface-container-lowest text-right shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between border-b border-outline-var/30 px-4 py-3.5 bg-surface">
+          <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-sm font-semibold text-on-surface">
+            انتخاب آژانس املاک جدید
+          </Typography>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-outline hover:bg-surface-container active:bg-surface-container"
+            type="button"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="p-4 pb-2 bg-surface">
+          <SearchInputBar
+            aria-label="جستجوی آژانس"
+            containerClassName="rounded-xl border-outline-var/60"
+            inputClassName="text-xs leading-5"
+            onClear={() => setSearchValue("")}
+            onValueChange={setSearchValue}
+            placeholder="جستجوی نام آژانس..."
+            size="dense"
+            type="search"
+            value={searchValue}
+          />
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 min-h-[200px]">
+          {isLoading ? (
+            <div className="flex h-40 items-center justify-center text-xs text-outline">
+              در حال بارگذاری آژانس‌ها...
+            </div>
+          ) : agencies.length === 0 ? (
+            <SearchEmptyState />
+          ) : (
+            agencies.map((agency) => {
+              const isSelected = String(agency.id) === String(selectedAgencyId);
+              return (
+                <button
+                  key={agency.id}
+                  type="button"
+                  onClick={() => setSelectedAgencyId(String(agency.id))}
+                  className={`flex w-full items-center justify-between gap-3 rounded-xl p-3 text-right transition-colors border ${
+                    isSelected
+                      ? "border-primary bg-primary/5"
+                      : "border-outline-var/40 bg-surface hover:bg-surface-container"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-container text-primary overflow-hidden">
+                      {agency.logo || agency.img ? (
+                        <img
+                          src={agency.logo || agency.img}
+                          alt={agency.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <LinearBuilding2 className="h-5 w-5" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 truncate text-xs text-on-surface">
+                        {agency.name}
+                      </Typography>
+                      {agency.address && (
+                        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 truncate text-[11px] text-on-surface-var">
+                          {agency.address}
+                        </Typography>
+                      )}
+                    </div>
+                  </div>
+                  <RadioIndicator checked={isSelected} />
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        <div className="border-t border-outline-var/30 p-4 bg-surface">
+          <Button
+            unstyled
+            disabled={!selectedAgencyId || isPending}
+            onClick={() => {
+              if (selectedAgencyId) onConfirm(selectedAgencyId);
+            }}
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-primary text-xs font-semibold text-on-primary disabled:opacity-40 active:opacity-90"
+            type="button"
+          >
+            {isPending ? "در حال واگذاری..." : "تأیید و واگذاری به این آژانس"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 const STOP_PUBLISH_REASONS = [
   "معامله انجام شده",

@@ -15,6 +15,7 @@ export type AgencyAdvertiseAssignmentDto = {
   agencyId?: number | string;
   cancelReason?: string;
   consultantId?: number | string;
+  createdAt?: string;
   decidedAt?: string;
   decidedByUserId?: number | string;
   expiresAt?: string;
@@ -143,12 +144,18 @@ function normalizeAssignment(item: AssignmentApiItem): AgencyAdvertiseAssignment
     normalizeAdvertise(item.advertisement) ??
     normalizeAdvertise(item.ad) ??
     normalizeAdvertise(metadata.advertise);
+  const createdAt =
+    toText(item.created_at) ||
+    toText(metadata.created_at) ||
+    undefined;
   const expiresAt =
     toText(item.expires_at) ||
     toText(metadata.expires_at) ||
     toText(metadata.deadline_at) ||
     toText(metadata.assignment_expires_at) ||
-    undefined;
+    (createdAt && Number.isFinite(Date.parse(createdAt))
+      ? new Date(Date.parse(createdAt) + 24 * 60 * 60 * 1000).toISOString()
+      : undefined);
 
   return {
     advertise: embeddedAdvertise,
@@ -156,6 +163,7 @@ function normalizeAssignment(item: AssignmentApiItem): AgencyAdvertiseAssignment
     agencyId: toId(item.target_agency_id ?? item.agency_id),
     cancelReason: toText(item.cancel_reason) || undefined,
     consultantId: toId(item.target_consultant_id ?? item.consultant_id),
+    createdAt,
     decidedAt: toText(item.decided_at) || undefined,
     decidedByUserId: toId(item.decided_by_user_id),
     expiresAt,

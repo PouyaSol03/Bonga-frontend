@@ -32,6 +32,8 @@ import LinearAdd from "../../../shared/icons/LinearAdd";
 import LinearChartUp from "../../../shared/icons/LinearChartUp";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 import LinearTooman from "../../../shared/icons/LinearTooman";
+import LinearStairs from "../../../shared/icons/LinearStairs";
+import LinearStartup from "../../../shared/icons/LinearStartup";
 import {
   clearAgencyAllocationCheckout,
   clearNewAdCheckout,
@@ -856,10 +858,8 @@ function AgencyCombinedCheckoutView({
           : "انتشار آگهی"
         : `پرداخت و انتشار - ${formatShortPayment(selectedPayableAmount)}`;
 
-  const creditBalanceLabel =
-    creditMethod === "ad_credit" && creditPaymentMethod?.balances
-      ? `آگهی: ${new Intl.NumberFormat("fa-IR").format(creditBalances.ad_credit)} | ویژه: ${new Intl.NumberFormat("fa-IR").format(creditBalances.special_credit)} | تمدید: ${new Intl.NumberFormat("fa-IR").format(creditBalances.renew_credit)}`
-      : `مانده: ${new Intl.NumberFormat("fa-IR").format(creditRemaining)} اعتبار`;
+  const adCreditCount = creditBalances.ad_credit || creditRemaining;
+  const creditBalanceLabel = `مانده: ${new Intl.NumberFormat("fa-IR").format(adCreditCount)} اعتبار`;
 
   return (
     <PageFrame
@@ -894,7 +894,7 @@ function AgencyCombinedCheckoutView({
               </Typography>
             </section>
 
-            <div className="h-2 bg-surface-container" aria-hidden="true" />
+            <div className="border-b-2 border-dotted border-primary/30 mx-4 my-2" aria-hidden="true" />
           </>
         ) : null}
 
@@ -933,7 +933,7 @@ function AgencyCombinedCheckoutView({
                 subLabelClassName={
                   selectedCreditShortage > 0 || !selectedCreditAvailable
                     ? "text-error"
-                    : "text-tertiary"
+                    : "text-tertiary font-medium"
                 }
               />
 
@@ -957,7 +957,7 @@ function AgencyCombinedCheckoutView({
                 : "این روش پرداخت در دسترس نیست"
             }
             subLabelClassName={
-              !walletMethod || walletDeficit > 0 ? "text-error" : "text-tertiary"
+              !walletMethod || walletDeficit > 0 ? "text-error" : "text-tertiary font-medium"
             }
           />
 
@@ -979,10 +979,12 @@ function AgencyCombinedCheckoutView({
 
         {showPurchaseDetails ? (
           <>
-            <div className="h-2 bg-surface-container" aria-hidden="true" />
+            <div className="border-b-2 border-dotted border-primary/30 mx-4 my-2" aria-hidden="true" />
             <DisabledUpgradeOptionsSection
+              creditBalances={creditBalances}
               disabledWarning={consultantUpgradeDisabledWarning}
               enabled={upgradeSelectionEnabled}
+              isCreditMethod={method === "ad_credit"}
               onToggle={toggleUpgrade}
               selectedProducts={selectedUpgradeProducts}
               upgradeItems={upgradeItems}
@@ -1106,18 +1108,26 @@ function CheckoutTariffView({
 }
 
 function DisabledUpgradeOptionsSection({
+  creditBalances,
   disabledWarning = unavailableAfterPublishWarning,
   enabled = false,
+  isCreditMethod = false,
   onToggle,
   selectedProducts = [],
   upgradeItems = [],
 }: {
+  creditBalances?: { ad_credit: number; special_credit: number; renew_credit: number };
   disabledWarning?: string;
   enabled?: boolean;
+  isCreditMethod?: boolean;
   onToggle?: (product: string) => void;
   selectedProducts?: string[];
   upgradeItems?: AdvertisementCheckoutItem[];
 }) {
+  const visibleOptions = disabledUpgradeOptions.filter(
+    (option) => option.id !== "refresh-special" || selectedProducts.includes("advertise_update_special"),
+  );
+
   return (
     <section className="bg-surface-container-lowest" aria-label="امکانات ارتقای آگهی">
       <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 flex items-center gap-2 px-4 pb-2 pt-5 text-right text-base font-semibold leading-6">
@@ -1125,8 +1135,8 @@ function DisabledUpgradeOptionsSection({
         امکانات ارتقای آگهی
       </Typography>
 
-      <div className="divide-y divide-outline-var px-4">
-        {disabledUpgradeOptions.map((option) => {
+      <div className="divide-y divide-outline-var/40 px-4">
+        {visibleOptions.map((option) => {
           const checkoutItem = resolveUpgradeCheckoutItem(option.id, upgradeItems);
           const optionEnabled = Boolean(enabled && checkoutItem);
           const checked = Boolean(
@@ -1136,6 +1146,7 @@ function DisabledUpgradeOptionsSection({
             checkoutItem?.price !== undefined
               ? toSafeNumber(checkoutItem.price)
               : 30000;
+          const itemCredit = checkoutItem?.credit_requirements?.[0]?.amount ?? 1;
           const unavailableWarning = enabled
             ? "این قابلیت در حال حاضر در دسترس نیست."
             : disabledWarning;
@@ -1144,7 +1155,7 @@ function DisabledUpgradeOptionsSection({
             <Button unstyled
               aria-disabled={!optionEnabled}
               aria-pressed={checked}
-              className={`block w-full border-0 bg-surface-container-lowest py-4 text-inherit ${optionEnabled ? "cursor-pointer" : "cursor-not-allowed"
+              className={`block w-full border-0 bg-surface-container-lowest py-4 text-inherit ${optionEnabled ? "cursor-pointer" : "cursor-default"
                 }`}
               key={option.id}
               onClick={() => {
@@ -1155,9 +1166,11 @@ function DisabledUpgradeOptionsSection({
               type="button"
             >
               <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${optionEnabled ? "text-on-surface" : "text-outline"
+                <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${optionEnabled || isCreditMethod ? "text-on-surface" : "text-outline"
                   }`}>
-                  {itemPrice !== undefined ? (
+                  {isCreditMethod ? (
+                    `${new Intl.NumberFormat("fa-IR").format(itemCredit)} اعتبار`
+                  ) : itemPrice !== undefined ? (
                     <>
                       {formatTariffToman(itemPrice)}
                       <LinearTooman className="h-5 w-5" />
@@ -1168,7 +1181,7 @@ function DisabledUpgradeOptionsSection({
                 </Typography>
 
                 <div className="min-w-0 flex-1 text-right [direction:rtl]">
-                  <div className={`flex items-center justify-start gap-2 text-base font-medium leading-6 ${optionEnabled ? "text-on-surface" : "text-outline"
+                  <div className={`flex items-center justify-start gap-2 text-base font-medium leading-6 ${optionEnabled || isCreditMethod ? "text-on-surface" : "text-outline"
                     }`}>
                     <ChoiceIndicator
                       checked={checked}
@@ -1177,14 +1190,30 @@ function DisabledUpgradeOptionsSection({
                     />
                     {option.title}
                   </div>
-                  <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-4 text-sm font-normal leading-6 ${optionEnabled ? "text-on-surface-var" : "text-outline"
+                  <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-3 text-sm font-normal leading-6 ${optionEnabled || isCreditMethod ? "text-on-surface-var" : "text-outline"
                     }`}>
                     {getUpgradeDescription(option.id, checkoutItem)}
                   </Typography>
+
+                  {option.id === "refresh" ? (
+                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
+                      <LinearStairs className="h-4 w-4 shrink-0" />
+                      <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.ad_credit ?? 23)}</span>
+                    </div>
+                  ) : option.id === "special" ? (
+                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FFF8E6] px-3 py-2 text-right text-xs font-medium text-[#FF8A00]">
+                      <LinearStartup className="h-4 w-4 shrink-0" />
+                      <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.special_credit ?? 19)}</span>
+                    </div>
+                  ) : option.id === "renew" && (creditBalances?.renew_credit ?? 0) > 0 ? (
+                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
+                      <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances!.renew_credit)}</span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
-              {!optionEnabled ? (
+              {!optionEnabled && !isCreditMethod ? (
                 <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-warning-container/30 px-3 py-2 text-right text-xs font-medium leading-5 text-warning">
                   <LinearInfoCircle className="h-5 w-5 shrink-0" />
                   <Typography as="span" variant="body" size="medium" weight="regular">
@@ -1196,6 +1225,7 @@ function DisabledUpgradeOptionsSection({
           );
         })}
       </div>
+      <div className="border-b-2 border-dotted border-primary/30 mx-4 my-2" aria-hidden="true" />
     </section>
   );
 }

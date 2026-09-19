@@ -48,6 +48,8 @@ import LinearPreview from "../../shared/icons/LinearPreview";
 import LinearAnalytics from "../../shared/icons/LinearAnalytics";
 import LinearBuilding2 from "../../shared/icons/LinearBuilding2";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
+import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
+import { ListItem } from "../../shared/ui/ListItem";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearFactor from "../../shared/icons/LinearFactor";
@@ -1253,21 +1255,28 @@ function CancelAssignmentBottomSheet({
   return (
     <BottomSheet
       ariaLabel="لغو واگذاری به آژانس"
+      className="rounded-t-[24px]!"
+      contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+      headerButtonAriaLabel="بستن"
+      headerClassName="h-10! gap-1! px-2!"
       isOpen={isOpen}
       onClose={onCancel}
-      showBackButton={false}
       title="لغو واگذاری به آژانس"
       variant="confirm"
+      zIndexClassName="z-2000"
     >
-      <div className="px-4 pb-2 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-6 text-on-surface-var">
-          آیا از لغو واگذاری این آگهی به آژانس اطمینان دارید؟ پس از لغو، ۷ روز مهلت خواهید داشت تا آن را به آژانس دیگری واگذار کنید یا مستقیماً منتشر نمایید.
+      <div className="px-4 pb-4 pt-1 text-right [direction:rtl]">
+        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm leading-6 text-on-surface">
+          آیا از لغو واگذاری این آگهی به آژانس اطمینان دارید؟
+        </Typography>
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+          پس از لغو، ۷ روز مهلت خواهید داشت تا آن را به آژانس دیگری واگذار کنید یا مستقیماً منتشر نمایید.
         </Typography>
 
-        <div className="mt-5 flex gap-2">
+        <div className="mt-6 flex gap-3">
           <Button
             unstyled
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-error text-xs font-medium text-white active:opacity-90 disabled:opacity-50"
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-error text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
             disabled={isPending}
             onClick={onConfirm}
             type="button"
@@ -1276,7 +1285,7 @@ function CancelAssignmentBottomSheet({
           </Button>
           <Button
             unstyled
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-outline-var bg-surface text-sm font-medium text-on-surface active:bg-surface-container"
             disabled={isPending}
             onClick={onCancel}
             type="button"
@@ -1305,49 +1314,42 @@ function RepostChoiceBottomSheet({
   return (
     <BottomSheet
       ariaLabel="انتخاب روش انتشار مجدد"
+      className="rounded-t-[24px]!"
+      contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(0.875rem,env(safe-area-inset-bottom,0px))]"
+      headerButtonAriaLabel="بستن"
+      headerClassName="h-10! gap-1! px-2!"
       isOpen={isOpen}
       onClose={onClose}
-      showBackButton={false}
       title="انتخاب روش انتشار مجدد"
       variant="actions"
+      zIndexClassName="z-2000"
     >
-      <div className="px-4 pb-4 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-4 text-xs leading-5 text-on-surface-var">
+      <div className="px-4 pb-2 text-right [direction:rtl]">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-5 text-on-surface-var">
           تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک حفظ می‌شود.
         </Typography>
+      </div>
 
-        <div className="space-y-2.5">
-          <Button
-            unstyled
-            disabled={isPersonalPending}
-            onClick={onSelectPersonal}
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container [direction:ltr]"
-            type="button"
-          >
-            <ChevronLeftIcon className="h-5 w-5 text-outline" />
-            <span className="[direction:rtl]">{isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}</span>
-          </Button>
+      <div className="divide-y divide-outline-var">
+        <ListItem
+          description="پرداخت هزینه انتشار و انتشار فوری آگهی به صورت شخصی"
+          disabled={isPersonalPending}
+          leading={<LinearUserSolid aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          onClick={onSelectPersonal}
+          tabIndex={isOpen ? 0 : -1}
+          title={isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+        />
 
-          <Button
-            unstyled
-            disabled={isPersonalPending}
-            onClick={onSelectAgency}
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface px-4 text-xs font-medium text-on-surface disabled:opacity-50 active:bg-surface-container [direction:ltr]"
-            type="button"
-          >
-            <ChevronLeftIcon className="h-5 w-5 text-outline" />
-            <span className="[direction:rtl]">ارسال و واگذاری به آژانس املاک دیگر</span>
-          </Button>
-        </div>
-
-        <Button
-          unstyled
-          className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-lg border border-outline-var bg-transparent text-xs font-medium text-outline active:bg-surface-container"
-          onClick={onClose}
-          type="button"
-        >
-          انصراف
-        </Button>
+        <ListItem
+          description="ارسال و واگذاری این آگهی به آژانس املاک برای مدیریت و انتشار"
+          disabled={isPersonalPending}
+          leading={<LinearBuilding2 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          onClick={onSelectAgency}
+          tabIndex={isOpen ? 0 : -1}
+          title="ارسال و واگذاری به آژانس املاک دیگر"
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+        />
       </div>
     </BottomSheet>
   );
@@ -1380,13 +1382,16 @@ function AgencyReassignBottomSheet({
   return (
     <BottomSheet
       ariaLabel="انتخاب آژانس املاک جدید"
-      className="max-h-[85svh]"
+      className="rounded-t-[24px]! max-h-[85svh]"
+      contentClassName="min-h-0 overflow-y-auto overscroll-contain"
+      headerButtonAriaLabel="بستن"
+      headerClassName="h-10! gap-1! px-2!"
       heightClassName="h-[min(100svh,640px)]"
       isOpen={isOpen}
       onClose={onClose}
-      showBackButton={false}
       title="انتخاب آژانس املاک جدید"
       variant="full-height"
+      zIndexClassName="z-2000"
     >
       <div className="flex flex-col flex-1 min-h-0 [direction:rtl]">
         <div className="px-4 pb-3">

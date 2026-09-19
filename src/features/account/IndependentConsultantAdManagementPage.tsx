@@ -43,7 +43,8 @@ const emptyFilters: AdManagementFilters = {
 type AssignmentCountdown = {
   hours: number;
   minutes: number;
-} | null;
+  isExpired: boolean;
+};
 
 function isAssignedTab(tab: AdsTab) {
   return tab === "status";
@@ -202,16 +203,40 @@ function mapAssignmentToAd(
 }
 
 function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto): AssignmentCountdown {
-  if (!assignment.expiresAt) return null;
+  let targetTime: number | null = null;
 
-  const expiresAt = Date.parse(assignment.expiresAt);
-  if (!Number.isFinite(expiresAt)) return null;
+  if (assignment.expiresAt) {
+    const t = Date.parse(assignment.expiresAt);
+    if (Number.isFinite(t)) targetTime = t;
+  }
 
-  const remainingMinutes = Math.max(0, Math.ceil((expiresAt - Date.now()) / 60_000));
+  if (!targetTime) {
+    const startCandidate =
+      assignment.createdAt ||
+      (assignment.metadata?.created_at as string) ||
+      (assignment.metadata?.assigned_at as string) ||
+      (assignment.advertise?.updated_at as string) ||
+      (assignment.advertise?.created_at as string);
+    if (startCandidate) {
+      const t = Date.parse(startCandidate);
+      if (Number.isFinite(t)) targetTime = t + 24 * 60 * 60 * 1000;
+    }
+  }
 
+  if (!targetTime) {
+    targetTime = Date.now() + 24 * 60 * 60 * 1000;
+  }
+
+  const diff = targetTime - Date.now();
+  if (diff <= 0) {
+    return { hours: 0, minutes: 0, isExpired: true };
+  }
+
+  const remainingMinutes = Math.ceil(diff / 60_000);
   return {
     hours: Math.floor(remainingMinutes / 60),
     minutes: remainingMinutes % 60,
+    isExpired: false,
   };
 }
 
@@ -505,7 +530,7 @@ function AssignedConsultantAdCard({
   countdown: AssignmentCountdown;
   loadMoreRef?: (node: HTMLElement | null) => void;
 }) {
-  const countdownClassName = getAllocationCountdownClassName(countdown?.hours);
+  const countdownClassName = getAllocationCountdownClassName(countdown);
   const routeState = {
     ad,
     assignment,
@@ -520,12 +545,12 @@ function AssignedConsultantAdCard({
       ref={loadMoreRef}
     >
       <div
-        className={`flex gap-2 items-center rounded-4xl mt-4 mx-4 py-2 px-3 text-center text-sm font-medium ${countdownClassName}`}
+        className={`flex gap-2 items-center rounded-xl mt-4 mx-4 py-2 px-3 text-center text-xs font-medium ${countdownClassName}`}
       >
         <LinearTimeQuarter className="w-4 h-4"/>
-        {countdown
-          ? `${formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص`
-          : "زمان پایان مهلت تخصیص مشخص نیست"}
+        {countdown.isExpired
+          ? "مهلت تخصیص به پایان رسیده است"
+          : `${formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص`}
       </div>
 
       <ConsultantAdCard
@@ -557,15 +582,20 @@ function AssignmentStatusMessage({ children }: { children: ReactNode }) {
   );
 }
 
-function formatAllocationCountdown({ hours, minutes }: { hours: number; minutes: number }) {
+function formatAllocationCountdown({ hours, minutes, isExpired }: AssignmentCountdown) {
+  if (isExpired || (hours <= 0 && minutes <= 0)) return "مهلت به پایان رسیده است";
+  if (hours <= 0) return `${toPersianDigits(minutes)} دقیقه`;
   return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
 }
 
-function getAllocationCountdownClassName(hours?: number) {
-  if (hours !== undefined && hours < 3) return "bg-error-container/40 text-error";
-  if (hours !== undefined && hours < 12) return "bg-warning-container/40 text-warning";
+function getAllocationCountdownClassName(countdown: AssignmentCountdown) {
+  if (countdown.isExpired || (countdown.hours <= 0 && countdown.minutes <= 0)) {
+    return "bg-error-container text-error";
+  }
+  if (countdown.hours < 3) return "bg-error-container text-error";
+  if (countdown.hours < 12) return "bg-warning-container text-warning";
 
-  return "bg-primary-container text-primary";
+  return "bg-tertiary-container text-tertiary";
 }
 
 function toPersianDigits(value: number | string) {

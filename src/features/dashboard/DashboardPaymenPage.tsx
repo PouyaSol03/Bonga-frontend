@@ -9,6 +9,7 @@ import { TopBar } from "../../shared/components/TopBar";
 import PricingCard from "./components/addWallet/PricingCard";
 import { usePackagePaymentMutation, usePackagesQuery } from "../packages/api/package.hooks";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { pushRoute } from "../../shared/navigation/navigation";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearTooman from "../../shared/icons/LinearTooman";
@@ -342,6 +343,12 @@ function DashboardPaymentMobilePage({
   packages: PackageItem[];
   refetch: () => void;
 }) {
+  const returnTo =
+    window.history.state?.returnTo ||
+    (typeof window !== "undefined"
+      ? sessionStorage.getItem("bonga:paymentReturnTo")
+      : null) ||
+    undefined;
   const initialPaymentTab =
     window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>(initialPaymentTab);
@@ -387,7 +394,7 @@ function DashboardPaymentMobilePage({
           storePaymentReturnTarget({
             kind: "package",
             label: "بازگشت به افزایش اعتبار",
-            path: "/account/dashboard/payments",
+            path: returnTo || "/account/dashboard/payments",
           });
           window.location.assign(paymentUrl);
         },
@@ -401,7 +408,21 @@ function DashboardPaymentMobilePage({
       variant="flush"
     >
       <TopBar
-        backTo="/account/dashboard"
+        backTo={returnTo ?? "/account/dashboard"}
+        onBack={() => {
+          if (returnTo) {
+            try {
+              sessionStorage.removeItem("bonga:paymentReturnTo");
+            } catch {
+              // ignore
+            }
+            pushRoute(returnTo);
+          } else if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            pushRoute("/account/dashboard");
+          }
+        }}
         startSlot={
           <RouteLink
             className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"

@@ -9,6 +9,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
+import { pushRoute } from "../../../shared/navigation/navigation";
 import { useChargeWalletMutation } from "../api/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
@@ -894,7 +895,7 @@ function AgencyCombinedCheckoutView({
               </Typography>
             </section>
 
-            <div className="border-b-2 border-dotted border-primary/30 mx-4 my-2" aria-hidden="true" />
+            <div className="h-2 bg-surface-container" aria-hidden="true" />
           </>
         ) : null}
 
@@ -979,7 +980,7 @@ function AgencyCombinedCheckoutView({
 
         {showPurchaseDetails ? (
           <>
-            <div className="border-b-2 border-dotted border-primary/30 mx-4 my-2" aria-hidden="true" />
+            <div className="h-2 bg-surface-container" aria-hidden="true" />
             <DisabledUpgradeOptionsSection
               creditBalances={creditBalances}
               disabledWarning={consultantUpgradeDisabledWarning}
@@ -1225,7 +1226,6 @@ function DisabledUpgradeOptionsSection({
           );
         })}
       </div>
-      <div className="border-b-2 border-dotted border-primary/30 mx-4 my-2" aria-hidden="true" />
     </section>
   );
 }
@@ -1409,10 +1409,19 @@ function CheckoutStatusPage({
 
 function ApiCreditDeficitBox({ deficit }: { deficit: number }) {
   function openCreditPackages() {
-    navigateTo("/account/dashboard/payments", {
-      initialPaymentTab: "packages",
-      returnTo: window.location.pathname,
-    });
+    try {
+      sessionStorage.setItem("bonga:paymentReturnTo", window.location.pathname);
+    } catch {
+      // ignore
+    }
+    pushRoute(
+      "/account/dashboard/payments",
+      {
+        initialPaymentTab: "packages",
+        returnTo: window.location.pathname,
+      },
+      { rememberCurrent: true },
+    );
   }
 
   return (

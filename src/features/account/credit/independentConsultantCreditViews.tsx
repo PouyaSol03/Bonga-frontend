@@ -4,6 +4,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TransientNotice } from "../../../shared/components/TransientNotice";
 import { TopBar } from "../../../shared/components/TopBar";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { pushRoute } from "../../../shared/navigation/navigation";
 import { useTransientNotice } from "../../../shared/hooks/useTransientNotice";
 import { usePackagePaymentMutation, usePackagesQuery } from "../../packages/api/package.hooks";
 import { useWalletQuery } from "../api/account.hooks";
@@ -180,9 +181,30 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
 }
 
 function CreditTopBar() {
+  const returnTo =
+    window.history.state?.returnTo ||
+    (typeof window !== "undefined"
+      ? sessionStorage.getItem("bonga:paymentReturnTo")
+      : null) ||
+    undefined;
+
   return (
     <TopBar
-      backTo="/account"
+      backTo={returnTo ?? "/account"}
+      onBack={() => {
+        if (returnTo) {
+          try {
+            sessionStorage.removeItem("bonga:paymentReturnTo");
+          } catch {
+            // ignore
+          }
+          pushRoute(returnTo);
+        } else if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          pushRoute("/account");
+        }
+      }}
       startSlot={
         <RouteLink
           className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"

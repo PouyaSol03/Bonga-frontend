@@ -27,6 +27,8 @@ import LinearCancel from "../../../shared/icons/LinearCancel";
 import LinearSearch from "../../../shared/icons/LinearSearch";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import LinearCall from "../../../shared/icons/LinearCall";
+import LinearChat from "../../../shared/icons/LinearChat";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 type PublisherType = "agency" | "consultant";
@@ -90,6 +92,30 @@ export function IndependentConsultantAdAllocationReviewPage() {
         ? "پرداخت"
         : "انتخاب مشاور"
       : "ادامه و پرداخت";
+
+  const rawAdvertiserPhone =
+    (ad as Record<string, unknown>)?.phone ??
+    (ad as Record<string, unknown>)?.user_phone ??
+    (ad as Record<string, unknown>)?.advertiser_phone ??
+    (ad as Record<string, unknown>)?.owner_phone ??
+    (ad as Record<string, unknown>)?.contact_phone ??
+    ((ad as Record<string, unknown>)?.contacts as Record<string, unknown> | undefined)?.phone ??
+    assignment?.advertise?.contacts?.phone ??
+    (assignment?.advertise as Record<string, unknown> | undefined)?.phone ??
+    (assignment?.metadata as Record<string, unknown> | undefined)?.advertiserPhone ??
+    (assignment?.metadata as Record<string, unknown> | undefined)?.phone;
+  const advertiserPhone =
+    typeof rawAdvertiserPhone === "string" || typeof rawAdvertiserPhone === "number"
+      ? String(rawAdvertiserPhone).trim()
+      : "";
+
+  const advertiserUserId =
+    assignment?.requesterUserId ??
+    (ad as Record<string, unknown>)?.userId ??
+    (ad as Record<string, unknown>)?.user_id ??
+    (assignment?.advertise as Record<string, unknown> | undefined)?.userId ??
+    (assignment?.advertise as Record<string, unknown> | undefined)?.user_id ??
+    "";
 
   useEffect(() => {
     if (assignedConsultant || !initialConsultantId) return;
@@ -179,6 +205,26 @@ export function IndependentConsultantAdAllocationReviewPage() {
               tab: "status",
             }}
             to={getAdEditPath(ad.id)}
+          />
+          <ActionDivider />
+          <ReviewAction
+            icon={<LinearCall className="h-6 w-6" />}
+            label="تماس با آگهی‌دهنده"
+            onClick={() => {
+              if (advertiserPhone) {
+                window.location.href = `tel:${advertiserPhone}`;
+              } else {
+                alert("شماره تماس آگهی‌دهنده در دسترس نیست.");
+              }
+            }}
+          />
+          <ActionDivider />
+          <ReviewAction
+            icon={<LinearChat className="h-6 w-6" />}
+            label="پیام به آگهی‌دهنده"
+            onClick={() => {
+              window.location.href = `/chat?${advertiserUserId ? `userId=${encodeURIComponent(String(advertiserUserId))}&` : ""}adId=${encodeURIComponent(String(ad.id))}`;
+            }}
           />
           <ActionDivider />
           <RejectAction
@@ -285,25 +331,46 @@ function ActionDivider() {
 function ReviewAction({
   icon,
   label,
+  onClick,
   state,
   to,
 }: {
   icon: ReactNode;
   label: string;
+  onClick?: () => void;
   state?: unknown;
-  to: string;
+  to?: string;
 }) {
-  return (
-    <RouteLink
-      className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
-      state={state}
-      to={to}
-    >
+  const content = (
+    <>
       <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
       <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">{icon}</Typography>
         {label}
       </Typography>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <Button
+        unstyled
+        className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
+        onClick={onClick}
+        type="button"
+      >
+        {content}
+      </Button>
+    );
+  }
+
+  return (
+    <RouteLink
+      className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
+      state={state}
+      to={to || "#"}
+    >
+      {content}
     </RouteLink>
   );
 }

@@ -828,30 +828,36 @@ function getStateActions(
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
 
   const rawPhone =
+    ad?.assigned_agency_phone ??
     ad?.agency_phone ??
     (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).phone : undefined) ??
     ad?.consultant_phone ??
     (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).phone : undefined) ??
     ad?.phone;
   const contactPhone = readText(rawPhone);
+  const agencyId = readText(
+    ad?.assigned_agency_id ??
+    ad?.agency_id ??
+    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).id : undefined)
+  );
 
   const callAgency: StateAction = {
     icon: "call",
-    label: "تماس با مسئول آگهی",
+    label: isAssigned || status === "wait_for_agency" ? "تماس با آژانس" : "تماس با مسئول آگهی",
     onClick: () => {
       if (contactPhone) {
         window.location.href = `tel:${contactPhone}`;
       } else {
-        alert("شماره تماس مسئول آگهی در دسترس نیست.");
+        alert("شماره تماس آژانس در دسترس نیست.");
       }
     },
   };
 
   const chatAgency: StateAction = {
     icon: "chat",
-    label: "چت با مسئول آگهی",
+    label: isAssigned || status === "wait_for_agency" ? "پیام به آژانس" : "چت با مسئول آگهی",
     onClick: () => {
-      window.location.href = `/messages?adId=${encodeURIComponent(adId)}`;
+      window.location.href = `/chat?${agencyId ? `agencyId=${encodeURIComponent(agencyId)}&` : ""}adId=${encodeURIComponent(adId)}`;
     },
   };
 
@@ -867,7 +873,7 @@ function getStateActions(
     }
     return [preview, edit, remove, upgrade, stats, history];
   }
-  if (status === "wait_for_agency") return [preview, history];
+  if (status === "wait_for_agency") return [preview, callAgency, chatAgency, history];
   if (status === "wait_for_stop") return [preview, callAgency, chatAgency, history];
   if (status === "wait_for_deal_confirmation") return [preview, history];
   if (status === "wait_for_repost" || status === "rejected_by_agency") return [preview, remove, history];
@@ -986,6 +992,20 @@ function WaitForAgencyNotice({
   onCancelAssignment: () => void;
 }) {
   const agencyName = readText(ad?.assigned_agency_name ?? ad?.agency_name ?? (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).name : undefined)) || "آژانس املاک";
+  const rawPhone =
+    ad?.assigned_agency_phone ??
+    ad?.agency_phone ??
+    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).phone : undefined) ??
+    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).phone : undefined) ??
+    ad?.consultant_phone ??
+    ad?.phone;
+  const agencyPhone = readText(rawPhone);
+  const agencyId = readText(
+    ad?.assigned_agency_id ??
+    ad?.agency_id ??
+    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).id : undefined)
+  );
+  const adId = readText(ad?.id ?? ad?._id);
   const agencyStartDate = getAgencyAssignmentStartDate(ad);
   const deadlineRemaining = readAgencyDeadlineRemaining(agencyStartDate);
 
@@ -999,7 +1019,7 @@ function WaitForAgencyNotice({
       </div>
 
       <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
-        آگهی شما با موفقیت برای این آژانس ارسال شده است. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در صورت تمایل می‌توانید پیش از تایید آژانس، واگذاری را لغو کنید.
+        آگهی شما با موفقیت برای این آژانس ارسال شده است. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در صورت تمایل می‌توانید پیش از تایید آژانس، با آژانس ارتباط بگیرید یا واگذاری را لغو کنید.
       </Typography>
 
       <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
@@ -1009,9 +1029,39 @@ function WaitForAgencyNotice({
         <span className="[direction:rtl]">مهلت باقی‌مانده تایید آژانس:</span>
       </div>
 
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button
+          unstyled
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
+          onClick={() => {
+            if (agencyPhone) {
+              window.location.href = `tel:${agencyPhone}`;
+            } else {
+              alert("شماره تماس آژانس در دسترس نیست.");
+            }
+          }}
+          type="button"
+        >
+          <LinearCall className="h-4 w-4 text-primary" />
+          <span>تماس با آژانس</span>
+        </Button>
+
+        <Button
+          unstyled
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
+          onClick={() => {
+            window.location.href = `/chat?${agencyId ? `agencyId=${encodeURIComponent(agencyId)}&` : ""}adId=${encodeURIComponent(adId || "")}`;
+          }}
+          type="button"
+        >
+          <LinearChat className="h-4 w-4 text-primary" />
+          <span>پیام به آژانس</span>
+        </Button>
+      </div>
+
       <Button
         unstyled
-        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
+        className="mt-2.5 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
         onClick={onCancelAssignment}
         type="button"
       >

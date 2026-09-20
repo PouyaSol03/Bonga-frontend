@@ -294,14 +294,18 @@ function resolvePricePresentation(
   }
 
   if (formCode === "presale-special") {
-    const minPrice = featureMap.min_price ?? featureMap.meter_price;
-    const maxPrice = featureMap.max_price;
+    const minPrice =
+      featureMap.min_meter_price ??
+      featureMap.min_price ??
+      featureMap.meter_price ??
+      rootPrice;
+    const maxPrice = featureMap.max_meter_price ?? featureMap.max_price;
 
     return {
-      primaryLabel: maxPrice === undefined ? "قیمت متری" : "حداقل قیمت",
+      primaryLabel: maxPrice === undefined ? "قیمت متری" : "حداقل قیمت متری",
       primaryValue: formatMoney(minPrice),
-      secondaryLabel: maxPrice === undefined ? "قیمت هر متر" : "حداکثر قیمت",
-      secondaryValue: maxPrice === undefined ? formatMoney(featureMap.meter_price) : formatMoney(maxPrice),
+      secondaryLabel: maxPrice === undefined ? "قیمت هر متر" : "حداکثر قیمت متری",
+      secondaryValue: maxPrice === undefined ? formatMoney(minPrice) : formatMoney(maxPrice),
     };
   }
 

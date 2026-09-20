@@ -1,6 +1,6 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, updateCrmUserAuthorization, getCrmRecordId } from "../api/crm.service";
+import { listCrmUsers, type CrmRecord, saveCrmUser, toggleCrmUserStatus, updateCrmUserAuthorization, chargeCrmUserBalance, getCrmRecordId } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { ConfirmModal, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, TableHead, TableLoadingRows, UserStatusBadge, formatMoney, fullName, ghostButtonClassName, inputClassName, normalizeCrmUserRoleSlug, readText, useQueryErrorToast, userRoleOptions, userRoleSlugs } from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
@@ -60,6 +60,46 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
       notify(getApiErrorMessage(error, "خطا در تغییر وضعیت احراز هویت."), "error");
     },
   });
+
+  const chargeBalanceMutation = useMutation({
+    mutationFn: ({ id, amount }: { id: string | number; amount: number }) =>
+      chargeCrmUserBalance(id, amount),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["crm", "users"] });
+      notify("موجودی کیف پول کاربر با موفقیت افزایش یافت.");
+    },
+    onError: (error) => {
+      notify(getApiErrorMessage(error, "خطا در افزایش موجودی کیف پول کاربر."), "error");
+    },
+  });
+
+  const openBalanceEditor = (user: CrmRecord) => {
+    const id = getCrmRecordId(user);
+    if (!id) return;
+    const currentBalance = Number(user.credit ?? 0);
+
+    setEditor({
+      fields: [
+        {
+          label: `مبلغ افزایش موجودی (تومان) — موجودی فعلی: ${formatMoney(currentBalance)}`,
+          name: "amount",
+          placeholder: "مثال: ۵۰,۰۰۰",
+          type: "text",
+          value: "",
+        },
+      ],
+      onSubmit: async (values) => {
+        const rawAmount = (values.amount ?? "").trim();
+        const parsedAmount = Number(rawAmount.replace(/[^\d]/g, ""));
+        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+          notify("لطفاً مبلغ معتبری (بزرگتر از صفر) به تومان وارد کنید.", "error");
+          return;
+        }
+        await chargeBalanceMutation.mutateAsync({ id, amount: parsedAmount });
+      },
+      title: `افزایش موجودی کیف پول - ${fullName(user)}`,
+    });
+  };
 
   const openUserEditor = (user: CrmRecord = {}) => {
     const id = getCrmRecordId(user) || null;
@@ -201,6 +241,12 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   <TableCell>
                     <div className="flex flex-wrap gap-1.5">
                       <SmallActionButton label="ویرایش" onClick={() => openUserEditor(user)} />
+                      <SmallActionButton
+                        disabled={chargeBalanceMutation.isPending}
+                        label="افزایش موجودی"
+                        onClick={() => openBalanceEditor(user)}
+                        tone="success"
+                      />
                       <SmallActionButton
                         label={isActive ? "غیرفعال‌سازی" : "فعال‌سازی"}
                         onClick={() => setConfirm({

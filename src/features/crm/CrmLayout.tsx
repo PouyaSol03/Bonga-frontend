@@ -74,6 +74,7 @@ type ModalField = {
   label: string;
   name: string;
   options?: Array<{ label: string; value: string }>;
+  placeholder?: string;
   type?: "checklist" | "email" | "geofence" | "map-point" | "neighborhood-multi" | "number" | "select" | "sub-neighborhoods" | "textarea" | "text";
   value?: unknown;
 };
@@ -1138,6 +1139,7 @@ export function EditorModal({
                       dir={field.label.includes("JSON") ? "ltr" : "rtl"}
                       name={field.name}
                       onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
+                      placeholder={field.placeholder}
                       rows={4}
                       value={value}
                     />
@@ -1147,6 +1149,7 @@ export function EditorModal({
                       dir={field.type === "number" || field.type === "email" ? "ltr" : "rtl"}
                       name={field.name}
                       onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
+                      placeholder={field.placeholder}
                       step={field.type === "number" ? "any" : undefined}
                       type={field.type ?? "text"}
                       value={value}

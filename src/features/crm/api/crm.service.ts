@@ -518,6 +518,12 @@ export function updateCrmUserAuthorization(
     .json<unknown>();
 }
 
+export function chargeCrmUserBalance(id: string | number, amount: number) {
+  return api
+    .post(`panel/user/charge-balance/${id}`, { json: { amount } })
+    .json<unknown>();
+}
+
 export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
   const searchParams: ApiQueryParams = {
     page: 1,

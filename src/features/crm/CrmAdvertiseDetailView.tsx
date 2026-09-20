@@ -423,6 +423,16 @@ function advertiseStatusLabel(status: unknown) {
       rejected: "ردشده",
       deleted: "حذف‌شده",
       expired: "منقضی‌شده",
+      wait_for_repost: "در انتظار بازنشر",
+      archived: "بایگانی‌شده",
+      wait_for_stop: "در انتظار تایید توقف",
+      wait_for_deal_confirmation: "در انتظار تایید معامله",
+      rejected_by_agency: "رد توسط آژانس",
+      "-11": "رد توسط آژانس",
+      "-10": "در انتظار تایید معامله",
+      "-9": "در انتظار تایید توقف",
+      "-8": "بایگانی‌شده",
+      "-7": "در انتظار بازنشر",
       "-4": "نیازمند ویرایش",
       "-3": "منقضی‌شده",
       "-2": "حذف‌شده",
@@ -439,10 +449,123 @@ function statusTone(status: unknown) {
   const value = String(status ?? "").trim().toLowerCase();
   if (value === "accepted" || value === "3") return "bg-[#eaf8f1] text-[#087d4b]";
   if (value === "wait_for_payment" || value === "0") return "bg-[#fff3e8] text-[#ff6d00]";
-  if (["needs_edit", "rejected", "deleted", "expired", "-4", "-1", "-2", "-3"].includes(value)) {
+  if (["needs_edit", "rejected", "deleted", "expired", "rejected_by_agency", "-4", "-1", "-2", "-3", "-11"].includes(value)) {
     return "bg-[#fff0f1] text-[#c63242]";
   }
+  if (["archived", "-8"].includes(value)) {
+    return "bg-[#f1f5f9] text-[#64748b]";
+  }
   return "bg-[#fff7df] text-[#9b6800]";
+}
+
+function getActorTypeLabel(actorType: unknown): string {
+  const type = String(actorType ?? "").trim().toLowerCase();
+  switch (type) {
+    case "user":
+      return "کاربر";
+    case "agency":
+      return "آژانس";
+    case "consultant":
+      return "مشاور";
+    case "admin":
+      return "مدیر سیستم";
+    case "system":
+      return "سیستم خودکار";
+    default:
+      return type || "سیستم";
+  }
+}
+
+function getActorTypeBadgeClass(actorType: unknown): string {
+  const type = String(actorType ?? "").trim().toLowerCase();
+  switch (type) {
+    case "user":
+      return "bg-[#eef4ff] text-[#0048c4] border-[#d0e1fd]";
+    case "agency":
+      return "bg-[#f3e8ff] text-[#7e22ce] border-[#e9d5ff]";
+    case "consultant":
+      return "bg-[#e0e7ff] text-[#4338ca] border-[#c7d2fe]";
+    case "admin":
+      return "bg-[#fef3c7] text-[#b45309] border-[#fde68a]";
+    case "system":
+      return "bg-[#f1f5f9] text-[#475569] border-[#e2e8f0]";
+    default:
+      return "bg-[#f5f5f5] text-[#666666] border-[#e5e5e5]";
+  }
+}
+
+function LifecycleHistoryTimeline({ logs }: { logs: unknown[] }) {
+  if (!logs || !logs.length) {
+    return (
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]">
+        هیچ رویدادی در تاریخچه این آگهی ثبت نشده است.
+      </Typography>
+    );
+  }
+
+  const sortedLogs = [...logs].reverse();
+
+  return (
+    <div className="relative space-y-4 border-r-2 border-[#e5e5e5] pr-6 mr-3">
+      {sortedLogs.map((item, index) => {
+        const log = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+        const action = readText(log, ["description", "action", "title"]) || "تغییر وضعیت آگهی";
+        const actorType = readText(log, ["actor_type", "actor", "role", "user"]);
+        const fromStatus = log.from_status ?? log.from;
+        const toStatus = log.to_status ?? log.to;
+        const reason = readText(log, ["reason"]);
+        const timestamp = log.timestamp ?? log.created_at ?? log.createdAt ?? log.date;
+        const formattedDate = formatDate(timestamp);
+
+        return (
+          <div key={index} className="relative group">
+            <span className="absolute -right-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#0048c4] ring-4 ring-[#eef4ff]" />
+
+            <div className="rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4 transition-all hover:bg-white hover:shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getActorTypeBadgeClass(actorType)}`}>
+                    {getActorTypeLabel(actorType)}
+                  </span>
+                  <strong className="text-sm font-bold text-[#1a1a1a]">{action}</strong>
+                </div>
+                <Typography as="span" variant="body" size="small" weight="regular" className="inline-flex items-center gap-1 text-xs text-[#808080]">
+                  <LinearClock className="h-3.5 w-3.5" />
+                  {formattedDate}
+                </Typography>
+              </div>
+
+              {(fromStatus !== undefined || toStatus !== undefined) && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-[#666666]">تغییر وضعیت:</span>
+                  {fromStatus !== undefined && (
+                    <>
+                      <span className={`inline-flex items-center rounded-md px-2 py-0.5 font-medium ${statusTone(fromStatus)}`}>
+                        {advertiseStatusLabel(fromStatus)}
+                      </span>
+                      <span className="text-[#999999]">←</span>
+                    </>
+                  )}
+                  {toStatus !== undefined && (
+                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 font-medium ${statusTone(toStatus)}`}>
+                      {advertiseStatusLabel(toStatus)}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {reason && (
+                <div className="mt-2.5 rounded-lg bg-[#f0f0f0] p-2.5 text-xs text-[#4d4d4d]">
+                  <span className="font-semibold text-[#333333]">علت / توضیحات: </span>
+                  {reason}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function InformationRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
@@ -599,6 +722,11 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
   const address = savedAddress || locationTitle || "آدرس ثبت نشده است";
   const description = readText(advertise, ["description", "short_description"], "توضیحی برای این آگهی ثبت نشده است.");
   const adminNote = readText(advertise, ["admin_note"]);
+  const statusLogs = Array.isArray(advertise.status_logs)
+    ? (advertise.status_logs as unknown[])
+    : Array.isArray(advertise.logs)
+    ? (advertise.logs as unknown[])
+    : [];
   const visibleFeatures = features
     .filter((feature) => {
       const key = getFeatureKey(feature);
@@ -724,6 +852,10 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
           {adminNote ? (
             <PublicStyleSection title="یادداشت مدیر"><Typography as="p" variant="body" size="medium" weight="regular" className="m-0 whitespace-pre-wrap text-sm leading-8 text-[#4d4d4d]">{adminNote}</Typography></PublicStyleSection>
           ) : null}
+
+          <PublicStyleSection title="تاریخچه وضعیت و رویدادهای آگهی">
+            <LifecycleHistoryTimeline logs={statusLogs} />
+          </PublicStyleSection>
         </main>
 
         <aside className="sticky top-0 space-y-4">

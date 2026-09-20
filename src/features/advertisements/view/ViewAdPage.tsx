@@ -35,7 +35,7 @@ import {
   ViewAdTopBar,
 } from "./viewAdComponents";
 import { ViewAdIcon } from "./ViewAdIcon";
-import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdTypes";
+import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import TonalInstagram from "../../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../../shared/icons/TonalTelegram";
@@ -71,6 +71,7 @@ import {
 } from "./pages/ViewAdViolationReportPage";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { PreSaleViewContent } from "./PreSaleViewContent";
 import {
   clearConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
@@ -456,6 +457,118 @@ function HotelDailyRoomsSection({
         {/* Action Link: Navigate to full page for hotel rooms */}
         <MoreLink to={`${getCurrentViewAdBasePath(adId)}/hotel-rooms`}>
           اطلاعات سایر اتاق‌ها
+        </MoreLink>
+      </div>
+    </DetailSection>
+  );
+}
+
+function ProjectUnitDetailsSection({
+  details,
+  adId,
+}: {
+  details: ViewAdProjectDetailVariant[];
+  adId: string;
+}) {
+  if (!details || details.length === 0) return null;
+
+  const displayedVariants = details.slice(0, 1);
+
+  return (
+    <DetailSection icon="apartment" title="جزئیات پروژه">
+      <div className="mt-4 space-y-4">
+        {displayedVariants.map((variant) => (
+          <div
+            key={variant.id}
+            className="rounded-2xl border border-outline-var bg-surface-container-lowest p-4 [direction:rtl]"
+          >
+            <Typography
+              as="h3"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="mb-4 text-right text-on-surface text-base font-semibold"
+            >
+              {variant.meterageTitle}
+            </Typography>
+
+            {variant.floors.length > 0 ? (
+              <div className="flex items-start gap-3 [direction:rtl]">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-on-surface-var shrink-0 text-sm font-medium pt-1"
+                >
+                  موجود در طبقات:
+                </Typography>
+                <div className="flex flex-wrap items-center gap-2">
+                  {variant.floors.map((floor, i) => (
+                    <span
+                      key={`${floor}-${i}`}
+                      className="inline-flex h-8 min-w-8 items-center justify-center rounded-[8px] bg-surface-container-high px-2.5 text-sm font-medium text-on-surface"
+                    >
+                      {floor}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {variant.floors.length > 0 && (variant.roomLabel || variant.positions.length > 0) ? (
+              <div className="my-3.5 border-b border-dashed border-outline-var" />
+            ) : null}
+
+            {variant.roomLabel ? (
+              <div className="flex items-center gap-3 [direction:rtl]">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-on-surface-var shrink-0 text-sm font-medium"
+                >
+                  تنوع اتاق:
+                </Typography>
+                <span className="inline-flex h-8 items-center justify-center rounded-[8px] bg-surface-container-high px-3 text-sm font-medium text-on-surface">
+                  {variant.roomLabel}
+                </span>
+              </div>
+            ) : null}
+
+            {variant.roomLabel && variant.positions.length > 0 ? (
+              <div className="my-3.5 border-b border-dashed border-outline-var" />
+            ) : null}
+
+            {variant.positions.length > 0 ? (
+              <div className="flex items-center gap-3 [direction:rtl]">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-on-surface-var shrink-0 text-sm font-medium"
+                >
+                  تنوع موقعیت:
+                </Typography>
+                <div className="flex flex-wrap items-center gap-2">
+                  {variant.positions.map((pos, i) => (
+                    <span
+                      key={`${pos}-${i}`}
+                      className="inline-flex h-8 items-center justify-center rounded-[8px] bg-surface-container-high px-3 text-sm font-medium text-on-surface"
+                    >
+                      {pos}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ))}
+
+        <MoreLink to={`${getCurrentViewAdBasePath(adId)}/project-details`}>
+          اطلاعات بیشتر
         </MoreLink>
       </div>
     </DetailSection>
@@ -1067,88 +1180,93 @@ function ViewAdContent({
         </div>
       </section>
 
-      <DetailSection icon="apartment" title={getPropertyPreviewTitle(details.formCode)}>
-        {details.hotelStars ? (
-          <AccommodationRatingBanner className="mt-6" count={details.hotelStars} label="رتبه اقامتگاه" />
-        ) : null}
-        <PropertyGrid items={propertyInfoItems} />
-        {details.formCode.startsWith("daily-") && details.formCode !== "daily-hotel" ? (
-          <DailyRentalPriceList details={details} />
-        ) : null}
-        {hasMorePropertyInfo && details.formCode !== "daily-hotel" ? (
-          <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>
-        ) : null}
-      </DetailSection>
+      {details.formCode === "presale-special" ? (
+        <PreSaleViewContent adId={adId} details={details} />
+      ) : (
+        <>
+          <DetailSection icon="apartment" title={getPropertyPreviewTitle(details.formCode)}>
+            {details.hotelStars ? (
+              <AccommodationRatingBanner className="mt-6" count={details.hotelStars} label="رتبه اقامتگاه" />
+            ) : null}
+            <PropertyGrid items={propertyInfoItems} />
+            {details.formCode.startsWith("daily-") && details.formCode !== "daily-hotel" ? (
+              <DailyRentalPriceList details={details} />
+            ) : null}
+            {hasMorePropertyInfo && details.formCode !== "daily-hotel" ? (
+              <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>
+            ) : null}
+          </DetailSection>
 
-      {details.formCode === "daily-hotel" && details.dailyHotelRooms && details.dailyHotelRooms.length > 0 ? (
-        <HotelDailyRoomsSection adId={adId} rooms={details.dailyHotelRooms} />
-      ) : null}
-
-      <DetailSection icon="apartment" title="تجهیزات و امکانات">
-        <div className="overflow-hidden">
-          <PropertyGrid items={facilityItems.slice(0, FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
-          <AnimatePresence initial={false}>
-            {areFacilitiesExpanded && facilityItems.length > FACILITIES_COLLAPSED_MAX_ITEMS && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-                className="overflow-hidden"
-              >
-                <div className="pt-3">
-                  <PropertyGrid items={facilityItems.slice(FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        {hasMoreFacilities ? (
-          <InlineMoreButton
-            isOpen={areFacilitiesExpanded}
-            onClick={() => setAreFacilitiesExpanded((current) => !current)}
-          >
-            {areFacilitiesExpanded
-              ? "نمایش موارد کمتر"
-              : `مشاهده ${details.features.length - FACILITIES_COLLAPSED_MAX_ITEMS} امکانات`}
-          </InlineMoreButton>
-        ) : null}
-      </DetailSection>
-
-      <DetailSection icon="apartment" title="توضیحات">
-        <div
-          className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-on-surface transition-all duration-300 ease-in-out"
-          style={{
-            height:
-              shouldShowDescriptionMore && !isDescriptionExpanded
-                ? DESCRIPTION_COLLAPSED_HEIGHT
-                : "auto",
-          }}
-        >
-          <Typography as="p" variant="body" size="medium" weight="regular" ref={descriptionRef} className="m-0 whitespace-pre-line">
-            {details.description}
-          </Typography>
-          {shouldShowDescriptionMore && !isDescriptionExpanded ? (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-surface-container-lowest/0 to-surface-container-lowest" />
+          {details.formCode === "daily-hotel" && details.dailyHotelRooms && details.dailyHotelRooms.length > 0 ? (
+            <HotelDailyRoomsSection adId={adId} rooms={details.dailyHotelRooms} />
           ) : null}
-        </div>
-        {shouldShowDescriptionMore ? (
-          <InlineMoreButton
-            isOpen={isDescriptionExpanded}
-            onClick={() => setIsDescriptionExpanded((current) => !current)}
-          >
-            {isDescriptionExpanded
-              ? "نمایش کمتر توضیحات"
-              : "نمایش ادامه توضیحات"}
-          </InlineMoreButton>
-        ) : null}
-        {mapPosition ? (
-          <MapPreview
-            latitude={mapPosition.latitude}
-            longitude={mapPosition.longitude}
-          />
-        ) : null}
-      </DetailSection>
+
+          {details.formCode === "presale-special" && details.projectDetails && details.projectDetails.length > 0 ? (
+            <ProjectUnitDetailsSection adId={adId} details={details.projectDetails} />
+          ) : null}
+
+          <DetailSection icon="apartment" title="تجهیزات و امکانات">
+            <div className="overflow-hidden">
+              <PropertyGrid items={facilityItems.slice(0, FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
+              <AnimatePresence initial={false}>
+                {areFacilitiesExpanded && facilityItems.length > FACILITIES_COLLAPSED_MAX_ITEMS && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-3">
+                      <PropertyGrid items={facilityItems.slice(FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            {hasMoreFacilities ? (
+              <InlineMoreButton
+                isOpen={areFacilitiesExpanded}
+                onClick={() => setAreFacilitiesExpanded((current) => !current)}
+              >
+                {areFacilitiesExpanded
+                  ? "نمایش موارد کمتر"
+                  : `مشاهده ${details.features.length - FACILITIES_COLLAPSED_MAX_ITEMS} امکانات`}
+              </InlineMoreButton>
+            ) : null}
+          </DetailSection>
+
+          <DetailSection icon="apartment" title="توضیحات">
+            <div
+              className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-on-surface transition-all duration-300 ease-in-out"
+              style={{
+                height:
+                  shouldShowDescriptionMore && !isDescriptionExpanded
+                    ? DESCRIPTION_COLLAPSED_HEIGHT
+                    : "auto",
+              }}
+            >
+              <Typography as="p" variant="body" size="medium" weight="regular" ref={descriptionRef} className="m-0 whitespace-pre-line">
+                {details.description}
+              </Typography>
+              {shouldShowDescriptionMore && !isDescriptionExpanded ? (
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-surface-container-lowest/0 to-surface-container-lowest" />
+              ) : null}
+            </div>
+            {shouldShowDescriptionMore ? (
+              <InlineMoreButton
+                isOpen={isDescriptionExpanded}
+                onClick={() => setIsDescriptionExpanded((current) => !current)}
+              >
+                {isDescriptionExpanded ? "نمایش کمتر توضیحات" : "نمایش ادامه توضیحات"}
+              </InlineMoreButton>
+            ) : null}
+            {mapPosition ? (
+              <MapPreview latitude={mapPosition.latitude} longitude={mapPosition.longitude} />
+            ) : null}
+          </DetailSection>
+        </>
+      )}
 
       {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
@@ -1741,7 +1859,7 @@ export function ViewAdPage() {
       />
 
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-surface-container">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#F0F0F0]">
         <ViewAdContent
           adId={adId}
           ad={resolvedAd}

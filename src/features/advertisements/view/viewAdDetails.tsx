@@ -10,7 +10,7 @@ import type { AdvertisementItem } from "../api/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
 import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../../shared/navigation/navigation";
-import type { DetailItem, IconName, ViewAdDailyHotelRoom, ViewAdDetails } from "./viewAdTypes";
+import type { DetailItem, IconName, ViewAdDailyHotelRoom, ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import LinearStar from "../../../shared/icons/LinearStar";
 import {
   AccommodationRatingBanner,
@@ -627,22 +627,10 @@ const propertyPreviewFieldsByFormCode: Record<string, PropertyPreviewField[]> = 
     { labels: ["standard_capacity", "capacity"], label: "ظرفیت استاندارد", icon: "profile" },
   ],
   "presale-special": [
-    { labels: ["builder_company_name", "builder_name", "developer_name"], label: "نام سازنده/شرکت", icon: "building" },
-    { labels: ["project_type"], label: "نوع پروژه", icon: "apartment" },
-    { labels: ["project_total_units"], label: "تعداد کل واحدها", icon: "building" },
-    { labels: ["project_total_floors"], label: "تعداد کل طبقات", formatter: formatTotalFloorsDetailValue, icon: "floor" },
-    { labels: ["document_type"], label: "سند", icon: "agreement" },
-    { labels: ["project_status"], label: "وضعیت پروژه", icon: "apartment" },
-    { labels: ["delivery_date"], label: "تاریخ تحویل", icon: "calendar" },
-    { labels: ["kitchen_type"], label: "نوع آشپزخانه", icon: "cabinet" },
-    { labels: ["facade_material"], label: "جنس نما", icon: "building" },
-    { labels: ["floor_material"], label: "جنس کف", icon: "ceramic" },
-    { labels: ["cabinet_material"], label: "جنس کابینت", icon: "cabinet" },
-    { labels: ["furnished"], label: "با لوازم و مبله", icon: "apartment" },
-    { labels: ["min_meter_price", "min_price"], label: "حداقل قیمت متری", formatter: formatTomanDetailValue, icon: "tooman" },
-    { labels: ["max_meter_price", "max_price"], label: "حداکثر قیمت متری", formatter: formatTomanDetailValue, icon: "tooman" },
-    { labels: ["sale_terms_percent"], label: "درصد شرایط", formatter: formatPercentDetailValue, icon: "agreement" },
-    { labels: ["sale_terms_installment_months"], label: "تعداد اقساط", icon: "calendar" },
+    { labels: ["project_type"], label: "نوع پروژه", icon: "construction" },
+    { labels: ["document_type", "document", "deed_type"], label: "سند", icon: "agreement" },
+    { labels: ["project_total_floors", "total_floors"], label: "تعداد کل طبقات", icon: "floor" },
+    { labels: ["project_total_units", "total_units"], label: "تعداد کل واحدها", icon: "bed" },
   ],
   partnership: [
     { labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" },
@@ -1268,8 +1256,16 @@ function resolvePricePresentation(
   }
 
   if (formCode === "presale-special") {
-    const minPrice = featureMap.min_price ?? featureMap.meter_price ?? 50_000_000;
-    const maxPrice = featureMap.max_price ?? (minPrice ? Number(minPrice) * 1.2 : 60_000_000);
+    const minPrice =
+      featureMap.min_meter_price ??
+      featureMap.min_price ??
+      featureMap.meter_price ??
+      rootPrice ??
+      50_000_000;
+    const maxPrice =
+      featureMap.max_meter_price ??
+      featureMap.max_price ??
+      (minPrice ? Number(minPrice) * 1.2 : 60_000_000);
 
     return {
       primaryLabel: "حداقل قیمت متری",
@@ -1611,6 +1607,133 @@ function parseDailyHotelRooms(
   return defaultDailyHotelRoomsData;
 }
 
+const defaultProjectDetailsData: ViewAdProjectDetailVariant[] = [
+  {
+    id: "variant-100",
+    meterageTitle: "واحدهای ۱۰۰ متری",
+    floors: ["۳", "۵", "۷", "۸", "۱۵"],
+    roomLabel: "۱ تا ۳ خواب",
+    positions: ["شمالی", "جنوبی", "شرقی"],
+  },
+  {
+    id: "variant-150",
+    meterageTitle: "۱۵۰ متری",
+    floors: ["۲", "۴", "۶", "۹"],
+    roomLabel: "تا ۳ خواب",
+    positions: ["جنوبی"],
+  },
+  {
+    id: "variant-180",
+    meterageTitle: "۱۸۰ متری",
+    floors: ["۱", "۱۰", "۱۲"],
+    roomLabel: "تا ۴ خواب",
+    positions: ["جنوبی"],
+  },
+  {
+    id: "variant-250",
+    meterageTitle: "۲۵۰ متری",
+    floors: ["۱۳", "۱۴"],
+    roomLabel: "تا ۴ خواب",
+    positions: ["شمالی"],
+  },
+];
+
+function parseProjectDetails(
+  ad: AdvertisementItem,
+  features: NonNullable<AdvertisementItem["features"]>,
+  featureMap: AdvertisementFeatureMap,
+  formCode: string,
+): ViewAdProjectDetailVariant[] | undefined {
+  if (formCode !== "presale-special") {
+    return undefined;
+  }
+
+  let rawDetails =
+    getFirstExistingFeatureValue(features, ["project_details"]) ??
+    featureMap.project_details ??
+    (ad as Record<string, unknown>).project_details;
+
+  if (typeof rawDetails === "string") {
+    try {
+      rawDetails = JSON.parse(rawDetails);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (Array.isArray(rawDetails) && rawDetails.length > 0) {
+    const parsed = rawDetails
+      .map((item, index): ViewAdProjectDetailVariant | null => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+        const r = item as Record<string, unknown>;
+
+        const mRaw = r.meterage ?? r.area;
+        const minM = r.min_meterage ?? r.minMeterage;
+        const maxM = r.max_meterage ?? r.maxMeterage;
+
+        let meterageStr = "";
+        if (mRaw) {
+          meterageStr = toText(mRaw);
+        } else if (minM || maxM) {
+          const minT = toText(minM);
+          const maxT = toText(maxM);
+          meterageStr = minT === maxT || !maxT ? minT : `${minT} الی ${maxT}`;
+        }
+
+        if (!meterageStr) meterageStr = toPersianDigits(100);
+
+        const meterageTitle = meterageStr.includes("متری")
+          ? `واحدهای ${meterageStr}`
+          : `واحدهای ${meterageStr} متری`;
+
+        const floors = Array.isArray(r.floors)
+          ? r.floors.map((f) => toPersianDigits(f))
+          : Array.isArray(r.floor)
+            ? r.floor.map((f) => toPersianDigits(f))
+            : isFilledValue(r.floors)
+              ? [toPersianDigits(r.floors)]
+              : [];
+
+        const rawRooms = Array.isArray(r.rooms) ? r.rooms : r.rooms ? [r.rooms] : [];
+        let roomLabel = "";
+        if (rawRooms.length > 0) {
+          const nums = rawRooms.map((rm) => toNumber(rm)).filter((n): n is number => n !== undefined);
+          if (nums.length > 0) {
+            const minR = Math.min(...nums);
+            const maxR = Math.max(...nums);
+            roomLabel = minR === maxR ? `${toPersianDigits(minR)} خواب` : `${toPersianDigits(minR)} تا ${toPersianDigits(maxR)} خواب`;
+          } else {
+            const textR = rawRooms.map((rm) => toText(rm)).filter(Boolean).join("، ");
+            roomLabel = textR.includes("خواب") ? textR : `${textR} خواب`;
+          }
+        }
+
+        const positions = Array.isArray(r.positions)
+          ? r.positions.map((p) => toText(p)).filter(Boolean)
+          : Array.isArray(r.position)
+            ? r.position.map((p) => toText(p)).filter(Boolean)
+            : isFilledValue(r.positions ?? r.position)
+              ? [toText(r.positions ?? r.position)]
+              : [];
+
+        return {
+          id: toText(r.id, `project-detail-${index}`),
+          meterageTitle,
+          floors,
+          roomLabel,
+          positions,
+        };
+      })
+      .filter((item): item is ViewAdProjectDetailVariant => item !== null);
+
+    if (parsed.length > 0) {
+      return parsed;
+    }
+  }
+
+  return defaultProjectDetailsData;
+}
+
 export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = getResolvedAdvertisementFeatures(ad);
   const featureMap = buildAdvertisementFeatureMap(ad);
@@ -1626,6 +1749,7 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const age = formatPublishedAge(ad, features);
   const meterArea = featureMap.area ?? featureMap.land_area ?? featureMap.building_area ?? ad.area;
   const dailyHotelRooms = parseDailyHotelRooms(ad, features, featureMap, formCode);
+  const projectDetails = parseProjectDetails(ad, features, featureMap, formCode);
   const pricePresentation = resolvePricePresentation(formCode, featureMap, ad.price, meterArea, dailyHotelRooms);
   const description = ad.description ?? ad.short_description;
   const title = toText(ad.title ?? ad.label);
@@ -1710,6 +1834,7 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
         getFeatureValue(features, "is_special"),
       ) === true,
     dailyHotelRooms,
+    projectDetails,
   };
 }
 
@@ -2855,12 +2980,61 @@ function buildDailyPropertyDetailSections(
   return filterDetailSections(sections);
 }
 
+function buildPresalePropertyDetailSections(
+  features: NonNullable<AdvertisementItem["features"]>,
+  formCode: string,
+): DetailInfoSection[] | null {
+  if (formCode !== "presale-special") return null;
+
+  const mainItems = [
+    createGridItem({ features, labels: ["project_total_floors", "total_floors"], label: "تعداد کل طبقات", icon: "floor" }),
+    createGridItem({ features, labels: ["project_total_units", "total_units"], label: "تعداد کل واحدها", icon: "building" }),
+    createGridItem({ features, labels: ["project_status"], label: "وضعیت پروژه", icon: "apartment" }),
+    createGridItem({ features, labels: ["delivery_date"], label: "تاریخ تحویل", icon: "calendar" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const buildingItems = [
+    createGridItem({ features, labels: ["builder_company_name", "builder_name", "developer_name"], label: "نام سازنده", icon: "building" }),
+    createGridItem({ features, labels: ["project_status"], label: "وضعیت پروژه" }),
+    createGridItem({ features, labels: ["ready_delivery_date", "available_from"], label: "تاریخ آماده تحویل", icon: "calendar" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const finishItems = [
+    createGridItem({ features, labels: ["floor_material"], label: "جنس کف", icon: "ceramic" }),
+    createGridItem({ features, labels: ["facade_material"], label: "جنس نما", icon: "building" }),
+    createGridItem({ features, labels: ["cabinet_material"], label: "جنس کابینت", icon: "cabinet" }),
+    createGridItem({ features, labels: ["kitchen_type"], label: "نوع آشپزخانه", icon: "cabinet" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const saleTermsItems = [
+    createGridItem({ features, labels: ["sale_terms_percent"], label: "درصد شرایط", formatter: formatPercentDetailValue, icon: "tooman" }),
+    createGridItem({ features, labels: ["sale_terms_installment_months"], label: "تعداد اقساط", formatter: (v) => appendSuffixIfNeeded(v, "ماه"), icon: "calendar" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const badges = [
+    createCheckBadge(features, ["furnished", "is_furnished"], "مبله با لوازم"),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const exchangeRow = createExchangeRow(features);
+
+  return filterDetailSections([
+    { title: "مشخصات اصلی", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+    { title: "موقعیت و ساختمان", items: buildingItems, layout: "grid", columns: 2, badges },
+    { title: "متریال و نازک‌کاری", items: finishItems, layout: "grid", columns: 2 },
+    { title: "شرایط فروش", items: saleTermsItems, layout: "grid", columns: 2 },
+    { title: "معاوضه", items: exchangeRow ? [exchangeRow] : [], layout: "rows" },
+  ]);
+}
+
 export function buildPropertyDetailSections(
   ad: AdvertisementItem,
 ): DetailInfoSection[] {
   const features = getResolvedAdvertisementFeatures(ad);
   const featureMap = buildAdvertisementFeatureMap(ad);
   const formCode = toText(ad.form_code ?? featureMap.form_code ?? getFeatureValue(features, "form_code"));
+
+  const presaleSections = buildPresalePropertyDetailSections(features, formCode);
+  if (presaleSections) return presaleSections;
 
   const saleSections = buildSalePropertyDetailSections(ad, features, formCode);
   if (saleSections) return saleSections;

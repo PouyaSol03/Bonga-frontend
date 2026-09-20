@@ -53,7 +53,10 @@ export type IconName =
   | "city02"
   | "temperature"
   | "year"
-  | "settings";
+  | "settings"
+  | "construction"
+  | "coinBag"
+  | "calendarDay";
 
 export type DetailItem = {
   icon: IconName;
@@ -91,6 +94,14 @@ export type ViewAdDailyHotelRoom = {
   specialPrice: string;
 };
 
+export type ViewAdProjectDetailVariant = {
+  id: string;
+  meterageTitle: string;
+  floors: string[];
+  roomLabel: string;
+  positions: string[];
+};
+
 export type ViewAdDetails = {
   adCode: string;
   agency: string;
@@ -120,6 +131,7 @@ export type ViewAdDetails = {
   imagesBelongToAd?: boolean;
   isSpecial?: boolean;
   dailyHotelRooms?: ViewAdDailyHotelRoom[];
+  projectDetails?: ViewAdProjectDetailVariant[];
   features: DetailItem[];
   equipmentSections: EquipmentSection[];
   propertyInfoPreview: DetailItem[];

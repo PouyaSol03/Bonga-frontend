@@ -129,11 +129,11 @@ export function MoreLink({
 }) {
   return (
     <RouteLink
-      className="mx-auto mt-6 flex h-7 w-fit items-center justify-center gap-1 px-4 text-xs font-medium leading-4 text-primary no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+      className="mx-auto mt-4 flex h-7 w-fit items-center justify-center gap-1 px-4 text-sm font-medium text-primary no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
       to={to}
     >
-      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
-      <LinearArrowLeft1 className="h-4 w-4" name="arrowLeft" />
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">{children}</Typography>
+      <LinearArrowLeft1 className="h-4 w-4 text-primary shrink-0" />
     </RouteLink>
   );
 }

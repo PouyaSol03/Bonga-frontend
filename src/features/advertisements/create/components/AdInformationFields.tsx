@@ -154,11 +154,11 @@ function AgencyContactFields({
       <div className="mt-5 space-y-4">
         <div>
           <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
-            نام و نام خانوادگی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+            نام و نام خانوادگی مالک (اختیاری)
           </div>
           <InputBox
             error={errors.ownerFullName}
-            floatingLabel="نام و نام خانوادگی *"
+            floatingLabel="نام و نام خانوادگی مالک (اختیاری)"
             onChange={(value) => onSetField("ownerFullName", value)}
             placeholder="نام و نام خانوادگی خودتان را وارد کنید"
             value={ownerFullName}
@@ -167,11 +167,11 @@ function AgencyContactFields({
 
         <div>
           <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
-            آدرس دقیق منزل <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+            آدرس دقیق ملک (اختیاری)
           </div>
           <InputBox
             error={errors.ownerExactAddress}
-            floatingLabel="آدرس دقیق منزل *"
+            floatingLabel="آدرس دقیق ملک (اختیاری)"
             onChange={(value) => onSetField("ownerExactAddress", value)}
             placeholder="مثال: بلوار هاشمیه، هاشمیه ۲۰، پلاک ۲۰، طبقه ۲"
             value={ownerExactAddress}

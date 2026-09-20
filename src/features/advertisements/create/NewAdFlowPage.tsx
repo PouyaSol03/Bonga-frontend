@@ -797,14 +797,6 @@ function getMediaValidationErrors(
     errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
   }
 
-  if (isAgencyFlow && !hasRequiredText(values.ownerFullName)) {
-    errors.ownerFullName = "لطفا نام و نام خانوادگی خود را وارد کنید.";
-  }
-
-  if (isAgencyFlow && !hasRequiredText(values.ownerExactAddress)) {
-    errors.ownerExactAddress = "لطفا آدرس دقیق منزل را وارد کنید.";
-  }
-
   if (!hasRequiredText(values.title)) {
     errors.title = "لطفا عنوان آگهی را وارد کنید.";
   } else if (values.title.trim().length > 50) {

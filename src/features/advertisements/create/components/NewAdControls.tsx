@@ -6,6 +6,7 @@ import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowLeft2 from "../../../../shared/icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../../../../shared/icons/LinearArrowRight2";
 import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
+import LinearCancelSmall from "../../../../shared/icons/LinearCancelSmall";
 import { Button } from "../../../../shared/ui/Button";
 import { Chip as UiChip } from "../../../../shared/ui/Chip";
 import { SelectField } from "../../../../shared/ui/SelectField";
@@ -70,7 +71,7 @@ export function Section({
     <section
       className={desktop
         ? "rounded-xl border border-outline-var bg-surface-container-lowest p-4 text-right shadow-[0_6px_20px_rgba(30,50,80,0.04)] [direction:rtl]"
-        : "border-b-[10px] border-outline-var bg-surface-container-lowest p-4 text-right last:border-b-0 [direction:rtl]"}
+        : "border-b-[10px] border-surface-container bg-surface-container-lowest p-4 text-right last:border-b-0 [direction:rtl]"}
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
@@ -235,7 +236,7 @@ export function Tag({
       className={className}
       onClick={onRemove}
       removable
-      removeIcon={<LinearCancelCircle aria-hidden="true" className="h-6 w-6" />}
+      removeIcon={<LinearCancelSmall aria-hidden="true" className="h-5 w-5" />}
       selected
     >
       {label}

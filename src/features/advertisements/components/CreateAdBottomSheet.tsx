@@ -15,6 +15,7 @@ type CreateAdBottomSheetProps = {
   isOpen: boolean;
   onClose: () => void;
   onSelect?: (option: CreateAdOption) => void;
+  title?: string;
 };
 
 function CreateAdIcon({ type }: { type: CreateAdOption["icon"] }) {
@@ -35,12 +36,13 @@ export function CreateAdBottomSheet({
   isOpen,
   onClose,
   onSelect,
+  title = "ثبت آگهی",
 }: CreateAdBottomSheetProps) {
   const options = usePublisherOptions(isOpen);
 
   return (
     <BottomSheet
-      ariaLabel="ثبت آگهی"
+      ariaLabel={title}
       className="rounded-t-[24px]!"
       contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(0.875rem,env(safe-area-inset-bottom,0px))]"
       headerButtonAriaLabel="بازگشت"
@@ -48,7 +50,7 @@ export function CreateAdBottomSheet({
       isOpen={isOpen}
       onBack={onClose}
       onClose={onClose}
-      title="ثبت آگهی"
+      title={title}
       variant="actions"
       zIndexClassName="z-2000"
     >

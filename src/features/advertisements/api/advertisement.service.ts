@@ -676,6 +676,19 @@ export function mapAdvertisementToAdCard(
   const area = readFeatureValue(item, ["area", "متراژ"]) ?? item.area;
   const rooms = readFeatureValue(item, ["rooms", "اتاق", "خواب"]) ?? item.rooms;
   const buildingAge = readFeatureValue(item, ["building_age", "سال ساخت"]) ?? item.year;
+  const formCode = toText(
+    item.form_code ?? readFeatureValue(item, ["form_code"]),
+  );
+  const projectMinMeterPrice = readFeatureValue(item, [
+    "min_meter_price",
+    "min_price",
+    "meter_price",
+  ]);
+  const projectMaxMeterPrice = readFeatureValue(item, [
+    "max_meter_price",
+    "max_price",
+  ]);
+  const isProject = formCode === "presale-special";
 
   return {
     id: item.id ?? item._id ?? index + 1,
@@ -685,10 +698,15 @@ export function mapAdvertisementToAdCard(
     imageClassName: image ? "" : `ad-card__image--${(index % 4) + 1}`,
     imageCount: String(images.length || (image ? 1 : 0)),
     imageUrl: image || undefined,
-    priceLabelPrimary: toText(item.price_label),
-    priceLabelSecondary: "",
-    pricePrimary: formatPrice(item.price),
-    priceSecondary: "",
+    priceLabelPrimary: isProject ? "حداقل قیمت متری" : toText(item.price_label),
+    priceLabelSecondary: isProject && projectMaxMeterPrice !== undefined ? "حداکثر قیمت متری" : "",
+    pricePrimary: formatPrice(
+      isProject ? projectMinMeterPrice ?? item.price : item.price,
+    ),
+    priceSecondary:
+      isProject && projectMaxMeterPrice !== undefined
+        ? formatPrice(projectMaxMeterPrice)
+        : "",
     rooms: formatFeatureUnit(rooms, "اتاق"),
     status: "",
     timeAndLocation: description || (location ? `در ${location}` : ""),

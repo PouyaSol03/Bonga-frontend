@@ -63,6 +63,7 @@ import { DetailsStep } from "./steps/DetailsStep";
 import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT, RENT_CONVERSION_RENT_PER_UNIT } from "./rentPriceConversion";
 import { MediaStep } from "./steps/MediaStep";
 import { AgencySelectionStep } from "./steps/AgencySelectionStep";
+import { PublisherSelectionStep } from "./steps/PublisherSelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
 import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getAdvertiseFormCode, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
@@ -524,6 +525,12 @@ function readPublisherName(ad: AdvertisementItem, features: AdvertisementFeature
 }
 
 function readRegistrantType(ad: AdvertisementItem, features: AdvertisementFeature[]): NewAdFormValues["registrantType"] {
+  const publisherType = normalizeLookupText(ad.publisher_type);
+
+  // Publisher identity and assignment are separate concepts. Agency/agent publishers
+  // still use the personal registration flow unless the ad was explicitly assigned.
+  if (publisherType === "agency" || publisherType === "agent") return "personal";
+
   const ownerType = normalizeLookupText(ad.owner_type);
   const advertiserType = normalizeLookupText(readFeatureValue(features, ["advertiser_type"]));
 
@@ -614,18 +621,28 @@ function getEditRouteParamsFromAd(ad: AdvertisementItem) {
 
 function syncEditRouteParams(ad: AdvertisementItem) {
   const routeParams = getEditRouteParamsFromAd(ad);
-
-  if (!routeParams) return false;
-
   const searchParams = new URLSearchParams(window.location.search);
   let changed = false;
 
-  Object.entries(routeParams).forEach(([key, value]) => {
+  Object.entries(routeParams ?? {}).forEach(([key, value]) => {
     if (searchParams.get(key) === value) return;
 
     searchParams.set(key, value);
     changed = true;
   });
+
+  const publisherType = normalizeLookupText(ad.publisher_type);
+  if (["user", "agency", "agent"].includes(publisherType) && searchParams.get("publisherType") !== publisherType) {
+    searchParams.set("publisherType", publisherType);
+    changed = true;
+  }
+
+  if (publisherType === "agency" || publisherType === "agent") {
+    if (searchParams.get("registrantType") !== "personal") {
+      searchParams.set("registrantType", "personal");
+      changed = true;
+    }
+  }
 
   if (searchParams.get("edit") !== "true") {
     searchParams.set("edit", "true");
@@ -930,8 +947,26 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("rentConversionMortgagePrice", readFirstValue(ad, features, ["rent_conversion_mortgage_price", "rent_conversion_mortgage"], ["rent_conversion_mortgage_price", "rentConversionMortgagePrice"]), numericInputText);
   setText("rentConversionPolicy", readFirstValue(ad, features, ["rent_conversion_policy", "rent_convertibility", "conversion_policy"], ["rent_conversion_policy", "rentConversionPolicy"]));
   setBool("rentConversionEnabled", readFirstValue(ad, features, ["rent_conversion_enabled", "rent_convertible", "is_rent_convertible"], ["rent_conversion_enabled", "rentConversionEnabled"]));
-  setText("minPrice", readFirstValue(ad, features, ["min_price", "daily_price", "meter_price"], ["min_price", "minPrice"]), numericInputText);
-  setText("maxPrice", readFirstValue(ad, features, ["max_price"], ["max_price", "maxPrice"]), numericInputText);
+  setText(
+    "minPrice",
+    readFirstValue(
+      ad,
+      features,
+      ["min_meter_price", "min_price", "daily_price", "meter_price"],
+      ["min_meter_price", "min_price", "minPrice"],
+    ),
+    numericInputText,
+  );
+  setText(
+    "maxPrice",
+    readFirstValue(
+      ad,
+      features,
+      ["max_meter_price", "max_price"],
+      ["max_meter_price", "max_price", "maxPrice"],
+    ),
+    numericInputText,
+  );
   setText("normalDailyPrice", readFirstValue(ad, features, ["normal_daily_price"], ["normal_daily_price", "normalDailyPrice"]), numericInputText);
   setText("weekendDailyPrice", readFirstValue(ad, features, ["weekend_daily_price"], ["weekend_daily_price", "weekendDailyPrice"]), numericInputText);
   setText("specialDailyPrice", readFirstValue(ad, features, ["special_daily_price"], ["special_daily_price", "specialDailyPrice"]), numericInputText);
@@ -1397,21 +1432,29 @@ export function NewAdFlowPage() {
         }
 
         const ad = mapAdvertisementToAdCard(createdAd, 0);
-        const returnedAgencyId = createdAd.agency_id;
-        const hasAgencyId =
-          returnedAgencyId !== undefined &&
-          returnedAgencyId !== null &&
-          String(returnedAgencyId).trim() !== "";
         const isWaitingForAgency = createdAd.status === "wait_for_agency";
+        const isAlreadyPublished =
+          createdAd.status === "published" || createdAd.status === "active";
 
         clearNewAdDraftStorage();
 
-        if (hasAgencyId || isWaitingForAgency) {
+        if (isWaitingForAgency) {
           navigateTo(getAdStatePath(createdAdId), {
             ad: createdAd,
             card: ad,
             returnTo: adManagementPaths.root,
             status: "wait_for_agency",
+            tab: "status",
+          });
+          return;
+        }
+
+        if (isAlreadyPublished) {
+          navigateTo(getAdStatePath(createdAdId), {
+            ad: createdAd,
+            card: ad,
+            returnTo: adManagementPaths.root,
+            status: "published",
             tab: "status",
           });
           return;
@@ -1478,6 +1521,20 @@ export function NewAdFlowPage() {
 
     selectAgency(agency);
     window.queueMicrotask(() => void submit());
+  };
+
+  const confirmPublisher = (publisher: { id: string; name: string; type: "agency" | "consultant" }) => {
+    methods.setValue("registrantType", "personal", { shouldDirty: true });
+    methods.setValue("agencyId", "", { shouldDirty: true });
+    methods.setValue("publisherName", publisher.name, { shouldDirty: true });
+    methods.setValue(
+      "consultantId",
+      publisher.type === "consultant" ? publisher.id.replace("consultant:", "") : "",
+      { shouldDirty: true },
+    );
+    setSubmitError("");
+    clearFieldError("agencyId");
+    setStep("media");
   };
 
   const goToMedia = () => {
@@ -1547,7 +1604,9 @@ export function NewAdFlowPage() {
         ? "جزئیات پروژه"
         : step === "agencySelection"
           ? "ثبت آگهی / انتخاب آژانس"
-          : isEditMode
+          : step === "publisherSelection"
+            ? "تغییر منتشرکننده"
+            : isEditMode
             ? "ویرایش آگهی"
             : "ثبت آگهی";
 
@@ -1559,7 +1618,7 @@ export function NewAdFlowPage() {
       <FormProvider {...methods}>
         <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
           <div className="contents">
-            {step !== "agencySelection" ? (
+            {step !== "agencySelection" && step !== "publisherSelection" ? (
               <Header
                 title={headerTitle}
                 onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : isCrmEditMode ? leaveCrmEditor : undefined}
@@ -1612,12 +1671,18 @@ export function NewAdFlowPage() {
             selectedAgencyId={methods.watch("agencyId")}
             submitDisabled={createAdvertisement.isPending || submitLockRef.current}
           />
+        ) : step === "publisherSelection" ? (
+          <PublisherSelectionStep
+            onBack={() => setStep("media")}
+            onConfirm={confirmPublisher}
+          />
         ) : (
           <MediaStep
             errors={fieldErrors}
             forceFullEditFields={isEditMode}
             label={label}
             onBack={goToDetails}
+            onChangePublisher={() => setStep("publisherSelection")}
             onClearError={clearFieldError}
             onSubmit={handleMediaPrimary}
             submitDisabled={

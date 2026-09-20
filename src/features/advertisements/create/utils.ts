@@ -704,8 +704,8 @@ export function buildPayload(values: NewAdFormValues) {
     }
   } else if (isProject) {
     if (!isPartnership) {
-      addFeature(features, "min_price", toNumber(values.minPrice));
-      addFeature(features, "max_price", toNumber(values.maxPrice));
+      // Project price range is a per-square-meter range. Keep it in the
+      // dedicated meter-price keys instead of duplicating it as total price.
       addFeature(features, "min_meter_price", toNumber(values.minPrice));
       addFeature(features, "max_meter_price", toNumber(values.maxPrice));
     }
@@ -914,13 +914,19 @@ export function buildNewAdFormData(
   } else {
     appendDynamicValue("rent_conversion_policy", "غیر قابل تبدیل");
   }
-  // Updated daily forms use min/max. Keep daily_price only when the server form still exposes it.
-  appendDynamicValue("daily_price", toNumber(values.minPrice));
-  appendDynamicValue("meter_price", toNumber(values.minPrice));
-  appendDynamicValue("min_price", toNumber(values.minPrice));
-  appendDynamicValue("max_price", toNumber(values.maxPrice));
-  appendDynamicValue("min_meter_price", toNumber(values.minPrice));
-  appendDynamicValue("max_meter_price", toNumber(values.maxPrice));
+  // Daily listings use the generic min/max range. Project listings have a
+  // dedicated per-square-meter range and must not duplicate those values into
+  // min_price/max_price (which represents a different pricing concept).
+  if (params.transaction === "project") {
+    appendDynamicValue("min_meter_price", toNumber(values.minPrice));
+    appendDynamicValue("max_meter_price", toNumber(values.maxPrice));
+  } else {
+    // Keep these legacy aliases only for forms that still expose them.
+    appendDynamicValue("daily_price", toNumber(values.minPrice));
+    appendDynamicValue("meter_price", toNumber(values.minPrice));
+    appendDynamicValue("min_price", toNumber(values.minPrice));
+    appendDynamicValue("max_price", toNumber(values.maxPrice));
+  }
   appendDynamicValue("normal_daily_price", toNumber(values.normalDailyPrice));
   appendDynamicValue("weekend_daily_price", toNumber(values.weekendDailyPrice));
   appendDynamicValue("special_daily_price", toNumber(values.specialDailyPrice));

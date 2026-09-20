@@ -3,7 +3,8 @@ export type FlowStep =
   | "moreFeatures"
   | "projectDetails"
   | "media"
-  | "agencySelection";
+  | "agencySelection"
+  | "publisherSelection";
 
 export type RegistrantType = "" | "personal" | "agency";
 

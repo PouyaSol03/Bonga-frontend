@@ -1,7 +1,11 @@
 import type { NewAdFieldErrors, NewAdFormValues } from "../types";
 import { InputBox } from "./NewAdControls";
 import { CheckRow, RadioCard } from "./MediaControls";
+import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
+import LinearBuilding2 from "../../../../shared/icons/LinearBuilding2";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
+import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
+import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
 import { TextField } from "../../../../shared/ui/TextField";
 
@@ -178,6 +182,83 @@ function AgencyContactFields({
   );
 }
 
+function AgencyPublisherFields({
+  isConsultant = false,
+  logoUrl,
+  name,
+  onChangePublisher,
+  subtitle = "مالک",
+}: {
+  isConsultant?: boolean;
+  logoUrl?: string;
+  name: string;
+  onChangePublisher: () => void;
+  subtitle?: string;
+}) {
+  return (
+    <div>
+      <Typography
+        as="p"
+        variant="body"
+        size="large"
+        weight="medium"
+        className="m-0 mb-3 text-right text-on-surface-var"
+      >
+        منتشرکننده آگهی
+      </Typography>
+
+      <div className="flex min-h-[84px] items-center gap-3 rounded-[16px] bg-surface-container px-4 py-3 [direction:rtl]">
+        <div className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden bg-surface-container-lowest text-on-surface-var ${isConsultant ? "rounded-full" : "rounded-xl"}`}>
+          {logoUrl ? (
+            <img
+              alt=""
+              className="h-full w-full object-cover"
+              src={logoUrl}
+            />
+          ) : isConsultant ? (
+            <LinearUserSolid aria-hidden="true" className="h-7 w-7" />
+          ) : (
+            <LinearBuilding2 aria-hidden="true" className="h-7 w-7" />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1 text-right">
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="medium"
+            className="m-0 truncate text-on-surface"
+          >
+            {name || "آژانس"}
+          </Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="m-0 mt-1 text-on-surface-var"
+          >
+            {subtitle}
+          </Typography>
+        </div>
+      </div>
+
+      <Button
+        className="mt-4 w-full"
+        fullWidth
+        onClick={onChangePublisher}
+        size="medium"
+        trailingIcon={<LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />}
+        type="button"
+        variant="secondary"
+      >
+        تغییر منتشر کننده
+      </Button>
+    </div>
+  );
+}
+
 function SocialFields({
   onSetField,
   telegram,
@@ -214,32 +295,53 @@ function SocialFields({
 }
 
 export function AdInformationFields({
+  agencyPublisherIsConsultant,
+  agencyPublisherLogoUrl,
+  agencyPublisherName,
+  agencyPublisherSubtitle,
   errors,
   label,
   mobile,
   profileMobile,
+  onChangePublisher,
   onSelectAgency,
   onSelectPersonal,
   onSetField,
+  publisherType,
   values,
   allowAssignmentChoice = true,
 }: {
+  agencyPublisherIsConsultant?: boolean;
+  agencyPublisherLogoUrl?: string;
+  agencyPublisherName?: string;
+  agencyPublisherSubtitle?: string;
   errors: NewAdFieldErrors;
   label: string;
   mobile: string;
   profileMobile: string;
+  onChangePublisher?: () => void;
   onSelectAgency: () => void;
   onSelectPersonal: () => void;
   onSetField: SetNewAdField;
+  publisherType?: string;
   values: NewAdFormValues;
   allowAssignmentChoice?: boolean;
 }) {
-  const isAgency = values.registrantType === "agency";
-  const isPersonal = values.registrantType === "personal";
+  const isAgencyPublisher = publisherType === "agency";
+  const isAgency = !isAgencyPublisher && values.registrantType === "agency";
+  const isPersonal = !isAgencyPublisher && values.registrantType === "personal";
 
   return (
     <div className="space-y-4">
-      {allowAssignmentChoice ? (
+      {isAgencyPublisher ? (
+        <AgencyPublisherFields
+          isConsultant={agencyPublisherIsConsultant}
+          logoUrl={agencyPublisherLogoUrl}
+          name={agencyPublisherName || values.publisherName || "آژانس"}
+          onChangePublisher={onChangePublisher ?? (() => undefined)}
+          subtitle={agencyPublisherSubtitle}
+        />
+      ) : allowAssignmentChoice ? (
         <RegistrantTypeFields
           error={errors.registrantType}
           onSelectAgency={onSelectAgency}
@@ -268,7 +370,7 @@ export function AdInformationFields({
         />
       ) : null}
 
-      {values.registrantType ? (
+      {!isAgencyPublisher && values.registrantType ? (
         <SocialFields
           onSetField={onSetField}
           telegram={values.telegram}

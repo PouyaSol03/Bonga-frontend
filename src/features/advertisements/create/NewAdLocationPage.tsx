@@ -667,19 +667,24 @@ export function NewAdLocationPage() {
                 <div className="h-12 rounded-[10px] bg-surface-container" />
               ) : locations.length ? (
                 <div className="space-y-1">
-                  {locations.map((item) => (
-                    <Button unstyled
-                      className={`w-full rounded-[10px] px-3 py-2 text-right ${getNeighborhoodId(selectedNeighborhood) === getNeighborhoodId(item) ? "bg-primary-container" : "bg-surface-container-lowest"}`}
-                      key={`${getNeighborhoodId(item)}:${item.lat ?? ""}:${item.lng ?? ""}:${item.name}`}
-                      onClick={() => selectNeighborhood(item)}
-                      type="button"
-                    >
-                      <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold leading-5 text-on-surface">{item.name}</Typography>
-                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-outline">
-                        {getNeighborhoodSubNeighborhoodNames(item).join("، ") || "\u00A0"}
-                      </Typography>
-                    </Button>
-                  ))}
+                  {locations.map((item) => {
+                    const isSelected =
+                      getNeighborhoodId(selectedNeighborhood) === getNeighborhoodId(item);
+
+                    return (
+                      <Button unstyled
+                        className={`w-full rounded-[10px] px-3 py-2 text-right ${isSelected ? "bg-primary-container" : "bg-surface-container-lowest"}`}
+                        key={`${getNeighborhoodId(item)}:${item.lat ?? ""}:${item.lng ?? ""}:${item.name}`}
+                        onClick={() => selectNeighborhood(item)}
+                        type="button"
+                      >
+                        <Typography as="span" variant="label" size="medium" weight="semibold" className={`block text-sm font-semibold leading-5 ${isSelected ? "text-primary" : "text-on-surface"}`}>{item.name}</Typography>
+                        <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-outline">
+                          {getNeighborhoodSubNeighborhoodNames(item).join("، ") || "\u00A0"}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
                 </div>
               ) : (
                 <SearchEmptyState compact className="px-2" />

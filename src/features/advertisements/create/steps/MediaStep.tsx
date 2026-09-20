@@ -2,11 +2,14 @@ import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
-import { useMyProfileQuery } from "../../../account/api/account.hooks";
+import { getApiAssetUrl } from "../../../../shared/api/api";
+import { useMyAgencyProfileQuery, useMyProfileQuery } from "../../../account/api/account.hooks";
+import { useAgencyConsultantsQuery } from "../../../agencies/api/agency.hooks";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
 import { AdInformationFields } from "../components/AdInformationFields";
 import { Footer, InputBox, Section, Toggle } from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
+import { getParams } from "../utils";
 import { PhotoUploader, VideoUploader } from "../components/MediaUploaders";
 import { Typography } from "../../../../shared/ui/Typography";
 
@@ -24,6 +27,7 @@ export function MediaStep({
   errors = {},
   label,
   onBack,
+  onChangePublisher,
   onClearError,
   onSubmit,
   submitDisabled = false,
@@ -32,6 +36,7 @@ export function MediaStep({
   forceFullEditFields?: boolean;
   label: string;
   onBack: () => void;
+  onChangePublisher: () => void;
   onClearError?: (key: NewAdFieldErrorKey) => void;
   onSubmit: () => void;
   submitDisabled?: boolean;
@@ -39,7 +44,15 @@ export function MediaStep({
   const desktop = useNewAdDesktopLayout();
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
+  const publisherType = getParams().publisherType?.toLowerCase() ?? "";
+  const isAgencyPublisher = publisherType === "agency";
   const { data: profile } = useMyProfileQuery();
+  const { data: agencyProfile } = useMyAgencyProfileQuery({ enabled: isAgencyPublisher });
+  const { data: consultantsPage } = useAgencyConsultantsQuery({
+    enabled: isAgencyPublisher && Boolean(values.consultantId),
+    page: 1,
+    perPage: 100,
+  });
   const session = getStoredAuthSession();
   const activeRole = getActiveAuthRole(session);
   const allowAssignmentChoice = activeRole === "user";
@@ -50,6 +63,23 @@ export function MediaStep({
     .map((part) => part?.trim() ?? "")
     .filter(Boolean)
     .join(" ");
+  const selectedConsultant = values.consultantId
+    ? consultantsPage?.data.find(
+        (consultant) => String(consultant.userId) === String(values.consultantId),
+      )
+    : undefined;
+  const agencyPublisherIsConsultant = Boolean(values.consultantId);
+  const agencyPublisherName =
+    selectedConsultant?.name?.trim() ||
+    values.publisherName?.trim() ||
+    agencyProfile?.name?.trim() ||
+    "آژانس";
+  const agencyPublisherLogoUrl = getApiAssetUrl(
+    agencyPublisherIsConsultant
+      ? selectedConsultant?.avatar?.trim() || ""
+      : agencyProfile?.logo?.trim() || agencyProfile?.img?.trim() || "",
+  );
+  const agencyPublisherSubtitle = agencyPublisherIsConsultant ? "مشاور" : "مالک";
   const isAgencyFlow = values.registrantType === "agency";
 
   const setField = <T extends keyof NewAdFormValues>(
@@ -121,6 +151,7 @@ export function MediaStep({
     }
   };
 
+
   const primaryLabel = submitDisabled
     ? isAgencyFlow
       ? "در حال آماده‌سازی..."
@@ -131,7 +162,8 @@ export function MediaStep({
 
   const isPersonalFlow = values.registrantType === "personal";
   const hasContactMethod = Boolean(values.chatEnabled || values.phoneEnabled);
-  const isButtonDisabled = submitDisabled || (isPersonalFlow && !hasContactMethod);
+  const isButtonDisabled =
+    submitDisabled || (isPersonalFlow && !isAgencyPublisher && !hasContactMethod);
 
   return (
     <>
@@ -194,15 +226,21 @@ export function MediaStep({
 
         <Section icon="info.svg" title="اطلاعات آگهی" warning>
           <AdInformationFields
+            agencyPublisherIsConsultant={agencyPublisherIsConsultant}
+            agencyPublisherLogoUrl={agencyPublisherLogoUrl}
+            agencyPublisherName={agencyPublisherName}
+            agencyPublisherSubtitle={agencyPublisherSubtitle}
+            allowAssignmentChoice={allowAssignmentChoice}
             errors={errors}
             label={label}
             mobile={profileMobile || values.phoneNumber}
-            profileMobile={meShowMobile}
+            onChangePublisher={onChangePublisher}
             onSelectAgency={selectAgency}
             onSelectPersonal={selectPersonal}
             onSetField={setField}
+            profileMobile={meShowMobile}
+            publisherType={publisherType}
             values={values}
-          allowAssignmentChoice={allowAssignmentChoice}
           />
         </Section>
       </main>
@@ -213,6 +251,7 @@ export function MediaStep({
         onPrimary={onSubmit}
         primary={primaryLabel}
       />
+
     </>
   );
 }

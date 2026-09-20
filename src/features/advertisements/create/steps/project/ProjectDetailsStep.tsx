@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import { BottomSheet } from "../../../../../shared/components/BottomSheet";
-import LinearCancelCircle from "../../../../../shared/icons/LinearCancelCircle";
+import LinearDelete from "../../../../../shared/icons/LinearDelete";
 import {
   projectFloorOptions,
   projectPositionOptions,
@@ -165,12 +165,12 @@ function ProjectDetailCard({
       />
 
       <Button unstyled
-        className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-outline-var bg-surface-container-lowest text-sm font-medium leading-5 text-on-surface"
+        className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-error-container bg-surface-container-lowest text-sm font-medium leading-5 text-error"
         onClick={onRemove}
         type="button"
       >
-        <Typography as="span" variant="body" size="medium" weight="regular">حذف</Typography>
-        <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
+        <LinearDelete aria-hidden="true" className="h-5 w-5 text-error" />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">حذف</Typography>
       </Button>
     </div>
   );

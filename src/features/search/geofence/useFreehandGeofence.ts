@@ -46,31 +46,31 @@ type UseFreehandGeofenceOptions = {
 };
 
 const TEMPORARY_LINE_OPTIONS = {
-  color: "var(--primary)",
+  color: "#0048C4",
   opacity: 0.95,
   weight: 4,
 };
 
 const TEMPORARY_POLYGON_OPTIONS = {
-  color: "var(--primary)",
-  fillColor: "var(--primary)",
+  color: "#0048C4",
+  fillColor: "#0048C4",
   fillOpacity: 0.08,
   opacity: 0.55,
   weight: 2,
 };
 
 const FINAL_POLYGON_OPTIONS = {
-  color: "var(--primary)",
-  fillColor: "var(--primary)",
+  color: "#0048C4",
+  fillColor: "#0048C4",
   fillOpacity: 0.14,
   opacity: 1,
   weight: 3,
 };
 
 const INVALID_POLYGON_OPTIONS = {
-  color: "var(--error)",
+  color: "#EE3623",
   dashArray: "7 7",
-  fillColor: "var(--error)",
+  fillColor: "#EE3623",
   fillOpacity: 0.08,
   opacity: 1,
   weight: 3,

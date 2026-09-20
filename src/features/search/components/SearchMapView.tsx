@@ -244,8 +244,8 @@ function SearchMapViewComponent({
           key={`selected-neighborhood-${index}`}
           interactive={false}
           pathOptions={{
-            color: "var(--primary)",
-            fillColor: "var(--primary)",
+            color: "#0048C4",
+            fillColor: "#0048C4",
             fillOpacity: 0.18,
             opacity: 0.9,
             weight: 2,
@@ -305,8 +305,8 @@ function SearchMapViewComponent({
             <Circle
               center={[userLocation.latitude, userLocation.longitude]}
               pathOptions={{
-                color: "var(--primary)",
-                fillColor: "var(--primary)",
+                color: "#0048C4",
+                fillColor: "#0048C4",
                 fillOpacity: 0.08,
                 opacity: 0.18,
                 weight: 1,

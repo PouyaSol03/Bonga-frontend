@@ -24,7 +24,7 @@ export function SearchMapFilterChips({
           dir="rtl"
           className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 ${
             chip.isActive
-              ? "border-primary bg-primary-container text-primary"
+              ? "border-primary bg-primary/16 text-primary"
               : "border-outline-var bg-surface-container-lowest text-on-surface"
           }`}
           type="button"

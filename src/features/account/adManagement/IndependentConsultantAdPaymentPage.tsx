@@ -10,7 +10,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 import { pushRoute } from "../../../shared/navigation/navigation";
-import { useChargeWalletMutation } from "../api/account.hooks";
+import { useChargeWalletMutation, useWalletQuery } from "../api/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
   useAgencyAdvertisementCheckoutQuery,
@@ -62,7 +62,9 @@ type AgencyPaymentMethod =
 
 const checkoutItems = ["advertise_publish"];
 const unavailableAfterPublishWarning =
-  "در زمان ثبت اولیه، امکانات ارتقا تا زمان ثبت و تأیید آگهی غیرفعال هستند.";
+  "این قابلیت پس از انتشار آگهی فعال می‌شود.";
+const unavailableAfterPaidPublishWarning =
+  "بعد از انتشار آگهی این امکان قابل استفاده خواهد بود";
 const consultantUpgradeDisabledWarning =
   "امکانات ارتقای آگهی هنگام «ارسال به مشاور» قابل انتخاب نیست.";
 
@@ -306,10 +308,11 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       publisherType: routeState.publisherType,
       returnTo: "/account/my-ads",
       showPaymentSuccess: true,
-      status: "published",
+      status: isNewAdCheckout ? "pending" : "published",
       tab: "status" as const,
     }),
     [
+      isNewAdCheckout,
       routeState.ad,
       routeState.assignment,
       routeState.assignmentId,
@@ -333,7 +336,27 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     freeQuotaMethod?.available !== false &&
     publishItem?.free_quota?.available !== false,
   );
-  const walletMethod = checkout ? getCheckoutMethod(checkout, "wallet") : undefined;
+  const walletQuery = useWalletQuery();
+  const rawWalletMethod = checkout ? getCheckoutMethod(checkout, "wallet") : undefined;
+  const userWalletBalance = toSafeNumber(walletQuery.data?.credit, 0);
+  const walletMethod: AdvertisementCheckoutPaymentMethod | undefined = useMemo(() => {
+    if (rawWalletMethod) {
+      return {
+        ...rawWalletMethod,
+        available: true,
+        balance:
+          rawWalletMethod.balance !== undefined
+            ? toSafeNumber(rawWalletMethod.balance)
+            : userWalletBalance,
+      };
+    }
+    if (!checkout) return undefined;
+    return {
+      available: true,
+      balance: userWalletBalance,
+      method: "wallet",
+    };
+  }, [checkout, rawWalletMethod, userWalletBalance]);
   const gatewayMethod = checkout ? getCheckoutMethod(checkout, "gateway") : undefined;
   const byConsultantMethod = checkout
     ? getCheckoutMethod(checkout, "by_consultant") ?? getCheckoutMethod(checkout, "consultant")
@@ -421,11 +444,9 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       0,
     );
     const walletAvailable = Boolean(
-      walletMethod && walletMethod.available !== false && walletShortage <= 0,
+      walletMethod && walletShortage <= 0,
     );
-    const walletSelectable = Boolean(
-      walletMethod && (walletMethod.available !== false || walletShortage > 0),
-    );
+    const walletSelectable = Boolean(walletMethod);
     const creditSelectable = Boolean(
       agencyCreditMethod && (agencyCreditAvailable || agencyCreditShortage > 0),
     );
@@ -464,7 +485,9 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       return;
     }
 
-    if (!gatewayAvailable && walletAvailable) {
+    if (gatewayAvailable && walletShortage > 0) {
+      setMethod("online");
+    } else if (!gatewayAvailable && walletAvailable) {
       setMethod("wallet");
     }
   }, [
@@ -700,6 +723,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       onComplete={handleCompleteOptions}
       pending={checkoutPending}
       price={publishPrice}
+      upgradeItems={upgradeItems}
     >
     </CheckoutTariffView>
   );
@@ -765,10 +789,9 @@ function AgencyCombinedCheckoutView({
   const walletBalance = toSafeNumber(walletMethod?.balance);
   const walletRequired = selectedPayableAmount || payableAmount;
   const walletDeficit = Math.max(walletRequired - walletBalance, 0);
-  const walletAvailable = Boolean(walletMethod && walletMethod.available !== false);
-  const walletSelectable = Boolean(
-    walletMethod && (walletMethod.available !== false || walletDeficit > 0),
-  );
+  const walletSupported = Boolean(walletMethod);
+  const walletAvailable = Boolean(walletMethod && walletDeficit <= 0);
+  const walletSelectable = Boolean(walletMethod);
 
   const selectedRequirements = aggregateCreditRequirements(selectedUpgradeItems);
   selectedRequirements.ad_credit += Math.max(creditCost, 0);
@@ -953,17 +976,19 @@ function AgencyCombinedCheckoutView({
             label="کیف پول"
             onClick={() => onMethodChange("wallet")}
             subLabel={
-              walletMethod
+              walletSupported
                 ? `مانده: ${formatTariffToman(walletBalance)} تومان`
                 : "این روش پرداخت در دسترس نیست"
             }
             subLabelClassName={
-              !walletMethod || walletDeficit > 0 ? "text-error" : "text-tertiary font-medium"
+              walletDeficit > 0 ? "text-error font-medium" : "text-tertiary font-medium"
             }
           />
 
-          {walletMethod && walletDeficit > 0 ? (
-            <ApiWalletDeficitBox deficit={walletDeficit} />
+          {walletSupported && walletDeficit > 0 ? (
+            <div className="mt-2.5 mb-2">
+              <ApiWalletDeficitBox deficit={walletDeficit} />
+            </div>
           ) : null}
 
           <div className="mt-2 border-t border-outline-var pt-2">
@@ -1018,6 +1043,7 @@ function CheckoutTariffView({
   onComplete,
   pending,
   price,
+  upgradeItems,
 }: {
   backTo: string;
   children?: ReactNode;
@@ -1026,6 +1052,7 @@ function CheckoutTariffView({
   onComplete: () => void;
   pending: boolean;
   price: number;
+  upgradeItems: AdvertisementCheckoutItem[];
 }) {
   return (
     <PageFrame
@@ -1041,15 +1068,10 @@ function CheckoutTariffView({
       {children}
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[76px]">
-        <section className="px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
+        <section className="px-4 pb-5 pt-5" aria-label="هزینه ثبت آگهی">
           <div className="flex items-start justify-between gap-5 [direction:ltr]">
             <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-on-surface [direction:rtl]">
-              {hasFreeQuota ? "رایگان" : (
-                <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
-                  {formatTariffToman(price)}
-                  <LinearTooman className="h-5 w-5" />
-                </Typography>
-              )}
+              {hasFreeQuota ? "رایگان" : `${formatTariffToman(price)} تومان`}
             </Typography>
 
             <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
@@ -1058,36 +1080,31 @@ function CheckoutTariffView({
             </Typography>
           </div>
 
-          <div className="mt-4 rounded-xl border border-outline-var bg-surface-container-low p-4 space-y-3 text-right [direction:rtl]">
-            <div className="flex items-center justify-between text-sm">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">هزینه ثبت آگهی:</Typography>
-              <Typography as="span" variant="body" size="medium" weight="medium" className="inline-flex items-center gap-1">
-                {formatTariffToman(price)} <LinearTooman className="h-4 w-4" />
+          {hasFreeQuota ? (
+            <div className="mt-4 flex min-h-10 items-center gap-2 rounded-lg bg-primary-container px-3 py-2 text-right text-primary [direction:rtl]">
+              <LinearInfoCircle className="h-5 w-5 shrink-0" />
+              <Typography as="span" variant="body" size="small" weight="medium" className="text-xs leading-5">
+                {new Intl.NumberFormat("fa-IR").format(freeQuotaRemaining)} تعرفه رایگان باقی مانده است
               </Typography>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">اعتبار رایگان:</Typography>
-              <Typography as="span" variant="body" size="medium" weight="medium" className={hasFreeQuota ? "text-primary" : "text-outline"}>
-                {hasFreeQuota ? `${new Intl.NumberFormat("fa-IR").format(freeQuotaRemaining)} از ۳ تعرفه باقی مانده` : "تمام شده"}
-              </Typography>
-            </div>
-            <div className="border-t border-dashed border-outline-var pt-3 flex items-center justify-between text-base font-semibold">
-              <Typography as="span" variant="title" size="small" weight="semibold" className="text-on-surface">مبلغ قابل پرداخت:</Typography>
-              <Typography as="span" variant="title" size="small" weight="semibold" className="text-primary inline-flex items-center gap-1">
-                {hasFreeQuota ? "۰ تومان" : (
-                  <>
-                    {formatTariffToman(price)}
-                    <LinearTooman className="h-5 w-5" />
-                  </>
-                )}
-              </Typography>
-            </div>
-          </div>
+          ) : (
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm leading-6 text-on-surface-var">
+              تعرفه رایگان شما به پایان رسیده است. برای ثبت آگهی، هزینه انتشار را پرداخت کنید.
+            </Typography>
+          )}
         </section>
 
         <div className="h-2 bg-surface-container" aria-hidden="true" />
 
-        <DisabledUpgradeOptionsSection />
+        <DisabledUpgradeOptionsSection
+          disabledWarning={
+            hasFreeQuota
+              ? unavailableAfterPublishWarning
+              : unavailableAfterPaidPublishWarning
+          }
+          showCombinedOption
+          upgradeItems={upgradeItems}
+        />
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
@@ -1099,9 +1116,7 @@ function CheckoutTariffView({
         >
           {pending
             ? "در حال پردازش..."
-            : hasFreeQuota
-              ? "تکمیل خرید (کسر از اعتبار رایگان)"
-              : "انتخاب روش پرداخت"}
+            : "تکمیل خرید"}
         </Button>
       </footer>
     </PageFrame>
@@ -1115,6 +1130,7 @@ function DisabledUpgradeOptionsSection({
   isCreditMethod = false,
   onToggle,
   selectedProducts = [],
+  showCombinedOption = false,
   upgradeItems = [],
 }: {
   creditBalances?: { ad_credit: number; special_credit: number; renew_credit: number };
@@ -1123,11 +1139,16 @@ function DisabledUpgradeOptionsSection({
   isCreditMethod?: boolean;
   onToggle?: (product: string) => void;
   selectedProducts?: string[];
+  showCombinedOption?: boolean;
   upgradeItems?: AdvertisementCheckoutItem[];
 }) {
-  const visibleOptions = disabledUpgradeOptions.filter(
-    (option) => option.id !== "refresh-special" || selectedProducts.includes("advertise_update_special"),
-  );
+  const visibleOptions = showCombinedOption
+    ? disabledUpgradeOptions
+    : disabledUpgradeOptions.filter(
+        (option) =>
+          option.id !== "refresh-special" ||
+          selectedProducts.includes("advertise_update_special"),
+      );
 
   return (
     <section className="bg-surface-container-lowest" aria-label="امکانات ارتقای آگهی">
@@ -1196,17 +1217,17 @@ function DisabledUpgradeOptionsSection({
                     {getUpgradeDescription(option.id, checkoutItem)}
                   </Typography>
 
-                  {option.id === "refresh" ? (
+                  {enabled && option.id === "refresh" ? (
                     <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
                       <LinearStairs className="h-4 w-4 shrink-0" />
                       <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.ad_credit ?? 23)}</span>
                     </div>
-                  ) : option.id === "special" ? (
+                  ) : enabled && option.id === "special" ? (
                     <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FFF8E6] px-3 py-2 text-right text-xs font-medium text-[#FF8A00]">
                       <LinearStartup className="h-4 w-4 shrink-0" />
                       <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.special_credit ?? 19)}</span>
                     </div>
-                  ) : option.id === "renew" && (creditBalances?.renew_credit ?? 0) > 0 ? (
+                  ) : enabled && option.id === "renew" && (creditBalances?.renew_credit ?? 0) > 0 ? (
                     <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
                       <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances!.renew_credit)}</span>
                     </div>
@@ -1267,11 +1288,12 @@ export function ApiPaymentCheckoutView({
   );
   // A wallet with insufficient credit is still a valid payment choice: keep it
   // selectable so the shortage and the wallet-charge action are visible.
-  const walletAvailable = Boolean(walletMethod && walletMethod.available !== false);
+  const walletSupported = Boolean(walletMethod);
+  const walletSufficient = walletDeficit <= 0;
   const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
   const selectedMethodAvailable =
     method === "wallet"
-      ? walletAvailable && walletDeficit <= 0
+      ? walletSupported && walletSufficient
       : gatewayAvailable;
   const discount = Math.max(totalPrice - payableAmount, 0);
 
@@ -1285,29 +1307,31 @@ export function ApiPaymentCheckoutView({
       {children}
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[76px]">
-        <section className="bg-surface-container-lowest px-4 pb-2 pt-6" aria-label="روش پرداخت">
+        <section className="bg-surface-container-lowest px-4 pb-4 pt-6" aria-label="روش پرداخت">
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">روش پرداخت</Typography>
           <PaymentMethodOption
             active={method === "wallet"}
-            disabled={!walletAvailable}
+            disabled={!walletSupported}
             icon="wallet"
             label="کیف پول"
             onClick={() => onMethodChange("wallet")}
             subLabel={
-              walletAvailable
+              walletSupported
                 ? `مانده: ${formatTariffToman(walletBalance)} تومان`
                 : "این روش پرداخت در دسترس نیست"
             }
             subLabelClassName={
-              !walletAvailable || walletDeficit > 0 ? "text-error" : "text-tertiary"
+              walletDeficit > 0 ? "text-error font-medium" : "text-tertiary font-medium"
             }
           />
 
-          {method === "wallet" && walletDeficit > 0 ? (
-            <ApiWalletDeficitBox deficit={walletDeficit} />
+          {walletSupported && walletDeficit > 0 ? (
+            <div className="mt-2.5 mb-2">
+              <ApiWalletDeficitBox deficit={walletDeficit} />
+            </div>
           ) : null}
 
-          <div className="border-t border-outline-var">
+          <div className="mt-2 border-t border-outline-var pt-2">
             <PaymentMethodOption
               active={method === "online"}
               disabled={!gatewayAvailable}
@@ -1345,18 +1369,18 @@ export function ApiPaymentCheckoutView({
           <SummaryRow label="تخفیف" value={formatTariffToman(discount)} />
           <div className="my-4 border-t border-dashed border-outline-var" aria-hidden="true" />
           <SummaryRow
-            iconClassName="h-7 w-7"
+            iconClassName="h-6 w-6 text-primary"
             label="جمع پرداختی"
-            labelClassName="text-right text-base font-semibold text-on-surface-var"
+            labelClassName="text-right text-base font-semibold text-on-surface"
             value={formatTariffToman(payableAmount)}
-            valueClassName="text-base font-semibold text-primary"
+            valueClassName="text-lg font-bold text-primary"
           />
         </section>
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
         <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!selectedMethodAvailable || pending}
           onClick={onSubmit}
           type="button"
@@ -1475,17 +1499,17 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
 
   return (
     <div>
-      <div className="flex h-[60px] items-center justify-between rounded-lg border border-warning/20 bg-warning-container/20 px-4 [direction:ltr]">
+      <div className="flex h-[56px] items-center justify-between rounded-xl border border-[#FFE8CC] bg-[#FFF8EE] px-4 [direction:ltr]">
         <Button unstyled
-          className="flex shrink-0 items-center justify-center gap-1 rounded-lg bg-tertiary px-4 py-1.5 text-xs font-semibold leading-5 text-on-primary disabled:opacity-60"
+          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#00966D] hover:bg-[#00825E] px-3.5 py-2 text-xs font-semibold leading-5 text-white shadow-xs transition-colors disabled:opacity-60"
           disabled={chargeWalletMutation.isPending}
           onClick={chargeWallet}
           type="button"
         >
-          <Typography variant="label" size="small" weight="medium">
+          <span className="text-sm font-bold leading-none select-none">+</span>
+          <Typography as="span" variant="label" size="small" weight="semibold" className="text-white">
             {chargeWalletMutation.isPending ? "در حال اتصال..." : "افزایش موجودی"}
           </Typography>
-          <LinearAdd className="h-4 w-4" />
         </Button>
 
         <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-on-surface [direction:rtl]">

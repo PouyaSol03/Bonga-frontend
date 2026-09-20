@@ -475,7 +475,7 @@ export function RequestManagementView({
                 unstyled
                 className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
                   activeFilterId === "all"
-                    ? "border-primary bg-primary-container text-primary"
+                    ? "border-primary bg-primary/16 text-primary"
                     : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
                 }`}
                 onClick={() => selectFilter("all")}
@@ -493,7 +493,7 @@ export function RequestManagementView({
                     key={request.id}
                     className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
                       isSelected
-                        ? "border-primary bg-primary-container text-primary"
+                        ? "border-primary bg-primary/16 text-primary"
                         : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
                     }`}
                     onClick={() => selectFilter(request.id)}

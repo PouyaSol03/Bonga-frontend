@@ -19,6 +19,7 @@ import { RouteLink } from "../../shared/navigation/RouteLink";
 import { pushRoute } from "../../shared/navigation/navigation";
 import { AdCardTomanIcon } from "../advertisements/components/AdCardIcons";
 import { getMyAdStatusInfo } from "./myAdsStatus";
+import { getAdEditPath } from "./adManagement/adManagementData";
 import LinearUserConfirmation from "../../shared/icons/LinearUserConfirmation";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
@@ -331,6 +332,20 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             status: statusInfo.label,
             statusBadgeClassName: statusInfo.badgeClassName,
           };
+          const isIncomplete = statusInfo.key === "incomplete";
+          const destination = isIncomplete
+            ? getAdEditPath(adId)
+            : `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
+          const destinationState = isIncomplete
+            ? {
+                ad,
+                card: cardWithStatus,
+                editReturnTo: "/account/my-ads",
+                isEditMode: true,
+                status: statusInfo.key,
+                tab: "status",
+              }
+            : { ad, card: cardWithStatus, status: statusInfo.key };
 
           return (
             <div
@@ -340,8 +355,8 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
               <AdCard
                 ad={cardWithStatus}
                 showStatusBadge
-                state={{ ad, card: cardWithStatus, status: statusInfo.key }}
-                to={`/account/my-ads/${encodeURIComponent(adId)}/state-ad`}
+                state={destinationState}
+                to={destination}
               />
             </div>
           );

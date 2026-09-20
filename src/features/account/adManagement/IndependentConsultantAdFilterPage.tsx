@@ -210,7 +210,7 @@ export function IndependentConsultantAdFilterPage() {
                 <Button unstyled
                   aria-pressed={isSelected}
                   className={`py-2.5 rounded-xl border text-sm font-medium transition-colors ${isSelected
-                      ? "border-primary bg-primary-container text-primary"
+                      ? "border-primary bg-primary/16 text-primary"
                       : "border-outline-var bg-surface-container-lowest text-on-surface"
                     }`}
                   key={option.id}

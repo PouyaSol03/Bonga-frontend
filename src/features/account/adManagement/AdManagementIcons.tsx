@@ -104,14 +104,20 @@ export function PaymentOptionIcon({
   className?: string;
   icon: "consultant" | "credit" | "online" | "wallet";
 }) {
+  if (icon === "online") {
+    return (
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+        <LinearMellat aria-hidden="true" className={className ? className.replace(/text-[^\s]+/g, "text-[#E02636]") : "h-6 w-6 text-[#E02636]"} />
+      </span>
+    );
+  }
+
   const Icon =
     icon === "consultant"
       ? LinearUserSolid
       : icon === "credit"
         ? LinearWallet
-        : icon === "online"
-          ? LinearMellat
-          : LinearWallet2;
+        : LinearWallet2;
 
   return <Icon aria-hidden="true" className={className} />;
 }

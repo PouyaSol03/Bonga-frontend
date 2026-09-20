@@ -21,6 +21,7 @@ import {
   adManagementPropertyTypeLabels,
   getAdManagementRouteState,
   getAllocationReviewPath,
+  getAdEditPath,
   getAdStatePath,
   type AdManagementFilters,
   type AdManagementPropertyType,
@@ -287,7 +288,7 @@ export function IndependentConsultantAdManagementPage() {
             status: statusInfo.label,
           };
 
-          return { card, sourceAd };
+          return { card, sourceAd, statusInfo };
         })
         .filter(({ card }) => matchesAdFilters(card, scopedFilters, false)),
     [adsQuery.data, scopedFilters],
@@ -493,19 +494,36 @@ export function IndependentConsultantAdManagementPage() {
               </Button>
             </AssignmentStatusMessage>
           ) : activeAdvertisements.length > 0 ? (
-            activeAdvertisements.map(({ card, sourceAd }, index) => (
-              <div
-                key={String(sourceAd.id ?? sourceAd._id ?? card.id)}
-                ref={index === preloadIndex ? loadMoreRef : undefined}
-              >
-                <ConsultantAdCard
-                  ad={card}
-                  showStatusBadge
-                  state={{ card, ad: sourceAd, returnTo: adManagementPaths.root, tab: "active" }}
-                  to={getAdStatePath(card.id)}
-                />
-              </div>
-            ))
+            activeAdvertisements.map(({ card, sourceAd, statusInfo }, index) => {
+              const isIncomplete = statusInfo.key === "incomplete";
+              const destination = isIncomplete
+                ? getAdEditPath(card.id)
+                : getAdStatePath(card.id);
+              const destinationState = isIncomplete
+                ? {
+                    card,
+                    ad: sourceAd,
+                    editReturnTo: adManagementPaths.root,
+                    isEditMode: true,
+                    returnTo: adManagementPaths.root,
+                    tab: "active" as const,
+                  }
+                : { card, ad: sourceAd, returnTo: adManagementPaths.root, tab: "active" as const };
+
+              return (
+                <div
+                  key={String(sourceAd.id ?? sourceAd._id ?? card.id)}
+                  ref={index === preloadIndex ? loadMoreRef : undefined}
+                >
+                  <ConsultantAdCard
+                    ad={card}
+                    showStatusBadge
+                    state={destinationState}
+                    to={destination}
+                  />
+                </div>
+              );
+            })
           ) : (
             <AccountMyAdsEmptyState filterLabel="همه" mode="compact" />
           )}

@@ -54,6 +54,9 @@ import LinearCity02 from "../../../shared/icons/LinearCity02";
 import LinearTemperature from "../../../shared/icons/LinearTemperature";
 import LinearApartmentAge from "../../../shared/icons/LinearApartmentAge";
 import LinearSettingBuilding from "../../../shared/icons/LinearSettingBuilding";
+import LinearConstruction from "../../../shared/icons/LinearConstruction";
+import LinearCoinBag from "../../../shared/icons/LinearCoinBag";
+import LinearCalendarDay from "../../../shared/icons/LinearCalendarDay";
 import type { IconName } from "./viewAdTypes";
 
 type SvgIconComponent = ComponentType<SVGProps<SVGSVGElement>>;
@@ -113,6 +116,9 @@ const iconComponents: Record<Exclude<IconName, "bookmark">, SvgIconComponent> = 
   waterHeater: LinearWaterHeater,
   yard: LinearYard,
   year: LinearApartmentAge,
+  construction: LinearConstruction,
+  coinBag: LinearCoinBag,
+  calendarDay: LinearCalendarDay,
 };
 
 export function ViewAdIcon({

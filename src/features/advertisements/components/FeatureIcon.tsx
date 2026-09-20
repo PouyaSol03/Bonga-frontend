@@ -10,11 +10,12 @@ export function FeatureIcon({
   className?: string;
 }) {
   const src = getFeatureIconSrc(feature);
+  const resolvedClassName = `text-on-surface-var ${className}`;
 
   if (src) {
-    return <ColorableSvgIcon className={className} src={src} />;
+    return <ColorableSvgIcon className={resolvedClassName} src={src} />;
   }
 
-  return <LinearApartment aria-hidden="true" className={className} />;
+  return <LinearApartment aria-hidden="true" className={resolvedClassName} />;
 }
 

@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { cloneElement, isValidElement, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { cn, focusRing } from "../../design-system/classes";
@@ -44,12 +44,22 @@ export function Chip({
 }: ChipProps) {
   const shouldReduceMotion = useReducedMotion();
 
+  const renderedIcon = icon && isValidElement<{ className?: string }>(icon)
+    ? cloneElement(icon, {
+        className: cn(
+          "shrink-0",
+          selected ? "text-primary" : "",
+          icon.props.className ?? "",
+        ),
+      })
+    : icon;
+
   return (
     <Button unstyled
       aria-pressed={selected}
       className={cn(
         "inline-flex shrink-0 items-center justify-center min-w-9 gap-1.5 rounded-[10px] border p-2 text-sm font-medium leading-5 cursor-pointer will-change-transform active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:duration-100 [direction:rtl]",
-        selected ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface hover:border-outline hover:bg-surface-container-low",
+        selected ? "border-primary bg-primary/16 text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface hover:border-outline hover:bg-surface-container-low",
         focusRing,
         "disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:border-outline-var/50 disabled:bg-surface-container disabled:text-outline",
         className,
@@ -91,7 +101,7 @@ export function Chip({
           </motion.span>
         )}
       </AnimatePresence>
-      {icon}
+      {renderedIcon}
       <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 truncate">{children}</Typography>
       {removable && selected
         ? removeIcon ?? <LinearCancelSmall aria-hidden="true" className="h-5 w-5" />

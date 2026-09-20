@@ -41,3 +41,8 @@ audit/performance-urls.txt
 
 # Storybook
 /storybook-static/
+
+# Archives
+*.zip
+
+

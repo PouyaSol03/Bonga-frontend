@@ -123,7 +123,8 @@ export function AccountMyAdStatePage() {
     sourceAd?.assignedAgencyId ||
     sourceAd?.assignment_id ||
     sourceAd?.assignmentId ||
-    sourceAd?.agency_id,
+    sourceAd?.assignment_status ||
+    sourceAd?.assignmentStatus,
   );
 
   if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
@@ -377,6 +378,8 @@ function RealEstateManagerAdStatePage({
   const publisher = publisherOptions.find((option) => option.id === publisherId) ?? publisherOptions[0];
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
 
+  const managerActions = getManagerActions(statusInfo.key, adId);
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
@@ -399,7 +402,9 @@ function RealEstateManagerAdStatePage({
 
           <ManagerAdSummary ad={ad} card={card} />
 
-          <PublishedMeta ad={ad} />
+          {["published", "wait_for_stop", "wait_for_deal_confirmation"].includes(statusInfo.key) ? (
+            <PublishedMeta ad={ad} />
+          ) : null}
 
           {statusInfo.key === "wait_for_stop" ? (
             <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
@@ -417,32 +422,52 @@ function RealEstateManagerAdStatePage({
                   علت درخواست: {String((ad.delete_reason as Record<string, unknown>).reason)}
                 </div>
               ) : null}
-              <div className="mt-3 flex gap-2">
-                <Button
-                  unstyled
-                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90 disabled:opacity-50"
-                  disabled={approveStopMutation.isPending}
-                  onClick={async () => {
-                    await approveStopMutation.mutateAsync(adId);
-                    window.location.reload();
-                  }}
-                  type="button"
-                >
-                  {approveStopMutation.isPending ? "در حال ثبت..." : "موافقت با توقف انتشار"}
-                </Button>
-                <Button
-                  unstyled
-                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-error bg-surface text-xs font-medium text-error active:bg-error-container disabled:opacity-50"
-                  disabled={rejectStopMutation.isPending}
-                  onClick={async () => {
-                    await rejectStopMutation.mutateAsync(adId);
-                    window.location.reload();
-                  }}
-                  type="button"
-                >
-                  {rejectStopMutation.isPending ? "در حال ثبت..." : "رد درخواست توقف"}
-                </Button>
-              </div>
+              {(() => {
+                const pendingStopRequestId =
+                  (ad?.stop_request as Record<string, unknown> | undefined)?.id ??
+                  (ad?.pending_stop_request as Record<string, unknown> | undefined)?.id ??
+                  (ad?.delete_reason as Record<string, unknown> | undefined)?.stop_request_id ??
+                  (ad?.delete_reason as Record<string, unknown> | undefined)?.stopRequestId;
+
+                return (
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      unstyled
+                      className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90 disabled:opacity-50"
+                      disabled={approveStopMutation.isPending || !pendingStopRequestId}
+                      onClick={async () => {
+                        if (!pendingStopRequestId) return;
+                        try {
+                          await approveStopMutation.mutateAsync({ requestId: String(pendingStopRequestId) });
+                          window.location.reload();
+                        } catch (err) {
+                          console.error("Failed to approve stop request:", err);
+                        }
+                      }}
+                      type="button"
+                    >
+                      {approveStopMutation.isPending ? "در حال ثبت..." : "موافقت با توقف انتشار"}
+                    </Button>
+                    <Button
+                      unstyled
+                      className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-error bg-surface text-xs font-medium text-error active:bg-error-container disabled:opacity-50"
+                      disabled={rejectStopMutation.isPending || !pendingStopRequestId}
+                      onClick={async () => {
+                        if (!pendingStopRequestId) return;
+                        try {
+                          await rejectStopMutation.mutateAsync({ requestId: String(pendingStopRequestId) });
+                          window.location.reload();
+                        } catch (err) {
+                          console.error("Failed to reject stop request:", err);
+                        }
+                      }}
+                      type="button"
+                    >
+                      {rejectStopMutation.isPending ? "در حال ثبت..." : "رد درخواست توقف"}
+                    </Button>
+                  </div>
+                );
+              })()}
             </div>
           ) : null}
 
@@ -490,15 +515,18 @@ function RealEstateManagerAdStatePage({
         <div className="h-2 bg-surface-container" aria-hidden="true" />
 
         <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
-          <StateAdAction action={{ icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
-          <ActionDivider />
-          <StateAdAction action={{ icon: "edit", label: "ویرایش", to: getAdEditPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
-          <ActionDivider />
-          <StateAdAction action={{ icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
-          <ActionDivider />
-          <StateAdAction action={{ icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
-          <ActionDivider />
-          <StateAdAction action={{ icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) }} ad={ad} card={card} deleteCompleteTo={backTo} returnTo={backTo} />
+          {managerActions.map((action, index) => (
+            <div key={action.label}>
+              <StateAdAction
+                action={action}
+                ad={ad}
+                card={card}
+                deleteCompleteTo={backTo}
+                returnTo={backTo}
+              />
+              {index < managerActions.length - 1 ? <ActionDivider /> : null}
+            </div>
+          ))}
         </section>
       </main>
 
@@ -515,10 +543,10 @@ function RealEstateManagerAdStatePage({
                 consultantId: nextConsultantId,
               });
               setPublisherId(nextPublisher.id);
-            } catch {
-              setPublisherId(nextPublisher.id);
+              setIsPublisherPickerOpen(false);
+            } catch (err) {
+              console.error("Failed to change consultant:", err);
             }
-            setIsPublisherPickerOpen(false);
           }}
           options={publisherOptions}
           selectedPublisher={publisher}
@@ -526,6 +554,34 @@ function RealEstateManagerAdStatePage({
       ) : null}
     </PageFrame>
   );
+}
+
+function getManagerActions(
+  status: MyAdStatusKey,
+  adId: string,
+): StateAction[] {
+  const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
+  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
+  const result: StateAction = { icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) };
+  const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
+  const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
+
+  if (status === "published") {
+    return [preview, edit, result, upgrade, history];
+  }
+  if (status === "wait_for_stop" || status === "wait_for_deal_confirmation") {
+    return [preview, history];
+  }
+  if (status === "incomplete" || status === "needs_edit" || status === "wait_for_payment") {
+    return [preview, edit, history];
+  }
+  if (status === "pending") {
+    return [preview, history];
+  }
+  if (status === "expired") {
+    return [preview, result, history];
+  }
+  return [preview, history];
 }
 
 function ManagerAdSummary({

@@ -706,8 +706,8 @@ function GalleryHero({
       </div>
       {imagesBelongToAd === true ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">
-          <LinearInfoCircle className="h-4 w-4 shrink-0 text-primary" />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">
+          <LinearInfoCircle className="h-4 w-4 shrink-0 text-outline" />
+          <Typography as="span" variant="body" size="small" weight="regular" className="text-outline">
             عکس‌ها متعلق به این آگهی است
           </Typography>
         </div>

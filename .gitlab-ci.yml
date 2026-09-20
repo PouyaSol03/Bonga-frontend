@@ -1,0 +1,67 @@
+stages:
+  - verify
+  - build
+  - deploy
+
+variables:
+  LOCAL_REGISTRY: "127.0.0.1:5050"
+  LOCAL_REGISTRY_IMAGE: "127.0.0.1:5050/bonga/frontend"
+  IMAGE_TAG: "$LOCAL_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+  DEPLOY_TAG: "$LOCAL_REGISTRY_IMAGE:main"
+  DEPLOY_DIR: "/srv/containers/Bonga"
+  VITE_API_BASE_URL: "https://bonga.exirfirm.com"
+
+verify:
+  stage: verify
+  image: node:22-alpine
+  tags:
+    - exirmain
+  script:
+    - npm ci
+    - npm run build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+build_image:
+  stage: build
+  image: docker:28
+  tags:
+    - exirmain
+  needs:
+    - verify
+  before_script:
+    - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$LOCAL_REGISTRY"
+  script:
+    - docker build --provenance=false --build-arg VITE_API_BASE_URL="$VITE_API_BASE_URL" -t "$IMAGE_TAG" -t "$DEPLOY_TAG" .
+    - docker push "$IMAGE_TAG"
+    - docker push "$DEPLOY_TAG"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy_production:
+  stage: deploy
+  image: docker:28
+  tags:
+    - exirmain
+  needs:
+    - build_image
+  resource_group: bonga-production
+  environment:
+    name: production
+  before_script:
+    - apk add --no-cache util-linux
+    - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$LOCAL_REGISTRY"
+  script:
+    - export FRONTEND_IMAGE="$IMAGE_TAG"
+    - |
+      flock "$DEPLOY_DIR/.deploy.lock" sh -eu -c '
+        cd "$DEPLOY_DIR"
+        test -f docker-compose.yml
+        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" config --quiet
+        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" pull frontend
+        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" up -d --no-deps --no-build frontend
+        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" ps frontend
+      '
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'

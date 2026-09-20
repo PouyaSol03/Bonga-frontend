@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { getApiErrorMessage } from "../../shared/api/api";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useMyAdvertisementDetailQuery } from "../advertisements/api/advertisement.hooks";
@@ -258,10 +259,13 @@ export function AccountMyAdStatePage() {
         isPending={cancelAssignmentMutation.isPending}
         onCancel={() => setIsCancelAssignmentModalOpen(false)}
         onConfirm={async () => {
-          if (adId) {
+          if (!adId) return;
+          try {
             await cancelAssignmentMutation.mutateAsync({ advertiseId: adId });
             setIsCancelAssignmentModalOpen(false);
-            void detailQuery.refetch();
+            await detailQuery.refetch();
+          } catch (err) {
+            alert(getApiErrorMessage(err, "لغو واگذاری با خطا مواجه شد."));
           }
         }}
       />
@@ -273,9 +277,13 @@ export function AccountMyAdStatePage() {
         onSelectPersonal={async () => {
           const currentAdId = adId ?? String(card.id);
           if (!currentAdId) return;
-          await republishPersonalMutation.mutateAsync(currentAdId);
-          setIsRepostChoiceModalOpen(false);
-          pushRoute(getAdPaymentPath(currentAdId));
+          try {
+            await republishPersonalMutation.mutateAsync(currentAdId);
+            setIsRepostChoiceModalOpen(false);
+            pushRoute(getAdPaymentPath(currentAdId));
+          } catch (err) {
+            alert(getApiErrorMessage(err, "ثبت مجدد آگهی با خطا مواجه شد."));
+          }
         }}
         onSelectAgency={() => {
           setIsRepostChoiceModalOpen(false);
@@ -290,12 +298,16 @@ export function AccountMyAdStatePage() {
         onConfirm={async (agencyId) => {
           const currentAdId = adId ?? String(card.id);
           if (!currentAdId) return;
-          await reassignAgencyMutation.mutateAsync({
-            advertiseId: currentAdId,
-            agencyId,
-          });
-          setIsReassignAgencyModalOpen(false);
-          void detailQuery.refetch();
+          try {
+            await reassignAgencyMutation.mutateAsync({
+              advertiseId: currentAdId,
+              agencyId,
+            });
+            setIsReassignAgencyModalOpen(false);
+            await detailQuery.refetch();
+          } catch (err) {
+            alert(getApiErrorMessage(err, "واگذاری مجدد به آژانس با خطا مواجه شد."));
+          }
         }}
       />
 
@@ -304,10 +316,13 @@ export function AccountMyAdStatePage() {
           isPending={createStopRequestMutation.isPending}
           onClose={() => setIsStopPublishModalOpen(false)}
           onConfirm={async (reason: string) => {
-            if (adId) {
+            if (!adId) return;
+            try {
               await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason });
               setIsStopPublishModalOpen(false);
-              void detailQuery.refetch();
+              await detailQuery.refetch();
+            } catch (err) {
+              alert(getApiErrorMessage(err, "ثبت درخواست توقف با خطا مواجه شد."));
             }
           }}
         />
@@ -441,7 +456,7 @@ function RealEstateManagerAdStatePage({
                           await approveStopMutation.mutateAsync({ requestId: String(pendingStopRequestId) });
                           window.location.reload();
                         } catch (err) {
-                          console.error("Failed to approve stop request:", err);
+                          alert(getApiErrorMessage(err, "تأیید درخواست توقف انتشار با خطا مواجه شد."));
                         }
                       }}
                       type="button"
@@ -458,7 +473,7 @@ function RealEstateManagerAdStatePage({
                           await rejectStopMutation.mutateAsync({ requestId: String(pendingStopRequestId) });
                           window.location.reload();
                         } catch (err) {
-                          console.error("Failed to reject stop request:", err);
+                          alert(getApiErrorMessage(err, "رد درخواست توقف انتشار با خطا مواجه شد."));
                         }
                       }}
                       type="button"
@@ -897,6 +912,12 @@ function getStateActions(
     (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).id : undefined)
   );
 
+  const consultantUserId = readText(
+    ad?.assigned_consultant_id ??
+    ad?.user_chat_id ??
+    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).user_id : undefined)
+  );
+
   const callAgency: StateAction = {
     icon: "call",
     label: isAssigned || status === "wait_for_agency" ? "تماس با آژانس" : "تماس با مسئول آگهی",
@@ -904,7 +925,7 @@ function getStateActions(
       if (contactPhone) {
         window.location.href = `tel:${contactPhone}`;
       } else {
-        alert("شماره تماس آژانس در دسترس نیست.");
+        alert("شماره تماس در دسترس نیست.");
       }
     },
   };
@@ -913,7 +934,14 @@ function getStateActions(
     icon: "chat",
     label: isAssigned || status === "wait_for_agency" ? "پیام به آژانس" : "چت با مسئول آگهی",
     onClick: () => {
-      window.location.href = `/chat?${agencyId ? `agencyId=${encodeURIComponent(agencyId)}&` : ""}adId=${encodeURIComponent(adId)}`;
+      const chatQuery = new URLSearchParams();
+      if (consultantUserId) {
+        chatQuery.set("userId", consultantUserId);
+      } else if (agencyId) {
+        chatQuery.set("agencyId", agencyId);
+      }
+      chatQuery.set("adId", adId);
+      window.location.href = `/chat?${chatQuery.toString()}`;
     },
   };
 
@@ -1061,6 +1089,11 @@ function WaitForAgencyNotice({
     ad?.agency_id ??
     (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).id : undefined)
   );
+  const consultantUserId = readText(
+    ad?.assigned_consultant_user_id ??
+    ad?.consultant_user_id ??
+    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).user_id : undefined)
+  );
   const adId = readText(ad?.id ?? ad?._id);
   const agencyStartDate = getAgencyAssignmentStartDate(ad);
   const deadlineRemaining = readAgencyDeadlineRemaining(agencyStartDate);
@@ -1106,7 +1139,16 @@ function WaitForAgencyNotice({
           unstyled
           className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
           onClick={() => {
-            window.location.href = `/chat?${agencyId ? `agencyId=${encodeURIComponent(agencyId)}&` : ""}adId=${encodeURIComponent(adId || "")}`;
+            const chatQuery = new URLSearchParams();
+            if (consultantUserId) {
+              chatQuery.set("userId", consultantUserId);
+            } else if (agencyId) {
+              chatQuery.set("agencyId", agencyId);
+            }
+            if (adId) {
+              chatQuery.set("adId", adId);
+            }
+            window.location.href = `/chat?${chatQuery.toString()}`;
           }}
           type="button"
         >

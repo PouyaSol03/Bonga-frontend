@@ -121,15 +121,15 @@ export function AdCloseResultPage() {
 
       <footer className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
         <Button unstyled
-          className={`inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${selectedReason
+          className={`inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${selectedReason && !submitMutation.isPending
             ? "bg-primary text-on-primary active:opacity-80"
             : "bg-surface-container-high text-outline"
             }`}
-          disabled={!selectedReason}
+          disabled={!selectedReason || submitMutation.isPending}
           onClick={handleSubmit}
           type="button"
         >
-          ثبت نتیجه
+          {submitMutation.isPending ? "در حال ثبت..." : "ثبت نتیجه"}
         </Button>
         <Button unstyled
           className="inline-flex h-10 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary active:bg-primary-container"

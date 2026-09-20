@@ -771,7 +771,6 @@ function getMediaValidationErrors(
   options: { forceFullEditFields?: boolean } = {},
 ): NewAdFieldErrors {
   const errors: NewAdFieldErrors = {};
-  const isAgencyFlow = values.registrantType === "agency";
   const shouldRequirePersonalContactFields =
     options.forceFullEditFields || values.registrantType === "personal";
 

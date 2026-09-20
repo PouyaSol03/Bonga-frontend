@@ -21,14 +21,10 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
-import LinearCoinBag from "../../../../shared/icons/LinearCoinBag";
-import LinearCalendarDay from "../../../../shared/icons/LinearCalendarDay";
 import LinearBuilding2 from "../../../../shared/icons/LinearBuilding2";
 import LinearAgreement from "../../../../shared/icons/LinearAgreement";
 import LinearFloor from "../../../../shared/icons/LinearFloor";
 import LinearBed from "../../../../shared/icons/LinearBed";
-import LinearConstruction from "../../../../shared/icons/LinearConstruction";
-import LinearBuilding3 from "../../../../shared/icons/LinearBuilding3";
 
 function toText(val: unknown, fallback = ""): string {
   if (val === undefined || val === null) return fallback;

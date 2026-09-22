@@ -192,7 +192,7 @@ export function IndependentConsultantCreditHistoryPage() {
       className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
-      <TopBar backTo="/account/credit/panel" title="تاریخچه پرداخت" />
+      <TopBar backTo="/account/dashboard/payments" title="تاریخچه پرداخت" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
         {payments.length === 0 ? (

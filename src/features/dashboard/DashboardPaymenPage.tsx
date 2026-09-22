@@ -12,7 +12,7 @@ import { PackagePaymentPage } from "../packages/components/PackagePaymentPage";
 import { useWalletQuery } from "../account/api/account.hooks";
 import type { PackagePaymentType, PackageItem } from "../packages/api/package.service";
 import { RouteLink } from "../../shared/navigation/RouteLink";
-import { pushRoute } from "../../shared/navigation/navigation";
+import { getStoredBackTarget, replaceRoute } from "../../shared/navigation/navigation";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearTooman from "../../shared/icons/LinearTooman";
@@ -494,12 +494,17 @@ function DashboardPaymentMobilePage({
             } catch {
               // ignore
             }
-            pushRoute(returnTo);
-          } else if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            pushRoute("/account/dashboard");
+            replaceRoute(returnTo, undefined, { rememberCurrent: false });
+            return;
           }
+
+          const storedBackTarget = getStoredBackTarget();
+          if (storedBackTarget && window.history.length > 1) {
+            window.history.back();
+            return;
+          }
+
+          replaceRoute("/account/dashboard", undefined, { rememberCurrent: false });
         }}
         startSlot={
           <RouteLink

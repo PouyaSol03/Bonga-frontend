@@ -2,6 +2,7 @@ import { lazy, memo, Suspense, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { getStoredAuthSession, setStoredActiveRole, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
 import { RouteLink } from "../../shared/navigation/RouteLink";
+import { clearNewAdDraftStorage } from "../../features/advertisements/create/utils";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearHome3 from "../../shared/icons/LinearHome3";
@@ -165,6 +166,7 @@ function BottomNavigationComponent({
             onSelect={(option) => {
               setIsCreateAdOpen(false);
               setStoredActiveRole(option.senderRole);
+              clearNewAdDraftStorage();
 
               if (option.id === "personal") {
                 navigateTo("/new-ad/personal?registrantType=personal");

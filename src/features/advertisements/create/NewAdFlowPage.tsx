@@ -234,16 +234,22 @@ function getExistingVideoMedia(ad: AdvertisementItem): UploadedMediaFile | null 
 }
 
 function appendExistingEditMedia(formData: FormData, values: NewAdFormValues) {
+  const existingSources = new Set(formData.getAll("existing_images").map(String));
   values.photos.forEach((photo) => {
     if (photo.file) return;
     const source = mediaSource(photo.existingValue);
-    if (source) formData.append("existing_images", source);
+    if (source && !existingSources.has(source)) {
+      formData.append("existing_images", source);
+      existingSources.add(source);
+    }
   });
 
   if (values.video && !values.video.file) {
     const source = mediaSource(values.video.existingValue);
-    if (source) formData.append("videos", source);
-  } else if (!values.video) {
+    if (source && !formData.has("videos") && !formData.has("video")) {
+      formData.append("videos", source);
+    }
+  } else if (!values.video && !formData.has("videos") && !formData.has("video")) {
     formData.append("videos", "[]");
   }
 }
@@ -661,20 +667,31 @@ function syncEditRouteParams(ad: AdvertisementItem) {
 }
 
 function syncEditLocationStorage(ad: AdvertisementItem, features: AdvertisementFeature[], values: NewAdFormValues) {
-  if (values.location) window.localStorage.setItem(locationKey, values.location);
+  const existingLocation = window.localStorage.getItem(locationKey);
+  const existingLat = window.localStorage.getItem(locationLatKey);
+  const existingLng = window.localStorage.getItem(locationLngKey);
+  const existingNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
 
-  const lat = numericInputText(ad.lat ?? ad.latitude);
-  const lng = numericInputText(ad.lng ?? ad.long ?? ad.longitude);
-  const neighborhoodId = readTextValue(ad, features, ["neighborhood_id"], ["neighborhood_id"]);
-  const subNeighborhoodId = readTextValue(ad, features, ["sub_neighborhood_id"], ["sub_neighborhood_id"]);
+  if (!existingLocation && values.location) {
+    window.localStorage.setItem(locationKey, values.location);
+  }
 
-  if (lat) window.localStorage.setItem(locationLatKey, lat);
-  if (lng) window.localStorage.setItem(locationLngKey, lng);
-  if (neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
-  if (subNeighborhoodId) {
+  const lat = numericInputText(ad.lat ?? ad.latitude ?? (ad.location as any)?.coordinates?.[1]);
+  const lng = numericInputText(ad.lng ?? ad.long ?? ad.longitude ?? (ad.location as any)?.coordinates?.[0]);
+  const neighborhoodId =
+    readTextValue(ad, features, ["neighborhood_id"], ["neighborhood_id"]) ||
+    readText((ad.neighborhood as any)?.id) ||
+    readText((ad as any).neighborhoodId);
+  const subNeighborhoodId =
+    readTextValue(ad, features, ["sub_neighborhood_id"], ["sub_neighborhood_id"]) ||
+    readText((ad.sub_neighborhood as any)?.id) ||
+    readText((ad as any).subNeighborhoodId);
+
+  if (!existingLat && lat) window.localStorage.setItem(locationLatKey, lat);
+  if (!existingLng && lng) window.localStorage.setItem(locationLngKey, lng);
+  if (!existingNeighborhoodId && neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
+  if (!window.localStorage.getItem(subNeighborhoodIdKey) && subNeighborhoodId) {
     window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);
-  } else {
-    window.localStorage.removeItem(subNeighborhoodIdKey);
   }
 }
 
@@ -837,8 +854,8 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
     ...blankValues,
     ...base,
     dailyHotelRooms: base.dailyHotelRooms.length ? base.dailyHotelRooms : blankValues.dailyHotelRooms,
-    photos: getExistingPhotoMedia(ad),
-    video: getExistingVideoMedia(ad),
+    photos: base.photos.length > 0 ? base.photos : getExistingPhotoMedia(ad),
+    video: base.video ? base.video : getExistingVideoMedia(ad),
   };
   const setText = (key: keyof NewAdFormValues, value: unknown, transform: (value: unknown) => string = readText) => {
     const text = transform(value);
@@ -864,9 +881,14 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   const contactTypes = readContactTypes(ad);
   const contacts = ad.contacts && typeof ad.contacts === "object" ? (ad.contacts as Record<string, unknown>) : {};
 
-  setText("location", readFirstValue(ad, features, ["location"], ["location", "address", "form_neighborhood_title"]));
-  if (!next.location) {
-    next.location = readNestedText(ad, ["neighborhood", "neighborhood_name", "district", "district_name", "city", "city_name"]);
+  const confirmedLocation = typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() : "";
+  if (confirmedLocation) {
+    next.location = confirmedLocation;
+  } else {
+    setText("location", readFirstValue(ad, features, ["location"], ["location", "address", "form_neighborhood_title"]));
+    if (!next.location) {
+      next.location = readNestedText(ad, ["neighborhood", "neighborhood_name", "district", "district_name", "city", "city_name"]);
+    }
   }
 
   setText("meterage", readFirstValue(ad, features, ["area", "meterage"], ["area", "meterage"]), numericInputText);
@@ -1051,7 +1073,9 @@ export function NewAdFlowPage() {
   const editAdState = getEditAdRouteState();
   const isEditMode = editAdState.isEditMode === true;
   const editAdId = getEditAdId(editAdState);
-  const restoredSessionRef = useRef(!isEditMode ? getNewAdFlowSession() : null);
+  const restoredSessionRef = useRef(
+    shouldPreserveNewAdDraft(window.history.state) ? getNewAdFlowSession() : null,
+  );
   const [initialValues] = useState<NewAdFormValues>(() => {
     const restoredValues = restoredSessionRef.current?.values;
 
@@ -1140,6 +1164,17 @@ export function NewAdFlowPage() {
   const editAdIsError = isCrmEditMode ? crmEditAdQuery.isError : editAdQuery.isError;
   const editAdError = isCrmEditMode ? crmEditAdQuery.error : editAdQuery.error;
   const editAdIsLoading = isCrmEditMode ? crmEditAdQuery.isLoading : editAdQuery.isLoading;
+  const isEditingIncomplete =
+    isEditMode &&
+    !isCrmSource &&
+    (String(editAdData?.status) === "-5" ||
+      editAdData?.status === "incomplete" ||
+      (editAdData as any)?.status_code === -5 ||
+      String((editAdData as any)?.status_code) === "-5" ||
+      String(editAdState.ad?.status) === "-5" ||
+      editAdState.ad?.status === "incomplete" ||
+      editAdState.status === "incomplete" ||
+      String(editAdState.status) === "-5");
 
   useRequireAuth();
 
@@ -1151,6 +1186,15 @@ export function NewAdFlowPage() {
     if (editDataAppliedRef.current === appliedKey) return undefined;
 
     const routeChanged = syncEditRouteParams(editAdData);
+
+    if (shouldPreserveNewAdDraft(window.history.state) && restoredSessionRef.current?.values) {
+      editDataAppliedRef.current = appliedKey;
+      if (routeChanged) {
+        setEditRouteVersion((version) => version + 1);
+      }
+      return undefined;
+    }
+
     const editDefaults = getDefaultValues({
       ...editAdState,
       ad: editAdData,
@@ -1174,11 +1218,9 @@ export function NewAdFlowPage() {
   }, [editAdError, editAdIsError, isEditMode]);
 
   useEffect(() => {
-    if (isEditMode) return undefined;
-
     const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
-    if (confirmedLocation && !methods.getValues("location")) {
-      methods.setValue("location", confirmedLocation, { shouldDirty: false });
+    if (confirmedLocation && methods.getValues("location") !== confirmedLocation) {
+      methods.setValue("location", confirmedLocation, { shouldDirty: true });
     }
 
     const persistDraft = () => {
@@ -1194,7 +1236,9 @@ export function NewAdFlowPage() {
       };
 
       saveNewAdFlowSession({ ...values, location: resolvedLoc }, step, draftAdId);
-      window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
+      if (!isEditMode) {
+        window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
+      }
       if (resolvedLoc) {
         window.localStorage.setItem(locationKey, resolvedLoc);
       }
@@ -1349,7 +1393,7 @@ export function NewAdFlowPage() {
       formCode: resolvedFormCode,
     });
 
-    if (isEditMode) {
+    if (isEditMode && !isEditingIncomplete) {
       if (!editAdId) {
         setSubmitError("شناسه آگهی برای ویرایش مشخص نیست.");
         return;
@@ -1387,7 +1431,13 @@ export function NewAdFlowPage() {
       return;
     }
 
-    if (formData.getAll("images").length === 0) {
+    appendExistingEditMedia(formData, values);
+
+    const hasNewImages = formData.getAll("images").length > 0;
+    const hasExistingImages = formData.getAll("existing_images").length > 0;
+    const hasPhotos = Array.isArray(values.photos) && values.photos.length > 0;
+
+    if (!hasNewImages && !hasExistingImages && !hasPhotos) {
       setFieldErrors((current) => ({
         ...current,
         photos: "لطفا حداقل یک عکس معتبر برای آگهی انتخاب کنید.",
@@ -1400,8 +1450,9 @@ export function NewAdFlowPage() {
     setFieldErrors({});
     setSubmitError("");
     submitLockRef.current = true;
-    if (draftAdId) {
-      formData.append("id", draftAdId);
+    const activeAdId = draftAdId || (isEditingIncomplete ? editAdId : null);
+    if (activeAdId) {
+      formData.set("id", String(activeAdId));
     }
     createAdvertisement.mutate(formData, {
       onError: (error) => {
@@ -1415,7 +1466,7 @@ export function NewAdFlowPage() {
         setSubmitError(agencyError ?? getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
       },
       onSuccess: (createdAd) => {
-        const createdAdId = createdAd.id ?? createdAd._id;
+        const createdAdId = createdAd.id ?? createdAd._id ?? activeAdId;
 
         if (createdAdId === undefined || createdAdId === null || String(createdAdId).trim() === "") {
           setSubmitError("شناسه آگهی ثبت‌شده از سرور دریافت نشد.");
@@ -1423,9 +1474,13 @@ export function NewAdFlowPage() {
         }
 
         const ad = mapAdvertisementToAdCard(createdAd, 0);
-        const isWaitingForAgency = createdAd.status === "wait_for_agency";
+        const isWaitingForAgency =
+          createdAd.status === "wait_for_agency" ||
+          Number(createdAd.status) === 2;
         const isAlreadyPublished =
-          createdAd.status === "published" || createdAd.status === "active";
+          createdAd.status === "published" ||
+          createdAd.status === "active" ||
+          Number(createdAd.status) === 3;
 
         clearNewAdDraftStorage();
 
@@ -1453,8 +1508,10 @@ export function NewAdFlowPage() {
 
         markNewAdCheckout(createdAdId);
         navigateTo(getAdPaymentPath(createdAdId), {
-          ad,
+          ad: createdAd,
+          card: ad,
           paymentFlow: "new-ad",
+          status: "wait_for_payment",
           tab: "status",
         });
       },
@@ -1471,7 +1528,7 @@ export function NewAdFlowPage() {
   const leaveCrmEditor = () => backRoute(crmReturnTo);
   const goToAgencySelection = () => {
     const values = methods.getValues();
-    const validation = validateNewAd(values, { forceFullEditFields: isEditMode });
+    const validation = validateNewAd(values, { forceFullEditFields: isEditMode && !isEditingIncomplete });
 
     if (validation) {
       setFieldErrors(validation.errors);
@@ -1487,7 +1544,10 @@ export function NewAdFlowPage() {
 
   const handleMediaPrimary = () => {
     const values = methods.getValues();
-    const shouldChooseAgency = !isEditMode && !isCrmSource && values.registrantType === "agency";
+    const shouldChooseAgency =
+      (!isEditMode || isEditingIncomplete) &&
+      !isCrmSource &&
+      values.registrantType === "agency";
 
     if (shouldChooseAgency) {
       goToAgencySelection();
@@ -1545,13 +1605,6 @@ export function NewAdFlowPage() {
       setStep("media");
       return;
     }
-
-    const isEditingIncomplete =
-      isEditMode &&
-      (String(editAdData?.status) === "-5" ||
-        editAdData?.status === "incomplete" ||
-        String(editAdState.ad?.status) === "-5" ||
-        editAdState.ad?.status === "incomplete");
 
     if (isEditMode && !isEditingIncomplete) {
       setStep("media");
@@ -1670,7 +1723,7 @@ export function NewAdFlowPage() {
         ) : (
           <MediaStep
             errors={fieldErrors}
-            forceFullEditFields={isEditMode}
+            forceFullEditFields={isEditMode && !isEditingIncomplete}
             label={label}
             onBack={goToDetails}
             onChangePublisher={() => setStep("publisherSelection")}

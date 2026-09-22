@@ -14,8 +14,8 @@ import { Switch } from "../../../../shared/ui/Switch";
 import { TextField } from "../../../../shared/ui/TextField";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { formatPrice } from "../../../../shared/lib/MoneyHandler";
 import { normalizeNumberInput, navigateTo } from "../utils";
+import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -123,6 +123,11 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+function formatPrice(value: number | string) {
+  const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
+  return Number.isFinite(number) ? new Intl.NumberFormat("fa-IR").format(number) : String(value ?? "");
+}
+
 export function InputBox({
   error,
   floatingLabel,
@@ -211,7 +216,16 @@ export function LocationBox({ value, label }: { value: string; label: string }) 
     <SelectField
       onClick={() => {
         const search = window.location.search || `?label=${encodeURIComponent(label)}`;
-        navigateTo(`/new-ad/location${search}`);
+        const currentState =
+          typeof window !== "undefined" &&
+          window.history.state &&
+          typeof window.history.state === "object"
+            ? window.history.state
+            : {};
+        navigateTo(`/new-ad/location${search}`, {
+          ...currentState,
+          [preserveNewAdDraftStateKey]: true,
+        });
       }}
       placeholder="تعیین مکان"
       value={value}

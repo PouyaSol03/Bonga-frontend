@@ -45,7 +45,7 @@ import {
   subNeighborhoodIdKey,
 } from "./data";
 import type { BasicPropertyField, BasicPropertyFieldKey, ChipItem, MoreFeatureField, MoreFeatureFormKey, MoreFeaturesFormValues, NewAdFormValues } from "./types";
-import { clearNewAdFlowSession } from "./session";
+import { clearNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 import { getFormSchemaByListing } from "../forms";
 
 export function getBasicPropertyFields(): BasicPropertyField[] {
@@ -247,6 +247,7 @@ export type EditAdRouteState = {
   editReturnTo?: string;
   isEditMode?: boolean;
   returnTo?: string;
+  status?: string | number;
   tab?: string;
 };
 
@@ -315,13 +316,33 @@ function locationFromTimeAndLocation(value: string) {
   return parts.length > 1 ? parts.slice(1).join(" در ").trim() : value.trim();
 }
 
+export function mediaSource(value: unknown): string {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+
+  const record = value as Record<string, unknown>;
+
+  for (const key of ["path", "url", "src", "file", "image", "video"]) {
+    const candidate = record[key];
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  }
+
+  return "";
+}
+
 function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdFormValues> {
   const card = routeState.card ?? {};
   const ad = routeState.ad ?? {};
   const title = readText(card.title, ad.title, ad.name);
-  const location = readText(
+  const confirmedLocation = typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() : "";
+  const location = confirmedLocation || readText(
+    (ad.location as any)?.label,
+    ad.location_label,
+    ad.user_address,
     ad.location,
     ad.address,
+    (ad.neighborhood as any)?.name,
+    ad.neighborhood_name,
     card.timeAndLocation ? locationFromTimeAndLocation(card.timeAndLocation) : "",
   );
   const publisherName = readText(card.agency, ad.agency, ad.publisherName, ad.publisher_name);
@@ -355,7 +376,8 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
   const selectedRegistrantType: NewAdFormValues["registrantType"] = editState.isEditMode
     ? ""
     : getParams().registrantType;
-  const draftValues = editDefaults ? null : getDraft();
+  const preserveDraft = typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
+  const draftValues = editDefaults || !preserveDraft ? null : getDraft();
   const baseValues = editDefaults
     ? {
         ...blankValues,
@@ -365,7 +387,7 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
         ...blankValues,
         ...draftValues,
         suitableFor: normalizeDraftStringArray(draftValues?.suitableFor),
-        location: window.localStorage.getItem(locationKey) ?? "",
+        location: preserveDraft ? (window.localStorage.getItem(locationKey) ?? "") : "",
       };
 
   return {
@@ -863,11 +885,13 @@ export function buildNewAdFormData(
   appendBaseValue("category_id", options.categoryId);
   appendBaseValue("title", values.title);
   appendBaseValue("description", values.description);
-  appendBaseValue("neighborhood_id", window.localStorage.getItem(neighborhoodIdKey));
-  appendBaseValue("sub_neighborhood_id", window.localStorage.getItem(subNeighborhoodIdKey));
+  const storedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
+  const storedSubNeighborhoodId = window.localStorage.getItem(subNeighborhoodIdKey);
+  appendBaseValue("neighborhood_id", storedNeighborhoodId || (values as any).neighborhood_id || (values as any).neighborhoodId);
+  appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId || (values as any).sub_neighborhood_id || (values as any).subNeighborhoodId);
   appendBaseValue("lat", getStoredNewAdLocationNumber(locationLatKey));
   appendBaseValue("lng", getStoredNewAdLocationNumber(locationLngKey));
-  appendBaseValue("location_label", values.location);
+  appendBaseValue("location_label", values.location || window.localStorage.getItem(locationKey));
   appendBaseValue(
     "virtual_tour_link",
     values.hasVirtualTour ? values.virtualTourLink.trim() : "",
@@ -1064,11 +1088,21 @@ export function buildNewAdFormData(
   values.photos.forEach((photo) => {
     if (photo.file) {
       formData.append("images", photo.file, photo.file.name);
+    } else {
+      const source = mediaSource(photo.existingValue);
+      if (source) {
+        formData.append("existing_images", source);
+      }
     }
   });
 
   if (values.video?.file) {
     formData.append("video", values.video.file);
+  } else if (values.video?.existingValue) {
+    const source = mediaSource(values.video.existingValue);
+    if (source) {
+      formData.append("existing_video", source);
+    }
   }
 
   return formData;

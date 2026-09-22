@@ -4,7 +4,8 @@ import { motion } from "motion/react";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
 import { TopBar } from "../../../shared/components/TopBar";
-import { draftKey, locationKey, locationLatKey, locationLngKey, neighborhoodIdKey } from "./data";
+import { clearNewAdDraftStorage } from "./utils";
+import { shouldPreserveNewAdDraft } from "./session";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import { Chip } from "../../../shared/ui/Chip";
@@ -313,6 +314,12 @@ export function NewAdCategoryPage() {
     navigateTo(getLoginRequiredPath(returnTo));
   }, []);
 
+  useEffect(() => {
+    if (!shouldPreserveNewAdDraft(window.history.state)) {
+      clearNewAdDraftStorage();
+    }
+  }, []);
+
   const registrantType = getInitialRegistrantType();
   const isCrmSource = new URLSearchParams(window.location.search).get("editSource") === "crm";
   const [activeType, setActiveType] = useState<TransactionType>(getInitialType);
@@ -376,11 +383,7 @@ export function NewAdCategoryPage() {
         onNext={() => {
           if (!selectedOption) return;
 
-          window.localStorage.removeItem(draftKey);
-          window.localStorage.removeItem(locationKey);
-          window.localStorage.removeItem(locationLatKey);
-          window.localStorage.removeItem(locationLngKey);
-          window.localStorage.removeItem(neighborhoodIdKey);
+          clearNewAdDraftStorage();
 
           const params = new URLSearchParams({
             transaction: activeType,

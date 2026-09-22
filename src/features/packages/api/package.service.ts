@@ -51,10 +51,12 @@ export type PackagePaymentPayload = {
   packageId: string;
   paymentType: PackagePaymentType;
   scope?: PackagePaymentScope;
+  discountCode?: string;
 };
 
 export type PackagePaymentResult = {
   authority?: string;
+  paid?: boolean;
   paymentId?: number | string;
   paymentType: PackagePaymentType;
   paymentUrl?: string;
@@ -90,7 +92,11 @@ function getPaymentResponseRecord(response: ApiRecord) {
 
 function readPackagePaymentUrl(response: ApiRecord) {
   const data = getPaymentResponseRecord(response);
-  const value = data.payment_url ?? response.payment_url;
+  const value =
+    data.payment_url ??
+    response.payment_url ??
+    data.url ??
+    response.url;
 
   if (typeof value !== "string" || !value.trim()) return null;
 
@@ -122,21 +128,34 @@ function readOptionalId(response: ApiRecord, key: string) {
 }
 
 export async function payPackage({
+  discountCode,
   packageId,
   paymentType,
   scope = getPackagePaymentScope(),
 }: PackagePaymentPayload): Promise<PackagePaymentResult> {
-  const normalizedPackageId = packageId.trim();
+  const normalizedPackageId = String(packageId ?? "").trim();
 
   if (!normalizedPackageId) {
     throw new ApiError(400, "شناسه بسته معتبر نیست.");
+  }
+
+  const searchParams: Record<string, string | number> = {
+    payment_type: paymentType,
+  };
+  const body: Record<string, string | number> = {
+    payment_type: paymentType,
+  };
+  if (discountCode && discountCode.trim()) {
+    searchParams.discount_code = discountCode.trim();
+    body.discount_code = discountCode.trim();
   }
 
   const rawResponse = await api
     .post(
       `me/${scope}/packages/${encodeURIComponent(normalizedPackageId)}/pay`,
       {
-        searchParams: { payment_type: paymentType },
+        json: body,
+        searchParams,
       },
     )
     .json<unknown>();
@@ -148,13 +167,15 @@ export async function payPackage({
   }
 
   const paymentUrl = readPackagePaymentUrl(response);
+  const paid = Boolean(responseData.paid ?? response.paid);
 
-  if (paymentType === 0 && !paymentUrl) {
+  if (paymentType === 0 && !paymentUrl && !paid) {
     throw new ApiError(500, "آدرس درگاه پرداخت از سرور دریافت نشد.");
   }
 
   return {
     authority: readOptionalString(response, "authority"),
+    paid,
     paymentId: readOptionalId(response, "payment_id"),
     paymentType,
     paymentUrl: paymentUrl ?? undefined,
@@ -165,15 +186,17 @@ export async function payPackage({
 export function payAgencyPackage(
   packageId: string,
   paymentType: PackagePaymentType = 0,
+  discountCode?: string,
 ) {
-  return payPackage({ packageId, paymentType, scope: "agency" });
+  return payPackage({ discountCode, packageId, paymentType, scope: "agency" });
 }
 
 export function payAgentPackage(
   packageId: string,
   paymentType: PackagePaymentType = 0,
+  discountCode?: string,
 ) {
-  return payPackage({ packageId, paymentType, scope: "agent" });
+  return payPackage({ discountCode, packageId, paymentType, scope: "agent" });
 }
 
 export type AgentEntitlements = {

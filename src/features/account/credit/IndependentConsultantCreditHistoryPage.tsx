@@ -14,25 +14,10 @@ import { Typography } from "../../../shared/ui/Typography";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
-const paymentStatusLabels: Record<PaymentHistoryItem["status"], string> = {
-  failed: "ناموفق",
-  paid: "پرداخت شده",
-  registered: "ثبت شده",
-  unknown: "نامشخص",
-};
-
 const paymentTypeLabels: Record<PaymentHistoryItem["payment_type"], string> = {
   gateway: "پرداخت آنلاین",
   unknown: "نامشخص",
   wallet: "کیف پول",
-};
-
-const paymentForLabels: Record<PaymentHistoryItem["payment_for"], string> = {
-  advertise: "آگهی",
-  advertise_checkout: "پرداخت آگهی",
-  package: "بسته",
-  unknown: "نامشخص",
-  wallet_charge: "افزایش اعتبار کیف پول",
 };
 
 function formatPaymentDate(value: string) {
@@ -60,15 +45,105 @@ function formatPaymentReference(value: PaymentHistoryItem["ref_code"]) {
   return "-";
 }
 
+function resolvePaymentStatus(item: PaymentHistoryItem): {
+  label: string;
+  tone: "error" | "success" | "warning";
+} {
+  const statusCode = Number(item.status_code);
+  const statusStr = String(item.status || "").toLowerCase().trim();
+
+  if (
+    statusCode === 1 ||
+    statusStr === "paid" ||
+    statusStr === "success" ||
+    statusStr === "successful" ||
+    statusStr === "موفق" ||
+    statusStr === "پرداخت شده"
+  ) {
+    return { label: "پرداخت شده", tone: "success" };
+  }
+
+  if (
+    statusCode === -1 ||
+    statusStr === "failed" ||
+    statusStr === "error" ||
+    statusStr === "canceled" ||
+    statusStr === "ناموفق" ||
+    statusStr === "لغو شده"
+  ) {
+    return { label: "ناموفق", tone: "error" };
+  }
+
+  if (
+    statusCode === 0 ||
+    statusStr === "registered" ||
+    statusStr === "register" ||
+    statusStr === "pending" ||
+    statusStr === "wait_for_payment"
+  ) {
+    return { label: "در انتظار پرداخت", tone: "warning" };
+  }
+
+  return { label: "نامشخص", tone: "error" };
+}
+
+function isPackageOrPanelPayment(item: PaymentHistoryItem): boolean {
+  const paymentFor = String(item.payment_for || "").toLowerCase();
+  const paymentForCode = Number(item.payment_for_code);
+  const metadata = (item as any)?.metadata;
+  const packageId = (item as any)?.package_id;
+
+  if (paymentFor === "package" || paymentForCode === 2 || Boolean(packageId)) {
+    return true;
+  }
+
+  if (metadata && (metadata.package_kind || metadata.package_scope || metadata.package_title)) {
+    return true;
+  }
+
+  if (
+    paymentFor === "advertise" ||
+    paymentFor === "advertise_checkout" ||
+    paymentFor === "wallet_charge" ||
+    paymentForCode === 0 ||
+    paymentForCode === 1 ||
+    paymentForCode === 3
+  ) {
+    return false;
+  }
+
+  return false;
+}
+
+function resolveServiceLabel(item: PaymentHistoryItem): string {
+  const metadata = (item as any)?.metadata;
+  const title = metadata?.package_title || metadata?.title;
+  const kind = metadata?.package_kind || metadata?.kind;
+
+  if (kind === "panel_subscription" || (typeof title === "string" && title.includes("پنل"))) {
+    return title ? `اشتراک پنل (${title})` : "اشتراک پنل";
+  }
+
+  if (kind === "credit_bundle" || (typeof title === "string" && title.includes("بسته"))) {
+    return title ? `بسته اعتباری (${title})` : "بسته اعتباری";
+  }
+
+  if (title) return String(title);
+
+  return "بسته و پنل";
+}
+
 function mapPaymentHistoryItem(item: PaymentHistoryItem): CreditPayment {
+  const statusInfo = resolvePaymentStatus(item);
+
   return {
     amount: `${persianNumberFormatter.format(item.price)} تومان`,
     id: formatPaymentReference(item.ref_code),
     method: paymentTypeLabels[item.payment_type] ?? paymentTypeLabels.unknown,
     paidAt: formatPaymentDate(item.created_at),
-    service: paymentForLabels[item.payment_for] ?? paymentForLabels.unknown,
-    status: paymentStatusLabels[item.status] ?? paymentStatusLabels.unknown,
-    statusTone: item.status === "paid" ? "success" : item.status === "registered" ? "warning" : "error",
+    service: resolveServiceLabel(item),
+    status: statusInfo.label,
+    statusTone: statusInfo.tone,
   };
 }
 
@@ -83,7 +158,9 @@ export function IndependentConsultantCreditHistoryPage() {
   const payments = useMemo(
     () =>
       historyPages?.pages.flatMap((page) =>
-        page.data.map(mapPaymentHistoryItem),
+        page.data
+          .filter(isPackageOrPanelPayment)
+          .map(mapPaymentHistoryItem),
       ) ?? [],
     [historyPages],
   );
@@ -118,20 +195,34 @@ export function IndependentConsultantCreditHistoryPage() {
       <TopBar backTo="/account/credit/panel" title="تاریخچه پرداخت" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
-        {payments.map((payment, index) => {
-          const shouldAttachLoadMoreRef =
-            index === loadMoreTriggerIndex &&
-            hasNextPage &&
-            !isFetchingNextPage;
+        {payments.length === 0 ? (
+          <div className="flex h-64 flex-col items-center justify-center p-6 text-center">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="m-0 text-outline"
+            >
+              تراکنشی برای بسته یا پنل یافت نشد.
+            </Typography>
+          </div>
+        ) : (
+          payments.map((payment, index) => {
+            const shouldAttachLoadMoreRef =
+              index === loadMoreTriggerIndex &&
+              hasNextPage &&
+              !isFetchingNextPage;
 
-          return (
-            <PaymentHistoryCard
-              key={`${payment.id}-${payment.service}-${payment.paidAt}-${index}`}
-              payment={payment}
-              ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
-            />
-          );
-        })}
+            return (
+              <PaymentHistoryCard
+                key={`${payment.id}-${payment.service}-${payment.paidAt}-${index}`}
+                payment={payment}
+                ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+              />
+            );
+          })
+        )}
       </main>
     </PageFrame>
   );

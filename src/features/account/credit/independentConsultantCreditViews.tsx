@@ -12,7 +12,7 @@ import type { PackageItem, PackagePaymentType } from "../../packages/api/package
 
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
-import { PackagePaymentMethodSheet } from "../../packages/components/PackagePaymentMethodSheet";
+import { PackagePaymentPage } from "../../packages/components/PackagePaymentPage";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 
@@ -83,11 +83,14 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
     ? sourcePackages.find((item) => item.id === selectedPackageId) ?? null
     : null;
 
-  function submitPackagePayment(paymentType: PackagePaymentType) {
+  function submitPackagePayment(
+    paymentType: PackagePaymentType,
+    discountCode?: string,
+  ) {
     if (!selectedPackage || packagePaymentMutation.isPending) return;
 
     packagePaymentMutation.mutate(
-      { packageId: selectedPackage.id, paymentType },
+      { discountCode, packageId: selectedPackage.id, paymentType },
       {
         onError: (error) => {
           showNotice(
@@ -114,9 +117,35 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
           }
 
           setSelectedPackageId(null);
-          showNotice("بسته با موفقیت از کیف پول خریداری شد.");
+          showNotice("بسته با موفقیت خریداری و فعال شد.");
         },
       },
+    );
+  }
+
+  if (selectedPackage) {
+    return (
+      <>
+        <PackagePaymentPage
+          isPending={packagePaymentMutation.isPending}
+          onBack={() => {
+            if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
+          }}
+          onSubmit={submitPackagePayment}
+          packageItem={selectedPackage}
+          walletCredit={walletQuery.data?.credit}
+          walletError={
+            walletQuery.isError
+              ? getApiErrorMessage(
+                  walletQuery.error,
+                  "دریافت موجودی کیف پول با خطا مواجه شد.",
+                )
+              : null
+          }
+          walletLoading={walletQuery.isLoading}
+        />
+        <TransientNotice message={message} />
+      </>
     );
   }
 
@@ -156,26 +185,6 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
         )}
       </main>
       <TransientNotice message={message} />
-      <PackagePaymentMethodSheet
-        isOpen={Boolean(selectedPackage)}
-        isPending={packagePaymentMutation.isPending}
-        onClose={() => {
-          if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
-        }}
-        onSubmit={submitPackagePayment}
-        packagePrice={selectedPackage?.final_price ?? 0}
-        packageTitle={selectedPackage?.title ?? ""}
-        walletCredit={walletQuery.data?.credit}
-        walletError={
-          walletQuery.isError
-            ? getApiErrorMessage(
-                walletQuery.error,
-                "دریافت موجودی کیف پول با خطا مواجه شد.",
-              )
-            : null
-        }
-        walletLoading={walletQuery.isLoading}
-      />
     </PageFrame>
   );
 }
@@ -190,7 +199,7 @@ function CreditTopBar() {
 
   return (
     <TopBar
-      backTo={returnTo ?? "/account"}
+      backTo={returnTo ?? "/account/dashboard"}
       onBack={() => {
         if (returnTo) {
           try {
@@ -199,10 +208,8 @@ function CreditTopBar() {
             // ignore
           }
           pushRoute(returnTo);
-        } else if (window.history.length > 1) {
-          window.history.back();
         } else {
-          pushRoute("/account");
+          pushRoute("/account/dashboard");
         }
       }}
       startSlot={

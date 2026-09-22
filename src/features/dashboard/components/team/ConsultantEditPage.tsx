@@ -95,6 +95,15 @@ export function ConsultantEditPage() {
   const [specialQuota, setSpecialQuota] = useState(
     routeConsultant.specialQuota ?? 0,
   );
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const initialAdQuota = consultantQuery.data?.adQuota ?? routeConsultant.adQuota ?? 0;
+  const initialRenewQuota = consultantQuery.data?.renewQuota ?? routeConsultant.renewQuota ?? 0;
+  const initialSpecialQuota = consultantQuery.data?.specialQuota ?? routeConsultant.specialQuota ?? 0;
+
+  const maxAdQuota = initialAdQuota + (agencyBalances?.adCreditBalance ?? 0);
+  const maxRenewQuota = initialRenewQuota + (agencyBalances?.renewCreditBalance ?? 0);
+  const maxSpecialQuota = initialSpecialQuota + (agencyBalances?.specialCreditBalance ?? 0);
 
   const isManager = accessRole === "manager";
 
@@ -182,26 +191,44 @@ export function ConsultantEditPage() {
         <section className="mt-4 grid gap-4">
           <QuotaStepper
             label="سهمیه آگهی"
+            max={maxAdQuota}
             remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
             remainingClassName="text-primary"
-            setValue={setAdQuota}
+            setValue={(val) => {
+              setErrorMessage("");
+              setAdQuota(val);
+            }}
             value={adQuota}
           />
           <QuotaStepper
             label="سهمیه بروزرسانی"
+            max={maxRenewQuota}
             remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`} 
             remainingClassName="text-tertiary"
-            setValue={setUpdateQuota}
+            setValue={(val) => {
+              setErrorMessage("");
+              setUpdateQuota(val);
+            }}
             value={updateQuota}
           />
           <QuotaStepper
             label="سهمیه ویژه"
+            max={maxSpecialQuota}
             remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`} 
             remainingClassName="text-warning"
-            setValue={setSpecialQuota}
+            setValue={(val) => {
+              setErrorMessage("");
+              setSpecialQuota(val);
+            }}
             value={specialQuota}
           />
         </section>
+
+        {errorMessage ? (
+          <div className="mt-4 rounded-xl border border-error/20 bg-error/10 p-3 text-center text-xs font-medium text-error">
+            {errorMessage}
+          </div>
+        ) : null}
       </main>
 
       <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
@@ -212,6 +239,19 @@ export function ConsultantEditPage() {
           size="md"
           variant="primary"
           onClick={() => {
+            if (adQuota > maxAdQuota) {
+              setErrorMessage("سهمیه آگهی بیشتر از سهمیه موجود آژانس است.");
+              return;
+            }
+            if (updateQuota > maxRenewQuota) {
+              setErrorMessage("سهمیه بروزرسانی بیشتر از سهمیه موجود آژانس است.");
+              return;
+            }
+            if (specialQuota > maxSpecialQuota) {
+              setErrorMessage("سهمیه ویژه بیشتر از سهمیه موجود آژانس است.");
+              return;
+            }
+            setErrorMessage("");
             updateConsultantMutation.mutate(
               {
                 adQuota,

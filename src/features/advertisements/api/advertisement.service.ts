@@ -323,6 +323,7 @@ export type AgencyAdvertisementCheckoutPaymentMethodCode =
 
 export type SubmitAdvertisementCheckoutPayload = {
   advertiseId: string;
+  discount_code?: string;
   items: string[];
   paymentMethod: AdvertisementCheckoutPaymentMethodCode;
 };
@@ -335,6 +336,7 @@ export type SubmitAdvertisementCheckoutResult = {
 export type SubmitAgencyAdvertisementCheckoutPayload = {
   advertiseId: string;
   consultantId?: string;
+  discount_code?: string;
   items: string[];
   paymentMethod: AgencyAdvertisementCheckoutPaymentMethodCode;
 };
@@ -1215,12 +1217,14 @@ export async function getConsultantAdvertisementCheckout(advertiseId: string) {
 
 export async function submitAdvertisementCheckout({
   advertiseId,
+  discount_code,
   items,
   paymentMethod,
 }: SubmitAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
   const response = await api
     .post(`me/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
       json: {
+        ...(discount_code ? { discount_code } : {}),
         items,
         payment_method: paymentMethod,
       },
@@ -1248,14 +1252,18 @@ export async function submitAdvertisementCheckout({
   };
 }
 
+export const submitPersonalAdvertisementCheckout = submitAdvertisementCheckout;
+
 export async function submitConsultantAdvertisementCheckout({
   advertiseId,
+  discount_code,
   items,
   paymentMethod,
 }: SubmitAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
   const response = await api
     .post(`me/consultant/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
       json: {
+        ...(discount_code ? { discount_code } : {}),
         items,
         payment_method: paymentMethod,
       },
@@ -1285,15 +1293,17 @@ export async function submitConsultantAdvertisementCheckout({
 export async function submitAgencyAdvertisementCheckout({
   advertiseId,
   consultantId,
+  discount_code,
   items,
   paymentMethod,
 }: SubmitAgencyAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
   const response = await api
     .post(`me/agency/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
       json: {
+        ...(consultantId ? { consultant_id: consultantId } : {}),
+        ...(discount_code ? { discount_code } : {}),
         items,
         payment_method: paymentMethod,
-        ...(consultantId ? { consultant_id: consultantId } : {}),
       },
     })
     .json<unknown>();

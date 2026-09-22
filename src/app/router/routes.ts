@@ -67,6 +67,7 @@ const CrmReportsPage = lazyNamed(() => import('../../features/crm/routes/CrmRepo
 const CrmSupportRequestsPage = lazyNamed(() => import('../../features/crm/routes/CrmSupportRequestsPage'), 'CrmSupportRequestsPage')
 const CrmPropertyRequestsPage = lazyNamed(() => import('../../features/crm/routes/CrmPropertyRequestsPage'), 'CrmPropertyRequestsPage')
 const CrmSupportPage = lazyNamed(() => import('../../features/crm/routes/CrmSupportPage'), 'CrmSupportPage')
+const CrmDiscountsPage = lazyNamed(() => import('../../features/crm/routes/CrmDiscountsPage'), 'CrmDiscountsPage')
 const NotificationsPage = lazyNamed(() => import('../../features/notifications/NotificationsPage'), 'NotificationsPage')
 const NotificationManagementPage = lazyNamed(() => import('../../features/notifications/NotificationsPage'), 'NotificationManagementPage')
 const AccountAboutPage = lazyNamed(() => import('../../features/account/routes/AccountAboutPage'), 'AccountAboutPage')
@@ -166,7 +167,7 @@ function AccountRoleRedirect() {
 
 export type AppRoute = {
   authority?: string[]
-  crmSection?: 'overview' | 'advertises' | 'users' | 'consultants' | 'agencies' | 'categories' | 'locations' | 'forms' | 'packages' | 'payments' | 'costs' | 'reports' | 'requests' | 'propertyRequests' | 'support'
+  crmSection?: 'overview' | 'advertises' | 'users' | 'consultants' | 'agencies' | 'categories' | 'locations' | 'forms' | 'packages' | 'payments' | 'costs' | 'reports' | 'requests' | 'propertyRequests' | 'support' | 'discounts'
   layout?: 'crm' | 'dashboard'
   path: string
   placeholderNote?: string
@@ -560,6 +561,15 @@ export const routes: AppRoute[] = [
     Component: CrmSupportPage,
     crmSection: 'support',
     authority: CRM_SUPPORT_ROLES,
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/discounts`,
+    title: 'مدیریت کدهای تخفیف',
+    Component: CrmDiscountsPage,
+    crmSection: 'discounts',
+    authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,
   },

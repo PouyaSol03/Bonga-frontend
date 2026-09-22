@@ -28,6 +28,7 @@ import {
   getAdStatePath,
   markNewAdCheckout,
 } from "../../account/adManagement/adManagementData";
+import { getMyAdStatusInfo } from "../../account/myAdsStatus";
 import {
   blankValues,
   dailyHotelRoomTypes,
@@ -1415,15 +1416,20 @@ export function NewAdFlowPage() {
           onSuccess: (updatedAd) => {
             clearNewAdDraftStorage();
             const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
-            const returnTo = editAdState.editReturnTo ?? adManagementPaths.published;
-            const separator = returnTo.includes("?") ? "&" : "?";
+            const statusInfo = getMyAdStatusInfo(updatedAd);
+            const targetPath =
+              statusInfo.key === "pending"
+                ? getAdStatePath(editAdId)
+                : editAdState.editReturnTo ?? adManagementPaths.published;
+            const separator = targetPath.includes("?") ? "&" : "?";
 
-            navigateTo(`${returnTo}${separator}updated=1`, {
+            navigateTo(`${targetPath}${separator}updated=1`, {
               ad: updatedAd,
               card: updatedCard,
               isEditMode: true,
               returnTo: editAdState.returnTo,
-              tab: editAdState.tab,
+              status: statusInfo.key,
+              tab: editAdState.tab ?? "status",
             });
           },
         },

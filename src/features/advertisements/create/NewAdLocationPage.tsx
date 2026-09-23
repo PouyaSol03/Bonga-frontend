@@ -20,7 +20,7 @@ import {
   subNeighborhoodIdKey,
 } from "./data";
 import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
-import { updateNewAdFlowSessionLocation } from "./session";
+import { preserveNewAdDraftStateKey, updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
@@ -721,7 +721,19 @@ export function NewAdLocationPage() {
               window.localStorage.setItem(locationLatKey, String(mapCenter.lat));
               window.localStorage.setItem(locationLngKey, String(mapCenter.lng));
               updateNewAdFlowSessionLocation(confirmedLocation);
-              navigateTo(`/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`);
+              const currentState =
+                typeof window !== "undefined" &&
+                window.history.state &&
+                typeof window.history.state === "object"
+                  ? window.history.state
+                  : {};
+              navigateTo(
+                `/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`,
+                {
+                  ...currentState,
+                  [preserveNewAdDraftStateKey]: true,
+                },
+              );
             }}
             type="button"
           >

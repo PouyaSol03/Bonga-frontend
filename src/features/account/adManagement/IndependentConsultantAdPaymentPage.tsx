@@ -27,6 +27,10 @@ import type {
   AgencyAdvertisementCheckoutPaymentMethodCode,
   SubmitAdvertisementCheckoutResult,
 } from "../../advertisements/api/advertisement.service";
+import {
+  validateDiscountCode,
+  type ValidateDiscountCodeResult,
+} from "../../crm/api/crm-discount.service";
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import { formatTariffToman } from "./AdTariffOptionsView";
 import LinearAdd from "../../../shared/icons/LinearAdd";
@@ -305,6 +309,10 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("free_quota");
   const [, setErrorMessage] = useState("");
+  const [discountInput, setDiscountInput] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<ValidateDiscountCodeResult | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
   const stateAdPath = getAdStatePath(advertiseId);
   const publishState = useMemo(
     () => ({
@@ -390,6 +398,12 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     toSafeNumber(gatewayMethod?.required, publishPrice),
   );
   const totalPrice = toSafeNumber(checkout?.summary.total_price, publishPrice);
+  const finalPayable = appliedDiscount ? appliedDiscount.final_price : payableAmount;
+  const is100PercentDiscount = Boolean(
+    appliedDiscount?.is_free ||
+    appliedDiscount?.disable_gateway ||
+    (appliedDiscount && finalPayable === 0),
+  );
   const creditCost = Math.max(
     toSafeNumber(publishItem?.credit_cost, toSafeNumber(checkout?.summary.credit_cost)),
     0,
@@ -513,6 +527,45 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     walletMethod,
   ]);
 
+  useEffect(() => {
+    if (is100PercentDiscount && method === "online") {
+      setMethod("wallet");
+    }
+  }, [is100PercentDiscount, method]);
+
+  async function handleApplyDiscount() {
+    const code = discountInput.trim();
+    if (!code) return;
+    setDiscountLoading(true);
+    setDiscountError(null);
+    try {
+      const result = await validateDiscountCode({
+        code,
+        price: totalPrice || payableAmount,
+        service: "advertise",
+      });
+      setAppliedDiscount(result);
+      if (result.disable_gateway || result.is_free || result.final_price === 0) {
+        setMethod("wallet");
+      }
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(
+        err,
+        err instanceof Error && err.message ? err.message : "کد تخفیف نامعتبر است",
+      );
+      setDiscountError(msg);
+      setAppliedDiscount(null);
+    } finally {
+      setDiscountLoading(false);
+    }
+  }
+
+  function handleRemoveDiscount() {
+    setAppliedDiscount(null);
+    setDiscountInput("");
+    setDiscountError(null);
+  }
+
   function finishCheckout(
     paymentMethod:
       | AdvertisementCheckoutPaymentMethodCode
@@ -576,6 +629,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
             paymentMethod === "by_consultant" && routeState.consultantId
               ? String(routeState.consultantId)
               : undefined,
+          discount_code: appliedDiscount?.code,
           items: Array.from(new Set([...checkoutItems, ...extraItems])),
           paymentMethod: paymentMethod as AgencyAdvertisementCheckoutPaymentMethodCode,
         },
@@ -588,6 +642,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       consultantCheckoutMutation.mutate(
         {
           advertiseId,
+          discount_code: appliedDiscount?.code,
           items: checkoutItems,
           paymentMethod: paymentMethod as AdvertisementCheckoutPaymentMethodCode,
         },
@@ -599,6 +654,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     personalCheckoutMutation.mutate(
       {
         advertiseId,
+        discount_code: appliedDiscount?.code,
         items: checkoutItems,
         paymentMethod: paymentMethod as AdvertisementCheckoutPaymentMethodCode,
       },
@@ -709,12 +765,22 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
 
     return (
       <ApiPaymentCheckoutView
+        appliedDiscount={appliedDiscount}
+        discountError={discountError}
+        discountInput={discountInput}
+        discountLoading={discountLoading}
         gatewayMethod={gatewayMethod}
         method={method}
+        onApplyDiscount={handleApplyDiscount}
         onBack={isNewAdCheckout ? leaveNewAdPayment : () => setStep("options")}
+        onDiscountInputChange={(val) => {
+          setDiscountInput(val);
+          if (discountError) setDiscountError(null);
+        }}
         onMethodChange={setMethod}
+        onRemoveDiscount={handleRemoveDiscount}
         onSubmit={() => finishCheckout(method === "wallet" ? "wallet" : "gateway")}
-        payableAmount={payableAmount}
+        payableAmount={finalPayable}
         pending={checkoutPending}
         totalPrice={totalPrice}
         walletMethod={walletMethod}
@@ -1260,11 +1326,18 @@ function DisabledUpgradeOptionsSection({
 }
 
 export function ApiPaymentCheckoutView({
+  appliedDiscount,
   children,
+  discountError,
+  discountInput = "",
+  discountLoading = false,
   gatewayMethod,
   method,
+  onApplyDiscount,
   onBack,
+  onDiscountInputChange,
   onMethodChange,
+  onRemoveDiscount,
   onSubmit,
   payableAmount,
   pending,
@@ -1272,11 +1345,18 @@ export function ApiPaymentCheckoutView({
   walletMethod,
   submitLabelPrefix = "پرداخت و انتشار",
 }: {
+  appliedDiscount?: ValidateDiscountCodeResult | null;
   children?: ReactNode;
+  discountError?: string | null;
+  discountInput?: string;
+  discountLoading?: boolean;
   gatewayMethod?: AdvertisementCheckoutPaymentMethod;
   method: PaymentMethod;
+  onApplyDiscount?: () => void;
   onBack: () => void;
+  onDiscountInputChange?: (value: string) => void;
   onMethodChange: (method: PaymentMethod) => void;
+  onRemoveDiscount?: () => void;
   onSubmit: () => void;
   payableAmount: number;
   pending: boolean;
@@ -1284,11 +1364,18 @@ export function ApiPaymentCheckoutView({
   walletMethod?: AdvertisementCheckoutPaymentMethod;
   submitLabelPrefix?: string;
 }) {
-  const walletBalance = toSafeNumber(walletMethod?.balance);
-  const walletRequired = Math.max(
-    toSafeNumber(walletMethod?.required),
-    Math.max(payableAmount, 0),
+  const is100PercentDiscount = Boolean(
+    appliedDiscount?.is_free ||
+    appliedDiscount?.disable_gateway ||
+    (appliedDiscount && payableAmount === 0),
   );
+  const walletBalance = toSafeNumber(walletMethod?.balance);
+  const walletRequired = appliedDiscount
+    ? Math.max(payableAmount, 0)
+    : Math.max(
+        toSafeNumber(walletMethod?.required),
+        Math.max(payableAmount, 0),
+      );
   const walletDeficit = Math.max(
     toSafeNumber(walletMethod?.shortage),
     walletRequired - walletBalance,
@@ -1298,7 +1385,10 @@ export function ApiPaymentCheckoutView({
   // selectable so the shortage and the wallet-charge action are visible.
   const walletSupported = Boolean(walletMethod);
   const walletSufficient = walletDeficit <= 0;
-  const gatewayAvailable = gatewayMethod?.available !== false && Boolean(gatewayMethod);
+  const gatewayAvailable =
+    !is100PercentDiscount &&
+    gatewayMethod?.available !== false &&
+    Boolean(gatewayMethod);
   const selectedMethodAvailable =
     method === "wallet"
       ? walletSupported && walletSufficient
@@ -1346,29 +1436,79 @@ export function ApiPaymentCheckoutView({
               icon="online"
               label="پرداخت آنلاین"
               onClick={() => onMethodChange("online")}
-              subLabel={gatewayAvailable ? "بانک ملت" : "درگاه پرداخت در دسترس نیست"}
+              subLabel={
+                is100PercentDiscount
+                  ? "درگاه پرداخت برای تخفیف ۱۰۰٪ غیرفعال است"
+                  : gatewayAvailable
+                    ? "بانک ملت"
+                    : "درگاه پرداخت در دسترس نیست"
+              }
             />
           </div>
         </section>
 
         <section className="mt-2 bg-surface-container-lowest px-4 py-4" aria-label="کد تخفیف">
-          <div className="flex items-center gap-2 [direction:ltr]">
-            <Button unstyled
-              className="h-12 shrink-0 rounded-xl bg-surface-container-high px-4 text-sm font-medium leading-5 text-outline"
-              disabled
-              type="button"
-            >
-              اعمال
-            </Button>
-            <label className="min-w-0 flex-1">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">کد تخفیف</Typography>
-              <input
-                className="h-12 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary"
-                placeholder="کد تخفیف را وارد کنید"
-                type="text"
-              />
-            </label>
-          </div>
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 mb-3 text-right text-base font-semibold leading-6"
+          >
+            کد تخفیف
+          </Typography>
+
+          {appliedDiscount ? (
+            <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary-container/20 px-4 py-3 text-sm text-primary">
+              <span className="font-semibold">
+                {appliedDiscount.code} ({appliedDiscount.discount_percent}٪ تخفیف)
+              </span>
+              <button
+                type="button"
+                onClick={onRemoveDiscount}
+                className="cursor-pointer text-xs font-semibold text-error hover:underline"
+              >
+                حذف کد
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 [direction:ltr]">
+              <Button
+                unstyled
+                className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary shadow-xs transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline"
+                disabled={discountLoading || !discountInput.trim() || !onApplyDiscount}
+                onClick={onApplyDiscount}
+                type="button"
+              >
+                {discountLoading ? "در حال بررسی..." : "اعمال"}
+              </Button>
+              <label className="min-w-0 flex-1">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">
+                  کد تخفیف
+                </Typography>
+                <input
+                  className="h-12 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary"
+                  disabled={discountLoading || !onApplyDiscount}
+                  onChange={(e) => {
+                    onDiscountInputChange?.(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      onApplyDiscount?.();
+                    }
+                  }}
+                  placeholder="کد تخفیف را وارد کنید"
+                  type="text"
+                  value={discountInput}
+                />
+              </label>
+            </div>
+          )}
+
+          {discountError ? (
+            <p className="m-0 mt-2 text-right text-xs text-error">{discountError}</p>
+          ) : null}
         </section>
 
         <section className="mt-2 bg-surface-container-lowest px-4 pb-6 pt-5" aria-label="خلاصه پرداخت">

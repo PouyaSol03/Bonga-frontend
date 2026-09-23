@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { getStoredBackTarget, pushRoute } from "../navigation/navigation";
+import { getStoredBackTarget, replaceRoute } from "../navigation/navigation";
 import { RouteLink } from "../navigation/RouteLink";
 import LinearArrowLeft2 from "../icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../icons/LinearArrowRight2";
@@ -139,18 +139,25 @@ function TopBarBackButton({
         const storedBackTarget = getStoredBackTarget();
 
         if (storedBackTarget) {
-          pushRoute(storedBackTarget.backTo, storedBackTarget.backState ?? backState, { rememberCurrent: false });
+          if (window.history.length > 1) {
+            window.history.back();
+            return;
+          }
+          replaceRoute(storedBackTarget.backTo, storedBackTarget.backState ?? backState, { rememberCurrent: false });
           return;
         }
 
         if (backTo) {
-          pushRoute(backTo, backState, { rememberCurrent: false });
+          replaceRoute(backTo, backState, { rememberCurrent: false });
           return;
         }
 
         if (window.history.length > 1) {
           window.history.back();
+          return;
         }
+
+        replaceRoute("/account/dashboard", undefined, { rememberCurrent: false });
       }}
       type="button"
     >

@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
-import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
-import {
-  INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
-  REAL_ESTATE_MANAGER,
-} from "../../shared/constants/roles.constants";
+import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../advertisements/api/advertisement.service";
 import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
@@ -244,19 +239,7 @@ export function AccountMyAdsEmptyState({
 }
 
 export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
-  const authSession = getStoredAuthSession();
-  const activeRole = getActiveAuthRole(authSession);
-  const isConsultantOrAgency =
-    activeRole === REAL_ESTATE_CONSULTANT ||
-    activeRole === INDEPENDENT_CONSULTANT ||
-    activeRole === REAL_ESTATE_MANAGER;
-  const availableFilters = useMemo(
-    () =>
-      isConsultantOrAgency
-        ? adFilters
-        : adFilters.filter((f) => f.type !== "wait_for_payment"),
-    [isConsultantOrAgency],
-  );
+  const availableFilters = adFilters;
   const [activeFilter, setActiveFilter] = useState(availableFilters[0]);
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const {

@@ -18,6 +18,8 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
+desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
@@ -26,6 +28,8 @@ dist-ssr
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Local performance audit output / credentials
 performance-results/
@@ -39,8 +43,26 @@ audit/performance-urls.txt
 /playwright/.cache/
 /playwright/.auth/
 
+# Tests & Coverage
+/coverage/
+
 # Storybook
 /storybook-static/
+
+# Build caches & Typescript
+*.tsbuildinfo
+.vite/
+.temp/
+.tmp/
+
+# Tools & Local development
+.tools/
+
+# Android / Mobile builds
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
 
 # Archives
 *.zip

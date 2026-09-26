@@ -52,10 +52,13 @@ export type DashboardOverview = {
   };
   balances: {
     adCreditBalance: number;
+    unassignedAdCreditBalance?: number;
     panelDaysRemaining: number;
     panelExpiresAt: string | null;
     renewCreditBalance: number;
+    unassignedRenewCreditBalance?: number;
     specialCreditBalance: number;
+    unassignedSpecialCreditBalance?: number;
   };
   consultantActivity: DashboardConsultantActivity[];
   kind: DashboardKind;
@@ -250,10 +253,19 @@ function normalizeBalances(value: unknown) {
 
   return {
     adCreditBalance: Math.max(0, toNumber(balances.ad_credit_balance)),
+    unassignedAdCreditBalance: balances.unassigned_ad_credit_balance !== undefined
+      ? Math.max(0, toNumber(balances.unassigned_ad_credit_balance))
+      : Math.max(0, toNumber(balances.ad_credit_balance)),
     panelDaysRemaining: Math.max(0, toNumber(balances.panel_days_remaining)),
     panelExpiresAt: toText(balances.panel_expires_at) || null,
     renewCreditBalance: Math.max(0, toNumber(balances.renew_credit_balance)),
+    unassignedRenewCreditBalance: balances.unassigned_renew_credit_balance !== undefined
+      ? Math.max(0, toNumber(balances.unassigned_renew_credit_balance))
+      : Math.max(0, toNumber(balances.renew_credit_balance)),
     specialCreditBalance: Math.max(0, toNumber(balances.special_credit_balance)),
+    unassignedSpecialCreditBalance: balances.unassigned_special_credit_balance !== undefined
+      ? Math.max(0, toNumber(balances.unassigned_special_credit_balance))
+      : Math.max(0, toNumber(balances.special_credit_balance)),
   };
 }
 

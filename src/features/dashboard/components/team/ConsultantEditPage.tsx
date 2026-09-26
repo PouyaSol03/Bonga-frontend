@@ -101,9 +101,21 @@ export function ConsultantEditPage() {
   const initialRenewQuota = consultantQuery.data?.renewQuota ?? routeConsultant.renewQuota ?? 0;
   const initialSpecialQuota = consultantQuery.data?.specialQuota ?? routeConsultant.specialQuota ?? 0;
 
-  const maxAdQuota = initialAdQuota + (agencyBalances?.adCreditBalance ?? 0);
-  const maxRenewQuota = initialRenewQuota + (agencyBalances?.renewCreditBalance ?? 0);
-  const maxSpecialQuota = initialSpecialQuota + (agencyBalances?.specialCreditBalance ?? 0);
+  const maxAdQuota =
+    initialAdQuota +
+    (agencyBalances?.unassignedAdCreditBalance ??
+      agencyBalances?.adCreditBalance ??
+      0);
+  const maxRenewQuota =
+    initialRenewQuota +
+    (agencyBalances?.unassignedRenewCreditBalance ??
+      agencyBalances?.renewCreditBalance ??
+      0);
+  const maxSpecialQuota =
+    initialSpecialQuota +
+    (agencyBalances?.unassignedSpecialCreditBalance ??
+      agencyBalances?.specialCreditBalance ??
+      0);
 
   const isManager = accessRole === "manager";
 
@@ -192,7 +204,7 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه آگهی"
             max={maxAdQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`} 
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance)}`} 
             remainingClassName="text-primary"
             setValue={(val) => {
               setErrorMessage("");
@@ -203,7 +215,7 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه بروزرسانی"
             max={maxRenewQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`} 
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance)}`} 
             remainingClassName="text-tertiary"
             setValue={(val) => {
               setErrorMessage("");
@@ -214,7 +226,7 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه ویژه"
             max={maxSpecialQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`} 
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance)}`} 
             remainingClassName="text-warning"
             setValue={(val) => {
               setErrorMessage("");

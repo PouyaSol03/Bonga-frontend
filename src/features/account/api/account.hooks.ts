@@ -11,6 +11,7 @@ import {
   createMyAgent,
   deleteAdvertiseBadge,
   deleteAdvertiseNote,
+  deleteMyBusiness,
   getAccountCreditHistory,
   getAdvertiseBadges,
   getMyAds,
@@ -309,3 +310,18 @@ export function useDeleteAdvertiseNoteMutation() {
     },
   });
 }
+
+export function useDeleteMyBusinessMutation() {
+  return useMutation({
+    mutationFn: deleteMyBusiness,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencies.all,
+      });
+    },
+  });
+}
+

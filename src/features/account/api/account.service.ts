@@ -927,3 +927,10 @@ export function deleteAdvertiseNote(noteId: string) {
     .delete(`me/advertise/note/delete/${noteId}`)
     .json<ApiDataResponse<unknown>>();
 }
+
+export function deleteMyBusiness() {
+  return api
+    .delete("me/agency/business")
+    .json<{ success: boolean; message: string }>();
+}
+

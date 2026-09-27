@@ -67,6 +67,14 @@ const AccountMyAdStatePage = lazyNamed(
   () => import('../../features/account/AccountMyAdStatePage'),
   'AccountMyAdStatePage',
 )
+const AgencyStopPublishPage = lazyNamed(
+  () => import('../../features/account/components/AgencyStopPublishPage'),
+  'AgencyStopPublishPage',
+)
+const AgencyDealResultPage = lazyNamed(
+  () => import('../../features/account/components/AgencyDealResultPage'),
+  'AgencyDealResultPage',
+)
 const CrmLayout = lazyNamed(() => import('../../features/crm/CrmLayout'), 'CrmLayout')
 const CrmAdvertiseDetailPage = lazyNamed(
   () => import('../../features/crm/routes/CrmAdvertiseDetailPage'),
@@ -376,6 +384,14 @@ function getRoute(path: string): AppRoute {
 
   if (/^\/account\/my-ads\/[^/]+\/close-result\/?$/.test(path)) {
     return { path, title: 'ثبت نتیجه آگهی', Component: AdCloseResultPage, requiresAuth: true }
+  }
+
+  if (/^\/account\/my-ads\/[^/]+\/stop-publish\/?$/.test(path)) {
+    return { path, title: 'درخواست توقف انتشار', Component: AgencyStopPublishPage, requiresAuth: true }
+  }
+
+  if (/^\/account\/my-ads\/[^/]+\/deal-result\/?$/.test(path)) {
+    return { path, title: 'نتیجه درخواست', Component: AgencyDealResultPage, requiresAuth: true }
   }
 
   if (/^\/account\/ad-management\/allocation-review\/[^/]+\/reject\/?$/.test(path)) {

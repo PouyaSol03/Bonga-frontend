@@ -76,8 +76,11 @@ prisma.config.*
 
 # Agents
 agents/
-.agents/
 .claude/agents/
 *.agent.md
+
+# Design & UI assets
+docs-ui/
+docs-UI/
 
 

@@ -6,6 +6,8 @@ import { IndependentConsultantAdAllocationReviewPage } from "./adManagement/Inde
 import { IndependentConsultantAdRejectPage } from "./adManagement/IndependentConsultantAdRejectPage";
 import { IndependentConsultantAdPublishedPage } from "./adManagement/IndependentConsultantAdPublishedPage";
 import { AdCloseResultPage } from "./adManagement/AdCloseResultPage";
+import { AgencyAdStatusDeskPage } from "./adManagement/AgencyAdStatusDeskPage";
+import { AgencyUserContactBottomSheet } from "../advertisements/view/components/AgencyUserContactBottomSheet";
 import type { AdCardData } from "../advertisements/components/AdCard";
 
 // Sample ad data matching the exact Figma designs in docs_UI
@@ -289,3 +291,113 @@ export const AgencyPerspective_6_CloseResultPage = {
     />
   ),
 };
+
+export const AgencyPerspective_7_PreviewUserContactSheet = {
+  name: "منظر آژانس / ۷. پیش‌نمایش آگهی - باتم شیت تماس با کاربر (آژانس به شخص)",
+  render: () => (
+    <div className="relative min-h-[500px] w-full max-w-[500px] mx-auto bg-surface-container overflow-hidden">
+      <AgencyUserContactBottomSheet
+        contact={{
+          name: "ناصر اشرفی",
+          phone: "09361208874",
+          smsPhone: "09155214062",
+          address: "صیاد شیرازی ۳ - پلاک ۲۴",
+          social: {
+            instagram: "bonga_realestate",
+            telegram: "bonga_support",
+            whatsapp: "09361208874",
+          },
+        }}
+        isOpen={true}
+        onClose={() => {}}
+      />
+    </div>
+  ),
+};
+
+export const AgencyPerspective_8_Desk_DealSuccess = {
+  name: "منظر آژانس / ۸. وضعیت آگهی - معامله با موفقیت انجام شد (Ad status)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="deal-success"
+      dealDate="۱۴۰۵/۰۳/۱۲"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+
+export const AgencyPerspective_9_Desk_WaitingUser_7Days = {
+  name: "منظر آژانس / ۹. میز کار آگهی - در انتظار تایید کاربر ۷ روز (Ad status-2)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="waiting-user-7-days"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+
+export const AgencyPerspective_10_Desk_WaitingUser_3Days = {
+  name: "منظر آژانس / ۱۰. میز کار آگهی - در انتظار تایید کاربر ۳ روز (Ad status-3)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="waiting-user-3-days"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+
+export const AgencyPerspective_11_Desk_WaitingUser_24Hours = {
+  name: "منظر آژانس / ۱۱. میز کار آگهی - در انتظار تایید کاربر ۲۴ ساعت (Ad status-4)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="waiting-user-24-hours"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+
+export const AgencyPerspective_12_Desk_DealUnsuccessful = {
+  name: "منظر آژانس / ۱۲. میز کار آگهی - معامله ناموفق بود (Ad status-5)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="deal-unsuccessful"
+      dealDate="۱۴۰۵/۰۳/۱۲"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+
+export const AgencyPerspective_13_Desk_UserUnconfirmed = {
+  name: "منظر آژانس / ۱۳. وضعیت آگهی - تأیید کاربر دریافت نشد (Ad status-1)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="user-unconfirmed"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+
+export const AgencyPerspective_14_Desk_UserUnresponsive = {
+  name: "منظر آژانس / ۱۴. میز کار آگهی - مشتری پاسخگو نبود (Ad status-6)",
+  render: () => (
+    <AgencyAdStatusDeskPage
+      ad={figmaDocsAdCard}
+      variant="user-unresponsive"
+      agencyName="املاک جلیلیان"
+      registrarRole="مالک"
+    />
+  ),
+};
+

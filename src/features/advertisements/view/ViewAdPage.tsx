@@ -64,6 +64,10 @@ import { shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "./ViewAdRouteStates";
 import { ViewAdAlbumPage } from "./pages/ViewAdAlbumPage";
 import { ViewAdFeedbackPage } from "./pages/ViewAdFeedbackPage";
+import {
+  AgencyUserContactBottomSheet,
+  type AgencyUserContactData,
+} from "./components/AgencyUserContactBottomSheet";
 import { ViewAdNotePage } from "./pages/ViewAdNotePage";
 import {
   ViewAdViolationReportPage,
@@ -1483,6 +1487,7 @@ function readAdvertisementBookmarkState(advertisement: AdvertisementItem | undef
 
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+  const [isAgencyContactSheetOpen, setIsAgencyContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
   const [albumInitialIndex, setAlbumInitialIndex] = useState(0);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -1564,6 +1569,51 @@ export function ViewAdPage() {
   const isOwnAd = isOwnAdvertisement(resolvedAd);
   const usesPublicAdPresentation = isPreview || !isOwnAd;
   const contactInfo = readContactInfo(resolvedAd);
+  const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)?.userContact as
+    | AgencyUserContactData
+    | undefined;
+  const agencyUserContact: AgencyUserContactData = {
+    name:
+      rawAgencyUserContact?.name ??
+      (toNonEmptyText((resolvedAd as Record<string, unknown>)?.user_name) ||
+        toNonEmptyText(((resolvedAd as Record<string, unknown>)?.user as Record<string, unknown> | undefined)?.name) ||
+        toNonEmptyText((resolvedAd as Record<string, unknown>)?.advertiser_name) ||
+        toNonEmptyText((resolvedAd as Record<string, unknown>)?.owner_name) ||
+        toNonEmptyText((resolvedAd as Record<string, unknown>)?.contact_name) ||
+        (rawAgencyUserContact ? undefined : "ناصر اشرفی")),
+    phone:
+      rawAgencyUserContact?.phone ??
+      (toNonEmptyText(contactInfo.phone) ||
+        toNonEmptyText((resolvedAd as Record<string, unknown>)?.phone) ||
+        toNonEmptyText((resolvedAd as Record<string, unknown>)?.user_phone) ||
+        (rawAgencyUserContact ? undefined : "09361208874")),
+    smsPhone:
+      rawAgencyUserContact?.smsPhone ??
+      (toNonEmptyText((resolvedAd as Record<string, unknown>)?.sms_phone) ||
+        toNonEmptyText(((resolvedAd as Record<string, unknown>)?.contacts as Record<string, unknown> | undefined)?.sms) ||
+        toNonEmptyText(contactInfo.phone) ||
+        (rawAgencyUserContact ? undefined : "09155214062")),
+    address:
+      rawAgencyUserContact?.address ??
+      (toNonEmptyText((resolvedAd as Record<string, unknown>)?.address) ||
+        toNonEmptyText((resolvedAd as Record<string, unknown>)?.location_address) ||
+        toNonEmptyText(details.locationTitle) ||
+        (rawAgencyUserContact ? undefined : "صیاد شیرازی ۳ - پلاک ۲۴")),
+    social: rawAgencyUserContact?.social ?? {
+      instagram: contactInfo.instagram || (!rawAgencyUserContact ? "bonga_realestate" : undefined),
+      telegram: contactInfo.telegram || (!rawAgencyUserContact ? "bonga_support" : undefined),
+      whatsapp: contactInfo.whatsapp || (!rawAgencyUserContact ? "09361208874" : undefined),
+    },
+  };
+  const hasAgencyContactData = Boolean(
+    agencyUserContact.name ||
+      agencyUserContact.phone ||
+      agencyUserContact.smsPhone ||
+      agencyUserContact.address ||
+      agencyUserContact.social?.instagram ||
+      agencyUserContact.social?.telegram ||
+      agencyUserContact.social?.whatsapp,
+  );
   const hasContactSheetData = Boolean(
     contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
   );
@@ -1878,7 +1928,34 @@ export function ViewAdPage() {
       </main>
 
       <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
-        {contactActionCount > 0 ? (
+        {useAgencyAllocationPreview ? (
+          <div className="flex gap-4 [direction:ltr]">
+            {hasAgencyContactData ? (
+              <Button
+                unstyled
+                className="flex-1 rounded-[10px] bg-primary py-2.5 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+                onClick={() => setIsAgencyContactSheetOpen(true)}
+                type="button"
+              >
+                تماس با کاربر
+              </Button>
+            ) : null}
+            {hasChatContact ? (
+              <Button
+                unstyled
+                className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
+                disabled={createAdvertiseChat.isPending}
+                onClick={openAdvertiseChat}
+                type="button"
+              >
+                <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">
+                  {createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با کاربر"}
+                </Typography>
+                <ViewAdIcon className="h-5! w-5!" name="chat" />
+              </Button>
+            ) : null}
+          </div>
+        ) : contactActionCount > 0 ? (
           <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
             {hasContactSheetData ? (
               <Button unstyled
@@ -1910,11 +1987,19 @@ export function ViewAdPage() {
         )}
       </div>
 
-      <ContactInfoBottomSheet
-        contactInfo={contactInfo}
-        isOpen={isContactSheetOpen}
-        onClose={() => setIsContactSheetOpen(false)}
-      />
+      {useAgencyAllocationPreview ? (
+        <AgencyUserContactBottomSheet
+          contact={agencyUserContact}
+          isOpen={isAgencyContactSheetOpen}
+          onClose={() => setIsAgencyContactSheetOpen(false)}
+        />
+      ) : (
+        <ContactInfoBottomSheet
+          contactInfo={contactInfo}
+          isOpen={isContactSheetOpen}
+          onClose={() => setIsContactSheetOpen(false)}
+        />
+      )}
 
       {isFeedbackOpen ? (
         <ViewAdFeedbackPage

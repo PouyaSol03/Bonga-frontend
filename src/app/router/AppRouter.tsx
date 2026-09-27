@@ -419,6 +419,18 @@ function getRoute(path: string): AppRoute {
     }
   }
 
+  if (/^\/account\/ad-management\/status-desk\/[^/]+\/?$/.test(path)) {
+    const statusDeskRoute = routes.find(
+      (route) => route.path === '/account/ad-management/status-desk',
+    )
+
+    return {
+      ...(statusDeskRoute ?? routes[0]),
+      path,
+      title: statusDeskRoute?.title ?? 'میز کار آگهی',
+    }
+  }
+
   if (/^\/agencies\/[^/]+\/?$/.test(path)) {
     return { path, title: 'صفحه آژانس', Component: PublicAgencyPreviewPage }
   }

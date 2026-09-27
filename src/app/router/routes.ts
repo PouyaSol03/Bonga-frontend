@@ -99,6 +99,7 @@ const IndependentConsultantAdManagementPage = lazyNamed(() => import('../../feat
 const DashboardAdsPage = lazyNamed(() => import('../../features/dashboard/DashboardAdsPage'), 'DashboardAdsPage')
 const IndependentConsultantAdAllocationPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdAllocationPage'), 'IndependentConsultantAdAllocationPage')
 const IndependentConsultantAdAllocationReviewPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdAllocationReviewPage'), 'IndependentConsultantAdAllocationReviewPage')
+const AgencyAdStatusDeskPage = lazyNamed(() => import('../../features/account/adManagement/AgencyAdStatusDeskPage'), 'AgencyAdStatusDeskPage')
 const IndependentConsultantAdFilterPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdFilterPage'), 'IndependentConsultantAdFilterPage')
 const IndependentConsultantAdPaymentPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdPaymentPage'), 'IndependentConsultantAdPaymentPage')
 const IndependentConsultantAdPublishedPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdPublishedPage'), 'IndependentConsultantAdPublishedPage')
@@ -874,6 +875,13 @@ export const routes: AppRoute[] = [
     path: '/account/ad-management/allocation-review',
     title: 'بررسی و تخصیص',
     Component: IndependentConsultantAdAllocationReviewPage,
+    authority: [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT],
+    requiresAuth: true,
+  },
+  {
+    path: '/account/ad-management/status-desk',
+    title: 'میز کار آگهی',
+    Component: AgencyAdStatusDeskPage,
     authority: [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT],
     requiresAuth: true,
   },

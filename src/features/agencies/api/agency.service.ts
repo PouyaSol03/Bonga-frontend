@@ -209,9 +209,11 @@ type AgencyConsultantApiItem = {
   agency_membership?: unknown;
   agent_id?: unknown;
   avatar?: unknown;
+  first_name?: unknown;
   full_name?: unknown;
   id?: unknown;
   is_active?: unknown;
+  last_name?: unknown;
   member?: unknown;
   membership?: unknown;
   membership_state?: unknown;
@@ -226,6 +228,7 @@ type AgencyConsultantApiItem = {
   name?: unknown;
   permissions?: unknown;
   period_activity?: unknown;
+  phonenumber?: unknown;
   quotas?: unknown;
   renew_quota?: unknown;
   role?: unknown;
@@ -385,7 +388,15 @@ function normalizeAgencyConsultant(
   const quotas = asRecord(item.quotas ?? membership.quotas);
   const agentId = toNumber(item.agent_id ?? item.id ?? item._id, Number.NaN);
   const userId = toNumber(item.user_id ?? user.id ?? user._id, Number.NaN);
-  const name = firstText(item.name, item.full_name, user.full_name, user.name);
+  const name = firstText(
+    item.name,
+    item.full_name,
+    user.full_name,
+    user.name,
+    item.first_name && item.last_name
+      ? `${String(item.first_name).trim()} ${String(item.last_name).trim()}`
+      : undefined,
+  );
   const isActiveValue = item.is_active ?? membership.is_active;
   const periodActivity = asRecord(item.period_activity);
   const rawRegistrationProgress = Array.isArray(
@@ -399,7 +410,12 @@ function normalizeAgencyConsultant(
   return {
     adQuota: Math.max(
       0,
-      toNumber(item.ad_quota ?? membership.ad_quota ?? quotas.ad_quota),
+      toNumber(
+        item.ad_quota ??
+          membership.ad_quota ??
+          quotas.ad ??
+          quotas.ad_quota,
+      ),
     ),
     agentId: Number.isFinite(agentId) ? agentId : undefined,
     avatar: toAssetUrl(item.avatar ?? user.avatar),
@@ -414,7 +430,7 @@ function normalizeAgencyConsultant(
       renewUsed: Math.max(0, toNumber(item.metrics?.renew_used)),
       specialUsed: Math.max(0, toNumber(item.metrics?.special_used)),
     },
-    mobile: firstText(item.mobile, user.mobile),
+    mobile: firstText(item.mobile, item.phonenumber, user.mobile, user.phonenumber),
     name,
     permissions: normalizeAgencyConsultantPermissions(
       item.permissions ?? membership.permissions,
@@ -447,7 +463,12 @@ function normalizeAgencyConsultant(
         : undefined,
     renewQuota: Math.max(
       0,
-      toNumber(item.renew_quota ?? membership.renew_quota ?? quotas.renew_quota),
+      toNumber(
+        item.renew_quota ??
+          membership.renew_quota ??
+          quotas.renew ??
+          quotas.renew_quota,
+      ),
     ),
     role: firstText(item.role, membership.role),
     roleId: toNumber(item.role_id ?? membership.role_id),
@@ -455,7 +476,10 @@ function normalizeAgencyConsultant(
     specialQuota: Math.max(
       0,
       toNumber(
-        item.special_quota ?? membership.special_quota ?? quotas.special_quota,
+        item.special_quota ??
+          membership.special_quota ??
+          quotas.special ??
+          quotas.special_quota,
       ),
     ),
     userId,

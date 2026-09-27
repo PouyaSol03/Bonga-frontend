@@ -11,6 +11,7 @@ import { queryKeys } from "../../../shared/api/query-keys";
 import {
   blockChat,
   createOrGetAdvertiseChat,
+  createOrGetAgencyChat,
   createOrGetSupportChat,
   deleteChat,
   deleteChats,
@@ -131,6 +132,17 @@ export function useCreateAdvertiseChatMutation() {
 export function useCreateSupportChatMutation() {
   return useMutation({
     mutationFn: createOrGetSupportChat,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.chats.all,
+      });
+    },
+  });
+}
+
+export function useCreateAgencyChatMutation() {
+  return useMutation({
+    mutationFn: (agencyId: string | number) => createOrGetAgencyChat(agencyId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.chats.all,

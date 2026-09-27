@@ -32,6 +32,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
 import { Button } from "../../../../shared/ui/Button";
 import { TextField } from "../../../../shared/ui/TextField";
+import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
 type ConsultantStatus = "active" | "pending";
 
@@ -849,17 +850,17 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             <ConsultantStat
               tone="blue"
               icon={<LinearTag className="h-6 w-6" />}
-              value={consultant.scores.ads}
+              value={consultant.adQuota ?? 0}
             />
             <ConsultantStat
               tone="green"
               icon={<LinearStairs className="h-5 w-5" />}
-              value={consultant.scores.steps}
+              value={consultant.renewQuota ?? 0}
             />
             <ConsultantStat
               tone="orange"
               icon={<LinearStartup className="h-5 w-5" />}
-              value={consultant.scores.rocket}
+              value={consultant.specialQuota ?? 0}
             />
           </div>
 
@@ -918,7 +919,7 @@ function ConsultantStat({
         {icon}
       </Typography>
       <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold leading-5 text-on-surface">
-        {value}
+        {toPersianNumber(value)}
       </Typography>
     </div>
   );

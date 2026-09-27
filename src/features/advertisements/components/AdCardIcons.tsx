@@ -82,3 +82,79 @@ export function AdCardYearIcon({ className = '' }: IconProps) {
     </svg>
   )
 }
+
+export function AdCardDocumentIcon({ className = '' }: IconProps) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
+      <path
+        d="M5.833 2.5h5.834L15 5.833v10.834c0 .46-.373.833-.833.833H5.833c-.46 0-.833-.373-.833-.833V3.333c0-.46.373-.833.833-.833Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.3"
+      />
+      <path
+        d="M11.667 2.5v3.333H15M7.5 9.167h5M7.5 12.5h5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.3"
+      />
+    </svg>
+  )
+}
+
+export function AdCardLocationIcon({ className = '' }: IconProps) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
+      <path
+        d="M10 17.5s-5.833-4.646-5.833-8.75a5.833 5.833 0 1 1 11.666 0c0 4.104-5.833 8.75-5.833 8.75Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.3"
+      />
+      <circle cx="10" cy="8.75" r="2.083" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  )
+}
+
+export function AdCardLandAreaIcon({ className = '' }: IconProps) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
+      <rect
+        x="3.333"
+        y="3.333"
+        width="13.334"
+        height="13.334"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeDasharray="2.5 2"
+      />
+      <path
+        d="M6.667 3.333v2.5M13.333 3.333v2.5M3.333 6.667h2.5M3.333 13.333h2.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.3"
+      />
+    </svg>
+  )
+}
+
+export function AdCardCapacityIcon({ className = '' }: IconProps) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
+      <path
+        d="M10.833 11.667H9.167c-3.22 0-5.834 2.613-5.834 5.833h13.334c0-3.22-2.614-5.833-5.834-5.833Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.3"
+      />
+      <circle cx="10" cy="5.833" r="3.333" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  )
+}
+
+

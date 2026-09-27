@@ -29,6 +29,23 @@ export type SearchMapListing = {
   images: string[];
   showPriceMarker?: boolean;
   imageClassName?: string;
+  priceSecondary?: string;
+  landArea?: string;
+  documentType?: string;
+  commercialPosition?: string;
+  landPosition?: string;
+  floor?: string;
+  buildingArea?: string;
+  capacity?: string;
+  stars?: string;
+  rentalPeriod?: string;
+  category?: string;
+  formCode?: string;
+  projectType?: string;
+  totalFloors?: string;
+  totalUnits?: string;
+  builderShare?: string;
+  currentStatus?: string;
 };
 
 export type SearchMapDotMarker = {

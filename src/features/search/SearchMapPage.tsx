@@ -573,18 +573,29 @@ function formatPrice(value: unknown) {
 }
 
 function readFeatureRaw(item: AdvertisementItem, labels: string[]) {
-  const features = Array.isArray(item.features) ? item.features : [];
-  const normalizedLabels = labels.map((label) => label.toLowerCase());
-  const feature = features.find((candidate) => {
-    const featureItem = candidate as { key?: unknown; label?: unknown };
-    const featureName = String(featureItem.key ?? featureItem.label ?? "").toLowerCase();
+  const rawFeatures = Array.isArray(item.features) ? item.features : [];
+  const dynamicFields = Array.isArray((item as Record<string, unknown>).dynamicFields)
+    ? ((item as Record<string, unknown>).dynamicFields as Array<{ key?: unknown; label?: unknown; value?: unknown }>)
+    : [];
+  const features = [...rawFeatures, ...dynamicFields];
 
-    return normalizedLabels.some(
-      (label) => featureName === label || featureName.includes(label),
-    );
-  });
+  for (const label of labels) {
+    const directVal = item[label];
+    if (directVal !== undefined && directVal !== null && directVal !== "") {
+      return directVal;
+    }
+    const lower = label.toLowerCase();
+    const feature = features.find((candidate) => {
+      const featureItem = candidate as { key?: unknown; label?: unknown };
+      const featureName = String(featureItem.key ?? featureItem.label ?? "").toLowerCase();
+      return featureName === lower;
+    });
+    if (feature?.value !== undefined && feature.value !== null && feature.value !== "") {
+      return feature.value;
+    }
+  }
 
-  return feature?.value;
+  return undefined;
 }
 
 function readFeature(item: AdvertisementItem, labels: string[], fallback = "") {
@@ -753,11 +764,75 @@ function mapAdvertisementToSearchListing(
   ]);
   const description = toText(item.description ?? item.short_description);
   const id = item.id ?? item._id ?? `map-ad-${index + 1}`;
+  const formCode = toText(item.form_code ?? readFeatureRaw(item, ["form_code"]), "");
+  const category = toText(item.category ?? item.category_name ?? item.category_title ?? readFeatureRaw(item, ["category", "دسته بندی"]), "");
+  const isDailyForm = formCode.startsWith("daily") || category.includes("روزانه");
+  const isRentForm = formCode.startsWith("rent") || category.includes("اجاره");
+  const isPartnership = formCode.includes("partnership") || category.includes("مشارکت");
+  const isPresale = formCode.includes("presale") || formCode === "presale-special" || category.includes("پیش فروش") || category.includes("پیشفروش") || category.includes("project-presale");
+
+  const projectMinMeterPrice = readFeatureRaw(item, ["min_meter_price", "min_price", "meter_price", "قیمت هر متر", "قیمت متری"]);
+  const projectMaxMeterPrice = readFeatureRaw(item, ["max_meter_price", "max_price", "حداکثر قیمت متری"]);
+
+  const builderShareRaw = readFeatureRaw(item, ["builder_share", "builderShare", "builder_share_percent", "builderSharePercent", "درصد مشارکت", "درصد سهم", "سهم سازنده", "partnership_percent"]);
+  const builderShare = builderShareRaw !== undefined && builderShareRaw !== null && builderShareRaw !== ""
+    ? (String(builderShareRaw).includes("٪") || String(builderShareRaw).includes("%") ? toText(builderShareRaw) : `${toText(builderShareRaw)}٪`)
+    : undefined;
+
+  const projectType = toText(readFeatureRaw(item, ["project_type", "projectType", "نوع پروژه"]), "") || undefined;
+  const totalFloorsRaw = readFeatureRaw(item, ["project_total_floors", "projectTotalFloors", "total_floors", "totalFloors", "تعداد کل طبقات", "تعداد طبقات"]);
+  const totalFloors = totalFloorsRaw !== undefined && totalFloorsRaw !== null && totalFloorsRaw !== ""
+    ? (String(totalFloorsRaw).includes("طبقه") ? toText(totalFloorsRaw) : `${toText(totalFloorsRaw)} طبقه`)
+    : undefined;
+  const totalUnitsRaw = readFeatureRaw(item, ["project_total_units", "projectTotalUnits", "total_units", "totalUnits", "تعداد کل واحد ها", "تعداد کل واحدها", "تعداد واحدها", "تعداد واحد"]);
+  const totalUnits = totalUnitsRaw !== undefined && totalUnitsRaw !== null && totalUnitsRaw !== ""
+    ? (String(totalUnitsRaw).includes("واحد") ? toText(totalUnitsRaw) : `${toText(totalUnitsRaw)} واحد`)
+    : undefined;
+  const currentStatus = toText(readFeatureRaw(item, ["current_status", "currentStatus", "وضعیت فعلی ملک", "وضعیت ملک", "وضعیت فعلی"]), "") || undefined;
+
+  let priceLabel = toText(item.price_label, "قیمت");
+  let priceValue = formatPrice(item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"]));
+  let priceSecondary = "";
+
+  if (isPartnership) {
+    priceLabel = "درصد مشارکت:";
+    priceValue = builderShare || (item.price ? formatPrice(item.price) : "توافقی");
+    priceSecondary = "";
+  } else if (isPresale) {
+    priceLabel = "قیمت متری:";
+    priceValue = formatPrice(projectMinMeterPrice ?? item.price);
+    if (projectMaxMeterPrice !== undefined && String(projectMaxMeterPrice) !== String(projectMinMeterPrice ?? item.price)) {
+      priceSecondary = formatPrice(projectMaxMeterPrice);
+    }
+  } else if (isDailyForm) {
+    const normalDailyPrice = readFeatureRaw(item, ["normal_daily_price", "normalDailyPrice", "قیمت عادی روزانه", "daily_price", "min_price"]);
+    const weekendDailyPrice = readFeatureRaw(item, ["weekend_daily_price", "weekendDailyPrice", "قیمت آخر هفته", "max_price"]);
+    const startPrice = normalDailyPrice ?? item.price;
+    const endPrice = weekendDailyPrice;
+    priceLabel = "قیمت";
+    priceValue = formatPrice(startPrice);
+    if (endPrice && String(endPrice) !== String(startPrice)) {
+      priceSecondary = formatPrice(endPrice);
+    }
+  } else if (isRentForm) {
+    const rentPrice = readFeatureRaw(item, ["rent_price", "rentPrice", "اجاره", "اجاره ماهانه"]);
+    const mortgagePrice = readFeatureRaw(item, ["mortgage_price", "mortgagePrice", "رهن", "ودیعه"]);
+    if (rentPrice || mortgagePrice) {
+      priceLabel = "اجاره:";
+      priceValue = formatPrice(rentPrice || 0);
+      priceSecondary = formatPrice(mortgagePrice || 0);
+    }
+  }
+
+  const capacityRaw = readFeatureRaw(item, ["capacity", "standard_capacity", "standardCapacity", "ظرفیت استاندارد", "ظرفیت"]);
+  const capacity = capacityRaw !== undefined && capacityRaw !== null && capacityRaw !== ""
+    ? (String(capacityRaw).includes("نفر") ? toText(capacityRaw) : `${toText(capacityRaw)} نفر`)
+    : undefined;
 
   return {
     id,
     agencyName: toText(item.agency ?? item.agency_name ?? item.advertiser_name ?? readFeatureRaw(item, ["advertiser_type"])),
-    area: readFeature(item, ["area", "meterage", "building_area", "متراژ"], item.area ? `${toText(item.area)} متر` : "-"),
+    area: readFeature(item, ["area", "meterage", "building_area", "land_area", "متراژ", "buildingArea", "landArea"], item.area ? `${toText(item.area)} متر` : "-"),
     badges: readBadges(item),
     dotId: `dot-${id}`,
     imageClassName: "",
@@ -767,12 +842,29 @@ function mapAdvertisementToSearchListing(
     locationLabel,
     longitude: position.longitude,
     postedAt: description,
-    priceLabel: toText(item.price_label, "قیمت"),
-    priceValue: formatPrice(item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"])),
+    priceLabel,
+    priceValue,
     rooms: readFeature(item, ["rooms", "room", "bedroom", "bedrooms", "اتاق", "خواب"], item.rooms ? `${toText(item.rooms)} اتاق` : "-"),
     showPriceMarker: true,
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: readFeature(item, ["building_age", "age", "year", "سال ساخت"], toText(item.year, "-")),
+    landArea: readFeature(item, ["land_area", "landArea", "متراژ زمین"], item.land_area ? `${toText(item.land_area)} متر` : undefined),
+    documentType: readFeature(item, ["document_type", "documentType", "نوع سند", "سند"], toText(item.document_type ?? item.documentType, "")),
+    commercialPosition: readFeature(item, ["commercial_position", "commercialPosition", "موقعیت تجاری"], toText(item.commercial_position ?? item.commercialPosition, "")),
+    landPosition: readFeature(item, ["land_position", "landPosition", "موقعیت زمین", "position"], toText(item.land_position ?? item.landPosition, "")),
+    floor: readFeature(item, ["floor", "طبقه", "طبقه واحد", "طبقه آپارتمان"], toText(item.floor, "")),
+    buildingArea: readFeature(item, ["building_area", "buildingArea", "زیربنا", "متراژ بنا"], item.building_area ? `${toText(item.building_area)} متر` : undefined),
+    capacity,
+    stars: readFeature(item, ["hotel_stars", "hotelStars", "ستاره", "رتبه بندی اقامتگاه"], toText(item.hotel_stars, "")),
+    rentalPeriod: readFeature(item, ["rental_period", "rentalPeriod", "دوره اجاره"], toText(item.rental_period, "")),
+    projectType,
+    totalFloors,
+    totalUnits,
+    builderShare,
+    currentStatus,
+    priceSecondary,
+    category,
+    formCode,
   };
 }
 

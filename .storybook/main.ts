@@ -5,7 +5,9 @@ const config: StorybookConfig = {
     "../src/**/*.mdx",
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
-  "addons": [],
+  "addons": [
+    "@storybook/addon-viewport"
+  ],
   "framework": "@storybook/react-vite",
   "staticDirs": ["../public"]
 };

@@ -63,6 +63,27 @@ export default defineConfig({
     }),
   ],
 
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-helmet-async')) {
+              return 'vendor-react'
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'vendor-query'
+            }
+            if (id.includes('motion')) {
+              return 'vendor-motion'
+            }
+          }
+        },
+      },
+    },
+  },
+
   server: {
     host: true,
     allowedHosts: ['bonga.exirfirm.com'],

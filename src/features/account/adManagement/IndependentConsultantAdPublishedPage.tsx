@@ -20,13 +20,19 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
-export function IndependentConsultantAdPublishedPage() {
-  const ad = getSelectedConsultantAd();
+export type IndependentConsultantAdPublishedPageProps = {
+  ad?: ReturnType<typeof getSelectedConsultantAd>;
+  expirationLabel?: string;
+  initialSuccessOpen?: boolean;
+};
+
+export function IndependentConsultantAdPublishedPage(props?: IndependentConsultantAdPublishedPageProps) {
+  const ad = props?.ad ?? getSelectedConsultantAd();
   const routeState = getAdManagementRouteState();
-  const expirationLabel = readExpirationLabel(routeState.assignment?.advertise);
+  const expirationLabel = props?.expirationLabel ?? readExpirationLabel(routeState.assignment?.advertise) ?? "۲۱ روز دیگر (۱۴۰۴/۱۲/۰۱)";
   const backTo = normalizeLocalPath(routeState.returnTo) ?? adManagementPaths.root;
   const [isSuccessOpen, setIsSuccessOpen] = useState(
-    routeState.showPaymentSuccess ?? false,
+    props?.initialSuccessOpen ?? routeState.showPaymentSuccess ?? false,
   );
 
   return (

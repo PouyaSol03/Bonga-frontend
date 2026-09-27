@@ -165,7 +165,8 @@ export function Button({
     return (
       <button
         className={cn(
-          "inline-flex shrink-0 items-center justify-center whitespace-nowrap [direction:rtl]",
+          "inline-flex shrink-0 items-center whitespace-nowrap [direction:rtl]",
+          !className?.includes("justify-") && "justify-center",
           interactionClasses,
           legacySizeClasses[legacySize],
           variantClasses[legacyVariant],
@@ -213,7 +214,8 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex shrink-0 items-center justify-center whitespace-nowrap [direction:rtl]",
+        "inline-flex shrink-0 items-center whitespace-nowrap [direction:rtl]",
+        !className?.includes("justify-") && "justify-center",
         interactionClasses,
         sizeClasses[buttonSize],
         radiusClasses[buttonRadius],

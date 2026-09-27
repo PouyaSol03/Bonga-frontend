@@ -156,7 +156,12 @@ export const adManagementPaths = {
   search: "/account/ad-management/search",
   statistics: "/account/ad-management/statistics",
   statisticsDetails: "/account/ad-management/statistics/details",
+  statusDesk: "/account/ad-management/status-desk",
 } as const;
+
+export function getAgencyAdStatusDeskPath(adId: ConsultantAd["id"] | string) {
+  return `${adManagementPaths.statusDesk}/${encodeURIComponent(String(adId))}`;
+}
 
 export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
   return `/preview-ad/${encodeURIComponent(String(adId))}`;

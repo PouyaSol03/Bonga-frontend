@@ -24,8 +24,10 @@ import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
-import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
+import { pushRoute } from "../../shared/navigation/navigation";
+import { useCreateAgencyChatMutation } from "../chat/api/chat.hooks";
 import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../account/api/account.hooks";
 import {
   useAgencyConsultantsQuery,
@@ -587,6 +589,40 @@ export function AgencyPreviewPage() {
     }
   }
 
+  const createAgencyChatMutation = useCreateAgencyChatMutation();
+
+  const handleChatClick = () => {
+    const authSession = getStoredAuthSession();
+    if (!authSession) {
+      storeLoginRedirectPath(window.location.pathname + window.location.search);
+      pushRoute("/login");
+      return;
+    }
+
+    if (!entityId) {
+      showToast("شناسه برای شروع چت یافت نشد.", "خطا", "error");
+      return;
+    }
+
+    createAgencyChatMutation.mutate(entityId, {
+      onSuccess: (thread) => {
+        const threadId = thread?.id ?? thread?.thread_id ?? thread?._id;
+        if (threadId) {
+          pushRoute(`/chat/${encodeURIComponent(String(threadId))}`);
+        } else {
+          pushRoute("/chat");
+        }
+      },
+      onError: (err) => {
+        showToast(
+          getApiErrorMessage(err, "برقراری ارتباط با چت با خطا مواجه شد."),
+          "خطا",
+          "error",
+        );
+      },
+    });
+  };
+
   function changeTab(tab: AgencyPreviewTab) {
     if (isAgentPreview && tab === "consultants") return;
 
@@ -711,6 +747,8 @@ export function AgencyPreviewPage() {
       {(!isPublicPreview || hasPublicPreviewData) ? (
         <AgencyPreviewFooter
           entityLabel={entityLabel}
+          isChatLoading={createAgencyChatMutation.isPending}
+          onChatClick={handleChatClick}
           onContactClick={() => setIsContactSheetOpen(true)}
         />
       ) : null}
@@ -1489,9 +1527,13 @@ function normalizeSocialUrl(type: "instagram" | "telegram" | "whatsapp", value: 
 function AgencyPreviewFooter({
   entityLabel = "آژانس",
   onContactClick,
+  onChatClick,
+  isChatLoading = false,
 }: {
   entityLabel?: string;
   onContactClick: () => void;
+  onChatClick?: () => void;
+  isChatLoading?: boolean;
 }) {
   return (
     <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
@@ -1503,8 +1545,14 @@ function AgencyPreviewFooter({
         >
           تماس با {entityLabel}
         </Button>
-        <Button unstyled className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary" type="button">
-          چت با {entityLabel}
+        <Button
+          unstyled
+          disabled={isChatLoading}
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary disabled:opacity-60"
+          onClick={onChatClick}
+          type="button"
+        >
+          {isChatLoading ? "در حال اتصال..." : `چت با ${entityLabel}`}
           <LinearChat className="h-5 w-5" />
         </Button>
       </div>

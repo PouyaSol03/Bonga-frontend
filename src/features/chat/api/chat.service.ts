@@ -440,6 +440,14 @@ export async function createOrGetSupportChat() {
   return readChatThread(response);
 }
 
+export async function createOrGetAgencyChat(agencyId: string | number) {
+  const response = await api
+    .post(`agencies/${encodeURIComponent(String(agencyId))}/chats`)
+    .json<ChatThreadResponse>();
+
+  return readChatThread(response);
+}
+
 export async function getChatDetail(threadId: string) {
   const response = await api.get(`chats/${threadId}`).json<ChatThreadResponse>();
 

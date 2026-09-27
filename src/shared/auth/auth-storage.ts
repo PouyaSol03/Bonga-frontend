@@ -46,6 +46,14 @@ export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
   return "user";
 }
 
+export type ManagerPermissions = {
+  manage_advertises?: boolean;
+  manage_consultants?: boolean;
+  manage_credits?: boolean;
+  manage_requests?: boolean;
+  support?: boolean;
+};
+
 export type AuthSession = {
   accessToken: string;
   accountType: string;
@@ -55,6 +63,7 @@ export type AuthSession = {
   role: AuthRoleSlug;
   roles: AuthRole[];
   userId?: string;
+  managerPermissions?: ManagerPermissions;
 };
 
 const authSessionKey = "bonga-auth-session";
@@ -92,9 +101,23 @@ export function setStoredAuthSession(session: AuthSession) {
     role,
     roles,
     userId: session.userId ? String(session.userId) : undefined,
+    managerPermissions: session.managerPermissions,
   };
 
   window.localStorage.setItem(authSessionKey, JSON.stringify(normalizedSession));
+  window.dispatchEvent(new CustomEvent(authSessionChangedEvent));
+}
+
+export function setStoredManagerPermissions(permissions?: ManagerPermissions | null) {
+  const session = getStoredAuthSession();
+  if (!session) return;
+
+  const nextSession: AuthSession = {
+    ...session,
+    managerPermissions: permissions ?? undefined,
+  };
+
+  window.localStorage.setItem(authSessionKey, JSON.stringify(nextSession));
   window.dispatchEvent(new CustomEvent(authSessionChangedEvent));
 }
 
@@ -152,6 +175,7 @@ export function getStoredAuthSession() {
       role,
       roles,
       userId: parsed.userId ? String(parsed.userId) : undefined,
+      managerPermissions: parsed.managerPermissions,
     };
 
     if (JSON.stringify(parsed) !== JSON.stringify(session)) {

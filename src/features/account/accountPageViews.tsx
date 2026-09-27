@@ -3,6 +3,7 @@ import { PageFrame } from "../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
+import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisement.hooks";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../advertisements/api/advertisement.service";
 import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
 import { AdCard, truncateAdCardText } from "../advertisements/components/AdCard";
@@ -242,6 +243,19 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
   const availableFilters = adFilters;
   const [activeFilter, setActiveFilter] = useState(availableFilters[0]);
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
+  const deleteMutation = useDeleteAdvertisementMutation();
+  const handleDeleteIncomplete = useCallback(async (targetAdId: string) => {
+    if (!window.confirm("آیا از حذف این آگهی نیمه کاره اطمینان دارید؟")) return;
+    try {
+      await deleteMutation.mutateAsync({
+        advertiseId: targetAdId,
+        deleteReasonId: "other",
+        description: "حذف آگهی نیمه کاره",
+      });
+    } catch (err) {
+      console.error("Failed to delete incomplete ad:", err);
+    }
+  }, [deleteMutation]);
   const {
     data: adsPages,
     error,
@@ -337,6 +351,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             >
               <AdCard
                 ad={cardWithStatus}
+                onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(adId) : undefined}
                 showStatusBadge
                 state={destinationState}
                 to={destination}

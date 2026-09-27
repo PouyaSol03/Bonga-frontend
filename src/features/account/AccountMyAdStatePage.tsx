@@ -59,6 +59,11 @@ import LinearCall from "../../shared/icons/LinearCall";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
 
+import {
+  AgencyAssignedUserAdView,
+  type AgencyAssignedDeletedVariant,
+} from "./components/AgencyAssignedUserAdView";
+
 type MyAdRouteState = {
   ad?: Record<string, unknown>;
   card?: AdCardData;
@@ -67,6 +72,11 @@ type MyAdRouteState = {
   editReturnTo?: string;
   isEditMode?: boolean;
   returnTo?: string;
+  isAssigned?: boolean;
+  deletedVariant?: AgencyAssignedDeletedVariant;
+  initialStopPublishOpen?: boolean;
+  initialCancelAssignmentOpen?: boolean;
+  initialDealResultOpen?: boolean;
 };
 
 type StateActionKey =
@@ -89,22 +99,37 @@ type StateAction = {
   to?: string;
 };
 
-export function AccountMyAdStatePage() {
-  const routeState = readRouteState();
-  const adId = readAdIdFromPath() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
-  const detailQuery = useMyAdvertisementDetailQuery(adId ?? null);
+export type AccountMyAdStatePageProps = {
+  ad?: Record<string, unknown>;
+  card?: AdCardData;
+  status?: MyAdStatusKey | string;
+  role?: string;
+  backTo?: string;
+  onBack?: () => void;
+  isAssigned?: boolean;
+  deletedVariant?: AgencyAssignedDeletedVariant;
+  initialStopPublishOpen?: boolean;
+  initialCancelAssignmentOpen?: boolean;
+  initialDealResultOpen?: boolean;
+};
+
+export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
+  const routeState = props ? { ...readRouteState(), ...props } : readRouteState();
+  const adId = readAdIdFromPath() ?? readEntityId(props?.ad) ?? readEntityId(props?.card) ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
+  const detailQuery = useMyAdvertisementDetailQuery(props?.card || props?.ad ? null : (adId ?? null));
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
-  const sourceAd = detailQuery.data ?? routeState.ad;
-  const card = detailQuery.data
-    ? mapAdvertisementToAdCard(detailQuery.data, 0)
-    : routeState.card ?? createUnavailableAdCard(adId, sourceAd);
+  const sourceAd = props?.ad ?? detailQuery.data ?? routeState.ad;
+  const card = props?.card
+    ?? (detailQuery.data
+      ? mapAdvertisementToAdCard(detailQuery.data, 0)
+      : routeState.card ?? createUnavailableAdCard(adId, sourceAd));
   const statusInfo = getMyAdStatusInfo(
-    detailQuery.data ?? statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
+    props?.status ?? detailQuery.data ?? statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
   );
   const cameFromAdManagement = Boolean(routeState.tab || routeState.returnTo);
-  const backTo = getStateAdBackPath(routeState);
+  const backTo = props?.backTo ?? getStateAdBackPath(routeState);
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const activeRole = props?.role ?? getActiveAuthRole(getStoredAuthSession());
 
   const [isCancelAssignmentModalOpen, setIsCancelAssignmentModalOpen] = useState(false);
   const [isRepostChoiceModalOpen, setIsRepostChoiceModalOpen] = useState(false);
@@ -120,16 +145,31 @@ export function AccountMyAdStatePage() {
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
 
   const isAssigned = Boolean(
-    sourceAd?.assigned_agency_id ||
-    sourceAd?.assignedAgencyId ||
-    sourceAd?.assignment_id ||
-    sourceAd?.assignmentId ||
-    sourceAd?.assignment_status ||
-    sourceAd?.assignmentStatus,
+    props?.isAssigned ??
+    routeState.isAssigned ??
+    (
+      sourceAd?.assigned_agency_id ||
+      sourceAd?.assignedAgencyId ||
+      sourceAd?.assignment_id ||
+      sourceAd?.assignmentId ||
+      sourceAd?.assignment_status ||
+      sourceAd?.assignmentStatus ||
+      sourceAd?.is_assigned ||
+      sourceAd?.isAssigned ||
+      statusInfo.key === "wait_for_agency" ||
+      statusInfo.key === "wait_for_repost" ||
+      statusInfo.key === "wait_for_stop" ||
+      statusInfo.key === "wait_for_deal_confirmation"
+    )
   );
 
   if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
+  }
+
+  // "remove the single page state ad for نیمه کاره it won't exist anymore at all"
+  if (statusInfo.key === "incomplete" || statusInfo.key === "incomplete_deleted") {
+    return null;
   }
 
   if (activeRole === REAL_ESTATE_MANAGER) {
@@ -142,6 +182,37 @@ export function AccountMyAdStatePage() {
         card={card}
         statusInfo={statusInfo}
       />
+    );
+  }
+
+  // Exact UI for Agency Assigned Ads (docs_UI) from User Perspective
+  if (isAssigned) {
+    return (
+      <PageFrame
+        className="relative flex min-h-0 flex-col overflow-hidden bg-white text-on-surface [direction:rtl]"
+        variant="flush"
+      >
+        <TopBar
+          backState={backState}
+          backTo={backTo}
+          className="[&_a]:text-on-surface"
+          title="مدیریت آگهی"
+        />
+
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
+          <AgencyAssignedUserAdView
+            ad={sourceAd}
+            card={card}
+            statusKey={statusInfo.key}
+            adId={adId ?? String(card.id)}
+            backTo={backTo}
+            backState={backState}
+            onRefetch={() => detailQuery.refetch()}
+            deletedVariant={props?.deletedVariant ?? routeState.deletedVariant}
+            initialCancelAssignmentOpen={props?.initialCancelAssignmentOpen ?? routeState.initialCancelAssignmentOpen}
+          />
+        </main>
+      </PageFrame>
     );
   }
 
@@ -761,21 +832,23 @@ function StateAdSummary({
   const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
 
   return (
-    <div className="mt-4 flex h-[80px] items-center gap-4 rounded-2xl border border-outline-var bg-surface px-3 [direction:ltr]">
-      <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-outline">
+    <div className="mt-4 flex h-[80px] items-center gap-3 rounded-2xl border border-surface-container-high bg-surface-container-low px-4 [direction:rtl]">
+      {/* Image first: renders on the RIGHT in RTL */}
+      <div
+        aria-hidden="true"
+        className={`ad-card__image ${card.imageClassName} h-[52px] w-[70px] shrink-0 rounded-lg bg-cover bg-center`}
+        style={card.imageUrl ? { backgroundImage: `url(${card.imageUrl})` } : { backgroundColor: "#E0E0E0" }}
+      />
+
+      {/* Info text second: renders to the LEFT of the image in RTL */}
+      <div className="min-w-0 flex-1 text-right">
+        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var">
           {subtitle}
         </Typography>
-        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-on-surface">
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-semibold leading-5 text-on-surface">
           {card.title}
         </Typography>
       </div>
-
-      <div
-        aria-hidden="true"
-        className={`ad-card__image ${card.imageClassName} h-[52px] w-[86px] shrink-0 rounded-lg bg-cover bg-center`}
-        style={card.imageUrl ? { backgroundImage: `url(${card.imageUrl})` } : undefined}
-      />
     </div>
   );
 }
@@ -795,10 +868,44 @@ function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
   );
 }
 
+function renderDateWithRelative(text: string) {
+  if (!text) return null;
+
+  const match1 = text.match(/^(.*?)\s*(\([0-9/\u06F0-\u06F9\-.]+\))$/);
+  if (match1) {
+    const relative = match1[1].trim();
+    const date = match1[2].trim();
+    return (
+      <span className="inline-flex items-center gap-1.5 [direction:rtl]">
+        <span className="text-sm font-medium text-outline">{relative}</span>
+        <span className="text-sm font-medium text-on-surface">{date}</span>
+      </span>
+    );
+  }
+
+  const match2 = text.match(/^(.*?)\s*\((.*?(?:پیش|دیگر|مانده|قبل).*?)\)$/);
+  if (match2) {
+    const date = match2[1].trim();
+    const relative = `(${match2[2].trim()})`;
+    return (
+      <span className="inline-flex items-center gap-1.5 [direction:rtl]">
+        <span className="text-sm font-medium text-on-surface">{date}</span>
+        <span className="text-sm font-medium text-outline">{relative}</span>
+      </span>
+    );
+  }
+
+  if (text.includes("پیش") || text.includes("دیگر") || text.includes("قبل") || text.includes("مانده")) {
+    return <span className="text-sm font-medium text-outline">{text}</span>;
+  }
+
+  return <span className="text-sm font-medium text-on-surface">{text}</span>;
+}
+
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex h-12 items-center justify-between gap-4 [direction:ltr]">
-      <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface [direction:rtl]">{value}</Typography>
+      <div className="[direction:rtl]">{renderDateWithRelative(value)}</div>
       <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">{label}</Typography>
     </div>
   );
@@ -872,11 +979,7 @@ function NeedsEditNotice({
 }
 
 function WaitForPaymentNotice() {
-  return (
-    <div className="mt-4 rounded-xl bg-warning-container px-3 py-3 text-sm leading-6 text-warning">
-      برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.
-    </div>
-  );
+  return null;
 }
 
 function getStateActions(

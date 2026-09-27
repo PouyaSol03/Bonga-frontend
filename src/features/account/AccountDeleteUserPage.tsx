@@ -6,6 +6,7 @@ import { TopBar } from "../../shared/components/TopBar";
 import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { useDeleteMyBusinessMutation } from "./api/account.hooks";
 
 function navigateTo(path: string) {
   window.history.pushState({}, "", path);
@@ -64,13 +65,30 @@ function ConfirmCheckIcon({ checked }: { checked: boolean }) {
 
 export function AccountDeleteUserPage() {
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const deleteMutation = useDeleteMyBusinessMutation();
+
+  const handleDelete = async () => {
+    if (!isConfirmed || deleteMutation.isPending) return;
+    setErrorMessage(null);
+    try {
+      await deleteMutation.mutateAsync();
+      downgradeBusinessToUser();
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "خطا در حذف کسب‌وکار. لطفاً مجدداً تلاش کنید.";
+      setErrorMessage(typeof msg === "string" ? msg : "خطا در حذف کسب‌وکار.");
+    }
+  };
 
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
-      <TopBar backTo="/account" title="حذف حساب کاربری" />
+      <TopBar backTo="/account" title="حذف کسب‌وکار" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[92px] pt-6">
         <section className="px-4 text-right">
@@ -83,7 +101,7 @@ export function AccountDeleteUserPage() {
 
           <div className="rounded-2xl border border-outline bg-outline/10 p-4">
             <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm text-on-surface">
-              با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های مرتبط با این کسب‌وکار به‌صورت دائمی حذف خواهند شد و امکان بازیابی آن‌ها وجود نخواهد داشت.
+              با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های مرتبط با این کسب‌وکار به‌صورت کامل حذف خواهند شد و در صورت تمایل باید کسب‌وکار جدیدی ثبت نمایید.
             </Typography>
           </div>
 
@@ -95,6 +113,14 @@ export function AccountDeleteUserPage() {
             <ConfirmCheckIcon checked={isConfirmed} />
             <Typography as="span" variant="body" size="medium" weight="regular">تمامی موارد فوق را تایید میکنم</Typography>
           </Button>
+
+          {errorMessage && (
+            <div className="mt-4 rounded-xl border border-error/20 bg-error/10 p-3 text-error">
+              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm">
+                {errorMessage}
+              </Typography>
+            </div>
+          )}
         </section>
       </main>
 
@@ -102,11 +128,11 @@ export function AccountDeleteUserPage() {
         <div className="grid grid-cols-2 gap-4" dir="ltr">
           <Button unstyled
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-error bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-error disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={!isConfirmed}
-            onClick={downgradeBusinessToUser}
+            disabled={!isConfirmed || deleteMutation.isPending}
+            onClick={handleDelete}
             type="button"
           >
-            تایید حذف
+            {deleteMutation.isPending ? "در حال حذف..." : "تایید حذف"}
           </Button>
           <Button unstyled
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-on-surface"
@@ -120,3 +146,4 @@ export function AccountDeleteUserPage() {
     </PageFrame>
   );
 }
+

@@ -1463,13 +1463,16 @@ export function NewAdFlowPage() {
     createAdvertisement.mutate(formData, {
       onError: (error) => {
         const agencyError = getApiFieldError(error, "agency_id");
+        const errorMessage = getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد.");
 
         if (agencyError) {
           setFieldErrors((current) => ({ ...current, agencyId: agencyError }));
           setStep("agencySelection");
         }
 
-        setSubmitError(agencyError ?? getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد."));
+        setSubmitError(agencyError ?? errorMessage);
+        if (errorMessage.includes("صفحه آژانس")) window.location.assign("/dashboard/agency/profile");
+        if (errorMessage.includes("صفحه مشاور")) window.location.assign("/dashboard/agent/profile");
       },
       onSuccess: (createdAd) => {
         const createdAdId = createdAd.id ?? createdAd._id ?? activeAdId;

@@ -32,6 +32,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
 import { Button } from "../../../../shared/ui/Button";
 import { TextField } from "../../../../shared/ui/TextField";
+import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
 type ConsultantStatus = "active" | "pending";
 
@@ -310,17 +311,26 @@ export function AddConsultantPage() {
       return;
     }
 
-    const maxAd = agencyBalances?.adCreditBalance ?? 0;
+    const maxAd =
+      agencyBalances?.unassignedAdCreditBalance ??
+      agencyBalances?.adCreditBalance ??
+      0;
     if (adQuota > maxAd) {
       setErrorMessage("سهمیه آگهی نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
       return;
     }
-    const maxRenew = agencyBalances?.renewCreditBalance ?? 0;
+    const maxRenew =
+      agencyBalances?.unassignedRenewCreditBalance ??
+      agencyBalances?.renewCreditBalance ??
+      0;
     if (updateQuota > maxRenew) {
       setErrorMessage("سهمیه بروزرسانی نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
       return;
     }
-    const maxSpecial = agencyBalances?.specialCreditBalance ?? 0;
+    const maxSpecial =
+      agencyBalances?.unassignedSpecialCreditBalance ??
+      agencyBalances?.specialCreditBalance ??
+      0;
     if (specialQuota > maxSpecial) {
       setErrorMessage("سهمیه ویژه نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
       return;
@@ -507,24 +517,24 @@ export function AddConsultantPage() {
           <section className="grid gap-4 border-t-[8px] border-surface-container bg-surface-container-lowest px-4 py-5">
             <QuotaStepper
               label="سهمیه آگهی"
-              max={agencyBalances?.adCreditBalance ?? 0}
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.adCreditBalance)}`}
+              max={agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance ?? 0}
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance)}`}
               remainingClassName="text-primary"
               setValue={setAdQuota}
               value={adQuota}
             />
             <QuotaStepper
               label="سهمیه بروزرسانی"
-              max={agencyBalances?.renewCreditBalance ?? 0}
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.renewCreditBalance)}`}
+              max={agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance ?? 0}
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance)}`}
               remainingClassName="text-tertiary"
               setValue={setUpdateQuota}
               value={updateQuota}
             />
             <QuotaStepper
               label="سهمیه ویژه"
-              max={agencyBalances?.specialCreditBalance ?? 0}
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.specialCreditBalance)}`}
+              max={agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance ?? 0}
+              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance)}`}
               remainingClassName="text-warning"
               setValue={setSpecialQuota}
               value={specialQuota}
@@ -840,17 +850,17 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             <ConsultantStat
               tone="blue"
               icon={<LinearTag className="h-6 w-6" />}
-              value={consultant.scores.ads}
+              value={consultant.adQuota ?? 0}
             />
             <ConsultantStat
               tone="green"
               icon={<LinearStairs className="h-5 w-5" />}
-              value={consultant.scores.steps}
+              value={consultant.renewQuota ?? 0}
             />
             <ConsultantStat
               tone="orange"
               icon={<LinearStartup className="h-5 w-5" />}
-              value={consultant.scores.rocket}
+              value={consultant.specialQuota ?? 0}
             />
           </div>
 
@@ -909,7 +919,7 @@ function ConsultantStat({
         {icon}
       </Typography>
       <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold leading-5 text-on-surface">
-        {value}
+        {toPersianNumber(value)}
       </Typography>
     </div>
   );

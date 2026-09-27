@@ -99,6 +99,7 @@ const IndependentConsultantAdManagementPage = lazyNamed(() => import('../../feat
 const DashboardAdsPage = lazyNamed(() => import('../../features/dashboard/DashboardAdsPage'), 'DashboardAdsPage')
 const IndependentConsultantAdAllocationPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdAllocationPage'), 'IndependentConsultantAdAllocationPage')
 const IndependentConsultantAdAllocationReviewPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdAllocationReviewPage'), 'IndependentConsultantAdAllocationReviewPage')
+const AgencyAdStatusDeskPage = lazyNamed(() => import('../../features/account/adManagement/AgencyAdStatusDeskPage'), 'AgencyAdStatusDeskPage')
 const IndependentConsultantAdFilterPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdFilterPage'), 'IndependentConsultantAdFilterPage')
 const IndependentConsultantAdPaymentPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdPaymentPage'), 'IndependentConsultantAdPaymentPage')
 const IndependentConsultantAdPublishedPage = lazyNamed(() => import('../../features/account/adManagement/IndependentConsultantAdPublishedPage'), 'IndependentConsultantAdPublishedPage')
@@ -188,6 +189,27 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
 
   if (route.requiresNonUser && !DASHBOARD_ROLES.some((role) => role === activeRole)) {
     return false
+  }
+
+  if (activeRole === REAL_ESTATE_MANAGER && session.managerPermissions) {
+    const permissions = session.managerPermissions;
+    if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && !permissions.manage_consultants) {
+      return false;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/requests`) && !permissions.manage_requests) {
+      return false;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && !permissions.manage_credits) {
+      return false;
+    }
+    if (
+      (route.path === '/account/manage-ads' ||
+        route.path.startsWith('/account/ad-management') ||
+        route.path === `${DASHBOARD_PATH}/ads`) &&
+      !permissions.manage_advertises
+    ) {
+      return false;
+    }
   }
 
   if (route.authority?.length) {
@@ -853,6 +875,13 @@ export const routes: AppRoute[] = [
     path: '/account/ad-management/allocation-review',
     title: 'بررسی و تخصیص',
     Component: IndependentConsultantAdAllocationReviewPage,
+    authority: [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT],
+    requiresAuth: true,
+  },
+  {
+    path: '/account/ad-management/status-desk',
+    title: 'میز کار آگهی',
+    Component: AgencyAdStatusDeskPage,
     authority: [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT],
     requiresAuth: true,
   },

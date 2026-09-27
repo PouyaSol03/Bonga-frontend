@@ -33,11 +33,18 @@ function getRejectAdvertiseId() {
   return match?.[1] ? decodeURIComponent(match[1]) : "";
 }
 
-export function IndependentConsultantAdRejectPage() {
+export type IndependentConsultantAdRejectPageProps = {
+  ad?: ReturnType<typeof getSelectedConsultantAd>;
+  initialReason?: RejectReason;
+};
+
+export function IndependentConsultantAdRejectPage(props?: IndependentConsultantAdRejectPageProps) {
   const routeState = getAdManagementRouteState();
   const advertiseId = getRejectAdvertiseId();
-  const ad = getSelectedConsultantAd(advertiseId);
-  const [selectedReason, setSelectedReason] = useState<RejectReason | null>(null);
+  const ad = props?.ad ?? getSelectedConsultantAd(advertiseId);
+  const [selectedReason, setSelectedReason] = useState<RejectReason | null>(
+    props?.initialReason ?? null,
+  );
   const [, setErrorMessage] = useState("");
   const rejectAssignmentMutation = useRejectAgencyAdvertiseAssignmentMutation();
   const shouldResolveAssignment = !routeState.assignmentId && !routeState.assignment?.id;

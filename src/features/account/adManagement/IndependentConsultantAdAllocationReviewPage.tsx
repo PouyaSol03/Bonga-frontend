@@ -21,14 +21,13 @@ import {
   getSelectedConsultantAd,
   type ConsultantAd,
 } from "./adManagementData";
+import type { AgencyAdvertiseAssignmentDto } from "../../advertisements/api/agency-advertise-assignment.service";
 import LinearBuilding2 from "../../../shared/icons/LinearBuilding2";
 import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
 import LinearCancel from "../../../shared/icons/LinearCancel";
 import LinearSearch from "../../../shared/icons/LinearSearch";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
-import LinearCall from "../../../shared/icons/LinearCall";
-import LinearChat from "../../../shared/icons/LinearChat";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 type PublisherType = "agency" | "consultant";
@@ -59,28 +58,42 @@ const publisherOptions: {
     },
   ];
 
-export function IndependentConsultantAdAllocationReviewPage() {
+export type IndependentConsultantAdAllocationReviewPageProps = {
+  ad?: ConsultantAd;
+  assignment?: AgencyAdvertiseAssignmentDto;
+  initialPublisherType?: PublisherType;
+  initialAssignedConsultant?: SelectableConsultant | null;
+  initialConsultantPickerOpen?: boolean;
+  mockConsultants?: SelectableConsultant[];
+};
+
+export function IndependentConsultantAdAllocationReviewPage(props?: IndependentConsultantAdAllocationReviewPageProps) {
   const routeState = getAdManagementRouteState();
-  const assignment = routeState.assignment;
-  const ad = getSelectedConsultantAd();
+  const assignment = props?.assignment ?? routeState.assignment;
+  const ad = props?.ad ?? getSelectedConsultantAd();
   const [publisher, setPublisher] = useState<PublisherType>(
-    routeState.publisherType ?? assignment?.targetType ?? "agency",
+    props?.initialPublisherType ?? routeState.publisherType ?? assignment?.targetType ?? "agency",
   );
-  const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(null);
-  const [isConsultantPickerOpen, setIsConsultantPickerOpen] = useState(false);
+  const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(
+    props?.initialAssignedConsultant ?? null,
+  );
+  const [isConsultantPickerOpen, setIsConsultantPickerOpen] = useState(
+    props?.initialConsultantPickerOpen ?? false,
+  );
   const consultantsQuery = useAgencyConsultantsQuery({
-    enabled: isConsultantPickerOpen || publisher === "consultant",
+    enabled: !props?.mockConsultants && (isConsultantPickerOpen || publisher === "consultant"),
     page: 1,
     perPage: 100,
   });
   const selectableConsultants = useMemo(
     () =>
+      props?.mockConsultants ??
       (consultantsQuery.data?.data ?? []).map((consultant) => ({
         avatarSrc: consultant.avatar,
         id: String(consultant.userId),
         name: consultant.name || `مشاور شماره ${consultant.userId}`,
       })),
-    [consultantsQuery.data],
+    [props?.mockConsultants, consultantsQuery.data],
   );
   const initialConsultantId = String(
     routeState.consultantId ?? assignment?.consultantId ?? "",
@@ -108,14 +121,6 @@ export function IndependentConsultantAdAllocationReviewPage() {
     typeof rawAdvertiserPhone === "string" || typeof rawAdvertiserPhone === "number"
       ? String(rawAdvertiserPhone).trim()
       : "";
-
-  const advertiserUserId =
-    assignment?.requesterUserId ??
-    (ad as Record<string, unknown>)?.userId ??
-    (ad as Record<string, unknown>)?.user_id ??
-    (assignment?.advertise as Record<string, unknown> | undefined)?.userId ??
-    (assignment?.advertise as Record<string, unknown> | undefined)?.user_id ??
-    "";
 
   useEffect(() => {
     if (assignedConsultant || !initialConsultantId) return;
@@ -188,7 +193,18 @@ export function IndependentConsultantAdAllocationReviewPage() {
           <ReviewAction
             icon={<LinearPreview className="h-6 w-6" />}
             label="پیش نمایش"
-            state={{ previewFlow: "agency-allocation" }}
+            state={{
+              ad,
+              assignment,
+              previewFlow: "agency-allocation",
+              userContact: {
+                name: (ad as Record<string, unknown>)?.owner_name ?? (ad as Record<string, unknown>)?.user_name ?? (assignment as Record<string, unknown>)?.advertiserName ?? "ناصر اشرفی",
+                phone: advertiserPhone || "09361208874",
+                smsPhone: advertiserPhone || "09155214062",
+                address: (ad as Record<string, unknown>)?.address ?? (ad as Record<string, unknown>)?.location_address ?? "صیاد شیرازی ۳ - پلاک ۲۴",
+                social: (ad as Record<string, unknown>)?.social ?? (ad as Record<string, unknown>)?.contacts,
+              },
+            }}
             to={getAdPreviewPath(ad.id)}
           />
           <ActionDivider />
@@ -205,26 +221,6 @@ export function IndependentConsultantAdAllocationReviewPage() {
               tab: "status",
             }}
             to={getAdEditPath(ad.id)}
-          />
-          <ActionDivider />
-          <ReviewAction
-            icon={<LinearCall className="h-6 w-6" />}
-            label="تماس با آگهی‌دهنده"
-            onClick={() => {
-              if (advertiserPhone) {
-                window.location.href = `tel:${advertiserPhone}`;
-              } else {
-                alert("شماره تماس آگهی‌دهنده در دسترس نیست.");
-              }
-            }}
-          />
-          <ActionDivider />
-          <ReviewAction
-            icon={<LinearChat className="h-6 w-6" />}
-            label="پیام به آگهی‌دهنده"
-            onClick={() => {
-              window.location.href = `/chat?${advertiserUserId ? `userId=${encodeURIComponent(String(advertiserUserId))}&` : ""}adId=${encodeURIComponent(String(ad.id))}`;
-            }}
           />
           <ActionDivider />
           <RejectAction
@@ -453,30 +449,28 @@ function PublisherOptionCard({
               duration: 0.25,
               ease: "easeInOut",
             }}
-            className="overflow-hidden rounded-lg border border-primary bg-surface-container-lowest"
+            className="flex flex-col gap-2.5"
           >
-              {assignedConsultant ? (
-                <div className="mb-2 flex items-center justify-center gap-2 px-1 py-1 text-right [direction:rtl]">
-                  <ConsultantAvatar consultant={assignedConsultant} className="h-10 w-10" />
-                  <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 flex-1 truncate text-sm font-medium leading-5 text-on-surface">
-                    {assignedConsultant.name}
-                  </Typography>
-                </div>
-              ) : null}
-            <div className="py-4">
-              <Button unstyled
-                className="inline-flex items-center justify-center w-full gap-1 rounded-lg bg-surface-container-lowest text-sm font-medium leading-5 text-primary"
-                onClick={onAssignConsultant}
-                type="button"
-              >
-                {assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}
-                <LinearArrowLeft1 className="h-5 w-5" />
-              </Button>
-            </div>
+            {assignedConsultant ? (
+              <div className="flex items-center gap-4 text-right [direction:rtl]">
+                <ConsultantAvatar consultant={assignedConsultant} className="h-14 w-14 rounded-full object-cover" />
+                <Typography as="span" variant="title" size="medium" weight="semibold" className="text-base font-semibold text-on-surface">
+                  {assignedConsultant.name}
+                </Typography>
+              </div>
+            ) : null}
+
+            <Button unstyled
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 active:bg-primary/10 [direction:rtl]"
+              onClick={onAssignConsultant}
+              type="button"
+            >
+              <span>{assignedConsultant ? "تغییر مشاور" : "تعیین مشاور"}</span>
+              <LinearArrowLeft1 className="h-5 w-5" />
+            </Button>
           </motion.div>
-        ) : null
-        }
-      </AnimatePresence >
+        ) : null}
+      </AnimatePresence>
     </motion.div >
   );
 }
@@ -543,7 +537,7 @@ function ConsultantPickerPage({
           <LinearSearch className="h-6 w-6 text-on-surface-var"/>
         </label>
 
-        <div className="mt-6 grid gap-1">
+        <div className="mt-6 grid gap-6">
           {isLoading ? (
             <Typography as="p" variant="body" size="medium" weight="regular" className="py-10 text-center text-sm text-outline">در حال دریافت مشاوران...</Typography>
           ) : isError ? (

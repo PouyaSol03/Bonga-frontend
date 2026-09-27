@@ -191,6 +191,18 @@ export type MyAgencyProfile = {
   created_at?: string;
   updated_at?: string;
   status_text?: string;
+  membership?: {
+    id?: number;
+    role?: string;
+    role_id?: number;
+    permissions?: {
+      manage_advertises?: boolean;
+      manage_consultants?: boolean;
+      manage_credits?: boolean;
+      manage_requests?: boolean;
+      support?: boolean;
+    };
+  } | null;
 };
 
 export type UpdateMyAgencyProfilePayload = {
@@ -506,20 +518,26 @@ function normalizeMyAgencyProfile(profile: MyAgencyProfile): MyAgencyProfile {
 function unwrapMyAgencyProfile(
   response:
     | ApiDataResponse<MyAgencyProfile>
-    | { agency?: MyAgencyProfile; status?: boolean }
+    | { agency?: MyAgencyProfile; status?: boolean; membership?: unknown }
     | MyAgencyProfile,
 ) {
   const record = response as Record<string, unknown>;
+  const membership = record.membership as MyAgencyProfile["membership"];
 
+  let profile: MyAgencyProfile;
   if (record.agency && typeof record.agency === "object") {
-    return normalizeMyAgencyProfile(record.agency as MyAgencyProfile);
+    profile = normalizeMyAgencyProfile(record.agency as MyAgencyProfile);
+  } else if (record.data && typeof record.data === "object") {
+    profile = normalizeMyAgencyProfile(record.data as MyAgencyProfile);
+  } else {
+    profile = normalizeMyAgencyProfile(response as MyAgencyProfile);
   }
 
-  if (record.data && typeof record.data === "object") {
-    return normalizeMyAgencyProfile(record.data as MyAgencyProfile);
+  if (membership && !profile.membership) {
+    profile.membership = membership;
   }
 
-  return normalizeMyAgencyProfile(response as MyAgencyProfile);
+  return profile;
 }
 
 export async function getMyAgencyProfile() {
@@ -540,6 +558,7 @@ export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayloa
     lat: normalizeOptionalAgencyValue(payload.lat),
     lng: normalizeOptionalAgencyValue(payload.lng),
     name: payload.name.trim(),
+    neighborhood_id: normalizeOptionalAgencyValue(payload.neighborhood_id),
     neighborhood_ids: Array.from(
       new Set(payload.neighborhood_ids.map((item) => item.trim()).filter(Boolean)),
     ).join(","),
@@ -927,3 +946,10 @@ export function deleteAdvertiseNote(noteId: string) {
     .delete(`me/advertise/note/delete/${noteId}`)
     .json<ApiDataResponse<unknown>>();
 }
+
+export function deleteMyBusiness() {
+  return api
+    .delete("me/agency/business")
+    .json<{ success: boolean; message: string }>();
+}
+

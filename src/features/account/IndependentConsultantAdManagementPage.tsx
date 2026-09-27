@@ -443,7 +443,7 @@ export function IndependentConsultantAdManagementPage() {
           !adsQuery.isError &&
           activeAdvertisements.length === 0
             ? "bg-surface-container-lowest"
-            : "bg-surface-container pt-4"
+            : "bg-surface-container pb-4"
         }`}
       >
         <div

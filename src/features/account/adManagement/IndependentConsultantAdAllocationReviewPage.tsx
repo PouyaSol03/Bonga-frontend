@@ -21,6 +21,7 @@ import {
   getSelectedConsultantAd,
   type ConsultantAd,
 } from "./adManagementData";
+import type { AgencyAdvertiseAssignmentDto } from "../../advertisements/api/agency-advertise-assignment.service";
 import LinearBuilding2 from "../../../shared/icons/LinearBuilding2";
 import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
 import LinearCancel from "../../../shared/icons/LinearCancel";
@@ -59,28 +60,42 @@ const publisherOptions: {
     },
   ];
 
-export function IndependentConsultantAdAllocationReviewPage() {
+export type IndependentConsultantAdAllocationReviewPageProps = {
+  ad?: ConsultantAd;
+  assignment?: AgencyAdvertiseAssignmentDto;
+  initialPublisherType?: PublisherType;
+  initialAssignedConsultant?: SelectableConsultant | null;
+  initialConsultantPickerOpen?: boolean;
+  mockConsultants?: SelectableConsultant[];
+};
+
+export function IndependentConsultantAdAllocationReviewPage(props?: IndependentConsultantAdAllocationReviewPageProps) {
   const routeState = getAdManagementRouteState();
-  const assignment = routeState.assignment;
-  const ad = getSelectedConsultantAd();
+  const assignment = props?.assignment ?? routeState.assignment;
+  const ad = props?.ad ?? getSelectedConsultantAd();
   const [publisher, setPublisher] = useState<PublisherType>(
-    routeState.publisherType ?? assignment?.targetType ?? "agency",
+    props?.initialPublisherType ?? routeState.publisherType ?? assignment?.targetType ?? "agency",
   );
-  const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(null);
-  const [isConsultantPickerOpen, setIsConsultantPickerOpen] = useState(false);
+  const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(
+    props?.initialAssignedConsultant ?? null,
+  );
+  const [isConsultantPickerOpen, setIsConsultantPickerOpen] = useState(
+    props?.initialConsultantPickerOpen ?? false,
+  );
   const consultantsQuery = useAgencyConsultantsQuery({
-    enabled: isConsultantPickerOpen || publisher === "consultant",
+    enabled: !props?.mockConsultants && (isConsultantPickerOpen || publisher === "consultant"),
     page: 1,
     perPage: 100,
   });
   const selectableConsultants = useMemo(
     () =>
+      props?.mockConsultants ??
       (consultantsQuery.data?.data ?? []).map((consultant) => ({
         avatarSrc: consultant.avatar,
         id: String(consultant.userId),
         name: consultant.name || `مشاور شماره ${consultant.userId}`,
       })),
-    [consultantsQuery.data],
+    [props?.mockConsultants, consultantsQuery.data],
   );
   const initialConsultantId = String(
     routeState.consultantId ?? assignment?.consultantId ?? "",

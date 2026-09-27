@@ -18,15 +18,22 @@ const closeResultReasons: { label: string; value: CloseResultReason }[] = [
   { label: "مشتری پاسخگو نبود", value: "unresponsive" },
 ];
 
-export function AdCloseResultPage() {
+export type AdCloseResultPageProps = {
+  adId?: string;
+  initialReason?: CloseResultReason;
+};
+
+export function AdCloseResultPage(props?: AdCloseResultPageProps) {
   const routeState = getAdManagementRouteState();
-  const adId = readAdIdFromCloseResultPath() ?? readEntityId(routeState.card) ?? readEntityId(routeState.ad);
+  const adId = props?.adId ?? readAdIdFromCloseResultPath() ?? readEntityId(routeState.card) ?? readEntityId(routeState.ad);
   const returnTo =
     normalizeLocalPath(routeState.returnTo) ??
     (adId
       ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad`
       : adManagementPaths.root);
-  const [selectedReason, setSelectedReason] = useState<CloseResultReason | null>(null);
+  const [selectedReason, setSelectedReason] = useState<CloseResultReason | null>(
+    props?.initialReason ?? null,
+  );
   const submitMutation = useSubmitAdvertiseDealResultMutation();
 
   function goBack() {

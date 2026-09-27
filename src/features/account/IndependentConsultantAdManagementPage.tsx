@@ -9,6 +9,7 @@ import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { TopBar } from "../../shared/components/TopBar";
 import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../advertisements/api/agency-advertise-assignment.hooks";
+import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisement.hooks";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-advertise-assignment.service";
@@ -262,6 +263,19 @@ export function IndependentConsultantAdManagementPage() {
   const adsQuery = useMyAdsInfiniteQuery({
     perPage: assignmentPageSize,
   });
+  const deleteMutation = useDeleteAdvertisementMutation();
+  const handleDeleteIncomplete = async (targetAdId: string) => {
+    if (!window.confirm("آیا از حذف این آگهی نیمه کاره اطمینان دارید؟")) return;
+    try {
+      await deleteMutation.mutateAsync({
+        advertiseId: targetAdId,
+        deleteReasonId: "other",
+        description: "حذف آگهی نیمه کاره",
+      });
+    } catch (err) {
+      console.error("Failed to delete incomplete ad:", err);
+    }
+  };
   const assignmentItems = useMemo(
     () => assignmentsQuery.data?.pages.flatMap((page) => page.data) ?? [],
     [assignmentsQuery.data],
@@ -517,6 +531,7 @@ export function IndependentConsultantAdManagementPage() {
                 >
                   <ConsultantAdCard
                     ad={card}
+                    onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(String(sourceAd.id ?? sourceAd._id ?? card.id)) : undefined}
                     showStatusBadge
                     state={destinationState}
                     to={destination}

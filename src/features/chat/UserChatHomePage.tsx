@@ -38,7 +38,9 @@ import { TopBarNavigationLayout } from "../../shared/layout/TopBarNavigationLayo
 import NavHomeIcon from "../../shared/icons/NavHomeIcon";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { getBrowserLocation, getBrowserLocationNotice } from "../../shared/lib/browserLocation";
-import { getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { REAL_ESTATE_MANAGER, SUPER_ADMIN } from "../../shared/constants/roles.constants";
+import { useMyAgencyProfileQuery } from "../account/api/account.hooks";
 import LinearSupport from "../../shared/icons/LinearSupport";
 import LinearImage from "../../shared/icons/LinearImage";
 import {
@@ -881,17 +883,26 @@ const ChatSearchHeader = memo(function ChatSearchHeader({
 const FilterTabs = memo(function FilterTabs({
   activeFilter,
   onSelect,
+  showSupportFilter = false,
 }: {
   activeFilter: ChatFilter | null;
   onSelect: (filter: ChatFilter) => void;
+  showSupportFilter?: boolean;
 }) {
+  const visibleFilters = useMemo(() => {
+    if (showSupportFilter) {
+      return [{ label: "پشتیبانی", value: "support" as ChatFilter }, ...filters];
+    }
+    return filters;
+  }, [showSupportFilter]);
+
   return (
     <HorizontalFilterBar
       ariaLabel="فیلتر چت‌ها"
       className="h-[52px] bg-surface-container"
       contentClassName="h-9"
     >
-      {filters.map((filter) => (
+      {visibleFilters.map((filter) => (
         <Chip
           key={filter.value}
           onClick={() => onSelect(filter.value)}
@@ -3115,11 +3126,45 @@ export function UserChatDetailPage() {
 export function UserChatHomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<ChatFilter | null>(null);
+  const [activeFilter, setActiveFilter] = useState<ChatFilter | null>(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const filterParam = searchParams.get("filter");
+      if (filterParam === "support") return "support";
+    }
+    return null;
+  });
   const [showBlocked, setShowBlocked] = useState(false);
   const [query, setQuery] = useState("");
   const deferredSearch = useDebouncedValue(query.trim(), 300);
   const { message, showNotice } = useTransientNotice();
+
+  const authSession = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(authSession);
+  const isManagerRole = activeRole === REAL_ESTATE_MANAGER;
+  const { data: myAgency } = useMyAgencyProfileQuery({
+    enabled: isManagerRole,
+  });
+
+  const showSupportFilter = useMemo(() => {
+    if (activeRole === SUPER_ADMIN) return true;
+    if (
+      authSession?.roles.some(
+        (r) =>
+          (r.slug as string) === "support" ||
+          (r.slug as string) === "crm_support" ||
+          r.slug === "super-admin",
+      )
+    ) {
+      return true;
+    }
+    if (isManagerRole) {
+      if (authSession?.managerPermissions?.support) return true;
+      if (myAgency?.membership?.permissions?.support) return true;
+    }
+    return false;
+  }, [activeRole, authSession, isManagerRole, myAgency]);
+
   useEffect(() => {
     const notice = window.sessionStorage.getItem(CHAT_RENAME_NOTICE_STORAGE_KEY);
     if (!notice) return;
@@ -3135,7 +3180,7 @@ export function UserChatHomePage() {
     refetch: refetchChats,
   } = useChatsQuery({
     blocked: showBlocked ? true : undefined,
-    category: "advertise",
+    category: activeFilter === "support" ? "support" : "advertise",
     filter: activeFilter ?? undefined,
     page: 1,
     perPage: 10,
@@ -3192,6 +3237,7 @@ export function UserChatHomePage() {
         <FilterTabs
           activeFilter={activeFilter}
           onSelect={selectFilter}
+          showSupportFilter={showSupportFilter}
         />
       }
       frameClassName="relative bg-outline-var text-on-surface [direction:rtl]"

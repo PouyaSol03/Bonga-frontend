@@ -24,8 +24,7 @@ import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
 function getAgencyConsultantAccessRole(
   consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
 ): AccessRole {
-  return consultant.roleId === 0 ||
-    consultant.roleId === 1 ||
+  return consultant.roleId === 2 ||
     ["مدیر", "مدیر آژانس"].includes(consultant.roleLabel?.trim() ?? "")
     ? "manager"
     : "consultant";

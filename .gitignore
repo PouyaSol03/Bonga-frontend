@@ -68,3 +68,16 @@ android/captures/
 *.zip
 graphify-out
 
+# Prisma
+prisma/
+*.prisma
+prisma.config.*
+.prisma
+
+# Agents
+agents/
+.agents/
+.claude/agents/
+*.agent.md
+
+

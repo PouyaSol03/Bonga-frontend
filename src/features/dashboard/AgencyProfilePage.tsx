@@ -24,7 +24,7 @@ import { useMyAgencyProfileQuery, useUpdateMyAgencyProfileMutation } from "../ac
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../account/api/account.service";
-import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
+import { getNeighborhoodHierarchyDescription, getNeighborhoodInfoWithLoc, type NeighborhoodDto } from "../locations/api/neighborhood.service";
 import { searchMapCenter, searchMapTileConfig } from "../search/searchMapData";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import TonalTelegram from "../../shared/icons/TonalTelegram";
@@ -42,6 +42,8 @@ const agencyImageMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type SelectedNeighborhood = {
   id: string;
+  lat?: number;
+  lng?: number;
   name: string;
 };
 
@@ -122,6 +124,8 @@ function getNeighborhoodId(neighborhood: NeighborhoodDto) {
 function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighborhood {
   return {
     id: getNeighborhoodId(neighborhood),
+    lat: Number.isFinite(Number(neighborhood.lat)) ? Number(neighborhood.lat) : undefined,
+    lng: Number.isFinite(Number(neighborhood.lng)) ? Number(neighborhood.lng) : undefined,
     name: neighborhood.name,
   };
 }
@@ -354,6 +358,7 @@ export function AgencyProfilePage() {
         lng: mapCenter.lng,
         logo: logoFile,
         name: trimmedAgencyName,
+        neighborhood_id: selectedNeighborhood?.id ?? null,
         neighborhood_ids: neighborhoodIds,
         phone1: normalizeOptionalText(phone1),
         phone2: normalizeOptionalText(phone2),
@@ -371,6 +376,23 @@ export function AgencyProfilePage() {
         "error",
       );
     }
+  };
+
+  const handleNeighborhoodChange = (neighborhood: SelectedNeighborhood | null) => {
+    setSelectedNeighborhood(neighborhood);
+    if (neighborhood?.lat !== undefined && neighborhood.lng !== undefined) {
+      setMapCenter({ lat: neighborhood.lat, lng: neighborhood.lng, zoom: selectedCityMapZoom });
+    }
+  };
+
+  const handleMapCenterChange = (center: AgencyProfileMapCenter) => {
+    setMapCenter(center);
+    if (!cityId) return;
+    void getNeighborhoodInfoWithLoc({ cityId, lat: center.lat, lng: center.lng })
+      .then((neighborhood) => {
+        if (neighborhood) setSelectedNeighborhood(toSelectedNeighborhood(neighborhood));
+      })
+      .catch(() => undefined);
   };
 
   return (
@@ -427,7 +449,7 @@ export function AgencyProfilePage() {
           onRemoveActivityArea={removeActivityArea}
         />
         <AboutSection aboutUs={aboutUs} onAboutUsChange={setAboutUs} />
-        <LocationSection mapCenter={mapCenter} onMapCenterChange={setMapCenter} />
+        <LocationSection mapCenter={mapCenter} onMapCenterChange={handleMapCenterChange} />
       </main>
 
       <AgencyFooterActions
@@ -438,7 +460,7 @@ export function AgencyProfilePage() {
 
       <NeighborhoodSelectionSheet
         mode="single"
-        onChange={(neighborhood) => setSelectedNeighborhood(neighborhood)}
+        onChange={handleNeighborhoodChange}
         onClose={() => setActivePicker(null)}
         selectedNeighborhood={selectedNeighborhood}
         title="محله"

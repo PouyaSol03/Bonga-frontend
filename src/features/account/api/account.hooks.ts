@@ -1,8 +1,11 @@
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
+import { getApiErrorCode } from "../../../shared/api/api";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
+import { replaceRoute } from "../../../shared/navigation/navigation";
 import {
   authorizeMe,
   transferSimOwnership,
@@ -32,6 +35,17 @@ import {
   type MyAdsPage,
   type MyAdsType,
 } from "./account.service";
+
+function redirectToRequiredAdvertiseProfile(error: unknown) {
+  const errorCode = getApiErrorCode(error);
+  const target = errorCode === "agency_profile_incomplete"
+    ? "/account/dashboard/agency"
+    : errorCode === "agent_profile_incomplete"
+      ? "/account/dashboard/agent"
+      : null;
+
+  if (target) replaceRoute(target, undefined, { rememberCurrent: false });
+}
 
 export function useMyProfileQuery({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
@@ -191,7 +205,8 @@ export function useMyAdsInfiniteQuery({
   type?: MyAdsType;
 }) {
   const userType = useActiveAuthRole();
-  return useInfiniteQuery<
+
+  const query = useInfiniteQuery<
     MyAdsPage,
     Error,
     { pages: MyAdsPage[]; pageParams: number[] },
@@ -205,6 +220,12 @@ export function useMyAdsInfiniteQuery({
     queryFn: ({ pageParam }) => getMyAds({ page: pageParam, perPage, type }),
     queryKey: queryKeys.account.myAds({ perPage, type: type ?? "all", userType }),
   });
+
+  useEffect(() => {
+    if (query.error) redirectToRequiredAdvertiseProfile(query.error);
+  }, [query.error]);
+
+  return query;
 }
 
 export function useMyBadgesQuery() {

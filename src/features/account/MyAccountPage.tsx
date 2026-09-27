@@ -19,6 +19,7 @@ import {
   getActiveAuthRole,
   getStoredAuthSession,
   setStoredActiveRole,
+  setStoredManagerPermissions,
   storeLoginRedirectPath,
   type AuthRoleSlug,
   type AuthSession,
@@ -249,7 +250,18 @@ function IndependentConsultantAccountPage({
     isLogoutConfirmOpen,
     openLogoutConfirm,
   } = useLogoutAccount();
-  const consultantActions = getBusinessAccountActions(activeRole);
+
+  useEffect(() => {
+    if (!agencyProfile) return;
+    const membership = agencyProfile.membership;
+    if (membership && (membership.role === "manager" || membership.role_id === 2)) {
+      setStoredManagerPermissions(membership.permissions);
+    } else if (membership && (membership.role === "owner" || membership.role_id === 0)) {
+      setStoredManagerPermissions(null);
+    }
+  }, [agencyProfile]);
+
+  const consultantActions = getBusinessAccountActions(activeRole, agencyProfile);
   const accountSwitchActions = getAccountSwitchActions(authSession, activeRole, profile, agencyProfile);
   const businessHeader = getBusinessAccountHeader(activeRole, profile, agencyProfile);
   const isBusinessAccountLoading = Boolean(authSession) && (
@@ -372,7 +384,41 @@ function getBusinessAccountHeader(
   };
 }
 
-function getBusinessAccountActions(role?: string | null): AccountAction[] {
+function getBusinessAccountActions(
+  role?: string | null,
+  agencyProfile?: MyAgencyProfile,
+): AccountAction[] {
+  const membership = agencyProfile?.membership;
+  const session = getStoredAuthSession();
+  const isManager = role === REAL_ESTATE_MANAGER;
+  const isManagerWithPermissions =
+    isManager &&
+    ((membership && (membership.role === "manager" || membership.role_id === 2)) ||
+      Boolean(session?.managerPermissions));
+
+  if (isManagerWithPermissions) {
+    const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
+    const actions: AccountAction[] = [];
+
+    if (permissions.manage_advertises) {
+      actions.push({ icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH });
+    }
+    if (permissions.manage_consultants) {
+      actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });
+    }
+    if (permissions.manage_requests) {
+      actions.push({ icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` });
+    }
+    if (permissions.manage_credits) {
+      actions.push({ icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` });
+    }
+    if (permissions.support) {
+      actions.push({ icon: "message", label: "پشتیبانی", to: "/chat?filter=support" });
+    }
+
+    return actions;
+  }
+
   const managerActions: AccountAction[] = [
     { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
     { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },

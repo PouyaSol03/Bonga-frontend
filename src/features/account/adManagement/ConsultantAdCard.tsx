@@ -6,8 +6,9 @@ type ConsultantAdCardProps = {
   showStatusBadge?: boolean;
   state?: unknown;
   to?: string;
+  onDeleteIncomplete?: (event: React.MouseEvent) => void;
 };
 
-export function ConsultantAdCard({ ad, showStatusBadge = false, state, to }: ConsultantAdCardProps) {
-  return <AdCard ad={ad} showStatusBadge={showStatusBadge} state={state} to={to} />;
+export function ConsultantAdCard({ ad, showStatusBadge = false, state, to, onDeleteIncomplete }: ConsultantAdCardProps) {
+  return <AdCard ad={ad} onDeleteIncomplete={onDeleteIncomplete} showStatusBadge={showStatusBadge} state={state} to={to} />;
 }

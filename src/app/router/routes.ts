@@ -190,6 +190,27 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return false
   }
 
+  if (activeRole === REAL_ESTATE_MANAGER && session.managerPermissions) {
+    const permissions = session.managerPermissions;
+    if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && !permissions.manage_consultants) {
+      return false;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/requests`) && !permissions.manage_requests) {
+      return false;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && !permissions.manage_credits) {
+      return false;
+    }
+    if (
+      (route.path === '/account/manage-ads' ||
+        route.path.startsWith('/account/ad-management') ||
+        route.path === `${DASHBOARD_PATH}/ads`) &&
+      !permissions.manage_advertises
+    ) {
+      return false;
+    }
+  }
+
   if (route.authority?.length) {
     if (route.layout === 'dashboard' || route.path.startsWith(`${DASHBOARD_PATH}/`)) {
       return route.authority.includes(activeRole)

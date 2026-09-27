@@ -629,9 +629,10 @@ function formatFeatureUnit(value: unknown, unit: string, fallback = "-") {
 }
 
 function formatBuildingAge(value: unknown, fallback = "-") {
-  const text = toText(value);
+  let text = toText(value);
 
   if (!text) return fallback;
+  text = text.replace(/ساخت/g, "").trim();
   if (text.includes("سال") || text.includes("نوساز")) return text;
 
   return `${text} سال`;
@@ -732,7 +733,7 @@ export function mapAdvertisementToAdCard(
     : undefined;
   const buildingAreaRaw = readFeatureValue(item, ["building_area", "buildingArea", "زیربنا", "متراژ بنا"]);
   const buildingArea = buildingAreaRaw !== undefined && buildingAreaRaw !== null && buildingAreaRaw !== ""
-    ? formatFeatureUnit(buildingAreaRaw, "متر", "")
+    ? formatFeatureUnit(buildingAreaRaw, "متر مربع", "")
     : undefined;
   const capacityRaw = readFeatureValue(item, [
     "capacity",
@@ -844,7 +845,8 @@ export function mapAdvertisementToAdCard(
 
   if (isPartnership) {
     priceLabelPrimary = "درصد مشارکت:";
-    pricePrimary = builderShare || (item.price ? formatPrice(item.price) : "توافقی");
+    const cleanShare = (builderShare || "").replace(/[%٪]/g, "").trim();
+    pricePrimary = cleanShare ? (cleanShare.endsWith("درصد") ? cleanShare : `${cleanShare} درصد`) : (item.price ? formatPrice(item.price) : "توافقی");
     priceSecondary = "";
   } else if (isPresale) {
     priceLabelPrimary = "قیمت متری:";
@@ -867,10 +869,23 @@ export function mapAdvertisementToAdCard(
     priceSecondary = formatPrice(mortgagePrice || 0);
   }
 
+  const timeAgo =
+    toText(item.published_time_ago) ||
+    toText(item.time_ago) ||
+    (item.published_days !== undefined && item.published_days !== null
+      ? `${toText(item.published_days)} روز پیش`
+      : "") ||
+    toText(readFeatureValue(item, ["published_at", "published_time_ago", "time_ago"]));
+
+  const locationText = location ? `در ${location}` : "";
+  const timeAndLocation = timeAgo && locationText
+    ? `${timeAgo} ${locationText}`
+    : timeAgo || locationText || (description ? description.slice(0, 40) : "");
+
   return {
     id: item.id ?? item._id ?? index + 1,
     agency: getAdvertisementPublisherName(item),
-    area: formatFeatureUnit(area, "متر"),
+    area: formatFeatureUnit(area, "متر مربع"),
     badges: Array.isArray(item.badges) ? item.badges : [],
     imageClassName: image ? "" : `ad-card__image--${(index % 4) + 1}`,
     imageCount: String(images.length || (image ? 1 : 0)),
@@ -881,10 +896,10 @@ export function mapAdvertisementToAdCard(
     priceSecondary,
     rooms: formatFeatureUnit(rooms, "اتاق"),
     status: "",
-    timeAndLocation: description || (location ? `در ${location}` : ""),
+    timeAndLocation,
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: formatBuildingAge(buildingAge),
-    landArea: landArea !== undefined && landArea !== null && landArea !== "" ? formatFeatureUnit(landArea, "متر", "") : undefined,
+    landArea: landArea !== undefined && landArea !== null && landArea !== "" ? formatFeatureUnit(landArea, "متر مربع", "") : undefined,
     documentType: documentType !== undefined && documentType !== null && documentType !== "" ? toText(documentType) : undefined,
     commercialPosition: commercialPosition !== undefined && commercialPosition !== null && commercialPosition !== "" ? toText(commercialPosition) : undefined,
     landPosition: landPosition !== undefined && landPosition !== null && landPosition !== "" ? toText(landPosition) : undefined,

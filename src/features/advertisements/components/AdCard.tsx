@@ -13,15 +13,15 @@ import LinearStar from '../../../shared/icons/LinearStar'
 import LinearCalendar from '../../../shared/icons/LinearCalendar'
 import LinearConstruction from '../../../shared/icons/LinearConstruction'
 import LinearSettingBuilding from '../../../shared/icons/LinearSettingBuilding'
+import LinearHouseDimensions from '../../../shared/icons/LinearHouseDimensions'
 import {
   AdCardAlbumIcon,
   AdCardAreaIcon,
   AdCardCapacityIcon,
-  AdCardDocumentIcon,
-  AdCardLandAreaIcon,
-  AdCardLocationIcon,
   AdCardOwnerIcon,
+  AdCardPositionIcon,
   AdCardRoomsIcon,
+  AdCardSanadIcon,
   AdCardTomanIcon,
   AdCardYearIcon,
 } from './AdCardIcons'
@@ -382,10 +382,26 @@ function AdCardPriceRow({
   hasSecondaryPrice: boolean
   category: AdCategoryType
 }) {
+  if (category === 'sale-apartment') {
+    return (
+      <div className="flex h-6 items-center justify-start gap-1 [direction:rtl]">
+        <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-primary">
+          {ad.pricePrimary}
+        </Typography>
+        <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
+      </div>
+    )
+  }
+
   if (category === 'project-partnership') {
-    const shareText = ad.builderShare
-      ? (ad.builderShare.includes('٪') || ad.builderShare.includes('%') ? ad.builderShare : `${ad.builderShare}٪`)
-      : (ad.pricePrimary && ad.pricePrimary !== 'توافقی' ? ad.pricePrimary : 'توافقی')
+    let shareText = 'توافقی'
+    if (ad.builderShare) {
+      const cleanShare = ad.builderShare.replace(/[%٪]/g, '').trim()
+      shareText = cleanShare.endsWith('درصد') ? cleanShare : `${cleanShare} درصد`
+    } else if (ad.pricePrimary && ad.pricePrimary !== 'توافقی') {
+      const cleanPrice = ad.pricePrimary.replace(/[%٪]/g, '').trim()
+      shareText = cleanPrice.endsWith('درصد') ? cleanPrice : `${cleanPrice} درصد`
+    }
 
     return (
       <div className="flex h-6 items-center justify-start gap-1 [direction:rtl]">
@@ -408,6 +424,7 @@ function AdCardPriceRow({
         <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-primary">
           {ad.pricePrimary}
         </Typography>
+        <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
         {hasSecondaryPrice ? (
           <>
             <Typography as="span" variant="body" size="medium" weight="medium" className="text-outline text-sm">
@@ -416,9 +433,9 @@ function AdCardPriceRow({
             <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-primary">
               {ad.priceSecondary}
             </Typography>
+            <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
           </>
         ) : null}
-        <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
       </div>
     )
   }
@@ -434,6 +451,7 @@ function AdCardPriceRow({
         <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-primary">
           {ad.pricePrimary}
         </Typography>
+        <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
         {hasSecondaryPrice ? (
           <>
             <Typography as="span" variant="body" size="medium" weight="medium" className="text-outline text-sm">
@@ -442,16 +460,27 @@ function AdCardPriceRow({
             <Typography as="p" variant="title" size="medium" weight="semibold" className="whitespace-nowrap text-primary">
               {ad.priceSecondary}
             </Typography>
+            <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
           </>
         ) : null}
-        <AdCardTomanIcon className="h-5 w-5 shrink-0 text-primary" />
       </div>
     )
   }
 
   const isRentApartment = category === 'rent-apartment'
-  const primaryLabel = ad.priceLabelPrimary || (isRentApartment && hasSecondaryPrice ? 'اجاره:' : '')
-  const secondaryLabel = ad.priceLabelSecondary || (isRentApartment ? 'رهن:' : '')
+  let primaryLabel = ad.priceLabelPrimary || (isRentApartment && hasSecondaryPrice ? 'اجاره:' : '')
+  let secondaryLabel = ad.priceLabelSecondary || (isRentApartment ? 'رهن:' : '')
+
+  if (category.startsWith('rent-')) {
+    if (!primaryLabel && hasSecondaryPrice) primaryLabel = 'اجاره:'
+    if (!secondaryLabel && hasSecondaryPrice) secondaryLabel = 'رهن:'
+    if (secondaryLabel.includes('ودیعه')) secondaryLabel = 'رهن:'
+    if (primaryLabel.includes('ودیعه')) primaryLabel = 'رهن:'
+  }
+
+  if (primaryLabel === 'قیمت کل' || primaryLabel === 'قیمت کل:') {
+    primaryLabel = ''
+  }
 
   return (
     <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
@@ -745,6 +774,21 @@ export function resolveAdCategory(ad: AdCardData): AdCategoryType {
   return 'default'
 }
 
+function formatSquareMeters(value?: string): string | undefined {
+  if (!value || value.trim() === '' || value.trim() === '-') return undefined
+  const clean = value.replace(/متر(\s*مربع)?/g, '').trim()
+  if (!clean) return undefined
+  return `${clean} متر مربع`
+}
+
+function formatBuildingAgeClean(value?: string): string | undefined {
+  if (!value || value.trim() === '' || value.trim() === '-') return undefined
+  const clean = value.replace(/ساخت/g, '').trim()
+  if (!clean) return undefined
+  if (clean.includes('سال') || clean.includes('نوساز')) return clean
+  return `${clean} سال`
+}
+
 export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
   if (ad.properties && ad.properties.length > 0) {
     return ad.properties.filter((item) => item.value && item.value.trim() && item.value.trim() !== '-')
@@ -758,88 +802,88 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
     // === فروش ===
     case 'sale-apartment':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+        { icon: <AdCardYearIcon className="h-5 w-5" />, value: formatBuildingAgeClean(ad.year) },
       ]
       break
 
     case 'sale-land':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
-        { icon: <AdCardLandAreaIcon className="h-5 w-5" />, value: ad.landArea },
-        { icon: <AdCardDocumentIcon className="h-5 w-5" />, value: ad.documentType },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
+        { icon: <LinearHouseDimensions className="h-5 w-5" />, value: formatSquareMeters(ad.landArea) },
+        { icon: <AdCardSanadIcon className="h-5 w-5" />, value: ad.documentType },
       ]
       break
 
     case 'sale-garden-villa':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+        { icon: <AdCardYearIcon className="h-5 w-5" />, value: formatBuildingAgeClean(ad.year) },
       ]
       break
 
     case 'sale-office':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+        { icon: <AdCardYearIcon className="h-5 w-5" />, value: formatBuildingAgeClean(ad.year) },
       ]
       break
 
     case 'sale-commercial':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
-        { icon: <AdCardDocumentIcon className="h-5 w-5" />, value: ad.documentType },
-        { icon: <AdCardLocationIcon className="h-5 w-5" />, value: ad.commercialPosition },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
+        { icon: <AdCardSanadIcon className="h-5 w-5" />, value: ad.documentType },
+        { icon: <AdCardPositionIcon className="h-5 w-5" />, value: ad.commercialPosition },
       ]
       break
 
     case 'sale-factory':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
-        { icon: <AdCardDocumentIcon className="h-5 w-5" />, value: ad.documentType },
-        { icon: <AdCardLocationIcon className="h-5 w-5" />, value: ad.landPosition },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
+        { icon: <AdCardSanadIcon className="h-5 w-5" />, value: ad.documentType },
+        { icon: <AdCardPositionIcon className="h-5 w-5" />, value: ad.landPosition },
       ]
       break
 
     case 'sale-hotel':
       items = [
         { icon: <LinearCity className="h-5 w-5" />, value: 'هتل' },
-        { icon: <AdCardLandAreaIcon className="h-5 w-5" />, value: ad.landArea || ad.area },
-        { icon: <AdCardDocumentIcon className="h-5 w-5" />, value: ad.documentType },
+        { icon: <LinearHouseDimensions className="h-5 w-5" />, value: formatSquareMeters(ad.landArea || ad.area) },
+        { icon: <AdCardSanadIcon className="h-5 w-5" />, value: ad.documentType },
       ]
       break
 
     // === اجاره ===
     case 'rent-apartment':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+        { icon: <AdCardYearIcon className="h-5 w-5" />, value: formatBuildingAgeClean(ad.year) },
       ]
       break
 
     case 'rent-villa-house':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+        { icon: <AdCardYearIcon className="h-5 w-5" />, value: formatBuildingAgeClean(ad.year) },
       ]
       break
 
     case 'rent-hotel':
       items = [
         { icon: <LinearCity className="h-5 w-5" />, value: 'هتل' },
-        { icon: <AdCardLandAreaIcon className="h-5 w-5" />, value: ad.landArea || ad.area },
-        { icon: <AdCardDocumentIcon className="h-5 w-5" />, value: ad.documentType },
+        { icon: <LinearHouseDimensions className="h-5 w-5" />, value: formatSquareMeters(ad.landArea || ad.area) },
+        { icon: <AdCardSanadIcon className="h-5 w-5" />, value: ad.documentType },
       ]
       break
 
     case 'rent-office':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
         { icon: <LinearFloor className="h-5 w-5" />, value: ad.floor },
       ]
@@ -847,7 +891,7 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
 
     case 'rent-commercial':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
         { icon: <LinearFloor className="h-5 w-5" />, value: ad.floor },
       ]
@@ -855,24 +899,24 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
 
     case 'rent-factory':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
-        { icon: <AdCardLandAreaIcon className="h-5 w-5" />, value: ad.buildingArea || ad.landArea },
-        { icon: <AdCardLocationIcon className="h-5 w-5" />, value: ad.landPosition },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
+        { icon: <LinearHouseDimensions className="h-5 w-5" />, value: formatSquareMeters(ad.buildingArea || ad.landArea) },
+        { icon: <AdCardPositionIcon className="h-5 w-5" />, value: ad.landPosition },
       ]
       break
 
     // === اجاره روزانه ===
     case 'daily-apartment-suite':
       items = [
-        { icon: <LinearApartment className="h-5 w-5" />, value: 'آپارتمان' },
+        { icon: <LinearCity className="h-5 w-5" />, value: 'آپارتمان' },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
       ]
       break
 
     case 'daily-garden-villa':
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
         { icon: <AdCardCapacityIcon className="h-5 w-5" />, value: ad.capacity },
       ]
@@ -881,7 +925,7 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
     case 'daily-hotel':
       items = [
         { icon: <LinearCity className="h-5 w-5" />, value: 'هتل' },
-        { icon: <LinearStar className="h-5 w-5 text-warning fill-warning" />, value: ad.stars },
+        { icon: <LinearStar className="h-5 w-5" />, value: ad.stars },
         { icon: <LinearCalendar className="h-5 w-5" />, value: ad.rentalPeriod },
       ]
       break
@@ -890,7 +934,7 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
       items = [
         { icon: <LinearCity className="h-5 w-5" />, value: 'اتاق کار خصوصی' },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
       ]
       break
 
@@ -905,17 +949,17 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
 
     case 'project-partnership':
       items = [
-        { icon: <AdCardLandAreaIcon className="h-5 w-5" />, value: ad.landArea || ad.area },
-        { icon: <AdCardLocationIcon className="h-5 w-5" />, value: ad.landPosition },
+        { icon: <LinearHouseDimensions className="h-5 w-5" />, value: formatSquareMeters(ad.landArea || ad.area) },
+        { icon: <AdCardPositionIcon className="h-5 w-5" />, value: ad.landPosition },
         { icon: <LinearSettingBuilding className="h-5 w-5" />, value: ad.currentStatus },
       ]
       break
 
     default:
       items = [
-        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: ad.area },
+        { icon: <AdCardAreaIcon className="h-5 w-5" />, value: formatSquareMeters(ad.area) },
         { icon: <AdCardRoomsIcon className="h-5 w-5" />, value: ad.rooms },
-        { icon: <AdCardYearIcon className="h-5 w-5" />, value: ad.year },
+        { icon: <AdCardYearIcon className="h-5 w-5" />, value: formatBuildingAgeClean(ad.year) },
       ]
       break
   }

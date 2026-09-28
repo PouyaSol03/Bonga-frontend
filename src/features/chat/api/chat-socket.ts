@@ -1,6 +1,10 @@
 import { io, type Socket } from "socket.io-client";
 
-import { getStoredAccessToken } from "../../../shared/auth/auth-storage";
+import {
+  getActiveAuthRole,
+  getStoredAccessToken,
+  getStoredAuthSession,
+} from "../../../shared/auth/auth-storage";
 import { websocketBaseUrl } from "../../../shared/api/api";
 import {
   markChatMessagesRead,
@@ -38,7 +42,7 @@ type ChatSocketClientToServerEvents = {
         };
     threadId: string;
     type: "file" | "image" | "location" | "text";
-  }) => void;
+  }, callback?: (response: unknown) => void) => void;
   "chat:read": (payload: { threadId: string }) => void;
   "chat:typing": (payload: { threadId: string; typing: boolean }) => void;
 };
@@ -109,13 +113,19 @@ export function readSocketThreadId(payload: ChatJoinPayload) {
 
 export function getChatSocket(category: ChatCategory = "advertise") {
   const token = getStoredAccessToken();
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const userType = activeRole === "real_estate_manager" ? "real_estate_manager" : (activeRole ?? "user");
+
+  const auth = {
+    token: token ? `Bearer ${token}` : "",
+    "user-type": userType,
+  };
+
   let chatSocket = chatSockets.get(category);
 
   if (!chatSocket) {
     chatSocket = io(getChatSocketUrl(), {
-      auth: {
-        token: token ? `Bearer ${token}` : "",
-      },
+      auth,
       autoConnect: false,
       transports: ["websocket", "polling"],
       withCredentials: true,
@@ -123,7 +133,7 @@ export function getChatSocket(category: ChatCategory = "advertise") {
     chatSockets.set(category, chatSocket);
   }
 
-  chatSocket.auth = { token: token ? `Bearer ${token}` : "" };
+  chatSocket.auth = auth;
 
   if (!chatSocket.connected) {
     chatSocket.connect();
@@ -150,7 +160,11 @@ export function joinChatThread({
     }
   };
 
-  socket.emit("chat:join", threadId ? { threadId } : {}, handleJoinPayload);
+  socket.emit(
+    "chat:join",
+    threadId ? { threadId: String(threadId) } : {},
+    handleJoinPayload,
+  );
 
   return socket;
 }
@@ -159,14 +173,14 @@ export function leaveChatThread(
   threadId: string,
   category: ChatCategory = "advertise",
 ) {
-  getChatSocket(category).emit("chat:leave", { threadId });
+  getChatSocket(category).emit("chat:leave", { threadId: String(threadId) });
 }
 
 export function markChatRead(
   threadId: string,
   category: ChatCategory = "advertise",
 ) {
-  getChatSocket(category).emit("chat:read", { threadId });
+  getChatSocket(category).emit("chat:read", { threadId: String(threadId) });
   void markChatMessagesRead(threadId).catch(() => undefined);
 }
 
@@ -196,13 +210,32 @@ function sendChatMessageWithSocketFallback({
   threadId: string;
   type: Exclude<ChatMessageType, "system">;
 }) {
-  return sendChatMessage({ body, threadId, type }).catch(() => {
-    getChatSocket(category).emit("chat:message:send", {
-      body: fallbackBody ?? body,
-      ...(fallbackMetadata ? { metadata: fallbackMetadata } : {}),
-      threadId,
-      type,
+  const socket = getChatSocket(category);
+  const normalizedThreadId = String(threadId);
+  const payload = {
+    body: fallbackBody ?? body,
+    ...(fallbackMetadata ? { metadata: fallbackMetadata } : {}),
+    threadId: normalizedThreadId,
+    type,
+  };
+
+  if (socket.connected) {
+    return new Promise<void>((resolve, reject) => {
+      socket.emit("chat:message:send", payload, (response: unknown) => {
+        const res = response as { status?: boolean; error?: string } | undefined;
+        if (res && res.status === false) {
+          sendChatMessage({ body, threadId: normalizedThreadId, type })
+            .then(() => resolve())
+            .catch(reject);
+        } else {
+          resolve();
+        }
+      });
     });
+  }
+
+  return sendChatMessage({ body, threadId: normalizedThreadId, type }).catch(() => {
+    socket.emit("chat:message:send", payload);
   });
 }
 

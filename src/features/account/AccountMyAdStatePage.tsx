@@ -17,6 +17,7 @@ import {
   useAdvertisementArchiveStatusQuery,
   useAdvertisementReRegisterStatusQuery,
 } from "../advertisements/api/agency-advertise-assignment.hooks";
+import { formatStopPublishReason } from "../advertisements/api/agency-advertise-assignment.service";
 import { useAgencyConsultantsQuery, useAgencyInfiniteQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
@@ -391,10 +392,10 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         <StopPublishModal
           isPending={createStopRequestMutation.isPending}
           onClose={() => setIsStopPublishModalOpen(false)}
-          onConfirm={async (reason: string) => {
+          onConfirm={async (reason: string, description?: string) => {
             if (!adId) return;
             try {
-              await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason });
+              await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason, description });
               setIsStopPublishModalOpen(false);
               await detailQuery.refetch();
             } catch (err) {
@@ -510,7 +511,7 @@ function RealEstateManagerAdStatePage({
               </Typography>
               {ad?.delete_reason && typeof ad.delete_reason === "object" && (ad.delete_reason as Record<string, unknown>).reason ? (
                 <div className="mt-2 rounded-lg bg-surface p-2.5 text-xs font-medium text-on-surface border border-outline-var">
-                  علت درخواست: {String((ad.delete_reason as Record<string, unknown>).reason)}
+                  علت درخواست: {formatStopPublishReason((ad.delete_reason as Record<string, unknown>).reason)}
                 </div>
               ) : null}
               {(() => {
@@ -1735,9 +1736,9 @@ function AgencyReassignBottomSheet({
 
 
 const STOP_PUBLISH_REASONS = [
-  "معامله انجام شده",
-  "دیگر تمایلی به انتشار ندارم",
-  "سایر دلایل",
+  { id: "deal_done", label: "معامله انجام شده است" },
+  { id: "no_longer_want_publish", label: "دیگر تمایلی به انتشار آگهی ندارم" },
+  { id: "other", label: "سایر دلایل" },
 ] as const;
 
 function StopPublishModal({
@@ -1747,16 +1748,14 @@ function StopPublishModal({
 }: {
   isPending: boolean;
   onClose: () => void;
-  onConfirm: (reason: string) => void;
+  onConfirm: (reason: string, description?: string) => void;
 }) {
-  const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_REASONS[0]);
+  const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_REASONS[0].id);
   const [customReason, setCustomReason] = useState("");
 
   const handleSubmit = () => {
-    const finalReason = selectedReason === "سایر دلایل" && customReason.trim()
-      ? customReason.trim()
-      : selectedReason;
-    onConfirm(finalReason);
+    const description = selectedReason === "other" && customReason.trim() ? customReason.trim() : undefined;
+    onConfirm(selectedReason, description);
   };
 
   return (
@@ -1774,27 +1773,27 @@ function StopPublishModal({
         </Typography>
 
         <div className="mt-4 space-y-2">
-          {STOP_PUBLISH_REASONS.map((reason) => (
+          {STOP_PUBLISH_REASONS.map((option) => (
             <label
-              key={reason}
+              key={option.id}
               className="flex items-center justify-between rounded-xl border border-outline-var p-3 cursor-pointer hover:bg-surface-container"
             >
               <div className="flex items-center gap-2.5">
                 <input
                   type="radio"
                   name="stopReason"
-                  value={reason}
-                  checked={selectedReason === reason}
-                  onChange={() => setSelectedReason(reason)}
+                  value={option.id}
+                  checked={selectedReason === option.id}
+                  onChange={() => setSelectedReason(option.id)}
                   className="accent-primary h-4 w-4"
                 />
-                <span className="text-xs font-medium text-on-surface">{reason}</span>
+                <span className="text-xs font-medium text-on-surface">{option.label}</span>
               </div>
             </label>
           ))}
         </div>
 
-        {selectedReason === "سایر دلایل" ? (
+        {selectedReason === "other" ? (
           <textarea
             className="mt-3 w-full rounded-xl border border-outline-var bg-surface p-3 text-xs text-on-surface focus:outline-primary"
             placeholder="توضیح کوتاه دلیل توقف..."

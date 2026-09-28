@@ -312,9 +312,41 @@ export async function reassignAdToAgency({
     .json();
 }
 
+export type StopPublishReasonKey = "deal_done" | "no_longer_want_publish" | "other";
+
+export function normalizeStopPublishReason(reason: string): StopPublishReasonKey {
+  const clean = (reason ?? "").trim().toLowerCase();
+  if (
+    clean === "deal_done" ||
+    clean.includes("معامله") ||
+    clean.includes("انجام شده")
+  ) {
+    return "deal_done";
+  }
+  if (
+    clean === "no_longer_want_publish" ||
+    clean.includes("تمایل") ||
+    clean.includes("منصرف") ||
+    clean.includes("نمی‌خواهم") ||
+    clean.includes("نمیخواهم")
+  ) {
+    return "no_longer_want_publish";
+  }
+  return "other";
+}
+
+export function formatStopPublishReason(reason: unknown): string {
+  if (typeof reason !== "string") return "—";
+  const trimmed = reason.trim();
+  if (trimmed === "deal_done") return "معامله انجام شده است";
+  if (trimmed === "no_longer_want_publish") return "دیگر تمایلی به انتشار آگهی ندارم";
+  if (trimmed === "other") return "سایر دلایل";
+  return trimmed;
+}
+
 export type CreateStopPublishRequestPayload = {
   advertiseId: string | number;
-  reason: string;
+  reason: StopPublishReasonKey | string;
   description?: string;
 };
 
@@ -323,9 +355,17 @@ export async function createStopPublishRequest({
   reason,
   description,
 }: CreateStopPublishRequestPayload) {
+  const normalizedReason = normalizeStopPublishReason(reason);
+  const normalizedDescription =
+    description?.trim() ||
+    (reason !== normalizedReason && normalizedReason === "other" ? reason.trim() : undefined);
+
   return api
     .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/stop-request`, {
-      json: { reason, description },
+      json: {
+        reason: normalizedReason,
+        ...(normalizedDescription ? { description: normalizedDescription } : {}),
+      },
     })
     .json();
 }

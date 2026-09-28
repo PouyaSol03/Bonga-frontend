@@ -177,7 +177,7 @@ export function TextField({
             >
               <Button unstyled
                 aria-label="پاک کردن"
-                className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 hover:bg-surface-container-low active:bg-surface-container-high"
+                className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 active:bg-surface-container-high"
                 onClick={(event) => {
                   event.preventDefault();
                   onClear();

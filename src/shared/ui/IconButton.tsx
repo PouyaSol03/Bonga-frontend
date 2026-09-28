@@ -14,10 +14,10 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children">
 };
 
 const variantClasses: Record<IconButtonVariant, string> = {
-  filled: "bg-primary text-on-primary hover:opacity-90 active:opacity-80",
-  outlined: "border border-outline-var bg-surface-container-lowest text-on-surface-var hover:bg-surface-container active:bg-surface-container-high",
-  standard: "bg-transparent text-on-surface-var hover:bg-surface-container active:bg-surface-container-high",
-  tonal: "bg-primary-container text-primary hover:bg-primary-container/80 active:bg-primary-container/60",
+  filled: "bg-primary text-on-primary active:opacity-80",
+  outlined: "border border-outline-var bg-surface-container-lowest text-on-surface-var active:bg-surface-container-high",
+  standard: "bg-transparent text-on-surface-var active:bg-surface-container-high",
+  tonal: "bg-primary-container text-primary active:bg-primary-container/60",
 };
 
 export function IconButton({

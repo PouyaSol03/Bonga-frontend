@@ -89,7 +89,7 @@ function TopBarBackIcon({ direction = "right" }: { direction?: "left" | "right" 
 
 function TopBarIconButton({ action }: { action: TopBarAction }) {
   const className =
-    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 hover:bg-surface-container-low active:bg-surface-container-high";
+    "grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 active:bg-surface-container-high";
 
   if (action.to) {
     return (
@@ -129,7 +129,7 @@ function TopBarBackButton({
   return (
     <Button unstyled
       aria-label={label}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 hover:bg-surface-container-low active:bg-surface-container-high"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 active:bg-surface-container-high"
       onClick={() => {
         if (onBack) {
           onBack();

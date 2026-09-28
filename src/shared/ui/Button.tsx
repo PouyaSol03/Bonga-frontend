@@ -40,21 +40,21 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
  */
 const variantClasses: Record<ButtonVariant, string> = {
   danger:
-    "border border-error bg-error text-on-primary hover:bg-error/90 focus:bg-error/90 active:bg-error/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
+    "border border-error bg-error text-on-primary focus:bg-error/90 active:bg-error/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   ghost:
-    "border border-transparent bg-transparent text-primary hover:bg-primary/10 focus:bg-primary/20 active:bg-primary/20 disabled:border-transparent disabled:bg-transparent disabled:text-outline",
+    "border border-transparent bg-transparent text-primary focus:bg-primary/20 active:bg-primary/20 disabled:border-transparent disabled:bg-transparent disabled:text-outline",
   neutral:
-    "border border-transparent bg-secondary-container text-on-secondary-container hover:bg-secondary-container/80 focus:bg-secondary-container/80 active:bg-secondary-container/80 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
+    "border border-transparent bg-secondary-container text-on-secondary-container focus:bg-secondary-container/80 active:bg-secondary-container/80 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   "neutral-outline":
-    "border border-outline-var bg-transparent text-on-surface hover:border-primary hover:bg-primary/10 hover:text-primary focus:border-primary focus:bg-primary/20 focus:text-primary active:border-primary active:bg-primary/20 active:text-primary disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
+    "border border-outline-var bg-transparent text-on-surface focus:border-primary focus:bg-primary/20 focus:text-primary active:border-primary active:bg-primary/20 active:text-primary disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
   "neutral-text":
-    "border border-transparent bg-transparent text-on-surface-var hover:text-primary focus:text-primary active:text-primary disabled:bg-transparent disabled:text-outline",
+    "border border-transparent bg-transparent text-on-surface-var focus:text-primary active:text-primary disabled:bg-transparent disabled:text-outline",
   primary:
-    "border border-primary bg-primary text-on-primary hover:bg-primary/90 focus:bg-primary/90 active:bg-primary/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
+    "border border-primary bg-primary text-on-primary focus:bg-primary/90 active:bg-primary/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   secondary:
-    "border border-primary bg-transparent text-primary hover:bg-primary/10 focus:bg-primary/20 active:bg-primary/20 disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
+    "border border-primary bg-transparent text-primary focus:bg-primary/20 active:bg-primary/20 disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
   text:
-    "border border-transparent bg-transparent text-primary hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-outline",
+    "border border-transparent bg-transparent text-primary focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-outline",
 };
 
 /* Keep the old sizing contract unchanged for existing screens. */

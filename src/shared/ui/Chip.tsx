@@ -59,7 +59,7 @@ export function Chip({
       aria-pressed={selected}
       className={cn(
         "inline-flex shrink-0 items-center justify-center min-w-9 gap-1.5 rounded-[10px] border p-2 text-sm font-medium leading-5 cursor-pointer will-change-transform active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:duration-100 [direction:rtl]",
-        selected ? "border-primary bg-primary/16 text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface hover:border-outline hover:bg-surface-container-low",
+        selected ? "border-primary bg-primary/16 text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface",
         focusRing,
         "disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:border-outline-var/50 disabled:bg-surface-container disabled:text-outline",
         className,

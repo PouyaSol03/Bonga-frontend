@@ -14,6 +14,8 @@ import {
   useRejectAgencyStopRequestMutation,
   useRepublishAdAsPersonalMutation,
   useRestoreArchivedAdMutation,
+  useAdvertisementArchiveStatusQuery,
+  useAdvertisementReRegisterStatusQuery,
 } from "../advertisements/api/agency-advertise-assignment.hooks";
 import { useAgencyConsultantsQuery, useAgencyInfiniteQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
@@ -143,6 +145,9 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const createStopRequestMutation = useCreateStopPublishRequestMutation();
   const cancelStopRequestMutation = useCancelStopPublishRequestMutation();
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
+  const currentAdId = adId ?? (card ? String(card.id) : undefined);
+  const reRegisterStatusQuery = useAdvertisementReRegisterStatusQuery(currentAdId);
+  const archiveStatusQuery = useAdvertisementArchiveStatusQuery(currentAdId);
 
   const isAssigned = Boolean(
     props?.isAssigned ??
@@ -253,13 +258,13 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               onCancelAssignment={() => setIsCancelAssignmentModalOpen(true)}
             />
           ) : null}
-          {statusInfo.key === "wait_for_repost" ? (
+          {statusInfo.key === "wait_for_repost" && reRegisterStatusQuery.data?.status !== false ? (
             <WaitForRepostNotice
               ad={sourceAd}
               onRepost={() => setIsRepostChoiceModalOpen(true)}
             />
           ) : null}
-          {statusInfo.key === "archived" ? (
+          {statusInfo.key === "archived" && archiveStatusQuery.data?.status !== false ? (
             <ArchivedNotice
               ad={sourceAd}
               isPending={restoreArchivedMutation.isPending}

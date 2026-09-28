@@ -198,11 +198,11 @@ export function IndependentConsultantAdAllocationReviewPage(props?: IndependentC
               assignment,
               previewFlow: "agency-allocation",
               userContact: {
-                name: (ad as Record<string, unknown>)?.owner_name ?? (ad as Record<string, unknown>)?.user_name ?? (assignment as Record<string, unknown>)?.advertiserName ?? "ناصر اشرفی",
-                phone: advertiserPhone || "09361208874",
-                smsPhone: advertiserPhone || "09155214062",
-                address: (ad as Record<string, unknown>)?.address ?? (ad as Record<string, unknown>)?.location_address ?? "صیاد شیرازی ۳ - پلاک ۲۴",
-                social: (ad as Record<string, unknown>)?.social ?? (ad as Record<string, unknown>)?.contacts,
+                name: (ad as Record<string, unknown>)?.owner_name ?? (ad as Record<string, unknown>)?.user_name ?? (assignment as Record<string, unknown>)?.advertiserName ?? undefined,
+                phone: advertiserPhone || undefined,
+                smsPhone: advertiserPhone || undefined,
+                address: (ad as Record<string, unknown>)?.address ?? (ad as Record<string, unknown>)?.location_address ?? undefined,
+                social: (ad as Record<string, unknown>)?.social ?? (ad as Record<string, unknown>)?.contacts ?? undefined,
               },
             }}
             to={getAdPreviewPath(ad.id)}

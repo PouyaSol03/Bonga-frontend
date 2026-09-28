@@ -1588,29 +1588,29 @@ export function ViewAdPage() {
         toNonEmptyText((resolvedAd as Record<string, unknown>)?.advertiser_name) ||
         toNonEmptyText((resolvedAd as Record<string, unknown>)?.owner_name) ||
         toNonEmptyText((resolvedAd as Record<string, unknown>)?.contact_name) ||
-        (rawAgencyUserContact ? undefined : "ناصر اشرفی")),
+        undefined),
     phone:
       rawAgencyUserContact?.phone ??
       (toNonEmptyText(contactInfo.phone) ||
         toNonEmptyText((resolvedAd as Record<string, unknown>)?.phone) ||
         toNonEmptyText((resolvedAd as Record<string, unknown>)?.user_phone) ||
-        (rawAgencyUserContact ? undefined : "09361208874")),
+        undefined),
     smsPhone:
       rawAgencyUserContact?.smsPhone ??
       (toNonEmptyText((resolvedAd as Record<string, unknown>)?.sms_phone) ||
         toNonEmptyText(((resolvedAd as Record<string, unknown>)?.contacts as Record<string, unknown> | undefined)?.sms) ||
         toNonEmptyText(contactInfo.phone) ||
-        (rawAgencyUserContact ? undefined : "09155214062")),
+        undefined),
     address:
       rawAgencyUserContact?.address ??
       (toNonEmptyText((resolvedAd as Record<string, unknown>)?.address) ||
         toNonEmptyText((resolvedAd as Record<string, unknown>)?.location_address) ||
         toNonEmptyText(details.locationTitle) ||
-        (rawAgencyUserContact ? undefined : "صیاد شیرازی ۳ - پلاک ۲۴")),
+        undefined),
     social: rawAgencyUserContact?.social ?? {
-      instagram: contactInfo.instagram || (!rawAgencyUserContact ? "bonga_realestate" : undefined),
-      telegram: contactInfo.telegram || (!rawAgencyUserContact ? "bonga_support" : undefined),
-      whatsapp: contactInfo.whatsapp || (!rawAgencyUserContact ? "09361208874" : undefined),
+      instagram: contactInfo.instagram || undefined,
+      telegram: contactInfo.telegram || undefined,
+      whatsapp: contactInfo.whatsapp || undefined,
     },
   };
   const hasAgencyContactData = Boolean(

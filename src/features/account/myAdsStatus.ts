@@ -178,6 +178,30 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.rejected_by_agency;
   }
 
+  const isAssignedToAgency = Boolean(
+    record?.assigned_agency_id ||
+    record?.assignedAgencyId ||
+    record?.assignment_id ||
+    record?.assignmentId ||
+    record?.is_assigned ||
+    record?.isAssigned
+  );
+
+  if (
+    assignmentStatus === "pending" ||
+    assignmentStatus === "waiting" ||
+    assignmentStatus === "wait_for_agency" ||
+    assignmentStatus === "pending_agency_approval" ||
+    status === "wait_for_agency" ||
+    status === "wait-for-agency" ||
+    (isAssignedToAgency &&
+      (["1", "2", "pending", "review", "waiting", "wait_for_agency", "wait-for-agency"].includes(status) ||
+        status.includes("انتظار") ||
+        status.includes("بررسی")))
+  ) {
+    return myAdStatusConfig.wait_for_agency;
+  }
+
   if (
     assignmentStatus === "cancelled" ||
     deleteReason?.source === "assignment_cancelled" ||
@@ -241,11 +265,27 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.wait_for_payment;
   }
 
-  if (["2", "wait-for-agency"].includes(status)) {
+  if (
+    [
+      "2",
+      "wait-for-agency",
+      "wait_for_agency",
+      "pending_agency",
+      "pending_agency_approval",
+      "waiting_for_agency",
+      "waiting-for-agency",
+    ].includes(status)
+  ) {
     return myAdStatusConfig.wait_for_agency;
   }
 
-  if (status.includes("انتظار آژانس") || status.includes("تایید آژانس")) {
+  if (
+    status.includes("انتظار آژانس") ||
+    status.includes("تایید آژانس") ||
+    status.includes("تأیید آژانس") ||
+    status.includes("واگذاری") ||
+    (status.includes("آژانس") && (status.includes("انتظار") || status.includes("بررسی")))
+  ) {
     return myAdStatusConfig.wait_for_agency;
   }
 

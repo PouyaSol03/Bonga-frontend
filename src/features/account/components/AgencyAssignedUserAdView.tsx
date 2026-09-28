@@ -369,7 +369,7 @@ export function AgencyAssignedUserAdView({
   const reviewTimeRemaining = resolveReviewTimeRemaining(ad);
 
   const isPublished = statusKey === "published";
-  const isWaitForAgency = statusKey === "wait_for_agency";
+  const isWaitForAgency = statusKey === "wait_for_agency" || statusKey === "pending";
   const isWaitForRepost = statusKey === "wait_for_repost";
   const isArchived = statusKey === "archived";
   const isWaitForDeal = statusKey === "wait_for_deal_confirmation";
@@ -504,7 +504,7 @@ export function AgencyAssignedUserAdView({
         {isWaitForAgency && (
           <div className="mt-4 rounded-2xl border border-warning-container bg-warning-container/20 p-4 text-right">
             <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-on-surface">
-              آگهی شما در حال بررسی توسط {agencyName} است. پس از تأیید آژانس، به صورت خودکار منتشر خواهد شد.
+              آگهی شما در حال بررسی توسط {agencyName} است. پس از تأیید آژانس، به صورت خودکار منتشر خواهد شد. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در صورت تمایل می‌توانید پیش از تایید آژانس، واگذاری را لغو کنید.
             </Typography>
             <div className="mt-3 border-t border-dotted border-warning/30 pt-3">
               <div className="flex items-center justify-between text-xs font-medium text-warning [direction:rtl]">
@@ -519,6 +519,15 @@ export function AgencyAssignedUserAdView({
                 </Typography>
               </div>
             </div>
+
+            <Button
+              unstyled
+              className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
+              onClick={() => setIsCancelAssignmentOpen(true)}
+              type="button"
+            >
+              لغو واگذاری به آژانس
+            </Button>
           </div>
         )}
       </section>

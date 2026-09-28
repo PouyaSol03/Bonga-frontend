@@ -27,6 +27,8 @@ import {
   submitConsultantAdvertisementCheckout,
   submitAdvertiseFeedback,
   submitAdvertiseReport,
+  removeAgencyAdvertisement,
+  type AgencyRemoveAdPayload,
   type AdvertisementItem,
   type AdvertisementListParams,
   type AdvertisementMapParams,
@@ -312,3 +314,21 @@ export function useSubmitAdvertiseReportMutation() {
     mutationFn: submitAdvertiseReport,
   });
 }
+
+export function useRemoveAgencyAdvertisementMutation() {
+  return useMutation({
+    mutationFn: ({
+      advertiseId,
+      payload,
+    }: {
+      advertiseId: string | number;
+      payload?: AgencyRemoveAdPayload;
+    }) => removeAgencyAdvertisement(advertiseId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
+  });
+}
+

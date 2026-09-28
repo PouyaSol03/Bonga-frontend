@@ -1599,3 +1599,25 @@ export function submitAdvertiseReport({
     })
     .json<ApiMutationResponse>();
 }
+
+export interface AgencyRemoveAdPayload {
+  reason?: "deal_done" | "no_longer_want_publish" | "other" | string;
+  description?: string;
+}
+
+export async function removeAgencyAdvertisement(
+  advertiseId: string | number,
+  payload: AgencyRemoveAdPayload = {
+    reason: "other",
+    description: "حذف توسط آژانس",
+  },
+) {
+  const response = await api
+    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(advertiseId))}/remove`, {
+      json: payload,
+    })
+    .json<Record<string, unknown>>();
+
+  return response;
+}
+

@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import { getApiErrorMessage } from "../../shared/api/api";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
-import { useMyAdvertisementDetailQuery } from "../advertisements/api/advertisement.hooks";
+import {
+  useMyAdvertisementDetailQuery,
+  useRemoveAgencyAdvertisementMutation,
+} from "../advertisements/api/advertisement.hooks";
 import {
   useApproveAgencyStopRequestMutation,
   useCancelStopPublishRequestMutation,
@@ -469,8 +472,41 @@ function RealEstateManagerAdStatePage({
   });
   const publisher = publisherOptions.find((option) => option.id === publisherId) ?? publisherOptions[0];
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const removeAgencyAdMutation = useRemoveAgencyAdvertisementMutation();
 
-  const managerActions = getManagerActions(statusInfo.key, adId);
+  const handleDeleteAd = async () => {
+    setIsDeleting(true);
+    try {
+      await removeAgencyAdMutation.mutateAsync({
+        advertiseId: adId,
+        payload: {
+          reason: "other",
+          description: "حذف توسط آژانس",
+        },
+      });
+      setIsDeleteDialogOpen(false);
+      window.history.pushState(backState ?? {}, "", backTo);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    } catch (err) {
+      alert(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const isAdDeleted =
+    statusInfo.key === "deleted" ||
+    statusInfo.key === "incomplete_deleted" ||
+    statusInfo.label === "حذف شده";
+
+  const managerActions = getManagerActions(
+    statusInfo.key,
+    adId,
+    () => setIsDeleteDialogOpen(true),
+    isAdDeleted,
+  );
 
   return (
     <PageFrame
@@ -644,6 +680,46 @@ function RealEstateManagerAdStatePage({
           selectedPublisher={publisher}
         />
       ) : null}
+
+      <BottomSheet
+        ariaLabel="حذف آگهی"
+        className="rounded-t-[24px]!"
+        contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+        headerButtonAriaLabel="بستن"
+        headerClassName="h-10! gap-1! px-2!"
+        isOpen={isDeleteDialogOpen}
+        onClose={() => !isDeleting && setIsDeleteDialogOpen(false)}
+        title="حذف آگهی"
+        variant="confirm"
+        zIndexClassName="z-2000"
+      >
+        <div className="px-4 pb-4 pt-1 text-right [direction:rtl]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm leading-6 text-on-surface">
+            آیا از حذف آگهی مطمئن هستید؟
+          </Typography>
+
+          <div className="mt-6 flex gap-3">
+            <Button
+              unstyled
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-error text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
+              disabled={isDeleting}
+              onClick={handleDeleteAd}
+              type="button"
+            >
+              {isDeleting ? "در حال حذف..." : "بله"}
+            </Button>
+            <Button
+              unstyled
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-outline-var bg-surface text-sm font-medium text-on-surface active:bg-surface-container"
+              disabled={isDeleting}
+              onClick={() => setIsDeleteDialogOpen(false)}
+              type="button"
+            >
+              خیر
+            </Button>
+          </div>
+        </div>
+      </BottomSheet>
     </PageFrame>
   );
 }
@@ -651,27 +727,33 @@ function RealEstateManagerAdStatePage({
 function getManagerActions(
   status: MyAdStatusKey,
   adId: string,
+  onDelete?: () => void,
+  isAdDeleted?: boolean,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
   const result: StateAction = { icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) };
+  const remove: StateAction = { icon: "delete", label: "حذف", onClick: onDelete };
   const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
   const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
 
+  if (isAdDeleted || status === "deleted" || status === "incomplete_deleted") {
+    return [preview, history];
+  }
   if (status === "published") {
-    return [preview, edit, result, upgrade, history];
+    return [preview, edit, result, remove, upgrade, history];
   }
   if (status === "wait_for_stop" || status === "wait_for_deal_confirmation") {
-    return [preview, history];
+    return [preview, remove, history];
   }
   if (status === "incomplete" || status === "needs_edit" || status === "wait_for_payment") {
-    return [preview, edit, history];
+    return [preview, edit, remove, history];
   }
   if (status === "pending") {
-    return [preview, history];
+    return [preview, remove, history];
   }
   if (status === "expired") {
-    return [preview, result, history];
+    return [preview, result, remove, history];
   }
   return [preview, history];
 }

@@ -710,7 +710,7 @@ export function mapAdvertisementToAdCard(
     "city_name",
   ]);
   const image = images[0] ?? "";
-  const description = toText(item.description ?? item.short_description);
+  const description = toText(item.short_description ?? item.description);
   const area = readFeatureValue(item, ["area", "meterage", "building_area", "land_area", "متراژ", "buildingArea", "landArea"]) ?? item.area;
   const rooms = readFeatureValue(item, ["rooms", "اتاق", "خواب"]) ?? item.rooms;
   const buildingAge = readFeatureValue(item, ["building_age", "سال ساخت", "age", "year"]) ?? item.year;

@@ -762,7 +762,7 @@ function mapAdvertisementToSearchListing(
     "city",
     "city_name",
   ]);
-  const description = toText(item.description ?? item.short_description);
+  const description = toText(item.short_description ?? item.description);
   const id = item.id ?? item._id ?? `map-ad-${index + 1}`;
   const formCode = toText(item.form_code ?? readFeatureRaw(item, ["form_code"]), "");
   const category = toText(item.category ?? item.category_name ?? item.category_title ?? readFeatureRaw(item, ["category", "دسته بندی"]), "");

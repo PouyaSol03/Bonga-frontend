@@ -615,7 +615,7 @@ export function AgencyPreviewPage() {
       },
       onError: (err) => {
         showToast(
-          getApiErrorMessage(err, "برقراری ارتباط با چت با خطا مواجه شد."),
+          getApiErrorMessage(err, "امکان چت آنلاین با این آژانس در حال حاضر فعال نیست."),
           "خطا",
           "error",
         );

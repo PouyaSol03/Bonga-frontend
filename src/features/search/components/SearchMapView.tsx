@@ -215,7 +215,7 @@ function SearchMapViewComponent({
 
   return (
     <MapContainer
-      className="relative z-0 h-full min-h-[320px] w-full bg-surface-container-low"
+      className="relative z-0 h-full min-h-[320px] w-full bg-surface-container-low!"
       center={[center.latitude, center.longitude]}
       zoom={center.zoom}
       minZoom={tileConfig.minZoom}
@@ -228,6 +228,8 @@ function SearchMapViewComponent({
         url={tileConfig.urlTemplate}
         attribution={tileConfig.attribution}
         tms={tileConfig.isTms}
+        className={tileConfig.className}
+        maxZoom={tileConfig.maxZoom}
       />
 
       <SearchMapController

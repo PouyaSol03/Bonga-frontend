@@ -1285,6 +1285,8 @@ function CityPointEditor({
         <MapContainer attributionControl={false} center={point} className="h-full w-full" scrollWheelZoom zoom={15} zoomControl={false}>
           <TileLayer
             attribution={searchMapTileConfig.attribution}
+            className={searchMapTileConfig.className}
+            maxZoom={searchMapTileConfig.maxZoom}
             tms={searchMapTileConfig.isTms}
             url={searchMapTileConfig.urlTemplate}
           />
@@ -1607,6 +1609,8 @@ function NeighborhoodPolygonEditor({
         <MapContainer center={center} className="h-full w-full" scrollWheelZoom zoom={13}>
           <TileLayer
             attribution={searchMapTileConfig.attribution}
+            className={searchMapTileConfig.className}
+            maxZoom={searchMapTileConfig.maxZoom}
             tms={searchMapTileConfig.isTms}
             url={searchMapTileConfig.urlTemplate}
           />

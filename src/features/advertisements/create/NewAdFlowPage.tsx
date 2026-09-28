@@ -284,7 +284,7 @@ async function buildCrmAdvertisePayload(
   const formCode = structuredPayload.features.find((feature) => feature.key === "form_code")?.value;
   const storedLat = window.localStorage.getItem(locationLatKey);
   const storedLng = window.localStorage.getItem(locationLngKey);
-  const storedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
+  const storedNeighborhoodId = values.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey);
   const lat = Number(storedLat ?? original.lat ?? original.latitude);
   const lng = Number(storedLng ?? original.lng ?? original.long ?? original.longitude);
   const images = values.photos.flatMap((photo) => {
@@ -919,10 +919,27 @@ export function NewAdFlowPage() {
     if (!restoredValues) return getDefaultValues(editAdState);
 
     const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
+    const storedNeighborhoodId =
+      restoredValues?.neighborhoodId ||
+      window.localStorage.getItem(neighborhoodIdKey) ||
+      undefined;
+    const storedSubNeighborhoodId =
+      restoredValues?.subNeighborhoodId ||
+      window.localStorage.getItem(subNeighborhoodIdKey) ||
+      undefined;
+
+    if (storedNeighborhoodId && typeof window !== "undefined") {
+      window.localStorage.setItem(neighborhoodIdKey, storedNeighborhoodId);
+    }
+    if (storedSubNeighborhoodId && typeof window !== "undefined") {
+      window.localStorage.setItem(subNeighborhoodIdKey, storedSubNeighborhoodId);
+    }
 
     return {
       ...blankValues,
       ...restoredValues,
+      neighborhoodId: storedNeighborhoodId,
+      subNeighborhoodId: storedSubNeighborhoodId,
       location: confirmedLocation || restoredValues.location || blankValues.location,
       dailyHotelRooms:
         Array.isArray(restoredValues.dailyHotelRooms) && restoredValues.dailyHotelRooms.length
@@ -1064,20 +1081,43 @@ export function NewAdFlowPage() {
       const values = methods.getValues();
       const currentConfirmedLoc = window.localStorage.getItem(locationKey)?.trim();
       const resolvedLoc = values.location || currentConfirmedLoc || "";
+      const currentNeighborhoodId =
+        values.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey) || "";
+      const currentSubNeighborhoodId =
+        values.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
       const safeDraft = {
         ...values,
         location: resolvedLoc,
+        neighborhoodId: currentNeighborhoodId,
+        subNeighborhoodId: currentSubNeighborhoodId,
         hasVideo: false,
         photos: [],
         video: null,
       };
 
-      saveNewAdFlowSession({ ...values, location: resolvedLoc }, step, draftAdId);
+      saveNewAdFlowSession(
+        {
+          ...values,
+          location: resolvedLoc,
+          neighborhoodId: currentNeighborhoodId,
+          subNeighborhoodId: currentSubNeighborhoodId,
+        },
+        step,
+        draftAdId,
+        currentNeighborhoodId,
+        currentSubNeighborhoodId,
+      );
       if (!isEditMode) {
         window.localStorage.setItem(draftKey, JSON.stringify(safeDraft));
       }
       if (resolvedLoc) {
         window.localStorage.setItem(locationKey, resolvedLoc);
+      }
+      if (currentNeighborhoodId) {
+        window.localStorage.setItem(neighborhoodIdKey, currentNeighborhoodId);
+      }
+      if (currentSubNeighborhoodId) {
+        window.localStorage.setItem(subNeighborhoodIdKey, currentSubNeighborhoodId);
       }
     };
 
@@ -1114,17 +1154,20 @@ export function NewAdFlowPage() {
     const clearOnExit = () => {
       if (window.location.pathname.startsWith("/new-ad")) return;
       if (shouldPreserveNewAdDraft(window.history.state)) return;
+      if (
+        window.location.pathname.startsWith("/agencies") ||
+        window.location.pathname.startsWith("/agents")
+      ) {
+        return;
+      }
 
       clearNewAdDraftStorage();
     };
-    const clearOnPageHide = () => clearNewAdDraftStorage();
 
     window.addEventListener("popstate", clearOnExit);
-    window.addEventListener("pagehide", clearOnPageHide);
 
     return () => {
       window.removeEventListener("popstate", clearOnExit);
-      window.removeEventListener("pagehide", clearOnPageHide);
     };
   }, []);
 

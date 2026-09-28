@@ -414,6 +414,16 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
     : getParams().registrantType;
   const preserveDraft = typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
   const draftValues = editDefaults || !preserveDraft ? null : getDraft();
+  if (draftValues?.neighborhoodId && typeof window !== "undefined") {
+    if (!window.localStorage.getItem(neighborhoodIdKey)) {
+      window.localStorage.setItem(neighborhoodIdKey, draftValues.neighborhoodId);
+    }
+  }
+  if (draftValues?.subNeighborhoodId && typeof window !== "undefined") {
+    if (!window.localStorage.getItem(subNeighborhoodIdKey)) {
+      window.localStorage.setItem(subNeighborhoodIdKey, draftValues.subNeighborhoodId);
+    }
+  }
   const baseValues = editDefaults
     ? {
         ...blankValues,
@@ -422,6 +432,12 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
     : {
         ...blankValues,
         ...draftValues,
+        neighborhoodId:
+          draftValues?.neighborhoodId ||
+          (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) ?? "" : ""),
+        subNeighborhoodId:
+          draftValues?.subNeighborhoodId ||
+          (typeof window !== "undefined" ? window.localStorage.getItem(subNeighborhoodIdKey) ?? "" : ""),
         suitableFor: normalizeDraftStringArray(draftValues?.suitableFor),
         location: preserveDraft ? (window.localStorage.getItem(locationKey) ?? "") : "",
       };
@@ -961,10 +977,16 @@ export function buildNewAdFormData(
   appendBaseValue("category_id", options.categoryId);
   appendBaseValue("title", cleanValues.title);
   appendBaseValue("description", cleanValues.description);
-  const storedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
-  const storedSubNeighborhoodId = window.localStorage.getItem(subNeighborhoodIdKey);
-  appendBaseValue("neighborhood_id", storedNeighborhoodId || (cleanValues as any).neighborhood_id || (cleanValues as any).neighborhoodId);
-  appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId || (cleanValues as any).sub_neighborhood_id || (cleanValues as any).subNeighborhoodId);
+  const storedNeighborhoodId =
+    cleanValues.neighborhoodId ||
+    window.localStorage.getItem(neighborhoodIdKey) ||
+    (cleanValues as any).neighborhood_id;
+  const storedSubNeighborhoodId =
+    cleanValues.subNeighborhoodId ||
+    window.localStorage.getItem(subNeighborhoodIdKey) ||
+    (cleanValues as any).sub_neighborhood_id;
+  appendBaseValue("neighborhood_id", storedNeighborhoodId);
+  appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId);
   appendBaseValue("lat", getStoredNewAdLocationNumber(locationLatKey));
   appendBaseValue("lng", getStoredNewAdLocationNumber(locationLngKey));
   appendBaseValue("location_label", cleanValues.location || window.localStorage.getItem(locationKey));

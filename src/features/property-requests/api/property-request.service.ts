@@ -693,6 +693,7 @@ function formatCompactToman(value: string) {
       }).format(number),
     );
 
+  if (amount >= 1_000_000_000_000) return `${formatNumber(amount / 1_000_000_000_000)} همت تومان`;
   if (amount >= 1_000_000_000) return `${formatNumber(amount / 1_000_000_000)} میلیارد تومان`;
   if (amount >= 1_000_000) return `${formatNumber(amount / 1_000_000)} میلیون تومان`;
   return `${toPersianDigits(new Intl.NumberFormat("en-US").format(amount))} تومان`;

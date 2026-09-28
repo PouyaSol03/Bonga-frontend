@@ -582,6 +582,12 @@ function formatPrice(value: unknown) {
 
   if (numericValue === undefined) return toText(value, "توافقی");
 
+  if (numericValue >= 1_000_000_000_000) {
+    return `${new Intl.NumberFormat("fa-IR", {
+      maximumFractionDigits: 1,
+    }).format(numericValue / 1_000_000_000_000)} همت`;
+  }
+
   if (numericValue >= 1_000_000_000) {
     return `${new Intl.NumberFormat("fa-IR", {
       maximumFractionDigits: 1,

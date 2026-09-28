@@ -10,6 +10,7 @@ export const formatBigNumber = (value: number) => {
 
   const num = Number(value);
   const units = [
+    { label: "همت", value: 1_000_000_000_000 },
     { label: "میلیارد", value: 1_000_000_000 },
     { label: "میلیون", value: 1_000_000 },
     { label: "هزار", value: 1_000 },

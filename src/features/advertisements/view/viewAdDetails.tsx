@@ -117,6 +117,12 @@ function formatPrice(value: unknown) {
     return toText(value, "توافقی");
   }
 
+  if (numericValue >= 1_000_000_000_000) {
+    return `${new Intl.NumberFormat("fa-IR", {
+      maximumFractionDigits: 1,
+    }).format(numericValue / 1_000_000_000_000)} همت`;
+  }
+
   if (numericValue >= 1_000_000_000) {
     return `${new Intl.NumberFormat("fa-IR", {
       maximumFractionDigits: 1,
@@ -2163,7 +2169,8 @@ function formatTomanDetailValue(value: unknown) {
   if (
     text.includes("تومان") ||
     text.includes("میلیون") ||
-    text.includes("میلیارد")
+    text.includes("میلیارد") ||
+    text.includes("همت")
   ) {
     return text;
   }

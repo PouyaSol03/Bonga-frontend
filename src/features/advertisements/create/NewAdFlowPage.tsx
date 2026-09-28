@@ -61,14 +61,14 @@ import {
   propertySpecs,
 } from "./data";
 import { DetailsStep } from "./steps/DetailsStep";
-import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT, RENT_CONVERSION_RENT_PER_UNIT } from "./rentPriceConversion";
 import { MediaStep } from "./steps/MediaStep";
 import { AgencySelectionStep } from "./steps/AgencySelectionStep";
 import { PublisherSelectionStep } from "./steps/PublisherSelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
-import { buildNewAdFormData, buildPayload, clearNewAdDraftStorage, getAdvertiseFormCode, getBasicPropertyFields, getDefaultValues, getEditAdRouteState, getParams, navigateTo, useRequireAuth } from "./utils";
+import { buildNewAdFormData, buildPayload, canonicalizeMediaPath, clearNewAdDraftStorage, getAdvertiseFormCode, getDefaultValues, getEditAdRouteState, getParams, navigateTo, trimFormValues, useRequireAuth } from "./utils";
 import { getNewAdFlowSession, saveNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
+import { validateNewAd, validateNewAdDetails } from "./validation";
 export { NewAdLocationPage } from "./NewAdLocationPage";
 
 type EditableAdvertisementFeature = AdvertisementFeature & {
@@ -200,13 +200,20 @@ function getExistingPhotoMedia(ad: AdvertisementItem): UploadedMediaFile[] {
       ? [ad.image]
       : [];
 
+  const seen = new Set<string>();
+
   return imageValues.flatMap((value, index) => {
     const source = mediaSource(value);
     if (!source) return [];
 
+    const canonical = canonicalizeMediaPath(source);
+    const dedupeKey = canonical || source;
+    if (seen.has(dedupeKey)) return [];
+    seen.add(dedupeKey);
+
     return [{
-      existingValue: value,
-      id: `existing-image-${index}-${source}`,
+      existingValue: canonical || source,
+      id: `existing-image-${index}-${dedupeKey}`,
       name: mediaName(source, `image-${index + 1}`),
       previewUrl: getApiAssetUrl(source),
       size: 0,
@@ -224,35 +231,16 @@ function getExistingVideoMedia(ad: AdvertisementItem): UploadedMediaFile | null 
 
   if (!source) return null;
 
+  const canonical = canonicalizeMediaPath(source);
+
   return {
-    existingValue: value,
-    id: `existing-video-${source}`,
+    existingValue: canonical || source,
+    id: `existing-video-${canonical || source}`,
     name: mediaName(source, "video.mp4"),
     previewUrl: getApiAssetUrl(source),
     size: 0,
     type: "video/mp4",
   };
-}
-
-function appendExistingEditMedia(formData: FormData, values: NewAdFormValues) {
-  const existingSources = new Set(formData.getAll("existing_images").map(String));
-  values.photos.forEach((photo) => {
-    if (photo.file) return;
-    const source = mediaSource(photo.existingValue);
-    if (source && !existingSources.has(source)) {
-      formData.append("existing_images", source);
-      existingSources.add(source);
-    }
-  });
-
-  if (values.video && !values.video.file) {
-    const source = mediaSource(values.video.existingValue);
-    if (source && !formData.has("videos") && !formData.has("video")) {
-      formData.append("videos", source);
-    }
-  } else if (!values.video && !formData.has("videos") && !formData.has("video")) {
-    formData.append("videos", "[]");
-  }
 }
 
 function nestedRecordId(record: CrmRecord, directKey: string, nestedKeys: string[]) {
@@ -697,158 +685,6 @@ function syncEditLocationStorage(ad: AdvertisementItem, features: AdvertisementF
 }
 
 
-type NewAdValidationResult = {
-  errors: NewAdFieldErrors;
-  step: FlowStep;
-};
-
-function hasRequiredText(value: unknown): boolean {
-  if (Array.isArray(value)) return value.some((item) => hasRequiredText(item));
-  return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
-}
-
-function hasErrors(errors: NewAdFieldErrors) {
-  return Object.values(errors).some(Boolean);
-}
-
-function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
-  const { transaction, category } = getParams();
-  const isProject = transaction === "project";
-  const isPartnership = isProject && category === "project-partnership";
-  const isRent = transaction === "rent";
-  const isDailyRent = isRent && category.startsWith("daily-");
-  const loanAllowed = transaction === "sale" && category !== "garden-villa";
-  const errors: NewAdFieldErrors = {};
-
-  if (!isProject) {
-    getBasicPropertyFields().forEach((field) => {
-      if (!field.required) return;
-      if (hasRequiredText(values[field.key])) return;
-
-      errors[field.key] = `لطفا ${field.label} را وارد کنید.`;
-    });
-  }
-
-  if (isPartnership) {
-    if (!hasRequiredText(values.participationType)) errors.participationType = "لطفا نوع مشارکت را انتخاب کنید.";
-    if (!hasRequiredText(values.currentStatus)) errors.currentStatus = "لطفا وضعیت فعلی ملک را انتخاب کنید.";
-    if (!hasRequiredText(values.landArea)) errors.landArea = "لطفا متراژ زمین را وارد کنید.";
-    if (!hasRequiredText(values.landPosition)) errors.landPosition = "لطفا موقعیت زمین را انتخاب کنید.";
-
-    if (values.builderSharePercent && Number(values.builderSharePercent.replace(/,/g, "")) > 100) {
-      errors.builderSharePercent = "درصد مشارکت / سهم نمی‌تواند بیشتر از ۱۰۰ درصد باشد.";
-    }
-  } else if (isProject) {
-    if (!hasRequiredText(values.projectType)) errors.projectType = "لطفا نوع پروژه را انتخاب کنید.";
-    if (!hasRequiredText(values.projectTotalFloors)) errors.projectTotalFloors = "لطفا تعداد کل طبقات را وارد کنید.";
-    if (!hasRequiredText(values.projectTotalUnits)) errors.projectTotalUnits = "لطفا تعداد کل واحدها را وارد کنید.";
-    if (!hasRequiredText(values.minPrice)) errors.minPrice = "لطفا حداقل قیمت متری را وارد کنید.";
-    if (!hasRequiredText(values.maxPrice)) errors.maxPrice = "لطفا حداکثر قیمت متری را وارد کنید.";
-  } else if (isDailyRent) {
-    if (!hasRequiredText(values.minPrice)) errors.minPrice = "لطفا حداقل قیمت را وارد کنید.";
-    if (!hasRequiredText(values.maxPrice)) errors.maxPrice = "لطفا حداکثر قیمت را وارد کنید.";
-    if (category !== "daily-hotel-apartment") {
-      if (!hasRequiredText(values.normalDailyPrice)) errors.normalDailyPrice = "لطفا قیمت روزهای عادی را وارد کنید.";
-      if (!hasRequiredText(values.weekendDailyPrice)) errors.weekendDailyPrice = "لطفا قیمت آخر هفته را وارد کنید.";
-      if (!hasRequiredText(values.specialDailyPrice)) errors.specialDailyPrice = "لطفا قیمت روزهای خاص را وارد کنید.";
-    }
-  } else if (isRent) {
-    if (!hasRequiredText(values.mortgagePrice)) errors.mortgagePrice = "لطفا مبلغ رهن را وارد کنید.";
-    else if (parseRentPriceValue(values.mortgagePrice) % RENT_CONVERSION_MORTGAGE_UNIT !== 0) errors.mortgagePrice = "مبلغ رهن باید مضربی از یک میلیون تومان باشد.";
-    if (!hasRequiredText(values.rentPrice)) errors.rentPrice = "لطفا مبلغ اجاره را وارد کنید.";
-    else if (parseRentPriceValue(values.rentPrice) % RENT_CONVERSION_RENT_PER_UNIT !== 0) errors.rentPrice = "مبلغ اجاره باید مضربی از ۳۰ هزار تومان باشد.";
-  } else if (!hasRequiredText(values.price)) {
-    errors.price = "لطفا قیمت آگهی را وارد کنید.";
-  }
-
-  if (loanAllowed && values.loanEnabled && !hasRequiredText(values.loanAmount)) {
-    errors.loanAmount = "لطفا مبلغ وام را وارد کنید.";
-  }
-
-  if (loanAllowed && values.loanEnabled && !hasRequiredText(values.loanInstallment)) {
-    errors.loanInstallment = "لطفا قسط وام را وارد کنید.";
-  }
-
-  if (values.exchangeEnabled && values.exchangeTargets.length === 0) {
-    errors.exchangeTargets = "لطفا مورد معاوضه را انتخاب کنید.";
-  }
-
-  if (values.saleTermsEnabled && !hasRequiredText(values.saleTermsPercent)) {
-    errors.saleTermsPercent = "لطفا درصد شرایط فروش را وارد کنید.";
-  }
-
-  if (values.saleTermsEnabled && !hasRequiredText(values.saleTermsInstallmentMonths)) {
-    errors.saleTermsInstallmentMonths = "لطفا تعداد قسط شرایط فروش را وارد کنید.";
-  }
-
-  return errors;
-}
-
-function getMediaValidationErrors(
-  values: NewAdFormValues,
-  options: { forceFullEditFields?: boolean } = {},
-): NewAdFieldErrors {
-  const errors: NewAdFieldErrors = {};
-  const shouldRequirePersonalContactFields =
-    options.forceFullEditFields || values.registrantType === "personal";
-
-  if (values.photos.length === 0) {
-    errors.photos = "لطفا حداقل یک عکس برای آگهی انتخاب کنید.";
-  } else if (values.photos.length > 10) {
-    errors.photos = "حداکثر ۱۰ عکس برای آگهی مجاز است.";
-  }
-
-  if (values.hasVideo && !values.video) {
-    errors.video = "لطفا ویدیوی آگهی را انتخاب کنید.";
-  }
-
-  if (values.hasVirtualTour && !hasRequiredText(values.virtualTourLink)) {
-    errors.virtualTourLink = "لطفا لینک تور مجازی را وارد کنید.";
-  }
-
-  if (!values.registrantType) {
-    errors.registrantType = "لطفا نوع ثبت کننده آگهی را انتخاب کنید.";
-  }
-
-  if (shouldRequirePersonalContactFields && !values.chatEnabled && !values.phoneEnabled) {
-    errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
-  }
-
-  if (!hasRequiredText(values.title)) {
-    errors.title = "لطفا عنوان آگهی را وارد کنید.";
-  } else if (values.title.trim().length > 50) {
-    errors.title = "عنوان آگهی حداکثر می‌تواند ۵۰ کاراکتر باشد.";
-  }
-
-  if (!hasRequiredText(values.description)) {
-    errors.description = "لطفا توضیحات آگهی را وارد کنید.";
-  } else if (values.description.trim().length > 500) {
-    errors.description = "توضیحات آگهی حداکثر می‌تواند ۵۰۰ کاراکتر باشد.";
-  }
-
-  return errors;
-}
-
-function validateNewAdDetails(values: NewAdFormValues): NewAdValidationResult | null {
-  const errors = getDetailsValidationErrors(values);
-
-  return hasErrors(errors) ? { errors, step: "details" } : null;
-}
-
-function validateNewAd(
-  values: NewAdFormValues,
-  options: { forceFullEditFields?: boolean } = {},
-): NewAdValidationResult | null {
-  const detailsErrors = getDetailsValidationErrors(values);
-  const mediaErrors = getMediaValidationErrors(values, options);
-
-  if (hasErrors(detailsErrors)) {
-    return { errors: { ...detailsErrors, ...mediaErrors }, step: "details" };
-  }
-
-  return hasErrors(mediaErrors) ? { errors: mediaErrors, step: "media" } : null;
-}
-
 function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValues): NewAdFormValues {
   const features = getAdvertisementFeatures(ad);
   const next: NewAdFormValues = {
@@ -1292,7 +1128,8 @@ export function NewAdFlowPage() {
     };
   }, []);
 
-  const submit = methods.handleSubmit((values) => {
+  const submit = methods.handleSubmit((rawValues) => {
+    const values = trimFormValues(rawValues);
     if (
       submitLockRef.current ||
       createAdvertisement.isPending ||
@@ -1392,6 +1229,7 @@ export function NewAdFlowPage() {
       categoryId,
       dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
       formCode: resolvedFormCode,
+      isEdit: isEditMode,
     });
 
     if (isEditMode && !isEditingIncomplete) {
@@ -1400,7 +1238,6 @@ export function NewAdFlowPage() {
         return;
       }
 
-      appendExistingEditMedia(formData, values);
       setFieldErrors({});
       setSubmitError("");
       submitLockRef.current = true;
@@ -1436,8 +1273,6 @@ export function NewAdFlowPage() {
       );
       return;
     }
-
-    appendExistingEditMedia(formData, values);
 
     const hasNewImages = formData.getAll("images").length > 0;
     const hasExistingImages = formData.getAll("existing_images").length > 0;
@@ -1598,7 +1433,7 @@ export function NewAdFlowPage() {
   };
 
   const goToMedia = () => {
-    const values = methods.getValues();
+    const values = trimFormValues(methods.getValues());
     const validation = validateNewAdDetails(values);
 
     if (validation) {
@@ -1626,6 +1461,7 @@ export function NewAdFlowPage() {
       categoryId,
       dynamicFieldKeys: advertiseFormQuery.data?.fields?.map((field) => field.key),
       formCode: resolvedFormCode,
+      isEdit: isEditMode,
     });
 
     const activeDraftId = draftAdId || (isEditMode ? editAdId : null);

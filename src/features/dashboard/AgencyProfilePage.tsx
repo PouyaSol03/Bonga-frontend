@@ -760,6 +760,7 @@ function LocationSection({
         >
           <TileLayer
             attribution={searchMapTileConfig.attribution}
+            className={searchMapTileConfig.className}
             tms={searchMapTileConfig.isTms}
             url={searchMapTileConfig.urlTemplate}
           />

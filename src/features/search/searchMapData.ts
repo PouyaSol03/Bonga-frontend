@@ -74,6 +74,7 @@ export type SearchMapTileConfig = {
   minZoom?: number;
   maxZoom?: number;
   isTms: boolean;
+  className: string;
 };
 
 export const searchMapTileConfig: SearchMapTileConfig = {
@@ -82,6 +83,10 @@ export const searchMapTileConfig: SearchMapTileConfig = {
   minZoom: 6,
   maxZoom: 19,
   isTms: false,
+  // The tile server publishes a light basemap only, so dark mode tints the
+  // raster tiles whenever the app root carries the `dark` class.
+  className:
+    "[.dark_&]:[filter:grayscale(0.86)_invert(1)_brightness(1.06)_contrast(0.94)]",
 };
 
 export const searchMapCenter: SearchMapCenter = {

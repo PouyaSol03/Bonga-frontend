@@ -1448,6 +1448,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
           <MapContainer center={cityCenter} className="h-full w-full" scrollWheelZoom zoom={13}>
             <TileLayer
               attribution={searchMapTileConfig.attribution}
+              className={searchMapTileConfig.className}
               tms={searchMapTileConfig.isTms}
               url={searchMapTileConfig.urlTemplate}
             />

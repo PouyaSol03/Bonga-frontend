@@ -228,6 +228,7 @@ function SearchMapViewComponent({
         url={tileConfig.urlTemplate}
         attribution={tileConfig.attribution}
         tms={tileConfig.isTms}
+        className={tileConfig.className}
       />
 
       <SearchMapController

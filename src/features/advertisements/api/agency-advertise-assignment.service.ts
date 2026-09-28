@@ -388,3 +388,106 @@ export async function confirmUserDealResult(advertiseId: string | number, confir
     .json();
 }
 
+export type AdvertisementHistoryItem = {
+  action: string;
+  message: string;
+  created_at: string;
+};
+
+export type AdvertisementHistoryResponse = {
+  status: boolean;
+  data: AdvertisementHistoryItem[];
+};
+
+export type AdvertisementExpireInfo = {
+  hours?: number;
+  minutes?: number;
+  total_minutes?: number;
+};
+
+export type AdvertisementReRegisterStatusResponse = {
+  status: boolean;
+  expires_at?: string | null;
+  expire?: AdvertisementExpireInfo;
+  reason?: string;
+};
+
+export type AdvertisementSubmitResultStatusResponse = {
+  status: boolean;
+  expires_at?: string | null;
+  expire?: AdvertisementExpireInfo;
+  reason?: string;
+  submit_request?: boolean;
+  submitted_by?: string;
+  agency?: {
+    id: number | string;
+    name: string;
+  };
+  result?: {
+    id?: number | string;
+    advertise_id?: number | string;
+    agency_id?: number | string;
+    agency_name?: string;
+    result?: string;
+    description?: string;
+  } | null;
+};
+
+export type AdvertisementArchiveStatusResponse = {
+  status: boolean;
+  expires_at?: string | null;
+  expire?: AdvertisementExpireInfo;
+  reason?: string;
+};
+
+export async function getAdvertisementHistory(
+  advertiseId: string | number,
+): Promise<AdvertisementHistoryItem[]> {
+  try {
+    const res = await api
+      .get(`history/${encodeURIComponent(String(advertiseId))}`)
+      .json<AdvertisementHistoryResponse>();
+    return Array.isArray(res?.data) ? res.data : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getAdvertisementReRegisterStatus(
+  advertiseId: string | number,
+): Promise<AdvertisementReRegisterStatusResponse> {
+  try {
+    const res = await api
+      .get(`re_register_ad/${encodeURIComponent(String(advertiseId))}`)
+      .json<AdvertisementReRegisterStatusResponse>();
+    return res;
+  } catch {
+    return { status: false };
+  }
+}
+
+export async function getAdvertisementSubmitResultStatus(
+  advertiseId: string | number,
+): Promise<AdvertisementSubmitResultStatusResponse> {
+  try {
+    const res = await api
+      .get(`submit_ad_result/${encodeURIComponent(String(advertiseId))}`)
+      .json<AdvertisementSubmitResultStatusResponse>();
+    return res;
+  } catch {
+    return { status: false };
+  }
+}
+
+export async function getAdvertisementArchiveStatus(
+  advertiseId: string | number,
+): Promise<AdvertisementArchiveStatusResponse> {
+  try {
+    const res = await api
+      .get(`archive/${encodeURIComponent(String(advertiseId))}`)
+      .json<AdvertisementArchiveStatusResponse>();
+    return res;
+  } catch {
+    return { status: false };
+  }
+}

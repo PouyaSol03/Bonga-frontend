@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
@@ -16,6 +16,10 @@ import {
   republishAdAsPersonal,
   restoreArchivedAdvertise,
   submitAdvertiseDealResult,
+  getAdvertisementHistory,
+  getAdvertisementReRegisterStatus,
+  getAdvertisementSubmitResultStatus,
+  getAdvertisementArchiveStatus,
   type AgencyAdvertiseAssignmentsPage,
   type AgencyAdvertiseAssignmentsParams,
   type ChangeAgencyAdvertiseConsultantPayload,
@@ -210,4 +214,38 @@ export function useReassignAdToAgencyMutation() {
   });
 }
 
+export function useAdvertisementHistoryQuery(advertiseId?: string | number | null) {
+  return useQuery({
+    queryKey: ["advertisement", "history", advertiseId ? String(advertiseId) : ""],
+    queryFn: () => getAdvertisementHistory(advertiseId!),
+    enabled: Boolean(advertiseId),
+    staleTime: 30_000,
+  });
+}
 
+export function useAdvertisementReRegisterStatusQuery(advertiseId?: string | number | null) {
+  return useQuery({
+    queryKey: ["advertisement", "re-register-status", advertiseId ? String(advertiseId) : ""],
+    queryFn: () => getAdvertisementReRegisterStatus(advertiseId!),
+    enabled: Boolean(advertiseId),
+    staleTime: 30_000,
+  });
+}
+
+export function useAdvertisementSubmitResultStatusQuery(advertiseId?: string | number | null) {
+  return useQuery({
+    queryKey: ["advertisement", "submit-result-status", advertiseId ? String(advertiseId) : ""],
+    queryFn: () => getAdvertisementSubmitResultStatus(advertiseId!),
+    enabled: Boolean(advertiseId),
+    staleTime: 30_000,
+  });
+}
+
+export function useAdvertisementArchiveStatusQuery(advertiseId?: string | number | null) {
+  return useQuery({
+    queryKey: ["advertisement", "archive-status", advertiseId ? String(advertiseId) : ""],
+    queryFn: () => getAdvertisementArchiveStatus(advertiseId!),
+    enabled: Boolean(advertiseId),
+    staleTime: 30_000,
+  });
+}

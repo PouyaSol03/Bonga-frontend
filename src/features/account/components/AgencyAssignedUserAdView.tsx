@@ -5,7 +5,12 @@ import {
   useReassignAdToAgencyMutation,
   useRepublishAdAsPersonalMutation,
   useRestoreArchivedAdMutation,
+  useAdvertisementHistoryQuery,
+  useAdvertisementReRegisterStatusQuery,
+  useAdvertisementSubmitResultStatusQuery,
+  useAdvertisementArchiveStatusQuery,
 } from "../../advertisements/api/agency-advertise-assignment.hooks";
+import { toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import type { AdCardData } from "../../advertisements/components/AdCard";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { RadioIndicator } from "../../../shared/components/RadioIndicator";
@@ -47,6 +52,90 @@ export type AgencyAssignedUserAdViewProps = {
   onNavigateToStopPublish?: () => void;
   onNavigateToDealResult?: () => void;
 };
+
+
+function formatHistoryDate(dateStr?: string): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const now = new Date();
+    const isSameDay =
+      d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear();
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday =
+      d.getDate() === yesterday.getDate() &&
+      d.getMonth() === yesterday.getMonth() &&
+      d.getFullYear() === yesterday.getFullYear();
+
+    const timeFormatted = new Intl.DateTimeFormat("fa-IR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(d);
+
+    if (isSameDay) {
+      return `امروز ${timeFormatted}`;
+    }
+    if (isYesterday) {
+      return `دیروز ${timeFormatted}`;
+    }
+
+    const dateFormatted = new Intl.DateTimeFormat("fa-IR", {
+      month: "short",
+      day: "numeric",
+    }).format(d);
+    return `${dateFormatted}، ${timeFormatted}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+function formatExpireDuration(
+  expire?: { hours?: number; minutes?: number },
+  expiresAt?: string | null,
+  fallbackReason?: string,
+): string {
+  if (expire && (expire.hours !== undefined || expire.minutes !== undefined)) {
+    const parts: string[] = [];
+    if (expire.hours && expire.hours > 0) {
+      parts.push(`${toPersianDigits(expire.hours)} ساعت`);
+    }
+    if (expire.minutes !== undefined && expire.minutes > 0) {
+      parts.push(`${toPersianDigits(expire.minutes)} دقیقه`);
+    }
+    if (parts.length > 0) {
+      return `تا ${parts.join(" و ")} دیگر مهلت دارید.`;
+    }
+  }
+
+  if (expiresAt) {
+    try {
+      const d = new Date(expiresAt);
+      if (!isNaN(d.getTime())) {
+        const diffMs = d.getTime() - Date.now();
+        if (diffMs > 0) {
+          const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          if (days > 0) {
+            return `تا ${toPersianDigits(days)} روز و ${toPersianDigits(hours)} ساعت دیگر فرصت دارید.`;
+          }
+          if (hours > 0) {
+            return `تا ${toPersianDigits(hours)} ساعت دیگر فرصت دارید.`;
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return fallbackReason || "امکان انجام عملیات تا پایان مهلت فراهم است.";
+}
 
 export function renderDateWithRelative(text: string) {
   if (!text) return null;
@@ -153,6 +242,26 @@ export function AgencyAssignedUserAdView({
       : isWaitForStop || ad?.deleted_reason === "user_stopped"
         ? "user_stopped"
         : "recovery_expired");
+
+  const historyQuery = useAdvertisementHistoryQuery(currentAdId);
+  const reRegisterStatusQuery = useAdvertisementReRegisterStatusQuery(currentAdId);
+  const archiveStatusQuery = useAdvertisementArchiveStatusQuery(currentAdId);
+  const submitResultStatusQuery = useAdvertisementSubmitResultStatusQuery(currentAdId);
+
+  const showRepostSection =
+    reRegisterStatusQuery.data !== undefined
+      ? Boolean(reRegisterStatusQuery.data.status)
+      : isWaitForRepost;
+
+  const showArchiveSection =
+    archiveStatusQuery.data !== undefined
+      ? Boolean(archiveStatusQuery.data.status)
+      : isArchived;
+
+  const showSubmitResultSection =
+    submitResultStatusQuery.data !== undefined
+      ? Boolean(submitResultStatusQuery.data.status)
+      : ((isDeleted || isWaitForDeal) && effectiveDeletedVariant === "deal_confirmation");
 
   const handlePreview = () => {
     if (currentAdId) {
@@ -336,14 +445,18 @@ export function AgencyAssignedUserAdView({
         </Typography>
 
         {/* Specialized Action Area: Wait for Repost */}
-        {isWaitForRepost && (
+        {showRepostSection && (
           <div className="m-0 mb-6 text-right">
             <Typography as="h3" variant="body" size="medium" weight="regular" className="m-0 text-on-surface">
               فرصت ثبت مجدد آگهی
             </Typography>
             <div className="mt-3 rounded-lg border border-tertiary bg-surface-container-lowest p-2 text-right">
               <Typography as="p" variant="body" size="medium" weight="regular" className="text-tertiary">
-                تا ۶ روز و ۱۲ ساعت دیگر می‌توانید این آگهی را مجدداً فعال کنید.
+                {formatExpireDuration(
+                  reRegisterStatusQuery.data?.expire,
+                  reRegisterStatusQuery.data?.expires_at,
+                  reRegisterStatusQuery.data?.reason || "تا ۶ روز و ۱۲ ساعت دیگر می‌توانید این آگهی را مجدداً فعال کنید.",
+                )}
               </Typography>
             </div>
             <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-on-surface-var">
@@ -367,14 +480,18 @@ export function AgencyAssignedUserAdView({
         )}
 
         {/* Specialized Action Area: Archived */}
-        {isArchived && (
+        {showArchiveSection && (
           <div className="m-0 mb-6 text-right">
             <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-on-surface">
               مهلت ثبت مجدد این آگهی به پایان رسیده و آگهی به حالت بایگانی شده منتقل شده است.
             </Typography>
             <div className="mt-3 rounded-lg border border-tertiary bg-surface-container-lowest p-2 text-right">
               <Typography as="p" variant="body" size="medium" weight="regular" className="text-tertiary">
-                تا ۲۳ روز و ۸ ساعت دیگر می‌توانید این آگهی را بازیابی کنید.
+                {formatExpireDuration(
+                  archiveStatusQuery.data?.expire,
+                  archiveStatusQuery.data?.expires_at,
+                  archiveStatusQuery.data?.reason || "تا ۲۳ روز و ۸ ساعت دیگر می‌توانید این آگهی را بازیابی کنید.",
+                )}
               </Typography>
             </div>
 
@@ -409,14 +526,18 @@ export function AgencyAssignedUserAdView({
         )}
 
         {/* Specialized Action Area: Deleted Variant 1 (Agency closed deal -> Submit Result in separate page) */}
-        {(isDeleted || isWaitForDeal) && effectiveDeletedVariant === "deal_confirmation" && (
+        {showSubmitResultSection && (
           <div className="m-0 text-right">
             <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-on-surface">
-              {agencyName} این درخواست را بسته است. لطفاً نتیجه نهایی این درخواست را ثبت کنید.
+              {(submitResultStatusQuery.data?.agency?.name ?? agencyName)} این درخواست را بسته است. لطفاً نتیجه نهایی این درخواست را ثبت کنید.
             </Typography>
             <div className="mt-3 rounded-lg border border-tertiary bg-surface-container-lowest p-2 text-right">
               <Typography as="p" variant="body" size="medium" weight="regular" className="text-tertiary">
-                تا پایان مهلت پاسخگویی ۶ روز و ۱۲ ساعت فرصت دارید.
+                {formatExpireDuration(
+                  submitResultStatusQuery.data?.expire,
+                  submitResultStatusQuery.data?.expires_at,
+                  submitResultStatusQuery.data?.reason || "تا پایان مهلت پاسخگویی ۶ روز و ۱۲ ساعت فرصت دارید.",
+                )}
               </Typography>
             </div>
 
@@ -438,8 +559,28 @@ export function AgencyAssignedUserAdView({
           </div>
         )}
 
-        <div className="divide-y divide-outline-var/20">
-            {/* Case 1: Published */}
+        {/* Live Timeline Items from GET /api/history/{advertiseId} */}
+        {historyQuery.isLoading ? (
+          <div className="py-8 text-center text-xs text-on-surface-var">
+            در حال دریافت آخرین تغییرات...
+          </div>
+        ) : historyQuery.data && historyQuery.data.length > 0 ? (
+          <div className="divide-y divide-outline-var/20">
+            {historyQuery.data.map((item: { action?: string; created_at?: string; message?: string }, index: number) => (
+              <TimelineItem
+                key={`${item.action}-${item.created_at}-${index}`}
+                time={formatHistoryDate(item.created_at)}
+                description={item.message}
+              />
+            ))}
+          </div>
+        ) : historyQuery.data && historyQuery.data.length === 0 ? (
+          <div className="py-8 text-center text-xs text-on-surface-var">
+            تغییری برای این آگهی ثبت نشده است.
+          </div>
+        ) : (
+          <div className="divide-y divide-outline-var/20">
+            {/* Fallback mock cases for storybook / offline tests */}
             {isPublished && (
               <>
                 <TimelineItem
@@ -475,7 +616,6 @@ export function AgencyAssignedUserAdView({
               </>
             )}
 
-            {/* Case 2: Wait for Agency */}
             {isWaitForAgency && (
               <>
                 <TimelineItem
@@ -501,7 +641,6 @@ export function AgencyAssignedUserAdView({
               </>
             )}
 
-            {/* Case 3: Wait for Repost */}
             {isWaitForRepost && (
               <>
                 <TimelineItem
@@ -527,7 +666,6 @@ export function AgencyAssignedUserAdView({
               </>
             )}
 
-            {/* Case 4: Archived */}
             {isArchived && (
               <>
                 <TimelineItem time="دیروز ۱۲:۲۰" description="مهلت بازیابی تا ۳۰ روز فعال شد." />
@@ -574,7 +712,6 @@ export function AgencyAssignedUserAdView({
               </>
             )}
 
-            {/* Case 5A: Deleted - Agency closed deal */}
             {(isDeleted || isWaitForDeal) && effectiveDeletedVariant === "deal_confirmation" && (
               <>
                 <TimelineItem
@@ -600,7 +737,6 @@ export function AgencyAssignedUserAdView({
               </>
             )}
 
-            {/* Case 5B: Deleted - User stop requested and completed (حذف شده (2).svg) */}
             {(isDeleted || isWaitForStop) && effectiveDeletedVariant === "user_stopped" && (
               <>
                 <TimelineItem
@@ -651,7 +787,6 @@ export function AgencyAssignedUserAdView({
               </>
             )}
 
-            {/* Case 5C: Deleted - Recovery expired (حذف شده.svg) */}
             {isDeleted && effectiveDeletedVariant === "recovery_expired" && (
               <>
                 <TimelineItem time="دیروز ۱۲:۲۰" description="مهلت بازیابی این آگهی به پایان رسیده است." />
@@ -699,7 +834,8 @@ export function AgencyAssignedUserAdView({
               </>
             )}
           </div>
-        </section>
+        )}
+      </section>
 
       {/* ONLY BottomSheet in the flow: لغو واگذاری آگهی به آژانس */}
       <AgencyCancelAssignmentBottomSheet

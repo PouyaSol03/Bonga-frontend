@@ -156,7 +156,9 @@ export function AgencyAssignedUserAdView({
 
   const handlePreview = () => {
     if (currentAdId) {
-      pushRoute(getAdPreviewPath(currentAdId));
+      pushRoute(getAdPreviewPath(currentAdId), {
+        previewFlow: "agency-allocation",
+      });
     }
   };
 

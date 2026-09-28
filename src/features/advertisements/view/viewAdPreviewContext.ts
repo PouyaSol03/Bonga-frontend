@@ -17,7 +17,7 @@ function isAgencyAllocationState(value: unknown) {
   return (value as PreviewNavigationState).previewFlow === agencyAllocationPreviewFlow;
 }
 
-export function shouldUseAgencyAllocationPreview() {
+export function shouldUseAgencyAllocationPreview(ad?: unknown) {
   if (typeof window === "undefined") return false;
   if (!window.location.pathname.startsWith("/preview-ad/")) return false;
 
@@ -29,5 +29,20 @@ export function shouldUseAgencyAllocationPreview() {
 
   if (isAgencyAllocationState(window.history.state)) return true;
 
-  return isAgencyAllocationState(getStoredBackTarget()?.backState);
+  if (isAgencyAllocationState(getStoredBackTarget()?.backState)) return true;
+
+  if (ad && typeof ad === "object") {
+    const raw = ad as Record<string, unknown>;
+    const status = raw.status || raw.status_key;
+    if (
+      status === "wait_for_agency" ||
+      status === "pending" ||
+      Boolean(raw.is_assigned) ||
+      raw.deleted_reason === "agency_deal"
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }

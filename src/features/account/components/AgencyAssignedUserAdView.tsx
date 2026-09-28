@@ -288,40 +288,6 @@ function resolveExpirationDateText(ad?: Record<string, unknown>): string {
   return "—";
 }
 
-function resolveReviewTimeRemaining(ad?: Record<string, unknown>): string {
-  const explicitText = typeof ad?.review_time_remaining === "string"
-    ? ad.review_time_remaining.trim()
-    : typeof ad?.review_time_text === "string"
-      ? ad.review_time_text.trim()
-      : "";
-  if (explicitText) return explicitText;
-
-  const rawStart =
-    (ad?.assignment as Record<string, unknown> | undefined)?.created_at ??
-    ad?.assigned_at ??
-    ad?.assignedAt ??
-    ad?.updated_at ??
-    ad?.updatedAt ??
-    ad?.created_at ??
-    ad?.createdAt;
-
-  if (typeof rawStart === "string" && rawStart.trim()) {
-    const startTimestamp = Date.parse(rawStart.trim());
-    if (Number.isFinite(startTimestamp)) {
-      const deadline = startTimestamp + 24 * 60 * 60 * 1000;
-      const diffMs = deadline - Date.now();
-      if (diffMs <= 0) return "مهلت ۲۴ ساعته به پایان رسیده است";
-      const hours = Math.floor(diffMs / (60 * 60 * 1000));
-      const minutes = Math.floor((diffMs % (60 * 60 * 1000)) / (60 * 1000));
-      if (hours <= 0 && minutes <= 0) return "کمتر از ۱ دقیقه";
-      if (hours <= 0) return `${toPersianDigits(minutes)} دقیقه`;
-      return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
-    }
-  }
-
-  return "۲۴ ساعت";
-}
-
 export function AgencyAssignedUserAdView({
   ad,
   card,
@@ -366,7 +332,6 @@ export function AgencyAssignedUserAdView({
 
   const publishedDateText = resolvePublishedDateText(ad);
   const expirationDateText = resolveExpirationDateText(ad);
-  const reviewTimeRemaining = resolveReviewTimeRemaining(ad);
 
   const isPublished = statusKey === "published";
   const isWaitForAgency = statusKey === "wait_for_agency" || statusKey === "pending";
@@ -500,36 +465,6 @@ export function AgencyAssignedUserAdView({
           </div>
         )}
 
-        {/* Notice for Wait for Agency */}
-        {isWaitForAgency && (
-          <div className="mt-4 rounded-2xl border border-warning-container bg-warning-container/20 p-4 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-on-surface">
-              آگهی شما در حال بررسی توسط {agencyName} است. پس از تأیید آژانس، به صورت خودکار منتشر خواهد شد. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در صورت تمایل می‌توانید پیش از تایید آژانس، واگذاری را لغو کنید.
-            </Typography>
-            <div className="mt-3 border-t border-dotted border-warning/30 pt-3">
-              <div className="flex items-center justify-between text-xs font-medium text-warning [direction:rtl]">
-                <div className="flex items-center gap-1.5">
-                  <LinearClock className="h-4 w-4 shrink-0 text-warning" />
-                  <Typography as="span" variant="body" size="medium" weight="medium" className="text-warning">
-                    زمان بررسی درخواست
-                  </Typography>
-                </div>
-                <Typography as="span" variant="body" size="medium" weight="medium" className="text-warning">
-                  {reviewTimeRemaining}
-                </Typography>
-              </div>
-            </div>
-
-            <Button
-              unstyled
-              className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
-              onClick={() => setIsCancelAssignmentOpen(true)}
-              type="button"
-            >
-              لغو واگذاری به آژانس
-            </Button>
-          </div>
-        )}
       </section>
 
       {/* Section Divider 1 */}

@@ -330,6 +330,42 @@ export function mediaSource(value: unknown): string {
   return "";
 }
 
+export function canonicalizeMediaPath(source: unknown): string {
+  if (typeof source !== "string") return "";
+  let clean = source.trim().split("?")[0]?.split("#")[0] ?? "";
+  if (!clean || clean.toLowerCase().startsWith("data:")) return "";
+
+  try {
+    if (clean.startsWith("http://") || clean.startsWith("https://")) {
+      clean = new URL(clean).pathname;
+    }
+  } catch {
+    // keep as is
+  }
+
+  // Strip leading slashes
+  clean = clean.replace(/^\/+/, "");
+
+  // Common backend upload directories
+  clean = clean.replace(/^public\//, "");
+  clean = clean.replace(/^uploads\/image\/advertiseImg\//, "");
+  clean = clean.replace(/^uploads\/video\/advertiseVideo\//, "");
+  clean = clean.replace(/^uploads\//, "");
+
+  return clean;
+}
+
+export function trimFormValues(values: NewAdFormValues): NewAdFormValues {
+  const result = { ...values };
+  for (const key of Object.keys(result) as Array<keyof NewAdFormValues>) {
+    const val = result[key];
+    if (typeof val === "string") {
+      (result as Record<string, unknown>)[key] = val.trim();
+    }
+  }
+  return result;
+}
+
 function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdFormValues> {
   const card = routeState.card ?? {};
   const ad = routeState.ad ?? {};
@@ -378,6 +414,16 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
     : getParams().registrantType;
   const preserveDraft = typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
   const draftValues = editDefaults || !preserveDraft ? null : getDraft();
+  if (draftValues?.neighborhoodId && typeof window !== "undefined") {
+    if (!window.localStorage.getItem(neighborhoodIdKey)) {
+      window.localStorage.setItem(neighborhoodIdKey, draftValues.neighborhoodId);
+    }
+  }
+  if (draftValues?.subNeighborhoodId && typeof window !== "undefined") {
+    if (!window.localStorage.getItem(subNeighborhoodIdKey)) {
+      window.localStorage.setItem(subNeighborhoodIdKey, draftValues.subNeighborhoodId);
+    }
+  }
   const baseValues = editDefaults
     ? {
         ...blankValues,
@@ -386,6 +432,12 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
     : {
         ...blankValues,
         ...draftValues,
+        neighborhoodId:
+          draftValues?.neighborhoodId ||
+          (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) ?? "" : ""),
+        subNeighborhoodId:
+          draftValues?.subNeighborhoodId ||
+          (typeof window !== "undefined" ? window.localStorage.getItem(subNeighborhoodIdKey) ?? "" : ""),
         suitableFor: normalizeDraftStringArray(draftValues?.suitableFor),
         location: preserveDraft ? (window.localStorage.getItem(locationKey) ?? "") : "",
       };
@@ -473,9 +525,12 @@ function hasFeatureValue(value: unknown) {
 function addFeature(features: NewAdFeature[], key: string, value: unknown) {
   if (!hasFeatureValue(value)) return;
 
+  const normalizedValue = typeof value === "string" ? value.trim() : value;
+  if (typeof normalizedValue === "string" && !normalizedValue) return;
+
   features.push({
     key,
-    value: value as NewAdFeatureValue,
+    value: normalizedValue as NewAdFeatureValue,
   });
 }
 
@@ -794,8 +849,10 @@ export function buildNewAdFormData(
     categoryId?: string | null;
     dynamicFieldKeys?: Iterable<string>;
     formCode?: string | null;
+    isEdit?: boolean;
   } = {},
 ) {
+  const cleanValues = trimFormValues(values);
   const params = getParams();
   const formCode =
     options.formCode?.trim() ||
@@ -804,27 +861,36 @@ export function buildNewAdFormData(
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const heatingCooling = labels(
     getHeatingItemsForListing(params.transaction, params.category),
-    values.heatingCooling,
+    cleanValues.heatingCooling,
   );
   const facilities = labels(
     getFacilityItemsForListing(params.transaction, params.category),
-    values.facilities,
+    cleanValues.facilities,
   );
-  const extraSpecs = labels(propertySpecs, values.selectedSpecs);
+  const extraSpecs = labels(propertySpecs, cleanValues.selectedSpecs);
   const contactTypes = [
-    values.chatEnabled ? "chat" : null,
-    values.phoneEnabled ? "phone" : null,
+    cleanValues.chatEnabled ? "chat" : null,
+    cleanValues.phoneEnabled ? "phone" : null,
   ].filter((value): value is string => Boolean(value));
   const advertiserType =
-    values.registrantType === "personal"
+    cleanValues.registrantType === "personal"
       ? "شخصی"
-      : values.registrantType === "agency"
+      : cleanValues.registrantType === "agency"
         ? "مشاور املاک"
         : "";
   const formData = new FormData();
   const dynamicFieldKeys = new Set(options.dynamicFieldKeys ?? []);
 
   const appendBaseValue = (key: string, value: unknown) => {
+    if (value === undefined || value === null) return;
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) return;
+      formData.append(key, trimmed);
+      return;
+    }
+
     if (!hasFeatureValue(value)) return;
 
     const serializedValue =
@@ -834,7 +900,17 @@ export function buildNewAdFormData(
   };
 
   const appendDynamicValue = (key: string, value: unknown) => {
-    if (!dynamicFieldKeys.has(key) || !hasFeatureValue(value)) return;
+    if (!dynamicFieldKeys.has(key)) return;
+    if (value === undefined || value === null) return;
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) return;
+      formData.append(key, trimmed);
+      return;
+    }
+
+    if (!hasFeatureValue(value)) return;
 
     const serializedValue =
       typeof value === "boolean" ? (value ? "1" : "0") : String(value);
@@ -846,6 +922,19 @@ export function buildNewAdFormData(
   // advertise-form definitions omit these keys, which previously caused the
   // selected counts to be silently dropped before the request was sent.
   const appendFacilityCount = (key: string, value: unknown) => {
+    if (value === undefined || value === null) return;
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) return;
+      if (dynamicFieldKeys.has(key)) {
+        appendDynamicValue(key, trimmed);
+      } else {
+        appendBaseValue(key, trimmed);
+      }
+      return;
+    }
+
     if (!hasFeatureValue(value)) return;
 
     if (dynamicFieldKeys.has(key)) {
@@ -866,9 +955,12 @@ export function buildNewAdFormData(
   const appendDynamicArray = (key: string, value: string[]) => {
     if (!dynamicFieldKeys.has(key)) return;
 
-    value.filter(Boolean).forEach((item) => {
-      formData.append(key, item);
-    });
+    value
+      .map((item) => (typeof item === "string" ? item.trim() : item))
+      .filter(Boolean)
+      .forEach((item) => {
+        formData.append(key, item);
+      });
   };
 
   const appendDynamicJson = (key: string, value: unknown) => {
@@ -883,36 +975,42 @@ export function buildNewAdFormData(
 
   appendBaseValue("form_code", formCode);
   appendBaseValue("category_id", options.categoryId);
-  appendBaseValue("title", values.title);
-  appendBaseValue("description", values.description);
-  const storedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
-  const storedSubNeighborhoodId = window.localStorage.getItem(subNeighborhoodIdKey);
-  appendBaseValue("neighborhood_id", storedNeighborhoodId || (values as any).neighborhood_id || (values as any).neighborhoodId);
-  appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId || (values as any).sub_neighborhood_id || (values as any).subNeighborhoodId);
+  appendBaseValue("title", cleanValues.title);
+  appendBaseValue("description", cleanValues.description);
+  const storedNeighborhoodId =
+    cleanValues.neighborhoodId ||
+    window.localStorage.getItem(neighborhoodIdKey) ||
+    (cleanValues as any).neighborhood_id;
+  const storedSubNeighborhoodId =
+    cleanValues.subNeighborhoodId ||
+    window.localStorage.getItem(subNeighborhoodIdKey) ||
+    (cleanValues as any).sub_neighborhood_id;
+  appendBaseValue("neighborhood_id", storedNeighborhoodId);
+  appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId);
   appendBaseValue("lat", getStoredNewAdLocationNumber(locationLatKey));
   appendBaseValue("lng", getStoredNewAdLocationNumber(locationLngKey));
-  appendBaseValue("location_label", values.location || window.localStorage.getItem(locationKey));
+  appendBaseValue("location_label", cleanValues.location || window.localStorage.getItem(locationKey));
   appendBaseValue(
     "virtual_tour_link",
-    values.hasVirtualTour ? values.virtualTourLink.trim() : "",
+    cleanValues.hasVirtualTour ? cleanValues.virtualTourLink.trim() : "",
   );
-  appendBaseValue("owner_type", values.registrantType);
+  appendBaseValue("owner_type", cleanValues.registrantType);
   if (params.publisherType) {
     appendBaseValue("publisher_type", params.publisherType);
   }
   appendBaseValue(
     "agency_id",
-    values.registrantType === "agency" ? values.agencyId.trim() : "",
+    cleanValues.registrantType === "agency" ? cleanValues.agencyId.trim() : "",
   );
-  if (values.consultantId) {
-    appendBaseValue("consultant_id", values.consultantId.trim());
-    appendBaseValue("assigned_consultant_id", values.consultantId.trim());
+  if (cleanValues.consultantId) {
+    appendBaseValue("consultant_id", cleanValues.consultantId.trim());
+    appendBaseValue("assigned_consultant_id", cleanValues.consultantId.trim());
   }
-  appendBaseValue("owner_phone", values.phoneNumber);
-  appendBaseValue("owner_name", values.ownerFullName);
-  appendBaseValue("owner_address", values.ownerExactAddress);
-  appendBaseValue("telegram", values.telegram);
-  appendBaseValue("whatsapp", values.whatsapp);
+  appendBaseValue("owner_phone", cleanValues.phoneNumber);
+  appendBaseValue("owner_name", cleanValues.ownerFullName);
+  appendBaseValue("owner_address", cleanValues.ownerExactAddress);
+  appendBaseValue("telegram", cleanValues.telegram);
+  appendBaseValue("whatsapp", cleanValues.whatsapp);
 
   contactTypes.forEach((contactType) => {
     formData.append("contact_type[]", contactType);
@@ -1085,24 +1183,42 @@ export function buildNewAdFormData(
   appendDynamicJson("extra_specs", extraSpecs);
   appendDynamicJson("daily_hotel_rooms", buildDailyHotelRoomFeatures(values));
 
-  values.photos.forEach((photo) => {
+  const seenCanonicalImages = new Set<string>();
+  const seenUploadedFiles = new Set<string>();
+
+  cleanValues.photos.forEach((photo) => {
     if (photo.file) {
-      formData.append("images", photo.file, photo.file.name);
+      const fileKey = `${photo.file.name}_${photo.file.size}`;
+      if (!seenUploadedFiles.has(fileKey)) {
+        seenUploadedFiles.add(fileKey);
+        formData.append("images", photo.file, photo.file.name);
+      }
     } else {
       const source = mediaSource(photo.existingValue);
       if (source) {
-        formData.append("existing_images", source);
+        const canonical = canonicalizeMediaPath(source);
+        if (canonical && !seenCanonicalImages.has(canonical)) {
+          seenCanonicalImages.add(canonical);
+          formData.append("existing_images", canonical);
+        }
       }
     }
   });
 
-  if (values.video?.file) {
-    formData.append("video", values.video.file);
-  } else if (values.video?.existingValue) {
-    const source = mediaSource(values.video.existingValue);
+  const seenCanonicalVideos = new Set<string>();
+  if (cleanValues.video?.file) {
+    formData.append("video", cleanValues.video.file);
+  } else if (cleanValues.video?.existingValue) {
+    const source = mediaSource(cleanValues.video.existingValue);
     if (source) {
-      formData.append("existing_video", source);
+      const canonical = canonicalizeMediaPath(source);
+      if (canonical && !seenCanonicalVideos.has(canonical)) {
+        seenCanonicalVideos.add(canonical);
+        formData.append("existing_video", canonical);
+      }
     }
+  } else if (options.isEdit) {
+    formData.append("videos", "[]");
   }
 
   return formData;

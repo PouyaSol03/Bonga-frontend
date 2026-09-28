@@ -60,7 +60,7 @@ import {
   type AdvertiserPreview,
   type AlbumMediaItem,
 } from "./viewAdDetails";
-import { shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
+import { isAgencyAuthRole, shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "./ViewAdRouteStates";
 import { ViewAdAlbumPage } from "./pages/ViewAdAlbumPage";
 import { ViewAdFeedbackPage } from "./pages/ViewAdFeedbackPage";
@@ -1064,6 +1064,7 @@ function ViewAdContent({
   details,
   hasTour3d,
   hideRestrictedActions,
+  isPreview = false,
   mediaItems,
   mapPosition,
   onOpenAlbum,
@@ -1075,6 +1076,7 @@ function ViewAdContent({
   details: ViewAdDetails;
   hasTour3d: boolean;
   hideRestrictedActions: boolean;
+  isPreview?: boolean;
   mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: (initialIndex?: number) => void;
@@ -1104,11 +1106,13 @@ function ViewAdContent({
       ? { ...row, label: `آژانس‌های محله ${selectedNeighborhood.name}` }
       : row,
   );
-  const visibleRows = hideRestrictedActions
-    ? actionRows.filter(
-      (row) => !row.label.includes("بازخورد") && !row.label.includes("تخلف"),
-    )
-    : actionRows;
+  const visibleRows = isPreview
+    ? []
+    : hideRestrictedActions
+      ? actionRows.filter(
+        (row) => !row.label.includes("بازخورد") && !row.label.includes("تخلف"),
+      )
+      : actionRows;
 
   useEffect(() => {
     const updateDescriptionOverflow = () => {
@@ -1274,24 +1278,26 @@ function ViewAdContent({
 
       {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
-      <section className="border-t-8 border-surface-container bg-surface-container-lowest">
-        {visibleRows.map((row) => (
-          <Button unstyled
-            className="flex w-full items-center justify-between border-b-8 border-surface-container p-4 text-right last:border-b-[16px] last:border-surface-container-lowest focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
-            key={row.label}
-            onClick={() => onRowAction(row.label)}
-            type="button"
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              <ViewAdIcon className="text-outline" name={row.icon} />
-              <Typography as="span" variant="label" size="large" weight="medium" className="text-on-surface">
-                {row.label}
-              </Typography>
-            </div>
-            <ViewAdIcon className="text-on-surface-var" name="arrowLeft" />
-          </Button>
-        ))}
-      </section>
+      {visibleRows.length > 0 ? (
+        <section className="border-t-8 border-surface-container bg-surface-container-lowest">
+          {visibleRows.map((row) => (
+            <Button unstyled
+              className="flex w-full items-center justify-between border-b-8 border-surface-container p-4 text-right last:border-b-[16px] last:border-surface-container-lowest focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
+              key={row.label}
+              onClick={() => onRowAction(row.label)}
+              type="button"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <ViewAdIcon className="text-outline" name={row.icon} />
+                <Typography as="span" variant="label" size="large" weight="medium" className="text-on-surface">
+                  {row.label}
+                </Typography>
+              </div>
+              <ViewAdIcon className="text-on-surface-var" name="arrowLeft" />
+            </Button>
+          ))}
+        </section>
+      ) : null}
     </>
   );
 }
@@ -1498,7 +1504,7 @@ export function ViewAdPage() {
   const [toast, setToast] = useState<ActionToast | null>(null);
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
-  const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
+  const initialAgencyPreview = isPreview && isAgencyAuthRole() && shouldUseAgencyAllocationPreview();
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
   const createAdvertiseChat = useCreateAdvertiseChatMutation();
@@ -1506,17 +1512,21 @@ export function ViewAdPage() {
   const submitReport = useSubmitAdvertiseReportMutation();
   const reportReasonsQuery = useAdvertiseReportReasonsQuery(isViolationReportOpen);
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
-  const previewQuery = useAdvertisementPreviewQuery(
-    isPreview && !useAgencyAllocationPreview ? adId : null,
-  );
   const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
-    useAgencyAllocationPreview ? adId : null,
+    initialAgencyPreview ? adId : null,
   );
-  const { data: ad, error, isError, isLoading, refetch } = isPreview
-    ? useAgencyAllocationPreview
+  const previewQuery = useAdvertisementPreviewQuery(
+    isPreview && (!initialAgencyPreview || agencyPreviewQuery.isError) ? adId : null,
+  );
+  const activePreviewQuery =
+    initialAgencyPreview && !agencyPreviewQuery.isError
       ? agencyPreviewQuery
-      : previewQuery
+      : previewQuery;
+  const { data: ad, error, isError, isLoading, refetch } = isPreview
+    ? activePreviewQuery
     : detailQuery;
+  const useAgencyAllocationPreview =
+    isPreview && (shouldUseAgencyAllocationPreview() || shouldUseAgencyAllocationPreview(ad));
 
   useEffect(() => {
     const bookmarkState = readAdvertisementBookmarkState(ad);
@@ -1572,48 +1582,59 @@ export function ViewAdPage() {
   const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)?.userContact as
     | AgencyUserContactData
     | undefined;
+  const rawAd = resolvedAd as Record<string, unknown> | undefined;
+  const rawUser = (rawAd?.user && typeof rawAd.user === "object" ? rawAd.user : undefined) as Record<string, unknown> | undefined;
+  const rawAdvertiser = (rawAd?.advertiser && typeof rawAd.advertiser === "object" ? rawAd.advertiser : undefined) as Record<string, unknown> | undefined;
+  const rawOwner = (rawAd?.owner && typeof rawAd.owner === "object" ? rawAd.owner : undefined) as Record<string, unknown> | undefined;
+  const rawContacts = (rawAd?.contacts && typeof rawAd.contacts === "object" ? rawAd.contacts : undefined) as Record<string, unknown> | undefined;
+
   const agencyUserContact: AgencyUserContactData = {
     name:
       rawAgencyUserContact?.name ??
-      (toNonEmptyText((resolvedAd as Record<string, unknown>)?.user_name) ||
-        toNonEmptyText(((resolvedAd as Record<string, unknown>)?.user as Record<string, unknown> | undefined)?.name) ||
-        toNonEmptyText((resolvedAd as Record<string, unknown>)?.advertiser_name) ||
-        toNonEmptyText((resolvedAd as Record<string, unknown>)?.owner_name) ||
-        toNonEmptyText((resolvedAd as Record<string, unknown>)?.contact_name) ||
-        (rawAgencyUserContact ? undefined : "ناصر اشرفی")),
+      (toNonEmptyText(rawAd?.user_name) ||
+        toNonEmptyText(rawUser?.name) ||
+        toNonEmptyText(rawUser?.full_name) ||
+        toNonEmptyText(rawAdvertiser?.name) ||
+        toNonEmptyText(rawAd?.advertiser_name) ||
+        toNonEmptyText(rawOwner?.name) ||
+        toNonEmptyText(rawAd?.owner_name) ||
+        toNonEmptyText(rawAd?.contact_name) ||
+        toNonEmptyText(rawAd?.contact_person) ||
+        undefined),
     phone:
       rawAgencyUserContact?.phone ??
       (toNonEmptyText(contactInfo.phone) ||
-        toNonEmptyText((resolvedAd as Record<string, unknown>)?.phone) ||
-        toNonEmptyText((resolvedAd as Record<string, unknown>)?.user_phone) ||
-        (rawAgencyUserContact ? undefined : "09361208874")),
+        toNonEmptyText(rawAd?.phone) ||
+        toNonEmptyText(rawAd?.user_phone) ||
+        toNonEmptyText(rawAd?.mobile) ||
+        toNonEmptyText(rawUser?.phone) ||
+        toNonEmptyText(rawUser?.mobile) ||
+        toNonEmptyText(rawAdvertiser?.phone) ||
+        toNonEmptyText(rawAdvertiser?.mobile) ||
+        toNonEmptyText(rawOwner?.phone) ||
+        toNonEmptyText(rawOwner?.mobile) ||
+        undefined),
     smsPhone:
       rawAgencyUserContact?.smsPhone ??
-      (toNonEmptyText((resolvedAd as Record<string, unknown>)?.sms_phone) ||
-        toNonEmptyText(((resolvedAd as Record<string, unknown>)?.contacts as Record<string, unknown> | undefined)?.sms) ||
+      (toNonEmptyText(rawAd?.sms_phone) ||
+        toNonEmptyText(rawContacts?.sms) ||
         toNonEmptyText(contactInfo.phone) ||
-        (rawAgencyUserContact ? undefined : "09155214062")),
+        toNonEmptyText(rawAd?.phone) ||
+        toNonEmptyText(rawAd?.user_phone) ||
+        toNonEmptyText(rawUser?.phone) ||
+        undefined),
     address:
       rawAgencyUserContact?.address ??
-      (toNonEmptyText((resolvedAd as Record<string, unknown>)?.address) ||
-        toNonEmptyText((resolvedAd as Record<string, unknown>)?.location_address) ||
+      (toNonEmptyText(rawAd?.address) ||
+        toNonEmptyText(rawAd?.location_address) ||
         toNonEmptyText(details.locationTitle) ||
-        (rawAgencyUserContact ? undefined : "صیاد شیرازی ۳ - پلاک ۲۴")),
+        undefined),
     social: rawAgencyUserContact?.social ?? {
-      instagram: contactInfo.instagram || (!rawAgencyUserContact ? "bonga_realestate" : undefined),
-      telegram: contactInfo.telegram || (!rawAgencyUserContact ? "bonga_support" : undefined),
-      whatsapp: contactInfo.whatsapp || (!rawAgencyUserContact ? "09361208874" : undefined),
+      instagram: contactInfo.instagram || undefined,
+      telegram: contactInfo.telegram || undefined,
+      whatsapp: contactInfo.whatsapp || undefined,
     },
   };
-  const hasAgencyContactData = Boolean(
-    agencyUserContact.name ||
-      agencyUserContact.phone ||
-      agencyUserContact.smsPhone ||
-      agencyUserContact.address ||
-      agencyUserContact.social?.instagram ||
-      agencyUserContact.social?.telegram ||
-      agencyUserContact.social?.whatsapp,
-  );
   const hasContactSheetData = Boolean(
     contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
   );
@@ -1641,13 +1662,14 @@ export function ViewAdPage() {
   };
 
   const openAdvertiseChat = () => {
-    if (!requireAuthorization("شروع گفتگو با مشاور")) return;
+    const actionLabel = useAgencyAllocationPreview ? "شروع گفتگو با کاربر" : "شروع گفتگو با مشاور";
+    if (!requireAuthorization(actionLabel)) return;
     if (createAdvertiseChat.isPending) return;
 
     createAdvertiseChat.mutate(String(adId), {
       onError: (error) => {
         if (isUnauthorizedApiError(error)) {
-          navigateToLoginRequiredPage("شروع گفتگو با مشاور");
+          navigateToLoginRequiredPage(actionLabel);
           return;
         }
 
@@ -1901,7 +1923,7 @@ export function ViewAdPage() {
       />
       <h1 className="sr-only">{details.title || details.headline || "آگهی املاک"}</h1>
       <ViewAdTopBar
-        actionIcons={usesPublicAdPresentation ? undefined : ["share"]}
+        actionIcons={isPreview ? [] : usesPublicAdPresentation ? undefined : ["share"]}
         backTo="/home"
         bookmarked={isBookmarked}
         onBack={() => goBackFromAd("/home")}
@@ -1916,6 +1938,7 @@ export function ViewAdPage() {
           details={details}
           hasTour3d={resolvedHasTour3d}
           hideRestrictedActions={!usesPublicAdPresentation}
+          isPreview={isPreview}
           mediaItems={mediaItems}
           mapPosition={getMapPosition(resolvedAd)}
           onOpenAlbum={(initialIndex = 0) => {
@@ -1927,10 +1950,10 @@ export function ViewAdPage() {
         />
       </main>
 
-      <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
-        {useAgencyAllocationPreview ? (
-          <div className="flex gap-4 [direction:ltr]">
-            {hasAgencyContactData ? (
+      {isPreview ? (
+        useAgencyAllocationPreview ? (
+          <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+            <div className="flex gap-4 [direction:ltr]">
               <Button
                 unstyled
                 className="flex-1 rounded-[10px] bg-primary py-2.5 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
@@ -1939,8 +1962,6 @@ export function ViewAdPage() {
               >
                 تماس با کاربر
               </Button>
-            ) : null}
-            {hasChatContact ? (
               <Button
                 unstyled
                 className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
@@ -1953,39 +1974,43 @@ export function ViewAdPage() {
                 </Typography>
                 <ViewAdIcon className="h-5! w-5!" name="chat" />
               </Button>
-            ) : null}
+            </div>
           </div>
-        ) : contactActionCount > 0 ? (
-          <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
-            {hasContactSheetData ? (
-              <Button unstyled
-                className=" rounded-[10px] bg-primary py-2.5 flex-1 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
-                onClick={() => setIsContactSheetOpen(true)}
-                type="button"
-              >
-                {contactInfo.phone ? "تماس با مشاور" : "راه‌های تماس"}
-              </Button>
-            ) : null}
-            {hasChatContact ? (
-              <Button unstyled
-                className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
-                disabled={createAdvertiseChat.isPending}
-                onClick={openAdvertiseChat}
-                type="button"
-              >
-                <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
-                <ViewAdIcon className="h-5! w-5!" name="chat" />
-              </Button>
-            ) : null}
-          </div>
-        ) : (
-          <div className="rounded-[10px] bg-surface-container px-4 py-3 text-center text-sm font-medium leading-5 text-outline">
-            {usesPublicAdPresentation
-              ? "راه ارتباطی برای این آگهی ثبت نشده است."
-              : "این آگهی برای شماست"}
-          </div>
-        )}
-      </div>
+        ) : null
+      ) : (
+        <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+          {contactActionCount > 0 ? (
+            <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
+              {hasContactSheetData ? (
+                <Button unstyled
+                  className=" rounded-[10px] bg-primary py-2.5 flex-1 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+                  onClick={() => setIsContactSheetOpen(true)}
+                  type="button"
+                >
+                  {contactInfo.phone ? "تماس با مشاور" : "راه‌های تماس"}
+                </Button>
+              ) : null}
+              {hasChatContact ? (
+                <Button unstyled
+                  className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
+                  disabled={createAdvertiseChat.isPending}
+                  onClick={openAdvertiseChat}
+                  type="button"
+                >
+                  <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
+                  <ViewAdIcon className="h-5! w-5!" name="chat" />
+                </Button>
+              ) : null}
+            </div>
+          ) : (
+            <div className="rounded-[10px] bg-surface-container px-4 py-3 text-center text-sm font-medium leading-5 text-outline">
+              {usesPublicAdPresentation
+                ? "راه ارتباطی برای این آگهی ثبت نشده است."
+                : "این آگهی برای شماست"}
+            </div>
+          )}
+        </div>
+      )}
 
       {useAgencyAllocationPreview ? (
         <AgencyUserContactBottomSheet
@@ -1993,7 +2018,7 @@ export function ViewAdPage() {
           isOpen={isAgencyContactSheetOpen}
           onClose={() => setIsAgencyContactSheetOpen(false)}
         />
-      ) : (
+      ) : isPreview ? null : (
         <ContactInfoBottomSheet
           contactInfo={contactInfo}
           isOpen={isContactSheetOpen}

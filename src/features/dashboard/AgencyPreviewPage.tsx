@@ -27,6 +27,10 @@ import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 import { pushRoute } from "../../shared/navigation/navigation";
+import {
+  preserveNewAdDraftStateKey,
+  shouldPreserveNewAdDraft,
+} from "../advertisements/create/session";
 import { useCreateAgencyChatMutation } from "../chat/api/chat.hooks";
 import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../account/api/account.hooks";
 import {
@@ -200,8 +204,13 @@ function getInitialAgencyTab(): AgencyPreviewTab {
 }
 
 function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  if (typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state)) {
+    pushRoute(path, {
+      [preserveNewAdDraftStateKey]: true,
+    });
+    return;
+  }
+  pushRoute(path);
 }
 
 function isPublicAgencyPreviewPath() {
@@ -615,7 +624,7 @@ export function AgencyPreviewPage() {
       },
       onError: (err) => {
         showToast(
-          getApiErrorMessage(err, "برقراری ارتباط با چت با خطا مواجه شد."),
+          getApiErrorMessage(err, "امکان چت آنلاین با این آژانس در حال حاضر فعال نیست."),
           "خطا",
           "error",
         );

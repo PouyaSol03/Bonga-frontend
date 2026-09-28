@@ -1,6 +1,6 @@
 import { api } from "../../../shared/api/api";
 
-export type ChatCategory = "advertise" | "support";
+export type ChatCategory = "advertise" | "support" | "agency_support";
 export type ChatFilter = "support" | "not_read" | "my_ads" | "others_ads";
 export type ChatMessageType = "text" | "image" | "file" | "location" | "system";
 export type ChatReportReason =

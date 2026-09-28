@@ -47,7 +47,20 @@ export function IndependentConsultantAdAllocationPage() {
           </section>
 
           <div className="mt-4 h-px bg-outline-var" aria-hidden="true" />
-          <AllocationAction icon="preview" label="پیش نمایش" to={getAdPreviewPath(ad.id)} />
+          <AllocationAction
+            icon="preview"
+            label="پیش نمایش"
+            state={{
+              ad,
+              previewFlow: "agency-allocation",
+              userContact: {
+                name: (ad as Record<string, unknown>)?.owner_name ?? (ad as Record<string, unknown>)?.user_name ?? undefined,
+                phone: (ad as Record<string, unknown>)?.phone ?? (ad as Record<string, unknown>)?.user_phone ?? undefined,
+                address: (ad as Record<string, unknown>)?.address ?? (ad as Record<string, unknown>)?.location_address ?? undefined,
+              },
+            }}
+            to={getAdPreviewPath(ad.id)}
+          />
           <div className="h-px bg-outline-var" aria-hidden="true" />
           <AllocationAction icon="edit" label="ویرایش" state={{ ad, card: ad, editReturnTo: adManagementPaths.allocation, isEditMode: true }} to={getAdEditPath(ad.id)} />
         </div>

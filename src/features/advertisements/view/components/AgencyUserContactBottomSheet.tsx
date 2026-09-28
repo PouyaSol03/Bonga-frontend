@@ -99,6 +99,12 @@ export function AgencyUserContactBottomSheet({
       title="تماس با کاربر"
     >
       <div className="flex flex-col">
+        {!hasName && !hasPhone && !hasSms && !hasAddress && !hasSocial ? (
+          <div className="py-8 text-center text-sm font-medium text-on-surface-var">
+            اطلاعات تماس مستقیمی برای این کاربر ثبت نشده است.
+          </div>
+        ) : null}
+
         {hasName ? (
           <>
             <div className="flex h-14 items-center justify-between [direction:ltr]">

@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import { getApiErrorMessage } from "../../shared/api/api";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
-import { useMyAdvertisementDetailQuery } from "../advertisements/api/advertisement.hooks";
+import {
+  useMyAdvertisementDetailQuery,
+  useRemoveAgencyAdvertisementMutation,
+} from "../advertisements/api/advertisement.hooks";
 import {
   useApproveAgencyStopRequestMutation,
   useCancelStopPublishRequestMutation,
@@ -14,7 +17,10 @@ import {
   useRejectAgencyStopRequestMutation,
   useRepublishAdAsPersonalMutation,
   useRestoreArchivedAdMutation,
+  useAdvertisementArchiveStatusQuery,
+  useAdvertisementReRegisterStatusQuery,
 } from "../advertisements/api/agency-advertise-assignment.hooks";
+import { formatStopPublishReason } from "../advertisements/api/agency-advertise-assignment.service";
 import { useAgencyConsultantsQuery, useAgencyInfiniteQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
@@ -57,7 +63,7 @@ import LinearFactor from "../../shared/icons/LinearFactor";
 import LinearPayment from "../../shared/icons/LinearPayment";
 import LinearCall from "../../shared/icons/LinearCall";
 import LinearChat from "../../shared/icons/LinearChat";
-import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
+import LinearCancel from "../../shared/icons/LinearCancel";
 
 import {
   AgencyAssignedUserAdView,
@@ -143,6 +149,9 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const createStopRequestMutation = useCreateStopPublishRequestMutation();
   const cancelStopRequestMutation = useCancelStopPublishRequestMutation();
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
+  const currentAdId = adId ?? (card ? String(card.id) : undefined);
+  const reRegisterStatusQuery = useAdvertisementReRegisterStatusQuery(currentAdId);
+  const archiveStatusQuery = useAdvertisementArchiveStatusQuery(currentAdId);
 
   const isAssigned = Boolean(
     props?.isAssigned ??
@@ -253,13 +262,13 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               onCancelAssignment={() => setIsCancelAssignmentModalOpen(true)}
             />
           ) : null}
-          {statusInfo.key === "wait_for_repost" ? (
+          {statusInfo.key === "wait_for_repost" && reRegisterStatusQuery.data?.status !== false ? (
             <WaitForRepostNotice
               ad={sourceAd}
               onRepost={() => setIsRepostChoiceModalOpen(true)}
             />
           ) : null}
-          {statusInfo.key === "archived" ? (
+          {statusInfo.key === "archived" && archiveStatusQuery.data?.status !== false ? (
             <ArchivedNotice
               ad={sourceAd}
               isPending={restoreArchivedMutation.isPending}
@@ -386,10 +395,10 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         <StopPublishModal
           isPending={createStopRequestMutation.isPending}
           onClose={() => setIsStopPublishModalOpen(false)}
-          onConfirm={async (reason: string) => {
+          onConfirm={async (reason: string, description?: string) => {
             if (!adId) return;
             try {
-              await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason });
+              await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason, description });
               setIsStopPublishModalOpen(false);
               await detailQuery.refetch();
             } catch (err) {
@@ -463,8 +472,41 @@ function RealEstateManagerAdStatePage({
   });
   const publisher = publisherOptions.find((option) => option.id === publisherId) ?? publisherOptions[0];
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const removeAgencyAdMutation = useRemoveAgencyAdvertisementMutation();
 
-  const managerActions = getManagerActions(statusInfo.key, adId);
+  const handleDeleteAd = async () => {
+    setIsDeleting(true);
+    try {
+      await removeAgencyAdMutation.mutateAsync({
+        advertiseId: adId,
+        payload: {
+          reason: "other",
+          description: "حذف توسط آژانس",
+        },
+      });
+      setIsDeleteDialogOpen(false);
+      window.history.pushState(backState ?? {}, "", backTo);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    } catch (err) {
+      alert(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const isAdDeleted =
+    statusInfo.key === "deleted" ||
+    statusInfo.key === "incomplete_deleted" ||
+    statusInfo.label === "حذف شده";
+
+  const managerActions = getManagerActions(
+    statusInfo.key,
+    adId,
+    () => setIsDeleteDialogOpen(true),
+    isAdDeleted,
+  );
 
   return (
     <PageFrame
@@ -505,7 +547,7 @@ function RealEstateManagerAdStatePage({
               </Typography>
               {ad?.delete_reason && typeof ad.delete_reason === "object" && (ad.delete_reason as Record<string, unknown>).reason ? (
                 <div className="mt-2 rounded-lg bg-surface p-2.5 text-xs font-medium text-on-surface border border-outline-var">
-                  علت درخواست: {String((ad.delete_reason as Record<string, unknown>).reason)}
+                  علت درخواست: {formatStopPublishReason((ad.delete_reason as Record<string, unknown>).reason)}
                 </div>
               ) : null}
               {(() => {
@@ -638,6 +680,46 @@ function RealEstateManagerAdStatePage({
           selectedPublisher={publisher}
         />
       ) : null}
+
+      <BottomSheet
+        ariaLabel="حذف آگهی"
+        className="rounded-t-[24px]!"
+        contentClassName="min-h-0 overflow-y-auto overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+        headerButtonAriaLabel="بستن"
+        headerClassName="h-10! gap-1! px-2!"
+        isOpen={isDeleteDialogOpen}
+        onClose={() => !isDeleting && setIsDeleteDialogOpen(false)}
+        title="حذف آگهی"
+        variant="confirm"
+        zIndexClassName="z-2000"
+      >
+        <div className="px-4 pb-4 pt-1 text-right [direction:rtl]">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm leading-6 text-on-surface">
+            آیا از حذف آگهی مطمئن هستید؟
+          </Typography>
+
+          <div className="mt-6 flex gap-3">
+            <Button
+              unstyled
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-error text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
+              disabled={isDeleting}
+              onClick={handleDeleteAd}
+              type="button"
+            >
+              {isDeleting ? "در حال حذف..." : "بله"}
+            </Button>
+            <Button
+              unstyled
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-outline-var bg-surface text-sm font-medium text-on-surface active:bg-surface-container"
+              disabled={isDeleting}
+              onClick={() => setIsDeleteDialogOpen(false)}
+              type="button"
+            >
+              خیر
+            </Button>
+          </div>
+        </div>
+      </BottomSheet>
     </PageFrame>
   );
 }
@@ -645,27 +727,33 @@ function RealEstateManagerAdStatePage({
 function getManagerActions(
   status: MyAdStatusKey,
   adId: string,
+  onDelete?: () => void,
+  isAdDeleted?: boolean,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
   const result: StateAction = { icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) };
+  const remove: StateAction = { icon: "delete", label: "حذف", onClick: onDelete };
   const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
   const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
 
+  if (isAdDeleted || status === "deleted" || status === "incomplete_deleted") {
+    return [preview, history];
+  }
   if (status === "published") {
-    return [preview, edit, result, upgrade, history];
+    return [preview, edit, result, remove, upgrade, history];
   }
   if (status === "wait_for_stop" || status === "wait_for_deal_confirmation") {
-    return [preview, history];
+    return [preview, remove, history];
   }
   if (status === "incomplete" || status === "needs_edit" || status === "wait_for_payment") {
-    return [preview, edit, history];
+    return [preview, edit, remove, history];
   }
   if (status === "pending") {
-    return [preview, history];
+    return [preview, remove, history];
   }
   if (status === "expired") {
-    return [preview, result, history];
+    return [preview, result, remove, history];
   }
   return [preview, history];
 }
@@ -854,9 +942,25 @@ function StateAdSummary({
 }
 
 function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
-  const published = readDateLike(ad?.published_time_ago ?? ad?.published_at ?? ad?.created_at);
+  const publishedRaw =
+    ad?.published_at ??
+    ad?.publishedAt ??
+    ad?.published_date ??
+    ad?.created_at ??
+    ad?.createdAt ??
+    ad?.published_time_ago;
+
+  const published = readDateLike(publishedRaw);
   const expires = readExpirationRemaining(
-    ad?.expire_date ?? ad?.expires_at ?? ad?.expiration_date ?? ad?.expired_at ?? ad?.expires_time_ago,
+    ad?.expire_date ??
+    ad?.expires_at ??
+    ad?.expiration_date ??
+    ad?.expired_at ??
+    (typeof ad?.expire === "object" && ad?.expire && "expires_at" in ad.expire
+      ? (ad.expire as { expires_at?: unknown }).expires_at
+      : undefined) ??
+    ad?.expires_time_ago,
+    publishedRaw,
   );
 
   return (
@@ -1111,6 +1215,20 @@ function StateAdAction({
   }
 
   if (action.to) {
+    const isAdAssigned = Boolean(
+      ad?.is_assigned ||
+      ad?.isAssigned ||
+      ad?.assigned_agency_id ||
+      ad?.assignedAgencyId ||
+      ad?.agency_id ||
+      ad?.agencyId ||
+      ad?.agency ||
+      ad?.assignment ||
+      ad?.status === "wait_for_agency" ||
+      ad?.status_key === "wait_for_agency" ||
+      card.agency
+    );
+
     return (
       <RouteLink
         className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
@@ -1121,6 +1239,10 @@ function StateAdAction({
           deleteReturnTo: action.icon === "delete" ? window.location.pathname : undefined,
           editReturnTo: window.location.pathname,
           isEditMode: action.icon === "edit" ? true : undefined,
+          previewFlow:
+            action.icon === "preview" && isAdAssigned
+              ? "agency-allocation"
+              : undefined,
           paymentFlow:
             action.icon === "upgrade"
               ? "upgrade"
@@ -1166,7 +1288,7 @@ function StateIcon({ icon }: { icon: StateActionKey }) {
   if (icon === "stats") return <LinearAnalytics className="h-6 w-6"/>;
   if (icon === "call") return <LinearCall className="h-6 w-6"/>;
   if (icon === "chat") return <LinearChat className="h-6 w-6"/>;
-  if (icon === "stop_publish") return <LinearCancelCircle className="h-6 w-6 text-error"/>;
+  if (icon === "stop_publish") return <LinearCancel className="h-6 w-6"/>;
 
   return <LinearFactor className="h-6 w-6"/>;
 }
@@ -1730,9 +1852,9 @@ function AgencyReassignBottomSheet({
 
 
 const STOP_PUBLISH_REASONS = [
-  "معامله انجام شده",
-  "دیگر تمایلی به انتشار ندارم",
-  "سایر دلایل",
+  { id: "deal_done", label: "معامله انجام شده است" },
+  { id: "no_longer_want_publish", label: "دیگر تمایلی به انتشار آگهی ندارم" },
+  { id: "other", label: "سایر دلایل" },
 ] as const;
 
 function StopPublishModal({
@@ -1742,16 +1864,14 @@ function StopPublishModal({
 }: {
   isPending: boolean;
   onClose: () => void;
-  onConfirm: (reason: string) => void;
+  onConfirm: (reason: string, description?: string) => void;
 }) {
-  const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_REASONS[0]);
+  const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_REASONS[0].id);
   const [customReason, setCustomReason] = useState("");
 
   const handleSubmit = () => {
-    const finalReason = selectedReason === "سایر دلایل" && customReason.trim()
-      ? customReason.trim()
-      : selectedReason;
-    onConfirm(finalReason);
+    const description = selectedReason === "other" && customReason.trim() ? customReason.trim() : undefined;
+    onConfirm(selectedReason, description);
   };
 
   return (
@@ -1769,27 +1889,27 @@ function StopPublishModal({
         </Typography>
 
         <div className="mt-4 space-y-2">
-          {STOP_PUBLISH_REASONS.map((reason) => (
+          {STOP_PUBLISH_REASONS.map((option) => (
             <label
-              key={reason}
+              key={option.id}
               className="flex items-center justify-between rounded-xl border border-outline-var p-3 cursor-pointer hover:bg-surface-container"
             >
               <div className="flex items-center gap-2.5">
                 <input
                   type="radio"
                   name="stopReason"
-                  value={reason}
-                  checked={selectedReason === reason}
-                  onChange={() => setSelectedReason(reason)}
+                  value={option.id}
+                  checked={selectedReason === option.id}
+                  onChange={() => setSelectedReason(option.id)}
                   className="accent-primary h-4 w-4"
                 />
-                <span className="text-xs font-medium text-on-surface">{reason}</span>
+                <span className="text-xs font-medium text-on-surface">{option.label}</span>
               </div>
             </label>
           ))}
         </div>
 
-        {selectedReason === "سایر دلایل" ? (
+        {selectedReason === "other" ? (
           <textarea
             className="mt-3 w-full rounded-xl border border-outline-var bg-surface p-3 text-xs text-on-surface focus:outline-primary"
             placeholder="توضیح کوتاه دلیل توقف..."
@@ -1961,31 +2081,48 @@ function readDateLike(value: unknown) {
   const raw = value.trim();
   const timestamp = Date.parse(raw);
   if (!Number.isFinite(timestamp)) return raw;
-  return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long", day: "numeric" }).format(new Date(timestamp));
+  const d = new Date(timestamp);
+  const dateFormatted = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+  const diffMs = Date.now() - timestamp;
+  const days = Math.floor(diffMs / 86_400_000);
+  let relative = "امروز";
+  if (days === 1) relative = "دیروز";
+  else if (days > 1) relative = `${toPersianDigits(days)} روز پیش`;
+  return `${relative} (${dateFormatted})`;
 }
 
-function readExpirationRemaining(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) return "—";
+function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown) {
+  let raw = typeof value === "string" && value.trim() ? value.trim() : "";
+  let timestamp = raw ? Date.parse(raw) : NaN;
 
-  const raw = value.trim();
-  const timestamp = Date.parse(raw);
-  if (!Number.isFinite(timestamp)) return raw;
+  if (!Number.isFinite(timestamp) && typeof fallbackPublishedDate === "string" && fallbackPublishedDate.trim()) {
+    const pubTime = Date.parse(fallbackPublishedDate.trim());
+    if (Number.isFinite(pubTime)) {
+      timestamp = pubTime + 30 * 86_400_000;
+    }
+  }
 
-  const expirationDate = new Intl.DateTimeFormat("fa-IR", {
+  if (!Number.isFinite(timestamp)) return raw || "—";
+
+  const expirationDate = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     year: "numeric",
-    month: "long",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).format(new Date(timestamp));
   const remainingMilliseconds = timestamp - Date.now();
 
-  if (remainingMilliseconds < 0) return `${expirationDate} (منقضی شده)`;
+  if (remainingMilliseconds < 0) return `منقضی شده (${expirationDate})`;
 
   const remainingDays = Math.ceil(remainingMilliseconds / 86_400_000);
   const remainingLabel = remainingDays === 0
     ? "امروز"
     : `${toPersianDigits(remainingDays)} روز دیگر`;
 
-  return `${expirationDate} (${remainingLabel})`;
+  return `${remainingLabel} (${expirationDate})`;
 }
 
 function toPersianDigits(value: number | string) {

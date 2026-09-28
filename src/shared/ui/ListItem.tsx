@@ -34,7 +34,7 @@ export function ListItem({
         // description ? "min-h-[72px]" : "min-h-[72px]",
         isCenter && "justify-center text-center",
         selected ? "text-primary" : "text-on-surface",
-        "hover:bg-surface-container active:bg-surface-container-high",
+        "active:bg-surface-container-high",
         focusRing,
         className,
       )}

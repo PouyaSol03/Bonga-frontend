@@ -27,7 +27,7 @@ export function ChoiceIndicator({
             ? "border-outline-var bg-surface-container"
             : checked
               ? "border-primary bg-primary shadow-[0_0_0_2px_rgba(0,72,196,0.15)]"
-              : "border-outline bg-surface-container-lowest hover:border-primary/70",
+              : "border-outline bg-surface-container-lowest",
           className,
         )}
         {...props}
@@ -58,7 +58,7 @@ export function ChoiceIndicator({
             : "border-outline/50 bg-surface-container text-transparent"
           : checked
             ? "border-primary bg-primary text-on-primary shadow-[0_0_0_2px_rgba(0,72,196,0.15)]"
-            : "border-outline bg-surface-container-lowest text-transparent hover:border-primary/70",
+            : "border-outline bg-surface-container-lowest text-transparent",
         className,
       )}
       {...props}

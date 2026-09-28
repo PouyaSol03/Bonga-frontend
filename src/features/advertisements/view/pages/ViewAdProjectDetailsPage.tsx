@@ -37,14 +37,14 @@ export function ViewAdProjectDetailsPage() {
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
   const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
-  const previewQuery = useAdvertisementPreviewQuery(
-    isPreview && !useAgencyAllocationPreview ? adId : null,
-  );
   const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
     useAgencyAllocationPreview ? adId : null,
   );
+  const previewQuery = useAdvertisementPreviewQuery(
+    isPreview && (!useAgencyAllocationPreview || agencyPreviewQuery.isError) ? adId : null,
+  );
   const { data: ad, error, isError, isLoading, refetch } = isPreview
-    ? useAgencyAllocationPreview
+    ? useAgencyAllocationPreview && !agencyPreviewQuery.isError
       ? agencyPreviewQuery
       : previewQuery
     : detailQuery;

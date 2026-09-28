@@ -46,6 +46,7 @@ import LinearImage from "../../shared/icons/LinearImage";
 import {
   uploadChatAttachment,
   type ChatAvailability,
+  type ChatCategory,
   type ChatDayOfWeek,
   type ChatFilter,
   type ChatMessage,
@@ -58,7 +59,7 @@ type ChatItem = {
   adLabel: string;
   adTitle: string;
   badgeCount?: string;
-  category?: "advertise" | "support";
+  category?: ChatCategory;
   date: string;
   detailPath?: string;
   detailState?: { thread?: ChatThread; threadId: string };
@@ -532,9 +533,14 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
     adTitle:
       readPathText(chat, ["ad_title", "adTitle"]) ||
       readPathText(ad, ["title", "label", "name"]) ||
-      "جزئیات ملک",
+      (readPathText(chat, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "جزئیات ملک"),
     badgeCount: unreadCount && unreadCount > 0 ? new Intl.NumberFormat("fa-IR").format(unreadCount) : undefined,
-    category: readPathText(chat, ["category"]) === "support" ? "support" : "advertise",
+    category:
+      readPathText(chat, ["category"]) === "support"
+        ? "support"
+        : readPathText(chat, ["category"]) === "agency_support"
+          ? "agency_support"
+          : "advertise",
     date: formatChatDate(
       readPathText(lastMessage, ["sent_at", "sentAt", "created_at", "createdAt", "date"]) ||
       readPathText(chat, ["last_message_at", "lastMessageAt", "updated_at", "updatedAt", "created_at", "createdAt"]),
@@ -2577,13 +2583,20 @@ export function UserChatDetailPage() {
       "participant.full_name",
       "participant.fullName",
       "participant.name",
+      "agency.name",
+      "agency_name",
+      "agencyName",
       "user.full_name",
       "user.fullName",
       "user.name",
-    ]) || "گفتگو";
-  const chatCategory = readPathText(chatThread, ["category"]) === "support"
-    ? "support"
-    : "advertise";
+    ]) || (readPathText(chatThread, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "گفتگو");
+  const rawThreadCategory = readPathText(chatThread, ["category"]);
+  const chatCategory: ChatCategory =
+    rawThreadCategory === "support"
+      ? "support"
+      : rawThreadCategory === "agency_support"
+        ? "agency_support"
+        : "advertise";
   const participantAvailability = chatThread?.participant?.availability;
   const isChatBlocked = isBlocked || blockedByMe || blockedMe;
 
@@ -3180,7 +3193,7 @@ export function UserChatHomePage() {
     refetch: refetchChats,
   } = useChatsQuery({
     blocked: showBlocked ? true : undefined,
-    category: activeFilter === "support" ? "support" : "advertise",
+    category: activeFilter === "support" ? "agency_support" : undefined,
     filter: activeFilter ?? undefined,
     page: 1,
     perPage: 10,
@@ -3398,7 +3411,6 @@ export function UserChatBulkDeletePage() {
     refetch,
   } = useChatsQuery({
     blocked: showBlocked ? true : undefined,
-    category: "advertise",
     filter: showMyAds ? "my_ads" : undefined,
     page: 1,
     perPage: 50,

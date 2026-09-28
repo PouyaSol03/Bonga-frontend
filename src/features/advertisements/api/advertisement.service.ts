@@ -582,6 +582,12 @@ function formatPrice(value: unknown) {
 
   if (numericValue === undefined) return toText(value, "توافقی");
 
+  if (numericValue >= 1_000_000_000_000) {
+    return `${new Intl.NumberFormat("fa-IR", {
+      maximumFractionDigits: 1,
+    }).format(numericValue / 1_000_000_000_000)} همت`;
+  }
+
   if (numericValue >= 1_000_000_000) {
     return `${new Intl.NumberFormat("fa-IR", {
       maximumFractionDigits: 1,
@@ -704,7 +710,7 @@ export function mapAdvertisementToAdCard(
     "city_name",
   ]);
   const image = images[0] ?? "";
-  const description = toText(item.description ?? item.short_description);
+  const description = toText(item.short_description ?? item.description);
   const area = readFeatureValue(item, ["area", "meterage", "building_area", "land_area", "متراژ", "buildingArea", "landArea"]) ?? item.area;
   const rooms = readFeatureValue(item, ["rooms", "اتاق", "خواب"]) ?? item.rooms;
   const buildingAge = readFeatureValue(item, ["building_age", "سال ساخت", "age", "year"]) ?? item.year;
@@ -1593,3 +1599,25 @@ export function submitAdvertiseReport({
     })
     .json<ApiMutationResponse>();
 }
+
+export interface AgencyRemoveAdPayload {
+  reason?: "deal_done" | "no_longer_want_publish" | "other" | string;
+  description?: string;
+}
+
+export async function removeAgencyAdvertisement(
+  advertiseId: string | number,
+  payload: AgencyRemoveAdPayload = {
+    reason: "other",
+    description: "حذف توسط آژانس",
+  },
+) {
+  const response = await api
+    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(advertiseId))}/remove`, {
+      json: payload,
+    })
+    .json<Record<string, unknown>>();
+
+  return response;
+}
+

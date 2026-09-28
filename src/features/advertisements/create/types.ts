@@ -386,6 +386,9 @@ export type NewAdFormValues = {
   title: string;
   description: string;
 
+  neighborhoodId?: string;
+  subNeighborhoodId?: string;
+
   targetOwnerType: "" | "user" | "agency";
   targetOwnerId: string;
 };

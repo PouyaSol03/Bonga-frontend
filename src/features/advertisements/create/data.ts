@@ -759,7 +759,7 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
-export const unitsPerFloorOptions = Array.from({ length: 8 }, (_, index) =>
+export const unitsPerFloorOptions = Array.from({ length: 30 }, (_, index) =>
   new Intl.NumberFormat("fa-IR").format(index + 1),
 );
 export const capacityOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۲", "۱۵", "۲۰", "۳۰", "۴۰", "۵۰+"];
@@ -1137,7 +1137,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   projectStatus: projectStatusOptions,
 };
 
-const saleApartmentUnitsPerFloorOptions = Array.from({ length: 8 }, (_, index) =>
+const saleApartmentUnitsPerFloorOptions = Array.from({ length: 30 }, (_, index) =>
   new Intl.NumberFormat("fa-IR").format(index + 1),
 );
 

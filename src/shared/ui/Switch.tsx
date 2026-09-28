@@ -22,7 +22,7 @@ export function Switch({
       aria-checked={checked}
       className={cn(
         "relative h-6 w-11 shrink-0 rounded-full cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:ltr] active:scale-[0.96]",
-        checked ? "bg-primary ring-2 ring-primary/20" : "bg-outline-var/60 hover:bg-outline-var/80 dark:bg-outline-var/40",
+        checked ? "bg-primary ring-2 ring-primary/20" : "bg-outline-var/60 dark:bg-outline-var/40",
         focusRing,
         "disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100",
         className,

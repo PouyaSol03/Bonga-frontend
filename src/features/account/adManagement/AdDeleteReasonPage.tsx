@@ -6,7 +6,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { adManagementPaths } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
-
+import { getApiErrorMessage } from "../../../shared/api/api";
 import { useDeleteAdvertisementMutation } from "../../advertisements/api/advertisement.hooks";
 
 const deleteReasons = [
@@ -30,6 +30,7 @@ type DeleteAdRouteState = {
 export function AdDeleteReasonPage() {
   const routeState = useMemo(readRouteState, []);
   const [selectedReason, setSelectedReason] = useState<DeleteReasonId>(deleteReasons[0].id);
+  const [errorMessage, setErrorMessage] = useState("");
   const deleteMutation = useDeleteAdvertisementMutation();
   const backTo = routeState.deleteReturnTo ?? adManagementPaths.published;
   const adId = readAdId(routeState);
@@ -38,30 +39,35 @@ export function AdDeleteReasonPage() {
     const selectedReasonLabel = deleteReasons.find((reason) => reason.id === selectedReason)?.label ?? "";
     const completeTo = routeState.deleteCompleteTo ?? adManagementPaths.root;
 
-    if (adId) {
-      try {
-        await deleteMutation.mutateAsync({
-          advertiseId: adId,
-          deleteReasonId: selectedReason,
-          description: selectedReasonLabel,
-        });
-      } catch {
-        // proceed to state transition even if offline or mock
-      }
+    if (!adId) {
+      setErrorMessage("شناسه آگهی برای حذف مشخص نیست.");
+      return;
     }
 
-    window.history.pushState(
-      {
-        ...routeState,
-        deletedAdId: adId,
-        deleteReason: selectedReason,
-        deleteReasonLabel: selectedReasonLabel,
-        tab: routeState.tab ?? "status",
-      },
-      "",
-      completeTo,
-    );
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    setErrorMessage("");
+
+    try {
+      await deleteMutation.mutateAsync({
+        advertiseId: adId,
+        deleteReasonId: selectedReason,
+        description: selectedReasonLabel,
+      });
+
+      window.history.pushState(
+        {
+          ...routeState,
+          deletedAdId: adId,
+          deleteReason: selectedReason,
+          deleteReasonLabel: selectedReasonLabel,
+          tab: routeState.tab ?? "status",
+        },
+        "",
+        completeTo,
+      );
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    } catch (err) {
+      setErrorMessage(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."));
+    }
   };
 
   return (
@@ -77,6 +83,12 @@ export function AdDeleteReasonPage() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
+        {errorMessage ? (
+          <div className="mx-4 mt-4 rounded-lg bg-error-container/20 p-3 text-sm text-error">
+            {errorMessage}
+          </div>
+        ) : null}
+
         <fieldset className="m-0 border-0 px-4 pb-6 pt-6">
           <legend className="sr-only">دلیل حذف آگهی</legend>
 
@@ -94,7 +106,10 @@ export function AdDeleteReasonPage() {
                   checked={selectedReason === reason.id}
                   className="sr-only"
                   name="delete-ad-reason"
-                  onChange={() => setSelectedReason(reason.id)}
+                  onChange={() => {
+                    setSelectedReason(reason.id);
+                    setErrorMessage("");
+                  }}
                   type="radio"
                   value={reason.id}
                 />
@@ -107,10 +122,11 @@ export function AdDeleteReasonPage() {
       <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button unstyled
           className="h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary disabled:opacity-50"
+          disabled={deleteMutation.isPending}
           onClick={handleConfirm}
           type="button"
         >
-          تایید
+          {deleteMutation.isPending ? "در حال حذف..." : "تایید"}
         </Button>
       </div>
     </PageFrame>

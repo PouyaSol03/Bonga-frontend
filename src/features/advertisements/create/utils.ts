@@ -1162,10 +1162,15 @@ export function buildNewAdFormData(
   appendDynamicJson("daily_hotel_rooms", buildDailyHotelRoomFeatures(values));
 
   const seenCanonicalImages = new Set<string>();
+  const seenUploadedFiles = new Set<string>();
 
   cleanValues.photos.forEach((photo) => {
     if (photo.file) {
-      formData.append("images", photo.file, photo.file.name);
+      const fileKey = `${photo.file.name}_${photo.file.size}`;
+      if (!seenUploadedFiles.has(fileKey)) {
+        seenUploadedFiles.add(fileKey);
+        formData.append("images", photo.file, photo.file.name);
+      }
     } else {
       const source = mediaSource(photo.existingValue);
       if (source) {

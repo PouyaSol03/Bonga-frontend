@@ -174,6 +174,154 @@ export function renderDateWithRelative(text: string) {
   return <span className="text-sm font-medium text-on-surface">{text}</span>;
 }
 
+function formatPersianDateNumber(d: Date): string {
+  try {
+    return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d);
+  } catch {
+    return "";
+  }
+}
+
+function resolvePublishedDateText(ad?: Record<string, unknown>): string {
+  const explicitText = typeof ad?.published_date_text === "string" ? ad.published_date_text.trim() : "";
+  if (explicitText) return explicitText;
+
+  const rawDate =
+    ad?.published_at ??
+    ad?.publishedAt ??
+    ad?.published_date ??
+    ad?.created_at ??
+    ad?.createdAt;
+
+  if (typeof rawDate === "string" && rawDate.trim()) {
+    const timestamp = Date.parse(rawDate.trim());
+    if (Number.isFinite(timestamp)) {
+      const d = new Date(timestamp);
+      const dateStr = formatPersianDateNumber(d);
+      const diffMs = Date.now() - timestamp;
+      const days = Math.floor(diffMs / 86_400_000);
+      let relative = "امروز";
+      if (days === 1) {
+        relative = "دیروز";
+      } else if (days > 1) {
+        relative = `${toPersianDigits(days)} روز پیش`;
+      }
+      return `${relative} (${dateStr})`;
+    }
+    return rawDate.trim();
+  }
+
+  if (typeof ad?.published_time_ago === "string" && ad.published_time_ago.trim()) {
+    return ad.published_time_ago.trim();
+  }
+  if (typeof ad?.published_days === "number" || typeof ad?.published_days === "string") {
+    return `${toPersianDigits(ad.published_days)} روز پیش`;
+  }
+
+  return "—";
+}
+
+function resolveExpirationDateText(ad?: Record<string, unknown>): string {
+  const explicitText = typeof ad?.expire_date_text === "string" ? ad.expire_date_text.trim() : "";
+  if (explicitText) return explicitText;
+
+  const rawExpire =
+    ad?.expires_at ??
+    ad?.expiresAt ??
+    ad?.expire_date ??
+    ad?.expireDate ??
+    ad?.expiration_date ??
+    ad?.expirationDate ??
+    ad?.expired_at ??
+    ad?.expiredAt ??
+    (typeof ad?.expire === "object" && ad?.expire && "expires_at" in ad.expire
+      ? (ad.expire as { expires_at?: unknown }).expires_at
+      : undefined);
+
+  if (typeof rawExpire === "string" && rawExpire.trim()) {
+    const timestamp = Date.parse(rawExpire.trim());
+    if (Number.isFinite(timestamp)) {
+      const d = new Date(timestamp);
+      const dateStr = formatPersianDateNumber(d);
+      const diffMs = timestamp - Date.now();
+      if (diffMs <= 0) {
+        return `منقضی شده (${dateStr})`;
+      }
+      const days = Math.ceil(diffMs / 86_400_000);
+      const relative = days === 0 ? "امروز" : `${toPersianDigits(days)} روز دیگر`;
+      return `${relative} (${dateStr})`;
+    }
+    return rawExpire.trim();
+  }
+
+  const rawPublished =
+    ad?.published_at ??
+    ad?.publishedAt ??
+    ad?.published_date ??
+    ad?.created_at ??
+    ad?.createdAt;
+
+  if (typeof rawPublished === "string" && rawPublished.trim()) {
+    const pubTimestamp = Date.parse(rawPublished.trim());
+    if (Number.isFinite(pubTimestamp)) {
+      const expireTimestamp = pubTimestamp + 30 * 86_400_000;
+      const d = new Date(expireTimestamp);
+      const dateStr = formatPersianDateNumber(d);
+      const diffMs = expireTimestamp - Date.now();
+      if (diffMs <= 0) {
+        return `منقضی شده (${dateStr})`;
+      }
+      const days = Math.ceil(diffMs / 86_400_000);
+      const relative = days === 0 ? "امروز" : `${toPersianDigits(days)} روز دیگر`;
+      return `${relative} (${dateStr})`;
+    }
+  }
+
+  if (typeof ad?.expires_time_ago === "string" && ad.expires_time_ago.trim()) {
+    return ad.expires_time_ago.trim();
+  }
+
+  return "—";
+}
+
+function resolveReviewTimeRemaining(ad?: Record<string, unknown>): string {
+  const explicitText = typeof ad?.review_time_remaining === "string"
+    ? ad.review_time_remaining.trim()
+    : typeof ad?.review_time_text === "string"
+      ? ad.review_time_text.trim()
+      : "";
+  if (explicitText) return explicitText;
+
+  const rawStart =
+    (ad?.assignment as Record<string, unknown> | undefined)?.created_at ??
+    ad?.assigned_at ??
+    ad?.assignedAt ??
+    ad?.updated_at ??
+    ad?.updatedAt ??
+    ad?.created_at ??
+    ad?.createdAt;
+
+  if (typeof rawStart === "string" && rawStart.trim()) {
+    const startTimestamp = Date.parse(rawStart.trim());
+    if (Number.isFinite(startTimestamp)) {
+      const deadline = startTimestamp + 24 * 60 * 60 * 1000;
+      const diffMs = deadline - Date.now();
+      if (diffMs <= 0) return "مهلت ۲۴ ساعته به پایان رسیده است";
+      const hours = Math.floor(diffMs / (60 * 60 * 1000));
+      const minutes = Math.floor((diffMs % (60 * 60 * 1000)) / (60 * 1000));
+      if (hours <= 0 && minutes <= 0) return "کمتر از ۱ دقیقه";
+      if (hours <= 0) return `${toPersianDigits(minutes)} دقیقه`;
+      return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
+    }
+  }
+
+  return "۲۴ ساعت";
+}
+
 export function AgencyAssignedUserAdView({
   ad,
   card,
@@ -202,7 +350,10 @@ export function AgencyAssignedUserAdView({
     (ad?.agencyName as string) ||
     (ad?.assigned_agency_name as string) ||
     (ad?.assignedAgencyName as string) ||
-    "آژانس جلیلیان";
+    (typeof ad?.agency === "object" && ad?.agency && "name" in ad.agency ? String((ad.agency as { name?: unknown }).name ?? "") : "") ||
+    (typeof ad?.agency === "string" ? ad.agency : "") ||
+    (card.agency ? card.agency : "") ||
+    "آژانس املاک";
 
   const categoryBreadcrumb =
     (ad?.category as string) ||
@@ -210,22 +361,12 @@ export function AgencyAssignedUserAdView({
     (ad?.categoryTitle as string) ||
     (ad?.category_name as string) ||
     (ad?.categoryName as string) ||
-    "فروش مسکونی / فروش آپارتمان";
+    (typeof ad?.category_object === "object" && ad?.category_object && "title" in ad.category_object ? String((ad.category_object as { title?: unknown }).title ?? "") : "") ||
+    "—";
 
-  const publishedDateText =
-    (ad?.published_time_ago as string) ||
-    (ad?.published_date_text as string) ||
-    "۳ روز پیش (۱۴۰۴/۱۱/۰۹)";
-
-  const expirationDateText =
-    (ad?.expires_time_ago as string) ||
-    (ad?.expire_date_text as string) ||
-    "۱۲ روز دیگر (۱۴۰۴/۱۱/۲۱)";
-
-  const reviewTimeRemaining =
-    (ad?.review_time_remaining as string) ||
-    (ad?.review_time_text as string) ||
-    "۱۲ ساعت و ۳۶ دقیقه";
+  const publishedDateText = resolvePublishedDateText(ad);
+  const expirationDateText = resolveExpirationDateText(ad);
+  const reviewTimeRemaining = resolveReviewTimeRemaining(ad);
 
   const isPublished = statusKey === "published";
   const isWaitForAgency = statusKey === "wait_for_agency";
@@ -412,7 +553,9 @@ export function AgencyAssignedUserAdView({
             >
               <div className="flex items-center gap-3">
                 <LinearCancel className="h-6 w-6 text-on-surface-var" />
-                <span className="text-sm font-medium text-on-surface">درخواست توقف انتشار</span>
+                <Typography variant="label" size="large" weight="medium" className="text-on-surface">
+                  درخواست توقف انتشار
+                </Typography>
               </div>
               <LinearArrowLeft1 className="h-6 w-6 text-outline" />
             </button>
@@ -427,7 +570,9 @@ export function AgencyAssignedUserAdView({
             >
               <div className="flex items-center gap-3">
                 <LinearCancel className="h-6 w-6 text-on-surface-var" />
-                <span className="text-sm font-medium text-on-surface">لغو واگذاری آگهی به آژانس</span>
+                <Typography variant="label" size="large" weight="medium" className="text-on-surface">
+                  لغو واگذاری آگهی به آژانس
+                </Typography>
               </div>
               <LinearArrowLeft1 className="h-6 w-6 text-outline" />
             </button>

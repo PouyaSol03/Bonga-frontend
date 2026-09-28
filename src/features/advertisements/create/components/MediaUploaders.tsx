@@ -75,10 +75,46 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
     if (!validFiles.length) return;
 
+    let hasDuplicate = false;
+    const uniqueFilesToProcess: File[] = [];
+    const seenInBatch = new Set<string>();
+
+    for (const file of validFiles) {
+      const fileKey = `${file.name}_${file.size}`;
+      if (seenInBatch.has(fileKey)) {
+        hasDuplicate = true;
+        continue;
+      }
+
+      const isAlreadyInPhotos = photos.some((p) => {
+        if (p.file) {
+          return (
+            (p.file.name === file.name && p.file.size === file.size) ||
+            (p.name === file.name && p.size === file.size)
+          );
+        }
+        return p.name === file.name || (p.size > 0 && p.size === file.size);
+      });
+
+      if (isAlreadyInPhotos) {
+        hasDuplicate = true;
+        continue;
+      }
+
+      seenInBatch.add(fileKey);
+      uniqueFilesToProcess.push(file);
+    }
+
+    if (hasDuplicate) {
+      alert("تصویر انتخاب‌شده تکراری است و قبلاً اضافه شده است.");
+    }
+
+    if (!uniqueFilesToProcess.length) return;
+
     const remainingSlots = Math.max(0, MAX_PHOTO_COUNT - photos.length);
     if (remainingSlots <= 0) return;
 
-    const filesToProcess = validFiles.slice(0, remainingSlots);
+    const filesToProcess = uniqueFilesToProcess.slice(0, remainingSlots);
     if (!filesToProcess.length) return;
 
     const newPhotos = filesToProcess.map((file) => {

@@ -60,7 +60,7 @@ import LinearFactor from "../../shared/icons/LinearFactor";
 import LinearPayment from "../../shared/icons/LinearPayment";
 import LinearCall from "../../shared/icons/LinearCall";
 import LinearChat from "../../shared/icons/LinearChat";
-import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
+import LinearCancel from "../../shared/icons/LinearCancel";
 
 import {
   AgencyAssignedUserAdView,
@@ -860,9 +860,25 @@ function StateAdSummary({
 }
 
 function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
-  const published = readDateLike(ad?.published_time_ago ?? ad?.published_at ?? ad?.created_at);
+  const publishedRaw =
+    ad?.published_at ??
+    ad?.publishedAt ??
+    ad?.published_date ??
+    ad?.created_at ??
+    ad?.createdAt ??
+    ad?.published_time_ago;
+
+  const published = readDateLike(publishedRaw);
   const expires = readExpirationRemaining(
-    ad?.expire_date ?? ad?.expires_at ?? ad?.expiration_date ?? ad?.expired_at ?? ad?.expires_time_ago,
+    ad?.expire_date ??
+    ad?.expires_at ??
+    ad?.expiration_date ??
+    ad?.expired_at ??
+    (typeof ad?.expire === "object" && ad?.expire && "expires_at" in ad.expire
+      ? (ad.expire as { expires_at?: unknown }).expires_at
+      : undefined) ??
+    ad?.expires_time_ago,
+    publishedRaw,
   );
 
   return (
@@ -1172,7 +1188,7 @@ function StateIcon({ icon }: { icon: StateActionKey }) {
   if (icon === "stats") return <LinearAnalytics className="h-6 w-6"/>;
   if (icon === "call") return <LinearCall className="h-6 w-6"/>;
   if (icon === "chat") return <LinearChat className="h-6 w-6"/>;
-  if (icon === "stop_publish") return <LinearCancelCircle className="h-6 w-6 text-error"/>;
+  if (icon === "stop_publish") return <LinearCancel className="h-6 w-6"/>;
 
   return <LinearFactor className="h-6 w-6"/>;
 }
@@ -1965,31 +1981,48 @@ function readDateLike(value: unknown) {
   const raw = value.trim();
   const timestamp = Date.parse(raw);
   if (!Number.isFinite(timestamp)) return raw;
-  return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long", day: "numeric" }).format(new Date(timestamp));
+  const d = new Date(timestamp);
+  const dateFormatted = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+  const diffMs = Date.now() - timestamp;
+  const days = Math.floor(diffMs / 86_400_000);
+  let relative = "امروز";
+  if (days === 1) relative = "دیروز";
+  else if (days > 1) relative = `${toPersianDigits(days)} روز پیش`;
+  return `${relative} (${dateFormatted})`;
 }
 
-function readExpirationRemaining(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) return "—";
+function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown) {
+  let raw = typeof value === "string" && value.trim() ? value.trim() : "";
+  let timestamp = raw ? Date.parse(raw) : NaN;
 
-  const raw = value.trim();
-  const timestamp = Date.parse(raw);
-  if (!Number.isFinite(timestamp)) return raw;
+  if (!Number.isFinite(timestamp) && typeof fallbackPublishedDate === "string" && fallbackPublishedDate.trim()) {
+    const pubTime = Date.parse(fallbackPublishedDate.trim());
+    if (Number.isFinite(pubTime)) {
+      timestamp = pubTime + 30 * 86_400_000;
+    }
+  }
 
-  const expirationDate = new Intl.DateTimeFormat("fa-IR", {
+  if (!Number.isFinite(timestamp)) return raw || "—";
+
+  const expirationDate = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     year: "numeric",
-    month: "long",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).format(new Date(timestamp));
   const remainingMilliseconds = timestamp - Date.now();
 
-  if (remainingMilliseconds < 0) return `${expirationDate} (منقضی شده)`;
+  if (remainingMilliseconds < 0) return `منقضی شده (${expirationDate})`;
 
   const remainingDays = Math.ceil(remainingMilliseconds / 86_400_000);
   const remainingLabel = remainingDays === 0
     ? "امروز"
     : `${toPersianDigits(remainingDays)} روز دیگر`;
 
-  return `${expirationDate} (${remainingLabel})`;
+  return `${remainingLabel} (${expirationDate})`;
 }
 
 function toPersianDigits(value: number | string) {

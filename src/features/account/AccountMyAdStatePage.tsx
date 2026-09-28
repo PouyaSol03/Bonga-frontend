@@ -1133,6 +1133,20 @@ function StateAdAction({
   }
 
   if (action.to) {
+    const isAdAssigned = Boolean(
+      ad?.is_assigned ||
+      ad?.isAssigned ||
+      ad?.assigned_agency_id ||
+      ad?.assignedAgencyId ||
+      ad?.agency_id ||
+      ad?.agencyId ||
+      ad?.agency ||
+      ad?.assignment ||
+      ad?.status === "wait_for_agency" ||
+      ad?.status_key === "wait_for_agency" ||
+      card.agency
+    );
+
     return (
       <RouteLink
         className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
@@ -1143,6 +1157,10 @@ function StateAdAction({
           deleteReturnTo: action.icon === "delete" ? window.location.pathname : undefined,
           editReturnTo: window.location.pathname,
           isEditMode: action.icon === "edit" ? true : undefined,
+          previewFlow:
+            action.icon === "preview" && isAdAssigned
+              ? "agency-allocation"
+              : undefined,
           paymentFlow:
             action.icon === "upgrade"
               ? "upgrade"

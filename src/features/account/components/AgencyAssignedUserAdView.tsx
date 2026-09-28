@@ -372,7 +372,33 @@ export function AgencyAssignedUserAdView({
   const handlePreview = () => {
     if (currentAdId) {
       pushRoute(getAdPreviewPath(currentAdId), {
+        ad,
         previewFlow: "agency-allocation",
+        userContact: {
+          name:
+            (ad?.owner_name as string) ??
+            (ad?.user_name as string) ??
+            (ad?.advertiser_name as string) ??
+            undefined,
+          phone:
+            (ad?.phone as string) ??
+            (ad?.user_phone as string) ??
+            (ad?.mobile as string) ??
+            undefined,
+          smsPhone:
+            (ad?.sms_phone as string) ??
+            (ad?.phone as string) ??
+            (ad?.user_phone as string) ??
+            undefined,
+          address:
+            (ad?.address as string) ??
+            (ad?.location_address as string) ??
+            undefined,
+          social:
+            (ad?.social as Record<string, string>) ??
+            (ad?.contacts as Record<string, string>) ??
+            undefined,
+        },
       });
     }
   };

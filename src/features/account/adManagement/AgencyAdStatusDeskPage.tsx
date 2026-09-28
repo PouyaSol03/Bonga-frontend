@@ -319,7 +319,7 @@ export function AgencyAdStatusDeskPage({
         <section className="px-4" aria-label="عملیات آگهی">
           <RouteLink
             className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
-            state={{ previewFlow: "agency-allocation" }}
+            state={{ ad, previewFlow: "agency-allocation" }}
             to={getAdPreviewPath(adId)}
           >
             <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />

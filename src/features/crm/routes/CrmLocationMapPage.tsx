@@ -1449,6 +1449,7 @@ export function CrmLocationMapPage({ notify, refreshNonce }: CrmRoutePageProps) 
             <TileLayer
               attribution={searchMapTileConfig.attribution}
               className={searchMapTileConfig.className}
+              maxZoom={searchMapTileConfig.maxZoom}
               tms={searchMapTileConfig.isTms}
               url={searchMapTileConfig.urlTemplate}
             />

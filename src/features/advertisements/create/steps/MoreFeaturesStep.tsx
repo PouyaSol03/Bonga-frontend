@@ -225,7 +225,8 @@ export function MoreFeaturesStep({
         className="rounded-t-[14px]"
         contentClassName="pt-0 pb-4"
         handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
-        heightClassName="h-auto max-h-[calc(100dvh-24px)]"
+        heightClassName="h-auto max-h-[50svh]"
+        maxHeight="50svh"
         isOpen={Boolean(multiSelectSheet)}
         headerButtonAriaLabel="بازگشت"
         onBack={() => setMultiSelectSheet(null)}
@@ -270,7 +271,8 @@ export function MoreFeaturesStep({
         className="rounded-t-[14px]"
         contentClassName="pt-0 pb-6"
         handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
-        heightClassName="h-auto max-h-[calc(100dvh-102px)]"
+        heightClassName="h-auto max-h-[50svh]"
+        maxHeight="50svh"
         isOpen={Boolean(sheet)}
         headerButtonAriaLabel="بازگشت"
         onBack={() => setSheet(null)}
@@ -287,7 +289,7 @@ export function MoreFeaturesStep({
           align="center"
           isOpen={Boolean(sheet)}
           items={(sheet?.options ?? []).map((option) => ({
-            id: option,
+            id: sheet?.key === "unitsPerFloor" ? normalizeUnitsPerFloorValue(option) : option,
             title: sheet?.key === "unitsPerFloor"
               ? formatUnitsPerFloorLabel(option)
               : option,

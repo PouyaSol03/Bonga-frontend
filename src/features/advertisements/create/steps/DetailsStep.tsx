@@ -1295,8 +1295,9 @@ export function DetailsStep({
         heightClassName={
           sheet?.kind === "exchange"
             ? "h-[min(660px,calc(100svh-24px))]"
-            : "h-auto"
+            : "h-auto max-h-[50svh]"
         }
+        maxHeight={sheet?.kind === "exchange" ? undefined : "50svh"}
         isOpen={Boolean(sheet)}
         onBack={() => setSheet(null)}
         onClose={() => setSheet(null)}

@@ -137,6 +137,22 @@ body,
     #eef3fb;
 }
 
+html.dark,
+html.dark body,
+html.dark #root {
+  background: #121212 !important;
+  color: var(--on-surface) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.theme-light-forced),
+  html:not(.theme-light-forced) body,
+  html:not(.theme-light-forced) #root {
+    background: #121212;
+    color: var(--on-surface);
+  }
+}
+
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -24,10 +24,9 @@ const ageOptions = [
   "بیشتر از ۲۰ سال"
 ];
 const totalFloorsOptions = ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"];
-const unitsPerFloorOptions = [
-  "تک واحدی", "دو واحدی", "سه واحدی", "چهار واحدی",
-  "پنج واحدی", "شش واحدی", "هفت واحدی", "هشت واحد بیشتر"
-];
+const unitsPerFloorOptions = Array.from({ length: 30 }, (_, index) =>
+  `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`
+);
 const buildingPositionOptions = ["شمالی", "جنوبی", "شرقی", "غربی", "دونبش", "سه نبش", "دوممر"];
 const landPositionOptions = ["شمالی", "جنوبی", "غربی", "شرقی", "دوممر", "دونبش", "سه نبش", "چهارنبش"];
 const unitPositionOptions = ["جلو", "عقب", "وسط", "کنج", "دوبلکس", "پنت هاوس"];

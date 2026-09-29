@@ -25,7 +25,15 @@ export function parseNumericValue(value: unknown): number | null {
   if (!normalized) return null;
 
   const num = Number(normalized);
-  return Number.isFinite(num) ? num : null;
+  if (Number.isFinite(num)) return num;
+
+  const match = normalized.match(/-?\d+(?:\.\d+)?/);
+  if (match) {
+    const extracted = Number(match[0]);
+    return Number.isFinite(extracted) ? extracted : null;
+  }
+
+  return null;
 }
 
 export function parseFloorNumber(floorStr: unknown): number | null {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
@@ -153,6 +153,42 @@ export function OnboardingPage() {
     goToStep(stepIndex + 1);
   };
 
+  const goToPrevStep = () => {
+    if (stepIndex > 0) {
+      goToStep(stepIndex - 1);
+    }
+  };
+
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent) => {
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const diffX = touch.clientX - touchStartXRef.current;
+    const diffY = touch.clientY - touchStartYRef.current;
+
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX < -40) {
+        goToNextStep();
+      } else if (diffX > 40) {
+        goToPrevStep();
+      }
+    }
+  };
+
   if (isCityStep) {
     return <OnboardingCitySelectionPage />;
   }
@@ -163,7 +199,11 @@ export function OnboardingPage() {
       dir="rtl"
       variant="flush"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0">
+      <main
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0 select-none touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="mx-auto flex min-h-full w-full max-w-[500px] flex-col items-center pb-2 pt-0">
           <div className="relative w-full shrink-0 pb-5 pt-0">
             <div className="relative aspect-[328/360] w-full">

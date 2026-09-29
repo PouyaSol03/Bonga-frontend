@@ -21,7 +21,7 @@ import {
   useAdvertisementReRegisterStatusQuery,
 } from "../advertisements/api/agency-advertise-assignment.hooks";
 import { formatStopPublishReason } from "../advertisements/api/agency-advertise-assignment.service";
-import { useAgencyConsultantsQuery, useAgencyInfiniteQuery } from "../agencies/api/agency.hooks";
+import { useAgencyConsultantsQuery, useAgencyInfiniteQuery, usePublicAgencyDetailQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
@@ -119,6 +119,39 @@ export type AccountMyAdStatePageProps = {
   initialDealResultOpen?: boolean;
 };
 
+function AgencyActionsFooter({
+  onSendMessage,
+  onCallAgency,
+}: {
+  onSendMessage: () => void;
+  onCallAgency: () => void;
+}) {
+  return (
+    <footer className="shrink-0 border-t border-surface-container bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:rtl]">
+      <div className="flex items-center gap-3">
+        <Button
+          unstyled
+          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-[10px] border border-primary bg-transparent text-sm font-medium text-primary transition-colors active:bg-primary/10"
+          onClick={onSendMessage}
+          type="button"
+        >
+          <LinearChat className="h-5 w-5 shrink-0 text-primary" />
+          <span>ارسال پیام</span>
+        </Button>
+
+        <Button
+          unstyled
+          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-[10px] bg-primary text-sm font-medium text-on-primary transition-colors active:bg-primary-600"
+          onClick={onCallAgency}
+          type="button"
+        >
+          <span>تماس با آژانس</span>
+        </Button>
+      </div>
+    </footer>
+  );
+}
+
 export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const routeState = props ? { ...readRouteState(), ...props } : readRouteState();
   const adId = readAdIdFromPath() ?? readEntityId(props?.ad) ?? readEntityId(props?.card) ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
@@ -194,6 +227,77 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     );
   }
 
+  const agencyId = readText(
+    sourceAd?.assigned_agency_id ??
+    sourceAd?.assignedAgencyId ??
+    sourceAd?.agency_id ??
+    sourceAd?.agencyId ??
+    sourceAd?.publisher_agency_id ??
+    (sourceAd?.agency && typeof sourceAd.agency === "object" ? (sourceAd.agency as Record<string, unknown>).id : undefined)
+  );
+
+  const agencyDetailQuery = usePublicAgencyDetailQuery({
+    id: agencyId,
+    enabled: Boolean(agencyId),
+  });
+
+  const agencyData = agencyDetailQuery.data as Record<string, unknown> | undefined;
+  const agencyObj = agencyData?.agency && typeof agencyData.agency === "object" ? (agencyData.agency as Record<string, unknown>) : undefined;
+  const queryPhone = readText(
+    agencyData?.phone ??
+    agencyData?.agency_phone ??
+    agencyData?.mobile ??
+    agencyObj?.phone ??
+    agencyObj?.agency_phone ??
+    agencyObj?.mobile
+  );
+
+  const agencyPhone = readText(
+    sourceAd?.assigned_agency_phone ??
+    sourceAd?.agency_phone ??
+    (sourceAd?.agency && typeof sourceAd.agency === "object" ? (sourceAd.agency as Record<string, unknown>).phone : undefined) ??
+    (sourceAd?.assigned_consultant && typeof sourceAd.assigned_consultant === "object" ? (sourceAd.assigned_consultant as Record<string, unknown>).phone : undefined) ??
+    sourceAd?.consultant_phone ??
+    queryPhone ??
+    sourceAd?.phone
+  );
+
+  const consultantUserId = readText(
+    sourceAd?.assigned_consultant_user_id ??
+    sourceAd?.assigned_consultant_id ??
+    sourceAd?.consultant_user_id ??
+    (sourceAd?.assigned_consultant && typeof sourceAd.assigned_consultant === "object" ? (sourceAd.assigned_consultant as Record<string, unknown>).user_id : undefined)
+  );
+
+  const showAgencyBottomBar = Boolean(
+    (isAssigned ||
+      statusInfo.key === "wait_for_agency" ||
+      statusInfo.key === "wait_for_stop") &&
+    statusInfo.key !== "rejected_by_agency"
+  );
+
+  const handleCallAgency = () => {
+    if (agencyPhone) {
+      window.location.href = `tel:${agencyPhone}`;
+    } else {
+      alert("شماره تماس آژانس در دسترس نیست.");
+    }
+  };
+
+  const handleSendMessage = () => {
+    const chatQuery = new URLSearchParams();
+    if (consultantUserId) {
+      chatQuery.set("userId", consultantUserId);
+    } else if (agencyId) {
+      chatQuery.set("agencyId", agencyId);
+    }
+    const currentId = adId ?? (card ? String(card.id) : undefined);
+    if (currentId) {
+      chatQuery.set("adId", currentId);
+    }
+    window.location.href = `/chat?${chatQuery.toString()}`;
+  };
+
   // Exact UI for Agency Assigned Ads (docs_UI) from User Perspective
   if (isAssigned) {
     return (
@@ -221,6 +325,13 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
             initialCancelAssignmentOpen={props?.initialCancelAssignmentOpen ?? routeState.initialCancelAssignmentOpen}
           />
         </main>
+
+        {showAgencyBottomBar ? (
+          <AgencyActionsFooter
+            onCallAgency={handleCallAgency}
+            onSendMessage={handleSendMessage}
+          />
+        ) : null}
       </PageFrame>
     );
   }
@@ -333,6 +444,13 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           ))}
         </section>
       </main>
+
+      {showAgencyBottomBar ? (
+        <AgencyActionsFooter
+          onCallAgency={handleCallAgency}
+          onSendMessage={handleSendMessage}
+        />
+      ) : null}
 
       <CancelAssignmentBottomSheet
         isOpen={isCancelAssignmentModalOpen}
@@ -943,18 +1061,25 @@ function StateAdSummary({
 
 function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
   const publishedRaw =
+    ad?.confirm_date ??
+    ad?.confirmDate ??
     ad?.published_at ??
     ad?.publishedAt ??
     ad?.published_date ??
+    ad?.sort_date ??
+    ad?.sortDate ??
     ad?.created_at ??
     ad?.createdAt ??
     ad?.published_time_ago;
 
-  const published = readDateLike(publishedRaw);
+  const published = readDateLike(publishedRaw, ad?.published_hours_ago);
   const expires = readExpirationRemaining(
     ad?.expire_date ??
+    ad?.expireDate ??
     ad?.expires_at ??
+    ad?.expiresAt ??
     ad?.expiration_date ??
+    ad?.expirationDate ??
     ad?.expired_at ??
     (typeof ad?.expire === "object" && ad?.expire && "expires_at" in ad.expire
       ? (ad.expire as { expires_at?: unknown }).expires_at
@@ -1301,25 +1426,6 @@ function WaitForAgencyNotice({
   onCancelAssignment: () => void;
 }) {
   const agencyName = readText(ad?.assigned_agency_name ?? ad?.agency_name ?? (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).name : undefined)) || "آژانس املاک";
-  const rawPhone =
-    ad?.assigned_agency_phone ??
-    ad?.agency_phone ??
-    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).phone : undefined) ??
-    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).phone : undefined) ??
-    ad?.consultant_phone ??
-    ad?.phone;
-  const agencyPhone = readText(rawPhone);
-  const agencyId = readText(
-    ad?.assigned_agency_id ??
-    ad?.agency_id ??
-    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).id : undefined)
-  );
-  const consultantUserId = readText(
-    ad?.assigned_consultant_user_id ??
-    ad?.consultant_user_id ??
-    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).user_id : undefined)
-  );
-  const adId = readText(ad?.id ?? ad?._id);
   const agencyStartDate = getAgencyAssignmentStartDate(ad);
   const deadlineRemaining = readAgencyDeadlineRemaining(agencyStartDate);
 
@@ -1343,48 +1449,9 @@ function WaitForAgencyNotice({
         <span className="[direction:rtl]">مهلت باقی‌مانده تایید آژانس:</span>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <Button
-          unstyled
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
-          onClick={() => {
-            if (agencyPhone) {
-              window.location.href = `tel:${agencyPhone}`;
-            } else {
-              alert("شماره تماس آژانس در دسترس نیست.");
-            }
-          }}
-          type="button"
-        >
-          <LinearCall className="h-4 w-4 text-primary" />
-          <span>تماس با آژانس</span>
-        </Button>
-
-        <Button
-          unstyled
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
-          onClick={() => {
-            const chatQuery = new URLSearchParams();
-            if (consultantUserId) {
-              chatQuery.set("userId", consultantUserId);
-            } else if (agencyId) {
-              chatQuery.set("agencyId", agencyId);
-            }
-            if (adId) {
-              chatQuery.set("adId", adId);
-            }
-            window.location.href = `/chat?${chatQuery.toString()}`;
-          }}
-          type="button"
-        >
-          <LinearChat className="h-4 w-4 text-primary" />
-          <span>پیام به آژانس</span>
-        </Button>
-      </div>
-
       <Button
         unstyled
-        className="mt-2.5 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
+        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
         onClick={onCancelAssignment}
         type="button"
       >
@@ -2076,7 +2143,7 @@ function readEntityId(value: unknown) {
   return undefined;
 }
 
-function readDateLike(value: unknown) {
+function readDateLike(value: unknown, hoursAgo?: unknown) {
   if (typeof value !== "string" || !value.trim()) return "—";
   const raw = value.trim();
   const timestamp = Date.parse(raw);
@@ -2087,11 +2154,19 @@ function readDateLike(value: unknown) {
     month: "2-digit",
     day: "2-digit",
   }).format(d);
-  const diffMs = Date.now() - timestamp;
-  const days = Math.floor(diffMs / 86_400_000);
+
+  const targetMidnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const now = new Date();
+  const baseMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const days = Math.round((baseMidnight - targetMidnight) / 86_400_000);
+
   let relative = "امروز";
   if (days === 1) relative = "دیروز";
   else if (days > 1) relative = `${toPersianDigits(days)} روز پیش`;
+  else if (typeof hoursAgo === "number" && hoursAgo >= 24) {
+    const hDays = Math.floor(hoursAgo / 24);
+    relative = hDays === 1 ? "دیروز" : `${toPersianDigits(hDays)} روز پیش`;
+  }
   return `${relative} (${dateFormatted})`;
 }
 
@@ -2108,16 +2183,20 @@ function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown
 
   if (!Number.isFinite(timestamp)) return raw || "—";
 
+  const d = new Date(timestamp);
   const expirationDate = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date(timestamp));
-  const remainingMilliseconds = timestamp - Date.now();
+  }).format(d);
 
-  if (remainingMilliseconds < 0) return `منقضی شده (${expirationDate})`;
+  const targetMidnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const now = new Date();
+  const baseMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const remainingDays = Math.round((targetMidnight - baseMidnight) / 86_400_000);
 
-  const remainingDays = Math.ceil(remainingMilliseconds / 86_400_000);
+  if (remainingDays < 0) return `منقضی شده (${expirationDate})`;
+
   const remainingLabel = remainingDays === 0
     ? "امروز"
     : `${toPersianDigits(remainingDays)} روز دیگر`;

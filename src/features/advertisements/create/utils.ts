@@ -458,13 +458,26 @@ function normalizeDigits(value: unknown) {
 }
 
 function parseUnitsPerFloor(value: unknown) {
-  const match = normalizeDigits(String(value ?? "")).match(/\d+/);
+  const wordsMap: Record<string, number> = {
+    "تک واحدی": 1,
+    "دو واحدی": 2,
+    "سه واحدی": 3,
+    "چهار واحدی": 4,
+    "پنج واحدی": 5,
+    "شش واحدی": 6,
+    "هفت واحدی": 7,
+    "هشت واحد بیشتر": 8,
+  };
+  const str = String(value ?? "").trim();
+  if (wordsMap[str]) return wordsMap[str];
+
+  const match = normalizeDigits(str).match(/\d+/);
 
   if (!match) return null;
 
   const number = Number(match[0]);
 
-  return Number.isInteger(number) && number >= 1 && number <= 8 ? number : null;
+  return Number.isInteger(number) && number >= 1 && number <= 30 ? number : null;
 }
 
 export function normalizeUnitsPerFloorValue(value: unknown) {
@@ -475,18 +488,8 @@ export function normalizeUnitsPerFloorValue(value: unknown) {
 
 export function formatUnitsPerFloorLabel(value: unknown) {
   const normalized = normalizeUnitsPerFloorValue(value);
-  const labelsByValue: Record<string, string> = {
-    "۱": "تک واحدی",
-    "۲": "دو واحدی",
-    "۳": "سه واحدی",
-    "۴": "چهار واحدی",
-    "۵": "پنج واحدی",
-    "۶": "شش واحدی",
-    "۷": "هفت واحدی",
-    "۸": "هشت واحد بیشتر",
-  };
 
-  return normalized ? labelsByValue[normalized] ?? `${normalized} واحد` : "";
+  return normalized ? `${normalized} واحد` : (typeof value === "string" ? value : "");
 }
 
 export function normalizeNumberInput(value: unknown) {

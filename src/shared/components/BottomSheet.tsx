@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import type { ComponentType, CSSProperties, ReactNode, SVGProps } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useDragControls, useReducedMotion } from "motion/react";
 import LinearArrowRight2 from "../icons/LinearArrowRight2";
@@ -33,6 +33,7 @@ type BottomSheetProps = {
   headerButtonIcon?: ReactNode;
   heightClassName?: string;
   isOpen: boolean;
+  maxHeight?: string | number;
   onBack?: () => void;
   onClose: () => void;
   panelPaddingClassName?: string;
@@ -41,6 +42,7 @@ type BottomSheetProps = {
   showHandle?: boolean;
   showHeader?: boolean;
   showHeaderDivider?: boolean;
+  style?: CSSProperties;
   title?: string;
   titleIcon?: ReactNode;
   titleAlign?: SheetAlign;
@@ -88,6 +90,7 @@ export function BottomSheet({
   headerButtonIcon,
   heightClassName,
   isOpen,
+  maxHeight,
   onBack,
   onClose,
   panelPaddingClassName,
@@ -96,6 +99,7 @@ export function BottomSheet({
   showHandle = true,
   showHeader = true,
   showHeaderDivider = false,
+  style,
   title,
   titleIcon,
   titleAlign = "right",
@@ -139,7 +143,10 @@ export function BottomSheet({
             aria-label={ariaLabel}
             aria-modal="true"
             className={`relative z-10 flex w-full max-w-[500px] flex-col overflow-hidden rounded-t-[20px] bg-surface-container-lowest ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
-            style={{ maxHeight: "calc(100dvh - 56px)" }}
+            style={{
+              maxHeight: maxHeight ?? (heightClassName?.includes("max-h-") ? undefined : "calc(100dvh - 56px)"),
+              ...style,
+            }}
             exit={{ y: "100%" }}
             initial={{ y: "100%" }}
             role="dialog"

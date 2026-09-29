@@ -37,12 +37,28 @@ export function applyTheme(theme: AppTheme) {
     theme === "dark" || (theme === "system" && getSystemPrefersDark());
 
   const root = document.documentElement;
+  const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+  const supportedColorSchemeMeta = document.querySelector('meta[name="supported-color-schemes"]');
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
   if (isDark) {
     root.classList.add("dark");
+    root.classList.remove("theme-light-forced");
     root.style.colorScheme = "dark";
+    if (colorSchemeMeta) colorSchemeMeta.setAttribute("content", "light dark");
+    if (supportedColorSchemeMeta) supportedColorSchemeMeta.setAttribute("content", "light dark");
+    if (themeColorMeta) themeColorMeta.setAttribute("content", "#121212");
   } else {
     root.classList.remove("dark");
+    if (theme === "light") {
+      root.classList.add("theme-light-forced");
+    } else {
+      root.classList.remove("theme-light-forced");
+    }
     root.style.colorScheme = "light";
+    if (colorSchemeMeta) colorSchemeMeta.setAttribute("content", "light dark");
+    if (supportedColorSchemeMeta) supportedColorSchemeMeta.setAttribute("content", "light dark");
+    if (themeColorMeta) themeColorMeta.setAttribute("content", "#ffffff");
   }
 
   notify();

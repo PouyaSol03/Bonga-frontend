@@ -88,11 +88,14 @@ export function IndependentConsultantAdAllocationReviewPage(props?: IndependentC
   const selectableConsultants = useMemo(
     () =>
       props?.mockConsultants ??
-      (consultantsQuery.data?.data ?? []).map((consultant) => ({
-        avatarSrc: consultant.avatar,
-        id: String(consultant.userId),
-        name: consultant.name || `مشاور شماره ${consultant.userId}`,
-      })),
+      (consultantsQuery.data?.data ?? []).map((consultant) => {
+        const id = String(consultant.agentId ?? consultant.userId);
+        return {
+          avatarSrc: consultant.avatar,
+          id,
+          name: consultant.name || `مشاور شماره ${id}`,
+        };
+      }),
     [props?.mockConsultants, consultantsQuery.data],
   );
   const initialConsultantId = String(

@@ -1193,9 +1193,18 @@ function AgencyAdsTab({
         </label>
       </div>
 
-      <div className="flex flex-col gap-3 pt-4">
+      <div className="flex flex-col pt-4">
         {visibleAds.length ? (
-          visibleAds.map((ad) => <AdCard key={ad.id} ad={ad} to={`/ads/${ad.id}`} />)
+          visibleAds.map((ad) => (
+            <AdCard
+              className="shrink-0 border-b-[12px] border-surface-container last:border-b-0"
+              key={ad.id}
+              ad={ad}
+              showAgency={false}
+              to={`/ads/${ad.id}`}
+              variant="standard"
+            />
+          ))
         ) : normalizedQuery ? (
           <SearchEmptyState />
         ) : (

@@ -191,9 +191,13 @@ function resolvePublishedDateText(ad?: Record<string, unknown>): string {
   if (explicitText) return explicitText;
 
   const rawDate =
+    ad?.confirm_date ??
+    ad?.confirmDate ??
     ad?.published_at ??
     ad?.publishedAt ??
     ad?.published_date ??
+    ad?.sort_date ??
+    ad?.sortDate ??
     ad?.created_at ??
     ad?.createdAt;
 
@@ -202,8 +206,10 @@ function resolvePublishedDateText(ad?: Record<string, unknown>): string {
     if (Number.isFinite(timestamp)) {
       const d = new Date(timestamp);
       const dateStr = formatPersianDateNumber(d);
-      const diffMs = Date.now() - timestamp;
-      const days = Math.floor(diffMs / 86_400_000);
+      const targetMidnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+      const now = new Date();
+      const baseMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const days = Math.round((baseMidnight - targetMidnight) / 86_400_000);
       let relative = "امروز";
       if (days === 1) {
         relative = "دیروز";
@@ -213,6 +219,15 @@ function resolvePublishedDateText(ad?: Record<string, unknown>): string {
       return `${relative} (${dateStr})`;
     }
     return rawDate.trim();
+  }
+
+  if (typeof ad?.published_hours_ago === "number") {
+    const hours = ad.published_hours_ago;
+    if (hours < 1) return "لحظاتی پیش";
+    if (hours < 24) return `${toPersianDigits(hours)} ساعت پیش`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return "دیروز";
+    return `${toPersianDigits(days)} روز پیش`;
   }
 
   if (typeof ad?.published_time_ago === "string" && ad.published_time_ago.trim()) {
@@ -230,10 +245,10 @@ function resolveExpirationDateText(ad?: Record<string, unknown>): string {
   if (explicitText) return explicitText;
 
   const rawExpire =
-    ad?.expires_at ??
-    ad?.expiresAt ??
     ad?.expire_date ??
     ad?.expireDate ??
+    ad?.expires_at ??
+    ad?.expiresAt ??
     ad?.expiration_date ??
     ad?.expirationDate ??
     ad?.expired_at ??
@@ -242,43 +257,38 @@ function resolveExpirationDateText(ad?: Record<string, unknown>): string {
       ? (ad.expire as { expires_at?: unknown }).expires_at
       : undefined);
 
-  if (typeof rawExpire === "string" && rawExpire.trim()) {
-    const timestamp = Date.parse(rawExpire.trim());
-    if (Number.isFinite(timestamp)) {
-      const d = new Date(timestamp);
-      const dateStr = formatPersianDateNumber(d);
-      const diffMs = timestamp - Date.now();
-      if (diffMs <= 0) {
-        return `منقضی شده (${dateStr})`;
+  let timestamp = typeof rawExpire === "string" && rawExpire.trim() ? Date.parse(rawExpire.trim()) : NaN;
+
+  if (!Number.isFinite(timestamp)) {
+    const rawPublished =
+      ad?.confirm_date ??
+      ad?.confirmDate ??
+      ad?.published_at ??
+      ad?.publishedAt ??
+      ad?.published_date ??
+      ad?.sort_date ??
+      ad?.created_at ??
+      ad?.createdAt;
+    if (typeof rawPublished === "string" && rawPublished.trim()) {
+      const pubTimestamp = Date.parse(rawPublished.trim());
+      if (Number.isFinite(pubTimestamp)) {
+        timestamp = pubTimestamp + 30 * 86_400_000;
       }
-      const days = Math.ceil(diffMs / 86_400_000);
-      const relative = days === 0 ? "امروز" : `${toPersianDigits(days)} روز دیگر`;
-      return `${relative} (${dateStr})`;
     }
-    return rawExpire.trim();
   }
 
-  const rawPublished =
-    ad?.published_at ??
-    ad?.publishedAt ??
-    ad?.published_date ??
-    ad?.created_at ??
-    ad?.createdAt;
-
-  if (typeof rawPublished === "string" && rawPublished.trim()) {
-    const pubTimestamp = Date.parse(rawPublished.trim());
-    if (Number.isFinite(pubTimestamp)) {
-      const expireTimestamp = pubTimestamp + 30 * 86_400_000;
-      const d = new Date(expireTimestamp);
-      const dateStr = formatPersianDateNumber(d);
-      const diffMs = expireTimestamp - Date.now();
-      if (diffMs <= 0) {
-        return `منقضی شده (${dateStr})`;
-      }
-      const days = Math.ceil(diffMs / 86_400_000);
-      const relative = days === 0 ? "امروز" : `${toPersianDigits(days)} روز دیگر`;
-      return `${relative} (${dateStr})`;
+  if (Number.isFinite(timestamp)) {
+    const d = new Date(timestamp);
+    const dateStr = formatPersianDateNumber(d);
+    const targetMidnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const now = new Date();
+    const baseMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const days = Math.round((targetMidnight - baseMidnight) / 86_400_000);
+    if (days < 0) {
+      return `منقضی شده (${dateStr})`;
     }
+    const relative = days === 0 ? "امروز" : `${toPersianDigits(days)} روز دیگر`;
+    return `${relative} (${dateStr})`;
   }
 
   if (typeof ad?.expires_time_ago === "string" && ad.expires_time_ago.trim()) {

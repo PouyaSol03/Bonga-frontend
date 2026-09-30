@@ -74,6 +74,7 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
   // 1. Required fields check from dynamic/form-code definition
   if (!isProject) {
     getBasicPropertyFields().forEach((field) => {
+      if (field.key === "meterage" || field.key === "buildingArea") return;
       if (!field.required) return;
       if (hasRequiredText(values[field.key])) return;
 
@@ -81,47 +82,13 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
     });
   }
 
-  // 2. Meterage and Areas validation
-  const numMeterage = parseNumericValue(values.meterage);
-  if (hasRequiredText(values.meterage)) {
-    if (numMeterage === null || numMeterage <= 0) {
-      errors.meterage = "متراژ باید عددی بزرگتر از صفر باشد.";
-    } else {
-      const isApartment = category === "apartment" || category === "daily-apartment-suite";
-      const isCommercialOrOffice = category === "office" || category === "commercial-unit" || category === "daily-workspace";
-
-      if (isApartment && numMeterage > 2_000) {
-        errors.meterage = "متراژ آپارتمان نمی‌تواند بیشتر از ۲,۰۰۰ متر مربع باشد.";
-      } else if (isCommercialOrOffice && numMeterage > 10_000) {
-        errors.meterage = "متراژ نمی‌تواند بیشتر از ۱۰,۰۰۰ متر مربع باشد.";
-      } else if (numMeterage > 1_000_000) {
-        errors.meterage = "متراژ وارد شده بیشتر از سقف مجاز (۱,۰۰۰,۰۰۰ متر مربع) است.";
-      }
-    }
-  }
-
+  // 2. Land Area validation (meterage and buildingArea validations removed)
   const numLandArea = parseNumericValue(values.landArea);
   if (hasRequiredText(values.landArea)) {
     if (numLandArea === null || numLandArea <= 0) {
       errors.landArea = "متراژ زمین باید عددی بزرگتر از صفر باشد.";
     } else if (numLandArea > 1_000_000) {
       errors.landArea = "متراژ زمین نمی‌تواند بیشتر از ۱,۰۰۰,۰۰۰ متر مربع (۱۰۰ هکتار) باشد.";
-    }
-  }
-
-  const numBuildingArea = parseNumericValue(values.buildingArea);
-  if (hasRequiredText(values.buildingArea)) {
-    if (numBuildingArea === null || numBuildingArea <= 0) {
-      errors.buildingArea = "متراژ بنا / زیربنا باید عددی بزرگتر از صفر باشد.";
-    } else if (numBuildingArea > 100_000) {
-      errors.buildingArea = "متراژ بنا نمی‌تواند بیشتر از ۱۰۰,۰۰۰ متر مربع باشد.";
-    }
-  }
-
-  // Comparative Area Check: Building Area cannot exceed Land Area
-  if (numBuildingArea !== null && numLandArea !== null && numBuildingArea > 0 && numLandArea > 0) {
-    if (numBuildingArea > numLandArea) {
-      errors.buildingArea = "متراژ بنا نمی‌تواند از متراژ کل زمین بیشتر باشد.";
     }
   }
 

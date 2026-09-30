@@ -6,6 +6,8 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
 import { backRoute } from "../../../shared/navigation/navigation";
 import {
+  getAdvertisementPreview,
+  getAgencyAdvertisementPreview,
   mapAdvertisementToAdCard,
   type AdvertisementFeature,
   type AdvertisementItem,
@@ -15,11 +17,12 @@ import type { PublicAgencyDto } from "../../agencies/api/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../crm/api/crm.service";
 import {
   useAdvertiseFormDefinitionQuery,
-  useMyAdvertisementDetailQuery,
   useCreateAdvertisementMutation,
   useUpdateAdvertisementMutation,
   useSaveAdvertiseDraftMutation,
 } from "../api/advertisement.hooks";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import {
@@ -834,8 +837,9 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
   setText("publisherName", readPublisherName(ad, features));
   setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId"], ["agency_id", "agencyId"]));
-  setText("ownerFullName", readTextValue(ad, features, ["owner_name", "advertiser_name"], ["owner_name", "advertiser_name"]));
-  setText("ownerExactAddress", readTextValue(ad, features, ["owner_address", "contact_address"], ["owner_address", "contact_address"]));
+  setText("ownerPhone", readTextValue(ad, features, ["owner_contact_phone"], ["owner_contact_phone"]));
+  setText("ownerFullName", readTextValue(ad, features, ["owner_contact_name", "owner_name"], ["owner_contact_name", "owner_name"]));
+  setText("ownerExactAddress", readTextValue(ad, features, ["owner_contact_address", "owner_address"], ["owner_contact_address", "owner_address"]));
   setText("telegram", readSocialValue(ad, "telegram"));
   setText("whatsapp", readSocialValue(ad, "whatsapp"));
 
@@ -1005,7 +1009,24 @@ export function NewAdFlowPage() {
   const advertiseFormQuery = useAdvertiseFormDefinitionQuery(
     !isCrmSource ? currentFormCode : null,
   );
-  const editAdQuery = useMyAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isAgencyRole = activeRole === REAL_ESTATE_MANAGER;
+
+  const editAdQuery = useQuery<AdvertisementItem, Error>({
+    enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
+    queryFn: async () => {
+      const id = String(editAdId);
+      if (isAgencyRole) {
+        try {
+          return await getAgencyAdvertisementPreview(id);
+        } catch {
+          return await getAdvertisementPreview(id);
+        }
+      }
+      return await getAdvertisementPreview(id);
+    },
+    queryKey: ["advertisement", "edit-preview", editAdId, activeRole],
+  });
   const crmEditAdQuery = useQuery({
     enabled: Boolean(isCrmEditMode && editAdId),
     queryFn: () => getCrmAdvertise(editAdId ?? ""),
@@ -1566,6 +1587,17 @@ export function NewAdFlowPage() {
             ? "ویرایش آگهی"
             : "ثبت آگهی";
 
+  const isAssigned = Boolean(
+    (editAdState as any)?.isAssigned ||
+    (editAdState.ad as any)?.isAssigned ||
+    (editAdState.ad as any)?.assignment_status ||
+    (editAdState.ad as any)?.assigned_agency_id ||
+    (editAdData as any)?.isAssigned ||
+    (editAdData as any)?.assignment_status ||
+    (editAdData as any)?.assigned_agency_id ||
+    (editAdState.card as any)?.isAssigned
+  );
+
   return (
     <PageFrame
       className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
@@ -1636,6 +1668,7 @@ export function NewAdFlowPage() {
           <MediaStep
             errors={fieldErrors}
             forceFullEditFields={isEditMode && !isEditingIncomplete}
+            isAssigned={isAssigned}
             label={label}
             onBack={goToDetails}
             onChangePublisher={() => setStep("publisherSelection")}

@@ -383,6 +383,27 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   );
   const publisherName = readText(card.agency, ad.agency, ad.publisherName, ad.publisher_name);
   const phoneNumber = readText(ad.owner_phone, ad.phone, ad.phoneNumber, ad.phone_number);
+  const ownerPhone = readText(
+    (ad as any).owner_contact_phone,
+    (ad as any).ownerContactPhone,
+    (card as any).owner_contact_phone,
+  );
+  const ownerFullName = readText(
+    (ad as any).owner_contact_name,
+    (ad as any).ownerContactName,
+    (card as any).owner_contact_name,
+    ad.owner_name,
+    (ad as any).ownerName,
+    (card as any).owner_name,
+  );
+  const ownerExactAddress = readText(
+    (ad as any).owner_contact_address,
+    (ad as any).ownerContactAddress,
+    (card as any).owner_contact_address,
+    ad.owner_address,
+    (ad as any).ownerAddress,
+    (card as any).owner_address,
+  );
   const price = priceTextToNumberString(readText(card.pricePrimary, ad.price, ad.total_price));
   const mortgagePrice = priceTextToNumberString(readText(card.pricePrimary, ad.mortgagePrice, ad.mortgage_price));
   const rentPrice = priceTextToNumberString(readText(card.priceSecondary, ad.rentPrice, ad.rent_price));
@@ -399,6 +420,9 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     location,
     meterage: pickFirstNumber(readText(card.area, ad.area, ad.meterage)),
     mortgagePrice,
+    ownerExactAddress,
+    ownerFullName,
+    ownerPhone,
     phoneEnabled: true,
     phoneNumber,
     price,
@@ -848,6 +872,9 @@ export function buildPayload(values: NewAdFormValues) {
     owner_phone: values.phoneNumber || null,
     owner_name: values.ownerFullName || null,
     owner_address: values.ownerExactAddress || null,
+    owner_contact_name: values.ownerFullName || null,
+    owner_contact_phone: values.ownerPhone || null,
+    owner_contact_address: values.ownerExactAddress || null,
     social: {
       telegram: values.telegram || null,
       whatsapp: values.whatsapp || null,
@@ -1025,6 +1052,15 @@ export function buildNewAdFormData(
   appendBaseValue("owner_phone", cleanValues.phoneNumber);
   appendBaseValue("owner_name", cleanValues.ownerFullName);
   appendBaseValue("owner_address", cleanValues.ownerExactAddress);
+  if (cleanValues.ownerPhone) {
+    appendBaseValue("owner_contact_phone", cleanValues.ownerPhone);
+  }
+  if (cleanValues.ownerFullName) {
+    appendBaseValue("owner_contact_name", cleanValues.ownerFullName);
+  }
+  if (cleanValues.ownerExactAddress) {
+    appendBaseValue("owner_contact_address", cleanValues.ownerExactAddress);
+  }
   appendBaseValue("telegram", cleanValues.telegram);
   appendBaseValue("whatsapp", cleanValues.whatsapp);
 

@@ -449,6 +449,13 @@ export function getMediaValidationErrors(
     }
   }
 
+  if (hasRequiredText(values.ownerPhone)) {
+    const cleanOwnerPhone = toLatinDigits(values.ownerPhone).replace(/[\s-]/g, "");
+    if (!/^0\d{10}$/.test(cleanOwnerPhone) && !/^\+?98\d{10}$/.test(cleanOwnerPhone) && !/^09\d{9}$/.test(cleanOwnerPhone)) {
+      errors.ownerPhone = "شماره تلفن مالک معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۸۸۸۸۸۸۸۸).";
+    }
+  }
+
   // 6. Title (Min 10, Max 50)
   const trimmedTitle = values.title.trim();
   if (!hasRequiredText(trimmedTitle)) {

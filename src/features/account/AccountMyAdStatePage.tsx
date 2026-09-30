@@ -186,7 +186,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const reRegisterStatusQuery = useAdvertisementReRegisterStatusQuery(currentAdId);
   const archiveStatusQuery = useAdvertisementArchiveStatusQuery(currentAdId);
 
-  const isAssigned = Boolean(
+  const isAssigned = statusInfo.key !== "wait_for_payment" && Boolean(
     props?.isAssigned ??
     routeState.isAssigned ??
     (
@@ -420,7 +420,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               }}
             />
           ) : null}
-          {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice /> : null}
+          {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice adId={adId ?? String(card.id)} /> : null}
           {statusInfo.key === "pending" ? <PendingReviewNotice /> : null}
           {statusInfo.key === "needs_edit" ? (
             <NeedsEditNotice ad={sourceAd} card={card} returnTo={backTo} />
@@ -666,6 +666,10 @@ function RealEstateManagerAdStatePage({
 
           <ManagerAdSummary ad={ad} card={card} />
 
+          {statusInfo.key === "wait_for_payment" ? (
+            <WaitForPaymentNotice adId={adId} />
+          ) : null}
+
           {["published", "wait_for_stop", "wait_for_deal_confirmation"].includes(statusInfo.key) ? (
             <PublishedMeta ad={ad} />
           ) : null}
@@ -868,6 +872,7 @@ function getManagerActions(
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
+  const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
   const result: StateAction = { icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) };
   const remove: StateAction = { icon: "delete", label: "حذف", onClick: onDelete };
   const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
@@ -882,8 +887,11 @@ function getManagerActions(
   if (status === "wait_for_stop" || status === "wait_for_deal_confirmation") {
     return [preview, remove, history];
   }
-  if (status === "incomplete" || status === "needs_edit" || status === "wait_for_payment") {
-    return [preview, edit, remove, history];
+  if (status === "wait_for_payment") {
+    return [preview, edit, payment, remove, history];
+  }
+  if (status === "incomplete" || status === "needs_edit") {
+    return [preview, edit, payment, remove, history];
   }
   if (status === "pending") {
     return [preview, remove, history];
@@ -1225,8 +1233,21 @@ function NeedsEditNotice({
   );
 }
 
-function WaitForPaymentNotice() {
-  return null;
+function WaitForPaymentNotice({ adId }: { adId?: string }) {
+  return (
+    <div className="mt-4 flex items-center justify-between rounded-xl bg-warning-container p-3 text-warning">
+      <span className="text-sm font-medium">برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.</span>
+      {adId ? (
+        <RouteLink
+          className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3 text-xs font-medium text-on-primary no-underline"
+          to={getAdPaymentPath(adId)}
+          state={{ paymentFlow: "new-ad" }}
+        >
+          پرداخت
+        </RouteLink>
+      ) : null}
+    </div>
+  );
 }
 
 function getStateActions(
@@ -1361,15 +1382,10 @@ function StateAdAction({
     const isAdAssigned = Boolean(
       ad?.is_assigned ||
       ad?.isAssigned ||
-      ad?.assigned_agency_id ||
-      ad?.assignedAgencyId ||
-      ad?.agency_id ||
-      ad?.agencyId ||
-      ad?.agency ||
-      ad?.assignment ||
+      ad?.assignment_status === "pending" ||
+      ad?.assignment_status === "accepted" ||
       ad?.status === "wait_for_agency" ||
-      ad?.status_key === "wait_for_agency" ||
-      card.agency
+      ad?.status_key === "wait_for_agency"
     );
 
     return (

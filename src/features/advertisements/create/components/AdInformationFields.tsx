@@ -8,6 +8,7 @@ import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
 import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
 import { TextField } from "../../../../shared/ui/TextField";
+import { AgencyOwnerContactFields } from "./AgencyOwnerContactFields";
 
 type SetNewAdField = <T extends keyof NewAdFormValues>(
   key: T,
@@ -310,12 +311,16 @@ export function AdInformationFields({
   publisherType,
   values,
   allowAssignmentChoice = true,
+  isAssigned = false,
+  isProfessionalPublisher,
 }: {
   agencyPublisherIsConsultant?: boolean;
   agencyPublisherLogoUrl?: string;
   agencyPublisherName?: string;
   agencyPublisherSubtitle?: string;
   errors: NewAdFieldErrors;
+  isAssigned?: boolean;
+  isProfessionalPublisher?: boolean;
   label: string;
   mobile: string;
   profileMobile: string;
@@ -327,13 +332,17 @@ export function AdInformationFields({
   values: NewAdFormValues;
   allowAssignmentChoice?: boolean;
 }) {
-  const isAgencyPublisher = publisherType === "agency";
-  const isAgency = !isAgencyPublisher && values.registrantType === "agency";
-  const isPersonal = !isAgencyPublisher && values.registrantType === "personal";
+  const isProfessional =
+    isProfessionalPublisher ??
+    (publisherType === "agency" || publisherType === "agent");
+  const showPublisherCard = isProfessional || publisherType === "agency";
+  const showOwnerContact = isProfessional && !isAssigned;
+  const isAgency = !showPublisherCard && values.registrantType === "agency";
+  const isPersonal = !showPublisherCard && values.registrantType === "personal";
 
   return (
     <div className="space-y-4">
-      {isAgencyPublisher ? (
+      {showPublisherCard ? (
         <AgencyPublisherFields
           isConsultant={agencyPublisherIsConsultant}
           logoUrl={agencyPublisherLogoUrl}
@@ -347,6 +356,16 @@ export function AdInformationFields({
           onSelectAgency={onSelectAgency}
           onSelectPersonal={onSelectPersonal}
           registrantType={values.registrantType}
+        />
+      ) : null}
+
+      {showOwnerContact ? (
+        <AgencyOwnerContactFields
+          errors={errors}
+          onSetField={onSetField}
+          ownerExactAddress={values.ownerExactAddress}
+          ownerFullName={values.ownerFullName}
+          ownerPhone={values.ownerPhone}
         />
       ) : null}
 
@@ -370,7 +389,7 @@ export function AdInformationFields({
         />
       ) : null}
 
-      {!isAgencyPublisher && values.registrantType ? (
+      {!showPublisherCard && values.registrantType ? (
         <SocialFields
           onSetField={onSetField}
           telegram={values.telegram}

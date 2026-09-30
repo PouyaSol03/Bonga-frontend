@@ -38,7 +38,7 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
-type AgencyConsultantRequestDisplayState = AgencyConsultantRequestDecision | "cancel";
+export type AgencyConsultantRequestDisplayState = AgencyConsultantRequestDecision | "cancel";
 
 type FilterOption = {
   id: NotificationCategory;
@@ -50,7 +50,7 @@ const notificationDeleteActionWidth = 84;
 const notificationDeleteThreshold = 56;
 const agencyConsultantRequestType = "agency_consultant_request";
 
-const notificationFilterOptions: FilterOption[] = [
+export const notificationFilterOptions: FilterOption[] = [
   { id: "advertise", label: "آگهی‌ها" },
   { id: "trades", label: "معاملات" },
   { id: "requests", label: "درخواست‌ها" },
@@ -59,7 +59,7 @@ const notificationFilterOptions: FilterOption[] = [
   { id: "systems", label: "سیستم" },
 ];
 
-const categoryColorClassNames: Record<NotificationCategory, string> = {
+export const categoryColorClassNames: Record<NotificationCategory, string> = {
   advertise: "bg-tertiary",
   chats: "bg-primary",
   requests: "bg-warning",
@@ -70,7 +70,7 @@ const categoryColorClassNames: Record<NotificationCategory, string> = {
 
 const allPreferenceCategories = notificationFilterOptions.map((option) => option.id);
 
-const notificationManagementOptions: Array<{
+export const notificationManagementOptions: Array<{
   category: NotificationCategory;
   description: string;
   label: string;
@@ -184,7 +184,7 @@ function getAgencyConsultantRequestAgentId(notification: NotificationItem) {
   );
 }
 
-function formatNotificationTime(value?: string) {
+export function formatNotificationTime(value?: string) {
   if (!value) return "";
 
   const date = new Date(value);
@@ -289,7 +289,7 @@ function getNotificationActionLabel(notification: NotificationItem) {
   return notification.is_read ? "مشاهده" : "خواندن اعلان";
 }
 
-function NotificationHeader({
+export function NotificationHeader({
   onOpenSettings,
   onRefresh,
 }: {
@@ -320,7 +320,7 @@ function NotificationHeader({
   );
 }
 
-function NotificationFilterButton({ count, onClick }: { count: number; onClick: () => void }) {
+export function NotificationFilterButton({ count, onClick }: { count: number; onClick: () => void }) {
   return (
     <Button unstyled
       className="relative flex shrink-0 items-center gap-1 rounded-xl border border-outline-var bg-surface-container-lowest px-2.5 py-2 text-sm font-medium leading-5 text-on-surface-var focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:bg-surface-container"
@@ -338,7 +338,7 @@ function NotificationFilterButton({ count, onClick }: { count: number; onClick: 
   );
 }
 
-function NotificationFilterBar({
+export function NotificationFilterBar({
   onOpenFilters,
   onRemoveFilter,
   selectedFilters,
@@ -370,7 +370,7 @@ function NotificationFilterBar({
   );
 }
 
-function NotificationFilterSheet({
+export function NotificationFilterSheet({
   isOpen,
   onClose,
   onToggle,
@@ -424,7 +424,7 @@ function NotificationFilterSheet({
   );
 }
 
-function NotificationSettingsSheet({
+export function NotificationSettingsSheet({
   isClearingRead,
   isMarkingAllRead,
   isOpen,
@@ -512,7 +512,7 @@ function NotificationSettingsSheet({
 }
 
 
-function NotificationsEmptyState() {
+export function NotificationsEmptyState() {
   return (
     <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-10 text-center">
       <img
@@ -531,7 +531,7 @@ function NotificationsEmptyState() {
   );
 }
 
-function NotificationActionButton({
+export function NotificationActionButton({
   label,
   onClick,
 }: {
@@ -550,7 +550,7 @@ function NotificationActionButton({
   );
 }
 
-function getAgencyConsultantRequestDisplayState(
+export function getAgencyConsultantRequestDisplayState(
   item: NotificationItem,
 ): AgencyConsultantRequestDisplayState | undefined {
   const status = String(item.payload?.request_status ?? "").toLowerCase();
@@ -560,7 +560,7 @@ function getAgencyConsultantRequestDisplayState(
   return undefined;
 }
 
-function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }) {
+export function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }) {
   const description =
     item.description || "یک آژانس شما را برای همکاری دعوت کرده است.";
   const payload = item.payload ?? {};
@@ -614,7 +614,7 @@ function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }
   );
 }
 
-function AgencyConsultantRequestCardContent({
+export function AgencyConsultantRequestCardContent({
   decision,
   isResponding,
   item,
@@ -694,7 +694,7 @@ function AgencyConsultantRequestCardContent({
   );
 }
 
-function SwipeableNotificationCard({
+export function SwipeableNotificationCard({
   agencyRequestDecision,
   isDeleting,
   isRespondingToAgencyRequest,

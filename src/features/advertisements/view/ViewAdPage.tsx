@@ -80,6 +80,23 @@ import {
   clearConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
 } from "../../consultants/consultantsNeighborhoodSelection";
+import { getMyAdStatusInfo } from "../../account/myAdsStatus";
+
+function isPublishedAdvertisement(ad: unknown): boolean {
+  if (!ad) return false;
+  const statusInfo = getMyAdStatusInfo(ad);
+  if (statusInfo.key === "published" || statusInfo.label === "منتشر شده") {
+    return true;
+  }
+  const record = typeof ad === "object" ? (ad as Record<string, unknown>) : null;
+  const rawStatus = String(record?.status ?? record?.ad_status ?? record?.status_label ?? "").toLowerCase();
+  return (
+    rawStatus === "published" ||
+    rawStatus === "accepted" ||
+    rawStatus === "3" ||
+    rawStatus.includes("منتشر")
+  );
+}
 
 type ActionToast = {
   message: string;
@@ -1578,6 +1595,7 @@ export function ViewAdPage() {
   const details = mapAdToDetails(resolvedAd);
   const isOwnAd = isOwnAdvertisement(resolvedAd);
   const usesPublicAdPresentation = isPreview || !isOwnAd;
+  const isAdPublished = isPublishedAdvertisement(resolvedAd);
   const contactInfo = readContactInfo(resolvedAd);
   const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)?.userContact as
     | AgencyUserContactData
@@ -1749,7 +1767,9 @@ export function ViewAdPage() {
     }
 
     if (icon === "share") {
-      const shareUrl = window.location.href;
+      const shareUrl = isPreview && adId
+        ? `${window.location.origin}/ads/${adId}`
+        : window.location.href;
       const shareTitle = details.title || document.title;
 
       try {
@@ -1923,7 +1943,15 @@ export function ViewAdPage() {
       />
       <h1 className="sr-only">{details.title || details.headline || "آگهی املاک"}</h1>
       <ViewAdTopBar
-        actionIcons={isPreview ? [] : usesPublicAdPresentation ? undefined : ["share"]}
+        actionIcons={
+          isPreview
+            ? isAdPublished
+              ? ["share"]
+              : []
+            : usesPublicAdPresentation
+              ? undefined
+              : ["share"]
+        }
         backTo="/home"
         bookmarked={isBookmarked}
         onBack={() => goBackFromAd("/home")}

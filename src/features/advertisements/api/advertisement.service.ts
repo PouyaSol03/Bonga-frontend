@@ -1,4 +1,5 @@
 import { ApiError, api, baseUrl, publicApi } from "../../../shared/api/api";
+import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 
@@ -516,17 +517,6 @@ function buildAdvertiseSearchParams(filters?: AdvertisementSearchFilters) {
   });
 }
 
-function toNumber(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
-
-  if (typeof value === "string" && value.trim()) {
-    const parsed = Number(value.replace(/[^\d.]/g, ""));
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-
-  return undefined;
-}
-
 function toText(value: unknown, fallback = "") {
   if (typeof value === "string" && value.trim()) return value;
   if (typeof value === "number") return String(value);
@@ -578,29 +568,7 @@ export function getAdvertisementPublisherName(item: AdvertisementItem) {
 }
 
 function formatPrice(value: unknown) {
-  const numericValue = toNumber(value);
-
-  if (numericValue === undefined) return toText(value, "توافقی");
-
-  if (numericValue >= 1_000_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000_000)} همت`;
-  }
-
-  if (numericValue >= 1_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000)} میلیارد`;
-  }
-
-  if (numericValue >= 1_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000)} میلیون`;
-  }
-
-  return new Intl.NumberFormat("fa-IR").format(numericValue);
+  return formatCardPrice(value);
 }
 
 function readFeatureValue(item: AdvertisementItem, labels: string[]) {

@@ -17,6 +17,7 @@ import {
   FormattedDetailValueView,
 } from "./viewAdComponents";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
+import { formatDetailPrice } from "../../../shared/lib/MoneyHandler";
 import { Typography } from "../../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
@@ -111,31 +112,7 @@ function formatPublishedAge(
 }
 
 function formatPrice(value: unknown) {
-  const numericValue = toNumber(value);
-
-  if (numericValue === undefined) {
-    return toText(value, "توافقی");
-  }
-
-  if (numericValue >= 1_000_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000_000)} همت`;
-  }
-
-  if (numericValue >= 1_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000)} میلیارد`;
-  }
-
-  if (numericValue >= 1_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000)} میلیون`;
-  }
-
-  return new Intl.NumberFormat("fa-IR").format(numericValue);
+  return formatDetailPrice(value);
 }
 
 

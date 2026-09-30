@@ -186,6 +186,8 @@ const propertyInfoLabelMap: Record<string, string> = {
   renovated: "بازسازی شده",
   furnished: "مبله با لوازم",
   has_loan: "وام",
+  loan_amount: "مبلغ وام",
+  loan_installment: "مبلغ قسط",
   suitable_for: "مناسب برای",
   document_type: "نوع سند",
   land_position: "موقعیت زمین",
@@ -385,6 +387,8 @@ const ignoredFeatureLabels = new Set([
   "parkingCount",
   "terrace_count",
   "terraceCount",
+  "loan_amount",
+  "loan_installment",
 ]);
 
 export type AdvertisementFeatureMap = Record<string, unknown>;
@@ -474,6 +478,26 @@ function getResolvedAdvertisementFeatures(
 
   for (const key of rootKeys) {
     addRootValue(key, ad[key]);
+  }
+
+  const loanAmountVal =
+    getFirstExistingFeatureValue(resolved, [
+      "loan_amount",
+      "mortgage_amount",
+      "loan_price",
+      "loan_value",
+    ]) ?? ad.loan?.amount;
+  const loanInstallmentVal =
+    getFirstExistingFeatureValue(resolved, [
+      "loan_installment",
+      "installment_amount",
+      "loan_payment",
+      "monthly_installment",
+    ]) ?? ad.loan?.installment;
+  const hasLoanPresent = isFilledValue(loanAmountVal) || isFilledValue(loanInstallmentVal);
+  if (!labels.has("has_loan") && hasLoanPresent) {
+    resolved.push({ label: "has_loan", value: true });
+    labels.add("has_loan");
   }
 
   return resolved;
@@ -834,7 +858,7 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
     return text ? `${text} متر` : "-";
   }
 
-  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price", "normal_daily_price", "weekend_daily_price", "special_daily_price", "extra_person_price", "evacuation_guarantee"].includes(label)) {
+  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price", "normal_daily_price", "weekend_daily_price", "special_daily_price", "extra_person_price", "evacuation_guarantee", "loan_amount", "loan_installment"].includes(label)) {
     return `${formatPrice(value)} تومان`;
   }
 

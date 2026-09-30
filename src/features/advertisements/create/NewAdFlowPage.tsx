@@ -875,7 +875,13 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setBool("constructionPermit", readFirstValue(ad, features, ["construction_permit", "build_permit"], ["construction_permit", "constructionPermit"]));
   setBool("commercialPermit", readFirstValue(ad, features, ["commercial_permit"], ["commercial_permit", "commercialPermit"]));
   setBool("saleTermsEnabled", readFirstValue(ad, features, ["sale_terms_enabled", "installment_sale"], ["saleTermsEnabled", "installment_sale"]));
-  setBool("loanEnabled", readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]));
+  const hasLoanExplicit = readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]);
+  const hasLoanFromValues = Boolean(
+    ad.loan?.amount ||
+      ad.loan?.installment ||
+      readFirstValue(ad, features, ["loan_amount", "loan_installment"], ["loan_amount", "loan_installment"]),
+  );
+  setBool("loanEnabled", hasLoanExplicit ?? (hasLoanFromValues ? true : undefined));
   setBool("exchangeEnabled", readFirstValue(ad, features, ["has_exchange"], ["has_exchange", "exchangeEnabled"]));
   setBool("hasVideo", readFirstValue(ad, features, ["has_video"], ["has_video"]));
   setBool("hasVirtualTour", readFirstValue(ad, features, ["has_virtual_tour"], ["has_virtual_tour"]));

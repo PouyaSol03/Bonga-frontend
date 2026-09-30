@@ -31,12 +31,12 @@ function normalizeWebSocketBaseUrl(value: string) {
   return trimTrailingSlashes(value).replace(/\/api$/i, "");
 }
 
-const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "";
+const configuredApiBaseUrl = import.meta.env?.VITE_API_BASE_URL ?? "";
 
 export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
 
 export const websocketBaseUrl = normalizeWebSocketBaseUrl(
-  import.meta.env.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
+  import.meta.env?.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
 );
 
 function getRequestPathname(request: Request) {

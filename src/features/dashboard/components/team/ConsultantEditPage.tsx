@@ -116,6 +116,10 @@ export function ConsultantEditPage() {
       agencyBalances?.specialCreditBalance ??
       0);
 
+  const currentAgencyAdRemaining = Math.max(0, maxAdQuota - adQuota);
+  const currentAgencyRenewRemaining = Math.max(0, maxRenewQuota - updateQuota);
+  const currentAgencySpecialRemaining = Math.max(0, maxSpecialQuota - specialQuota);
+
   const isManager = accessRole === "manager";
 
   useEffect(() => {
@@ -203,7 +207,7 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه آگهی"
             max={maxAdQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance)}`} 
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencyAdRemaining)}`} 
             remainingClassName="text-primary"
             setValue={(val) => {
               setErrorMessage("");
@@ -214,7 +218,7 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه بروزرسانی"
             max={maxRenewQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance)}`} 
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencyRenewRemaining)}`} 
             remainingClassName="text-tertiary"
             setValue={(val) => {
               setErrorMessage("");
@@ -225,7 +229,7 @@ export function ConsultantEditPage() {
           <QuotaStepper
             label="سهمیه ویژه"
             max={maxSpecialQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance)}`} 
+            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencySpecialRemaining)}`} 
             remainingClassName="text-warning"
             setValue={(val) => {
               setErrorMessage("");

@@ -569,10 +569,11 @@ function RealEstateManagerAdStatePage({
     }
 
     for (const consultant of consultantsQuery.data?.data ?? []) {
+      const consultantIdentifier = consultant.agentId ?? consultant.userId;
       options.push({
-        id: `consultant:${consultant.userId}`,
+        id: `consultant:${consultantIdentifier}`,
         image: consultant.avatar,
-        name: consultant.name || `مشاور شماره ${consultant.userId}`,
+        name: consultant.name || `مشاور شماره ${consultantIdentifier}`,
         type: "consultant",
       });
     }
@@ -588,7 +589,24 @@ function RealEstateManagerAdStatePage({
     if (assignedConsultantId) return `consultant:${assignedConsultantId}`;
     return "";
   });
-  const publisher = publisherOptions.find((option) => option.id === publisherId) ?? publisherOptions[0];
+  const publisher = useMemo(() => {
+    if (publisherId) {
+      const found = publisherOptions.find((option) => option.id === publisherId);
+      if (found) return found;
+    }
+    if (assignedConsultantId) {
+      const consultant = (consultantsQuery.data?.data ?? []).find(
+        (c) =>
+          String(c.agentId) === String(assignedConsultantId) ||
+          String(c.userId) === String(assignedConsultantId),
+      );
+      if (consultant) {
+        const id = consultant.agentId ?? consultant.userId;
+        return publisherOptions.find((option) => option.id === `consultant:${id}`);
+      }
+    }
+    return publisherOptions[0];
+  }, [publisherId, assignedConsultantId, publisherOptions, consultantsQuery.data?.data]);
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);

@@ -65,7 +65,9 @@ export function MediaStep({
     .join(" ");
   const selectedConsultant = values.consultantId
     ? consultantsPage?.data.find(
-        (consultant) => String(consultant.userId) === String(values.consultantId),
+        (consultant) =>
+          String(consultant.agentId) === String(values.consultantId) ||
+          String(consultant.userId) === String(values.consultantId),
       )
     : undefined;
   const agencyPublisherIsConsultant = Boolean(values.consultantId);

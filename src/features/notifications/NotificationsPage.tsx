@@ -12,7 +12,6 @@ import { PageFrame } from "../../shared/layout/PageFrame";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
-import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { TopBar } from "../../shared/components/TopBar";
 import LinearDelete from "../../shared/icons/LinearDelete";
@@ -275,16 +274,135 @@ function getNotificationPath(notification: NotificationItem) {
   }
 }
 
-function getNotificationActionLabel(notification: NotificationItem) {
+export function getNotificationActionLabel(notification: NotificationItem): string | null {
+  if (notification.payload?.action_label) {
+    return String(notification.payload.action_label);
+  }
+
+  const title = (notification.title ?? "").trim();
+  const type = String(notification.type ?? "").toLowerCase();
+
+  // Cards without action button in Figma
+  if (
+    notification.payload?.action === "none" ||
+    title === "آگهی در انتظار بررسی است" ||
+    title === "تصویر پروفایل بروزرسانی شد" ||
+    title === "پروفایل شما تکمیل شد" ||
+    title === "اختلال موقت در سامانه" ||
+    type === "advertise_pending_review" ||
+    type === "profile_image_updated" ||
+    type === "profile_completed" ||
+    type === "system_incident"
+  ) {
+    return null;
+  }
+
+  // Specific buttons by title or type from Figma SVG files
+  if (
+    title === "اطلاعات آگهی بروزرسانی شد" ||
+    title === "اطلاعات اگهی بروزرسانی شد" ||
+    title === "آگهی شما ویژه شد" ||
+    title === "اگهی شما ویژه شد" ||
+    title === "اطلاعات آگهی ناقص است" ||
+    title === "آگهی تمدید شد" ||
+    title === "اگهی تمدید شد"
+  ) {
+    return "ویرایش آگهی";
+  }
+  if (title === "اعتبار آگهی در حال اتمام است" || title === "اعتبار آگهی درحال اتمام است") {
+    return "تمدید آگهی";
+  }
+  if (
+    title === "آگهی شما به آژانس واگذار شد" ||
+    title === "اگهی شما به آژانس واگذار شد" ||
+    title === "توقف انتشار تأیید نشد" ||
+    title === "توقف انتشار تایید نشد" ||
+    title === "معامله نهایی شد" ||
+    title === "معامله ناموفق اعلام شد"
+  ) {
+    return "مشاهده جزئیات";
+  }
+  if (
+    title === "آگهی شما منتشر شد" ||
+    title === "اگهی شما منتشر شد" ||
+    title === "انتشار آگهی متوقف شد" ||
+    title === "آژانس همکاری را پذیرفت" ||
+    title === "اژانس همکاری را پذیرفت" ||
+    title === "آگهی جدید برای درخواست شما"
+  ) {
+    return "مشاهده آگهی";
+  }
+  if (title === "آگهی شما تأیید نشد" || title === "اگهی شما تایید نشد") {
+    return "مشاهده دلیل رد";
+  }
+  if (title === "آگهی بایگانی شد" || title === "اگهی بایگانی شد") {
+    return "بازیابی آگهی";
+  }
+  if (
+    title === "آگهی حذف شد" ||
+    title === "اگهی حذف شد" ||
+    title === "آژانس همکاری را نپذیرفت" ||
+    title === "اژانس همکاری را نپذیرفت"
+  ) {
+    return "مشاهده دلیل";
+  }
+  if (title === "نتیجه معامله ثبت شد") {
+    return "مشاهده معامله";
+  }
+  if (title === "نتیجه درخواست آماده مشاهده است") {
+    return "مشاهده نتایج";
+  }
+  if (
+    title === "درخواست شما ثبت شد" ||
+    (title === "پاسخ جدید دریافت شد" && notification.category === "requests") ||
+    title === "وضعیت درخواست پشتیبانی تغییر کرد" ||
+    title === "درخواست پشتیبانی بسته شد"
+  ) {
+    return "مشاهده درخواست";
+  }
+  if (
+    title === "پیام جدید دریافت کردید" ||
+    title === "پیام شما مشاهده شد" ||
+    title === "گفتگو پایان یافت" ||
+    (title === "پاسخ جدید دریافت کردید" && notification.category === "support")
+  ) {
+    return "مشاهده گفتگو";
+  }
+  if (title === "پروفایل شما ناقص است") {
+    return "تکمیل پروفایل";
+  }
+  if (title === "کد تخفیف دریافت کردید") {
+    const code = notification.payload?.discount_code || "۲۵۴۸۶۲۴";
+    return `کد تخفیف: ${code}`;
+  }
+  if (
+    title === "دریافت اعلان‌ها فعال شد" ||
+    title === "دریافت اعلان‌ها غیرفعال شد" ||
+    title === "دریافت اعلان ها فعال شد" ||
+    title === "دریافت اعلان ها غیر فعال شد"
+  ) {
+    return "مدیریت اعلان‌ها";
+  }
+  if (title === "قوانین و شرایط استفاده بروزرسانی شد") {
+    return "مشاهده قوانین";
+  }
+  if (title === "سامانه بروزرسانی شد") {
+    return "بروزرسانی";
+  }
+  if (title === "قابلیت جدید اضافه شد") {
+    return "مشاهده تغییرات";
+  }
+
   const target = notification.payload?.target;
 
   if (target === "advertise") return "مشاهده آگهی";
-  if (target === "chat") return "مشاهده چت";
+  if (target === "chat") return "مشاهده گفتگو";
   if (target === "payment") return "مشاهده پرداخت";
   if (target === "agency") return "مشاهده آژانس";
   if (target === "profile") return "مشاهده پروفایل";
   if (target === "request") return "مشاهده درخواست";
   if (target === "support") return "مشاهده پشتیبانی";
+  if (target === "trade") return "مشاهده معامله";
 
   return notification.is_read ? "مشاهده" : "خواندن اعلان";
 }
@@ -512,7 +630,7 @@ export function NotificationSettingsSheet({
 }
 
 
-export function NotificationsEmptyState() {
+export function NotificationsEmptyState({ isFiltered = false }: { isFiltered?: boolean }) {
   return (
     <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-10 text-center">
       <img
@@ -521,11 +639,13 @@ export function NotificationsEmptyState() {
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoNotification.svg"
       />
-      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-on-surface">
-        هنوز اعلانی دریافت نکرده‌اید
+      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 font-semibold text-on-surface">
+        {isFiltered ? "اعلانی با فیلترهای انتخاب‌شده پیدا نشد" : "هنوز اعلانی دریافت نکرده‌اید"}
       </Typography>
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm font-normal leading-6 text-on-surface-var">
-        تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود.
+        {isFiltered
+          ? "فیلترها را تغییر دهید یا پاک کنید."
+          : "تغییرات مربوط به آگهی‌ها، درخواست‌ها، پرداخت‌ها و فعالیت آژانس‌ها از اینجا به شما اطلاع داده می‌شود."}
       </Typography>
     </section>
   );
@@ -884,12 +1004,45 @@ export function SwipeableNotificationCard({
           </div>
         </div>
 
-        <div className="mt-auto flex justify-start [direction:rtl]">
-          <NotificationActionButton
-            label={getNotificationActionLabel(item)}
-            onClick={onOpen}
-          />
-        </div>
+        {item.title === "نتیجه معامله نیاز به تأیید دارد" || item.type === "trade_result_needs_approval" ? (
+          <div className="mt-auto flex items-center justify-start gap-2 [direction:rtl]">
+            <Button
+              unstyled
+              className="h-7 w-[76px] shrink-0 rounded-lg bg-primary px-2 text-center text-xs font-medium leading-4 text-on-primary active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen();
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              type="button"
+            >
+              <Typography as="span" variant="label" size="small" weight="medium">
+                تایید
+              </Typography>
+            </Button>
+            <Button
+              unstyled
+              className="h-7 w-[76px] shrink-0 rounded-lg border border-primary bg-surface-container-lowest px-2 text-center text-xs font-medium leading-4 text-primary active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen();
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              type="button"
+            >
+              <Typography as="span" variant="label" size="small" weight="medium">
+                عدم تایید
+              </Typography>
+            </Button>
+          </div>
+        ) : getNotificationActionLabel(item) ? (
+          <div className="mt-auto flex justify-start [direction:rtl]">
+            <NotificationActionButton
+              label={getNotificationActionLabel(item)!}
+              onClick={onOpen}
+            />
+          </div>
+        ) : null}
           </>
         )}
       </article>
@@ -1352,7 +1505,7 @@ export function NotificationsPage() {
         {!notificationsQuery.isLoading &&
         !notificationsQuery.isError &&
         visibleNotifications.length === 0 ? (
-          selectedFilterIds.size > 0 ? <SearchEmptyState /> : <NotificationsEmptyState />
+          <NotificationsEmptyState isFiltered={selectedFilterIds.size > 0} />
         ) : null}
 
         {notificationsQuery.isFetchingNextPage ? (
@@ -1542,7 +1695,7 @@ export function NotificationManagementPage() {
           <div className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
             <LinearNotification className="h-6 w-6 shrink-0 text-on-surface-var" />
             <div className="min-w-0">
-              <Typography as="h2" variant="headline" size="large" className="m-0 text-on-surface">فعال‌سازی اعلان‌ها</Typography>
+              <Typography as="h2" variant="body" size="large" weight="regular" className="m-0 text-on-surface">فعال‌سازی اعلان‌ها</Typography>
               <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 max-w-[220px] text-sm text-outline">
                 با غیرفعال کردن این گزینه، همه اعلان‌ها متوقف می‌شوند.
               </Typography>
@@ -1568,7 +1721,7 @@ export function NotificationManagementPage() {
                   onChange={(nextEnabled) => void updateCategory(option.category, nextEnabled)}
                 />
                 <div className="min-w-0 flex-1 text-right" dir="rtl">
-                  <Typography as="h2" variant="headline" size="large" className="m-0 text-on-surface">{option.label}</Typography>
+                  <Typography as="h2" variant="body" size="large" weight="regular" className="m-0 text-on-surface">{option.label}</Typography>
                   <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal text-outline">
                     {option.description}
                   </Typography>

@@ -438,20 +438,18 @@ export function IndependentConsultantAdManagementPage() {
 
       <main
         className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${
-          !assignedTab &&
-          !adsQuery.isLoading &&
-          !adsQuery.isError &&
-          activeAdvertisements.length === 0
+          (assignedTab
+            ? !assignmentsQuery.isLoading && !assignmentsQuery.isError && assignedAdvertisements.length === 0
+            : !adsQuery.isLoading && !adsQuery.isError && activeAdvertisements.length === 0)
             ? "bg-surface-container-lowest"
             : "bg-surface-container pb-4"
         }`}
       >
         <div
           className={
-            !assignedTab &&
-            !adsQuery.isLoading &&
-            !adsQuery.isError &&
-            activeAdvertisements.length === 0
+            (assignedTab
+              ? !assignmentsQuery.isLoading && !assignmentsQuery.isError && assignedAdvertisements.length === 0
+              : !adsQuery.isLoading && !adsQuery.isError && activeAdvertisements.length === 0)
               ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest"
               : assignedTab
                 ? "space-y-3 pb-4"
@@ -487,7 +485,10 @@ export function IndependentConsultantAdManagementPage() {
                 />
               ))
             ) : (
-              <AssignmentStatusMessage>آگهی تخصیصی در انتظار بررسی وجود ندارد.</AssignmentStatusMessage>
+              <AccountMyAdsEmptyState
+                description="آگهی‌هایی که کاربران برای ثبت و انتشار به آژانس شما می‌سپارند، در این بخش نمایش داده می‌شوند."
+                title="هنوز آگهی تخصیصی ندارید!"
+              />
             )
           ) : adsQuery.isLoading ? (
             <>

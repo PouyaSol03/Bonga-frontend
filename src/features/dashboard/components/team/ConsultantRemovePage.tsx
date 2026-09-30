@@ -30,14 +30,34 @@ type ReplacementTarget =
 
 export function ConsultantRemovePage() {
   const routeConsultant = getRouteConsultant();
-  const consultantId = getRouteConsultantId() ?? routeConsultant.id;
+  const routeId = getRouteConsultantId();
   const agencyProfileQuery = useMyAgencyProfileQuery();
-  const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
   const consultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
   const deactivateConsultantMutation = useDeactivateAgencyConsultantMutation();
+
+  const matchedConsultant = useMemo(() => {
+    const list = consultantsQuery.data?.data ?? [];
+    return list.find(
+      (c) =>
+        (routeConsultant.agentId && c.agentId === routeConsultant.agentId) ||
+        (routeId && (c.agentId === routeId || c.userId === routeId)) ||
+        (routeConsultant.id &&
+          (c.agentId === routeConsultant.id || c.userId === routeConsultant.id)),
+    );
+  }, [consultantsQuery.data?.data, routeConsultant, routeId]);
+
+  const targetAgentId =
+    matchedConsultant?.agentId ??
+    routeConsultant.agentId ??
+    routeId ??
+    routeConsultant.id;
+
+  const consultantQuery = useAgencyConsultantQuery({ agentId: targetAgentId });
   const consultant = consultantQuery.data
     ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
-    : routeConsultant;
+    : matchedConsultant
+      ? mapAgencyConsultantToTeamConsultant(matchedConsultant)
+      : routeConsultant;
   const consultants = useMemo(
     () =>
       (consultantsQuery.data?.data ?? []).map(
@@ -122,16 +142,23 @@ export function ConsultantRemovePage() {
           onClick={() => {
             if (!selectedReplacement) return;
 
+            const finalAgentId =
+              consultant.agentId ??
+              matchedConsultant?.agentId ??
+              targetAgentId;
+
             deactivateConsultantMutation.mutate(
               selectedReplacement.kind === "agency"
                 ? {
-                    agentId: consultantId,
+                    agentId: finalAgentId,
                     transferTo: "agency",
                   }
                 : {
-                    agentId: consultantId,
+                    agentId: finalAgentId,
                     transferTo: "member",
-                    transferUserId: selectedReplacement.consultant.id,
+                    transferUserId:
+                      selectedReplacement.consultant.userId ??
+                      selectedReplacement.consultant.id,
                   },
               {
                 onSuccess: () => {
@@ -150,7 +177,7 @@ export function ConsultantRemovePage() {
       {isReplacementPickerOpen ? (
         <ReplacementPicker
           agencyTarget={agencyReplacementTarget}
-          currentConsultantId={consultant.id}
+          currentConsultant={consultant}
           consultants={consultants}
           onClose={() => setIsReplacementPickerOpen(false)}
           onConfirm={(target) => {
@@ -167,14 +194,14 @@ export function ConsultantRemovePage() {
 function ReplacementPicker({
   agencyTarget,
   consultants,
-  currentConsultantId,
+  currentConsultant,
   onClose,
   onConfirm,
   selectedTarget,
 }: {
   agencyTarget: ReplacementTarget;
   consultants: TeamConsultant[];
-  currentConsultantId: number;
+  currentConsultant: TeamConsultant;
   onClose: () => void;
   onConfirm: (target: ReplacementTarget) => void;
   selectedTarget: ReplacementTarget | null;
@@ -183,19 +210,25 @@ function ReplacementPicker({
   const [draftTarget, setDraftTarget] =
     useState<ReplacementTarget | null>(selectedTarget);
   const normalizedSearch = searchValue.trim();
+  const currentAgentId = currentConsultant.agentId ?? currentConsultant.id;
+  const currentUserId = currentConsultant.userId;
   const replacementTargets = useMemo<ReplacementTarget[]>(() => {
     const consultantTargets = consultants
       .filter(
-        (item) => item.status === "active" && item.id !== currentConsultantId,
+        (item) =>
+          item.status === "active" &&
+          item.id !== currentAgentId &&
+          (currentAgentId === undefined || item.agentId !== currentAgentId) &&
+          (currentUserId === undefined || item.userId !== currentUserId),
       )
       .map<ReplacementTarget>((item) => ({
-        id: `consultant-${item.id}`,
+        id: `consultant-${item.agentId ?? item.id}`,
         kind: "consultant",
         consultant: item,
       }));
 
     return [agencyTarget, ...consultantTargets];
-  }, [agencyTarget, consultants, currentConsultantId]);
+  }, [agencyTarget, consultants, currentAgentId, currentUserId]);
   const visibleTargets = useMemo(() => {
     if (!normalizedSearch) return replacementTargets;
 

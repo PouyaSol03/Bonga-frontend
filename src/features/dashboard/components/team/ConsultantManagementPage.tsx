@@ -40,6 +40,7 @@ export type TeamConsultant = {
   adQuota?: number;
   agentId?: number;
   id: number;
+  userId?: number;
   requestId?: number;
   name: string;
   avatarSrc?: string;
@@ -80,7 +81,8 @@ export function mapAgencyConsultantToTeamConsultant(
     adQuota: consultant.adQuota,
     agentId: consultant.agentId,
     avatarSrc: consultant.avatar,
-    id: consultant.userId,
+    id: consultant.agentId ?? consultant.userId,
+    userId: consultant.userId,
     isActive: consultant.isActive,
     name: consultant.name,
     permissions: consultant.permissions,
@@ -884,7 +886,7 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             <RouteLink
               className="flex justify-center items-center gap-2"
               state={{ consultant }}
-              to={`${consultantTeamPaths.remove}/${consultant.id}`}
+              to={`${consultantTeamPaths.remove}/${consultant.agentId ?? consultant.id}`}
             >
               <LinearDelete className="w-5 h-5" />
               حذف

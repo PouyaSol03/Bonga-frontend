@@ -197,20 +197,31 @@ export function AccountProfileForm({
 
 
 export function AccountMyAdsEmptyState({
+  description: customDescription,
   filterLabel,
   mode,
+  showAction,
+  title: customTitle,
 }: {
-  filterLabel: string;
-  mode: "compact" | "full";
+  description?: string;
+  filterLabel?: string;
+  mode?: "compact" | "full";
+  showAction?: boolean;
+  title?: string;
 }) {
   const isAllFilter = filterLabel === "همه";
-  const title = isAllFilter
-    ? "هیچ آگهی‌ای برای نمایش وجود ندارد!"
-    : `هیچ آگهی‌ای در وضعیت ${filterLabel} وجود ندارد!`;
-  const description = isAllFilter
-    ? "می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید."
-    : "وقتی آگهی‌ای در این وضعیت داشته باشید، همین‌جا نمایش داده می‌شود.";
+  const title =
+    customTitle ??
+    (isAllFilter
+      ? "هیچ آگهی‌ای برای نمایش وجود ندارد!"
+      : `هیچ آگهی‌ای در وضعیت ${filterLabel} وجود ندارد!`);
+  const description =
+    customDescription ??
+    (isAllFilter
+      ? "می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید."
+      : "وقتی آگهی‌ای در این وضعیت داشته باشید، همین‌جا نمایش داده می‌شود.");
   const heightClass = mode === "full" ? "h-full min-h-0 flex-1" : "h-full min-h-0 flex-1";
+  const shouldShowAction = showAction ?? (customTitle ? false : isAllFilter);
 
   return (
     <section className={`mx-auto flex ${heightClass} w-full flex-col items-center justify-center px-10 text-center`}>
@@ -226,7 +237,7 @@ export function AccountMyAdsEmptyState({
       <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-on-surface-var">
         {description}
       </Typography>
-      {isAllFilter ? (
+      {shouldShowAction ? (
         <RouteLink
           className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
           to="/new-ad/category"

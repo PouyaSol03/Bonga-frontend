@@ -344,6 +344,18 @@ export async function mockNewAdApis(
     }),
   );
 
+  await page.route("**/me/advertise/draft**", (route) =>
+    json(route, {
+      status: true,
+      data: {
+        id: 901,
+        title: "پیش‌نویس آگهی",
+        status: "draft",
+        form_code: "sale-apartment",
+      },
+    }),
+  );
+
   await page.route("**/me/advertise/create**", async (route) => {
     const body = route.request().postDataBuffer()?.toString("utf8") ?? "";
     options.onCreate?.(body);

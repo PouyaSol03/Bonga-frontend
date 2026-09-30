@@ -495,9 +495,16 @@ function getResolvedAdvertisementFeatures(
       "monthly_installment",
     ]) ?? ad.loan?.installment;
   const hasLoanPresent = isFilledValue(loanAmountVal) || isFilledValue(loanInstallmentVal);
-  if (!labels.has("has_loan") && hasLoanPresent) {
-    resolved.push({ label: "has_loan", value: true });
-    labels.add("has_loan");
+  if (hasLoanPresent) {
+    const existingIndex = resolved.findIndex(
+      (item) => item.label === "has_loan" || item.key === "has_loan",
+    );
+    if (existingIndex >= 0) {
+      resolved[existingIndex] = { ...resolved[existingIndex], value: true };
+    } else {
+      resolved.push({ label: "has_loan", value: true });
+      labels.add("has_loan");
+    }
   }
 
   return resolved;
@@ -2312,10 +2319,8 @@ function createLoanRow(
   ]);
 
   const statusFromBoolean = toBooleanLike(loanStatusRaw);
-  const hasTopLevelLoan = isFilledValue(ad.loan?.amount) || isFilledValue(ad.loan?.installment);
-  const hasLoan = hasTopLevelLoan || (
-    statusFromBoolean ?? (isFilledValue(loanAmountRaw) || isFilledValue(installmentRaw))
-  );
+  const hasValues = isFilledValue(loanAmountRaw) || isFilledValue(installmentRaw);
+  const hasLoan = hasValues || (statusFromBoolean === true);
 
   const extraRows =
     hasLoan === true

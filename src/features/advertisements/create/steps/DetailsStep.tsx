@@ -329,6 +329,22 @@ export function DetailsStep({
     onClearError?.(key);
   };
 
+  const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
+
+  const handleLoanToggle = (checked: boolean) => {
+    setField("loanEnabled", checked);
+    if (!checked) {
+      setField("loanAmount", "");
+      setField("loanInstallment", "");
+    }
+  };
+
+  useEffect(() => {
+    if ((values.loanAmount || values.loanInstallment) && !values.loanEnabled) {
+      setField("loanEnabled", true);
+    }
+  }, [values.loanAmount, values.loanInstallment, values.loanEnabled]);
+
   const handleFacilityClick = (id: string) => {
     if (id === "elevator") {
       if (values.facilities.includes("elevator")) {
@@ -596,12 +612,12 @@ export function DetailsStep({
             {allowLoan ? (
               <>
                 <Toggle
-                  checked={values.loanEnabled}
+                  checked={isLoanActive}
                   label="وام دارد"
-                  onChange={(checked) => setField("loanEnabled", checked)}
+                  onChange={handleLoanToggle}
                 />
 
-                {values.loanEnabled ? (
+                {isLoanActive ? (
                   <div className="space-y-3">
                     <InputBox
                       error={errors.loanAmount}
@@ -712,13 +728,13 @@ export function DetailsStep({
               className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-outline-var`}
             >
               <PriceToggleRow
-                checked={values.loanEnabled}
+                checked={isLoanActive}
                 label="وام دارد"
-                onChange={(checked) => setField("loanEnabled", checked)}
+                onChange={handleLoanToggle}
               />
             </div>
 
-            {values.loanEnabled ? (
+            {isLoanActive ? (
               <div className="mt-3 space-y-4">
                 <InputBox
                   error={errors.loanAmount}
@@ -757,7 +773,7 @@ export function DetailsStep({
                 ? priceHasSupportingText
                   ? "mt-4"
                   : "mt-5"
-                : values.loanEnabled
+                : isLoanActive
                   ? "mt-4"
                   : ""
             } border-t border-outline-var`}

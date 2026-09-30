@@ -17,28 +17,38 @@ function formatMoney(value: number) {
   return faNumber.format(Math.max(0, Math.round(value)));
 }
 
+function formatDecimalFa(num: number) {
+  const formatted = new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 2,
+  }).format(num);
+  return formatted.replace(/[٫.]/g, "/");
+}
+
 function formatSignedAmount(value: number) {
   const rounded = Math.round(value);
   const sign = rounded > 0 ? "+" : rounded < 0 ? "−" : "";
   const absolute = Math.abs(rounded);
 
-  if (absolute >= 1_000_000_000 && absolute % 1_000_000_000 === 0) {
+  if (absolute >= 1_000_000_000) {
+    const billions = absolute / 1_000_000_000;
     return {
-      value: `${sign}${faNumber.format(absolute / 1_000_000_000)}`,
+      value: `${sign}${formatDecimalFa(billions)}`,
       unit: "میلیارد تومان",
     };
   }
 
-  if (absolute >= 1_000_000 && absolute % 1_000_000 === 0) {
+  if (absolute >= 1_000_000) {
+    const millions = absolute / 1_000_000;
     return {
-      value: `${sign}${faNumber.format(absolute / 1_000_000)}`,
+      value: `${sign}${formatDecimalFa(millions)}`,
       unit: "میلیون تومان",
     };
   }
 
-  if (absolute >= 1_000 && absolute % 1_000 === 0) {
+  if (absolute >= 1_000) {
+    const thousands = absolute / 1_000;
     return {
-      value: `${sign}${faNumber.format(absolute / 1_000)}`,
+      value: `${sign}${formatDecimalFa(thousands)}`,
       unit: "هزار تومان",
     };
   }
@@ -127,6 +137,8 @@ export function RentPriceConversion({
   const sourceMortgage = parseRentPriceValue(mortgagePrice);
   const sourceRent = parseRentPriceValue(rentPrice);
   const sourceHasPrice = sourceMortgage > 0 && sourceRent > 0;
+  const isMortgageMillionMultiple = sourceMortgage > 0 && sourceMortgage % RENT_CONVERSION_MORTGAGE_UNIT === 0;
+  const canEnable = sourceHasPrice && isMortgageMillionMultiple;
 
   const [baseline, setBaseline] = useState<ConversionBaseline>(() => ({
     mortgage: sourceMortgage,
@@ -155,7 +167,7 @@ export function RentPriceConversion({
   const rentDelta = formatSignedAmount(conversion.rentDelta);
 
   useEffect(() => {
-    if (enabled && !sourceHasPrice) {
+    if (enabled && !canEnable) {
       draggingRef.current = false;
       onEnabledChange(false);
       onSelectedMortgageChange("");
@@ -202,7 +214,7 @@ export function RentPriceConversion({
   ]);
 
   const handleToggle = (checked: boolean) => {
-    if (checked && !sourceHasPrice) return;
+    if (checked && !canEnable) return;
 
     draggingRef.current = false;
 
@@ -236,7 +248,7 @@ export function RentPriceConversion({
   return (
     <div className="mt-5 border-t border-outline-var pt-1">
       <div className="flex h-16 items-center justify-between [direction:ltr]">
-        <SwitchButton checked={enabled} disabled={!sourceHasPrice} onChange={handleToggle} />
+        <SwitchButton checked={enabled} disabled={!canEnable} onChange={handleToggle} />
 
         <Typography
           as="span"
@@ -248,6 +260,18 @@ export function RentPriceConversion({
           تبدیل رهن و اجاره
         </Typography>
       </div>
+
+      {!canEnable && sourceMortgage > 0 && !isMortgageMillionMultiple ? (
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-right text-error -mt-1 mb-2 [direction:rtl]"
+        >
+          برای فعال‌سازی تبدیل، مبلغ رهن باید مضربی از یک میلیون تومان باشد.
+        </Typography>
+      ) : null}
 
       {enabled ? (
         <div className="pb-2 pt-2 [direction:rtl]">

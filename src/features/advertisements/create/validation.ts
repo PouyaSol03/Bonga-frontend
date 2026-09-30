@@ -1,5 +1,5 @@
 import { getBasicPropertyFields, getParams, trimFormValues } from "./utils";
-import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT, RENT_CONVERSION_RENT_PER_UNIT } from "./rentPriceConversion";
+import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT } from "./rentPriceConversion";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "./types";
 
 export type NewAdValidationResult = {
@@ -319,8 +319,6 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
       errors.mortgagePrice = "لطفا مبلغ رهن را وارد کنید.";
     } else if (numMortgage <= 0) {
       errors.mortgagePrice = "مبلغ رهن باید بزرگتر از صفر باشد.";
-    } else if (numMortgage % RENT_CONVERSION_MORTGAGE_UNIT !== 0) {
-      errors.mortgagePrice = "مبلغ رهن باید مضربی از یک میلیون تومان باشد.";
     } else if (numMortgage > MAX_SYSTEM_PRICE) {
       errors.mortgagePrice = "مبلغ رهن وارد شده بیشتر از سقف مجاز (۵۰۰ همت) است.";
     }
@@ -330,16 +328,18 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
       errors.rentPrice = "لطفا مبلغ اجاره را وارد کنید.";
     } else if (numRent < 0) {
       errors.rentPrice = "مبلغ اجاره نمی‌تواند منفی باشد.";
-    } else if (numRent % RENT_CONVERSION_RENT_PER_UNIT !== 0) {
-      errors.rentPrice = "مبلغ اجاره باید مضربی از ۳۰ هزار تومان باشد.";
     } else if (numRent > MAX_MONTHLY_RENT) {
       errors.rentPrice = "مبلغ اجاره ماهانه نمی‌تواند بیشتر از ۵ میلیارد تومان باشد.";
     }
 
-    if (values.rentConversionEnabled && hasRequiredText(values.rentConversionMortgagePrice)) {
-      const conversionMortgage = parseRentPriceValue(values.rentConversionMortgagePrice);
-      if (conversionMortgage > numMortgage) {
-        errors.rentConversionMortgagePrice = "مبلغ تبدیل رهن نمی‌تواند بیشتر از مبلغ رهن اصلی باشد.";
+    if (values.rentConversionEnabled) {
+      if (numMortgage % RENT_CONVERSION_MORTGAGE_UNIT !== 0) {
+        errors.rentConversionMortgagePrice = "برای فعال‌سازی تبدیل، مبلغ رهن باید مضربی از یک میلیون تومان باشد.";
+      } else if (hasRequiredText(values.rentConversionMortgagePrice)) {
+        const conversionMortgage = parseRentPriceValue(values.rentConversionMortgagePrice);
+        if (conversionMortgage > numMortgage) {
+          errors.rentConversionMortgagePrice = "مبلغ تبدیل رهن نمی‌تواند بیشتر از مبلغ رهن اصلی باشد.";
+        }
       }
     }
   } else {

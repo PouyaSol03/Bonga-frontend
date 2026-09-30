@@ -22,7 +22,12 @@ export function getRentEquivalentMortgage(mortgagePrice: number, rentPrice: numb
   const mortgage = finiteNonNegative(mortgagePrice);
   const rent = finiteNonNegative(rentPrice);
 
-  return mortgage + (rent / RENT_CONVERSION_RENT_PER_UNIT) * RENT_CONVERSION_MORTGAGE_UNIT;
+  const fullUnits = Math.floor(rent / RENT_CONVERSION_RENT_PER_UNIT);
+  const remainder = rent % RENT_CONVERSION_RENT_PER_UNIT;
+  const extraUnit = remainder >= 20_000 ? 1 : 0;
+  const convertibleUnits = fullUnits + extraUnit;
+
+  return mortgage + convertibleUnits * RENT_CONVERSION_MORTGAGE_UNIT;
 }
 
 export function clampRentConversionMortgage(
@@ -65,15 +70,25 @@ export function calculateRentPriceConversion(
     baseMortgage,
     baseRent,
   );
-  const convertedRent = maximumMortgage <= 0
-    ? 0
-    : Math.max(
-        0,
-        Math.round(
-          ((maximumMortgage - convertedMortgage) / RENT_CONVERSION_MORTGAGE_UNIT) *
-            RENT_CONVERSION_RENT_PER_UNIT,
-        ),
-      );
+  const mortgageStepDiff = Math.round(
+    (convertedMortgage - baseMortgage) / RENT_CONVERSION_MORTGAGE_UNIT,
+  );
+
+  let convertedRent = 0;
+  if (maximumMortgage > 0) {
+    if (mortgageStepDiff <= 0) {
+      convertedRent = baseRent + Math.abs(mortgageStepDiff) * RENT_CONVERSION_RENT_PER_UNIT;
+    } else {
+      if (convertedMortgage >= maximumMortgage) {
+        convertedRent = 0;
+      } else {
+        convertedRent = Math.max(
+          0,
+          Math.round(baseRent - mortgageStepDiff * RENT_CONVERSION_RENT_PER_UNIT),
+        );
+      }
+    }
+  }
 
   return {
     baseMortgage,

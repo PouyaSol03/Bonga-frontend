@@ -1185,6 +1185,14 @@ export async function createAdvertisement(payload: FormData) {
 }
 
 export async function saveAdvertiseDraft(payload: FormData | Record<string, unknown>) {
+  if (payload instanceof FormData) {
+    payload.delete("label");
+    payload.delete("description");
+  } else if (payload && typeof payload === "object") {
+    delete (payload as Record<string, unknown>).label;
+    delete (payload as Record<string, unknown>).description;
+  }
+
   const options = payload instanceof FormData
     ? { body: payload }
     : { json: payload };

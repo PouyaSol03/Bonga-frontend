@@ -853,6 +853,7 @@ export function buildNewAdFormData(
     dynamicFieldKeys?: Iterable<string>;
     formCode?: string | null;
     isEdit?: boolean;
+    isDraft?: boolean;
   } = {},
 ) {
   const cleanValues = trimFormValues(values);
@@ -978,8 +979,10 @@ export function buildNewAdFormData(
 
   appendBaseValue("form_code", formCode);
   appendBaseValue("category_id", options.categoryId);
-  appendBaseValue("title", cleanValues.title);
-  appendBaseValue("description", cleanValues.description);
+  if (!options.isDraft) {
+    appendBaseValue("title", cleanValues.title);
+    appendBaseValue("description", cleanValues.description);
+  }
   const storedNeighborhoodId =
     cleanValues.neighborhoodId ||
     window.localStorage.getItem(neighborhoodIdKey) ||
@@ -1222,6 +1225,11 @@ export function buildNewAdFormData(
     }
   } else if (options.isEdit) {
     formData.append("videos", "[]");
+  }
+
+  if (options.isDraft) {
+    formData.delete("label");
+    formData.delete("description");
   }
 
   return formData;

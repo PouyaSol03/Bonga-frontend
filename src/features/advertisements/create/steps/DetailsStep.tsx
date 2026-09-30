@@ -251,6 +251,20 @@ export function DetailsStep({
   const extraMoreFeatureTags = registeredMoreFeatures.slice(initialVisibleMoreFeatureTagCount);
   const hiddenMoreFeatureCount = extraMoreFeatureTags.length;
 
+  useEffect(() => {
+    if (!errors || Object.keys(errors).length === 0) return;
+
+    if (extraMoreFeatureTags.some((tag) => Boolean(errors[tag.key]))) {
+      setShowRegisteredMoreFeatures(true);
+    }
+    if (errors.heatingCooling) {
+      setShowAllHeating(true);
+    }
+    if (errors.facilities) {
+      setShowAllFacilities(true);
+    }
+  }, [errors, extraMoreFeatureTags]);
+
   const heatingItemsForListing = formSchema?.create?.heatingCooling?.items ?? (
     isProject
       ? projectHeatingItems
@@ -514,18 +528,22 @@ export function DetailsStep({
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-            <InputBox error={errors.minPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("minPrice", value)} placeholder="حداقل قیمت *" supportingText={moneySupportingText(values.minPrice)} value={values.minPrice} />
-            <InputBox error={errors.maxPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("maxPrice", value)} placeholder="حداکثر قیمت *" supportingText={moneySupportingText(values.maxPrice)} value={values.maxPrice} />
+            <div data-field-key="minPrice">
+              <InputBox error={errors.minPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("minPrice", value)} placeholder="حداقل قیمت *" supportingText={moneySupportingText(values.minPrice)} value={values.minPrice} />
+            </div>
+            <div data-field-key="maxPrice">
+              <InputBox error={errors.maxPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("maxPrice", value)} placeholder="حداکثر قیمت *" supportingText={moneySupportingText(values.maxPrice)} value={values.maxPrice} />
+            </div>
           </div>
 
           {!isDailyHotelRent ? (
             <>
               <div className="my-5 border-t border-dashed border-outline-var" />
               <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-                <InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} />
-                <InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} />
-                <InputBox error={errors.specialDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("specialDailyPrice", value)} placeholder="روزهای خاص (تعطیلات و مناسبت ها) *" supportingText={moneySupportingText(values.specialDailyPrice)} value={values.specialDailyPrice} />
-                <InputBox error={errors.extraPersonPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("extraPersonPrice", value)} placeholder="هزینه هر نفر اضافه" supportingText={moneySupportingText(values.extraPersonPrice)} value={values.extraPersonPrice} />
+                <div data-field-key="normalDailyPrice"><InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} /></div>
+                <div data-field-key="weekendDailyPrice"><InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} /></div>
+                <div data-field-key="specialDailyPrice"><InputBox error={errors.specialDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("specialDailyPrice", value)} placeholder="روزهای خاص (تعطیلات و مناسبت ها) *" supportingText={moneySupportingText(values.specialDailyPrice)} value={values.specialDailyPrice} /></div>
+                <div data-field-key="extraPersonPrice"><InputBox error={errors.extraPersonPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("extraPersonPrice", value)} placeholder="هزینه هر نفر اضافه" supportingText={moneySupportingText(values.extraPersonPrice)} value={values.extraPersonPrice} /></div>
               </div>
             </>
           ) : null}
@@ -537,30 +555,34 @@ export function DetailsStep({
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-            <InputBox
-              error={errors.mortgagePrice || mortgageInlineError}
-              formatNumeric
-              numeric
-              leftText="تومان"
-              onChange={(value) => setField("mortgagePrice", value)}
-              placeholder="رهن *"
-              supportingText={moneySupportingText(values.mortgagePrice)}
-              value={values.mortgagePrice}
-            />
-            <InputBox
-              error={errors.rentPrice || rentInlineError}
-              formatNumeric
-              numeric
-              leftText="تومان"
-              onChange={(value) => setField("rentPrice", value)}
-              placeholder="اجاره *"
-              supportingText={moneySupportingText(values.rentPrice)}
-              value={values.rentPrice}
-            />
+            <div data-field-key="mortgagePrice">
+              <InputBox
+                error={errors.mortgagePrice || mortgageInlineError}
+                formatNumeric
+                numeric
+                leftText="تومان"
+                onChange={(value) => setField("mortgagePrice", value)}
+                placeholder="رهن *"
+                supportingText={moneySupportingText(values.mortgagePrice)}
+                value={values.mortgagePrice}
+              />
+            </div>
+            <div data-field-key="rentPrice">
+              <InputBox
+                error={errors.rentPrice || rentInlineError}
+                formatNumeric
+                numeric
+                leftText="تومان"
+                onChange={(value) => setField("rentPrice", value)}
+                placeholder="اجاره *"
+                supportingText={moneySupportingText(values.rentPrice)}
+                value={values.rentPrice}
+              />
+            </div>
           </div>
 
           {allowRentConversion ? (
-            <div className="mt-4">
+            <div data-field-key="rentConversionMortgagePrice" className="mt-4">
               <RentPriceConversion
                 enabled={values.rentConversionEnabled}
                 mortgagePrice={values.mortgagePrice}
@@ -582,16 +604,18 @@ export function DetailsStep({
       return (
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className="space-y-2">
-            <InputBox
-              error={errors.price}
-              formatNumeric
-              numeric
-              leftText="تومان"
-              onChange={(value) => setField("price", value)}
-              placeholder="قیمت *"
-              supportingText={moneySupportingText(values.price)}
-              value={values.price}
-            />
+            <div data-field-key="price">
+              <InputBox
+                error={errors.price}
+                formatNumeric
+                numeric
+                leftText="تومان"
+                onChange={(value) => setField("price", value)}
+                placeholder="قیمت *"
+                supportingText={moneySupportingText(values.price)}
+                value={values.price}
+              />
+            </div>
 
             {allowLoan ? (
               <>
@@ -603,27 +627,31 @@ export function DetailsStep({
 
                 {values.loanEnabled ? (
                   <div className="space-y-3">
-                    <InputBox
-                      error={errors.loanAmount}
-                      formatNumeric
-                      numeric
-                      leftText="تومان"
-                      onChange={(value) => setField("loanAmount", value)}
-                      placeholder="مبلغ وام"
-                      supportingText={moneySupportingText(values.loanAmount)}
-                      value={values.loanAmount}
-                    />
+                    <div data-field-key="loanAmount">
+                      <InputBox
+                        error={errors.loanAmount}
+                        formatNumeric
+                        numeric
+                        leftText="تومان"
+                        onChange={(value) => setField("loanAmount", value)}
+                        placeholder="مبلغ وام"
+                        supportingText={moneySupportingText(values.loanAmount)}
+                        value={values.loanAmount}
+                      />
+                    </div>
 
-                    <InputBox
-                      error={errors.loanInstallment}
-                      formatNumeric
-                      numeric
-                      leftText="تومان"
-                      onChange={(value) => setField("loanInstallment", value)}
-                      placeholder="قسط وام"
-                      supportingText={moneySupportingText(values.loanInstallment)}
-                      value={values.loanInstallment}
-                    />
+                    <div data-field-key="loanInstallment">
+                      <InputBox
+                        error={errors.loanInstallment}
+                        formatNumeric
+                        numeric
+                        leftText="تومان"
+                        onChange={(value) => setField("loanInstallment", value)}
+                        placeholder="قسط وام"
+                        supportingText={moneySupportingText(values.loanInstallment)}
+                        value={values.loanInstallment}
+                      />
+                    </div>
                   </div>
                 ) : null}
               </>
@@ -638,7 +666,7 @@ export function DetailsStep({
             ) : null}
 
             {allowExchange && values.exchangeEnabled ? (
-              <div className="rounded-[14px] border border-outline-var px-4 py-4">
+              <div data-field-key="exchangeTargets" className="rounded-[14px] border border-outline-var px-4 py-4">
                 <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
                   <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
 
@@ -693,18 +721,20 @@ export function DetailsStep({
         icon="money.svg"
         title="اطلاعات قیمت"
       >
-        <InputBox
-          error={errors.price}
-          floatingLabel="قیمت *"
-          formatNumeric
-          highlightWhenFilled={false}
-          numeric
-          leftText="تومان"
-          onChange={(value) => setField("price", value)}
-          placeholder="قیمت *"
-          supportingText={priceSupportingText}
-          value={values.price}
-        />
+        <div data-field-key="price">
+          <InputBox
+            error={errors.price}
+            floatingLabel="قیمت *"
+            formatNumeric
+            highlightWhenFilled={false}
+            numeric
+            leftText="تومان"
+            onChange={(value) => setField("price", value)}
+            placeholder="قیمت *"
+            supportingText={priceSupportingText}
+            value={values.price}
+          />
+        </div>
 
         {allowLoan ? (
           <>
@@ -720,31 +750,35 @@ export function DetailsStep({
 
             {values.loanEnabled ? (
               <div className="mt-3 space-y-4">
-                <InputBox
-                  error={errors.loanAmount}
-                  floatingLabel="مبلغ وام"
-                  formatNumeric
-                  highlightWhenFilled={false}
-                  numeric
-                  leftText="تومان"
-                  onChange={(value) => setField("loanAmount", value)}
-                  placeholder="مبلغ وام"
-                  supportingText={moneySupportingText(values.loanAmount)}
-                  value={values.loanAmount}
-                />
+                <div data-field-key="loanAmount">
+                  <InputBox
+                    error={errors.loanAmount}
+                    floatingLabel="مبلغ وام"
+                    formatNumeric
+                    highlightWhenFilled={false}
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("loanAmount", value)}
+                    placeholder="مبلغ وام"
+                    supportingText={moneySupportingText(values.loanAmount)}
+                    value={values.loanAmount}
+                  />
+                </div>
 
-                <InputBox
-                  error={errors.loanInstallment}
-                  floatingLabel="قسط وام"
-                  formatNumeric
-                  highlightWhenFilled={false}
-                  numeric
-                  leftText="تومان"
-                  onChange={(value) => setField("loanInstallment", value)}
-                  placeholder="قسط وام"
-                  supportingText={moneySupportingText(values.loanInstallment)}
-                  value={values.loanInstallment}
-                />
+                <div data-field-key="loanInstallment">
+                  <InputBox
+                    error={errors.loanInstallment}
+                    floatingLabel="قسط وام"
+                    formatNumeric
+                    highlightWhenFilled={false}
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("loanInstallment", value)}
+                    placeholder="قسط وام"
+                    supportingText={moneySupportingText(values.loanInstallment)}
+                    value={values.loanInstallment}
+                  />
+                </div>
               </div>
             ) : null}
           </>
@@ -771,7 +805,7 @@ export function DetailsStep({
         ) : null}
 
         {allowExchange && values.exchangeEnabled ? (
-          <div className="mt-3 rounded-2xl border border-outline-var px-4 py-6">
+          <div data-field-key="exchangeTargets" className="mt-3 rounded-2xl border border-outline-var px-4 py-6">
             <div className="mb-4 flex items-center justify-between [direction:rtl]">
               <Typography
                 as="span"
@@ -843,10 +877,12 @@ export function DetailsStep({
         ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
         : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-3"} dir="rtl">
         <Section icon="location.svg" title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}>
-          <LocationBox
-            label={label}
-            value={values.location || (typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() ?? "" : "")}
-          />
+          <div data-field-key="location">
+            <LocationBox
+              label={label}
+              value={values.location || (typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() ?? "" : "")}
+            />
+          </div>
         </Section>
 
         {isProject ? (
@@ -886,8 +922,9 @@ export function DetailsStep({
                 const placeholder = `${field.label}${field.required ? " *" : ""}`;
                 const value = values[field.key];
 
+                let controlNode = null;
                 if (field.control === "input") {
-                  return (
+                  controlNode = (
                     <InputBox
                       key={field.key}
                       error={errors[field.key]}
@@ -898,12 +935,9 @@ export function DetailsStep({
                       value={String(value ?? "")}
                     />
                   );
-                }
-
-                if (field.control === "multiSelect") {
+                } else if (field.control === "multiSelect") {
                   const selectedValues = values.suitableFor;
-
-                  return (
+                  controlNode = (
                     <SelectBox
                       key={field.key}
                       error={errors[field.key]}
@@ -920,24 +954,30 @@ export function DetailsStep({
                       value={selectedValues.join("، ")}
                     />
                   );
+                } else {
+                  controlNode = (
+                    <SelectBox
+                      key={field.key}
+                      error={errors[field.key]}
+                      onClear={() => setField(field.key, "")}
+                      onClick={() =>
+                        setSheet({
+                          kind: "select",
+                          key: field.key as SelectKey,
+                          title: field.label,
+                          options: field.options ?? [],
+                        })
+                      }
+                      placeholder={placeholder}
+                      value={String(value ?? "")}
+                    />
+                  );
                 }
 
                 return (
-                  <SelectBox
-                    key={field.key}
-                    error={errors[field.key]}
-                    onClear={() => setField(field.key, "")}
-                    onClick={() =>
-                      setSheet({
-                        kind: "select",
-                        key: field.key as SelectKey,
-                        title: field.label,
-                        options: field.options ?? [],
-                      })
-                    }
-                    placeholder={placeholder}
-                    value={String(value ?? "")}
-                  />
+                  <div key={field.key} data-field-key={field.key}>
+                    {controlNode}
+                  </div>
                 );
               })}
 

@@ -378,6 +378,7 @@ export type NewAdFormValues = {
   chatEnabled: boolean;
   phoneEnabled: boolean;
   phoneNumber: string;
+  ownerPhone: string;
   ownerFullName: string;
   ownerExactAddress: string;
   telegram: string;

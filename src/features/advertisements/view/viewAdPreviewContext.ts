@@ -31,11 +31,31 @@ export function shouldUseAgencyAllocationPreview(ad?: unknown) {
   if (typeof window === "undefined") return false;
   if (!window.location.pathname.startsWith("/preview-ad/")) return false;
 
-  // 1. Explicit previewFlow in history state or backTarget
+  // 1. If ad object is provided, it is the ground truth
+  if (ad && typeof ad === "object") {
+    const raw = ad as Record<string, unknown>;
+    if (raw.is_assigned === false || raw.isAssigned === false) {
+      return false;
+    }
+    const status = raw.status || raw.status_key;
+    if (
+      status === "wait_for_agency" ||
+      raw.assignment_status === "pending" ||
+      raw.assignment_status === "accepted" ||
+      Boolean(raw.is_assigned) ||
+      Boolean(raw.isAssigned) ||
+      raw.deleted_reason === "agency_deal"
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  // 2. Explicit previewFlow in history state or backTarget
   if (isAgencyAllocationState(window.history.state)) return true;
   if (isAgencyAllocationState(getStoredBackTarget()?.backState)) return true;
 
-  // 2. Query parameter indicator
+  // 3. Query parameter indicator
   try {
     const searchParams = new URLSearchParams(window.location.search);
     if (
@@ -48,27 +68,5 @@ export function shouldUseAgencyAllocationPreview(ad?: unknown) {
     // ignore
   }
 
-  // 3. Ad object indicates assignment to agency / wait_for_agency
-  if (ad && typeof ad === "object") {
-    const raw = ad as Record<string, unknown>;
-    const status = raw.status || raw.status_key;
-    if (
-      status === "wait_for_agency" ||
-      status === "pending" ||
-      Boolean(raw.is_assigned) ||
-      Boolean(raw.isAssigned) ||
-      Boolean(raw.assigned_agency_id) ||
-      Boolean(raw.assignedAgencyId) ||
-      Boolean(raw.agency_id) ||
-      Boolean(raw.agencyId) ||
-      Boolean(raw.agency) ||
-      Boolean(raw.assignment) ||
-      raw.deleted_reason === "agency_deal"
-    ) {
-      return true;
-    }
-  }
-
-  // 4. Role check if the active user is an agency / consultant
-  return isAgencyAuthRole();
+  return false;
 }

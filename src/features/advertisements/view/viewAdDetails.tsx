@@ -1340,7 +1340,7 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
       name,
       rank: readMetric(agency?.rank),
       ratingScore: readMetric(agency?.rating_score),
-      subtitle: "آژانس املاک",
+      subtitle: "آژانس",
     };
   }
 
@@ -1359,15 +1359,24 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
 
     if (agencyName) params.set("agency", agencyName);
 
+    const isAgencyAgent = Boolean(agencyName || agent?.agency_id || ad.agency);
+    const subtitle = isAgencyAgent ? "مشاور آژانس" : "مشاور مستقل";
+    const rawAvatar =
+      (typeof agent?.avatar === "string" && agent.avatar.trim()) ||
+      (typeof agent?.img === "string" && agent.img.trim()) ||
+      (typeof agent?.logo === "string" && agent.logo.trim()) ||
+      "";
+
     return {
       href: `/agents/${encodeURIComponent(String(id))}?${params.toString()}`,
       id: String(id),
       kind: "agent",
       location,
+      logoUrl: rawAvatar ? getApiAssetUrl(rawAvatar) : undefined,
       name,
       rank: readMetric(agent?.rank),
       ratingScore: readMetric(agent?.rating_score),
-      subtitle: agencyName || "مشاور املاک",
+      subtitle,
     };
   }
 

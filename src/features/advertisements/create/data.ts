@@ -127,6 +127,7 @@ export const blankValues: NewAdFormValues = {
   chatEnabled: true,
   phoneEnabled: true,
   phoneNumber: "",
+  ownerPhone: "",
   ownerFullName: "",
   ownerExactAddress: "",
   telegram: "",

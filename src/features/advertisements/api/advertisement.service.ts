@@ -46,7 +46,10 @@ export type AdvertisementAgent = {
   _id?: number | string;
   agency_id?: number | string | null;
   agency_name?: string;
+  avatar?: string;
   id?: number | string;
+  img?: string;
+  logo?: string;
   name?: string;
   rank?: number | string | null;
   rating_score?: number | string | null;
@@ -103,6 +106,9 @@ export type AdvertisementItem = Record<string, unknown> & {
   neighborhood?: AdvertisementLocationEntity | null;
   neighborhood_id?: number | string | null;
   neighborhood_name?: string;
+  owner_contact_name?: string | null;
+  owner_contact_phone?: string | null;
+  owner_contact_address?: string | null;
   owner_type?: string;
   publisher_type?: "user" | "agency" | "agent" | string;
   publisher_user_id?: number | string | null;
@@ -1257,6 +1263,34 @@ export async function updateAdvertisement({
         : response as AdvertisementItem;
 
   return updatedAdvertise;
+}
+
+export async function updateOwnerContact({
+  advertiseId,
+  ownerContactName,
+  ownerContactPhone,
+  ownerContactAddress,
+}: {
+  advertiseId: string;
+  ownerContactName?: string;
+  ownerContactPhone?: string;
+  ownerContactAddress?: string;
+}) {
+  const payload = new FormData();
+  if (ownerContactName !== undefined) {
+    payload.append("owner_contact_name", ownerContactName);
+  }
+  if (ownerContactPhone !== undefined) {
+    payload.append("owner_contact_phone", ownerContactPhone);
+  }
+  if (ownerContactAddress !== undefined) {
+    payload.append("owner_contact_address", ownerContactAddress);
+  }
+
+  return updateAdvertisement({
+    advertiseId,
+    payload,
+  });
 }
 
 export async function deleteAdvertisement({

@@ -940,11 +940,50 @@ export async function getAdvertisementList({
   } satisfies AdvertisementPage;
 }
 
+function extractLoanFromFeatures(
+  features?: AdvertisementFeature[],
+): AdvertisementItem["loan"] {
+  if (!Array.isArray(features)) return undefined;
+
+  const findValue = (keys: string[]) =>
+    features.find((f) => keys.includes(f.label ?? "") || keys.includes(f.key ?? ""))?.value;
+
+  const amount = findValue(["loan_amount", "mortgage_amount", "loan_price", "loan_value"]);
+  const installment = findValue([
+    "loan_installment",
+    "installment_amount",
+    "loan_payment",
+    "monthly_installment",
+  ]);
+
+  if (amount !== undefined || installment !== undefined) {
+    return {
+      amount: (amount ?? null) as string | number | null,
+      installment: (installment ?? null) as string | number | null,
+    };
+  }
+  return undefined;
+}
+
+export function normalizeAdvertisementLoan(item: AdvertisementItem): AdvertisementItem {
+  if (!item || typeof item !== "object") return item;
+
+  const loanFromFeatures = extractLoanFromFeatures(item.features);
+  if (loanFromFeatures) {
+    item.loan = {
+      amount: item.loan?.amount ?? loanFromFeatures.amount,
+      installment: item.loan?.installment ?? loanFromFeatures.installment,
+    };
+  }
+
+  return item;
+}
+
 function unwrapAdvertisementShowResponse(
   response: AdvertisementShowResponse,
 ): AdvertisementItem {
   if (response?.data && typeof response.data === "object") {
-    return response.data;
+    return normalizeAdvertisementLoan(response.data);
   }
 
   throw new ApiError(500, "ساختار اطلاعات آگهی از سرور قابل استفاده نیست.");
@@ -1151,19 +1190,20 @@ export async function getMyAdvertisementDetail(id: string): Promise<Advertisemen
     ? asRecord(response.advertise) as AdvertisementItem | null
     : null;
   if (advertise) {
+    const normalized = normalizeAdvertisementLoan(advertise);
     const category = typeof response.category === "string" ? response.category.trim() : "";
 
     return category
       ? {
-          ...advertise,
+          ...normalized,
           category,
-          category_title: advertise.category_title ?? category,
+          category_title: normalized.category_title ?? category,
         }
-      : advertise;
+      : normalized;
   }
 
-  if ("data" in response && response.data) return response.data as AdvertisementItem;
-  return response as AdvertisementItem;
+  if ("data" in response && response.data) return normalizeAdvertisementLoan(response.data as AdvertisementItem);
+  return normalizeAdvertisementLoan(response as AdvertisementItem);
 }
 
 export async function createAdvertisement(payload: FormData) {

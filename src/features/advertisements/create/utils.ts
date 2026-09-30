@@ -386,6 +386,11 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   const price = priceTextToNumberString(readText(card.pricePrimary, ad.price, ad.total_price));
   const mortgagePrice = priceTextToNumberString(readText(card.pricePrimary, ad.mortgagePrice, ad.mortgage_price));
   const rentPrice = priceTextToNumberString(readText(card.priceSecondary, ad.rentPrice, ad.rent_price));
+  const features = Array.isArray((ad as any).features) ? (ad as any).features : [];
+  const getFeature = (name: string) => features.find((f: any) => f?.label === name || f?.key === name)?.value;
+  const loanAmount = readText((ad as any).loan?.amount, getFeature("loan_amount"), (ad as any).loan_amount);
+  const loanInstallment = readText((ad as any).loan?.installment, getFeature("loan_installment"), (ad as any).loan_installment);
+  const hasLoan = Boolean(loanAmount || loanInstallment || getFeature("has_loan") || (ad as any).has_loan);
 
   return {
     age: readText(card.year, ad.age, ad.building_age),
@@ -404,6 +409,9 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     rentPrice,
     rooms: pickFirstNumber(readText(card.rooms, ad.rooms)),
     title,
+    loanEnabled: hasLoan,
+    loanAmount: loanAmount ? priceTextToNumberString(loanAmount) : "",
+    loanInstallment: loanInstallment ? priceTextToNumberString(loanInstallment) : "",
   };
 }
 
@@ -793,8 +801,9 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "price", toNumber(values.price));
   }
 
-  addFeature(features, "loan_amount", isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanAmount) : null);
-  addFeature(features, "loan_installment", isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanInstallment) : null);
+  const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
+  addFeature(features, "loan_amount", isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanAmount) : null);
+  addFeature(features, "loan_installment", isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanInstallment) : null);
   const exchangeAllowed = isSale || (isProject && !isPartnership);
   addFeature(features, "has_exchange", exchangeAllowed && values.exchangeEnabled);
   addFeature(features, "exchange_with", exchangeAllowed && values.exchangeEnabled ? values.exchangeTargets : []);
@@ -863,6 +872,7 @@ export function buildNewAdFormData(
     getAdvertiseFormCode(params.transaction, params.category);
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
+  const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
   const heatingCooling = labels(
     getHeatingItemsForListing(params.transaction, params.category),
     cleanValues.heatingCooling,
@@ -1082,11 +1092,11 @@ export function buildNewAdFormData(
   appendDynamicValue("furnished", values.furnished);
   appendDynamicValue(
     "loan_amount",
-    isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanAmount) : null,
+    isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanAmount) : null,
   );
   appendDynamicValue(
     "loan_installment",
-    isSale && !isSaleGardenVilla && values.loanEnabled ? toNumber(values.loanInstallment) : null,
+    isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanInstallment) : null,
   );
   appendDynamicValue("has_document", values.hasDocument || Boolean(values.documentType || values.officeDocumentType));
   appendDynamicValue("document_type", values.documentType);

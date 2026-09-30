@@ -352,6 +352,10 @@ function readText(value: unknown): string {
   return "";
 }
 
+function isFilledValue(value: unknown): boolean {
+  return value !== undefined && value !== null && value !== "";
+}
+
 function readNestedText(source: Record<string, unknown>, keys: string[]): string {
   for (const key of keys) {
     const value = source[key];
@@ -821,8 +825,10 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("weekendDailyPrice", readFirstValue(ad, features, ["weekend_daily_price"], ["weekend_daily_price", "weekendDailyPrice"]), numericInputText);
   setText("specialDailyPrice", readFirstValue(ad, features, ["special_daily_price"], ["special_daily_price", "specialDailyPrice"]), numericInputText);
   setText("extraPersonPrice", readFirstValue(ad, features, ["extra_person_price"], ["extra_person_price", "extraPersonPrice"]), numericInputText);
-  setText("loanAmount", readFirstValue(ad, features, ["loan_amount"], ["loan_amount", "loanAmount"]), numericInputText);
-  setText("loanInstallment", readFirstValue(ad, features, ["loan_installment"], ["loan_installment", "loanInstallment"]), numericInputText);
+  const rawLoanAmount = readFirstValue(ad, features, ["loan_amount"], ["loan_amount", "loanAmount"]) ?? ad.loan?.amount;
+  const rawLoanInstallment = readFirstValue(ad, features, ["loan_installment"], ["loan_installment", "loanInstallment"]) ?? ad.loan?.installment;
+  setText("loanAmount", rawLoanAmount, numericInputText);
+  setText("loanInstallment", rawLoanInstallment, numericInputText);
   setText("virtualTourLink", readFirstValue(ad, features, ["virtual_tour_link", "virtual_tour", "tour_3d", "tour3d"], ["virtual_tour_link", "virtualTourLink"]));
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
   setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
@@ -875,7 +881,21 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setBool("constructionPermit", readFirstValue(ad, features, ["construction_permit", "build_permit"], ["construction_permit", "constructionPermit"]));
   setBool("commercialPermit", readFirstValue(ad, features, ["commercial_permit"], ["commercial_permit", "commercialPermit"]));
   setBool("saleTermsEnabled", readFirstValue(ad, features, ["sale_terms_enabled", "installment_sale"], ["saleTermsEnabled", "installment_sale"]));
-  setBool("loanEnabled", readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]));
+  const hasLoanExplicit = readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]);
+  const hasLoanFromValues = Boolean(
+    next.loanAmount ||
+      next.loanInstallment ||
+      isFilledValue(rawLoanAmount) ||
+      isFilledValue(rawLoanInstallment) ||
+      isFilledValue(ad.loan?.amount) ||
+      isFilledValue(ad.loan?.installment) ||
+      readFirstValue(ad, features, ["loan_amount", "loan_installment"], ["loan_amount", "loan_installment"]),
+  );
+  if (hasLoanFromValues) {
+    next.loanEnabled = true;
+  } else {
+    setBool("loanEnabled", hasLoanExplicit);
+  }
   setBool("exchangeEnabled", readFirstValue(ad, features, ["has_exchange"], ["has_exchange", "exchangeEnabled"]));
   setBool("hasVideo", readFirstValue(ad, features, ["has_video"], ["has_video"]));
   setBool("hasVirtualTour", readFirstValue(ad, features, ["has_virtual_tour"], ["has_virtual_tour"]));

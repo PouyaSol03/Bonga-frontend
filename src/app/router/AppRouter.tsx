@@ -762,12 +762,12 @@ export function AppRouter() {
       >
         {chromeConfig.topBar ? (
           <TopBarLayoutProvider defaultTopBar={chromeConfig.topBar} resetKey={path}>
-            <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
+            <div className={chromeConfig.contentClassName ?? 'flex h-full min-h-0 flex-1 flex-col overflow-hidden'}>
               {page}
             </div>
           </TopBarLayoutProvider>
         ) : (
-          <div className={chromeConfig.contentClassName ?? 'min-h-0 flex-1 overflow-hidden'}>
+          <div className={chromeConfig.contentClassName ?? 'flex h-full min-h-0 flex-1 flex-col overflow-hidden'}>
             {page}
           </div>
         )}

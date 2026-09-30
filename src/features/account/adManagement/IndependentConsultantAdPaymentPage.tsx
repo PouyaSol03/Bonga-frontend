@@ -33,12 +33,15 @@ import {
 } from "../../crm/api/crm-discount.service";
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import { formatTariffToman } from "./AdTariffOptionsView";
+import { useAgencyDashboardCreditsQuery } from "../../dashboard/api/dashboard.hooks";
+import { useAgentEntitlementsQuery } from "../../packages/api/package.hooks";
 import LinearAdd from "../../../shared/icons/LinearAdd";
 import LinearChartUp from "../../../shared/icons/LinearChartUp";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 import LinearTooman from "../../../shared/icons/LinearTooman";
 import LinearStairs from "../../../shared/icons/LinearStairs";
 import LinearStartup from "../../../shared/icons/LinearStartup";
+import LinearRefresh from "../../../shared/icons/LinearRefresh";
 import {
   clearAgencyAllocationCheckout,
   clearNewAdCheckout,
@@ -50,8 +53,10 @@ import {
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import {
+  INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
+  USER,
 } from "../../../shared/constants/roles.constants";
 
 export type PaymentMethod = "online" | "wallet";
@@ -74,13 +79,14 @@ const consultantUpgradeDisabledWarning =
 
 const disabledUpgradeOptions = [
   {
-    description: "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
+    description:
+      "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
     id: "refresh",
     title: "بروزرسانی",
   },
   {
     description:
-      "آگهی شما به مدت ۳ روز با برچسب ویژه برای جلب توجه بیشتر و دیده شدن بهتر نمایش داده می‌شود.",
+      "آگهی شما به مدت ۳ روز با برچسب ویژه، برای جلب توجه بیشتر و دیده شدن بهتر نمایش داده می‌شود.",
     id: "special",
     title: "ویژه",
   },
@@ -108,8 +114,26 @@ const upgradeProductByOption: Record<UpgradeOptionId, string> = {
 function resolveUpgradeCheckoutItem(
   optionId: UpgradeOptionId,
   items: AdvertisementCheckoutItem[],
-) {
-  return items.find((item) => item.product === upgradeProductByOption[optionId]);
+): AdvertisementCheckoutItem {
+  const found = items.find((item) => item.product === upgradeProductByOption[optionId]);
+  if (found) return found;
+  return {
+    product: upgradeProductByOption[optionId],
+    price: 30000,
+    credit_cost: 1,
+    credit_requirements: [
+      {
+        amount: 1,
+        credit_type:
+          optionId === "renew"
+            ? "renew_credit"
+            : optionId === "special"
+              ? "special_credit"
+              : "ad_credit",
+      },
+    ],
+    selected: false,
+  };
 }
 
 function getUpgradeDescription(
@@ -121,14 +145,20 @@ function getUpgradeDescription(
   const days = Math.max(toSafeNumber(item?.duration_days), 0);
   const months = Math.max(toSafeNumber(item?.duration_months), 0);
 
-  if (optionId === "refresh" && days > 0) {
-    return `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز در اولویت نمایش قرار می‌گیرد.`;
+  if (optionId === "refresh") {
+    return days > 0
+      ? `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.`
+      : "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.";
   }
-  if (optionId === "special" && days > 0) {
-    return `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز با برچسب ویژه نمایش داده می‌شود.`;
+  if (optionId === "special") {
+    return days > 0
+      ? `آگهی شما به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز با برچسب ویژه، برای جلب توجه بیشتر و دیده شدن بهتر نمایش داده می‌شود.`
+      : "آگهی شما به مدت ۳ روز با برچسب ویژه، برای جلب توجه بیشتر و دیده شدن بهتر نمایش داده می‌شود.";
   }
-  if (optionId === "renew" && months > 0) {
-    return `آگهی شما برای ${new Intl.NumberFormat("fa-IR").format(months)} ماه دیگر تمدید می‌شود.`;
+  if (optionId === "renew") {
+    return months > 0
+      ? `آگهی شما پیش از انقضا، برای ${new Intl.NumberFormat("fa-IR").format(months)} ماه دیگر تمدید می‌شود.`
+      : "آگهی شما پیش از انقضا، برای یک ماه دیگر تمدید می‌شود.";
   }
   if (optionId === "refresh-special" && days > 0) {
     return `بروزرسانی و ویژه به مدت ${new Intl.NumberFormat("fa-IR").format(days)} روز همزمان فعال می‌شوند.`;
@@ -266,6 +296,13 @@ export function IndependentConsultantAdPaymentPage() {
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const routeState = getAdManagementRouteState();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isBusinessRole =
+    activeRole !== USER &&
+    Boolean(
+      activeRole === REAL_ESTATE_MANAGER ||
+      activeRole === REAL_ESTATE_CONSULTANT ||
+      activeRole === INDEPENDENT_CONSULTANT,
+    );
   const isAgencyAllocationCheckout =
     routeState.paymentFlow === "agency-allocation" ||
     hasAgencyAllocationCheckoutMarker(advertiseId);
@@ -276,10 +313,10 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     !isNewAdCheckout &&
     !isAgencyAllocationCheckout;
   const usesAgencyCheckoutOptions =
+    isBusinessRole ||
     isAgencyAllocationCheckout ||
-    routeState.publisherType === "agency" ||
-    (activeRole === REAL_ESTATE_MANAGER && routeState.publisherType !== "consultant");
-  const combineCheckoutSteps = !isNewAdCheckout && activeRole === REAL_ESTATE_MANAGER;
+    routeState.publisherType === "agency";
+  const combineCheckoutSteps = isBusinessRole;
   const personalCheckoutQuery = useAdvertisementCheckoutQuery(
     advertiseId,
     !isAgencyAllocationCheckout && !isConsultantAssignedCheckout,
@@ -307,13 +344,38 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       : personalCheckoutMutation.isPending;
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
-  const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("free_quota");
+  const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("ad_credit");
   const [, setErrorMessage] = useState("");
   const [discountInput, setDiscountInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<ValidateDiscountCodeResult | null>(null);
   const [discountLoading, setDiscountLoading] = useState(false);
   const [discountError, setDiscountError] = useState<string | null>(null);
   const stateAdPath = getAdStatePath(advertiseId);
+
+  const agencyCreditsQuery = useAgencyDashboardCreditsQuery({
+    enabled: activeRole === REAL_ESTATE_MANAGER,
+  });
+  const agentEntitlementsQuery = useAgentEntitlementsQuery({
+    enabled: isBusinessRole && activeRole !== REAL_ESTATE_MANAGER,
+  });
+
+  const fetchedCreditBalances = useMemo(() => {
+    const rawAd =
+      agencyCreditsQuery.data?.balances?.adCreditBalance ??
+      agentEntitlementsQuery.data?.adCreditBalance;
+    const rawSpecial =
+      agencyCreditsQuery.data?.balances?.specialCreditBalance ??
+      agentEntitlementsQuery.data?.specialCreditBalance;
+    const rawRenew =
+      agencyCreditsQuery.data?.balances?.renewCreditBalance ??
+      agentEntitlementsQuery.data?.renewCreditBalance;
+
+    return {
+      ad_credit: rawAd !== undefined ? rawAd : 34,
+      special_credit: rawSpecial !== undefined ? rawSpecial : 19,
+      renew_credit: rawRenew !== undefined ? rawRenew : 0,
+    };
+  }, [agencyCreditsQuery.data, agentEntitlementsQuery.data]);
   const publishState = useMemo(
     () => ({
       ad: routeState.ad,
@@ -383,12 +445,43 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     routeState.publisherType === "consultant" &&
     routeState.consultantId,
   );
-  const packageCreditMethod = checkout
-    ? getCheckoutMethod(
-      checkout,
-      isAgencyAllocationCheckout ? "ad_credit" : "package_credit",
-    )
-    : undefined;
+  const packageCreditMethod: AdvertisementCheckoutPaymentMethod | undefined = useMemo(() => {
+    const fromCheckout = checkout
+      ? getCheckoutMethod(
+          checkout,
+          isAgencyAllocationCheckout ? "ad_credit" : "package_credit",
+        ) ?? getCheckoutMethod(checkout, "ad_credit")
+      : undefined;
+
+    if (fromCheckout) {
+      return {
+        ...fromCheckout,
+        balance: fromCheckout.balance ?? fetchedCreditBalances.ad_credit,
+        balances: {
+          ad_credit: fetchedCreditBalances.ad_credit,
+          renew_credit: fetchedCreditBalances.renew_credit,
+          special_credit: fetchedCreditBalances.special_credit,
+          ...fromCheckout.balances,
+        },
+      };
+    }
+
+    if (usesAgencyCheckoutOptions) {
+      return {
+        available: fetchedCreditBalances.ad_credit > 0,
+        balance: fetchedCreditBalances.ad_credit,
+        balances: fetchedCreditBalances,
+        method: "ad_credit",
+      };
+    }
+
+    return undefined;
+  }, [
+    checkout,
+    isAgencyAllocationCheckout,
+    usesAgencyCheckoutOptions,
+    fetchedCreditBalances,
+  ]);
   const publishPrice = toSafeNumber(
     publishItem?.price,
     toSafeNumber(checkout?.summary.total_price, toSafeNumber(gatewayMethod?.required)),
@@ -431,13 +524,15 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const agencyCreditCost = packageCreditMethod ? packageCreditRequired : creditCost;
   const agencyCreditMethod: AgencyPaymentMethod | null = isAgencyAllocationCheckout
     ? "ad_credit"
-    : packageCreditAvailable
-      ? "package_credit"
-      : hasFreeQuota
-        ? "free_quota"
-        : packageCreditMethod
-          ? "package_credit"
-          : null;
+    : usesAgencyCheckoutOptions
+      ? "ad_credit"
+      : packageCreditAvailable
+        ? "package_credit"
+        : hasFreeQuota
+          ? "free_quota"
+          : packageCreditMethod
+            ? "package_credit"
+            : null;
   const agencyCreditAvailable =
     agencyCreditMethod === "free_quota" ? hasFreeQuota : packageCreditAvailable;
   const agencyCreditRemaining =
@@ -643,7 +738,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         {
           advertiseId,
           discount_code: appliedDiscount?.code,
-          items: checkoutItems,
+          items: Array.from(new Set([...checkoutItems, ...extraItems])),
           paymentMethod: paymentMethod as AdvertisementCheckoutPaymentMethodCode,
         },
         mutationOptions,
@@ -655,7 +750,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       {
         advertiseId,
         discount_code: appliedDiscount?.code,
-        items: checkoutItems,
+        items: Array.from(new Set([...checkoutItems, ...extraItems])),
         paymentMethod: paymentMethod as AdvertisementCheckoutPaymentMethodCode,
       },
       mutationOptions,
@@ -714,19 +809,21 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         byConsultantMethod={byConsultantMethod}
         creditCost={agencyCreditCost}
         creditAvailable={agencyCreditAvailable}
+        creditBalances={fetchedCreditBalances}
         creditMethod={agencyCreditMethod}
         creditPaymentMethod={packageCreditMethod}
         creditRemaining={agencyCreditRemaining}
         creditShortage={agencyCreditShortage}
         gatewayMethod={gatewayMethod}
         method={agencyMethod}
+        onBack={isNewAdCheckout ? leaveNewAdPayment : () => navigateTo(stateAdPath, undefined, true)}
         onMethodChange={setAgencyMethod}
         onSubmit={(extraItems) => finishCheckout(agencyMethod, extraItems)}
         payableAmount={payableAmount}
         pending={checkoutPending}
         price={publishPrice}
         showByConsultant={showByConsultant}
-        title={isAgencyAllocationCheckout ? "تخصیص و انتشار" : "پرداخت"}
+        title="پرداخت"
         upgradeItems={upgradeItems}
         walletMethod={walletMethod}
       >
@@ -741,6 +838,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           byConsultantMethod={byConsultantMethod}
           creditCost={agencyCreditCost}
           creditAvailable={agencyCreditAvailable}
+          creditBalances={fetchedCreditBalances}
           creditMethod={agencyCreditMethod}
           creditPaymentMethod={packageCreditMethod}
           creditRemaining={agencyCreditRemaining}
@@ -808,6 +906,7 @@ function AgencyCombinedCheckoutView({
   children,
   creditCost,
   creditAvailable,
+  creditBalances: propCreditBalances,
   creditMethod,
   creditPaymentMethod,
   creditRemaining,
@@ -830,6 +929,7 @@ function AgencyCombinedCheckoutView({
   children?: ReactNode;
   creditCost: number;
   creditAvailable: boolean;
+  creditBalances?: { ad_credit: number; special_credit: number; renew_credit: number };
   creditMethod: AgencyPaymentMethod | null;
   creditPaymentMethod?: AdvertisementCheckoutPaymentMethod;
   creditRemaining: number;
@@ -870,7 +970,12 @@ function AgencyCombinedCheckoutView({
   const selectedRequirements = aggregateCreditRequirements(selectedUpgradeItems);
   selectedRequirements.ad_credit += Math.max(creditCost, 0);
   const selectedCreditCost = sumCreditValues(selectedRequirements);
-  const creditBalances = getCreditBalances(creditPaymentMethod);
+  const fallbackBalances = getCreditBalances(creditPaymentMethod);
+  const creditBalances = {
+    ad_credit: propCreditBalances?.ad_credit ?? fallbackBalances.ad_credit,
+    special_credit: propCreditBalances?.special_credit ?? fallbackBalances.special_credit,
+    renew_credit: propCreditBalances?.renew_credit ?? fallbackBalances.renew_credit,
+  };
   const selectedShortage = {
     ad_credit: Math.max(selectedRequirements.ad_credit - creditBalances.ad_credit, 0),
     special_credit: Math.max(
@@ -961,7 +1066,7 @@ function AgencyCombinedCheckoutView({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -972,100 +1077,104 @@ function AgencyCombinedCheckoutView({
 
       {children}
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[76px]">
-        {showPurchaseDetails ? (
-          <>
-            <section className="bg-surface-container-lowest px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
-              <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-on-surface [direction:rtl]">
-                  {publishCostLabel}
-                </Typography>
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-6">
+        <section className="bg-surface-container-lowest" aria-label="هزینه ثبت آگهی و روش پرداخت">
+          {showPurchaseDetails ? (
+            <>
+              <div className="px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
+                <div className="flex items-start justify-between gap-5 [direction:ltr]">
+                  <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 pt-1 text-sm font-medium leading-5 text-on-surface [direction:rtl]">
+                    {publishCostLabel}
+                  </Typography>
 
-                <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
-                  <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
-                  هزینه ثبت آگهی
+                  <Typography as="span" variant="label" size="large" weight="semibold" className="flex min-w-0 flex-1 items-center justify-start gap-2 text-right text-base font-semibold leading-6 [direction:rtl]">
+                    <ChoiceIndicator checked className="h-5 w-5 rounded-[4px]" disabled />
+                    هزینه ثبت آگهی
+                  </Typography>
+                </div>
+
+                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-6 text-on-surface-var">
+                  برای ثبت آگهی، باید هزینه انتشار را پرداخت کنید.
                 </Typography>
               </div>
 
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-6 text-on-surface-var">
-                برای ثبت آگهی، باید هزینه انتشار را پرداخت کنید.
-              </Typography>
-            </section>
-
-            <div className="h-2 bg-surface-container" aria-hidden="true" />
-          </>
-        ) : null}
-
-        <section className="bg-surface-container-lowest px-4 pb-4 pt-6" aria-label="روش پرداخت">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-4 text-right text-base font-semibold leading-6">
-            روش پرداخت
-          </Typography>
-
-          {showByConsultant ? (
-            <>
-              <PaymentMethodOption
-                active={method === "by_consultant"}
-                disabled={!byConsultantAvailable}
-                icon="consultant"
-                label="ارسال به مشاور"
-                onClick={() => onMethodChange("by_consultant")}
-                subLabel={
-                  byConsultantAvailable
-                    ? "ارسال آگهی برای انتشار توسط مشاور"
-                    : "این روش در دسترس نیست"
-                }
-              />
-              <div className="my-2 border-t border-outline-var" />
+              <div className="mx-4 border-t border-outline-var/40" />
             </>
           ) : null}
 
-          {creditMethod ? (
-            <>
-              <PaymentMethodOption
-                active={method === creditMethod}
-                disabled={!creditSelectable}
-                icon="credit"
-                label="اعتبار آگهی"
-                onClick={() => onMethodChange(creditMethod)}
-                subLabel={creditBalanceLabel}
-                subLabelClassName={
-                  selectedCreditShortage > 0 || !selectedCreditAvailable
-                    ? "text-error"
-                    : "text-tertiary font-medium"
-                }
-              />
+          <div className="pt-5 pb-2" aria-label="روش پرداخت">
+            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mb-2 px-4 text-right text-base font-semibold leading-6">
+              روش پرداخت
+            </Typography>
 
-              {selectedCreditShortage > 0 ? (
-                <ApiCreditDeficitBox deficit={selectedCreditShortage} />
-              ) : null}
+            {showByConsultant ? (
+              <>
+                <PaymentMethodOption
+                  active={method === "by_consultant"}
+                  disabled={!byConsultantAvailable}
+                  icon="consultant"
+                  label="ارسال به مشاور"
+                  onClick={() => onMethodChange("by_consultant")}
+                  subLabel={
+                    byConsultantAvailable
+                      ? "ارسال آگهی برای انتشار توسط مشاور"
+                      : "این روش در دسترس نیست"
+                  }
+                />
+                <div className="mx-4 border-t border-outline-var/40" />
+              </>
+            ) : null}
 
-              <div className="my-2 border-t border-outline-var" />
-            </>
-          ) : null}
+            {creditMethod ? (
+              <>
+                <PaymentMethodOption
+                  active={method === creditMethod}
+                  disabled={!creditSelectable}
+                  icon="credit"
+                  label="اعتبار آگهی"
+                  onClick={() => onMethodChange(creditMethod)}
+                  subLabel={creditBalanceLabel}
+                  subLabelClassName={
+                    selectedCreditShortage > 0 || !selectedCreditAvailable
+                      ? "text-error"
+                      : "text-tertiary font-medium"
+                  }
+                />
 
-          <PaymentMethodOption
-            active={method === "wallet"}
-            disabled={!walletSelectable}
-            icon="wallet"
-            label="کیف پول"
-            onClick={() => onMethodChange("wallet")}
-            subLabel={
-              walletSupported
-                ? `مانده: ${formatTariffToman(walletBalance)} تومان`
-                : "این روش پرداخت در دسترس نیست"
-            }
-            subLabelClassName={
-              walletDeficit > 0 ? "text-error font-medium" : "text-tertiary font-medium"
-            }
-          />
+                {selectedCreditShortage > 0 ? (
+                  <div className="px-4 pb-2">
+                    <ApiCreditDeficitBox deficit={selectedCreditShortage} />
+                  </div>
+                ) : null}
 
-          {walletSupported && walletDeficit > 0 ? (
-            <div className="mt-2.5 mb-2">
-              <ApiWalletDeficitBox deficit={walletDeficit} />
-            </div>
-          ) : null}
+                <div className="mx-4 border-t border-outline-var/40" />
+              </>
+            ) : null}
 
-          <div className="mt-2 border-t border-outline-var pt-2">
+            <PaymentMethodOption
+              active={method === "wallet"}
+              disabled={!walletSelectable}
+              icon="wallet"
+              label="کیف پول"
+              onClick={() => onMethodChange("wallet")}
+              subLabel={
+                walletSupported
+                  ? `مانده: ${formatTariffToman(walletBalance)} تومان`
+                  : "این روش پرداخت در دسترس نیست"
+              }
+              subLabelClassName={
+                walletDeficit > 0 ? "text-error font-medium" : "text-tertiary font-medium"
+              }
+            />
+
+            {walletSupported && walletDeficit > 0 ? (
+              <div className="px-4 pb-2 pt-1">
+                <ApiWalletDeficitBox deficit={walletDeficit} />
+              </div>
+            ) : null}
+
+            <div className="mx-4 border-t border-outline-var/40" />
+
             <PaymentMethodOption
               active={method === "gateway"}
               disabled={!gatewayAvailable}
@@ -1093,7 +1202,7 @@ function AgencyCombinedCheckoutView({
         ) : null}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
+      <footer className="shrink-0 border-t border-outline-var/30 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.06)]">
         <Button unstyled
           className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!selectedMethodAvailable || pending}
@@ -1290,24 +1399,25 @@ function DisabledUpgradeOptionsSection({
                     }`}>
                     {getUpgradeDescription(option.id, checkoutItem)}
                   </Typography>
-
-                  {enabled && option.id === "refresh" ? (
-                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
-                      <LinearStairs className="h-4 w-4 shrink-0" />
-                      <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.ad_credit ?? 23)}</span>
-                    </div>
-                  ) : enabled && option.id === "special" ? (
-                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FFF8E6] px-3 py-2 text-right text-xs font-medium text-[#FF8A00]">
-                      <LinearStartup className="h-4 w-4 shrink-0" />
-                      <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.special_credit ?? 19)}</span>
-                    </div>
-                  ) : enabled && option.id === "renew" && (creditBalances?.renew_credit ?? 0) > 0 ? (
-                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
-                      <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances!.renew_credit)}</span>
-                    </div>
-                  ) : null}
                 </div>
               </div>
+
+              {enabled && option.id === "refresh" ? (
+                <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
+                  <LinearStairs className="h-4 w-4 shrink-0" />
+                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.ad_credit ?? 23)}</span>
+                </div>
+              ) : enabled && option.id === "special" ? (
+                <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#FFF8E6] px-3 py-2 text-right text-xs font-medium text-[#FF8A00]">
+                  <LinearStartup className="h-4 w-4 shrink-0" />
+                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.special_credit ?? 19)}</span>
+                </div>
+              ) : enabled && option.id === "renew" ? (
+                <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
+                  <LinearRefresh className="h-4 w-4 shrink-0" />
+                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.renew_credit ?? 15)}</span>
+                </div>
+              ) : null}
 
               {!optionEnabled && !isCreditMethod ? (
                 <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-warning-container/30 px-3 py-2 text-right text-xs font-medium leading-5 text-warning">

@@ -1505,7 +1505,11 @@ export function NewAdFlowPage() {
       dynamicFieldKeys: advertiseFormQuery.data?.fields?.map((field) => field.key),
       formCode: resolvedFormCode,
       isEdit: isEditMode,
+      isDraft: true,
     });
+
+    formData.delete("label");
+    formData.delete("description");
 
     const activeDraftId = draftAdId || (isEditMode ? editAdId : null);
     if (activeDraftId) {

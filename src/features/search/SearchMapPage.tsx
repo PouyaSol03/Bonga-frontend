@@ -26,6 +26,7 @@ import {
   getBrowserLocationNotice,
   type BrowserLocation,
 } from "../../shared/lib/browserLocation";
+import { formatCardPrice } from "../../shared/lib/MoneyHandler";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type {
   AdvertisementItem,
@@ -553,23 +554,7 @@ function toText(value: unknown, fallback = "") {
 }
 
 function formatPrice(value: unknown) {
-  const numericValue = toNumber(value);
-
-  if (numericValue === undefined) return toText(value, "توافقی");
-
-  if (numericValue >= 1_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000)} میلیارد`;
-  }
-
-  if (numericValue >= 1_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000)} میلیون`;
-  }
-
-  return new Intl.NumberFormat("fa-IR").format(numericValue);
+  return formatCardPrice(value);
 }
 
 function readFeatureRaw(item: AdvertisementItem, labels: string[]) {

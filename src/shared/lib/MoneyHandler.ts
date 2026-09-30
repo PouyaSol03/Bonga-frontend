@@ -33,3 +33,42 @@ export const formatBigNumber = (value: number) => {
 
   return parts.join(" و ");
 };
+
+const formatWithTwoDecimals = (val: number) => {
+  const formatted = new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 2,
+  }).format(val);
+  return formatted.replace(/[٫.]/g, "/");
+};
+
+export const formatCardPrice = (value: unknown): string => {
+  if (value === undefined || value === null || value === "") return "توافقی";
+  const num =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(/,/g, "").trim());
+  if (Number.isNaN(num)) return String(value);
+
+  if (num >= 1_000_000_000_000) {
+    return `${formatWithTwoDecimals(num / 1_000_000_000_000)} همت`;
+  }
+  if (num >= 1_000_000_000) {
+    return `${formatWithTwoDecimals(num / 1_000_000_000)} میلیارد`;
+  }
+  if (num >= 1_000_000) {
+    return `${formatWithTwoDecimals(num / 1_000_000)} میلیون`;
+  }
+  return numberFormatter.format(num);
+};
+
+export const formatDetailPrice = (value: unknown): string => {
+  if (value === undefined || value === null || value === "") return "توافقی";
+  const num =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(/,/g, "").trim());
+  if (Number.isNaN(num)) return String(value);
+  if (num === 0) return "۰";
+  return formatBigNumber(num);
+};
+

@@ -689,9 +689,9 @@ function formatCompactToman(value: string) {
   const formatNumber = (number: number) =>
     toPersianDigits(
       new Intl.NumberFormat("en-US", {
-        maximumFractionDigits: number % 1 === 0 ? 0 : 1,
+        maximumFractionDigits: 2,
       }).format(number),
-    );
+    ).replace(/[٫.]/g, "/");
 
   if (amount >= 1_000_000_000_000) return `${formatNumber(amount / 1_000_000_000_000)} همت تومان`;
   if (amount >= 1_000_000_000) return `${formatNumber(amount / 1_000_000_000)} میلیارد تومان`;

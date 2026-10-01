@@ -1,55 +1,67 @@
 import { Typography } from "../../../shared/ui/Typography";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import { useNotificationsInfiniteQuery } from "../../notifications/api/notification.hooks";
+import type { NotificationItem } from "../../notifications/api/notification.service";
+import {
+  formatNotificationTime,
+  getNotificationActionLabel,
+  getNotificationPath,
+} from "../../notifications/notificationRouting";
+import { getNotificationDiamondColor } from "../../notifications/notificationDiamond";
 
-export interface DashboardNotificationItem {
-  id: string;
-  title: string;
-  time: string;
-  description: string;
-  type: "deal_approval" | "ad_published" | "ad_stopped";
-  primaryAction?: { label: string; onClick?: () => void };
-  secondaryAction?: { label: string; onClick?: () => void };
-  linkAction?: { label: string; to: string };
-}
+export type DashboardNotificationItem = NotificationItem;
 
 export interface DashboardNotificationsCardProps {
-  items?: DashboardNotificationItem[];
+  items?: NotificationItem[];
   viewAllTo?: string;
 }
 
-const defaultNotifications: DashboardNotificationItem[] = [
+const defaultNotifications: NotificationItem[] = [
   {
     id: "notif_deal",
     title: "نتیجه معامله نیاز به تأیید دارد",
-    time: "دیروز ۱۲:۲۰",
+    created_at: new Date(Date.now() - 3600000 * 20).toISOString(),
     description: "لطفاً نتیجه معامله ثبت‌شده را بررسی و تأیید کنید.",
+    category: "trades",
     type: "deal_approval",
-    primaryAction: { label: "تایید" },
-    secondaryAction: { label: "عدم تایید" },
+    is_read: false,
   },
   {
     id: "notif_pub",
     title: "آگهی شما منتشر شد",
-    time: "دیروز ۱۲:۲۰",
+    created_at: new Date(Date.now() - 3600000 * 22).toISOString(),
     description: "آگهی «آپارتمان ۱۲۰ متری سعادت‌آباد» با موفقیت منتشر شد.",
+    category: "advertise",
     type: "ad_published",
-    linkAction: { label: "مشاهده آگهی", to: "/account/manage-ads" },
+    is_read: true,
+    payload: { target: "advertise", advertise_id: "1" },
   },
   {
     id: "notif_stop",
     title: "انتشار آگهی متوقف شد",
-    time: "دیروز ۱۲:۲۰",
+    created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     description: "درخواست توقف انتشار آگهی شما تأیید شد.",
+    category: "advertise",
     type: "ad_stopped",
-    linkAction: { label: "مشاهده آگهی", to: "/account/manage-ads" },
+    is_read: true,
+    payload: { target: "advertise", advertise_id: "2" },
   },
 ];
 
 export function DashboardNotificationsCard({
-  items = defaultNotifications,
+  items,
   viewAllTo = "/account/dashboard/messages",
 }: DashboardNotificationsCardProps) {
+  const { data } = useNotificationsInfiniteQuery({ perPage: 3 });
+  const serverNotifications = data?.pages?.[0]?.data;
+  const notificationList =
+    items && items.length > 0
+      ? items
+      : serverNotifications && serverNotifications.length > 0
+        ? serverNotifications.slice(0, 3)
+        : defaultNotifications;
+
   return (
     <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
       {/* Header */}
@@ -76,22 +88,28 @@ export function DashboardNotificationsCard({
 
       {/* Notifications List */}
       <div className="flex flex-col">
-        {items.map((item, idx) => {
-          const isLast = idx === items.length - 1;
+        {notificationList.map((item, idx) => {
+          const isLast = idx === notificationList.length - 1;
+          const diamondColor = getNotificationDiamondColor(item);
+          const timeText = item.created_at ? formatNotificationTime(item.created_at) : "";
+          const actionLabel = getNotificationActionLabel(item);
+          const actionPath = getNotificationPath(item);
+          const isTradeApproval = item.category === "trades" || item.type === "deal_approval";
+
           return (
             <article
-              key={item.id}
+              key={String(item.id ?? idx)}
               className={`flex flex-col py-3 ${!isLast ? "border-b border-surface-container-high" : ""}`}
             >
-              {/* Top row: Title + Time */}
+              {/* Top row: Status/Diamond + Title + Time */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  {item.type === "ad_published" && (
-                    <span className="h-2 w-2 rotate-45 rounded-xs bg-tertiary" />
-                  )}
-                  {item.type === "ad_stopped" && (
-                    <span className="h-2 w-2 rotate-45 rounded-xs bg-warning" />
-                  )}
+                  {diamondColor ? (
+                    <span className={`h-2 w-2 shrink-0 rotate-45 rounded-[2px] ${diamondColor}`} />
+                  ) : null}
+                  {!item.is_read ? (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-error" />
+                  ) : null}
                   <Typography
                     as="h3"
                     variant="label"
@@ -99,68 +117,68 @@ export function DashboardNotificationsCard({
                     weight="semibold"
                     className="text-on-surface"
                   >
-                    {item.title}
+                    {item.title || "اعلان جدید"}
                   </Typography>
                 </div>
-                <Typography
-                  as="span"
-                  variant="body"
-                  size="small"
-                  weight="regular"
-                  className="text-outline"
-                >
-                  {item.time}
-                </Typography>
+                {timeText ? (
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-outline"
+                  >
+                    {timeText}
+                  </Typography>
+                ) : null}
               </div>
 
               {/* Subtitle / Description */}
-              <Typography
-                as="p"
-                variant="body"
-                size="small"
-                weight="regular"
-                className="mt-1 leading-relaxed text-on-surface-var"
-              >
-                {item.description}
-              </Typography>
+              {item.description ? (
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="mt-1 leading-relaxed text-on-surface-var"
+                >
+                  {item.description}
+                </Typography>
+              ) : null}
 
               {/* Actions */}
-              {item.type === "deal_approval" && (
+              {isTradeApproval ? (
                 <div className="mt-2.5 flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={item.primaryAction?.onClick}
                     className="flex h-7 items-center justify-center rounded-[8px] bg-primary px-4 transition hover:opacity-90 active:scale-95 cursor-pointer border-none"
                   >
                     <Typography as="span" variant="label" size="small" weight="medium" className="text-on-primary">
-                      {item.primaryAction?.label ?? "تایید"}
+                      تایید
                     </Typography>
                   </button>
                   <button
                     type="button"
-                    onClick={item.secondaryAction?.onClick}
                     className="flex h-7 items-center justify-center rounded-[8px] border border-surface-container-highest bg-surface-container-lowest px-3 transition hover:bg-surface-container-low active:scale-95 cursor-pointer"
                   >
                     <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">
-                      {item.secondaryAction?.label ?? "عدم تایید"}
+                      عدم تایید
                     </Typography>
                   </button>
                 </div>
-              )}
-
-              {item.linkAction && (
+              ) : actionLabel && actionPath ? (
                 <div className="mt-2 flex justify-start">
                   <RouteLink
-                    to={item.linkAction.to}
+                    to={actionPath}
                     className="flex items-center gap-1 text-primary hover:underline"
                   >
                     <Typography as="span" variant="label" size="small" weight="semibold" className="text-primary">
-                      {item.linkAction.label}
+                      {actionLabel}
                     </Typography>
                     <LinearArrowLeft1 className="h-3 w-3" />
                   </RouteLink>
                 </div>
-              )}
+              ) : null}
             </article>
           );
         })}

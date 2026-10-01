@@ -1,172 +1,106 @@
+import { useState, useRef } from "react";
 import { Typography } from "../../../shared/ui/Typography";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
-import LinearRuler from "../../../shared/icons/LinearRuler";
-import LinearBed from "../../../shared/icons/LinearBed";
-import LinearCalendar from "../../../shared/icons/LinearCalendar";
-import { toPersianNumber } from "../../../shared/lib/numberUtils";
+import { AdCard, type AdCardData } from "../../advertisements/components/AdCard";
+import { defaultRecentAds } from "./dashboardRecentAds.mock";
 
-export interface DashboardRecentAdItem {
-  id: string;
-  title: string;
-  price: string;
-  area: number;
-  rooms: number;
-  buildYear: number;
-  timeLocation: string;
-  imageUrl: string;
-  to: string;
-}
+export type DashboardRecentAdItem = AdCardData;
 
 export interface DashboardRecentAdsCardProps {
-  ad?: DashboardRecentAdItem;
+  ads?: AdCardData[];
+  ad?: AdCardData;
   viewAllTo?: string;
   title?: string;
 }
 
-const defaultAd: DashboardRecentAdItem = {
-  id: "ad_sayyad",
-  title: "۱۴۰متر*تکواحدی ابتدای صیاد*فول امکانات",
-  price: "۷٫۶۵۰ میلیارد تومان",
-  area: 140,
-  rooms: 3,
-  buildYear: 1395,
-  timeLocation: "۱ ساعت پیش در صیاد شیرازی",
-  imageUrl:
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
-  to: "/account/manage-ads",
-};
-
 export function DashboardRecentAdsCard({
-  ad = defaultAd,
+  ads,
+  ad,
   viewAllTo = "/account/manage-ads",
   title = "آخرین آگهی‌ها",
 }: DashboardRecentAdsCardProps) {
+  const adList = ads && ads.length > 0 ? ads : ad ? [ad] : defaultRecentAds;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const children = Array.from(container.children) as HTMLElement[];
+    if (!children.length) return;
+    const containerCenter = container.getBoundingClientRect().left + container.clientWidth / 2;
+    let closestIndex = 0;
+    let minDiff = Infinity;
+    children.forEach((child, idx) => {
+      const rect = child.getBoundingClientRect();
+      const childCenter = rect.left + rect.width / 2;
+      const diff = Math.abs(containerCenter - childCenter);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIndex = idx;
+      }
+    });
+    if (closestIndex !== activeIndex) {
+      setActiveIndex(closestIndex);
+    }
+  };
+
+  const scrollToSlide = (index: number) => {
+    if (!scrollerRef.current) return;
+    const slide = scrollerRef.current.children[index] as HTMLElement | undefined;
+    if (slide) {
+      slide.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+    setActiveIndex(index);
+  };
+
   return (
     <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
       {/* Header */}
-      <div className="mb-3 flex items-center justify-between">
-        <Typography
-          as="h2"
-          variant="title"
-          size="small"
-          weight="semibold"
-          className="text-on-surface"
-        >
+      <div className="mb-4 flex items-center justify-between">
+        <Typography as="h2" variant="title" size="small" weight="semibold" className="text-on-surface">
           {title}
         </Typography>
-        <RouteLink
-          className="flex items-center gap-1 text-primary hover:underline"
-          to={viewAllTo}
-        >
-          <Typography
-            as="span"
-            variant="label"
-            size="small"
-            weight="medium"
-            className="text-primary"
-          >
+        <RouteLink className="flex items-center gap-1 text-primary hover:underline" to={viewAllTo}>
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-primary">
             مشاهده همه
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5" />
         </RouteLink>
       </div>
 
-      {/* Listing Card */}
-      <RouteLink className="flex flex-col no-underline" to={ad.to}>
-        {/* Media Thumbnail */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-surface-container">
-          <img
-            alt={ad.title}
-            className="h-full w-full object-cover"
-            loading="lazy"
-            src={ad.imageUrl}
-          />
-        </div>
-
-        {/* Price */}
-        <Typography
-          variant="title"
-          size="medium"
-          weight="semibold"
-          className="mt-3 text-primary"
-        >
-          {ad.price}
-        </Typography>
-
-        {/* Specs row */}
-        <div className="mt-2 flex items-center gap-4">
-          <div className="flex items-center gap-1">
-            <LinearRuler className="h-3.5 w-3.5 text-outline" />
-            <Typography
-              as="span"
-              variant="label"
-              size="small"
-              weight="medium"
-              className="text-on-surface-var"
-            >
-              {toPersianNumber(ad.area)} متر
-            </Typography>
+      {/* Working Slider */}
+      <div
+        ref={scrollerRef}
+        onScroll={handleScroll}
+        className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [direction:rtl]"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {adList.map((item) => (
+          <div key={item.id} className="w-full shrink-0 snap-center min-w-full">
+            <AdCard ad={item} variant="dashboard" />
           </div>
-          <div className="flex items-center gap-1">
-            <LinearBed className="h-3.5 w-3.5 text-outline" />
-            <Typography
-              as="span"
-              variant="label"
-              size="small"
-              weight="medium"
-              className="text-on-surface-var"
-            >
-              {toPersianNumber(ad.rooms)} اتاق
-            </Typography>
-          </div>
-          <div className="flex items-center gap-1">
-            <LinearCalendar className="h-3.5 w-3.5 text-outline" />
-            <Typography
-              as="span"
-              variant="label"
-              size="small"
-              weight="medium"
-              className="text-on-surface-var"
-            >
-              {toPersianNumber(ad.buildYear)}
-            </Typography>
-          </div>
-        </div>
-
-        {/* Title */}
-        <Typography
-          as="h3"
-          variant="title"
-          size="small"
-          weight="semibold"
-          className="mt-2 text-on-surface line-clamp-1"
-        >
-          {ad.title}
-        </Typography>
-
-        {/* Location & Time */}
-        <Typography
-          as="p"
-          variant="body"
-          size="small"
-          weight="regular"
-          className="mt-1 text-outline"
-        >
-          {ad.timeLocation}
-        </Typography>
-      </RouteLink>
-
-      {/* Pagination dots indicator */}
-      <div className="mt-3 flex items-center justify-center gap-1.5">
-        <span className="h-1.5 w-4 rounded-full bg-on-surface" />
-        <span className="h-1.5 w-1.5 rounded-full bg-surface-container-highest" />
-        <span className="h-1.5 w-1.5 rounded-full bg-surface-container-highest" />
-        <span className="h-1.5 w-1.5 rounded-full bg-surface-container-highest" />
-        <span className="h-1.5 w-1.5 rounded-full bg-surface-container-highest" />
-        <span className="h-1.5 w-1.5 rounded-full bg-surface-container-highest" />
-        <span className="h-1.5 w-1.5 rounded-full bg-surface-container-highest" />
+        ))}
       </div>
+
+      {/* Pagination Indicator Dots */}
+      {adList.length > 1 && (
+        <div className="mt-3 flex items-center justify-center gap-1.5" aria-label="انتخاب اسلاید آگهی">
+          {adList.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => scrollToSlide(idx)}
+              aria-label={`اسلاید ${idx + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-300 border-none p-0 cursor-pointer ${
+                idx === activeIndex
+                  ? "w-4 bg-on-surface"
+                  : "w-1.5 bg-surface-container-highest hover:bg-outline"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

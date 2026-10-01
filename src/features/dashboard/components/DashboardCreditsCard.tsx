@@ -7,6 +7,8 @@ import LinearClock from "../../../shared/icons/LinearClock";
 
 import LinearCalendar from "../../../shared/icons/LinearCalendar";
 import LinearStartup from "../../../shared/icons/LinearStartup";
+import LinearChartUp from "../../../shared/icons/LinearChartUp";
+import LinearChartDown from "../../../shared/icons/LinearChartDown";
 
 export interface DashboardCreditItem {
   key: string;
@@ -82,21 +84,28 @@ export function DashboardCreditsCard({
                 </Typography>
 
                 {/* Delta / Trend */}
-                <Typography
-                  as="span"
-                  variant="label"
-                  size="small"
-                  weight="semibold"
-                  className={
-                    col.isPositive
-                      ? "text-tertiary"
-                      : col.isNegative
-                        ? "text-error"
-                        : "text-outline"
-                  }
-                >
-                  {col.deltaText}
-                </Typography>
+                <div className="flex items-center justify-center gap-1">
+                  {col.isPositive ? (
+                    <LinearChartUp className="h-3.5 w-3.5 text-tertiary" />
+                  ) : col.isNegative ? (
+                    <LinearChartDown className="h-3.5 w-3.5 text-error" />
+                  ) : null}
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="small"
+                    weight="semibold"
+                    className={
+                      col.isPositive
+                        ? "text-tertiary"
+                        : col.isNegative
+                          ? "text-error"
+                          : "text-outline"
+                    }
+                  >
+                    {col.deltaText}
+                  </Typography>
+                </div>
               </div>
 
               {/* Partial vertical divider */}
